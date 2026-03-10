@@ -165,7 +165,13 @@ export function PortalSidebar() {
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
-    return pathname === href || pathname.startsWith(href + '/')
+    // Strip query params for matching (pipelines use ?stage=xxx)
+    const basePath = href.split('?')[0]
+    if (pathname === basePath) return true
+    if (pathname.startsWith(basePath + '/')) return true
+    // Exact match with query params (for pipeline stages)
+    if (href.includes('?') && pathname === basePath) return true
+    return false
   }
 
   const renderSection = (section: NavSection) => {

@@ -28,6 +28,67 @@ export function DetailField({
 }
 
 /**
+ * EditableField — inline editing version of DetailField.
+ * When `editing` is false, renders a normal DetailField.
+ * When `editing` is true, renders an input field.
+ */
+export function EditableField({
+  label,
+  value,
+  fieldKey,
+  editing,
+  editValue,
+  onChange,
+  type = 'text',
+  options,
+  mono,
+}: {
+  label: string
+  value?: string | number | null
+  fieldKey: string
+  editing: boolean
+  editValue?: string
+  onChange?: (key: string, value: string) => void
+  type?: 'text' | 'email' | 'tel' | 'date' | 'select'
+  options?: { label: string; value: string }[]
+  mono?: boolean
+}) {
+  if (!editing) {
+    return <DetailField label={label} value={value} mono={mono} />
+  }
+
+  const inputClasses =
+    'mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)] transition-colors'
+
+  return (
+    <div>
+      <label className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</label>
+      {type === 'select' && options ? (
+        <select
+          value={editValue ?? String(value ?? '')}
+          onChange={(e) => onChange?.(fieldKey, e.target.value)}
+          className={inputClasses}
+        >
+          <option value="">--</option>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={type}
+          value={editValue ?? String(value ?? '')}
+          onChange={(e) => onChange?.(fieldKey, e.target.value)}
+          className={inputClasses}
+        />
+      )}
+    </div>
+  )
+}
+
+/**
  * SectionCard — consistent card with a title header.
  */
 export function SectionCard({

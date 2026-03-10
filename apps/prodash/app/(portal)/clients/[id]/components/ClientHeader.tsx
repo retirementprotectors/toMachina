@@ -5,9 +5,14 @@ import { formatPhone, getAge, getInitials, hashColor } from '../lib/formatters'
 
 interface ClientHeaderProps {
   client: Client
+  editing?: boolean
+  saving?: boolean
+  onEdit?: () => void
+  onSave?: () => void
+  onCancel?: () => void
 }
 
-export function ClientHeader({ client }: ClientHeaderProps) {
+export function ClientHeader({ client, editing, saving, onEdit, onSave, onCancel }: ClientHeaderProps) {
   const fullName = [client.first_name, client.last_name].filter(Boolean).join(' ') || 'Unknown'
   const preferred = client.preferred_name as string | undefined
   const status = (client.client_status as string) || 'Unknown'
@@ -55,17 +60,42 @@ export function ClientHeader({ client }: ClientHeaderProps) {
 
         {/* Quick actions */}
         <div className="flex items-center gap-2">
-          <QuickAction
-            icon="phone"
-            label="Call"
-            href={client.phone ? `tel:${client.phone}` : undefined}
-          />
-          <QuickAction
-            icon="email"
-            label="Email"
-            href={client.email ? `mailto:${client.email}` : undefined}
-          />
-          <QuickAction icon="edit" label="Edit" variant="outlined" />
+          {editing ? (
+            <>
+              <button
+                onClick={onSave}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-500 disabled:opacity-50"
+              >
+                <span className="material-icons-outlined text-[18px]">
+                  {saving ? 'hourglass_empty' : 'save'}
+                </span>
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                onClick={onCancel}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition-all hover:text-[var(--text-primary)] hover:border-[var(--text-muted)] disabled:opacity-50"
+              >
+                <span className="material-icons-outlined text-[18px]">close</span>
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <QuickAction
+                icon="phone"
+                label="Call"
+                href={client.phone ? `tel:${client.phone}` : undefined}
+              />
+              <QuickAction
+                icon="email"
+                label="Email"
+                href={client.email ? `mailto:${client.email}` : undefined}
+              />
+              <QuickAction icon="edit" label="Edit" variant="outlined" onClick={onEdit} />
+            </>
+          )}
         </div>
       </div>
 
