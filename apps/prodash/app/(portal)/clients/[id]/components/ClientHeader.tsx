@@ -152,11 +152,13 @@ function QuickAction({
   label,
   href,
   variant = 'filled',
+  onClick,
 }: {
   icon: string
   label: string
   href?: string
   variant?: 'filled' | 'outlined'
+  onClick?: () => void
 }) {
   const base =
     'inline-flex items-center justify-center rounded-lg p-2.5 transition-all duration-150'
@@ -176,7 +178,7 @@ function QuickAction({
   }
 
   return (
-    <button title={label} className={className}>
+    <button title={label} className={className} onClick={onClick}>
       <span className="material-icons-outlined text-[20px]">{icon}</span>
     </button>
   )

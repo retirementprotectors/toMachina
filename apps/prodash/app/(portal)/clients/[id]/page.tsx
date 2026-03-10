@@ -1,9 +1,9 @@
 'use client'
 
-import { use, useState, useMemo } from 'react'
+import { use, useState, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { useDocument, useCollection, getDb } from '@tomachina/db'
-import { collection } from 'firebase/firestore'
+import { collection, doc, updateDoc } from 'firebase/firestore'
 import type { Client, Account } from '@tomachina/core'
 import { ClientHeader } from './components/ClientHeader'
 import { ClientTabs, type TabKey } from './components/ClientTabs'
@@ -32,6 +32,64 @@ export default function Client360Page({
   const { data: accounts, loading: accountsLoading } = useCollection<Account>(accountsQuery, `accounts-${id}`)
 
   const [activeTab, setActiveTab] = useState<TabKey>('contact')
+
+  // --- Inline editing state ---
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editData, setEditData] = useState<Record<string, unknown>>({})
+
+  const handleEdit = useCallback(() => {
+    setEditing(true)
+    setEditData({})
+  }, [])
+
+  const handleCancel = useCallback(() => {
+    setEditing(false)
+    setEditData({})
+  }, [])
+
+  const handleFieldChange = useCallback((key: string, value: string) => {
+    setEditData((prev) => ({ ...prev, [key]: value }))
+  }, [])
+
+  const handleSave = useCallback(async () => {
+    if (!client || Object.keys(editData).length === 0) {
+      setEditing(false)
+      return
+    }
+
+    // Only send fields that actually changed
+    const changes: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(editData)) {
+      const original = client[key as keyof Client]
+      if (String(value) !== String(original ?? '')) {
+        changes[key] = value
+      }
+    }
+
+    if (Object.keys(changes).length === 0) {
+      setEditing(false)
+      setEditData({})
+      return
+    }
+
+    setSaving(true)
+    try {
+      const ref = doc(getDb(), 'clients', id)
+      await updateDoc(ref, {
+        ...changes,
+        updated_at: new Date().toISOString(),
+      })
+      setEditing(false)
+      setEditData({})
+      // Data auto-refreshes via the useDocument real-time listener
+    } catch (err) {
+      console.error('Save failed:', err)
+      // TODO: show toast
+    } finally {
+      setSaving(false)
+    }
+  }, [client, editData, id])
 
   // --- Loading skeleton ---
   if (loading) {
@@ -91,12 +149,14 @@ export default function Client360Page({
   }
 
   // --- Tab content renderer ---
+  const editProps = { editing, editData, onFieldChange: handleFieldChange }
+
   function renderTabContent() {
     switch (activeTab) {
       case 'contact':
-        return <ContactTab client={client!} />
+        return <ContactTab client={client!} {...editProps} />
       case 'personal':
-        return <PersonalTab client={client!} />
+        return <PersonalTab client={client!} {...editProps} />
       case 'financial':
         return <FinancialTab client={client!} />
       case 'health':
@@ -123,7 +183,14 @@ export default function Client360Page({
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <BackLink />
-      <ClientHeader client={client} />
+      <ClientHeader
+        client={client}
+        editing={editing}
+        saving={saving}
+        onEdit={handleEdit}
+        onSave={handleSave}
+        onCancel={handleCancel}
+      />
       <ClientTabs activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="min-h-[400px]">{renderTabContent()}</div>
     </div>
