@@ -8,7 +8,7 @@ import {
   type Query,
   type DocumentData,
 } from 'firebase/firestore'
-import { db } from './firestore'
+import { getDb } from './firestore'
 
 export function useDocument<T = DocumentData>(path: string, id: string) {
   const [data, setData] = useState<T | null>(null)
@@ -22,7 +22,7 @@ export function useDocument<T = DocumentData>(path: string, id: string) {
       return
     }
 
-    const ref = doc(db, path, id) as DocumentReference<T>
+    const ref = doc(getDb(), path, id) as DocumentReference<T>
     const unsubscribe = onSnapshot(
       ref,
       (snap) => {

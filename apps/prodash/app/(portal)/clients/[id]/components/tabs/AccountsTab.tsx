@@ -43,32 +43,18 @@ export function AccountsTab({ accounts, loading }: AccountsTabProps) {
   }
 
   for (const acct of accounts) {
-    const t = str(acct.account_type).toLowerCase()
-    if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) counts.annuity++
-    else if (t.includes('life')) counts.life++
-    else if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')) counts.medicare++
-    else if (t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')) counts.bd_ria++
+    const cat = getCategory(acct)
+    if (cat === 'annuity') counts.annuity++
+    else if (cat === 'life') counts.life++
+    else if (cat === 'medicare') counts.medicare++
+    else if (cat === 'bd_ria') counts.bd_ria++
   }
 
   // Filter
   const filtered =
     filter === 'all'
       ? accounts
-      : accounts.filter((acct) => {
-          const t = str(acct.account_type).toLowerCase()
-          switch (filter) {
-            case 'annuity':
-              return t.includes('annuity') || t.includes('fia') || t.includes('myga')
-            case 'life':
-              return t.includes('life')
-            case 'medicare':
-              return t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')
-            case 'bd_ria':
-              return t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')
-            default:
-              return true
-          }
-        })
+      : accounts.filter((acct) => getCategory(acct) === filter)
 
   return (
     <div className="space-y-4">
@@ -125,17 +111,22 @@ export function AccountsTab({ accounts, loading }: AccountsTabProps) {
 
 function AccountCard({ account }: { account: Account }) {
   const statusColor = getStatusColor(str(account.status))
+  const acctId = str(account.account_id) || str(account.policy_number) || str((account as any)._id)
+  const clientId = str(account.client_id)
 
   return (
-    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 transition-colors hover:border-[var(--border-medium)]">
+    <a
+      href={clientId && acctId ? `/accounts/${clientId}/${acctId}` : undefined}
+      className="block rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 transition-colors hover:border-[var(--portal)] cursor-pointer"
+    >
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-            {str(account.account_type)}
+            {str(account.product_type) || str(account.account_type_category) || str(account.account_type)}
           </p>
           <p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)]">
-            {str(account.carrier) || 'Unknown Carrier'}
+            {str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'}
           </p>
         </div>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
@@ -145,14 +136,31 @@ function AccountCard({ account }: { account: Account }) {
 
       {/* Details */}
       <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
-        <MiniField label="Product" value={str(account.product)} />
-        <MiniField label="Policy #" value={str(account.policy_number)} mono />
-        <MiniField label="Premium" value={formatCurrency(account.premium)} />
-        <MiniField label="Face Amount" value={formatCurrency(account.face_amount)} />
-        <MiniField label="Effective" value={formatDate(account.effective_date)} />
+        <MiniField label="Product" value={str(account.product_name) || str(account.plan_name) || str(account.product)} />
+        <MiniField label="Policy #" value={str(account.account_number) || str(account.policy_number) || str(account.contract_number)} mono />
+        <MiniField label="Value" value={formatCurrency(account.account_value || account.premium || account.face_amount)} />
+        <MiniField label="Issue Date" value={formatDate(account.issue_date || account.effective_date)} />
       </div>
-    </div>
+    </a>
   )
+}
+
+/** Classify an account into a filter category using multiple field sources */
+function getCategory(acct: Account): FilterKey {
+  // First check the migration-set category
+  const cat = str(acct.account_type_category).toLowerCase()
+  if (cat === 'annuity') return 'annuity'
+  if (cat === 'life') return 'life'
+  if (cat === 'medicare') return 'medicare'
+  if (cat === 'bdria' || cat === 'bd_ria') return 'bd_ria'
+
+  // Fallback: check product_type or account_type text
+  const t = (str(acct.product_type) + ' ' + str(acct.account_type)).toLowerCase()
+  if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) return 'annuity'
+  if (t.includes('life')) return 'life'
+  if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')) return 'medicare'
+  if (t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')) return 'bd_ria'
+  return 'all'
 }
 
 function MiniField({

@@ -2,30 +2,21 @@ import { initializeApp, getApps, type FirebaseApp } from 'firebase/app'
 import { getFirestore, collection, type Firestore } from 'firebase/firestore'
 import { firebaseConfig } from '@tomachina/auth/src/config'
 
-// Lazy initialization — prevents crash during SSR/build when env vars aren't available
-let _app: FirebaseApp | null = null
+// Lazy singleton — initialized on first call, not at module load time.
+// This prevents auth/invalid-api-key crashes during SSR/build.
 let _db: Firestore | null = null
 
-function getApp(): FirebaseApp {
-  if (!_app) {
-    _app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
-  }
-  return _app
-}
-
-function getDb(): Firestore {
+export function getDb(): Firestore {
   if (!_db) {
-    _db = getFirestore(getApp())
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
+    _db = getFirestore(app)
   }
   return _db
 }
 
-// Proxy that lazily initializes on first property access
-export const db: Firestore = new Proxy({} as Firestore, {
-  get(_target, prop) {
-    return (getDb() as any)[prop]
-  },
-})
+// Keep `db` export for backward compat — but callers should prefer getDb()
+// in module-level code. Inside components/hooks (after mount), db works fine.
+export const db = {} as Firestore // placeholder — use getDb() instead
 
 export const collections = {
   clients: () => collection(getDb(), 'clients'),

@@ -13,6 +13,11 @@ service cloud.firestore {
              request.auth.token.email.matches('.*@retireprotected\\.com');
     }
 
+    // Collection group query support (for cross-client account queries)
+    match /{path=**}/accounts/{docId} {
+      allow read: if isRPIUser();
+    }
+
     // All collections: RPI domain users only
     match /clients/{clientId} {
       allow read, write: if isRPIUser();
