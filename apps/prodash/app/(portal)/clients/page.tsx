@@ -20,7 +20,7 @@ function formatPhone(raw: string): string {
 }
 
 /** Build a stable query reference */
-const clientsQuery: Query<DocumentData> = query(collections.clients, orderBy('last_name'))
+const clientsQuery: Query<DocumentData> = query(collections.clients(), orderBy('last_name'))
 
 type SortKey = 'name' | 'book_of_business' | 'agent_name' | 'client_status' | 'state' | null
 

@@ -1,0 +1,16 @@
+# Keep Docker context small — dependencies installed inside container
+node_modules/
+.next/
+dist/
+.turbo/
+*.tsbuildinfo
+.git/
+.github/
+.env
+.env.local
+.env.*.local
+.firebase/
+firebase-debug.log
+firestore-debug.log
+.claude/
+BUILDER_REPORT*.md

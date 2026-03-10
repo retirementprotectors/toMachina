@@ -7,13 +7,17 @@
     "services/*"
   ],
   "scripts": {
+    "postinstall": "bash scripts/link-env.sh",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "migrate": "cd scripts && npx tsx load-clients.ts",
+    "migrate:reference": "npx tsx scripts/load-reference.ts"
   },
   "devDependencies": {
+    "googleapis": "^171.4.0",
     "turbo": "^2.4.0",
     "typescript": "^5.7.0"
   },

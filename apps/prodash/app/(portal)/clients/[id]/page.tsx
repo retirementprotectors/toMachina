@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useDocument, useCollection, db } from '@tomachina/db'
 import { collection } from 'firebase/firestore'
@@ -27,7 +27,8 @@ export default function Client360Page({
   const { id } = use(params)
   const { data: client, loading, error } = useDocument<Client>('clients', id)
 
-  const accountsQuery = collection(db, 'clients', id, 'accounts')
+  // Memoize the query ref so useCollection doesn't re-subscribe every render
+  const accountsQuery = useMemo(() => collection(db, 'clients', id, 'accounts'), [id])
   const { data: accounts, loading: accountsLoading } = useCollection<Account>(accountsQuery)
 
   const [activeTab, setActiveTab] = useState<TabKey>('contact')

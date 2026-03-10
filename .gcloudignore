@@ -1,0 +1,16 @@
+# Cloud Build ignore — keep upload small
+.git/
+.github/
+node_modules/
+.next/
+dist/
+.turbo/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+.firebase/
+firebase-debug.log
+firestore-debug.log
+.claude/
+BUILDER_REPORT*.md

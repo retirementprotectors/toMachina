@@ -1,16 +1,28 @@
-FROM node:20-alpine AS builder
+# Bridge Service — monorepo-aware Dockerfile
+# Build context: repo root (.)
+FROM node:20-alpine AS base
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts
-COPY . .
-RUN npm run build
 
+# Install dependencies using full monorepo lockfile
+FROM base AS deps
+COPY package.json package-lock.json ./
+COPY services/bridge/package.json ./services/bridge/
+RUN npm ci --ignore-scripts
+
+# Build
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json turbo.json tsconfig.json ./
+COPY services/bridge/ ./services/bridge/
+RUN npx turbo run build --filter=@tomachina/bridge
+
+# Production image
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
+COPY --from=builder /app/services/bridge/dist ./dist
+COPY --from=builder /app/services/bridge/node_modules ./node_modules
+COPY --from=builder /app/services/bridge/package.json ./
 EXPOSE 8080
 CMD ["node", "dist/server.js"]

@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "scripts": {
+    "load-clients": "npx tsx load-clients.ts",
+    "load-reference": "npx tsx load-reference.ts",
+    "load-all": "npx tsx load-clients.ts && npx tsx load-reference.ts"
+  }
+}

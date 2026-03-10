@@ -12,10 +12,17 @@ import {
 } from 'firebase/auth'
 import { firebaseConfig } from './config'
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
-const auth = getAuth(app)
-const googleProvider = new GoogleAuthProvider()
-googleProvider.setCustomParameters({ hd: 'retireprotected.com' })
+// Lazy initialization — prevents crash during SSR/build
+function getFirebaseAuth() {
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
+  return getAuth(app)
+}
+
+function getGoogleProvider() {
+  const provider = new GoogleAuthProvider()
+  provider.setCustomParameters({ hd: 'retireprotected.com' })
+  return provider
+}
 
 export interface AuthUser {
   uid: string
@@ -47,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const auth = getFirebaseAuth()
     const unsubscribe = onAuthStateChanged(auth, (fbUser: User | null) => {
       if (fbUser && fbUser.email?.endsWith('@retireprotected.com')) {
         setUser({
@@ -64,11 +72,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async () => {
-    await signInWithPopup(auth, googleProvider)
+    await signInWithPopup(getFirebaseAuth(), getGoogleProvider())
   }
 
   const signOut = async () => {
-    await fbSignOut(auth)
+    await fbSignOut(getFirebaseAuth())
     setUser(null)
   }
 
