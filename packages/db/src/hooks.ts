@@ -41,13 +41,10 @@ export function useDocument<T = DocumentData>(path: string, id: string) {
   return { data, loading, error }
 }
 
-export function useCollection<T = DocumentData>(q: Query | null) {
+export function useCollection<T = DocumentData>(q: Query | null, key?: string) {
   const [data, setData] = useState<T[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-
-  // Serialize query path for stable dependency
-  const queryPath = q ? (q as any)._query?.path?.toString?.() ?? '' : ''
 
   useEffect(() => {
     if (!q) {
@@ -71,8 +68,7 @@ export function useCollection<T = DocumentData>(q: Query | null) {
     )
 
     return () => unsubscribe()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryPath])
+  }, [key ?? 'default'])
 
   return { data, loading, error }
 }

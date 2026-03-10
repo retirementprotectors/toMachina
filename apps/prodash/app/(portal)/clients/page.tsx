@@ -35,7 +35,7 @@ const PAGE_SIZE = 25
 
 export default function ClientsPage() {
   const router = useRouter()
-  const { data: rawClients, loading, error } = useCollection<ClientRow>(clientsQuery)
+  const { data: rawClients, loading, error } = useCollection<ClientRow>(clientsQuery, 'all-clients')
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')

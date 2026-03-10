@@ -16,6 +16,16 @@ RUN npm ci --ignore-scripts
 
 # Build the app with workspace packages available
 FROM base AS builder
+WORKDIR /app
+
+# Firebase env vars needed at build time for Next.js static generation
+ARG NEXT_PUBLIC_FIREBASE_API_KEY
+ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+ARG NEXT_PUBLIC_FIREBASE_PROJECT_ID
+ARG NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+ARG NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+ARG NEXT_PUBLIC_FIREBASE_APP_ID
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json turbo.json tsconfig.json ./
 COPY packages/ ./packages/

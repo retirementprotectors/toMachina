@@ -14,7 +14,8 @@
     "type-check": "turbo run type-check",
     "clean": "turbo run clean",
     "migrate": "cd scripts && npx tsx load-clients.ts",
-    "migrate:reference": "npx tsx scripts/load-reference.ts"
+    "migrate:reference": "npx tsx scripts/load-reference.ts",
+    "migrate:remaining": "npx tsx scripts/load-remaining.ts"
   },
   "devDependencies": {
     "googleapis": "^171.4.0",

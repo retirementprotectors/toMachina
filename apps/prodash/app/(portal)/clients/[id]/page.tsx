@@ -29,7 +29,7 @@ export default function Client360Page({
 
   // Memoize the query ref so useCollection doesn't re-subscribe every render
   const accountsQuery = useMemo(() => collection(getDb(), 'clients', id, 'accounts'), [id])
-  const { data: accounts, loading: accountsLoading } = useCollection<Account>(accountsQuery)
+  const { data: accounts, loading: accountsLoading } = useCollection<Account>(accountsQuery, `accounts-${id}`)
 
   const [activeTab, setActiveTab] = useState<TabKey>('contact')
 

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { collectionGroup, getDocs, query, type DocumentData } from 'firebase/firestore'
+import { collectionGroup, getDocs, query, limit, orderBy, startAfter, type DocumentData, type DocumentSnapshot } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Account } from '@tomachina/core'
 
@@ -50,11 +50,16 @@ const FILTERS: { key: FilterKey; label: string; color: string }[] = [
   { key: 'bdria', label: 'BD/RIA', color: '#a78bfa' },
 ]
 
+const ACCOUNTS_PAGE_SIZE = 500
+
 export default function AccountsPage() {
   const router = useRouter()
   const [accounts, setAccounts] = useState<AccountRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
+  const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null)
   const [filter, setFilter] = useState<FilterKey>('all')
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('carrier_name')
@@ -62,16 +67,15 @@ export default function AccountsPage() {
   const [page, setPage] = useState(0)
   const pageSize = 25
 
-  // Load all accounts via collection group query
+  // Load first page of accounts via collection group query
   useEffect(() => {
     async function load() {
       try {
         const db = getDb()
-        const q = query(collectionGroup(db, 'accounts'))
+        const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'), limit(ACCOUNTS_PAGE_SIZE))
         const snap = await getDocs(q)
         const rows: AccountRow[] = snap.docs.map((doc) => {
           const data = doc.data() as Account
-          // Extract clientId from the document path: clients/{clientId}/accounts/{accountId}
           const pathParts = doc.ref.path.split('/')
           const clientId = pathParts[1] || ''
           return {
@@ -81,6 +85,8 @@ export default function AccountsPage() {
           }
         })
         setAccounts(rows)
+        setHasMore(snap.docs.length === ACCOUNTS_PAGE_SIZE)
+        setLastDoc(snap.docs[snap.docs.length - 1] ?? null)
       } catch (err) {
         setError(String(err))
       } finally {
@@ -89,6 +95,39 @@ export default function AccountsPage() {
     }
     load()
   }, [])
+
+  // Load more accounts (cursor-based pagination)
+  const loadMoreAccounts = useCallback(async () => {
+    if (!lastDoc || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const db = getDb()
+      const q = query(
+        collectionGroup(db, 'accounts'),
+        orderBy('carrier_name'),
+        startAfter(lastDoc),
+        limit(ACCOUNTS_PAGE_SIZE)
+      )
+      const snap = await getDocs(q)
+      const rows: AccountRow[] = snap.docs.map((doc) => {
+        const data = doc.data() as Account
+        const pathParts = doc.ref.path.split('/')
+        const clientId = pathParts[1] || ''
+        return {
+          ...data,
+          _id: doc.id,
+          _clientId: clientId,
+        }
+      })
+      setAccounts((prev) => [...prev, ...rows])
+      setHasMore(snap.docs.length === ACCOUNTS_PAGE_SIZE)
+      setLastDoc(snap.docs[snap.docs.length - 1] ?? null)
+    } catch (err) {
+      setError(String(err))
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [lastDoc, loadingMore])
 
   // Enrich with client names (async, after initial load)
   useEffect(() => {
@@ -373,6 +412,26 @@ export default function AccountsPage() {
               Next
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Load More (Firestore cursor pagination) */}
+      {hasMore && (
+        <div className="flex justify-center">
+          <button
+            onClick={loadMoreAccounts}
+            disabled={loadingMore}
+            className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-6 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-50"
+          >
+            {loadingMore ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+                Loading...
+              </span>
+            ) : (
+              `Load More Accounts (${accounts.length.toLocaleString()} loaded)`
+            )}
+          </button>
         </div>
       )}
     </div>

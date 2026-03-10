@@ -109,7 +109,7 @@ const ADMIN_SECTION: NavSection = {
   type: 'admin',
   defaultExpanded: false,
   items: [
-    { key: 'connect', label: 'Connect', href: '/admin', icon: 'settings_input_composite' },
+    { key: 'connect', label: 'Connect', href: '/connect', icon: 'settings_input_composite' },
     { key: 'admin', label: 'Admin', href: '/admin', icon: 'admin_panel_settings' },
   ],
 }
