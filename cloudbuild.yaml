@@ -1,0 +1,199 @@
+# toMachina — Cloud Build Pipeline
+# Triggered on push to main branch
+# Builds all apps + services, deploys to Cloud Run
+
+steps:
+  # Install dependencies
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    args: ['ci']
+    id: 'install'
+
+  # Type check all workspaces
+  - name: 'node:20-alpine'
+    entrypoint: 'npx'
+    args: ['turbo', 'run', 'type-check']
+    id: 'type-check'
+    waitFor: ['install']
+
+  # Build all workspaces
+  - name: 'node:20-alpine'
+    entrypoint: 'npx'
+    args: ['turbo', 'run', 'build']
+    id: 'build'
+    waitFor: ['type-check']
+
+  # Build + push ProDash container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-prodash:$SHORT_SHA',
+      '-f', 'apps/prodash/Dockerfile',
+      'apps/prodash'
+    ]
+    id: 'docker-prodash'
+    waitFor: ['build']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-prodash:$SHORT_SHA']
+    id: 'push-prodash'
+    waitFor: ['docker-prodash']
+
+  # Build + push RIIMO container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-riimo:$SHORT_SHA',
+      '-f', 'apps/riimo/Dockerfile',
+      'apps/riimo'
+    ]
+    id: 'docker-riimo'
+    waitFor: ['build']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-riimo:$SHORT_SHA']
+    id: 'push-riimo'
+    waitFor: ['docker-riimo']
+
+  # Build + push SENTINEL container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-sentinel:$SHORT_SHA',
+      '-f', 'apps/sentinel/Dockerfile',
+      'apps/sentinel'
+    ]
+    id: 'docker-sentinel'
+    waitFor: ['build']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-sentinel:$SHORT_SHA']
+    id: 'push-sentinel'
+    waitFor: ['docker-sentinel']
+
+  # Build + push API container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-api:$SHORT_SHA',
+      '-f', 'services/api/Dockerfile',
+      'services/api'
+    ]
+    id: 'docker-api'
+    waitFor: ['build']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-api:$SHORT_SHA']
+    id: 'push-api'
+    waitFor: ['docker-api']
+
+  # Build + push Bridge container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-bridge:$SHORT_SHA',
+      '-f', 'services/bridge/Dockerfile',
+      'services/bridge'
+    ]
+    id: 'docker-bridge'
+    waitFor: ['build']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-bridge:$SHORT_SHA']
+    id: 'push-bridge'
+    waitFor: ['docker-bridge']
+
+  # Deploy ProDash to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'tm-prodash',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-prodash:$SHORT_SHA',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--memory', '512Mi',
+      '--cpu', '1',
+      '--min-instances', '0',
+      '--max-instances', '10',
+      '--port', '8080',
+      '--no-allow-unauthenticated'
+    ]
+    id: 'deploy-prodash'
+    waitFor: ['push-prodash']
+
+  # Deploy RIIMO to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'tm-riimo',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-riimo:$SHORT_SHA',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--memory', '512Mi',
+      '--cpu', '1',
+      '--min-instances', '0',
+      '--max-instances', '10',
+      '--port', '8080',
+      '--no-allow-unauthenticated'
+    ]
+    id: 'deploy-riimo'
+    waitFor: ['push-riimo']
+
+  # Deploy SENTINEL to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'tm-sentinel',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-sentinel:$SHORT_SHA',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--memory', '512Mi',
+      '--cpu', '1',
+      '--min-instances', '0',
+      '--max-instances', '10',
+      '--port', '8080',
+      '--no-allow-unauthenticated'
+    ]
+    id: 'deploy-sentinel'
+    waitFor: ['push-sentinel']
+
+  # Deploy API to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'tm-api',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-api:$SHORT_SHA',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--memory', '1Gi',
+      '--cpu', '2',
+      '--min-instances', '1',
+      '--max-instances', '20',
+      '--port', '8080',
+      '--no-allow-unauthenticated'
+    ]
+    id: 'deploy-api'
+    waitFor: ['push-api']
+
+  # Deploy Bridge to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'tm-bridge',
+      '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-bridge:$SHORT_SHA',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--memory', '512Mi',
+      '--cpu', '1',
+      '--min-instances', '0',
+      '--max-instances', '5',
+      '--port', '8081',
+      '--no-allow-unauthenticated'
+    ]
+    id: 'deploy-bridge'
+    waitFor: ['push-bridge']
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-prodash:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-riimo:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-sentinel:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-api:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/tomachina/tm-bridge:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

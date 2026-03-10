@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default: deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Authenticated @retireprotected.com users only
+    function isRPIUser() {
+      return request.auth != null &&
+             request.auth.token.email.matches('.*@retireprotected\\.com');
+    }
+
+    // All collections: RPI domain users only
+    match /clients/{clientId} {
+      allow read, write: if isRPIUser();
+      match /{subcollection}/{docId} {
+        allow read, write: if isRPIUser();
+      }
+    }
+
+    match /agents/{agentId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /producers/{producerId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /opportunities/{oppId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /revenue/{revenueId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /carriers/{carrierId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /products/{productId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /users/{email} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /org/{unitId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /campaigns/{campaignId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /templates/{templateId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /content_blocks/{blockId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /flow/{subcol}/{docId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /atlas/{subcol}/{docId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /comp_grids/{type}/{gridId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /case_tasks/{taskId} {
+      allow read, write: if isRPIUser();
+    }
+
+    match /communications/{commId} {
+      allow read, write: if isRPIUser();
+    }
+  }
+}
