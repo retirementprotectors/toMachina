@@ -120,9 +120,10 @@ export async function writeThroughBridge(
 
     return await response.json() as { success: boolean; error?: string }
   } catch (_err) {
-    // Bridge is optional during development — fall back to direct Firestore write
-    console.warn(`Bridge unavailable (${bridgeUrl}), writing directly to Firestore`)
-    return { success: true }
+    // Bridge unavailable — caller will fall back to direct Firestore write.
+    // This means Sheets will NOT get the update until bridge is online.
+    console.warn(`[BRIDGE FALLBACK] Write to ${collection}/${id} went direct to Firestore — Sheets NOT synced`)
+    return { success: false, error: 'bridge_unavailable' }
   }
 }
 

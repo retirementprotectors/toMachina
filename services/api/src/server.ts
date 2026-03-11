@@ -3,6 +3,7 @@ import cors from 'cors'
 import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { requireAuth } from './middleware/auth.js'
+import { normalizeBody } from './middleware/normalize.js'
 import { clientRoutes } from './routes/clients.js'
 import { accountRoutes } from './routes/accounts.js'
 import { agentRoutes } from './routes/agents.js'
@@ -35,18 +36,18 @@ app.use(express.json({ limit: '10mb' }))
 // Health check — no auth required
 app.use('/health', healthRoutes)
 
-// All API routes require auth
-app.use('/api/clients', requireAuth, clientRoutes)
-app.use('/api/accounts', requireAuth, accountRoutes)
-app.use('/api/agents', requireAuth, agentRoutes)
-app.use('/api/revenue', requireAuth, revenueRoutes)
+// All API routes require auth + normalize body on writes
+app.use('/api/clients', requireAuth, normalizeBody, clientRoutes)
+app.use('/api/accounts', requireAuth, normalizeBody, accountRoutes)
+app.use('/api/agents', requireAuth, normalizeBody, agentRoutes)
+app.use('/api/revenue', requireAuth, normalizeBody, revenueRoutes)
 app.use('/api/users', requireAuth, userRoutes)
-app.use('/api/opportunities', requireAuth, opportunityRoutes)
+app.use('/api/opportunities', requireAuth, normalizeBody, opportunityRoutes)
 app.use('/api/pipelines', requireAuth, pipelineRoutes)
 app.use('/api/carriers', requireAuth, carrierRoutes)
 app.use('/api/products', requireAuth, productRoutes)
 app.use('/api/campaigns', requireAuth, campaignRoutes)
-app.use('/api/case-tasks', requireAuth, caseTaskRoutes)
+app.use('/api/case-tasks', requireAuth, normalizeBody, caseTaskRoutes)
 app.use('/api/communications', requireAuth, communicationRoutes)
 app.use('/api/org', requireAuth, orgRoutes)
 
