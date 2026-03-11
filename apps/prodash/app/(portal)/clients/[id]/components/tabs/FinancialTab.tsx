@@ -60,13 +60,33 @@ export function FinancialTab({ client, editing = false, editData = {}, onFieldCh
         </FieldGrid>
       </SectionCard>
 
-      {/* Net Worth Summary */}
+      {/* Net Worth Summary — visual bar */}
       <SectionCard title="Net Worth Summary" icon="assessment">
-        <div className="grid grid-cols-3 gap-4">
-          <NetWorthCard label="Investable Assets" value={client.investable_assets} />
-          <NetWorthCard label="Net Worth" value={client.net_worth} />
-          <NetWorthCard label="Household Income" value={client.household_income} />
-        </div>
+        {(() => {
+          const assets = parseFloat(String(client.investable_assets || 0).replace(/[$,\s]/g, '')) || 0
+          const netWorth = parseFloat(String(client.net_worth || 0).replace(/[$,\s]/g, '')) || 0
+          const income = parseFloat(String(client.household_income || 0).replace(/[$,\s]/g, '')) || 0
+          const maxVal = Math.max(assets, netWorth, income, 1)
+          return (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <NetWorthCard label="Investable Assets" value={client.investable_assets} icon="account_balance" />
+                <NetWorthCard label="Net Worth" value={client.net_worth} icon="trending_up" />
+                <NetWorthCard label="Household Income" value={client.household_income} icon="payments" />
+              </div>
+              {(assets > 0 || netWorth > 0) && (
+                <div className="rounded-lg bg-[var(--bg-surface)] p-4">
+                  <p className="mb-3 text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Relative Comparison</p>
+                  <div className="space-y-2">
+                    <BarRow label="Assets" value={assets} max={maxVal} color="var(--portal)" />
+                    <BarRow label="Net Worth" value={netWorth} max={maxVal} color="var(--success)" />
+                    <BarRow label="Income" value={income} max={maxVal} color="var(--info)" />
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })()}
       </SectionCard>
 
       {/* ID.ME Status — always read-only (external system) */}
@@ -120,16 +140,30 @@ function scoreColor(score: number): string {
   return 'var(--error)'
 }
 
-function NetWorthCard({ label, value }: { label: string; value: unknown }) {
+function NetWorthCard({ label, value, icon }: { label: string; value: unknown; icon?: string }) {
   const num = value != null && value !== '' ? parseFloat(String(value).replace(/[$,\s]/g, '')) : null
   const hasValue = num !== null && !isNaN(num)
 
   return (
     <div className="rounded-lg bg-[var(--bg-surface)] p-4 text-center">
-      <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</p>
-      <p className="mt-1 text-lg font-bold text-[var(--text-primary)]">
+      {icon && <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '20px' }}>{icon}</span>}
+      <p className="mt-1 text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</p>
+      <p className="mt-1 text-xl font-bold text-[var(--text-primary)]">
         {hasValue ? formatCurrency(num) : <span className="text-[var(--text-muted)]">&mdash;</span>}
       </p>
+    </div>
+  )
+}
+
+function BarRow({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-16 text-xs text-[var(--text-muted)]">{label}</span>
+      <div className="flex-1 h-2 overflow-hidden rounded-full bg-[var(--bg-card)]">
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="w-16 text-right text-xs font-medium text-[var(--text-primary)]">{formatCurrency(value)}</span>
     </div>
   )
 }

@@ -121,38 +121,65 @@ export function AccountsTab({ accounts, loading }: AccountsTabProps) {
 
 function AccountCard({ account }: { account: Account }) {
   const statusColor = getStatusColor(str(account.status))
-  const acctId = str(account.account_id) || str(account.policy_number) || str((account as any)._id)
+  const acctId = str(account.account_id) || str(account.policy_number) || str((account as Record<string, unknown>)._id)
   const clientId = str(account.client_id)
+  const valueAmount = account.account_value || account.premium || account.face_amount
+  const valueStr = formatCurrency(valueAmount)
+  const carrierName = str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'
 
   return (
     <a
       href={clientId && acctId ? `/accounts/${clientId}/${acctId}` : undefined}
-      className="block rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 transition-colors hover:border-[var(--portal)] cursor-pointer"
+      className="group relative block rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 transition-all hover:border-[var(--portal)] hover:bg-[var(--bg-card-hover)] cursor-pointer"
     >
-      {/* Header */}
+      {/* Header with carrier indicator */}
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-            {str(account.product_type) || str(account.account_type_category) || str(account.account_type)}
-          </p>
-          <p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)]">
-            {str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'}
-          </p>
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ background: 'var(--portal-glow)' }}>
+            <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>
+              {getAccountIcon(str(account.account_type_category))}
+            </span>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
+              {str(account.product_type) || str(account.account_type_category) || str(account.account_type)}
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)]">{carrierName}</p>
+          </div>
         </div>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
           {str(account.status) || 'Unknown'}
         </span>
       </div>
 
+      {/* Value prominent */}
+      {valueStr && (
+        <p className="mt-3 text-xl font-bold text-[var(--text-primary)]">{valueStr}</p>
+      )}
+
       {/* Details */}
-      <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
+      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
         <MiniField label="Product" value={str(account.product_name) || str(account.plan_name) || str(account.product)} />
         <MiniField label="Policy #" value={str(account.account_number) || str(account.policy_number) || str(account.contract_number)} mono />
-        <MiniField label="Value" value={formatCurrency(account.account_value || account.premium || account.face_amount)} />
         <MiniField label="Issue Date" value={formatDate(account.issue_date || account.effective_date)} />
+      </div>
+
+      {/* View Details hover action */}
+      <div className="mt-3 flex items-center gap-1 text-xs font-medium text-[var(--text-muted)] opacity-0 transition-opacity group-hover:opacity-100" style={{ color: 'var(--portal)' }}>
+        <span>View Details</span>
+        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_forward</span>
       </div>
     </a>
   )
+}
+
+function getAccountIcon(category: string): string {
+  const c = category.toLowerCase()
+  if (c.includes('annuity')) return 'savings'
+  if (c.includes('life')) return 'favorite'
+  if (c.includes('medicare')) return 'health_and_safety'
+  if (c.includes('bd') || c.includes('ria')) return 'show_chart'
+  return 'account_balance_wallet'
 }
 
 /** Classify an account into a filter category using multiple field sources */
