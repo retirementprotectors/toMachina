@@ -3,5 +3,5 @@
 import { MyRpiProfile } from '@tomachina/ui'
 
 export default function MyRPIPage() {
-  return <MyRpiProfile portal="riimo" />
+  return <MyRpiProfile portal="prodashx" />
 }

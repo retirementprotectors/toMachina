@@ -12,10 +12,5 @@ export { KanbanBoard } from './components/KanbanBoard'
 export type { KanbanCard, KanbanColumn } from './components/KanbanBoard'
 export { PortalSwitcher } from './components/PortalSwitcher'
 
-// Shared Modules (Sprint 2)
-export { CamDashboard } from './modules/CamDashboard'
-export { CommandCenter } from './modules/CommandCenter'
-export { AdminPanel } from './modules/AdminPanel'
-export { C3Manager } from './modules/C3Manager'
-export { DexDocCenter } from './modules/DexDocCenter'
-export { AtlasRegistry } from './modules/AtlasRegistry'
+// Shared feature modules
+export * from './modules'
