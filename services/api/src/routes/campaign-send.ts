@@ -506,6 +506,264 @@ campaignSendRoutes.post('/cancel/:id', async (req: Request, res: Response) => {
 })
 
 // ============================================================================
+// SCHEDULE A FUTURE SEND
+// ============================================================================
+
+const scheduleValidation = validateWrite({
+  required: ['campaign_id', 'scheduled_for', 'channel'],
+  types: {
+    campaign_id: 'string',
+    scheduled_for: 'string',
+    channel: 'string',
+    timezone: 'string',
+  },
+})
+
+/**
+ * POST /api/campaign-send/schedule
+ * Schedule a future campaign send.
+ */
+campaignSendRoutes.post('/schedule', scheduleValidation, async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const now = new Date().toISOString()
+    const { campaign_id, scheduled_for, channel, timezone, audience_filter } = req.body
+    const userEmail = (req as unknown as Record<string, unknown>).user
+      ? ((req as unknown as Record<string, unknown>).user as Record<string, string>).email
+      : 'api'
+
+    // Validate schedule date
+    const schedDate = new Date(scheduled_for)
+    if (isNaN(schedDate.getTime())) {
+      res.status(400).json(errorResponse('Invalid scheduled_for date'))
+      return
+    }
+    if (schedDate.getTime() < Date.now() - 60000) {
+      res.status(400).json(errorResponse('Scheduled time is in the past'))
+      return
+    }
+
+    // Check AEP blackout for Medicare campaigns
+    const campDoc = await db.collection('campaigns').doc(campaign_id).get()
+    if (campDoc.exists) {
+      const campData = campDoc.data() as Record<string, unknown>
+      const campType = String(campData.campaign_type || campData.type || '').toUpperCase()
+      const medicareCodes = ['AEP', 'T65', 'MAPD', 'MED_SUPP', 'MEDICARE']
+      if (medicareCodes.some((c) => campType.includes(c))) {
+        const month = schedDate.getMonth() + 1
+        const day = schedDate.getDate()
+        if ((month === 10 && day >= 1) || month === 11 || (month === 12 && day <= 7)) {
+          res.status(400).json(errorResponse('Medicare campaigns cannot be sent during AEP blackout (Oct 1 - Dec 7)'))
+          return
+        }
+      }
+    }
+
+    const scheduleId = `SCHED_${randomUUID().slice(0, 8)}`
+    const scheduleData = {
+      schedule_id: scheduleId,
+      campaign_id,
+      scheduled_for: schedDate.toISOString(),
+      timezone: timezone || 'America/Chicago',
+      channel,
+      audience_filter: audience_filter || null,
+      status: 'scheduled',
+      created_by: userEmail,
+      created_at: now,
+      updated_at: now,
+    }
+
+    await db.collection('campaign_schedules').doc(scheduleId).set(scheduleData)
+
+    res.status(201).json(successResponse(scheduleData))
+  } catch (err) {
+    console.error('POST /api/campaign-send/schedule error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// LIST SCHEDULED SENDS
+// ============================================================================
+
+/**
+ * GET /api/campaign-send/scheduled
+ * List scheduled sends. Filter by status, campaign_id.
+ */
+campaignSendRoutes.get('/scheduled', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let query: Query<DocumentData> = db.collection('campaign_schedules')
+
+    const status = req.query.status as string
+    if (status) {
+      query = query.where('status', '==', status)
+    }
+    if (req.query.campaign_id) {
+      query = query.where('campaign_id', '==', req.query.campaign_id)
+    }
+
+    const snap = await query.orderBy('scheduled_for', 'asc').limit(100).get()
+    const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
+
+    res.json(successResponse(data, { count: data.length }))
+  } catch (err) {
+    console.error('GET /api/campaign-send/scheduled error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// UPDATE/CANCEL SCHEDULED SEND
+// ============================================================================
+
+/**
+ * PATCH /api/campaign-send/scheduled/:id
+ * Reschedule or cancel a scheduled send.
+ */
+campaignSendRoutes.patch('/scheduled/:id', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const docRef = db.collection('campaign_schedules').doc(id)
+    const doc = await docRef.get()
+
+    if (!doc.exists) { res.status(404).json(errorResponse('Scheduled send not found')); return }
+
+    const current = doc.data() as Record<string, unknown>
+    if (current.status !== 'scheduled') {
+      res.status(400).json(errorResponse(`Cannot modify schedule with status: ${current.status}`))
+      return
+    }
+
+    const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+
+    if (req.body.scheduled_for) updates.scheduled_for = req.body.scheduled_for
+    if (req.body.audience_filter) updates.audience_filter = req.body.audience_filter
+    if (req.body.channel) updates.channel = req.body.channel
+    if (req.body.status === 'cancelled') {
+      updates.status = 'cancelled'
+      updates.cancelled_at = new Date().toISOString()
+    }
+
+    await docRef.update(updates)
+
+    res.json(successResponse({ id, updated: Object.keys(updates) }))
+  } catch (err) {
+    console.error('PATCH /api/campaign-send/scheduled/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// EXECUTE DUE SCHEDULES
+// ============================================================================
+
+/**
+ * POST /api/campaign-send/execute-due
+ * Process all scheduled sends whose time has passed.
+ * Called by Cloud Scheduler on a cron.
+ */
+campaignSendRoutes.post('/execute-due', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const now = new Date().toISOString()
+
+    const snap = await db
+      .collection('campaign_schedules')
+      .where('status', '==', 'scheduled')
+      .where('scheduled_for', '<=', now)
+      .orderBy('scheduled_for', 'asc')
+      .limit(20)
+      .get()
+
+    if (snap.empty) {
+      res.json(successResponse({ processed: 0, message: 'No schedules due' }))
+      return
+    }
+
+    let processed = 0
+    const results: Record<string, unknown>[] = []
+
+    for (const schedDoc of snap.docs) {
+      const sched = schedDoc.data() as Record<string, unknown>
+      const campaignId = sched.campaign_id as string
+
+      // Mark as processing
+      await schedDoc.ref.update({ status: 'processing', updated_at: now })
+
+      // Get campaign templates
+      const templateSnap = await db
+        .collection('templates')
+        .where('campaign_id', '==', campaignId)
+        .get()
+
+      if (templateSnap.empty) {
+        await schedDoc.ref.update({
+          status: 'failed',
+          error_message: 'No templates found for campaign',
+          updated_at: now,
+        })
+        continue
+      }
+
+      // Build audience from clients (simplified — full audience builder in @tomachina/core)
+      const channel = (sched.channel as string) || 'email'
+      const clientSnap = await db.collection('clients').where('client_status', '==', 'Active').limit(1000).get()
+      let clients = clientSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
+
+      // DND filtering
+      clients = clients.filter((c) => {
+        if (String(c.dnd_all || '') === 'true') return false
+        if (channel === 'email' && String(c.dnd_email || '') === 'true') return false
+        if (channel === 'sms' && String(c.dnd_sms || '') === 'true') return false
+        return true
+      })
+
+      // Queue sends for first template (simplified batch)
+      const template = templateSnap.docs[0]
+      const batch = db.batch()
+      let queued = 0
+
+      for (const client of clients.slice(0, 500)) {
+        const queuedId = randomUUID()
+        batch.set(db.collection('queued_sends').doc(queuedId), {
+          queued_send_id: queuedId,
+          schedule_id: schedDoc.id,
+          campaign_id: campaignId,
+          contact_id: client.id,
+          channel,
+          content_id: template.id,
+          content_preview: String(template.data().touchpoint || 'Campaign Send'),
+          status: 'queued',
+          scheduled_for: now,
+          created_at: now,
+          updated_at: now,
+        })
+        queued++
+      }
+
+      if (queued > 0) await batch.commit()
+
+      await schedDoc.ref.update({
+        status: 'completed',
+        executed_at: now,
+        updated_at: now,
+        result: { total_queued: queued, total_clients: clients.length },
+      })
+
+      results.push({ schedule_id: schedDoc.id, queued })
+      processed++
+    }
+
+    res.json(successResponse({ processed, results }))
+  } catch (err) {
+    console.error('POST /api/campaign-send/execute-due error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
 // HELPERS
 // ============================================================================
 
