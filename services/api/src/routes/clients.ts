@@ -1,11 +1,11 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, type Query, type DocumentData } from 'firebase-admin/firestore'
+import { validateWrite } from '../middleware/validate.js'
 import {
   successResponse,
   errorResponse,
   getPaginationParams,
   paginatedQuery,
-  validateRequired,
   writeThroughBridge,
   stripInternalFields,
   param,
@@ -13,6 +13,22 @@ import {
 
 export const clientRoutes = Router()
 const COLLECTION = 'clients'
+
+// Validation rules for client writes
+const clientValidation = validateWrite({
+  required: ['first_name', 'last_name'],
+  types: {
+    first_name: 'string',
+    last_name: 'string',
+    email: 'string',
+    phone: 'string',
+    dob: 'string',
+    state: 'string',
+    zip: 'string',
+  },
+  immutable: ['_migrated_at', '_source', '_created_by', '_updated_by', '_deleted_by'],
+  maxFields: 120,
+})
 
 /**
  * GET /api/clients
@@ -149,15 +165,9 @@ clientRoutes.get('/:id/relationships', async (req: Request, res: Response) => {
 /**
  * POST /api/clients
  */
-clientRoutes.post('/', async (req: Request, res: Response) => {
+clientRoutes.post('/', clientValidation, async (req: Request, res: Response) => {
   try {
     const body = req.body
-    const err = validateRequired(body, ['first_name', 'last_name'])
-    if (err) {
-      res.status(400).json(errorResponse(err))
-      return
-    }
-
     const db = getFirestore()
     const now = new Date().toISOString()
     const clientId = body.client_id || db.collection(COLLECTION).doc().id
@@ -185,7 +195,7 @@ clientRoutes.post('/', async (req: Request, res: Response) => {
 /**
  * PATCH /api/clients/:id
  */
-clientRoutes.patch('/:id', async (req: Request, res: Response) => {
+clientRoutes.patch('/:id', clientValidation, async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
     const id = param(req.params.id)

@@ -4,6 +4,8 @@ import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { requireAuth } from './middleware/auth.js'
 import { normalizeBody } from './middleware/normalize.js'
+import { rateLimit } from './middleware/rate-limit.js'
+import { requestLogger } from './middleware/request-logger.js'
 import { clientRoutes } from './routes/clients.js'
 import { accountRoutes } from './routes/accounts.js'
 import { agentRoutes } from './routes/agents.js'
@@ -29,27 +31,33 @@ if (getApps().length === 0) {
 export const db = getFirestore()
 const app = express()
 
-// Middleware
+// Global middleware
 app.use(cors({ origin: true }))
 app.use(express.json({ limit: '10mb' }))
 
-// Health check — no auth required
+// Health check — no auth, no rate limit, no logging
 app.use('/health', healthRoutes)
 
-// All API routes require auth + normalize body on writes
-app.use('/api/clients', requireAuth, normalizeBody, clientRoutes)
-app.use('/api/accounts', requireAuth, normalizeBody, accountRoutes)
-app.use('/api/agents', requireAuth, normalizeBody, agentRoutes)
-app.use('/api/revenue', requireAuth, normalizeBody, revenueRoutes)
-app.use('/api/users', requireAuth, userRoutes)
-app.use('/api/opportunities', requireAuth, normalizeBody, opportunityRoutes)
-app.use('/api/pipelines', requireAuth, pipelineRoutes)
-app.use('/api/carriers', requireAuth, carrierRoutes)
-app.use('/api/products', requireAuth, productRoutes)
-app.use('/api/campaigns', requireAuth, campaignRoutes)
-app.use('/api/case-tasks', requireAuth, normalizeBody, caseTaskRoutes)
-app.use('/api/communications', requireAuth, communicationRoutes)
-app.use('/api/org', requireAuth, orgRoutes)
+// Request logging for all authenticated routes (logs method/path/user/time — NO PHI)
+app.use(requestLogger)
+
+// Auth + rate limit for all API routes
+app.use('/api', requireAuth, rateLimit)
+
+// Route mounting: normalize body on write routes
+app.use('/api/clients', normalizeBody, clientRoutes)
+app.use('/api/accounts', normalizeBody, accountRoutes)
+app.use('/api/agents', normalizeBody, agentRoutes)
+app.use('/api/revenue', normalizeBody, revenueRoutes)
+app.use('/api/users', userRoutes)
+app.use('/api/opportunities', normalizeBody, opportunityRoutes)
+app.use('/api/pipelines', pipelineRoutes)
+app.use('/api/carriers', carrierRoutes)
+app.use('/api/products', productRoutes)
+app.use('/api/campaigns', campaignRoutes)
+app.use('/api/case-tasks', normalizeBody, caseTaskRoutes)
+app.use('/api/communications', communicationRoutes)
+app.use('/api/org', orgRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
