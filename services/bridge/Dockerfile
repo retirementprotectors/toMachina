@@ -26,7 +26,9 @@ ENV PORT=8080
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/services/bridge/dist ./dist
 COPY --from=builder /app/services/bridge/package.json ./
+# Copy @tomachina/core with source (main points to src/index.ts)
 COPY --from=builder /app/packages/core/dist ./node_modules/@tomachina/core/dist
+COPY --from=builder /app/packages/core/src ./node_modules/@tomachina/core/src
 COPY --from=builder /app/packages/core/package.json ./node_modules/@tomachina/core/
 
 EXPOSE 8080

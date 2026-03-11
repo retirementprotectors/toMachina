@@ -11,10 +11,10 @@ COPY services/api/package.json ./services/api/
 # Install all workspace deps
 RUN npm ci --ignore-scripts
 
-# Copy source and build (core first, then api)
+# Copy source and build
 COPY packages/core/ ./packages/core/
 COPY services/api/ ./services/api/
-RUN npx turbo run build --filter=@tomachina/core && npx turbo run build --filter=@tomachina/api
+RUN npx turbo run build --filter=@tomachina/api
 
 # Production image
 FROM node:20-alpine AS runner
@@ -26,7 +26,10 @@ ENV PORT=8080
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/services/api/dist ./dist
 COPY --from=builder /app/services/api/package.json ./
+
+# Copy @tomachina/core with production-compatible package.json
 COPY --from=builder /app/packages/core/dist ./node_modules/@tomachina/core/dist
+COPY --from=builder /app/packages/core/src ./node_modules/@tomachina/core/src
 COPY --from=builder /app/packages/core/package.json ./node_modules/@tomachina/core/
 
 EXPOSE 8080
