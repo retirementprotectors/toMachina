@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth, type AuthUser } from '@tomachina/auth'
+import { PortalSwitcher } from '@tomachina/ui'
 
 interface TopBarProps {
   user: AuthUser
@@ -37,6 +38,7 @@ export function TopBar({ user }: TopBarProps) {
         <span className="text-xs text-[var(--text-muted)]">
           toMachina
         </span>
+        <PortalSwitcher currentPortal="prodash" />
       </div>
 
       {/* Right — User */}
