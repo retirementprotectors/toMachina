@@ -7,6 +7,7 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json package-lock.json ./
 COPY services/bridge/package.json ./services/bridge/
+COPY packages/core/package.json ./packages/core/
 RUN npm ci --ignore-scripts
 
 # Build
@@ -14,6 +15,7 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json turbo.json tsconfig.json ./
 COPY services/bridge/ ./services/bridge/
+COPY packages/core/ ./packages/core/
 RUN npx turbo run build --filter=@tomachina/bridge
 
 # Production image
