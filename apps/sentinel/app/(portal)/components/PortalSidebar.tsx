@@ -2,7 +2,9 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/auth'
+import type { UserEntitlementContext } from '@tomachina/auth'
 
 /* ─── Section Type Styling ─── */
 type SectionType = 'workspace' | 'intel' | 'app' | 'admin'
@@ -27,6 +29,8 @@ interface NavItem {
   label: string
   href: string
   icon: string
+  /** Module key from MODULES — used for entitlement gating. Omit for always-visible items. */
+  moduleKey?: string
 }
 
 interface NavSection {
@@ -35,6 +39,8 @@ interface NavSection {
   type: SectionType
   items: NavItem[]
   defaultExpanded: boolean
+  /** Module key for the entire section — if user lacks access, whole section is hidden. */
+  moduleKey?: string
 }
 
 /* ─── SENTINEL Navigation Configuration ─── */
@@ -44,9 +50,10 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Workspace',
     type: 'workspace',
     defaultExpanded: true,
+    moduleKey: 'SENTINEL_V2',
     items: [
-      { key: 'deals', label: 'Deals', href: '/deals', icon: 'handshake' },
-      { key: 'producers', label: 'Producers', href: '/producers', icon: 'people' },
+      { key: 'deals', label: 'Deals', href: '/deals', icon: 'handshake', moduleKey: 'SENTINEL_DEALS' },
+      { key: 'producers', label: 'Producers', href: '/producers', icon: 'people', moduleKey: 'SENTINEL_PRODUCERS' },
     ],
   },
   {
@@ -55,8 +62,8 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'intel',
     defaultExpanded: true,
     items: [
-      { key: 'analysis', label: 'Analysis', href: '/analysis', icon: 'analytics' },
-      { key: 'market-intel', label: 'Market Intel', href: '/market-intel', icon: 'travel_explore' },
+      { key: 'analysis', label: 'Analysis', href: '/analysis', icon: 'analytics', moduleKey: 'SENTINEL_ANALYSIS' },
+      { key: 'market-intel', label: 'Market Intel', href: '/market-intel', icon: 'travel_explore', moduleKey: 'SENTINEL_ANALYSIS' },
     ],
   },
   {
@@ -65,11 +72,11 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'app',
     defaultExpanded: false,
     items: [
-      { key: 'david-hub', label: 'DAVID HUB', href: '/modules/david-hub', icon: 'calculate' },
-      { key: 'cam', label: 'CAM', href: '/modules/cam', icon: 'payments' },
-      { key: 'dex', label: 'DEX', href: '/modules/dex', icon: 'description' },
-      { key: 'atlas', label: 'ATLAS', href: '/modules/atlas', icon: 'hub' },
-      { key: 'command-center', label: 'Command Center', href: '/modules/command-center', icon: 'speed' },
+      { key: 'david-hub', label: 'DAVID HUB', href: '/modules/david-hub', icon: 'calculate', moduleKey: 'DAVID_HUB' },
+      { key: 'cam', label: 'CAM', href: '/modules/cam', icon: 'payments', moduleKey: 'CAM' },
+      { key: 'dex', label: 'DEX', href: '/modules/dex', icon: 'description', moduleKey: 'DEX' },
+      { key: 'atlas', label: 'ATLAS', href: '/modules/atlas', icon: 'hub', moduleKey: 'ATLAS' },
+      { key: 'command-center', label: 'Command Center', href: '/modules/command-center', icon: 'speed', moduleKey: 'RPI_COMMAND_CENTER' },
     ],
   },
 ]
@@ -79,18 +86,64 @@ const ADMIN_SECTION: NavSection = {
   label: 'Admin',
   type: 'admin',
   defaultExpanded: false,
+  moduleKey: 'SENTINEL_ADMIN',
   items: [
-    { key: 'admin', label: 'Admin', href: '/admin', icon: 'admin_panel_settings' },
+    { key: 'admin', label: 'Admin', href: '/admin', icon: 'admin_panel_settings', moduleKey: 'SENTINEL_ADMIN' },
   ],
 }
 
 const STORAGE_KEY = 'sentinel-sidebar-collapsed'
 const EXPANDED_KEY = 'sentinel-sidebar-expanded'
 
+/**
+ * Filter nav sections based on the user's entitlement context.
+ * Sections with no accessible items are excluded entirely.
+ */
+function filterSections(
+  sections: NavSection[],
+  ctx: UserEntitlementContext
+): NavSection[] {
+  return sections
+    .filter((section) => {
+      if (section.moduleKey && !canAccessModule(ctx, section.moduleKey)) {
+        return false
+      }
+      return true
+    })
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => {
+        if (item.moduleKey && !canAccessModule(ctx, item.moduleKey)) {
+          return false
+        }
+        return true
+      }),
+    }))
+    .filter((section) => section.items.length > 0)
+}
+
 export function PortalSidebar() {
   const pathname = usePathname()
+  const { user } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+
+  // Build entitlement context from the authenticated user
+  const entitlementCtx = useMemo(
+    () => buildEntitlementContext(user),
+    [user]
+  )
+
+  // Filter nav sections based on entitlements
+  const visibleSections = useMemo(
+    () => filterSections(NAV_SECTIONS, entitlementCtx),
+    [entitlementCtx]
+  )
+
+  const visibleAdmin = useMemo(() => {
+    const filtered = filterSections([ADMIN_SECTION], entitlementCtx)
+    return filtered.length > 0 ? filtered[0] : null
+  }, [entitlementCtx])
 
   /* Load saved state from localStorage */
   useEffect(() => {
@@ -244,13 +297,15 @@ export function PortalSidebar() {
 
       {/* Main Nav */}
       <nav className="flex-1 overflow-y-auto py-2 px-1">
-        {NAV_SECTIONS.map(renderSection)}
+        {visibleSections.map(renderSection)}
       </nav>
 
       {/* Admin Footer */}
-      <div className="border-t border-[var(--border-subtle)] py-2 px-1">
-        {renderSection(ADMIN_SECTION)}
-      </div>
+      {visibleAdmin && (
+        <div className="border-t border-[var(--border-subtle)] py-2 px-1">
+          {renderSection(visibleAdmin)}
+        </div>
+      )}
     </aside>
   )
 }

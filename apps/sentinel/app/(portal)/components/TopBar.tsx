@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth, type AuthUser } from '@tomachina/auth'
+import { PortalSwitcher } from '@tomachina/ui'
 
 interface TopBarProps {
   user: AuthUser
@@ -26,8 +27,8 @@ export function TopBar({ user }: TopBarProps) {
         borderColor: 'var(--border)',
       }}
     >
-      {/* Left — Portal Name */}
-      <div className="flex items-center gap-2">
+      {/* Left — Portal Name + Switcher */}
+      <div className="flex items-center gap-3">
         <span
           className="text-base font-semibold"
           style={{ color: 'var(--portal)' }}
@@ -37,6 +38,8 @@ export function TopBar({ user }: TopBarProps) {
         <span className="text-xs text-[var(--text-muted)]">
           toMachina
         </span>
+        <div className="mx-1 h-5 w-px bg-[var(--border-subtle)]" />
+        <PortalSwitcher currentPortal="sentinel" />
       </div>
 
       {/* Right — User */}
