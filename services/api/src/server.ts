@@ -35,6 +35,7 @@ import { flowRoutes } from './routes/flow.js'
 import { templateRoutes } from './routes/templates.js'
 import { contentBlockRoutes } from './routes/content-blocks.js'
 import { atlasRoutes } from './routes/atlas.js'
+import { camRoutes } from './routes/cam.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -88,6 +89,7 @@ app.use('/api/flow', flowRoutes)
 app.use('/api/templates', normalizeBody, templateRoutes)
 app.use('/api/content-blocks', normalizeBody, contentBlockRoutes)
 app.use('/api/atlas', normalizeBody, atlasRoutes)
+app.use('/api/cam', normalizeBody, camRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
