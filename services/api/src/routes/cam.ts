@@ -634,3 +634,488 @@ camRoutes.post('/projections/hypothetical', async (req: Request, res: Response) 
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+// ============================================================================
+// COMMISSION MANAGEMENT (Sprint 6)
+// ============================================================================
+
+/**
+ * POST /api/cam/commission/reconcile — Compare calculated vs actual commissions
+ * Body: { agent_id?, period?, auto_flag?: boolean }
+ */
+camRoutes.post('/commission/reconcile', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const { agent_id, period } = req.body
+
+    let revenueQuery: Query<DocumentData> = db.collection('revenue')
+    if (agent_id) revenueQuery = revenueQuery.where('agent_id', '==', agent_id)
+    if (period) revenueQuery = revenueQuery.where('period', '==', period)
+
+    const snap = await revenueQuery.get()
+    const discrepancies: Record<string, unknown>[] = []
+    const now = new Date().toISOString()
+
+    for (const doc of snap.docs) {
+      const d = doc.data()
+      const actualAmount = parseFloat(String(d.amount)) || 0
+      const rate = parseFloat(String(d.commission_rate || d.rate || 0.05))
+      const premium = parseFloat(String(d.premium || d.total_premium || actualAmount))
+      const calculatedAmount = calculateFYC(premium, rate)
+      const diff = Math.abs(actualAmount - calculatedAmount)
+      const threshold = Math.max(actualAmount, calculatedAmount) * 0.02 // 2% tolerance
+
+      if (diff > threshold && diff > 1) {
+        const discId = db.collection('commission_discrepancies').doc().id
+        const disc = {
+          discrepancy_id: discId,
+          revenue_id: doc.id,
+          agent_id: d.agent_id || '',
+          carrier: d.carrier || '',
+          product_type: d.product_type || '',
+          period: d.period || '',
+          actual_amount: actualAmount,
+          calculated_amount: Math.round(calculatedAmount * 100) / 100,
+          difference: Math.round(diff * 100) / 100,
+          status: 'open',
+          created_at: now,
+          updated_at: now,
+        }
+        discrepancies.push(disc)
+
+        if (req.body.auto_flag !== false) {
+          await db.collection('commission_discrepancies').doc(discId).set(disc)
+        }
+      }
+    }
+
+    res.json(successResponse({
+      records_checked: snap.size,
+      discrepancies_found: discrepancies.length,
+      discrepancies: discrepancies.slice(0, 50),
+    }))
+  } catch (err) {
+    console.error('POST /api/cam/commission/reconcile error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/cam/commission/discrepancies — List unresolved discrepancies
+ */
+camRoutes.get('/commission/discrepancies', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let query: Query<DocumentData> = db.collection('commission_discrepancies')
+
+    const status = req.query.status as string
+    if (status) query = query.where('status', '==', status)
+    else query = query.where('status', '==', 'open')
+
+    if (req.query.agent_id) query = query.where('agent_id', '==', req.query.agent_id)
+
+    const params = getPaginationParams(req)
+    if (!params.orderBy) params.orderBy = 'created_at'
+    const result = await paginatedQuery(query, 'commission_discrepancies', params)
+    res.json(successResponse(result.data, { pagination: result.pagination }))
+  } catch (err) {
+    console.error('GET /api/cam/commission/discrepancies error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * PATCH /api/cam/commission/discrepancies/:id — Resolve a discrepancy
+ * Body: { status: 'accepted'|'adjusted'|'disputed', resolution_note? }
+ */
+camRoutes.patch('/commission/discrepancies/:id', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const docRef = db.collection('commission_discrepancies').doc(id)
+    const doc = await docRef.get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Discrepancy not found')); return }
+
+    const validStatuses = ['accepted', 'adjusted', 'disputed', 'open']
+    if (req.body.status && !validStatuses.includes(req.body.status)) {
+      res.status(400).json(errorResponse(`Invalid status. Use: ${validStatuses.join(', ')}`))
+      return
+    }
+
+    const updates: Record<string, unknown> = {
+      ...req.body,
+      updated_at: new Date().toISOString(),
+      resolved_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+    }
+    delete updates.discrepancy_id
+    await docRef.update(updates)
+
+    const updated = await docRef.get()
+    res.json(successResponse({ id, ...updated.data() }))
+  } catch (err) {
+    console.error('PATCH /api/cam/commission/discrepancies/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// COMP GRID MANAGEMENT (Sprint 6)
+// ============================================================================
+
+/**
+ * PATCH /api/cam/comp-grids/:id — Update grid rates
+ */
+camRoutes.patch('/comp-grids/:id', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const docRef = db.collection('comp_grids').doc(id)
+    const doc = await docRef.get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Comp grid not found')); return }
+
+    const now = new Date().toISOString()
+    const oldData = doc.data() || {}
+
+    // Log change to history
+    await db.collection('comp_grid_history').add({
+      grid_id: id,
+      change_type: 'update',
+      old_rate: oldData.rate,
+      new_rate: req.body.rate != null ? parseFloat(String(req.body.rate)) : oldData.rate,
+      changed_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+      changed_at: now,
+      old_data: oldData,
+    })
+
+    const updates: Record<string, unknown> = {
+      ...req.body,
+      updated_at: now,
+    }
+    if (updates.rate != null) updates.rate = parseFloat(String(updates.rate))
+    delete updates.grid_id
+    delete updates.created_at
+
+    const bridgeResult = await writeThroughBridge('comp_grids', 'update', id, updates)
+    if (!bridgeResult.success) await docRef.update(updates)
+
+    const updated = await docRef.get()
+    res.json(successResponse(stripInternalFields({ id, ...updated.data() } as Record<string, unknown>)))
+  } catch (err) {
+    console.error('PATCH /api/cam/comp-grids/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/cam/comp-grids/history — Grid change audit trail
+ */
+camRoutes.get('/comp-grids/history', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let query: Query<DocumentData> = db.collection('comp_grid_history')
+
+    if (req.query.grid_id) query = query.where('grid_id', '==', req.query.grid_id)
+
+    const params = getPaginationParams(req)
+    if (!params.orderBy) params.orderBy = 'changed_at'
+    const result = await paginatedQuery(query, 'comp_grid_history', params)
+    res.json(successResponse(result.data, { pagination: result.pagination }))
+  } catch (err) {
+    console.error('GET /api/cam/comp-grids/history error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// AGENT COMMISSION (Sprint 6)
+// ============================================================================
+
+/**
+ * GET /api/cam/agent/:agentId/commission — Agent's full commission history
+ */
+camRoutes.get('/agent/:agentId/commission', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const agentId = param(req.params.agentId)
+
+    const snap = await db.collection('revenue')
+      .where('agent_id', '==', agentId)
+      .orderBy('created_at', 'desc')
+      .limit(200)
+      .get()
+
+    let totalFYC = 0
+    let totalRenewal = 0
+    let totalOverride = 0
+    const records = snap.docs.map((doc) => {
+      const d = doc.data()
+      const amount = parseFloat(String(d.amount)) || 0
+      const rType = String(d.revenue_type || '').toLowerCase()
+      if (rType.includes('fyc') || rType.includes('first')) totalFYC += amount
+      else if (rType.includes('renewal') || rType.includes('ren')) totalRenewal += amount
+      else if (rType.includes('override') || rType.includes('ovr')) totalOverride += amount
+
+      return stripInternalFields({
+        id: doc.id,
+        ...d,
+        amount,
+      } as Record<string, unknown>)
+    })
+
+    res.json(successResponse({
+      agent_id: agentId,
+      records,
+      totals: {
+        fyc: Math.round(totalFYC * 100) / 100,
+        renewal: Math.round(totalRenewal * 100) / 100,
+        override: Math.round(totalOverride * 100) / 100,
+        total: Math.round((totalFYC + totalRenewal + totalOverride) * 100) / 100,
+      },
+      record_count: records.length,
+    }))
+  } catch (err) {
+    console.error('GET /api/cam/agent/:agentId/commission error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/cam/agent/:agentId/statement — Generate commission statement
+ * Query params: period (YYYY-MM), type (monthly|quarterly)
+ */
+camRoutes.get('/agent/:agentId/statement', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const agentId = param(req.params.agentId)
+    const period = req.query.period as string || new Date().toISOString().slice(0, 7)
+
+    // Get agent info
+    const agentSnap = await db.collection('agents').where('agent_id', '==', agentId).limit(1).get()
+    const agentData = agentSnap.empty ? null : agentSnap.docs[0].data()
+
+    // Get revenue for this period
+    const revSnap = await db.collection('revenue')
+      .where('agent_id', '==', agentId)
+      .where('period', '==', period)
+      .get()
+
+    const lineItems = revSnap.docs.map((doc) => {
+      const d = doc.data()
+      return {
+        revenue_id: doc.id,
+        carrier: d.carrier || d.carrier_name || '',
+        product_type: d.product_type || '',
+        revenue_type: d.revenue_type || '',
+        amount: parseFloat(String(d.amount)) || 0,
+        policy_number: d.policy_number || '',
+      }
+    })
+
+    const totalAmount = lineItems.reduce((sum, li) => sum + li.amount, 0)
+
+    res.json(successResponse({
+      statement: {
+        agent_id: agentId,
+        agent_name: agentData ? `${agentData.first_name || ''} ${agentData.last_name || ''}`.trim() : agentId,
+        period,
+        generated_at: new Date().toISOString(),
+        line_items: lineItems,
+        total: Math.round(totalAmount * 100) / 100,
+        line_item_count: lineItems.length,
+      },
+    }))
+  } catch (err) {
+    console.error('GET /api/cam/agent/:agentId/statement error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/cam/agent/:agentId/override — Calculate override commissions for downline
+ * Body: { downline_agent_ids: string[], period? }
+ */
+camRoutes.post('/agent/:agentId/override', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const agentId = param(req.params.agentId)
+    const { downline_agent_ids, period } = req.body
+
+    if (!downline_agent_ids || !Array.isArray(downline_agent_ids)) {
+      res.status(400).json(errorResponse('downline_agent_ids array is required'))
+      return
+    }
+
+    const overrides: Record<string, unknown>[] = []
+    let totalOverride = 0
+    const overrideRate = parseFloat(String(req.body.override_rate || 0.03))
+
+    for (const dlAgentId of downline_agent_ids.slice(0, 20)) {
+      let query: Query<DocumentData> = db.collection('revenue').where('agent_id', '==', dlAgentId)
+      if (period) query = query.where('period', '==', period)
+
+      const snap = await query.get()
+      let dlTotal = 0
+      snap.docs.forEach((doc) => {
+        dlTotal += parseFloat(String(doc.data().amount)) || 0
+      })
+
+      const overrideAmount = calculateOverride(dlTotal, overrideRate)
+      totalOverride += overrideAmount
+
+      overrides.push({
+        downline_agent_id: dlAgentId,
+        downline_revenue: Math.round(dlTotal * 100) / 100,
+        override_rate: overrideRate,
+        override_amount: overrideAmount,
+      })
+    }
+
+    res.json(successResponse({
+      agent_id: agentId,
+      period: period || 'all',
+      override_rate: overrideRate,
+      overrides,
+      total_override: Math.round(totalOverride * 100) / 100,
+    }))
+  } catch (err) {
+    console.error('POST /api/cam/agent/:agentId/override error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// ANALYTICS (Sprint 6)
+// ============================================================================
+
+/**
+ * GET /api/cam/analytics/retention — Revenue retention rate (renewals vs lapses)
+ */
+camRoutes.get('/analytics/retention', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const snap = await db.collection('revenue').get()
+
+    let totalRenewal = 0
+    let totalLapsed = 0
+    let totalActive = 0
+
+    snap.docs.forEach((doc) => {
+      const d = doc.data()
+      const amount = parseFloat(String(d.amount)) || 0
+      const status = String(d.status || d.policy_status || '').toLowerCase()
+      const rType = String(d.revenue_type || '').toLowerCase()
+
+      if (rType.includes('renewal') || rType.includes('ren')) {
+        totalRenewal += amount
+        totalActive += amount
+      } else if (status === 'lapsed' || status === 'cancelled') {
+        totalLapsed += amount
+      } else {
+        totalActive += amount
+      }
+    })
+
+    const totalBase = totalActive + totalLapsed
+    const retentionRate = totalBase > 0 ? Math.round((totalActive / totalBase) * 10000) / 100 : 100
+    const lapseRate = totalBase > 0 ? Math.round((totalLapsed / totalBase) * 10000) / 100 : 0
+
+    res.json(successResponse({
+      retention_rate: retentionRate,
+      lapse_rate: lapseRate,
+      active_revenue: Math.round(totalActive * 100) / 100,
+      renewal_revenue: Math.round(totalRenewal * 100) / 100,
+      lapsed_revenue: Math.round(totalLapsed * 100) / 100,
+      total_base: Math.round(totalBase * 100) / 100,
+    }))
+  } catch (err) {
+    console.error('GET /api/cam/analytics/retention error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/cam/analytics/seasonal — Seasonal revenue patterns
+ */
+camRoutes.get('/analytics/seasonal', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const snap = await db.collection('revenue').get()
+
+    const byMonth: Record<number, { total: number; count: number }> = {}
+    for (let m = 1; m <= 12; m++) byMonth[m] = { total: 0, count: 0 }
+
+    snap.docs.forEach((doc) => {
+      const d = doc.data()
+      const amount = parseFloat(String(d.amount)) || 0
+      const dateStr = String(d.created_at || d.payment_date || '')
+      const month = parseInt(dateStr.slice(5, 7))
+      if (month >= 1 && month <= 12) {
+        byMonth[month].total += amount
+        byMonth[month].count += 1
+      }
+    })
+
+    const months = Object.entries(byMonth).map(([m, data]) => ({
+      month: parseInt(m),
+      month_name: new Date(2026, parseInt(m) - 1).toLocaleString('en-US', { month: 'short' }),
+      total: Math.round(data.total * 100) / 100,
+      count: data.count,
+      avg: data.count > 0 ? Math.round((data.total / data.count) * 100) / 100 : 0,
+    }))
+
+    const avgMonthly = months.reduce((s, m) => s + m.total, 0) / 12
+    const peakMonth = months.reduce((best, m) => m.total > best.total ? m : best, months[0])
+
+    res.json(successResponse({
+      months,
+      avg_monthly: Math.round(avgMonthly * 100) / 100,
+      peak_month: peakMonth.month_name,
+      peak_revenue: peakMonth.total,
+    }))
+  } catch (err) {
+    console.error('GET /api/cam/analytics/seasonal error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/cam/analytics/carrier-rank — Carrier ranking by total commission paid
+ */
+camRoutes.get('/analytics/carrier-rank', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let query: Query<DocumentData> = db.collection('revenue')
+    if (req.query.period) query = query.where('period', '==', req.query.period)
+
+    const snap = await query.get()
+    const carriers: Record<string, { carrier: string; fyc: number; renewal: number; total: number; policy_count: number }> = {}
+
+    snap.docs.forEach((doc) => {
+      const d = doc.data()
+      const amount = parseFloat(String(d.amount)) || 0
+      const carrier = String(d.carrier || d.carrier_name || 'Unknown')
+      const rType = String(d.revenue_type || '').toLowerCase()
+
+      if (!carriers[carrier]) carriers[carrier] = { carrier, fyc: 0, renewal: 0, total: 0, policy_count: 0 }
+      carriers[carrier].total += amount
+      carriers[carrier].policy_count += 1
+
+      if (rType.includes('fyc') || rType.includes('first')) carriers[carrier].fyc += amount
+      else if (rType.includes('renewal') || rType.includes('ren')) carriers[carrier].renewal += amount
+    })
+
+    const ranked = Object.values(carriers)
+      .map((c) => ({
+        ...c,
+        fyc: Math.round(c.fyc * 100) / 100,
+        renewal: Math.round(c.renewal * 100) / 100,
+        total: Math.round(c.total * 100) / 100,
+      }))
+      .sort((a, b) => b.total - a.total)
+
+    res.json(successResponse(ranked, { count: ranked.length }))
+  } catch (err) {
+    console.error('GET /api/cam/analytics/carrier-rank error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
