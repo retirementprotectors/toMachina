@@ -30,6 +30,7 @@ import { analyticsRoutes } from './routes/analytics.js'
 import { webhookRoutes } from './routes/webhooks.js'
 import { rulesRoutes } from './routes/rules.js'
 import { medicareQuoteRoutes } from './routes/medicare-quote.js'
+import { camRoutes } from './routes/cam.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -78,6 +79,7 @@ app.use('/api/analytics', analyticsRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/rules', rulesRoutes)
 app.use('/api/medicare-quote', medicareQuoteRoutes)
+app.use('/api/cam', normalizeBody, camRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
