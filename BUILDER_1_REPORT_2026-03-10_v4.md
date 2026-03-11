@@ -232,3 +232,31 @@
 | Auditor findings addressed | 15/17 (2 in progress) |
 | Build time (Cloud Build) | 3 min 53 sec |
 | Dev server load time | < 2 seconds (vs 30-60s on GAS) |
+
+---
+
+## Post-Merge Report (Addendum)
+
+### Merge Execution
+
+| Step | Result |
+|------|--------|
+| Merge `builder-2/api-and-migration` | **Clean** — no conflicts, 1,833 lines (12 API routes + types) |
+| Merge `builder-3/core-logic-port` | **Conflict on `packages/core/src/types/index.ts`** — resolved |
+| `turbo run build` | **9/9 workspaces pass, 0 errors, 27 seconds** |
+| Push to main | **Done** — auto-deploy triggered |
+
+### Conflict Resolution
+
+File: `packages/core/src/types/index.ts`
+- Builder 2 added: `Pipeline`, `Relationship`, `Activity`, `ContentBlock`, `SourceRegistry` + duplicate Campaign/Template/CaseTask/Communication
+- Builder 3 added: `ApiResponse<T>`, `DedupResult`, `DedupTier`, status constants
+- Resolution: All types kept. Duplicate interfaces merged with combined fields. Zero deletions.
+
+### Production Status
+
+| URL | Status |
+|-----|--------|
+| `prodash--claude-mcp-484718.us-central1.hosted.app` | **LIVE** — auth works, data renders |
+| Auto-deploy pipeline | **Working** — push to main triggers build |
+| `prodash.tomachina.com` | Pending custom domain mapping |
