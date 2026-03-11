@@ -1,14 +1,14 @@
 /**
- * Compliance utilities -- PHI/PII masking and safe logging.
- * Ported from CORE_Compliance.gs.
+ * Compliance — PHI/PII masking and sanitization utilities.
+ * Ported from CORE_Compliance.gs (deleted from RAPID_CORE in v1.18.0).
  *
  * CRITICAL: RPI handles Protected Health Information (PHI).
- * These utilities enforce HIPAA-compliant data handling.
+ * These utilities enforce HIPAA-compliant data handling:
+ *   - Mask SSN (show last 4 only)
+ *   - Mask DOB unless explicitly needed
+ *   - NEVER log PHI to console, error messages, or debug output
  *
- * Per CLAUDE.md PHI Rules:
- * - Mask SSN (show last 4 only)
- * - Mask DOB unless explicitly needed
- * - NEVER log PHI to console, error messages, or debug output
+ * All functions are pure — no GAS dependencies.
  */
 
 // ============================================================================
@@ -19,16 +19,15 @@
  * Mask SSN to show only last 4 digits.
  *
  * @example
- * maskSSN('123-45-6789')  // '***-**-6789'
- * maskSSN('123456789')    // '***-**-6789'
- * maskSSN('6789')         // '6789'
- * maskSSN(null)           // ''
+ * maskSSN('123-45-6789')  // "***-**-6789"
+ * maskSSN('123456789')    // "***-**-6789"
+ * maskSSN('6789')         // "6789"
+ * maskSSN(null)           // ""
  */
 export function maskSSN(ssn: string | number | null | undefined): string {
   if (!ssn) return ''
 
   const digits = String(ssn).replace(/\D/g, '')
-
   if (digits.length === 0) return ''
 
   if (digits.length >= 9) {
@@ -73,18 +72,20 @@ export interface MaskDOBOptions {
   showAge?: boolean
   /** If true, show birth year (default: false) */
   showYear?: boolean
-  /** If true, show full DOB -- use sparingly! (default: false) */
+  /** If true, show full DOB — use sparingly! (default: false) */
   showFull?: boolean
+  /** Reference date for age calculation (default: now) */
+  referenceDate?: Date
 }
 
 /**
- * Mask DOB -- return age or masked date based on context.
+ * Mask DOB — returns age or masked date based on options.
  *
  * @example
- * maskDOB('1950-03-15')                        // '74' (age)
- * maskDOB('1950-03-15', { showAge: false })     // '**\/**\/1950'
- * maskDOB('1950-03-15', { showYear: true })     // '74 (b. 1950)'
- * maskDOB('1950-03-15', { showFull: true })     // '03/15/1950'
+ * maskDOB('1950-03-15')                        // "74" (age)
+ * maskDOB('1950-03-15', { showAge: false })    // "**\/**\/1950"
+ * maskDOB('1950-03-15', { showYear: true })    // "74 (b. 1950)"
+ * maskDOB('1950-03-15', { showFull: true })    // "03/15/1950"
  */
 export function maskDOB(
   dob: Date | string | null | undefined,
@@ -103,9 +104,7 @@ export function maskDOB(
     dateObj = new Date(dob)
   }
 
-  if (isNaN(dateObj.getTime())) {
-    return ''
-  }
+  if (isNaN(dateObj.getTime())) return ''
 
   if (showFull) {
     const month = String(dateObj.getMonth() + 1).padStart(2, '0')
@@ -114,12 +113,8 @@ export function maskDOB(
     return `${month}/${day}/${year}`
   }
 
-  const today = new Date()
-  let age = today.getFullYear() - dateObj.getFullYear()
-  const monthDiff = today.getMonth() - dateObj.getMonth()
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateObj.getDate())) {
-    age--
-  }
+  const age = calculateAge(dob, options.referenceDate)
+  if (age === null) return ''
 
   if (showAge) {
     if (showYear) {
@@ -133,8 +128,12 @@ export function maskDOB(
 
 /**
  * Calculate age from DOB.
+ * @returns Age in years or null if invalid.
  */
-export function calculateAge(dob: Date | string | null | undefined): number | null {
+export function calculateAge(
+  dob: Date | string | null | undefined,
+  referenceDate?: Date
+): number | null {
   if (!dob) return null
 
   let dateObj: Date
@@ -146,7 +145,7 @@ export function calculateAge(dob: Date | string | null | undefined): number | nu
 
   if (isNaN(dateObj.getTime())) return null
 
-  const today = new Date()
+  const today = referenceDate ?? new Date()
   let age = today.getFullYear() - dateObj.getFullYear()
   const monthDiff = today.getMonth() - dateObj.getMonth()
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateObj.getDate())) {
@@ -162,12 +161,14 @@ export function calculateAge(dob: Date | string | null | undefined): number | nu
 
 /**
  * Mask phone number to show only last 4 digits.
+ *
+ * @example
+ * maskPhone('5155551234')  // "(***) ***-1234"
  */
 export function maskPhone(phone: string | number | null | undefined): string {
   if (!phone) return ''
 
   const digits = String(phone).replace(/\D/g, '')
-
   if (digits.length < 4) return digits
 
   const last4 = digits.slice(-4)
@@ -181,12 +182,14 @@ export function maskPhone(phone: string | number | null | undefined): string {
 /**
  * Mask Medicare Beneficiary Identifier (MBI).
  * MBI format: 1AA1-A11-AA11 (11 characters).
+ *
+ * @example
+ * maskMBI('1AA1A11AA11')  // "****-***-A11"
  */
 export function maskMBI(mbi: string | null | undefined): string {
   if (!mbi) return ''
 
   const clean = String(mbi).replace(/[^A-Z0-9]/gi, '').toUpperCase()
-
   if (clean.length < 4) return clean
 
   const last4 = clean.slice(-4)
@@ -194,18 +197,51 @@ export function maskMBI(mbi: string | null | undefined): string {
 }
 
 // ============================================================================
-// SAFE LOGGING UTILITIES
+// SAFE LOGGING / SANITIZATION
 // ============================================================================
 
-/** Field names that contain sensitive data. Used by sanitizeForLog(). */
-export const SENSITIVE_FIELDS: string[] = [
+/** Field names that contain sensitive data. */
+const SENSITIVE_FIELDS = new Set([
   'ssn', 'social_security', 'social_security_number',
   'dob', 'date_of_birth', 'birth_date', 'birthdate',
   'mbi', 'medicare_number', 'medicare_id', 'medicare_beneficiary_id',
   'password', 'secret', 'token', 'api_key', 'apikey',
   'credit_card', 'card_number', 'cvv', 'pin',
   'bank_account', 'routing_number', 'account_number',
-]
+])
+
+/**
+ * Check if a field key matches any sensitive field pattern.
+ */
+function isSensitiveField(key: string, additionalFields: Set<string>): boolean {
+  const keyLower = key.toLowerCase()
+  if (additionalFields.has(keyLower)) return true
+  if (SENSITIVE_FIELDS.has(keyLower)) return true
+  for (const sf of SENSITIVE_FIELDS) {
+    if (keyLower.includes(sf)) return true
+  }
+  return false
+}
+
+/**
+ * Apply the correct masking function based on field name.
+ */
+function maskSensitiveValue(key: string, value: unknown): unknown {
+  const keyLower = key.toLowerCase()
+  if (keyLower.includes('ssn') || keyLower.includes('social_security')) {
+    return maskSSN(value as string)
+  }
+  if (keyLower.includes('dob') || keyLower.includes('birth')) {
+    return maskDOB(value as string, { showAge: true })
+  }
+  if (keyLower.includes('mbi') || keyLower.includes('medicare')) {
+    return maskMBI(value as string)
+  }
+  if (keyLower.includes('phone')) {
+    return maskPhone(value as string)
+  }
+  return value ? '[REDACTED]' : null
+}
 
 /**
  * Sanitize an object for safe logging.
@@ -226,33 +262,12 @@ export function sanitizeForLog(
     return obj.map(item => sanitizeForLog(item, additionalFields))
   }
 
-  const sensitiveSet = new Set([
-    ...SENSITIVE_FIELDS,
-    ...additionalFields.map(f => f.toLowerCase()),
-  ])
-
+  const additionalSet = new Set(additionalFields.map(f => f.toLowerCase()))
   const result: Record<string, unknown> = {}
-  const record = obj as Record<string, unknown>
 
-  for (const [key, value] of Object.entries(record)) {
-    const keyLower = key.toLowerCase()
-
-    const isSensitive =
-      sensitiveSet.has(keyLower) ||
-      SENSITIVE_FIELDS.some(sf => keyLower.includes(sf))
-
-    if (isSensitive) {
-      if (keyLower.includes('ssn') || keyLower.includes('social_security')) {
-        result[key] = maskSSN(value as string)
-      } else if (keyLower.includes('dob') || keyLower.includes('birth')) {
-        result[key] = maskDOB(value as string, { showAge: true })
-      } else if (keyLower.includes('mbi') || keyLower.includes('medicare')) {
-        result[key] = maskMBI(value as string)
-      } else if (keyLower.includes('phone')) {
-        result[key] = maskPhone(value as string)
-      } else {
-        result[key] = value ? '[REDACTED]' : null
-      }
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    if (isSensitiveField(key, additionalSet)) {
+      result[key] = maskSensitiveValue(key, value)
     } else if (typeof value === 'object' && value !== null) {
       result[key] = sanitizeForLog(value, additionalFields)
     } else {
@@ -261,4 +276,24 @@ export function sanitizeForLog(
   }
 
   return result
+}
+
+/**
+ * Check if a value looks like it contains PHI.
+ * Useful for pre-flight checks before logging or sending data externally.
+ */
+export function containsPHI(text: string): boolean {
+  if (!text) return false
+
+  // SSN pattern: 3-2-4 or 9 consecutive digits
+  if (/\b\d{3}-\d{2}-\d{4}\b/.test(text)) return true
+  if (/\b\d{9}\b/.test(text) && !/\b\d{10,}\b/.test(text)) return true
+
+  // MBI pattern: alphanumeric 11 chars
+  if (/\b[1-9][A-Z][A-Z0-9]\d[A-Z][A-Z0-9]\d[A-Z]{2}\d{2}\b/.test(text)) return true
+
+  // DOB pattern in common formats (rough heuristic)
+  if (/\b(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/(19|20)\d{2}\b/.test(text)) return true
+
+  return false
 }
