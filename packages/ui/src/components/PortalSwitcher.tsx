@@ -15,7 +15,7 @@ interface PortalDef {
 const PORTALS: PortalDef[] = [
   {
     key: 'prodash',
-    label: 'ProDash',
+    label: 'ProDashX',
     description: 'B2C Client Portal',
     color: '#3d8a8f',
     prodUrl: 'https://prodash.tomachina.com',

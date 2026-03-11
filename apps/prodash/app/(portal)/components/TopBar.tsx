@@ -33,7 +33,7 @@ export function TopBar({ user }: TopBarProps) {
           className="text-base font-semibold"
           style={{ color: 'var(--portal)' }}
         >
-          ProDash
+          ProDashX
         </span>
         <span className="text-xs text-[var(--text-muted)]">
           toMachina

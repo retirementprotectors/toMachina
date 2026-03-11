@@ -3,7 +3,7 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'ProDash | toMachina',
+  title: 'ProDashX | toMachina',
   description: 'RPI Client Portal — Powered by toMachina',
 }
 

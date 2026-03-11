@@ -318,7 +318,7 @@ export function PortalSidebar() {
               className="text-lg font-bold"
               style={{ color: 'var(--portal)' }}
             >
-              ProDash
+              ProDashX
             </span>
           </div>
         )}

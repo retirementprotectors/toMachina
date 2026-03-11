@@ -26,7 +26,7 @@ export function SignInScreen({ onSignIn }: SignInScreenProps) {
             className="text-3xl font-bold"
             style={{ color: 'var(--portal)' }}
           >
-            ProDash
+            ProDashX
           </span>
         </div>
 

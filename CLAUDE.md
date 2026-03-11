@@ -51,7 +51,7 @@ toMachina/
 
 | Portal | CSS Variable `--portal` | Port (dev) |
 |--------|------------------------|------------|
-| ProDash | `#3d8a8f` (teal) | 3001 |
+| ProDashX | `#3d8a8f` (teal) | 3001 |
 | RIIMO | `#276749` (dark green) | 3002 |
 | SENTINEL | `#3CB371` (green) | 3003 |
 
@@ -99,7 +99,7 @@ During transition, GAS engines (RAPID_IMPORT, RAPID_FLOW, RAPID_COMMS, CAM, DEX,
 |----------|-----|
 | GCP Console | https://console.cloud.google.com/home/dashboard?project=claude-mcp-484718 |
 | GitHub | https://github.com/retirementprotectors/toMachina |
-| ProDash (prod) | https://prodash.tomachina.com |
+| ProDashX (prod) | https://prodash.tomachina.com |
 | RIIMO (prod) | https://riimo.tomachina.com |
 | SENTINEL (prod) | https://sentinel.tomachina.com |
 | API (prod) | https://api.tomachina.com |
