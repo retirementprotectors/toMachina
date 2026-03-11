@@ -12,3 +12,9 @@ export {
   projectRevenue,
   projectCashFlow,
 } from './revenue'
+
+export { calculateMec } from './mec'
+export type { MecInput, MecResult } from './mec'
+
+export { calculateSph } from './sph'
+export type { SphInput, SphResult, SphYearProjection } from './sph'
