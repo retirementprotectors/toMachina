@@ -2,7 +2,9 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/auth'
+import type { UserEntitlementContext } from '@tomachina/auth'
 
 /* ─── Section Type Styling ─── */
 type SectionType = 'workspace' | 'sales' | 'service' | 'pipeline' | 'app' | 'admin'
@@ -31,6 +33,8 @@ interface NavItem {
   label: string
   href: string
   icon: string
+  /** Module key from MODULES — used for entitlement gating. Omit for always-visible items. */
+  moduleKey?: string
 }
 
 interface NavSection {
@@ -39,6 +43,8 @@ interface NavSection {
   type: SectionType
   items: NavItem[]
   defaultExpanded: boolean
+  /** Module key for the entire section — if user lacks access, whole section is hidden. */
+  moduleKey?: string
 }
 
 /* ─── Navigation Configuration ─── */
@@ -48,10 +54,11 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Workspace',
     type: 'workspace',
     defaultExpanded: true,
+    moduleKey: 'PRODASH',
     items: [
-      { key: 'clients', label: 'Clients', href: '/clients', icon: 'people' },
-      { key: 'accounts', label: 'Accounts', href: '/accounts', icon: 'account_balance' },
-      { key: 'casework', label: 'My Cases', href: '/casework', icon: 'work' },
+      { key: 'clients', label: 'Clients', href: '/clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'accounts', label: 'Accounts', href: '/accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
+      { key: 'casework', label: 'My Cases', href: '/casework', icon: 'work', moduleKey: 'PRODASH_PIPELINES' },
     ],
   },
   {
@@ -60,10 +67,10 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'sales',
     defaultExpanded: true,
     items: [
-      { key: 'medicare', label: 'Medicare', href: '/sales-centers/medicare', icon: 'health_and_safety' },
-      { key: 'life', label: 'Life', href: '/sales-centers/life', icon: 'shield' },
-      { key: 'annuity', label: 'Annuity', href: '/sales-centers/annuity', icon: 'savings' },
-      { key: 'advisory', label: 'Advisory', href: '/sales-centers/advisory', icon: 'trending_up' },
+      { key: 'medicare', label: 'Medicare', href: '/sales-centers/medicare', icon: 'health_and_safety', moduleKey: 'QUE_MEDICARE' },
+      { key: 'life', label: 'Life', href: '/sales-centers/life', icon: 'shield', moduleKey: 'QUE_LIFE' },
+      { key: 'annuity', label: 'Annuity', href: '/sales-centers/annuity', icon: 'savings', moduleKey: 'QUE_ANNUITY' },
+      { key: 'advisory', label: 'Advisory', href: '/sales-centers/advisory', icon: 'trending_up', moduleKey: 'QUE_MEDSUP' },
     ],
   },
   {
@@ -72,8 +79,8 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'service',
     defaultExpanded: true,
     items: [
-      { key: 'rmd', label: 'RMD Center', href: '/service-centers/rmd', icon: 'calendar_month' },
-      { key: 'beni', label: 'Beni Center', href: '/service-centers/beni', icon: 'volunteer_activism' },
+      { key: 'rmd', label: 'RMD Center', href: '/service-centers/rmd', icon: 'calendar_month', moduleKey: 'RMD_CENTER' },
+      { key: 'beni', label: 'Beni Center', href: '/service-centers/beni', icon: 'volunteer_activism', moduleKey: 'BENI_CENTER' },
     ],
   },
   {
@@ -81,6 +88,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Pipelines',
     type: 'pipeline',
     defaultExpanded: false,
+    moduleKey: 'PRODASH_PIPELINES',
     items: [
       { key: 'discovery', label: 'Discovery', href: '/pipelines?stage=discovery', icon: 'search' },
       { key: 'data-foundation', label: 'Data Foundation', href: '/pipelines?stage=data-foundation', icon: 'storage' },
@@ -94,11 +102,11 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'app',
     defaultExpanded: false,
     items: [
-      { key: 'atlas', label: 'ATLAS', href: '/modules/atlas', icon: 'hub' },
-      { key: 'cam', label: 'CAM', href: '/modules/cam', icon: 'payments' },
-      { key: 'dex', label: 'DEX', href: '/modules/dex', icon: 'description' },
-      { key: 'c3', label: 'C3', href: '/modules/c3', icon: 'campaign' },
-      { key: 'command-center', label: 'Command Center', href: '/modules/command-center', icon: 'dashboard' },
+      { key: 'atlas', label: 'ATLAS', href: '/modules/atlas', icon: 'hub', moduleKey: 'ATLAS' },
+      { key: 'cam', label: 'CAM', href: '/modules/cam', icon: 'payments', moduleKey: 'CAM' },
+      { key: 'dex', label: 'DEX', href: '/modules/dex', icon: 'description', moduleKey: 'DEX' },
+      { key: 'c3', label: 'C3', href: '/modules/c3', icon: 'campaign', moduleKey: 'C3' },
+      { key: 'command-center', label: 'Command Center', href: '/modules/command-center', icon: 'dashboard', moduleKey: 'RPI_COMMAND_CENTER' },
     ],
   },
 ]
@@ -108,6 +116,7 @@ const ADMIN_SECTION: NavSection = {
   label: 'Admin',
   type: 'admin',
   defaultExpanded: false,
+  moduleKey: 'PRODASH_ADMIN',
   items: [
     { key: 'connect', label: 'Connect', href: '/connect', icon: 'settings_input_composite' },
     { key: 'admin', label: 'Admin', href: '/admin', icon: 'admin_panel_settings' },
@@ -117,10 +126,57 @@ const ADMIN_SECTION: NavSection = {
 const STORAGE_KEY = 'prodash-sidebar-collapsed'
 const EXPANDED_KEY = 'prodash-sidebar-expanded'
 
+/**
+ * Filter nav sections based on the user's entitlement context.
+ * Sections with no accessible items are excluded entirely.
+ */
+function filterSections(
+  sections: NavSection[],
+  ctx: UserEntitlementContext
+): NavSection[] {
+  return sections
+    .filter((section) => {
+      // If section has a moduleKey gate, check it
+      if (section.moduleKey && !canAccessModule(ctx, section.moduleKey)) {
+        return false
+      }
+      return true
+    })
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => {
+        // If item has a moduleKey gate, check it
+        if (item.moduleKey && !canAccessModule(ctx, item.moduleKey)) {
+          return false
+        }
+        return true
+      }),
+    }))
+    .filter((section) => section.items.length > 0)
+}
+
 export function PortalSidebar() {
   const pathname = usePathname()
+  const { user } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+
+  // Build entitlement context from the authenticated user
+  const entitlementCtx = useMemo(
+    () => buildEntitlementContext(user),
+    [user]
+  )
+
+  // Filter nav sections based on entitlements
+  const visibleSections = useMemo(
+    () => filterSections(NAV_SECTIONS, entitlementCtx),
+    [entitlementCtx]
+  )
+
+  const visibleAdmin = useMemo(() => {
+    const filtered = filterSections([ADMIN_SECTION], entitlementCtx)
+    return filtered.length > 0 ? filtered[0] : null
+  }, [entitlementCtx])
 
   /* Load saved state from localStorage */
   useEffect(() => {
@@ -279,13 +335,15 @@ export function PortalSidebar() {
 
       {/* Main Nav */}
       <nav className="flex-1 overflow-y-auto py-2 px-1">
-        {NAV_SECTIONS.map(renderSection)}
+        {visibleSections.map(renderSection)}
       </nav>
 
       {/* Admin Footer */}
-      <div className="border-t border-[var(--border-subtle)] py-2 px-1">
-        {renderSection(ADMIN_SECTION)}
-      </div>
+      {visibleAdmin && (
+        <div className="border-t border-[var(--border-subtle)] py-2 px-1">
+          {renderSection(visibleAdmin)}
+        </div>
+      )}
     </aside>
   )
 }

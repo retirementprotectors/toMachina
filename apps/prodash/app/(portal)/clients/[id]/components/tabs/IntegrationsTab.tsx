@@ -1,0 +1,108 @@
+'use client'
+
+import type { Client } from '@tomachina/core'
+import { formatDate, str } from '../../lib/formatters'
+import { SectionCard, DetailField, FieldGrid, EmptyState } from '../../lib/ui-helpers'
+
+interface IntegrationsTabProps {
+  client: Client
+}
+
+export function IntegrationsTab({ client }: IntegrationsTabProps) {
+  const ghlId = str(client.ghl_contact_id)
+  const acfUrl = str(client.gdrive_folder_url) || str(client.acf_url)
+  const importSource = str(client.import_source)
+  const ghlCreated = str(client.ghl_created_at) || str(client.ghl_date_created)
+  const ghlUpdated = str(client.ghl_updated_at) || str(client.ghl_date_updated)
+  const dtccId = str(client.dtcc_id)
+  const dstId = str(client.dst_id)
+  const schwabId = str(client.schwab_id)
+  const rbcId = str(client.rbc_id)
+  const clientId = str(client.client_id)
+  const legacyId = str(client.legacy_id)
+  const firestoreId = str((client as Record<string, unknown>)._id)
+
+  const hasGhl = Boolean(ghlId || ghlCreated || ghlUpdated)
+  const hasExternal = Boolean(dtccId || dstId || schwabId || rbcId)
+  const hasAny = Boolean(hasGhl || acfUrl || importSource || hasExternal || clientId || legacyId || firestoreId)
+
+  if (!hasAny) {
+    return <EmptyState icon="integration_instructions" message="No integration data available for this client." />
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Internal IDs */}
+      <SectionCard title="Platform IDs" icon="fingerprint">
+        <FieldGrid cols={3}>
+          <DetailField label="Client ID" value={clientId} mono />
+          <DetailField label="Firestore Doc ID" value={firestoreId} mono />
+          {legacyId && <DetailField label="Legacy ID" value={legacyId} mono />}
+        </FieldGrid>
+      </SectionCard>
+
+      {/* Import Source */}
+      {importSource && (
+        <SectionCard title="Data Source" icon="cloud_download">
+          <FieldGrid cols={3}>
+            <DetailField label="Import Source" value={importSource} />
+            <DetailField label="Import Date" value={formatDate(client.import_date || client.created_at)} />
+            <DetailField label="Last Sync" value={formatDate(client.last_sync || client.updated_at)} />
+          </FieldGrid>
+        </SectionCard>
+      )}
+
+      {/* GHL Integration */}
+      {hasGhl && (
+        <SectionCard title="GoHighLevel (GHL)" icon="link">
+          <FieldGrid cols={3}>
+            <DetailField label="GHL Contact ID" value={ghlId} mono />
+            <DetailField label="GHL Created" value={formatDate(ghlCreated)} />
+            <DetailField label="GHL Updated" value={formatDate(ghlUpdated)} />
+          </FieldGrid>
+        </SectionCard>
+      )}
+
+      {/* ACF / Drive */}
+      {acfUrl && (
+        <SectionCard title="Active Client Folder" icon="folder_shared">
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)]">Drive Folder</dt>
+            <dd className="mt-1">
+              <a
+                href={acfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--portal)] hover:brightness-110 transition-all"
+              >
+                <span className="material-icons-outlined text-[16px]">open_in_new</span>
+                Open in Google Drive
+              </a>
+            </dd>
+          </div>
+        </SectionCard>
+      )}
+
+      {/* External System IDs */}
+      {hasExternal && (
+        <SectionCard title="External Systems" icon="hub">
+          <FieldGrid cols={2}>
+            {dtccId && <DetailField label="DTCC ID" value={dtccId} mono />}
+            {dstId && <DetailField label="DST Vision ID" value={dstId} mono />}
+            {schwabId && <DetailField label="Schwab ID" value={schwabId} mono />}
+            {rbcId && <DetailField label="RBC ID" value={rbcId} mono />}
+          </FieldGrid>
+        </SectionCard>
+      )}
+
+      {/* Timestamps */}
+      <SectionCard title="Record Timestamps" icon="schedule">
+        <FieldGrid cols={3}>
+          <DetailField label="Created" value={formatDate(client.created_at)} />
+          <DetailField label="Last Updated" value={formatDate(client.updated_at)} />
+          <DetailField label="Last Verified" value={formatDate(client.last_verified)} />
+        </FieldGrid>
+      </SectionCard>
+    </div>
+  )
+}

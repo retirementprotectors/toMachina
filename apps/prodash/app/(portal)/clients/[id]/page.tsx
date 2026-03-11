@@ -14,6 +14,10 @@ import { HealthTab } from './components/tabs/HealthTab'
 import { EstateTab } from './components/tabs/EstateTab'
 import { AccountsTab } from './components/tabs/AccountsTab'
 import { ConnectedTab } from './components/tabs/ConnectedTab'
+import { MedicareTab } from './components/tabs/MedicareTab'
+import { ActivityTab } from './components/tabs/ActivityTab'
+import { CommsTab } from './components/tabs/CommsTab'
+import { IntegrationsTab } from './components/tabs/IntegrationsTab'
 
 // ---------------------------------------------------------------------------
 // CLIENT360 Detail Page — the heart of ProDash
@@ -158,23 +162,23 @@ export default function Client360Page({
       case 'personal':
         return <PersonalTab client={client!} {...editProps} />
       case 'financial':
-        return <FinancialTab client={client!} />
+        return <FinancialTab client={client!} {...editProps} />
       case 'health':
-        return <HealthTab client={client!} />
+        return <HealthTab client={client!} {...editProps} />
       case 'medicare':
-        return <PlaceholderTab icon="local_hospital" label="Medicare details loading..." />
+        return <MedicareTab accounts={accounts} loading={accountsLoading} />
       case 'estate':
-        return <EstateTab client={client!} />
+        return <EstateTab client={client!} {...editProps} />
       case 'accounts':
         return <AccountsTab accounts={accounts} loading={accountsLoading} />
       case 'connected':
         return <ConnectedTab client={client!} />
       case 'communications':
-        return <PlaceholderTab icon="forum" label="Communication history loading..." />
+        return <CommsTab clientId={id} />
       case 'activity':
-        return <PlaceholderTab icon="history" label="Activity log loading..." />
+        return <ActivityTab clientId={id} />
       case 'integrations':
-        return <PlaceholderTab icon="integration_instructions" label="Integration status loading..." />
+        return <IntegrationsTab client={client!} />
       default:
         return null
     }
@@ -213,11 +217,3 @@ function BackLink() {
   )
 }
 
-function PlaceholderTab({ icon, label }: { icon: string; label: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] py-20">
-      <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">{icon}</span>
-      <p className="mt-4 text-sm text-[var(--text-muted)]">{label}</p>
-    </div>
-  )
-}

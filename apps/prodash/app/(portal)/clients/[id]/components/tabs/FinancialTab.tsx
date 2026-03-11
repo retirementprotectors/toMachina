@@ -2,56 +2,65 @@
 
 import type { Client } from '@tomachina/core'
 import { formatCurrency, str } from '../../lib/formatters'
-import { SectionCard, DetailField, FieldGrid } from '../../lib/ui-helpers'
+import { SectionCard, DetailField, EditableField, FieldGrid } from '../../lib/ui-helpers'
 
 interface FinancialTabProps {
   client: Client
+  editing?: boolean
+  editData?: Record<string, unknown>
+  onFieldChange?: (key: string, value: string) => void
 }
 
-export function FinancialTab({ client }: FinancialTabProps) {
+export function FinancialTab({ client, editing = false, editData = {}, onFieldChange }: FinancialTabProps) {
+  const ev = (key: string) => (editData[key] !== undefined ? String(editData[key]) : undefined)
+  const F = editing ? EditableField : DetailField
+  const fp = (label: string, fieldKey: string, value: unknown, opts?: { type?: 'text' | 'email' | 'tel' | 'date' | 'select' }) =>
+    editing
+      ? <EditableField label={label} value={formatCurrency(value)} fieldKey={fieldKey} editing={editing} editValue={ev(fieldKey)} onChange={onFieldChange} {...opts} />
+      : <DetailField label={label} value={formatCurrency(value)} />
+  const ft = (label: string, fieldKey: string, value: unknown) =>
+    editing
+      ? <EditableField label={label} value={str(value)} fieldKey={fieldKey} editing={editing} editValue={ev(fieldKey)} onChange={onFieldChange} />
+      : <DetailField label={label} value={str(value)} />
+
   return (
     <div className="space-y-4">
       {/* Assets & Income */}
       <SectionCard title="Assets & Income" icon="savings">
         <FieldGrid cols={4}>
-          <DetailField
-            label="Investable Assets"
-            value={formatCurrency(client.investable_assets)}
-          />
-          <DetailField label="Net Worth" value={formatCurrency(client.net_worth)} />
-          <DetailField
-            label="Household Income"
-            value={formatCurrency(client.household_income)}
-          />
-          <DetailField
-            label="Annual Income"
-            value={formatCurrency(client.annual_income)}
-          />
+          {fp('Investable Assets', 'investable_assets', client.investable_assets)}
+          {fp('Net Worth', 'net_worth', client.net_worth)}
+          {fp('Household Income', 'household_income', client.household_income)}
+          {fp('Annual Income', 'annual_income', client.annual_income)}
         </FieldGrid>
       </SectionCard>
 
       {/* Tax */}
       <SectionCard title="Tax Information" icon="receipt_long">
         <FieldGrid cols={3}>
-          <DetailField label="Federal Tax Bracket" value={str(client.federal_tax_bracket)} />
-          <DetailField label="Filing Status" value={str(client.filing_status)} />
-          <DetailField label="Funding Source" value={str(client.funding_source)} />
+          {ft('Federal Tax Bracket', 'federal_tax_bracket', client.federal_tax_bracket)}
+          {ft('Filing Status', 'filing_status', client.filing_status)}
+          {ft('Funding Source', 'funding_source', client.funding_source)}
         </FieldGrid>
       </SectionCard>
 
       {/* Risk Profile */}
       <SectionCard title="Risk Profile" icon="trending_up">
         <FieldGrid cols={3}>
-          <RiskScore label="Risk Score" value={client.risk_score} />
-          <DetailField label="Risk Objective" value={str(client.risk_objective)} />
-          <DetailField label="Risk Willingness" value={str(client.risk_willingness)} />
-          <DetailField label="Drop Tolerance" value={str(client.drop_tolerance)} />
-          <DetailField label="Time Horizon" value={str(client.time_horizon)} />
-          <DetailField label="Investment Knowledge" value={str(client.investment_knowledge)} />
+          {editing ? (
+            <EditableField label="Risk Score" value={str(client.risk_score)} fieldKey="risk_score" editing={editing} editValue={ev('risk_score')} onChange={onFieldChange} />
+          ) : (
+            <RiskScore label="Risk Score" value={client.risk_score} />
+          )}
+          {ft('Risk Objective', 'risk_objective', client.risk_objective)}
+          {ft('Risk Willingness', 'risk_willingness', client.risk_willingness)}
+          {ft('Drop Tolerance', 'drop_tolerance', client.drop_tolerance)}
+          {ft('Time Horizon', 'time_horizon', client.time_horizon)}
+          {ft('Investment Knowledge', 'investment_knowledge', client.investment_knowledge)}
         </FieldGrid>
       </SectionCard>
 
-      {/* ID.ME Status */}
+      {/* ID.ME Status — always read-only (external system) */}
       <SectionCard title="ID.ME Verification" icon="verified_user">
         <div className="flex flex-wrap gap-3">
           <IdMeBadge label="IRS" status={str(client.idme_irs)} />

@@ -10,6 +10,7 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
+    "@tomachina/core": "*",
     "firebase": "^11.0.0",
     "react": "^19.0.0"
   },
