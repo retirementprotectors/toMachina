@@ -3,6 +3,7 @@
   "scripts": {
     "load-clients": "npx tsx load-clients.ts",
     "load-reference": "npx tsx load-reference.ts",
-    "load-all": "npx tsx load-clients.ts && npx tsx load-reference.ts"
+    "load-remaining": "npx tsx load-remaining.ts",
+    "load-all": "npx tsx load-clients.ts && npx tsx load-reference.ts && npx tsx load-remaining.ts"
   }
 }

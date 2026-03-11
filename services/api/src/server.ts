@@ -1,7 +1,22 @@
 import express from 'express'
 import cors from 'cors'
-import { initializeApp, cert, getApps } from 'firebase-admin/app'
+import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
+import { requireAuth } from './middleware/auth.js'
+import { clientRoutes } from './routes/clients.js'
+import { accountRoutes } from './routes/accounts.js'
+import { agentRoutes } from './routes/agents.js'
+import { revenueRoutes } from './routes/revenue.js'
+import { userRoutes } from './routes/users.js'
+import { healthRoutes } from './routes/health.js'
+import { opportunityRoutes } from './routes/opportunities.js'
+import { pipelineRoutes } from './routes/pipelines.js'
+import { carrierRoutes } from './routes/carriers.js'
+import { productRoutes } from './routes/products.js'
+import { campaignRoutes } from './routes/campaigns.js'
+import { caseTaskRoutes } from './routes/case-tasks.js'
+import { communicationRoutes } from './routes/communications.js'
+import { orgRoutes } from './routes/org.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -10,39 +25,40 @@ if (getApps().length === 0) {
   })
 }
 
-const db = getFirestore()
+export const db = getFirestore()
 const app = express()
 
+// Middleware
 app.use(cors({ origin: true }))
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
 
-// Health check
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'tomachina-api', timestamp: new Date().toISOString() })
+// Health check — no auth required
+app.use('/health', healthRoutes)
+
+// All API routes require auth
+app.use('/api/clients', requireAuth, clientRoutes)
+app.use('/api/accounts', requireAuth, accountRoutes)
+app.use('/api/agents', requireAuth, agentRoutes)
+app.use('/api/revenue', requireAuth, revenueRoutes)
+app.use('/api/users', requireAuth, userRoutes)
+app.use('/api/opportunities', requireAuth, opportunityRoutes)
+app.use('/api/pipelines', requireAuth, pipelineRoutes)
+app.use('/api/carriers', requireAuth, carrierRoutes)
+app.use('/api/products', requireAuth, productRoutes)
+app.use('/api/campaigns', requireAuth, campaignRoutes)
+app.use('/api/case-tasks', requireAuth, caseTaskRoutes)
+app.use('/api/communications', requireAuth, communicationRoutes)
+app.use('/api/org', requireAuth, orgRoutes)
+
+// 404 handler
+app.use((_req: express.Request, res: express.Response) => {
+  res.status(404).json({ success: false, error: 'Route not found' })
 })
 
-// Placeholder routes — Phase 1 will build these out
-app.get('/api/clients', async (_req, res) => {
-  try {
-    const snap = await db.collection('clients').limit(25).get()
-    const clients = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json({ success: true, data: clients, count: clients.length })
-  } catch (err) {
-    res.status(500).json({ success: false, error: String(err) })
-  }
-})
-
-app.get('/api/clients/:id', async (req, res) => {
-  try {
-    const doc = await db.collection('clients').doc(req.params.id).get()
-    if (!doc.exists) {
-      res.status(404).json({ success: false, error: 'Client not found' })
-      return
-    }
-    res.json({ success: true, data: { id: doc.id, ...doc.data() } })
-  } catch (err) {
-    res.status(500).json({ success: false, error: String(err) })
-  }
+// Error handler
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err.message)
+  res.status(500).json({ success: false, error: 'Internal server error' })
 })
 
 // Start server
