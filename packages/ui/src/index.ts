@@ -11,3 +11,8 @@ export { DataTable } from './components/DataTable'
 export { KanbanBoard } from './components/KanbanBoard'
 export type { KanbanCard, KanbanColumn } from './components/KanbanBoard'
 export { PortalSwitcher } from './components/PortalSwitcher'
+
+// Shared Module Components
+export { C3Manager } from './modules/C3Manager'
+export { DexDocCenter } from './modules/DexDocCenter'
+export { AtlasRegistry } from './modules/AtlasRegistry'
