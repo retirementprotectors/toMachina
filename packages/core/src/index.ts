@@ -1,6 +1,10 @@
 // toMachina Core Business Logic
-// Phase 1 will port RAPID_CORE non-Sheets functions here
+// Ported from RAPID_CORE GAS library
 
 export * from './normalizers'
 export * from './validators'
 export * from './types'
+export * from './matching'
+export * from './financial'
+export * from './users'
+export * from './collections'
