@@ -37,6 +37,7 @@ import { contentBlockRoutes } from './routes/content-blocks.js'
 import { atlasRoutes } from './routes/atlas.js'
 import { camRoutes } from './routes/cam.js'
 import { approvalRoutes } from './routes/approval.js'
+import { leadershipRoutes } from './routes/leadership.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -92,6 +93,7 @@ app.use('/api/content-blocks', normalizeBody, contentBlockRoutes)
 app.use('/api/atlas', normalizeBody, atlasRoutes)
 app.use('/api/cam', normalizeBody, camRoutes)
 app.use('/api/approval', normalizeBody, approvalRoutes)
+app.use('/api/leadership', normalizeBody, leadershipRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

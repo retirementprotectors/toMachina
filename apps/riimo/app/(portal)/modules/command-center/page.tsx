@@ -1,5 +1,5 @@
-import { CommandCenter } from '@tomachina/ui'
+import { LeadershipCenter } from '@tomachina/ui'
 
-export default function CommandCenterPage() {
-  return <CommandCenter portal="riimo" />
+export default function LeadershipPage() {
+  return <LeadershipCenter />
 }
