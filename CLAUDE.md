@@ -89,9 +89,11 @@ npx turbo run build --filter=@tomachina/core
 
 ## GAS Bridge
 
-During transition, GAS engines (RAPID_IMPORT, RAPID_FLOW, RAPID_COMMS, CAM, DEX, C3, ATLAS) continue running. They write through `CORE_Bridge.gs` which hits the bridge service, keeping Firestore + Sheets in sync.
+Only 3 GAS engines remain: RAPID_IMPORT, DEX, RAPID_CORE. The rest (RAPID_COMMS, RAPID_FLOW, RAPID_API, C3, ATLAS, CAM) were migrated to Cloud Run API routes and archived in Sprint 4-5.
 
-**GAS reads Sheets. toMachina reads Firestore. Bridge keeps them in sync.**
+Bridge Sheets writes can be disabled via `SHEETS_WRITE_ENABLED=false` env var on the Bridge Cloud Run service. Firestore is the primary data store.
+
+**GAS reads Sheets. toMachina reads Firestore. Bridge keeps them in sync (when enabled).**
 
 ## Session URLs
 
