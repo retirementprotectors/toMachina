@@ -35,20 +35,76 @@ Rewrote `services/bridge/src/server.ts` from a stub into a real dual-write servi
 
 ---
 
-## Checkpoint 2: Bridge Tested
+## Checkpoint 2: Bridge End-to-End Test
 
-The bridge compiles and is architecturally complete. Full integration testing requires:
-1. Setting `PRODASH_MATRIX_ID` env var (available from RAPID_CORE Script Properties)
-2. Running the bridge locally (`npm run dev` in `services/bridge/`)
-3. POSTing a write request:
-   ```bash
-   curl -X POST http://localhost:8081/write \
-     -H "Content-Type: application/json" \
-     -d '{"collection":"clients","operation":"insert","id":"test_bridge_001","data":{"first_name":"Test","last_name":"Bridge"}}'
-   ```
-4. Verify: Firestore doc created + Sheets row appended in `_CLIENT_MASTER`
+**Status: PASSED (2026-03-11T02:46Z)**
 
-The health endpoint returns Sheets configuration status for quick verification.
+Full round-trip test against live MATRIX Sheets with confirmed MATRIX IDs:
+- `RAPID_MATRIX_ID`: `1nnSY-J3n6DtVvKqyC40zpEt1sROtHkIEqmSwG-5d9dU`
+- `PRODASH_MATRIX_ID`: `1byyXMJDpjzgqkhTjJ2GdvTclaGYMDKQ1BQEnz61Eg-w`
+- `SENTINEL_MATRIX_ID`: `1K_DLb-txoI4F1dLrUyoFOuFc0xwsH1iW5eff3pQ_o6E`
+
+### Test Sequence
+
+**1. Health check:**
+```
+GET /health -> { status: "ok", sheetsConfigured: true, matrixStatus: { RAPID: true, PRODASH: true, SENTINEL: true } }
+GET /status/sheets -> RAPID: 43 tabs, PRODASH: 23 tabs, SENTINEL: 4 tabs
+```
+
+**2. INSERT** — test carrier doc `TEST_BRIDGE_001` into `carriers` collection / `_CARRIER_MASTER` tab:
+```
+POST /write { collection: "carriers", operation: "insert", id: "TEST_BRIDGE_001", data: {...} }
+Response: { success: true, stores: { firestore: "ok", sheets: "ok" } }  (1992ms)
+```
+Verified: Firestore doc exists with all fields. Sheets row 166 contains `TEST_BRIDGE_001 | BRIDGE TEST - DELETE ME | ... | test | test`.
+
+**3. UPDATE** — change name and status:
+```
+POST /write { collection: "carriers", operation: "update", id: "TEST_BRIDGE_001", data: { name: "BRIDGE TEST UPDATED...", status: "test_updated" } }
+Response: { success: true, stores: { firestore: "ok", sheets: "ok" } }  (889ms)
+```
+Verified: Firestore `name` updated. Sheets row 166 column B updated to new name, column H updated to `test_updated`.
+
+**4. DELETE** (soft delete):
+```
+POST /write { collection: "carriers", operation: "delete", id: "TEST_BRIDGE_001" }
+Response: { success: true, stores: { firestore: "ok", sheets: "ok" } }  (860ms)
+```
+Verified: Firestore has `_deleted: true`, `_deleted_at` set. Sheets row 166 status column = `deleted`.
+
+**5. Cleanup:**
+Test doc hard-deleted from Firestore. Test row deleted from Sheets. Carrier count back to 165 (original).
+
+### Bridge Logs (complete session)
+```
+toMachina Bridge listening on port 8081
+   RAPID_MATRIX_ID: configured
+   PRODASH_MATRIX_ID: configured
+   SENTINEL_MATRIX_ID: configured
+[Bridge] insert carriers/TEST_BRIDGE_001 — firestore:ok sheets:ok (1992ms)
+[Bridge] update carriers/TEST_BRIDGE_001 — firestore:ok sheets:ok (889ms)
+[Bridge] delete carriers/TEST_BRIDGE_001 — firestore:ok sheets:ok (860ms)
+```
+
+### Finding: ADC Scope Requirement
+
+During testing, discovered that Application Default Credentials must include `spreadsheets` (read/write) scope. The default `gcloud auth application-default login` only grants read-only. Fix:
+```bash
+gcloud auth application-default login --scopes="https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/cloud-platform"
+```
+**Cloud Run deployments use service account credentials which inherently have full scopes — this only affects local development.**
+
+### Finding: Sheet Header Field Name Mismatch
+
+The bridge maps data fields to Sheet columns by exact header match. Firestore field names must match the actual Sheet column headers. For example, `_CARRIER_MASTER` uses `name` (not `carrier_name`). Data sent through the bridge should use the Sheet's column names. This is by design — the bridge is a transparent passthrough, not a field-name translator.
+
+### Test Script
+
+Created `scripts/test-bridge.ts` with three modes:
+- `check` — verify test doc exists in both Firestore and Sheets
+- `insert-direct` — test Sheets API write directly (bypasses bridge)
+- `cleanup` — hard-delete test doc from both stores
 
 ---
 
@@ -132,6 +188,7 @@ Created `scripts/setup-bigquery-export.sh`:
 | `scripts/load-activities-comms.ts` | Activity + Communication migration |
 | `scripts/spot-check.ts` | 10-doc spot-check per collection |
 | `scripts/setup-bigquery-export.sh` | BigQuery export setup |
+| `scripts/test-bridge.ts` | Bridge integration test (check/insert-direct/cleanup) |
 
 ### Modified Files
 | File | Change |
