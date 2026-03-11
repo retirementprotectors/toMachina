@@ -69,7 +69,7 @@ export default function QuickIntakePage() {
       )
       const nameSnap = await getDocs(nameQuery)
       nameSnap.forEach((doc) => {
-        const c = { ...doc.data(), _id: doc.id } as Client
+        const c = { ...doc.data(), _id: doc.id } as unknown as Client
         const fn = String(c.first_name || '').toLowerCase()
         if (fn === form.first_name.trim().toLowerCase() || fn.startsWith(form.first_name.trim().toLowerCase().slice(0, 3))) {
           results.push(c)
@@ -86,7 +86,7 @@ export default function QuickIntakePage() {
           )
           const phoneSnap = await getDocs(phoneQuery)
           phoneSnap.forEach((doc) => {
-            const c = { ...doc.data(), _id: doc.id } as Client
+            const c = { ...doc.data(), _id: doc.id } as unknown as Client
             if (!results.find((r) => String(r._id) === String(c._id))) {
               results.push(c)
             }
@@ -102,7 +102,7 @@ export default function QuickIntakePage() {
         )
         const emailSnap = await getDocs(emailQuery)
         emailSnap.forEach((doc) => {
-          const c = { ...doc.data(), _id: doc.id } as Client
+          const c = { ...doc.data(), _id: doc.id } as unknown as Client
           if (!results.find((r) => String(r._id) === String(c._id))) {
             results.push(c)
           }
