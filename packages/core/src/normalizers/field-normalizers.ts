@@ -317,6 +317,33 @@ export const CARRIER_ALIASES: Record<string, string> = {
   'northwestern mutual': 'Northwestern Mutual',
   'corebridge aig life': 'Corebridge',
   'corebridge aig': 'Corebridge',
+
+  // Discovered during data-integrity audit (2026-03-11)
+  'devoted health': 'Devoted Health',
+  'fg': 'F&G Life',
+  'fg life': 'F&G Life',
+  'fgl': 'F&G Life',
+  'fidelity guaranty': 'F&G Life',
+  'agcorebridge': 'Corebridge',
+  'ag corebridge': 'Corebridge',
+  'ace property casualty insurance company': 'ACE',
+  'ace property casualty': 'ACE',
+  'national general insurance': 'Allstate',
+  'national general': 'Allstate',
+  'natgen': 'Allstate',
+  'lincoln benefit life': 'Lincoln Benefit Life',
+  'lincoln benefit': 'Lincoln Benefit Life',
+  'oceanview': 'Oceanview Life and Annuity',
+  'oceanview life': 'Oceanview Life and Annuity',
+  'oceanview life and annuity': 'Oceanview Life and Annuity',
+  'jackson life': 'Jackson National Life',
+  'jackson national': 'Jackson National Life',
+  'jackson national life': 'Jackson National Life',
+  'jackson': 'Jackson National Life',
+  'columbus life': 'Columbus Life',
+  'columbus life insurance company': 'Columbus Life',
+  'primerica': 'Primerica',
+  'consolidated': 'Consolidated',
 }
 
 // ============================================================================
