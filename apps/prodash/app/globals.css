@@ -67,3 +67,32 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* Focus styles for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--portal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Consistent card transition */
+.card-hover {
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Table row hover — consistent across all data tables */
+tr.table-row-hover:hover {
+  background: var(--bg-card-hover);
+}
+
+/* Skeleton loading animation */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+}

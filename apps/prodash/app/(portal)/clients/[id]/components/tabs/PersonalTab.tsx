@@ -26,15 +26,26 @@ export function PersonalTab({ client, editing = false, editData = {}, onFieldCha
 
   return (
     <div className="space-y-4">
-      {/* Identity */}
+      {/* Identity — with prominent age display */}
       <SectionCard title="Identity" icon="badge">
+        {!editing && getAge(client.dob) && (
+          <div className="mb-4 flex items-center gap-4 rounded-lg bg-[var(--bg-surface)] px-4 py-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--portal-glow)' }}>
+              <span className="text-lg font-bold" style={{ color: 'var(--portal)' }}>{getAge(client.dob)}</span>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-[var(--text-primary)]">{formatDate(client.dob)}</p>
+              <p className="text-xs text-[var(--text-muted)]">Date of Birth &middot; Age {getAge(client.dob)}</p>
+            </div>
+          </div>
+        )}
         <FieldGrid cols={4}>
           <EditableField label="First Name" value={str(client.first_name)} fieldKey="first_name" editing={editing} editValue={ev('first_name')} onChange={onFieldChange} />
           <EditableField label="Middle Name" value={str(client.middle_name)} fieldKey="middle_name" editing={editing} editValue={ev('middle_name')} onChange={onFieldChange} />
           <EditableField label="Last Name" value={str(client.last_name)} fieldKey="last_name" editing={editing} editValue={ev('last_name')} onChange={onFieldChange} />
           <EditableField label="Preferred Name" value={str(client.preferred_name)} fieldKey="preferred_name" editing={editing} editValue={ev('preferred_name')} onChange={onFieldChange} />
-          <EditableField label="Date of Birth" value={formatDate(client.dob)} fieldKey="dob" editing={editing} editValue={ev('dob')} onChange={onFieldChange} type="date" />
-          <DetailField label="Age" value={getAge(client.dob) ?? undefined} />
+          {editing && <EditableField label="Date of Birth" value={formatDate(client.dob)} fieldKey="dob" editing={editing} editValue={ev('dob')} onChange={onFieldChange} type="date" />}
+          {editing && <DetailField label="Age" value={getAge(client.dob) ?? undefined} />}
           <EditableField label="Gender" value={str(client.gender)} fieldKey="gender" editing={editing} editValue={ev('gender')} onChange={onFieldChange} type="select" options={[{ label: 'Male', value: 'Male' }, { label: 'Female', value: 'Female' }, { label: 'Other', value: 'Other' }]} />
           <EditableField label="Marital Status" value={str(client.marital_status)} fieldKey="marital_status" editing={editing} editValue={ev('marital_status')} onChange={onFieldChange} type="select" options={[{ label: 'Single', value: 'Single' }, { label: 'Married', value: 'Married' }, { label: 'Divorced', value: 'Divorced' }, { label: 'Widowed', value: 'Widowed' }]} />
         </FieldGrid>

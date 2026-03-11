@@ -11,10 +11,81 @@ interface ContactTabProps {
   onFieldChange?: (key: string, value: string) => void
 }
 
+function timeAgo(dateStr: unknown): string {
+  if (!dateStr) return ''
+  const d = new Date(String(dateStr))
+  if (isNaN(d.getTime())) return ''
+  const now = new Date()
+  const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Yesterday'
+  if (diffDays < 7) return `${diffDays}d ago`
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`
+  return `${Math.floor(diffDays / 365)}y ago`
+}
+
 export function ContactTab({ client, editing = false, editData = {}, onFieldChange }: ContactTabProps) {
   const ev = (key: string) => (editData[key] !== undefined ? String(editData[key]) : undefined)
+  const clientName = [str(client.first_name), str(client.last_name)].filter(Boolean).join(' ') || 'Client'
+  const lastContactAgo = timeAgo(client.last_contact_date)
+
   return (
     <div className="space-y-4">
+      {/* Contact Header Card */}
+      {!editing && (
+        <div className="flex items-center gap-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+          {/* Photo Placeholder */}
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-bold text-white" style={{ background: 'var(--portal)' }}>
+            {clientName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-[var(--text-primary)]">{clientName}</h3>
+            <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
+              {str(client.client_status) && (
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                  str(client.client_status).toLowerCase() === 'active'
+                    ? 'bg-emerald-500/15 text-emerald-400'
+                    : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+                }`}>
+                  {str(client.client_status)}
+                </span>
+              )}
+              {str(client.book_of_business) && (
+                <span className="flex items-center gap-1">
+                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>folder</span>
+                  {str(client.book_of_business)}
+                </span>
+              )}
+              {lastContactAgo && (
+                <span className="flex items-center gap-1">
+                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>schedule</span>
+                  Last contact: {lastContactAgo}
+                </span>
+              )}
+            </div>
+          </div>
+          {/* Quick Action Buttons */}
+          <div className="flex gap-2">
+            {str(client.phone) && (
+              <a href={`tel:${str(client.phone).replace(/\D/g, '')}`} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors hover:bg-[var(--portal-glow)] hover:text-[var(--portal)]" title="Call">
+                <span className="material-icons-outlined" style={{ fontSize: '18px' }}>call</span>
+              </a>
+            )}
+            {str(client.email) && (
+              <a href={`mailto:${str(client.email)}`} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors hover:bg-[var(--portal-glow)] hover:text-[var(--portal)]" title="Email">
+                <span className="material-icons-outlined" style={{ fontSize: '18px' }}>email</span>
+              </a>
+            )}
+            {str(client.cell_phone) && (
+              <a href={`sms:${str(client.cell_phone).replace(/\D/g, '')}`} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--bg-surface)] text-[var(--text-muted)] transition-colors hover:bg-[var(--portal-glow)] hover:text-[var(--portal)]" title="Text">
+                <span className="material-icons-outlined" style={{ fontSize: '18px' }}>sms</span>
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Phone Numbers */}
       <SectionCard title="Phone Numbers" icon="phone">
         {editing ? (
