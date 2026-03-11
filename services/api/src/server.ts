@@ -32,6 +32,9 @@ import { rulesRoutes } from './routes/rules.js'
 import { medicareQuoteRoutes } from './routes/medicare-quote.js'
 import { commsRoutes } from './routes/comms.js'
 import { flowRoutes } from './routes/flow.js'
+import { templateRoutes } from './routes/templates.js'
+import { contentBlockRoutes } from './routes/content-blocks.js'
+import { atlasRoutes } from './routes/atlas.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -82,6 +85,9 @@ app.use('/api/rules', rulesRoutes)
 app.use('/api/medicare-quote', medicareQuoteRoutes)
 app.use('/api/comms', commsRoutes)
 app.use('/api/flow', flowRoutes)
+app.use('/api/templates', normalizeBody, templateRoutes)
+app.use('/api/content-blocks', normalizeBody, contentBlockRoutes)
+app.use('/api/atlas', normalizeBody, atlasRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
