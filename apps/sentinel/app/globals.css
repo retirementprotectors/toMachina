@@ -1,24 +1,69 @@
 @import "tailwindcss";
 
 :root {
+  /* Portal Brand — SENTINEL (green) */
   --portal: #3CB371;
-  --portal-light: #4ec97f;
-  --portal-dark: #2ea060;
-  --bg-primary: #1a1a2e;
+  --portal-glow: rgba(60,179,113,0.15);
+  --portal-accent: #5dd895;
+
+  /* Backgrounds (dark mode) */
+  --bg-deepest: #0a0a0f;
+  --bg-primary: #111118;
   --bg-secondary: #16213e;
-  --bg-surface: #1e2a4a;
+  --bg-card: #1a1a24;
+  --bg-card-hover: #22222e;
+  --bg-surface: #2a2a36;
   --bg-hover: #253456;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0b0;
-  --text-muted: #6b7280;
+
+  /* Text */
+  --text-primary: #f0f0f5;
+  --text-secondary: #8888a0;
+  --text-muted: #55556a;
+
+  /* Borders */
   --border: #2a3550;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.1);
+
+  /* Semantic */
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
+  --info: #3b82f6;
+
+  /* Section Colors */
+  --pipeline-color: #63b3ed;
+  --module-color: #a78bfa;
+  --app-color: #f6ad55;
+  --admin-color: #fc8181;
+  --connect-color: #68d391;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
 }
 
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
