@@ -52,7 +52,7 @@ export default function BeniCenterPage() {
       const allRecords: BeniRecord[] = []
 
       for (const clientDoc of clientsSnap.docs) {
-        const client = { ...clientDoc.data(), _id: clientDoc.id } as Client
+        const client = { ...clientDoc.data(), _id: clientDoc.id } as unknown as Client
         const clientId = clientDoc.id
         const clientName = [client.first_name, client.last_name].filter(Boolean).join(' ')
         const spouseName = [client.spouse_first_name, client.spouse_last_name].filter(Boolean).join(' ').toLowerCase()
@@ -60,7 +60,7 @@ export default function BeniCenterPage() {
 
         const accountsSnap = await getDocs(collection(db, 'clients', clientDoc.id, 'accounts'))
         for (const acctDoc of accountsSnap.docs) {
-          const account = { ...acctDoc.data(), _id: acctDoc.id } as Account
+          const account = { ...acctDoc.data(), _id: acctDoc.id } as unknown as Account
           const cat = String(account.account_type_category || account.product_type || '').toLowerCase()
           if (cat.includes('medicare')) continue
 

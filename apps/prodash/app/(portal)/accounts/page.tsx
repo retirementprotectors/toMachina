@@ -75,7 +75,7 @@ export default function AccountsPage() {
         const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'), limit(ACCOUNTS_PAGE_SIZE))
         const snap = await getDocs(q)
         const rows: AccountRow[] = snap.docs.map((doc) => {
-          const data = doc.data() as Account
+          const data = doc.data() as unknown as Account
           const pathParts = doc.ref.path.split('/')
           const clientId = pathParts[1] || ''
           return {
@@ -110,7 +110,7 @@ export default function AccountsPage() {
       )
       const snap = await getDocs(q)
       const rows: AccountRow[] = snap.docs.map((doc) => {
-        const data = doc.data() as Account
+        const data = doc.data() as unknown as Account
         const pathParts = doc.ref.path.split('/')
         const clientId = pathParts[1] || ''
         return {

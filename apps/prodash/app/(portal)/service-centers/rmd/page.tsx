@@ -39,7 +39,7 @@ export default function RmdCenterPage() {
       const records: RmdRecord[] = []
 
       for (const clientDoc of clientsSnap.docs) {
-        const client = { ...clientDoc.data(), _id: clientDoc.id } as Client
+        const client = { ...clientDoc.data(), _id: clientDoc.id } as unknown as Client
         if (!client.dob) continue
         const dob = new Date(String(client.dob))
         if (isNaN(dob.getTime())) continue
@@ -52,7 +52,7 @@ export default function RmdCenterPage() {
         // Fetch RMD-eligible accounts
         const accountsSnap = await getDocs(collection(db, 'clients', clientDoc.id, 'accounts'))
         accountsSnap.forEach((acctDoc) => {
-          const account = { ...acctDoc.data(), _id: acctDoc.id } as Account
+          const account = { ...acctDoc.data(), _id: acctDoc.id } as unknown as Account
           const acctType = String(account.account_type_category || account.product_type || account.account_type || '')
           const taxStatus = String(account.tax_status || '')
 
