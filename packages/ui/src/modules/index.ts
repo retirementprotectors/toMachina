@@ -4,10 +4,9 @@
 export { MyRpiProfile } from './MyRpiProfile'
 export { ConnectPanel } from './ConnectPanel'
 
-// TODO: Add remaining 6 module exports after merge (Sprint 2 Builders 1 & 2)
-// export { CamDashboard } from './CamDashboard'
-// export { C3Manager } from './C3Manager'
-// export { DexDocCenter } from './DexDocCenter'
-// export { AtlasRegistry } from './AtlasRegistry'
-// export { CommandCenter } from './CommandCenter'
-// export { AdminPanel } from './AdminPanel'
+export { CamDashboard } from './CamDashboard'
+export { C3Manager } from './C3Manager'
+export { DexDocCenter } from './DexDocCenter'
+export { AtlasRegistry } from './AtlasRegistry'
+export { CommandCenter } from './CommandCenter'
+export { AdminPanel } from './AdminPanel'
