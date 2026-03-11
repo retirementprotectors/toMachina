@@ -341,6 +341,171 @@ campaignSendRoutes.post('/targets', async (req: Request, res: Response) => {
 })
 
 // ============================================================================
+// EXECUTE SEND BATCH
+// ============================================================================
+
+/**
+ * POST /api/campaign-send/execute
+ * Process queued sends that are due. Called by Cloud Scheduler or manually.
+ */
+campaignSendRoutes.post('/execute', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const now = new Date().toISOString()
+
+    // Find queued sends that are scheduled for now or earlier
+    const snap = await db
+      .collection('queued_sends')
+      .where('status', '==', 'queued')
+      .where('scheduled_for', '<=', now)
+      .orderBy('scheduled_for', 'asc')
+      .limit(100)
+      .get()
+
+    if (snap.empty) {
+      res.json(successResponse({ processed: 0, message: 'No sends due' }))
+      return
+    }
+
+    let processed = 0
+    let skipped = 0
+    const batch = db.batch()
+
+    for (const doc of snap.docs) {
+      const send = doc.data() as Record<string, unknown>
+      const contactId = send.contact_id as string
+
+      // Check DND
+      const clientDoc = await db.collection('clients').doc(contactId).get()
+      if (!clientDoc.exists) {
+        batch.update(doc.ref, { status: 'failed', error_message: 'contact_not_found', updated_at: now })
+        skipped++
+        continue
+      }
+
+      const client = clientDoc.data() as Record<string, unknown>
+      const channel = (send.channel as string || 'email').toLowerCase()
+
+      if (String(client.dnd_all || '') === 'true') {
+        batch.update(doc.ref, { status: 'skipped', error_message: 'DND_ALL', updated_at: now })
+        skipped++
+        continue
+      }
+      if (channel === 'email' && String(client.dnd_email || '') === 'true') {
+        batch.update(doc.ref, { status: 'skipped', error_message: 'DND_EMAIL', updated_at: now })
+        skipped++
+        continue
+      }
+      if ((channel === 'sms' || channel === 'vm') && String(client.dnd_sms || '') === 'true') {
+        batch.update(doc.ref, { status: 'skipped', error_message: 'DND_SMS', updated_at: now })
+        skipped++
+        continue
+      }
+
+      // Mark as processing — actual delivery goes through RAPID_COMMS or external provider
+      batch.update(doc.ref, {
+        status: 'processing',
+        processed_at: now,
+        updated_at: now,
+      })
+
+      // Log the send
+      const sendLogId = randomUUID()
+      batch.set(db.collection('campaign_send_log').doc(sendLogId), {
+        send_id: sendLogId,
+        campaign_id: send.campaign_id,
+        contact_id: contactId,
+        channel,
+        enrollment_id: send.enrollment_id || null,
+        content_preview: send.content_preview || '',
+        status: 'processing',
+        provider: channel === 'email' ? 'sendgrid' : 'twilio',
+        created_at: now,
+      })
+
+      processed++
+    }
+
+    await batch.commit()
+
+    res.json(successResponse({ processed, skipped, total_found: snap.size }))
+  } catch (err) {
+    console.error('POST /api/campaign-send/execute error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// SEND QUEUE
+// ============================================================================
+
+/**
+ * GET /api/campaign-send/queue
+ * View the send queue. Filter by status, campaign_id.
+ */
+campaignSendRoutes.get('/queue', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let query: Query<DocumentData> = db.collection('queued_sends')
+
+    const status = req.query.status as string
+    if (status) {
+      query = query.where('status', '==', status)
+    } else {
+      query = query.where('status', '==', 'queued')
+    }
+
+    if (req.query.campaign_id) {
+      query = query.where('campaign_id', '==', req.query.campaign_id)
+    }
+
+    const snap = await query.orderBy('scheduled_for', 'asc').limit(200).get()
+    const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
+
+    res.json(successResponse(data, { count: data.length }))
+  } catch (err) {
+    console.error('GET /api/campaign-send/queue error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// CANCEL SCHEDULED SEND
+// ============================================================================
+
+/**
+ * POST /api/campaign-send/cancel/:id
+ * Cancel a queued send. Only queued sends can be cancelled.
+ */
+campaignSendRoutes.post('/cancel/:id', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const docRef = db.collection('queued_sends').doc(id)
+    const doc = await docRef.get()
+
+    if (!doc.exists) { res.status(404).json(errorResponse('Queued send not found')); return }
+
+    const data = doc.data() as Record<string, unknown>
+    if (data.status !== 'queued') {
+      res.status(400).json(errorResponse(`Cannot cancel send with status: ${data.status}`))
+      return
+    }
+
+    await docRef.update({
+      status: 'cancelled',
+      cancelled_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+
+    res.json(successResponse({ id, cancelled: true }))
+  } catch (err) {
+    console.error('POST /api/campaign-send/cancel/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
 // HELPERS
 // ============================================================================
 
