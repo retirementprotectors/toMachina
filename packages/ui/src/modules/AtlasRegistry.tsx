@@ -4,613 +4,372 @@ import { useState, useMemo } from 'react'
 import { query, type Query, type DocumentData } from 'firebase/firestore'
 import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
+import {
+  WIRE_DEFINITIONS, getWireStats, computeAutomationHealth, getAutomationSummary,
+  type WireDefinition, type AutomationEntry, type AutomationHealth, type AtlasSource, type AtlasTool,
+} from '@tomachina/core'
+import { WireDiagram } from '../components/WireDiagram'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface SourceRecord {
-  _id: string
-  source_id?: string
-  name?: string
-  source_name?: string
-  carrier_name?: string
-  product_line?: string
-  product_category?: string
-  data_domain?: string
-  type?: string
-  source_type?: string
-  current_source?: string
-  current_method?: string
-  current_frequency?: string
-  current_owner_email?: string
-  target_source?: string
-  target_method?: string
-  target_frequency?: string
-  gap_status?: string
-  automation_pct?: number
-  status?: string
-  priority?: string
-  portal?: string
-  frequency?: string
-  automation_level?: string
-  description?: string
-  notes?: string
-  last_pull?: string
-  last_pull_at?: string
-  next_pull_due?: string
-  last_updated?: string
-  created_at?: string
-  updated_at?: string
-  [key: string]: unknown
+interface SourceRecord extends AtlasSource {
+  _id: string; source_name?: string; carrier_name?: string; product_line?: string
+  product_category?: string; data_domain?: string; source_type?: string
+  current_source?: string; current_method?: string; current_frequency?: string
+  current_owner_email?: string; target_source?: string; target_method?: string
+  target_frequency?: string; gap_status?: string; automation_pct?: number
+  priority?: string; portal?: string; automation_level?: string; notes?: string
+  last_pull_at?: string; next_pull_due?: string; last_updated?: string
+}
+interface ToolRecord extends AtlasTool { _id: string }
+interface AutomationRecord extends AutomationEntry { _id: string }
+interface AuditRecord {
+  _id: string; action_type?: string; action?: string; source_name?: string
+  user?: string; details?: string; created_at?: string; [key: string]: unknown
 }
 
-// Pipeline stages from ATLAS_Pipeline.gs
-const PIPELINE_STAGES = [
-  { key: 'SOURCE', label: 'Source', icon: 'cloud', color: '#a855f7' },
-  { key: 'INTAKE', label: 'Intake', icon: 'upload_file', color: '#fbbf24' },
-  { key: 'EXTRACTION', label: 'Extraction', icon: 'document_scanner', color: '#7c5cff' },
-  { key: 'APPROVAL', label: 'Approval', icon: 'fact_check', color: '#60a5fa' },
-  { key: 'MATRIX', label: 'Matrix', icon: 'grid_on', color: '#34d399' },
-  { key: 'FRONTEND', label: 'Frontend', icon: 'monitor', color: '#f472b6' },
+type Tab = 'sources' | 'tools' | 'pipeline' | 'health' | 'audit'
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const GAP_STATUSES = ['All', 'GREEN', 'YELLOW', 'RED', 'GRAY'] as const
+const PRIORITIES = ['All', 'HIGH', 'MEDIUM', 'LOW'] as const
+const DATA_DOMAINS = ['All', 'ACCOUNTS', 'COMMISSIONS', 'DEMOGRAPHICS', 'CLAIMS', 'ENROLLMENT', 'LICENSING', 'VALIDATION', 'RATES'] as const
+const PRODUCT_LINES = ['All', 'ALL', 'MAPD', 'FIA', 'MYGA', 'MED_SUPP', 'BDRIA', 'LIFE'] as const
+
+const TOOL_CATS = [
+  { key: 'INTAKE_QUEUING', label: 'Intake & Queuing', icon: 'inbox', desc: 'Scanning, filing, queueing' },
+  { key: 'EXTRACTION_APPROVAL', label: 'Extraction & Approval', icon: 'document_scanner', desc: 'OCR, classification, approval' },
+  { key: 'NORMALIZATION_VALIDATION', label: 'Normalization', icon: 'verified', desc: 'Normalize, validate, clean' },
+  { key: 'MATCHING_DEDUP', label: 'Matching & Dedup', icon: 'compare_arrows', desc: 'Client matching, deduplication' },
+  { key: 'EXTERNAL_ENRICHMENT', label: 'Enrichment', icon: 'cloud_download', desc: 'WhitePages, NeverBounce, USPS' },
+  { key: 'BULK_OPERATIONS', label: 'Bulk Operations', icon: 'dynamic_feed', desc: 'Batch processing, aggregation' },
 ] as const
 
-// Constants from ATLAS backend
-const GAP_STATUSES = ['All', 'GREEN', 'YELLOW', 'RED', 'GRAY'] as const
-const SOURCE_METHODS = ['All', 'API_FEED', 'MANUAL_CSV', 'WEBHOOK', 'SFTP', 'MANUAL_ENTRY', 'NOT_AVAILABLE'] as const
-const PRIORITIES = ['All', 'HIGH', 'MEDIUM', 'LOW'] as const
-const DATA_DOMAINS = ['All', 'ACCOUNTS', 'COMMISSIONS', 'DEMOGRAPHICS', 'CLAIMS', 'ENROLLMENT', 'LICENSING', 'VALIDATION'] as const
+const TABS: { key: Tab; label: string; icon: string }[] = [
+  { key: 'sources', label: 'Sources', icon: 'hub' },
+  { key: 'tools', label: 'Tools', icon: 'build' },
+  { key: 'pipeline', label: 'Pipeline', icon: 'route' },
+  { key: 'health', label: 'Health', icon: 'monitor_heart' },
+  { key: 'audit', label: 'Audit', icon: 'history' },
+]
 
-type Tab = 'sources' | 'tools' | 'pipeline'
+const CAT_COLORS: Record<string, string> = {
+  INTAKE_QUEUING: 'rgb(245,158,11)', EXTRACTION_APPROVAL: 'rgb(124,92,255)',
+  NORMALIZATION_VALIDATION: 'rgb(16,185,129)', MATCHING_DEDUP: 'rgb(59,130,246)',
+  EXTERNAL_ENRICHMENT: 'rgb(168,85,247)', BULK_OPERATIONS: 'rgb(249,115,22)',
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function gapColor(gap?: string): { bg: string; text: string; label: string } {
+function gapColor(gap?: string) {
   const g = (gap || '').toUpperCase()
-  if (g === 'GREEN') return { bg: 'rgba(34,197,94,0.15)', text: '#22c55e', label: 'Automated' }
-  if (g === 'YELLOW') return { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: 'Semi-Auto' }
-  if (g === 'RED') return { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: 'Manual/Missing' }
-  if (g === 'GRAY') return { bg: 'rgba(156,163,175,0.15)', text: '#9ca3af', label: 'Planned' }
+  if (g === 'GREEN') return { bg: 'rgba(16,185,129,0.15)', text: 'rgb(16,185,129)', label: 'Automated' }
+  if (g === 'YELLOW') return { bg: 'rgba(245,158,11,0.15)', text: 'rgb(245,158,11)', label: 'Semi-Auto' }
+  if (g === 'RED') return { bg: 'rgba(239,68,68,0.15)', text: 'rgb(239,68,68)', label: 'Manual/Missing' }
+  if (g === 'GRAY') return { bg: 'rgba(156,163,175,0.15)', text: 'rgb(156,163,175)', label: 'Planned' }
   return { bg: 'var(--bg-surface)', text: 'var(--text-muted)', label: gap || 'Unknown' }
 }
 
-function statusStyle(status?: string): { background: string; color: string } {
-  const s = (status || '').toLowerCase()
-  if (s === 'active' || s === 'operational') return { background: 'rgba(34,197,94,0.15)', color: '#22c55e' }
-  if (s === 'planned' || s === 'pending') return { background: 'rgba(234,179,8,0.15)', color: '#eab308' }
-  if (s === 'degraded') return { background: 'rgba(239,68,68,0.15)', color: '#ef4444' }
-  if (s === 'deprecated') return { background: 'rgba(107,114,128,0.15)', color: '#6b7280' }
-  return { background: 'rgba(156,163,175,0.15)', color: '#9ca3af' }
+function hColor(h?: string) {
+  const s = (h || '').toUpperCase()
+  if (s === 'GREEN') return { bg: 'rgba(16,185,129,0.15)', text: 'rgb(16,185,129)' }
+  if (s === 'YELLOW') return { bg: 'rgba(245,158,11,0.15)', text: 'rgb(245,158,11)' }
+  if (s === 'RED') return { bg: 'rgba(239,68,68,0.15)', text: 'rgb(239,68,68)' }
+  return { bg: 'rgba(156,163,175,0.15)', text: 'rgb(156,163,175)' }
 }
 
-function formatDate(d?: string): string {
+function fmtDate(d?: string) {
   if (!d) return '-'
-  try {
-    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  } catch {
-    return d
-  }
+  try { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) }
+  catch { return d }
 }
 
+function fmtDateTime(d?: string) {
+  if (!d) return '-'
+  try { return new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) }
+  catch { return d }
+}
+
+function catLabel(key: string) { return TOOL_CATS.find((c) => c.key === key)?.label || key }
+function catColor(key: string) { return CAT_COLORS[key] || 'var(--text-muted)' }
+
 // ---------------------------------------------------------------------------
-// AtlasRegistry Component
+// AtlasRegistry
 // ---------------------------------------------------------------------------
 
-export function AtlasRegistry({ portal }: { portal: string }) {
-  const sourceQuery = useMemo<Query<DocumentData>>(() => query(collections.sourceRegistry()), [])
-  const { data: sources, loading, error } = useCollection<SourceRecord>(sourceQuery, `atlas-sources-${portal}`)
-
+export function AtlasRegistry({ portal }: { portal?: string }) {
+  const srcQ = useMemo<Query<DocumentData>>(() => query(collections.sourceRegistry()), [])
+  const { data: sources, loading, error } = useCollection<SourceRecord>(srcQ, `atlas-src-${portal || 'all'}`)
   const [activeTab, setActiveTab] = useState<Tab>('sources')
-  const [gapFilter, setGapFilter] = useState('All')
-  const [methodFilter, setMethodFilter] = useState('All')
-  const [priorityFilter, setPriorityFilter] = useState('All')
-  const [domainFilter, setDomainFilter] = useState('All')
-  const [sourceSearch, setSourceSearch] = useState('')
-  const [selectedSource, setSelectedSource] = useState<SourceRecord | null>(null)
 
-  // --- Derived Data ---
-  const stats = useMemo(() => {
-    let active = 0
-    let totalAutomation = 0
-    let automationCount = 0
-    const gapCounts: Record<string, number> = {}
-    const typeCounts: Record<string, number> = {}
-    const carrierCounts: Record<string, number> = {}
-    const domainCounts: Record<string, number> = {}
-
-    sources.forEach((s) => {
-      const status = (s.status || '').toLowerCase()
-      if (status === 'active' || status === 'operational') active++
-
-      const gap = (s.gap_status || '').toUpperCase()
-      if (gap) gapCounts[gap] = (gapCounts[gap] || 0) + 1
-
-      const type = s.type || s.source_type || s.current_method || 'Unknown'
-      typeCounts[type] = (typeCounts[type] || 0) + 1
-
-      const carrier = s.carrier_name || 'Unknown'
-      carrierCounts[carrier] = (carrierCounts[carrier] || 0) + 1
-
-      const domain = s.data_domain || 'Unknown'
-      domainCounts[domain] = (domainCounts[domain] || 0) + 1
-
-      if (s.automation_pct !== undefined && s.automation_pct !== null) {
-        totalAutomation += s.automation_pct
-        automationCount++
-      }
-    })
-
-    const avgAutomation = automationCount > 0 ? Math.round(totalAutomation / automationCount) : 0
-
-    return {
-      total: sources.length,
-      active,
-      avgAutomation,
-      gapCounts,
-      typeCounts,
-      carrierCounts,
-      domainCounts,
-    }
-  }, [sources])
-
-  const filteredSources = useMemo(() => {
-    return sources.filter((s) => {
-      if (gapFilter !== 'All') {
-        const g = (s.gap_status || '').toUpperCase()
-        if (g !== gapFilter) return false
-      }
-      if (methodFilter !== 'All') {
-        const m = (s.current_method || s.type || s.source_type || '').toUpperCase()
-        if (m !== methodFilter) return false
-      }
-      if (priorityFilter !== 'All') {
-        const p = (s.priority || '').toUpperCase()
-        if (p !== priorityFilter) return false
-      }
-      if (domainFilter !== 'All') {
-        const d = (s.data_domain || '').toUpperCase()
-        if (d !== domainFilter) return false
-      }
-      if (sourceSearch) {
-        const q = sourceSearch.toLowerCase()
-        const name = (s.name || s.source_name || '').toLowerCase()
-        const carrier = (s.carrier_name || '').toLowerCase()
-        const desc = (s.description || '').toLowerCase()
-        if (!name.includes(q) && !carrier.includes(q) && !desc.includes(q)) return false
-      }
-      return true
-    })
-  }, [sources, gapFilter, methodFilter, priorityFilter, domainFilter, sourceSearch])
-
-  // --- Tabs ---
-  const tabs: { key: Tab; label: string; icon: string }[] = [
-    { key: 'sources', label: 'Sources', icon: 'hub' },
-    { key: 'tools', label: 'Tools', icon: 'build' },
-    { key: 'pipeline', label: 'Pipeline Flow', icon: 'route' },
-  ]
-
-  // --- Loading ---
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-7xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">ATLAS — Source Registry</h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">The Machine&apos;s nervous system</p>
-        <div className="mt-8 flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-        </div>
+  if (loading) return (
+    <div className="mx-auto max-w-7xl">
+      <Hdr sub="Loading..." />
+      <div className="mt-8 flex justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
       </div>
-    )
-  }
+    </div>
+  )
 
-  // --- Empty State ---
-  if (sources.length === 0 && !error) {
-    return (
-      <div className="mx-auto max-w-7xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">ATLAS — Source Registry</h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">The Machine&apos;s nervous system</p>
-
-        <div className="mt-6 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-8 text-center">
-          <span className="material-icons-outlined text-5xl" style={{ color: 'var(--portal)' }}>hub</span>
-          <h2 className="mt-4 text-lg font-semibold text-[var(--text-primary)]">Source Registry Ready</h2>
-          <p className="mt-2 text-sm text-[var(--text-muted)]">
-            ATLAS tracks every data source, carrier integration, and pipeline across the platform.
-            Seed ATLAS to populate the registry.
-          </p>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <ArchCard icon="cloud_sync" label="Automated Feeds" description="Carrier data, DTCC, commission files" />
-          <ArchCard icon="upload_file" label="Manual Sources" description="Book imports, spreadsheets, forms" />
-          <ArchCard icon="api" label="API Integrations" description="CSG, NPI, CMS, BigQuery" />
-        </div>
+  if (error) return (
+    <div className="mx-auto max-w-7xl">
+      <Hdr sub="Error loading data" />
+      <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
+        <span className="material-icons-outlined text-3xl" style={{ color: 'rgb(239,68,68)' }}>error</span>
+        <p className="mt-2 text-sm text-[var(--text-muted)]">Failed to load ATLAS data.</p>
       </div>
-    )
-  }
+    </div>
+  )
+
+  const stats = srcStats(sources)
 
   return (
     <div className="mx-auto max-w-7xl">
-      <h1 className="text-2xl font-bold text-[var(--text-primary)]">ATLAS — Source Registry</h1>
-      <p className="mt-1 text-sm text-[var(--text-muted)]">The Machine&apos;s nervous system &mdash; {stats.total} data sources tracked</p>
-
-      {/* Health Dashboard */}
+      <Hdr sub={`${stats.total} data sources tracked`} />
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <StatCard icon="hub" label="Total Sources" value={stats.total} />
-        <StatCard icon="check_circle" label="Active" value={stats.active} accent />
-        <StatCard icon="speed" label="Avg Automation" value={`${stats.avgAutomation}%`} />
-        <StatCard icon="warning" label="Gaps (RED)" value={stats.gapCounts['RED'] || 0} warning />
-        <StatCard icon="category" label="Domains" value={Object.keys(stats.domainCounts).length} />
+        <Stat icon="hub" label="Total Sources" val={stats.total} />
+        <Stat icon="speed" label="Avg Automation" val={`${stats.avgAuto}%`} accent />
+        <Stat icon="check_circle" label="GREEN" val={stats.gaps['GREEN'] || 0} color="rgb(16,185,129)" />
+        <Stat icon="warning" label="YELLOW" val={stats.gaps['YELLOW'] || 0} color="rgb(245,158,11)" />
+        <Stat icon="error" label="RED" val={stats.gaps['RED'] || 0} color="rgb(239,68,68)" />
       </div>
-
-      {/* Gap Status Overview */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {Object.entries(stats.gapCounts)
-          .sort(([a], [b]) => {
-            const order: Record<string, number> = { GREEN: 0, YELLOW: 1, RED: 2, GRAY: 3 }
-            return (order[a] ?? 4) - (order[b] ?? 4)
-          })
-          .map(([gap, count]) => {
-            const g = gapColor(gap)
-            return (
-              <button
-                key={gap}
-                onClick={() => { setActiveTab('sources'); setGapFilter(gap) }}
-                className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-opacity hover:opacity-80"
-                style={{ background: g.bg, color: g.text }}
-              >
-                <span className="inline-block h-2 w-2 rounded-full" style={{ background: g.text }} />
-                {g.label}: {count}
-              </button>
-            )
-          })}
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="mt-6 flex gap-1 overflow-x-auto border-b border-[var(--border-subtle)]">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className="flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-colors"
-            style={{
-              borderColor: activeTab === tab.key ? 'var(--portal)' : 'transparent',
-              color: activeTab === tab.key ? 'var(--portal)' : 'var(--text-muted)',
-            }}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '18px' }}>{tab.icon}</span>
-            {tab.label}
+      {/* Pill Tab Bar */}
+      <div className="mt-6 flex gap-1 overflow-x-auto">
+        {TABS.map((t) => (
+          <button key={t.key} onClick={() => setActiveTab(t.key)}
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all"
+            style={{ background: activeTab === t.key ? 'var(--portal)' : 'var(--bg-surface)', color: activeTab === t.key ? '#fff' : 'var(--text-muted)' }}>
+            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>{t.icon}</span>{t.label}
           </button>
         ))}
       </div>
-
-      {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === 'sources' && (
-          <SourcesTab
-            sources={filteredSources}
-            totalCount={sources.length}
-            gapFilter={gapFilter}
-            methodFilter={methodFilter}
-            priorityFilter={priorityFilter}
-            domainFilter={domainFilter}
-            search={sourceSearch}
-            onGapFilter={setGapFilter}
-            onMethodFilter={setMethodFilter}
-            onPriorityFilter={setPriorityFilter}
-            onDomainFilter={setDomainFilter}
-            onSearch={setSourceSearch}
-            selected={selectedSource}
-            onSelect={setSelectedSource}
-            carrierCounts={stats.carrierCounts}
-            domainCounts={stats.domainCounts}
-          />
-        )}
+        {activeTab === 'sources' && <SourcesTab sources={sources} />}
         {activeTab === 'tools' && <ToolsTab />}
         {activeTab === 'pipeline' && <PipelineTab />}
+        {activeTab === 'health' && <HealthTab sources={sources} />}
+        {activeTab === 'audit' && <AuditTab />}
       </div>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Sub-Components
+// Shared Primitives
 // ---------------------------------------------------------------------------
 
-function StatCard({ icon, label, value, accent, warning }: {
-  icon: string; label: string; value: number | string; accent?: boolean; warning?: boolean
-}) {
-  const color = warning ? '#ef4444' : accent ? 'var(--portal)' : 'var(--text-primary)'
+function Hdr({ sub }: { sub: string }) {
+  return (<div>
+    <h1 className="text-2xl font-bold text-[var(--text-primary)]">ATLAS</h1>
+    <p className="mt-1 text-sm text-[var(--text-muted)]">The Machine&apos;s nervous system &mdash; {sub}</p>
+  </div>)
+}
+
+function Stat({ icon, label, val, accent, color }: { icon: string; label: string; val: number | string; accent?: boolean; color?: string }) {
+  const c = color || (accent ? 'var(--portal)' : 'var(--text-primary)')
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
       <div className="flex items-center gap-2">
-        <span className="material-icons-outlined" style={{ fontSize: '18px', color: 'var(--portal)' }}>{icon}</span>
-        <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">{label}</span>
+        <span className="material-icons-outlined" style={{ fontSize: '16px', color: c }}>{icon}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{label}</span>
       </div>
-      <p className="mt-1 text-2xl font-bold" style={{ color }}>
-        {typeof value === 'number' ? value.toLocaleString() : value}
-      </p>
+      <p className="mt-1 text-2xl font-bold" style={{ color: c }}>{typeof val === 'number' ? val.toLocaleString() : val}</p>
     </div>
   )
 }
 
-function ArchCard({ icon, label, description }: { icon: string; label: string; description: string }) {
+function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 text-center">
-      <span className="material-icons-outlined text-2xl" style={{ color: 'var(--portal)' }}>{icon}</span>
-      <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{label}</p>
-      <p className="mt-1 text-xs text-[var(--text-muted)]">{description}</p>
+    <button onClick={onClick} className="rounded-full px-3 py-1 text-xs font-medium transition-all"
+      style={{ background: active ? 'var(--portal)' : 'var(--bg-surface)', color: active ? '#fff' : 'var(--text-muted)', border: active ? 'none' : '1px solid var(--border-subtle)' }}>
+      {label}
+    </button>
+  )
+}
+
+function Search({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <div className="relative">
+      <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" style={{ fontSize: '16px' }}>search</span>
+      <input type="text" placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-2 pl-9 pr-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--portal)]"
+        style={{ minWidth: '200px' }} />
     </div>
   )
 }
 
-// ---------------------------------------------------------------------------
-// Sources Tab
-// ---------------------------------------------------------------------------
-
-function SourcesTab({
-  sources, totalCount, gapFilter, methodFilter, priorityFilter, domainFilter, search,
-  onGapFilter, onMethodFilter, onPriorityFilter, onDomainFilter, onSearch,
-  selected, onSelect, carrierCounts, domainCounts,
-}: {
-  sources: SourceRecord[]
-  totalCount: number
-  gapFilter: string
-  methodFilter: string
-  priorityFilter: string
-  domainFilter: string
-  search: string
-  onGapFilter: (v: string) => void
-  onMethodFilter: (v: string) => void
-  onPriorityFilter: (v: string) => void
-  onDomainFilter: (v: string) => void
-  onSearch: (v: string) => void
-  selected: SourceRecord | null
-  onSelect: (s: SourceRecord | null) => void
-  carrierCounts: Record<string, number>
-  domainCounts: Record<string, number>
-}) {
+function Empty({ icon, title, desc }: { icon: string; title: string; desc: string }) {
   return (
-    <div>
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <input
-          type="text"
-          placeholder="Search sources..."
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--portal)]"
-        />
-        <select
-          value={gapFilter}
-          onChange={(e) => onGapFilter(e.target.value)}
-          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
-        >
-          {GAP_STATUSES.map((g) => <option key={g}>{g}</option>)}
-        </select>
-        <select
-          value={methodFilter}
-          onChange={(e) => onMethodFilter(e.target.value)}
-          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
-        >
-          {SOURCE_METHODS.map((m) => <option key={m}>{m}</option>)}
-        </select>
-        <select
-          value={domainFilter}
-          onChange={(e) => onDomainFilter(e.target.value)}
-          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
-        >
-          {DATA_DOMAINS.map((d) => <option key={d}>{d}</option>)}
-        </select>
-        <select
-          value={priorityFilter}
-          onChange={(e) => onPriorityFilter(e.target.value)}
-          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none"
-        >
-          {PRIORITIES.map((p) => <option key={p}>{p}</option>)}
-        </select>
-        <span className="text-xs text-[var(--text-muted)]">{sources.length} of {totalCount}</span>
-      </div>
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-8 text-center">
+      <span className="material-icons-outlined text-5xl" style={{ color: 'var(--portal)' }}>{icon}</span>
+      <h3 className="mt-4 text-lg font-semibold text-[var(--text-primary)]">{title}</h3>
+      <p className="mt-2 text-sm text-[var(--text-muted)]">{desc}</p>
+    </div>
+  )
+}
 
-      {/* Side-by-Side: Carriers + Domains */}
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">By Carrier</h3>
-          <div className="mt-2 max-h-40 space-y-1 overflow-y-auto">
-            {Object.entries(carrierCounts).sort(([, a], [, b]) => b - a).slice(0, 15).map(([carrier, count]) => (
-              <div key={carrier} className="flex items-center justify-between text-sm">
-                <span className="truncate text-[var(--text-secondary)]">{carrier}</span>
-                <span className="font-medium text-[var(--text-primary)]">{count}</span>
-              </div>
-            ))}
+function DField({ label, value }: { label: string; value: string }) {
+  return (<div>
+    <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">{label}</p>
+    <p className="mt-0.5 text-sm font-medium text-[var(--text-primary)]">{value || '-'}</p>
+  </div>)
+}
+
+function Badge({ text, bg, fg }: { text: string; bg: string; fg: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: bg, color: fg }}>
+      <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: fg }} />{text}
+    </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Stats
+// ---------------------------------------------------------------------------
+
+function srcStats(sources: SourceRecord[]) {
+  let totalAuto = 0, autoCount = 0
+  const gaps: Record<string, number> = {}
+  for (const s of sources) {
+    const g = (s.gap_status || '').toUpperCase()
+    if (g) gaps[g] = (gaps[g] || 0) + 1
+    if (s.automation_pct != null) { totalAuto += s.automation_pct; autoCount++ }
+  }
+  return { total: sources.length, avgAuto: autoCount > 0 ? Math.round(totalAuto / autoCount) : 0, gaps }
+}
+
+// ---------------------------------------------------------------------------
+// Tab 1: Sources
+// ---------------------------------------------------------------------------
+
+function SourcesTab({ sources }: { sources: SourceRecord[] }) {
+  const [gapF, setGapF] = useState('All')
+  const [domF, setDomF] = useState('All')
+  const [prodF, setProdF] = useState('All')
+  const [priF, setPriF] = useState('All')
+  const [search, setSearch] = useState('')
+  const [sel, setSel] = useState<SourceRecord | null>(null)
+
+  const filtered = useMemo(() => sources.filter((s) => {
+    if (gapF !== 'All' && (s.gap_status || '').toUpperCase() !== gapF) return false
+    if (domF !== 'All' && (s.data_domain || '').toUpperCase() !== domF) return false
+    if (prodF !== 'All' && (s.product_line || '').toUpperCase() !== prodF) return false
+    if (priF !== 'All' && (s.priority || '').toUpperCase() !== priF) return false
+    if (search) {
+      const q = search.toLowerCase()
+      if (!(s.name || s.source_name || '').toLowerCase().includes(q) && !(s.carrier_name || '').toLowerCase().includes(q)) return false
+    }
+    return true
+  }), [sources, gapF, domF, prodF, priF, search])
+
+  if (sources.length === 0) return <Empty icon="hub" title="Source Registry Ready" desc="Seed ATLAS to populate. Carrier integrations, data feeds, and manual processes will appear here." />
+
+  return (
+    <div className="flex gap-4">
+      <div className={sel ? 'flex-1 min-w-0' : 'w-full'}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Search value={search} onChange={setSearch} placeholder="Search carrier or source..." />
+          <div className="flex flex-wrap gap-1">
+            {GAP_STATUSES.map((g) => <Pill key={g} label={g === 'All' ? 'All Status' : g} active={gapF === g} onClick={() => setGapF(g)} />)}
           </div>
         </div>
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">By Domain</h3>
-          <div className="mt-2 max-h-40 space-y-1 overflow-y-auto">
-            {Object.entries(domainCounts).sort(([, a], [, b]) => b - a).map(([domain, count]) => (
-              <div key={domain} className="flex items-center justify-between text-sm">
-                <span className="truncate text-[var(--text-secondary)]">{domain}</span>
-                <span className="font-medium text-[var(--text-primary)]">{count}</span>
-              </div>
-            ))}
-          </div>
+        <div className="mt-2 flex flex-wrap gap-1">
+          {DATA_DOMAINS.slice(0, 6).map((d) => <Pill key={d} label={d === 'All' ? 'All Domains' : d} active={domF === d} onClick={() => setDomF(d)} />)}
+          {PRODUCT_LINES.slice(0, 5).map((p) => <Pill key={p} label={p === 'All' ? 'All Products' : p} active={prodF === p} onClick={() => setProdF(p)} />)}
+          {PRIORITIES.map((p) => <Pill key={`p-${p}`} label={p === 'All' ? 'All Priority' : p} active={priF === p} onClick={() => setPriF(p)} />)}
         </div>
-      </div>
+        <p className="mt-3 text-xs text-[var(--text-muted)]">{filtered.length} of {sources.length} sources</p>
 
-      {/* Source Table */}
-      <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
-        <div className="max-h-[500px] overflow-y-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--border-subtle)] text-left text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                <th className="pb-2 pr-3">Source</th>
-                <th className="pb-2 pr-3">Carrier</th>
-                <th className="pb-2 pr-3">Domain</th>
-                <th className="pb-2 pr-3">Method</th>
-                <th className="pb-2 pr-3">Gap</th>
-                <th className="pb-2 pr-3">Auto %</th>
-                <th className="pb-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sources.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-[var(--text-muted)]">
-                    No sources match your filters.
-                  </td>
+        <div className="mt-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+          <div className="max-h-[520px] overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 z-10 bg-[var(--bg-card)]">
+                <tr className="border-b border-[var(--border-subtle)] text-left text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  <th className="px-4 py-3">Carrier / Source</th>
+                  <th className="px-3 py-3">Product</th>
+                  <th className="px-3 py-3">Domain</th>
+                  <th className="px-3 py-3">Gap</th>
+                  <th className="px-3 py-3">Automation</th>
+                  <th className="px-3 py-3">Method</th>
+                  <th className="px-3 py-3">Frequency</th>
                 </tr>
-              ) : (
-                sources.map((s) => {
-                  const gap = gapColor(s.gap_status)
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr><td colSpan={7} className="py-12 text-center text-sm text-[var(--text-muted)]">No sources match filters.</td></tr>
+                ) : filtered.map((s) => {
+                  const gc = gapColor(s.gap_status)
                   return (
-                    <tr
-                      key={s._id}
-                      onClick={() => onSelect(selected?._id === s._id ? null : s)}
+                    <tr key={s._id} onClick={() => setSel(sel?._id === s._id ? null : s)}
                       className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-surface)]"
-                      style={selected?._id === s._id ? { background: 'var(--bg-surface)' } : undefined}
-                    >
-                      <td className="py-2.5 pr-3">
-                        <p className="truncate font-medium text-[var(--text-primary)]" style={{ maxWidth: '180px' }}>
-                          {s.name || s.source_name || s._id}
-                        </p>
+                      style={sel?._id === s._id ? { background: 'var(--bg-surface)' } : undefined}>
+                      <td className="px-4 py-2.5">
+                        <p className="truncate font-medium text-[var(--text-primary)]" style={{ maxWidth: '200px' }}>{s.carrier_name || s.name || s.source_name || s._id}</p>
+                        <p className="truncate text-[11px] text-[var(--text-muted)]" style={{ maxWidth: '200px' }}>{s.name || s.source_name || ''}</p>
                       </td>
-                      <td className="py-2.5 pr-3 text-[var(--text-secondary)]">{s.carrier_name || '-'}</td>
-                      <td className="py-2.5 pr-3 text-[var(--text-secondary)]">{s.data_domain || '-'}</td>
-                      <td className="py-2.5 pr-3">
-                        <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] text-[var(--text-secondary)]">
-                          {s.current_method || s.type || s.source_type || '-'}
-                        </span>
-                      </td>
-                      <td className="py-2.5 pr-3">
-                        <span className="flex items-center gap-1">
-                          <span className="inline-block h-2 w-2 rounded-full" style={{ background: gap.text }} />
-                          <span className="text-xs" style={{ color: gap.text }}>{s.gap_status || '-'}</span>
-                        </span>
-                      </td>
-                      <td className="py-2.5 pr-3">
-                        {s.automation_pct !== undefined && s.automation_pct !== null ? (
+                      <td className="px-3 py-2.5 text-xs text-[var(--text-secondary)]">{s.product_line || '-'}</td>
+                      <td className="px-3 py-2.5 text-xs text-[var(--text-secondary)]">{s.data_domain || '-'}</td>
+                      <td className="px-3 py-2.5"><Badge text={s.gap_status || '-'} bg={gc.bg} fg={gc.text} /></td>
+                      <td className="px-3 py-2.5">
+                        {s.automation_pct != null ? (
                           <div className="flex items-center gap-1.5">
-                            <div className="h-1.5 w-12 overflow-hidden rounded-full bg-[var(--bg-surface)]">
-                              <div
-                                className="h-full rounded-full"
-                                style={{
-                                  width: `${Math.min(s.automation_pct, 100)}%`,
-                                  background: s.automation_pct >= 75 ? '#22c55e' : s.automation_pct >= 50 ? '#f59e0b' : '#ef4444',
-                                }}
-                              />
+                            <div className="h-1.5 w-14 overflow-hidden rounded-full bg-[var(--bg-surface)]">
+                              <div className="h-full rounded-full" style={{ width: `${Math.min(s.automation_pct, 100)}%`, background: s.automation_pct >= 75 ? 'rgb(16,185,129)' : s.automation_pct >= 50 ? 'rgb(245,158,11)' : 'rgb(239,68,68)' }} />
                             </div>
-                            <span className="text-xs text-[var(--text-muted)]">{s.automation_pct}%</span>
+                            <span className="text-[11px] text-[var(--text-muted)]">{s.automation_pct}%</span>
                           </div>
-                        ) : (
-                          <span className="text-xs text-[var(--text-muted)]">{s.automation_level || '-'}</span>
-                        )}
+                        ) : <span className="text-[11px] text-[var(--text-muted)]">{s.automation_level || '-'}</span>}
                       </td>
-                      <td className="py-2.5">
-                        <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={statusStyle(s.status)}>
-                          {s.status || 'unknown'}
-                        </span>
-                      </td>
+                      <td className="px-3 py-2.5"><span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] text-[var(--text-secondary)]">{s.current_method || s.type || '-'}</span></td>
+                      <td className="px-3 py-2.5 text-xs text-[var(--text-muted)]">{s.current_frequency || s.frequency || '-'}</td>
                     </tr>
                   )
-                })
-              )}
-            </tbody>
-          </table>
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Source Detail Panel */}
-      {selected && (
-        <div className="mt-4 rounded-xl border border-[var(--portal)] bg-[var(--bg-surface)] p-5">
+      {sel && (
+        <div className="w-80 shrink-0 rounded-xl border border-[var(--portal)] bg-[var(--bg-card)] p-5">
           <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                {selected.name || selected.source_name || selected._id}
-              </h3>
-              <p className="text-sm text-[var(--text-muted)]">
-                {selected.carrier_name} &middot; {selected.product_line || '-'} &middot; {selected.data_domain || '-'}
-              </p>
+            <div className="min-w-0 flex-1">
+              <h3 className="truncate text-base font-semibold text-[var(--text-primary)]">{sel.name || sel.source_name || sel._id}</h3>
+              <p className="mt-0.5 truncate text-xs text-[var(--text-muted)]">{sel.carrier_name}</p>
             </div>
-            <button onClick={() => onSelect(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
-              <span className="material-icons-outlined" style={{ fontSize: '20px' }}>close</span>
+            <button onClick={() => setSel(null)} className="ml-2 shrink-0 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
             </button>
           </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+          <div className="mt-4 space-y-3">
+            <DField label="Product Line" value={sel.product_line || ''} />
+            <DField label="Data Domain" value={sel.data_domain || ''} />
             <div>
-              <p className="text-xs text-[var(--text-muted)]">Current Method</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.current_method || selected.type || '-'}</p>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Gap Status</p>
+              <Badge text={gapColor(sel.gap_status).label} bg={gapColor(sel.gap_status).bg} fg={gapColor(sel.gap_status).text} />
             </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Target Method</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.target_method || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Current Frequency</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.current_frequency || selected.frequency || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Target Frequency</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.target_frequency || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Gap Status</p>
-              <span
-                className="mt-0.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
-                style={{ background: gapColor(selected.gap_status).bg, color: gapColor(selected.gap_status).text }}
-              >
-                <span className="inline-block h-2 w-2 rounded-full" style={{ background: gapColor(selected.gap_status).text }} />
-                {selected.gap_status || '-'}
-              </span>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Automation</p>
-              <p className="font-medium text-[var(--text-primary)]">
-                {selected.automation_pct !== undefined ? `${selected.automation_pct}%` : selected.automation_level || '-'}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Priority</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.priority || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Portal</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.portal || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Owner</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.current_owner_email || '-'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Last Pull</p>
-              <p className="font-medium text-[var(--text-primary)]">{formatDate(selected.last_pull_at || selected.last_pull)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Next Due</p>
-              <p className="font-medium text-[var(--text-primary)]">{formatDate(selected.next_pull_due)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[var(--text-muted)]">Product Category</p>
-              <p className="font-medium text-[var(--text-primary)]">{selected.product_category || '-'}</p>
-            </div>
+            <DField label="Automation" value={sel.automation_pct != null ? `${sel.automation_pct}%` : (sel.automation_level || '')} />
+            <DField label="Current Method" value={sel.current_method || sel.type || ''} />
+            <DField label="Target Method" value={sel.target_method || ''} />
+            <DField label="Frequency" value={sel.current_frequency || sel.frequency || ''} />
+            <DField label="Target Frequency" value={sel.target_frequency || ''} />
+            <DField label="Priority" value={sel.priority || ''} />
+            <DField label="Owner" value={sel.current_owner_email || ''} />
+            <DField label="Last Pull" value={fmtDate(sel.last_pull_at || sel.last_pull)} />
+            <DField label="Next Due" value={fmtDate(sel.next_pull_due)} />
+            <DField label="Portal" value={sel.portal || ''} />
+            {sel.description && <DField label="Description" value={sel.description} />}
+            {sel.notes && <DField label="Notes" value={sel.notes} />}
           </div>
-
-          {selected.description && (
-            <div className="mt-4">
-              <p className="text-xs text-[var(--text-muted)]">Description</p>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">{selected.description}</p>
-            </div>
-          )}
-          {selected.notes && (
-            <div className="mt-3">
-              <p className="text-xs text-[var(--text-muted)]">Notes</p>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">{selected.notes}</p>
-            </div>
-          )}
-          <p className="mt-4 text-xs text-[var(--text-muted)]">
-            Created: {formatDate(selected.created_at)} &middot; Updated: {formatDate(selected.updated_at || selected.last_updated)}
-          </p>
+          <p className="mt-4 text-[10px] text-[var(--text-muted)]">Created {fmtDate(sel.created_at)} &middot; Updated {fmtDate(sel.updated_at || sel.last_updated)}</p>
         </div>
       )}
     </div>
@@ -618,118 +377,310 @@ function SourcesTab({
 }
 
 // ---------------------------------------------------------------------------
-// Tools Tab
+// Tab 2: Tools
 // ---------------------------------------------------------------------------
 
 function ToolsTab() {
-  // tool_registry collection may be empty — graceful empty state
-  const TOOL_CATEGORIES = [
-    { key: 'INTAKE_QUEUING', label: 'Intake & Queuing', icon: 'inbox', desc: 'Scanning, filing, queueing' },
-    { key: 'EXTRACTION_APPROVAL', label: 'Extraction & Approval', icon: 'document_scanner', desc: 'OCR, classification, approval' },
-    { key: 'NORMALIZATION_VALIDATION', label: 'Normalization & Validation', icon: 'verified', desc: 'Normalize, validate, clean' },
-    { key: 'MATCHING_DEDUP', label: 'Matching & Dedup', icon: 'compare_arrows', desc: 'Client matching, deduplication' },
-    { key: 'EXTERNAL_ENRICHMENT', label: 'External Enrichment', icon: 'cloud_download', desc: 'WhitePages, NeverBounce, USPS' },
-    { key: 'BULK_OPERATIONS', label: 'Bulk Operations', icon: 'dynamic_feed', desc: 'Batch processing, aggregation' },
-  ]
+  const [tools] = useState<ToolRecord[]>([]) // tool_registry — empty until seeded
+  const [catF, setCatF] = useState('All')
+  const [typeF, setTypeF] = useState('All')
+  const [search, setSearch] = useState('')
+  const [sel, setSel] = useState<ToolRecord | null>(null)
 
-  return (
+  const toolTypes = useMemo(() => { const s = new Set<string>(); tools.forEach((t) => { if (t.tool_type) s.add(t.tool_type) }); return ['All', ...Array.from(s).sort()] }, [tools])
+  const filtered = useMemo(() => tools.filter((t) => {
+    if (catF !== 'All' && t.category !== catF) return false
+    if (typeF !== 'All' && t.tool_type !== typeF) return false
+    if (search && !(t.tool_name || '').toLowerCase().includes(search.toLowerCase()) && !(t.description || '').toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  }), [tools, catF, typeF, search])
+
+  const catCounts = useMemo(() => { const c: Record<string, number> = {}; TOOL_CATS.forEach((x) => { c[x.key] = 0 }); tools.forEach((t) => { if (c[t.category] !== undefined) c[t.category]++ }); return c }, [tools])
+
+  if (tools.length === 0) return (
     <div>
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 text-center">
-        <span className="material-icons-outlined text-5xl" style={{ color: 'var(--portal)' }}>build</span>
-        <h3 className="mt-4 text-lg font-semibold text-[var(--text-primary)]">Tool Registry</h3>
-        <p className="mt-2 text-sm text-[var(--text-muted)]">
-          Seed ATLAS to populate the tool registry. 150+ tools across 6 pipeline categories will appear here.
-        </p>
-      </div>
-
-      {/* Category Preview */}
+      <Empty icon="build" title="Tool Registry" desc="Seed ATLAS to populate the tool registry. 150+ tools across 6 pipeline categories will appear here." />
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {TOOL_CATEGORIES.map((cat) => (
+        {TOOL_CATS.map((cat) => (
           <div key={cat.key} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
             <div className="flex items-center gap-3">
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                style={{ background: 'var(--portal-glow)' }}
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>{cat.icon}</span>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: `${catColor(cat.key)}15` }}>
+                <span className="material-icons-outlined" style={{ fontSize: '20px', color: catColor(cat.key) }}>{cat.icon}</span>
               </span>
-              <div>
-                <p className="text-sm font-semibold text-[var(--text-primary)]">{cat.label}</p>
-                <p className="text-xs text-[var(--text-muted)]">{cat.desc}</p>
-              </div>
+              <div><p className="text-sm font-semibold text-[var(--text-primary)]">{cat.label}</p><p className="text-xs text-[var(--text-muted)]">{cat.desc}</p></div>
             </div>
           </div>
         ))}
       </div>
     </div>
   )
+
+  return (
+    <div className="flex gap-4">
+      <div className={sel ? 'flex-1 min-w-0' : 'w-full'}>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          {TOOL_CATS.map((cat) => (
+            <button key={cat.key} onClick={() => setCatF(catF === cat.key ? 'All' : cat.key)}
+              className="rounded-lg border p-3 text-left transition-all"
+              style={{ borderColor: catF === cat.key ? catColor(cat.key) : 'var(--border-subtle)', background: catF === cat.key ? `${catColor(cat.key)}10` : 'var(--bg-card)' }}>
+              <span className="material-icons-outlined" style={{ fontSize: '18px', color: catColor(cat.key) }}>{cat.icon}</span>
+              <p className="mt-1 text-xs font-semibold text-[var(--text-primary)]">{cat.label}</p>
+              <p className="text-lg font-bold" style={{ color: catColor(cat.key) }}>{catCounts[cat.key]}</p>
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Search value={search} onChange={setSearch} placeholder="Search tools..." />
+          {toolTypes.map((t) => <Pill key={t} label={t === 'All' ? 'All Types' : t} active={typeF === t} onClick={() => setTypeF(t)} />)}
+        </div>
+        <p className="mt-3 text-xs text-[var(--text-muted)]">{filtered.length} tools</p>
+        <div className="mt-3 space-y-2">
+          {filtered.map((t) => (
+            <button key={t._id} onClick={() => setSel(sel?._id === t._id ? null : t)}
+              className="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all hover:bg-[var(--bg-surface)]"
+              style={{ borderColor: sel?._id === t._id ? 'var(--portal)' : 'var(--border-subtle)', background: sel?._id === t._id ? 'var(--bg-surface)' : 'var(--bg-card)' }}>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: `${catColor(t.category)}15` }}>
+                <span className="material-icons-outlined" style={{ fontSize: '18px', color: catColor(t.category) }}>{TOOL_CATS.find((c) => c.key === t.category)?.icon || 'extension'}</span>
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-[var(--text-primary)]">{t.tool_name}</p>
+                <div className="mt-0.5 flex flex-wrap gap-1">
+                  <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ background: `${catColor(t.category)}20`, color: catColor(t.category) }}>{catLabel(t.category)}</span>
+                  <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)]">{t.tool_type}</span>
+                  <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)]">{t.source_project}</span>
+                </div>
+              </div>
+              {t.runnable && <span className="material-icons-outlined shrink-0" style={{ fontSize: '16px', color: 'rgb(16,185,129)' }}>play_circle</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+      {sel && (
+        <div className="w-80 shrink-0 rounded-xl border border-[var(--portal)] bg-[var(--bg-card)] p-5">
+          <div className="flex items-start justify-between">
+            <h3 className="text-base font-semibold text-[var(--text-primary)]">{sel.tool_name}</h3>
+            <button onClick={() => setSel(null)} className="ml-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"><span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span></button>
+          </div>
+          <div className="mt-4 space-y-3">
+            <DField label="Category" value={catLabel(sel.category)} />
+            <DField label="Tool Type" value={sel.tool_type} />
+            <DField label="Source Project" value={sel.source_project} />
+            <DField label="Source File" value={sel.source_file} />
+            <DField label="Run Target" value={sel.run_target} />
+            <DField label="Product Lines" value={sel.product_lines} />
+            <DField label="Data Domains" value={sel.data_domains} />
+            <DField label="Used By" value={sel.used_by_frontend} />
+            <DField label="Status" value={sel.status} />
+            <DField label="Runnable" value={sel.runnable ? 'Yes' : 'No'} />
+            {sel.description && <DField label="Description" value={sel.description} />}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ---------------------------------------------------------------------------
-// Pipeline Flow Tab
+// Tab 3: Pipeline
 // ---------------------------------------------------------------------------
 
 function PipelineTab() {
+  const ws = useMemo(() => getWireStats(), [])
+  const products = useMemo(() => { const s = new Set<string>(); WIRE_DEFINITIONS.forEach((w) => s.add(w.product_line)); return ['All', ...Array.from(s).sort()] }, [])
+  const [wireId, setWireId] = useState('__all__')
+  const [prodF, setProdF] = useState('All')
+
+  const visible = useMemo(() => {
+    let w = WIRE_DEFINITIONS as WireDefinition[]
+    if (prodF !== 'All') w = w.filter((x) => x.product_line === prodF || x.product_line === 'ALL')
+    if (wireId !== '__all__') w = w.filter((x) => x.wire_id === wireId)
+    return w
+  }, [wireId, prodF])
+
   return (
     <div>
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Data Pipeline Flow</h3>
-        <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-          How data flows from external sources through The Machine to the portal frontends
-        </p>
-
-        {/* Pipeline Visualization */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          {PIPELINE_STAGES.map((stage, i) => (
-            <div key={stage.key} className="flex items-center">
-              <div className="flex flex-col items-center rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-center" style={{ minWidth: '120px' }}>
-                <span
-                  className="flex h-12 w-12 items-center justify-center rounded-full"
-                  style={{ background: `${stage.color}20` }}
-                >
-                  <span className="material-icons-outlined" style={{ fontSize: '24px', color: stage.color }}>
-                    {stage.icon}
-                  </span>
-                </span>
-                <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{stage.label}</p>
-              </div>
-              {i < PIPELINE_STAGES.length - 1 && (
-                <span className="mx-1 text-[var(--text-muted)]">
-                  <span className="material-icons-outlined" style={{ fontSize: '20px' }}>arrow_forward</span>
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Stage Details */}
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {PIPELINE_STAGES.map((stage) => (
-            <div key={stage.key} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-3 w-3 rounded-full" style={{ background: stage.color }} />
-                <p className="text-sm font-medium text-[var(--text-primary)]">{stage.label}</p>
-              </div>
-              <p className="mt-1 text-xs text-[var(--text-muted)]">
-                {stage.key === 'SOURCE' && 'External carrier data, APIs, manual uploads, SFTP feeds'}
-                {stage.key === 'INTAKE' && 'Document watcher scans, queues items: NEW → SCANNING → QUEUED'}
-                {stage.key === 'EXTRACTION' && 'OCR extraction, AI classification: EXTRACTING → CLASSIFYING'}
-                {stage.key === 'APPROVAL' && 'Team review, validation: PENDING_REVIEW → REVIEW → APPROVED'}
-                {stage.key === 'MATRIX' && 'Data written to Firestore + Sheets: IMPORTING → WRITING → COMPLETE'}
-                {stage.key === 'FRONTEND' && 'Data visible in ProDashX, RIIMO, SENTINEL portals'}
-              </p>
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat icon="route" label="Total Wires" val={ws.totalWires} accent />
+        <Stat icon="account_tree" label="Total Stages" val={ws.totalStages} />
+        <Stat icon="cloud" label="External" val={ws.stageTypes['EXTERNAL'] || 0} color="rgb(168,85,247)" />
+        <Stat icon="api" label="API Endpoints" val={ws.stageTypes['API_ENDPOINT'] || 0} color="rgb(59,130,246)" />
       </div>
-
-      {/* Wire Diagrams Note */}
-      <div className="mt-4 rounded-lg border border-dashed border-[var(--border)] bg-[var(--bg-surface)] p-4 text-center">
-        <span className="material-icons-outlined text-2xl text-[var(--text-muted)]">schema</span>
-        <p className="mt-1 text-xs text-[var(--text-muted)]">
-          Individual wire diagrams (per carrier/product/domain) will render here when wire definitions are seeded from ATLAS backend.
-        </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {Object.entries(ws.stageTypes).sort(([, a], [, b]) => b - a).map(([type, count]) => (
+          <span key={type} className="rounded-full bg-[var(--bg-surface)] px-3 py-1 text-xs text-[var(--text-secondary)]">
+            {type}: <span className="font-semibold text-[var(--text-primary)]">{count}</span>
+          </span>
+        ))}
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <select value={wireId} onChange={(e) => setWireId(e.target.value)}
+          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none">
+          <option value="__all__">All Wires ({WIRE_DEFINITIONS.length})</option>
+          {WIRE_DEFINITIONS.map((w) => <option key={w.wire_id} value={w.wire_id}>{w.name}</option>)}
+        </select>
+        {products.map((p) => <Pill key={p} label={p === 'All' ? 'All Products' : p} active={prodF === p} onClick={() => setProdF(p)} />)}
+      </div>
+      <div className="mt-4 space-y-4">
+        {visible.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] p-8 text-center">
+            <p className="text-sm text-[var(--text-muted)]">No wires match the selected filters.</p>
+          </div>
+        ) : visible.map((wire) => <WireDiagram key={wire.wire_id} wire={wire} />)}
       </div>
     </div>
   )
+}
+
+// ---------------------------------------------------------------------------
+// Tab 4: Health
+// ---------------------------------------------------------------------------
+
+function HealthTab({ sources }: { sources: SourceRecord[] }) {
+  const [automations] = useState<AutomationRecord[]>([]) // automation_registry — empty until seeded
+  const healthResults = useMemo<AutomationHealth[]>(() => { const now = Date.now(); return automations.map((a) => computeAutomationHealth(a, now)) }, [automations])
+  const summary = useMemo(() => getAutomationSummary(automations), [automations])
+
+  const staleSources = useMemo(() => {
+    const now = Date.now()
+    return sources.filter((s) => {
+      const lp = s.last_pull_at || s.last_pull
+      if (!lp) return (s.gap_status || '').toUpperCase() !== 'GRAY'
+      const ms = new Date(lp).getTime()
+      if (isNaN(ms)) return true
+      const freq = s.current_frequency || s.frequency || 'NONE'
+      const exp = freq === 'DAILY' ? 25 : freq === 'WEEKLY' ? 170 : freq === 'MONTHLY' ? 750 : 8760
+      return (now - ms) / 3600000 > exp * 2
+    })
+  }, [sources])
+
+  return (
+    <div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat icon="monitor_heart" label="Overall Health" val={`${summary.healthPct}%`} accent />
+        <Stat icon="check_circle" label="Green" val={summary.green} color="rgb(16,185,129)" />
+        <Stat icon="warning" label="Yellow" val={summary.yellow} color="rgb(245,158,11)" />
+        <Stat icon="error" label="Red" val={summary.red} color="rgb(239,68,68)" />
+      </div>
+
+      {automations.length === 0 ? (
+        <div className="mt-4"><Empty icon="monitor_heart" title="Automation Health" desc="Seed the automation_registry collection to track launchd agents, GAS triggers, and cloud functions." /></div>
+      ) : (
+        <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+          <div className="max-h-[400px] overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 z-10 bg-[var(--bg-card)]">
+                <tr className="border-b border-[var(--border-subtle)] text-left text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  <th className="px-4 py-3">Automation</th><th className="px-3 py-3">Schedule</th><th className="px-3 py-3">Last Run</th><th className="px-3 py-3">Health</th><th className="px-3 py-3">Elapsed / Expected</th>
+                </tr>
+              </thead>
+              <tbody>
+                {healthResults.map((h) => {
+                  const hc = hColor(h.health); const entry = automations.find((a) => a.automation_id === h.automation_id)
+                  return (
+                    <tr key={h.automation_id} className="border-b border-[var(--border-subtle)]">
+                      <td className="px-4 py-2.5"><p className="font-medium text-[var(--text-primary)]">{h.automation_name}</p>{entry && <p className="text-[11px] text-[var(--text-muted)]">{entry.automation_type}</p>}</td>
+                      <td className="px-3 py-2.5 text-xs text-[var(--text-secondary)]">{entry?.schedule || '-'}</td>
+                      <td className="px-3 py-2.5 text-xs text-[var(--text-muted)]">{fmtDateTime(h.last_run_at)}</td>
+                      <td className="px-3 py-2.5"><Badge text={h.health} bg={hc.bg} fg={hc.text} /></td>
+                      <td className="px-3 py-2.5 text-xs text-[var(--text-muted)]">{h.elapsed_hours}h / {h.expected_hours}h</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+          <span className="material-icons-outlined" style={{ fontSize: '18px', color: 'rgb(245,158,11)' }}>schedule</span>
+          Stale Source Detection
+          <span className="rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">{staleSources.length} stale</span>
+        </h3>
+        {staleSources.length === 0 ? (
+          <div className="mt-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 text-center">
+            <span className="material-icons-outlined text-2xl" style={{ color: 'rgb(16,185,129)' }}>verified</span>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">All sources are within expected pull intervals.</p>
+          </div>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {staleSources.slice(0, 20).map((s) => (
+              <div key={s._id} className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3">
+                <span className="material-icons-outlined shrink-0" style={{ fontSize: '18px', color: 'rgb(245,158,11)' }}>warning</span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-[var(--text-primary)]">{s.carrier_name || s.name || s._id}</p>
+                  <p className="text-[11px] text-[var(--text-muted)]">Last pull: {fmtDate(s.last_pull_at || s.last_pull)} &middot; Expected: {s.current_frequency || s.frequency || 'Unknown'}</p>
+                </div>
+                <Badge text={s.gap_status || '-'} bg={gapColor(s.gap_status).bg} fg={gapColor(s.gap_status).text} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Tab 5: Audit
+// ---------------------------------------------------------------------------
+
+function AuditTab() {
+  const [audits] = useState<AuditRecord[]>([]) // atlas_audit — empty until seeded
+  const [actionF, setActionF] = useState('All')
+  const actionTypes = useMemo(() => { const s = new Set<string>(); audits.forEach((a) => { if (a.action_type) s.add(a.action_type) }); return ['All', ...Array.from(s).sort()] }, [audits])
+  const filtered = useMemo(() => actionF === 'All' ? audits : audits.filter((a) => a.action_type === actionF), [audits, actionF])
+
+  if (audits.length === 0) return <Empty icon="history" title="Audit Trail" desc="ATLAS audit events will appear here as sources are created, updated, and pipelines run. Seed atlas_audit to populate." />
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        {actionTypes.map((t) => <Pill key={t} label={t === 'All' ? 'All Actions' : t} active={actionF === t} onClick={() => setActionF(t)} />)}
+      </div>
+      <p className="mt-3 text-xs text-[var(--text-muted)]">{filtered.length} events</p>
+      <div className="mt-4 space-y-1">
+        {filtered.map((a) => {
+          const ic = auditIcon(a.action_type), icC = auditColor(a.action_type)
+          return (
+            <div key={a._id} className="flex gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ background: icC.replace('rgb(', 'rgba(').replace(')', ',0.12)'), color: icC }}>
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>{ic}</span>
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">{a.action || a.action_type || 'Unknown'}</span>
+                  {a.action_type && <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)]">{a.action_type}</span>}
+                </div>
+                {a.source_name && <p className="mt-0.5 text-xs text-[var(--text-secondary)]">{a.source_name}</p>}
+                {a.details && <p className="mt-0.5 text-xs text-[var(--text-muted)]">{a.details}</p>}
+                <p className="mt-1 text-[10px] text-[var(--text-muted)]">{a.user || 'system'} &middot; {fmtDateTime(a.created_at)}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function auditIcon(t?: string) {
+  const s = (t || '').toLowerCase()
+  if (s.includes('create') || s.includes('add')) return 'add_circle'
+  if (s.includes('update') || s.includes('edit')) return 'edit'
+  if (s.includes('delete') || s.includes('remove')) return 'delete'
+  if (s.includes('import') || s.includes('seed')) return 'cloud_upload'
+  if (s.includes('run') || s.includes('execute')) return 'play_circle'
+  return 'info'
+}
+
+function auditColor(t?: string) {
+  const s = (t || '').toLowerCase()
+  if (s.includes('create') || s.includes('add')) return 'rgb(16,185,129)'
+  if (s.includes('update') || s.includes('edit')) return 'rgb(59,130,246)'
+  if (s.includes('delete') || s.includes('remove')) return 'rgb(239,68,68)'
+  if (s.includes('import') || s.includes('seed')) return 'rgb(168,85,247)'
+  if (s.includes('run') || s.includes('execute')) return 'rgb(245,158,11)'
+  return 'rgb(148,163,184)'
 }
