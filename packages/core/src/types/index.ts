@@ -107,3 +107,88 @@ export interface Entitlement {
   minLevel: number
   status: 'LIVE' | 'BETA' | 'DISABLED'
 }
+
+// --- Additional types for migration batches 2-4 ---
+
+export interface Pipeline {
+  pipeline_id: string
+  pipeline_name: string
+  status: string
+  pipeline_type: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface Relationship {
+  relationship_id: string
+  client_id: string
+  related_client_id?: string
+  relationship_type: string
+  created_at: string
+  [key: string]: unknown
+}
+
+export interface Activity {
+  activity_id: string
+  client_id: string
+  activity_type: string
+  description: string
+  created_at: string
+  [key: string]: unknown
+}
+
+export interface Campaign {
+  campaign_id: string
+  campaign_name: string
+  campaign_type: string
+  status: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface Template {
+  template_id: string
+  template_name: string
+  campaign_id?: string
+  template_type: string
+  status: string
+  [key: string]: unknown
+}
+
+export interface ContentBlock {
+  block_id: string
+  block_name: string
+  block_type: string
+  content: string
+  [key: string]: unknown
+}
+
+export interface SourceRegistry {
+  source_id: string
+  source_name: string
+  source_type: string
+  status: string
+  [key: string]: unknown
+}
+
+export interface Communication {
+  communication_id: string
+  client_id?: string
+  channel: string
+  direction: string
+  created_at: string
+  [key: string]: unknown
+}
+
+export interface CaseTask {
+  task_id: string
+  client_id?: string
+  task_type: string
+  status: string
+  assigned_to?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}

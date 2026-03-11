@@ -395,6 +395,8 @@ async function main() {
     { spreadsheetId: PRODASH_MATRIX_ID, tab: '_TEMPLATES', collection: 'templates', idField: 'template_id' },
     { spreadsheetId: PRODASH_MATRIX_ID, tab: '_CONTENT_BLOCKS', collection: 'content_blocks', idField: 'block_id' },
     { spreadsheetId: PRODASH_MATRIX_ID, tab: '_COMMUNICATION_LOG', collection: 'communications', idField: 'communication_id' },
+    // ATLAS registry from RAPID_MATRIX
+    { spreadsheetId: RAPID_MATRIX_ID, tab: '_SOURCE_REGISTRY', collection: 'source_registry', idField: 'source_id' },
   ]
 
   for (const { spreadsheetId, tab, collection, idField } of batch4Tabs) {
