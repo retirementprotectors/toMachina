@@ -84,6 +84,16 @@ export function AccountsTab({ accounts, loading }: AccountsTabProps) {
         ))}
       </div>
 
+      {/* Account summary */}
+      {accounts.length > 0 && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <SummaryMiniCard label="Total Accounts" value={String(accounts.length)} icon="layers" />
+          <SummaryMiniCard label="Total Value" value={formatCurrency(accounts.reduce((sum, a) => sum + parseFloat(String(a.account_value || a.premium || a.face_amount || 0).replace(/[$,]/g, '')), 0))} icon="account_balance" />
+          <SummaryMiniCard label="Active" value={String(accounts.filter((a) => ['active', 'in force'].includes(String(a.status || '').toLowerCase())).length)} icon="check_circle" />
+          <SummaryMiniCard label="Pending" value={String(accounts.filter((a) => String(a.status || '').toLowerCase() === 'pending').length)} icon="pending" />
+        </div>
+      )}
+
       {/* Account cards */}
       {filtered.length === 0 ? (
         <EmptyState
@@ -178,6 +188,16 @@ function MiniField({
       <p className={`text-sm text-[var(--text-primary)] ${mono ? 'font-mono' : ''}`}>
         {value || <span className="text-[var(--text-muted)]">&mdash;</span>}
       </p>
+    </div>
+  )
+}
+
+function SummaryMiniCard({ label, value, icon }: { label: string; value: string; icon: string }) {
+  return (
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 text-center">
+      <span className="material-icons-outlined text-[16px] text-[var(--portal)]">{icon}</span>
+      <p className="mt-1 text-lg font-bold text-[var(--text-primary)]">{value}</p>
+      <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">{label}</p>
     </div>
   )
 }

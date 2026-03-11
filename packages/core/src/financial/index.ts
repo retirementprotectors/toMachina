@@ -12,3 +12,13 @@ export {
   projectRevenue,
   projectCashFlow,
 } from './revenue'
+export {
+  calculateRmd,
+  generateRmdSchedule,
+  getDistributionPeriod,
+  getRmdStartAge,
+  isRmdEligible,
+  type RmdInput,
+  type RmdResult,
+  type RmdScheduleRow,
+} from './rmd'

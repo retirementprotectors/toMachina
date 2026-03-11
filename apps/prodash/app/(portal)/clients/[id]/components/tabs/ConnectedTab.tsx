@@ -42,7 +42,18 @@ export function ConnectedTab({ client }: ConnectedTabProps) {
                 .toUpperCase()}
             </div>
             <div className="flex-1">
-              <h4 className="mb-3 text-base font-semibold text-[var(--text-primary)]">{spouseName}</h4>
+              <div className="mb-3 flex items-center gap-3">
+                <h4 className="text-base font-semibold text-[var(--text-primary)]">{spouseName}</h4>
+                {str(client.spouse_client_id) && (
+                  <a
+                    href={`/clients/${str(client.spouse_client_id)}`}
+                    className="inline-flex items-center gap-1 rounded-full bg-[var(--portal-glow)] px-2.5 py-0.5 text-xs font-medium text-[var(--portal)] hover:brightness-110 transition-all"
+                  >
+                    <span className="material-icons-outlined text-[12px]">open_in_new</span>
+                    View Record
+                  </a>
+                )}
+              </div>
               <FieldGrid cols={3}>
                 <DetailField label="Date of Birth" value={formatDate(client.spouse_dob)} />
                 <DetailField label="Age" value={getAge(client.spouse_dob) ?? undefined} />

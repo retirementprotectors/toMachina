@@ -1,7 +1,7 @@
 'use client'
 
 import type { Client } from '@tomachina/core'
-import { formatPhone, str } from '../../lib/formatters'
+import { formatPhone, formatDate, str } from '../../lib/formatters'
 import { SectionCard, DetailField, EditableField, FieldGrid } from '../../lib/ui-helpers'
 
 interface ContactTabProps {
@@ -91,6 +91,15 @@ export function ContactTab({ client, editing = false, editData = {}, onFieldChan
           )}
         </SectionCard>
       </div>
+
+      {/* Communication Preferences */}
+      <SectionCard title="Communication Preferences" icon="tune">
+        <FieldGrid cols={3}>
+          <DetailField label="Preferred Contact" value={str(client.preferred_contact)} />
+          <DetailField label="Best Time to Call" value={str(client.best_call_time)} />
+          <DetailField label="Last Contact" value={formatDate(client.last_contact_date)} />
+        </FieldGrid>
+      </SectionCard>
 
       {/* RPI Relationship */}
       <SectionCard title="RPI Relationship" icon="handshake">

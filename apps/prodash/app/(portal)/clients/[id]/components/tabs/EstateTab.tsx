@@ -36,8 +36,54 @@ export function EstateTab({ client, editing = false, editData = {}, onFieldChang
     )
   }
 
+  // Completeness score
+  const items = [
+    { key: 'has_trust', label: 'Has Trust' },
+    { key: 'will_exists', label: 'Will Exists' },
+    { key: 'financial_poa', label: 'Financial POA' },
+    { key: 'healthcare_poa', label: 'Healthcare POA' },
+    { key: 'beneficiary_deed', label: 'Beneficiary Deed' },
+  ]
+  const yesCount = items.filter((item) => yesNo(client[item.key]) === 'Yes').length
+  const specifiedCount = items.filter((item) => yesNo(client[item.key]) !== '').length
+  const completeness = specifiedCount > 0 ? Math.round((yesCount / items.length) * 100) : 0
+
   return (
     <div className="space-y-4">
+      {/* Completeness Score */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">Estate Planning Completeness</p>
+            <p className="text-xs text-[var(--text-muted)]">{yesCount} of {items.length} documents in place</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-2.5 w-32 overflow-hidden rounded-full bg-[var(--bg-surface)]">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${completeness}%`,
+                  backgroundColor: completeness >= 80 ? 'var(--success)' : completeness >= 40 ? 'var(--warning)' : 'var(--error)',
+                }}
+              />
+            </div>
+            <span className={`text-lg font-bold ${completeness >= 80 ? 'text-emerald-400' : completeness >= 40 ? 'text-amber-400' : 'text-red-400'}`}>
+              {completeness}%
+            </span>
+          </div>
+        </div>
+
+        {/* Missing items alert */}
+        {completeness < 100 && (
+          <div className="mt-3 rounded-md bg-amber-500/10 p-3">
+            <div className="flex items-center gap-2 text-xs text-amber-400">
+              <span className="material-icons-outlined text-[14px]">warning</span>
+              Missing: {items.filter((item) => yesNo(client[item.key]) !== 'Yes').map((item) => item.label).join(', ')}
+            </div>
+          </div>
+        )}
+      </div>
+
       <SectionCard title="Estate Planning" icon="gavel">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <YesNoIndicator label="Has Trust" value={yesNo(client.has_trust)} />

@@ -1,8 +1,40 @@
 'use client'
 
+import { useState } from 'react'
 import type { Client } from '@tomachina/core'
 import { formatDate, str } from '../../lib/formatters'
 import { SectionCard, DetailField, FieldGrid, EmptyState } from '../../lib/ui-helpers'
+
+function CopyableField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false)
+  const handleCopy = () => {
+    if (!value) return
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
+  }
+
+  return (
+    <div>
+      <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</dt>
+      <dd className="mt-1 flex items-center gap-2">
+        <span className="font-mono text-sm text-[var(--text-primary)]">
+          {value || <span className="text-[var(--text-muted)]">&mdash;</span>}
+        </span>
+        {value && (
+          <button
+            onClick={handleCopy}
+            className="inline-flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] hover:text-[var(--portal)] transition-colors"
+            title="Copy to clipboard"
+          >
+            <span className="material-icons-outlined text-[14px]">{copied ? 'check' : 'content_copy'}</span>
+          </button>
+        )}
+      </dd>
+    </div>
+  )
+}
 
 interface IntegrationsTabProps {
   client: Client
@@ -32,12 +64,12 @@ export function IntegrationsTab({ client }: IntegrationsTabProps) {
 
   return (
     <div className="space-y-4">
-      {/* Internal IDs */}
+      {/* Internal IDs with copy */}
       <SectionCard title="Platform IDs" icon="fingerprint">
         <FieldGrid cols={3}>
-          <DetailField label="Client ID" value={clientId} mono />
-          <DetailField label="Firestore Doc ID" value={firestoreId} mono />
-          {legacyId && <DetailField label="Legacy ID" value={legacyId} mono />}
+          <CopyableField label="Client ID" value={clientId} />
+          <CopyableField label="Firestore Doc ID" value={firestoreId} />
+          {legacyId && <CopyableField label="Legacy ID" value={legacyId} />}
         </FieldGrid>
       </SectionCard>
 
@@ -56,7 +88,7 @@ export function IntegrationsTab({ client }: IntegrationsTabProps) {
       {hasGhl && (
         <SectionCard title="GoHighLevel (GHL)" icon="link">
           <FieldGrid cols={3}>
-            <DetailField label="GHL Contact ID" value={ghlId} mono />
+            <CopyableField label="GHL Contact ID" value={ghlId} />
             <DetailField label="GHL Created" value={formatDate(ghlCreated)} />
             <DetailField label="GHL Updated" value={formatDate(ghlUpdated)} />
           </FieldGrid>
@@ -87,10 +119,10 @@ export function IntegrationsTab({ client }: IntegrationsTabProps) {
       {hasExternal && (
         <SectionCard title="External Systems" icon="hub">
           <FieldGrid cols={2}>
-            {dtccId && <DetailField label="DTCC ID" value={dtccId} mono />}
-            {dstId && <DetailField label="DST Vision ID" value={dstId} mono />}
-            {schwabId && <DetailField label="Schwab ID" value={schwabId} mono />}
-            {rbcId && <DetailField label="RBC ID" value={rbcId} mono />}
+            {dtccId && <CopyableField label="DTCC ID" value={dtccId} />}
+            {dstId && <CopyableField label="DST Vision ID" value={dstId} />}
+            {schwabId && <CopyableField label="Schwab ID" value={schwabId} />}
+            {rbcId && <CopyableField label="RBC ID" value={rbcId} />}
           </FieldGrid>
         </SectionCard>
       )}
