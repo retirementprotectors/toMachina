@@ -23,6 +23,9 @@ if (getApps().length === 0) {
 const db = getFirestore()
 const app = express()
 
+// Sheets write toggle — set SHEETS_WRITE_ENABLED=false to disable Sheets sync
+const SHEETS_WRITE_ENABLED = (process.env.SHEETS_WRITE_ENABLED || 'true').toLowerCase() === 'true'
+
 app.use(cors({ origin: true }))
 app.use(express.json({ limit: '5mb' }))
 
@@ -284,6 +287,7 @@ app.get('/health', (_req, res) => {
     status: 'ok',
     service: 'tomachina-bridge',
     timestamp: new Date().toISOString(),
+    sheetsWriteEnabled: SHEETS_WRITE_ENABLED,
     sheetsConfigured: Object.values(matrixStatus).some(Boolean),
     matrixStatus,
   })
@@ -391,7 +395,10 @@ app.post('/write', async (req, res) => {
   }
 
   // ── Secondary: Sheets (never rollback Firestore on failure) ──────────
-  try {
+  if (!SHEETS_WRITE_ENABLED) {
+    sheetsStatus = 'skipped'
+    console.log(`[Bridge/Sheets] Sheets writes disabled via SHEETS_WRITE_ENABLED=false`)
+  } else try {
     const tabName = resolveTab(collName, data)
 
     if (!tabName) {
@@ -598,6 +605,7 @@ app.get('/status/sheets', async (_req, res) => {
 const PORT = parseInt(process.env.PORT || '8081', 10)
 app.listen(PORT, () => {
   console.log(`toMachina Bridge listening on port ${PORT}`)
+  console.log(`   SHEETS_WRITE_ENABLED: ${SHEETS_WRITE_ENABLED}`)
   console.log(`   RAPID_MATRIX_ID: ${getMatrixId('RAPID') ? 'configured' : 'NOT SET'}`)
   console.log(`   PRODASH_MATRIX_ID: ${getMatrixId('PRODASH') ? 'configured' : 'NOT SET'}`)
   console.log(`   SENTINEL_MATRIX_ID: ${getMatrixId('SENTINEL') ? 'configured' : 'NOT SET'}`)
