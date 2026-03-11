@@ -1,0 +1,20 @@
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  cpu: 1
+  memoryMiB: 512
+  concurrency: 80
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyCUAn7VioaNJAzhtjUQCtd-7byd6ISR_7A
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: claude-mcp-484718.firebaseapp.com
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: claude-mcp-484718
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: claude-mcp-484718.firebasestorage.app
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "365181509090"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:365181509090:web:08aea23422c813d23b6dbb"
