@@ -3,5 +3,5 @@
 import { ConnectPanel } from '@tomachina/ui'
 
 export default function ConnectPage() {
-  return <ConnectPanel portal="prodashx" />
+  return <ConnectPanel portal="sentinel" />
 }

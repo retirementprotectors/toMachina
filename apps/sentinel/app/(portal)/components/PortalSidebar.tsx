@@ -54,6 +54,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { key: 'deals', label: 'Deals', href: '/deals', icon: 'handshake', moduleKey: 'SENTINEL_DEALS' },
       { key: 'producers', label: 'Producers', href: '/producers', icon: 'people', moduleKey: 'SENTINEL_PRODUCERS' },
+      { key: 'myrpi', label: 'MyRPI', href: '/myrpi', icon: 'person', moduleKey: 'MY_RPI' },
     ],
   },
   {

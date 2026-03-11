@@ -11,3 +11,6 @@ export { DataTable } from './components/DataTable'
 export { KanbanBoard } from './components/KanbanBoard'
 export type { KanbanCard, KanbanColumn } from './components/KanbanBoard'
 export { PortalSwitcher } from './components/PortalSwitcher'
+
+// Shared feature modules
+export * from './modules'
