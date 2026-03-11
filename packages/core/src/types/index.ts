@@ -1,5 +1,9 @@
 // Core types for toMachina — derived from TAB_SCHEMAS in CORE_Database.gs
 
+// ============================================================================
+// ENTITY TYPES
+// ============================================================================
+
 export interface Client {
   client_id: string
   first_name: string
@@ -96,8 +100,172 @@ export interface User {
   manager_email: string
   status: string
   entitlements: string[]
+  slack_id?: string
+  phone?: string
+  job_title?: string
+  aliases?: string[]
+  personal_email?: string
+  location?: string
+  npn?: string
+  hire_date?: string
+  google_chat_id?: string
+  employee_profile?: Record<string, unknown>
+  module_permissions?: Record<string, string[]>
   [key: string]: unknown
 }
+
+export interface Carrier {
+  carrier_id: string
+  name: string
+  naic_code?: string
+  parent_carrier?: string
+  product_types?: string[]
+  status: string
+  am_best_rating?: string
+  website?: string
+  contact_phone?: string
+  contact_email?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface Product {
+  product_id: string
+  carrier_id: string
+  name: string
+  product_type: string
+  core_product_type?: string
+  status: string
+  description?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface OrgUnit {
+  entity_id: string
+  entity_type: string
+  name: string
+  parent_id?: string
+  manager_email?: string
+  slack_channel_id?: string
+  status: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface Campaign {
+  campaign_id: string
+  name: string
+  type: string
+  status: string
+  trigger_type?: string
+  audience?: string
+  template_ids?: string[]
+  start_date?: string
+  end_date?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface Template {
+  template_id: string
+  name: string
+  type: string
+  channel: string
+  subject?: string
+  body?: string
+  status: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface CaseTask {
+  task_id: string
+  client_id?: string
+  account_id?: string
+  title: string
+  description?: string
+  status: string
+  priority?: string
+  assigned_to?: string
+  due_date?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface Communication {
+  comm_id: string
+  client_id?: string
+  channel: string
+  direction: string
+  subject?: string
+  body?: string
+  status: string
+  sent_at?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface CompGrid {
+  grid_id: string
+  carrier_id: string
+  product_type: string
+  level: string
+  rate: number
+  effective_date?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface AtlasSource {
+  source_id: string
+  name: string
+  type: string
+  category: string
+  status: string
+  frequency?: string
+  last_pull?: string
+  owner?: string
+  description?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface FlowPipeline {
+  pipeline_key: string
+  name: string
+  description?: string
+  status: string
+  stages?: string[]
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface FlowInstance {
+  instance_id: string
+  pipeline_key: string
+  subject_type: string
+  subject_id: string
+  current_stage: string
+  status: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+// ============================================================================
+// ENTITLEMENT TYPES
+// ============================================================================
 
 export type UserLevel = 'OWNER' | 'EXECUTIVE' | 'LEADER' | 'USER'
 
@@ -107,3 +275,73 @@ export interface Entitlement {
   minLevel: number
   status: 'LIVE' | 'BETA' | 'DISABLED'
 }
+
+// ============================================================================
+// API RESPONSE TYPE
+// ============================================================================
+
+export interface ApiResponse<T = unknown> {
+  success: boolean
+  data?: T
+  error?: string
+}
+
+// ============================================================================
+// DEDUP/MATCH TYPES
+// ============================================================================
+
+export type DedupTier = 'MERGED' | 'MERGED_NOTIFY' | 'REVIEW_NEEDED' | 'INSERTED'
+
+export interface DedupResult {
+  tier: DedupTier
+  score: number
+  method: string
+  existingId?: string
+  mergedFields?: string[]
+}
+
+// ============================================================================
+// INTAKE STATUSES
+// ============================================================================
+
+export const INTAKE_STATUSES = [
+  'Pending',
+  'Processing',
+  'Approved',
+  'Rejected',
+  'Needs Review',
+  'Error',
+  'Complete',
+] as const
+
+export type IntakeStatus = typeof INTAKE_STATUSES[number]
+
+// ============================================================================
+// CLIENT STATUSES
+// ============================================================================
+
+export const CLIENT_STATUSES = [
+  'Active',
+  'Active - Internal',
+  'Active - External',
+  'Inactive',
+  'Pending',
+  'Deceased',
+  'Deleted',
+] as const
+
+export type ClientStatus = typeof CLIENT_STATUSES[number]
+
+// ============================================================================
+// ACCOUNT TYPE CATEGORIES
+// ============================================================================
+
+export const ACCOUNT_TYPE_CATEGORIES = [
+  'Annuity',
+  'Life',
+  'Medicare',
+  'BD/RIA',
+  'Banking',
+] as const
+
+export type AccountTypeCategory = typeof ACCOUNT_TYPE_CATEGORIES[number]
