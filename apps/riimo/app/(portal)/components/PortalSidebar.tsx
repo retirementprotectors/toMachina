@@ -2,7 +2,9 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/auth'
+import type { UserEntitlementContext } from '@tomachina/auth'
 
 /* ─── Section Type Styling ─── */
 type SectionType = 'workspace' | 'ops' | 'pipeline' | 'app' | 'admin'
@@ -29,6 +31,8 @@ interface NavItem {
   label: string
   href: string
   icon: string
+  /** Module key from MODULES — used for entitlement gating. Omit for always-visible items. */
+  moduleKey?: string
 }
 
 interface NavSection {
@@ -37,6 +41,8 @@ interface NavSection {
   type: SectionType
   items: NavItem[]
   defaultExpanded: boolean
+  /** Module key for the entire section — if user lacks access, whole section is hidden. */
+  moduleKey?: string
 }
 
 /* ─── RIIMO Navigation Configuration ─── */
@@ -47,9 +53,9 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'workspace',
     defaultExpanded: true,
     items: [
-      { key: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
-      { key: 'tasks', label: 'Tasks', href: '/tasks', icon: 'task_alt' },
-      { key: 'myrpi', label: 'MyRPI', href: '/myrpi', icon: 'person' },
+      { key: 'dashboard', label: 'Dashboard', href: '/dashboard', icon: 'dashboard', moduleKey: 'MY_RPI' },
+      { key: 'tasks', label: 'Tasks', href: '/tasks', icon: 'task_alt', moduleKey: 'MY_RPI' },
+      { key: 'myrpi', label: 'MyRPI', href: '/myrpi', icon: 'person', moduleKey: 'MY_RPI' },
     ],
   },
   {
@@ -58,9 +64,9 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'ops',
     defaultExpanded: true,
     items: [
-      { key: 'pipelines', label: 'Pipelines', href: '/pipelines', icon: 'route' },
-      { key: 'org-admin', label: 'Org Admin', href: '/org-admin', icon: 'account_tree' },
-      { key: 'intelligence', label: 'Intelligence', href: '/intelligence', icon: 'psychology' },
+      { key: 'pipelines', label: 'Pipelines', href: '/pipelines', icon: 'route', moduleKey: 'DATA_MAINTENANCE' },
+      { key: 'org-admin', label: 'Org Admin', href: '/org-admin', icon: 'account_tree', moduleKey: 'ORG_STRUCTURE' },
+      { key: 'intelligence', label: 'Intelligence', href: '/intelligence', icon: 'psychology', moduleKey: 'MCP_HUB' },
     ],
   },
   {
@@ -69,11 +75,11 @@ const NAV_SECTIONS: NavSection[] = [
     type: 'app',
     defaultExpanded: false,
     items: [
-      { key: 'cam', label: 'CAM', href: '/modules/cam', icon: 'payments' },
-      { key: 'dex', label: 'DEX', href: '/modules/dex', icon: 'description' },
-      { key: 'c3', label: 'C3', href: '/modules/c3', icon: 'campaign' },
-      { key: 'atlas', label: 'ATLAS', href: '/modules/atlas', icon: 'hub' },
-      { key: 'command-center', label: 'Command Center', href: '/modules/command-center', icon: 'speed' },
+      { key: 'cam', label: 'CAM', href: '/modules/cam', icon: 'payments', moduleKey: 'CAM' },
+      { key: 'dex', label: 'DEX', href: '/modules/dex', icon: 'description', moduleKey: 'DEX' },
+      { key: 'c3', label: 'C3', href: '/modules/c3', icon: 'campaign', moduleKey: 'C3' },
+      { key: 'atlas', label: 'ATLAS', href: '/modules/atlas', icon: 'hub', moduleKey: 'ATLAS' },
+      { key: 'command-center', label: 'Command Center', href: '/modules/command-center', icon: 'speed', moduleKey: 'RPI_COMMAND_CENTER' },
     ],
   },
 ]
@@ -83,18 +89,64 @@ const ADMIN_SECTION: NavSection = {
   label: 'Admin',
   type: 'admin',
   defaultExpanded: false,
+  moduleKey: 'ORG_STRUCTURE',
   items: [
-    { key: 'admin', label: 'Admin', href: '/admin', icon: 'admin_panel_settings' },
+    { key: 'admin', label: 'Admin', href: '/admin', icon: 'admin_panel_settings', moduleKey: 'PERMISSIONS' },
   ],
 }
 
 const STORAGE_KEY = 'riimo-sidebar-collapsed'
 const EXPANDED_KEY = 'riimo-sidebar-expanded'
 
+/**
+ * Filter nav sections based on the user's entitlement context.
+ * Sections with no accessible items are excluded entirely.
+ */
+function filterSections(
+  sections: NavSection[],
+  ctx: UserEntitlementContext
+): NavSection[] {
+  return sections
+    .filter((section) => {
+      if (section.moduleKey && !canAccessModule(ctx, section.moduleKey)) {
+        return false
+      }
+      return true
+    })
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => {
+        if (item.moduleKey && !canAccessModule(ctx, item.moduleKey)) {
+          return false
+        }
+        return true
+      }),
+    }))
+    .filter((section) => section.items.length > 0)
+}
+
 export function PortalSidebar() {
   const pathname = usePathname()
+  const { user } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+
+  // Build entitlement context from the authenticated user
+  const entitlementCtx = useMemo(
+    () => buildEntitlementContext(user),
+    [user]
+  )
+
+  // Filter nav sections based on entitlements
+  const visibleSections = useMemo(
+    () => filterSections(NAV_SECTIONS, entitlementCtx),
+    [entitlementCtx]
+  )
+
+  const visibleAdmin = useMemo(() => {
+    const filtered = filterSections([ADMIN_SECTION], entitlementCtx)
+    return filtered.length > 0 ? filtered[0] : null
+  }, [entitlementCtx])
 
   /* Load saved state from localStorage */
   useEffect(() => {
@@ -248,13 +300,15 @@ export function PortalSidebar() {
 
       {/* Main Nav */}
       <nav className="flex-1 overflow-y-auto py-2 px-1">
-        {NAV_SECTIONS.map(renderSection)}
+        {visibleSections.map(renderSection)}
       </nav>
 
       {/* Admin Footer */}
-      <div className="border-t border-[var(--border-subtle)] py-2 px-1">
-        {renderSection(ADMIN_SECTION)}
-      </div>
+      {visibleAdmin && (
+        <div className="border-t border-[var(--border-subtle)] py-2 px-1">
+          {renderSection(visibleAdmin)}
+        </div>
+      )}
     </aside>
   )
 }
