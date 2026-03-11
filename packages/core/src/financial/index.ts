@@ -22,3 +22,9 @@ export {
   type RmdResult,
   type RmdScheduleRow,
 } from './rmd'
+
+export { calculateMec } from './mec'
+export type { MecInput, MecResult } from './mec'
+
+export { calculateSph } from './sph'
+export type { SphInput, SphResult, SphYearProjection } from './sph'
