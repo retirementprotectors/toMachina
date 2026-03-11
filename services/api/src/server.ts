@@ -20,6 +20,15 @@ import { campaignRoutes } from './routes/campaigns.js'
 import { caseTaskRoutes } from './routes/case-tasks.js'
 import { communicationRoutes } from './routes/communications.js'
 import { orgRoutes } from './routes/org.js'
+import { campaignSendRoutes } from './routes/campaign-send.js'
+import { importRoutes } from './routes/import.js'
+import { complianceRoutes } from './routes/compliance.js'
+import { bookingRoutes } from './routes/booking.js'
+import { syncRoutes } from './routes/sync.js'
+import { sparkRoutes } from './routes/spark.js'
+import { analyticsRoutes } from './routes/analytics.js'
+import { webhookRoutes } from './routes/webhooks.js'
+import { rulesRoutes } from './routes/rules.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -58,6 +67,15 @@ app.use('/api/campaigns', campaignRoutes)
 app.use('/api/case-tasks', normalizeBody, caseTaskRoutes)
 app.use('/api/communications', communicationRoutes)
 app.use('/api/org', orgRoutes)
+app.use('/api/campaign-send', normalizeBody, campaignSendRoutes)
+app.use('/api/import', normalizeBody, importRoutes)
+app.use('/api/compliance', complianceRoutes)
+app.use('/api/booking', normalizeBody, bookingRoutes)
+app.use('/api/sync', syncRoutes)
+app.use('/api/spark', sparkRoutes)
+app.use('/api/analytics', analyticsRoutes)
+app.use('/api/webhooks', webhookRoutes)
+app.use('/api/rules', rulesRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
