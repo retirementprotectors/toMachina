@@ -6,13 +6,14 @@
 
 ---
 
-## Commit
+## Commits
 
 | Commit | Hash | Description |
 |--------|------|-------------|
 | v0.4.0 | `1ed4464` | Full REST API routes + migration types |
+| fix | `f58905f` | Normalize middleware + bridge fallback warning (auditor findings) |
 
-**Files changed:** 22 files, +1,556 lines
+**Files changed:** 23 files, +1,662 lines
 
 ---
 
@@ -62,6 +63,10 @@
 | **Express v5** | `param()` helper for `string | string[]` route params |
 | **Internal fields** | `_migrated_at`, `_source` stripped from all responses |
 | **Audit trail** | `_created_by`, `_updated_by`, `_deleted_by` on all writes |
+
+### Normalization Middleware (`services/api/src/middleware/normalize.ts`)
+
+Imports all 7 normalizers from `@tomachina/core` and applies them to request body fields on POST/PATCH/PUT. Maps 50+ field names to their normalizer (name fields, phone fields, email fields, zip, state, date, amount). Wired into `server.ts` on write-capable routes: clients, accounts, agents, revenue, opportunities, case-tasks. Read-only routes (carriers, products, campaigns, communications, org, pipelines) skip normalization.
 
 ### Shared Helper Library (`services/api/src/lib/helpers.ts`)
 
@@ -156,3 +161,21 @@ This branch (`builder-2/api-and-migration`) touches only:
 - `scripts/package.json` (1 line added)
 
 **Zero conflicts expected with Builder 1's work** in `apps/**`, `packages/auth/**`, `packages/ui/**`.
+
+---
+
+## Auditor Findings — Resolved
+
+### Finding 1: Missing `middleware/normalize.ts`
+
+**Status:** Fixed in `f58905f`
+
+Built `services/api/src/middleware/normalize.ts` that imports all 7 normalizers from `@tomachina/core` (normalizeName, normalizePhone, normalizeEmail, normalizeZip, normalizeState, normalizeDate, normalizeAmount). Maps 50+ field name patterns to the correct normalizer. Only runs on POST/PATCH/PUT — GET requests pass through untouched. Wired into `server.ts` on 6 write-capable route groups (clients, accounts, agents, revenue, opportunities, case-tasks).
+
+### Finding 2: Bridge fallback warning
+
+**Status:** Fixed in `f58905f`
+
+`writeThroughBridge()` now logs: `[BRIDGE FALLBACK] Write to ${collection}/${id} went direct to Firestore — Sheets NOT synced`
+
+Also fixed a latent **data loss bug**: the catch block previously returned `{ success: true }`, which caused calling routes to skip the Firestore fallback write entirely — meaning if the bridge was down, data went nowhere. Now returns `{ success: false, error: 'bridge_unavailable' }` so the `if (!bridgeResult.success)` guard in every route correctly triggers the direct Firestore write.
