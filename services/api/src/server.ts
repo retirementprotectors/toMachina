@@ -39,6 +39,7 @@ import { camRoutes } from './routes/cam.js'
 import { approvalRoutes } from './routes/approval.js'
 import { dexRoutes } from './routes/dex.js'
 import { campaignAnalyticsRoutes } from './routes/campaign-analytics.js'
+import { leadershipRoutes } from './routes/leadership.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -96,6 +97,7 @@ app.use('/api/cam', normalizeBody, camRoutes)
 app.use('/api/approval', normalizeBody, approvalRoutes)
 app.use('/api/dex', normalizeBody, dexRoutes)
 app.use('/api/campaign-analytics', campaignAnalyticsRoutes)
+app.use('/api/leadership', normalizeBody, leadershipRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

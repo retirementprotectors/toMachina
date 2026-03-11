@@ -79,7 +79,7 @@ const NAV_SECTIONS: NavSection[] = [
       { key: 'dex', label: 'DEX', href: '/modules/dex', icon: 'description', moduleKey: 'DEX' },
       { key: 'c3', label: 'C3', href: '/modules/c3', icon: 'campaign', moduleKey: 'C3' },
       { key: 'atlas', label: 'ATLAS', href: '/modules/atlas', icon: 'hub', moduleKey: 'ATLAS' },
-      { key: 'command-center', label: 'Command Center', href: '/modules/command-center', icon: 'speed', moduleKey: 'RPI_COMMAND_CENTER' },
+      { key: 'leadership-center', label: 'Leadership Center', href: '/modules/command-center', icon: 'leaderboard', moduleKey: 'RPI_COMMAND_CENTER' },
     ],
   },
 ]
