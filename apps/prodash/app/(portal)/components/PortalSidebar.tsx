@@ -92,6 +92,8 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: false,
     moduleKey: 'PRODASH_PIPELINES',
     items: [
+      { key: 'pipelines-board', label: 'Pipeline Board', href: '/pipelines', icon: 'view_kanban' },
+      { key: 'discovery-kit', label: 'Discovery Kit', href: '/discovery', icon: 'assignment' },
       { key: 'discovery', label: 'Discovery', href: '/pipelines?stage=discovery', icon: 'search' },
       { key: 'data-foundation', label: 'Data Foundation', href: '/pipelines?stage=data-foundation', icon: 'storage' },
       { key: 'case-building', label: 'Case Building', href: '/pipelines?stage=case-building', icon: 'construction' },
