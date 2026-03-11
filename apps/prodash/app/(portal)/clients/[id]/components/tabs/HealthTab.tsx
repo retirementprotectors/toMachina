@@ -1,7 +1,7 @@
 'use client'
 
 import type { Client } from '@tomachina/core'
-import { str } from '../../lib/formatters'
+import { str, formatDate } from '../../lib/formatters'
 import { SectionCard, DetailField, EditableField, FieldGrid } from '../../lib/ui-helpers'
 
 interface HealthTabProps {
@@ -14,8 +14,39 @@ interface HealthTabProps {
 export function HealthTab({ client, editing = false, editData = {}, onFieldChange }: HealthTabProps) {
   const ev = (key: string) => (editData[key] !== undefined ? String(editData[key]) : undefined)
 
+  // Health risk score placeholder — based on tobacco + conditions
+  const hasTobacco = str(client.tobacco_user).toLowerCase() === 'yes'
+  const hasConditions = Boolean(str(client.health_conditions))
+  const hasFamilyHistory = Boolean(str(client.family_history))
+  const riskFactors = [hasTobacco, hasConditions, hasFamilyHistory].filter(Boolean).length
+  const riskLevel = riskFactors === 0 ? 'Low' : riskFactors === 1 ? 'Moderate' : 'Elevated'
+  const riskColor = riskFactors === 0 ? 'text-emerald-400' : riskFactors === 1 ? 'text-amber-400' : 'text-red-400'
+
   return (
     <div className="space-y-4">
+      {/* Health Risk Summary */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-12 w-12 items-center justify-center rounded-full ${riskFactors === 0 ? 'bg-emerald-500/15' : riskFactors === 1 ? 'bg-amber-500/15' : 'bg-red-500/15'}`}>
+              <span className={`material-icons-outlined text-[24px] ${riskColor}`}>
+                {riskFactors === 0 ? 'favorite' : riskFactors === 1 ? 'heart_broken' : 'warning'}
+              </span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">Health Risk: <span className={riskColor}>{riskLevel}</span></p>
+              <p className="text-xs text-[var(--text-muted)]">{riskFactors} risk factor{riskFactors !== 1 ? 's' : ''} identified</p>
+            </div>
+          </div>
+          {str(client.last_physical_date) && (
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Last Physical</p>
+              <p className="text-sm text-[var(--text-primary)]">{formatDate(client.last_physical_date)}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Tobacco */}
       <SectionCard title="Tobacco Use" icon="smoke_free">
         <FieldGrid cols={3}>

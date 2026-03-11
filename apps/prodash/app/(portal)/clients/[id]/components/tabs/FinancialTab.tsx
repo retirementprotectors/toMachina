@@ -60,6 +60,15 @@ export function FinancialTab({ client, editing = false, editData = {}, onFieldCh
         </FieldGrid>
       </SectionCard>
 
+      {/* Net Worth Summary */}
+      <SectionCard title="Net Worth Summary" icon="assessment">
+        <div className="grid grid-cols-3 gap-4">
+          <NetWorthCard label="Investable Assets" value={client.investable_assets} />
+          <NetWorthCard label="Net Worth" value={client.net_worth} />
+          <NetWorthCard label="Household Income" value={client.household_income} />
+        </div>
+      </SectionCard>
+
       {/* ID.ME Status — always read-only (external system) */}
       <SectionCard title="ID.ME Verification" icon="verified_user">
         <div className="flex flex-wrap gap-3">
@@ -109,6 +118,20 @@ function scoreColor(score: number): string {
   if (score <= 30) return 'var(--success)'
   if (score <= 60) return 'var(--warning)'
   return 'var(--error)'
+}
+
+function NetWorthCard({ label, value }: { label: string; value: unknown }) {
+  const num = value != null && value !== '' ? parseFloat(String(value).replace(/[$,\s]/g, '')) : null
+  const hasValue = num !== null && !isNaN(num)
+
+  return (
+    <div className="rounded-lg bg-[var(--bg-surface)] p-4 text-center">
+      <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</p>
+      <p className="mt-1 text-lg font-bold text-[var(--text-primary)]">
+        {hasValue ? formatCurrency(num) : <span className="text-[var(--text-muted)]">&mdash;</span>}
+      </p>
+    </div>
+  )
 }
 
 function IdMeBadge({ label, status }: { label: string; status: string }) {

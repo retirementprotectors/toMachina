@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { collection, orderBy, query, limit } from 'firebase/firestore'
 import { useCollection, getDb } from '@tomachina/db'
 import type { Activity } from '@tomachina/core'
@@ -11,7 +11,11 @@ interface ActivityTabProps {
   clientId: string
 }
 
+type ActivityFilter = 'all' | 'create' | 'update' | 'email' | 'call' | 'note' | 'import' | 'status'
+
 export function ActivityTab({ clientId }: ActivityTabProps) {
+  const [typeFilter, setTypeFilter] = useState<ActivityFilter>('all')
+
   // Query the activities subcollection under this client
   const activitiesQuery = useMemo(() => {
     if (!clientId) return null
@@ -44,14 +48,37 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
     return <EmptyState icon="history" message="No activity recorded yet." />
   }
 
+  // Filter activities by type
+  const filteredActivities = useMemo(() => {
+    if (typeFilter === 'all') return activities
+    return activities.filter((a) => {
+      const t = str(a.activity_type).toLowerCase()
+      return t.includes(typeFilter)
+    })
+  }, [activities, typeFilter])
+
   return (
     <div className="space-y-1">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3">
+      {/* Header + Filter */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-3">
         <p className="text-sm font-semibold text-[var(--text-primary)]">
-          {activities.length} {activities.length === 1 ? 'Activity' : 'Activities'}
+          {filteredActivities.length} {filteredActivities.length === 1 ? 'Activity' : 'Activities'}
         </p>
-        <p className="text-xs text-[var(--text-muted)]">Most recent first</p>
+        <div className="flex gap-1">
+          {(['all', 'create', 'update', 'email', 'call', 'note', 'import'] as ActivityFilter[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => setTypeFilter(f)}
+              className={`rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide transition-all ${
+                typeFilter === f
+                  ? 'bg-[var(--portal)] text-white'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Timeline */}
@@ -60,8 +87,8 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
         <div className="absolute left-5 top-0 bottom-0 w-px bg-[var(--border-subtle)]" />
 
         <div className="space-y-0">
-          {activities.map((activity, index) => (
-            <ActivityRow key={activity.activity_id || index} activity={activity} isLast={index === activities.length - 1} />
+          {filteredActivities.map((activity, index) => (
+            <ActivityRow key={activity.activity_id || index} activity={activity} isLast={index === filteredActivities.length - 1} />
           ))}
         </div>
       </div>
