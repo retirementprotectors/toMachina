@@ -36,6 +36,10 @@ export const collections = {
   pipelines: () => collection(getDb(), 'pipelines'),
   sourceRegistry: () => collection(getDb(), 'source_registry'),
   activities: () => collection(getDb(), 'activities'),
+  campaignSendLog: () => collection(getDb(), 'campaign_send_log'),
+  campaignDeliveryEvents: () => collection(getDb(), 'campaign_delivery_events'),
+  dripSequences: () => collection(getDb(), 'drip_sequences'),
+  campaignEnrollments: () => collection(getDb(), 'campaign_enrollments'),
 } as const
 
 export type Collections = typeof collections
