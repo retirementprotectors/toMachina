@@ -50,6 +50,11 @@ interface DexMapping {
   required?: boolean
   input_type?: string
   label?: string
+  help_text?: string
+  options?: string[] | string
+  validation?: Record<string, unknown> | string
+  default_value?: string
+  notes?: string
   [key: string]: unknown
 }
 
@@ -95,6 +100,30 @@ function statusStyle(status?: string): { background: string; color: string } {
   if (s === 'TBD' || s === 'NEEDS DATA' || s === 'PENDING') return { background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }
   if (s === 'N/A' || s === 'ARCHIVED') return { background: 'rgba(156,163,175,0.15)', color: '#9ca3af' }
   return { background: 'var(--bg-surface)', color: 'var(--text-muted)' }
+}
+
+function inputTypeBadge(inputType?: string): { background: string; color: string; label: string } {
+  const t = (inputType || 'text').toLowerCase()
+  if (t === 'dropdown' || t === 'radio' || t === 'checkboxes') return { background: 'rgba(168,85,247,0.15)', color: '#a855f7', label: t }
+  if (t === 'date') return { background: 'rgba(34,197,94,0.15)', color: '#22c55e', label: 'date' }
+  if (t === 'signature') return { background: 'rgba(239,68,68,0.15)', color: '#ef4444', label: 'signature' }
+  if (t === 'ssn' || t === 'phone' || t === 'email') return { background: 'rgba(245,158,11,0.15)', color: '#f59e0b', label: t }
+  if (t === 'currency' || t === 'percent') return { background: 'rgba(14,165,233,0.15)', color: '#0ea5e9', label: t }
+  if (t === 'checkbox') return { background: 'rgba(168,85,247,0.15)', color: '#a855f7', label: 'checkbox' }
+  if (t === 'textarea') return { background: 'rgba(59,130,246,0.15)', color: '#3b82f6', label: 'textarea' }
+  return { background: 'rgba(59,130,246,0.15)', color: '#3b82f6', label: t || 'text' }
+}
+
+function parseOptions(options?: string[] | string): string[] {
+  if (!options) return []
+  if (Array.isArray(options)) return options
+  try { const parsed = JSON.parse(options); return Array.isArray(parsed) ? parsed : [] } catch { return options.split(',').map(s => s.trim()).filter(Boolean) }
+}
+
+function parseValidation(validation?: Record<string, unknown> | string): Record<string, unknown> {
+  if (!validation) return {}
+  if (typeof validation === 'object') return validation
+  try { return JSON.parse(validation) } catch { return {} }
 }
 
 // ============================================================================
@@ -297,13 +326,47 @@ function FormLibraryTab({ forms }: { forms: DexForm[] }) {
               ) : mappings.length === 0 ? (
                 <p className="mt-2 text-xs text-[var(--text-muted)]">No field mappings for this form.</p>
               ) : (
-                <div className="mt-2 max-h-[250px] space-y-1 overflow-y-auto">
-                  {mappings.map((m) => (
-                    <div key={m._id} className="rounded bg-[var(--bg-surface)] px-2 py-1.5">
-                      <p className="text-xs font-medium text-[var(--text-primary)]">{m.label || m.field_name}</p>
-                      <p className="text-[10px] text-[var(--text-muted)]">{m.data_source} · {m.field_type}{m.required ? ' · required' : ''}</p>
-                    </div>
-                  ))}
+                <div className="mt-2 max-h-[350px] space-y-1.5 overflow-y-auto">
+                  {mappings.map((m) => {
+                    const badge = inputTypeBadge(m.input_type || m.field_type)
+                    const opts = parseOptions(m.options)
+                    const val = parseValidation(m.validation)
+                    return (
+                      <div key={m._id} className="rounded-lg bg-[var(--bg-surface)] px-2.5 py-2">
+                        <div className="flex items-start gap-1.5">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <p className="truncate text-xs font-medium text-[var(--text-primary)]">{m.label || m.field_name}</p>
+                              {m.required && (
+                                <span className="shrink-0 rounded px-1 py-px text-[8px] font-bold uppercase" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>req</span>
+                              )}
+                            </div>
+                            <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{m.data_source}</p>
+                          </div>
+                          <span className="shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-medium" style={{ background: badge.background, color: badge.color }}>{badge.label}</span>
+                        </div>
+                        {m.help_text && (
+                          <p className="mt-1 text-[10px] italic text-[var(--text-muted)]">{m.help_text}</p>
+                        )}
+                        {opts.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-0.5">
+                            {opts.slice(0, 6).map((opt) => (
+                              <span key={opt} className="rounded bg-[var(--bg-card)] px-1.5 py-px text-[9px] text-[var(--text-secondary)]">{opt}</span>
+                            ))}
+                            {opts.length > 6 && <span className="text-[9px] text-[var(--text-muted)]">+{opts.length - 6} more</span>}
+                          </div>
+                        )}
+                        {(val.min != null || val.max != null || val.minLength != null || val.maxLength != null) && (
+                          <div className="mt-1 flex gap-1.5 text-[9px] text-[var(--text-muted)]">
+                            {val.min != null && <span>min: {String(val.min)}</span>}
+                            {val.max != null && <span>max: {String(val.max)}</span>}
+                            {val.minLength != null && <span>minLen: {String(val.minLength)}</span>}
+                            {val.maxLength != null && <span>maxLen: {String(val.maxLength)}</span>}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>

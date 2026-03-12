@@ -9,13 +9,14 @@ import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   stripInternalFields, validateRequired, param, writeThroughBridge,
 } from '../lib/helpers.js'
+import { dex } from '@tomachina/core'
 
 export const dexRoutes = Router()
 
-const FORMS = 'dex_forms'
-const MAPPINGS = 'dex_field_mappings'
-const RULES = 'dex_rules'
-const KITS = 'dex_kits'
+const FORMS = dex.COLLECTIONS.FORMS
+const MAPPINGS = dex.COLLECTIONS.FIELD_MAPPINGS
+const RULES = dex.COLLECTIONS.RULES
+const KITS = dex.COLLECTIONS.KITS
 
 // ============================================================================
 // Forms CRUD
@@ -136,8 +137,19 @@ dexRoutes.get('/mappings', async (req: Request, res: Response) => {
     if (req.query.data_source) query = query.where('data_source', '==', req.query.data_source)
 
     const snap = await query.get()
-    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(data, { count: data.length }))
+    const raw = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+
+    // If ?ux=true, enhance each mapping with full UX config
+    if (req.query.ux === 'true') {
+      const enhanced = raw.map((m) => {
+        const mapping = m as unknown as dex.DexFieldMapping
+        const uxConfig = dex.buildUxConfig(mapping)
+        return { ...m, _ux: uxConfig }
+      })
+      res.json(successResponse(enhanced, { count: enhanced.length }))
+    } else {
+      res.json(successResponse(raw, { count: raw.length }))
+    }
   } catch (err) {
     console.error('GET /api/dex/mappings error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -159,6 +171,56 @@ dexRoutes.post('/mappings', async (req: Request, res: Response) => {
     res.status(201).json(successResponse({ mapping_id: id }))
   } catch (err) {
     console.error('POST /api/dex/mappings error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// Mapping Presets
+// ============================================================================
+
+dexRoutes.get('/mappings/presets', async (_req: Request, res: Response) => {
+  try {
+    res.json(successResponse(dex.OPTION_PRESETS))
+  } catch (err) {
+    console.error('GET /api/dex/mappings/presets error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// Taxonomy — carriers, products, accountTypes, transactions
+// ============================================================================
+
+const TAXONOMY_COLLECTIONS: Record<string, string> = {
+  carriers: dex.COLLECTIONS.TAXONOMY_CARRIERS,
+  products: dex.COLLECTIONS.TAXONOMY_PRODUCTS,
+  accountTypes: dex.COLLECTIONS.TAXONOMY_ACCOUNT_TYPES,
+  transactions: dex.COLLECTIONS.TAXONOMY_TRANSACTIONS,
+}
+
+dexRoutes.get('/taxonomy/:type', async (req: Request, res: Response) => {
+  try {
+    const taxonomyType = param(req.params.type)
+    const collectionName = TAXONOMY_COLLECTIONS[taxonomyType]
+    if (!collectionName) {
+      res.status(400).json(errorResponse(`Invalid taxonomy type: "${taxonomyType}". Use: carriers, products, accountTypes, transactions`))
+      return
+    }
+
+    const db = getFirestore()
+    const snap = await db.collection(collectionName).get()
+    let items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+
+    // Apply domain filter if provided
+    const domain = req.query.domain as string | undefined
+    if (domain && domain !== 'ALL') {
+      items = dex.filterByDomain(items as Array<{ domain?: string;[key: string]: unknown }>, domain) as typeof items
+    }
+
+    res.json(successResponse(items, { count: items.length, type: taxonomyType }))
+  } catch (err) {
+    console.error('GET /api/dex/taxonomy/:type error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })
@@ -476,43 +538,14 @@ function buildFormLayer(
   })
 }
 
+/**
+ * Resolve a data source reference using @tomachina/core.
+ * Wraps dex.resolveDataSource with the local call signature for backward compat.
+ */
 function resolveDataSource(
   source: string,
   clientData: Record<string, unknown>,
   userInput: Record<string, unknown>
 ): string {
-  if (!source) return ''
-
-  const [namespace, field] = source.split('.')
-  if (!field) return ''
-
-  switch (namespace) {
-    case 'client':
-      return String(clientData[field] || '')
-    case 'input':
-      return String(userInput[field] || '')
-    case 'firm':
-      return FIRM_DATA[field] || ''
-    case 'advisor':
-      return '' // Resolved at fill time from user context
-    case 'static':
-      return field
-    case 'account':
-      return '' // Resolved at fill time from account selection
-    default:
-      return ''
-  }
-}
-
-const FIRM_DATA: Record<string, string> = {
-  name: 'Gradient Securities',
-  name_gwm: 'Gradient Wealth Management',
-  name_gi: 'Gradient Investments',
-  address: '11550 Ash St Suite 200',
-  city: 'Leawood',
-  state: 'KS',
-  zip: '66211',
-  phone: '(855) 855-4772',
-  crd_gs: '159174',
-  crd_gwm: '159258',
+  return dex.resolveDataSource(source, clientData, {}, userInput)
 }
