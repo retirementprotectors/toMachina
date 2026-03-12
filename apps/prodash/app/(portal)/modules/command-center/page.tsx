@@ -1,5 +1,9 @@
-import { CommandCenter } from '@tomachina/ui'
+import { CommandCenter, AppWrapper } from '@tomachina/ui'
 
 export default function CommandCenterPage() {
-  return <CommandCenter portal="prodashx" />
+  return (
+    <AppWrapper appKey="command-center">
+      <CommandCenter portal="prodashx" />
+    </AppWrapper>
+  )
 }

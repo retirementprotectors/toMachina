@@ -1,4 +1,8 @@
-import { AtlasRegistry } from '@tomachina/ui'
+import { AtlasRegistry, AppWrapper } from '@tomachina/ui'
 export default function AtlasPage() {
-  return <AtlasRegistry portal="prodashx" />
+  return (
+    <AppWrapper appKey="atlas">
+      <AtlasRegistry portal="prodashx" />
+    </AppWrapper>
+  )
 }

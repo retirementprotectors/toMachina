@@ -1,5 +1,9 @@
-import { LeadershipCenter } from '@tomachina/ui'
+import { LeadershipCenter, AppWrapper } from '@tomachina/ui'
 
 export default function LeadershipPage() {
-  return <LeadershipCenter />
+  return (
+    <AppWrapper appKey="leadership-center">
+      <LeadershipCenter />
+    </AppWrapper>
+  )
 }

@@ -13,5 +13,10 @@ export type { KanbanCard, KanbanColumn } from './components/KanbanBoard'
 export { PortalSwitcher } from './components/PortalSwitcher'
 export { WireDiagram, WireDiagramList } from './components/WireDiagram'
 
+// App brand system
+export { APP_BRANDS, type AppKey, type AppBrand } from './apps/brands'
+export { AppIcon } from './apps/AppIcon'
+export { AppWrapper } from './apps/AppWrapper'
+
 // Shared feature modules
 export * from './modules'
