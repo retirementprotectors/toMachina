@@ -238,6 +238,26 @@ export default function RmdCenterPage() {
     }
   }
 
+  // Export to CSV
+  const exportCsv = useCallback(() => {
+    const headers = ['Client', 'Age', 'Carrier', 'Account Type', 'Value', 'RMD Amount', 'Distributed', 'Remaining', 'Status', 'Deadline']
+    const rows = filtered.map((r) => {
+      const name = [r.client.first_name, r.client.last_name].filter(Boolean).join(' ')
+      const carrier = String(r.account.carrier_name || r.account.carrier || '')
+      const acctType = String(r.account.account_type_category || r.account.product_type || '')
+      const dist = parseFloat(String(r.account.rmd_taken || r.account.rmd_distributed || 0).replace(/[$,]/g, ''))
+      return [name, String(r.age), carrier, acctType, fmtCurrency(r.balance), fmtCurrency(r.rmd.amount), fmtCurrency(dist), fmtCurrency(r.rmd.remaining), r.rmd.urgency, r.rmd.deadline]
+    })
+    const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${c}"`).join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `rmd-center-${currentYear}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [filtered, currentYear])
+
   // ---------------------------------------------------------------------------
   // Initial State — Scan Button
   // ---------------------------------------------------------------------------
@@ -278,14 +298,23 @@ export default function RmdCenterPage() {
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">RMD Center</h1>
           <p className="mt-1 text-sm text-[var(--text-muted)]">{currentYear} Required Minimum Distributions</p>
         </div>
-        <button
-          onClick={loadRmds}
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
-        >
-          <span className="material-icons-outlined text-[18px]">refresh</span>
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={exportCsv}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            <span className="material-icons-outlined text-[18px]">download</span>
+            Export
+          </button>
+          <button
+            onClick={loadRmds}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
+          >
+            <span className="material-icons-outlined text-[18px]">refresh</span>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Summary Dashboard */}
@@ -582,6 +611,8 @@ function RmdTable({
           {records.map((record, i) => {
             const name = [record.client.first_name, record.client.last_name].filter(Boolean).join(' ') || 'Unknown'
             const carrier = String(record.account.carrier_name || record.account.carrier || '—')
+            const accountType = String(record.account.account_type_category || record.account.product_type || '—')
+            const distributed = parseFloat(String(record.account.rmd_taken || record.account.rmd_distributed || 0).replace(/[$,]/g, ''))
             const isSelected = selectedRecord?.clientId === record.clientId && selectedRecord?.accountId === record.accountId
 
             return (
@@ -603,8 +634,10 @@ function RmdTable({
                 </td>
                 <td className="px-3 py-2.5 text-center text-[var(--text-secondary)]">{record.age}</td>
                 <td className="px-3 py-2.5 text-[var(--text-secondary)]">{carrier}</td>
+                <td className="px-3 py-2.5 text-xs text-[var(--text-muted)]">{accountType}</td>
                 <td className="px-3 py-2.5 text-right text-[var(--text-secondary)]">{fmtCurrency(record.balance)}</td>
                 <td className="px-3 py-2.5 text-right font-medium text-[var(--portal)]">{fmtCurrency(record.rmd.amount)}</td>
+                <td className="px-3 py-2.5 text-right text-[var(--text-secondary)]">{fmtCurrency(distributed)}</td>
                 <td className="px-3 py-2.5 text-right text-[var(--text-secondary)]">
                   {record.rmd.satisfied ? (
                     <span className="text-emerald-400">Satisfied</span>
@@ -626,12 +659,13 @@ function RmdTable({
                       <span className="material-icons-outlined text-[16px]">visibility</span>
                     </button>
                     <Link
-                      href={`/clients/${record.clientId}`}
+                      href={`/accounts/${record.clientId}/${record.accountId}`}
+                      target="_blank"
                       onClick={(e) => e.stopPropagation()}
                       className="rounded p-1 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--portal)]"
-                      title="View client"
+                      title="View account detail"
                     >
-                      <span className="material-icons-outlined text-[16px]">person</span>
+                      <span className="material-icons-outlined text-[16px]">open_in_new</span>
                     </Link>
                   </div>
                 </td>
@@ -651,12 +685,14 @@ function RmdTable({
 function RmdRow({ record, isSelected, onSelect }: { record: RmdRecord; isSelected: boolean; onSelect: () => void }) {
   const name = [record.client.first_name, record.client.last_name].filter(Boolean).join(' ') || 'Unknown'
   const carrier = String(record.account.carrier_name || record.account.carrier || '')
+  const accountType = String(record.account.account_type_category || record.account.product_type || '')
+  const distributed = parseFloat(String(record.account.rmd_taken || record.account.rmd_distributed || 0).replace(/[$,]/g, ''))
   const u = urgencyStyles(record.rmd.urgency)
 
   return (
-    <button
+    <div
       onClick={onSelect}
-      className={`w-full text-left rounded-lg border p-4 transition-all ${
+      className={`cursor-pointer w-full text-left rounded-lg border p-4 transition-all ${
         isSelected
           ? 'border-[var(--portal)] bg-[var(--portal-glow)]'
           : 'border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-[var(--portal)]/30'
@@ -668,8 +704,14 @@ function RmdRow({ record, isSelected, onSelect }: { record: RmdRecord; isSelecte
             <span className={`material-icons-outlined text-[18px] ${u.text}`}>{u.icon}</span>
           </div>
           <div>
-            <p className="text-sm font-medium text-[var(--text-primary)]">{name}</p>
-            <p className="text-xs text-[var(--text-muted)]">{carrier} &middot; Age {record.age}</p>
+            <Link
+              href={`/clients/${record.clientId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--portal)] hover:underline"
+            >
+              {name}
+            </Link>
+            <p className="text-xs text-[var(--text-muted)]">{carrier} &middot; {accountType} &middot; Age {record.age}</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -682,7 +724,31 @@ function RmdRow({ record, isSelected, onSelect }: { record: RmdRecord; isSelecte
           <StatusBadge urgency={record.rmd.urgency} />
         </div>
       </div>
-    </button>
+      <div className="mt-3 grid grid-cols-4 gap-3 border-t border-[var(--border-subtle)] pt-3">
+        <div>
+          <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Value</p>
+          <p className="text-sm text-[var(--text-secondary)]">{fmtCompact(record.balance)}</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Distributed</p>
+          <p className="text-sm text-[var(--text-secondary)]">{fmtCurrency(distributed)}</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Remaining</p>
+          <p className="text-sm text-[var(--text-secondary)]">{record.rmd.satisfied ? 'Satisfied' : fmtCurrency(record.rmd.remaining)}</p>
+        </div>
+        <div className="flex items-end justify-end">
+          <Link
+            href={`/accounts/${record.clientId}/${record.accountId}`}
+            target="_blank"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1 text-xs text-[var(--portal)] hover:underline"
+          >
+            Account <span className="material-icons-outlined text-[12px]">open_in_new</span>
+          </Link>
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -216,6 +216,32 @@ export default function BeniCenterPage() {
     setSelectedRecord(null)
   }
 
+  // Export to CSV
+  const exportCsv = useCallback(() => {
+    const headers = ['Client', 'Carrier', 'Account Type', 'Product', 'Primary Beni', 'Primary %', 'Contingent Beni', 'Contingent %', 'Status', 'Issue Detail', 'Recommended Action']
+    const rows = filtered.map((r) => [
+      r.clientName,
+      r.carrierName,
+      r.accountType,
+      r.productName,
+      r.primaryBeneficiaries[0]?.name || '',
+      String(r.totalPrimaryPct),
+      r.contingentBeneficiaries[0]?.name || '',
+      String(r.totalContingentPct),
+      r.issueLabel,
+      r.issueDetail,
+      r.recommendedAction,
+    ])
+    const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${c}"`).join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `beni-center-review.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [filtered])
+
   // ---------------------------------------------------------------------------
   // Initial State — Scan Button
   // ---------------------------------------------------------------------------
@@ -256,14 +282,23 @@ export default function BeniCenterPage() {
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">Beni Center</h1>
           <p className="mt-1 text-sm text-[var(--text-muted)]">Beneficiary management and estate coordination</p>
         </div>
-        <button
-          onClick={loadBeneficiaries}
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
-        >
-          <span className="material-icons-outlined text-[18px]">refresh</span>
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={exportCsv}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          >
+            <span className="material-icons-outlined text-[18px]">download</span>
+            Export
+          </button>
+          <button
+            onClick={loadBeneficiaries}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
+          >
+            <span className="material-icons-outlined text-[18px]">refresh</span>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Summary Dashboard */}
@@ -431,6 +466,18 @@ export default function BeniCenterPage() {
                     {selectedRecord.clientName}
                   </Link>
                 </div>
+                {/* Account link */}
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-[var(--text-muted)]">Account</span>
+                  <Link
+                    href={`/accounts/${selectedRecord.clientId}/${selectedRecord.accountId}`}
+                    target="_blank"
+                    className="text-xs text-[var(--portal)] hover:underline inline-flex items-center gap-1"
+                  >
+                    View Account
+                    <span className="material-icons-outlined text-[12px]">open_in_new</span>
+                  </Link>
+                </div>
                 <DetailRow label="Carrier" value={selectedRecord.carrierName} />
                 <DetailRow label="Account Type" value={selectedRecord.accountType} />
                 <DetailRow label="Product" value={selectedRecord.productName || '—'} />
@@ -589,6 +636,7 @@ function BeniTable({
             <SortableHeader label="Contingent" field="contingent" current={sortField} dir={sortDir} onSort={onSort} />
             <SortableHeader label="%" field="contingentPct" current={sortField} dir={sortDir} onSort={onSort} align="center" />
             <SortableHeader label="Status" field="status" current={sortField} dir={sortDir} onSort={onSort} align="center" />
+            <th className="px-3 py-2.5 text-left text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Issue</th>
             <th className="px-3 py-2.5 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Actions</th>
           </tr>
         </thead>
@@ -632,6 +680,9 @@ function BeniTable({
                 <td className="px-3 py-2.5 text-center">
                   <IssueBadge issueType={record.issueType} label={record.issueLabel} />
                 </td>
+                <td className="px-3 py-2.5 text-xs text-[var(--text-muted)] max-w-[160px] truncate" title={record.issueDetail}>
+                  {record.issueDetail}
+                </td>
                 <td className="px-3 py-2.5">
                   <div className="flex items-center gap-1">
                     <button
@@ -642,12 +693,13 @@ function BeniTable({
                       <span className="material-icons-outlined text-[16px]">visibility</span>
                     </button>
                     <Link
-                      href={`/clients/${record.clientId}`}
+                      href={`/accounts/${record.clientId}/${record.accountId}`}
+                      target="_blank"
                       onClick={(e) => e.stopPropagation()}
                       className="rounded p-1 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--portal)]"
-                      title="View client"
+                      title="View account detail"
                     >
-                      <span className="material-icons-outlined text-[16px]">person</span>
+                      <span className="material-icons-outlined text-[16px]">open_in_new</span>
                     </Link>
                   </div>
                 </td>
@@ -668,9 +720,9 @@ function BeniRow({ record, isSelected, onSelect }: { record: BeneficiaryAnalysis
   const s = issueStyles(record.issueType)
 
   return (
-    <button
+    <div
       onClick={onSelect}
-      className={`w-full text-left rounded-lg border p-4 transition-all ${
+      className={`cursor-pointer w-full text-left rounded-lg border p-4 transition-all ${
         isSelected
           ? 'border-[var(--portal)] bg-[var(--portal-glow)]'
           : 'border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-[var(--portal)]/30'
@@ -682,7 +734,13 @@ function BeniRow({ record, isSelected, onSelect }: { record: BeneficiaryAnalysis
             <span className={`material-icons-outlined text-[18px] ${s.text}`}>{s.icon}</span>
           </div>
           <div>
-            <p className="text-sm font-medium text-[var(--text-primary)]">{record.clientName}</p>
+            <Link
+              href={`/clients/${record.clientId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--portal)] hover:underline"
+            >
+              {record.clientName}
+            </Link>
             <p className="text-xs text-[var(--text-muted)]">{record.carrierName} &middot; {record.productName || record.accountType}</p>
           </div>
         </div>
@@ -691,8 +749,8 @@ function BeniRow({ record, isSelected, onSelect }: { record: BeneficiaryAnalysis
           <p className="mt-1 text-xs text-[var(--text-muted)]">{record.issueDetail}</p>
         </div>
       </div>
-      {(record.primaryBeneficiaries.length > 0 || record.contingentBeneficiaries.length > 0) && (
-        <div className="mt-3 flex gap-6 border-t border-[var(--border-subtle)] pt-3">
+      <div className="mt-3 flex items-end justify-between gap-6 border-t border-[var(--border-subtle)] pt-3">
+        <div className="flex gap-6">
           {record.primaryBeneficiaries.length > 0 && (
             <div>
               <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Primary</p>
@@ -709,9 +767,20 @@ function BeniRow({ record, isSelected, onSelect }: { record: BeneficiaryAnalysis
               </p>
             </div>
           )}
+          {record.primaryBeneficiaries.length === 0 && record.contingentBeneficiaries.length === 0 && (
+            <p className="text-xs text-red-400">No beneficiaries designated</p>
+          )}
         </div>
-      )}
-    </button>
+        <Link
+          href={`/accounts/${record.clientId}/${record.accountId}`}
+          target="_blank"
+          onClick={(e) => e.stopPropagation()}
+          className="inline-flex items-center gap-1 text-xs text-[var(--portal)] hover:underline shrink-0"
+        >
+          Account <span className="material-icons-outlined text-[12px]">open_in_new</span>
+        </Link>
+      </div>
+    </div>
   )
 }
 
