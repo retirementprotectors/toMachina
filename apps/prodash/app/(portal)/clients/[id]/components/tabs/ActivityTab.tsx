@@ -11,12 +11,12 @@ interface ActivityTabProps {
   clientId: string
 }
 
-type ActivityFilter = 'all' | 'create' | 'update' | 'email' | 'call' | 'note' | 'import' | 'status'
+type SubTab = 'client' | 'account' | 'comms'
 
 export function ActivityTab({ clientId }: ActivityTabProps) {
-  const [typeFilter, setTypeFilter] = useState<ActivityFilter>('all')
+  const [subTab, setSubTab] = useState<SubTab>('client')
 
-  // Query the activities subcollection under this client
+  // Query activities subcollection
   const activitiesQuery = useMemo(() => {
     if (!clientId) return null
     return query(
@@ -27,6 +27,23 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
   }, [clientId])
 
   const { data: activities, loading } = useCollection<Activity>(activitiesQuery, `activities-${clientId}`)
+
+  // Filter by sub-tab
+  const filtered = useMemo(() => {
+    return activities.filter((a) => {
+      const t = str(a.activity_type).toLowerCase()
+      switch (subTab) {
+        case 'client':
+          return t.includes('create') || t.includes('update') || t.includes('status') || t.includes('edit') || t.includes('import') || t.includes('note') || t.includes('profile')
+        case 'account':
+          return t.includes('account') || t.includes('policy') || t.includes('transaction') || t.includes('valuation')
+        case 'comms':
+          return t.includes('email') || t.includes('call') || t.includes('sms') || t.includes('text') || t.includes('send') || t.includes('meeting')
+        default:
+          return true
+      }
+    })
+  }, [activities, subTab])
 
   if (loading) {
     return (
@@ -44,54 +61,46 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
     )
   }
 
-  if (activities.length === 0) {
-    return <EmptyState icon="history" message="No activity recorded yet." />
-  }
-
-  // Filter activities by type
-  const filteredActivities = useMemo(() => {
-    if (typeFilter === 'all') return activities
-    return activities.filter((a) => {
-      const t = str(a.activity_type).toLowerCase()
-      return t.includes(typeFilter)
-    })
-  }, [activities, typeFilter])
-
   return (
-    <div className="space-y-1">
-      {/* Header + Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-3">
-        <p className="text-sm font-semibold text-[var(--text-primary)]">
-          {filteredActivities.length} {filteredActivities.length === 1 ? 'Activity' : 'Activities'}
-        </p>
-        <div className="flex gap-1">
-          {(['all', 'create', 'update', 'email', 'call', 'note', 'import'] as ActivityFilter[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setTypeFilter(f)}
-              className={`rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide transition-all ${
-                typeFilter === f
-                  ? 'bg-[var(--portal)] text-white'
-                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-              }`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+    <div className="space-y-4">
+      {/* Sub-tabs */}
+      <div className="flex gap-1 rounded-lg bg-[var(--bg-surface)] p-1">
+        {([
+          { key: 'client', label: 'Client', icon: 'person' },
+          { key: 'account', label: 'Account', icon: 'account_balance_wallet' },
+          { key: 'comms', label: 'Comms', icon: 'forum' },
+        ] as const).map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setSubTab(tab.key)}
+            className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+              subTab === tab.key
+                ? 'bg-[var(--portal)] text-white shadow-sm'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+            }`}
+          >
+            <span className="material-icons-outlined text-[16px]">{tab.icon}</span>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-5 top-0 bottom-0 w-px bg-[var(--border-subtle)]" />
-
-        <div className="space-y-0">
-          {filteredActivities.map((activity, index) => (
-            <ActivityRow key={activity.activity_id || index} activity={activity} isLast={index === filteredActivities.length - 1} />
-          ))}
+      {/* Activity list */}
+      {filtered.length === 0 ? (
+        <EmptyState
+          icon="history"
+          message={`No ${subTab} activity recorded yet.`}
+        />
+      ) : (
+        <div className="relative">
+          <div className="absolute left-5 top-0 bottom-0 w-px bg-[var(--border-subtle)]" />
+          <div className="space-y-0">
+            {filtered.map((activity, index) => (
+              <ActivityRow key={activity.activity_id || index} activity={activity} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -100,19 +109,16 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function ActivityRow({ activity, isLast }: { activity: Activity; isLast: boolean }) {
+function ActivityRow({ activity }: { activity: Activity }) {
   const typeInfo = getActivityTypeInfo(str(activity.activity_type))
 
   return (
     <div className="relative flex gap-4 py-3">
-      {/* Timeline dot */}
       <div className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${typeInfo.bgColor}`}>
         <span className={`material-icons-outlined text-[18px] ${typeInfo.iconColor}`}>
           {typeInfo.icon}
         </span>
       </div>
-
-      {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -127,8 +133,6 @@ function ActivityRow({ activity, isLast }: { activity: Activity; isLast: boolean
             {formatDate(activity.created_at)}
           </p>
         </div>
-
-        {/* User who performed it */}
         {str(activity.performed_by || activity.user || activity.agent_name) && (
           <p className="mt-1.5 text-xs text-[var(--text-muted)]">
             <span className="material-icons-outlined text-[12px] align-middle mr-1">person</span>
@@ -142,30 +146,23 @@ function ActivityRow({ activity, isLast }: { activity: Activity; isLast: boolean
 
 function getActivityTypeInfo(type: string): { icon: string; bgColor: string; iconColor: string } {
   const t = type.toLowerCase()
-
   if (t.includes('create') || t.includes('add') || t.includes('new'))
     return { icon: 'add_circle', bgColor: 'bg-emerald-500/15', iconColor: 'text-emerald-400' }
-
   if (t.includes('update') || t.includes('edit') || t.includes('change') || t.includes('modify'))
     return { icon: 'edit', bgColor: 'bg-blue-500/15', iconColor: 'text-blue-400' }
-
   if (t.includes('delete') || t.includes('remove'))
     return { icon: 'remove_circle', bgColor: 'bg-red-500/15', iconColor: 'text-red-400' }
-
   if (t.includes('email') || t.includes('send'))
     return { icon: 'email', bgColor: 'bg-purple-500/15', iconColor: 'text-purple-400' }
-
   if (t.includes('call') || t.includes('phone'))
     return { icon: 'phone', bgColor: 'bg-amber-500/15', iconColor: 'text-amber-400' }
-
   if (t.includes('note') || t.includes('comment'))
     return { icon: 'sticky_note_2', bgColor: 'bg-cyan-500/15', iconColor: 'text-cyan-400' }
-
   if (t.includes('import') || t.includes('migrate'))
     return { icon: 'cloud_download', bgColor: 'bg-indigo-500/15', iconColor: 'text-indigo-400' }
-
   if (t.includes('status'))
     return { icon: 'swap_horiz', bgColor: 'bg-orange-500/15', iconColor: 'text-orange-400' }
-
+  if (t.includes('account') || t.includes('policy'))
+    return { icon: 'account_balance', bgColor: 'bg-violet-500/15', iconColor: 'text-violet-400' }
   return { icon: 'radio_button_checked', bgColor: 'bg-[var(--bg-surface)]', iconColor: 'text-[var(--text-muted)]' }
 }

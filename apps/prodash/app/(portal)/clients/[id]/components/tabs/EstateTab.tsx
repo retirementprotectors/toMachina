@@ -1,14 +1,13 @@
 'use client'
 
 import type { Client } from '@tomachina/core'
-import { yesNo } from '../../lib/formatters'
-import { SectionCard, YesNoIndicator, EditableField } from '../../lib/ui-helpers'
+import { yesNo, str } from '../../lib/formatters'
+import { InlineField, InlineSection } from '../../lib/inline-edit'
+import { YesNoIndicator } from '../../lib/ui-helpers'
 
 interface EstateTabProps {
   client: Client
-  editing?: boolean
-  editData?: Record<string, unknown>
-  onFieldChange?: (key: string, value: string) => void
+  clientId: string
 }
 
 const YES_NO_OPTIONS = [
@@ -17,24 +16,22 @@ const YES_NO_OPTIONS = [
   { label: 'Not specified', value: '' },
 ]
 
-export function EstateTab({ client, editing = false, editData = {}, onFieldChange }: EstateTabProps) {
-  const ev = (key: string) => (editData[key] !== undefined ? String(editData[key]) : undefined)
+const TRUST_TYPE_OPTIONS = [
+  { label: 'Revocable Living Trust', value: 'Revocable Living Trust' },
+  { label: 'Irrevocable Trust', value: 'Irrevocable Trust' },
+  { label: 'Testamentary Trust', value: 'Testamentary Trust' },
+  { label: 'Other', value: 'Other' },
+]
 
-  if (editing) {
-    return (
-      <div className="space-y-4">
-        <SectionCard title="Estate Planning" icon="gavel">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <EditableField label="Has Trust" value={yesNo(client.has_trust)} fieldKey="has_trust" editing={editing} editValue={ev('has_trust')} onChange={onFieldChange} type="select" options={YES_NO_OPTIONS} />
-            <EditableField label="Will Exists" value={yesNo(client.will_exists)} fieldKey="will_exists" editing={editing} editValue={ev('will_exists')} onChange={onFieldChange} type="select" options={YES_NO_OPTIONS} />
-            <EditableField label="Financial POA" value={yesNo(client.financial_poa)} fieldKey="financial_poa" editing={editing} editValue={ev('financial_poa')} onChange={onFieldChange} type="select" options={YES_NO_OPTIONS} />
-            <EditableField label="Healthcare POA" value={yesNo(client.healthcare_poa)} fieldKey="healthcare_poa" editing={editing} editValue={ev('healthcare_poa')} onChange={onFieldChange} type="select" options={YES_NO_OPTIONS} />
-            <EditableField label="Beneficiary Deed" value={yesNo(client.beneficiary_deed)} fieldKey="beneficiary_deed" editing={editing} editValue={ev('beneficiary_deed')} onChange={onFieldChange} type="select" options={YES_NO_OPTIONS} />
-          </div>
-        </SectionCard>
-      </div>
-    )
-  }
+const WILL_TYPE_OPTIONS = [
+  { label: 'Simple Will', value: 'Simple Will' },
+  { label: 'Pour-Over Will', value: 'Pour-Over Will' },
+  { label: 'Testamentary Trust Will', value: 'Testamentary Trust Will' },
+  { label: 'Other', value: 'Other' },
+]
+
+export function EstateTab({ client, clientId }: EstateTabProps) {
+  const docPath = `clients/${clientId}`
 
   // Completeness score
   const items = [
@@ -45,8 +42,7 @@ export function EstateTab({ client, editing = false, editData = {}, onFieldChang
     { key: 'beneficiary_deed', label: 'Beneficiary Deed' },
   ]
   const yesCount = items.filter((item) => yesNo(client[item.key]) === 'Yes').length
-  const specifiedCount = items.filter((item) => yesNo(client[item.key]) !== '').length
-  const completeness = specifiedCount > 0 ? Math.round((yesCount / items.length) * 100) : 0
+  const completeness = Math.round((yesCount / items.length) * 100)
 
   return (
     <div className="space-y-4">
@@ -73,7 +69,6 @@ export function EstateTab({ client, editing = false, editData = {}, onFieldChang
           </div>
         </div>
 
-        {/* Missing items alert */}
         {completeness < 100 && (
           <div className="mt-3 rounded-md bg-amber-500/10 p-3">
             <div className="flex items-center gap-2 text-xs text-amber-400">
@@ -84,15 +79,76 @@ export function EstateTab({ client, editing = false, editData = {}, onFieldChang
         )}
       </div>
 
-      <SectionCard title="Estate Planning" icon="gavel">
+      {/* Trust */}
+      <InlineSection title="Trust" icon="gavel">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <YesNoIndicator label="Has Trust" value={yesNo(client.has_trust)} />
-          <YesNoIndicator label="Will Exists" value={yesNo(client.will_exists)} />
-          <YesNoIndicator label="Financial POA" value={yesNo(client.financial_poa)} />
-          <YesNoIndicator label="Healthcare POA" value={yesNo(client.healthcare_poa)} />
-          <YesNoIndicator label="Beneficiary Deed" value={yesNo(client.beneficiary_deed)} />
+          <InlineField
+            label="Has Trust"
+            value={yesNo(client.has_trust)}
+            fieldKey="has_trust"
+            docPath={docPath}
+            type="select"
+            options={YES_NO_OPTIONS}
+          />
+          <InlineField
+            label="Trust Type"
+            value={str(client.trust_type)}
+            fieldKey="trust_type"
+            docPath={docPath}
+            type="select"
+            options={TRUST_TYPE_OPTIONS}
+          />
+          <InlineField label="Trust Name" value={str(client.trust_name)} fieldKey="trust_name" docPath={docPath} />
         </div>
-      </SectionCard>
+      </InlineSection>
+
+      {/* POA + Will */}
+      <InlineSection title="Power of Attorney & Will" icon="description">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <InlineField
+            label="Financial POA"
+            value={yesNo(client.financial_poa)}
+            fieldKey="financial_poa"
+            docPath={docPath}
+            type="select"
+            options={YES_NO_OPTIONS}
+          />
+          <InlineField label="Financial POA Name" value={str(client.financial_poa_name)} fieldKey="financial_poa_name" docPath={docPath} />
+          <InlineField
+            label="Healthcare POA"
+            value={yesNo(client.healthcare_poa)}
+            fieldKey="healthcare_poa"
+            docPath={docPath}
+            type="select"
+            options={YES_NO_OPTIONS}
+          />
+          <InlineField label="Healthcare POA Name" value={str(client.healthcare_poa_name)} fieldKey="healthcare_poa_name" docPath={docPath} />
+          <InlineField
+            label="Beneficiary Deed"
+            value={yesNo(client.beneficiary_deed)}
+            fieldKey="beneficiary_deed"
+            docPath={docPath}
+            type="select"
+            options={YES_NO_OPTIONS}
+          />
+          <InlineField
+            label="Will Exists"
+            value={yesNo(client.will_exists)}
+            fieldKey="will_exists"
+            docPath={docPath}
+            type="select"
+            options={YES_NO_OPTIONS}
+          />
+          <InlineField
+            label="Will Type"
+            value={str(client.will_type)}
+            fieldKey="will_type"
+            docPath={docPath}
+            type="select"
+            options={WILL_TYPE_OPTIONS}
+          />
+        </div>
+      </InlineSection>
     </div>
   )
 }

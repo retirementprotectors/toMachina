@@ -3,15 +3,11 @@
 export type TabKey =
   | 'contact'
   | 'personal'
-  | 'financial'
-  | 'health'
-  | 'medicare'
   | 'estate'
   | 'accounts'
   | 'connected'
   | 'communications'
   | 'activity'
-  | 'integrations'
 
 interface Tab {
   key: TabKey
@@ -19,18 +15,16 @@ interface Tab {
   icon: string
 }
 
+// Sprint 7: Removed Financial, Health, Medicare, Integrations tabs
+// Personal tab now consolidates personal details, employment, Medicare card info, driver's license
 const TABS: Tab[] = [
   { key: 'contact', label: 'Connect', icon: 'contact_phone' },
   { key: 'personal', label: 'Personal', icon: 'person' },
-  { key: 'financial', label: 'Financial', icon: 'account_balance' },
-  { key: 'health', label: 'Health', icon: 'health_and_safety' },
-  { key: 'medicare', label: 'Medicare', icon: 'local_hospital' },
   { key: 'estate', label: 'Estate', icon: 'gavel' },
   { key: 'accounts', label: 'Accounts', icon: 'account_balance_wallet' },
   { key: 'connected', label: 'Connected', icon: 'people' },
   { key: 'communications', label: 'Comms', icon: 'forum' },
   { key: 'activity', label: 'Activity', icon: 'history' },
-  { key: 'integrations', label: 'Integrations', icon: 'integration_instructions' },
 ]
 
 interface ClientTabsProps {
