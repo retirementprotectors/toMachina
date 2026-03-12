@@ -169,6 +169,138 @@ webhookRoutes.post('/twilio/voice', async (req: Request, res: Response) => {
 })
 
 // ============================================================================
+// DOCUSIGN CONNECT WEBHOOK
+// ============================================================================
+
+/**
+ * POST /api/webhooks/docusign
+ * Handle DocuSign Connect events (envelope status changes).
+ *
+ * DocuSign Connect can send JSON or XML. We handle both defensively.
+ * Maps DocuSign statuses to our pipeline statuses and updates dex_packages.
+ */
+webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let envelopeId = ''
+    let dsStatus = ''
+
+    const body = req.body
+
+    // Handle JSON payload (preferred)
+    if (body && typeof body === 'object' && !Array.isArray(body)) {
+      // DocuSign Connect JSON format
+      envelopeId = body.envelopeId || body.EnvelopeId || ''
+      dsStatus = (body.status || body.Status || '').toLowerCase()
+
+      // Nested envelope status event format
+      if (!envelopeId && body.envelopeStatus) {
+        envelopeId = body.envelopeStatus.envelopeId || ''
+        dsStatus = (body.envelopeStatus.status || '').toLowerCase()
+      }
+
+      // DocuSign Connect v2 format
+      if (!envelopeId && body.data) {
+        envelopeId = body.data.envelopeId || ''
+        dsStatus = (body.data.envelopeSummary?.status || '').toLowerCase()
+      }
+    }
+
+    // Handle XML payload defensively (extract envelope ID and status from string)
+    if (!envelopeId && typeof body === 'string') {
+      const envelopeMatch = body.match(/<EnvelopeID>([^<]+)<\/EnvelopeID>/i)
+      if (envelopeMatch) envelopeId = envelopeMatch[1]
+
+      const statusMatch = body.match(/<Status>([^<]+)<\/Status>/i)
+      if (statusMatch) dsStatus = statusMatch[1].toLowerCase()
+    }
+
+    if (!envelopeId) {
+      res.status(200).json(successResponse({ processed: false, reason: 'No envelope ID found' }))
+      return
+    }
+
+    // Map DocuSign statuses to our pipeline statuses
+    const statusMap: Record<string, string> = {
+      sent: 'SENT',
+      delivered: 'SENT',
+      signed: 'SIGNED',
+      completed: 'COMPLETE',
+      voided: 'VOIDED',
+      declined: 'DECLINED',
+    }
+
+    const newStatus = statusMap[dsStatus]
+    if (!newStatus) {
+      // Unknown status — log but don't fail
+      res.status(200).json(successResponse({ processed: false, reason: `Unmapped status: ${dsStatus}` }))
+      return
+    }
+
+    // Find the package by docusign_envelope_id
+    const pkgSnap = await db
+      .collection('dex_packages')
+      .where('docusign_envelope_id', '==', envelopeId)
+      .limit(1)
+      .get()
+
+    if (pkgSnap.empty) {
+      // No matching package — could be from an envelope created outside our system
+      res.status(200).json(successResponse({ processed: false, reason: 'No matching package' }))
+      return
+    }
+
+    const pkgDoc = pkgSnap.docs[0]
+    const pkgData = pkgDoc.data()
+    const oldStatus = pkgData.status as string
+    const now = new Date().toISOString()
+
+    // Build updates
+    const updates: Record<string, unknown> = {
+      status: newStatus,
+      updated_at: now,
+    }
+
+    // Set timestamp fields based on status
+    if (newStatus === 'SENT' && !pkgData.sent_at) updates.sent_at = now
+    if (newStatus === 'SIGNED') updates.signed_at = now
+    if (newStatus === 'COMPLETE') updates.completed_at = now
+    if (dsStatus === 'delivered') updates.viewed_at = now
+
+    await pkgDoc.ref.update(updates)
+
+    // Log event to audit trail
+    const eventId = `EVT_${Date.now()}_${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
+    await db.collection('dex_package_events').doc(eventId).set({
+      event_id: eventId,
+      package_id: pkgDoc.id,
+      event_type: 'DOCUSIGN_WEBHOOK',
+      from_status: oldStatus,
+      to_status: newStatus,
+      source: 'docusign_webhook',
+      actor: 'docusign',
+      metadata: {
+        envelope_id: envelopeId,
+        docusign_status: dsStatus,
+        raw_event_type: body?.event || body?.eventType || dsStatus,
+      },
+      timestamp: now,
+    })
+
+    res.status(200).json(successResponse({
+      processed: true,
+      package_id: pkgDoc.id,
+      old_status: oldStatus,
+      new_status: newStatus,
+    }))
+  } catch (err) {
+    console.error('POST /api/webhooks/docusign error:', err)
+    // Always return 200 to DocuSign to prevent retries on processing errors
+    res.status(200).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
 // HELPERS
 // ============================================================================
 

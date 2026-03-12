@@ -63,7 +63,33 @@ interface ClientRecord {
   first_name?: string
   last_name?: string
   email?: string
+  phone?: string
   client_id?: string
+  [key: string]: unknown
+}
+
+interface DexPackage {
+  _id: string
+  package_id?: string
+  client_id?: string
+  client_name?: string
+  client_email?: string
+  client_phone?: string
+  kit_id?: string
+  kit_name?: string
+  form_ids?: string[]
+  status?: string
+  delivery_method?: string
+  created_at?: string
+  sent_at?: string
+  viewed_at?: string
+  signed_at?: string
+  submitted_at?: string
+  completed_at?: string
+  docusign_envelope_id?: string
+  pdf_storage_ref?: string
+  notes?: string
+  created_by?: string
   [key: string]: unknown
 }
 
@@ -79,25 +105,37 @@ const KIT_PLATFORMS = ['GWM (Schwab)', 'RBC Brokerage', 'VA (Direct)', 'FIA (Dir
 const KIT_REG_TYPES = ['Traditional IRA', 'Roth IRA', 'Individual (NQ)', 'Joint WROS', 'Trust', '401k/ERISA'] as const
 const KIT_ACTIONS = ['New Account', 'LPOA/Transfer', 'ACAT Transfer', 'Add Money ($10K+)'] as const
 
-const PIPELINE_STAGES = [
-  { key: 'intake', label: 'Intake', icon: 'upload_file', description: 'Documents received' },
-  { key: 'processing', label: 'Processing', icon: 'document_scanner', description: 'OCR + classification' },
-  { key: 'filing', label: 'Filing', icon: 'folder_open', description: 'Routing + storage' },
+const PIPELINE_STAGES_V2 = [
+  { key: 'DRAFT', label: 'Draft', icon: 'edit_note', description: 'Kit assembled, not yet filled' },
+  { key: 'READY', label: 'Ready', icon: 'picture_as_pdf', description: 'PDF generated, ready to send' },
+  { key: 'SENT', label: 'Sent', icon: 'send', description: 'Sent for DocuSign signature' },
+  { key: 'SIGNED', label: 'Signed', icon: 'draw', description: 'Client signed documents' },
+  { key: 'SUBMITTED', label: 'Submitted', icon: 'upload_file', description: 'Submitted to carrier/custodian' },
+  { key: 'COMPLETE', label: 'Complete', icon: 'check_circle', description: 'Fully processed' },
 ] as const
+
+const DELIVERY_METHODS = ['EMAIL', 'SMS', 'BOTH'] as const
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
-function formatDate(d?: string): string {
+function formatDate(d?: string | null): string {
   if (!d) return '-'
   try { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) } catch { return d }
 }
 
+function formatDateTime(d?: string | null): string {
+  if (!d) return '-'
+  try { return new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) } catch { return d }
+}
+
 function statusStyle(status?: string): { background: string; color: string } {
   const s = (status || '').toUpperCase()
-  if (s === 'ACTIVE' || s === 'GENERATED' || s === 'READY') return { background: 'rgba(34,197,94,0.15)', color: '#22c55e' }
-  if (s === 'TBD' || s === 'NEEDS DATA' || s === 'PENDING') return { background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }
+  if (s === 'ACTIVE' || s === 'GENERATED' || s === 'READY' || s === 'COMPLETE' || s === 'SIGNED') return { background: 'rgba(34,197,94,0.15)', color: '#22c55e' }
+  if (s === 'TBD' || s === 'NEEDS DATA' || s === 'PENDING' || s === 'DRAFT') return { background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }
+  if (s === 'SENT' || s === 'VIEWED' || s === 'SUBMITTED') return { background: 'rgba(59,130,246,0.15)', color: '#3b82f6' }
+  if (s === 'VOIDED' || s === 'DECLINED') return { background: 'rgba(239,68,68,0.15)', color: '#ef4444' }
   if (s === 'N/A' || s === 'ARCHIVED') return { background: 'rgba(156,163,175,0.15)', color: '#9ca3af' }
   return { background: 'var(--bg-surface)', color: 'var(--text-muted)' }
 }
@@ -136,12 +174,14 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
   const formsQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'dex_forms')), [])
   const kitsQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'dex_kits')), [])
   const clientsQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'clients')), [])
+  const packagesQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'dex_packages')), [])
 
   const { data: forms, loading: formsLoading } = useCollection<DexForm>(formsQ, 'dex-forms')
   const { data: kits, loading: kitsLoading } = useCollection<DexKit>(kitsQ, 'dex-kits')
   const { data: clients, loading: clientsLoading } = useCollection<ClientRecord>(clientsQ, 'dex-clients')
+  const { data: packages, loading: packagesLoading } = useCollection<DexPackage>(packagesQ, 'dex-packages')
 
-  const loading = formsLoading || kitsLoading
+  const loading = formsLoading || kitsLoading || packagesLoading
 
   const tabs: { key: Tab; label: string; icon: string }[] = [
     { key: 'pipeline', label: 'Pipeline', icon: 'route' },
@@ -173,8 +213,8 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
       <div className="grid gap-3 sm:grid-cols-4">
         <StatCard icon="library_books" label="Forms" value={forms.length} />
         <StatCard icon="check_circle" label="Active" value={forms.filter(f => f.status === 'ACTIVE').length} />
-        <StatCard icon="inventory_2" label="Kits Generated" value={kits.length} />
-        <StatCard icon="pending" label="Pending" value={kits.filter(k => k.status === 'Needs Data').length} accent />
+        <StatCard icon="inventory_2" label="Packages" value={packages.length} />
+        <StatCard icon="pending" label="In Flight" value={packages.filter(p => p.status === 'SENT' || p.status === 'VIEWED').length} accent />
       </div>
 
       {/* Tabs */}
@@ -189,10 +229,10 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
         ))}
       </div>
 
-      {activeTab === 'pipeline' && <PipelineTab kits={kits} />}
+      {activeTab === 'pipeline' && <PipelineTab packages={packages} />}
       {activeTab === 'forms' && <FormLibraryTab forms={forms} />}
       {activeTab === 'kits' && <KitBuilderTab clients={clients} />}
-      {activeTab === 'tracker' && <TrackerTab kits={kits} />}
+      {activeTab === 'tracker' && <TrackerTab packages={packages} />}
     </div>
   )
 }
@@ -210,34 +250,54 @@ function StatCard({ icon, label, value, accent }: { icon: string; label: string;
 }
 
 // ============================================================================
-// Pipeline Tab — reads from dex_kits
+// Pipeline Tab — 6-stage pipeline from dex_packages
 // ============================================================================
 
-function PipelineTab({ kits }: { kits: DexKit[] }) {
-  const stages = [
-    { ...PIPELINE_STAGES[0], count: kits.filter(k => k.status === 'Needs Data').length },
-    { ...PIPELINE_STAGES[1], count: kits.filter(k => k.status === 'Ready').length },
-    { ...PIPELINE_STAGES[2], count: kits.filter(k => k.status === 'Generated' || k.status === 'Complete').length },
-  ]
+function PipelineTab({ packages }: { packages: DexPackage[] }) {
+  const stageCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    PIPELINE_STAGES_V2.forEach(s => { counts[s.key] = 0 })
+    packages.forEach(p => {
+      const status = (p.status || '').toUpperCase()
+      if (counts.hasOwnProperty(status)) counts[status]++
+    })
+    return counts
+  }, [packages])
+
+  const voidedCount = packages.filter(p => p.status === 'VOIDED' || p.status === 'DECLINED').length
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-      <h3 className="text-sm font-semibold text-[var(--text-primary)]">Document Pipeline</h3>
-      <p className="mt-0.5 text-xs text-[var(--text-muted)]">Track kits from generation through completion</p>
-      <div className="mt-6 flex items-start gap-2">
-        {stages.map((stage, i) => (
-          <div key={stage.key} className="flex flex-1 items-center">
-            <div className="flex flex-1 flex-col items-center rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--portal-glow)' }}>
-                <span className="material-icons-outlined" style={{ fontSize: '24px', color: 'var(--portal)' }}>{stage.icon}</span>
-              </span>
-              <p className="mt-2 text-sm font-semibold text-[var(--text-primary)]">{stage.label}</p>
-              <p className="mt-0.5 text-xs text-[var(--text-muted)]">{stage.description}</p>
-              <div className="mt-3 rounded-full px-3 py-1 text-sm font-bold" style={{ background: 'var(--portal-glow)', color: 'var(--portal)' }}>{stage.count}</div>
+    <div className="space-y-4">
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Document Pipeline</h3>
+        <p className="mt-0.5 text-xs text-[var(--text-muted)]">Track packages from draft through completion ({packages.length} total)</p>
+
+        <div className="mt-6 flex items-start gap-1">
+          {PIPELINE_STAGES_V2.map((stage, i) => (
+            <div key={stage.key} className="flex flex-1 items-center">
+              <div className="flex flex-1 flex-col items-center rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 text-center">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full" style={{ background: 'var(--portal-glow)' }}>
+                  <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>{stage.icon}</span>
+                </span>
+                <p className="mt-1.5 text-xs font-semibold text-[var(--text-primary)]">{stage.label}</p>
+                <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{stage.description}</p>
+                <div className="mt-2 rounded-full px-3 py-0.5 text-sm font-bold" style={{ background: 'var(--portal-glow)', color: 'var(--portal)' }}>
+                  {stageCounts[stage.key] || 0}
+                </div>
+              </div>
+              {i < PIPELINE_STAGES_V2.length - 1 && (
+                <span className="mx-0.5 shrink-0 material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '18px' }}>arrow_forward</span>
+              )}
             </div>
-            {i < stages.length - 1 && <span className="mx-1 shrink-0 material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '24px' }}>arrow_forward</span>}
+          ))}
+        </div>
+
+        {voidedCount > 0 && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-[rgba(239,68,68,0.08)] px-3 py-2 text-xs">
+            <span className="material-icons-outlined" style={{ fontSize: '14px', color: '#ef4444' }}>cancel</span>
+            <span className="text-[var(--text-secondary)]">{voidedCount} voided/declined</span>
           </div>
-        ))}
+        )}
       </div>
     </div>
   )
@@ -245,6 +305,7 @@ function PipelineTab({ kits }: { kits: DexKit[] }) {
 
 // ============================================================================
 // Form Library Tab — reads from dex_forms + dex_field_mappings
+// Builder 71 owns this tab — DO NOT MODIFY
 // ============================================================================
 
 function FormLibraryTab({ forms }: { forms: DexForm[] }) {
@@ -378,7 +439,7 @@ function FormLibraryTab({ forms }: { forms: DexForm[] }) {
 }
 
 // ============================================================================
-// Kit Builder Tab — 5-step wizard
+// Kit Builder Tab — 5-step wizard with PDF generation + DocuSign (step 5)
 // ============================================================================
 
 function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
@@ -391,6 +452,17 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
   const [buildResult, setBuildResult] = useState<Record<string, unknown> | null>(null)
   const [building, setBuilding] = useState(false)
 
+  // Step 5 state: PDF generation + DocuSign
+  const [packageId, setPackageId] = useState<string | null>(null)
+  const [pdfGenerated, setPdfGenerated] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [deliveryMethod, setDeliveryMethod] = useState<string>('EMAIL')
+  const [pdfResult, setPdfResult] = useState<Record<string, unknown> | null>(null)
+  const [docusignResult, setDocusignResult] = useState<Record<string, unknown> | null>(null)
+  const [stepError, setStepError] = useState<string | null>(null)
+
   const filteredClients = useMemo(() => {
     if (!clientSearch || clientSearch.length < 2) return []
     const lower = clientSearch.toLowerCase()
@@ -400,6 +472,7 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
   const handleBuild = useCallback(async () => {
     if (!selectedClient || !platform || !regType || !action) return
     setBuilding(true)
+    setStepError(null)
     try {
       const res = await fetch('/api/dex/kits/build', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -415,7 +488,77 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
     }
   }, [selectedClient, platform, regType, action])
 
-  const reset = () => { setStep(1); setBuildResult(null); setSelectedClient(null); setClientSearch(''); setPlatform(''); setRegType(''); setAction('') }
+  // Step 5: Create package + generate PDF
+  const handleGeneratePdf = useCallback(async () => {
+    if (!buildResult || !selectedClient) return
+    setGenerating(true)
+    setStepError(null)
+    try {
+      // Step A: Create package from kit
+      const pkgRes = await fetch('/api/dex-pipeline/packages', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kit_id: buildResult.kit_id,
+          client_id: selectedClient._id,
+          client_name: `${selectedClient.first_name || ''} ${selectedClient.last_name || ''}`.trim(),
+          client_email: selectedClient.email || '',
+          client_phone: selectedClient.phone || '',
+          kit_name: `${platform} - ${regType} - ${action}`,
+          form_ids: buildResult.form_ids || (buildResult.forms as Array<{ form_id: string }>)?.map(f => f.form_id) || [],
+          delivery_method: deliveryMethod,
+        }),
+      })
+      const pkgData = await pkgRes.json()
+      if (!pkgData.success) { setStepError(pkgData.error || 'Failed to create package'); setGenerating(false); return }
+
+      const newPackageId = pkgData.data.package_id
+      setPackageId(newPackageId)
+
+      // Step B: Generate PDF
+      const pdfRes = await fetch(`/api/dex-pipeline/packages/${newPackageId}/generate-pdf`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: {} }),
+      })
+      const pdfData = await pdfRes.json()
+      if (!pdfData.success) { setStepError(pdfData.error || 'PDF generation failed'); setGenerating(false); return }
+
+      setPdfResult(pdfData.data as Record<string, unknown>)
+      setPdfGenerated(true)
+    } catch (err) {
+      setStepError('Network error during PDF generation')
+    } finally {
+      setGenerating(false)
+    }
+  }, [buildResult, selectedClient, platform, regType, action, deliveryMethod])
+
+  // Step 5: Send for DocuSign signature
+  const handleSendDocuSign = useCallback(async () => {
+    if (!packageId) return
+    setSending(true)
+    setStepError(null)
+    try {
+      const res = await fetch(`/api/dex-pipeline/packages/${packageId}/send-docusign`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await res.json()
+      if (!data.success) { setStepError(data.error || 'DocuSign send failed'); setSending(false); return }
+
+      setDocusignResult(data.data as Record<string, unknown>)
+      setSent(true)
+    } catch {
+      setStepError('Network error sending to DocuSign')
+    } finally {
+      setSending(false)
+    }
+  }, [packageId])
+
+  const reset = () => {
+    setStep(1); setBuildResult(null); setSelectedClient(null); setClientSearch('')
+    setPlatform(''); setRegType(''); setAction('')
+    setPackageId(null); setPdfGenerated(false); setSent(false)
+    setPdfResult(null); setDocusignResult(null); setStepError(null)
+    setDeliveryMethod('EMAIL')
+  }
 
   return (
     <div className="space-y-4">
@@ -491,13 +634,17 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
         )}
 
         {step === 5 && buildResult && (
-          <div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Kit Generated</h3>
-            <p className="mt-1 text-xs text-[var(--text-muted)]">
-              {buildResult.preview ? 'Preview mode — connect API for live generation' : `Kit ${buildResult.kit_id} with ${buildResult.form_count} forms`}
-            </p>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">Step 5: Generate & Send</h3>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">
+                {buildResult.preview ? 'Preview mode — connect API for live generation' : `Kit ${buildResult.kit_id} with ${buildResult.form_count} forms`}
+              </p>
+            </div>
+
+            {/* Kit summary */}
             {buildResult.layers ? (
-              <div className="mt-3 space-y-2">
+              <div className="space-y-2">
                 {Object.entries(buildResult.layers as Record<string, unknown[]>).map(([layer, layerForms]) => (
                   <div key={layer} className="rounded-lg bg-[var(--bg-surface)] p-3">
                     <p className="text-xs font-semibold uppercase text-[var(--text-muted)]">{layer.replace(/_/g, ' ')}</p>
@@ -509,7 +656,107 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
                 ))}
               </div>
             ) : null}
-            <button onClick={reset} className="mt-4 rounded px-3 py-1.5 text-xs font-medium text-white" style={{ background: 'var(--portal)' }}>Build Another Kit</button>
+
+            {/* Delivery method selector */}
+            {!pdfGenerated && (
+              <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+                <label className="text-xs font-medium text-[var(--text-muted)]">Delivery Method</label>
+                <div className="mt-2 flex gap-2">
+                  {DELIVERY_METHODS.map((m) => (
+                    <button key={m} onClick={() => setDeliveryMethod(m)}
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                      style={{
+                        background: deliveryMethod === m ? 'var(--portal)' : 'var(--bg-card)',
+                        color: deliveryMethod === m ? 'white' : 'var(--text-secondary)',
+                        border: `1px solid ${deliveryMethod === m ? 'var(--portal)' : 'var(--border)'}`,
+                      }}>
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Error display */}
+            {stepError && (
+              <div className="flex items-center gap-2 rounded-lg bg-[rgba(239,68,68,0.08)] px-3 py-2">
+                <span className="material-icons-outlined" style={{ fontSize: '16px', color: '#ef4444' }}>error</span>
+                <span className="text-xs text-[#ef4444]">{stepError}</span>
+              </div>
+            )}
+
+            {/* Generate PDF button */}
+            {!pdfGenerated && (
+              <button
+                onClick={handleGeneratePdf}
+                disabled={generating || !!buildResult.preview}
+                className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                style={{ background: 'var(--portal)' }}>
+                {generating ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Generating PDF...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-icons-outlined" style={{ fontSize: '18px' }}>picture_as_pdf</span>
+                    Generate PDF
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* PDF generated — show result + Send for Signature */}
+            {pdfGenerated && pdfResult && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 rounded-lg bg-[rgba(34,197,94,0.08)] px-3 py-2">
+                  <span className="material-icons-outlined" style={{ fontSize: '16px', color: '#22c55e' }}>check_circle</span>
+                  <span className="text-xs text-[#22c55e]">
+                    PDF generated — {String(pdfResult.pdf_page_count)} pages, {String(pdfResult.filled_count)} fields filled
+                    {Number(pdfResult.missing_count || 0) > 0 && `, ${String(pdfResult.missing_count)} missing`}
+                  </span>
+                </div>
+
+                {!sent && (
+                  <button
+                    onClick={handleSendDocuSign}
+                    disabled={sending}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                    style={{ background: 'var(--portal)' }}>
+                    {sending ? (
+                      <>
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        Sending to DocuSign...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-icons-outlined" style={{ fontSize: '18px' }}>send</span>
+                        Send for Signature ({deliveryMethod})
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* DocuSign sent confirmation */}
+            {sent && docusignResult && (
+              <div className="rounded-lg border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.08)] p-4">
+                <div className="flex items-center gap-2">
+                  <span className="material-icons-outlined" style={{ fontSize: '20px', color: '#22c55e' }}>mark_email_read</span>
+                  <span className="text-sm font-semibold text-[#22c55e]">Sent for Signature</span>
+                </div>
+                <div className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
+                  <p>Envelope ID: {String(docusignResult.envelope_id)}</p>
+                  <p>Package ID: {String(docusignResult.package_id || packageId)}</p>
+                  <p>Delivery: {String(docusignResult.delivery_method || deliveryMethod)}</p>
+                </div>
+              </div>
+            )}
+
+            <button onClick={reset} className="rounded px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+              Build Another Kit
+            </button>
           </div>
         )}
       </div>
@@ -518,43 +765,127 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
 }
 
 // ============================================================================
-// Tracker Tab — reads from dex_kits
+// Tracker Tab — reads from dex_packages with full status timeline
 // ============================================================================
 
-function TrackerTab({ kits }: { kits: DexKit[] }) {
-  const sorted = useMemo(() => [...kits].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')), [kits])
+function TrackerTab({ packages }: { packages: DexPackage[] }) {
+  const [statusFilter, setStatusFilter] = useState('All')
+  const [selectedPackage, setSelectedPackage] = useState<DexPackage | null>(null)
+
+  const allStatuses = ['All', 'DRAFT', 'READY', 'SENT', 'VIEWED', 'SIGNED', 'SUBMITTED', 'COMPLETE', 'VOIDED', 'DECLINED'] as const
+
+  const filtered = useMemo(() => {
+    let result = [...packages]
+    if (statusFilter !== 'All') result = result.filter(p => p.status === statusFilter)
+    result.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+    return result
+  }, [packages, statusFilter])
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-      <h3 className="text-sm font-semibold text-[var(--text-primary)]">Generated Kits</h3>
-      {sorted.length === 0 ? (
-        <div className="mt-6 flex flex-col items-center py-12">
-          <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">inventory_2</span>
-          <p className="mt-3 text-sm text-[var(--text-muted)]">No kits generated yet.</p>
+    <div className="space-y-4">
+      {/* Filter bar */}
+      <div className="flex items-center gap-3">
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:outline-none">
+          {allStatuses.map((s) => <option key={s} value={s}>{s === 'All' ? 'All Statuses' : s}</option>)}
+        </select>
+        <span className="text-xs text-[var(--text-muted)]">{filtered.length} packages</span>
+      </div>
+
+      <div className="flex gap-4">
+        {/* Package list */}
+        <div className="flex-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Document Packages</h3>
+          {filtered.length === 0 ? (
+            <div className="mt-6 flex flex-col items-center py-12">
+              <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">inventory_2</span>
+              <p className="mt-3 text-sm text-[var(--text-muted)]">No packages found.</p>
+            </div>
+          ) : (
+            <div className="mt-3 max-h-[500px] overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)] text-left text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                    <th className="pb-2 pr-3">Client</th>
+                    <th className="pb-2 pr-3">Kit</th>
+                    <th className="pb-2 pr-3">Status</th>
+                    <th className="pb-2 pr-3">Delivery</th>
+                    <th className="pb-2">Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((pkg) => (
+                    <tr key={pkg._id}
+                      onClick={() => setSelectedPackage(pkg)}
+                      className={`cursor-pointer border-b border-[var(--border-subtle)] transition-colors ${selectedPackage?._id === pkg._id ? 'bg-[var(--portal-glow)]' : 'hover:bg-[var(--bg-surface)]'}`}>
+                      <td className="py-2.5 pr-3 font-medium text-[var(--text-primary)]">{pkg.client_name || '-'}</td>
+                      <td className="py-2.5 pr-3 text-[var(--text-secondary)]">{pkg.kit_name || '-'}</td>
+                      <td className="py-2.5 pr-3">
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={statusStyle(pkg.status)}>{pkg.status}</span>
+                      </td>
+                      <td className="py-2.5 pr-3 text-xs text-[var(--text-muted)]">{pkg.delivery_method || '-'}</td>
+                      <td className="py-2.5 text-xs text-[var(--text-muted)]">{formatDate(pkg.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="mt-4 max-h-[500px] overflow-y-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--border-subtle)] text-left text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                <th className="pb-2 pr-4">Client</th><th className="pb-2 pr-4">Platform</th><th className="pb-2 pr-4">Registration</th><th className="pb-2 pr-4">Forms</th><th className="pb-2 pr-4">Status</th><th className="pb-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((kit) => (
-                <tr key={kit._id} className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-surface)]">
-                  <td className="py-2.5 pr-4 font-medium text-[var(--text-primary)]">{kit.client_name || '-'}</td>
-                  <td className="py-2.5 pr-4 text-[var(--text-secondary)]">{kit.product_type || '-'}</td>
-                  <td className="py-2.5 pr-4 text-[var(--text-secondary)]">{kit.registration_type || '-'}</td>
-                  <td className="py-2.5 pr-4 text-[var(--text-primary)]">{kit.form_count || 0}</td>
-                  <td className="py-2.5 pr-4"><span className="rounded-full px-2 py-0.5 text-[10px] font-medium" style={statusStyle(kit.status)}>{kit.status}</span></td>
-                  <td className="py-2.5 text-[var(--text-muted)]">{formatDate(kit.created_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+
+        {/* Package detail panel */}
+        {selectedPackage && (
+          <div className="w-80 shrink-0 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-[var(--text-primary)]">{selectedPackage.client_name}</h4>
+              <span className="rounded-full px-2 py-0.5 text-[9px] font-medium" style={statusStyle(selectedPackage.status)}>{selectedPackage.status}</span>
+            </div>
+            <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{selectedPackage.package_id}</p>
+
+            <div className="mt-3 space-y-2 text-xs">
+              <div className="flex justify-between"><span className="text-[var(--text-muted)]">Kit</span><span className="text-[var(--text-primary)]">{selectedPackage.kit_name || '-'}</span></div>
+              <div className="flex justify-between"><span className="text-[var(--text-muted)]">Delivery</span><span className="text-[var(--text-primary)]">{selectedPackage.delivery_method || '-'}</span></div>
+              <div className="flex justify-between"><span className="text-[var(--text-muted)]">Email</span><span className="text-[var(--text-primary)]">{selectedPackage.client_email || '-'}</span></div>
+              {selectedPackage.docusign_envelope_id && (
+                <div className="flex justify-between"><span className="text-[var(--text-muted)]">Envelope</span><span className="truncate text-[var(--text-primary)]">{selectedPackage.docusign_envelope_id}</span></div>
+              )}
+            </div>
+
+            {/* Status Timeline */}
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Timeline</h5>
+              <div className="mt-2 space-y-2">
+                <TimelineEntry label="Created" date={selectedPackage.created_at} active />
+                <TimelineEntry label="Sent" date={selectedPackage.sent_at} active={!!selectedPackage.sent_at} />
+                <TimelineEntry label="Viewed" date={selectedPackage.viewed_at} active={!!selectedPackage.viewed_at} />
+                <TimelineEntry label="Signed" date={selectedPackage.signed_at} active={!!selectedPackage.signed_at} />
+                <TimelineEntry label="Submitted" date={selectedPackage.submitted_at} active={!!selectedPackage.submitted_at} />
+                <TimelineEntry label="Completed" date={selectedPackage.completed_at} active={!!selectedPackage.completed_at} />
+              </div>
+            </div>
+
+            {selectedPackage.notes && (
+              <div className="mt-3 border-t border-[var(--border-subtle)] pt-3">
+                <p className="text-xs text-[var(--text-muted)] italic">{selectedPackage.notes}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function TimelineEntry({ label, date, active }: { label: string; date?: string | null; active: boolean }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: active ? 'var(--portal-glow)' : 'var(--bg-surface)' }}>
+        <div className="h-2 w-2 rounded-full" style={{ background: active ? 'var(--portal)' : 'var(--border)' }} />
+      </div>
+      <div className="flex flex-1 items-center justify-between">
+        <span className="text-xs" style={{ color: active ? 'var(--text-primary)' : 'var(--text-muted)' }}>{label}</span>
+        <span className="text-[10px] text-[var(--text-muted)]">{formatDateTime(date)}</span>
+      </div>
     </div>
   )
 }

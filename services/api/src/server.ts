@@ -38,6 +38,7 @@ import { atlasRoutes } from './routes/atlas.js'
 import { camRoutes } from './routes/cam.js'
 import { approvalRoutes } from './routes/approval.js'
 import { dexRoutes } from './routes/dex.js'
+import { dexPipelineRoutes } from './routes/dex-pipeline.js'
 import { campaignAnalyticsRoutes } from './routes/campaign-analytics.js'
 import { leadershipRoutes } from './routes/leadership.js'
 
@@ -96,6 +97,7 @@ app.use('/api/atlas', normalizeBody, atlasRoutes)
 app.use('/api/cam', normalizeBody, camRoutes)
 app.use('/api/approval', normalizeBody, approvalRoutes)
 app.use('/api/dex', normalizeBody, dexRoutes)
+app.use('/api/dex-pipeline', normalizeBody, dexPipelineRoutes)
 app.use('/api/campaign-analytics', campaignAnalyticsRoutes)
 app.use('/api/leadership', normalizeBody, leadershipRoutes)
 
