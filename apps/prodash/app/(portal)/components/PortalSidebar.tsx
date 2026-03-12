@@ -317,14 +317,7 @@ export function PortalSidebar() {
       {/* Header — Logo + Toggle */}
       <div className="flex h-14 items-center justify-between border-b border-[var(--border-subtle)] px-3">
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <span
-              className="text-lg font-bold"
-              style={{ color: 'var(--portal)' }}
-            >
-              ProDashX
-            </span>
-          </div>
+          <img src="/prodashx-tm-transparent.png" alt="ProDashX" style={{ height: '28px' }} />
         )}
         <button
           onClick={toggleCollapse}

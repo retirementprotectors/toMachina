@@ -18,16 +18,8 @@ export function SignInScreen({ onSignIn }: SignInScreenProps) {
         }}
       >
         {/* Logo */}
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-2xl font-light tracking-wide text-[var(--text-muted)]">
-            toMachina
-          </span>
-          <span
-            className="text-3xl font-bold"
-            style={{ color: 'var(--portal)' }}
-          >
-            ProDashX
-          </span>
+        <div className="flex flex-col items-center">
+          <img src="/prodashx-transparent.png" alt="ProDashX by toMachina" style={{ maxWidth: '320px' }} />
         </div>
 
         {/* Divider */}

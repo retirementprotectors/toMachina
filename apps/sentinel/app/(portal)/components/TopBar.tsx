@@ -27,17 +27,13 @@ export function TopBar({ user }: TopBarProps) {
         borderColor: 'var(--border)',
       }}
     >
-      {/* Left — Portal Name + Switcher */}
+      {/* Left — Portal Logo + Switcher */}
       <div className="flex items-center gap-3">
-        <span
-          className="text-base font-semibold"
-          style={{ color: 'var(--portal)' }}
-        >
-          SENTINEL
-        </span>
-        <span className="text-xs text-[var(--text-muted)]">
-          toMachina
-        </span>
+        <img
+          src="/sentinel-tm-transparent.png"
+          alt="SENTINEL"
+          style={{ height: '32px' }}
+        />
         <div className="mx-1 h-5 w-px bg-[var(--border-subtle)]" />
         <PortalSwitcher currentPortal="sentinel" />
       </div>

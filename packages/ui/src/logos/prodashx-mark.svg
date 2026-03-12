@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="pm-t" x1="0" y1="58" x2="62" y2="4" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2d7a7e"/>
+      <stop offset="1" stop-color="#4db8be"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Gauge cluster scaled to 64x64 -->
+  <g transform="translate(0, 14)">
+    <!-- Gauge 1 (largest) -->
+    <path d="M 2 30 A 24 24 0 0 1 12 4 L 19 29 Z" fill="url(#pm-t)" opacity="0.78"/>
+    <path d="M 1 31 A 25 25 0 0 1 40 2" stroke="#5a6577" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <line x1="19" y1="29" x2="12" y2="4" stroke="#5a6577" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Gauge 2 (middle) -->
+    <path d="M 19 30 A 20 20 0 0 1 27 6 L 34 28 Z" fill="url(#pm-t)" opacity="0.84"/>
+    <path d="M 18 31 A 21 21 0 0 1 52 4" stroke="#5a6577" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <line x1="34" y1="28" x2="27" y2="6" stroke="#5a6577" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Gauge 3 (smallest) -->
+    <path d="M 34 28 A 16 16 0 0 1 41 9 L 47 27 Z" fill="url(#pm-t)" opacity="0.9"/>
+    <path d="M 33 29 A 17 17 0 0 1 61 7" stroke="#5a6577" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <line x1="47" y1="27" x2="41" y2="9" stroke="#5a6577" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+</svg>

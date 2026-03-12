@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  /* Portal Brand — RIIMO (dark green) */
-  --portal: #276749;
-  --portal-glow: rgba(39,103,73,0.15);
-  --portal-accent: #3da06e;
+  /* Portal Brand — RIIMO (Electric Purple) */
+  --portal: #a78bfa;
+  --portal-glow: rgba(167,139,250,0.15);
+  --portal-accent: #c4b5fd;
 
   /* Backgrounds (dark mode) */
   --bg-deepest: #0a0a0f;

@@ -2,9 +2,9 @@
 
 :root {
   /* Portal Brand */
-  --portal: #3d8a8f;
-  --portal-glow: rgba(61,138,143,0.15);
-  --portal-accent: #5bbfc5;
+  --portal: #4a7ab5;
+  --portal-glow: rgba(74,122,181,0.15);
+  --portal-accent: #7ba8d4;
 
   /* Backgrounds (dark mode) */
   --bg-deepest: #0a0a0f;

@@ -275,16 +275,13 @@ export function PortalSidebar() {
     >
       {/* Header — Logo + Toggle */}
       <div className="flex h-14 items-center justify-between border-b border-[var(--border-subtle)] px-3">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <span
-              className="text-lg font-bold"
-              style={{ color: 'var(--portal)' }}
-            >
-              SENTINEL
-            </span>
-          </div>
-        )}
+        {!collapsed ? (
+          <img
+            src="/sentinel-tm-transparent.png"
+            alt="SENTINEL"
+            style={{ height: '28px' }}
+          />
+        ) : null}
         <button
           onClick={toggleCollapse}
           className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"

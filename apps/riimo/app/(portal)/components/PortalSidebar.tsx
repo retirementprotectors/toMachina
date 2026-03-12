@@ -279,12 +279,11 @@ export function PortalSidebar() {
       <div className="flex h-14 items-center justify-between border-b border-[var(--border-subtle)] px-3">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <span
-              className="text-lg font-bold"
-              style={{ color: 'var(--portal)' }}
-            >
-              RIIMO
-            </span>
+            <img
+              src="/riimo-tm-transparent.png"
+              alt="RIIMO"
+              style={{ height: '28px' }}
+            />
           </div>
         )}
         <button

@@ -5,7 +5,7 @@
  * Hash the full name to deterministically pick a color.
  */
 const AVATAR_COLORS = [
-  '#3d8a8f', // teal (portal)
+  '#4a7ab5', // blue (portal)
   '#6366f1', // indigo
   '#8b5cf6', // purple
   '#ec4899', // pink

@@ -29,15 +29,11 @@ export function TopBar({ user }: TopBarProps) {
     >
       {/* Left — Portal Name + Switcher */}
       <div className="flex items-center gap-3">
-        <span
-          className="text-base font-semibold"
-          style={{ color: 'var(--portal)' }}
-        >
-          RIIMO
-        </span>
-        <span className="text-xs text-[var(--text-muted)]">
-          toMachina
-        </span>
+        <img
+          src="/riimo-tm-transparent.png"
+          alt="RIIMO"
+          style={{ height: '32px' }}
+        />
         <div className="mx-1 h-5 w-px bg-[var(--border-subtle)]" />
         <PortalSwitcher currentPortal="riimo" />
       </div>

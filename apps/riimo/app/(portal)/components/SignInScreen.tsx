@@ -19,15 +19,11 @@ export function SignInScreen({ onSignIn }: SignInScreenProps) {
       >
         {/* Logo */}
         <div className="flex flex-col items-center gap-1">
-          <span className="text-2xl font-light tracking-wide text-[var(--text-muted)]">
-            toMachina
-          </span>
-          <span
-            className="text-3xl font-bold"
-            style={{ color: 'var(--portal)' }}
-          >
-            RIIMO
-          </span>
+          <img
+            src="/riimo-tm-transparent.png"
+            alt="RIIMO by toMachina"
+            style={{ maxWidth: '280px' }}
+          />
         </div>
 
         {/* Divider */}

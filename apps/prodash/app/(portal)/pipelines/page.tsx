@@ -140,7 +140,7 @@ export default function PipelinesPage() {
     if (stages.length === 0) {
       // Fallback: default ProDashX pipeline stages
       const defaults = [
-        { id: 'discovery', title: 'Discovery', color: '#3d8a8f' },
+        { id: 'discovery', title: 'Discovery', color: '#4a7ab5' },
         { id: 'data-foundation', title: 'Data Foundation', color: '#2563eb' },
         { id: 'case-building', title: 'Case Building', color: '#f59e0b' },
         { id: 'close', title: 'Close', color: '#22c55e' },

@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  /* Portal Brand — SENTINEL (green) */
-  --portal: #3CB371;
-  --portal-glow: rgba(60,179,113,0.15);
+  /* Portal Brand — SENTINEL (DAVID Green) */
+  --portal: #40bc58;
+  --portal-glow: rgba(64,188,88,0.15);
   --portal-accent: #5dd895;
 
   /* Backgrounds (dark mode) */

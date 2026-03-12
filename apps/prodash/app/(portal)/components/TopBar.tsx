@@ -27,17 +27,9 @@ export function TopBar({ user }: TopBarProps) {
         borderColor: 'var(--border)',
       }}
     >
-      {/* Left — Portal Name */}
+      {/* Left — Portal Logo */}
       <div className="flex items-center gap-2">
-        <span
-          className="text-base font-semibold"
-          style={{ color: 'var(--portal)' }}
-        >
-          ProDashX
-        </span>
-        <span className="text-xs text-[var(--text-muted)]">
-          toMachina
-        </span>
+        <img src="/prodashx-tm-transparent.png" alt="ProDashX" style={{ height: '32px' }} />
         <PortalSwitcher currentPortal="prodash" />
       </div>
 

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 80" fill="none">
+  <defs>
+    <linearGradient id="sl-dark" x1="10" y1="72" x2="62" y2="6" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#164a30"/>
+      <stop offset="1" stop-color="#1e6e42"/>
+    </linearGradient>
+    <linearGradient id="sl-shield" x1="14" y1="68" x2="56" y2="8" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22774a"/>
+      <stop offset="1" stop-color="#3CB371"/>
+    </linearGradient>
+    <linearGradient id="sl-r" x1="24" y1="56" x2="46" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7be8a8"/>
+      <stop offset="1" stop-color="#a8f0ca"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ============ MARK (Shield + Wreath) ============ -->
+  <g transform="translate(2, 4)">
+
+    <!-- Laurel wreath - left branch -->
+    <ellipse cx="17" cy="56" rx="2.6" ry="5.2" transform="rotate(-55, 17, 56)" fill="url(#sl-dark)"/>
+    <ellipse cx="11" cy="50" rx="2.6" ry="5.2" transform="rotate(-40, 11, 50)" fill="url(#sl-dark)"/>
+    <ellipse cx="7" cy="43" rx="2.6" ry="5.2" transform="rotate(-22, 7, 43)" fill="url(#sl-dark)"/>
+    <ellipse cx="5" cy="35" rx="2.6" ry="5.2" transform="rotate(0, 5, 35)" fill="url(#sl-dark)"/>
+    <ellipse cx="7" cy="27" rx="2.4" ry="4.8" transform="rotate(22, 7, 27)" fill="url(#sl-dark)"/>
+    <ellipse cx="11" cy="20" rx="2.4" ry="4.8" transform="rotate(40, 11, 20)" fill="url(#sl-dark)"/>
+    <ellipse cx="18" cy="15" rx="2.3" ry="4.3" transform="rotate(58, 18, 15)" fill="url(#sl-dark)"/>
+    <ellipse cx="26" cy="11" rx="2.1" ry="3.8" transform="rotate(72, 26, 11)" fill="url(#sl-dark)"/>
+
+    <!-- Laurel wreath - right branch -->
+    <ellipse cx="47" cy="56" rx="2.6" ry="5.2" transform="rotate(55, 47, 56)" fill="url(#sl-dark)"/>
+    <ellipse cx="53" cy="50" rx="2.6" ry="5.2" transform="rotate(40, 53, 50)" fill="url(#sl-dark)"/>
+    <ellipse cx="57" cy="43" rx="2.6" ry="5.2" transform="rotate(22, 57, 43)" fill="url(#sl-dark)"/>
+    <ellipse cx="59" cy="35" rx="2.6" ry="5.2" transform="rotate(0, 59, 35)" fill="url(#sl-dark)"/>
+    <ellipse cx="57" cy="27" rx="2.4" ry="4.8" transform="rotate(-22, 57, 27)" fill="url(#sl-dark)"/>
+    <ellipse cx="53" cy="20" rx="2.4" ry="4.8" transform="rotate(-40, 53, 20)" fill="url(#sl-dark)"/>
+    <ellipse cx="46" cy="15" rx="2.3" ry="4.3" transform="rotate(-58, 46, 15)" fill="url(#sl-dark)"/>
+    <ellipse cx="38" cy="11" rx="2.1" ry="3.8" transform="rotate(-72, 38, 11)" fill="url(#sl-dark)"/>
+
+    <!-- Shield -->
+    <path d="M 32 12 L 50 20 L 50 35 C 50 46 42 53 32 57 C 22 53 14 46 14 35 L 14 20 Z"
+          fill="url(#sl-shield)" stroke="#5dd895" stroke-width="1.2" stroke-linejoin="round"/>
+
+    <!-- Stylized R -->
+    <path d="M 24 23 L 24 46 L 28.5 46 L 28.5 37 L 35 46 L 40.5 46 L 33 36.5
+             C 36.5 35.5 39 33 39 29.5 C 39 25.5 36 23 32 23 Z
+             M 28.5 27 L 32 27 C 34 27 35.5 28 35.5 30 C 35.5 32 34 33 32 33 L 28.5 33 Z"
+          fill="url(#sl-r)" fill-rule="evenodd"/>
+
+  </g>
+
+  <!-- ============ WORDMARK ============ -->
+  <text x="78" y="46" font-family="'Inter',system-ui,-apple-system,'Segoe UI',sans-serif"
+        font-size="30" font-weight="700" fill="#f0f0f5" letter-spacing="3">
+    SENTINEL
+  </text>
+
+  <!-- ============ TAGLINE ============ -->
+  <text x="80" y="64" font-family="'Inter',system-ui,-apple-system,'Segoe UI',sans-serif"
+        font-size="11" fill="#55556a" letter-spacing="2.5">
+    <tspan font-weight="300" font-style="italic">by </tspan><tspan font-weight="500">toMachina</tspan>
+  </text>
+</svg>

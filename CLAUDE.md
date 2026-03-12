@@ -51,9 +51,9 @@ toMachina/
 
 | Portal | CSS Variable `--portal` | Port (dev) |
 |--------|------------------------|------------|
-| ProDashX | `#3d8a8f` (teal) | 3001 |
-| RIIMO | `#276749` (dark green) | 3002 |
-| SENTINEL | `#3CB371` (green) | 3003 |
+| ProDashX | `#4a7ab5` (RPI Blue) | 3001 |
+| RIIMO | `#a78bfa` (Electric Purple) | 3002 |
+| SENTINEL | `#40bc58` (DAVID Green) | 3003 |
 
 ## Dev Commands
 

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>toMachina Logo Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0f;
+      color: #f0f0f5;
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 60px 40px;
+    }
+    h1 {
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: #55556a;
+      margin-bottom: 60px;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #111118;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    .card h2 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #8888a0;
+    }
+    .logo-full { width: 100%; max-width: 320px; }
+    .logo-mark { width: 64px; height: 64px; }
+    .separator {
+      width: 40px;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+    .label {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      color: #55556a;
+      text-transform: uppercase;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #8888a0;
+      margin: 80px 0 40px;
+      text-align: center;
+    }
+    .sizes {
+      display: flex;
+      align-items: flex-end;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .size-sample {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .dark-bg { background: #0a0a0f; padding: 20px; border-radius: 10px; }
+    .mid-bg { background: #16213e; padding: 20px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>toMachina &mdash; Logo Suite</h1>
+
+  <!-- Originals Reference -->
+  <p class="section-title">Original References</p>
+  <div style="display:flex; justify-content:center; gap: 60px; flex-wrap: wrap; margin-bottom: 60px;">
+    <div class="card" style="min-width: 280px;">
+      <span class="label">Original ProDash</span>
+      <img src="https://i.imgur.com/xP1hrXE.png" style="max-width: 240px; height: auto;" alt="Original ProDash">
+    </div>
+    <div class="card" style="min-width: 280px;">
+      <span class="label">Original RPI Shield</span>
+      <img src="https://retireprotected.com/wp-content/uploads/2025/12/RPI-3.svg" style="width: 120px; height: auto;" alt="Original RPI Shield">
+    </div>
+  </div>
+
+  <!-- Full Logos -->
+  <p class="section-title">New Logo Suite</p>
+  <div class="grid">
+    <div class="card">
+      <span class="label">B2C Portal</span>
+      <img src="prodashx-logo.svg" class="logo-full" alt="ProDashX Logo">
+      <div class="separator"></div>
+      <img src="prodashx-mark.svg" class="logo-mark" alt="ProDashX Mark">
+      <span class="label">Icon Mark</span>
+    </div>
+
+    <div class="card">
+      <span class="label">B2E Portal</span>
+      <img src="riimo-logo.svg" class="logo-full" alt="RIIMO Logo">
+      <div class="separator"></div>
+      <img src="riimo-mark.svg" class="logo-mark" alt="RIIMO Mark">
+      <span class="label">Icon Mark</span>
+    </div>
+
+    <div class="card">
+      <span class="label">B2B Portal</span>
+      <img src="sentinel-logo.svg" class="logo-full" alt="SENTINEL Logo">
+      <div class="separator"></div>
+      <img src="sentinel-mark.svg" class="logo-mark" alt="SENTINEL Mark">
+      <span class="label">Icon Mark</span>
+    </div>
+  </div>
+
+  <!-- Scale Tests -->
+  <p class="section-title">Scale Tests</p>
+  <div class="grid">
+    <div class="card">
+      <span class="label">Header Size (h: 32px)</span>
+      <div class="dark-bg">
+        <img src="prodashx-logo.svg" style="height: 32px;" alt="ProDashX small">
+      </div>
+      <div class="mid-bg">
+        <img src="prodashx-logo.svg" style="height: 32px;" alt="ProDashX small mid">
+      </div>
+    </div>
+    <div class="card">
+      <span class="label">Header Size (h: 32px)</span>
+      <div class="dark-bg">
+        <img src="riimo-logo.svg" style="height: 32px;" alt="RIIMO small">
+      </div>
+      <div class="mid-bg">
+        <img src="riimo-logo.svg" style="height: 32px;" alt="RIIMO small mid">
+      </div>
+    </div>
+    <div class="card">
+      <span class="label">Header Size (h: 32px)</span>
+      <div class="dark-bg">
+        <img src="sentinel-logo.svg" style="height: 32px;" alt="SENTINEL small">
+      </div>
+      <div class="mid-bg">
+        <img src="sentinel-logo.svg" style="height: 32px;" alt="SENTINEL small mid">
+      </div>
+    </div>
+  </div>
+
+  <!-- Marks at Various Sizes -->
+  <p class="section-title">Icon Marks &mdash; Size Range</p>
+  <div style="display:flex; justify-content:center; gap: 60px; flex-wrap: wrap;">
+    <div class="card" style="min-width: 200px;">
+      <span class="label">ProDashX</span>
+      <div class="sizes">
+        <div class="size-sample">
+          <img src="prodashx-mark.svg" style="width:16px;height:16px;" alt="">
+          <span class="label">16</span>
+        </div>
+        <div class="size-sample">
+          <img src="prodashx-mark.svg" style="width:24px;height:24px;" alt="">
+          <span class="label">24</span>
+        </div>
+        <div class="size-sample">
+          <img src="prodashx-mark.svg" style="width:32px;height:32px;" alt="">
+          <span class="label">32</span>
+        </div>
+        <div class="size-sample">
+          <img src="prodashx-mark.svg" style="width:48px;height:48px;" alt="">
+          <span class="label">48</span>
+        </div>
+        <div class="size-sample">
+          <img src="prodashx-mark.svg" style="width:64px;height:64px;" alt="">
+          <span class="label">64</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="min-width: 200px;">
+      <span class="label">RIIMO</span>
+      <div class="sizes">
+        <div class="size-sample">
+          <img src="riimo-mark.svg" style="width:16px;height:16px;" alt="">
+          <span class="label">16</span>
+        </div>
+        <div class="size-sample">
+          <img src="riimo-mark.svg" style="width:24px;height:24px;" alt="">
+          <span class="label">24</span>
+        </div>
+        <div class="size-sample">
+          <img src="riimo-mark.svg" style="width:32px;height:32px;" alt="">
+          <span class="label">32</span>
+        </div>
+        <div class="size-sample">
+          <img src="riimo-mark.svg" style="width:48px;height:48px;" alt="">
+          <span class="label">48</span>
+        </div>
+        <div class="size-sample">
+          <img src="riimo-mark.svg" style="width:64px;height:64px;" alt="">
+          <span class="label">64</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="min-width: 200px;">
+      <span class="label">SENTINEL</span>
+      <div class="sizes">
+        <div class="size-sample">
+          <img src="sentinel-mark.svg" style="width:16px;height:16px;" alt="">
+          <span class="label">16</span>
+        </div>
+        <div class="size-sample">
+          <img src="sentinel-mark.svg" style="width:24px;height:24px;" alt="">
+          <span class="label">24</span>
+        </div>
+        <div class="size-sample">
+          <img src="sentinel-mark.svg" style="width:32px;height:32px;" alt="">
+          <span class="label">32</span>
+        </div>
+        <div class="size-sample">
+          <img src="sentinel-mark.svg" style="width:48px;height:48px;" alt="">
+          <span class="label">48</span>
+        </div>
+        <div class="size-sample">
+          <img src="sentinel-mark.svg" style="width:64px;height:64px;" alt="">
+          <span class="label">64</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
