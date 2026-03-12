@@ -1,1 +1,0 @@
-{"version":3,"file":"spc-intake.d.ts","sourceRoot":"","sources":["../src/spc-intake.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAQH,MAAM,WAAW,aAAa;IAC5B,OAAO,EAAE,OAAO,CAAA;IAChB,eAAe,EAAE,MAAM,CAAA;IACvB,SAAS,EAAE,MAAM,CAAA;IACjB,kBAAkB,EAAE,MAAM,CAAA;IAC1B,MAAM,EAAE,MAAM,EAAE,CAAA;CACjB;AAED;;GAEG;AACH,wBAAsB,cAAc,IAAI,OAAO,CAAC,aAAa,CAAC,CAqD7D"}

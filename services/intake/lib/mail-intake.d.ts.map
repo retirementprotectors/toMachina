@@ -1,1 +1,0 @@
-{"version":3,"file":"mail-intake.d.ts","sourceRoot":"","sources":["../src/mail-intake.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AAQH,MAAM,WAAW,cAAc;IAC7B,OAAO,EAAE,OAAO,CAAA;IAChB,SAAS,EAAE,MAAM,CAAA;IACjB,kBAAkB,EAAE,MAAM,CAAA;IAC1B,eAAe,EAAE,MAAM,CAAA;IACvB,kBAAkB,EAAE,MAAM,CAAA;IAC1B,MAAM,EAAE,MAAM,EAAE,CAAA;CACjB;AAWD;;;GAGG;AACH,wBAAsB,cAAc,IAAI,OAAO,CAAC,cAAc,CAAC,CA4E9D"}

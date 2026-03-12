@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { QRCodeSVG as QRCode } from 'qrcode.react'
 import { query, where, orderBy, doc, updateDoc, type Query, type DocumentData } from 'firebase/firestore'
 import { useAuth, buildEntitlementContext } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
@@ -46,6 +47,17 @@ interface EmployeeProfile {
   drop_zone?: Record<string, unknown>
 }
 
+function getAge(dob: unknown): number | null {
+  if (!dob) return null
+  const d = new Date(String(dob))
+  if (isNaN(d.getTime())) return null
+  const today = new Date()
+  let age = today.getUTCFullYear() - d.getUTCFullYear()
+  const monthDiff = today.getUTCMonth() - d.getUTCMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getUTCDate() < d.getUTCDate())) age--
+  return age >= 0 ? age : null
+}
+
 const LEVEL_LABELS: Record<number, string> = {
   0: 'Owner',
   1: 'Executive',
@@ -61,76 +73,10 @@ const TIME_SLOTS = [
   '5:00 PM',
 ] as const
 
-/* ─── QR Code Generator (SVG-based, no external deps) ─── */
-
-function generateQRMatrix(data: string): boolean[][] {
-  // Simplified QR-like pattern generator for visual representation
-  // Uses a deterministic hash of the URL to create a unique pattern
-  const size = 25
-  const matrix: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false))
-
-  // Finder patterns (3 corners)
-  const drawFinder = (row: number, col: number) => {
-    for (let r = 0; r < 7; r++) {
-      for (let c = 0; c < 7; c++) {
-        const isOuter = r === 0 || r === 6 || c === 0 || c === 6
-        const isInner = r >= 2 && r <= 4 && c >= 2 && c <= 4
-        matrix[row + r][col + c] = isOuter || isInner
-      }
-    }
-  }
-  drawFinder(0, 0)
-  drawFinder(0, size - 7)
-  drawFinder(size - 7, 0)
-
-  // Timing patterns
-  for (let i = 7; i < size - 7; i++) {
-    matrix[6][i] = i % 2 === 0
-    matrix[i][6] = i % 2 === 0
-  }
-
-  // Data area — deterministic hash-based fill
-  let hash = 0
-  for (let i = 0; i < data.length; i++) {
-    hash = ((hash << 5) - hash + data.charCodeAt(i)) | 0
-  }
-  let seed = Math.abs(hash)
-  for (let r = 9; r < size - 1; r++) {
-    for (let c = 9; c < size - 1; c++) {
-      if (r < 7 && c < 7) continue
-      if (r < 7 && c >= size - 7) continue
-      if (r >= size - 7 && c < 7) continue
-      seed = (seed * 1103515245 + 12345) & 0x7fffffff
-      matrix[r][c] = (seed % 3) === 0
-    }
-  }
-
-  return matrix
-}
+/* ─── QR Code (real, scannable via qrcode.react) ─── */
 
 function QRCodeSVG({ data, size = 120 }: { data: string; size?: number }) {
-  const matrix = useMemo(() => generateQRMatrix(data), [data])
-  const cellSize = size / matrix.length
-
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
-      <rect width={size} height={size} fill="white" rx="4" />
-      {matrix.map((row, r) =>
-        row.map((cell, c) =>
-          cell ? (
-            <rect
-              key={`${r}-${c}`}
-              x={c * cellSize}
-              y={r * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill="black"
-            />
-          ) : null
-        )
-      )}
-    </svg>
-  )
+  return <QRCode value={data} size={size} level="M" />
 }
 
 /* ─── Inline Editable Field ─── */
@@ -234,6 +180,116 @@ function InlineEditField({
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+/* ─── Alias Editor ─── */
+
+function AliasEditor({
+  aliases,
+  isOwnProfile,
+  profileId,
+}: {
+  aliases: string[]
+  isOwnProfile: boolean
+  profileId: string | undefined
+}) {
+  const [adding, setAdding] = useState(false)
+  const [newAlias, setNewAlias] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (adding && inputRef.current) inputRef.current.focus()
+  }, [adding])
+
+  const persist = useCallback(async (updated: string[]) => {
+    if (!profileId) return
+    setSaving(true)
+    try {
+      const ref = doc(getDb(), 'users', profileId)
+      await updateDoc(ref, { aliases: updated, updated_at: new Date().toISOString() })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } finally {
+      setSaving(false)
+    }
+  }, [profileId])
+
+  const handleAdd = useCallback(async () => {
+    const trimmed = newAlias.trim()
+    if (!trimmed) { setAdding(false); return }
+    await persist([...aliases, trimmed])
+    setNewAlias('')
+    setAdding(false)
+  }, [newAlias, aliases, persist])
+
+  const handleRemove = useCallback(async (idx: number) => {
+    await persist(aliases.filter((_, i) => i !== idx))
+  }, [aliases, persist])
+
+  if (!isOwnProfile && aliases.length === 0) return null
+
+  return (
+    <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+          Aliases
+        </span>
+        {saved && (
+          <span className="material-icons-outlined text-[var(--success)]" style={{ fontSize: '14px' }}>
+            check_circle
+          </span>
+        )}
+        {saving && (
+          <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+        )}
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        {aliases.map((alias, i) => (
+          <span
+            key={i}
+            className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-surface)] px-2.5 py-0.5 text-xs text-[var(--text-secondary)]"
+          >
+            {alias}
+            {isOwnProfile && (
+              <button
+                onClick={() => void handleRemove(i)}
+                className="ml-0.5 text-[var(--text-muted)] transition-colors hover:text-[var(--error)]"
+                title={`Remove "${alias}"`}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '12px' }}>close</span>
+              </button>
+            )}
+          </span>
+        ))}
+        {isOwnProfile && !adding && (
+          <button
+            onClick={() => setAdding(true)}
+            className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-[var(--border-subtle)] px-2.5 py-0.5 text-xs text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '12px' }}>add</span>
+            Add alias
+          </button>
+        )}
+        {isOwnProfile && adding && (
+          <input
+            ref={inputRef}
+            value={newAlias}
+            onChange={(e) => setNewAlias(e.target.value)}
+            onBlur={() => void handleAdd()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void handleAdd()
+              if (e.key === 'Escape') { setNewAlias(''); setAdding(false) }
+            }}
+            placeholder="Type alias..."
+            className="rounded-full border border-[var(--portal)] bg-[var(--bg-surface)] px-2.5 py-0.5 text-xs text-[var(--text-primary)] outline-none"
+            style={{ width: '120px' }}
+          />
+        )}
+      </div>
     </div>
   )
 }
@@ -589,6 +645,15 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
                   {profile.location}
                 </span>
               )}
+              {(() => {
+                const age = getAge(profile?.dob)
+                return age !== null ? (
+                  <span className="flex items-center gap-1">
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>cake</span>
+                    Age {age}
+                  </span>
+                ) : null
+              })()}
             </div>
           </div>
         </div>
@@ -664,23 +729,11 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
         </div>
 
         {/* Aliases */}
-        {profile?.aliases && profile.aliases.length > 0 && (
-          <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
-            <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-              Aliases
-            </span>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {profile.aliases.map((alias, i) => (
-                <span
-                  key={i}
-                  className="rounded-full bg-[var(--bg-surface)] px-2.5 py-0.5 text-xs text-[var(--text-secondary)]"
-                >
-                  {alias}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+        <AliasEditor
+          aliases={profile?.aliases || []}
+          isOwnProfile={isOwnProfile}
+          profileId={profile?._id}
+        />
       </div>
 
       {/* ─── Section 3: Quick Links ─── */}
