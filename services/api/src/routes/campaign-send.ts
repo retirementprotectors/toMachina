@@ -764,6 +764,524 @@ campaignSendRoutes.post('/execute-due', async (_req: Request, res: Response) => 
 })
 
 // ============================================================================
+// DRIP SEQUENCES
+// ============================================================================
+
+/**
+ * POST /api/campaign-send/drip/create
+ * Create a new drip sequence
+ */
+campaignSendRoutes.post('/drip/create', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const now = new Date().toISOString()
+    const {
+      campaign_id, sequence_name, description, steps, fallback_channel, max_steps,
+    } = req.body
+
+    if (!campaign_id || !sequence_name || !Array.isArray(steps) || steps.length === 0) {
+      res.status(400).json(errorResponse('campaign_id, sequence_name, and steps[] are required'))
+      return
+    }
+
+    const userEmail = (req as unknown as Record<string, unknown>).user
+      ? ((req as unknown as Record<string, unknown>).user as Record<string, string>).email
+      : 'api'
+
+    // Validate + normalize steps
+    const normalizedSteps = (steps as Record<string, unknown>[]).map((s, i) => ({
+      step_index: typeof s.step_index === 'number' ? s.step_index : i,
+      delay_days: Number(s.delay_days) || 0,
+      channel: (s.channel as string) || 'email',
+      template_id: (s.template_id as string) || '',
+      conditions: Array.isArray(s.conditions) ? s.conditions : [],
+    }))
+
+    const dripId = `DRIP_${randomUUID().slice(0, 8)}`
+    const dripData = {
+      drip_id: dripId,
+      campaign_id,
+      sequence_name,
+      description: description || '',
+      steps: normalizedSteps,
+      fallback_channel: fallback_channel || 'email',
+      max_steps: max_steps || normalizedSteps.length,
+      status: 'active',
+      created_by: userEmail,
+      created_at: now,
+      updated_at: now,
+    }
+
+    await db.collection('drip_sequences').doc(dripId).set(dripData)
+
+    res.status(201).json(successResponse(dripData))
+  } catch (err) {
+    console.error('POST /api/campaign-send/drip/create error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/campaign-send/drip
+ * List all drip sequences. Optional filter by campaign_id or status.
+ */
+campaignSendRoutes.get('/drip', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let q: Query<DocumentData> = db.collection('drip_sequences')
+
+    if (req.query.campaign_id) {
+      q = q.where('campaign_id', '==', req.query.campaign_id)
+    }
+    if (req.query.status) {
+      q = q.where('status', '==', req.query.status)
+    }
+
+    const snap = await q.orderBy('created_at', 'desc').limit(100).get()
+    const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
+
+    res.json(successResponse(data, { count: data.length }))
+  } catch (err) {
+    console.error('GET /api/campaign-send/drip error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/campaign-send/drip/:id
+ * Get a drip sequence with enrollment stats
+ */
+campaignSendRoutes.get('/drip/:id', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const doc = await db.collection('drip_sequences').doc(id).get()
+
+    if (!doc.exists) {
+      res.status(404).json(errorResponse('Drip sequence not found'))
+      return
+    }
+
+    const dripData = { id: doc.id, ...doc.data() } as Record<string, unknown>
+
+    // Get enrollment stats
+    const enrollSnap = await db
+      .collection('campaign_enrollments')
+      .where('drip_sequence_id', '==', id)
+      .limit(5000)
+      .get()
+
+    const enrollments = enrollSnap.docs.map((d) => d.data() as Record<string, unknown>)
+    const stats = {
+      total_enrolled: enrollments.length,
+      active: enrollments.filter((e) => e.status === 'active').length,
+      completed: enrollments.filter((e) => e.status === 'completed').length,
+      stopped: enrollments.filter((e) => e.status === 'stopped').length,
+      paused: enrollments.filter((e) => e.status === 'paused').length,
+    }
+
+    res.json(successResponse({ ...stripInternalFields(dripData), enrollment_stats: stats }))
+  } catch (err) {
+    console.error('GET /api/campaign-send/drip/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/campaign-send/drip/:id/enroll
+ * Enroll contacts into a drip sequence.
+ * Creates campaign_enrollments with drip_sequence_id + queues first step.
+ */
+campaignSendRoutes.post('/drip/:id/enroll', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const dripId = param(req.params.id)
+    const { contact_ids, start_date } = req.body
+
+    if (!Array.isArray(contact_ids) || contact_ids.length === 0) {
+      res.status(400).json(errorResponse('contact_ids must be a non-empty array'))
+      return
+    }
+
+    // Load drip sequence
+    const dripDoc = await db.collection('drip_sequences').doc(dripId).get()
+    if (!dripDoc.exists) {
+      res.status(404).json(errorResponse('Drip sequence not found'))
+      return
+    }
+
+    const drip = dripDoc.data() as Record<string, unknown>
+    if (drip.status !== 'active') {
+      res.status(400).json(errorResponse(`Drip sequence is ${drip.status}, not active`))
+      return
+    }
+
+    const steps = (drip.steps as Record<string, unknown>[]) || []
+    if (steps.length === 0) {
+      res.status(400).json(errorResponse('Drip sequence has no steps'))
+      return
+    }
+
+    const now = new Date().toISOString()
+    const start = start_date ? new Date(start_date) : new Date()
+    const userEmail = (req as unknown as Record<string, unknown>).user
+      ? ((req as unknown as Record<string, unknown>).user as Record<string, string>).email
+      : 'api'
+
+    // Check existing enrollments for this drip
+    const existingSnap = await db
+      .collection('campaign_enrollments')
+      .where('drip_sequence_id', '==', dripId)
+      .where('status', '==', 'active')
+      .get()
+
+    const enrolledSet = new Set<string>()
+    existingSnap.docs.forEach((d) => {
+      const data = d.data()
+      if (data.contact_id) enrolledSet.add(data.contact_id as string)
+    })
+
+    // Sort steps by index to find first
+    const sortedSteps = [...steps].sort(
+      (a, b) => (Number(a.step_index) || 0) - (Number(b.step_index) || 0)
+    )
+    const firstStep = sortedSteps[0]
+    const firstDelayDays = Number(firstStep.delay_days) || 0
+    const firstSendDate = new Date(start.getTime() + firstDelayDays * 86400000)
+
+    let enrollmentCount = 0
+    let queuedCount = 0
+    let skippedDuplicates = 0
+
+    const batch = db.batch()
+
+    for (const contactId of contact_ids as string[]) {
+      if (enrolledSet.has(contactId)) {
+        skippedDuplicates++
+        continue
+      }
+
+      const enrollmentId = randomUUID()
+
+      // Create enrollment with drip tracking
+      batch.set(db.collection('campaign_enrollments').doc(enrollmentId), {
+        enrollment_id: enrollmentId,
+        drip_sequence_id: dripId,
+        campaign_id: drip.campaign_id,
+        contact_id: contactId,
+        current_step: 0,
+        next_send_at: firstSendDate.toISOString(),
+        status: 'active',
+        enrolled_at: now,
+        enrolled_by: userEmail,
+        start_date: start.toISOString().split('T')[0],
+        created_at: now,
+        updated_at: now,
+      })
+      enrollmentCount++
+
+      // Queue first step send
+      const queuedId = randomUUID()
+      batch.set(db.collection('queued_sends').doc(queuedId), {
+        queued_send_id: queuedId,
+        enrollment_id: enrollmentId,
+        drip_sequence_id: dripId,
+        campaign_id: drip.campaign_id,
+        contact_id: contactId,
+        step_index: Number(firstStep.step_index) || 0,
+        channel: (firstStep.channel as string) || 'email',
+        content_id: (firstStep.template_id as string) || '',
+        content_preview: `Drip Step ${(Number(firstStep.step_index) || 0) + 1}`,
+        scheduled_for: firstSendDate.toISOString(),
+        status: 'queued',
+        created_at: now,
+        updated_at: now,
+      })
+      queuedCount++
+    }
+
+    await batch.commit()
+
+    res.json(successResponse({
+      drip_id: dripId,
+      enrollmentCount,
+      queuedCount,
+      skippedDuplicates,
+    }))
+  } catch (err) {
+    console.error('POST /api/campaign-send/drip/:id/enroll error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/campaign-send/drip/advance
+ * Process next drip step for ALL active enrollments.
+ * Designed for Cloud Scheduler hourly call.
+ *
+ * Logic:
+ * 1. Query campaign_enrollments where status='active' AND drip_sequence_id exists
+ * 2. For each: check delay elapsed, query delivery events, evaluate step
+ * 3. If send: create queued_sends record for next step
+ * 4. Advance current_step, update next_send_at
+ */
+campaignSendRoutes.post('/drip/advance', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const now = new Date()
+    const nowIso = now.toISOString()
+
+    // Find active drip enrollments that are due
+    const enrollSnap = await db
+      .collection('campaign_enrollments')
+      .where('status', '==', 'active')
+      .where('next_send_at', '<=', nowIso)
+      .orderBy('next_send_at', 'asc')
+      .limit(200)
+      .get()
+
+    if (enrollSnap.empty) {
+      res.json(successResponse({ processed: 0, advanced: 0, skipped: 0, stopped: 0, failed: 0 }))
+      return
+    }
+
+    // Filter to only drip enrollments (have drip_sequence_id)
+    const dripEnrollments = enrollSnap.docs.filter((d) => {
+      const data = d.data()
+      return !!data.drip_sequence_id
+    })
+
+    if (dripEnrollments.length === 0) {
+      res.json(successResponse({ processed: 0, advanced: 0, skipped: 0, stopped: 0, failed: 0 }))
+      return
+    }
+
+    // Cache drip sequences to avoid re-reading
+    const dripCache: Record<string, Record<string, unknown>> = {}
+    let advanced = 0
+    let skipped = 0
+    let stopped = 0
+    let failed = 0
+
+    for (const enrollDoc of dripEnrollments) {
+      const enrollment = enrollDoc.data() as Record<string, unknown>
+      const dripId = enrollment.drip_sequence_id as string
+      const currentStep = Number(enrollment.current_step) || 0
+      const contactId = enrollment.contact_id as string
+      const campaignId = enrollment.campaign_id as string
+
+      try {
+        // Load drip sequence (cached)
+        if (!dripCache[dripId]) {
+          const dripDoc = await db.collection('drip_sequences').doc(dripId).get()
+          if (!dripDoc.exists) {
+            await enrollDoc.ref.update({ status: 'stopped', updated_at: nowIso })
+            stopped++
+            continue
+          }
+          dripCache[dripId] = dripDoc.data() as Record<string, unknown>
+        }
+
+        const drip = dripCache[dripId]
+        if (drip.status !== 'active') {
+          // Drip sequence was paused/archived — skip but don't stop enrollment
+          skipped++
+          continue
+        }
+
+        const steps = (drip.steps as Record<string, unknown>[]) || []
+        const sortedSteps = [...steps].sort(
+          (a, b) => (Number(a.step_index) || 0) - (Number(b.step_index) || 0)
+        )
+        const nextStepIndex = currentStep + 1
+
+        // Check if sequence is complete
+        if (nextStepIndex >= sortedSteps.length) {
+          await enrollDoc.ref.update({
+            status: 'completed',
+            updated_at: nowIso,
+          })
+          stopped++ // counted as "done"
+          continue
+        }
+
+        // Respect max_steps
+        const maxSteps = Number(drip.max_steps) || sortedSteps.length
+        if (nextStepIndex >= maxSteps) {
+          await enrollDoc.ref.update({ status: 'completed', updated_at: nowIso })
+          stopped++
+          continue
+        }
+
+        const nextStep = sortedSteps.find(
+          (s) => (Number(s.step_index) || 0) === nextStepIndex
+        )
+        if (!nextStep) {
+          await enrollDoc.ref.update({ status: 'completed', updated_at: nowIso })
+          stopped++
+          continue
+        }
+
+        // Query delivery events for this contact + campaign
+        const eventSnap = await db
+          .collection('campaign_delivery_events')
+          .where('campaign_id', '==', campaignId)
+          .where('recipient_id', '==', contactId)
+          .limit(100)
+          .get()
+
+        const deliveryEvents = eventSnap.docs.map((d) => d.data())
+
+        // Evaluate conditions on the next step
+        const conditions = (nextStep.conditions as Record<string, unknown>[]) || []
+        let evaluation = 'send' as string
+
+        for (const cond of conditions) {
+          const condType = (cond.type as string) || ''
+          const condAction = (cond.action as string) || 'skip'
+
+          let condMet = false
+          if (condType === 'responded' || condType === 'clicked') {
+            condMet = deliveryEvents.some((e) => e.event_type === 'clicked')
+          } else if (condType === 'opened') {
+            condMet = deliveryEvents.some((e) => e.event_type === 'opened')
+          } else if (condType === 'opted_out') {
+            condMet = deliveryEvents.some((e) => e.event_type === 'unsubscribed')
+          }
+
+          if (condMet) {
+            evaluation = condAction
+            break
+          }
+        }
+
+        if (evaluation === 'stop') {
+          await enrollDoc.ref.update({ status: 'stopped', updated_at: nowIso })
+          stopped++
+          continue
+        }
+
+        if (evaluation === 'skip') {
+          // Skip this step, advance to the one after
+          const skipToIndex = nextStepIndex + 1
+          if (skipToIndex >= sortedSteps.length) {
+            await enrollDoc.ref.update({ status: 'completed', updated_at: nowIso })
+            stopped++
+          } else {
+            const skipToStep = sortedSteps.find(
+              (s) => (Number(s.step_index) || 0) === skipToIndex
+            )
+            const delayDays = Number(skipToStep?.delay_days) || 0
+            const nextSendAt = new Date(now.getTime() + delayDays * 86400000)
+            await enrollDoc.ref.update({
+              current_step: nextStepIndex,
+              next_send_at: nextSendAt.toISOString(),
+              updated_at: nowIso,
+            })
+            skipped++
+          }
+          continue
+        }
+
+        // Resolve channel (switch_channel or normal)
+        let channel = (nextStep.channel as string) || 'email'
+        if (evaluation === 'switch_channel') {
+          const fallback = (drip.fallback_channel as string) || 'email'
+          if (fallback !== channel) channel = fallback
+        }
+
+        // Check DND before queueing
+        const clientDoc = await db.collection('clients').doc(contactId).get()
+        if (!clientDoc.exists) {
+          await enrollDoc.ref.update({ status: 'stopped', updated_at: nowIso })
+          failed++
+          continue
+        }
+
+        const client = clientDoc.data() as Record<string, unknown>
+        if (String(client.dnd_all || '') === 'true') {
+          await enrollDoc.ref.update({ status: 'stopped', updated_at: nowIso })
+          stopped++
+          continue
+        }
+        if (channel === 'email' && String(client.dnd_email || '') === 'true') {
+          // Try fallback channel
+          const fallback = (drip.fallback_channel as string) || 'sms'
+          if (fallback === 'sms' && String(client.dnd_sms || '') === 'true') {
+            await enrollDoc.ref.update({ status: 'stopped', updated_at: nowIso })
+            stopped++
+            continue
+          }
+          channel = fallback
+        }
+        if (channel === 'sms' && String(client.dnd_sms || '') === 'true') {
+          const fallback = (drip.fallback_channel as string) || 'email'
+          if (fallback === 'email' && String(client.dnd_email || '') === 'true') {
+            await enrollDoc.ref.update({ status: 'stopped', updated_at: nowIso })
+            stopped++
+            continue
+          }
+          channel = fallback
+        }
+
+        // Queue the send
+        const queuedId = randomUUID()
+        await db.collection('queued_sends').doc(queuedId).set({
+          queued_send_id: queuedId,
+          enrollment_id: enrollment.enrollment_id,
+          drip_sequence_id: dripId,
+          campaign_id: campaignId,
+          contact_id: contactId,
+          step_index: nextStepIndex,
+          channel,
+          content_id: (nextStep.template_id as string) || '',
+          content_preview: `Drip Step ${nextStepIndex + 1}`,
+          scheduled_for: nowIso,
+          status: 'queued',
+          created_at: nowIso,
+          updated_at: nowIso,
+        })
+
+        // Advance enrollment
+        const followingStepIndex = nextStepIndex + 1
+        let nextSendAt = ''
+        if (followingStepIndex < sortedSteps.length) {
+          const followingStep = sortedSteps.find(
+            (s) => (Number(s.step_index) || 0) === followingStepIndex
+          )
+          const delayDays = Number(followingStep?.delay_days) || 0
+          nextSendAt = new Date(now.getTime() + delayDays * 86400000).toISOString()
+        }
+
+        await enrollDoc.ref.update({
+          current_step: nextStepIndex,
+          next_send_at: nextSendAt || null,
+          last_send_at: nowIso,
+          updated_at: nowIso,
+          ...(followingStepIndex >= sortedSteps.length ? { status: 'completed' } : {}),
+        })
+
+        advanced++
+      } catch (stepErr) {
+        console.error(`Drip advance error for enrollment ${enrollDoc.id}:`, stepErr)
+        failed++
+      }
+    }
+
+    res.json(successResponse({
+      processed: dripEnrollments.length,
+      advanced,
+      skipped,
+      stopped,
+      failed,
+    }))
+  } catch (err) {
+    console.error('POST /api/campaign-send/drip/advance error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
 // HELPERS
 // ============================================================================
 

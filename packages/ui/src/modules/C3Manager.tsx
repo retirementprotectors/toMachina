@@ -89,6 +89,7 @@ interface SendLogRecord {
   status?: string
   provider?: string
   error_message?: string
+  external_id?: string
   created_at?: string
   [key: string]: unknown
 }
@@ -106,6 +107,50 @@ interface ScheduleRecord {
   [key: string]: unknown
 }
 
+interface DeliveryEventRecord {
+  _id: string
+  event_id?: string
+  send_job_id?: string
+  campaign_id?: string
+  recipient_id?: string
+  event_type?: string
+  channel?: string
+  provider?: string
+  provider_event_id?: string
+  metadata?: Record<string, unknown>
+  timestamp?: string
+  [key: string]: unknown
+}
+
+interface DripSequenceRecord {
+  _id: string
+  drip_id?: string
+  campaign_id?: string
+  sequence_name?: string
+  description?: string
+  steps?: DripStepRecord[]
+  fallback_channel?: string
+  max_steps?: number
+  status?: string
+  created_by?: string
+  created_at?: string
+  updated_at?: string
+  [key: string]: unknown
+}
+
+interface DripStepRecord {
+  step_index: number
+  delay_days: number
+  channel: string
+  template_id: string
+  conditions: DripConditionRecord[]
+}
+
+interface DripConditionRecord {
+  type: string
+  action: string
+}
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -119,7 +164,11 @@ const BLOCK_STATUSES = ['All', 'Draft', 'In Review', 'Approved', 'Archived'] as 
 const PILLARS = ['All', 'Health', 'Wealth', 'Legacy', 'Family'] as const
 const AEP_AFFECTED = ['AEP', 'T65', 'MAPD', 'MED_SUPP', 'MEDICARE']
 
-type Tab = 'campaigns' | 'templates' | 'blocks' | 'builder' | 'analytics'
+type Tab = 'campaigns' | 'templates' | 'blocks' | 'builder' | 'drip' | 'analytics'
+
+const DRIP_CHANNELS = ['email', 'sms'] as const
+const DRIP_CONDITION_TYPES = ['responded', 'opened', 'clicked', 'opted_out'] as const
+const DRIP_CONDITION_ACTIONS = ['skip', 'stop', 'switch_channel'] as const
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -182,6 +231,15 @@ export function C3Manager({ portal }: { portal: string }) {
   const [blockSearch, setBlockSearch] = useState('')
   const [builderCampaignId, setBuilderCampaignId] = useState('')
   const [builderTemplateId, setBuilderTemplateId] = useState('')
+
+  // Drip builder state
+  const [dripName, setDripName] = useState('')
+  const [dripDescription, setDripDescription] = useState('')
+  const [dripCampaignId, setDripCampaignId] = useState('')
+  const [dripFallbackChannel, setDripFallbackChannel] = useState<'email' | 'sms'>('email')
+  const [dripSteps, setDripSteps] = useState<DripStepRecord[]>([])
+  const [dripSaving, setDripSaving] = useState(false)
+  const [dripSaveMessage, setDripSaveMessage] = useState('')
 
   // --- Derived ---
   const campaignTypes = useMemo(() => {
@@ -269,6 +327,7 @@ export function C3Manager({ portal }: { portal: string }) {
     { key: 'templates', label: 'Templates', icon: 'dashboard_customize' },
     { key: 'blocks', label: 'Content Blocks', icon: 'widgets' },
     { key: 'builder', label: 'Builder', icon: 'construction' },
+    { key: 'drip', label: 'Drip Sequences', icon: 'water_drop' },
     { key: 'analytics', label: 'Analytics', icon: 'insights' },
   ]
 
@@ -344,6 +403,53 @@ export function C3Manager({ portal }: { portal: string }) {
             selectedCampaign={builderCampaign} selectedTemplate={builderTemplate}
             onSelectCampaign={setBuilderCampaignId} onSelectTemplate={setBuilderTemplateId}
             resolveBlock={resolveBlock} />
+        )}
+        {activeTab === 'drip' && (
+          <DripTab
+            campaigns={campaigns}
+            templates={templates}
+            portal={portal}
+            dripName={dripName} onDripName={setDripName}
+            dripDescription={dripDescription} onDripDescription={setDripDescription}
+            dripCampaignId={dripCampaignId} onDripCampaignId={setDripCampaignId}
+            dripFallbackChannel={dripFallbackChannel} onDripFallbackChannel={setDripFallbackChannel}
+            dripSteps={dripSteps} onDripSteps={setDripSteps}
+            dripSaving={dripSaving} dripSaveMessage={dripSaveMessage}
+            onSave={async () => {
+              if (!dripCampaignId || !dripName || dripSteps.length === 0) {
+                setDripSaveMessage('Campaign, name, and at least one step are required.')
+                return
+              }
+              setDripSaving(true)
+              setDripSaveMessage('')
+              try {
+                const resp = await fetch('/api/campaign-send/drip/create', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    campaign_id: dripCampaignId,
+                    sequence_name: dripName,
+                    description: dripDescription,
+                    steps: dripSteps,
+                    fallback_channel: dripFallbackChannel,
+                  }),
+                })
+                const data = await resp.json()
+                if (data.success) {
+                  setDripSaveMessage('Drip sequence created successfully.')
+                  setDripName('')
+                  setDripDescription('')
+                  setDripSteps([])
+                } else {
+                  setDripSaveMessage(`Error: ${data.error || 'Unknown error'}`)
+                }
+              } catch (err) {
+                setDripSaveMessage(`Error: ${String(err)}`)
+              } finally {
+                setDripSaving(false)
+              }
+            }}
+          />
         )}
         {activeTab === 'analytics' && (
           <AnalyticsTab campaigns={campaigns} portal={portal} />
@@ -776,23 +882,338 @@ function BuilderTab({ campaigns, campaignTemplates, selectedCampaign, selectedTe
 }
 
 // ---------------------------------------------------------------------------
-// Analytics Tab (NEW)
+// Drip Tab — Visual drip sequence builder + listing
+// ---------------------------------------------------------------------------
+
+function DripTab({ campaigns, templates, portal, dripName, onDripName, dripDescription, onDripDescription,
+  dripCampaignId, onDripCampaignId, dripFallbackChannel, onDripFallbackChannel,
+  dripSteps, onDripSteps, dripSaving, dripSaveMessage, onSave }: {
+  campaigns: CampaignRecord[]; templates: TemplateRecord[]; portal: string
+  dripName: string; onDripName: (v: string) => void
+  dripDescription: string; onDripDescription: (v: string) => void
+  dripCampaignId: string; onDripCampaignId: (v: string) => void
+  dripFallbackChannel: 'email' | 'sms'; onDripFallbackChannel: (v: 'email' | 'sms') => void
+  dripSteps: DripStepRecord[]; onDripSteps: (v: DripStepRecord[]) => void
+  dripSaving: boolean; dripSaveMessage: string
+  onSave: () => void
+}) {
+  const addStep = useCallback(() => {
+    const newStep: DripStepRecord = {
+      step_index: dripSteps.length,
+      delay_days: dripSteps.length === 0 ? 0 : (dripSteps[dripSteps.length - 1]?.delay_days || 0) + 3,
+      channel: 'email',
+      template_id: '',
+      conditions: [],
+    }
+    onDripSteps([...dripSteps, newStep])
+  }, [dripSteps, onDripSteps])
+
+  const removeStep = useCallback((index: number) => {
+    const updated = dripSteps.filter((_, i) => i !== index).map((s, i) => ({ ...s, step_index: i }))
+    onDripSteps(updated)
+  }, [dripSteps, onDripSteps])
+
+  const updateStep = useCallback((index: number, field: string, value: unknown) => {
+    const updated = [...dripSteps]
+    updated[index] = { ...updated[index], [field]: value }
+    onDripSteps(updated)
+  }, [dripSteps, onDripSteps])
+
+  const addCondition = useCallback((stepIndex: number) => {
+    const updated = [...dripSteps]
+    const step = { ...updated[stepIndex] }
+    step.conditions = [...step.conditions, { type: 'opened', action: 'skip' }]
+    updated[stepIndex] = step
+    onDripSteps(updated)
+  }, [dripSteps, onDripSteps])
+
+  const removeCondition = useCallback((stepIndex: number, condIndex: number) => {
+    const updated = [...dripSteps]
+    const step = { ...updated[stepIndex] }
+    step.conditions = step.conditions.filter((_, i) => i !== condIndex)
+    updated[stepIndex] = step
+    onDripSteps(updated)
+  }, [dripSteps, onDripSteps])
+
+  const updateCondition = useCallback((stepIndex: number, condIndex: number, field: string, value: string) => {
+    const updated = [...dripSteps]
+    const step = { ...updated[stepIndex] }
+    step.conditions = [...step.conditions]
+    step.conditions[condIndex] = { ...step.conditions[condIndex], [field]: value }
+    updated[stepIndex] = step
+    onDripSteps(updated)
+  }, [dripSteps, onDripSteps])
+
+  const moveStep = useCallback((from: number, to: number) => {
+    if (to < 0 || to >= dripSteps.length) return
+    const updated = [...dripSteps]
+    const [moved] = updated.splice(from, 1)
+    updated.splice(to, 0, moved)
+    onDripSteps(updated.map((s, i) => ({ ...s, step_index: i })))
+  }, [dripSteps, onDripSteps])
+
+  // Filter templates for the selected campaign
+  const campaignTemplateOptions = useMemo(() => {
+    if (!dripCampaignId) return templates
+    return templates.filter((t) => t.campaign_id === dripCampaignId || !t.campaign_id)
+  }, [templates, dripCampaignId])
+
+  return (
+    <div>
+      {/* Builder Card */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Drip Sequence Builder</h3>
+        <p className="mt-0.5 text-xs text-[var(--text-muted)]">Create multi-touch campaigns: Day 1 email, Day 3 SMS, Day 7 follow-up, etc.</p>
+
+        {/* Sequence Config */}
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="text-xs font-medium text-[var(--text-muted)]">Sequence Name</label>
+            <input type="text" value={dripName} onChange={(e) => onDripName(e.target.value)} placeholder="e.g., T65 Onboarding Drip"
+              className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--portal)]" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[var(--text-muted)]">Campaign</label>
+            <select value={dripCampaignId} onChange={(e) => onDripCampaignId(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none">
+              <option value="">Select campaign...</option>
+              {campaigns.map((c) => <option key={c._id} value={c.campaign_id || c._id}>{c.name || c.campaign_name || c._id}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[var(--text-muted)]">Description</label>
+            <input type="text" value={dripDescription} onChange={(e) => onDripDescription(e.target.value)} placeholder="Optional description"
+              className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:border-[var(--portal)]" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[var(--text-muted)]">Fallback Channel</label>
+            <select value={dripFallbackChannel} onChange={(e) => onDripFallbackChannel(e.target.value as 'email' | 'sms')}
+              className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none">
+              <option value="email">Email</option>
+              <option value="sms">SMS</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="mt-6">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-[var(--text-muted)]">Steps ({dripSteps.length})</label>
+            <button onClick={addStep}
+              className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+              style={{ background: 'var(--portal)' }}>
+              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span> Add Step
+            </button>
+          </div>
+
+          {dripSteps.length === 0 ? (
+            <div className="mt-3 flex flex-col items-center rounded-lg border border-dashed border-[var(--border)] py-8">
+              <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">water_drop</span>
+              <p className="mt-2 text-xs text-[var(--text-muted)]">No steps yet. Add a step to build your drip sequence.</p>
+            </div>
+          ) : (
+            <div className="mt-3 space-y-3">
+              {dripSteps.map((step, i) => (
+                <div key={i} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: 'var(--portal)' }}>{i + 1}</span>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">Step {i + 1}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => moveStep(i, i - 1)} disabled={i === 0} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30">
+                        <span className="material-icons-outlined" style={{ fontSize: '16px' }}>arrow_upward</span>
+                      </button>
+                      <button onClick={() => moveStep(i, i + 1)} disabled={i === dripSteps.length - 1} className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30">
+                        <span className="material-icons-outlined" style={{ fontSize: '16px' }}>arrow_downward</span>
+                      </button>
+                      <button onClick={() => removeStep(i)} className="p-1 hover:text-[var(--text-primary)]" style={{ color: '#ef4444' }}>
+                        <span className="material-icons-outlined" style={{ fontSize: '16px' }}>delete</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div>
+                      <label className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Delay (days)</label>
+                      <input type="number" min="0" value={step.delay_days} onChange={(e) => updateStep(i, 'delay_days', parseInt(e.target.value) || 0)}
+                        className="mt-1 w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1.5 text-sm text-[var(--text-primary)] outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Channel</label>
+                      <select value={step.channel} onChange={(e) => updateStep(i, 'channel', e.target.value)}
+                        className="mt-1 w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1.5 text-sm text-[var(--text-primary)] outline-none">
+                        {DRIP_CHANNELS.map((ch) => <option key={ch} value={ch}>{ch.toUpperCase()}</option>)}
+                      </select>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Template</label>
+                      <select value={step.template_id} onChange={(e) => updateStep(i, 'template_id', e.target.value)}
+                        className="mt-1 w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1.5 text-sm text-[var(--text-primary)] outline-none">
+                        <option value="">Select template...</option>
+                        {campaignTemplateOptions.map((t) => (
+                          <option key={t._id} value={t.template_id || t._id}>{t.name || t.template_name || t._id} ({t.channel || '?'})</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Conditions */}
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">Conditions ({step.conditions.length})</span>
+                      <button onClick={() => addCondition(i)} className="text-xs text-[var(--portal)] hover:underline">+ Add Condition</button>
+                    </div>
+                    {step.conditions.length > 0 && (
+                      <div className="mt-1 space-y-1">
+                        {step.conditions.map((cond, ci) => (
+                          <div key={ci} className="flex items-center gap-2 rounded bg-[var(--bg-card)] px-2 py-1">
+                            <span className="text-xs text-[var(--text-muted)]">If</span>
+                            <select value={cond.type} onChange={(e) => updateCondition(i, ci, 'type', e.target.value)}
+                              className="rounded border border-[var(--border-subtle)] bg-transparent px-1.5 py-0.5 text-xs text-[var(--text-primary)] outline-none">
+                              {DRIP_CONDITION_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                            </select>
+                            <span className="text-xs text-[var(--text-muted)]">then</span>
+                            <select value={cond.action} onChange={(e) => updateCondition(i, ci, 'action', e.target.value)}
+                              className="rounded border border-[var(--border-subtle)] bg-transparent px-1.5 py-0.5 text-xs text-[var(--text-primary)] outline-none">
+                              {DRIP_CONDITION_ACTIONS.map((a) => <option key={a} value={a}>{a.replace('_', ' ')}</option>)}
+                            </select>
+                            <button onClick={() => removeCondition(i, ci)} className="ml-auto text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+                              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Visual Timeline */}
+        {dripSteps.length > 0 && (
+          <div className="mt-5">
+            <label className="text-xs font-medium text-[var(--text-muted)]">Timeline Preview</label>
+            <div className="mt-2 flex items-center gap-1 overflow-x-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3">
+              {dripSteps.map((step, i) => (
+                <div key={i} className="flex items-center">
+                  {i > 0 && (
+                    <div className="mx-1 flex items-center gap-0.5">
+                      <div className="h-px w-6" style={{ background: 'var(--border)' }} />
+                      <span className="text-[9px] text-[var(--text-muted)]">{step.delay_days - (dripSteps[i - 1]?.delay_days || 0)}d</span>
+                      <div className="h-px w-6" style={{ background: 'var(--border)' }} />
+                    </div>
+                  )}
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: step.channel === 'sms' ? '#8b5cf6' : 'var(--portal)' }}>
+                      <span className="material-icons-outlined" style={{ fontSize: '16px' }}>{step.channel === 'sms' ? 'sms' : 'email'}</span>
+                    </div>
+                    <span className="mt-0.5 text-[9px] text-[var(--text-muted)]">Day {step.delay_days}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Save */}
+        <div className="mt-5 flex items-center gap-3">
+          <button onClick={onSave} disabled={dripSaving || !dripName || !dripCampaignId || dripSteps.length === 0}
+            className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            style={{ background: 'var(--portal)' }}>
+            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>save</span>
+            {dripSaving ? 'Saving...' : 'Create Drip Sequence'}
+          </button>
+          {dripSaveMessage && (
+            <span className="text-xs" style={{ color: dripSaveMessage.startsWith('Error') ? '#ef4444' : '#22c55e' }}>{dripSaveMessage}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Existing Drip Sequences — loaded from Firestore */}
+      <ExistingDripSequences portal={portal} campaigns={campaigns} />
+    </div>
+  )
+}
+
+function ExistingDripSequences({ portal, campaigns }: { portal: string; campaigns: CampaignRecord[] }) {
+  const dripQuery = useMemo<Query<DocumentData>>(() => query(collections.dripSequences()), [])
+  const { data: dripSequences, loading } = useCollection<DripSequenceRecord>(dripQuery, `c3-drips-${portal}`)
+
+  if (loading) {
+    return (
+      <div className="mt-6 flex items-center justify-center py-8">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (dripSequences.length === 0) return null
+
+  return (
+    <div className="mt-6 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+      <h3 className="text-sm font-semibold text-[var(--text-primary)]">Existing Drip Sequences ({dripSequences.length})</h3>
+      <div className="mt-4 space-y-2">
+        {dripSequences.map((seq) => {
+          const camp = campaigns.find((c) => c.campaign_id === seq.campaign_id || c._id === seq.campaign_id)
+          return (
+            <div key={seq._id} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-[var(--text-primary)]">{seq.sequence_name || seq.drip_id || seq._id}</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    Campaign: {camp?.name || camp?.campaign_name || seq.campaign_id || '-'}
+                    {seq.description && <span> &middot; {seq.description}</span>}
+                  </p>
+                </div>
+                <span className="rounded-full px-2.5 py-0.5 text-xs font-medium" style={statusStyle(seq.status)}>{seq.status || 'active'}</span>
+              </div>
+              {/* Step timeline mini */}
+              {Array.isArray(seq.steps) && seq.steps.length > 0 && (
+                <div className="mt-2 flex items-center gap-1">
+                  {seq.steps.map((step, i) => (
+                    <div key={i} className="flex items-center">
+                      {i > 0 && <div className="mx-0.5 h-px w-4" style={{ background: 'var(--border)' }} />}
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                        style={{ background: step.channel === 'sms' ? '#8b5cf6' : 'var(--portal)' }}>
+                        {i + 1}
+                      </div>
+                    </div>
+                  ))}
+                  <span className="ml-2 text-[10px] text-[var(--text-muted)]">{seq.steps.length} steps</span>
+                </div>
+              )}
+              <p className="mt-2 text-[10px] text-[var(--text-muted)]">Created: {formatDate(seq.created_at)}</p>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Analytics Tab (FIXED — reads real campaign_delivery_events + campaign_send_log)
 // ---------------------------------------------------------------------------
 
 function AnalyticsTab({ campaigns, portal }: { campaigns: CampaignRecord[]; portal: string }) {
-  // Read send log + schedules for analytics
-  const sendLogQuery = useMemo<Query<DocumentData>>(() => query(collections.communications()), [])
+  // Read REAL send log from campaign_send_log collection
+  const sendLogQuery = useMemo<Query<DocumentData>>(() => query(collections.campaignSendLog()), [])
   const { data: sendLogs, loading: logLoading } = useCollection<SendLogRecord>(sendLogQuery, `c3-sendlog-${portal}`)
 
-  const schedQuery = useMemo<Query<DocumentData>>(() => {
-    // campaign_schedules not in collections helper — use campaigns as proxy
-    return query(collections.campaigns())
-  }, [])
+  // Read REAL delivery events from campaign_delivery_events collection
+  const deliveryQuery = useMemo<Query<DocumentData>>(() => query(collections.campaignDeliveryEvents()), [])
+  const { data: deliveryEvents, loading: eventLoading } = useCollection<DeliveryEventRecord>(deliveryQuery, `c3-events-${portal}`)
 
-  // Per-campaign metrics
+  const loading = logLoading || eventLoading
+
+  // Per-campaign metrics built from real send_log + delivery_events
   const campaignMetrics = useMemo(() => {
     const metrics: Record<string, { sent: number; delivered: number; opened: number; clicked: number; bounced: number; skipped: number; failed: number }> = {}
 
+    // Count sends from campaign_send_log
     sendLogs.forEach((log) => {
       const cId = log.campaign_id || ''
       if (!cId) return
@@ -800,16 +1221,25 @@ function AnalyticsTab({ campaigns, portal }: { campaigns: CampaignRecord[]; port
       const m = metrics[cId]
       const s = (log.status || '').toLowerCase()
       if (s === 'sent' || s === 'processing' || s === 'queued') m.sent++
-      else if (s === 'delivered') m.delivered++
-      else if (s === 'opened') m.opened++
-      else if (s === 'clicked') m.clicked++
-      else if (s === 'bounced') m.bounced++
       else if (s === 'skipped') m.skipped++
       else if (s === 'failed') m.failed++
     })
 
+    // Count delivery events from campaign_delivery_events
+    deliveryEvents.forEach((evt) => {
+      const cId = evt.campaign_id || ''
+      if (!cId) return
+      if (!metrics[cId]) metrics[cId] = { sent: 0, delivered: 0, opened: 0, clicked: 0, bounced: 0, skipped: 0, failed: 0 }
+      const m = metrics[cId]
+      const t = (evt.event_type || '').toLowerCase()
+      if (t === 'delivered') m.delivered++
+      else if (t === 'opened') m.opened++
+      else if (t === 'clicked') m.clicked++
+      else if (t === 'bounced') m.bounced++
+    })
+
     return metrics
-  }, [sendLogs])
+  }, [sendLogs, deliveryEvents])
 
   // Totals
   const totals = useMemo(() => {
@@ -827,6 +1257,14 @@ function AnalyticsTab({ campaigns, portal }: { campaigns: CampaignRecord[]; port
     }
   }, [campaignMetrics])
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+      </div>
+    )
+  }
+
   return (
     <div>
       {/* Overview Metrics */}
@@ -840,14 +1278,39 @@ function AnalyticsTab({ campaigns, portal }: { campaigns: CampaignRecord[]; port
         <MetricCard label="Click Rate" value={`${totals.click_rate}%`} icon="mouse" accent />
       </div>
 
+      {/* Delivery Funnel */}
+      {totals.sent > 0 && (
+        <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Delivery Funnel</h3>
+          <div className="mt-4 flex items-end gap-2" style={{ height: '120px' }}>
+            {[
+              { label: 'Sent', value: totals.sent, color: 'var(--portal)' },
+              { label: 'Delivered', value: totals.delivered, color: '#22c55e' },
+              { label: 'Opened', value: totals.opened, color: '#3b82f6' },
+              { label: 'Clicked', value: totals.clicked, color: '#a855f7' },
+              { label: 'Bounced', value: totals.bounced, color: '#ef4444' },
+            ].map((bar) => {
+              const pct = totals.sent > 0 ? Math.max((bar.value / totals.sent) * 100, 4) : 4
+              return (
+                <div key={bar.label} className="flex flex-1 flex-col items-center justify-end" style={{ height: '100%' }}>
+                  <span className="text-xs font-medium text-[var(--text-primary)]">{bar.value.toLocaleString()}</span>
+                  <div className="mt-1 w-full rounded-t transition-all" style={{ height: `${pct}%`, minHeight: '4px', background: bar.color }} />
+                  <p className="mt-1 text-[10px] text-[var(--text-muted)]">{bar.label}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Per-Campaign Table */}
-      <div className="mt-6 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+      <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
         <h3 className="text-sm font-semibold text-[var(--text-primary)]">Campaign Performance</h3>
         {Object.keys(campaignMetrics).length === 0 ? (
           <div className="mt-6 flex flex-col items-center py-12">
             <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">insights</span>
             <p className="mt-3 text-sm text-[var(--text-muted)]">No send activity yet.</p>
-            <p className="mt-1 text-xs text-[var(--text-muted)]">Campaign metrics will appear here after the first send.</p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">Campaign metrics will appear here after the first send. Webhooks now resolve campaign context via send log lookup.</p>
           </div>
         ) : (
           <div className="mt-4 max-h-[400px] overflow-y-auto">
@@ -860,16 +1323,20 @@ function AnalyticsTab({ campaigns, portal }: { campaigns: CampaignRecord[]; port
                   <th className="pb-2 pr-3">Opened</th>
                   <th className="pb-2 pr-3">Clicked</th>
                   <th className="pb-2 pr-3">Bounced</th>
-                  <th className="pb-2">Open Rate</th>
+                  <th className="pb-2">Delivery Rate</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(campaignMetrics).map(([cId, m]) => {
                   const camp = campaigns.find((c) => c.campaign_id === cId || c._id === cId)
+                  const deliveryRate = m.sent > 0 ? Math.round((m.delivered / m.sent) * 100) : 0
                   const openRate = m.delivered > 0 ? Math.round((m.opened / m.delivered) * 100) : 0
                   return (
                     <tr key={cId} className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 pr-3 font-medium text-[var(--text-primary)]">{camp?.name || camp?.campaign_name || cId}</td>
+                      <td className="py-2 pr-3">
+                        <p className="font-medium text-[var(--text-primary)]">{camp?.name || camp?.campaign_name || cId}</p>
+                        <p className="text-[10px] text-[var(--text-muted)]">Open rate: {openRate}%</p>
+                      </td>
                       <td className="py-2 pr-3 text-[var(--text-secondary)]">{m.sent}</td>
                       <td className="py-2 pr-3 text-[var(--text-secondary)]">{m.delivered}</td>
                       <td className="py-2 pr-3 text-[var(--text-secondary)]">{m.opened}</td>
@@ -878,9 +1345,9 @@ function AnalyticsTab({ campaigns, portal }: { campaigns: CampaignRecord[]; port
                       <td className="py-2">
                         <div className="flex items-center gap-1.5">
                           <div className="h-1.5 w-12 overflow-hidden rounded-full bg-[var(--bg-surface)]">
-                            <div className="h-full rounded-full" style={{ width: `${Math.min(openRate, 100)}%`, background: openRate >= 30 ? '#22c55e' : openRate >= 15 ? '#f59e0b' : '#ef4444' }} />
+                            <div className="h-full rounded-full" style={{ width: `${Math.min(deliveryRate, 100)}%`, background: deliveryRate >= 90 ? '#22c55e' : deliveryRate >= 70 ? '#f59e0b' : '#ef4444' }} />
                           </div>
-                          <span className="text-xs text-[var(--text-muted)]">{openRate}%</span>
+                          <span className="text-xs text-[var(--text-muted)]">{deliveryRate}%</span>
                         </div>
                       </td>
                     </tr>
@@ -891,30 +1358,6 @@ function AnalyticsTab({ campaigns, portal }: { campaigns: CampaignRecord[]; port
           </div>
         )}
       </div>
-
-      {/* Delivery Rate Visualization */}
-      {totals.sent > 0 && (
-        <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Delivery Funnel</h3>
-          <div className="mt-4 flex items-end gap-2">
-            {[
-              { label: 'Sent', value: totals.sent, color: 'var(--portal)' },
-              { label: 'Delivered', value: totals.delivered, color: '#22c55e' },
-              { label: 'Opened', value: totals.opened, color: '#3b82f6' },
-              { label: 'Clicked', value: totals.clicked, color: '#a855f7' },
-            ].map((bar) => {
-              const pct = totals.sent > 0 ? Math.max((bar.value / totals.sent) * 100, 4) : 4
-              return (
-                <div key={bar.label} className="flex flex-1 flex-col items-center">
-                  <span className="text-xs font-medium text-[var(--text-primary)]">{bar.value}</span>
-                  <div className="mt-1 w-full rounded-t" style={{ height: `${pct}px`, minHeight: '4px', background: bar.color }} />
-                  <p className="mt-1 text-[10px] text-[var(--text-muted)]">{bar.label}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

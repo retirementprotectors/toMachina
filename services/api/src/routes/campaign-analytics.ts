@@ -190,12 +190,120 @@ campaignAnalyticsRoutes.get('/:campaignId/recipients', async (req: Request, res:
 })
 
 // ============================================================================
-// SENDGRID WEBHOOK
+// DRIP PROGRESS
+// ============================================================================
+
+/**
+ * GET /api/campaign-analytics/:campaignId/drip-progress
+ * Per-step completion rates for drip sequences in a campaign.
+ */
+campaignAnalyticsRoutes.get('/:campaignId/drip-progress', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const campaignId = param(req.params.campaignId)
+
+    // Find drip sequences for this campaign
+    const dripSnap = await db.collection('drip_sequences')
+      .where('campaign_id', '==', campaignId)
+      .limit(20)
+      .get()
+
+    if (dripSnap.empty) {
+      res.json(successResponse({ sequences: [], message: 'No drip sequences for this campaign' }))
+      return
+    }
+
+    const sequences: Record<string, unknown>[] = []
+
+    for (const dripDoc of dripSnap.docs) {
+      const drip = dripDoc.data() as Record<string, unknown>
+      const dripId = (drip.drip_id as string) || dripDoc.id
+      const steps = (drip.steps as Record<string, unknown>[]) || []
+
+      // Get enrollments for this drip
+      const enrollSnap = await db.collection('campaign_enrollments')
+        .where('drip_sequence_id', '==', dripId)
+        .limit(5000)
+        .get()
+
+      const enrollments = enrollSnap.docs.map((d) => d.data() as Record<string, unknown>)
+      const totalEnrolled = enrollments.length
+      const safeTotal = Math.max(totalEnrolled, 1)
+
+      // Get delivery events for this campaign
+      const eventSnap = await db.collection(EVENTS_COLLECTION)
+        .where('campaign_id', '==', campaignId)
+        .limit(10000)
+        .get()
+
+      const events = eventSnap.docs.map((d) => d.data() as Record<string, unknown>)
+
+      // Build per-step progress
+      const sortedSteps = [...steps].sort(
+        (a, b) => (Number(a.step_index) || 0) - (Number(b.step_index) || 0)
+      )
+
+      const stepProgress = sortedSteps.map((step) => {
+        const stepIndex = Number(step.step_index) || 0
+
+        // Filter events by step metadata
+        const stepEvents = events.filter((e) => {
+          const meta = e.metadata as Record<string, unknown> | undefined
+          return meta && meta.step_index === stepIndex && meta.drip_id === dripId
+        })
+
+        // Count enrollments that reached or passed this step
+        const reachedStep = enrollments.filter(
+          (e) => (Number(e.current_step) || 0) > stepIndex || e.status === 'completed'
+        ).length
+
+        return {
+          step_index: stepIndex,
+          channel: step.channel || 'email',
+          template_id: step.template_id || '',
+          delay_days: Number(step.delay_days) || 0,
+          total_enrolled: totalEnrolled,
+          reached: reachedStep,
+          completion_rate: Math.round((reachedStep / safeTotal) * 10000) / 100,
+          sent: stepEvents.filter((e) => e.event_type === 'sent').length,
+          delivered: stepEvents.filter((e) => e.event_type === 'delivered').length,
+          opened: stepEvents.filter((e) => e.event_type === 'opened').length,
+          clicked: stepEvents.filter((e) => e.event_type === 'clicked').length,
+          bounced: stepEvents.filter((e) => e.event_type === 'bounced').length,
+        }
+      })
+
+      sequences.push({
+        drip_id: dripId,
+        sequence_name: drip.sequence_name || '',
+        status: drip.status || 'active',
+        total_enrolled: totalEnrolled,
+        active: enrollments.filter((e) => e.status === 'active').length,
+        completed: enrollments.filter((e) => e.status === 'completed').length,
+        stopped: enrollments.filter((e) => e.status === 'stopped').length,
+        steps: stepProgress,
+      })
+    }
+
+    res.json(successResponse({ sequences }))
+  } catch (err) {
+    console.error('GET /api/campaign-analytics/:campaignId/drip-progress error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// SENDGRID WEBHOOK (FIXED — resolves campaign context via send log lookup)
 // ============================================================================
 
 /**
  * POST /api/campaign-analytics/webhook/sendgrid
  * SendGrid delivery event webhook. Updates campaign delivery events.
+ *
+ * FIX: SendGrid does NOT include custom fields (campaign_id, contact_id)
+ * in webhook payloads. Instead, we look up the campaign_send_log record
+ * by the external message ID (sg_message_id) to resolve campaign context.
+ * This pattern is proven in webhooks.ts (lines 184-191).
  */
 campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Response) => {
   try {
@@ -204,13 +312,19 @@ campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Resp
     const now = new Date().toISOString()
 
     let processed = 0
+    let unmatched = 0
     const batch = db.batch()
 
     for (const event of events as Record<string, unknown>[]) {
-      const sgMessageId = event.sg_message_id as string
+      let sgMessageId = (event.sg_message_id as string) || ''
       const sgEvent = event.event as string
 
       if (!sgEvent) continue
+
+      // Strip SendGrid suffix (e.g., ".filter0001p2...")
+      if (sgMessageId.includes('.')) {
+        sgMessageId = sgMessageId.split('.')[0]
+      }
 
       // Map SendGrid event types to our types
       let eventType: string
@@ -221,17 +335,51 @@ campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Resp
       else if (sgEvent === 'unsubscribe' || sgEvent === 'group_unsubscribe') eventType = 'unsubscribed'
       else continue // skip unknown events
 
+      // FIXED: Look up campaign_send_log by external message ID to resolve campaign context
+      let resolvedCampaignId = ''
+      let resolvedContactId = ''
+      let resolvedDripId = ''
+      let resolvedStepIndex: number | null = null
+
+      if (sgMessageId) {
+        const sendLogSnap = await db.collection(SEND_LOG)
+          .where('external_id', '==', sgMessageId)
+          .where('provider', '==', 'sendgrid')
+          .limit(1)
+          .get()
+
+        if (!sendLogSnap.empty) {
+          const logData = sendLogSnap.docs[0].data()
+          resolvedCampaignId = (logData.campaign_id as string) || ''
+          resolvedContactId = (logData.contact_id as string) || ''
+          resolvedDripId = (logData.drip_sequence_id as string) || ''
+          resolvedStepIndex = logData.step_index != null ? Number(logData.step_index) : null
+        } else {
+          unmatched++
+        }
+      }
+
       const eventId = `EVT_${randomUUID().slice(0, 8)}`
+      const metadata: Record<string, unknown> = {
+        email: event.email,
+        reason: event.reason,
+        url: event.url,
+      }
+
+      // Include drip metadata if available (for drip-progress queries)
+      if (resolvedDripId) metadata.drip_id = resolvedDripId
+      if (resolvedStepIndex != null) metadata.step_index = resolvedStepIndex
+
       batch.set(db.collection(EVENTS_COLLECTION).doc(eventId), {
         event_id: eventId,
         send_job_id: sgMessageId || '',
-        campaign_id: (event.campaign_id as string) || '',
-        recipient_id: (event.contact_id as string) || '',
+        campaign_id: resolvedCampaignId,
+        recipient_id: resolvedContactId,
         event_type: eventType,
         channel: 'email',
         provider: 'sendgrid',
         provider_event_id: sgMessageId,
-        metadata: { email: event.email, reason: event.reason, url: event.url },
+        metadata,
         timestamp: event.timestamp ? new Date(Number(event.timestamp) * 1000).toISOString() : now,
       })
 
@@ -240,7 +388,7 @@ campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Resp
 
     if (processed > 0) await batch.commit()
 
-    res.json(successResponse({ processed }))
+    res.json(successResponse({ processed, unmatched }))
   } catch (err) {
     console.error('POST /api/campaign-analytics/webhook/sendgrid error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -248,18 +396,22 @@ campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Resp
 })
 
 // ============================================================================
-// TWILIO WEBHOOK
+// TWILIO WEBHOOK (FIXED — resolves campaign context via send log lookup)
 // ============================================================================
 
 /**
  * POST /api/campaign-analytics/webhook/twilio
  * Twilio delivery status webhook. Updates campaign delivery events.
+ *
+ * FIX: Twilio does NOT include custom fields (campaign_id, contact_id)
+ * in status callbacks. Instead, we look up the campaign_send_log record
+ * by the MessageSid to resolve campaign context.
  */
 campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
     const now = new Date().toISOString()
-    const { MessageSid, MessageStatus, To, ErrorCode, campaign_id, contact_id } = req.body
+    const { MessageSid, MessageStatus, To, ErrorCode } = req.body
 
     if (!MessageStatus) {
       res.json(successResponse({ skipped: true, reason: 'no_status' }))
@@ -273,17 +425,47 @@ campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Respon
     else if (MessageStatus === 'failed' || MessageStatus === 'undelivered') eventType = 'bounced'
     else return void res.json(successResponse({ skipped: true, reason: `unmapped_status_${MessageStatus}` }))
 
+    // FIXED: Look up campaign_send_log by MessageSid to resolve campaign context
+    let resolvedCampaignId = ''
+    let resolvedContactId = ''
+    let resolvedDripId = ''
+    let resolvedStepIndex: number | null = null
+
+    if (MessageSid) {
+      const sendLogSnap = await db.collection(SEND_LOG)
+        .where('external_id', '==', MessageSid)
+        .where('provider', '==', 'twilio')
+        .limit(1)
+        .get()
+
+      if (!sendLogSnap.empty) {
+        const logData = sendLogSnap.docs[0].data()
+        resolvedCampaignId = (logData.campaign_id as string) || ''
+        resolvedContactId = (logData.contact_id as string) || ''
+        resolvedDripId = (logData.drip_sequence_id as string) || ''
+        resolvedStepIndex = logData.step_index != null ? Number(logData.step_index) : null
+      }
+    }
+
+    const metadata: Record<string, unknown> = {
+      to: To,
+      error_code: ErrorCode,
+    }
+
+    if (resolvedDripId) metadata.drip_id = resolvedDripId
+    if (resolvedStepIndex != null) metadata.step_index = resolvedStepIndex
+
     const eventId = `EVT_${randomUUID().slice(0, 8)}`
     await db.collection(EVENTS_COLLECTION).doc(eventId).set({
       event_id: eventId,
       send_job_id: MessageSid || '',
-      campaign_id: campaign_id || '',
-      recipient_id: contact_id || '',
+      campaign_id: resolvedCampaignId,
+      recipient_id: resolvedContactId,
       event_type: eventType,
       channel: 'sms',
       provider: 'twilio',
       provider_event_id: MessageSid,
-      metadata: { to: To, error_code: ErrorCode },
+      metadata,
       timestamp: now,
     })
 
