@@ -38,6 +38,13 @@
   --admin-color: #fc8181;
   --connect-color: #68d391;
 
+  /* App Brand Colors — identical across all portals */
+  --app-atlas: #3182ce;
+  --app-cam: #d69e2e;
+  --app-dex: #38a169;
+  --app-c3: #e53e3e;
+  --app-cc: #718096;
+
   /* Radius */
   --radius-sm: 6px;
   --radius-md: 10px;

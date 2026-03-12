@@ -6,7 +6,7 @@ import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
 import { calculateMec, type MecInput, calculateSph, type SphInput } from '@tomachina/core'
 import { calculateBookValue, calculateDCF, calculateNPV, projectRevenue, projectCashFlow } from '@tomachina/core'
-import { Modal } from '@tomachina/ui'
+import { Modal, AppWrapper } from '@tomachina/ui'
 
 const revenueQuery: Query<DocumentData> = query(collections.revenue())
 const agentsQuery: Query<DocumentData> = query(collections.agents())
@@ -52,6 +52,7 @@ export default function DavidHubPage() {
   const handleCloseCalc = useCallback(() => setActiveCalc(null), [])
 
   return (
+    <AppWrapper appKey="david-hub">
     <div className="mx-auto max-w-6xl">
       <h1 className="text-2xl font-bold text-[var(--text-primary)]">DAVID HUB</h1>
       <p className="mt-1 text-sm text-[var(--text-muted)]">B2B command center — entry calculators and deal evaluation</p>
@@ -82,6 +83,7 @@ export default function DavidHubPage() {
       {activeCalc === 'sph' && <SphCalculator open onClose={handleCloseCalc} />}
       {activeCalc === 'valuation' && <ValuationCalculator open onClose={handleCloseCalc} />}
     </div>
+    </AppWrapper>
   )
 }
 

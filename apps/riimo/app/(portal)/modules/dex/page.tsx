@@ -1,4 +1,8 @@
-import { DexDocCenter } from '@tomachina/ui'
+import { DexDocCenter, AppWrapper } from '@tomachina/ui'
 export default function DexPage() {
-  return <DexDocCenter portal="riimo" />
+  return (
+    <AppWrapper appKey="dex">
+      <DexDocCenter portal="riimo" />
+    </AppWrapper>
+  )
 }

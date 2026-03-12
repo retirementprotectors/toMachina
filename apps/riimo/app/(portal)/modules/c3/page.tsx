@@ -1,4 +1,8 @@
-import { C3Manager } from '@tomachina/ui'
+import { C3Manager, AppWrapper } from '@tomachina/ui'
 export default function C3Page() {
-  return <C3Manager portal="riimo" />
+  return (
+    <AppWrapper appKey="c3">
+      <C3Manager portal="riimo" />
+    </AppWrapper>
+  )
 }

@@ -1,5 +1,9 @@
-import { CamDashboard } from '@tomachina/ui'
+import { CamDashboard, AppWrapper } from '@tomachina/ui'
 
 export default function CamPage() {
-  return <CamDashboard portal="prodashx" />
+  return (
+    <AppWrapper appKey="cam">
+      <CamDashboard portal="prodashx" />
+    </AppWrapper>
+  )
 }
