@@ -28,3 +28,15 @@ export type { MecInput, MecResult } from './mec'
 
 export { calculateSph } from './sph'
 export type { SphInput, SphResult, SphYearProjection } from './sph'
+
+export {
+  analyzeBeneficiary,
+  getRecommendedAction,
+  summarizeBeneficiaryStatus,
+  type BeneficiaryInfo,
+  type BeneficiaryAnalysis,
+  type BeneficiaryStatusSummary,
+  type BeneficiaryIssueType,
+  type BeneficiaryAccountInput,
+  type BeneficiaryClientContext,
+} from './beneficiary'
