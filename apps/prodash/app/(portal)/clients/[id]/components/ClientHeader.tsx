@@ -1,120 +1,121 @@
 'use client'
 
+import { useState } from 'react'
 import type { Client } from '@tomachina/core'
-import { formatPhone, getAge, getInitials, hashColor } from '../lib/formatters'
+import { getAge, getInitials, hashColor } from '../lib/formatters'
 
 interface ClientHeaderProps {
   client: Client
-  editing?: boolean
-  saving?: boolean
-  onEdit?: () => void
-  onSave?: () => void
-  onCancel?: () => void
 }
 
-export function ClientHeader({ client, editing, saving, onEdit, onSave, onCancel }: ClientHeaderProps) {
+export function ClientHeader({ client }: ClientHeaderProps) {
   const fullName = [client.first_name, client.last_name].filter(Boolean).join(' ') || 'Unknown'
-  const preferred = client.preferred_name as string | undefined
+  const displayName = (client.preferred_name as string) || client.first_name || fullName
   const status = (client.client_status as string) || 'Unknown'
   const initials = getInitials(fullName)
   const avatarColor = hashColor(fullName)
+  const facebookUrl = client.facebook_url as string | undefined
 
-  // Meta chips
+  // Meta
   const age = getAge(client.dob)
   const location = [client.city, client.state].filter(Boolean).join(', ')
-  const book = client.book_of_business as string | undefined
   const timezone = client.timezone as string | undefined
+  const acfLink = client.acf_link as string | undefined
 
-  const metaChips: { label: string; icon: string }[] = []
-  if (age) metaChips.push({ label: `${age} yrs`, icon: 'cake' })
-  if (location) metaChips.push({ label: location, icon: 'location_on' })
-  if (book) metaChips.push({ label: book, icon: 'menu_book' })
-  if (timezone) metaChips.push({ label: timezone, icon: 'schedule' })
+  const [ai3Loading, setAi3Loading] = useState(false)
+
+  const handleAI3 = () => {
+    setAi3Loading(true)
+    // Placeholder: will trigger PDF_SERVICE generation
+    setTimeout(() => setAi3Loading(false), 2000)
+  }
 
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
       {/* Row 1: Avatar + Name + Status + Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-5">
-          {/* Avatar */}
+          {/* Avatar — Facebook pic or initials */}
+          {facebookUrl ? (
+            <img
+              src={facebookUrl}
+              alt={fullName}
+              className="h-14 w-14 shrink-0 rounded-full object-cover"
+              onError={(e) => {
+                // Fallback to initials on image error
+                const el = e.currentTarget
+                el.style.display = 'none'
+                el.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+          ) : null}
           <div
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white ${facebookUrl ? 'hidden' : ''}`}
             style={{ backgroundColor: avatarColor }}
           >
             {initials}
           </div>
 
-          {/* Name + subtitle */}
+          {/* Name block */}
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-[var(--text-primary)]">{fullName}</h1>
+              <h1 className="text-2xl font-bold text-[var(--text-primary)]">{displayName}</h1>
               <StatusBadge status={status} />
             </div>
-            {preferred && preferred !== client.first_name && (
-              <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-                Goes by &ldquo;{preferred}&rdquo;
-              </p>
+            {displayName !== fullName && (
+              <p className="mt-0.5 text-sm text-[var(--text-muted)]">{fullName}</p>
             )}
           </div>
         </div>
 
-        {/* Quick actions */}
+        {/* Action buttons */}
         <div className="flex items-center gap-2">
-          {editing ? (
-            <>
-              <button
-                onClick={onSave}
-                disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-500 disabled:opacity-50"
-              >
-                <span className="material-icons-outlined text-[18px]">
-                  {saving ? 'hourglass_empty' : 'save'}
-                </span>
-                {saving ? 'Saving...' : 'Save'}
-              </button>
-              <button
-                onClick={onCancel}
-                disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-medium)] px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition-all hover:text-[var(--text-primary)] hover:border-[var(--text-muted)] disabled:opacity-50"
-              >
-                <span className="material-icons-outlined text-[18px]">close</span>
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <QuickAction
-                icon="phone"
-                label="Call"
-                href={client.phone ? `tel:${client.phone}` : undefined}
-              />
-              <QuickAction
-                icon="email"
-                label="Email"
-                href={client.email ? `mailto:${client.email}` : undefined}
-              />
-              <QuickAction icon="edit" label="Edit" variant="outlined" onClick={onEdit} />
-            </>
-          )}
+          {/* ACF Button */}
+          <button
+            onClick={() => {
+              if (acfLink) window.open(acfLink, '_blank', 'noopener,noreferrer')
+            }}
+            disabled={!acfLink}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+              acfLink
+                ? 'bg-[var(--portal)]/15 text-[var(--portal)] hover:bg-[var(--portal)]/25'
+                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
+            }`}
+            title={acfLink ? 'Open Active Client File in Google Drive' : 'No ACF link on file'}
+          >
+            <span className="material-icons-outlined text-[18px]">folder_open</span>
+            ACF
+          </button>
+
+          {/* AI3 Button */}
+          <button
+            onClick={handleAI3}
+            disabled={ai3Loading}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+            title="Generate AI3 Report (Assets, Income, Insurance, Inventory)"
+          >
+            {ai3Loading ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <span className="material-icons-outlined text-[18px]">description</span>
+            )}
+            AI3
+          </button>
         </div>
       </div>
 
       {/* Row 2: Meta chips */}
-      {metaChips.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {metaChips.map((chip) => (
-            <span
-              key={chip.label}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-medium)] px-3 py-1 text-xs text-[var(--text-secondary)]"
-            >
-              <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">
-                {chip.icon}
-              </span>
-              {chip.label}
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {age != null && (
+          <MetaChip icon="cake" label={`${age} yrs`} />
+        )}
+        {location && (
+          <MetaChip icon="location_on" label={location} />
+        )}
+        {timezone && (
+          <MetaChip icon="schedule" label={String(timezone)} />
+        )}
+      </div>
     </div>
   )
 }
@@ -134,6 +135,8 @@ function StatusBadge({ status }: { status: string }) {
     colorClass = 'bg-red-500/15 text-red-400'
   } else if (s === 'pending') {
     colorClass = 'bg-amber-500/15 text-amber-400'
+  } else if (s === 'deceased') {
+    colorClass = 'bg-gray-500/15 text-gray-400'
   }
 
   return (
@@ -144,42 +147,14 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Quick Action Button
+// Meta Chip
 // ---------------------------------------------------------------------------
 
-function QuickAction({
-  icon,
-  label,
-  href,
-  variant = 'filled',
-  onClick,
-}: {
-  icon: string
-  label: string
-  href?: string
-  variant?: 'filled' | 'outlined'
-  onClick?: () => void
-}) {
-  const base =
-    'inline-flex items-center justify-center rounded-lg p-2.5 transition-all duration-150'
-  const filled =
-    'bg-[var(--portal)]/15 text-[var(--portal)] hover:bg-[var(--portal)]/25'
-  const outlined =
-    'border border-[var(--border-medium)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--text-muted)]'
-
-  const className = `${base} ${variant === 'outlined' ? outlined : filled}`
-
-  if (href) {
-    return (
-      <a href={href} title={label} className={className}>
-        <span className="material-icons-outlined text-[20px]">{icon}</span>
-      </a>
-    )
-  }
-
+function MetaChip({ icon, label }: { icon: string; label: string }) {
   return (
-    <button title={label} className={className} onClick={onClick}>
-      <span className="material-icons-outlined text-[20px]">{icon}</span>
-    </button>
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-medium)] px-3 py-1 text-xs text-[var(--text-secondary)]">
+      <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">{icon}</span>
+      {label}
+    </span>
   )
 }

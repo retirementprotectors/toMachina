@@ -1,8 +1,9 @@
 'use client'
 
-import { use } from 'react'
+import { use, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { useDocument } from '@tomachina/db'
+import { useDocument, getDb } from '@tomachina/db'
+import { doc, updateDoc } from 'firebase/firestore'
 import type { Account, Client } from '@tomachina/core'
 
 function str(val: unknown): string {
@@ -23,6 +24,115 @@ function formatDate(raw: unknown): string {
   if (isNaN(d.getTime())) return String(raw)
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
 }
+
+function formatPercent(raw: unknown): string {
+  if (raw == null || raw === '') return ''
+  const num = typeof raw === 'number' ? raw : parseFloat(String(raw).replace(/[%\s]/g, ''))
+  if (isNaN(num)) return String(raw)
+  return `${num}%`
+}
+
+// ---------------------------------------------------------------------------
+// Inline Edit Field for Account Detail
+// ---------------------------------------------------------------------------
+
+function InlineAccountField({
+  label,
+  value,
+  fieldKey,
+  clientId,
+  accountId,
+  type = 'text',
+  options,
+  mono,
+  formatDisplay,
+}: {
+  label: string
+  value: string
+  fieldKey: string
+  clientId: string
+  accountId: string
+  type?: 'text' | 'date' | 'number' | 'select'
+  options?: { label: string; value: string }[]
+  mono?: boolean
+  formatDisplay?: (val: string) => string
+}) {
+  const [editing, setEditing] = useState(false)
+  const [editVal, setEditVal] = useState(value)
+  const [saving, setSaving] = useState(false)
+
+  const displayed = formatDisplay ? formatDisplay(value) : value
+
+  const handleSave = useCallback(async () => {
+    if (editVal === value) { setEditing(false); return }
+    setSaving(true)
+    try {
+      const ref = doc(getDb(), 'clients', clientId, 'accounts', accountId)
+      await updateDoc(ref, {
+        [fieldKey]: editVal,
+        updated_at: new Date().toISOString(),
+      })
+      setEditing(false)
+    } catch (err) {
+      console.error('Failed to save:', err)
+    } finally {
+      setSaving(false)
+    }
+  }, [editVal, value, clientId, accountId, fieldKey])
+
+  if (!editing) {
+    return (
+      <div className="group">
+        <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</dt>
+        <dd
+          className={`mt-1 flex items-center gap-1.5 cursor-pointer rounded px-1 -mx-1 py-0.5 transition-colors hover:bg-[var(--bg-surface)] ${mono ? 'font-mono text-sm' : 'text-sm'} text-[var(--text-primary)]`}
+          onClick={() => { setEditVal(value); setEditing(true) }}
+          title="Click to edit"
+        >
+          {displayed || <span className="text-[var(--text-muted)]">&mdash;</span>}
+          <span className="material-icons-outlined text-[14px] text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+        </dd>
+      </div>
+    )
+  }
+
+  const inputCls = 'w-full rounded-md border border-[var(--portal)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] outline-none ring-1 ring-[var(--portal)]/30'
+
+  return (
+    <div>
+      <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</dt>
+      <div className="mt-1 space-y-1.5">
+        {type === 'select' && options ? (
+          <select value={editVal} onChange={(e) => setEditVal(e.target.value)} className={inputCls} autoFocus>
+            <option value="">--</option>
+            {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        ) : (
+          <input
+            type={type}
+            value={editVal}
+            onChange={(e) => setEditVal(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') setEditing(false) }}
+            className={inputCls}
+            autoFocus
+          />
+        )}
+        <div className="flex items-center gap-1.5">
+          <button onClick={handleSave} disabled={saving} className="rounded bg-[var(--portal)] px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50">
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+          <button onClick={() => setEditing(false)} disabled={saving} className="rounded border border-[var(--border)] px-2.5 py-1 text-xs text-[var(--text-muted)]">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Account Detail Page
+// ---------------------------------------------------------------------------
 
 export default function AccountDetailPage({
   params,
@@ -45,10 +155,12 @@ export default function AccountDetailPage({
   if (error || !account) {
     return (
       <div className="mx-auto max-w-4xl space-y-6">
-        <Link href={`/clients/${clientId}`} className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--portal)]">
-          <span className="material-icons-outlined text-[18px]">arrow_back</span>
-          Back to Client
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/accounts" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--portal)]">
+            <span className="material-icons-outlined text-[18px]">arrow_back</span>
+            Back to Accounts
+          </Link>
+        </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] py-20">
           <span className="material-icons-outlined text-5xl text-[var(--text-muted)]">account_balance_wallet</span>
           <h2 className="mt-4 text-xl font-semibold text-[var(--text-primary)]">Account not found</h2>
@@ -59,17 +171,24 @@ export default function AccountDetailPage({
 
   const clientName = client ? `${str(client.first_name)} ${str(client.last_name)}` : 'Client'
   const statusColor = getStatusColor(str(account.status))
-
-  // Collect all non-empty fields into sections
-  const sections = buildSections(account)
+  const sections = buildProductSections(account, clientId, accountId)
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      {/* Back link */}
-      <Link href={`/clients/${clientId}`} className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--portal)]">
-        <span className="material-icons-outlined text-[18px]">arrow_back</span>
-        Back to {clientName}
-      </Link>
+      {/* Navigation buttons */}
+      <div className="flex items-center justify-between">
+        <Link href="/accounts" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--portal)]">
+          <span className="material-icons-outlined text-[18px]">arrow_back</span>
+          Back to Accounts
+        </Link>
+        <Link
+          href={`/clients/${clientId}`}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-4 py-2 text-sm font-medium text-white transition-colors hover:brightness-110"
+        >
+          <span className="material-icons-outlined text-[16px]">person</span>
+          View Client
+        </Link>
+      </div>
 
       {/* Header card */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
@@ -83,6 +202,9 @@ export default function AccountDetailPage({
             </h1>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">
               {str(account.product_name) || str(account.plan_name) || ''}
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              Client: {clientName}
             </p>
           </div>
           <span className={`rounded-full px-3 py-1 text-sm font-medium ${statusColor}`}>
@@ -99,20 +221,47 @@ export default function AccountDetailPage({
         </div>
       </div>
 
-      {/* Detail sections */}
+      {/* Special links */}
+      <div className="flex gap-3">
+        <Link
+          href="/service-centers/beni"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+        >
+          <span className="material-icons-outlined text-[16px]">groups</span>
+          View in Beni Center
+        </Link>
+        <Link
+          href="/service-centers/rmd"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+        >
+          <span className="material-icons-outlined text-[16px]">calculate</span>
+          View in RMD Center
+        </Link>
+      </div>
+
+      {/* Detail sections — inline editing */}
       {sections.map((section) => (
         <div key={section.title} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            {section.icon && (
+              <span className="material-icons-outlined text-[16px] text-[var(--portal)]">{section.icon}</span>
+            )}
             {section.title}
           </h3>
           <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
             {section.fields.map((f) => (
-              <div key={f.label}>
-                <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{f.label}</dt>
-                <dd className={`mt-1 text-sm text-[var(--text-primary)] ${f.mono ? 'font-mono' : ''}`}>
-                  {f.value || <span className="text-[var(--text-muted)]">&mdash;</span>}
-                </dd>
-              </div>
+              <InlineAccountField
+                key={f.fieldKey}
+                label={f.label}
+                value={f.rawValue}
+                fieldKey={f.fieldKey}
+                clientId={clientId}
+                accountId={accountId}
+                type={f.type}
+                options={f.options}
+                mono={f.mono}
+                formatDisplay={f.formatDisplay}
+              />
             ))}
           </dl>
         </div>
@@ -132,39 +281,221 @@ function StatCard({ label, value, mono }: { label: string; value: string; mono?:
   )
 }
 
-interface FieldItem { label: string; value: string; mono?: boolean }
-interface Section { title: string; fields: FieldItem[] }
+interface FieldDef {
+  label: string
+  fieldKey: string
+  rawValue: string
+  type?: 'text' | 'date' | 'number' | 'select'
+  options?: { label: string; value: string }[]
+  mono?: boolean
+  formatDisplay?: (val: string) => string
+}
 
-function buildSections(account: Account): Section[] {
-  const sections: Section[] = []
+interface SectionDef {
+  title: string
+  icon: string
+  fields: FieldDef[]
+}
 
-  // Skip internal/migration fields
+function buildProductSections(account: Account, clientId: string, accountId: string): SectionDef[] {
+  const cat = str(account.account_type_category).toLowerCase()
+  const t = (str(account.product_type) + ' ' + str(account.account_type)).toLowerCase()
+
+  // Detect category
+  let category = 'generic'
+  if (cat === 'annuity' || t.includes('annuity') || t.includes('fia') || t.includes('myga')) category = 'annuity'
+  else if (cat === 'life' || t.includes('life')) category = 'life'
+  else if (cat === 'medicare' || t.includes('medicare') || t.includes('mapd')) category = 'medicare'
+  else if (cat === 'bdria' || cat === 'bd_ria' || t.includes('bd') || t.includes('ria') || t.includes('advisory')) category = 'bdria'
+
+  switch (category) {
+    case 'annuity': return buildAnnuitySections(account)
+    case 'life': return buildLifeSections(account)
+    case 'medicare': return buildMedicareSections(account)
+    case 'bdria': return buildBdRiaSections(account)
+    default: return buildGenericSections(account)
+  }
+}
+
+function f(label: string, fieldKey: string, val: unknown, opts?: Partial<FieldDef>): FieldDef {
+  return { label, fieldKey, rawValue: str(val), ...opts }
+}
+
+function buildAnnuitySections(a: Account): SectionDef[] {
+  return [
+    {
+      title: 'Contract Details', icon: 'savings',
+      fields: [
+        f('Carrier', 'carrier_name', a.carrier_name),
+        f('Product', 'product_name', a.product_name),
+        f('Account Type', 'account_type', a.account_type),
+        f('Tax Status', 'tax_status', a.tax_status, { type: 'select', options: ['IRA','Roth IRA','Non-Qualified','401(k)','403(b)','SEP IRA','SIMPLE IRA','Inherited IRA'].map(v => ({ label: v, value: v })) }),
+        f('Market', 'market', a.market),
+        f('Policy Number', 'policy_number', a.policy_number, { mono: true }),
+        f('Contract Number', 'contract_number', a.contract_number, { mono: true }),
+      ],
+    },
+    {
+      title: 'Values', icon: 'account_balance',
+      fields: [
+        f('Account Value', 'account_value', a.account_value, { formatDisplay: formatCurrency }),
+        f('Surrender Value', 'surrender_value', a.surrender_value, { formatDisplay: formatCurrency }),
+        f('Premium', 'premium', a.premium, { formatDisplay: formatCurrency }),
+        f('Annual Premium', 'annual_premium', a.annual_premium, { formatDisplay: formatCurrency }),
+        f('Guaranteed Rate', 'guaranteed_rate', a.guaranteed_rate, { formatDisplay: formatPercent }),
+        f('Current Rate', 'current_rate', a.current_rate, { formatDisplay: formatPercent }),
+      ],
+    },
+    {
+      title: 'Dates', icon: 'event',
+      fields: [
+        f('Issue Date', 'issue_date', a.issue_date, { type: 'date', formatDisplay: formatDate }),
+        f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
+        f('Maturity Date', 'maturity_date', a.maturity_date, { type: 'date', formatDisplay: formatDate }),
+        f('Surrender End Date', 'surrender_end_date', a.surrender_end_date, { type: 'date', formatDisplay: formatDate }),
+      ],
+    },
+    {
+      title: 'Ownership', icon: 'person',
+      fields: [
+        f('Owner', 'owner_name', a.owner_name),
+        f('Annuitant', 'annuitant_name', a.annuitant_name),
+        f('Joint Owner', 'joint_owner_name', a.joint_owner_name),
+      ],
+    },
+  ]
+}
+
+function buildLifeSections(a: Account): SectionDef[] {
+  return [
+    {
+      title: 'Policy Details', icon: 'favorite',
+      fields: [
+        f('Carrier', 'carrier_name', a.carrier_name),
+        f('Product', 'product_name', a.product_name),
+        f('Policy Type', 'product_type', a.product_type),
+        f('Policy Number', 'policy_number', a.policy_number, { mono: true }),
+        f('Status', 'status', a.status),
+      ],
+    },
+    {
+      title: 'Coverage', icon: 'shield',
+      fields: [
+        f('Face Amount', 'face_amount', a.face_amount, { formatDisplay: formatCurrency }),
+        f('Premium', 'premium', a.premium, { formatDisplay: formatCurrency }),
+        f('Cash Value', 'cash_value', a.cash_value, { formatDisplay: formatCurrency }),
+        f('Death Benefit', 'death_benefit', a.death_benefit, { formatDisplay: formatCurrency }),
+        f('Premium Mode', 'premium_mode', a.premium_mode),
+      ],
+    },
+    {
+      title: 'Dates', icon: 'event',
+      fields: [
+        f('Issue Date', 'issue_date', a.issue_date, { type: 'date', formatDisplay: formatDate }),
+        f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
+        f('Expiration Date', 'expiration_date', a.expiration_date, { type: 'date', formatDisplay: formatDate }),
+      ],
+    },
+    {
+      title: 'Ownership', icon: 'person',
+      fields: [
+        f('Owner', 'owner_name', a.owner_name),
+        f('Insured', 'insured_name', a.insured_name),
+        f('Joint Insured', 'joint_insured_name', a.joint_insured_name),
+      ],
+    },
+  ]
+}
+
+function buildMedicareSections(a: Account): SectionDef[] {
+  return [
+    {
+      title: 'Plan Details', icon: 'health_and_safety',
+      fields: [
+        f('Carrier', 'carrier_name', a.carrier_name),
+        f('Plan Name', 'plan_name', a.plan_name),
+        f('Plan Type', 'plan_type', a.plan_type || a.product_type),
+        f('Plan ID', 'plan_id', a.plan_id || a.policy_number, { mono: true }),
+        f('Coverage Type', 'coverage_type', a.coverage_type),
+        f('Status', 'status', a.status),
+      ],
+    },
+    {
+      title: 'Costs', icon: 'payments',
+      fields: [
+        f('Monthly Premium', 'premium', a.premium, { formatDisplay: formatCurrency }),
+        f('Deductible', 'deductible', a.deductible, { formatDisplay: formatCurrency }),
+        f('Max Out of Pocket', 'max_oop', a.max_oop, { formatDisplay: formatCurrency }),
+        f('Drug Deductible', 'drug_deductible', a.drug_deductible, { formatDisplay: formatCurrency }),
+      ],
+    },
+    {
+      title: 'Dates', icon: 'event',
+      fields: [
+        f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
+        f('Disenrollment Date', 'disenrollment_date', a.disenrollment_date, { type: 'date', formatDisplay: formatDate }),
+      ],
+    },
+  ]
+}
+
+function buildBdRiaSections(a: Account): SectionDef[] {
+  return [
+    {
+      title: 'Account Details', icon: 'show_chart',
+      fields: [
+        f('Custodian', 'custodian', a.custodian || a.carrier_name),
+        f('Account Type', 'account_type', a.account_type),
+        f('Account Number', 'account_number', a.account_number || a.policy_number, { mono: true }),
+        f('Advisor', 'advisor', a.advisor),
+        f('Status', 'status', a.status),
+      ],
+    },
+    {
+      title: 'Values', icon: 'account_balance',
+      fields: [
+        f('Account Value', 'account_value', a.account_value, { formatDisplay: formatCurrency }),
+        f('Model', 'model', a.model),
+        f('Risk Level', 'risk_level', a.risk_level),
+        f('Fee Schedule', 'fee_schedule', a.fee_schedule, { formatDisplay: formatPercent }),
+      ],
+    },
+    {
+      title: 'Dates', icon: 'event',
+      fields: [
+        f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
+        f('Rebalance Date', 'rebalance_date', a.rebalance_date, { type: 'date', formatDisplay: formatDate }),
+      ],
+    },
+    {
+      title: 'Ownership', icon: 'person',
+      fields: [
+        f('Owner', 'owner_name', a.owner_name),
+        f('Joint Owner', 'joint_owner_name', a.joint_owner_name),
+      ],
+    },
+  ]
+}
+
+function buildGenericSections(a: Account): SectionDef[] {
   const skip = new Set(['_id', '_migrated_at', '_source', 'client_id', 'ghl_contact_id', 'ghl_object_id', 'import_source', 'created_at', 'updated_at', 'account_type_category'])
+  const headerShown = new Set(['carrier_name', 'product_name', 'plan_name', 'product_type', 'account_type', 'status', 'account_value', 'premium', 'annual_premium', 'account_number', 'policy_number', 'contract_number', 'issue_date', 'effective_date'])
 
-  // Group remaining fields
-  const details: FieldItem[] = []
-  for (const [key, val] of Object.entries(account)) {
-    if (skip.has(key)) continue
+  const fields: FieldDef[] = []
+  for (const [key, val] of Object.entries(a)) {
+    if (skip.has(key) || headerShown.has(key)) continue
     if (val == null || val === '') continue
-    // Already shown in header
-    if (['carrier_name', 'product_name', 'plan_name', 'product_type', 'account_type', 'status', 'account_value', 'premium', 'annual_premium', 'account_number', 'policy_number', 'contract_number', 'issue_date', 'effective_date'].includes(key)) continue
-
     const label = key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-    const isMoney = key.includes('value') || key.includes('premium') || key.includes('benefit') || key.includes('income') || key.includes('deposit') || key.includes('surrender')
+    const isMoney = key.includes('value') || key.includes('premium') || key.includes('benefit') || key.includes('amount')
     const isDate = key.includes('date') || key.includes('_at')
-
-    let display = String(val)
-    if (isMoney) display = formatCurrency(val)
-    else if (isDate) display = formatDate(val)
-
-    details.push({ label, value: display, mono: key.includes('number') || key.includes('id') })
+    fields.push(f(label, key, val, {
+      formatDisplay: isMoney ? formatCurrency : isDate ? formatDate : undefined,
+      type: isDate ? 'date' : isMoney ? 'number' : 'text',
+      mono: key.includes('number') || key.includes('id'),
+    }))
   }
 
-  if (details.length > 0) {
-    sections.push({ title: 'Account Details', fields: details })
-  }
-
-  return sections
+  return fields.length > 0 ? [{ title: 'Account Details', icon: 'info', fields }] : []
 }
 
 function getStatusColor(status: string): string {

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { collectionGroup, getDocs, query, limit, orderBy, startAfter, type DocumentData, type DocumentSnapshot } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Account } from '@tomachina/core'
@@ -25,16 +24,11 @@ function formatDate(raw: unknown): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
 }
 
-function formatPhone(raw: unknown): string {
-  if (!raw) return ''
-  const digits = String(raw).replace(/\D/g, '')
-  const d = digits.length === 11 && digits[0] === '1' ? digits.slice(1) : digits
-  if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
-  return String(raw)
-}
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type FilterKey = 'all' | 'annuity' | 'life' | 'medicare' | 'bdria'
-type SortKey = 'carrier_name' | 'product_name' | 'status' | 'account_value' | 'client_name' | null
 
 interface AccountRow extends Account {
   _id: string
@@ -42,7 +36,7 @@ interface AccountRow extends Account {
   _clientName?: string
 }
 
-const FILTERS: { key: FilterKey; label: string; color: string }[] = [
+const FILTER_TABS: { key: FilterKey; label: string; color: string }[] = [
   { key: 'all', label: 'All', color: 'var(--portal)' },
   { key: 'annuity', label: 'Annuity', color: '#f59e0b' },
   { key: 'life', label: 'Life', color: '#10b981' },
@@ -50,10 +44,51 @@ const FILTERS: { key: FilterKey; label: string; color: string }[] = [
   { key: 'bdria', label: 'BD/RIA', color: '#a78bfa' },
 ]
 
+// Default column keys per product type
+const DEFAULT_COLUMNS: Record<FilterKey, string[]> = {
+  all: ['_clientName', 'account_number', 'carrier_name', 'product_type', 'status', 'effective_date', 'account_value'],
+  annuity: ['_clientName', 'carrier_name', 'product_name', 'account_type', 'tax_status', 'issue_date', 'market', 'account_value', 'account_number'],
+  life: ['_clientName', 'carrier_name', 'product_name', 'face_amount', 'premium', 'issue_date', 'status', 'cash_value', 'account_number'],
+  medicare: ['_clientName', 'carrier_name', 'plan_type', 'plan_id', 'effective_date', 'premium', 'coverage_type', 'status', 'account_number'],
+  bdria: ['_clientName', 'custodian', 'account_type', 'account_value', 'advisor', 'account_number', 'effective_date', 'status'],
+}
+
+// Friendly labels
+const COLUMN_LABELS: Record<string, string> = {
+  _clientName: 'Client',
+  account_number: 'Account #',
+  carrier_name: 'Carrier',
+  product_type: 'Type',
+  product_name: 'Product',
+  plan_name: 'Plan Name',
+  plan_type: 'Plan Type',
+  plan_id: 'Plan ID',
+  status: 'Status',
+  effective_date: 'Effective Date',
+  issue_date: 'Issue Date',
+  account_value: 'Value',
+  premium: 'Premium',
+  face_amount: 'Face Amount',
+  cash_value: 'Cash Value',
+  death_benefit: 'Death Benefit',
+  tax_status: 'Tax Status',
+  market: 'Market',
+  account_type: 'Account Type',
+  coverage_type: 'Coverage Type',
+  custodian: 'Custodian',
+  advisor: 'Advisor',
+  policy_number: 'Policy #',
+  contract_number: 'Contract #',
+  owner_name: 'Owner',
+}
+
 const ACCOUNTS_PAGE_SIZE = 500
 
+// ---------------------------------------------------------------------------
+// Page Component
+// ---------------------------------------------------------------------------
+
 export default function AccountsPage() {
-  const router = useRouter()
   const [accounts, setAccounts] = useState<AccountRow[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -62,27 +97,27 @@ export default function AccountsPage() {
   const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null)
   const [filter, setFilter] = useState<FilterKey>('all')
   const [search, setSearch] = useState('')
-  const [sortKey, setSortKey] = useState<SortKey>('carrier_name')
+  const [statusFilter, setStatusFilter] = useState('All')
+  const [carrierFilter, setCarrierFilter] = useState('All')
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(DEFAULT_COLUMNS['all'])
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showColumnPicker, setShowColumnPicker] = useState(false)
+  const [sortKey, setSortKey] = useState<string | null>('carrier_name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
   const pageSize = 25
 
-  // Load first page of accounts via collection group query
+  // Load accounts
   useEffect(() => {
     async function load() {
       try {
         const db = getDb()
         const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'), limit(ACCOUNTS_PAGE_SIZE))
         const snap = await getDocs(q)
-        const rows: AccountRow[] = snap.docs.map((doc) => {
-          const data = doc.data() as unknown as Account
-          const pathParts = doc.ref.path.split('/')
-          const clientId = pathParts[1] || ''
-          return {
-            ...data,
-            _id: doc.id,
-            _clientId: clientId,
-          }
+        const rows: AccountRow[] = snap.docs.map((d) => {
+          const data = d.data() as unknown as Account
+          const pathParts = d.ref.path.split('/')
+          return { ...data, _id: d.id, _clientId: pathParts[1] || '' }
         })
         setAccounts(rows)
         setHasMore(snap.docs.length === ACCOUNTS_PAGE_SIZE)
@@ -96,43 +131,9 @@ export default function AccountsPage() {
     load()
   }, [])
 
-  // Load more accounts (cursor-based pagination)
-  const loadMoreAccounts = useCallback(async () => {
-    if (!lastDoc || loadingMore) return
-    setLoadingMore(true)
-    try {
-      const db = getDb()
-      const q = query(
-        collectionGroup(db, 'accounts'),
-        orderBy('carrier_name'),
-        startAfter(lastDoc),
-        limit(ACCOUNTS_PAGE_SIZE)
-      )
-      const snap = await getDocs(q)
-      const rows: AccountRow[] = snap.docs.map((doc) => {
-        const data = doc.data() as unknown as Account
-        const pathParts = doc.ref.path.split('/')
-        const clientId = pathParts[1] || ''
-        return {
-          ...data,
-          _id: doc.id,
-          _clientId: clientId,
-        }
-      })
-      setAccounts((prev) => [...prev, ...rows])
-      setHasMore(snap.docs.length === ACCOUNTS_PAGE_SIZE)
-      setLastDoc(snap.docs[snap.docs.length - 1] ?? null)
-    } catch (err) {
-      setError(String(err))
-    } finally {
-      setLoadingMore(false)
-    }
-  }, [lastDoc, loadingMore])
-
-  // Enrich with client names (async, after initial load)
+  // Enrich with client names
   useEffect(() => {
     if (accounts.length === 0) return
-    // Build unique client IDs
     const clientIds = [...new Set(accounts.map((a) => a._clientId).filter(Boolean))]
     if (clientIds.length === 0) return
 
@@ -140,8 +141,6 @@ export default function AccountsPage() {
       const db = getDb()
       const { doc, getDoc } = await import('firebase/firestore')
       const nameMap = new Map<string, string>()
-
-      // Batch read client names (first 500 unique clients)
       const batch = clientIds.slice(0, 500)
       const results = await Promise.all(
         batch.map(async (id) => {
@@ -155,20 +154,21 @@ export default function AccountsPage() {
           return { id, name: '' }
         })
       )
-
       results.forEach((r) => { if (r.name) nameMap.set(r.id, r.name) })
-
       setAccounts((prev) =>
-        prev.map((a) => ({
-          ...a,
-          _clientName: nameMap.get(a._clientId) || a._clientName,
-        }))
+        prev.map((a) => ({ ...a, _clientName: nameMap.get(a._clientId) || a._clientName }))
       )
     }
     enrichNames()
   }, [accounts.length])
 
-  // Filter by type
+  // Update columns when filter changes
+  useEffect(() => {
+    setVisibleColumns(DEFAULT_COLUMNS[filter])
+    setPage(0)
+  }, [filter])
+
+  // Category classifier
   const getCategory = useCallback((acct: AccountRow): FilterKey => {
     const cat = str(acct.account_type_category).toLowerCase()
     if (cat === 'annuity') return 'annuity'
@@ -190,9 +190,25 @@ export default function AccountsPage() {
     return c
   }, [accounts, getCategory])
 
+  // Unique carriers
+  const carriers = useMemo(() => {
+    const set = new Set<string>()
+    accounts.forEach((a) => { const c = str(a.carrier_name) || str(a.carrier); if (c) set.add(c) })
+    return Array.from(set).sort()
+  }, [accounts])
+
   // Search + filter
   const filtered = useMemo(() => {
     let result = filter === 'all' ? accounts : accounts.filter((a) => getCategory(a) === filter)
+
+    if (statusFilter !== 'All') {
+      result = result.filter((a) => str(a.status).toLowerCase() === statusFilter.toLowerCase())
+    }
+
+    if (carrierFilter !== 'All') {
+      result = result.filter((a) => (str(a.carrier_name) || str(a.carrier)) === carrierFilter)
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter((a) =>
@@ -205,19 +221,18 @@ export default function AccountsPage() {
       )
     }
     return result
-  }, [accounts, filter, search, getCategory])
+  }, [accounts, filter, search, statusFilter, carrierFilter, getCategory])
 
   // Sort
   const sorted = useMemo(() => {
     if (!sortKey) return filtered
     return [...filtered].sort((a, b) => {
-      let av = '', bv = ''
-      if (sortKey === 'client_name') { av = str(a._clientName); bv = str(b._clientName) }
-      else if (sortKey === 'account_value') {
-        const na = parseFloat(String(a.account_value || a.premium || 0)) || 0
-        const nb = parseFloat(String(b.account_value || b.premium || 0)) || 0
-        return sortDir === 'asc' ? na - nb : nb - na
-      } else { av = str((a as any)[sortKey]); bv = str((b as any)[sortKey]) }
+      const av = str((a as Record<string, unknown>)[sortKey])
+      const bv = str((b as Record<string, unknown>)[sortKey])
+      // Try numeric sort for value/amount fields
+      const na = parseFloat(av.replace(/[$,\s]/g, ''))
+      const nb = parseFloat(bv.replace(/[$,\s]/g, ''))
+      if (!isNaN(na) && !isNaN(nb)) return sortDir === 'asc' ? na - nb : nb - na
       const cmp = av.localeCompare(bv, undefined, { numeric: true })
       return sortDir === 'asc' ? cmp : -cmp
     })
@@ -227,17 +242,41 @@ export default function AccountsPage() {
   const totalPages = Math.ceil(sorted.length / pageSize)
   const paged = sorted.slice(page * pageSize, (page + 1) * pageSize)
 
-  const handleSort = useCallback((key: SortKey) => {
+  const handleSort = useCallback((key: string) => {
     if (sortKey === key) setSortDir((d) => d === 'asc' ? 'desc' : 'asc')
     else { setSortKey(key); setSortDir('asc') }
   }, [sortKey])
 
-  const handleRowClick = useCallback((acct: AccountRow) => {
-    router.push(`/accounts/${acct._clientId}/${acct._id}`)
-  }, [router])
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }, [])
 
-  // Reset page on filter/search change
-  useEffect(() => { setPage(0) }, [filter, search])
+  const handleDdup = useCallback(() => {
+    const ids = Array.from(selectedIds).join(',')
+    window.open(`/ddup?ids=${ids}&type=account`, '_blank', 'noopener,noreferrer')
+  }, [selectedIds])
+
+  const toggleColumn = useCallback((col: string) => {
+    setVisibleColumns((prev) => {
+      if (prev.includes(col)) return prev.filter((c) => c !== col)
+      if (prev.length >= 10) return prev // Max 10 columns
+      return [...prev, col]
+    })
+  }, [])
+
+  // Get cell value for display
+  const getCellValue = useCallback((acct: AccountRow, col: string): string => {
+    const val = (acct as Record<string, unknown>)[col]
+    if (col.includes('value') || col.includes('premium') || col.includes('amount') || col.includes('benefit')) return formatCurrency(val)
+    if (col.includes('date') || col.includes('_at')) return formatDate(val)
+    return str(val)
+  }, [])
+
+  useEffect(() => { setPage(0) }, [filter, search, statusFilter, carrierFilter])
 
   if (loading) {
     return (
@@ -264,22 +303,8 @@ export default function AccountsPage() {
     )
   }
 
-  const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
-    <th
-      onClick={() => handleSort(field)}
-      className="cursor-pointer select-none px-4 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        {sortKey === field && (
-          <span className="text-[var(--portal)]">{sortDir === 'asc' ? '\u2191' : '\u2193'}</span>
-        )}
-      </span>
-    </th>
-  )
-
   return (
-    <div className="mx-auto max-w-7xl space-y-5">
+    <div className="mx-auto max-w-7xl space-y-4">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -288,29 +313,77 @@ export default function AccountsPage() {
             {accounts.length.toLocaleString()}
           </span>
         </div>
-        {/* Search */}
-        <div className="relative">
-          <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]">search</span>
-          <input
-            type="text"
-            placeholder="Search accounts..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-64 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] py-2 pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-          />
+        <div className="flex items-center gap-2">
+          {/* Search */}
+          <div className="relative">
+            <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]">search</span>
+            <input
+              type="text"
+              placeholder="Search accounts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-64 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] py-2 pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+            />
+          </div>
+          {/* Column picker toggle */}
+          <button
+            onClick={() => setShowColumnPicker(!showColumnPicker)}
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-all ${
+              showColumnPicker ? 'border-[var(--portal)] text-[var(--portal)]' : 'border-[var(--border)] text-[var(--text-muted)]'
+            }`}
+          >
+            <span className="material-icons-outlined text-[16px]">view_column</span>
+            Columns
+          </button>
         </div>
       </div>
 
-      {/* Type filter pills */}
+      {/* Filters row */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Status */}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className={`h-9 rounded-lg border px-3 text-sm outline-none ${statusFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
+        >
+          <option value="All">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="In Force">In Force</option>
+          <option value="Pending">Pending</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Terminated">Terminated</option>
+        </select>
+
+        {/* Carrier */}
+        <select
+          value={carrierFilter}
+          onChange={(e) => setCarrierFilter(e.target.value)}
+          className={`h-9 rounded-lg border px-3 text-sm outline-none ${carrierFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
+        >
+          <option value="All">All Carriers</option>
+          {carriers.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+
+        {/* Ddup button */}
+        {selectedIds.size >= 2 && (
+          <button
+            onClick={handleDdup}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-600"
+          >
+            <span className="material-icons-outlined text-[16px]">merge_type</span>
+            Ddup Selected ({selectedIds.size})
+          </button>
+        )}
+      </div>
+
+      {/* Product type filter tabs */}
       <div className="flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
+        {FILTER_TABS.map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
             className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
-              filter === f.key
-                ? 'text-white'
-                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              filter === f.key ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}
             style={filter === f.key ? { backgroundColor: f.color } : undefined}
           >
@@ -324,62 +397,134 @@ export default function AccountsPage() {
         ))}
       </div>
 
+      {/* Column picker panel */}
+      {showColumnPicker && (
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-medium text-[var(--text-primary)]">Visible Columns ({visibleColumns.length}/10)</p>
+            <button
+              onClick={() => setVisibleColumns(DEFAULT_COLUMNS[filter])}
+              className="text-xs text-[var(--portal)] hover:underline"
+            >
+              Reset to Default
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(COLUMN_LABELS).map((col) => (
+              <label
+                key={col}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium cursor-pointer transition-all ${
+                  visibleColumns.includes(col)
+                    ? 'bg-[var(--portal)]/15 text-[var(--portal)]'
+                    : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={visibleColumns.includes(col)}
+                  onChange={() => toggleColumn(col)}
+                  className="sr-only"
+                />
+                {COLUMN_LABELS[col]}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--bg-card)]">
         <table className="w-full text-sm">
           <thead className="bg-[var(--bg-surface)]">
             <tr>
-              <SortHeader label="Client" field="client_name" />
-              <SortHeader label="Carrier" field="carrier_name" />
-              <SortHeader label="Product" field="product_name" />
-              <SortHeader label="Status" field="status" />
-              <SortHeader label="Value" field="account_value" />
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)]">Type</th>
+              <th className="w-10 px-3 py-3">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
+                  checked={paged.length > 0 && paged.every((a) => selectedIds.has(`${a._clientId}-${a._id}`))}
+                  onChange={(e) => {
+                    const ids = paged.map((a) => `${a._clientId}-${a._id}`)
+                    setSelectedIds((prev) => {
+                      const next = new Set(prev)
+                      ids.forEach((id) => e.target.checked ? next.add(id) : next.delete(id))
+                      return next
+                    })
+                  }}
+                />
+              </th>
+              {visibleColumns.map((col) => (
+                <th
+                  key={col}
+                  onClick={() => handleSort(col)}
+                  className="cursor-pointer select-none px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                >
+                  <span className="inline-flex items-center gap-1">
+                    {COLUMN_LABELS[col] || col}
+                    {sortKey === col && (
+                      <span className="text-[var(--portal)]">{sortDir === 'asc' ? '\u2191' : '\u2193'}</span>
+                    )}
+                  </span>
+                </th>
+              ))}
+              <th className="px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-16 text-center text-sm text-[var(--text-muted)]">
-                  {search || filter !== 'all' ? 'No accounts match your filters.' : 'No accounts found.'}
+                <td colSpan={visibleColumns.length + 2} className="px-4 py-16 text-center text-sm text-[var(--text-muted)]">
+                  {search || filter !== 'all' || statusFilter !== 'All' ? 'No accounts match your filters.' : 'No accounts found.'}
                 </td>
               </tr>
             ) : (
               paged.map((acct) => {
-                const cat = getCategory(acct)
-                const catFilter = FILTERS.find((f) => f.key === cat) || FILTERS.find((f) => f.key === 'all')!
+                const rowKey = `${acct._clientId}-${acct._id}`
+                const isSelected = selectedIds.has(rowKey)
                 const statusColor = getStatusColor(str(acct.status))
 
                 return (
                   <tr
-                    key={`${acct._clientId}-${acct._id}`}
-                    onClick={() => handleRowClick(acct)}
-                    className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
+                    key={rowKey}
+                    className={`border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)] ${isSelected ? 'bg-[var(--portal)]/5' : ''}`}
                   >
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-[var(--text-primary)]">{acct._clientName || acct._clientId.slice(0, 8)}</p>
+                    <td className="px-3 py-3">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelect(rowKey)}
+                        className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
+                      />
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)]">
-                      {str(acct.carrier_name) || str(acct.carrier) || '\u2014'}
-                    </td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)]">
-                      <p className="truncate max-w-[200px]">{str(acct.product_name) || str(acct.plan_name) || '\u2014'}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
-                        {str(acct.status) || 'Unknown'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-[var(--text-primary)]">
-                      {formatCurrency(acct.account_value || acct.premium)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className="inline-block rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                        style={{ backgroundColor: catFilter.color }}
+                    {visibleColumns.map((col) => {
+                      const cellVal = getCellValue(acct, col)
+                      const isStatus = col === 'status'
+
+                      return (
+                        <td key={col} className="px-3 py-3">
+                          {isStatus ? (
+                            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
+                              {cellVal || 'Unknown'}
+                            </span>
+                          ) : col === '_clientName' ? (
+                            <p className="font-medium text-[var(--text-primary)]">{cellVal || acct._clientId.slice(0, 8)}</p>
+                          ) : (
+                            <p className={`text-[var(--text-secondary)] ${col.includes('number') || col.includes('id') ? 'font-mono text-xs' : ''}`}>
+                              {cellVal || '\u2014'}
+                            </p>
+                          )}
+                        </td>
+                      )
+                    })}
+                    <td className="px-3 py-3">
+                      <a
+                        href={`/accounts/${acct._clientId}/${acct._id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-[var(--portal)] hover:underline"
                       >
-                        {catFilter.label}
-                      </span>
+                        Detail
+                        <span className="material-icons-outlined text-[12px]">open_in_new</span>
+                      </a>
                     </td>
                   </tr>
                 )
@@ -415,11 +560,27 @@ export default function AccountsPage() {
         </div>
       )}
 
-      {/* Load More (Firestore cursor pagination) */}
+      {/* Load More */}
       {hasMore && (
         <div className="flex justify-center">
           <button
-            onClick={loadMoreAccounts}
+            onClick={async () => {
+              if (!lastDoc || loadingMore) return
+              setLoadingMore(true)
+              try {
+                const db = getDb()
+                const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'), startAfter(lastDoc), limit(ACCOUNTS_PAGE_SIZE))
+                const snap = await getDocs(q)
+                const rows: AccountRow[] = snap.docs.map((d) => {
+                  const data = d.data() as unknown as Account
+                  const pathParts = d.ref.path.split('/')
+                  return { ...data, _id: d.id, _clientId: pathParts[1] || '' }
+                })
+                setAccounts((prev) => [...prev, ...rows])
+                setHasMore(snap.docs.length === ACCOUNTS_PAGE_SIZE)
+                setLastDoc(snap.docs[snap.docs.length - 1] ?? null)
+              } catch (err) { setError(String(err)) } finally { setLoadingMore(false) }
+            }}
             disabled={loadingMore}
             className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-6 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-50"
           >

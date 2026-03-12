@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { Account } from '@tomachina/core'
 import { formatCurrency, formatDate, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
@@ -8,20 +8,46 @@ import { EmptyState } from '../../lib/ui-helpers'
 interface AccountsTabProps {
   accounts: Account[]
   loading: boolean
+  clientId: string
 }
 
-type FilterKey = 'all' | 'annuity' | 'life' | 'medicare' | 'bd_ria'
+type CategoryKey = 'annuity' | 'life' | 'medicare' | 'bd_ria'
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'annuity', label: 'Annuity' },
-  { key: 'life', label: 'Life' },
-  { key: 'medicare', label: 'Medicare' },
-  { key: 'bd_ria', label: 'BD/RIA' },
-]
+const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color: string }> = {
+  annuity: { label: 'Annuity', icon: 'savings', color: '#f59e0b' },
+  life: { label: 'Life', icon: 'favorite', color: '#10b981' },
+  medicare: { label: 'Medicare', icon: 'health_and_safety', color: '#3b82f6' },
+  bd_ria: { label: 'BD/RIA', icon: 'show_chart', color: '#a78bfa' },
+}
 
-export function AccountsTab({ accounts, loading }: AccountsTabProps) {
-  const [filter, setFilter] = useState<FilterKey>('all')
+export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
+  const [showInactive, setShowInactive] = useState(false)
+
+  // Filter inactive
+  const visibleAccounts = useMemo(() => {
+    if (showInactive) return accounts
+    return accounts.filter((a) => {
+      const s = str(a.status).toLowerCase()
+      return s !== 'inactive' && s !== 'terminated' && s !== 'lapsed' && s !== 'cancelled'
+    })
+  }, [accounts, showInactive])
+
+  // Group by category
+  const grouped = useMemo(() => {
+    const groups: Record<CategoryKey, Account[]> = {
+      annuity: [],
+      life: [],
+      medicare: [],
+      bd_ria: [],
+    }
+    for (const acct of visibleAccounts) {
+      const cat = getCategory(acct)
+      if (cat in groups) {
+        groups[cat as CategoryKey].push(acct)
+      }
+    }
+    return groups
+  }, [visibleAccounts])
 
   if (loading) {
     return (
@@ -33,200 +59,205 @@ export function AccountsTab({ accounts, loading }: AccountsTabProps) {
     )
   }
 
-  // Count by type
-  const counts: Record<FilterKey, number> = {
-    all: accounts.length,
-    annuity: 0,
-    life: 0,
-    medicare: 0,
-    bd_ria: 0,
-  }
-
-  for (const acct of accounts) {
-    const cat = getCategory(acct)
-    if (cat === 'annuity') counts.annuity++
-    else if (cat === 'life') counts.life++
-    else if (cat === 'medicare') counts.medicare++
-    else if (cat === 'bd_ria') counts.bd_ria++
-  }
-
-  // Filter
-  const filtered =
-    filter === 'all'
-      ? accounts
-      : accounts.filter((acct) => getCategory(acct) === filter)
+  const inactiveCount = accounts.length - accounts.filter((a) => {
+    const s = str(a.status).toLowerCase()
+    return s !== 'inactive' && s !== 'terminated' && s !== 'lapsed' && s !== 'cancelled'
+  }).length
 
   return (
-    <div className="space-y-4">
-      {/* Filter pills */}
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
+    <div className="space-y-5">
+      {/* Header: toggle inactive */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-[var(--text-primary)]">
+          {visibleAccounts.length} Account{visibleAccounts.length !== 1 ? 's' : ''}
+        </p>
+        {inactiveCount > 0 && (
           <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-150 ${
-              filter === f.key
-                ? 'bg-[var(--portal)] text-white'
-                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-            }`}
+            onClick={() => setShowInactive(!showInactive)}
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
           >
-            {f.label}
-            <span
-              className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-xs ${
-                filter === f.key
-                  ? 'bg-white/20 text-white'
-                  : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
-              }`}
-            >
-              {counts[f.key]}
+            <span className="material-icons-outlined text-[14px]">
+              {showInactive ? 'visibility_off' : 'visibility'}
             </span>
+            {showInactive ? 'Hide' : 'Show'} Inactive ({inactiveCount})
           </button>
-        ))}
+        )}
       </div>
 
-      {/* Account summary */}
-      {accounts.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <SummaryMiniCard label="Total Accounts" value={String(accounts.length)} icon="layers" />
-          <SummaryMiniCard label="Total Value" value={formatCurrency(accounts.reduce((sum, a) => sum + parseFloat(String(a.account_value || a.premium || a.face_amount || 0).replace(/[$,]/g, '')), 0))} icon="account_balance" />
-          <SummaryMiniCard label="Active" value={String(accounts.filter((a) => ['active', 'in force'].includes(String(a.status || '').toLowerCase())).length)} icon="check_circle" />
-          <SummaryMiniCard label="Pending" value={String(accounts.filter((a) => String(a.status || '').toLowerCase() === 'pending').length)} icon="pending" />
-        </div>
-      )}
+      {/* Grouped accounts */}
+      {(Object.keys(CATEGORY_CONFIG) as CategoryKey[]).map((cat) => {
+        const accts = grouped[cat]
+        const config = CATEGORY_CONFIG[cat]
+        return (
+          <div key={cat}>
+            {/* Group header */}
+            <div className="mb-3 flex items-center gap-2">
+              <span className="material-icons-outlined text-[18px]" style={{ color: config.color }}>
+                {config.icon}
+              </span>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                {config.label} ({accts.length})
+              </h3>
+            </div>
 
-      {/* Account cards */}
-      {filtered.length === 0 ? (
+            {accts.length === 0 ? (
+              <p className="ml-7 mb-4 text-xs text-[var(--text-muted)] italic">No {config.label.toLowerCase()} accounts</p>
+            ) : (
+              <div className="mb-4 grid gap-3 sm:grid-cols-2">
+                {accts.map((acct) => (
+                  <AccountSummaryCard
+                    key={acct.account_id || str((acct as Record<string, unknown>)._id)}
+                    account={acct}
+                    category={cat}
+                    clientId={clientId}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })}
+
+      {accounts.length === 0 && (
         <EmptyState
           icon="account_balance_wallet"
-          message={
-            filter === 'all'
-              ? 'No accounts on file for this client.'
-              : `No ${FILTERS.find((f) => f.key === filter)?.label ?? ''} accounts found.`
-          }
+          message="No accounts on file for this client."
         />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {filtered.map((acct) => (
-            <AccountCard key={acct.account_id || str(acct.policy_number)} account={acct} />
-          ))}
-        </div>
       )}
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Account Card
+// Product-type-specific summary card
 // ---------------------------------------------------------------------------
 
-function AccountCard({ account }: { account: Account }) {
+function AccountSummaryCard({
+  account,
+  category,
+  clientId,
+}: {
+  account: Account
+  category: CategoryKey
+  clientId: string
+}) {
   const statusColor = getStatusColor(str(account.status))
-  const acctId = str(account.account_id) || str(account.policy_number) || str((account as Record<string, unknown>)._id)
-  const clientId = str(account.client_id)
-  const valueAmount = account.account_value || account.premium || account.face_amount
-  const valueStr = formatCurrency(valueAmount)
-  const carrierName = str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'
+  const acctId = str(account.account_id) || str((account as Record<string, unknown>)._id)
+
+  // Product-type-specific fields
+  const fields = getSummaryFields(account, category)
 
   return (
-    <a
-      href={clientId && acctId ? `/accounts/${clientId}/${acctId}` : undefined}
-      className="group relative block rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 transition-all hover:border-[var(--portal)] hover:bg-[var(--bg-card-hover)] cursor-pointer"
-    >
-      {/* Header with carrier indicator */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg" style={{ background: 'var(--portal-glow)' }}>
-            <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>
-              {getAccountIcon(str(account.account_type_category))}
-            </span>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
-              {str(account.product_type) || str(account.account_type_category) || str(account.account_type)}
-            </p>
-            <p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)]">{carrierName}</p>
-          </div>
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 transition-all hover:border-[var(--portal)]/50">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
+            {str(account.carrier_name) || str(account.carrier) || 'Unknown Carrier'}
+          </p>
+          <p className="text-sm font-medium text-[var(--text-primary)]">
+            {str(account.product_name) || str(account.plan_name) || str(account.product) || 'Unknown Product'}
+          </p>
         </div>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
           {str(account.status) || 'Unknown'}
         </span>
       </div>
 
-      {/* Value prominent */}
-      {valueStr && (
-        <p className="mt-3 text-xl font-bold text-[var(--text-primary)]">{valueStr}</p>
-      )}
-
-      {/* Details */}
-      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
-        <MiniField label="Product" value={str(account.product_name) || str(account.plan_name) || str(account.product)} />
-        <MiniField label="Policy #" value={str(account.account_number) || str(account.policy_number) || str(account.contract_number)} mono />
-        <MiniField label="Issue Date" value={formatDate(account.issue_date || account.effective_date)} />
+      {/* Summary fields — 6 per card, specific to product type */}
+      <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+        {fields.map((f) => (
+          <div key={f.label}>
+            <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">{f.label}</p>
+            <p className={`text-xs text-[var(--text-primary)] ${f.mono ? 'font-mono' : ''}`}>
+              {f.value || <span className="text-[var(--text-muted)]">&mdash;</span>}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {/* View Details hover action */}
-      <div className="mt-3 flex items-center gap-1 text-xs font-medium text-[var(--text-muted)] opacity-0 transition-opacity group-hover:opacity-100" style={{ color: 'var(--portal)' }}>
-        <span>View Details</span>
-        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_forward</span>
+      {/* Detail link — opens in NEW TAB */}
+      <div className="mt-3 flex justify-end">
+        <a
+          href={`/accounts/${clientId}/${acctId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--portal)] hover:underline"
+        >
+          Detail
+          <span className="material-icons-outlined text-[12px]">open_in_new</span>
+        </a>
       </div>
-    </a>
+    </div>
   )
 }
 
-function getAccountIcon(category: string): string {
-  const c = category.toLowerCase()
-  if (c.includes('annuity')) return 'savings'
-  if (c.includes('life')) return 'favorite'
-  if (c.includes('medicare')) return 'health_and_safety'
-  if (c.includes('bd') || c.includes('ria')) return 'show_chart'
-  return 'account_balance_wallet'
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+interface SummaryField {
+  label: string
+  value: string
+  mono?: boolean
 }
 
-/** Classify an account into a filter category using multiple field sources */
-function getCategory(acct: Account): FilterKey {
-  // First check the migration-set category
+function getSummaryFields(account: Account, category: CategoryKey): SummaryField[] {
+  switch (category) {
+    case 'annuity':
+      return [
+        { label: 'Product', value: str(account.product_name) || str(account.product) },
+        { label: 'Account Type', value: str(account.account_type) },
+        { label: 'Issue Date', value: formatDate(account.issue_date || account.effective_date) },
+        { label: 'Market', value: str(account.market) },
+        { label: 'Tax Status', value: str(account.tax_status) },
+        { label: 'Value', value: formatCurrency(account.account_value) },
+      ]
+    case 'life':
+      return [
+        { label: 'Product', value: str(account.product_name) || str(account.product) },
+        { label: 'Face Amount', value: formatCurrency(account.face_amount) },
+        { label: 'Premium', value: formatCurrency(account.premium) },
+        { label: 'Issue Date', value: formatDate(account.issue_date || account.effective_date) },
+        { label: 'Policy Status', value: str(account.status) },
+        { label: 'Cash Value', value: formatCurrency(account.cash_value) },
+      ]
+    case 'medicare':
+      return [
+        { label: 'Plan Type', value: str(account.plan_type || account.product_type) },
+        { label: 'Carrier', value: str(account.carrier_name) || str(account.carrier) },
+        { label: 'Effective Date', value: formatDate(account.effective_date) },
+        { label: 'Premium', value: formatCurrency(account.premium) },
+        { label: 'Plan ID', value: str(account.plan_id || account.policy_number), mono: true },
+        { label: 'Coverage Type', value: str(account.coverage_type) },
+      ]
+    case 'bd_ria':
+      return [
+        { label: 'Account Type', value: str(account.account_type) },
+        { label: 'Custodian', value: str(account.custodian) || str(account.carrier_name) },
+        { label: 'Value', value: formatCurrency(account.account_value) },
+        { label: 'Advisor', value: str(account.advisor) },
+        { label: 'Account #', value: str(account.account_number) || str(account.policy_number), mono: true },
+        { label: 'Status', value: str(account.status) },
+      ]
+    default:
+      return []
+  }
+}
+
+function getCategory(acct: Account): string {
   const cat = str(acct.account_type_category).toLowerCase()
   if (cat === 'annuity') return 'annuity'
   if (cat === 'life') return 'life'
   if (cat === 'medicare') return 'medicare'
   if (cat === 'bdria' || cat === 'bd_ria') return 'bd_ria'
 
-  // Fallback: check product_type or account_type text
   const t = (str(acct.product_type) + ' ' + str(acct.account_type)).toLowerCase()
   if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) return 'annuity'
   if (t.includes('life')) return 'life'
   if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')) return 'medicare'
   if (t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')) return 'bd_ria'
-  return 'all'
-}
-
-function MiniField({
-  label,
-  value,
-  mono,
-}: {
-  label: string
-  value: string
-  mono?: boolean
-}) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">{label}</p>
-      <p className={`text-sm text-[var(--text-primary)] ${mono ? 'font-mono' : ''}`}>
-        {value || <span className="text-[var(--text-muted)]">&mdash;</span>}
-      </p>
-    </div>
-  )
-}
-
-function SummaryMiniCard({ label, value, icon }: { label: string; value: string; icon: string }) {
-  return (
-    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 text-center">
-      <span className="material-icons-outlined text-[16px] text-[var(--portal)]">{icon}</span>
-      <p className="mt-1 text-lg font-bold text-[var(--text-primary)]">{value}</p>
-      <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">{label}</p>
-    </div>
-  )
+  return 'annuity' // default fallback
 }
 
 function getStatusColor(status: string): string {
@@ -234,6 +265,7 @@ function getStatusColor(status: string): string {
   if (s === 'active' || s === 'in force') return 'bg-emerald-500/15 text-emerald-400'
   if (s === 'pending') return 'bg-amber-500/15 text-amber-400'
   if (s === 'terminated' || s === 'lapsed' || s === 'cancelled') return 'bg-red-500/15 text-red-400'
+  if (s === 'inactive') return 'bg-gray-500/15 text-gray-400'
   if (s === 'replaced') return 'bg-blue-500/15 text-blue-400'
   return 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
 }

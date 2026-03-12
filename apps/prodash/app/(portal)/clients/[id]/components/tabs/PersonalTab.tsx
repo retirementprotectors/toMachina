@@ -2,117 +2,162 @@
 
 import type { Client } from '@tomachina/core'
 import { maskSSN, formatDate, getAge, str } from '../../lib/formatters'
-import { SectionCard, DetailField, EditableField, FieldGrid } from '../../lib/ui-helpers'
+import { InlineField, InlineSection, ReadOnlyField } from '../../lib/inline-edit'
+import { FieldGrid } from '../../lib/ui-helpers'
 
 interface PersonalTabProps {
   client: Client
-  editing?: boolean
-  editData?: Record<string, unknown>
-  onFieldChange?: (key: string, value: string) => void
+  clientId: string
 }
 
-export function PersonalTab({ client, editing = false, editData = {}, onFieldChange }: PersonalTabProps) {
-  const ev = (key: string) => (editData[key] !== undefined ? String(editData[key]) : undefined)
-  const spouseName = [str(client.spouse_first_name), str(client.spouse_last_name)]
-    .filter(Boolean)
-    .join(' ')
+const MARITAL_OPTIONS = [
+  { label: 'Single', value: 'Single' },
+  { label: 'Married', value: 'Married' },
+  { label: 'Divorced', value: 'Divorced' },
+  { label: 'Widowed', value: 'Widowed' },
+  { label: 'Domestic Partner', value: 'Domestic Partner' },
+]
 
-  // Collect children names from indexed fields (child_1_name through child_6_name)
-  const children: string[] = []
-  for (let i = 1; i <= 6; i++) {
-    const name = str(client[`child_${i}_name`])
-    if (name) children.push(name)
-  }
+const GENDER_OPTIONS = [
+  { label: 'Male', value: 'Male' },
+  { label: 'Female', value: 'Female' },
+  { label: 'Non-Binary', value: 'Non-Binary' },
+  { label: 'Prefer Not to Say', value: 'Prefer Not to Say' },
+]
+
+const EMPLOYMENT_OPTIONS = [
+  { label: 'Employed', value: 'Employed' },
+  { label: 'Self-Employed', value: 'Self-Employed' },
+  { label: 'Retired', value: 'Retired' },
+  { label: 'Unemployed', value: 'Unemployed' },
+  { label: 'Student', value: 'Student' },
+]
+
+const US_STATES = [
+  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
+  'MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC',
+  'SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'
+].map((s) => ({ label: s, value: s }))
+
+export function PersonalTab({ client, clientId }: PersonalTabProps) {
+  const docPath = `clients/${clientId}`
+  const age = getAge(client.dob)
 
   return (
     <div className="space-y-4">
-      {/* Identity — with prominent age display */}
-      <SectionCard title="Identity" icon="badge">
-        {!editing && getAge(client.dob) && (
+      {/* Personal Details */}
+      <InlineSection title="Personal Details" icon="badge">
+        {/* Age display */}
+        {age != null && (
           <div className="mb-4 flex items-center gap-4 rounded-lg bg-[var(--bg-surface)] px-4 py-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--portal-glow)' }}>
-              <span className="text-lg font-bold" style={{ color: 'var(--portal)' }}>{getAge(client.dob)}</span>
+              <span className="text-lg font-bold" style={{ color: 'var(--portal)' }}>{age}</span>
             </div>
             <div>
               <p className="text-sm font-medium text-[var(--text-primary)]">{formatDate(client.dob)}</p>
-              <p className="text-xs text-[var(--text-muted)]">Date of Birth &middot; Age {getAge(client.dob)}</p>
+              <p className="text-xs text-[var(--text-muted)]">Date of Birth &middot; Age {age}</p>
             </div>
           </div>
         )}
         <FieldGrid cols={4}>
-          <EditableField label="First Name" value={str(client.first_name)} fieldKey="first_name" editing={editing} editValue={ev('first_name')} onChange={onFieldChange} />
-          <EditableField label="Middle Name" value={str(client.middle_name)} fieldKey="middle_name" editing={editing} editValue={ev('middle_name')} onChange={onFieldChange} />
-          <EditableField label="Last Name" value={str(client.last_name)} fieldKey="last_name" editing={editing} editValue={ev('last_name')} onChange={onFieldChange} />
-          <EditableField label="Preferred Name" value={str(client.preferred_name)} fieldKey="preferred_name" editing={editing} editValue={ev('preferred_name')} onChange={onFieldChange} />
-          {editing && <EditableField label="Date of Birth" value={formatDate(client.dob)} fieldKey="dob" editing={editing} editValue={ev('dob')} onChange={onFieldChange} type="date" />}
-          {editing && <DetailField label="Age" value={getAge(client.dob) ?? undefined} />}
-          <EditableField label="Gender" value={str(client.gender)} fieldKey="gender" editing={editing} editValue={ev('gender')} onChange={onFieldChange} type="select" options={[{ label: 'Male', value: 'Male' }, { label: 'Female', value: 'Female' }, { label: 'Other', value: 'Other' }]} />
-          <EditableField label="Marital Status" value={str(client.marital_status)} fieldKey="marital_status" editing={editing} editValue={ev('marital_status')} onChange={onFieldChange} type="select" options={[{ label: 'Single', value: 'Single' }, { label: 'Married', value: 'Married' }, { label: 'Divorced', value: 'Divorced' }, { label: 'Widowed', value: 'Widowed' }]} />
+          <InlineField label="First Name" value={str(client.first_name)} fieldKey="first_name" docPath={docPath} />
+          <InlineField label="Middle Name" value={str(client.middle_name)} fieldKey="middle_name" docPath={docPath} />
+          <InlineField label="Last Name" value={str(client.last_name)} fieldKey="last_name" docPath={docPath} />
+          <InlineField label="Preferred Name" value={str(client.preferred_name)} fieldKey="preferred_name" docPath={docPath} />
+          <InlineField label="Date of Birth" value={str(client.dob)} fieldKey="dob" docPath={docPath} type="date" />
+          <InlineField
+            label="Marital Status"
+            value={str(client.marital_status)}
+            fieldKey="marital_status"
+            docPath={docPath}
+            type="select"
+            options={MARITAL_OPTIONS}
+          />
+          <InlineField
+            label="Gender"
+            value={str(client.gender)}
+            fieldKey="gender"
+            docPath={docPath}
+            type="select"
+            options={GENDER_OPTIONS}
+          />
+          {/* SSN — masked, read-only */}
+          <ReadOnlyField label="SSN (Last 4)" value={maskSSN(client.ssn || client.ssn_last4)} mono />
         </FieldGrid>
-      </SectionCard>
-
-      {/* Government IDs — SSN is NEVER editable */}
-      <SectionCard title="Government IDs" icon="lock">
-        <FieldGrid cols={2}>
-          <DetailField label="SSN" value={maskSSN(client.ssn || client.ssn_last4)} mono />
-          <DetailField label="Medicare Number" value={str(client.medicare_number)} mono />
-        </FieldGrid>
-      </SectionCard>
+      </InlineSection>
 
       {/* Employment */}
-      <SectionCard title="Employment" icon="work">
+      <InlineSection title="Employment" icon="work">
         <FieldGrid cols={3}>
-          <EditableField label="Employment Status" value={str(client.employment_status)} fieldKey="employment_status" editing={editing} editValue={ev('employment_status')} onChange={onFieldChange} type="select" options={[{ label: 'Employed', value: 'Employed' }, { label: 'Retired', value: 'Retired' }, { label: 'Self-Employed', value: 'Self-Employed' }, { label: 'Unemployed', value: 'Unemployed' }]} />
-          <EditableField label="Occupation" value={str(client.occupation)} fieldKey="occupation" editing={editing} editValue={ev('occupation')} onChange={onFieldChange} />
-          <EditableField label="Former Occupation" value={str(client.former_occupation)} fieldKey="former_occupation" editing={editing} editValue={ev('former_occupation')} onChange={onFieldChange} />
-          <EditableField label="Employer" value={str(client.employer)} fieldKey="employer" editing={editing} editValue={ev('employer')} onChange={onFieldChange} />
-          <EditableField label="Annual Income" value={str(client.annual_income)} fieldKey="annual_income" editing={editing} editValue={ev('annual_income')} onChange={onFieldChange} />
+          <InlineField
+            label="Employment Status"
+            value={str(client.employment_status)}
+            fieldKey="employment_status"
+            docPath={docPath}
+            type="select"
+            options={EMPLOYMENT_OPTIONS}
+          />
+          <InlineField label="Occupation" value={str(client.occupation)} fieldKey="occupation" docPath={docPath} />
+          <InlineField label="Former Occupation" value={str(client.former_occupation)} fieldKey="former_occupation" docPath={docPath} />
+          <InlineField label="Annual Income" value={str(client.annual_income)} fieldKey="annual_income" docPath={docPath} type="number" />
+          <InlineField label="Employer" value={str(client.employer)} fieldKey="employer" docPath={docPath} />
         </FieldGrid>
-      </SectionCard>
+      </InlineSection>
 
-      {/* Spouse */}
-      <SectionCard title="Spouse" icon="favorite">
-        {editing || spouseName ? (
-          <FieldGrid cols={3}>
-            <EditableField label="First Name" value={str(client.spouse_first_name)} fieldKey="spouse_first_name" editing={editing} editValue={ev('spouse_first_name')} onChange={onFieldChange} />
-            <EditableField label="Last Name" value={str(client.spouse_last_name)} fieldKey="spouse_last_name" editing={editing} editValue={ev('spouse_last_name')} onChange={onFieldChange} />
-            <EditableField label="Date of Birth" value={formatDate(client.spouse_dob)} fieldKey="spouse_dob" editing={editing} editValue={ev('spouse_dob')} onChange={onFieldChange} type="date" />
-            <DetailField label="Age" value={getAge(client.spouse_dob) ?? undefined} />
-            <EditableField label="Email" value={str(client.spouse_email)} fieldKey="spouse_email" editing={editing} editValue={ev('spouse_email')} onChange={onFieldChange} type="email" />
-            <EditableField label="Phone" value={str(client.spouse_phone)} fieldKey="spouse_phone" editing={editing} editValue={ev('spouse_phone')} onChange={onFieldChange} type="tel" />
-            <EditableField label="Occupation" value={str(client.spouse_occupation)} fieldKey="spouse_occupation" editing={editing} editValue={ev('spouse_occupation')} onChange={onFieldChange} />
-            <EditableField label="Wedding Date" value={formatDate(client.wedding_date)} fieldKey="wedding_date" editing={editing} editValue={ev('wedding_date')} onChange={onFieldChange} type="date" />
-          </FieldGrid>
-        ) : (
-          <p className="text-sm text-[var(--text-muted)] italic">No spouse on file</p>
-        )}
-      </SectionCard>
+      {/* Medicare Card Info (consolidated from removed Medicare tab) */}
+      <InlineSection title="Medicare Card Info" icon="local_hospital">
+        <FieldGrid cols={3}>
+          <InlineField
+            label="Medicare Beneficiary ID"
+            value={str(client.medicare_number || client.medicare_beneficiary_id)}
+            fieldKey="medicare_beneficiary_id"
+            docPath={docPath}
+            mono
+          />
+          <InlineField
+            label="Part A Effective Date"
+            value={str(client.part_a_effective_date)}
+            fieldKey="part_a_effective_date"
+            docPath={docPath}
+            type="date"
+          />
+          <InlineField
+            label="Part B Effective Date"
+            value={str(client.part_b_effective_date)}
+            fieldKey="part_b_effective_date"
+            docPath={docPath}
+            type="date"
+          />
+        </FieldGrid>
+      </InlineSection>
 
-      {/* Children */}
-      <SectionCard title="Children" icon="child_care">
-        {children.length > 0 ? (
-          <div className="space-y-2">
-            <DetailField
-              label="Has Children"
-              value={str(client.has_children) || 'Yes'}
-            />
-            <div className="mt-3 flex flex-wrap gap-2">
-              {children.map((name, i) => (
-                <span
-                  key={i}
-                  className="rounded-full border border-[var(--border-medium)] px-3 py-1 text-sm text-[var(--text-primary)]"
-                >
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <FieldGrid cols={2}>
-            <DetailField label="Has Children" value={str(client.has_children) || 'Not specified'} />
-          </FieldGrid>
-        )}
-      </SectionCard>
+      {/* Driver's License Info (consolidated from removed Financial tab) */}
+      <InlineSection title="Driver's License Info" icon="badge">
+        <FieldGrid cols={3}>
+          <InlineField
+            label="DL Number"
+            value={str(client.dl_number)}
+            fieldKey="dl_number"
+            docPath={docPath}
+            mono
+          />
+          <InlineField
+            label="DL State"
+            value={str(client.dl_state)}
+            fieldKey="dl_state"
+            docPath={docPath}
+            type="select"
+            options={US_STATES}
+          />
+          <InlineField
+            label="DL Expiration"
+            value={str(client.dl_expiration)}
+            fieldKey="dl_expiration"
+            docPath={docPath}
+            type="date"
+          />
+        </FieldGrid>
+      </InlineSection>
     </div>
   )
 }
