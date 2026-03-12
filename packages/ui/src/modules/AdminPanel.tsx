@@ -1,20 +1,20 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { query, collection, type Query, type DocumentData } from 'firebase/firestore'
+import { useMemo, useState, useCallback } from 'react'
+import {
+  query,
+  collection,
+  doc,
+  updateDoc,
+  type Query,
+  type DocumentData,
+} from 'firebase/firestore'
+import { useAuth, buildEntitlementContext } from '@tomachina/auth'
+import type { UserLevelName, ModuleAction } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
-import {
-  USER_LEVELS,
-  MODULES,
-  TOOL_SUITES,
-  getAccessibleModules,
-  type UserLevelName,
-} from '@tomachina/core'
 
-// ============================================================================
-// Types
-// ============================================================================
+/* ─── Types ─── */
 
 interface AdminPanelProps {
   portal: string
@@ -42,264 +42,549 @@ interface UserRecord {
   entitlements?: string[]
 }
 
-interface OrgRecord {
+interface PipelineRecord {
   _id: string
-  entity_id?: string
-  entity_type?: string
   name?: string
-  parent_id?: string
-  manager_email?: string
+  category?: string
   status?: string
+  stages?: Array<{
+    name: string
+    order: number
+    status?: string
+  }>
 }
 
-type ViewMode = 'users' | 'org' | 'roles'
+type AdminTab = 'module-config' | 'pipeline-config'
 
-// ============================================================================
-// Sub-components
-// ============================================================================
+/* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
-function LevelBadge({ level }: { level: string }) {
-  const lower = level.toLowerCase()
-  const isOwner = lower === 'owner' || lower === 'super admin'
-  const isExec = lower === 'executive' || lower === 'admin' || lower === 'superadmin'
-  const isLeader = lower === 'leader' || lower === 'manager'
+interface ModuleItem {
+  key: string
+  label: string
+  icon: string
+  moduleKey?: string
+}
+
+interface SectionDef {
+  key: string
+  label: string
+  icon: string
+  items: ModuleItem[]
+}
+
+const MODULE_SECTIONS: SectionDef[] = [
+  {
+    key: 'workspace',
+    label: 'Workspace',
+    icon: 'dashboard',
+    items: [
+      { key: 'clients', label: 'Clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'accounts', label: 'Accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
+      { key: 'casework', label: 'My Cases', icon: 'work', moduleKey: 'PRODASH_PIPELINES' },
+      { key: 'myrpi', label: 'MyRPI', icon: 'person', moduleKey: 'MY_RPI' },
+      { key: 'intake', label: 'Quick Intake', icon: 'person_add', moduleKey: 'PRODASH_CLIENTS' },
+    ],
+  },
+  {
+    key: 'sales-centers',
+    label: 'Sales Centers',
+    icon: 'storefront',
+    items: [
+      { key: 'medicare', label: 'Medicare', icon: 'health_and_safety', moduleKey: 'QUE_MEDICARE' },
+      { key: 'life', label: 'Life', icon: 'shield', moduleKey: 'QUE_LIFE' },
+      { key: 'annuity', label: 'Annuity', icon: 'savings', moduleKey: 'QUE_ANNUITY' },
+      { key: 'advisory', label: 'Advisory', icon: 'trending_up', moduleKey: 'QUE_MEDSUP' },
+    ],
+  },
+  {
+    key: 'service-centers',
+    label: 'Service Centers',
+    icon: 'support_agent',
+    items: [
+      { key: 'rmd', label: 'RMD Center', icon: 'calendar_month', moduleKey: 'RMD_CENTER' },
+      { key: 'beni', label: 'Beni Center', icon: 'volunteer_activism', moduleKey: 'BENI_CENTER' },
+    ],
+  },
+  {
+    key: 'pipelines',
+    label: 'Pipelines',
+    icon: 'view_kanban',
+    items: [
+      { key: 'pipeline-board', label: 'Pipeline Board', icon: 'view_kanban', moduleKey: 'PRODASH_PIPELINES' },
+      { key: 'discovery-kit', label: 'Discovery Kit', icon: 'assignment', moduleKey: 'DISCOVERY_KIT' },
+      { key: 'discovery', label: 'Discovery', icon: 'search', moduleKey: 'PRODASH_PIPELINES' },
+      { key: 'data-foundation', label: 'Data Foundation', icon: 'storage', moduleKey: 'PRODASH_PIPELINES' },
+      { key: 'case-building', label: 'Case Building', icon: 'construction', moduleKey: 'PRODASH_PIPELINES' },
+      { key: 'close', label: 'Close', icon: 'check_circle', moduleKey: 'PRODASH_PIPELINES' },
+    ],
+  },
+  {
+    key: 'apps',
+    label: 'Apps',
+    icon: 'apps',
+    items: [
+      { key: 'atlas', label: 'ATLAS', icon: 'hub', moduleKey: 'ATLAS' },
+      { key: 'cam', label: 'CAM', icon: 'payments', moduleKey: 'CAM' },
+      { key: 'dex', label: 'DEX', icon: 'description', moduleKey: 'DEX' },
+      { key: 'c3', label: 'C3', icon: 'campaign', moduleKey: 'C3' },
+      { key: 'command-center', label: 'Command Center', icon: 'dashboard', moduleKey: 'RPI_COMMAND_CENTER' },
+    ],
+  },
+]
+
+const ALL_ACTIONS: ModuleAction[] = ['VIEW', 'EDIT', 'ADD']
+
+const ACTION_ICONS: Record<ModuleAction, string> = {
+  VIEW: 'visibility',
+  EDIT: 'edit',
+  ADD: 'add_circle',
+}
+
+/* ─── Sub-components ─── */
+
+function EntitlementBadge({
+  action,
+  active,
+  editable,
+  onToggle,
+}: {
+  action: ModuleAction
+  active: boolean
+  editable: boolean
+  onToggle: () => void
+}) {
   return (
-    <span
-      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
-      style={{
-        background: isOwner ? 'rgba(147,51,234,0.1)' : isExec ? 'rgba(59,130,246,0.1)' : isLeader ? 'rgba(34,197,94,0.1)' : 'rgba(156,163,175,0.1)',
-        color: isOwner ? '#9333ea' : isExec ? '#3b82f6' : isLeader ? '#22c55e' : '#9ca3af',
-      }}
+    <button
+      onClick={editable ? onToggle : undefined}
+      disabled={!editable}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors ${
+        active
+          ? 'text-white'
+          : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+      } ${editable ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}`}
+      style={active ? { background: 'var(--portal)' } : undefined}
+      title={`${action}${editable ? ' (click to toggle)' : ''}`}
     >
-      {level}
-    </span>
+      <span className="material-icons-outlined" style={{ fontSize: '10px' }}>
+        {ACTION_ICONS[action]}
+      </span>
+      {action}
+    </button>
   )
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const isActive = status.toLowerCase() === 'active'
+function CollapsibleSection({
+  section,
+  users,
+  currentUserEmail,
+  isLeader,
+  onEntitlementChange,
+}: {
+  section: SectionDef
+  users: UserRecord[]
+  currentUserEmail: string
+  isLeader: boolean
+  onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
+}) {
+  const [expanded, setExpanded] = useState(true)
+
+  // Get unique module keys in this section
+  const sectionModuleKeys = useMemo(() => {
+    const keys = new Set<string>()
+    section.items.forEach((item) => {
+      if (item.moduleKey) keys.add(item.moduleKey)
+    })
+    return Array.from(keys)
+  }, [section.items])
+
+  // For leaders: show team members who have access to modules in this section
+  const teamAccess = useMemo(() => {
+    if (!isLeader) return []
+    return users.filter((u) => u.email !== currentUserEmail).map((u) => {
+      const perms: Record<string, string[]> = {}
+      sectionModuleKeys.forEach((mk) => {
+        const userPerms = u.module_permissions?.[mk]
+        if (userPerms && userPerms.length > 0) {
+          perms[mk] = userPerms
+        }
+      })
+      return { user: u, perms }
+    }).filter((entry) => Object.keys(entry.perms).length > 0)
+  }, [isLeader, users, currentUserEmail, sectionModuleKeys])
+
+  // Get current user's permissions
+  const currentUser = users.find((u) => u.email === currentUserEmail)
+
   return (
-    <span
-      className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
-      style={{
-        background: isActive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-        color: isActive ? '#22c55e' : '#ef4444',
-      }}
-    >
-      {status}
-    </span>
-  )
-}
-
-function UserDetailModal({ user, onClose }: { user: UserRecord; onClose: () => void }) {
-  // Resolve user level name for entitlement calc
-  const levelName = useMemo<UserLevelName>(() => {
-    const lvl = (user.user_level || '').toUpperCase() as UserLevelName
-    if (USER_LEVELS[lvl]) return lvl
-    return 'USER'
-  }, [user.user_level])
-
-  const accessibleModules = useMemo(() => {
-    return getAccessibleModules(
-      levelName,
-      user.module_permissions as Record<string, ('VIEW' | 'EDIT' | 'ADD')[]> | undefined,
-    )
-  }, [levelName, user.module_permissions])
-
-  const displayName = user.first_name && user.last_name
-    ? `${user.first_name} ${user.last_name}`
-    : user.display_name || user._id
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div
-        className="mx-4 max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+      {/* Section Header */}
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="flex w-full items-center justify-between px-5 py-3.5"
       >
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-[var(--text-primary)]">{displayName}</h2>
-            <p className="text-sm text-[var(--text-muted)]">{user.email || '-'}</p>
+        <div className="flex items-center gap-2">
+          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+            {section.icon}
+          </span>
+          <span className="text-sm font-semibold text-[var(--text-primary)]">{section.label}</span>
+          <span className="text-xs text-[var(--text-muted)]">({section.items.length})</span>
+        </div>
+        <span
+          className="material-icons-outlined text-[var(--text-muted)] transition-transform"
+          style={{ fontSize: '18px', transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+        >
+          expand_more
+        </span>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-[var(--border-subtle)] px-5 pb-4 pt-3">
+          <div className="space-y-2">
+            {section.items.map((item) => {
+              if (!item.moduleKey) return null
+              const mk = item.moduleKey
+              const myPerms = currentUser?.module_permissions?.[mk] || []
+
+              return (
+                <div
+                  key={item.key}
+                  className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-3 py-2.5"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
+                      {item.icon}
+                    </span>
+                    <span className="text-sm text-[var(--text-primary)]">{item.label}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {ALL_ACTIONS.map((action) => (
+                      <EntitlementBadge
+                        key={action}
+                        action={action}
+                        active={myPerms.includes(action)}
+                        editable={false}
+                        onToggle={() => {
+                          /* Read-only for own permissions */
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
           </div>
-          <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
-            <span className="material-icons-outlined">close</span>
-          </button>
-        </div>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <InfoField label="Level" value={user.user_level || '-'} />
-          <InfoField label="Division" value={user.division || '-'} />
-          <InfoField label="Unit" value={user.unit || '-'} />
-          <InfoField label="Role Template" value={user.role_template || '-'} />
-          <InfoField label="Status" value={user.status || '-'} />
-          <InfoField label="Job Title" value={user.job_title || '-'} />
-          <InfoField label="Manager" value={user.manager_email || '-'} />
-          <InfoField label="Location" value={user.location || '-'} />
-          <InfoField label="Phone" value={user.phone || '-'} />
-          <InfoField label="NPN" value={user.npn || '-'} />
-          <InfoField label="Hire Date" value={user.hire_date || '-'} />
+          {/* Team member access (leaders only) */}
+          {isLeader && teamAccess.length > 0 && (
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3">
+              <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+                Team Access
+              </span>
+              <div className="mt-2 space-y-2">
+                {teamAccess.map(({ user: teamUser, perms }) => (
+                  <div key={teamUser._id} className="rounded-lg bg-[var(--bg-surface)] p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                        person
+                      </span>
+                      <span className="text-xs font-medium text-[var(--text-primary)]">
+                        {teamUser.first_name} {teamUser.last_name}
+                      </span>
+                      <span className="text-[10px] text-[var(--text-muted)]">{teamUser.email}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(perms).map(([moduleKey, actions]) => {
+                        const moduleItem = section.items.find((i) => i.moduleKey === moduleKey)
+                        return (
+                          <div key={moduleKey} className="flex items-center gap-1">
+                            <span className="text-[10px] text-[var(--text-muted)]">
+                              {moduleItem?.label || moduleKey}:
+                            </span>
+                            {actions.map((action) => (
+                              <EntitlementBadge
+                                key={action}
+                                action={action as ModuleAction}
+                                active={true}
+                                editable={isLeader}
+                                onToggle={() =>
+                                  onEntitlementChange(
+                                    teamUser._id,
+                                    moduleKey,
+                                    action as ModuleAction,
+                                    false
+                                  )
+                                }
+                              />
+                            ))}
+                            {/* Show disabled badges for missing actions */}
+                            {ALL_ACTIONS.filter((a) => !actions.includes(a)).map((action) => (
+                              <EntitlementBadge
+                                key={action}
+                                action={action}
+                                active={false}
+                                editable={isLeader}
+                                onToggle={() =>
+                                  onEntitlementChange(
+                                    teamUser._id,
+                                    moduleKey,
+                                    action,
+                                    true
+                                  )
+                                }
+                              />
+                            ))}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+      )}
+    </div>
+  )
+}
 
-        {/* Entitlements */}
-        <div className="mt-6">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-            Accessible Modules ({accessibleModules.length})
-          </h3>
-          <div className="flex flex-wrap gap-1.5">
-            {accessibleModules.length === 0 ? (
-              <p className="text-xs text-[var(--text-muted)]">No modules accessible.</p>
-            ) : (
-              accessibleModules.map((key) => {
-                const mod = MODULES[key]
-                return (
-                  <span
-                    key={key}
-                    className="rounded-md bg-[var(--bg-surface)] px-2 py-1 text-[10px] text-[var(--text-secondary)]"
-                    title={mod?.description || key}
-                  >
-                    {mod?.name || key}
-                  </span>
-                )
-              })
+/* ─── Pipeline Config ─── */
+
+function PipelineCard({
+  pipeline,
+  isLeader,
+  onStageAdd,
+  onStageUpdate,
+}: {
+  pipeline: PipelineRecord
+  isLeader: boolean
+  onStageAdd: (pipelineId: string, stageName: string) => void
+  onStageUpdate: (pipelineId: string, stageIndex: number, name: string) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [newStageName, setNewStageName] = useState('')
+  const sortedStages = useMemo(
+    () => [...(pipeline.stages || [])].sort((a, b) => a.order - b.order),
+    [pipeline.stages]
+  )
+
+  const handleAddStage = () => {
+    if (!newStageName.trim()) return
+    onStageAdd(pipeline._id, newStageName.trim())
+    setNewStageName('')
+  }
+
+  return (
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span
+            className="flex h-9 w-9 items-center justify-center rounded-lg"
+            style={{ background: 'var(--portal-glow)' }}
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '18px', color: 'var(--portal)' }}>
+              view_kanban
+            </span>
+          </span>
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-primary)]">{pipeline.name || 'Unnamed Pipeline'}</h4>
+            {pipeline.category && (
+              <span className="text-xs text-[var(--text-muted)]">{pipeline.category}</span>
             )}
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function InfoField({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs text-[var(--text-muted)]">{label}</p>
-      <p className="text-[var(--text-primary)]">{value}</p>
-    </div>
-  )
-}
-
-function OrgTree({ orgs, users }: { orgs: OrgRecord[]; users: UserRecord[] }) {
-  // Build tree from flat list
-  const tree = useMemo(() => {
-    const roots = orgs.filter((o) => !o.parent_id)
-    const childMap: Record<string, OrgRecord[]> = {}
-    orgs.forEach((o) => {
-      if (o.parent_id) {
-        if (!childMap[o.parent_id]) childMap[o.parent_id] = []
-        childMap[o.parent_id].push(o)
-      }
-    })
-    return { roots, childMap }
-  }, [orgs])
-
-  function renderNode(org: OrgRecord, depth: number): React.ReactNode {
-    const id = org.entity_id || org._id
-    const children = tree.childMap[id] || []
-    const manager = users.find((u) => u.email === org.manager_email)
-    return (
-      <div key={id} style={{ marginLeft: `${depth * 20}px` }} className="mb-2">
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2">
-          <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>
-            {org.entity_type === 'COMPANY' ? 'domain' : org.entity_type === 'DIVISION' ? 'account_tree' : 'group'}
-          </span>
-          <div className="flex-1">
-            <span className="text-sm font-medium text-[var(--text-primary)]">{org.name || id}</span>
-            <span className="ml-2 text-[10px] uppercase text-[var(--text-muted)]">{org.entity_type}</span>
-          </div>
-          {manager && (
-            <span className="text-xs text-[var(--text-muted)]">
-              {manager.first_name} {manager.last_name}
+        {isLeader && (
+          <button
+            onClick={() => setEditing((v) => !v)}
+            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+              editing
+                ? 'text-white'
+                : 'border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+            }`}
+            style={editing ? { background: 'var(--portal)' } : undefined}
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
+              {editing ? 'check' : 'edit'}
             </span>
-          )}
+            {editing ? 'Done' : 'Edit'}
+          </button>
+        )}
+      </div>
+
+      {/* Stages */}
+      <div className="mt-4">
+        <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+          Stages ({sortedStages.length})
+        </span>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {sortedStages.map((stage, idx) => (
+            <div key={idx} className="flex items-center gap-1">
+              {editing ? (
+                <input
+                  type="text"
+                  value={stage.name}
+                  onChange={(e) => onStageUpdate(pipeline._id, idx, e.target.value)}
+                  className="rounded-md border border-[var(--portal)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)] outline-none"
+                  style={{ width: `${Math.max(stage.name.length * 7, 60)}px` }}
+                />
+              ) : (
+                <span className="flex items-center gap-1 rounded-full bg-[var(--bg-surface)] px-2.5 py-1 text-xs text-[var(--text-secondary)]">
+                  <span className="text-[10px] font-bold text-[var(--text-muted)]">{idx + 1}</span>
+                  {stage.name}
+                </span>
+              )}
+              {idx < sortedStages.length - 1 && !editing && (
+                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '12px' }}>
+                  arrow_forward
+                </span>
+              )}
+            </div>
+          ))}
         </div>
-        {children.map((c) => renderNode(c, depth + 1))}
-      </div>
-    )
-  }
 
-  if (orgs.length === 0) {
-    return (
-      <div className="flex flex-col items-center py-12 text-center">
-        <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">account_tree</span>
-        <p className="mt-3 text-sm text-[var(--text-muted)]">No org structure data.</p>
-      </div>
-    )
-  }
+        {/* Add stage (leader editing mode) */}
+        {editing && isLeader && (
+          <div className="mt-3 flex items-center gap-2">
+            <input
+              type="text"
+              value={newStageName}
+              onChange={(e) => setNewStageName(e.target.value)}
+              placeholder="New stage name..."
+              className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddStage()
+              }}
+            />
+            <button
+              onClick={handleAddStage}
+              disabled={!newStageName.trim()}
+              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-50"
+              style={{ background: 'var(--portal)' }}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '12px' }}>add</span>
+              Add
+            </button>
+          </div>
+        )}
 
-  return <div>{tree.roots.map((r) => renderNode(r, 0))}</div>
+        {/* Empty state */}
+        {sortedStages.length === 0 && !editing && (
+          <p className="mt-2 text-xs text-[var(--text-muted)]">No stages configured.</p>
+        )}
+      </div>
+    </div>
+  )
 }
 
-// ============================================================================
-// Main Component
-// ============================================================================
+/* ─── Main Component ─── */
 
 export function AdminPanel({ portal }: AdminPanelProps) {
-  const [search, setSearch] = useState('')
-  const [viewMode, setViewMode] = useState<ViewMode>('users')
-  const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null)
-  const [levelFilter, setLevelFilter] = useState<string>('all')
-  const [divisionFilter, setDivisionFilter] = useState<string>('all')
+  const { user } = useAuth()
+  const [activeTab, setActiveTab] = useState<AdminTab>('module-config')
+
+  // Build entitlement context
+  const entitlementCtx = useMemo(() => buildEntitlementContext(user), [user])
+  const isLeader =
+    entitlementCtx.userLevel === 'OWNER' ||
+    entitlementCtx.userLevel === 'EXECUTIVE' ||
+    entitlementCtx.userLevel === 'LEADER'
 
   // Queries
-  const usersQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'users')), [])
-  const orgQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'org')), [])
+  const usersQ = useMemo<Query<DocumentData>>(
+    () => query(collection(getDb(), 'users')),
+    []
+  )
+  const pipelinesQ = useMemo<Query<DocumentData>>(
+    () => query(collection(getDb(), 'pipelines')),
+    []
+  )
 
   const { data: users, loading: uLoad, error: uError } = useCollection<UserRecord>(usersQ, 'admin-users')
-  const { data: orgs, loading: oLoad } = useCollection<OrgRecord>(orgQ, 'admin-org')
+  const { data: pipelines, loading: pLoad } = useCollection<PipelineRecord>(pipelinesQ, 'admin-pipelines')
 
-  // Unique values for filters
-  const filterOptions = useMemo(() => {
-    const levels = new Set<string>()
-    const divisions = new Set<string>()
-    users.forEach((u) => {
-      if (u.user_level) levels.add(u.user_level)
-      if (u.division) divisions.add(u.division)
-    })
-    return { levels: Array.from(levels).sort(), divisions: Array.from(divisions).sort() }
-  }, [users])
+  // Entitlement change handler (leaders only)
+  const handleEntitlementChange = useCallback(
+    async (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => {
+      if (!isLeader) return
+      const targetUser = users.find((u) => u._id === userId)
+      if (!targetUser) return
 
-  // Filtered users
-  const filtered = useMemo(() => {
-    let result = users
+      const currentPerms = { ...(targetUser.module_permissions || {}) }
+      const currentActions = [...(currentPerms[moduleKey] || [])]
 
-    if (search) {
-      const lower = search.toLowerCase()
-      result = result.filter((u) => {
-        const text = `${u.first_name || ''} ${u.last_name || ''} ${u.display_name || ''} ${u.email || ''} ${u.job_title || ''}`.toLowerCase()
-        return text.includes(lower)
-      })
-    }
+      if (enabled) {
+        if (!currentActions.includes(action)) {
+          currentActions.push(action)
+        }
+      } else {
+        const idx = currentActions.indexOf(action)
+        if (idx >= 0) currentActions.splice(idx, 1)
+      }
 
-    if (levelFilter !== 'all') {
-      result = result.filter((u) => (u.user_level || '').toLowerCase() === levelFilter.toLowerCase())
-    }
+      currentPerms[moduleKey] = currentActions
 
-    if (divisionFilter !== 'all') {
-      result = result.filter((u) => u.division === divisionFilter)
-    }
+      try {
+        const ref = doc(getDb(), 'users', userId)
+        await updateDoc(ref, {
+          module_permissions: currentPerms,
+          updated_at: new Date().toISOString(),
+        })
+      } catch {
+        // Error handling — toast would go here
+      }
+    },
+    [isLeader, users]
+  )
 
-    return result
-  }, [users, search, levelFilter, divisionFilter])
+  // Pipeline stage handlers
+  const handleStageAdd = useCallback(
+    async (pipelineId: string, stageName: string) => {
+      const pipeline = pipelines.find((p) => p._id === pipelineId)
+      if (!pipeline) return
 
-  // Stats
-  const stats = useMemo(() => {
-    const levels: Record<string, number> = {}
-    const statuses: Record<string, number> = {}
-    users.forEach((u) => {
-      const level = u.user_level || 'Unknown'
-      levels[level] = (levels[level] || 0) + 1
-      const status = u.status || 'active'
-      statuses[status] = (statuses[status] || 0) + 1
-    })
-    return { levels, statuses }
-  }, [users])
+      const currentStages = [...(pipeline.stages || [])]
+      const maxOrder = currentStages.reduce((max, s) => Math.max(max, s.order), 0)
+      currentStages.push({ name: stageName, order: maxOrder + 1, status: 'active' })
 
-  // Loading
+      try {
+        const ref = doc(getDb(), 'pipelines', pipelineId)
+        await updateDoc(ref, {
+          stages: currentStages,
+          updated_at: new Date().toISOString(),
+        })
+      } catch {
+        // Error handling
+      }
+    },
+    [pipelines]
+  )
+
+  const handleStageUpdate = useCallback(
+    async (pipelineId: string, stageIndex: number, name: string) => {
+      const pipeline = pipelines.find((p) => p._id === pipelineId)
+      if (!pipeline) return
+
+      const sortedStages = [...(pipeline.stages || [])].sort((a, b) => a.order - b.order)
+      if (stageIndex >= sortedStages.length) return
+      sortedStages[stageIndex] = { ...sortedStages[stageIndex], name }
+
+      try {
+        const ref = doc(getDb(), 'pipelines', pipelineId)
+        await updateDoc(ref, {
+          stages: sortedStages,
+          updated_at: new Date().toISOString(),
+        })
+      } catch {
+        // Error handling
+      }
+    },
+    [pipelines]
+  )
+
+  /* ─── Loading ─── */
   if (uLoad) {
     return (
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
         <div className="mt-8 flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
@@ -308,232 +593,94 @@ export function AdminPanel({ portal }: AdminPanelProps) {
     )
   }
 
-  // Error
+  /* ─── Error ─── */
   if (uError) {
     return (
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
         <div className="mt-6 rounded-xl border border-[var(--error)] bg-[rgba(239,68,68,0.05)] p-6 text-sm text-[var(--text-secondary)]">
-          Failed to load users: {uError.message}
+          Failed to load admin data: {uError.message}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
-        <p className="mt-1 text-sm text-[var(--text-secondary)]">User management, org structure, and entitlements</p>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
+          {isLeader ? 'Module permissions and pipeline configuration' : 'Your module permissions'}
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">Total Users</p>
-          <p className="mt-1 text-2xl font-bold text-[var(--text-primary)]">{users.length}</p>
-        </div>
-        {Object.entries(stats.levels)
-          .sort(([, a], [, b]) => b - a)
-          .slice(0, 3)
-          .map(([level, count]) => (
-            <div key={level} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">{level}</p>
-                <LevelBadge level={level} />
-              </div>
-              <p className="mt-1 text-2xl font-bold text-[var(--text-primary)]">{count}</p>
-            </div>
-          ))}
-      </div>
-
-      {/* View Mode Tabs */}
+      {/* Tabs */}
       <div className="flex gap-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-1.5">
         {([
-          { key: 'users' as ViewMode, label: 'Users', icon: 'people' },
-          { key: 'org' as ViewMode, label: 'Org Structure', icon: 'account_tree' },
-          { key: 'roles' as ViewMode, label: 'Role Templates', icon: 'admin_panel_settings' },
+          { key: 'module-config' as AdminTab, label: 'Module Config', icon: 'grid_view' },
+          { key: 'pipeline-config' as AdminTab, label: 'Pipeline Config', icon: 'view_kanban' },
         ]).map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setViewMode(tab.key)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              viewMode === tab.key
-                ? 'bg-[var(--portal)] text-white'
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === tab.key
+                ? 'text-white'
                 : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'
             }`}
+            style={activeTab === tab.key ? { background: 'var(--portal)' } : undefined}
           >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>{tab.icon}</span>
+            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>{tab.icon}</span>
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Users View */}
-      {viewMode === 'users' && (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-          {/* Search + Filters */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex-1">
-              <span
-                className="material-icons-outlined absolute left-2.5 top-1/2 -translate-y-1/2"
-                style={{ fontSize: '16px', color: 'var(--text-muted)' }}
-              >
-                search
-              </span>
-              <input
-                type="text"
-                placeholder="Search by name, email, or title..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] py-1.5 pl-8 pr-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--portal)] focus:outline-none"
-              />
-            </div>
-            <select
-              value={levelFilter}
-              onChange={(e) => setLevelFilter(e.target.value)}
-              className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-            >
-              <option value="all">All Levels</option>
-              {filterOptions.levels.map((l) => <option key={l} value={l}>{l}</option>)}
-            </select>
-            <select
-              value={divisionFilter}
-              onChange={(e) => setDivisionFilter(e.target.value)}
-              className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-            >
-              <option value="all">All Divisions</option>
-              {filterOptions.divisions.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-
-          {/* Results count */}
-          <p className="mt-3 text-xs text-[var(--text-muted)]">
-            Showing {filtered.length} of {users.length} users
-          </p>
-
-          {/* User Table */}
-          <div className="mt-3 max-h-[500px] overflow-y-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[var(--border-subtle)] text-left text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  <th className="pb-2 pr-4">Name</th>
-                  <th className="pb-2 pr-4">Email</th>
-                  <th className="pb-2 pr-4">Level</th>
-                  <th className="pb-2 pr-4">Division</th>
-                  <th className="pb-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((u) => (
-                  <tr
-                    key={u._id}
-                    className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-surface)]"
-                    onClick={() => setSelectedUser(u)}
-                  >
-                    <td className="py-2.5 pr-4">
-                      <span className="font-medium text-[var(--text-primary)]">
-                        {u.first_name && u.last_name
-                          ? `${u.first_name} ${u.last_name}`
-                          : u.display_name || u._id}
-                      </span>
-                      {u.job_title && (
-                        <span className="ml-2 text-xs text-[var(--text-muted)]">{u.job_title}</span>
-                      )}
-                    </td>
-                    <td className="py-2.5 pr-4 text-[var(--text-secondary)]">{u.email || '-'}</td>
-                    <td className="py-2.5 pr-4">
-                      <LevelBadge level={u.user_level || u.role_template || 'user'} />
-                    </td>
-                    <td className="py-2.5 pr-4 text-[var(--text-secondary)]">{u.division || u.unit || '-'}</td>
-                    <td className="py-2.5">
-                      <StatusBadge status={u.status || 'active'} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {filtered.length === 0 && (
-              <div className="flex flex-col items-center py-8 text-center">
-                <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">person_search</span>
-                <p className="mt-2 text-sm text-[var(--text-muted)]">
-                  {search ? `No users matching "${search}"` : 'No users found'}
-                </p>
-              </div>
-            )}
-          </div>
+      {/* Module Config Tab */}
+      {activeTab === 'module-config' && (
+        <div className="space-y-4">
+          {MODULE_SECTIONS.map((section) => (
+            <CollapsibleSection
+              key={section.key}
+              section={section}
+              users={users}
+              currentUserEmail={user?.email || ''}
+              isLeader={isLeader}
+              onEntitlementChange={handleEntitlementChange}
+            />
+          ))}
         </div>
       )}
 
-      {/* Org Structure View */}
-      {viewMode === 'org' && (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">Organization Hierarchy</h3>
-          {oLoad ? (
+      {/* Pipeline Config Tab */}
+      {activeTab === 'pipeline-config' && (
+        <div className="space-y-4">
+          {pLoad ? (
             <div className="flex items-center justify-center py-12">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
             </div>
+          ) : pipelines.length > 0 ? (
+            pipelines.map((pipeline) => (
+              <PipelineCard
+                key={pipeline._id}
+                pipeline={pipeline}
+                isLeader={isLeader}
+                onStageAdd={handleStageAdd}
+                onStageUpdate={handleStageUpdate}
+              />
+            ))
           ) : (
-            <OrgTree orgs={orgs} users={users} />
+            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] py-16">
+              <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">
+                view_kanban
+              </span>
+              <p className="mt-3 text-sm text-[var(--text-muted)]">
+                No pipelines configured yet. Pipelines are created from the flow engine at the RIIMO level.
+              </p>
+            </div>
           )}
         </div>
-      )}
-
-      {/* Role Templates View */}
-      {viewMode === 'roles' && (
-        <div className="space-y-4">
-          {/* User Levels */}
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">User Levels</h3>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {Object.entries(USER_LEVELS).map(([key, level]) => (
-                <div key={key} className="rounded-lg bg-[var(--bg-surface)] p-3">
-                  <div className="flex items-center gap-2">
-                    <LevelBadge level={key} />
-                    <span className="text-sm font-medium text-[var(--text-primary)]">{level.displayName}</span>
-                  </div>
-                  <p className="mt-1 text-xs text-[var(--text-muted)]">{level.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Tool Suites */}
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">Tool Suites</h3>
-            <div className="space-y-3">
-              {Object.entries(TOOL_SUITES).map(([key, suite]) => (
-                <div key={key} className="rounded-lg bg-[var(--bg-surface)] p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[var(--text-primary)]">{suite.name}</span>
-                    <span className="text-[10px] uppercase text-[var(--text-muted)]">{suite.matrix}</span>
-                  </div>
-                  <p className="text-xs text-[var(--text-muted)]">{suite.description}</p>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {suite.modules.map((m) => {
-                      const mod = MODULES[m]
-                      return (
-                        <span
-                          key={m}
-                          className="rounded bg-[var(--bg-card)] px-1.5 py-0.5 text-[10px] text-[var(--text-secondary)]"
-                          title={mod?.description}
-                        >
-                          {mod?.name || m}
-                        </span>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* User Detail Modal */}
-      {selectedUser && (
-        <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
       )}
     </div>
   )

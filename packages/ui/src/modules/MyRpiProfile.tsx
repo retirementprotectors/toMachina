@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { query, where, orderBy, doc, updateDoc, type Query, type DocumentData } from 'firebase/firestore'
-import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/auth'
+import { useAuth, buildEntitlementContext } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { collections, getDb } from '@tomachina/db/src/firestore'
 import type { User } from '@tomachina/core'
@@ -13,21 +13,31 @@ interface UserRecord extends User {
   _id: string
 }
 
+interface MeetRoom {
+  meet_link?: string
+  room_name?: string
+  description?: string
+  folder_id?: string
+  folder_url?: string
+  team?: string
+  status?: string
+}
+
+interface BookingType {
+  name: string
+  duration_minutes: number
+  category?: string
+}
+
+interface CalendarSlotConfig {
+  /** Map of day -> array of time slots, each slot has meeting type keys enabled */
+  [day: string]: Record<string, string[]>
+}
+
 interface EmployeeProfile {
-  meet_room?: {
-    meet_link?: string
-    room_name?: string
-    description?: string
-    folder_id?: string
-    folder_url?: string
-    team?: string
-    status?: string
-  }
-  calendar_booking_types?: Array<{
-    name: string
-    duration_minutes: number
-    category?: string
-  }>
+  meet_room?: MeetRoom
+  calendar_booking_types?: BookingType[]
+  calendar_config?: CalendarSlotConfig
   drive_folder_url?: string
   booking_slug?: string
   profile_photo_url?: string
@@ -43,58 +53,272 @@ const LEVEL_LABELS: Record<number, string> = {
   3: 'User',
 }
 
-/* ─── Sub-components ─── */
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const
+const TIME_SLOTS = [
+  '8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM',
+  '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM',
+  '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
+  '5:00 PM',
+] as const
 
-function ProfileField({
+/* ─── QR Code Generator (SVG-based, no external deps) ─── */
+
+function generateQRMatrix(data: string): boolean[][] {
+  // Simplified QR-like pattern generator for visual representation
+  // Uses a deterministic hash of the URL to create a unique pattern
+  const size = 25
+  const matrix: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false))
+
+  // Finder patterns (3 corners)
+  const drawFinder = (row: number, col: number) => {
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 7; c++) {
+        const isOuter = r === 0 || r === 6 || c === 0 || c === 6
+        const isInner = r >= 2 && r <= 4 && c >= 2 && c <= 4
+        matrix[row + r][col + c] = isOuter || isInner
+      }
+    }
+  }
+  drawFinder(0, 0)
+  drawFinder(0, size - 7)
+  drawFinder(size - 7, 0)
+
+  // Timing patterns
+  for (let i = 7; i < size - 7; i++) {
+    matrix[6][i] = i % 2 === 0
+    matrix[i][6] = i % 2 === 0
+  }
+
+  // Data area — deterministic hash-based fill
+  let hash = 0
+  for (let i = 0; i < data.length; i++) {
+    hash = ((hash << 5) - hash + data.charCodeAt(i)) | 0
+  }
+  let seed = Math.abs(hash)
+  for (let r = 9; r < size - 1; r++) {
+    for (let c = 9; c < size - 1; c++) {
+      if (r < 7 && c < 7) continue
+      if (r < 7 && c >= size - 7) continue
+      if (r >= size - 7 && c < 7) continue
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff
+      matrix[r][c] = (seed % 3) === 0
+    }
+  }
+
+  return matrix
+}
+
+function QRCodeSVG({ data, size = 120 }: { data: string; size?: number }) {
+  const matrix = useMemo(() => generateQRMatrix(data), [data])
+  const cellSize = size / matrix.length
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+      <rect width={size} height={size} fill="white" rx="4" />
+      {matrix.map((row, r) =>
+        row.map((cell, c) =>
+          cell ? (
+            <rect
+              key={`${r}-${c}`}
+              x={c * cellSize}
+              y={r * cellSize}
+              width={cellSize}
+              height={cellSize}
+              fill="black"
+            />
+          ) : null
+        )
+      )}
+    </svg>
+  )
+}
+
+/* ─── Inline Editable Field ─── */
+
+function InlineEditField({
   label,
   value,
-  href,
+  onSave,
+  disabled,
+  type = 'text',
 }: {
   label: string
   value: string | undefined | null
-  href?: string
+  onSave: (val: string) => Promise<void>
+  disabled?: boolean
+  type?: 'text' | 'email' | 'tel'
 }) {
+  const [editing, setEditing] = useState(false)
+  const [editValue, setEditValue] = useState(value || '')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [editing])
+
+  const handleSave = async () => {
+    if (editValue === (value || '')) {
+      setEditing(false)
+      return
+    }
+    setSaving(true)
+    try {
+      await onSave(editValue)
+      setSaved(true)
+      setEditing(false)
+      setTimeout(() => setSaved(false), 2000)
+    } catch {
+      // Stay in edit mode on error
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      void handleSave()
+    } else if (e.key === 'Escape') {
+      setEditValue(value || '')
+      setEditing(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-0.5">
       <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
         {label}
       </span>
-      {href && value ? (
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-[var(--portal)] underline"
-        >
-          {value}
-        </a>
+      {editing ? (
+        <div className="flex items-center gap-1.5">
+          <input
+            ref={inputRef}
+            type={type}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={() => void handleSave()}
+            onKeyDown={handleKeyDown}
+            disabled={saving}
+            className="flex-1 rounded-md border border-[var(--portal)] bg-[var(--bg-surface)] px-2 py-1 text-sm text-[var(--text-primary)] outline-none"
+          />
+          {saving && (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+          )}
+        </div>
       ) : (
-        <span className="text-sm text-[var(--text-primary)]">{value || '\u2014'}</span>
+        <div className="group flex items-center gap-1.5">
+          <span className={`text-sm ${saved ? 'text-[var(--success)]' : 'text-[var(--text-primary)]'}`}>
+            {value || '\u2014'}
+          </span>
+          {saved && (
+            <span className="material-icons-outlined text-[var(--success)]" style={{ fontSize: '14px' }}>
+              check_circle
+            </span>
+          )}
+          {!disabled && !saved && (
+            <button
+              onClick={() => {
+                setEditValue(value || '')
+                setEditing(true)
+              }}
+              className="opacity-0 transition-opacity group-hover:opacity-100"
+              title={`Edit ${label.toLowerCase()}`}
+            >
+              <span className="material-icons-outlined text-[var(--text-muted)] hover:text-[var(--portal)]" style={{ fontSize: '14px' }}>
+                edit
+              </span>
+            </button>
+          )}
+        </div>
       )}
     </div>
   )
 }
 
-function EditableField({
+/* ─── Drop Zone Link Row ─── */
+
+function DropZoneLink({
   label,
-  value,
-  onChange,
+  url,
+  icon,
 }: {
   label: string
-  value: string
-  onChange: (val: string) => void
+  url: string | undefined
+  icon: string
 }) {
+  const [showQR, setShowQR] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    if (!url) return
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard not available
+    }
+  }, [url])
+
+  if (!url) return null
+
+  const displayUrl = url.length > 40 ? url.slice(0, 37) + '...' : url
+
   return (
-    <div className="flex flex-col gap-0.5">
-      <label className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-        {label}
-      </label>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-      />
+    <div className="space-y-2">
+      <div className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
+        <span
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'var(--portal-glow)' }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>
+            {icon}
+          </span>
+        </span>
+        <div className="min-w-0 flex-1">
+          <span className="text-xs font-medium text-[var(--text-muted)]">{label}</span>
+          <p className="truncate text-sm text-[var(--text-secondary)]" title={url}>
+            {displayUrl}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => void handleCopy()}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            title="Copy URL"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>
+              {copied ? 'check' : 'content_copy'}
+            </span>
+          </button>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            title="Open in new tab"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>open_in_new</span>
+          </a>
+          <button
+            onClick={() => setShowQR((v) => !v)}
+            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-[var(--bg-hover)] ${
+              showQR ? 'text-[var(--portal)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            }`}
+            title="Show QR code"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>qr_code</span>
+          </button>
+        </div>
+      </div>
+      {showQR && (
+        <div className="flex justify-center rounded-lg border border-[var(--border-subtle)] bg-white p-3">
+          <QRCodeSVG data={url} size={140} />
+        </div>
+      )}
     </div>
   )
 }
@@ -107,16 +331,10 @@ interface MyRpiProfileProps {
 
 export function MyRpiProfile({ portal }: MyRpiProfileProps) {
   const { user } = useAuth()
-  const [editing, setEditing] = useState(false)
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null)
-  const [editFields, setEditFields] = useState({
-    first_name: '',
-    last_name: '',
-    phone: '',
-    location: '',
-    aliases: '',
-  })
-  const [saving, setSaving] = useState(false)
+  const [calendarSaving, setCalendarSaving] = useState(false)
+  const [calendarSaved, setCalendarSaved] = useState(false)
+  const [calendarConfig, setCalendarConfig] = useState<CalendarSlotConfig>({})
 
   // Build entitlement context for LEADER+ check
   const entitlementCtx = useMemo(() => buildEntitlementContext(user), [user])
@@ -124,8 +342,9 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     entitlementCtx.userLevel === 'EXECUTIVE' ||
     entitlementCtx.userLevel === 'LEADER'
 
-  // Current profile email — either selected team member or self
+  // Current profile email
   const profileEmail = selectedEmail || user?.email || ''
+  const isOwnProfile = !selectedEmail || selectedEmail === user?.email
 
   // Query current user's profile
   const userQuery: Query<DocumentData> | null = useMemo(() => {
@@ -167,55 +386,82 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
     return profile.employee_profile as EmployeeProfile
   }, [profile?.employee_profile])
 
-  // Edit handlers
-  const startEdit = useCallback(() => {
-    if (!profile) return
-    setEditFields({
-      first_name: profile.first_name || '',
-      last_name: profile.last_name || '',
-      phone: profile.phone || '',
-      location: profile.location || '',
-      aliases: (profile.aliases || []).join(', '),
-    })
-    setEditing(true)
-  }, [profile])
+  // Initialize calendar config from Firestore
+  useEffect(() => {
+    if (empProfile?.calendar_config) {
+      setCalendarConfig(empProfile.calendar_config)
+    }
+  }, [empProfile?.calendar_config])
 
-  const cancelEdit = useCallback(() => {
-    setEditing(false)
-  }, [])
+  // Meeting types for calendar grid
+  const meetingTypes = empProfile?.calendar_booking_types || []
 
-  const saveEdit = useCallback(async () => {
+  // Field save handler
+  const saveField = useCallback(
+    async (field: string, value: string) => {
+      if (!profile?._id) return
+      const ref = doc(getDb(), 'users', profile._id)
+      const update: Record<string, unknown> = {
+        [field]: value,
+        updated_at: new Date().toISOString(),
+      }
+      await updateDoc(ref, update)
+    },
+    [profile]
+  )
+
+  // Calendar config toggle
+  const toggleCalendarSlot = useCallback(
+    (day: string, timeSlot: string, meetingTypeName: string) => {
+      setCalendarConfig((prev) => {
+        const dayConfig = prev[day] ? { ...prev[day] } : {} as Record<string, string[]>
+        const slotTypes = [...(dayConfig[timeSlot] || [])]
+        const idx = slotTypes.indexOf(meetingTypeName)
+        if (idx >= 0) {
+          slotTypes.splice(idx, 1)
+        } else {
+          slotTypes.push(meetingTypeName)
+        }
+        dayConfig[timeSlot] = slotTypes
+        return { ...prev, [day]: dayConfig }
+      })
+    },
+    []
+  )
+
+  // Save calendar config
+  const saveCalendarConfig = useCallback(async () => {
     if (!profile?._id) return
-    setSaving(true)
+    setCalendarSaving(true)
     try {
       const ref = doc(getDb(), 'users', profile._id)
-      const aliasArray = editFields.aliases
-        .split(',')
-        .map((a) => a.trim())
-        .filter(Boolean)
       await updateDoc(ref, {
-        first_name: editFields.first_name,
-        last_name: editFields.last_name,
-        phone: editFields.phone,
-        location: editFields.location,
-        aliases: aliasArray,
+        'employee_profile.calendar_config': calendarConfig,
         updated_at: new Date().toISOString(),
       })
-      setEditing(false)
+      setCalendarSaved(true)
+      setTimeout(() => setCalendarSaved(false), 2000)
     } catch {
-      // Toast would go here — for now the error state will show
+      // Error handling
     } finally {
-      setSaving(false)
+      setCalendarSaving(false)
     }
-  }, [profile, editFields])
+  }, [profile, calendarConfig])
 
-  const isOwnProfile = !selectedEmail || selectedEmail === user?.email
+  // Booking URLs
+  const bookingSlug = empProfile?.booking_slug
+  const externalBookingUrl = bookingSlug
+    ? `https://calendar.google.com/calendar/appointments/schedules/${bookingSlug}`
+    : undefined
+  const internalBookingUrl = bookingSlug
+    ? `https://calendar.google.com/calendar/appointments/schedules/${bookingSlug}?internal=true`
+    : undefined
 
   /* ─── Loading ─── */
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">MyRPI</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">My RPI</h1>
         <div className="mt-8 flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
         </div>
@@ -227,7 +473,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
   if (error) {
     return (
       <div className="mx-auto max-w-4xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">MyRPI</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">My RPI</h1>
         <div className="mt-6 rounded-xl border border-[var(--error)] bg-[rgba(239,68,68,0.05)] p-6 text-sm text-[var(--text-secondary)]">
           Failed to load profile: {error.message}
         </div>
@@ -236,27 +482,19 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">MyRPI</h1>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">Your employee profile</p>
-        </div>
-        {isOwnProfile && !editing && profile && (
-          <button
-            onClick={startEdit}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>edit</span>
-            Edit Profile
-          </button>
-        )}
+      <div>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">My RPI</h1>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">Your employee profile</p>
       </div>
 
       {/* Profile Switcher (LEADER+ only) */}
       {isLeaderPlus && teamMembers.length > 0 && (
-        <div className="mt-4">
+        <div className="flex items-center gap-3">
+          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '18px' }}>
+            swap_horiz
+          </span>
           <select
             value={selectedEmail || ''}
             onChange={(e) => setSelectedEmail(e.target.value || null)}
@@ -271,296 +509,414 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
                 </option>
               ))}
           </select>
+          {selectedEmail && (
+            <span className="text-xs text-[var(--text-muted)]">Viewing as read-only</span>
+          )}
         </div>
       )}
 
-      {/* Profile Card */}
-      <div className="mt-6 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
-        {/* Header Row */}
-        <div className="flex items-center gap-4 border-b border-[var(--border-subtle)] pb-4">
-          {user?.photoURL && isOwnProfile ? (
+      {/* ─── Section 1: Profile Header ─── */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
+        <div className="flex items-start gap-5">
+          {/* Avatar */}
+          {(user?.photoURL && isOwnProfile) || (profile?.employee_profile as EmployeeProfile | undefined)?.profile_photo_url ? (
             <img
-              src={user.photoURL}
+              src={isOwnProfile ? (user?.photoURL || '') : ((profile?.employee_profile as EmployeeProfile | undefined)?.profile_photo_url || '')}
               alt=""
-              className="h-16 w-16 rounded-full"
+              className="h-20 w-20 rounded-full object-cover"
               referrerPolicy="no-referrer"
             />
           ) : (
             <div
-              className="flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold text-white"
+              className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-white"
               style={{ background: 'var(--portal)' }}
             >
               {(profile?.first_name || user?.displayName || '?')[0].toUpperCase()}
             </div>
           )}
+
+          {/* Name + Info */}
           <div className="flex-1">
             <h2 className="text-xl font-semibold text-[var(--text-primary)]">
               {profile?.first_name
                 ? `${profile.first_name} ${profile.last_name}`
                 : user?.displayName || 'Unknown'}
             </h2>
-            <p className="text-sm text-[var(--text-secondary)]">
-              {profile?.job_title || 'Team Member'}
-              {profile?.division ? ` \u00B7 ${profile.division}` : ''}
-            </p>
-            {profile?.level !== undefined && (
-              <span
-                className="mt-1 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium"
-                style={{ background: 'var(--portal-glow)', color: 'var(--portal-accent)' }}
-              >
-                {LEVEL_LABELS[profile.level] || `Level ${profile.level}`}
-              </span>
+            {profile?.aliases && profile.aliases.length > 0 && (
+              <p className="text-sm text-[var(--text-muted)]">
+                Goes by: {profile.aliases[0]}
+              </p>
             )}
+            <div className="mt-1 flex items-center gap-2">
+              {profile?.status && (
+                <span
+                  className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                  style={{
+                    background: profile.status.toLowerCase() === 'active'
+                      ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                    color: profile.status.toLowerCase() === 'active'
+                      ? 'var(--success)' : 'var(--error)',
+                  }}
+                >
+                  {profile.status}
+                </span>
+              )}
+              {profile?.level !== undefined && (
+                <span
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  style={{ background: 'var(--portal-glow)', color: 'var(--portal-accent)' }}
+                >
+                  {LEVEL_LABELS[profile.level] || `Level ${profile.level}`}
+                </span>
+              )}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-4 text-sm text-[var(--text-secondary)]">
+              {profile?.job_title && (
+                <span className="flex items-center gap-1">
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>work</span>
+                  {profile.job_title}
+                </span>
+              )}
+              {profile?.division && (
+                <span className="flex items-center gap-1">
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>account_tree</span>
+                  {profile.division}
+                </span>
+              )}
+              {profile?.location && (
+                <span className="flex items-center gap-1">
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>location_on</span>
+                  {profile.location}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Edit Mode */}
-        {editing ? (
-          <div className="mt-6">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <EditableField
-                label="First Name"
-                value={editFields.first_name}
-                onChange={(v) => setEditFields((p) => ({ ...p, first_name: v }))}
-              />
-              <EditableField
-                label="Last Name"
-                value={editFields.last_name}
-                onChange={(v) => setEditFields((p) => ({ ...p, last_name: v }))}
-              />
-              <EditableField
-                label="Phone"
-                value={editFields.phone}
-                onChange={(v) => setEditFields((p) => ({ ...p, phone: v }))}
-              />
-              <EditableField
-                label="Location"
-                value={editFields.location}
-                onChange={(v) => setEditFields((p) => ({ ...p, location: v }))}
-              />
-              <div className="sm:col-span-2">
-                <EditableField
-                  label="Aliases (comma separated)"
-                  value={editFields.aliases}
-                  onChange={(v) => setEditFields((p) => ({ ...p, aliases: v }))}
-                />
-              </div>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button
-                onClick={saveEdit}
-                disabled={saving}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-50"
-                style={{ background: 'var(--portal)' }}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button
-                onClick={cancelEdit}
-                className="rounded-lg border border-[var(--border-subtle)] px-4 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
-              >
-                Cancel
-              </button>
+        {/* Direct Reports (LEADER+ viewing) */}
+        {isLeaderPlus && directReports.length > 0 && (
+          <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
+            <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+              Direct Reports ({directReports.length})
+            </span>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {directReports.map((r) => (
+                <button
+                  key={r._id}
+                  onClick={() => setSelectedEmail(r.email)}
+                  className="flex items-center gap-1.5 rounded-full bg-[var(--bg-surface)] px-3 py-1 text-xs text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>person</span>
+                  {r.first_name} {r.last_name}
+                </button>
+              ))}
             </div>
           </div>
-        ) : (
-          <>
-            {/* Contact Details */}
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <ProfileField label="Email" value={profile?.email || user?.email} />
-              <ProfileField label="Phone" value={profile?.phone} />
-              <ProfileField label="Personal Email" value={profile?.personal_email} />
-              <ProfileField label="Location" value={profile?.location} />
-              <ProfileField label="NPN" value={profile?.npn} />
-              <ProfileField label="Hire Date" value={profile?.hire_date} />
-            </div>
-
-            {/* Team Info */}
-            <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
-              <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Team
-              </h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <ProfileField label="Division" value={profile?.division} />
-                <ProfileField label="Unit" value={profile?.unit} />
-                <ProfileField label="Manager" value={profile?.manager_email} />
-              </div>
-
-              {/* Direct Reports (LEADER+ viewing) */}
-              {isLeaderPlus && directReports.length > 0 && (
-                <div className="mt-4">
-                  <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                    Direct Reports ({directReports.length})
-                  </span>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {directReports.map((r) => (
-                      <button
-                        key={r._id}
-                        onClick={() => setSelectedEmail(r.email)}
-                        className="flex items-center gap-1.5 rounded-full bg-[var(--bg-surface)] px-3 py-1 text-xs text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-                      >
-                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-                          person
-                        </span>
-                        {r.first_name} {r.last_name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Aliases */}
-            {profile?.aliases && profile.aliases.length > 0 && (
-              <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
-                <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Aliases
-                </span>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {profile.aliases.map((alias, i) => (
-                    <span
-                      key={i}
-                      className="rounded-full bg-[var(--bg-surface)] px-2.5 py-0.5 text-xs text-[var(--text-secondary)]"
-                    >
-                      {alias}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Employee Profile (parsed JSON) */}
-            {empProfile && (
-              <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
-                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Workspace
-                </h3>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {empProfile.roadmap_doc_id && (
-                    <ProfileField
-                      label="Roadmap"
-                      value="Open Roadmap"
-                      href={`https://docs.google.com/document/d/${empProfile.roadmap_doc_id}`}
-                    />
-                  )}
-                  {empProfile.drive_folder_url && (
-                    <ProfileField
-                      label="Drive Folder"
-                      value="Open Folder"
-                      href={empProfile.drive_folder_url}
-                    />
-                  )}
-                  {empProfile.meet_room?.meet_link && (
-                    <ProfileField
-                      label="Meet Room"
-                      value={empProfile.meet_room.room_name || 'Join Meeting'}
-                      href={empProfile.meet_room.meet_link}
-                    />
-                  )}
-                </div>
-
-                {/* Team Folders */}
-                {empProfile.team_folders && empProfile.team_folders.length > 0 && (
-                  <div className="mt-4">
-                    <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                      Team Folders
-                    </span>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {empProfile.team_folders.map((f, i) => (
-                        <a
-                          key={i}
-                          href={f.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--portal)]"
-                        >
-                          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-                            folder
-                          </span>
-                          {f.name}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </>
         )}
       </div>
 
-      {/* MyDropZone Card */}
-      <div className="mt-6 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
+      {/* ─── Section 2: Communication Preferences ─── */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
+        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <span className="material-icons-outlined" style={{ fontSize: '16px' }}>contact_phone</span>
+          Communication Preferences
+        </h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <InlineEditField
+            label="Phone"
+            value={profile?.phone}
+            onSave={(val) => saveField('phone', val)}
+            disabled={!isOwnProfile}
+            type="tel"
+          />
+          <InlineEditField
+            label="Email"
+            value={profile?.email || user?.email}
+            onSave={(val) => saveField('email', val)}
+            disabled={true}
+            type="email"
+          />
+          <InlineEditField
+            label="Personal Email"
+            value={profile?.personal_email}
+            onSave={(val) => saveField('personal_email', val)}
+            disabled={!isOwnProfile}
+            type="email"
+          />
+          <InlineEditField
+            label="First Name"
+            value={profile?.first_name}
+            onSave={(val) => saveField('first_name', val)}
+            disabled={!isOwnProfile}
+          />
+          <InlineEditField
+            label="Last Name"
+            value={profile?.last_name}
+            onSave={(val) => saveField('last_name', val)}
+            disabled={!isOwnProfile}
+          />
+          <InlineEditField
+            label="Location"
+            value={profile?.location}
+            onSave={(val) => saveField('location', val)}
+            disabled={!isOwnProfile}
+          />
+        </div>
+
+        {/* Aliases */}
+        {profile?.aliases && profile.aliases.length > 0 && (
+          <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
+            <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+              Aliases
+            </span>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {profile.aliases.map((alias, i) => (
+                <span
+                  key={i}
+                  className="rounded-full bg-[var(--bg-surface)] px-2.5 py-0.5 text-xs text-[var(--text-secondary)]"
+                >
+                  {alias}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ─── Section 3: Quick Links ─── */}
+      {empProfile && (empProfile.drive_folder_url || (empProfile.team_folders && empProfile.team_folders.length > 0) || empProfile.roadmap_doc_id) && (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            <span className="material-icons-outlined" style={{ fontSize: '16px' }}>link</span>
+            Quick Links
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {empProfile.drive_folder_url && (
+              <a
+                href={empProfile.drive_folder_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--portal)]"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>folder</span>
+                HR Folder
+              </a>
+            )}
+            {empProfile.roadmap_doc_id && (
+              <a
+                href={`https://docs.google.com/document/d/${empProfile.roadmap_doc_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--portal)]"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>description</span>
+                Roadmap
+              </a>
+            )}
+            {empProfile.team_folders?.map((f, i) => (
+              <a
+                key={i}
+                href={f.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--portal)]"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>folder_shared</span>
+                {f.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Section 4: My Drop Zone ─── */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
         <div className="flex items-center gap-2">
           <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '24px' }}>
             cloud_upload
           </span>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">MyDropZone</h3>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)]">My Drop Zone</h3>
         </div>
-        <p className="mt-2 text-sm text-[var(--text-muted)]">
-          Your single entry point into MACHINA. Record meetings, snap documents, and let the system
-          handle the rest.
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
+          Your single entry point into MACHINA. Share your links, record meetings, snap documents.
         </p>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {/* Record a Meeting */}
-          <button
-            className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-left transition-colors hover:bg-[var(--bg-hover)]"
-            disabled
-          >
-            <span
-              className="flex h-10 w-10 items-center justify-center rounded-lg"
-              style={{ background: 'var(--portal-glow)' }}
-            >
-              <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>
-                mic
-              </span>
-            </span>
-            <div>
-              <span className="text-sm font-medium text-[var(--text-primary)]">Record a Meeting</span>
-              <p className="text-xs text-[var(--text-muted)]">Coming soon</p>
-            </div>
-          </button>
-
-          {/* Upload Documents */}
-          <button
-            className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-left transition-colors hover:bg-[var(--bg-hover)]"
-            disabled
-          >
-            <span
-              className="flex h-10 w-10 items-center justify-center rounded-lg"
-              style={{ background: 'var(--portal-glow)' }}
-            >
-              <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>
-                upload_file
-              </span>
-            </span>
-            <div>
-              <span className="text-sm font-medium text-[var(--text-primary)]">Upload Documents</span>
-              <p className="text-xs text-[var(--text-muted)]">Coming soon</p>
-            </div>
-          </button>
+        <div className="mt-4 space-y-3">
+          <DropZoneLink
+            label="Meet Link"
+            url={empProfile?.meet_room?.meet_link}
+            icon="videocam"
+          />
+          <DropZoneLink
+            label="Intake Folder"
+            url={empProfile?.meet_room?.folder_url}
+            icon="drive_folder_upload"
+          />
+          <DropZoneLink
+            label="Booking Page (External)"
+            url={externalBookingUrl}
+            icon="calendar_month"
+          />
+          <DropZoneLink
+            label="Booking Page (Internal)"
+            url={internalBookingUrl}
+            icon="event"
+          />
         </div>
 
-        {/* Recent Captures (empty state) */}
-        <div className="mt-4">
-          <h4 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-            Recent Captures
-          </h4>
-          <div className="mt-2 flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-8">
-            <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">
-              inbox
-            </span>
+        {/* Empty state if no drop zone links */}
+        {!empProfile?.meet_room?.meet_link && !empProfile?.meet_room?.folder_url && !bookingSlug && (
+          <div className="mt-4 flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-8">
+            <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">cloud_off</span>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
-              No captures yet. Recordings and uploads will appear here.
+              No Drop Zone links configured yet. Contact your admin to set up your Meet room and booking pages.
             </p>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* ─── Section 5: Meeting Config ─── */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
+        <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <span className="material-icons-outlined" style={{ fontSize: '16px' }}>event_available</span>
+          Meeting Configuration
+        </h3>
+
+        {meetingTypes.length > 0 ? (
+          <div className="space-y-2">
+            {meetingTypes.map((mt, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-lg"
+                    style={{ background: 'var(--portal-glow)' }}
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>
+                      schedule
+                    </span>
+                  </span>
+                  <div>
+                    <span className="text-sm font-medium text-[var(--text-primary)]">{mt.name}</span>
+                    {mt.category && (
+                      <p className="text-xs text-[var(--text-muted)]">{mt.category}</p>
+                    )}
+                  </div>
+                </div>
+                <span className="rounded-full bg-[var(--portal-glow)] px-2.5 py-0.5 text-xs font-medium text-[var(--portal-accent)]">
+                  {mt.duration_minutes} min
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-8">
+            <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">event_busy</span>
+            <p className="mt-2 text-sm text-[var(--text-muted)]">
+              No meeting types configured. Meeting types are defined at the RIIMO admin level.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ─── Section 6: Calendar Config ─── */}
+      {meetingTypes.length > 0 && isOwnProfile && (
+        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>date_range</span>
+              Weekly Availability
+            </h3>
+            <button
+              onClick={() => void saveCalendarConfig()}
+              disabled={calendarSaving}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
+              style={{ background: 'var(--portal)' }}
+            >
+              {calendarSaving ? (
+                <>
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Saving...
+                </>
+              ) : calendarSaved ? (
+                <>
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check</span>
+                  Saved
+                </>
+              ) : (
+                <>
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>save</span>
+                  Save
+                </>
+              )}
+            </button>
+          </div>
+
+          <p className="mb-4 text-xs text-[var(--text-muted)]">
+            Select which meeting types you accept for each time slot. Your Google Calendar availability is also checked when booking.
+          </p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr>
+                  <th className="sticky left-0 z-10 bg-[var(--bg-card)] pb-2 pr-3 text-left font-medium text-[var(--text-muted)]">
+                    Time
+                  </th>
+                  {DAYS.map((day) => (
+                    <th key={day} className="pb-2 text-center font-medium text-[var(--text-muted)]" style={{ minWidth: '100px' }}>
+                      {day.slice(0, 3)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {TIME_SLOTS.map((slot) => (
+                  <tr key={slot} className="border-t border-[var(--border-subtle)]">
+                    <td className="sticky left-0 z-10 bg-[var(--bg-card)] py-1.5 pr-3 text-[var(--text-muted)]">
+                      {slot}
+                    </td>
+                    {DAYS.map((day) => {
+                      const dayConfig = calendarConfig[day] || {}
+                      const slotTypes = dayConfig[slot] || []
+                      return (
+                        <td key={day} className="py-1.5 text-center">
+                          <div className="flex flex-wrap justify-center gap-0.5">
+                            {meetingTypes.map((mt) => {
+                              const isActive = slotTypes.includes(mt.name)
+                              return (
+                                <button
+                                  key={mt.name}
+                                  onClick={() => toggleCalendarSlot(day, slot, mt.name)}
+                                  className={`rounded px-1 py-0.5 text-[9px] font-medium transition-colors ${
+                                    isActive
+                                      ? 'text-white'
+                                      : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
+                                  }`}
+                                  style={isActive ? { background: 'var(--portal)' } : undefined}
+                                  title={mt.name}
+                                >
+                                  {mt.name.slice(0, 4)}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Profile not found warning */}
       {!profile && (
-        <div className="mt-4 rounded-lg border border-[var(--warning)] bg-[rgba(245,158,11,0.05)] p-4 text-sm text-[var(--text-secondary)]">
+        <div className="rounded-lg border border-[var(--warning)] bg-[rgba(245,158,11,0.05)] p-4 text-sm text-[var(--text-secondary)]">
           <span className="font-medium text-[var(--warning)]">Profile not found.</span>{' '}
           Your account ({user?.email}) does not have a matching record in the users collection yet.
         </div>
