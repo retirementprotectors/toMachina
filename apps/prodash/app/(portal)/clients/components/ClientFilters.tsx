@@ -21,7 +21,7 @@ interface ClientFiltersProps {
 }
 
 const STATUS_OPTIONS = ['All', 'Active', 'Prospect', 'Inactive', 'Deceased']
-const ACCOUNT_TYPE_OPTIONS = ['All', 'Annuity', 'Life', 'Medicare', 'BD/RIA']
+const ACCOUNT_TYPE_OPTIONS = ['All', 'Annuity', 'Life', 'Medicare', 'Investment'] // display label: Investment (data value: bd_ria)
 const ACF_OPTIONS = ['All', 'Has ACF', 'No ACF']
 
 export function ClientFilters({

@@ -112,7 +112,7 @@ export default function Client360Page({
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <BackLink />
-      <ClientHeader client={client} />
+      <ClientHeader client={client} clientId={id} />
       <PossibleDuplicates client={client} clientId={id} />
       <ClientTabs activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="min-h-[400px]">{renderTabContent()}</div>

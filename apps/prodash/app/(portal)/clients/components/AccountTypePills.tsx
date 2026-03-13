@@ -4,9 +4,11 @@ const ACCOUNT_TYPE_MAP: Record<string, { label: string; bg: string; text: string
   annuity: { label: 'A', bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b' },
   life: { label: 'L', bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981' },
   medicare: { label: 'M', bg: 'rgba(59, 130, 246, 0.15)', text: '#3b82f6' },
-  'bd/ria': { label: 'B', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },
-  bd: { label: 'B', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },
-  ria: { label: 'B', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },
+  'bd/ria': { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' }, // Investment
+  bd: { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },       // Investment
+  ria: { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },      // Investment
+  bdria: { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },    // Investment
+  bd_ria: { label: 'I', bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' },   // Investment
 }
 
 interface AccountTypePillsProps {
@@ -18,7 +20,7 @@ export function AccountTypePills({ accountTypes }: AccountTypePillsProps) {
     return <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
   }
 
-  // Deduplicate labels (BD and RIA both map to 'B')
+  // Deduplicate labels (BD, RIA, bd_ria, bdria all map to 'I' for Investment)
   const seen = new Set<string>()
   const pills: Array<{ label: string; bg: string; text: string }> = []
 
@@ -49,7 +51,9 @@ export function AccountTypePills({ accountTypes }: AccountTypePillsProps) {
                 ? 'Life'
                 : pill.label === 'M'
                   ? 'Medicare'
-                  : 'BD/RIA'
+                  : pill.label === 'I'
+                    ? 'Investment'
+                    : 'Other'
           }
         >
           {pill.label}

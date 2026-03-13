@@ -41,7 +41,7 @@ const FILTER_TABS: { key: FilterKey; label: string; color: string }[] = [
   { key: 'annuity', label: 'Annuity', color: '#f59e0b' },
   { key: 'life', label: 'Life', color: '#10b981' },
   { key: 'medicare', label: 'Medicare', color: '#3b82f6' },
-  { key: 'bdria', label: 'BD/RIA', color: '#a78bfa' },
+  { key: 'bdria', label: 'Investment', color: '#a78bfa' }, // display label: Investment (data value: bdria)
 ]
 
 // Default column keys per product type

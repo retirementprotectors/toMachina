@@ -318,7 +318,7 @@ export const MODULES: Record<string, ModuleDef> = {
   PRODASH_ACCOUNTS: {
     name: 'Accounts',
     fullName: 'Account Management',
-    description: 'Multi-type account management (annuity, life, medicare, BD/RIA, banking)',
+    description: 'Multi-type account management (annuity, life, medicare, investment, banking)',
     status: 'active',
     suite: 'RPI_TOOLS',
     minUserLevel: 'USER',
