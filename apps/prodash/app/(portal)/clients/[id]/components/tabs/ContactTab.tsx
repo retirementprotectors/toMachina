@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { doc, updateDoc } from 'firebase/firestore'
+import { useState, useCallback, useEffect } from 'react'
+import { doc, updateDoc, collection, getDocs } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Client } from '@tomachina/core'
 import { formatPhone, str } from '../../lib/formatters'
-import { InlineField, InlineSection, ReadOnlyField } from '../../lib/inline-edit'
+import { InlineField, InlineSection } from '../../lib/inline-edit'
 import { FieldGrid } from '../../lib/ui-helpers'
 
 interface ContactTabProps {
@@ -26,6 +26,26 @@ const RELATIONSHIP_OPTIONS = [
   { label: 'Referrer', value: 'Referrer' },
   { label: 'Family', value: 'Family' },
   { label: 'Business Partner', value: 'Business Partner' },
+  { label: 'Other', value: 'Other' },
+]
+
+const BOOK_OF_BUSINESS_OPTIONS = [
+  { label: 'RPI', value: 'RPI' },
+  { label: 'Signal', value: 'Signal' },
+  { label: 'Gradient', value: 'Gradient' },
+  { label: 'Sprenger', value: 'Sprenger' },
+  { label: 'Transfer', value: 'Transfer' },
+  { label: 'Other', value: 'Other' },
+]
+
+const SOURCE_OPTIONS = [
+  { label: 'Referral', value: 'Referral' },
+  { label: 'Marketing', value: 'Marketing' },
+  { label: 'Website', value: 'Website' },
+  { label: 'Walk-In', value: 'Walk-In' },
+  { label: 'Transfer', value: 'Transfer' },
+  { label: 'Seminar', value: 'Seminar' },
+  { label: 'Mailer', value: 'Mailer' },
   { label: 'Other', value: 'Other' },
 ]
 
@@ -60,23 +80,19 @@ function DncPill({
     <button
       onClick={onToggle}
       disabled={saving}
-      className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-all duration-150"
-      style={
+      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-all duration-150 ${
         active
-          ? { background: 'rgba(239,68,68,0.15)', color: '#f87171' }
-          : { background: 'var(--bg-surface)', color: 'var(--text-muted)' }
-      }
+          ? 'bg-red-500/15 text-red-400'
+          : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+      }`}
       title={`${active ? 'Remove' : 'Set'} Do Not Contact — ${label}`}
     >
-      <span className="material-icons-outlined" style={{ fontSize: '13px' }}>
+      <span className="material-icons-outlined text-[13px]">
         {icon}
       </span>
       {label}
       {saving && (
-        <span
-          className="h-2.5 w-2.5 animate-spin rounded-full border border-current border-t-transparent"
-          style={{ borderWidth: '1.5px' }}
-        />
+        <span className="h-2.5 w-2.5 animate-spin rounded-full border border-current border-t-transparent" />
       )}
     </button>
   )
@@ -112,25 +128,20 @@ function DncRow({ client, docPath }: { client: Client; docPath: string }) {
 
   return (
     <div
-      className="flex items-center gap-3 rounded-lg border px-4 py-2.5"
-      style={{
-        borderColor: anyActive ? 'rgba(239,68,68,0.3)' : 'var(--border-subtle)',
-        background: anyActive ? 'rgba(239,68,68,0.04)' : 'var(--bg-card)',
-      }}
+      className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 ${
+        anyActive
+          ? 'border-red-500/30 bg-red-500/[0.04]'
+          : 'border-[var(--border-subtle)] bg-[var(--bg-card)]'
+      }`}
     >
       <div className="flex items-center gap-1.5 shrink-0">
         <span
-          className="material-icons-outlined"
-          style={{
-            fontSize: '15px',
-            color: anyActive ? '#f87171' : 'var(--text-muted)',
-          }}
+          className={`material-icons-outlined text-[15px] ${anyActive ? 'text-red-400' : 'text-[var(--text-muted)]'}`}
         >
           do_not_disturb
         </span>
         <span
-          className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: anyActive ? '#f87171' : 'var(--text-muted)' }}
+          className={`text-xs font-semibold uppercase tracking-wider ${anyActive ? 'text-red-400' : 'text-[var(--text-muted)]'}`}
         >
           Do Not Contact
         </span>
@@ -156,6 +167,29 @@ function DncRow({ client, docPath }: { client: Client; docPath: string }) {
 
 export function ContactTab({ client, clientId }: ContactTabProps) {
   const docPath = `clients/${clientId}`
+
+  const [agentOptions, setAgentOptions] = useState<{ label: string; value: string }[]>([])
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const snap = await getDocs(collection(getDb(), 'users'))
+        const opts = snap.docs.map((d) => {
+          const data = d.data() as Record<string, unknown>
+          const last = String(data.last_name || '').trim()
+          const first = String(data.first_name || '').trim()
+          const email = String(data.email || d.id).trim()
+          const label = last && first ? `${last}, ${first}` : first || email
+          return { label, value: email }
+        })
+        opts.sort((a, b) => a.label.localeCompare(b.label))
+        setAgentOptions(opts)
+      } catch {
+        // Non-critical — agent dropdown stays empty
+      }
+    }
+    fetchUsers()
+  }, [])
 
   return (
     <div className="space-y-4">
@@ -269,9 +303,30 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             type="select"
             options={RELATIONSHIP_OPTIONS}
           />
-          <ReadOnlyField label="Agent" value={str(client.agent_name)} />
-          <ReadOnlyField label="Book of Business" value={str(client.book_of_business)} />
-          <ReadOnlyField label="Source" value={str(client.source)} />
+          <InlineField
+            label="Agent"
+            value={str(client.agent_name)}
+            fieldKey="agent_name"
+            docPath={docPath}
+            type="select"
+            options={agentOptions}
+          />
+          <InlineField
+            label="Book of Business"
+            value={str(client.book_of_business)}
+            fieldKey="book_of_business"
+            docPath={docPath}
+            type="select"
+            options={BOOK_OF_BUSINESS_OPTIONS}
+          />
+          <InlineField
+            label="Source"
+            value={str(client.source)}
+            fieldKey="source"
+            docPath={docPath}
+            type="select"
+            options={SOURCE_OPTIONS}
+          />
         </FieldGrid>
       </InlineSection>
 

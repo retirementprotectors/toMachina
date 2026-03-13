@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import type { Account } from '@tomachina/core'
 import { formatCurrency, formatDate, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
@@ -125,8 +124,9 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
   }, [])
 
   const handleDdupSelected = useCallback(() => {
-    // Placeholder — ddup comparison modal will be built later
-  }, [])
+    const ids = Array.from(selected).join(',')
+    window.open(`/ddup?ids=${ids}&type=account`, '_blank', 'noopener,noreferrer')
+  }, [selected])
 
   if (loading) {
     return (
@@ -289,7 +289,6 @@ function AccountSummaryCard({
   isSelected: boolean
   onToggleSelect: (accountId: string) => void
 }) {
-  const router = useRouter()
   const statusColor = getStatusColor(str(account.status))
   const acctId = str(account.account_id) || str((account as Record<string, unknown>)._id)
   const policyNum = str(account.policy_number) || str(account.account_number)
@@ -302,8 +301,8 @@ function AccountSummaryCard({
   const documents = ((account as Record<string, unknown>).documents as AccountDocument[] | undefined) ?? []
 
   const handleCardClick = useCallback(() => {
-    router.push(`/accounts/${clientId}/${acctId}`)
-  }, [router, clientId, acctId])
+    window.open(`/accounts/${clientId}/${acctId}`, '_blank', 'noopener,noreferrer')
+  }, [clientId, acctId])
 
   const handleCheckboxClick = useCallback((e: React.MouseEvent<HTMLInputElement>) => {
     e.stopPropagation()
@@ -387,15 +386,15 @@ function AccountSummaryCard({
       {docTypes.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[var(--border-subtle)] pt-3 pl-6">
           {docTypes.map((docType) => {
-            const doc = documents.find((d) => d.doc_type === docType)
-            const hasDoc = !!doc?.url
+            const docItem = documents.find((d) => d.doc_type === docType)
+            const hasDoc = !!docItem?.url
             return (
               <button
                 key={docType}
                 onClick={(e) => {
                   e.stopPropagation()
                   if (hasDoc) {
-                    window.open(doc!.url, '_blank', 'noopener,noreferrer')
+                    window.open(docItem!.url, '_blank', 'noopener,noreferrer')
                   }
                 }}
                 className={`inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-all ${
@@ -414,13 +413,6 @@ function AccountSummaryCard({
           })}
         </div>
       )}
-
-      {/* Navigation indicator */}
-      <div className="mt-3 flex justify-end">
-        <span className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)]">
-          <span className="material-icons-outlined text-[14px]">chevron_right</span>
-        </span>
-      </div>
     </div>
   )
 }

@@ -11,10 +11,10 @@ interface ActivityTabProps {
   clientId: string
 }
 
-type SubTab = 'client' | 'account' | 'comms'
+type SubTab = 'all' | 'client' | 'account'
 
 export function ActivityTab({ clientId }: ActivityTabProps) {
-  const [subTab, setSubTab] = useState<SubTab>('client')
+  const [subTab, setSubTab] = useState<SubTab>('all')
 
   // Query activities subcollection
   const activitiesQuery = useMemo(() => {
@@ -33,12 +33,12 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
     return activities.filter((a) => {
       const t = str(a.activity_type).toLowerCase()
       switch (subTab) {
+        case 'all':
+          return true
         case 'client':
           return t.includes('create') || t.includes('update') || t.includes('status') || t.includes('edit') || t.includes('import') || t.includes('note') || t.includes('profile')
         case 'account':
           return t.includes('account') || t.includes('policy') || t.includes('transaction') || t.includes('valuation')
-        case 'comms':
-          return t.includes('email') || t.includes('call') || t.includes('sms') || t.includes('text') || t.includes('send') || t.includes('meeting')
         default:
           return true
       }
@@ -66,9 +66,9 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
       {/* Sub-tabs */}
       <div className="flex gap-1 rounded-lg bg-[var(--bg-surface)] p-1">
         {([
+          { key: 'all', label: 'All', icon: 'list' },
           { key: 'client', label: 'Client', icon: 'person' },
           { key: 'account', label: 'Account', icon: 'account_balance_wallet' },
-          { key: 'comms', label: 'Comms', icon: 'forum' },
         ] as const).map((tab) => (
           <button
             key={tab.key}
@@ -89,7 +89,7 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
       {filtered.length === 0 ? (
         <EmptyState
           icon="history"
-          message={`No ${subTab} activity recorded yet.`}
+          message={subTab === 'all' ? 'No activity recorded yet.' : `No ${subTab} activity recorded yet.`}
         />
       ) : (
         <div className="relative">
