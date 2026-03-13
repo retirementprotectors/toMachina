@@ -41,6 +41,7 @@ import { dexRoutes } from './routes/dex.js'
 import { dexPipelineRoutes } from './routes/dex-pipeline.js'
 import { campaignAnalyticsRoutes } from './routes/campaign-analytics.js'
 import { leadershipRoutes } from './routes/leadership.js'
+import { flowAdminRoutes } from './routes/flow-admin.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -90,6 +91,7 @@ app.use('/api/webhooks', webhookRoutes)
 app.use('/api/rules', rulesRoutes)
 app.use('/api/medicare-quote', medicareQuoteRoutes)
 app.use('/api/comms', commsRoutes)
+app.use('/api/flow/admin', normalizeBody, flowAdminRoutes)
 app.use('/api/flow', flowRoutes)
 app.use('/api/templates', normalizeBody, templateRoutes)
 app.use('/api/content-blocks', normalizeBody, contentBlockRoutes)

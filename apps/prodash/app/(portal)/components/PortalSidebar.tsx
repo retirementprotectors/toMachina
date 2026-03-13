@@ -161,7 +161,12 @@ function filterAppItems(
   })
 }
 
-export function PortalSidebar() {
+interface PortalSidebarProps {
+  onConnectToggle?: () => void
+  connectOpen?: boolean
+}
+
+export function PortalSidebar({ onConnectToggle, connectOpen }: PortalSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()

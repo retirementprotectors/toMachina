@@ -13,6 +13,7 @@ export { LeadershipCenter } from './LeadershipCenter'
 export { AdminPanel } from './AdminPanel'
 export { CommsCenter } from './CommsCenter'
 
+export { PipelineStudio } from './PipelineStudio'
 export { PipelineKanban } from './PipelineKanban'
 export { PipelineInstance } from './PipelineInstance'
 export { PipelineAdmin } from './PipelineAdmin'
