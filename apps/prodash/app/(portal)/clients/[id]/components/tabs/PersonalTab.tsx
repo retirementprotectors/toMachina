@@ -1,7 +1,7 @@
 'use client'
 
 import type { Client } from '@tomachina/core'
-import { maskSSN, formatDate, getAge, str } from '../../lib/formatters'
+import { maskSSN, formatBirthday, formatMedicareDate, formatLicenseDate, getAge, str } from '../../lib/formatters'
 import { InlineField, InlineSection, ReadOnlyField } from '../../lib/inline-edit'
 import { FieldGrid } from '../../lib/ui-helpers'
 
@@ -45,26 +45,14 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
 
   return (
     <div className="space-y-4">
-      {/* Personal Details */}
+      {/* Personal Details — DF-15: removed duplicate age display (already in header) */}
       <InlineSection title="Personal Details" icon="badge">
-        {/* Age display */}
-        {age != null && (
-          <div className="mb-4 flex items-center gap-4 rounded-lg bg-[var(--bg-surface)] px-4 py-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: 'var(--portal-glow)' }}>
-              <span className="text-lg font-bold" style={{ color: 'var(--portal)' }}>{age}</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[var(--text-primary)]">{formatDate(client.dob)}</p>
-              <p className="text-xs text-[var(--text-muted)]">Date of Birth &middot; Age {age}</p>
-            </div>
-          </div>
-        )}
         <FieldGrid cols={4}>
           <InlineField label="First Name" value={str(client.first_name)} fieldKey="first_name" docPath={docPath} />
           <InlineField label="Middle Name" value={str(client.middle_name)} fieldKey="middle_name" docPath={docPath} />
           <InlineField label="Last Name" value={str(client.last_name)} fieldKey="last_name" docPath={docPath} />
           <InlineField label="Preferred Name" value={str(client.preferred_name)} fieldKey="preferred_name" docPath={docPath} />
-          <InlineField label="Date of Birth" value={str(client.dob)} fieldKey="dob" docPath={docPath} type="date" />
+          <InlineField label="Date of Birth" value={str(client.dob)} fieldKey="dob" docPath={docPath} type="date" formatDisplay={formatBirthday} />
           <InlineField
             label="Marital Status"
             value={str(client.marital_status)}
@@ -98,7 +86,10 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             options={EMPLOYMENT_OPTIONS}
           />
           <InlineField label="Occupation" value={str(client.occupation)} fieldKey="occupation" docPath={docPath} />
-          <InlineField label="Former Occupation" value={str(client.former_occupation)} fieldKey="former_occupation" docPath={docPath} />
+          {/* DF-16: Former Occupation only shows when status = Retired */}
+          {str(client.employment_status).toLowerCase() === 'retired' && (
+            <InlineField label="Former Occupation" value={str(client.former_occupation)} fieldKey="former_occupation" docPath={docPath} />
+          )}
           <InlineField label="Annual Income" value={str(client.annual_income)} fieldKey="annual_income" docPath={docPath} type="number" />
           <InlineField label="Employer" value={str(client.employer)} fieldKey="employer" docPath={docPath} />
         </FieldGrid>
@@ -120,6 +111,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="part_a_effective_date"
             docPath={docPath}
             type="date"
+            formatDisplay={formatMedicareDate}
           />
           <InlineField
             label="Part B Effective Date"
@@ -127,6 +119,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="part_b_effective_date"
             docPath={docPath}
             type="date"
+            formatDisplay={formatMedicareDate}
           />
         </FieldGrid>
       </InlineSection>
@@ -155,6 +148,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="dl_expiration"
             docPath={docPath}
             type="date"
+            formatDisplay={formatLicenseDate}
           />
         </FieldGrid>
       </InlineSection>

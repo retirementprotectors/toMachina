@@ -42,7 +42,7 @@ export function ClientTabs({ activeTab, onTabChange }: ClientTabsProps) {
             key={tab.key}
             onClick={() => onTabChange(tab.key)}
             className={`
-              inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium
+              inline-flex shrink-0 items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium
               transition-all duration-150
               ${
                 isActive

@@ -186,7 +186,8 @@ function CollapsibleSection({
   isLeader: boolean
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
 }) {
-  const [expanded, setExpanded] = useState(true)
+  /* DF-9/DF-28: Default collapsed, click to expand */
+  const [expanded, setExpanded] = useState(false)
 
   // Get unique module keys in this section
   const sectionModuleKeys = useMemo(() => {
@@ -607,13 +608,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">
-          {isLeader ? 'Module permissions and pipeline configuration' : 'Your module permissions'}
-        </p>
-      </div>
+      {/* PL3-8: Removed redundant "Admin" heading — sidebar already shows context */}
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-1.5">
@@ -624,7 +619,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium transition-colors ${
               activeTab === tab.key
                 ? 'text-white'
                 : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'

@@ -59,6 +59,7 @@ export function hashColor(name: string): string {
 
 /**
  * Format a date string as human-readable (e.g., "Jan 15, 1955").
+ * Generic fallback date format.
  */
 export function formatDate(raw: unknown): string {
   if (!raw) return ''
@@ -70,6 +71,55 @@ export function formatDate(raw: unknown): string {
     year: 'numeric',
     timeZone: 'UTC',
   })
+}
+
+/**
+ * Medicare date format: MM-DD-YYYY (dashes).
+ */
+export function formatMedicareDate(raw: unknown): string {
+  if (!raw) return ''
+  const d = new Date(String(raw))
+  if (isNaN(d.getTime())) return String(raw)
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(d.getUTCDate()).padStart(2, '0')
+  const yyyy = d.getUTCFullYear()
+  return `${mm}-${dd}-${yyyy}`
+}
+
+/**
+ * License/DL date format: MM/DD/YYYY (slashes).
+ */
+export function formatLicenseDate(raw: unknown): string {
+  if (!raw) return ''
+  const d = new Date(String(raw))
+  if (isNaN(d.getTime())) return String(raw)
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(d.getUTCDate()).padStart(2, '0')
+  const yyyy = d.getUTCFullYear()
+  return `${mm}/${dd}/${yyyy}`
+}
+
+/**
+ * Birthday format: Month Day, Year (full month name).
+ * e.g., "January 15, 1955"
+ */
+export function formatBirthday(raw: unknown): string {
+  if (!raw) return ''
+  const d = new Date(String(raw))
+  if (isNaN(d.getTime())) return String(raw)
+  return d.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+}
+
+/**
+ * Account date format: standard short date (e.g., "Jan 15, 2024").
+ */
+export function formatAccountDate(raw: unknown): string {
+  return formatDate(raw)
 }
 
 /**

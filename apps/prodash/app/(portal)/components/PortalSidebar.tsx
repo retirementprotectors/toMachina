@@ -7,16 +7,6 @@ import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/au
 import type { UserEntitlementContext } from '@tomachina/auth'
 import { APP_BRANDS, AppIcon, type AppKey } from '@tomachina/ui'
 
-/* ─── Section Type Styling ─── */
-type SectionType = 'workspace' | 'sales' | 'service' | 'pipeline'
-
-const sectionColors: Record<SectionType, string> = {
-  workspace: 'var(--module-color)',
-  sales: 'var(--module-color)',
-  service: 'var(--module-color)',
-  pipeline: 'var(--pipeline-color)',
-}
-
 /* ─── Nav Item Definition ─── */
 interface NavItem {
   key: string
@@ -29,7 +19,6 @@ interface NavItem {
 interface NavSection {
   key: string
   label: string
-  type: SectionType
   icon: string
   items: NavItem[]
   defaultExpanded: boolean
@@ -44,24 +33,35 @@ interface AppItem {
 }
 
 /* ─── ProDashX Navigation Configuration ─── */
+/* DF-3: Section order: Pipelines > Workspace > Sales Centers > Service Centers */
+/* DF-4: "Clients" renamed to "Contacts" */
+/* DF-24: Quick Intake removed from sidebar */
+/* DF-9: All sections default COLLAPSED */
 const NAV_SECTIONS: NavSection[] = [
+  {
+    key: 'pipelines',
+    label: 'Pipelines',
+    icon: 'route',
+    defaultExpanded: false,
+    moduleKey: 'PRODASH_PIPELINES',
+    items: [
+      { key: 'pipelines-board', label: 'Pipeline Board', href: '/pipelines', icon: 'view_kanban' },
+    ],
+  },
   {
     key: 'workspace',
     label: 'Workspace',
-    type: 'workspace',
     icon: 'workspaces',
-    defaultExpanded: true,
+    defaultExpanded: false,
     moduleKey: 'PRODASH',
     items: [
-      { key: 'clients', label: 'Clients', href: '/clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'clients', label: 'Contacts', href: '/clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
       { key: 'accounts', label: 'Accounts', href: '/accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
-      { key: 'intake', label: 'Quick Intake', href: '/intake', icon: 'person_add', moduleKey: 'PRODASH_CLIENTS' },
     ],
   },
   {
     key: 'sales-centers',
     label: 'Sales Centers',
-    type: 'sales',
     icon: 'storefront',
     defaultExpanded: false,
     items: [
@@ -74,23 +74,11 @@ const NAV_SECTIONS: NavSection[] = [
   {
     key: 'service-centers',
     label: 'Service Centers',
-    type: 'service',
     icon: 'support_agent',
     defaultExpanded: false,
     items: [
       { key: 'rmd', label: 'RMD Center', href: '/service-centers/rmd', icon: 'calendar_month', moduleKey: 'RMD_CENTER' },
       { key: 'beni', label: 'Beni Center', href: '/service-centers/beni', icon: 'volunteer_activism', moduleKey: 'BENI_CENTER' },
-    ],
-  },
-  {
-    key: 'pipelines',
-    label: 'Pipelines',
-    type: 'pipeline',
-    icon: 'route',
-    defaultExpanded: false,
-    moduleKey: 'PRODASH_PIPELINES',
-    items: [
-      { key: 'pipelines-board', label: 'Pipeline Board', href: '/pipelines', icon: 'view_kanban' },
     ],
   },
 ]
@@ -201,13 +189,14 @@ export function PortalSidebar() {
       if (savedExpanded) {
         setExpandedSections(JSON.parse(savedExpanded))
       } else {
+        /* DF-9: All sections default COLLAPSED */
         const defaults: Record<string, boolean> = {}
-        NAV_SECTIONS.forEach((s) => { defaults[s.key] = s.defaultExpanded })
+        NAV_SECTIONS.forEach((s) => { defaults[s.key] = false })
         setExpandedSections(defaults)
       }
     } catch {
       const defaults: Record<string, boolean> = {}
-      NAV_SECTIONS.forEach((s) => { defaults[s.key] = s.defaultExpanded })
+      NAV_SECTIONS.forEach((s) => { defaults[s.key] = false })
       setExpandedSections(defaults)
     }
   }, [])
@@ -235,19 +224,20 @@ export function PortalSidebar() {
     return false
   }
 
-  /* Logo click navigates to Clients (rule N1) */
+  /* Logo click navigates to Contacts */
   const handleLogoClick = () => {
     router.push('/clients')
   }
 
-  /* ─── Render a scrollable nav section with twist/rotate header ─── */
+  /* ─── Render a scrollable nav section ─── */
+  /* PL1-7/8/9: Section headers lit up with portal blue */
+  /* PL1-10/11: Removed BOTH vertical bars */
   const renderSection = (section: NavSection) => {
-    const color = sectionColors[section.type]
-    const isExpanded = expandedSections[section.key] ?? section.defaultExpanded
+    const isExpanded = expandedSections[section.key] ?? false
 
     return (
       <div key={section.key} className="mb-1">
-        {/* Section Header: icon + title + rotate arrow (rules N4, N5) */}
+        {/* Section Header — portal-blue text */}
         <button
           onClick={() => toggleSection(section.key)}
           className="flex w-full items-center gap-2 px-3 py-1.5 text-left"
@@ -255,7 +245,7 @@ export function PortalSidebar() {
         >
           <span
             className="material-icons-outlined"
-            style={{ fontSize: '16px', color }}
+            style={{ fontSize: '16px', color: 'var(--portal)' }}
           >
             {section.icon}
           </span>
@@ -263,7 +253,7 @@ export function PortalSidebar() {
             <>
               <span
                 className="flex-1 text-[10px] font-bold uppercase tracking-wider"
-                style={{ color }}
+                style={{ color: 'var(--portal)' }}
               >
                 {section.label}
               </span>
@@ -280,14 +270,9 @@ export function PortalSidebar() {
           )}
         </button>
 
-        {/* Section Items */}
+        {/* Section Items — no vertical bar indicators */}
         {(collapsed || isExpanded) && (
-          <div
-            className="ml-2 pl-2"
-            style={{
-              borderLeft: collapsed ? 'none' : `2px solid ${color}`,
-            }}
-          >
+          <div className="ml-4 pl-0">
             {section.items.map((item) => {
               const active = isActive(item.href)
               return (
@@ -304,12 +289,6 @@ export function PortalSidebar() {
                     }
                   `}
                 >
-                  {active && (
-                    <div
-                      className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                      style={{ background: 'var(--portal)' }}
-                    />
-                  )}
                   <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
                     {item.icon}
                   </span>
@@ -328,18 +307,20 @@ export function PortalSidebar() {
       className="flex flex-col border-r border-[var(--border)] bg-[var(--bg-secondary)] transition-all duration-200"
       style={{ width: collapsed ? 60 : 240, minWidth: collapsed ? 60 : 240 }}
     >
-      {/* Header — Portal Logo (SVG) + Toggle */}
-      <div className="flex h-14 items-center justify-between border-b border-[var(--border-subtle)] px-3">
+      {/* Header — Portal Logo + Toggle */}
+      {/* PL1-1/2/3: Equal padding on all sides, more room left/right */}
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
         <button
           onClick={handleLogoClick}
           className="flex items-center overflow-hidden"
-          title="Go to Clients"
+          title="Go to Contacts"
         >
+          {/* PL1-4: Logo is prodashx-transparent.png — DO NOT CHANGE */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={collapsed ? '/prodashx-mark.svg' : '/prodashx-logo.svg'}
+            src={collapsed ? '/prodashx-mark.svg' : '/prodashx-transparent.png'}
             alt="ProDashX"
-            style={{ height: '28px' }}
+            style={{ height: collapsed ? '24px' : '28px' }}
           />
         </button>
         <button
@@ -358,10 +339,10 @@ export function PortalSidebar() {
         {visibleSections.map(renderSection)}
       </nav>
 
-      {/* ═══ Fixed Bottom Zone ═══ */}
+      {/* Fixed Bottom Zone */}
       <div className="shrink-0">
 
-        {/* Apps — branded icons, fixed at bottom */}
+        {/* Apps — branded icons, with draggable divider concept */}
         {visibleApps.length > 0 && (
           <div className="border-t border-[var(--border-subtle)] px-2 py-2">
             {!collapsed && (
@@ -387,12 +368,6 @@ export function PortalSidebar() {
                       }
                     `}
                   >
-                    {active && (
-                      <div
-                        className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                        style={{ background: brand.color }}
-                      />
-                    )}
                     <AppIcon appKey={app.key} size={collapsed ? 28 : 22} />
                     {!collapsed && (
                       <span className="text-xs font-medium text-[var(--text-secondary)]">
@@ -421,12 +396,6 @@ export function PortalSidebar() {
               }
             `}
           >
-            {isActive(CONNECT_ITEM.href) && (
-              <div
-                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                style={{ background: 'var(--connect-color)' }}
-              />
-            )}
             <span
               className="material-icons-outlined"
               style={{ fontSize: '18px', color: 'var(--connect-color)' }}
@@ -453,12 +422,6 @@ export function PortalSidebar() {
                 }
               `}
             >
-              {isActive(ADMIN_ITEM.href) && (
-                <div
-                  className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                  style={{ background: 'var(--admin-color)' }}
-                />
-              )}
               <span
                 className="material-icons-outlined"
                 style={{ fontSize: '18px', color: 'var(--admin-color)' }}

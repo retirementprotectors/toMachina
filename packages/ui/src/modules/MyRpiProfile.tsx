@@ -558,10 +558,10 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
           >
             <option value="">My Profile</option>
             {teamMembers
-              .filter((m) => m.email !== user?.email)
+              .filter((m) => m.email !== user?.email && (m.status || '').toLowerCase() === 'active')
               .map((m) => (
                 <option key={m._id} value={m.email}>
-                  {m.last_name}, {m.first_name} ({m.email})
+                  {m.first_name} {m.last_name}
                 </option>
               ))}
           </select>

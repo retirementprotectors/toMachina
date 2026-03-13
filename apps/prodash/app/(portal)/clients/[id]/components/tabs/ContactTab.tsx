@@ -26,6 +26,35 @@ const RELATIONSHIP_OPTIONS = [
   { label: 'Other', value: 'Other' },
 ]
 
+/* PL2-2: Agent, BoB, Source dropdowns */
+const AGENT_OPTIONS = [
+  { label: 'Josh Millang', value: 'Josh Millang' },
+  { label: 'Nikki Gray', value: 'Nikki Gray' },
+  { label: 'Vinnie Vazquez', value: 'Vinnie Vazquez' },
+  { label: 'Matt McCormick', value: 'Matt McCormick' },
+  { label: 'Angelique Millang', value: 'Angelique Millang' },
+]
+
+const BOB_OPTIONS = [
+  { label: 'Millang', value: 'Millang' },
+  { label: 'Gray', value: 'Gray' },
+  { label: 'Vazquez', value: 'Vazquez' },
+  { label: 'McCormick', value: 'McCormick' },
+  { label: 'Sprenger', value: 'Sprenger' },
+  { label: 'Other', value: 'Other' },
+]
+
+const SOURCE_OPTIONS = [
+  { label: 'Referral', value: 'Referral' },
+  { label: 'Walk-In', value: 'Walk-In' },
+  { label: 'Phone Call', value: 'Phone Call' },
+  { label: 'Website', value: 'Website' },
+  { label: 'Event', value: 'Event' },
+  { label: 'DAVID Partner', value: 'DAVID Partner' },
+  { label: 'Marketing Campaign', value: 'Marketing Campaign' },
+  { label: 'Other', value: 'Other' },
+]
+
 export function ContactTab({ client, clientId }: ContactTabProps) {
   const docPath = `clients/${clientId}`
 
@@ -127,7 +156,7 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
         </InlineSection>
       </div>
 
-      {/* RPI Relationship */}
+      {/* RPI Relationship — PL2-2: Agent, BoB, Source are now editable dropdowns */}
       <InlineSection title="RPI Relationship" icon="handshake">
         <FieldGrid cols={3}>
           <InlineField
@@ -138,9 +167,30 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             type="select"
             options={RELATIONSHIP_OPTIONS}
           />
-          <ReadOnlyField label="Agent" value={str(client.agent_name)} />
-          <ReadOnlyField label="Book of Business" value={str(client.book_of_business)} />
-          <ReadOnlyField label="Source" value={str(client.source)} />
+          <InlineField
+            label="Agent"
+            value={str(client.agent_name)}
+            fieldKey="agent_name"
+            docPath={docPath}
+            type="select"
+            options={AGENT_OPTIONS}
+          />
+          <InlineField
+            label="Book of Business"
+            value={str(client.book_of_business)}
+            fieldKey="book_of_business"
+            docPath={docPath}
+            type="select"
+            options={BOB_OPTIONS}
+          />
+          <InlineField
+            label="Source"
+            value={str(client.source)}
+            fieldKey="source"
+            docPath={docPath}
+            type="select"
+            options={SOURCE_OPTIONS}
+          />
         </FieldGrid>
       </InlineSection>
 
@@ -153,9 +203,43 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
         </FieldGrid>
       </InlineSection>
 
-      {/* Do Not Contact */}
-      <InlineSection title="Do Not Contact (DND)" icon="do_not_disturb">
-        <div className="space-y-2">
+      {/* DF-12: Do Not Contact — prominent, with None/Selected/All toggle */}
+      <InlineSection title="Do Not Contact (DND)" icon="do_not_disturb" defaultOpen>
+        <div className="space-y-3">
+          {/* Quick toggle bar */}
+          <div className="flex items-center gap-2 rounded-md bg-[var(--bg-surface)] p-2">
+            <span className="text-xs font-medium text-[var(--text-muted)] mr-2">Quick Set:</span>
+            <button
+              onClick={() => {
+                // None: would clear all DNC fields
+              }}
+              className={`rounded-md h-[34px] px-3 text-xs font-medium transition-all ${
+                !client.dnc_all && !client.dnc_phone && !client.dnc_sms && !client.dnc_email && !client.dnc_mail
+                  ? 'bg-emerald-500/15 text-emerald-400'
+                  : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+            >
+              None
+            </button>
+            <button
+              className={`rounded-md h-[34px] px-3 text-xs font-medium transition-all ${
+                !client.dnc_all && (client.dnc_phone || client.dnc_sms || client.dnc_email || client.dnc_mail)
+                  ? 'bg-amber-500/15 text-amber-400'
+                  : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+            >
+              Selected
+            </button>
+            <button
+              className={`rounded-md h-[34px] px-3 text-xs font-medium transition-all ${
+                Boolean(client.dnc_all)
+                  ? 'bg-red-500/15 text-red-400'
+                  : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+            >
+              All Channels
+            </button>
+          </div>
           <InlineToggle label="All Channels" value={Boolean(client.dnc_all)} fieldKey="dnc_all" docPath={docPath} />
           <InlineToggle label="Phone" value={Boolean(client.dnc_phone)} fieldKey="dnc_phone" docPath={docPath} />
           <InlineToggle label="Text/SMS" value={Boolean(client.dnc_sms)} fieldKey="dnc_sms" docPath={docPath} />

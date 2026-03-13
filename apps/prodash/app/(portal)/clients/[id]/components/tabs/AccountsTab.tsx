@@ -11,9 +11,10 @@ interface AccountsTabProps {
   clientId: string
 }
 
-type CategoryKey = 'annuity' | 'life' | 'medicare' | 'bd_ria'
+type CategoryKey = 'all' | 'annuity' | 'life' | 'medicare' | 'bd_ria'
 
 const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color: string }> = {
+  all: { label: 'All', icon: 'apps', color: 'var(--portal)' },
   annuity: { label: 'Annuity', icon: 'savings', color: '#f59e0b' },
   life: { label: 'Life', icon: 'favorite', color: '#10b981' },
   medicare: { label: 'Medicare', icon: 'health_and_safety', color: '#3b82f6' },
@@ -22,32 +23,37 @@ const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color:
 
 export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
   const [showInactive, setShowInactive] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<CategoryKey>('all')
 
   // Filter inactive
   const visibleAccounts = useMemo(() => {
-    if (showInactive) return accounts
-    return accounts.filter((a) => {
-      const s = str(a.status).toLowerCase()
-      return s !== 'inactive' && s !== 'terminated' && s !== 'lapsed' && s !== 'cancelled'
-    })
-  }, [accounts, showInactive])
+    let result = accounts
+    if (!showInactive) {
+      result = result.filter((a) => {
+        const s = str(a.status).toLowerCase()
+        return s !== 'inactive' && s !== 'terminated' && s !== 'lapsed' && s !== 'cancelled'
+      })
+    }
+    if (activeFilter !== 'all') {
+      result = result.filter((a) => getCategory(a) === activeFilter)
+    }
+    return result
+  }, [accounts, showInactive, activeFilter])
 
-  // Group by category
-  const grouped = useMemo(() => {
-    const groups: Record<CategoryKey, Account[]> = {
-      annuity: [],
-      life: [],
-      medicare: [],
-      bd_ria: [],
-    }
-    for (const acct of visibleAccounts) {
-      const cat = getCategory(acct)
-      if (cat in groups) {
-        groups[cat as CategoryKey].push(acct)
-      }
-    }
-    return groups
-  }, [visibleAccounts])
+  // Counts per category
+  const counts = useMemo(() => {
+    const c: Record<CategoryKey, number> = { all: 0, annuity: 0, life: 0, medicare: 0, bd_ria: 0 }
+    const active = accounts.filter((a) => {
+      const s = str(a.status).toLowerCase()
+      return showInactive || (s !== 'inactive' && s !== 'terminated' && s !== 'lapsed' && s !== 'cancelled')
+    })
+    c.all = active.length
+    active.forEach((a) => {
+      const cat = getCategory(a)
+      if (cat in c && cat !== 'all') c[cat as CategoryKey]++
+    })
+    return c
+  }, [accounts, showInactive])
 
   if (loading) {
     return (
@@ -66,15 +72,35 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
 
   return (
     <div className="space-y-5">
-      {/* Header: toggle inactive */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-[var(--text-primary)]">
-          {visibleAccounts.length} Account{visibleAccounts.length !== 1 ? 's' : ''}
-        </p>
+      {/* DF-20: Account Type Filter Pills with counts */}
+      <div className="flex flex-wrap items-center gap-2">
+        {(Object.keys(CATEGORY_CONFIG) as CategoryKey[]).map((cat) => {
+          const config = CATEGORY_CONFIG[cat]
+          const isActive = activeFilter === cat
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveFilter(cat)}
+              className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-sm font-medium transition-all ${
+                isActive ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+              style={isActive ? { backgroundColor: config.color } : undefined}
+            >
+              {config.label}
+              <span className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-md px-1 text-xs ${
+                isActive ? 'bg-white/20 text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
+              }`}>
+                {counts[cat]}
+              </span>
+            </button>
+          )
+        })}
+
+        {/* Show/hide inactive toggle */}
         {inactiveCount > 0 && (
           <button
             onClick={() => setShowInactive(!showInactive)}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+            className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium transition-all bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
           >
             <span className="material-icons-outlined text-[14px]">
               {showInactive ? 'visibility_off' : 'visibility'}
@@ -84,39 +110,17 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
         )}
       </div>
 
-      {/* Grouped accounts */}
-      {(Object.keys(CATEGORY_CONFIG) as CategoryKey[]).map((cat) => {
-        const accts = grouped[cat]
-        const config = CATEGORY_CONFIG[cat]
-        return (
-          <div key={cat}>
-            {/* Group header */}
-            <div className="mb-3 flex items-center gap-2">
-              <span className="material-icons-outlined text-[18px]" style={{ color: config.color }}>
-                {config.icon}
-              </span>
-              <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                {config.label} ({accts.length})
-              </h3>
-            </div>
-
-            {accts.length === 0 ? (
-              <p className="ml-7 mb-4 text-xs text-[var(--text-muted)] italic">No {config.label.toLowerCase()} accounts</p>
-            ) : (
-              <div className="mb-4 grid gap-3 sm:grid-cols-2">
-                {accts.map((acct) => (
-                  <AccountSummaryCard
-                    key={acct.account_id || str((acct as Record<string, unknown>)._id)}
-                    account={acct}
-                    category={cat}
-                    clientId={clientId}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      })}
+      {/* PL2-5: KEEP pill headers, REMOVE icon + count section below — just cards directly */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {visibleAccounts.map((acct) => (
+          <AccountSummaryCard
+            key={acct.account_id || str((acct as Record<string, unknown>)._id)}
+            account={acct}
+            category={getCategory(acct) as CategoryKey}
+            clientId={clientId}
+          />
+        ))}
+      </div>
 
       {accounts.length === 0 && (
         <EmptyState
@@ -124,12 +128,20 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
           message="No accounts on file for this client."
         />
       )}
+
+      {accounts.length > 0 && visibleAccounts.length === 0 && (
+        <EmptyState
+          icon="filter_alt_off"
+          message="No accounts match your current filter."
+        />
+      )}
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Product-type-specific summary card
+// DF-19: Entire card clickable — remove "Detail" button
+// DF-18: Add Policy Number to Account Cards
 // ---------------------------------------------------------------------------
 
 function AccountSummaryCard({
@@ -143,12 +155,18 @@ function AccountSummaryCard({
 }) {
   const statusColor = getStatusColor(str(account.status))
   const acctId = str(account.account_id) || str((account as Record<string, unknown>)._id)
+  const policyNumber = str(account.policy_number) || str(account.account_number) || str(account.contract_number)
 
-  // Product-type-specific fields
+  // DF-21: "Product" -> "Product Type", DF-22: Medicare shows parent carrier
   const fields = getSummaryFields(account, category)
 
   return (
-    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 transition-all hover:border-[var(--portal)]/50">
+    <a
+      href={`/accounts/${clientId}/${acctId}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 transition-all hover:border-[var(--portal)]/50 hover:bg-[var(--bg-card-hover)] cursor-pointer"
+    >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -158,13 +176,17 @@ function AccountSummaryCard({
           <p className="text-sm font-medium text-[var(--text-primary)]">
             {str(account.product_name) || str(account.plan_name) || str(account.product) || 'Unknown Product'}
           </p>
+          {/* DF-18: Policy Number on card */}
+          {policyNumber && (
+            <p className="text-xs font-mono text-[var(--text-muted)]">{policyNumber}</p>
+          )}
         </div>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
+        <span className={`rounded-md px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
           {str(account.status) || 'Unknown'}
         </span>
       </div>
 
-      {/* Summary fields — 6 per card, specific to product type */}
+      {/* Summary fields */}
       <div className="grid grid-cols-3 gap-x-4 gap-y-2">
         {fields.map((f) => (
           <div key={f.label}>
@@ -175,20 +197,7 @@ function AccountSummaryCard({
           </div>
         ))}
       </div>
-
-      {/* Detail link — opens in NEW TAB */}
-      <div className="mt-3 flex justify-end">
-        <a
-          href={`/accounts/${clientId}/${acctId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--portal)] hover:underline"
-        >
-          Detail
-          <span className="material-icons-outlined text-[12px]">open_in_new</span>
-        </a>
-      </div>
-    </div>
+    </a>
   )
 }
 
@@ -206,7 +215,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
   switch (category) {
     case 'annuity':
       return [
-        { label: 'Product', value: str(account.product_name) || str(account.product) },
+        { label: 'Product Type', value: str(account.product_name) || str(account.product) },
         { label: 'Account Type', value: str(account.account_type) },
         { label: 'Issue Date', value: formatDate(account.issue_date || account.effective_date) },
         { label: 'Market', value: str(account.market) },
@@ -215,7 +224,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
       ]
     case 'life':
       return [
-        { label: 'Product', value: str(account.product_name) || str(account.product) },
+        { label: 'Product Type', value: str(account.product_name) || str(account.product) },
         { label: 'Face Amount', value: formatCurrency(account.face_amount) },
         { label: 'Premium', value: formatCurrency(account.premium) },
         { label: 'Issue Date', value: formatDate(account.issue_date || account.effective_date) },
@@ -225,7 +234,8 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
     case 'medicare':
       return [
         { label: 'Plan Type', value: str(account.plan_type || account.product_type) },
-        { label: 'Carrier', value: str(account.carrier_name) || str(account.carrier) },
+        /* DF-22: Show parent carrier */
+        { label: 'Parent Carrier', value: str(account.parent_carrier) || str(account.carrier_name) || str(account.carrier) },
         { label: 'Effective Date', value: formatDate(account.effective_date) },
         { label: 'Premium', value: formatCurrency(account.premium) },
         { label: 'Plan ID', value: str(account.plan_id || account.policy_number), mono: true },

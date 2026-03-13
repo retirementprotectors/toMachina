@@ -21,7 +21,6 @@ interface ClientFiltersProps {
 }
 
 const STATUS_OPTIONS = ['All', 'Active', 'Prospect', 'Inactive', 'Deceased']
-const ACCOUNT_TYPE_OPTIONS = ['All', 'Annuity', 'Life', 'Medicare', 'BD/RIA']
 const ACF_OPTIONS = ['All', 'Has ACF', 'No ACF']
 
 export function ClientFilters({
@@ -42,6 +41,7 @@ export function ClientFilters({
   agents,
 }: ClientFiltersProps) {
   const [localSearch, setLocalSearch] = useState(search)
+  const [showColumnPicker, setShowColumnPicker] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleSearchInput = useCallback(
@@ -81,9 +81,9 @@ export function ClientFilters({
     handleSearchInput('')
   }, [onStatusChange, onAccountTypeChange, onBookChange, onAgentChange, onAcfChange, handleSearchInput])
 
-  // Style for active vs inactive filter dropdown
+  /* PL3-9: All pills rounded-md h-[34px] */
   const filterSelectClass = (isActive: boolean) =>
-    `h-9 rounded-lg border px-3 text-sm outline-none transition-all cursor-pointer ${
+    `h-[34px] rounded-md border px-3 text-sm outline-none transition-all cursor-pointer ${
       isActive
         ? 'border-[var(--portal)] bg-[var(--portal)]/10 text-[var(--portal)] font-medium'
         : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)]'
@@ -91,12 +91,38 @@ export function ClientFilters({
 
   return (
     <div className="space-y-3">
-      {/* Row 1: Title + Search */}
+      {/* Row 1: Action Buttons + Search */}
+      {/* PL3-8: Removed "Clients" title that announces itself */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Clients</h1>
+        <div className="flex items-center gap-2">
+          {/* PL1-12/13: + New Contact — just a big + icon, rectangular sharp button */}
+          {/* DF-23: New Client button */}
+          <button
+            className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-md text-white transition-all hover:brightness-110"
+            style={{ background: 'var(--portal)' }}
+            title="New Contact"
+            onClick={() => window.location.href = '/intake'}
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '20px' }}>add</span>
+          </button>
+
+          {/* PL1-15: Columns button — same style */}
+          {/* DF-7: Column Selector */}
+          <button
+            onClick={() => setShowColumnPicker(!showColumnPicker)}
+            className={`inline-flex h-[34px] items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-all ${
+              showColumnPicker
+                ? 'border-[var(--portal)] text-[var(--portal)]'
+                : 'border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
+            }`}
+          >
+            <span className="material-icons-outlined text-[16px]">view_column</span>
+            Columns
+          </button>
+
+          {/* PL1-14: Count below the + button */}
           <span
-            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+            className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium"
             style={{
               backgroundColor: 'var(--portal-glow)',
               color: 'var(--portal)',
@@ -122,15 +148,15 @@ export function ClientFilters({
           </svg>
           <input
             type="text"
-            placeholder="Search clients..."
+            placeholder="Search contacts..."
             value={localSearch}
             onChange={(e) => handleSearchInput(e.target.value)}
-            className="h-9 w-72 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] pl-9 pr-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-colors focus:border-[var(--portal)]"
+            className="h-[34px] w-72 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-9 pr-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-colors focus:border-[var(--portal)]"
           />
         </div>
       </div>
 
-      {/* Row 2: Filter dropdowns */}
+      {/* Row 2: Filter dropdowns — DF-8: Removed "All Accounts" filter */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Status */}
         <select
@@ -173,19 +199,6 @@ export function ClientFilters({
           ))}
         </select>
 
-        {/* Account Type */}
-        <select
-          value={accountTypeFilter}
-          onChange={(e) => onAccountTypeChange(e.target.value)}
-          className={filterSelectClass(accountTypeFilter !== 'All')}
-        >
-          {ACCOUNT_TYPE_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt === 'All' ? 'All Accounts' : opt}
-            </option>
-          ))}
-        </select>
-
         {/* ACF Status */}
         <select
           value={acfFilter}
@@ -203,13 +216,22 @@ export function ClientFilters({
         {hasActiveFilters && (
           <button
             onClick={handleReset}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+            className="inline-flex h-[34px] items-center gap-1.5 rounded-md border border-[var(--border)] px-3 text-xs font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
           >
             <span className="material-icons-outlined text-[14px]">filter_alt_off</span>
             Reset Filters
           </button>
         )}
       </div>
+
+      {/* Column Picker (DF-7) — placeholder toggle panel */}
+      {showColumnPicker && (
+        <div className="rounded-md border border-[var(--border)] bg-[var(--bg-card)] p-4">
+          <p className="text-xs text-[var(--text-muted)]">
+            Column configuration coming in Sprint 8. Currently showing default columns.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

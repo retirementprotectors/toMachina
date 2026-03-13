@@ -79,14 +79,30 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
       setSearching(true)
       try {
         const db = getDb()
-        // Search by last name (Firestore limitation — can't do full-text)
-        const nameQ = query(
-          collection(db, 'clients'),
-          orderBy('last_name'),
-          limit(20)
-        )
-        const snap = await getDocs(nameQ)
+        // PL2-4/PL3-3: Fix smart lookup — query by last_name prefix for better Firestore results
         const qLower = q.toLowerCase()
+        const qParts = q.trim().split(/\s+/)
+        const searchLast = qParts.length > 1 ? qParts[qParts.length - 1] : qParts[0]
+
+        // Use where clause for last_name range query when possible
+        let nameQ
+        if (searchLast && /^[a-zA-Z]/.test(searchLast)) {
+          const startStr = searchLast.charAt(0).toUpperCase() + searchLast.slice(1).toLowerCase()
+          const endStr = startStr.slice(0, -1) + String.fromCharCode(startStr.charCodeAt(startStr.length - 1) + 1)
+          nameQ = query(
+            collection(db, 'clients'),
+            where('last_name', '>=', startStr),
+            where('last_name', '<', endStr),
+            limit(50)
+          )
+        } else {
+          nameQ = query(
+            collection(db, 'clients'),
+            orderBy('last_name'),
+            limit(50)
+          )
+        }
+        const snap = await getDocs(nameQ)
 
         const results = snap.docs
           .filter((d) => {
@@ -163,7 +179,7 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
         </h3>
         <button
           onClick={() => setShowSearch(!showSearch)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110"
+          className="inline-flex items-center gap-1.5 rounded-md h-[34px] bg-[var(--portal)] px-3 text-xs font-medium text-white transition-colors hover:brightness-110"
         >
           <span className="material-icons-outlined text-[14px]">add</span>
           Add Connection

@@ -2,13 +2,13 @@
 
 :root {
   /* Portal Brand */
-  --portal: #4a7ab5;
-  --portal-glow: rgba(74,122,181,0.15);
-  --portal-accent: #7ba8d4;
+  --portal: #4264a7;
+  --portal-glow: rgba(66,100,167,0.15);
+  --portal-accent: #6b8fc7;
 
   /* Backgrounds (dark mode) */
-  --bg-deepest: #0a0a0f;
-  --bg-primary: #111118;
+  --bg-deepest: #050508;
+  --bg-primary: #08080d;
   --bg-secondary: #16213e;
   --bg-card: #1a1a24;
   --bg-card-hover: #22222e;
@@ -102,4 +102,53 @@ tr.table-row-hover:hover {
   animation: skeleton-pulse 1.5s ease-in-out infinite;
   background: var(--bg-surface);
   border-radius: var(--radius-sm);
+}
+
+/* Standard button shape — h-[34px] rounded-md, rectangular, sharp-edged */
+.btn-standard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 34px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--portal);
+  color: white;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-outline {
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.btn-outline:hover {
+  border-color: var(--portal);
+  color: var(--portal);
+}
+
+/* Filter pill shape — h-[34px] rounded-md */
+.pill-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 34px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  cursor: pointer;
 }

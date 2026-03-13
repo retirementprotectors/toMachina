@@ -61,7 +61,7 @@ export default function ClientsPage() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
-  const [accountTypeFilter, setAccountTypeFilter] = useState('All')
+  const [accountTypeFilter] = useState('All')
   const [bookFilter, setBookFilter] = useState('All')
   const [agentFilter, setAgentFilter] = useState('All')
   const [acfFilter, setAcfFilter] = useState('All')
@@ -200,7 +200,8 @@ export default function ClientsPage() {
   const resetPage = useCallback(() => setPage(0), [])
   const handleSearchChange = useCallback((v: string) => { setSearch(v); resetPage() }, [resetPage])
   const handleStatusChange = useCallback((v: string) => { setStatusFilter(v); resetPage() }, [resetPage])
-  const handleAccountTypeChange = useCallback((v: string) => { setAccountTypeFilter(v); resetPage() }, [resetPage])
+  // DF-8: Account type filter removed from client grid
+  const handleAccountTypeChange = useCallback((_v: string) => { resetPage() }, [resetPage])
   const handleBookChange = useCallback((v: string) => { setBookFilter(v); resetPage() }, [resetPage])
   const handleAgentChange = useCallback((v: string) => { setAgentFilter(v); resetPage() }, [resetPage])
   const handleAcfChange = useCallback((v: string) => { setAcfFilter(v); resetPage() }, [resetPage])
@@ -243,13 +244,10 @@ export default function ClientsPage() {
   if (loading) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Clients</h1>
-        </div>
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-            <p className="text-sm text-[var(--text-muted)]">Loading clients...</p>
+            <p className="text-sm text-[var(--text-muted)]">Loading contacts...</p>
           </div>
         </div>
       </div>
@@ -260,18 +258,11 @@ export default function ClientsPage() {
   if (error) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Clients</h1>
-        </div>
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(239,68,68,0.1)]">
-              <svg className="h-6 w-6 text-[var(--error)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
+            <span className="material-icons-outlined text-4xl text-[var(--error)]">error_outline</span>
             <p className="text-sm text-[var(--text-secondary)]">
-              Failed to load clients. Check your connection and try again.
+              Failed to load contacts. Check your connection and try again.
             </p>
             <p className="text-xs text-[var(--text-muted)]">{error.message}</p>
           </div>

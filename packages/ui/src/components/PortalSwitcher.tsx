@@ -17,7 +17,7 @@ const PORTALS: PortalDef[] = [
     key: 'prodash',
     label: 'ProDashX',
     description: 'B2C Client Portal',
-    color: '#3d8a8f',
+    color: '#4264a7',
     prodUrl: 'https://prodash.tomachina.com',
     devPort: 3001,
   },
@@ -25,7 +25,7 @@ const PORTALS: PortalDef[] = [
     key: 'riimo',
     label: 'RIIMO',
     description: 'B2E Operations',
-    color: '#276749',
+    color: '#a78bfa',
     prodUrl: 'https://riimo.tomachina.com',
     devPort: 3002,
   },
@@ -33,7 +33,7 @@ const PORTALS: PortalDef[] = [
     key: 'sentinel',
     label: 'SENTINEL',
     description: 'B2B Partnerships',
-    color: '#3CB371',
+    color: '#40bc58',
     prodUrl: 'https://sentinel.tomachina.com',
     devPort: 3003,
   },
@@ -96,12 +96,6 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
         style={{ color: current.color }}
         title="Switch portal"
       >
-        <span
-          className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold text-white"
-          style={{ background: current.color }}
-        >
-          {current.label[0]}
-        </span>
         <span className="hidden sm:inline">{current.label}</span>
         <span
           className="material-icons-outlined transition-transform"
@@ -124,17 +118,11 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
             borderColor: 'var(--border)',
           }}
         >
-          {/* Current Portal */}
+          {/* Current Portal — text only, no cards/borders */}
           <div
             className="flex items-center gap-3 border-b px-3 py-2.5"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
-            <span
-              className="flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold text-white"
-              style={{ background: current.color }}
-            >
-              {current.label[0]}
-            </span>
             <div>
               <p className="text-sm font-semibold text-[var(--text-primary)]">{current.label}</p>
               <p className="text-[10px] text-[var(--text-muted)]">{current.description}</p>
@@ -147,27 +135,22 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
             </span>
           </div>
 
-          {/* Other Portals */}
+          {/* PL2-8: Other Portals — just portal NAME TEXT as clickable buttons, opens in new tab */}
           <div className="py-1">
             {others.map((portal) => (
               <a
                 key={portal.key}
                 href={getPortalUrl(portal)}
-                className="flex items-center gap-3 px-3 py-2 transition-colors hover:bg-[var(--bg-hover)]"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between px-3 py-2 transition-colors hover:bg-[var(--bg-hover)]"
                 onClick={() => setOpen(false)}
               >
-                <span
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-xs font-bold text-white"
-                  style={{ background: portal.color }}
-                >
-                  {portal.label[0]}
+                <span className="text-sm font-medium" style={{ color: portal.color }}>
+                  {portal.label}
                 </span>
-                <div>
-                  <p className="text-sm font-medium text-[var(--text-secondary)]">{portal.label}</p>
-                  <p className="text-[10px] text-[var(--text-muted)]">{portal.description}</p>
-                </div>
                 <span
-                  className="material-icons-outlined ml-auto text-sm text-[var(--text-muted)]"
+                  className="material-icons-outlined text-sm text-[var(--text-muted)]"
                   style={{ fontSize: '14px' }}
                 >
                   open_in_new
@@ -176,9 +159,9 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
             ))}
           </div>
 
-          {/* Footer */}
+          {/* PL2-9: Footer — tomachina-transparent.png (horizontal gears) */}
           <div
-            className="border-t px-3 py-2"
+            className="flex items-center justify-center border-t px-3 py-2"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
             <p className="text-center text-[10px] text-[var(--text-muted)]">

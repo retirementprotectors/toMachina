@@ -262,10 +262,15 @@ export function ConnectPanel({ portal }: ConnectPanelProps) {
         className="flex flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-card)]"
         style={{ width: '280px', minWidth: '280px' }}
       >
-        {/* Header */}
+        {/* PL3-8: Removed redundant "RPI Connect" title — sidebar already shows context */}
+        {/* DF-25: RPI Connect uses shield icon as visual identity */}
         <div className="border-b border-[var(--border-subtle)] px-4 py-3">
-          <h2 className="text-lg font-semibold text-[var(--text-primary)]">RPI Connect</h2>
-          <p className="text-xs text-[var(--text-muted)]">Internal team communication</p>
+          <div className="flex items-center gap-2">
+            <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--connect-color)' }}>
+              shield
+            </span>
+            <span className="text-sm font-semibold text-[var(--text-primary)]">Connect</span>
+          </div>
         </div>
 
         {/* Sub-tabs */}
@@ -277,7 +282,7 @@ export function ConnectPanel({ portal }: ConnectPanelProps) {
                 setActiveTab(tab.key)
                 closePanel2()
               }}
-              className={`flex flex-1 items-center justify-center gap-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
+              className={`flex flex-1 items-center justify-center gap-1 rounded-md h-[34px] text-xs font-medium transition-colors ${
                 activeTab === tab.key
                   ? 'text-white'
                   : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'

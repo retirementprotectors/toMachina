@@ -256,7 +256,7 @@ export function InlineSection({
   title,
   icon,
   children,
-  defaultOpen = true,
+  defaultOpen = false,
 }: {
   title: string
   icon?: string
