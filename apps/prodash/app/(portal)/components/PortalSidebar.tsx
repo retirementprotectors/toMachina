@@ -7,16 +7,6 @@ import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/au
 import type { UserEntitlementContext } from '@tomachina/auth'
 import { APP_BRANDS, AppIcon, type AppKey } from '@tomachina/ui'
 
-/* ─── Section Type Styling ─── */
-type SectionType = 'workspace' | 'sales' | 'service' | 'pipeline'
-
-const sectionColors: Record<SectionType, string> = {
-  workspace: '#4264a7',
-  sales: '#4264a7',
-  service: '#4264a7',
-  pipeline: '#4264a7',
-}
-
 /* ─── Nav Item Definition ─── */
 interface NavItem {
   key: string
@@ -29,7 +19,6 @@ interface NavItem {
 interface NavSection {
   key: string
   label: string
-  type: SectionType
   icon: string
   items: NavItem[]
   defaultExpanded: boolean
@@ -44,11 +33,14 @@ interface AppItem {
 }
 
 /* ─── ProDashX Navigation Configuration ─── */
+/* DF-3: Section order: Pipelines > Workspace > Sales Centers > Service Centers */
+/* DF-4: "Clients" renamed to "Contacts" */
+/* DF-24: Quick Intake removed from sidebar */
+/* DF-9: All sections default COLLAPSED */
 const NAV_SECTIONS: NavSection[] = [
   {
     key: 'pipelines',
     label: 'Pipelines',
-    type: 'pipeline',
     icon: 'route',
     defaultExpanded: false,
     moduleKey: 'PRODASH_PIPELINES',
@@ -59,19 +51,17 @@ const NAV_SECTIONS: NavSection[] = [
   {
     key: 'workspace',
     label: 'Workspace',
-    type: 'workspace',
     icon: 'workspaces',
     defaultExpanded: false,
     moduleKey: 'PRODASH',
     items: [
-      { key: 'contacts', label: 'Contacts', href: '/clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'clients', label: 'Contacts', href: '/clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
       { key: 'accounts', label: 'Accounts', href: '/accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
     ],
   },
   {
     key: 'sales-centers',
     label: 'Sales Centers',
-    type: 'sales',
     icon: 'storefront',
     defaultExpanded: false,
     items: [
@@ -84,7 +74,6 @@ const NAV_SECTIONS: NavSection[] = [
   {
     key: 'service-centers',
     label: 'Service Centers',
-    type: 'service',
     icon: 'support_agent',
     defaultExpanded: false,
     items: [
@@ -108,7 +97,7 @@ const CONNECT_ITEM = {
   key: 'connect',
   label: 'RPI Connect',
   href: '/connect',
-  icon: 'hub',
+  icon: 'settings_input_composite',
 } as const
 
 const ADMIN_ITEM = {
@@ -200,13 +189,14 @@ export function PortalSidebar() {
       if (savedExpanded) {
         setExpandedSections(JSON.parse(savedExpanded))
       } else {
+        /* DF-9: All sections default COLLAPSED */
         const defaults: Record<string, boolean> = {}
-        NAV_SECTIONS.forEach((s) => { defaults[s.key] = s.defaultExpanded })
+        NAV_SECTIONS.forEach((s) => { defaults[s.key] = false })
         setExpandedSections(defaults)
       }
     } catch {
       const defaults: Record<string, boolean> = {}
-      NAV_SECTIONS.forEach((s) => { defaults[s.key] = s.defaultExpanded })
+      NAV_SECTIONS.forEach((s) => { defaults[s.key] = false })
       setExpandedSections(defaults)
     }
   }, [])
@@ -234,38 +224,36 @@ export function PortalSidebar() {
     return false
   }
 
-  /* Logo click navigates to Clients (rule N1) */
+  /* Logo click navigates to Contacts */
   const handleLogoClick = () => {
     router.push('/clients')
   }
 
-  /* ─── Render a scrollable nav section with twist/rotate header ─── */
+  /* ─── Render a scrollable nav section ─── */
+  /* PL1-7/8/9: Section headers lit up with portal blue */
+  /* PL1-10/11: Removed BOTH vertical bars */
   const renderSection = (section: NavSection) => {
-    const color = sectionColors[section.type]
-    const isExpanded = expandedSections[section.key] ?? section.defaultExpanded
+    const isExpanded = expandedSections[section.key] ?? false
 
     return (
       <div key={section.key} className="mb-1">
-        {/* Section Header: icon + title + rotate arrow (rules N4, N5) */}
+        {/* Section Header — portal-blue text */}
         <button
           onClick={() => toggleSection(section.key)}
-          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left transition-colors hover:bg-[rgba(255,255,255,0.03)]"
+          className="flex w-full items-center gap-2 px-3 py-1.5 text-left"
           title={collapsed ? section.label : undefined}
-          style={{
-            background: isExpanded ? 'rgba(255,255,255,0.02)' : 'transparent',
-          }}
         >
           <span
             className="material-icons-outlined"
-            style={{ fontSize: '18px', color }}
+            style={{ fontSize: '16px', color: 'var(--portal)' }}
           >
             {section.icon}
           </span>
           {!collapsed && (
             <>
               <span
-                className="flex-1 text-[11px] font-bold uppercase tracking-wider"
-                style={{ color }}
+                className="flex-1 text-[10px] font-bold uppercase tracking-wider"
+                style={{ color: 'var(--portal)' }}
               >
                 {section.label}
               </span>
@@ -282,19 +270,9 @@ export function PortalSidebar() {
           )}
         </button>
 
-        {/* Bottom border on expanded section header */}
-        {isExpanded && !collapsed && (
-          <div className="mx-3 mb-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }} />
-        )}
-
-        {/* Section Items */}
+        {/* Section Items — no vertical bar indicators */}
         {(collapsed || isExpanded) && (
-          <div
-            className="ml-2 pl-2"
-            style={{
-              borderLeft: collapsed ? 'none' : `2px solid ${color}`,
-            }}
-          >
+          <div className="ml-4 pl-0">
             {section.items.map((item) => {
               const active = isActive(item.href)
               return (
@@ -303,25 +281,15 @@ export function PortalSidebar() {
                   href={item.href}
                   title={collapsed ? item.label : undefined}
                   className={`
-                    relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
+                    relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm
                     transition-all duration-150
                     ${active
-                      ? 'text-[var(--portal-accent)]'
-                      : 'text-[var(--text-secondary)] hover:bg-[rgba(74,122,181,0.06)] hover:text-[var(--text-primary)]'
+                      ? 'bg-[var(--portal-glow)] text-[var(--portal-accent)]'
+                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                     }
                   `}
-                  style={active ? {
-                    background: 'linear-gradient(90deg, rgba(74,122,181,0.12) 0%, transparent 100%)',
-                  } : undefined}
                 >
-                  {/* No vertical bar — active state shown via text/bg color only */}
-                  <span
-                    className="material-icons-outlined"
-                    style={{
-                      fontSize: '18px',
-                      color: active ? 'var(--portal)' : 'var(--text-muted)',
-                    }}
-                  >
+                  <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
                     {item.icon}
                   </span>
                   {!collapsed && <span>{item.label}</span>}
@@ -337,65 +305,50 @@ export function PortalSidebar() {
   return (
     <aside
       className="flex flex-col bg-[var(--bg-card)] transition-all duration-200"
-      style={{
-        width: collapsed ? 60 : 240,
-        minWidth: collapsed ? 60 : 240,
-      }}
+      style={{ width: collapsed ? 60 : 240, minWidth: collapsed ? 60 : 240 }}
     >
-      {/* Header — Portal Logo (large, like GAS version) + Toggle */}
-      <div
-        style={{
-          borderBottom: '1px solid rgba(74,122,181,0.15)',
-        }}
-      >
+      {/* Header — Portal Logo + Toggle */}
+      {/* PL1-1/2/3: Equal padding on all sides, more room left/right */}
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
         <button
           onClick={handleLogoClick}
-          className="flex w-full items-center justify-center"
-          style={{ padding: collapsed ? '16px 8px' : '16px 20px 16px 32px' }}
-          title="Go to Clients"
+          className="flex items-center overflow-hidden"
+          title="Go to Contacts"
         >
+          {/* PL1-4: Logo is prodashx-transparent.png — DO NOT CHANGE */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={collapsed ? '/prodashx-icon-150w.png' : '/prodashx-transparent.png'}
+            src={collapsed ? '/prodashx-mark.svg' : '/prodashx-transparent.png'}
             alt="ProDashX"
-            style={{
-              height: 'auto',
-              width: collapsed ? '36px' : '100%',
-              maxWidth: collapsed ? '36px' : '200px',
-            }}
+            style={{ height: collapsed ? '24px' : '28px' }}
           />
         </button>
-        <div className="flex justify-end px-2 pb-0.5">
-          <button
-            onClick={toggleCollapse}
-            className="flex h-5 w-5 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[rgba(74,122,181,0.08)] hover:text-[var(--text-primary)]"
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-              {collapsed ? 'chevron_right' : 'chevron_left'}
-            </span>
-          </button>
-        </div>
+        <button
+          onClick={toggleCollapse}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: '20px' }}>
+            {collapsed ? 'chevron_right' : 'chevron_left'}
+          </span>
+        </button>
       </div>
 
       {/* Scrollable Main Nav */}
-      <nav className="flex-1 overflow-y-auto py-3 px-1">
+      <nav className="flex-1 overflow-y-auto py-2 px-1">
         {visibleSections.map(renderSection)}
       </nav>
 
-      {/* ═══ Fixed Bottom Zone ═══ */}
+      {/* Fixed Bottom Zone */}
       <div className="shrink-0">
 
-        {/* Apps — branded icons, fixed at bottom */}
+        {/* Apps — branded icons, with draggable divider concept */}
         {visibleApps.length > 0 && (
           <div className="border-t border-[var(--border-subtle)] px-2 py-2">
             {!collapsed && (
-              <div className="mb-1.5 flex items-center gap-1.5 px-1">
-                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>apps</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                  Apps
-                </span>
-              </div>
+              <span className="mb-1.5 block px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Apps
+              </span>
             )}
             <div className={collapsed ? 'flex flex-col items-center gap-1' : 'flex flex-col gap-0.5'}>
               {visibleApps.map((app) => {
@@ -409,14 +362,12 @@ export function PortalSidebar() {
                     className={`
                       relative flex items-center gap-2.5 rounded-md transition-all duration-150
                       ${collapsed ? 'justify-center p-1.5' : 'px-2.5 py-1.5'}
+                      ${active
+                        ? 'bg-[var(--bg-surface)]'
+                        : 'hover:bg-[var(--bg-hover)]'
+                      }
                     `}
-                    style={{
-                      background: active
-                        ? `${brand.color}20`
-                        : `${brand.color}14`,
-                    }}
                   >
-                    {/* No vertical bar on apps */}
                     <AppIcon appKey={app.key} size={collapsed ? 28 : 22} />
                     {!collapsed && (
                       <span className="text-xs font-medium text-[var(--text-secondary)]">
@@ -430,31 +381,21 @@ export function PortalSidebar() {
           </div>
         )}
 
-        {/* RPI Connect — green-tinted background */}
+        {/* RPI Connect */}
         <div className="border-t border-[var(--border-subtle)] px-2 py-1">
           <Link
             href={CONNECT_ITEM.href}
             title={collapsed ? CONNECT_ITEM.label : undefined}
             className={`
-              relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
+              relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm
               transition-all duration-150
               ${collapsed ? 'justify-center' : ''}
+              ${isActive(CONNECT_ITEM.href)
+                ? 'bg-[var(--portal-glow)] text-[var(--portal-accent)]'
+                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+              }
             `}
-            style={{
-              background: isActive(CONNECT_ITEM.href)
-                ? 'rgba(104,211,145,0.15)'
-                : 'rgba(104,211,145,0.06)',
-              color: isActive(CONNECT_ITEM.href)
-                ? 'var(--connect-color)'
-                : 'var(--text-secondary)',
-            }}
           >
-            {isActive(CONNECT_ITEM.href) && (
-              <div
-                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                style={{ background: 'var(--connect-color)' }}
-              />
-            )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/rpi-shield.png"
@@ -465,32 +406,22 @@ export function PortalSidebar() {
           </Link>
         </div>
 
-        {/* Admin — always red-tinted background */}
+        {/* Admin — always red */}
         {showAdmin && (
           <div className="border-t border-[var(--border-subtle)] px-2 py-1">
             <Link
               href={ADMIN_ITEM.href}
               title={collapsed ? ADMIN_ITEM.label : undefined}
               className={`
-                relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
+                relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm
                 transition-all duration-150
                 ${collapsed ? 'justify-center' : ''}
+                ${isActive(ADMIN_ITEM.href)
+                  ? 'bg-[rgba(220,38,38,0.12)] text-[#fca5a5]'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+                }
               `}
-              style={{
-                background: isActive(ADMIN_ITEM.href)
-                  ? 'rgba(220,38,38,0.12)'
-                  : 'rgba(220,38,38,0.06)',
-                color: isActive(ADMIN_ITEM.href)
-                  ? '#fca5a5'
-                  : 'var(--text-secondary)',
-              }}
             >
-              {isActive(ADMIN_ITEM.href) && (
-                <div
-                  className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                  style={{ background: 'var(--admin-color)' }}
-                />
-              )}
               <span
                 className="material-icons-outlined"
                 style={{ fontSize: '18px', color: 'var(--admin-color)' }}

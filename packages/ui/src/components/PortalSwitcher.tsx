@@ -2,31 +2,41 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-/* Portal logo PNGs — the REAL logos, on-dark variants */
-const PORTAL_LOGOS: Record<string, string> = {
-  prodash: '/prodashx-on-dark.png',
-  riimo: '/riimo-on-dark.png',
-  sentinel: '/sentinel-on-dark.png',
-}
-
-const PORTAL_MARKS: Record<string, string> = {
-  prodash: '/prodashx-mark.svg',
-  riimo: '/riimo-mark.svg',
-  sentinel: '/sentinel-mark.svg',
-}
-
+/* ─── Portal Definitions ─── */
 interface PortalDef {
   key: string
   label: string
+  description: string
   color: string
   prodUrl: string
   devPort: number
 }
 
 const PORTALS: PortalDef[] = [
-  { key: 'prodash', label: 'ProDashX', color: '#4264a7', prodUrl: 'https://prodash.tomachina.com', devPort: 3001 },
-  { key: 'riimo', label: 'RIIMO', color: '#a78bfa', prodUrl: 'https://riimo.tomachina.com', devPort: 3002 },
-  { key: 'sentinel', label: 'SENTINEL', color: '#40bc58', prodUrl: 'https://sentinel.tomachina.com', devPort: 3003 },
+  {
+    key: 'prodash',
+    label: 'ProDashX',
+    description: 'B2C Client Portal',
+    color: '#4264a7',
+    prodUrl: 'https://prodash.tomachina.com',
+    devPort: 3001,
+  },
+  {
+    key: 'riimo',
+    label: 'RIIMO',
+    description: 'B2E Operations',
+    color: '#a78bfa',
+    prodUrl: 'https://riimo.tomachina.com',
+    devPort: 3002,
+  },
+  {
+    key: 'sentinel',
+    label: 'SENTINEL',
+    description: 'B2B Partnerships',
+    color: '#40bc58',
+    prodUrl: 'https://sentinel.tomachina.com',
+    devPort: 3003,
+  },
 ]
 
 function isDevMode(): boolean {
@@ -35,10 +45,14 @@ function isDevMode(): boolean {
 }
 
 function getPortalUrl(portal: PortalDef): string {
-  return isDevMode() ? `http://localhost:${portal.devPort}` : portal.prodUrl
+  if (isDevMode()) {
+    return `http://localhost:${portal.devPort}`
+  }
+  return portal.prodUrl
 }
 
 interface PortalSwitcherProps {
+  /** The key of the currently active portal ('prodash' | 'riimo' | 'sentinel') */
   currentPortal: string
 }
 
@@ -48,11 +62,13 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
 
   const current = PORTALS.find((p) => p.key === currentPortal) ?? PORTALS[0]
   const others = PORTALS.filter((p) => p.key !== currentPortal)
-  const markSrc = PORTAL_MARKS[currentPortal] || PORTAL_MARKS.prodash
 
+  /* Close on outside click */
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
     }
     if (open) {
       document.addEventListener('mousedown', handleClick)
@@ -60,6 +76,7 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
     }
   }, [open])
 
+  /* Close on Escape */
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false)
@@ -72,17 +89,21 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
 
   return (
     <div ref={ref} className="relative">
-      {/* Trigger: mark + chevron */}
+      {/* Trigger Button */}
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-[rgba(66,100,167,0.08)]"
+        className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--bg-hover)]"
+        style={{ color: current.color }}
         title="Switch portal"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={markSrc} alt={current.label} style={{ height: '28px' }} />
+        <span className="hidden sm:inline">{current.label}</span>
         <span
-          className="material-icons-outlined transition-transform duration-150"
-          style={{ fontSize: '16px', color: 'var(--text-muted)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          className="material-icons-outlined transition-transform"
+          style={{
+            fontSize: '14px',
+            color: 'var(--text-muted)',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+          }}
         >
           expand_more
         </span>
@@ -91,65 +112,61 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute left-0 top-full z-50 mt-1 w-56 rounded-lg border overflow-hidden"
-          style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
+          className="absolute left-0 top-full z-50 mt-1 w-56 rounded-lg border shadow-lg"
+          style={{
+            background: 'var(--bg-card)',
+            borderColor: 'var(--border)',
+          }}
         >
-          {/* Current Portal — just the logo, highlighted */}
+          {/* Current Portal — text only, no cards/borders */}
           <div
-            className="flex items-center justify-center px-4 py-3 border-b"
-            style={{ borderColor: 'var(--border-subtle)', background: `${current.color}10` }}
+            className="flex items-center gap-3 border-b px-3 py-2.5"
+            style={{ borderColor: 'var(--border-subtle)' }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={PORTAL_LOGOS[current.key]}
-              alt={current.label}
-              style={{ height: '40px', width: 'auto' }}
-            />
+            <div>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">{current.label}</p>
+              <p className="text-[10px] text-[var(--text-muted)]">{current.description}</p>
+            </div>
             <span
-              className="material-icons-outlined ml-auto"
-              style={{ color: current.color, fontSize: '20px' }}
+              className="material-icons-outlined ml-auto text-sm"
+              style={{ color: current.color }}
             >
               check_circle
             </span>
           </div>
 
-          {/* Other Portals — just logos, open in new tab */}
-          {others.map((portal) => (
-            <a
-              key={portal.key}
-              href={getPortalUrl(portal)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] border-b"
-              style={{ borderColor: 'var(--border-subtle)' }}
-              onClick={() => setOpen(false)}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={PORTAL_LOGOS[portal.key]}
-                alt={portal.label}
-                style={{ height: '36px', width: 'auto', opacity: 0.8 }}
-              />
-              <span
-                className="material-icons-outlined ml-auto text-[var(--text-muted)]"
-                style={{ fontSize: '14px' }}
+          {/* PL2-8: Other Portals — just portal NAME TEXT as clickable buttons, opens in new tab */}
+          <div className="py-1">
+            {others.map((portal) => (
+              <a
+                key={portal.key}
+                href={getPortalUrl(portal)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between px-3 py-2 transition-colors hover:bg-[var(--bg-hover)]"
+                onClick={() => setOpen(false)}
               >
-                open_in_new
-              </span>
-            </a>
-          ))}
+                <span className="text-sm font-medium" style={{ color: portal.color }}>
+                  {portal.label}
+                </span>
+                <span
+                  className="material-icons-outlined text-sm text-[var(--text-muted)]"
+                  style={{ fontSize: '14px' }}
+                >
+                  open_in_new
+                </span>
+              </a>
+            ))}
+          </div>
 
-          {/* Footer — toMachina logo */}
+          {/* PL2-9: Footer — tomachina-transparent.png (horizontal gears) */}
           <div
-            className="flex items-center justify-center px-3 py-2"
+            className="flex items-center justify-center border-t px-3 py-2"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/tomachina-on-dark.png"
-              alt="toMachina"
-              style={{ height: '18px', width: 'auto', opacity: 0.5 }}
-            />
+            <p className="text-center text-[10px] text-[var(--text-muted)]">
+              toMachina Platform
+            </p>
           </div>
         </div>
       )}
