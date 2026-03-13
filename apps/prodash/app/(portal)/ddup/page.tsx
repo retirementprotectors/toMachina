@@ -242,7 +242,10 @@ function MatchLegend() {
 function DdupContent() {
   const searchParams = useSearchParams()
   const ids = searchParams.get('ids')?.split(',').filter(Boolean) || []
+  const clientIdParam = searchParams.get('clientId')
   const type = searchParams.get('type') || 'client'
+  // Support /ddup?clientId=xxx — loads that client record for comparison
+  const effectiveIds = clientIdParam && ids.length === 0 ? [clientIdParam] : ids
 
   const [records, setRecords] = useState<RecordData[]>([])
   const [loading, setLoading] = useState(true)
@@ -256,13 +259,13 @@ function DdupContent() {
 
   // Load records
   useEffect(() => {
-    if (ids.length === 0) return
+    if (effectiveIds.length === 0) return
 
     async function loadRecords() {
       const db = getDb()
       const results: RecordData[] = []
 
-      for (const id of ids) {
+      for (const id of effectiveIds) {
         try {
           let ref
           let path: string
@@ -288,7 +291,7 @@ function DdupContent() {
     }
     loadRecords()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ids.join(','), type])
+  }, [effectiveIds.join(','), type])
 
   // All unique fields
   const allFields = useMemo(() => {
@@ -407,12 +410,12 @@ function DdupContent() {
   // States
   // ---------------------------------------------------------------------------
 
-  if (ids.length === 0) {
+  if (effectiveIds.length === 0) {
     return (
       <div className="mx-auto max-w-4xl py-20 text-center">
         <span className="material-icons-outlined text-5xl text-[var(--text-muted)]">merge_type</span>
         <h2 className="mt-4 text-xl font-semibold text-[var(--text-primary)]">No records selected</h2>
-        <p className="mt-2 text-sm text-[var(--text-muted)]">Select records from the grid to compare and merge.</p>
+        <p className="mt-2 text-sm text-[var(--text-muted)]">Pass <span className="font-mono">?ids=id1,id2</span> or <span className="font-mono">?clientId=xxx</span> to compare records.</p>
         <Link href={type === 'account' ? '/accounts' : '/clients'} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
           Go Back
         </Link>
