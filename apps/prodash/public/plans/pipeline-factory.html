@@ -402,6 +402,7 @@
   <button class="tab-btn" onclick="switchTab('phases')">Build Phases</button>
   <button class="tab-btn" onclick="switchTab('decisions')">Decisions</button>
   <button class="tab-btn" onclick="switchTab('tech')">Tech Specs</button>
+  <button class="tab-btn" onclick="switchTab('schema')">Schema</button>
 </div>
 
 <!-- ============================================ -->
@@ -1073,6 +1074,231 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
     page.tsx                 <span class="phase-tag">&larr; Kanban board</span>
     <span class="dir">[instanceId]/</span>
       page.tsx               <span class="phase-tag">&larr; Instance detail</span></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB: SCHEMA                                  -->
+<!-- ============================================ -->
+<div id="tab-schema" class="tab-content">
+<div class="container">
+
+  <div class="section-header" style="margin-top:0;">
+    <h2>Firestore Schema</h2>
+    <span class="badge">534 docs</span>
+  </div>
+
+  <div class="summary-card">
+    How the 5-layer flow engine is stored in Firestore and read by the front end. Every pipeline, stage, workflow, step, and task is its own document. <strong>534 total documents</strong> across 13 pipelines.
+  </div>
+
+  <!-- HIERARCHY NAV -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:0;margin:24px 0 28px;flex-wrap:wrap;">
+    <a href="#s-layer-1" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--portal);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 1</div>
+      <div style="font-size:14px;font-weight:700;color:var(--portal);margin-top:2px;">Pipeline</div>
+      <div style="font-size:11px;color:var(--text-dim);">13 docs</div>
+    </div></a>
+    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
+    <a href="#s-layer-2" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--green);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 2</div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);margin-top:2px;">Stage</div>
+      <div style="font-size:11px;color:var(--text-dim);">78 docs</div>
+    </div></a>
+    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
+    <a href="#s-layer-3" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--purple);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 3</div>
+      <div style="font-size:14px;font-weight:700;color:var(--purple);margin-top:2px;">Workflow</div>
+      <div style="font-size:11px;color:var(--text-dim);">75 docs</div>
+    </div></a>
+    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
+    <a href="#s-layer-4" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--orange);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 4</div>
+      <div style="font-size:14px;font-weight:700;color:var(--orange);margin-top:2px;">Step</div>
+      <div style="font-size:11px;color:var(--text-dim);">115 docs</div>
+    </div></a>
+    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
+    <a href="#s-layer-5" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--cyan);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 5</div>
+      <div style="font-size:14px;font-weight:700;color:var(--cyan);margin-top:2px;">Task</div>
+      <div style="font-size:11px;color:var(--text-dim);">253 docs</div>
+    </div></a>
+  </div>
+
+  <!-- ID Convention -->
+  <div class="summary-card" style="border-left-color:var(--cyan);font-size:13px;">
+    <strong>Document ID Convention:</strong> All IDs use <code style="background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px;font-size:12px;">__</code> (double underscore) as a compound key delimiter.<br>
+    Pipeline: <code>NBX_SECURITIES</code><br>
+    Stage: <code>NBX_SECURITIES__suitability</code><br>
+    Step: <code>NBX_SECURITIES__suitability__client_profile</code><br>
+    Task: <code>NBX_SECURITIES__suitability__net_worth_present</code><br>
+    Self-documenting &mdash; you can read the hierarchy from the ID itself.
+  </div>
+
+  <!-- LAYER 1: PIPELINE -->
+  <h3 id="s-layer-1" style="font-size:18px;margin:32px 0 12px;display:flex;align-items:center;gap:8px;">
+    <span style="background:var(--portal);color:#fff;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">1</span>
+    Pipeline <span style="font-size:12px;color:var(--cyan);font-family:monospace;margin-left:8px;">flow_pipelines</span>
+  </h3>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">The top-level definition. One doc per pipeline. The front end fetches all pipelines for a portal to render the Pipeline Directory page.</p>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;">
+    <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES</span>
+      <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_pipelines</span>
+    </div>
+    <div style="font-size:13px;">
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_name</span><span style="font-family:monospace;color:var(--green);">"NBX - Securities &amp; Advisory"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">description</span><span style="font-family:monospace;color:var(--green);">"New business processing for securities/advisory accounts (Gradient)"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">portal</span><span style="font-family:monospace;color:var(--green);">"PRODASHX"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Which portal owns this pipeline</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">domain</span><span style="font-family:monospace;color:var(--green);">"SECURITIES"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">SECURITIES, LIFE, MEDICARE, etc.</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">platform_carrier</span><span style="font-family:monospace;color:var(--green);">"GS_GWM_GI"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Gradient Securities</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">default_view</span><span style="font-family:monospace;color:var(--green);">"KANBAN"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">icon</span><span style="font-family:monospace;color:var(--green);">"account_balance"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Material Icon name</span></div>
+      <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">status</span><span style="font-family:monospace;color:var(--green);">"active"</span></div>
+    </div>
+  </div>
+
+  <!-- LAYER 2: STAGE -->
+  <h3 id="s-layer-2" style="font-size:18px;margin:32px 0 12px;display:flex;align-items:center;gap:8px;">
+    <span style="background:var(--green);color:#000;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">2</span>
+    Stage <span style="font-size:12px;color:var(--cyan);font-family:monospace;margin-left:8px;">flow_stages</span>
+  </h3>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">Each stage becomes a <strong style="color:var(--text);">Kanban column</strong>. The <code style="color:var(--yellow);">gate_enforced</code> field is the key &mdash; when true, instances can't advance past this stage until all required tasks pass.</p>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+    <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability</span>
+      <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_stages</span>
+    </div>
+    <div style="font-size:13px;">
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">FK to pipeline</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_id</span><span style="font-family:monospace;color:var(--green);">"suitability"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_name</span><span style="font-family:monospace;color:var(--green);">"Suitability"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_order</span><span style="font-family:monospace;color:var(--orange);">30</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Increments of 10</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">gate_enforced</span><span style="font-family:monospace;color:var(--yellow);font-weight:700;">true</span><span style="font-size:11px;margin-left:12px;"><span style="display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:var(--yellow);color:#000;">GATED</span> Blocks advancement</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">has_workflow</span><span style="font-family:monospace;color:var(--yellow);">true</span></div>
+      <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">ghl_stage_id</span><span style="font-family:monospace;color:var(--green);">""</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Legacy GHL stage ID (Decision #6)</span></div>
+    </div>
+  </div>
+
+  <!-- LAYER 3: WORKFLOW -->
+  <h3 id="s-layer-3" style="font-size:18px;margin:32px 0 12px;display:flex;align-items:center;gap:8px;">
+    <span style="background:var(--purple);color:#000;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">3</span>
+    Workflow <span style="font-size:12px;color:var(--cyan);font-family:monospace;margin-left:8px;">flow_workflows</span>
+  </h3>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">One workflow per stage. Groups the steps. Think of it as the "work plan" for that stage.</p>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+    <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__suitability_workflow</span>
+      <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_workflows</span>
+    </div>
+    <div style="font-size:13px;">
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_id</span><span style="font-family:monospace;color:var(--green);">"suitability"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">workflow_key</span><span style="font-family:monospace;color:var(--green);">"suitability_workflow"</span></div>
+      <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">workflow_name</span><span style="font-family:monospace;color:var(--green);">"Suitability Workflow"</span></div>
+    </div>
+  </div>
+
+  <!-- LAYER 4: STEP -->
+  <h3 id="s-layer-4" style="font-size:18px;margin:32px 0 12px;display:flex;align-items:center;gap:8px;">
+    <span style="background:var(--orange);color:#000;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">4</span>
+    Step <span style="font-size:12px;color:var(--cyan);font-family:monospace;margin-left:8px;">flow_steps</span>
+  </h3>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">Steps group tasks within a stage. The <strong style="color:var(--text);">TaskChecklist</strong> UI renders step headers with progress counts (e.g., "3/5 tasks"). Steps can also be individually gated.</p>
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+    <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__client_profile</span>
+      <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_steps</span>
+    </div>
+    <div style="font-size:13px;">
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_id</span><span style="font-family:monospace;color:var(--green);">"suitability"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">step_id</span><span style="font-family:monospace;color:var(--green);">"client_profile"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">step_name</span><span style="font-family:monospace;color:var(--green);">"Client Profile"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">step_order</span><span style="font-family:monospace;color:var(--orange);">10</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Increments of 10 within the stage</span></div>
+      <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">gate_enforced</span><span style="font-family:monospace;color:var(--yellow);font-weight:700;">true</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">All tasks must complete before next step</span></div>
+    </div>
+  </div>
+
+  <!-- LAYER 5: TASKS -->
+  <h3 id="s-layer-5" style="font-size:18px;margin:32px 0 12px;display:flex;align-items:center;gap:8px;">
+    <span style="background:var(--cyan);color:#000;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">5</span>
+    Task Template <span style="font-size:12px;color:var(--cyan);font-family:monospace;margin-left:8px;">flow_task_templates</span>
+  </h3>
+  <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">The atomic unit of work. Three types: <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;background:var(--cyan);color:#000;">SYSTEM CHECK</span> runs automatically, <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;background:var(--orange);color:#000;">CUSTOM HANDLER</span> runs bespoke logic, <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;background:var(--purple);color:#000;">MANUAL</span> is a human checkbox.</p>
+
+  <!-- System Check Example -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;">
+    <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__net_worth_present</span>
+      <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--cyan);color:#000;">SYSTEM CHECK &mdash; FIELD_PRESENT</span>
+    </div>
+    <div style="font-size:13px;">
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">task_name</span><span style="font-family:monospace;color:var(--green);">"Net worth on CAF"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">is_required</span><span style="font-family:monospace;color:var(--yellow);font-weight:700;">true</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Required tasks block gates</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">is_system_check</span><span style="font-family:monospace;color:var(--yellow);font-weight:700;">true</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Runs automatically</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">check_type</span><span style="font-family:monospace;color:var(--green);">"FIELD_PRESENT"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Built-in: verify field exists</span></div>
+      <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">check_config</span><span style="font-family:monospace;color:var(--cyan);">{"field":"net_worth"}</span></div>
+    </div>
+  </div>
+
+  <!-- Custom Handler Example -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;">
+    <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__lnw_limit_check</span>
+      <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--orange);color:#000;">CUSTOM HANDLER &mdash; LNW_LIMIT</span>
+    </div>
+    <div style="font-size:13px;">
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">task_name</span><span style="font-family:monospace;color:var(--green);">"Liquid net worth within limits"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">is_system_check</span><span style="font-family:monospace;color:var(--yellow);font-weight:700;">true</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">check_type</span><span style="font-family:monospace;color:var(--green);">"LNW_LIMIT"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Custom handler registered at app startup</span></div>
+      <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">check_config</span><span style="font-family:monospace;color:var(--cyan);">{}</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Handler knows what to check internally</span></div>
+    </div>
+  </div>
+
+  <!-- Manual Example -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;">
+    <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__bi_written</span>
+      <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--purple);color:#000;">MANUAL &mdash; HUMAN CHECKBOX</span>
+    </div>
+    <div style="font-size:13px;">
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">task_name</span><span style="font-family:monospace;color:var(--green);">"Best Interest rationale written"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">is_system_check</span><span style="font-family:monospace;color:var(--yellow);font-weight:700;">false</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Human clicks the checkbox</span></div>
+      <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">check_type</span><span style="font-family:monospace;color:var(--green);">"MANUAL"</span></div>
+    </div>
+  </div>
+
+  <!-- Dynamic Tasks Callout -->
+  <div class="summary-card" style="border-left-color:var(--orange);">
+    <strong>Dynamic Tasks (Sales-Retirement Yellow Stage):</strong> The <code style="color:var(--orange);">role_applicability</code> field enables conditional task generation. Tasks tagged <code>"INVESTMENT"</code> only appear if the client has investment products. Tags: GENERAL (always), INVESTMENT, MEDICARE, LIFE, ANNUITY.
+  </div>
+
+  <!-- API ROUTES -->
+  <h3 style="font-size:18px;margin:32px 0 12px;">How the Front End Reads It</h3>
+  <table style="width:100%;border-collapse:collapse;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;font-size:13px;">
+    <thead>
+      <tr style="background:var(--bg-hover);">
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);">Page</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);">Endpoint</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);">Renders</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid #1a1a24;"><td style="padding:10px 14px;font-weight:600;">/pipelines</td><td style="padding:10px 14px;"><code style="color:var(--green);background:var(--green-dim);padding:2px 5px;border-radius:3px;font-size:12px;">GET /api/flow/pipelines?portal=PRODASHX</code></td><td style="padding:10px 14px;color:var(--text-dim);">Grid of 13 pipeline cards</td></tr>
+      <tr style="border-bottom:1px solid #1a1a24;"><td style="padding:10px 14px;font-weight:600;">/pipelines/nbx-investments</td><td style="padding:10px 14px;"><code style="color:var(--green);background:var(--green-dim);padding:2px 5px;border-radius:3px;font-size:12px;">GET /api/flow/pipelines/{key}/stages</code><br><code style="color:var(--green);background:var(--green-dim);padding:2px 5px;border-radius:3px;font-size:12px;">GET /api/flow/instances?pipeline_key={key}</code></td><td style="padding:10px 14px;color:var(--text-dim);">Kanban board (stages = columns, instances = cards)</td></tr>
+      <tr style="border-bottom:1px solid #1a1a24;"><td style="padding:10px 14px;font-weight:600;">Drag card</td><td style="padding:10px 14px;"><code style="color:var(--orange);background:var(--orange-dim);padding:2px 5px;border-radius:3px;font-size:12px;">PATCH /api/flow/instances/{id}</code><br><span style="font-size:11px;color:var(--text-muted);">{ action: "move", target_stage: "..." }</span></td><td style="padding:10px 14px;color:var(--text-dim);">Optimistic move. Gate fail = bounce back + blocker toast</td></tr>
+      <tr style="border-bottom:1px solid #1a1a24;"><td style="padding:10px 14px;font-weight:600;">/pipelines/.../abc123</td><td style="padding:10px 14px;"><code style="color:var(--green);background:var(--green-dim);padding:2px 5px;border-radius:3px;font-size:12px;">GET /api/flow/instances/{id}</code></td><td style="padding:10px 14px;color:var(--text-dim);">Stage progress + task checklist + activity timeline</td></tr>
+      <tr style="border-bottom:1px solid #1a1a24;"><td style="padding:10px 14px;font-weight:600;">Complete task</td><td style="padding:10px 14px;"><code style="color:var(--orange);background:var(--orange-dim);padding:2px 5px;border-radius:3px;font-size:12px;">PATCH /api/flow/tasks/{id}</code><br><span style="font-size:11px;color:var(--text-muted);">{ action: "complete" }</span></td><td style="padding:10px 14px;color:var(--text-dim);">Checkbox fills, system check badge updates, gate re-evaluates</td></tr>
+      <tr><td style="padding:10px 14px;font-weight:600;">Advance stage</td><td style="padding:10px 14px;"><code style="color:var(--orange);background:var(--orange-dim);padding:2px 5px;border-radius:3px;font-size:12px;">PATCH /api/flow/instances/{id}</code><br><span style="font-size:11px;color:var(--text-muted);">{ action: "advance" }</span></td><td style="padding:10px 14px;color:var(--text-dim);">Progress bar advances, new tasks load</td></tr>
+    </tbody>
+  </table>
+
+  <div class="summary-card" style="border-left-color:var(--green);margin-top:16px;">
+    <strong>All API responses:</strong> <code>{ success: true, data: { ... } }</code> on success, <code>{ success: false, error: "..." }</code> on failure.
+  </div>
+
 </div>
 </div>
 
