@@ -1,8 +1,5 @@
 'use client'
 
-// NOTE: Add to PortalSidebar.tsx Service Centers section:
-// { name: 'Access Center', href: '/service-centers/access', icon: 'shield' }
-
 import { useState, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -253,7 +250,7 @@ function AccessCenterContent() {
         <div>
           <div className="flex items-center gap-2">
             <Link
-              href={clientId ? `/clients/${clientId}` : '/service-centers'}
+              href={clientId ? `/contacts/${clientId}` : '/service-centers'}
               className="text-[var(--text-muted)] hover:text-[var(--portal)] transition-colors"
             >
               <span className="material-icons-outlined text-[20px]">arrow_back</span>

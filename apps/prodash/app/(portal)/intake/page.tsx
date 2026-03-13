@@ -150,7 +150,7 @@ export default function QuickIntakePage() {
       if (form.source) clientData.source = form.source
 
       const docRef = await addDoc(collection(db, 'clients'), clientData)
-      router.push(`/clients/${docRef.id}`)
+      router.push(`/contacts/${docRef.id}`)
     } catch (err) {
       console.error('Failed to create client:', err)
       setError('Failed to create client. Please try again.')
@@ -227,7 +227,7 @@ export default function QuickIntakePage() {
               {duplicates.map((dup, i) => (
                 <a
                   key={i}
-                  href={`/clients/${dup._id || dup.client_id}`}
+                  href={`/contacts/${dup._id || dup.client_id}`}
                   className="flex items-center justify-between rounded-md bg-[var(--bg-card)] p-3 text-sm transition-colors hover:bg-[var(--bg-hover)]"
                 >
                   <div>

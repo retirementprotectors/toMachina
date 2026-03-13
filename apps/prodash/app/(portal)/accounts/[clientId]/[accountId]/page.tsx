@@ -182,7 +182,7 @@ export default function AccountDetailPage({
           Back to Accounts
         </Link>
         <Link
-          href={`/clients/${clientId}`}
+          href={`/contacts/${clientId}`}
           className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-4 py-2 text-sm font-medium text-white transition-colors hover:brightness-110"
         >
           <span className="material-icons-outlined text-[16px]">person</span>

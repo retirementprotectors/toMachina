@@ -40,7 +40,7 @@ export default function AnnuitySalesCenterPage() {
   }, [allClients, search])
 
   const handleRowClick = useCallback((client: ClientRow) => {
-    router.push(`/clients/${client._id || client.client_id}`)
+    router.push(`/contacts/${client._id || client.client_id}`)
   }, [router])
 
   if (loading) {

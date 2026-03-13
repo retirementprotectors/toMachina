@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function PortalHome() {
-  redirect('/clients')
+  redirect('/contacts')
 }

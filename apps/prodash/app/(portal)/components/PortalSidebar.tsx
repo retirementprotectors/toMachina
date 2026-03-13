@@ -64,7 +64,7 @@ const NAV_SECTIONS: NavSection[] = [
     defaultExpanded: false,
     moduleKey: 'PRODASH',
     items: [
-      { key: 'contacts', label: 'Contacts', href: '/clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'contacts', label: 'Contacts', href: '/contacts', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
       { key: 'accounts', label: 'Accounts', href: '/accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
     ],
   },
@@ -90,6 +90,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { key: 'rmd', label: 'RMD Center', href: '/service-centers/rmd', icon: 'calendar_month', moduleKey: 'RMD_CENTER' },
       { key: 'beni', label: 'Beni Center', href: '/service-centers/beni', icon: 'volunteer_activism', moduleKey: 'BENI_CENTER' },
+      { key: 'access', label: 'Access Center', href: '/service-centers/access', icon: 'security' },
     ],
   },
 ]
@@ -234,9 +235,9 @@ export function PortalSidebar() {
     return false
   }
 
-  /* Logo click navigates to Clients (rule N1) */
+  /* Logo click navigates to Contacts (rule N1) */
   const handleLogoClick = () => {
-    router.push('/clients')
+    router.push('/contacts')
   }
 
   /* ─── Render a scrollable nav section with twist/rotate header ─── */

@@ -447,7 +447,7 @@ export default function RmdCenterPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-[var(--text-muted)]">Client</span>
                   <Link
-                    href={`/clients/${selectedRecord.clientId}`}
+                    href={`/contacts/${selectedRecord.clientId}`}
                     className="text-sm font-medium text-[var(--portal)] hover:underline"
                   >
                     {[selectedRecord.client.first_name, selectedRecord.client.last_name].filter(Boolean).join(' ')}
@@ -625,7 +625,7 @@ function RmdTable({
               >
                 <td className="px-3 py-2.5">
                   <Link
-                    href={`/clients/${record.clientId}`}
+                    href={`/contacts/${record.clientId}`}
                     onClick={(e) => e.stopPropagation()}
                     className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--portal)] hover:underline"
                   >
@@ -705,7 +705,7 @@ function RmdRow({ record, isSelected, onSelect }: { record: RmdRecord; isSelecte
           </div>
           <div>
             <Link
-              href={`/clients/${record.clientId}`}
+              href={`/contacts/${record.clientId}`}
               onClick={(e) => e.stopPropagation()}
               className="text-sm font-medium text-[var(--text-primary)] hover:text-[var(--portal)] hover:underline"
             >
