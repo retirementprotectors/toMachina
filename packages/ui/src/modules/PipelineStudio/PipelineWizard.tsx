@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { fetchWithAuth } from './fetchWithAuth'
 
 // ============================================================================
 // PipelineWizard — Create new pipeline dialog
@@ -95,7 +96,7 @@ export default function PipelineWizard({
       setSaving(true)
       setError(null)
 
-      const res = await fetch(`${apiBase}/flow/admin/pipelines`, {
+      const res = await fetchWithAuth(`${apiBase}/flow/admin/pipelines`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

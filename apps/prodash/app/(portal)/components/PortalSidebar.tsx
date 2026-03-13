@@ -8,13 +8,12 @@ import type { UserEntitlementContext } from '@tomachina/auth'
 import { APP_BRANDS, AppIcon, type AppKey } from '@tomachina/ui'
 
 /* ─── Section Type Styling ─── */
-type SectionType = 'workspace' | 'sales' | 'service' | 'pipeline'
+type SectionType = 'workspace' | 'sales' | 'service'
 
 const sectionColors: Record<SectionType, string> = {
   workspace: '#4264a7',
   sales: '#4264a7',
   service: '#4264a7',
-  pipeline: '#4264a7',
 }
 
 /* ─── Nav Item Definition ─── */
@@ -45,17 +44,6 @@ interface AppItem {
 
 /* ─── ProDashX Navigation Configuration ─── */
 const NAV_SECTIONS: NavSection[] = [
-  {
-    key: 'pipelines',
-    label: 'Pipelines',
-    type: 'pipeline',
-    icon: 'route',
-    defaultExpanded: false,
-    moduleKey: 'PRODASH_PIPELINES',
-    items: [
-      { key: 'pipelines-board', label: 'Pipeline Board', href: '/pipelines', icon: 'view_kanban' },
-    ],
-  },
   {
     key: 'workspace',
     label: 'Workspace',
@@ -102,6 +90,7 @@ const APP_ITEMS: AppItem[] = [
   { key: 'dex', href: '/modules/dex', moduleKey: 'DEX' },
   { key: 'c3', href: '/modules/c3', moduleKey: 'C3' },
   { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
+  { key: 'pipeline-studio', href: '/modules/pipeline-studio' },
 ]
 
 /* ─── Fixed Bottom: Connect + Admin ─── */

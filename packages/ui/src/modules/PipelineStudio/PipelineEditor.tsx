@@ -10,6 +10,7 @@ import type {
 import StageList from './StageList'
 import DetailEditor from './DetailEditor'
 import FlowPreview from './FlowPreview'
+import { fetchWithAuth } from './fetchWithAuth'
 
 // ============================================================================
 // PipelineEditor — Three-panel pipeline editor
@@ -89,7 +90,7 @@ export default function PipelineEditor({
       setError(null)
 
       // Fetch pipeline metadata
-      const pipeRes = await fetch(`${apiBase}/flow/pipelines/${pipelineKey}`)
+      const pipeRes = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}`)
       const pipeJson: ApiResponse<FlowPipelineDef> = await pipeRes.json()
       if (!pipeJson.success || !pipeJson.data) {
         setError(pipeJson.error || 'Failed to load pipeline')
@@ -98,7 +99,7 @@ export default function PipelineEditor({
       setPipeline(pipeJson.data)
 
       // Fetch stages
-      const stagesRes = await fetch(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
+      const stagesRes = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
       const stagesJson: ApiResponse<FlowStageDef[]> = await stagesRes.json()
       const fetchedStages = stagesJson.data || []
       setStages(fetchedStages)
@@ -110,7 +111,7 @@ export default function PipelineEditor({
       await Promise.all(
         fetchedStages.map(async (stage) => {
           try {
-            const stepsRes = await fetch(`${apiBase}/flow/admin/stages/${stage.stage_id}/steps`)
+            const stepsRes = await fetchWithAuth(`${apiBase}/flow/admin/stages/${stage.stage_id}/steps`)
             const stepsJson: ApiResponse<FlowStepDef[]> = await stepsRes.json()
             const fetchedSteps = stepsJson.data || []
             stepsMap[stage.stage_id] = fetchedSteps
@@ -119,7 +120,7 @@ export default function PipelineEditor({
             await Promise.all(
               fetchedSteps.map(async (step) => {
                 try {
-                  const tasksRes = await fetch(`${apiBase}/flow/admin/steps/${step.step_id}/tasks`)
+                  const tasksRes = await fetchWithAuth(`${apiBase}/flow/admin/steps/${step.step_id}/tasks`)
                   const tasksJson: ApiResponse<FlowTaskTemplateDef[]> = await tasksRes.json()
                   tasksMap[step.step_id] = tasksJson.data || []
                 } catch {
@@ -436,7 +437,7 @@ export default function PipelineEditor({
           : { ...pipeline, updated_at: new Date().toISOString() }
 
         // Save pipeline metadata
-        const pipeRes = await fetch(`${apiBase}/flow/admin/pipelines/${pipelineKey}`, {
+        const pipeRes = await fetchWithAuth(`${apiBase}/flow/admin/pipelines/${pipelineKey}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(pipelineData),
@@ -449,7 +450,7 @@ export default function PipelineEditor({
 
         // Save stages (reorder + upsert)
         for (const stage of stages) {
-          await fetch(`${apiBase}/flow/admin/stages/${stage.stage_id}`, {
+          await fetchWithAuth(`${apiBase}/flow/admin/stages/${stage.stage_id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(stage),
@@ -459,7 +460,7 @@ export default function PipelineEditor({
         // Save steps
         for (const [, stageSteps] of Object.entries(steps)) {
           for (const step of stageSteps) {
-            await fetch(`${apiBase}/flow/admin/steps/${step.step_id}`, {
+            await fetchWithAuth(`${apiBase}/flow/admin/steps/${step.step_id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(step),
@@ -470,7 +471,7 @@ export default function PipelineEditor({
         // Save tasks
         for (const [, stepTasks] of Object.entries(tasks)) {
           for (const task of stepTasks) {
-            await fetch(`${apiBase}/flow/admin/tasks/${task.task_id}`, {
+            await fetchWithAuth(`${apiBase}/flow/admin/tasks/${task.task_id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(task),

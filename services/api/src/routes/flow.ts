@@ -43,6 +43,24 @@ flowRoutes.get('/pipelines', async (req: Request, res: Response) => {
 })
 
 /**
+ * GET /api/flow/pipelines/:key — Get a single pipeline by key.
+ */
+flowRoutes.get('/pipelines/:key', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const pipelineKey = param(req.params.key)
+    const doc = await db.collection(PIPELINES).doc(pipelineKey).get()
+    if (!doc.exists) {
+      return res.status(404).json(errorResponse('Pipeline not found'))
+    }
+    res.json(successResponse({ id: doc.id, ...doc.data() }))
+  } catch (err) {
+    console.error('GET /pipelines/:key error:', err)
+    res.status(500).json(errorResponse('Failed to get pipeline'))
+  }
+})
+
+/**
  * GET /api/flow/pipelines/:key/stages — Get stages for a pipeline.
  */
 flowRoutes.get('/pipelines/:key/stages', async (req: Request, res: Response) => {

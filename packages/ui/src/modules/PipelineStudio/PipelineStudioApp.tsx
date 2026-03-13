@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { FlowPipelineDef } from '@tomachina/core'
 import PipelineEditor from './PipelineEditor'
 import PipelineWizard from './PipelineWizard'
+import { fetchWithAuth } from './fetchWithAuth'
 
 // ============================================================================
 // PipelineStudioApp — Full-screen pipeline builder app shell
@@ -160,7 +161,7 @@ export default function PipelineStudioApp({
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`${apiBase}/flow/pipelines?portal=${portal}`)
+      const res = await fetchWithAuth(`${apiBase}/flow/pipelines?portal=${portal.toUpperCase()}`)
       const json: PipelinesResponse = await res.json()
 
       if (!json.success || !json.data) {
