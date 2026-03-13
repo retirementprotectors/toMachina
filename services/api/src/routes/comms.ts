@@ -175,7 +175,8 @@ commsRoutes.post('/send-email', async (req: Request, res: Response) => {
       const commId = await logCommunication({
         channel: 'email', direction: 'outbound', recipient: to,
         subject: body.subject || '[template]', status: 'dry_run',
-        sent_by: (req as any).user?.email || 'api',
+        sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+        client_id: body.client_id || null,
       })
       res.status(200).json(successResponse({ statusCode: 200, messageId: null, to, from, dryRun: true, commId }))
       return
@@ -186,7 +187,8 @@ commsRoutes.post('/send-email', async (req: Request, res: Response) => {
       channel: 'email', direction: 'outbound', recipient: to,
       subject: body.subject || '[template]', status: 'sent',
       message_id: result.messageId,
-      sent_by: (req as any).user?.email || 'api',
+      sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+        client_id: body.client_id || null,
     })
     res.status(201).json(successResponse({ statusCode: result.statusCode, messageId: result.messageId, to, from, commId }))
   } catch (err) {
@@ -215,7 +217,8 @@ commsRoutes.post('/send-sms', async (req: Request, res: Response) => {
       const commId = await logCommunication({
         channel: 'sms', direction: 'outbound', recipient: to,
         body: messageBody, status: 'dry_run',
-        sent_by: (req as any).user?.email || 'api',
+        sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+        client_id: body.client_id || null,
       })
       res.status(200).json(successResponse({ messageSid: null, to, from, status: 'dry_run', dryRun: true, commId }))
       return
@@ -229,7 +232,8 @@ commsRoutes.post('/send-sms', async (req: Request, res: Response) => {
       channel: 'sms', direction: 'outbound', recipient: to,
       body: messageBody, status: String(result.status || 'queued'),
       message_sid: String(result.sid || ''),
-      sent_by: (req as any).user?.email || 'api',
+      sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+        client_id: body.client_id || null,
     })
     res.status(201).json(successResponse({
       messageSid: result.sid, to: result.to, from: result.from,
@@ -266,7 +270,8 @@ commsRoutes.post('/send-voice', async (req: Request, res: Response) => {
       const commId = await logCommunication({
         channel: 'voice', direction: 'outbound', recipient: to,
         status: 'dry_run',
-        sent_by: (req as any).user?.email || 'api',
+        sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+        client_id: body.client_id || null,
       })
       res.status(200).json(successResponse({ callSid: null, to, from, status: 'dry_run', dryRun: true, commId }))
       return
@@ -284,7 +289,8 @@ commsRoutes.post('/send-voice', async (req: Request, res: Response) => {
       channel: 'voice', direction: 'outbound', recipient: to,
       status: String(result.status || 'queued'),
       call_sid: String(result.sid || ''),
-      sent_by: (req as any).user?.email || 'api',
+      sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+        client_id: body.client_id || null,
     })
     res.status(201).json(successResponse({
       callSid: result.sid, to: result.to, from: result.from,
@@ -293,6 +299,41 @@ commsRoutes.post('/send-voice', async (req: Request, res: Response) => {
     }))
   } catch (err) {
     console.error('POST /api/comms/send-voice error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/comms/log-call
+ * Manually log a phone call (inbound or outbound) to Firestore.
+ */
+commsRoutes.post('/log-call', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, unknown>
+    const err = validateRequired(body, ['client_id'])
+    if (err) { res.status(400).json(errorResponse(err)); return }
+
+    const direction = String(body.direction || 'outbound')
+    const outcome = String(body.outcome || 'connected')
+    const notes = body.notes ? String(body.notes) : ''
+    const duration = body.duration ? Number(body.duration) : null
+    const clientId = String(body.client_id)
+
+    const commId = await logCommunication({
+      channel: 'voice',
+      direction,
+      recipient: body.recipient ? String(body.recipient) : null,
+      status: outcome,
+      body: notes,
+      duration,
+      client_id: clientId,
+      sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+      call_type: 'manual_log',
+    })
+
+    res.status(201).json(successResponse({ commId, direction, outcome, duration, notes }))
+  } catch (err) {
+    console.error('POST /api/comms/log-call error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

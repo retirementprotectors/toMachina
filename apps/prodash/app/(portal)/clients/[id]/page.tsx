@@ -101,7 +101,7 @@ export default function Client360Page({
       case 'connected':
         return <ConnectedTab client={client!} clientId={id} />
       case 'communications':
-        return <CommsTab clientId={id} />
+        return <CommsTab clientId={id} client={client!} />
       case 'activity':
         return <ActivityTab clientId={id} />
       default:
