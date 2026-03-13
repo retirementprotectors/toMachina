@@ -369,6 +369,142 @@ function ModuleExpandRow({
 
 /* ─── Team Config Tab (Item 29 — inverse of Module Config) ─── */
 
+type FlatModule = { key: string; label: string; section: string; sectionKey: string }
+
+const ALL_MODULES_FLAT: FlatModule[] = MODULE_SECTIONS.flatMap((section) =>
+  section.items
+    .filter((item) => !!item.moduleKey)
+    .map((item) => ({ key: item.moduleKey!, label: item.label, section: section.label, sectionKey: section.key }))
+)
+
+const LEVEL_ICONS: Record<string, string> = {
+  Owner: 'shield',
+  Executive: 'star',
+  Leader: 'manage_accounts',
+  User: 'person',
+}
+
+/* ─── Member row — extracted to a proper component so hooks are valid ─── */
+
+function TeamMemberRow({
+  member,
+  currentUserEmail,
+  isLeader,
+  onEntitlementChange,
+}: {
+  member: UserRecord
+  currentUserEmail: string
+  isLeader: boolean
+  onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const isSelf = member.email === currentUserEmail
+
+  // Group modules by section, only those with permissions
+  const modulesBySectionKey = useMemo(() => {
+    const map: Record<string, { sectionLabel: string; items: FlatModule[] }> = {}
+    for (const mod of ALL_MODULES_FLAT) {
+      const perms = member.module_permissions?.[mod.key]
+      if (!perms || perms.length === 0) continue
+      if (!map[mod.sectionKey]) {
+        map[mod.sectionKey] = { sectionLabel: mod.section, items: [] }
+      }
+      map[mod.sectionKey].items.push(mod)
+    }
+    return map
+  }, [member.module_permissions])
+
+  const totalModules = useMemo(
+    () => Object.values(modulesBySectionKey).reduce((sum, s) => sum + s.items.length, 0),
+    [modulesBySectionKey]
+  )
+
+  return (
+    <div className="rounded-lg bg-[var(--bg-surface)]">
+      {/* Level 2: Individual user row */}
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="flex w-full items-center justify-between px-3 py-2.5"
+      >
+        <div className="flex items-center gap-2">
+          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
+            person
+          </span>
+          <span className="text-sm text-[var(--text-primary)]">
+            {member.first_name} {member.last_name}
+            {isSelf && <span className="ml-1 text-[10px] text-[var(--text-muted)]">(you)</span>}
+          </span>
+          {member.division && (
+            <span className="rounded-full bg-[var(--bg-card)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
+              {member.division}
+            </span>
+          )}
+          {member.unit && (
+            <span className="text-[10px] text-[var(--text-muted)]">{member.unit}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-[var(--text-muted)]">
+            {totalModules} module{totalModules !== 1 ? 's' : ''}
+          </span>
+          <span
+            className="material-icons-outlined text-[var(--text-muted)] transition-transform"
+            style={{ fontSize: '16px', transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+          >
+            expand_more
+          </span>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-[var(--border-subtle)] px-3 pb-3 pt-2 space-y-3">
+          {totalModules > 0 ? (
+            Object.entries(modulesBySectionKey).map(([sectionKey, { sectionLabel, items }]) => (
+              <div key={sectionKey}>
+                {/* Level 3: Section header */}
+                <div className="mb-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                    {sectionLabel}
+                  </span>
+                </div>
+                {/* Level 3: Module rows */}
+                <div className="space-y-1">
+                  {items.map((mod) => {
+                    const perms = member.module_permissions?.[mod.key] || []
+                    return (
+                      <div
+                        key={mod.key}
+                        className="flex items-center justify-between rounded-md bg-[var(--bg-card)] px-3 py-2"
+                      >
+                        <span className="text-xs text-[var(--text-primary)]">{mod.label}</span>
+                        <div className="flex items-center gap-1">
+                          {ALL_ACTIONS.map((action) => (
+                            <EntitlementBadge
+                              key={action}
+                              action={action}
+                              active={perms.includes(action)}
+                              editable={isLeader && !isSelf}
+                              onToggle={() =>
+                                onEntitlementChange(member._id, mod.key, action, !perms.includes(action))
+                              }
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-xs text-[var(--text-muted)] py-1">No module permissions assigned.</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function TeamConfigTab({
   users,
   currentUserEmail,
@@ -380,160 +516,76 @@ function TeamConfigTab({
   isLeader: boolean
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
 }) {
-  // Group users by division
-  const divisions = useMemo(() => {
+  // AD-1: Active users only
+  const activeUsers = useMemo(
+    () => users.filter((u) => !u.status || u.status.toLowerCase() === 'active'),
+    [users]
+  )
+
+  // AD-2: Group by user level (Owner / Executive / Leader / User)
+  const levelGroups = useMemo(() => {
     const groups: Record<string, UserRecord[]> = {
-      Sales: [],
-      Service: [],
-      Leadership: [],
-      Other: [],
+      Owner: [],
+      Executive: [],
+      Leader: [],
+      User: [],
     }
-    for (const u of users) {
-      const div = u.division || 'Other'
-      const level = (u.user_level || '').toUpperCase()
-      if (level === 'OWNER' || level === 'EXECUTIVE' || level === 'LEADER') {
-        groups.Leadership.push(u)
-      } else if (div.toLowerCase().includes('sales')) {
-        groups.Sales.push(u)
-      } else if (div.toLowerCase().includes('service')) {
-        groups.Service.push(u)
-      } else {
-        groups.Other.push(u)
-      }
+    for (const u of activeUsers) {
+      const raw = u.user_level || u.role_template || 'User'
+      const normalized = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase()
+      if (normalized in groups) groups[normalized].push(u)
+      else groups.User.push(u)
     }
-    // Sort each group by name
     Object.values(groups).forEach((g) =>
       g.sort((a, b) => `${a.last_name}`.localeCompare(`${b.last_name}`))
     )
     return groups
-  }, [users])
+  }, [activeUsers])
 
-  const [expandedDiv, setExpandedDiv] = useState<string | null>(null)
-  const [expandedUser, setExpandedUser] = useState<string | null>(null)
-
-  // All module keys flattened
-  const allModules = useMemo(() => {
-    const result: { key: string; label: string; section: string }[] = []
-    for (const section of MODULE_SECTIONS) {
-      for (const item of section.items) {
-        if (item.moduleKey) {
-          result.push({ key: item.moduleKey, label: item.label, section: section.label })
-        }
-      }
-    }
-    return result
-  }, [])
+  const [expandedLevel, setExpandedLevel] = useState<string | null>(null)
 
   return (
     <div className="space-y-3">
-      {Object.entries(divisions)
+      {Object.entries(levelGroups)
         .filter(([, members]) => members.length > 0)
-        .map(([divName, members]) => (
-          <div key={divName} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+        .map(([levelName, members]) => (
+          <div key={levelName} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+            {/* Level 1: User Type header */}
             <button
-              onClick={() => setExpandedDiv((v) => (v === divName ? null : divName))}
+              onClick={() => setExpandedLevel((v) => (v === levelName ? null : levelName))}
               className="flex w-full items-center justify-between px-5 py-3.5"
             >
               <div className="flex items-center gap-2">
                 <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
-                  {divName === 'Sales' ? 'storefront' : divName === 'Service' ? 'support_agent' : divName === 'Leadership' ? 'star' : 'group'}
+                  {LEVEL_ICONS[levelName] || 'person'}
                 </span>
-                <span className="text-sm font-semibold text-[var(--text-primary)]">{divName}</span>
-                <span className="text-xs text-[var(--text-muted)]">({members.length})</span>
+                <span className="text-sm font-semibold text-[var(--text-primary)]">{levelName}</span>
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-medium text-white"
+                  style={{ background: 'var(--portal)' }}
+                >
+                  {members.length}
+                </span>
               </div>
               <span
                 className="material-icons-outlined text-[var(--text-muted)] transition-transform"
-                style={{ fontSize: '18px', transform: expandedDiv === divName ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                style={{ fontSize: '18px', transform: expandedLevel === levelName ? 'rotate(0deg)' : 'rotate(-90deg)' }}
               >
                 expand_more
               </span>
             </button>
 
-            {expandedDiv === divName && (
+            {expandedLevel === levelName && (
               <div className="border-t border-[var(--border-subtle)] px-5 pb-4 pt-3 space-y-1">
-                {members.map((member) => {
-                  const isExpanded = expandedUser === member._id
-                  const isSelf = member.email === currentUserEmail
-                  const memberModules = allModules.filter(
-                    (m) => (member.module_permissions?.[m.key]?.length ?? 0) > 0
-                  )
-
-                  return (
-                    <div key={member._id} className="rounded-lg bg-[var(--bg-surface)]">
-                      <button
-                        onClick={() => setExpandedUser((v) => (v === member._id ? null : member._id))}
-                        className="flex w-full items-center justify-between px-3 py-2.5"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
-                            person
-                          </span>
-                          <span className="text-sm text-[var(--text-primary)]">
-                            {member.first_name} {member.last_name}
-                            {isSelf && <span className="ml-1 text-[10px] text-[var(--text-muted)]">(you)</span>}
-                          </span>
-                          {member.user_level && (
-                            <span className="rounded-full bg-[var(--bg-card)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
-                              {member.user_level}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-[var(--text-muted)]">
-                            {memberModules.length} module{memberModules.length !== 1 ? 's' : ''}
-                          </span>
-                          <span
-                            className="material-icons-outlined text-[var(--text-muted)] transition-transform"
-                            style={{ fontSize: '16px', transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                          >
-                            expand_more
-                          </span>
-                        </div>
-                      </button>
-
-                      {isExpanded && (
-                        <div className="border-t border-[var(--border-subtle)] px-3 pb-3 pt-2 space-y-1.5">
-                          {memberModules.length > 0 ? (
-                            memberModules.map((mod) => {
-                              const perms = member.module_permissions?.[mod.key] || []
-                              return (
-                                <div
-                                  key={mod.key}
-                                  className="flex items-center justify-between rounded-md bg-[var(--bg-card)] px-3 py-2"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-[var(--text-primary)]">{mod.label}</span>
-                                    <span className="text-[10px] text-[var(--text-muted)]">{mod.section}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    {ALL_ACTIONS.map((action) => (
-                                      <EntitlementBadge
-                                        key={action}
-                                        action={action}
-                                        active={perms.includes(action)}
-                                        editable={isLeader && !isSelf}
-                                        onToggle={() =>
-                                          onEntitlementChange(
-                                            member._id,
-                                            mod.key,
-                                            action,
-                                            !perms.includes(action)
-                                          )
-                                        }
-                                      />
-                                    ))}
-                                  </div>
-                                </div>
-                              )
-                            })
-                          ) : (
-                            <p className="text-xs text-[var(--text-muted)] py-1">No module permissions assigned.</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                {members.map((member) => (
+                  <TeamMemberRow
+                    key={member._id}
+                    member={member}
+                    currentUserEmail={currentUserEmail}
+                    isLeader={isLeader}
+                    onEntitlementChange={onEntitlementChange}
+                  />
+                ))}
               </div>
             )}
           </div>

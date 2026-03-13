@@ -2,13 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-/* Portal logo PNGs — the REAL logos, on-dark variants */
-const PORTAL_LOGOS: Record<string, string> = {
-  prodash: '/prodashx-on-dark.png',
-  riimo: '/riimo-on-dark.png',
-  sentinel: '/sentinel-on-dark.png',
-}
-
 const PORTAL_MARKS: Record<string, string> = {
   prodash: '/prodashx-mark.svg',
   riimo: '/riimo-mark.svg',
@@ -24,7 +17,7 @@ interface PortalDef {
 }
 
 const PORTALS: PortalDef[] = [
-  { key: 'prodash', label: 'ProDashX', color: '#4264a7', prodUrl: 'https://prodash.tomachina.com', devPort: 3001 },
+  { key: 'prodash', label: 'ProDashX', color: '#4a7ab5', prodUrl: 'https://prodash.tomachina.com', devPort: 3001 },
   { key: 'riimo', label: 'RIIMO', color: '#a78bfa', prodUrl: 'https://riimo.tomachina.com', devPort: 3002 },
   { key: 'sentinel', label: 'SENTINEL', color: '#40bc58', prodUrl: 'https://sentinel.tomachina.com', devPort: 3003 },
 ]
@@ -94,17 +87,14 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
           className="absolute left-0 top-full z-50 mt-1 w-56 rounded-lg border overflow-hidden"
           style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
         >
-          {/* Current Portal — just the logo, highlighted */}
+          {/* Current Portal — styled text label, highlighted */}
           <div
-            className="flex items-center justify-center px-4 py-3 border-b"
+            className="flex items-center px-4 py-3 border-b"
             style={{ borderColor: 'var(--border-subtle)', background: `${current.color}10` }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={PORTAL_LOGOS[current.key]}
-              alt={current.label}
-              style={{ height: '40px', width: 'auto' }}
-            />
+            <span style={{ color: current.color, fontWeight: 700, fontSize: '18px' }}>
+              {current.label}
+            </span>
             <span
               className="material-icons-outlined ml-auto"
               style={{ color: current.color, fontSize: '20px' }}
@@ -113,23 +103,20 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
             </span>
           </div>
 
-          {/* Other Portals — just logos, open in new tab */}
+          {/* Other Portals — styled text labels, open in new tab */}
           {others.map((portal) => (
             <a
               key={portal.key}
               href={getPortalUrl(portal)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] border-b"
+              className="flex items-center px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] border-b"
               style={{ borderColor: 'var(--border-subtle)' }}
               onClick={() => setOpen(false)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={PORTAL_LOGOS[portal.key]}
-                alt={portal.label}
-                style={{ height: '36px', width: 'auto', opacity: 0.8 }}
-              />
+              <span style={{ color: portal.color, fontWeight: 700, fontSize: '18px' }}>
+                {portal.label}
+              </span>
               <span
                 className="material-icons-outlined ml-auto text-[var(--text-muted)]"
                 style={{ fontSize: '14px' }}
@@ -139,17 +126,14 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
             </a>
           ))}
 
-          {/* Footer — toMachina logo */}
+          {/* Footer — toMachina text */}
           <div
             className="flex items-center justify-center px-3 py-2"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/tomachina-on-dark.png"
-              alt="toMachina"
-              style={{ height: '18px', width: 'auto', opacity: 0.5 }}
-            />
+            <span style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 500, opacity: 0.7 }}>
+              toMachina
+            </span>
           </div>
         </div>
       )}

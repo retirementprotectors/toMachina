@@ -114,11 +114,8 @@ export function TopBar({ user }: TopBarProps) {
               </div>
             )}
             <div className="hidden flex-col sm:flex">
-              <span className="text-xs font-medium text-[var(--text-primary)]">
-                {user.displayName || 'User'}
-              </span>
-              <span className="text-[10px] text-[var(--text-muted)]">
-                {user.email}
+              <span className="text-sm font-medium text-[var(--text-primary)]">
+                {(user.displayName || 'User').split(' ')[0]}
               </span>
             </div>
           </Link>
