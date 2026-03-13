@@ -69,6 +69,7 @@ export default function ClientsPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(getDefaultVisibleColumns)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // Extract unique books & agents from data
   const { books, agents } = useMemo(() => {
@@ -192,6 +193,19 @@ export default function ClientsPage() {
   const handleAgentChange = useCallback((v: string) => { setAgentFilter(v); resetPage() }, [resetPage])
   const handleAcfChange = useCallback((v: string) => { setAcfFilter(v); resetPage() }, [resetPage])
 
+  const toggleClientSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }, [])
+
+  const handleDdup = useCallback(() => {
+    const ids = Array.from(selectedIds).join(',')
+    window.open(`/ddup?ids=${ids}&type=client`, '_blank', 'noopener,noreferrer')
+  }, [selectedIds])
+
   const handleSort = useCallback(
     (key: SortKey) => {
       if (sortKey === key) {
@@ -218,7 +232,7 @@ export default function ClientsPage() {
   const renderSortHeader = (label: string, key: SortKey, className?: string) => (
     <th
       onClick={() => handleSort(key)}
-      className={`cursor-pointer select-none px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] ${className || ''}`}
+      className={`cursor-pointer select-none px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--portal)] transition-colors hover:text-[var(--text-primary)] ${className || ''}`}
     >
       <span className="inline-flex items-center gap-1">
         {label}
@@ -230,7 +244,7 @@ export default function ClientsPage() {
   )
 
   const renderStaticHeader = (label: string, className?: string) => (
-    <th className={`px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] ${className || ''}`}>
+    <th className={`px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--portal)] ${className || ''}`}>
       {label}
     </th>
   )
@@ -301,6 +315,25 @@ export default function ClientsPage() {
         }
       />
 
+      {/* DeDup button — shown when 2+ clients selected */}
+      {selectedIds.size >= 2 && (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleDdup}
+            className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 h-[34px] px-4 text-sm font-medium text-white transition-colors hover:bg-amber-600"
+          >
+            <span className="material-icons-outlined text-[16px]">merge_type</span>
+            Ddup Selected ({selectedIds.size})
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] h-[34px] px-3 text-sm font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* No results */}
       {sorted.length === 0 && (
         <div className="flex items-center justify-center py-16">
@@ -322,6 +355,21 @@ export default function ClientsPage() {
             <table className="w-full text-sm">
               <thead className="bg-[var(--bg-secondary)]">
                 <tr>
+                  <th className="w-10 px-3 py-3">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
+                      checked={paged.length > 0 && paged.every((c) => selectedIds.has(c._id || c.client_id))}
+                      onChange={(e) => {
+                        const ids = paged.map((c) => c._id || c.client_id)
+                        setSelectedIds((prev) => {
+                          const next = new Set(prev)
+                          ids.forEach((id) => e.target.checked ? next.add(id) : next.delete(id))
+                          return next
+                        })
+                      }}
+                    />
+                  </th>
                   {/* name is always visible */}
                   {renderSortHeader('Contact', 'name')}
                   {col('location') && renderSortHeader('City/State', 'location')}
@@ -351,6 +399,15 @@ export default function ClientsPage() {
                       onClick={() => handleRowClick(client)}
                       className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
                     >
+                      {/* Checkbox */}
+                      <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(client._id || client.client_id)}
+                          onChange={() => toggleClientSelect(client._id || client.client_id)}
+                          className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
+                        />
+                      </td>
                       {/* Contact: Name + Age below — always visible */}
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-3">

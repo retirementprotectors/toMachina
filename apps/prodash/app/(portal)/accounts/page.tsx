@@ -41,7 +41,7 @@ const FILTER_TABS: { key: FilterKey; label: string; color: string }[] = [
   { key: 'annuity', label: 'Annuity', color: '#f59e0b' },
   { key: 'life', label: 'Life', color: '#10b981' },
   { key: 'medicare', label: 'Medicare', color: '#3b82f6' },
-  { key: 'bdria', label: 'BD/RIA', color: '#a78bfa' },
+  { key: 'bdria', label: 'Investment', color: '#a78bfa' },
 ]
 
 // Default column keys per product type
@@ -278,6 +278,14 @@ export default function AccountsPage() {
 
   useEffect(() => { setPage(0) }, [filter, search, statusFilter, carrierFilter])
 
+  // Style for active vs inactive filter dropdown (matches ClientFilters pattern)
+  const filterSelectClass = (isActive: boolean) =>
+    `h-[34px] rounded-md border px-3 text-sm font-medium outline-none transition-all cursor-pointer ${
+      isActive
+        ? 'border-[var(--portal)] bg-[var(--portal)] text-white'
+        : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
+    } focus:border-[var(--portal)]`
+
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl animate-pulse space-y-4">
@@ -305,54 +313,33 @@ export default function AccountsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Accounts</h1>
-          <span className="rounded-full bg-[var(--portal)] px-2.5 py-0.5 text-xs font-semibold text-white">
-            {accounts.length.toLocaleString()}
-          </span>
+      {/* Row 1: Search + New */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative">
+          <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]">search</span>
+          <input
+            type="text"
+            placeholder="Search accounts..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-[34px] w-72 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-10 pr-4 text-sm font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          {/* Search */}
-          <div className="relative">
-            <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]">search</span>
-            <input
-              type="text"
-              placeholder="Search accounts..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-64 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] py-2 pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-            />
-          </div>
-          {/* Column picker toggle */}
-          <button
-            onClick={() => setShowColumnPicker(!showColumnPicker)}
-            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-all ${
-              showColumnPicker ? 'border-[var(--portal)] text-[var(--portal)]' : 'border-[var(--border)] text-[var(--text-muted)]'
-            }`}
-          >
-            <span className="material-icons-outlined text-[16px]">view_column</span>
-            Columns
-          </button>
-          {/* New Account */}
-          <a
-            href="/intake"
-            className="inline-flex items-center gap-1.5 rounded bg-[var(--portal)] px-4 py-1.5 text-sm font-medium text-white transition-colors hover:opacity-90"
-          >
-            <span className="material-icons-outlined text-[16px]">add</span>
-            + New Account
-          </a>
-        </div>
+        <a
+          href="/intake"
+          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
+        >
+          <span className="material-icons-outlined text-[18px]">add</span>
+          New
+        </a>
       </div>
 
-      {/* Filters row */}
+      {/* Row 2: Filters + Columns */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Status */}
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className={`h-9 rounded-lg border px-3 text-sm outline-none ${statusFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
+          className={filterSelectClass(statusFilter !== 'All')}
         >
           <option value="All">All Statuses</option>
           <option value="Active">Active</option>
@@ -362,21 +349,29 @@ export default function AccountsPage() {
           <option value="Terminated">Terminated</option>
         </select>
 
-        {/* Carrier */}
         <select
           value={carrierFilter}
           onChange={(e) => setCarrierFilter(e.target.value)}
-          className={`h-9 rounded-lg border px-3 text-sm outline-none ${carrierFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
+          className={filterSelectClass(carrierFilter !== 'All')}
         >
           <option value="All">All Carriers</option>
           {carriers.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
 
-        {/* Ddup button */}
+        <button
+          onClick={() => setShowColumnPicker(!showColumnPicker)}
+          className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-all ${
+            showColumnPicker ? 'border-[var(--portal)] bg-[var(--portal)] text-white' : 'border-[var(--border)] text-[var(--portal)] hover:border-[var(--portal)]'
+          }`}
+        >
+          <span className="material-icons-outlined text-[16px]">view_column</span>
+          Columns
+        </button>
+
         {selectedIds.size >= 2 && (
           <button
             onClick={handleDdup}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-600"
+            className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 h-[34px] px-4 text-sm font-medium text-white transition-colors hover:bg-amber-600"
           >
             <span className="material-icons-outlined text-[16px]">merge_type</span>
             Ddup Selected ({selectedIds.size})
@@ -384,13 +379,13 @@ export default function AccountsPage() {
         )}
       </div>
 
-      {/* Product type filter tabs */}
-      <div className="flex flex-wrap gap-2">
+      {/* Row 3: Type pills + Count */}
+      <div className="flex flex-wrap items-center gap-2">
         {FILTER_TABS.map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+            className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-3.5 text-sm font-medium transition-all ${
               filter === f.key ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}
             style={filter === f.key ? { backgroundColor: f.color } : undefined}
@@ -403,6 +398,9 @@ export default function AccountsPage() {
             </span>
           </button>
         ))}
+        <span className="ml-auto rounded-full bg-[var(--portal)] px-2.5 py-0.5 text-xs font-semibold text-white">
+          {filtered.length.toLocaleString()}{hasMore ? '+' : ''}
+        </span>
       </div>
 
       {/* Column picker panel */}
@@ -464,7 +462,7 @@ export default function AccountsPage() {
                 <th
                   key={col}
                   onClick={() => handleSort(col)}
-                  className="cursor-pointer select-none px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                  className="cursor-pointer select-none px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--portal)] transition-colors hover:text-[var(--text-primary)]"
                 >
                   <span className="inline-flex items-center gap-1">
                     {COLUMN_LABELS[col] || col}
@@ -474,7 +472,7 @@ export default function AccountsPage() {
                   </span>
                 </th>
               ))}
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)]">Actions</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--portal)]">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -546,13 +544,14 @@ export default function AccountsPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
           <span>
-            {(page * pageSize + 1).toLocaleString()}–{Math.min((page + 1) * pageSize, sorted.length).toLocaleString()} of {sorted.length.toLocaleString()}
+            {(page * pageSize + 1).toLocaleString()}–{Math.min((page + 1) * pageSize, sorted.length).toLocaleString()} of{' '}
+            <span className="text-[var(--portal)] font-medium">{sorted.length.toLocaleString()} Accounts</span>
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="rounded-lg border border-[var(--border)] px-3 py-1.5 transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-30"
+              className="rounded-md border border-[var(--border)] h-[34px] px-3 transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-30"
             >
               Previous
             </button>
@@ -560,7 +559,7 @@ export default function AccountsPage() {
             <button
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
-              className="rounded-lg border border-[var(--border)] px-3 py-1.5 transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-30"
+              className="rounded-md border border-[var(--border)] h-[34px] px-3 transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-30"
             >
               Next
             </button>
@@ -590,7 +589,7 @@ export default function AccountsPage() {
               } catch (err) { setError(String(err)) } finally { setLoadingMore(false) }
             }}
             disabled={loadingMore}
-            className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-6 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-50"
+            className="rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-6 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-50"
           >
             {loadingMore ? (
               <span className="inline-flex items-center gap-2">

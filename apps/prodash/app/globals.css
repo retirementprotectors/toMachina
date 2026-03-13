@@ -66,6 +66,9 @@
   --gradient-active: linear-gradient(90deg, rgba(74,122,181,0.15) 0%, transparent 100%);
 }
 
+/* ─── Global cursor-pointer for interactive elements ─── */
+button, a, [role="button"], [tabindex="0"] { cursor: pointer; }
+
 /* ─── Body ─── */
 body {
   background: var(--bg-deepest);
