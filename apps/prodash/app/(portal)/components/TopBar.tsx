@@ -120,12 +120,9 @@ export function TopBar({ user }: TopBarProps) {
   }
 
   return (
+    <div className="shrink-0">
     <header
-      className="flex h-14 shrink-0 items-center justify-between border-b px-4"
-      style={{
-        background: 'var(--bg-secondary)',
-        borderColor: 'var(--border)',
-      }}
+      className="flex h-[60px] items-center justify-between pl-8 pr-6 bg-[var(--bg-card)]"
     >
       {/* Left — Portal Logo */}
       <div className="flex items-center gap-2">
@@ -235,5 +232,8 @@ export function TopBar({ user }: TopBarProps) {
         </button>
       </div>
     </header>
+    {/* Accent strip — bottom edge */}
+    <div className="h-[3px] w-full" style={{ background: 'var(--portal)' }} />
+    </div>
   )
 }

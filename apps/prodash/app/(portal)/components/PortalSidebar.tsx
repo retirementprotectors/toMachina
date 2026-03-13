@@ -304,7 +304,7 @@ export function PortalSidebar() {
 
   return (
     <aside
-      className="flex flex-col border-r border-[var(--border)] bg-[var(--bg-secondary)] transition-all duration-200"
+      className="flex flex-col bg-[var(--bg-card)] transition-all duration-200"
       style={{ width: collapsed ? 60 : 240, minWidth: collapsed ? 60 : 240 }}
     >
       {/* Header — Portal Logo + Toggle */}
@@ -396,13 +396,13 @@ export function PortalSidebar() {
               }
             `}
           >
-            <span
-              className="material-icons-outlined"
-              style={{ fontSize: '18px', color: 'var(--connect-color)' }}
-            >
-              {CONNECT_ITEM.icon}
-            </span>
-            {!collapsed && <span>{CONNECT_ITEM.label}</span>}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/rpi-shield.png"
+              alt="RPI"
+              style={{ height: '20px', width: 'auto', opacity: isActive(CONNECT_ITEM.href) ? 1 : 0.7 }}
+            />
+            {!collapsed && <span>Connect</span>}
           </Link>
         </div>
 
