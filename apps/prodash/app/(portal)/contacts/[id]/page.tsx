@@ -78,7 +78,7 @@ export default function Client360Page({
             {error ? 'There was an error loading this client.' : 'No client exists with this ID.'}
           </p>
           <Link
-            href="/clients"
+            href="/contacts"
             className="mt-6 rounded-lg bg-[var(--portal)] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:brightness-110"
           >
             Back to Contacts
@@ -130,7 +130,7 @@ export default function Client360Page({
 function BackLink() {
   return (
     <Link
-      href="/clients"
+      href="/contacts"
       className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--portal)]"
     >
       <span className="material-icons-outlined text-[18px]">arrow_back</span>

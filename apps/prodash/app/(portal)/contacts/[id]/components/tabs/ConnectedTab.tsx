@@ -281,7 +281,7 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
                 </div>
                 {person.id && (
                   <a
-                    href={`/clients/${person.id}`}
+                    href={`/contacts/${person.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-xs text-[var(--portal)] hover:underline"

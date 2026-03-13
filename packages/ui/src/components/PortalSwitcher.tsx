@@ -8,6 +8,8 @@ const PORTAL_MARKS: Record<string, string> = {
   sentinel: '/sentinel-mark.svg',
 }
 
+const TOMACHINA_MARK = '/tomachina-transparent.png'
+
 interface PortalDef {
   key: string
   label: string
@@ -41,7 +43,7 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
 
   const current = PORTALS.find((p) => p.key === currentPortal) ?? PORTALS[0]
   const others = PORTALS.filter((p) => p.key !== currentPortal)
-  const markSrc = PORTAL_MARKS[currentPortal] || PORTAL_MARKS.prodash
+  const markSrc = PORTAL_MARKS[currentPortal] || TOMACHINA_MARK
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -126,14 +128,17 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
             </a>
           ))}
 
-          {/* Footer — toMachina text */}
+          {/* Footer — toMachina gear mark */}
           <div
-            className="flex items-center justify-center px-3 py-2"
+            className="flex items-center justify-center gap-2 px-3 py-2.5"
             style={{ borderColor: 'var(--border-subtle)' }}
           >
-            <span style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 500, opacity: 0.7 }}>
-              toMachina
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={TOMACHINA_MARK}
+              alt="toMachina — The Machine"
+              style={{ height: '22px', width: 'auto', opacity: 0.6 }}
+            />
           </div>
         </div>
       )}

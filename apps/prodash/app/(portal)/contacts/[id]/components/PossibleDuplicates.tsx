@@ -194,7 +194,7 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
                   {match.confidence}%
                 </span>
                 <a
-                  href={`/clients/${match.id}`}
+                  href={`/contacts/${match.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-[var(--portal)] hover:underline"

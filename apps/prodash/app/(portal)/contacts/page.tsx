@@ -220,7 +220,7 @@ export default function ClientsPage() {
 
   const handleRowClick = useCallback(
     (client: ClientRow) => {
-      router.push(`/clients/${client._id || client.client_id}`)
+      router.push(`/contacts/${client._id || client.client_id}`)
     },
     [router]
   )
@@ -351,9 +351,9 @@ export default function ClientsPage() {
       {/* Table */}
       {sorted.length > 0 && (
         <>
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
+          <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--bg-card)]">
             <table className="w-full text-sm">
-              <thead className="bg-[var(--bg-secondary)]">
+              <thead className="bg-[var(--bg-surface)]">
                 <tr>
                   <th className="w-10 px-3 py-3">
                     <input

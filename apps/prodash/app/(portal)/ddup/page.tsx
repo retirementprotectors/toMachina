@@ -416,7 +416,7 @@ function DdupContent() {
         <span className="material-icons-outlined text-5xl text-[var(--text-muted)]">merge_type</span>
         <h2 className="mt-4 text-xl font-semibold text-[var(--text-primary)]">No records selected</h2>
         <p className="mt-2 text-sm text-[var(--text-muted)]">Pass <span className="font-mono">?ids=id1,id2</span> or <span className="font-mono">?clientId=xxx</span> to compare records.</p>
-        <Link href={type === 'account' ? '/accounts' : '/clients'} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
+        <Link href={type === 'account' ? '/accounts' : '/contacts'} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
           Go Back
         </Link>
       </div>
@@ -440,7 +440,7 @@ function DdupContent() {
         <p className="mt-2 text-sm text-[var(--text-muted)]">
           This pair has been marked as not a duplicate and removed from the duplicate list.
         </p>
-        <Link href={type === 'account' ? '/accounts' : '/clients'} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
+        <Link href={type === 'account' ? '/accounts' : '/contacts'} className="mt-6 inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white">
           Back to {type === 'account' ? 'Accounts' : 'Clients'}
         </Link>
       </div>
@@ -458,7 +458,7 @@ function DdupContent() {
         <div className="mt-6 flex justify-center gap-3">
           {mergedWinnerId && type === 'client' && (
             <Link
-              href={`/clients/${mergedWinnerId}`}
+              href={`/contacts/${mergedWinnerId}`}
               className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium bg-[var(--portal)] text-white hover:brightness-110"
             >
               <span className="material-icons-outlined text-[16px]">person</span>
@@ -466,7 +466,7 @@ function DdupContent() {
             </Link>
           )}
           <Link
-            href={type === 'account' ? '/accounts' : '/clients'}
+            href={type === 'account' ? '/accounts' : '/contacts'}
             className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-5 text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]"
           >
             Back to {type === 'account' ? 'Accounts' : 'Clients'}
@@ -491,7 +491,7 @@ function DdupContent() {
           <div>
             <div className="flex items-center gap-2">
               <Link
-                href={type === 'account' ? '/accounts' : '/clients'}
+                href={type === 'account' ? '/accounts' : '/contacts'}
                 className="text-[var(--text-muted)] hover:text-[var(--portal)] transition-colors"
               >
                 <span className="material-icons-outlined text-[20px]">arrow_back</span>
