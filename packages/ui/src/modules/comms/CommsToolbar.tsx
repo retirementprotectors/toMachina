@@ -70,7 +70,7 @@ export function CommsToolbar({ client, onSent }: CommsToolbarProps) {
           Send Email
         </button>
         <button onClick={() => setShowCall(true)} disabled={!hasClient}
-          className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium border border-[var(--border-subtle)] bg-[var(--bg-card)] text-[var(--text-primary)] transition-colors hover:border-[var(--portal)] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium bg-[var(--portal)] text-white transition-colors hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
           title={!hasClient ? 'Select a client first' : 'Call'}>
           <span className="material-icons-outlined text-[14px]">phone</span>
           Call

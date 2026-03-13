@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth, type AuthUser } from '@tomachina/auth'
 import { PortalSwitcher } from '@tomachina/ui'
+import { InboundCallCard, MOCK_INBOUND_CALL } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
 
 interface TopBarProps {
   user: AuthUser
@@ -90,8 +91,11 @@ export function TopBar({ user }: TopBarProps) {
           </div>
         </div>
 
-        {/* Right — Notifications + User */}
+        {/* Right — Inbound Call + Notifications + User */}
         <div className="flex items-center gap-2">
+          {/* Inbound Call Notification (mock active state) */}
+          <InboundCallCard call={MOCK_INBOUND_CALL} />
+
           {/* User — clicks to My RPI */}
           <Link
             href="/myrpi"

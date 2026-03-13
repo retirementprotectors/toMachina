@@ -31,10 +31,10 @@ const RELATIONSHIP_OPTIONS = [
 
 const BOOK_OF_BUSINESS_OPTIONS = [
   { label: 'RPI', value: 'RPI' },
-  { label: 'Signal', value: 'Signal' },
-  { label: 'Gradient', value: 'Gradient' },
   { label: 'Sprenger', value: 'Sprenger' },
-  { label: 'Transfer', value: 'Transfer' },
+  { label: 'McCormick', value: 'McCormick' },
+  { label: 'Gradient', value: 'Gradient' },
+  { label: 'Signal', value: 'Signal' },
   { label: 'Other', value: 'Other' },
 ]
 

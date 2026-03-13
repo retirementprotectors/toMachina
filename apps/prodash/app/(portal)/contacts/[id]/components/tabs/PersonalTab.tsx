@@ -1,7 +1,7 @@
 'use client'
 
 import type { Client } from '@tomachina/core'
-import { maskSSN, str } from '../../lib/formatters'
+import { maskSSN, str, formatBirthday, formatMedicareDate, formatDLDate } from '../../lib/formatters'
 import { InlineField, InlineSection, ReadOnlyField } from '../../lib/inline-edit'
 import { FieldGrid } from '../../lib/ui-helpers'
 
@@ -51,7 +51,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
           <InlineField label="Middle Name" value={str(client.middle_name)} fieldKey="middle_name" docPath={docPath} />
           <InlineField label="Last Name" value={str(client.last_name)} fieldKey="last_name" docPath={docPath} />
           <InlineField label="Preferred Name" value={str(client.preferred_name)} fieldKey="preferred_name" docPath={docPath} />
-          <InlineField label="Date of Birth" value={str(client.dob)} fieldKey="dob" docPath={docPath} type="date" />
+          <InlineField label="Date of Birth" value={str(client.dob)} fieldKey="dob" docPath={docPath} type="date" formatDisplay={formatBirthday} />
           <InlineField
             label="Marital Status"
             value={str(client.marital_status)}
@@ -109,6 +109,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="part_a_effective_date"
             docPath={docPath}
             type="date"
+            formatDisplay={formatMedicareDate}
           />
           <InlineField
             label="Part B Effective Date"
@@ -116,13 +117,14 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="part_b_effective_date"
             docPath={docPath}
             type="date"
+            formatDisplay={formatMedicareDate}
           />
         </FieldGrid>
       </InlineSection>
 
       {/* Driver's License Info (consolidated from removed Financial tab) */}
       <InlineSection title="Driver's License Info" icon="badge">
-        <FieldGrid cols={3}>
+        <FieldGrid cols={4}>
           <InlineField
             label="DL Number"
             value={str(client.dl_number)}
@@ -144,6 +146,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="dl_issue_date"
             docPath={docPath}
             type="date"
+            formatDisplay={formatDLDate}
           />
           <InlineField
             label="DL Expiration"
@@ -151,6 +154,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="dl_expiration"
             docPath={docPath}
             type="date"
+            formatDisplay={formatDLDate}
           />
         </FieldGrid>
       </InlineSection>

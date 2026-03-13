@@ -163,11 +163,13 @@ function filterAppItems(
 }
 
 interface PortalSidebarProps {
+  onCommsToggle?: () => void
+  commsOpen?: boolean
   onConnectToggle?: () => void
   connectOpen?: boolean
 }
 
-export function PortalSidebar({ onConnectToggle, connectOpen }: PortalSidebarProps) {
+export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen }: PortalSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
@@ -436,26 +438,61 @@ export function PortalSidebar({ onConnectToggle, connectOpen }: PortalSidebarPro
           </div>
         )}
 
-        {/* RPI Connect — green-tinted background */}
+        {/* Communications — portal-tinted, opens slide-out */}
         <div className="border-t border-[var(--border-subtle)] px-2 py-1">
-          <Link
-            href={CONNECT_ITEM.href}
-            title={collapsed ? CONNECT_ITEM.label : undefined}
+          <button
+            onClick={onCommsToggle}
+            title={collapsed ? 'Communications' : undefined}
             className={`
-              relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
+              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
               transition-all duration-150
               ${collapsed ? 'justify-center' : ''}
             `}
             style={{
-              background: isActive(CONNECT_ITEM.href)
+              background: commsOpen
+                ? 'rgba(74,122,181,0.15)'
+                : 'rgba(74,122,181,0.06)',
+              color: commsOpen
+                ? 'var(--portal)'
+                : 'var(--text-secondary)',
+            }}
+          >
+            {commsOpen && (
+              <div
+                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
+                style={{ background: 'var(--portal)' }}
+              />
+            )}
+            <span
+              className="material-icons-outlined"
+              style={{ fontSize: '18px', color: commsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
+            >
+              forum
+            </span>
+            {!collapsed && <span>Communications</span>}
+          </button>
+        </div>
+
+        {/* RPI Connect — green-tinted, opens slide-out */}
+        <div className="border-t border-[var(--border-subtle)] px-2 py-1">
+          <button
+            onClick={onConnectToggle}
+            title={collapsed ? CONNECT_ITEM.label : undefined}
+            className={`
+              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
+              transition-all duration-150
+              ${collapsed ? 'justify-center' : ''}
+            `}
+            style={{
+              background: connectOpen
                 ? 'rgba(104,211,145,0.15)'
                 : 'rgba(104,211,145,0.06)',
-              color: isActive(CONNECT_ITEM.href)
+              color: connectOpen
                 ? 'var(--connect-color)'
                 : 'var(--text-secondary)',
             }}
           >
-            {isActive(CONNECT_ITEM.href) && (
+            {connectOpen && (
               <div
                 className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
                 style={{ background: 'var(--connect-color)' }}
@@ -465,10 +502,10 @@ export function PortalSidebar({ onConnectToggle, connectOpen }: PortalSidebarPro
             <img
               src="/rpi-shield.png"
               alt="RPI"
-              style={{ height: '20px', width: 'auto', opacity: isActive(CONNECT_ITEM.href) ? 1 : 0.7 }}
+              style={{ height: '20px', width: 'auto', opacity: connectOpen ? 1 : 0.7 }}
             />
             {!collapsed && <span>Connect</span>}
-          </Link>
+          </button>
         </div>
 
         {/* Admin — always red-tinted background */}

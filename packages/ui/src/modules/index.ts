@@ -12,6 +12,7 @@ export { CommandCenter } from './CommandCenter'
 export { LeadershipCenter } from './LeadershipCenter'
 export { AdminPanel } from './AdminPanel'
 export { CommsCenter } from './CommsCenter'
+export { CommsModule } from './CommsModule'
 
 export { PipelineStudio } from './PipelineStudio'
 export { PipelineKanban } from './PipelineKanban'
