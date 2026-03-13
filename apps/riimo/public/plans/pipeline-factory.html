@@ -29,6 +29,7 @@
     --cyan: #22d3ee;
     --cyan-dim: #22d3ee20;
   }
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: var(--bg);
@@ -1092,36 +1093,36 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
     How the 5-layer flow engine is stored in Firestore and read by the front end. Every pipeline, stage, workflow, step, and task is its own document. <strong>534 total documents</strong> across 13 pipelines.
   </div>
 
-  <!-- HIERARCHY NAV -->
-  <div style="display:flex;align-items:center;justify-content:center;gap:0;margin:24px 0 28px;flex-wrap:wrap;">
-    <a href="#s-layer-1" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--portal);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 1</div>
-      <div style="font-size:14px;font-weight:700;color:var(--portal);margin-top:2px;">Pipeline</div>
-      <div style="font-size:11px;color:var(--text-dim);">13 docs</div>
+  <!-- HIERARCHY NAV (sticky) -->
+  <div style="position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 0;margin:0 -40px 24px;display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;">
+    <a href="#s-layer-1" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--portal);border-radius:8px;padding:8px 14px;text-align:center;min-width:100px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Layer 1</div>
+      <div style="font-size:13px;font-weight:700;color:var(--portal);">Pipeline</div>
     </div></a>
-    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
-    <a href="#s-layer-2" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--green);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 2</div>
-      <div style="font-size:14px;font-weight:700;color:var(--green);margin-top:2px;">Stage</div>
-      <div style="font-size:11px;color:var(--text-dim);">78 docs</div>
+    <span style="font-size:16px;color:var(--text-muted);padding:0 4px;">&rarr;</span>
+    <a href="#s-layer-2" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--green);border-radius:8px;padding:8px 14px;text-align:center;min-width:100px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Layer 2</div>
+      <div style="font-size:13px;font-weight:700;color:var(--green);">Stage</div>
     </div></a>
-    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
-    <a href="#s-layer-3" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--purple);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 3</div>
-      <div style="font-size:14px;font-weight:700;color:var(--purple);margin-top:2px;">Workflow</div>
-      <div style="font-size:11px;color:var(--text-dim);">75 docs</div>
+    <span style="font-size:16px;color:var(--text-muted);padding:0 4px;">&rarr;</span>
+    <a href="#s-layer-3" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--purple);border-radius:8px;padding:8px 14px;text-align:center;min-width:100px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Layer 3</div>
+      <div style="font-size:13px;font-weight:700;color:var(--purple);">Workflow</div>
     </div></a>
-    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
-    <a href="#s-layer-4" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--orange);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 4</div>
-      <div style="font-size:14px;font-weight:700;color:var(--orange);margin-top:2px;">Step</div>
-      <div style="font-size:11px;color:var(--text-dim);">115 docs</div>
+    <span style="font-size:16px;color:var(--text-muted);padding:0 4px;">&rarr;</span>
+    <a href="#s-layer-4" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--orange);border-radius:8px;padding:8px 14px;text-align:center;min-width:100px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Layer 4</div>
+      <div style="font-size:13px;font-weight:700;color:var(--orange);">Step</div>
     </div></a>
-    <span style="font-size:20px;color:var(--text-muted);padding:0 6px;">&rarr;</span>
-    <a href="#s-layer-5" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--cyan);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">Layer 5</div>
-      <div style="font-size:14px;font-weight:700;color:var(--cyan);margin-top:2px;">Task</div>
-      <div style="font-size:11px;color:var(--text-dim);">253 docs</div>
+    <span style="font-size:16px;color:var(--text-muted);padding:0 4px;">&rarr;</span>
+    <a href="#s-layer-5" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--cyan);border-radius:8px;padding:8px 14px;text-align:center;min-width:100px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Layer 5</div>
+      <div style="font-size:13px;font-weight:700;color:var(--cyan);">Task</div>
+    </div></a>
+    <span style="font-size:16px;color:var(--text-muted);padding:0 4px;">&bull;</span>
+    <a href="#s-api-routes" style="text-decoration:none;"><div style="background:var(--bg-card);border:1px solid var(--green);border-radius:8px;padding:8px 14px;text-align:center;min-width:80px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 3px 8px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+      <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Reference</div>
+      <div style="font-size:13px;font-weight:700;color:var(--green);">API</div>
     </div></a>
   </div>
 
@@ -1276,7 +1277,7 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   </div>
 
   <!-- API ROUTES -->
-  <h3 style="font-size:18px;margin:32px 0 12px;">How the Front End Reads It</h3>
+  <h3 id="s-api-routes" style="font-size:18px;margin:32px 0 12px;">How the Front End Reads It</h3>
   <table style="width:100%;border-collapse:collapse;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;font-size:13px;">
     <thead>
       <tr style="background:var(--bg-hover);">
