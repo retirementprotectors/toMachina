@@ -13,12 +13,47 @@ interface AccountsTabProps {
 
 type CategoryKey = 'all' | 'annuity' | 'life' | 'medicare' | 'bd_ria'
 
+// ---------------------------------------------------------------------------
+// Document types per product category
+// ---------------------------------------------------------------------------
+
+type DocType = 'statement' | 'application' | 'illustration' | 'contract' | 'policy' | 'plan_summary' | 'prospectus'
+
+interface AccountDocument {
+  doc_type: DocType
+  url: string
+  uploaded_at: string
+  uploaded_by: string
+}
+
+const CATEGORY_DOCS: Record<CategoryKey, DocType[]> = {
+  annuity: ['statement', 'application', 'illustration', 'contract'],
+  life: ['statement', 'application', 'illustration', 'policy'],
+  medicare: ['statement', 'application', 'plan_summary'],
+  bd_ria: ['statement', 'application', 'prospectus'],
+}
+
+const DOC_LABELS: Record<DocType, string> = {
+  statement: 'Statement',
+  application: 'Application',
+  illustration: 'Illustration',
+  contract: 'Contract',
+  policy: 'Policy',
+  plan_summary: 'Plan Summary',
+  prospectus: 'Prospectus',
+}
+
+// ---------------------------------------------------------------------------
+// Category config — "BD/RIA" display label changed to "Investment"
+// Data value (bd_ria) remains unchanged
+// ---------------------------------------------------------------------------
+
 const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color: string }> = {
   all: { label: 'All', icon: 'apps', color: 'var(--portal)' },
   annuity: { label: 'Annuity', icon: 'savings', color: '#f59e0b' },
   life: { label: 'Life', icon: 'favorite', color: '#10b981' },
   medicare: { label: 'Medicare', icon: 'health_and_safety', color: '#3b82f6' },
-  bd_ria: { label: 'BD/RIA', icon: 'show_chart', color: '#a78bfa' },
+  bd_ria: { label: 'Investment', icon: 'show_chart', color: '#a78bfa' }, // display label: Investment (data: bd_ria)
 }
 
 export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
@@ -160,6 +195,10 @@ function AccountSummaryCard({
   // DF-21: "Product" -> "Product Type", DF-22: Medicare shows parent carrier
   const fields = getSummaryFields(account, category)
 
+  // Document buttons
+  const docTypes = CATEGORY_DOCS[category] ?? []
+  const documents = ((account as Record<string, unknown>).documents as AccountDocument[] | undefined) ?? []
+
   return (
     <a
       href={`/accounts/${clientId}/${acctId}`}
@@ -197,7 +236,56 @@ function AccountSummaryCard({
           </div>
         ))}
       </div>
-    </a>
+
+      {/* Document buttons */}
+      {docTypes.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5 border-t border-[var(--border-subtle)] pt-3">
+          {docTypes.map((docType) => {
+            const doc = documents.find((d) => d.doc_type === docType)
+            const hasDoc = !!doc?.url
+            return (
+              <button
+                key={docType}
+                onClick={() => {
+                  if (hasDoc) {
+                    window.open(doc!.url, '_blank', 'noopener,noreferrer')
+                  } else {
+                    // Placeholder — upload flow will be wired later
+                    const label = DOC_LABELS[docType]
+                    // Use toast system when available; for now, no user feedback to avoid alert()
+                    void label // no-op — keeps reference
+                  }
+                }}
+                className={`inline-flex items-center gap-1 rounded-md h-[28px] px-2.5 text-xs font-medium transition-all ${
+                  hasDoc
+                    ? 'bg-[var(--portal)] text-white hover:brightness-110'
+                    : 'border border-[var(--border)] bg-transparent text-[var(--text-muted)] hover:border-[var(--portal)]/50 hover:text-[var(--text-secondary)]'
+                }`}
+                title={hasDoc ? `Open ${DOC_LABELS[docType]}` : `No ${DOC_LABELS[docType]} uploaded yet`}
+              >
+                <span className="material-icons-outlined text-[12px]">
+                  {hasDoc ? 'description' : 'upload_file'}
+                </span>
+                {DOC_LABELS[docType]}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Detail link — opens in NEW TAB */}
+      <div className="mt-3 flex justify-end">
+        <a
+          href={`/accounts/${clientId}/${acctId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--portal)] hover:underline"
+        >
+          Detail
+          <span className="material-icons-outlined text-[12px]">open_in_new</span>
+        </a>
+      </div>
+    </div>
   )
 }
 

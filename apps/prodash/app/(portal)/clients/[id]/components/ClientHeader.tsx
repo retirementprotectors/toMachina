@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import type { Client } from '@tomachina/core'
 import { getAge, getInitials, hashColor } from '../lib/formatters'
+import { AccessButton } from './AccessButton'
 
 interface ClientHeaderProps {
   client: Client
+  clientId: string
 }
 
-export function ClientHeader({ client }: ClientHeaderProps) {
+export function ClientHeader({ client, clientId }: ClientHeaderProps) {
   const fullName = [client.first_name, client.last_name].filter(Boolean).join(' ') || 'Unknown'
   const displayName = (client.preferred_name as string) || client.first_name || fullName
   const status = (client.client_status as string) || 'Unknown'
@@ -86,6 +88,9 @@ export function ClientHeader({ client }: ClientHeaderProps) {
             <span className="material-icons-outlined text-[18px]">folder_open</span>
             ACF
           </button>
+
+          {/* Access Button */}
+          <AccessButton clientId={clientId} />
 
           {/* AI3 Button */}
           <button

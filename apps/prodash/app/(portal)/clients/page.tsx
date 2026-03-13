@@ -120,7 +120,8 @@ export default function ClientsPage() {
         const types = c.account_types || []
         return types.some((t) => {
           const norm = (t || '').toLowerCase()
-          if (filterVal === 'bd/ria') return norm === 'bd' || norm === 'ria' || norm === 'bd/ria'
+          // "Investment" display label maps to bd/ria/bdria data values
+          if (filterVal === 'investment') return norm === 'bd' || norm === 'ria' || norm === 'bd/ria' || norm === 'bdria' || norm === 'bd_ria' || norm === 'investment'
           return norm === filterVal
         })
       })

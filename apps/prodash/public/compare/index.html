@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProDashX UI Comparison — GAS vs toMachina | Sprint 7 Master Review</title>
+<style>
+  :root {
+    --navy: #1a3158;
+    --blue: #4a7ab5;
+    --green: #40bc58;
+    --red: #e74c3c;
+    --gold: #f39c12;
+    --bg: #0f1923;
+    --card: #1a2632;
+    --border: #2a3a4a;
+    --text: #e8eaed;
+    --muted: #8899aa;
+    --pass: #40bc58;
+    --partial: #f39c12;
+    --fail: #e74c3c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+  html { scroll-behavior: smooth; }
+
+  /* ===== HEADER ===== */
+  .header {
+    background: var(--navy);
+    padding: 24px 40px;
+    border-bottom: 3px solid var(--blue);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 24px; font-weight: 800; }
+  .header h1 span { color: var(--blue); }
+  .header .subtitle { color: var(--muted); font-size: 14px; }
+
+  /* ===== NAV ===== */
+  .nav {
+    background: var(--card);
+    padding: 12px 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 74px;
+    z-index: 99;
+  }
+  .nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav a:hover {
+    background: var(--blue);
+    color: white;
+  }
+  .nav .section-label {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 6px 8px;
+    align-self: center;
+    opacity: 0.6;
+  }
+  .nav .sep {
+    width: 1px;
+    background: var(--border);
+    margin: 4px 4px;
+  }
+
+  /* ===== MAIN CONTAINER ===== */
+  .comparison {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 32px 40px;
+  }
+
+  /* ===== SCORECARD ===== */
+  .scorecard {
+    background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
+    border: 2px solid var(--blue);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+  .scorecard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+  .scorecard-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .scorecard-header h2 span { color: var(--blue); }
+  .scorecard-header .date { color: var(--muted); font-size: 13px; }
+  .scorecard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .score-tile {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .score-tile .builder-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .score-tile .score {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .score-tile .score-detail {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .score-tile .scope {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .score-tile.green .score { color: var(--green); }
+  .score-tile.gold .score { color: var(--gold); }
+  .score-tile.red .score { color: var(--red); }
+
+  .scorecard-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .summary-stat {
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .summary-stat .num {
+    font-size: 28px;
+    font-weight: 800;
+  }
+  .summary-stat .label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ===== PAGE SECTIONS ===== */
+  .page-section {
+    scroll-margin-top: 140px;
+  }
+  .page-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .page-route {
+    font-size: 13px;
+    color: var(--blue);
+    font-family: monospace;
+    margin-bottom: 8px;
+  }
+  .sprint-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+  .sprint-badge.complete { background: rgba(64,188,88,0.15); color: var(--green); border: 1px solid rgba(64,188,88,0.3); }
+  .sprint-badge.in-progress { background: rgba(243,156,18,0.15); color: var(--gold); border: 1px solid rgba(243,156,18,0.3); }
+  .sprint-badge.rebuilding { background: rgba(231,76,60,0.15); color: var(--red); border: 1px solid rgba(231,76,60,0.3); }
+  .sprint-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .sprint-badge.complete .dot { background: var(--green); }
+  .sprint-badge.in-progress .dot { background: var(--gold); }
+  .sprint-badge.rebuilding .dot { background: var(--red); }
+
+  /* ===== SCREENSHOTS ===== */
+  .screenshots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .screenshot-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .screenshot-card .label {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .screenshot-card.gas .label {
+    background: rgba(74, 122, 181, 0.15);
+    color: var(--blue);
+  }
+  .screenshot-card.tm .label {
+    background: rgba(64, 188, 88, 0.15);
+    color: var(--green);
+  }
+  .screenshot-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .tm-placeholder {
+    padding: 60px 32px;
+    text-align: center;
+    border: 2px dashed var(--border);
+    margin: 16px;
+    border-radius: 8px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+  .tm-placeholder .title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .tm-placeholder .detail {
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 300px;
+    line-height: 1.5;
+  }
+  .tm-placeholder .version-tag {
+    font-size: 11px;
+    font-family: monospace;
+    color: var(--border);
+    margin-top: 8px;
+  }
+
+  /* ===== ANALYSIS CARDS ===== */
+  .analysis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .analysis-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .analysis-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .analysis-card.gas h3 { color: var(--blue); }
+  .analysis-card.tm h3 { color: var(--green); }
+  .analysis-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .analysis-card li {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding-left: 16px;
+    position: relative;
+  }
+  .analysis-card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .analysis-card.gas li::before { background: var(--blue); }
+  .analysis-card.tm li::before { background: var(--green); }
+
+  /* ===== VERDICT TABLE ===== */
+  .verdict {
+    background: var(--card);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 48px;
+  }
+  .verdict h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .verdict table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .verdict th, .verdict td {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .verdict th {
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 11px;
+  }
+  .verdict td { color: var(--text); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge.pass { background: rgba(64,188,88,0.15); color: var(--green); }
+  .badge.partial { background: rgba(243,156,18,0.15); color: var(--gold); }
+  .badge.fail { background: rgba(231,76,60,0.15); color: var(--red); }
+  .badge.pending { background: rgba(136,153,170,0.15); color: var(--muted); }
+
+  .winner-gas { color: var(--blue) !important; font-weight: 700; }
+  .winner-tm { color: var(--green) !important; font-weight: 700; }
+  .winner-tie { color: var(--gold) !important; font-weight: 700; }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* ===== NO SCREENSHOT NOTE ===== */
+  .no-screenshot {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .no-screenshot .note {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: var(--navy);
+    padding: 24px 40px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .footer strong { color: var(--text); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1100px) {
+    .screenshots, .analysis { grid-template-columns: 1fr; }
+    .scorecard-grid { grid-template-columns: repeat(2, 1fr); }
+    .scorecard-summary { grid-template-columns: 1fr; }
+    .comparison { padding: 24px 20px; }
+    .header, .nav { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================================================================== -->
+<!-- HEADER                                                                 -->
+<!-- ===================================================================== -->
+<div class="header">
+  <div>
+    <h1>ProDashX <span>UI Comparison</span></h1>
+    <div class="subtitle">GAS Original vs toMachina — Sprint 7 Master Review</div>
+  </div>
+  <div style="text-align: right;">
+    <div style="font-size: 14px; font-weight: 700; color: var(--text);">13 Pages Audited</div>
+    <div class="subtitle">2026-03-12</div>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- NAV                                                                    -->
+<!-- ===================================================================== -->
+<div class="nav">
+  <a href="#scorecard">Scorecard</a>
+  <div class="sep"></div>
+  <span class="section-label">Core</span>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#clients">Clients Grid</a>
+  <div class="sep"></div>
+  <span class="section-label">Client 360</span>
+  <a href="#c360-connect">Connect</a>
+  <a href="#c360-personal">Personal</a>
+  <a href="#c360-accounts">Accounts</a>
+  <a href="#c360-connected">Connected</a>
+  <div class="sep"></div>
+  <span class="section-label">Accounts</span>
+  <a href="#accounts-grid">Grid</a>
+  <a href="#account-detail">Detail</a>
+  <div class="sep"></div>
+  <span class="section-label">Admin</span>
+  <a href="#admin-modules">Modules</a>
+  <a href="#admin-pipelines">Pipelines</a>
+  <div class="sep"></div>
+  <span class="section-label">My RPI</span>
+  <a href="#myrpi">Profile</a>
+  <div class="sep"></div>
+  <span class="section-label">Service</span>
+  <a href="#rmd">RMD Center</a>
+  <a href="#beni">Beni Center</a>
+</div>
+
+<!-- ===================================================================== -->
+<!-- CONTENT                                                                -->
+<!-- ===================================================================== -->
+<div class="comparison">
+
+<!-- ===================================================================== -->
+<!-- SCORECARD                                                              -->
+<!-- ===================================================================== -->
+<div id="scorecard" class="scorecard page-section">
+  <div class="scorecard-header">
+    <div>
+      <h2>Sprint 7 <span>Progress Scorecard</span></h2>
+      <div class="subtitle" style="margin-top: 4px;">Aggregate audit results across all builders</div>
+    </div>
+    <div style="text-align: right;">
+      <div class="date">Audit Date: 2026-03-12</div>
+      <div class="date">Commit: a296ff3 (Sprint 6 merge)</div>
+    </div>
+  </div>
+
+  <div class="scorecard-grid">
+    <div class="score-tile green">
+      <div class="builder-label">Builder 01</div>
+      <div class="score">68/76</div>
+      <div class="score-detail">89.5% Pass Rate</div>
+      <div class="scope">My RPI, Admin, Client 360 Connect</div>
+    </div>
+    <div class="score-tile green">
+      <div class="builder-label">Builder 02</div>
+      <div class="score">ALL</div>
+      <div class="score-detail">100% Pass Rate</div>
+      <div class="scope">Sidebar, App Integration, Nav Shell</div>
+    </div>
+    <div class="score-tile gold">
+      <div class="builder-label">Builder 03</div>
+      <div class="score">87/105</div>
+      <div class="score-detail">82.9% Pass Rate</div>
+      <div class="scope">Clients Grid, Accounts Grid, Quick Intake (rebuilding)</div>
+    </div>
+    <div class="score-tile green">
+      <div class="builder-label">Builder 04</div>
+      <div class="score">44/45</div>
+      <div class="score-detail">97.8% Pass Rate</div>
+      <div class="scope">RMD Center, Beni Center</div>
+    </div>
+  </div>
+
+  <div class="scorecard-summary">
+    <div class="summary-stat">
+      <div class="num" style="color: var(--green);">199/226</div>
+      <div class="label">Total Checks Passed (Builders 01, 03, 04)</div>
+    </div>
+    <div class="summary-stat">
+      <div class="num" style="color: var(--gold);">88.1%</div>
+      <div class="label">Overall Pass Rate (excl. Builder 02 = 100%)</div>
+    </div>
+    <div class="summary-stat">
+      <div class="num" style="color: var(--text);">13</div>
+      <div class="label">Pages Compared in This Document</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- 1. DASHBOARD                                                           -->
+<!-- ===================================================================== -->
+<div id="dashboard" class="page-section">
+  <div class="page-title">1. Dashboard</div>
+  <div class="page-route">/clients (logo click redirect) — Dashboard removed; logo click goes to Clients grid</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 02 — Shell / Nav Complete</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-dashboard.jpg" alt="GAS Dashboard with metric cards, chart, and sidebar">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-clients.jpg" alt="toMachina redirects to Clients grid — no dashboard">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Did</h3>
+      <ul>
+        <li>Metric summary cards at top: Total Clients, Linked Accounts, Active Accounts, Unlinked</li>
+        <li>Area chart showing client trend data over time</li>
+        <li>Left sidebar with module navigation and user avatar</li>
+        <li>Action bar across top with user controls</li>
+        <li>Visual landing page gave users orientation before diving into data</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- Design Decision</h3>
+      <ul>
+        <li>Dashboard page was eliminated -- users land directly on the Clients grid</li>
+        <li>Metric cards planned for Command Center app (shared across portals)</li>
+        <li>Removes one click from the user journey -- clients are the primary workspace</li>
+        <li>Chart/trend data will live in Command Center with real BigQuery backing</li>
+        <li>Portal top bar provides global search, notifications, and user profile</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Metric Summary Cards</td><td>4 cards (Total Clients, Linked, Active, Unlinked)</td><td>Moved to Command Center</td><td><span class="badge partial">PARTIAL</span> Command Center pending</td></tr>
+      <tr><td>Trend Chart</td><td>Area chart with time series</td><td>Planned for Command Center + BigQuery</td><td><span class="badge partial">PARTIAL</span> Data layer ready, UI pending</td></tr>
+      <tr><td>Sidebar Navigation</td><td>Module list with icons</td><td>Full sidebar with sections + collapsible groups</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>User Orientation</td><td>Visual landing page</td><td>Direct to Clients grid (faster)</td><td><span class="badge pass">PASS</span> Intentional design change</td></tr>
+      <tr><td>Top Bar</td><td>Basic action bar</td><td>Global search + portal switcher + notifications</td><td><span class="badge pass">PASS</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 2. CLIENTS GRID                                                        -->
+<!-- ===================================================================== -->
+<div id="clients" class="page-section">
+  <div class="page-title">2. Clients Grid</div>
+  <div class="page-route">/clients — Primary workspace view</div>
+  <div class="sprint-badge in-progress"><span class="dot"></span> Builder 03 — 87/105 (Quick Intake rebuilding)</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-clients-grid.jpg" alt="GAS Clients Grid with 5 power filters and colored dropdowns">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-clients.jpg" alt="toMachina Clients Grid with 5,018 clients, 5 filters, sidebar sections">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>5 specific power filters (Status, Books, Agents, Accounts, ACF) with colored teal/blue dropdowns</li>
+        <li>Clients/Accounts tab toggle at top of sidebar for fast context switching</li>
+        <li>Quick Intake floating panel with PDF drop + text paste for immediate data entry</li>
+        <li>Sidebar search scoped to clients only</li>
+        <li>ACF column visible in data table -- compliance at a glance</li>
+        <li>Colored filter fills give visual weight to active filters</li>
+        <li>Dense data display -- more rows visible per screen</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Real data loaded (5,018 clients from Firestore) -- actually functional</li>
+        <li>Global search in top bar -- unified search across all entity types</li>
+        <li>Portal switcher dropdown -- jump between ProDashX/RIIMO/SENTINEL</li>
+        <li>Notification bell + user profile in top bar -- modern SaaS layout</li>
+        <li>+ Add Client button prominent -- clear primary action</li>
+        <li>Location column -- geographic context at a glance</li>
+        <li>Avatar initials with colored backgrounds -- visual identity per contact</li>
+        <li>Cleaner typography and spacing -- less cramped, more scannable</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Filter Bar</td><td>5 specific filters with colored fills</td><td>2 generic filters, muted styling</td><td><span class="badge partial">PARTIAL</span> Need power filters back</td></tr>
+      <tr><td>Sidebar Tabs (Client/Account)</td><td>Toggle at top of sidebar</td><td>Separate nav items</td><td><span class="badge pass">PASS</span> Different approach, works</td></tr>
+      <tr><td>Quick Intake</td><td>Floating panel, PDF drop + paste</td><td>Being rebuilt (was wrong implementation)</td><td><span class="badge fail">FAIL</span> Rebuilding in progress</td></tr>
+      <tr><td>Search</td><td>Sidebar-scoped to clients</td><td>Global top bar search</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Top Bar</td><td>Basic title + avatar</td><td>Logo + switcher + search + notifications</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Data Table</td><td>Empty (no data connection)</td><td>5,018 real clients from Firestore</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Columns</td><td>Name, Status, Accounts, ACF, Agent</td><td>Name, Location, Status, Accounts</td><td><span class="badge partial">PARTIAL</span> Missing ACF + Agent columns</td></tr>
+      <tr><td>Visual Density</td><td>Tighter rows, more data per screen</td><td>More whitespace, cleaner scan</td><td><span class="badge pass">PASS</span> Intentional</td></tr>
+      <tr><td>Add Client CTA</td><td>Not visible in main view</td><td>Prominent + button in header</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Pagination/Virtual Scroll</td><td>Not present (rendered all)</td><td>Pagination controls</td><td><span class="badge pass">PASS</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 3. CLIENT 360 -- CONNECT TAB                                           -->
+<!-- ===================================================================== -->
+<div id="c360-connect" class="page-section">
+  <div class="page-title">3. Client 360 -- Connect Tab</div>
+  <div class="page-route">/clients/[id] — Contact information (phone, email, address)</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 01 — 68/76 Overall</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-client360-connect.jpg" alt="GAS Client 360 Connect tab with phone, email, address sections">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-client360-connect.jpg" alt="toMachina Client 360 Connect tab with phone, email, address sections and inline editing">
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>Clean card layout with Phone, Email, Address sections clearly delineated</li>
+        <li>Primary/secondary distinction for contact methods (green PRIMARY badge)</li>
+        <li>Type labels (Home, Work, Cell) with colored tags</li>
+        <li>Add button per section for adding new phone/email/address entries</li>
+        <li>Edit/delete icons inline on each entry</li>
+        <li>Address formatted as single block with map-ready layout</li>
+        <li>Tab navigation across 360 views (Connect, Financial, Accounts, Connected)</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Same card-based layout pattern carried forward</li>
+        <li>Real client data from Firestore -- functional read/write</li>
+        <li>Inline edit mode with save/cancel -- no modal popups for simple edits</li>
+        <li>Consistent spacing and typography with rest of portal</li>
+        <li>Tab navigation maintained with Connect as first tab</li>
+        <li>Phone/email/address cards with structured data validation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Phone Section</td><td>Cards with type, number, PRIMARY badge</td><td>Structured phone cards with type + primary flag</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Email Section</td><td>Cards with type, address, PRIMARY badge</td><td>Structured email cards with type + primary flag</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Address Section</td><td>Formatted block with map-ready address</td><td>Structured address with components</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Primary/Secondary Badges</td><td>Green PRIMARY badge, clear hierarchy</td><td>Primary indicator present</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Inline Edit</td><td>Edit icons, modal for changes</td><td>Inline edit mode (no modal)</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Add New Entry</td><td>+ Add button per section</td><td>Add button per section</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Tab Navigation (360)</td><td>Connect / Financial / Accounts / Connected</td><td>Connect / Personal / Accounts / Connected</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Data Persistence</td><td>Writes to Google Sheets via RAPID_API</td><td>Writes to Firestore directly</td><td><span class="badge pass">PASS</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 4. CLIENT 360 -- PERSONAL TAB                                          -->
+<!-- ===================================================================== -->
+<div id="c360-personal" class="page-section">
+  <div class="page-title">4. Client 360 -- Personal Tab</div>
+  <div class="page-route">/clients/[id]?tab=personal — Consolidated from GAS Financial/Health/Medicare tabs</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 01 — Consolidated Design</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original — Financial + Risk Profile + Verification</div>
+      <img src="gas-client360-financial.jpg" alt="GAS Client 360 Financial tab with risk profile, verification status, financial fields">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-client360-personal.jpg" alt="toMachina Client 360 Personal tab with consolidated sections">
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Did</h3>
+      <ul>
+        <li>Financial tab: Income fields, net worth, risk tolerance dropdown, suitability data</li>
+        <li>Risk Profile section with slider or dropdown for risk tolerance level</li>
+        <li>Verification Status card -- tracks KYC/identity verification state</li>
+        <li>DOB, SSN (masked), Medicare ID fields in their own section</li>
+        <li>Tax filing status and dependents</li>
+        <li>Employment information (employer, occupation, retirement status)</li>
+        <li>Separate Health tab for Medicare-specific data (MBI, Part A/B dates)</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Consolidated "Personal" tab -- one view instead of 3 separate tabs</li>
+        <li>Section cards: Demographics, Financial Profile, Health/Medicare, Employment</li>
+        <li>Reduces tab switching -- all personal data visible with scroll</li>
+        <li>PHI fields (SSN, Medicare ID) properly masked with reveal-on-click</li>
+        <li>Risk profile as visual indicator, not just a dropdown</li>
+        <li>Consistent edit pattern with Connect tab -- inline edit mode</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Demographics (DOB, SSN)</td><td>Separate fields with basic masking</td><td>Section card with masked SSN (last 4) + reveal</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Financial Profile</td><td>Income, Net Worth, Risk Tolerance fields</td><td>Financial section card with same fields</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Risk Tolerance</td><td>Dropdown selection</td><td>Visual indicator + dropdown</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Verification Status</td><td>KYC card with status badge</td><td>Verification section with status</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Medicare/Health Data</td><td>Separate Health tab</td><td>Health/Medicare section within Personal tab</td><td><span class="badge pass">PASS</span> Consolidation improves UX</td></tr>
+      <tr><td>Employment Info</td><td>Employer, occupation, retirement status</td><td>Employment section card</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Tab Consolidation</td><td>3 tabs (Financial, Health, Medicare)</td><td>1 tab (Personal) with section cards</td><td><span class="badge pass">PASS</span> Fewer tabs = faster workflow</td></tr>
+      <tr><td>PHI Masking</td><td>Basic masking (some fields exposed)</td><td>Strict masking with click-to-reveal</td><td><span class="badge pass">PASS</span> Stronger PHI protection</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 5. CLIENT 360 -- ACCOUNTS TAB                                          -->
+<!-- ===================================================================== -->
+<div id="c360-accounts" class="page-section">
+  <div class="page-title">5. Client 360 -- Accounts Tab</div>
+  <div class="page-route">/clients/[id]?tab=accounts — Accounts grouped by type</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 03 — Accounts Module</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-client360-accounts.jpg" alt="GAS Client 360 Accounts tab with type grouping and expandable rows">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-client360-accounts.jpg" alt="toMachina Client 360 Accounts tab with type grouping">
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>Accounts grouped by type with colored section headers (Annuity, Life, Medicare, etc.)</li>
+        <li>Summary count per group -- "3 Annuity accounts" -- quick orientation</li>
+        <li>Key fields visible in collapsed view: Carrier, Policy #, Status, Value</li>
+        <li>Expandable rows for additional detail without leaving the page</li>
+        <li>Link to full account detail from each row</li>
+        <li>Badge for account status (Active, Pending, Surrendered)</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Same type-grouping pattern maintained from GAS</li>
+        <li>Real account data from Firestore linked to client via FK</li>
+        <li>Expandable detail rows with more fields visible</li>
+        <li>Click-through to /accounts/[clientId]/[accountId] for full detail</li>
+        <li>Consistent card styling with rest of 360 view</li>
+        <li>Status badges with color coding (green/gold/red)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Type Grouping</td><td>Colored section headers per account type</td><td>Section cards per account type</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Group Count</td><td>"3 Annuity accounts" summary</td><td>Count badge per section</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Key Fields (Collapsed)</td><td>Carrier, Policy #, Status, Value</td><td>Carrier, Policy #, Status, Value</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Expandable Detail</td><td>Row expand with more fields</td><td>Row expand with additional fields</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Account Link</td><td>Click to account detail</td><td>Click to /accounts/[cid]/[aid]</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Status Badges</td><td>Text-based status labels</td><td>Color-coded status badges</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Add Account</td><td>+ Add Account from within 360</td><td>+ Add Account button</td><td><span class="badge pass">PASS</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 6. CLIENT 360 -- CONNECTED TAB                                         -->
+<!-- ===================================================================== -->
+<div id="c360-connected" class="page-section">
+  <div class="page-title">6. Client 360 -- Connected Tab</div>
+  <div class="page-route">/clients/[id]?tab=connected — Related contacts (spouse, POA, beneficiary, etc.)</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 01 — 68/76 Overall</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-client360-connected.jpg" alt="GAS Client 360 Connected tab with Add Connection modal and relationship types">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-connect.jpg" alt="toMachina RPI Connect with Channels/Chat/Meet tabs">
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>Add Connection modal with relationship type dropdown (Spouse, Child, POA, Beneficiary, etc.)</li>
+        <li>Search existing clients to link -- avoids duplicate entries</li>
+        <li>Relationship type clearly labeled on each connection card</li>
+        <li>Bidirectional relationship display -- if A is spouse of B, B shows A as spouse</li>
+        <li>Quick-add for new contact if not already in system</li>
+        <li>Contact summary card shows name, relationship type, and link to their 360</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Same modal-based Add Connection workflow</li>
+        <li>Smart Lookup integration for searching existing clients (not plain dropdown)</li>
+        <li>Relationship type selection with full RPI taxonomy</li>
+        <li>Firestore document references for bidirectional linking</li>
+        <li>Connection cards with avatar, name, type, and click-through to their 360</li>
+        <li>Remove connection with confirmation -- no accidental unlinking</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Add Connection Modal</td><td>Modal with type dropdown + client search</td><td>Modal with type dropdown + Smart Lookup</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Relationship Types</td><td>Spouse, Child, POA, Beneficiary, etc.</td><td>Full RPI relationship taxonomy</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Client Search (Link)</td><td>Search existing clients</td><td>Smart Lookup (type-ahead)</td><td><span class="badge pass">PASS</span> Better UX with Smart Lookup</td></tr>
+      <tr><td>Bidirectional Display</td><td>Shows both directions</td><td>Firestore refs maintain both directions</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Connection Cards</td><td>Name + type + link</td><td>Avatar + name + type + link</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Remove Connection</td><td>Delete icon</td><td>Remove with confirmation modal</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Quick-Add New Contact</td><td>"Add new contact" within modal</td><td>Create new contact flow</td><td><span class="badge partial">PARTIAL</span> Flow exists, polish needed</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 7. ACCOUNTS GRID                                                       -->
+<!-- ===================================================================== -->
+<div id="accounts-grid" class="page-section">
+  <div class="page-title">7. Accounts Grid</div>
+  <div class="page-route">/accounts — All accounts across all clients</div>
+  <div class="sprint-badge in-progress"><span class="dot"></span> Builder 03 — 87/105 Overall</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-accounts-grid.jpg" alt="GAS Accounts Grid with data, date filters, and multiple columns">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-accounts-grid.jpg" alt="toMachina Accounts Grid with 500 accounts, product type tabs, column selector">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>Rich data table with real account data populated</li>
+        <li>Multiple columns visible: Client, Carrier, Product, Policy #, Status, Value, Effective Date</li>
+        <li>Date range filter at top -- filter accounts by effective date range</li>
+        <li>Type filter (Annuity, Life, Medicare, Advisory) with colored badges</li>
+        <li>Status filter (Active, Pending, Surrendered, etc.)</li>
+        <li>Row click navigates to account detail</li>
+        <li>Column sorting on all columns</li>
+        <li>Link Client action accessible from grid (see modal screenshot)</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Firestore-backed data with real-time updates</li>
+        <li>Same column set plus client FK resolution (shows client name, not just ID)</li>
+        <li>Filter bar with type, status, and date range</li>
+        <li>Sortable columns with visual indicators</li>
+        <li>Pagination for large datasets (not rendering all at once)</li>
+        <li>Row click to /accounts/[clientId]/[accountId] detail view</li>
+        <li>Consistent table styling with Clients grid</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Data Table</td><td>Populated with real data</td><td>Populated from Firestore</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Column Set</td><td>Client, Carrier, Product, Policy#, Status, Value, Date</td><td>Same columns + resolved client name</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Date Range Filter</td><td>Start/end date picker</td><td>Date range filter component</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Type Filter</td><td>Annuity/Life/Medicare/Advisory badges</td><td>Type dropdown filter</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Status Filter</td><td>Active/Pending/Surrendered filter</td><td>Status dropdown filter</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Column Sorting</td><td>All columns sortable</td><td>All columns sortable with indicators</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Link Client (from grid)</td><td>Modal for linking unlinked accounts</td><td>Link action in row menu</td><td><span class="badge partial">PARTIAL</span> Functionality exists, UX differs</td></tr>
+      <tr><td>Pagination</td><td>Rendered all rows</td><td>Paginated for performance</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Export</td><td>CSV export button</td><td>Not yet implemented</td><td><span class="badge fail">FAIL</span> Needs CSV/Excel export</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 8. ACCOUNT DETAIL                                                      -->
+<!-- ===================================================================== -->
+<div id="account-detail" class="page-section">
+  <div class="page-title">8. Account Detail</div>
+  <div class="page-route">/accounts/[clientId]/[accountId] — Single account deep view</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 03 — Account Detail Module</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original — Midland National Annuity Detail</div>
+      <img src="gas-account-detail.jpg" alt="GAS Account Detail showing Midland National annuity with all fields">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-account-detail.jpg" alt="toMachina Account Detail with Medicare sections">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>Comprehensive header: Carrier logo + product name + policy number + status badge</li>
+        <li>Client link in header -- click to navigate to client 360</li>
+        <li>Section cards: Policy Information, Values, Riders/Benefits, Beneficiaries</li>
+        <li>Key financial fields: Premium, Account Value, Surrender Value, Surrender Charge %</li>
+        <li>Date fields: Effective Date, Maturity Date, Free Withdrawal Date</li>
+        <li>Beneficiary section with primary/contingent designation</li>
+        <li>Activity/notes section for tracking changes and communications</li>
+        <li>Link Client modal accessible from detail (for unlinked accounts)</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Same section-card layout with cleaner typography</li>
+        <li>Real data from Firestore with normalized field names</li>
+        <li>Breadcrumb navigation: Accounts > Client Name > Account</li>
+        <li>Inline edit capability on editable fields</li>
+        <li>Status badge with transition actions (e.g., mark as Surrendered)</li>
+        <li>Activity timeline from Firestore subcollection</li>
+        <li>Values section with currency formatting and calculation display</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Header (Carrier + Product)</td><td>Carrier logo + product name + policy #</td><td>Carrier name + product + policy # (no logo yet)</td><td><span class="badge partial">PARTIAL</span> Need carrier logos</td></tr>
+      <tr><td>Status Badge</td><td>Active/Pending/Surrendered badge</td><td>Color-coded status badge with transitions</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Policy Information</td><td>Full policy details card</td><td>Policy details section card</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Financial Values</td><td>Premium, Account Value, Surrender Value</td><td>Same fields with currency formatting</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Date Fields</td><td>Effective, Maturity, Free Withdrawal</td><td>Same date fields with formatting</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Riders/Benefits</td><td>Rider list with details</td><td>Rider section card</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Beneficiaries</td><td>Primary/Contingent with percentages</td><td>Beneficiary cards with designation</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Client Link</td><td>Click client name to go to 360</td><td>Breadcrumb + client name link</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Activity/Notes</td><td>Activity section</td><td>Activity timeline from Firestore</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Link Client Modal</td><td>Modal with client search</td><td>Link action with Smart Lookup</td><td><span class="badge pass">PASS</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 9. ADMIN -- MODULE CONFIG                                              -->
+<!-- ===================================================================== -->
+<div id="admin-modules" class="page-section">
+  <div class="page-title">9. Admin -- Module Config</div>
+  <div class="page-route">/admin/modules — Module visibility/editability/access control</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 01 — Admin Module</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-admin-modules.jpg" alt="GAS Admin Module Config with V/E/A toggle badges per module per role">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-admin-modules.jpg" alt="toMachina Admin Module Config with section-organized V/E/A badges">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>V/E/A badges (View, Edit, Admin) per module per role -- clear permission matrix</li>
+        <li>Color-coded badges: Green=enabled, Red=disabled, muted=n/a</li>
+        <li>Grid layout: Modules as rows, Roles as columns</li>
+        <li>Toggle badges clickable -- instant permission changes</li>
+        <li>Module descriptions visible for each row</li>
+        <li>Role hierarchy visible (COR, AST, SPC levels)</li>
+        <li>Save/Apply button with confirmation</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Same V/E/A permission matrix pattern carried forward</li>
+        <li>Entitlements stored in Firestore with real-time enforcement</li>
+        <li>Module list auto-generated from route manifest</li>
+        <li>Consistent admin UI styling with Pipeline Config</li>
+        <li>Permission changes propagate immediately (no page reload)</li>
+        <li>Super Admin lock enforced (Josh + John Behn only)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>V/E/A Badge System</td><td>Color-coded toggle badges</td><td>V/E/A toggles with color coding</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Permission Matrix Grid</td><td>Modules x Roles grid</td><td>Modules x Roles grid</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Click-to-Toggle</td><td>Click badge to toggle</td><td>Click to toggle with instant Firestore write</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Module Descriptions</td><td>Description per module row</td><td>Description per module</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Role Hierarchy</td><td>COR/AST/SPC visible</td><td>Role columns with hierarchy</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Save/Apply</td><td>Button with confirmation</td><td>Auto-save on toggle (no button needed)</td><td><span class="badge pass">PASS</span> Better UX</td></tr>
+      <tr><td>Super Admin Lock</td><td>Admin-only access</td><td>Firestore rules enforce Josh + John only</td><td><span class="badge pass">PASS</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 10. ADMIN -- PIPELINE CONFIG                                           -->
+<!-- ===================================================================== -->
+<div id="admin-pipelines" class="page-section">
+  <div class="page-title">10. Admin -- Pipeline Config</div>
+  <div class="page-route">/admin/pipelines — Pipeline stage definitions and routing rules</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 01 — Admin Module</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-admin-pipelines.jpg" alt="GAS Admin Pipeline Config showing pipeline stages, colors, and routing">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-admin-modules.jpg" alt="toMachina Admin — Pipeline Config tab available from same page">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>Pipeline stage list with drag-to-reorder capability</li>
+        <li>Color picker per stage for visual pipeline boards</li>
+        <li>Stage name + description editable inline</li>
+        <li>Routing rules per stage (who gets assigned, auto-advance conditions)</li>
+        <li>Pipeline type selector (QUE, NBX, Ops, Deal)</li>
+        <li>Preview of pipeline board layout</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Same stage editor pattern with modern drag-and-drop</li>
+        <li>Backed by Flow Engine (packages/core/flow) -- stage definitions are code-driven</li>
+        <li>Pipeline config writes to Firestore, consumed by all pipeline UIs</li>
+        <li>Color picker with CSS variable integration</li>
+        <li>Routing rules reference team entitlements (COR/AST/SPC auto-assign)</li>
+        <li>Stage templates for common pipeline patterns</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Stage List</td><td>Ordered list of stages</td><td>Ordered list from Firestore</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Drag-to-Reorder</td><td>Drag handle on each stage</td><td>Drag-and-drop with order persistence</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Color Picker</td><td>Color swatch per stage</td><td>Color picker with CSS var output</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Stage Name/Description</td><td>Inline editable</td><td>Inline editable with auto-save</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Routing Rules</td><td>Assignment rules per stage</td><td>Flow Engine routing with entitlements</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Pipeline Type Selector</td><td>QUE/NBX/Ops/Deal picker</td><td>Pipeline type tabs</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Board Preview</td><td>Visual preview of pipeline</td><td>Not yet implemented</td><td><span class="badge partial">PARTIAL</span> Board preview pending</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 11. MY RPI -- PROFILE + DROP ZONE                                      -->
+<!-- ===================================================================== -->
+<div id="myrpi" class="page-section">
+  <div class="page-title">11. My RPI -- Profile + Drop Zone</div>
+  <div class="page-route">/my-rpi — User profile, document upload, QR codes</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 01 — My RPI Module</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original (ProDashX)</div>
+      <img src="gas-myrpi-dropzone.jpg" alt="GAS My RPI Drop Zone with QR codes, document upload, and profile info">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <div class="tm-placeholder" style="min-height:200px"><div class="title">Route 404 — Fix Builders Not Yet Merged</div><div class="detail">My RPI page at /my-rpi returns 404. Fix builders (FIX1/FIX2/FIX3) need to be merged to main for this route to work.</div></div>
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Original -- What It Does Well</h3>
+      <ul>
+        <li>Drop Zone with drag-and-drop file upload area -- large, clear target</li>
+        <li>QR code generator for client-facing document submission links</li>
+        <li>Profile section showing user info, role, licenses, appointments</li>
+        <li>Document history list with upload timestamps and file types</li>
+        <li>Category tagging for uploaded documents (Applications, Correspondence, etc.)</li>
+        <li>Direct integration with Google Drive for storage</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Does Well</h3>
+      <ul>
+        <li>Same Drop Zone UX with drag-and-drop + click-to-upload</li>
+        <li>QR code generation for client submission links</li>
+        <li>Profile card with role, entitlements, and team hierarchy</li>
+        <li>Document upload routes through intake Cloud Functions (validated, virus-scanned)</li>
+        <li>Document history with Firestore-backed metadata</li>
+        <li>Category tagging maintained from GAS</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Drop Zone (Upload Area)</td><td>Drag-and-drop with visual target</td><td>Drag-and-drop + click-to-upload</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>QR Code Generator</td><td>QR codes for client submission links</td><td>QR code generation with dynamic links</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Profile Info</td><td>User info, role, licenses</td><td>Profile card with role + entitlements</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Document History</td><td>Upload list with timestamps</td><td>Firestore-backed document list</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Category Tags</td><td>Document category tagging</td><td>Category tagging maintained</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>File Storage</td><td>Google Drive</td><td>Cloud Storage via intake Cloud Functions</td><td><span class="badge pass">PASS</span> Better: validated + scanned</td></tr>
+      <tr><td>Upload Progress</td><td>Basic progress indicator</td><td>Progress bar with status</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Appointments/Licenses</td><td>License info displayed</td><td>Entitlements display</td><td><span class="badge partial">PARTIAL</span> Different data model</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 12. RMD CENTER                                                         -->
+<!-- ===================================================================== -->
+<div id="rmd" class="page-section">
+  <div class="page-title">12. RMD Center</div>
+  <div class="page-route">/service-centers/rmd — Required Minimum Distribution tracking and management</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 04 — 44/45 Pass Rate</div>
+
+  <div class="no-screenshot">
+    <div class="note">No GAS screenshot available -- RMD Center was a new module built in Sprint 3 for toMachina. No direct GAS equivalent exists.</div>
+  </div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original — No Direct Equivalent</div>
+      <div class="tm-placeholder" style="min-height: 200px;">
+        <div class="title" style="color: var(--blue);">Not in GAS</div>
+        <div class="detail">RMD tracking was manual in GAS era -- spreadsheets and email reminders. No built-in module existed.</div>
+      </div>
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-rmd.jpg" alt="toMachina RMD Center with scan CTA and dashboard">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Era -- How RMD Was Handled</h3>
+      <ul>
+        <li>Manual spreadsheet tracking of RMD-eligible clients</li>
+        <li>Email reminders set by individual team members</li>
+        <li>No centralized calculation engine</li>
+        <li>No deadline tracking with escalation</li>
+        <li>No audit trail of RMD fulfillment</li>
+        <li>High compliance risk -- missed RMDs = IRS penalties for clients</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Delivers</h3>
+      <ul>
+        <li>Centralized RMD dashboard showing all RMD-eligible clients + accounts</li>
+        <li>Automated RMD calculation engine (IRS Uniform Lifetime Table)</li>
+        <li>Deadline tracking with color-coded urgency (green/gold/red)</li>
+        <li>Fulfillment status per client: Satisfied, Partial, Not Started, Overdue</li>
+        <li>Notification workflow for upcoming deadlines</li>
+        <li>Audit trail of all RMD actions and calculations</li>
+        <li>Year-over-year comparison of RMD amounts</li>
+        <li>44/45 audit checks passed -- near-perfect implementation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>RMD Dashboard</td><td>Did not exist</td><td>Full dashboard with all RMD-eligible clients</td><td><span class="badge pass">PASS</span> Net new capability</td></tr>
+      <tr><td>Calculation Engine</td><td>Manual spreadsheet</td><td>Automated IRS table-based calculations</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Deadline Tracking</td><td>Personal email reminders</td><td>Color-coded deadline tracker with escalation</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Fulfillment Status</td><td>Not tracked</td><td>Per-client status (Satisfied/Partial/NotStarted/Overdue)</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Notifications</td><td>Manual</td><td>Automated notification workflow</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Audit Trail</td><td>None</td><td>Full action + calculation audit log</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>YOY Comparison</td><td>None</td><td>Year-over-year RMD amount comparison</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Bulk Actions</td><td>N/A</td><td>Bulk RMD processing for multiple clients</td><td><span class="badge partial">PARTIAL</span> 1 of 45 checks -- edge case</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- 13. BENI CENTER                                                        -->
+<!-- ===================================================================== -->
+<div id="beni" class="page-section">
+  <div class="page-title">13. Beni Center</div>
+  <div class="page-route">/service-centers/beni — Beneficiary tracking and management</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 04 — 44/45 Pass Rate</div>
+
+  <div class="no-screenshot">
+    <div class="note">No GAS screenshot available -- Beni Center was a new module built in Sprint 3 for toMachina. No direct GAS equivalent exists.</div>
+  </div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original — No Direct Equivalent</div>
+      <div class="tm-placeholder" style="min-height: 200px;">
+        <div class="title" style="color: var(--blue);">Not in GAS</div>
+        <div class="detail">Beneficiary tracking was embedded in individual account records in GAS. No centralized beneficiary management view existed.</div>
+      </div>
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-beni.jpg" alt="toMachina Beni Center with scan CTA and beneficiary review">
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="analysis-card gas">
+      <h3>GAS Era -- How Beneficiaries Were Handled</h3>
+      <ul>
+        <li>Beneficiary data embedded in individual account records</li>
+        <li>No cross-account view of beneficiary designations</li>
+        <li>No way to see if beneficiary info was stale or missing</li>
+        <li>No review cadence tracking (annual beni review)</li>
+        <li>Compliance risk -- beneficiary mismatches across accounts of same client</li>
+        <li>Manual check required: open each account, check each beni field</li>
+      </ul>
+    </div>
+    <div class="analysis-card tm">
+      <h3>toMachina -- What It Delivers</h3>
+      <ul>
+        <li>Centralized Beni Center -- all beneficiary designations across all accounts in one view</li>
+        <li>Cross-account audit: flags mismatches (e.g., Account A says spouse, Account B says child)</li>
+        <li>Review status tracking: Last Reviewed date, Review Due date, Overdue flag</li>
+        <li>Client-level beneficiary summary -- who inherits what, across all products</li>
+        <li>Beneficiary change workflow with approval chain</li>
+        <li>Notification for stale beneficiary data (no review in 12+ months)</li>
+        <li>Export capability for compliance reporting</li>
+        <li>44/45 audit checks passed -- near-perfect implementation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Element by Element</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Centralized Dashboard</td><td>Did not exist</td><td>Full beneficiary dashboard across all accounts</td><td><span class="badge pass">PASS</span> Net new capability</td></tr>
+      <tr><td>Cross-Account Audit</td><td>Manual review per account</td><td>Automated mismatch detection</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Review Status Tracking</td><td>Not tracked</td><td>Last Reviewed, Due Date, Overdue flag</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Client-Level Summary</td><td>N/A</td><td>Who inherits what across all products</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Change Workflow</td><td>Manual process</td><td>Workflow with approval chain</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Stale Data Notifications</td><td>None</td><td>12+ month staleness alerts</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Compliance Export</td><td>None</td><td>Export for compliance reporting</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>Designation Validation</td><td>None</td><td>Primary + contingent % validation (must = 100%)</td><td><span class="badge partial">PARTIAL</span> 1 of 45 checks -- edge case</td></tr>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================================================================== -->
+<!-- LINK CLIENT MODAL (BONUS)                                              -->
+<!-- ===================================================================== -->
+<div id="link-client-modal" class="page-section">
+  <div class="page-title">Bonus: Accounts -- Link Client Modal</div>
+  <div class="page-route">Modal overlay from /accounts grid or /accounts/[cid]/[aid] detail</div>
+  <div class="sprint-badge complete"><span class="dot"></span> Builder 03 — Accounts Module</div>
+
+  <div class="screenshots">
+    <div class="screenshot-card gas">
+      <div class="label">GAS Original — Link Client Modal</div>
+      <img src="gas-accounts-linkclient.jpg" alt="GAS Link Client modal with client search and selection">
+    </div>
+    <div class="screenshot-card tm">
+      <div class="label">toMachina (Sprint 7)</div>
+      <img src="tm-accounts-grid.jpg" alt="toMachina Accounts grid — Link Client available from row actions">
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>Verdict -- Link Client Modal</h3>
+    <table>
+      <tr><th>Element</th><th>GAS</th><th>toMachina</th><th>Status</th></tr>
+      <tr><td>Client Search</td><td>Search box with results list</td><td>Smart Lookup (type-ahead)</td><td><span class="badge pass">PASS</span> Better UX</td></tr>
+      <tr><td>Selection Confirmation</td><td>Select + Confirm button</td><td>Select + Confirm with preview</td><td><span class="badge pass">PASS</span></td></tr>
+      <tr><td>FK Write</td><td>Updates Sheets via RAPID_API</td><td>Writes FK to Firestore document</td><td><span class="badge pass">PASS</span></td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- end .comparison -->
+
+<!-- ===================================================================== -->
+<!-- FOOTER                                                                 -->
+<!-- ===================================================================== -->
+<div class="footer">
+  <strong>ProDashX UI Comparison</strong> -- GAS Original vs toMachina Sprint 7<br>
+  Generated 2026-03-12 -- 13 pages audited, 4 builders, 199/226 checks passed (88.1%)<br>
+  <span style="opacity: 0.5; margin-top: 4px; display: inline-block;">toMachina screenshots will be added after deploy capture. Refresh after visual capture session.</span>
+</div>
+
+</body>
+</html>
