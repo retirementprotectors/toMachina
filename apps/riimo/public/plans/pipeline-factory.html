@@ -398,11 +398,228 @@
 
 <!-- TAB BAR -->
 <div class="tab-bar">
+  <button class="tab-btn" onclick="switchTab('beta')">ProDashX BETA</button>
   <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
   <button class="tab-btn" onclick="switchTab('nbx-flow')">NBX - Investments</button>
   <button class="tab-btn" onclick="switchTab('phases')">Build Phases</button>
   <button class="tab-btn" onclick="switchTab('decisions')">Decisions</button>
   <button class="tab-btn" onclick="switchTab('tech')">Tech Specs</button>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 0: PRODASHX BETA                         -->
+<!-- ============================================ -->
+<div id="tab-beta" class="tab-content">
+<div class="container">
+  <div style="text-align:center;margin-bottom:36px;">
+    <h1 style="font-size:36px;font-weight:700;letter-spacing:-1px;">Welcome to <span style="color:var(--portal)">ProDashX</span> BETA</h1>
+    <div style="font-size:16px;color:var(--text-dim);margin-top:6px;">Your new home base. Faster. Smarter. Built for how we actually work.</div>
+    <div style="margin-top:14px;display:flex;justify-content:center;gap:14px;font-size:12px;color:var(--text-muted);">
+      <span style="background:var(--green-dim);color:var(--green);padding:4px 14px;border-radius:16px;font-weight:600;">BETA Launch: Sunday 3/16</span>
+      <span style="background:var(--bg-card);border:1px solid var(--border);padding:4px 14px;border-radius:16px;">Nikki + Vinnie</span>
+      <span style="background:var(--bg-card);border:1px solid var(--border);padding:4px 14px;border-radius:16px;">1 Week Hammer Session</span>
+    </div>
+  </div>
+
+  <div class="summary-card" style="border-left-color:var(--green);margin-bottom:36px;">
+    This is <strong>ProDashX</strong> &mdash; the replacement for GHL. Everything you do day-to-day lives here now. Same clients, same accounts, same data &mdash; completely rebuilt from the ground up on our own platform. <em>No more GoHighLevel.</em> JDM will walk through everything Sunday night. This is your sneak peek.
+  </div>
+
+  <!-- FEATURE: Contacts -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:28px;color:var(--portal);">&#x1F464;</span>
+      <div>
+        <h2 style="font-size:22px;font-weight:700;">Contacts</h2>
+        <p style="font-size:13px;color:var(--text-dim);">5,018 clients. Search, filter, sort, customize columns. Click any row to see everything about them.</p>
+      </div>
+    </div>
+    <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+      <img src="prodashx-clients.png" onerror="this.src='/plans/prodashx-clients.png'" style="width:100%;display:block;" alt="Contacts">
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Filter by Status</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Active, Prospect, Inactive, Deceased</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Filter by Book</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">All your books &mdash; MFG, RetireWise, SPI, etc.</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Column Selector</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Show/hide columns to see what matters to YOU</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Instant Search</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Type a name and it filters in real-time</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE: Client Detail -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:28px;color:var(--portal);">&#x1F4CB;</span>
+      <div>
+        <h2 style="font-size:22px;font-weight:700;">Client Detail</h2>
+        <p style="font-size:13px;color:var(--text-dim);">Everything about a client in one place. 7 tabs: Connect, Personal, Estate, Accounts, Connected, Comms, Activity.</p>
+      </div>
+    </div>
+    <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+      <img src="prodashx-client-detail.png" onerror="this.src='/plans/prodashx-client-detail.png'" style="width:100%;display:block;" alt="Client Detail">
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Do Not Contact</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Toggle DNC per channel: Phone, Text, Email, Mail</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Quick Actions</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">ACF, Access Center, AI3 &mdash; one click</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Age + Location</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Age auto-calculated, timezone detected</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Expandable Sections</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Phone, Email, Address, Relationships, Social</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE: Accounts -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:28px;color:var(--portal);">&#x1F3E6;</span>
+      <div>
+        <h2 style="font-size:22px;font-weight:700;">Accounts</h2>
+        <p style="font-size:13px;color:var(--text-dim);">Every policy and account across all product lines. Filter by type, carrier, status. Product line tabs at the top.</p>
+      </div>
+    </div>
+    <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+      <img src="prodashx-accounts.png" onerror="this.src='/plans/prodashx-accounts.png'" style="width:100%;display:block;" alt="Accounts">
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Product Line Tabs</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">All, Annuity, Life, Medicare, Investment</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Filter by Carrier</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Every carrier we work with, one dropdown</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Account Detail</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Click Detail to see full account info</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Bulk Select</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Checkboxes for bulk actions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE: COMMS Center -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:28px;color:var(--portal);">&#x1F4AC;</span>
+      <div>
+        <h2 style="font-size:22px;font-weight:700;">COMMS Center</h2>
+        <p style="font-size:13px;color:var(--text-dim);">Send SMS, Email, and log Calls &mdash; all from one screen. Full communication history with delivery status.</p>
+      </div>
+    </div>
+    <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+      <img src="prodashx-comms.png" onerror="this.src='/plans/prodashx-comms.png'" style="width:100%;display:block;" alt="COMMS Center">
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Send SMS</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Text clients directly from ProDashX via our own number</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Send Email</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Email from your @retireprotected.com address</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Log Calls</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Record call outcomes, notes, timestamps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE: RPI Connect -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:28px;color:var(--portal);">&#x1F6E1;</span>
+      <div>
+        <h2 style="font-size:22px;font-weight:700;">RPI Connect</h2>
+        <p style="font-size:13px;color:var(--text-dim);">Internal team communication. Channels, Chat, and Meet rooms &mdash; all inside ProDashX. No more Slack for day-to-day.</p>
+      </div>
+    </div>
+    <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+      <img src="prodashx-connect.png" onerror="this.src='/plans/prodashx-connect.png'" style="width:100%;display:block;" alt="RPI Connect">
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Channels</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Team channels for announcements and coordination</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Chat</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Direct messages between team members</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Meet</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Video meeting rooms for client calls and team syncs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE: My RPI -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:28px;color:var(--portal);">&#x1F9D1;</span>
+      <div>
+        <h2 style="font-size:22px;font-weight:700;">My RPI</h2>
+        <p style="font-size:13px;color:var(--text-dim);">Your employee profile. Communication preferences, aliases, Drop Zone for quick uploads, meeting config.</p>
+      </div>
+    </div>
+    <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+      <img src="prodashx-myrpi.png" onerror="this.src='/plans/prodashx-myrpi.png'" style="width:100%;display:block;" alt="My RPI">
+    </div>
+  </div>
+
+  <!-- FEATURE: Admin -->
+  <div style="margin-bottom:40px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-size:28px;color:var(--portal);">&#x2699;</span>
+      <div>
+        <h2 style="font-size:22px;font-weight:700;">Admin Panel</h2>
+        <p style="font-size:13px;color:var(--text-dim);">Module permissions, pipeline configuration, team hierarchy. Control who sees what and who can do what.</p>
+      </div>
+    </div>
+    <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+      <img src="prodashx-admin.png" onerror="this.src='/plans/prodashx-admin.png'" style="width:100%;display:block;" alt="Admin Panel">
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Module Config</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">VIEW / EDIT / ADD permissions per module per user</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Pipeline Config</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Configure sales and service pipeline stages</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:13px;font-weight:600;">Team Config</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">COR/AST/SPC hierarchy and division assignment</div>
+      </div>
+    </div>
+  </div>
+
+</div>
 </div>
 
 <!-- ============================================ -->
