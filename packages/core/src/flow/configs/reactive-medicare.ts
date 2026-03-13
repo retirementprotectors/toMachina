@@ -1,0 +1,489 @@
+/**
+ * REACTIVE_MEDICARE pipeline config.
+ * 6 stages: Request Intake -> Client Comm -> RPI Work -> Provider Comm -> Carrier Comm -> Confirmation
+ * More complex than Retirement reactive — tracks communication timestamps per party.
+ */
+
+import type {
+  FlowPipelineDef,
+  FlowStageDef,
+  FlowWorkflowDef,
+  FlowStepDef,
+  FlowTaskTemplateDef,
+} from '../types'
+
+// ============================================================================
+// Pipeline
+// ============================================================================
+
+const pipeline: FlowPipelineDef = {
+  pipeline_key: 'REACTIVE_MEDICARE',
+  pipeline_name: 'Reactive Service - Medicare',
+  description: 'Medicare reactive service requests. Tracks client, provider, and carrier communications.',
+  portal: 'PRODASHX',
+  domain: 'MEDICARE',
+  default_view: 'kanban',
+  icon: 'support_agent',
+  status: 'active',
+  created_at: '2026-03-13T00:00:00.000Z',
+  updated_at: '2026-03-13T00:00:00.000Z',
+}
+
+// ============================================================================
+// Stages
+// ============================================================================
+
+const stages: FlowStageDef[] = [
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'request_intake',
+    stage_name: 'Request Intake',
+    stage_description: 'Service request received. Log details and classify.',
+    stage_order: 10,
+    stage_color: 'blue',
+    gate_enforced: false,
+    has_workflow: true,
+    ghl_stage_id: 'request_intake',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'client_comm',
+    stage_name: 'Client Communication',
+    stage_description: 'Communicate with client to gather additional information or confirm details.',
+    stage_order: 20,
+    stage_color: 'cyan',
+    gate_enforced: false,
+    has_workflow: true,
+    ghl_stage_id: 'client_comm',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'rpi_work',
+    stage_name: 'RPI Work',
+    stage_description: 'Internal RPI work to resolve the service request.',
+    stage_order: 30,
+    stage_color: 'yellow',
+    gate_enforced: false,
+    has_workflow: true,
+    ghl_stage_id: 'rpi_work',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'provider_comm',
+    stage_name: 'Provider Communication',
+    stage_description: 'Communication with healthcare providers as needed.',
+    stage_order: 40,
+    stage_color: 'orange',
+    gate_enforced: false,
+    has_workflow: true,
+    ghl_stage_id: 'provider_comm',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'carrier_comm',
+    stage_name: 'Carrier Communication',
+    stage_description: 'Communication with insurance carrier to process changes.',
+    stage_order: 50,
+    stage_color: 'purple',
+    gate_enforced: false,
+    has_workflow: true,
+    ghl_stage_id: 'carrier_comm',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'confirmation',
+    stage_name: 'Confirmation',
+    stage_description: 'Request resolved. Confirm with client and update records.',
+    stage_order: 60,
+    stage_color: 'green',
+    gate_enforced: false,
+    has_workflow: true,
+    ghl_stage_id: 'confirmation',
+    status: 'active',
+  },
+]
+
+// ============================================================================
+// Workflows
+// ============================================================================
+
+const workflows: FlowWorkflowDef[] = [
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'request_intake',
+    workflow_key: 'request_intake_workflow',
+    workflow_name: 'Request Intake Workflow',
+    workflow_description: 'Log and classify the Medicare service request.',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'client_comm',
+    workflow_key: 'client_comm_workflow',
+    workflow_name: 'Client Communication Workflow',
+    workflow_description: 'Gather information from client.',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'rpi_work',
+    workflow_key: 'rpi_work_workflow',
+    workflow_name: 'RPI Work Workflow',
+    workflow_description: 'Internal work to resolve the request.',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'provider_comm',
+    workflow_key: 'provider_comm_workflow',
+    workflow_name: 'Provider Communication Workflow',
+    workflow_description: 'Communicate with healthcare providers.',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'carrier_comm',
+    workflow_key: 'carrier_comm_workflow',
+    workflow_name: 'Carrier Communication Workflow',
+    workflow_description: 'Communicate with insurance carrier.',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'confirmation',
+    workflow_key: 'confirmation_workflow',
+    workflow_name: 'Confirmation Workflow',
+    workflow_description: 'Confirm resolution with client.',
+    status: 'active',
+  },
+]
+
+// ============================================================================
+// Steps
+// ============================================================================
+
+const steps: FlowStepDef[] = [
+  // Request Intake
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'request_intake',
+    workflow_key: 'request_intake_workflow',
+    step_id: 'log_request',
+    step_name: 'Log Request',
+    step_description: 'Log the Medicare service request details.',
+    step_order: 10,
+    gate_enforced: false,
+    execution_type: 'manual',
+    status: 'active',
+  },
+  // Client Communication
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'client_comm',
+    workflow_key: 'client_comm_workflow',
+    step_id: 'client_outreach',
+    step_name: 'Client Outreach',
+    step_description: 'Contact client for additional information.',
+    step_order: 10,
+    gate_enforced: false,
+    execution_type: 'manual',
+    status: 'active',
+  },
+  // RPI Work
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'rpi_work',
+    workflow_key: 'rpi_work_workflow',
+    step_id: 'internal_resolution',
+    step_name: 'Internal Resolution',
+    step_description: 'Perform internal work to address the request.',
+    step_order: 10,
+    gate_enforced: false,
+    execution_type: 'manual',
+    status: 'active',
+  },
+  // Provider Communication
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'provider_comm',
+    workflow_key: 'provider_comm_workflow',
+    step_id: 'provider_outreach',
+    step_name: 'Provider Outreach',
+    step_description: 'Contact healthcare providers as needed.',
+    step_order: 10,
+    gate_enforced: false,
+    execution_type: 'manual',
+    status: 'active',
+  },
+  // Carrier Communication
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'carrier_comm',
+    workflow_key: 'carrier_comm_workflow',
+    step_id: 'carrier_outreach',
+    step_name: 'Carrier Outreach',
+    step_description: 'Contact insurance carrier to process changes.',
+    step_order: 10,
+    gate_enforced: false,
+    execution_type: 'manual',
+    status: 'active',
+  },
+  // Confirmation
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'confirmation',
+    workflow_key: 'confirmation_workflow',
+    step_id: 'confirm_resolution',
+    step_name: 'Confirm Resolution',
+    step_description: 'Confirm resolution with client and update records.',
+    step_order: 10,
+    gate_enforced: false,
+    execution_type: 'manual',
+    status: 'active',
+  },
+]
+
+// ============================================================================
+// Tasks
+// ============================================================================
+
+const tasks: FlowTaskTemplateDef[] = [
+  // Request Intake
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'request_intake',
+    workflow_key: 'request_intake_workflow',
+    step_id: 'log_request',
+    task_id: 'log_service_request',
+    task_name: 'Log Service Request',
+    task_description: 'Record the service request type and details.',
+    task_order: 10,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'request_intake',
+    workflow_key: 'request_intake_workflow',
+    step_id: 'log_request',
+    task_id: 'classify_request_type',
+    task_name: 'Classify Request Type',
+    task_description: 'Classify request (plan change, billing issue, provider issue, coverage question, etc.).',
+    task_order: 20,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'request_intake',
+    workflow_key: 'request_intake_workflow',
+    step_id: 'log_request',
+    task_id: 'identify_parties',
+    task_name: 'Identify Required Parties',
+    task_description: 'Determine which parties need involvement (client, provider, carrier).',
+    task_order: 30,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+
+  // Client Communication
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'client_comm',
+    workflow_key: 'client_comm_workflow',
+    step_id: 'client_outreach',
+    task_id: 'contact_client',
+    task_name: 'Contact Client',
+    task_description: 'Reach out to client for additional information or clarification.',
+    task_order: 10,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'client_comm',
+    workflow_key: 'client_comm_workflow',
+    step_id: 'client_outreach',
+    task_id: 'log_client_comm_timestamp',
+    task_name: 'Log Client Communication',
+    task_description: 'Record communication timestamp, method, and outcome.',
+    task_order: 20,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+
+  // RPI Work
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'rpi_work',
+    workflow_key: 'rpi_work_workflow',
+    step_id: 'internal_resolution',
+    task_id: 'research_issue',
+    task_name: 'Research Issue',
+    task_description: 'Research the client issue in internal systems and carrier portals.',
+    task_order: 10,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'rpi_work',
+    workflow_key: 'rpi_work_workflow',
+    step_id: 'internal_resolution',
+    task_id: 'prepare_resolution',
+    task_name: 'Prepare Resolution',
+    task_description: 'Prepare the resolution approach and any required documentation.',
+    task_order: 20,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+
+  // Provider Communication
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'provider_comm',
+    workflow_key: 'provider_comm_workflow',
+    step_id: 'provider_outreach',
+    task_id: 'contact_provider',
+    task_name: 'Contact Provider',
+    task_description: 'Contact healthcare provider regarding the service issue.',
+    task_order: 10,
+    is_required: false,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'provider_comm',
+    workflow_key: 'provider_comm_workflow',
+    step_id: 'provider_outreach',
+    task_id: 'log_provider_comm_timestamp',
+    task_name: 'Log Provider Communication',
+    task_description: 'Record provider communication timestamp, contact person, and outcome.',
+    task_order: 20,
+    is_required: false,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+
+  // Carrier Communication
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'carrier_comm',
+    workflow_key: 'carrier_comm_workflow',
+    step_id: 'carrier_outreach',
+    task_id: 'contact_carrier',
+    task_name: 'Contact Carrier',
+    task_description: 'Contact insurance carrier to process the service request.',
+    task_order: 10,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'carrier_comm',
+    workflow_key: 'carrier_comm_workflow',
+    step_id: 'carrier_outreach',
+    task_id: 'log_carrier_comm_timestamp',
+    task_name: 'Log Carrier Communication',
+    task_description: 'Record carrier communication timestamp, reference number, and outcome.',
+    task_order: 20,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'carrier_comm',
+    workflow_key: 'carrier_comm_workflow',
+    step_id: 'carrier_outreach',
+    task_id: 'track_carrier_resolution',
+    task_name: 'Track Carrier Resolution',
+    task_description: 'Monitor carrier processing until resolution is confirmed.',
+    task_order: 30,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+
+  // Confirmation
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'confirmation',
+    workflow_key: 'confirmation_workflow',
+    step_id: 'confirm_resolution',
+    task_id: 'confirm_with_client',
+    task_name: 'Confirm Resolution with Client',
+    task_description: 'Confirm with the client that the issue has been resolved.',
+    task_order: 10,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+  {
+    pipeline_key: 'REACTIVE_MEDICARE',
+    stage_id: 'confirmation',
+    workflow_key: 'confirmation_workflow',
+    step_id: 'confirm_resolution',
+    task_id: 'update_client_records',
+    task_name: 'Update Client Records',
+    task_description: 'Update ProDash and ACF with resolution details.',
+    task_order: 20,
+    is_required: true,
+    is_system_check: false,
+    default_owner: 'SPC',
+    role_applicability: 'GENERAL',
+    status: 'active',
+  },
+]
+
+// ============================================================================
+// Export
+// ============================================================================
+
+export const REACTIVE_MEDICARE_CONFIG = {
+  pipeline,
+  stages,
+  workflows,
+  steps,
+  tasks,
+} as const
