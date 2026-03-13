@@ -95,16 +95,21 @@ flowRoutes.get('/instances', async (req: Request, res: Response) => {
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'updated_at'
 
-    let query: Query<DocumentData> = db.collection(INSTANCES)
-    if (req.query.pipeline_key) query = query.where('pipeline_key', '==', req.query.pipeline_key)
-    if (req.query.stage) query = query.where('current_stage', '==', req.query.stage)
-    if (req.query.status) query = query.where('stage_status', '==', req.query.status)
-    if (req.query.assigned_to) query = query.where('assigned_to', '==', req.query.assigned_to)
-    if (req.query.entity_type) query = query.where('entity_type', '==', req.query.entity_type)
+    let q: Query<DocumentData> = db.collection(INSTANCES)
+    if (req.query.pipeline_key) q = q.where('pipeline_key', '==', req.query.pipeline_key)
+    if (req.query.stage) q = q.where('current_stage', '==', req.query.stage)
+    if (req.query.status) q = q.where('stage_status', '==', req.query.status)
+    if (req.query.assigned_to) q = q.where('assigned_to', '==', req.query.assigned_to)
+    if (req.query.entity_type) q = q.where('entity_type', '==', req.query.entity_type)
 
-    const result = await paginatedQuery(query, INSTANCES, params)
-    const data = result.data.map(d => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    // Simple query without orderBy to avoid composite index requirements
+    const snap = await q.get()
+    const data = snap.docs
+      .map(d => stripInternalFields({ id: d.id, ...d.data() }))
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
+        String(b.updated_at || '').localeCompare(String(a.updated_at || ''))
+      )
+    res.json(successResponse(data))
   } catch (err) {
     console.error('GET /api/flow/instances error:', err)
     res.status(500).json(errorResponse(String(err)))
