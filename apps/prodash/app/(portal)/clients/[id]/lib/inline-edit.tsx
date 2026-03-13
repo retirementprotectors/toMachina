@@ -93,7 +93,7 @@ export function InlineField({
       <div className="group">
         <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)]">{label}</dt>
         <dd
-          className={`mt-1 flex items-center gap-1.5 cursor-pointer rounded px-1 -mx-1 py-0.5 transition-colors hover:bg-[var(--bg-surface)] ${mono ? 'font-mono text-sm' : 'text-sm'} text-[var(--text-primary)]`}
+          className={`mt-1 flex items-center gap-1.5 cursor-pointer rounded px-1 -mx-1 py-0.5 transition-colors duration-150 hover:bg-[rgba(74,122,181,0.06)] ${mono ? 'font-mono text-sm' : 'text-sm'} text-[var(--text-primary)]`}
           onClick={() => setEditing(true)}
           title="Click to edit"
         >

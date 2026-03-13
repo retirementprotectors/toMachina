@@ -1,8 +1,11 @@
 'use client'
 
+import { useState, useCallback } from 'react'
+import { doc, updateDoc } from 'firebase/firestore'
+import { getDb } from '@tomachina/db'
 import type { Client } from '@tomachina/core'
 import { formatPhone, str } from '../../lib/formatters'
-import { InlineField, InlineToggle, InlineSection, ReadOnlyField } from '../../lib/inline-edit'
+import { InlineField, InlineSection, ReadOnlyField } from '../../lib/inline-edit'
 import { FieldGrid } from '../../lib/ui-helpers'
 
 interface ContactTabProps {
@@ -26,40 +29,139 @@ const RELATIONSHIP_OPTIONS = [
   { label: 'Other', value: 'Other' },
 ]
 
-/* PL2-2: Agent, BoB, Source dropdowns */
-const AGENT_OPTIONS = [
-  { label: 'Josh Millang', value: 'Josh Millang' },
-  { label: 'Nikki Gray', value: 'Nikki Gray' },
-  { label: 'Vinnie Vazquez', value: 'Vinnie Vazquez' },
-  { label: 'Matt McCormick', value: 'Matt McCormick' },
-  { label: 'Angelique Millang', value: 'Angelique Millang' },
+interface DncPillConfig {
+  label: string
+  fieldKey: string
+  icon: string
+}
+
+const DNC_PILLS: DncPillConfig[] = [
+  { label: 'All', fieldKey: 'dnc_all', icon: 'block' },
+  { label: 'Phone', fieldKey: 'dnc_phone', icon: 'phone_disabled' },
+  { label: 'Text', fieldKey: 'dnc_sms', icon: 'sms_failed' },
+  { label: 'Email', fieldKey: 'dnc_email', icon: 'unsubscribe' },
+  { label: 'Mail', fieldKey: 'dnc_mail', icon: 'markunread_mailbox' },
 ]
 
-const BOB_OPTIONS = [
-  { label: 'Millang', value: 'Millang' },
-  { label: 'Gray', value: 'Gray' },
-  { label: 'Vazquez', value: 'Vazquez' },
-  { label: 'McCormick', value: 'McCormick' },
-  { label: 'Sprenger', value: 'Sprenger' },
-  { label: 'Other', value: 'Other' },
-]
+function DncPill({
+  label,
+  icon,
+  active,
+  saving,
+  onToggle,
+}: {
+  label: string
+  icon: string
+  active: boolean
+  saving: boolean
+  onToggle: () => void
+}) {
+  return (
+    <button
+      onClick={onToggle}
+      disabled={saving}
+      className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-all duration-150"
+      style={
+        active
+          ? { background: 'rgba(239,68,68,0.15)', color: '#f87171' }
+          : { background: 'var(--bg-surface)', color: 'var(--text-muted)' }
+      }
+      title={`${active ? 'Remove' : 'Set'} Do Not Contact — ${label}`}
+    >
+      <span className="material-icons-outlined" style={{ fontSize: '13px' }}>
+        {icon}
+      </span>
+      {label}
+      {saving && (
+        <span
+          className="h-2.5 w-2.5 animate-spin rounded-full border border-current border-t-transparent"
+          style={{ borderWidth: '1.5px' }}
+        />
+      )}
+    </button>
+  )
+}
 
-const SOURCE_OPTIONS = [
-  { label: 'Referral', value: 'Referral' },
-  { label: 'Walk-In', value: 'Walk-In' },
-  { label: 'Phone Call', value: 'Phone Call' },
-  { label: 'Website', value: 'Website' },
-  { label: 'Event', value: 'Event' },
-  { label: 'DAVID Partner', value: 'DAVID Partner' },
-  { label: 'Marketing Campaign', value: 'Marketing Campaign' },
-  { label: 'Other', value: 'Other' },
-]
+function DncRow({ client, docPath }: { client: Client; docPath: string }) {
+  const [savingField, setSavingField] = useState<string | null>(null)
+
+  const handleToggle = useCallback(
+    async (fieldKey: string, currentValue: boolean) => {
+      setSavingField(fieldKey)
+      try {
+        const ref = doc(getDb(), docPath)
+        await updateDoc(ref, {
+          [fieldKey]: !currentValue,
+          updated_at: new Date().toISOString(),
+        })
+      } catch (err) {
+        console.error('DNC toggle save failed:', err)
+      } finally {
+        setSavingField(null)
+      }
+    },
+    [docPath]
+  )
+
+  const getFieldValue = (fieldKey: string): boolean => {
+    const key = fieldKey as keyof Client
+    return Boolean(client[key])
+  }
+
+  const anyActive = DNC_PILLS.some((pill) => getFieldValue(pill.fieldKey))
+
+  return (
+    <div
+      className="flex items-center gap-3 rounded-lg border px-4 py-2.5"
+      style={{
+        borderColor: anyActive ? 'rgba(239,68,68,0.3)' : 'var(--border-subtle)',
+        background: anyActive ? 'rgba(239,68,68,0.04)' : 'var(--bg-card)',
+      }}
+    >
+      <div className="flex items-center gap-1.5 shrink-0">
+        <span
+          className="material-icons-outlined"
+          style={{
+            fontSize: '15px',
+            color: anyActive ? '#f87171' : 'var(--text-muted)',
+          }}
+        >
+          do_not_disturb
+        </span>
+        <span
+          className="text-xs font-semibold uppercase tracking-wider"
+          style={{ color: anyActive ? '#f87171' : 'var(--text-muted)' }}
+        >
+          Do Not Contact
+        </span>
+      </div>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {DNC_PILLS.map((pill) => {
+          const active = getFieldValue(pill.fieldKey)
+          return (
+            <DncPill
+              key={pill.fieldKey}
+              label={pill.label}
+              icon={pill.icon}
+              active={active}
+              saving={savingField === pill.fieldKey}
+              onToggle={() => handleToggle(pill.fieldKey, active)}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export function ContactTab({ client, clientId }: ContactTabProps) {
   const docPath = `clients/${clientId}`
 
   return (
     <div className="space-y-4">
+      {/* Do Not Contact — compact pill row at top */}
+      <DncRow client={client} docPath={docPath} />
+
       {/* Phone Numbers */}
       <InlineSection title="Phone Numbers" icon="phone">
         <FieldGrid cols={3}>
@@ -156,7 +258,7 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
         </InlineSection>
       </div>
 
-      {/* RPI Relationship — PL2-2: Agent, BoB, Source are now editable dropdowns */}
+      {/* RPI Relationship */}
       <InlineSection title="RPI Relationship" icon="handshake">
         <FieldGrid cols={3}>
           <InlineField
@@ -167,30 +269,9 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             type="select"
             options={RELATIONSHIP_OPTIONS}
           />
-          <InlineField
-            label="Agent"
-            value={str(client.agent_name)}
-            fieldKey="agent_name"
-            docPath={docPath}
-            type="select"
-            options={AGENT_OPTIONS}
-          />
-          <InlineField
-            label="Book of Business"
-            value={str(client.book_of_business)}
-            fieldKey="book_of_business"
-            docPath={docPath}
-            type="select"
-            options={BOB_OPTIONS}
-          />
-          <InlineField
-            label="Source"
-            value={str(client.source)}
-            fieldKey="source"
-            docPath={docPath}
-            type="select"
-            options={SOURCE_OPTIONS}
-          />
+          <ReadOnlyField label="Agent" value={str(client.agent_name)} />
+          <ReadOnlyField label="Book of Business" value={str(client.book_of_business)} />
+          <ReadOnlyField label="Source" value={str(client.source)} />
         </FieldGrid>
       </InlineSection>
 
@@ -201,51 +282,6 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
           <InlineField label="LinkedIn" value={str(client.linkedin_url)} fieldKey="linkedin_url" docPath={docPath} placeholder="LinkedIn profile URL" />
           <InlineField label="Other" value={str(client.social_other)} fieldKey="social_other" docPath={docPath} placeholder="Other social URL" />
         </FieldGrid>
-      </InlineSection>
-
-      {/* DF-12: Do Not Contact — prominent, with None/Selected/All toggle */}
-      <InlineSection title="Do Not Contact (DND)" icon="do_not_disturb" defaultOpen>
-        <div className="space-y-3">
-          {/* Quick toggle bar */}
-          <div className="flex items-center gap-2 rounded-md bg-[var(--bg-surface)] p-2">
-            <span className="text-xs font-medium text-[var(--text-muted)] mr-2">Quick Set:</span>
-            <button
-              onClick={() => {
-                // None: would clear all DNC fields
-              }}
-              className={`rounded-md h-[34px] px-3 text-xs font-medium transition-all ${
-                !client.dnc_all && !client.dnc_phone && !client.dnc_sms && !client.dnc_email && !client.dnc_mail
-                  ? 'bg-emerald-500/15 text-emerald-400'
-                  : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-              }`}
-            >
-              None
-            </button>
-            <button
-              className={`rounded-md h-[34px] px-3 text-xs font-medium transition-all ${
-                !client.dnc_all && (client.dnc_phone || client.dnc_sms || client.dnc_email || client.dnc_mail)
-                  ? 'bg-amber-500/15 text-amber-400'
-                  : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-              }`}
-            >
-              Selected
-            </button>
-            <button
-              className={`rounded-md h-[34px] px-3 text-xs font-medium transition-all ${
-                Boolean(client.dnc_all)
-                  ? 'bg-red-500/15 text-red-400'
-                  : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-              }`}
-            >
-              All Channels
-            </button>
-          </div>
-          <InlineToggle label="All Channels" value={Boolean(client.dnc_all)} fieldKey="dnc_all" docPath={docPath} />
-          <InlineToggle label="Phone" value={Boolean(client.dnc_phone)} fieldKey="dnc_phone" docPath={docPath} />
-          <InlineToggle label="Text/SMS" value={Boolean(client.dnc_sms)} fieldKey="dnc_sms" docPath={docPath} />
-          <InlineToggle label="Email" value={Boolean(client.dnc_email)} fieldKey="dnc_email" docPath={docPath} />
-          <InlineToggle label="Mail" value={Boolean(client.dnc_mail)} fieldKey="dnc_mail" docPath={docPath} />
-        </div>
       </InlineSection>
     </div>
   )

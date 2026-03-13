@@ -78,10 +78,10 @@ export function ClientHeader({ client, clientId }: ClientHeaderProps) {
               if (acfLink) window.open(acfLink, '_blank', 'noopener,noreferrer')
             }}
             disabled={!acfLink}
-            className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium transition-all ${
+            className={`inline-flex items-center gap-1.5 rounded px-4 py-1.5 text-sm font-medium transition-all ${
               acfLink
-                ? 'bg-[var(--portal)]/15 text-[var(--portal)] hover:bg-[var(--portal)]/25'
-                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
+                ? 'bg-[var(--portal)]/15 text-[var(--portal)] hover:bg-[var(--portal)]/25 border border-[var(--portal)]/30'
+                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] cursor-not-allowed opacity-50 border border-[var(--border)]'
             }`}
             title={acfLink ? 'Open Active Client File in Google Drive' : 'No ACF link on file'}
           >
@@ -96,7 +96,7 @@ export function ClientHeader({ client, clientId }: ClientHeaderProps) {
           <button
             onClick={handleAI3}
             disabled={ai3Loading}
-            className="inline-flex items-center gap-1.5 rounded-md h-[34px] bg-[var(--portal)] px-4 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded bg-[var(--portal)] px-4 py-1.5 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
             title="Generate AI3 Report (Assets, Income, Insurance, Inventory)"
           >
             {ai3Loading ? (

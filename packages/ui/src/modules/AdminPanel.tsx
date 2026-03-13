@@ -54,7 +54,7 @@ interface PipelineRecord {
   }>
 }
 
-type AdminTab = 'module-config' | 'pipeline-config'
+type AdminTab = 'module-config' | 'pipeline-config' | 'team-config'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -186,35 +186,7 @@ function CollapsibleSection({
   isLeader: boolean
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
 }) {
-  /* DF-9/DF-28: Default collapsed, click to expand */
   const [expanded, setExpanded] = useState(false)
-
-  // Get unique module keys in this section
-  const sectionModuleKeys = useMemo(() => {
-    const keys = new Set<string>()
-    section.items.forEach((item) => {
-      if (item.moduleKey) keys.add(item.moduleKey)
-    })
-    return Array.from(keys)
-  }, [section.items])
-
-  // For leaders: show team members who have access to modules in this section
-  const teamAccess = useMemo(() => {
-    if (!isLeader) return []
-    return users.filter((u) => u.email !== currentUserEmail).map((u) => {
-      const perms: Record<string, string[]> = {}
-      sectionModuleKeys.forEach((mk) => {
-        const userPerms = u.module_permissions?.[mk]
-        if (userPerms && userPerms.length > 0) {
-          perms[mk] = userPerms
-        }
-      })
-      return { user: u, perms }
-    }).filter((entry) => Object.keys(entry.perms).length > 0)
-  }, [isLeader, users, currentUserEmail, sectionModuleKeys])
-
-  // Get current user's permissions
-  const currentUser = users.find((u) => u.email === currentUserEmail)
 
   return (
     <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
@@ -240,111 +212,332 @@ function CollapsibleSection({
 
       {expanded && (
         <div className="border-t border-[var(--border-subtle)] px-5 pb-4 pt-3">
-          <div className="space-y-2">
+          <div className="space-y-1">
             {section.items.map((item) => {
               if (!item.moduleKey) return null
               const mk = item.moduleKey
-              const myPerms = currentUser?.module_permissions?.[mk] || []
 
               return (
-                <div
+                <ModuleExpandRow
                   key={item.key}
-                  className="flex items-center justify-between rounded-lg bg-[var(--bg-surface)] px-3 py-2.5"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
-                      {item.icon}
-                    </span>
-                    <span className="text-sm text-[var(--text-primary)]">{item.label}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {ALL_ACTIONS.map((action) => (
-                      <EntitlementBadge
-                        key={action}
-                        action={action}
-                        active={myPerms.includes(action)}
-                        editable={false}
-                        onToggle={() => {
-                          /* Read-only for own permissions */
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
+                  item={item}
+                  moduleKey={mk}
+                  users={users}
+                  currentUserEmail={currentUserEmail}
+                  isLeader={isLeader}
+                  onEntitlementChange={onEntitlementChange}
+                />
               )
             })}
           </div>
-
-          {/* Team member access (leaders only) */}
-          {isLeader && teamAccess.length > 0 && (
-            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3">
-              <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                Team Access
-              </span>
-              <div className="mt-2 space-y-2">
-                {teamAccess.map(({ user: teamUser, perms }) => (
-                  <div key={teamUser._id} className="rounded-lg bg-[var(--bg-surface)] p-3">
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
-                        person
-                      </span>
-                      <span className="text-xs font-medium text-[var(--text-primary)]">
-                        {teamUser.first_name} {teamUser.last_name}
-                      </span>
-                      <span className="text-[10px] text-[var(--text-muted)]">{teamUser.email}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(perms).map(([moduleKey, actions]) => {
-                        const moduleItem = section.items.find((i) => i.moduleKey === moduleKey)
-                        return (
-                          <div key={moduleKey} className="flex items-center gap-1">
-                            <span className="text-[10px] text-[var(--text-muted)]">
-                              {moduleItem?.label || moduleKey}:
-                            </span>
-                            {actions.map((action) => (
-                              <EntitlementBadge
-                                key={action}
-                                action={action as ModuleAction}
-                                active={true}
-                                editable={isLeader}
-                                onToggle={() =>
-                                  onEntitlementChange(
-                                    teamUser._id,
-                                    moduleKey,
-                                    action as ModuleAction,
-                                    false
-                                  )
-                                }
-                              />
-                            ))}
-                            {/* Show disabled badges for missing actions */}
-                            {ALL_ACTIONS.filter((a) => !actions.includes(a)).map((action) => (
-                              <EntitlementBadge
-                                key={action}
-                                action={action}
-                                active={false}
-                                editable={isLeader}
-                                onToggle={() =>
-                                  onEntitlementChange(
-                                    teamUser._id,
-                                    moduleKey,
-                                    action,
-                                    true
-                                  )
-                                }
-                              />
-                            ))}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
+    </div>
+  )
+}
+
+/* ─── Module Expand Row (click module → see people with access) ─── */
+
+function ModuleExpandRow({
+  item,
+  moduleKey,
+  users,
+  currentUserEmail,
+  isLeader,
+  onEntitlementChange,
+}: {
+  item: ModuleItem
+  moduleKey: string
+  users: UserRecord[]
+  currentUserEmail: string
+  isLeader: boolean
+  onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  // Users who have any permission on this module
+  const usersWithAccess = useMemo(() => {
+    return users
+      .filter((u) => {
+        const perms = u.module_permissions?.[moduleKey]
+        return perms && perms.length > 0
+      })
+      .sort((a, b) => {
+        const aName = `${a.last_name || ''} ${a.first_name || ''}`
+        const bName = `${b.last_name || ''} ${b.first_name || ''}`
+        return aName.localeCompare(bName)
+      })
+  }, [users, moduleKey])
+
+  const currentUser = users.find((u) => u.email === currentUserEmail)
+  const myPerms = currentUser?.module_permissions?.[moduleKey] || []
+
+  return (
+    <div className="rounded-lg bg-[var(--bg-surface)]">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen((v) => !v) } }}
+        className="flex w-full cursor-pointer items-center justify-between px-3 py-2.5"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
+            {item.icon}
+          </span>
+          <span className="text-sm text-[var(--text-primary)]">{item.label}</span>
+          <span className="text-[10px] text-[var(--text-muted)]">
+            {usersWithAccess.length} user{usersWithAccess.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* My permissions (always visible) */}
+          <div className="flex items-center gap-1">
+            {ALL_ACTIONS.map((action) => (
+              <EntitlementBadge
+                key={action}
+                action={action}
+                active={myPerms.includes(action)}
+                editable={false}
+                onToggle={() => {}}
+              />
+            ))}
+          </div>
+          <span
+            className="material-icons-outlined text-[var(--text-muted)] transition-transform"
+            style={{ fontSize: '16px', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+          >
+            expand_more
+          </span>
+        </div>
+      </div>
+
+      {open && usersWithAccess.length > 0 && (
+        <div className="border-t border-[var(--border-subtle)] px-3 pb-3 pt-2 space-y-1.5">
+          {usersWithAccess.map((teamUser) => {
+            const perms = teamUser.module_permissions?.[moduleKey] || []
+            const isSelf = teamUser.email === currentUserEmail
+            return (
+              <div
+                key={teamUser._id}
+                className="flex items-center justify-between rounded-md bg-[var(--bg-card)] px-3 py-2"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                    person
+                  </span>
+                  <span className="text-xs font-medium text-[var(--text-primary)]">
+                    {teamUser.first_name} {teamUser.last_name}
+                    {isSelf && <span className="ml-1 text-[10px] text-[var(--text-muted)]">(you)</span>}
+                  </span>
+                  {teamUser.user_level && (
+                    <span className="text-[10px] text-[var(--text-muted)]">{teamUser.user_level}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  {ALL_ACTIONS.map((action) => (
+                    <EntitlementBadge
+                      key={action}
+                      action={action}
+                      active={perms.includes(action)}
+                      editable={isLeader && !isSelf}
+                      onToggle={() =>
+                        onEntitlementChange(
+                          teamUser._id,
+                          moduleKey,
+                          action,
+                          !perms.includes(action)
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {open && usersWithAccess.length === 0 && (
+        <div className="border-t border-[var(--border-subtle)] px-3 py-3">
+          <p className="text-xs text-[var(--text-muted)]">No users have access to this module.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─── Team Config Tab (Item 29 — inverse of Module Config) ─── */
+
+function TeamConfigTab({
+  users,
+  currentUserEmail,
+  isLeader,
+  onEntitlementChange,
+}: {
+  users: UserRecord[]
+  currentUserEmail: string
+  isLeader: boolean
+  onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
+}) {
+  // Group users by division
+  const divisions = useMemo(() => {
+    const groups: Record<string, UserRecord[]> = {
+      Sales: [],
+      Service: [],
+      Leadership: [],
+      Other: [],
+    }
+    for (const u of users) {
+      const div = u.division || 'Other'
+      const level = (u.user_level || '').toUpperCase()
+      if (level === 'OWNER' || level === 'EXECUTIVE' || level === 'LEADER') {
+        groups.Leadership.push(u)
+      } else if (div.toLowerCase().includes('sales')) {
+        groups.Sales.push(u)
+      } else if (div.toLowerCase().includes('service')) {
+        groups.Service.push(u)
+      } else {
+        groups.Other.push(u)
+      }
+    }
+    // Sort each group by name
+    Object.values(groups).forEach((g) =>
+      g.sort((a, b) => `${a.last_name}`.localeCompare(`${b.last_name}`))
+    )
+    return groups
+  }, [users])
+
+  const [expandedDiv, setExpandedDiv] = useState<string | null>(null)
+  const [expandedUser, setExpandedUser] = useState<string | null>(null)
+
+  // All module keys flattened
+  const allModules = useMemo(() => {
+    const result: { key: string; label: string; section: string }[] = []
+    for (const section of MODULE_SECTIONS) {
+      for (const item of section.items) {
+        if (item.moduleKey) {
+          result.push({ key: item.moduleKey, label: item.label, section: section.label })
+        }
+      }
+    }
+    return result
+  }, [])
+
+  return (
+    <div className="space-y-3">
+      {Object.entries(divisions)
+        .filter(([, members]) => members.length > 0)
+        .map(([divName, members]) => (
+          <div key={divName} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+            <button
+              onClick={() => setExpandedDiv((v) => (v === divName ? null : divName))}
+              className="flex w-full items-center justify-between px-5 py-3.5"
+            >
+              <div className="flex items-center gap-2">
+                <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+                  {divName === 'Sales' ? 'storefront' : divName === 'Service' ? 'support_agent' : divName === 'Leadership' ? 'star' : 'group'}
+                </span>
+                <span className="text-sm font-semibold text-[var(--text-primary)]">{divName}</span>
+                <span className="text-xs text-[var(--text-muted)]">({members.length})</span>
+              </div>
+              <span
+                className="material-icons-outlined text-[var(--text-muted)] transition-transform"
+                style={{ fontSize: '18px', transform: expandedDiv === divName ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+              >
+                expand_more
+              </span>
+            </button>
+
+            {expandedDiv === divName && (
+              <div className="border-t border-[var(--border-subtle)] px-5 pb-4 pt-3 space-y-1">
+                {members.map((member) => {
+                  const isExpanded = expandedUser === member._id
+                  const isSelf = member.email === currentUserEmail
+                  const memberModules = allModules.filter(
+                    (m) => (member.module_permissions?.[m.key]?.length ?? 0) > 0
+                  )
+
+                  return (
+                    <div key={member._id} className="rounded-lg bg-[var(--bg-surface)]">
+                      <button
+                        onClick={() => setExpandedUser((v) => (v === member._id ? null : member._id))}
+                        className="flex w-full items-center justify-between px-3 py-2.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
+                            person
+                          </span>
+                          <span className="text-sm text-[var(--text-primary)]">
+                            {member.first_name} {member.last_name}
+                            {isSelf && <span className="ml-1 text-[10px] text-[var(--text-muted)]">(you)</span>}
+                          </span>
+                          {member.user_level && (
+                            <span className="rounded-full bg-[var(--bg-card)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
+                              {member.user_level}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-[var(--text-muted)]">
+                            {memberModules.length} module{memberModules.length !== 1 ? 's' : ''}
+                          </span>
+                          <span
+                            className="material-icons-outlined text-[var(--text-muted)] transition-transform"
+                            style={{ fontSize: '16px', transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                          >
+                            expand_more
+                          </span>
+                        </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="border-t border-[var(--border-subtle)] px-3 pb-3 pt-2 space-y-1.5">
+                          {memberModules.length > 0 ? (
+                            memberModules.map((mod) => {
+                              const perms = member.module_permissions?.[mod.key] || []
+                              return (
+                                <div
+                                  key={mod.key}
+                                  className="flex items-center justify-between rounded-md bg-[var(--bg-card)] px-3 py-2"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-[var(--text-primary)]">{mod.label}</span>
+                                    <span className="text-[10px] text-[var(--text-muted)]">{mod.section}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    {ALL_ACTIONS.map((action) => (
+                                      <EntitlementBadge
+                                        key={action}
+                                        action={action}
+                                        active={perms.includes(action)}
+                                        editable={isLeader && !isSelf}
+                                        onToggle={() =>
+                                          onEntitlementChange(
+                                            member._id,
+                                            mod.key,
+                                            action,
+                                            !perms.includes(action)
+                                          )
+                                        }
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })
+                          ) : (
+                            <p className="text-xs text-[var(--text-muted)] py-1">No module permissions assigned.</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        ))}
     </div>
   )
 }
@@ -608,18 +801,25 @@ export function AdminPanel({ portal }: AdminPanelProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      {/* PL3-8: Removed redundant "Admin" heading — sidebar already shows context */}
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
+          {isLeader ? 'Module permissions and pipeline configuration' : 'Your module permissions'}
+        </p>
+      </div>
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-1.5">
         {([
           { key: 'module-config' as AdminTab, label: 'Module Config', icon: 'grid_view' },
           { key: 'pipeline-config' as AdminTab, label: 'Pipeline Config', icon: 'view_kanban' },
+          { key: 'team-config' as AdminTab, label: 'Team Config', icon: 'groups' },
         ]).map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === tab.key
                 ? 'text-white'
                 : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'
@@ -676,6 +876,16 @@ export function AdminPanel({ portal }: AdminPanelProps) {
             </div>
           )}
         </div>
+      )}
+
+      {/* Team Config Tab */}
+      {activeTab === 'team-config' && (
+        <TeamConfigTab
+          users={users}
+          currentUserEmail={user?.email || ''}
+          isLeader={isLeader}
+          onEntitlementChange={handleEntitlementChange}
+        />
       )}
     </div>
   )

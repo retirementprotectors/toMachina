@@ -41,7 +41,7 @@ const FILTER_TABS: { key: FilterKey; label: string; color: string }[] = [
   { key: 'annuity', label: 'Annuity', color: '#f59e0b' },
   { key: 'life', label: 'Life', color: '#10b981' },
   { key: 'medicare', label: 'Medicare', color: '#3b82f6' },
-  { key: 'bdria', label: 'Investment', color: '#a78bfa' }, // display label: Investment (data value: bdria)
+  { key: 'bdria', label: 'BD/RIA', color: '#a78bfa' },
 ]
 
 // Default column keys per product type
@@ -305,18 +305,11 @@ export default function AccountsPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-4">
-      {/* PL3-7/8: Mirror contacts page — no screen title, just action bar */}
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          {/* DF-23: New Account button */}
-          <button
-            className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-md text-white transition-all hover:brightness-110"
-            style={{ background: 'var(--portal)' }}
-            title="New Account"
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '20px' }}>add</span>
-          </button>
-          <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium" style={{ backgroundColor: 'var(--portal-glow)', color: 'var(--portal)' }}>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Accounts</h1>
+          <span className="rounded-full bg-[var(--portal)] px-2.5 py-0.5 text-xs font-semibold text-white">
             {accounts.length.toLocaleString()}
           </span>
         </div>
@@ -329,19 +322,27 @@ export default function AccountsPage() {
               placeholder="Search accounts..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-[34px] w-64 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+              className="w-64 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] py-2 pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
             />
           </div>
           {/* Column picker toggle */}
           <button
             onClick={() => setShowColumnPicker(!showColumnPicker)}
-            className={`inline-flex items-center gap-1.5 rounded-md h-[34px] border px-3 text-sm transition-all ${
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-all ${
               showColumnPicker ? 'border-[var(--portal)] text-[var(--portal)]' : 'border-[var(--border)] text-[var(--text-muted)]'
             }`}
           >
             <span className="material-icons-outlined text-[16px]">view_column</span>
             Columns
           </button>
+          {/* New Account */}
+          <a
+            href="/intake"
+            className="inline-flex items-center gap-1.5 rounded bg-[var(--portal)] px-4 py-1.5 text-sm font-medium text-white transition-colors hover:opacity-90"
+          >
+            <span className="material-icons-outlined text-[16px]">add</span>
+            + New Account
+          </a>
         </div>
       </div>
 
@@ -351,7 +352,7 @@ export default function AccountsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className={`h-[34px] rounded-md border px-3 text-sm outline-none ${statusFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
+          className={`h-9 rounded-lg border px-3 text-sm outline-none ${statusFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
         >
           <option value="All">All Statuses</option>
           <option value="Active">Active</option>
@@ -365,7 +366,7 @@ export default function AccountsPage() {
         <select
           value={carrierFilter}
           onChange={(e) => setCarrierFilter(e.target.value)}
-          className={`h-[34px] rounded-md border px-3 text-sm outline-none ${carrierFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
+          className={`h-9 rounded-lg border px-3 text-sm outline-none ${carrierFilter !== 'All' ? 'border-[var(--portal)] text-[var(--portal)] font-medium' : 'border-[var(--border)] text-[var(--text-secondary)]'}`}
         >
           <option value="All">All Carriers</option>
           {carriers.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -389,7 +390,7 @@ export default function AccountsPage() {
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-3.5 text-sm font-medium transition-all ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
               filter === f.key ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}
             style={filter === f.key ? { backgroundColor: f.color } : undefined}

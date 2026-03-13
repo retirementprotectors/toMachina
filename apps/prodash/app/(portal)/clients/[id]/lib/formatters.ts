@@ -59,7 +59,6 @@ export function hashColor(name: string): string {
 
 /**
  * Format a date string as human-readable (e.g., "Jan 15, 1955").
- * Generic fallback date format.
  */
 export function formatDate(raw: unknown): string {
   if (!raw) return ''
@@ -74,34 +73,7 @@ export function formatDate(raw: unknown): string {
 }
 
 /**
- * Medicare date format: MM-DD-YYYY (dashes).
- */
-export function formatMedicareDate(raw: unknown): string {
-  if (!raw) return ''
-  const d = new Date(String(raw))
-  if (isNaN(d.getTime())) return String(raw)
-  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
-  const dd = String(d.getUTCDate()).padStart(2, '0')
-  const yyyy = d.getUTCFullYear()
-  return `${mm}-${dd}-${yyyy}`
-}
-
-/**
- * License/DL date format: MM/DD/YYYY (slashes).
- */
-export function formatLicenseDate(raw: unknown): string {
-  if (!raw) return ''
-  const d = new Date(String(raw))
-  if (isNaN(d.getTime())) return String(raw)
-  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
-  const dd = String(d.getUTCDate()).padStart(2, '0')
-  const yyyy = d.getUTCFullYear()
-  return `${mm}/${dd}/${yyyy}`
-}
-
-/**
- * Birthday format: Month Day, Year (full month name).
- * e.g., "January 15, 1955"
+ * Birthday format: "January 5, 1943" — full month name
  */
 export function formatBirthday(raw: unknown): string {
   if (!raw) return ''
@@ -116,10 +88,44 @@ export function formatBirthday(raw: unknown): string {
 }
 
 /**
- * Account date format: standard short date (e.g., "Jan 15, 2024").
+ * Medicare date format: "10-01-2015" — dashes, MM-DD-YYYY (matches Medicare card)
+ */
+export function formatMedicareDate(raw: unknown): string {
+  if (!raw) return ''
+  const d = new Date(String(raw))
+  if (isNaN(d.getTime())) return String(raw)
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(d.getUTCDate()).padStart(2, '0')
+  const yyyy = d.getUTCFullYear()
+  return `${mm}-${dd}-${yyyy}`
+}
+
+/**
+ * Driver's license date format: "05/04/1980" — slashes, MM/DD/YYYY
+ */
+export function formatDLDate(raw: unknown): string {
+  if (!raw) return ''
+  const d = new Date(String(raw))
+  if (isNaN(d.getTime())) return String(raw)
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(d.getUTCDate()).padStart(2, '0')
+  const yyyy = d.getUTCFullYear()
+  return `${mm}/${dd}/${yyyy}`
+}
+
+/**
+ * Account/Policy date format: "October 11, 2024" — full month for readability
  */
 export function formatAccountDate(raw: unknown): string {
-  return formatDate(raw)
+  if (!raw) return ''
+  const d = new Date(String(raw))
+  if (isNaN(d.getTime())) return String(raw)
+  return d.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
 }
 
 /**

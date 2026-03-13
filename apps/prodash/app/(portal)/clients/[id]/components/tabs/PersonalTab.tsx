@@ -1,7 +1,7 @@
 'use client'
 
 import type { Client } from '@tomachina/core'
-import { maskSSN, formatBirthday, formatMedicareDate, formatLicenseDate, getAge, str } from '../../lib/formatters'
+import { maskSSN, str } from '../../lib/formatters'
 import { InlineField, InlineSection, ReadOnlyField } from '../../lib/inline-edit'
 import { FieldGrid } from '../../lib/ui-helpers'
 
@@ -41,18 +41,17 @@ const US_STATES = [
 
 export function PersonalTab({ client, clientId }: PersonalTabProps) {
   const docPath = `clients/${clientId}`
-  const age = getAge(client.dob)
 
   return (
     <div className="space-y-4">
-      {/* Personal Details — DF-15: removed duplicate age display (already in header) */}
+      {/* Personal Details — age/DOB shown in header, not duplicated here */}
       <InlineSection title="Personal Details" icon="badge">
         <FieldGrid cols={4}>
           <InlineField label="First Name" value={str(client.first_name)} fieldKey="first_name" docPath={docPath} />
           <InlineField label="Middle Name" value={str(client.middle_name)} fieldKey="middle_name" docPath={docPath} />
           <InlineField label="Last Name" value={str(client.last_name)} fieldKey="last_name" docPath={docPath} />
           <InlineField label="Preferred Name" value={str(client.preferred_name)} fieldKey="preferred_name" docPath={docPath} />
-          <InlineField label="Date of Birth" value={str(client.dob)} fieldKey="dob" docPath={docPath} type="date" formatDisplay={formatBirthday} />
+          <InlineField label="Date of Birth" value={str(client.dob)} fieldKey="dob" docPath={docPath} type="date" />
           <InlineField
             label="Marital Status"
             value={str(client.marital_status)}
@@ -86,7 +85,6 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             options={EMPLOYMENT_OPTIONS}
           />
           <InlineField label="Occupation" value={str(client.occupation)} fieldKey="occupation" docPath={docPath} />
-          {/* DF-16: Former Occupation only shows when status = Retired */}
           {str(client.employment_status).toLowerCase() === 'retired' && (
             <InlineField label="Former Occupation" value={str(client.former_occupation)} fieldKey="former_occupation" docPath={docPath} />
           )}
@@ -111,7 +109,6 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="part_a_effective_date"
             docPath={docPath}
             type="date"
-            formatDisplay={formatMedicareDate}
           />
           <InlineField
             label="Part B Effective Date"
@@ -119,7 +116,6 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="part_b_effective_date"
             docPath={docPath}
             type="date"
-            formatDisplay={formatMedicareDate}
           />
         </FieldGrid>
       </InlineSection>
@@ -148,7 +144,6 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             fieldKey="dl_expiration"
             docPath={docPath}
             type="date"
-            formatDisplay={formatLicenseDate}
           />
         </FieldGrid>
       </InlineSection>

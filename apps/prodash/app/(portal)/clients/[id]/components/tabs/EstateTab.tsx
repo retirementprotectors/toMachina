@@ -99,7 +99,6 @@ export function EstateTab({ client, clientId }: EstateTabProps) {
             options={TRUST_TYPE_OPTIONS}
           />
           <InlineField label="Trust Name" value={str(client.trust_name)} fieldKey="trust_name" docPath={docPath} />
-          {/* DF-17: Trust Date field */}
           <InlineField label="Trust Date" value={str(client.trust_date)} fieldKey="trust_date" docPath={docPath} type="date" />
         </div>
       </InlineSection>

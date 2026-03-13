@@ -15,8 +15,8 @@ interface Tab {
   icon: string
 }
 
-// Sprint 7: Removed Financial, Health, Medicare, Integrations tabs
-// Personal tab now consolidates personal details, employment, Medicare card info, driver's license
+// Sprint 7: Removed Financial, Health, Medicare, Integrations, Comms tabs
+// Personal tab consolidates personal details, employment, Medicare card info, driver's license
 const TABS: Tab[] = [
   { key: 'contact', label: 'Connect', icon: 'contact_phone' },
   { key: 'personal', label: 'Personal', icon: 'person' },
@@ -42,7 +42,7 @@ export function ClientTabs({ activeTab, onTabChange }: ClientTabsProps) {
             key={tab.key}
             onClick={() => onTabChange(tab.key)}
             className={`
-              inline-flex shrink-0 items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium
+              inline-flex shrink-0 items-center gap-1.5 rounded px-4 py-1.5 text-sm font-medium
               transition-all duration-150
               ${
                 isActive
