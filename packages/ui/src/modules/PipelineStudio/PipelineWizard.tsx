@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchWithAuth } from '../fetchWithAuth'
 
 // ============================================================================
 // PipelineWizard — Create new pipeline dialog

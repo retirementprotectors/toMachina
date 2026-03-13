@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchWithAuth } from '../fetchWithAuth'
 import { useState, useEffect, useMemo } from 'react'
 import type { FlowStageDef } from '@tomachina/core'
 import { TaskTemplateEditor } from './TaskTemplateEditor'
@@ -141,7 +142,7 @@ export function StageEditor({ pipelineKey, apiBase = '/api' }: StageEditorProps)
       try {
         setLoading(true)
         setError(null)
-        const res = await fetch(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
+        const res = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
         const json: StagesResponse = await res.json()
 
         if (cancelled) return

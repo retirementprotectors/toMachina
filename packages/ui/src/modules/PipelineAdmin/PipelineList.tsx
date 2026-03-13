@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchWithAuth } from '../fetchWithAuth'
 import { useState, useEffect } from 'react'
 import type { FlowPipelineDef } from '@tomachina/core'
 
@@ -127,7 +128,7 @@ export default function PipelineList({
       try {
         setLoading(true)
         setError(null)
-        const res = await fetch(`${apiBase}/flow/pipelines?portal=${portal}`)
+        const res = await fetchWithAuth(`${apiBase}/flow/pipelines?portal=${portal}`)
         const json: PipelinesResponse = await res.json()
 
         if (cancelled) return

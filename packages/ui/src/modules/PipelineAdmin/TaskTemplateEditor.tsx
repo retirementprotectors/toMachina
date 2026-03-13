@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchWithAuth } from '../fetchWithAuth'
 import { useState, useEffect, useMemo } from 'react'
 import type { FlowTaskTemplateDef } from '@tomachina/core'
 
@@ -146,7 +147,7 @@ export function TaskTemplateEditor({
       try {
         setLoading(true)
         setError(null)
-        const res = await fetch(
+        const res = await fetchWithAuth(
           `${apiBase}/flow/pipelines/${pipelineKey}/stages/${stageId}/tasks`
         )
         const json: TaskTemplatesResponse = await res.json()

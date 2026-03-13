@@ -89,5 +89,36 @@ service cloud.firestore {
     match /communications/{commId} {
       allow read, write: if isRPIUser();
     }
+
+    // Pipeline Factory collections
+    match /flow_pipelines/{docId} {
+      allow read, write: if isRPIUser();
+    }
+    match /flow_stages/{docId} {
+      allow read, write: if isRPIUser();
+    }
+    match /flow_workflows/{docId} {
+      allow read, write: if isRPIUser();
+    }
+    match /flow_steps/{docId} {
+      allow read, write: if isRPIUser();
+    }
+    match /flow_task_templates/{docId} {
+      allow read, write: if isRPIUser();
+    }
+    match /flow_instances/{docId} {
+      allow read, write: if isRPIUser();
+    }
+    match /flow_instance_tasks/{docId} {
+      allow read, write: if isRPIUser();
+    }
+    match /flow_activity/{docId} {
+      allow read, write: if isRPIUser();
+    }
+
+    // Portal config (app availability)
+    match /portal_config/{portal}/{subcol}/{docId} {
+      allow read, write: if isRPIUser();
+    }
   }
 }

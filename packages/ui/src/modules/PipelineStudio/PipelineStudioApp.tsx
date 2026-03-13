@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { FlowPipelineDef } from '@tomachina/core'
 import PipelineEditor from './PipelineEditor'
 import PipelineWizard from './PipelineWizard'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchWithAuth } from '../fetchWithAuth'
 
 // ============================================================================
 // PipelineStudioApp — Full-screen pipeline builder app shell

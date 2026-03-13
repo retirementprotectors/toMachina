@@ -381,15 +381,16 @@ export function ConnectPanel({ open, onClose }: ConnectPanelProps) {
     { key: 'meet', label: 'Meet', icon: 'videocam' },
   ]
 
+  if (!open) return null
+
   return (
     <>
-      {open && (
-        <div className="fixed inset-0 z-40 bg-black/30 transition-opacity" onClick={onClose} />
-      )}
+      {/* Backdrop — click to close */}
+      <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
 
       <div
-        className={`fixed right-0 top-0 z-50 flex h-full w-[400px] flex-col bg-[var(--bg-card)] transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}
-        style={{ boxShadow: open ? '-8px 0 32px rgba(0,0,0,0.4)' : 'none' }}
+        className="fixed right-0 top-0 z-50 flex h-full w-[400px] flex-col bg-[var(--bg-card)]"
+        style={{ boxShadow: '-8px 0 32px rgba(0,0,0,0.4)' }}
       >
         <div className="flex items-center gap-1 border-b border-[var(--border-subtle)] px-3 py-2">
           <div className="flex flex-1 gap-1">

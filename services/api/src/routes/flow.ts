@@ -69,9 +69,12 @@ flowRoutes.get('/pipelines/:key/stages', async (req: Request, res: Response) => 
     const pipelineKey = param(req.params.key)
     const snap = await db.collection(STAGES)
       .where('pipeline_key', '==', pipelineKey)
-      .orderBy('stage_order', 'asc')
       .get()
-    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const data = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
+        (Number(a.stage_order) || 0) - (Number(b.stage_order) || 0)
+      )
     res.json(successResponse(data))
   } catch (err) {
     console.error('GET /api/flow/pipelines/:key/stages error:', err)

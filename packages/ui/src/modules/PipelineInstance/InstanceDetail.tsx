@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchWithAuth } from '../fetchWithAuth'
 import { useState, useEffect, useCallback } from 'react'
 import type {
   FlowInstanceData,
@@ -85,7 +86,7 @@ export default function InstanceDetail({
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`${apiBase}/flow/instances/${instanceId}`)
+      const res = await fetchWithAuth(`${apiBase}/flow/instances/${instanceId}`)
       const json: InstanceDetailResponse = await res.json()
 
       if (!json.success || !json.data) {
@@ -115,7 +116,7 @@ export default function InstanceDetail({
     async (action: string, body: Record<string, unknown> = {}) => {
       try {
         setActionLoading(true)
-        const res = await fetch(`${apiBase}/flow/instances/${instanceId}`, {
+        const res = await fetchWithAuth(`${apiBase}/flow/instances/${instanceId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action, ...body }),

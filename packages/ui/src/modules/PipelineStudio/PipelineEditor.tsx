@@ -10,7 +10,7 @@ import type {
 import StageList from './StageList'
 import DetailEditor from './DetailEditor'
 import FlowPreview from './FlowPreview'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchWithAuth } from '../fetchWithAuth'
 
 // ============================================================================
 // PipelineEditor — Three-panel pipeline editor

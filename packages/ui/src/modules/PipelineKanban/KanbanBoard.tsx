@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { fetchWithAuth } from '../fetchWithAuth'
 import { useAuth } from '@tomachina/auth'
 import type { FlowInstanceData, FlowStageDef, GateResult } from '@tomachina/core'
 import { buildKanbanBoard } from '@tomachina/core'
@@ -25,14 +26,14 @@ interface StageWithGate extends FlowStageDef {
 /* ─── API Helpers ─── */
 
 async function fetchStages(apiBase: string, pipelineKey: string): Promise<StageWithGate[]> {
-  const res = await fetch(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
+  const res = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
   if (!res.ok) throw new Error(`Failed to fetch stages: ${res.status}`)
   const json = await res.json() as { data?: StageWithGate[] }
   return json.data || []
 }
 
 async function fetchInstances(apiBase: string, pipelineKey: string): Promise<FlowInstanceData[]> {
-  const res = await fetch(`${apiBase}/flow/instances?pipeline_key=${pipelineKey}`)
+  const res = await fetchWithAuth(`${apiBase}/flow/instances?pipeline_key=${pipelineKey}`)
   if (!res.ok) throw new Error(`Failed to fetch instances: ${res.status}`)
   const json = await res.json() as { data?: FlowInstanceData[] }
   return json.data || []
@@ -44,7 +45,7 @@ async function moveInstance(
   targetStage: string,
   performedBy: string
 ): Promise<{ success: boolean; gate_result?: GateResult }> {
-  const res = await fetch(`${apiBase}/flow/instances/${instanceId}`, {
+  const res = await fetchWithAuth(`${apiBase}/flow/instances/${instanceId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

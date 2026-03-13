@@ -6,6 +6,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/auth'
 import type { UserEntitlementContext } from '@tomachina/auth'
 import { APP_BRANDS, AppIcon, type AppKey } from '@tomachina/ui'
+import { toSlug } from '../pipelines/pipeline-keys'
+import { getAuth } from 'firebase/auth'
 
 /* ─── Section Type Styling ─── */
 type SectionType = 'workspace' | 'sales' | 'service'
@@ -170,10 +172,75 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
     [user]
   )
 
-  const visibleSections = useMemo(
-    () => filterSections(NAV_SECTIONS, entitlementCtx),
-    [entitlementCtx]
-  )
+  // Dynamic pipeline loading
+  const [pipelineItems, setPipelineItems] = useState<Array<{ pipeline_key: string; pipeline_name: string; icon: string; assigned_section: string }>>([])
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadPipelines() {
+      try {
+        const auth = getAuth()
+        const fbUser = auth.currentUser
+        const token = fbUser ? await fbUser.getIdToken() : null
+        const res = await fetch('/api/flow/pipelines?portal=PRODASHX&status=active', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        if (!res.ok || cancelled) return
+        const json = await res.json()
+        if (json.success && json.data) setPipelineItems(json.data)
+      } catch { /* silent — sidebar degrades to static items */ }
+    }
+    if (user) loadPipelines()
+    return () => { cancelled = true }
+  }, [user])
+
+  // Inject pipelines into Sales/Service sections
+  const sectionsWithPipelines = useMemo(() => {
+    const sections = filterSections(NAV_SECTIONS, entitlementCtx)
+    if (pipelineItems.length === 0) return sections
+
+    const isElevated = ['OWNER', 'EXECUTIVE', 'LEADER'].includes(entitlementCtx.userLevel)
+    const assignedKeys = entitlementCtx.assignedModules || []
+    const visible = isElevated
+      ? pipelineItems
+      : pipelineItems.filter(p => assignedKeys.includes(p.pipeline_key) || assignedKeys.includes(`PIPELINE_${p.pipeline_key}`))
+
+    return sections.map(section => {
+      if (section.key === 'sales-centers') {
+        const salesPipelines = visible.filter(p => (p.assigned_section || 'sales') === 'sales')
+        return {
+          ...section,
+          items: [
+            ...section.items,
+            ...salesPipelines.map(p => ({
+              key: `pipe-${p.pipeline_key}`,
+              label: p.pipeline_name,
+              href: `/pipelines/${toSlug(p.pipeline_key)}`,
+              icon: p.icon || 'route',
+            })),
+          ],
+        }
+      }
+      if (section.key === 'service-centers') {
+        const servicePipelines = visible.filter(p => p.assigned_section === 'service')
+        return {
+          ...section,
+          items: [
+            ...section.items,
+            ...servicePipelines.map(p => ({
+              key: `pipe-${p.pipeline_key}`,
+              label: p.pipeline_name,
+              href: `/pipelines/${toSlug(p.pipeline_key)}`,
+              icon: p.icon || 'route',
+            })),
+          ],
+        }
+      }
+      return section
+    })
+  }, [entitlementCtx, pipelineItems])
+
+  const visibleSections = sectionsWithPipelines
 
   const visibleApps = useMemo(
     () => filterAppItems(APP_ITEMS, entitlementCtx),

@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "public": "apps/prodash/public",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
