@@ -14,6 +14,7 @@ import { AccountsTab } from './components/tabs/AccountsTab'
 import { ConnectedTab } from './components/tabs/ConnectedTab'
 import { ActivityTab } from './components/tabs/ActivityTab'
 import { CommsTab } from './components/tabs/CommsTab'
+import { AccessTab } from './components/tabs/AccessTab'
 import { PossibleDuplicates } from './components/PossibleDuplicates'
 
 // ---------------------------------------------------------------------------
@@ -48,7 +49,7 @@ export default function Client360Page({
           </div>
         </div>
         <div className="flex gap-2">
-          {Array.from({ length: 7 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="h-9 w-24 rounded-full bg-[var(--bg-surface)]" />
           ))}
         </div>
@@ -90,6 +91,8 @@ export default function Client360Page({
   // --- Tab content renderer ---
   function renderTabContent() {
     switch (activeTab) {
+      case 'communications':
+        return <CommsTab clientId={id} client={client!} />
       case 'contact':
         return <ContactTab client={client!} clientId={id} />
       case 'personal':
@@ -100,8 +103,8 @@ export default function Client360Page({
         return <AccountsTab accounts={accounts} loading={accountsLoading} clientId={id} />
       case 'connected':
         return <ConnectedTab client={client!} clientId={id} />
-      case 'communications':
-        return <CommsTab clientId={id} client={client!} />
+      case 'access':
+        return <AccessTab clientId={id} />
       case 'activity':
         return <ActivityTab clientId={id} />
       default:

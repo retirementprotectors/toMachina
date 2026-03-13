@@ -139,6 +139,13 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             options={US_STATES}
           />
           <InlineField
+            label="DL Issue Date"
+            value={str(client.dl_issue_date)}
+            fieldKey="dl_issue_date"
+            docPath={docPath}
+            type="date"
+          />
+          <InlineField
             label="DL Expiration"
             value={str(client.dl_expiration)}
             fieldKey="dl_expiration"
