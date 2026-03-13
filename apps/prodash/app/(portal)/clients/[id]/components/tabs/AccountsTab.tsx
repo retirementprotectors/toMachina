@@ -27,6 +27,7 @@ interface AccountDocument {
 }
 
 const CATEGORY_DOCS: Record<CategoryKey, DocType[]> = {
+  all: [],
   annuity: ['statement', 'application', 'illustration', 'contract'],
   life: ['statement', 'application', 'illustration', 'policy'],
   medicare: ['statement', 'application', 'plan_summary'],
@@ -273,19 +274,7 @@ function AccountSummaryCard({
         </div>
       )}
 
-      {/* Detail link — opens in NEW TAB */}
-      <div className="mt-3 flex justify-end">
-        <a
-          href={`/accounts/${clientId}/${acctId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-medium text-[var(--portal)] hover:underline"
-        >
-          Detail
-          <span className="material-icons-outlined text-[12px]">open_in_new</span>
-        </a>
-      </div>
-    </div>
+    </a>
   )
 }
 
