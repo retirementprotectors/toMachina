@@ -11,6 +11,7 @@ import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
 import { AccountTypePills } from './components/AccountTypePills'
+import { ColumnSelector, getDefaultVisibleColumns } from './components/ColumnSelector'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -61,13 +62,13 @@ export default function ClientsPage() {
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
-  const [accountTypeFilter] = useState('All')
   const [bookFilter, setBookFilter] = useState('All')
   const [agentFilter, setAgentFilter] = useState('All')
   const [acfFilter, setAcfFilter] = useState('All')
   const [sortKey, setSortKey] = useState<SortKey>('name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(getDefaultVisibleColumns)
 
   // Extract unique books & agents from data
   const { books, agents } = useMemo(() => {
@@ -113,20 +114,6 @@ export default function ClientsPage() {
       )
     }
 
-    // Account type filter
-    if (accountTypeFilter !== 'All') {
-      const filterVal = accountTypeFilter.toLowerCase()
-      result = result.filter((c) => {
-        const types = c.account_types || []
-        return types.some((t) => {
-          const norm = (t || '').toLowerCase()
-          // "Investment" display label maps to bd/ria/bdria data values
-          if (filterVal === 'investment') return norm === 'bd' || norm === 'ria' || norm === 'bd/ria' || norm === 'bdria' || norm === 'bd_ria' || norm === 'investment'
-          return norm === filterVal
-        })
-      })
-    }
-
     // Book filter
     if (bookFilter !== 'All') {
       result = result.filter(
@@ -151,7 +138,7 @@ export default function ClientsPage() {
     }
 
     return result
-  }, [rawClients, search, statusFilter, accountTypeFilter, bookFilter, agentFilter, acfFilter])
+  }, [rawClients, search, statusFilter, bookFilter, agentFilter, acfFilter])
 
   // Sort logic
   const sorted = useMemo(() => {
@@ -201,8 +188,6 @@ export default function ClientsPage() {
   const resetPage = useCallback(() => setPage(0), [])
   const handleSearchChange = useCallback((v: string) => { setSearch(v); resetPage() }, [resetPage])
   const handleStatusChange = useCallback((v: string) => { setStatusFilter(v); resetPage() }, [resetPage])
-  // DF-8: Account type filter removed from client grid
-  const handleAccountTypeChange = useCallback((_v: string) => { resetPage() }, [resetPage])
   const handleBookChange = useCallback((v: string) => { setBookFilter(v); resetPage() }, [resetPage])
   const handleAgentChange = useCallback((v: string) => { setAgentFilter(v); resetPage() }, [resetPage])
   const handleAcfChange = useCallback((v: string) => { setAcfFilter(v); resetPage() }, [resetPage])
@@ -226,6 +211,9 @@ export default function ClientsPage() {
     [router]
   )
 
+  // Shorthand: is column visible?
+  const col = useCallback((key: string) => visibleColumns.has(key), [visibleColumns])
+
   // Column header helper
   const renderSortHeader = (label: string, key: SortKey, className?: string) => (
     <th
@@ -241,14 +229,23 @@ export default function ClientsPage() {
     </th>
   )
 
+  const renderStaticHeader = (label: string, className?: string) => (
+    <th className={`px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] ${className || ''}`}>
+      {label}
+    </th>
+  )
+
   // Loading state
   if (loading) {
     return (
       <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Contacts</h1>
+        </div>
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-            <p className="text-sm text-[var(--text-muted)]">Loading contacts...</p>
+            <p className="text-sm text-[var(--text-muted)]">Loading clients...</p>
           </div>
         </div>
       </div>
@@ -259,11 +256,18 @@ export default function ClientsPage() {
   if (error) {
     return (
       <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Contacts</h1>
+        </div>
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3 text-center">
-            <span className="material-icons-outlined text-4xl text-[var(--error)]">error_outline</span>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(239,68,68,0.1)]">
+              <svg className="h-6 w-6 text-[var(--error)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
             <p className="text-sm text-[var(--text-secondary)]">
-              Failed to load contacts. Check your connection and try again.
+              Failed to load clients. Check your connection and try again.
             </p>
             <p className="text-xs text-[var(--text-muted)]">{error.message}</p>
           </div>
@@ -280,8 +284,6 @@ export default function ClientsPage() {
         onSearchChange={handleSearchChange}
         statusFilter={statusFilter}
         onStatusChange={handleStatusChange}
-        accountTypeFilter={accountTypeFilter}
-        onAccountTypeChange={handleAccountTypeChange}
         bookFilter={bookFilter}
         onBookChange={handleBookChange}
         agentFilter={agentFilter}
@@ -291,6 +293,12 @@ export default function ClientsPage() {
         totalCount={filtered.length}
         books={books}
         agents={agents}
+        columnSelector={
+          <ColumnSelector
+            visibleColumns={visibleColumns}
+            onChange={setVisibleColumns}
+          />
+        }
       />
 
       {/* No results */}
@@ -314,27 +322,36 @@ export default function ClientsPage() {
             <table className="w-full text-sm">
               <thead className="bg-[var(--bg-secondary)]">
                 <tr>
+                  {/* name is always visible */}
                   {renderSortHeader('Contact', 'name')}
-                  {renderSortHeader('City/State', 'location')}
-                  <th className="px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)]">Phone</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)]">Email</th>
-                  {renderSortHeader('Book', 'book_of_business')}
-                  {renderSortHeader('Agent', 'agent_name')}
-                  {renderSortHeader('Status', 'client_status')}
-                  <th className="px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)]">Business</th>
-                  <th className="px-3 py-3 text-center text-xs font-semibold uppercase text-[var(--text-muted)]">ACF</th>
+                  {col('location') && renderSortHeader('City/State', 'location')}
+                  {col('phone') && renderStaticHeader('Phone')}
+                  {col('email') && renderStaticHeader('Email')}
+                  {col('book') && renderSortHeader('Book', 'book_of_business')}
+                  {col('agent') && renderSortHeader('Agent', 'agent_name')}
+                  {col('status') && renderSortHeader('Status', 'client_status')}
+                  {col('business') && renderStaticHeader('Business')}
+                  {col('acf') && renderStaticHeader('ACF', 'text-center')}
+                  {col('age') && renderStaticHeader('Age')}
+                  {col('dob') && renderStaticHeader('DOB')}
+                  {col('ssn') && renderStaticHeader('SSN')}
+                  {col('gender') && renderStaticHeader('Gender')}
+                  {col('marital') && renderStaticHeader('Marital')}
+                  {col('timezone') && renderStaticHeader('Time Zone')}
+                  {col('employment') && renderStaticHeader('Employment')}
                 </tr>
               </thead>
               <tbody>
                 {paged.map((client) => {
                   const age = getAge(client.dob)
+                  const dash = <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
                   return (
                     <tr
                       key={client._id || client.client_id}
                       onClick={() => handleRowClick(client)}
                       className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
                     >
-                      {/* Contact: Name + Age below */}
+                      {/* Contact: Name + Age below — always visible */}
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-3">
                           <ClientAvatar
@@ -353,91 +370,162 @@ export default function ClientsPage() {
                       </td>
 
                       {/* City/State */}
-                      <td className="px-3 py-3">
-                        {client.city || client.state ? (
-                          <span className="text-[var(--text-secondary)]">
-                            {[client.city, client.state].filter(Boolean).join(', ')}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
-                        )}
-                      </td>
+                      {col('location') && (
+                        <td className="px-3 py-3">
+                          {client.city || client.state ? (
+                            <span className="text-[var(--text-secondary)]">
+                              {[client.city, client.state].filter(Boolean).join(', ')}
+                            </span>
+                          ) : dash}
+                        </td>
+                      )}
 
                       {/* Phone */}
-                      <td className="px-3 py-3">
-                        {client.phone ? (
-                          <span className="text-[var(--text-secondary)] whitespace-nowrap">
-                            {formatPhone(client.phone)}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
-                        )}
-                      </td>
+                      {col('phone') && (
+                        <td className="px-3 py-3">
+                          {client.phone ? (
+                            <span className="text-[var(--text-secondary)] whitespace-nowrap">
+                              {formatPhone(client.phone)}
+                            </span>
+                          ) : dash}
+                        </td>
+                      )}
 
                       {/* Email */}
-                      <td className="px-3 py-3">
-                        {client.email ? (
-                          <a
-                            href={`mailto:${client.email}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block"
-                          >
-                            {client.email}
-                          </a>
-                        ) : (
-                          <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
-                        )}
-                      </td>
+                      {col('email') && (
+                        <td className="px-3 py-3">
+                          {client.email ? (
+                            <a
+                              href={`mailto:${client.email}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block"
+                            >
+                              {client.email}
+                            </a>
+                          ) : dash}
+                        </td>
+                      )}
 
                       {/* Book */}
-                      <td className="px-3 py-3">
-                        {client.book_of_business ? (
-                          <span className="text-[var(--text-secondary)] text-xs">
-                            {String(client.book_of_business)}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
-                        )}
-                      </td>
+                      {col('book') && (
+                        <td className="px-3 py-3">
+                          {client.book_of_business ? (
+                            <span className="text-[var(--text-secondary)] text-xs">
+                              {String(client.book_of_business)}
+                            </span>
+                          ) : dash}
+                        </td>
+                      )}
 
                       {/* Agent */}
-                      <td className="px-3 py-3">
-                        {client.agent_name ? (
-                          <span className="text-[var(--text-secondary)] text-xs">
-                            {String(client.agent_name)}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
-                        )}
-                      </td>
+                      {col('agent') && (
+                        <td className="px-3 py-3">
+                          {client.agent_name ? (
+                            <span className="text-[var(--text-secondary)] text-xs">
+                              {String(client.agent_name)}
+                            </span>
+                          ) : dash}
+                        </td>
+                      )}
 
                       {/* Status */}
-                      <td className="px-3 py-3">
-                        <StatusBadge status={client.client_status} />
-                      </td>
+                      {col('status') && (
+                        <td className="px-3 py-3">
+                          <StatusBadge status={client.client_status} />
+                        </td>
+                      )}
 
                       {/* Business Type */}
-                      <td className="px-3 py-3">
-                        <AccountTypePills accountTypes={client.account_types || []} />
-                      </td>
+                      {col('business') && (
+                        <td className="px-3 py-3">
+                          <AccountTypePills accountTypes={client.account_types || []} />
+                        </td>
+                      )}
 
                       {/* ACF */}
-                      <td className="px-3 py-3 text-center">
-                        {client.acf_link ? (
-                          <a
-                            href={String(client.acf_link)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors"
-                            title="Open Active Client File"
-                          >
-                            <span className="material-icons-outlined text-[18px]">folder_open</span>
-                          </a>
-                        ) : (
-                          <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
-                        )}
-                      </td>
+                      {col('acf') && (
+                        <td className="px-3 py-3 text-center">
+                          {client.acf_link ? (
+                            <a
+                              href={String(client.acf_link)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors"
+                              title="Open Active Client File"
+                            >
+                              <span className="material-icons-outlined text-[18px]">folder_open</span>
+                            </a>
+                          ) : dash}
+                        </td>
+                      )}
+
+                      {/* Age (optional column) */}
+                      {col('age') && (
+                        <td className="px-3 py-3">
+                          {age != null ? (
+                            <span className="text-[var(--text-secondary)] text-xs">{age}</span>
+                          ) : dash}
+                        </td>
+                      )}
+
+                      {/* Date of Birth (optional column) */}
+                      {col('dob') && (
+                        <td className="px-3 py-3">
+                          {client.dob ? (
+                            <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">
+                              {new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                            </span>
+                          ) : dash}
+                        </td>
+                      )}
+
+                      {/* SSN Last 4 (optional column) */}
+                      {col('ssn') && (
+                        <td className="px-3 py-3">
+                          {client.ssn_last4 ? (
+                            <span className="text-[var(--text-secondary)] text-xs">
+                              ***-**-{String(client.ssn_last4)}
+                            </span>
+                          ) : dash}
+                        </td>
+                      )}
+
+                      {/* Gender (optional column) */}
+                      {col('gender') && (
+                        <td className="px-3 py-3">
+                          {client.gender ? (
+                            <span className="text-[var(--text-secondary)] text-xs">{String(client.gender)}</span>
+                          ) : dash}
+                        </td>
+                      )}
+
+                      {/* Marital Status (optional column) */}
+                      {col('marital') && (
+                        <td className="px-3 py-3">
+                          {client.marital_status ? (
+                            <span className="text-[var(--text-secondary)] text-xs">{String(client.marital_status)}</span>
+                          ) : dash}
+                        </td>
+                      )}
+
+                      {/* Time Zone (optional column) */}
+                      {col('timezone') && (
+                        <td className="px-3 py-3">
+                          {client.timezone ? (
+                            <span className="text-[var(--text-secondary)] text-xs">{String(client.timezone)}</span>
+                          ) : dash}
+                        </td>
+                      )}
+
+                      {/* Employment (optional column) */}
+                      {col('employment') && (
+                        <td className="px-3 py-3">
+                          {client.employment_status ? (
+                            <span className="text-[var(--text-secondary)] text-xs">{String(client.employment_status)}</span>
+                          ) : dash}
+                        </td>
+                      )}
                     </tr>
                   )
                 })}

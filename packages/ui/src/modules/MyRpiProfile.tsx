@@ -187,14 +187,15 @@ function InlineEditField({
 /* ─── Alias Editor ─── */
 
 function AliasEditor({
-  aliases,
+  aliases: rawAliases,
   isOwnProfile,
   profileId,
 }: {
-  aliases: string[]
+  aliases: string[] | string | undefined
   isOwnProfile: boolean
   profileId: string | undefined
 }) {
+  const aliases = Array.isArray(rawAliases) ? rawAliases : rawAliases ? [rawAliases] : []
   const [adding, setAdding] = useState(false)
   const [newAlias, setNewAlias] = useState('')
   const [saving, setSaving] = useState(false)
@@ -558,10 +559,10 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
           >
             <option value="">My Profile</option>
             {teamMembers
-              .filter((m) => m.email !== user?.email && (m.status || '').toLowerCase() === 'active')
+              .filter((m) => m.email !== user?.email)
               .map((m) => (
                 <option key={m._id} value={m.email}>
-                  {m.first_name} {m.last_name}
+                  {m.last_name}, {m.first_name} ({m.email})
                 </option>
               ))}
           </select>
