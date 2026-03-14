@@ -1,7 +1,8 @@
 node_modules/
 .next/
 dist/
-lib/
+# Build output (but not source lib/ directories)
+/lib/
 .turbo/
 *.tsbuildinfo
 .env

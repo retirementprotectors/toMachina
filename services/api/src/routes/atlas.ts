@@ -11,6 +11,7 @@ import {
   writeThroughBridge,
 } from '../lib/helpers.js'
 import { randomUUID } from 'crypto'
+import { getRecentRuns, type ImportRunRecord } from '../lib/import-tracker.js'
 
 export const atlasRoutes = Router()
 
@@ -772,6 +773,220 @@ atlasRoutes.post('/digest', async (_req: Request, res: Response) => {
     res.json(successResponse({ sent: true, channel: JDM_SLACK_ID }))
   } catch (err) {
     console.error('POST /api/atlas/digest error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// HEALTH — Real-time ATLAS Health Dashboard
+// ============================================================================
+
+const STALENESS_THRESHOLD_DAYS = 7
+
+/**
+ * GET /api/atlas/health
+ * Real-time health dashboard: wire statuses, source registry aggregates,
+ * recent import runs, and overall health score.
+ */
+atlasRoutes.get('/health', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+
+    // 1. Load recent import runs (last per wire)
+    const recentRuns = await getRecentRuns(100)
+
+    // Build a map of wire_id -> most recent run
+    const wireLastRun = new Map<string, ImportRunRecord>()
+    for (const run of recentRuns) {
+      if (run.wire_id && !wireLastRun.has(run.wire_id)) {
+        wireLastRun.set(run.wire_id, run)
+      }
+    }
+
+    // 2. Calculate wire health statuses
+    const now = Date.now()
+    const staleThresholdMs = STALENESS_THRESHOLD_DAYS * 24 * 60 * 60 * 1000
+
+    const wireStatuses = WIRE_DEFINITIONS.map(wire => {
+      const lastRun = wireLastRun.get(wire.wire_id)
+
+      let status: 'healthy' | 'stale' | 'error' | 'no_data' = 'no_data'
+      let lastRunAt: string | undefined
+      let lastRunStatus: string | undefined
+
+      if (lastRun) {
+        lastRunAt = lastRun.completed_at || lastRun.started_at
+        lastRunStatus = lastRun.status
+
+        if (lastRun.status === 'failed') {
+          status = 'error'
+        } else {
+          const runTime = new Date(lastRunAt).getTime()
+          if (now - runTime > staleThresholdMs) {
+            status = 'stale'
+          } else {
+            status = 'healthy'
+          }
+        }
+      }
+
+      return {
+        wire_id: wire.wire_id,
+        name: wire.name,
+        product_line: wire.product_line,
+        data_domain: wire.data_domain,
+        status,
+        last_run_at: lastRunAt,
+        last_run_status: lastRunStatus,
+      }
+    })
+
+    // 3. Source registry aggregates
+    const sourceSnap = await db.collection(SOURCE_COLLECTION)
+      .where('status', '==', 'ACTIVE')
+      .get()
+    const sources = sourceSnap.docs.map(d => d.data() as Record<string, unknown>)
+
+    let greenCount = 0, yellowCount = 0, redCount = 0, grayCount = 0
+    for (const s of sources) {
+      const gap = String(s.gap_status || '').toUpperCase()
+      if (gap === 'GREEN') greenCount++
+      else if (gap === 'YELLOW') yellowCount++
+      else if (gap === 'RED') redCount++
+      else grayCount++
+    }
+
+    // 4. Last 10 import runs
+    const last10Runs = recentRuns.slice(0, 10).map(r => ({
+      run_id: r.run_id,
+      import_type: r.import_type,
+      source: r.source,
+      status: r.status,
+      imported: r.imported,
+      errors: r.errors,
+      started_at: r.started_at,
+      completed_at: r.completed_at,
+      duration_ms: r.duration_ms,
+    }))
+
+    // 5. Overall health score
+    const healthyWires = wireStatuses.filter(w => w.status === 'healthy').length
+    const totalWiresWithData = wireStatuses.filter(w => w.status !== 'no_data').length
+    const wireHealthPct = totalWiresWithData > 0
+      ? Math.round((healthyWires / totalWiresWithData) * 100)
+      : 0
+
+    const totalSources = sources.length
+    const sourceHealthPct = totalSources > 0
+      ? Math.round(((greenCount * 100) + (yellowCount * 50)) / totalSources)
+      : 0
+
+    const overallHealth = totalWiresWithData > 0
+      ? Math.round((wireHealthPct + sourceHealthPct) / 2)
+      : sourceHealthPct
+
+    res.json(successResponse({
+      overall_health: overallHealth,
+      wire_health_pct: wireHealthPct,
+      source_health_pct: sourceHealthPct,
+      wires: wireStatuses,
+      sources: {
+        total: totalSources,
+        green: greenCount,
+        yellow: yellowCount,
+        red: redCount,
+        gray: grayCount,
+      },
+      recent_runs: last10Runs,
+      checked_at: new Date().toISOString(),
+    }))
+  } catch (err) {
+    console.error('GET /api/atlas/health error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// IMPORT RUNS — History + Detail + Retry
+// ============================================================================
+
+const IMPORT_RUNS_COLLECTION = 'import_runs'
+
+/**
+ * GET /api/atlas/import-runs
+ * Import run history with filters. Query: import_type, source, status, limit (default 20, max 100)
+ */
+atlasRoutes.get('/import-runs', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const limitParam = Math.min(Math.max(parseInt(req.query.limit as string) || 20, 1), 100)
+
+    let query: Query<DocumentData> = db.collection(IMPORT_RUNS_COLLECTION)
+      .orderBy('started_at', 'desc')
+
+    if (req.query.import_type) query = query.where('import_type', '==', req.query.import_type)
+    if (req.query.source) query = query.where('source', '==', req.query.source)
+    if (req.query.status) query = query.where('status', '==', req.query.status)
+
+    const snap = await query.limit(limitParam).get()
+    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
+
+    res.json(successResponse(data, { count: data.length }))
+  } catch (err) {
+    console.error('GET /api/atlas/import-runs error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/atlas/import-runs/:id
+ * Single import run detail.
+ */
+atlasRoutes.get('/import-runs/:id', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const doc = await db.collection(IMPORT_RUNS_COLLECTION).doc(id).get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Import run not found')); return }
+    res.json(successResponse({ id: doc.id, ...doc.data() } as Record<string, unknown>))
+  } catch (err) {
+    console.error('GET /api/atlas/import-runs/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/atlas/import-runs/:id/retry
+ * Mark a failed import run for retry (resets status to 'running').
+ */
+atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const docRef = db.collection(IMPORT_RUNS_COLLECTION).doc(id)
+    const doc = await docRef.get()
+
+    if (!doc.exists) { res.status(404).json(errorResponse('Import run not found')); return }
+
+    const data = doc.data() as ImportRunRecord
+    if (data.status !== 'failed' && data.status !== 'partial') {
+      res.status(400).json(errorResponse(`Cannot retry run with status "${data.status}" — only failed/partial runs can be retried`))
+      return
+    }
+
+    const now = new Date().toISOString()
+    await docRef.update({
+      status: 'running',
+      started_at: now,
+      completed_at: null,
+      duration_ms: null,
+      errors: 0,
+      error_details: [],
+    })
+
+    res.json(successResponse({ id, status: 'running', retried_at: now }))
+  } catch (err) {
+    console.error('POST /api/atlas/import-runs/:id/retry error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

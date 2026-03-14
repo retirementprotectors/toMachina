@@ -12,6 +12,7 @@ import { scanSpcFolders } from './spc-intake.js'
 import { scanMeetRecordings } from './meet-intake.js'
 import { scanMailIntake } from './mail-intake.js'
 import { scanEmailInboxes } from './email-intake.js'
+import { scanCommissionIntake } from './commission-intake.js'
 import { getQueueDepth, getQueueDepthBySource } from './queue.js'
 
 // Initialize Firebase Admin
@@ -103,6 +104,27 @@ export const emailIntakeScheduled = onSchedule(
   async () => {
     const result = await scanEmailInboxes()
     console.log(`Email Intake (scheduled): ${result.attachments_queued} attachments, ${result.errors.length} errors`)
+  }
+)
+
+/**
+ * Commission Intake — Scan commission statement folder for XLSX/CSV/PDF files.
+ * Trigger: Cloud Scheduler every 5 minutes.
+ */
+export const commissionIntake = onRequest(
+  { region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' },
+  async (_req, res) => {
+    const result = await scanCommissionIntake()
+    console.log(`Commission Intake: ${result.new_files} new, ${result.moved_to_processed} processed`)
+    res.json({ success: result.success, data: result })
+  }
+)
+
+export const commissionIntakeScheduled = onSchedule(
+  { schedule: 'every 5 minutes', region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' },
+  async () => {
+    const result = await scanCommissionIntake()
+    console.log(`Commission Intake (scheduled): ${result.new_files} new, ${result.errors.length} errors`)
   }
 )
 
