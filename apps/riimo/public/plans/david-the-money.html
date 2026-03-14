@@ -93,7 +93,7 @@
   /* ── TAB SYSTEM ── */
   .tab-bar {
     display: flex; justify-content: center; gap: 4px;
-    padding: 20px 40px; position: sticky; top: 0; z-index: 100;
+    padding: 14px 40px; position: sticky; top: 40px; z-index: 100;
     background: var(--bg); border-bottom: 1px solid var(--border);
   }
   .tab-btn {
@@ -109,13 +109,16 @@
 
   /* ── PROSPECT SUB-TABS ── */
   .sub-tabs {
-    display: flex; justify-content: center; gap: 8px;
-    padding: 24px 0; margin-bottom: 24px;
+    display: flex; justify-content: center; gap: 4px;
+    padding: 14px 40px;
+    position: sticky; top: 100px; z-index: 90;
+    background: var(--bg); border-bottom: 1px solid var(--border);
   }
   .sub-tab {
-    padding: 8px 24px; border-radius: 100px; font-size: 13px; font-weight: 700;
-    cursor: pointer; border: 1px solid var(--border); background: var(--bg-card);
-    color: var(--text-dim); transition: all 0.2s; font-family: inherit;
+    padding: 8px 24px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.5px; cursor: pointer; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-dim); transition: all 0.2s;
+    font-family: inherit;
   }
   .sub-tab:hover { background: var(--bg-accent); color: var(--text-muted); }
   .sub-tab.active { background: var(--money-glow); border-color: var(--money-border); color: var(--money); }
@@ -370,17 +373,22 @@
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div id="tab-prospects" class="tab-content active">
 
-<section>
+<section style="padding-bottom: 0;">
   <div class="container">
     <h2>Three Paths In. <span class="accent">One Outcome.</span></h2>
-    <p class="section-sub">Every path leads to the same place: inside The Machine. The only question is how you get there.</p>
+    <p class="section-sub" style="margin-bottom: 0;">Every path leads to the same place: inside The Machine. The only question is how you get there.</p>
+  </div>
+</section>
 
-    <!-- Sub-tabs -->
-    <div class="sub-tabs">
-      <div class="sub-tab active" onclick="switchSub('merger')">Merger</div>
-      <div class="sub-tab" onclick="switchSub('acquisition')">Acquisition</div>
-      <div class="sub-tab" onclick="switchSub('partnership')">Partnership</div>
-    </div>
+<!-- Sub-tabs (outside section for sticky) -->
+<div class="sub-tabs">
+  <div class="sub-tab active" onclick="switchSub('merger')">Merger</div>
+  <div class="sub-tab" onclick="switchSub('acquisition')">Acquisition</div>
+  <div class="sub-tab" onclick="switchSub('partnership')">Partnership</div>
+</div>
+
+<section style="padding-top: 40px;">
+  <div class="container">
 
     <!-- MERGER STORIES -->
     <div id="sub-merger" class="sub-content active">
