@@ -405,13 +405,14 @@ export type AccountTypeCategory = typeof ACCOUNT_TYPE_CATEGORIES[number]
 
 export type AccessStatus = 'active' | 'pending' | 'expired' | 'not_started'
 export type AccessType = 'api' | 'portal'
-export type AccessCategory = 'medicare' | 'annuity' | 'life' | 'investment' | 'government' | 'other'
+export type AccessCategory = 'medicare' | 'annuity' | 'life' | 'investment' | 'financial' | 'government' | 'other'
 
 export interface AccessItem {
   access_id: string
   client_id: string
   type: AccessType
   service_name: string
+  subheading?: string
   category: AccessCategory
   carrier_id?: string
   product_type?: string

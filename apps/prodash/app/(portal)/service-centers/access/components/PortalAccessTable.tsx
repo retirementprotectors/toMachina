@@ -11,6 +11,7 @@ interface PortalAccessItem {
   access_id: string
   client_id: string
   service_name: string
+  subheading?: string
   category: string
   product_type?: string
   status: AccessStatus
@@ -42,7 +43,7 @@ function maskUsername(username: string | undefined): string {
   return username.slice(0, 3) + '\u2022'.repeat(Math.min(username.length - 3, 6))
 }
 
-const CATEGORY_ORDER = ['annuity', 'life', 'medicare', 'investment', 'government', 'other']
+const CATEGORY_ORDER = ['annuity', 'life', 'medicare', 'investment', 'financial', 'government', 'other']
 
 const AUTH_CONFIG: Record<AuthStatus, { label: string; bg: string; text: string }> = {
   none: { label: 'None', bg: 'bg-gray-500/15', text: 'text-gray-400' },
@@ -119,6 +120,9 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials, onAuth
                       <tr key={item.access_id} className="border-t border-[var(--border)] hover:bg-[var(--bg-hover)]">
                         <td className="px-4 py-3">
                           <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
+                          {item.subheading && (
+                            <p className="text-xs text-[var(--text-muted)]">{item.subheading}</p>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">
                           {item.product_type || '\u2014'}

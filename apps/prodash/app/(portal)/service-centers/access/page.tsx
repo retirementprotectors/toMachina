@@ -183,7 +183,7 @@ function AddAccessModal({ onSave, onClose }: {
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Category</label>
             <div className="flex flex-wrap gap-1.5">
-              {(['medicare', 'annuity', 'life', 'investment', 'government', 'other'] as const).map((c) => (
+              {(['medicare', 'annuity', 'life', 'investment', 'financial', 'government', 'other'] as const).map((c) => (
                 <button
                   key={c}
                   onClick={() => setCategory(c)}

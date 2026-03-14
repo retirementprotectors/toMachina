@@ -91,6 +91,7 @@ accessRoutes.post('/:clientId', async (req: Request, res: Response) => {
       client_id: clientId,
       type: body.type,
       service_name: body.service_name,
+      subheading: body.subheading || null,
       category: body.category,
       carrier_id: body.carrier_id || null,
       product_type: body.product_type || null,
@@ -253,6 +254,7 @@ accessRoutes.post('/:clientId/auto-generate', async (req: Request, res: Response
         client_id: clientId,
         type: 'portal',
         service_name: serviceName,
+        subheading: null,
         category: deriveCategory(account.account_type || account.account_type_category || ''),
         carrier_id: account.carrier_id || null,
         product_type: account.product || account.account_type || null,
@@ -276,11 +278,58 @@ accessRoutes.post('/:clientId/auto-generate', async (req: Request, res: Response
       createdCount++
     }
 
-    // 4. Auto-generate standard API items if missing
+    // 4. Auto-generate Carrier Connect entries for Medicare carriers
+    const medicareCarriers = new Set<string>()
+    for (const accountDoc of accountsSnap.docs) {
+      const account = accountDoc.data()
+      const cat = deriveCategory(account.account_type || account.account_type_category || '')
+      if (cat === 'medicare') {
+        const carrier = account.carrier || account.carrier_name || ''
+        if (carrier) medicareCarriers.add(carrier)
+      }
+    }
+
+    for (const carrier of medicareCarriers) {
+      const serviceName = `Carrier Connect ${carrier}`
+      const key = `${serviceName}::${clientId}`
+      if (existingKeys.has(key)) continue
+
+      const accessId = randomUUID()
+      const item = {
+        access_id: accessId,
+        client_id: clientId,
+        type: 'portal',
+        service_name: serviceName,
+        subheading: 'MAPD — Blue Button Data',
+        category: 'medicare',
+        carrier_id: null,
+        product_type: null,
+        status: 'not_started',
+        portal_url: null,
+        username: null,
+        auth_status: 'none',
+        auth_doc_url: null,
+        last_verified: null,
+        last_login: null,
+        notes: null,
+        created_at: now,
+        updated_at: now,
+      }
+
+      batch.set(
+        db.collection(CLIENTS).doc(clientId).collection(ACCESS_ITEMS).doc(accessId),
+        item
+      )
+      existingKeys.add(key)
+      createdCount++
+    }
+
+    // 5. Auto-generate standard API items if missing
     const standardApis = [
       { service_name: 'Medicare.gov', category: 'medicare' as const },
       { service_name: 'Social Security / SSA.gov', category: 'government' as const },
       { service_name: 'IRS.gov', category: 'government' as const },
+      { service_name: 'MasterCard', subheading: 'Financial and Insurance', category: 'financial' as const },
     ]
 
     for (const api of standardApis) {
@@ -293,6 +342,7 @@ accessRoutes.post('/:clientId/auto-generate', async (req: Request, res: Response
         client_id: clientId,
         type: 'api',
         service_name: api.service_name,
+        subheading: 'subheading' in api ? api.subheading : null,
         category: api.category,
         carrier_id: null,
         product_type: null,

@@ -10,6 +10,7 @@ interface ApiAccessItem {
   access_id: string
   client_id: string
   service_name: string
+  subheading?: string
   category: string
   status: AccessStatus
   auth_status?: AuthStatus
@@ -36,6 +37,7 @@ const SERVICE_ICONS: Record<string, string> = {
   'ssa.gov': 'account_balance',
   'Social Security': 'account_balance',
   'IRS.gov': 'account_balance',
+  'MasterCard': 'credit_card',
   'State Insurance Commissioner': 'gavel',
   'default': 'public',
 }
@@ -45,6 +47,7 @@ const DISPLAY_NAMES: Record<string, { name: string; sub?: string }> = {
   'Medicare.gov': { name: 'cms.gov', sub: 'Original Medicare' },
   'Social Security': { name: 'ssa.gov', sub: 'Social Security' },
   'Social Security / SSA.gov': { name: 'ssa.gov', sub: 'Social Security' },
+  'MasterCard': { name: 'MasterCard', sub: 'Financial and Insurance' },
 }
 
 const AUTH_CONFIG: Record<AuthStatus, { label: string; bg: string; text: string }> = {
@@ -102,7 +105,7 @@ export function ApiAccessTable({ items, onVerify, onAuthCycle }: ApiAccessTableP
             const authConfig = AUTH_CONFIG[authStatus]
             const display = DISPLAY_NAMES[item.service_name]
             const displayName = display?.name || item.service_name
-            const displaySub = display?.sub || item.category
+            const displaySub = item.subheading || display?.sub || item.category
 
             return (
               <tr key={item.access_id} className="border-t border-[var(--border)] hover:bg-[var(--bg-hover)]">
