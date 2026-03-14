@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { initializeApp, getApps } from 'firebase/app'
 import {
   getAuth,
@@ -163,12 +163,22 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe()
   }, [user])
 
+  // Map numeric level to UserLevelName (fallback when user_level string is missing)
+  const levelMap: Record<number, UserEntitlementContext['userLevel']> = {
+    0: 'OWNER',
+    1: 'EXECUTIVE',
+    2: 'LEADER',
+    3: 'USER',
+  }
+
   // Build entitlement context from Firestore profile (or defaults)
-  const ctx = buildEntitlementContext(
+  const ctx = useMemo(() => buildEntitlementContext(
     user,
     profile
       ? {
-          userLevel: (profile.user_level as UserEntitlementContext['userLevel']) || undefined,
+          userLevel: (profile.user_level as UserEntitlementContext['userLevel'])
+            || levelMap[profile.level ?? 3]
+            || 'USER',
           modulePermissions: profile.module_permissions as UserEntitlementContext['modulePermissions'],
           assignedModules: [
             ...(profile.assigned_pipelines || []),
@@ -176,7 +186,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
           ],
         }
       : undefined
-  )
+  ), [user, profile])
 
   return (
     <EntitlementContext.Provider value={{ ctx, loading, profile }}>
