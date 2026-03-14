@@ -588,7 +588,7 @@
     gap: 4px;
     padding: 20px 40px;
     position: sticky;
-    top: 0;
+    top: 40px;
     z-index: 100;
     background: var(--bg);
     border-bottom: 1px solid var(--border);
@@ -750,6 +750,61 @@
     .tab-btn { padding: 8px 16px; font-size: 12px; }
   }
 
+  /* ── JDM TIMELINE ── */
+  .jdm-timeline { position: relative; padding-left: 32px; margin-top: 40px; }
+  .jdm-timeline::before {
+    content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border-accent);
+  }
+  .jdm-era {
+    position: relative; margin-bottom: 32px; padding-left: 24px;
+  }
+  .jdm-era::before {
+    content: ''; position: absolute; left: -28px; top: 8px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid var(--gold); background: var(--bg);
+  }
+  .jdm-era.peak::before { background: var(--gold); }
+  .jdm-era.crash::before { border-color: var(--red); background: var(--red); }
+  .jdm-era.rise::before { border-color: #4ade80; background: #4ade80; }
+  .jdm-era .era-date {
+    font-size: 12px; font-weight: 700; color: var(--gold);
+    letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .jdm-era.crash .era-date { color: var(--red); }
+  .jdm-era.rise .era-date { color: #4ade80; }
+  .jdm-era h4 { font-size: 17px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+  .jdm-era p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+  .jdm-quote {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 4px solid var(--gold); border-radius: 0 12px 12px 0;
+    padding: 28px 32px; margin-top: 40px;
+    font-size: 16px; font-style: italic; color: var(--text-muted); line-height: 1.75;
+  }
+  .jdm-quote strong { color: var(--text); font-style: normal; }
+
+  .ladder { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
+  .ladder-rung {
+    display: grid; grid-template-columns: 140px 140px 1fr; align-items: center;
+    padding: 16px 24px; background: var(--bg-card); border: 1px solid var(--border);
+  }
+  .ladder-rung:first-child { border-radius: 14px 14px 0 0; }
+  .ladder-rung:last-child { border-radius: 0 0 14px 14px; }
+  .ladder-rung + .ladder-rung { border-top: none; }
+  .ladder-rung.current { background: var(--gold-glow); border-color: var(--gold-border); }
+  .ladder-rung .rung-title {
+    font-size: 14px; font-weight: 800; color: var(--text-dim);
+  }
+  .ladder-rung.current .rung-title { color: var(--gold); }
+  .ladder-rung .rung-entity {
+    font-size: 13px; font-weight: 600; color: var(--text-muted); font-style: italic;
+  }
+  .ladder-rung .rung-focus {
+    font-size: 13px; color: var(--text-dim);
+  }
+  .ladder-rung.current .rung-focus { color: var(--text-muted); }
+
   /* ── CROSS-NAV ── */
   .cross-nav {
     display: flex;
@@ -817,6 +872,7 @@
 <div class="tab-bar">
   <div class="tab-btn active" onclick="switchTab('strategic')">Strategic</div>
   <div class="tab-btn" onclick="switchTab('tactical')">Tactical</div>
+  <div class="tab-btn" onclick="switchTab('jdm')">JDM</div>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -1310,6 +1366,143 @@
 </div>
 
 </div><!-- /tab-tactical -->
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- JDM TAB                                                         -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div id="tab-jdm" class="tab-content">
+
+<!-- THE ORIGIN -->
+<section>
+  <div class="container">
+    <h2>The <span class="accent">Origin</span></h2>
+    <p class="section-sub">"The Universe is a bitch, or I'm being groomed for greatness." &mdash; That's what he's been telling himself (and his wife) for 20 years. Every time he encountered a new obstacle, that phrase was the coping mechanism. Turns out, both were true.</p>
+
+    <div class="jdm-timeline">
+      <div class="jdm-era">
+        <div class="era-date">2002</div>
+        <h4>Medical Assistant &rarr; Insurance Sales</h4>
+        <p>2-year degree. Drew blood, gave immunizations, took x-rays. Delivered pizzas. Waited tables. Delivered orthopedic rehab machines. Signed up for every MLM on earth. Then a friend said: "I talked to a guy at an insurance place today and I think you might be good at it." Commission-only. Cold calls. Personality test. Showed up to the interview on a purple Kawasaki Ninja 500 with a Ricky Martin haircut. Failed the licensing exam four times. Passed on the fifth &mdash; hungover, in scrubs and Birkenstocks. 72%.</p>
+      </div>
+
+      <div class="jdm-era">
+        <div class="era-date">2002 &mdash; Day 1</div>
+        <h4>$1,000 on Day One</h4>
+        <p>First field day. Raining. Rode the borrowed Ninja. Trainer "Handsome Tim" got reassigned to "Dirty Dan the Donut Man" &mdash; a legend who drove a brown Oldsmobile fruit cart and gave hugs instead of closes. By end of day: 6 sales, $2K in commissions. Josh's half = $1,000. Two weeks of waiting tables. He let the restaurant staff know that night.</p>
+      </div>
+
+      <div class="jdm-era peak">
+        <div class="era-date">2005 &mdash; 2008</div>
+        <h4>$265K at 25. Started MFG at 28.</h4>
+        <p>Broke the branch production record. Finished 12th out of 4,200 agents. Built a team of 24 producers in 18 months. Got married. Made $100K+ in team overrides. Got fed up with the politics. Left to start Millang Financial Group on June 1, 2008 &mdash; wife 6 months pregnant with their first child.</p>
+      </div>
+
+      <div class="jdm-era">
+        <div class="era-date">2008 &mdash; 2018</div>
+        <h4>10 Years Building MFG</h4>
+        <p>Built a retail agency from scratch. Medicare, Life, Annuity, Fee-Based. 1/3 revenue from each. Recruited and trained producers. Built MFGProducers.com &mdash; a proprietary tech platform for lead integration, CRM, sales cycle, and commission management. 5,000 clients. The first version of The Machine, before it had a name.</p>
+      </div>
+
+      <div class="jdm-era crash">
+        <div class="era-date">~2018</div>
+        <h4>The Whiplash</h4>
+        <p>Every producer left or quit. Bought out the vested recurring revenue from all of them. Sold half the equity from two commercial properties. Left with $1MM in office buildings, 5,000 clients (actually 2,000 after the Medicare audit), $500K in recurring, and zero new business revenue. The brain damage from managing green pea commission salespeople for a decade had taken its toll.</p>
+      </div>
+
+      <div class="jdm-era">
+        <div class="era-date">2018 &mdash; 2019</div>
+        <h4>The Pivot: Became The Mogul Maker</h4>
+        <p>Realized the tech and service model he'd built was more valuable than his production. Started talking to peers, IMOs, agencies &mdash; nobody had solutions for the problems he'd already solved. Rebuilt ProDash as a SaaS platform. Pioneered white-labeled customer service. Started selling to the industry instead of selling to clients. "The time was now to change direction and become a B2B firm."</p>
+      </div>
+
+      <div class="jdm-era peak">
+        <div class="era-date">2020</div>
+        <h4>ProDash Explodes: $750K In, $3MM Out</h4>
+        <p>400% ROI in 10 months. The method worked. ProDash+Branding, ProDash+Service, ProDash+Market &mdash; a full suite for IMOs, agencies, and producers nationally. The Producer Dashboard Suite. Everything was working.</p>
+      </div>
+
+      <div class="jdm-era crash">
+        <div class="era-date">October 1, 2020</div>
+        <h4>SMFD Day</h4>
+        <p>Funding pulled. ProDash collapsed. The day that divides everything into "before" and "after." Five years of building, gone in an email. Still Standing.</p>
+      </div>
+
+      <div class="jdm-era">
+        <div class="era-date">2020 &mdash; 2025</div>
+        <h4>Still Standing</h4>
+        <p>Rebuilt the business from the ashes while simultaneously being whiplashed back into producing revenue to keep the lights on. Every time he tried to build, the business pulled him back to sell. Every time he sold, the business needed him to build. The cycle that created the bottleneck. The bottleneck that created the motivation. The motivation that created The Machine.</p>
+      </div>
+
+      <div class="jdm-era rise">
+        <div class="era-date">October 2025 &mdash; Present</div>
+        <h4>The Machine Runs Without Josh</h4>
+        <p>Hasn't personally met with a client since July 2025. The business operates independently of his direct involvement for the first time ever. Built toMachina, MDJ AI, the Operating System, ATLAS, the Immune System &mdash; the entire infrastructure that makes AgentX possible. Not because he wanted to build tech. Because he kept running into the same problems, over and over, for 20 years &mdash; and finally decided to make sure nobody ever has to go through what he went through.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE LESSON -->
+<section>
+  <div class="container">
+    <h2>The <span class="accent">Lesson</span></h2>
+    <p class="section-sub">From the Mogul Maker Method &mdash; the progression that explains how a medical assistant with a motorcycle and a 67% on his fourth licensing exam built a $1B+ enterprise.</p>
+
+    <div class="ladder">
+      <div class="ladder-rung"><div class="rung-title">Producer</div><div class="rung-entity">Income</div><div class="rung-focus">Branding &middot; Sales</div></div>
+      <div class="ladder-rung"><div class="rung-title">VP</div><div class="rung-entity">Profit</div><div class="rung-focus">Technology &middot; Time vs $$$</div></div>
+      <div class="ladder-rung"><div class="rung-title">President</div><div class="rung-entity">Practice</div><div class="rung-focus">Operations &middot; Process</div></div>
+      <div class="ladder-rung"><div class="rung-title">CEO</div><div class="rung-entity">Business</div><div class="rung-focus">Service &middot; People</div></div>
+      <div class="ladder-rung"><div class="rung-title">Chairman</div><div class="rung-entity">Company</div><div class="rung-focus">Scaling &middot; Board</div></div>
+      <div class="ladder-rung current"><div class="rung-title">Mogul</div><div class="rung-entity">Enterprise</div><div class="rung-focus">Marketplace &middot; Investor</div></div>
+    </div>
+
+    <div class="jdm-quote">
+      <strong>"I am an ordinary person, who has failed more in my career than most people will in an entire lifetime &mdash; that created amazing results over time by applying an extraordinary work ethic to the lessons I learned."</strong><br><br>
+      The only requirements are conscious decisions to relentlessly educate yourself and work your hardest.<br><br>
+      The ladder kept breaking underneath him. He climbed it anyway. Most of the rungs, twice. That's why the last rung is called <strong>Mogul</strong> &mdash; and the enterprise on that rung is called <strong style="color: var(--gold);">AgentX</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- THE THREE BOOKS -->
+<section>
+  <div class="container">
+    <h2>The Three <span class="accent">Books</span></h2>
+    <p class="section-sub">Three books. Three eras. One arc &mdash; from $0 to the Enterprise that tears the Health + Wealth + Legacy industries to the ground.</p>
+
+    <div class="companies">
+      <div class="company money">
+        <div class="company-header">
+          <span class="company-name">Book 1</span>
+          <span class="company-epithet" style="color:var(--money);background:var(--money-glow);">2002 &mdash; 2020</span>
+        </div>
+        <p class="company-statement" style="font-size:22px;font-weight:800;margin-bottom:8px;">The Mogul Maker Method</p>
+        <p class="company-statement">From medical assistant to agency owner to tech builder. The ten-year climb, the whiplash, and the moment it all came together &mdash; right before it all fell apart.</p>
+      </div>
+
+      <div class="company" style="border-left-color: var(--red);">
+        <div class="company-header">
+          <span class="company-name" style="color: var(--red);">Book 2</span>
+          <span class="company-epithet" style="color:var(--red);background:rgba(248,113,113,0.1);">Oct 2020 &mdash; Oct 2025</span>
+        </div>
+        <p class="company-statement" style="font-size:22px;font-weight:800;margin-bottom:8px;">Still Standing</p>
+        <p class="company-statement"><em>What Actually Happens When Your Business Model Works Too Well.</em> The collapse. The rebuild. The five years of being whiplashed between building and producing. The cycle that forged The Machine.</p>
+      </div>
+
+      <div class="company magic">
+        <div class="company-header">
+          <span class="company-name" style="color: var(--magic);">Book 3</span>
+          <span class="company-epithet" style="color:var(--magic);background:var(--magic-glow);">Oct 2025 &mdash; ???</span>
+        </div>
+        <p class="company-statement" style="font-size:22px;font-weight:800;margin-bottom:8px;">AgentX</p>
+        <p class="company-statement">The Machine runs without Josh. The Money forges the deals. The Machine arms the team. The Magic ignites the enterprise value. The boy on the purple Ninja built something that transcends him &mdash; and that's the whole point.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /tab-jdm -->
 
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- CLOSING                                                         -->
