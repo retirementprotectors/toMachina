@@ -11,13 +11,15 @@
     "clean": "rm -rf .next .turbo"
   },
   "dependencies": {
+    "@base-ui/react": "^1.0.0",
     "@tomachina/auth": "*",
     "@tomachina/core": "*",
     "@tomachina/db": "*",
     "@tomachina/ui": "*",
-    "@base-ui/react": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.0",
     "lucide-react": "^0.577.0",
     "next": "^15.1.0",
     "radix-ui": "^1.4.3",
