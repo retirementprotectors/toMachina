@@ -4,16 +4,19 @@ import { useState } from 'react'
 import { AccessStatusBadge } from './AccessStatusBadge'
 import { CredentialsModal } from './CredentialsModal'
 
-type AccessStatus = 'connected' | 'pending' | 'expired' | 'not_started'
+type AccessStatus = 'active' | 'connected' | 'pending' | 'expired' | 'not_started'
+type AuthStatus = 'none' | 'sent' | 'on_file'
 
 interface PortalAccessItem {
   access_id: string
   client_id: string
   service_name: string
   category: string
+  product_type?: string
   status: AccessStatus
   portal_url?: string
   username?: string
+  auth_status?: AuthStatus
   last_verified?: string
   last_login?: string
   notes?: string
@@ -23,24 +26,37 @@ interface PortalAccessTableProps {
   items: PortalAccessItem[]
   onVerify: (accessId: string) => void
   onUpdateCredentials: (accessId: string, username: string, notes: string) => void
+  onAuthCycle?: (accessId: string, newStatus: AuthStatus) => void
 }
 
 function formatDate(raw: string | undefined): string {
-  if (!raw) return '—'
+  if (!raw) return '\u2014'
   const d = new Date(raw)
   if (isNaN(d.getTime())) return raw
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 function maskUsername(username: string | undefined): string {
-  if (!username) return '—'
-  if (username.length <= 4) return '••••'
-  return username.slice(0, 3) + '•'.repeat(Math.min(username.length - 3, 6))
+  if (!username) return '\u2014'
+  if (username.length <= 4) return '\u2022\u2022\u2022\u2022'
+  return username.slice(0, 3) + '\u2022'.repeat(Math.min(username.length - 3, 6))
 }
 
 const CATEGORY_ORDER = ['annuity', 'life', 'medicare', 'investment', 'government', 'other']
 
-export function PortalAccessTable({ items, onVerify, onUpdateCredentials }: PortalAccessTableProps) {
+const AUTH_CONFIG: Record<AuthStatus, { label: string; bg: string; text: string }> = {
+  none: { label: 'None', bg: 'bg-gray-500/15', text: 'text-gray-400' },
+  sent: { label: 'Sent', bg: 'bg-amber-500/15', text: 'text-amber-400' },
+  on_file: { label: 'On File', bg: 'bg-emerald-500/15', text: 'text-emerald-400' },
+}
+
+const AUTH_CYCLE: Record<AuthStatus, AuthStatus> = {
+  none: 'sent',
+  sent: 'on_file',
+  on_file: 'none',
+}
+
+export function PortalAccessTable({ items, onVerify, onUpdateCredentials, onAuthCycle }: PortalAccessTableProps) {
   const [verifying, setVerifying] = useState<string | null>(null)
   const [credentialsFor, setCredentialsFor] = useState<PortalAccessItem | null>(null)
 
@@ -85,9 +101,11 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials }: Port
               <table className="w-full text-sm">
                 <thead className="bg-[var(--bg-surface)]">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Carrier / Product Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Carrier / Service</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Product Type</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Username</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Authorization</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Last Login</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Actions</th>
                   </tr>
@@ -95,17 +113,42 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials }: Port
                 <tbody>
                   {(grouped[cat] ?? []).map((item) => {
                     const isVerifying = verifying === item.access_id
-                    const isVerified = item.status === 'connected'
+                    const authStatus: AuthStatus = item.auth_status || 'none'
+                    const authConfig = AUTH_CONFIG[authStatus]
                     return (
                       <tr key={item.access_id} className="border-t border-[var(--border)] hover:bg-[var(--bg-hover)]">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
+                          <div>
+                            <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
+                            {item.portal_url && (
+                              <a
+                                href={item.portal_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-0.5 text-xs text-[var(--portal)] truncate max-w-[200px] block hover:underline"
+                              >
+                                {item.portal_url}
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">
+                          {item.product_type || '\u2014'}
                         </td>
                         <td className="px-4 py-3 font-mono text-xs text-[var(--text-secondary)]">
                           {maskUsername(item.username)}
                         </td>
                         <td className="px-4 py-3">
                           <AccessStatusBadge status={item.status} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => onAuthCycle?.(item.access_id, AUTH_CYCLE[authStatus])}
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium cursor-pointer transition-opacity hover:opacity-80 ${authConfig.bg} ${authConfig.text}`}
+                            title={`Click to cycle: ${authStatus} \u2192 ${AUTH_CYCLE[authStatus]}`}
+                          >
+                            {authConfig.label}
+                          </button>
                         </td>
                         <td className="px-4 py-3 text-[var(--text-secondary)]">
                           {formatDate(item.last_login)}
@@ -116,11 +159,7 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials }: Port
                             <button
                               onClick={() => handleVerify(item.access_id)}
                               disabled={isVerifying}
-                              className={`inline-flex items-center gap-1 rounded-md h-[34px] px-2.5 text-xs font-medium border transition-all disabled:opacity-50 ${
-                                isVerified
-                                  ? 'border-emerald-500/30 text-emerald-400 hover:border-emerald-500/50'
-                                  : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
-                              }`}
+                              className="inline-flex items-center gap-1 rounded-md h-[34px] px-2.5 text-xs font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-all hover:border-[var(--portal)] hover:text-[var(--portal)] disabled:opacity-50"
                               title="Mark as verified"
                             >
                               {isVerifying ? (
