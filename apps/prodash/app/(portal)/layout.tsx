@@ -8,6 +8,7 @@ import { SignInScreen } from './components/SignInScreen'
 import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
+import { IntakeFAB } from './components/IntakeFAB'
 
 export default function PortalLayout({
   children,
@@ -17,6 +18,8 @@ export default function PortalLayout({
   const { user, loading, signIn } = useAuth()
   const [commsOpen, setCommsOpen] = useState(false)
   const [connectOpen, setConnectOpen] = useState(false)
+
+  const panelOpen = commsOpen || connectOpen
 
   const toggleComms = useCallback(() => {
     setCommsOpen((v) => !v)
@@ -46,6 +49,7 @@ export default function PortalLayout({
         commsOpen={commsOpen}
         onConnectToggle={toggleConnect}
         connectOpen={connectOpen}
+        panelOpen={panelOpen}
       />
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar user={user} />
@@ -59,6 +63,9 @@ export default function PortalLayout({
 
       {/* RPI Connect — slide-out panel */}
       <ConnectPanel portal="prodash" open={connectOpen} onClose={closeConnect} />
+
+      {/* Intake FAB — floating action button for quick data entry */}
+      <IntakeFAB />
     </div>
   )
 }
