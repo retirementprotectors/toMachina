@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { collectionGroup, getDocs, query, limit, orderBy, startAfter, type DocumentData, type DocumentSnapshot } from 'firebase/firestore'
+import { collectionGroup, getDocs, getCountFromServer, query, limit, orderBy, startAfter, type DocumentData, type DocumentSnapshot } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Account } from '@tomachina/core'
 
@@ -95,6 +95,7 @@ export default function AccountsPage() {
   const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(false)
   const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null)
+  const [totalCount, setTotalCount] = useState<number | null>(null)
   const [filter, setFilter] = useState<FilterKey>('all')
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
@@ -129,6 +130,20 @@ export default function AccountsPage() {
       }
     }
     load()
+  }, [])
+
+  // Fetch total account count
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const db = getDb()
+        const snapshot = await getCountFromServer(collectionGroup(db, 'accounts'))
+        setTotalCount(snapshot.data().count)
+      } catch {
+        setTotalCount(null)
+      }
+    }
+    fetchCount()
   }, [])
 
   // Enrich with client names
@@ -328,9 +343,10 @@ export default function AccountsPage() {
         <a
           href="/intake"
           className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
+          title="Add a new contact — accounts are added from client detail"
         >
           <span className="material-icons-outlined text-[18px]">add</span>
-          New
+          New Contact
         </a>
       </div>
 
@@ -361,7 +377,7 @@ export default function AccountsPage() {
         <button
           onClick={() => setShowColumnPicker(!showColumnPicker)}
           className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-all ${
-            showColumnPicker ? 'border-[var(--portal)] bg-[var(--portal)] text-white' : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
+            showColumnPicker ? 'border-[var(--portal)] bg-[var(--portal)] text-white' : 'border-[var(--portal)] bg-[var(--bg-surface)] text-[var(--portal)] hover:bg-[var(--portal)] hover:text-white'
           }`}
         >
           <span className="material-icons-outlined text-[16px]">view_column</span>
@@ -398,8 +414,8 @@ export default function AccountsPage() {
             </span>
           </button>
         ))}
-        <span className="ml-auto rounded-full bg-[var(--portal)] px-2.5 py-0.5 text-xs font-semibold text-white">
-          {filtered.length.toLocaleString()}{hasMore ? '+' : ''}
+        <span className="ml-auto text-sm font-medium text-[var(--text-secondary)]">
+          Showing {filtered.length.toLocaleString()} of {totalCount?.toLocaleString() ?? accounts.length.toLocaleString()}
         </span>
       </div>
 
@@ -472,13 +488,12 @@ export default function AccountsPage() {
                   </span>
                 </th>
               ))}
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--portal)]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={visibleColumns.length + 2} className="px-4 py-16 text-center text-sm text-[var(--text-muted)]">
+                <td colSpan={visibleColumns.length + 1} className="px-4 py-16 text-center text-sm text-[var(--text-muted)]">
                   {search || filter !== 'all' || statusFilter !== 'All' ? 'No accounts match your filters.' : 'No accounts found.'}
                 </td>
               </tr>
@@ -491,9 +506,10 @@ export default function AccountsPage() {
                 return (
                   <tr
                     key={rowKey}
-                    className={`border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)] ${isSelected ? 'bg-[var(--portal)]/5' : ''}`}
+                    onClick={() => window.open(`/accounts/${acct._clientId}/${acct._id}`, '_blank')}
+                    className={`cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)] ${isSelected ? 'bg-[var(--portal)]/5' : ''}`}
                   >
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -521,17 +537,6 @@ export default function AccountsPage() {
                         </td>
                       )
                     })}
-                    <td className="px-3 py-3">
-                      <a
-                        href={`/accounts/${acct._clientId}/${acct._id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-medium text-[var(--portal)] hover:underline"
-                      >
-                        Detail
-                        <span className="material-icons-outlined text-[12px]">open_in_new</span>
-                      </a>
-                    </td>
                   </tr>
                 )
               })
@@ -545,7 +550,8 @@ export default function AccountsPage() {
         <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
           <span>
             {(page * pageSize + 1).toLocaleString()}–{Math.min((page + 1) * pageSize, sorted.length).toLocaleString()} of{' '}
-            <span className="text-[var(--portal)] font-medium">{sorted.length.toLocaleString()} Accounts</span>
+            <span className="text-[var(--portal)] font-medium">{sorted.length.toLocaleString()} filtered</span>
+            {totalCount !== null && <span className="text-[var(--text-muted)]"> ({totalCount.toLocaleString()} total)</span>}
           </span>
           <div className="flex items-center gap-2">
             <button
