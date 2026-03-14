@@ -749,9 +749,51 @@
     .cycle { grid-template-columns: 80px 1fr 80px; }
     .tab-btn { padding: 8px 16px; font-size: 12px; }
   }
+
+  /* ── CROSS-NAV ── */
+  .cross-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 40px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+  .cross-nav a {
+    padding: 6px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .cross-nav a.nav-gold { color: #d4a44c; }
+  .cross-nav a.nav-green { color: #4ade80; }
+  .cross-nav a.nav-blue { color: #60a5fa; }
+  .cross-nav a.nav-purple { color: #c084fc; }
+  .cross-nav a.nav-gold:hover { background: rgba(212, 164, 76, 0.08); }
+  .cross-nav a.nav-green:hover { background: rgba(74, 222, 128, 0.08); }
+  .cross-nav a.nav-blue:hover { background: rgba(96, 165, 250, 0.08); }
+  .cross-nav a.nav-purple:hover { background: rgba(192, 132, 252, 0.08); }
+  .cross-nav a.active { background: rgba(212, 164, 76, 0.12); border-color: rgba(212, 164, 76, 0.25); }
 </style>
 </head>
 <body>
+
+<!-- CROSS-NAV -->
+<div class="cross-nav">
+  <a href="agentx-framework.html" class="nav-gold active">AgentX</a>
+  <a href="david-the-money.html" class="nav-green">DAVID.</a>
+  <a href="tomachina-the-machine.html" class="nav-blue">toMachina</a>
+  <a href="mdj-strategy.html" class="nav-purple">MDJ AI</a>
+</div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- HERO                                                            -->
