@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useEffect, useMemo } from 'react'
-import { useAuth, buildEntitlementContext, canAccessModule } from '@tomachina/auth'
+import { useAuth, useEntitlements, canAccessModule } from '@tomachina/auth'
 import type { UserEntitlementContext } from '@tomachina/auth'
 import { APP_BRANDS, AppIcon, type AppKey } from '@tomachina/ui'
 import { toSlug } from '../pipelines/pipeline-keys'
@@ -166,13 +166,9 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
+  const { ctx: entitlementCtx } = useEntitlements()
   const [collapsed, setCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
-
-  const entitlementCtx = useMemo(
-    () => buildEntitlementContext(user),
-    [user]
-  )
 
   // Dynamic pipeline loading
   const [pipelineItems, setPipelineItems] = useState<Array<{ pipeline_key: string; pipeline_name: string; icon: string; assigned_section: string }>>([])

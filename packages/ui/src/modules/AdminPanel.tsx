@@ -10,7 +10,7 @@ import {
   type Query,
   type DocumentData,
 } from 'firebase/firestore'
-import { useAuth, buildEntitlementContext } from '@tomachina/auth'
+import { useAuth, useEntitlements } from '@tomachina/auth'
 import type { UserLevelName, ModuleAction } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
@@ -1139,8 +1139,8 @@ export function AdminPanel({ portal }: AdminPanelProps) {
   // Local app config state (loaded from Firestore, managed locally for optimistic updates)
   const [appConfigOverrides, setAppConfigOverrides] = useState<Record<string, boolean>>({})
 
-  // Build entitlement context
-  const entitlementCtx = useMemo(() => buildEntitlementContext(user), [user])
+  // Build entitlement context from Firestore profile
+  const { ctx: entitlementCtx } = useEntitlements()
   const isLeader =
     entitlementCtx.userLevel === 'OWNER' ||
     entitlementCtx.userLevel === 'EXECUTIVE' ||

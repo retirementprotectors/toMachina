@@ -71,17 +71,12 @@ export interface UserEntitlementContext {
 /** Default level for unknown users (most restrictive). */
 const DEFAULT_LEVEL: UserLevelName = 'USER'
 
-/** Known owner emails that always get OWNER level. */
-const OWNER_EMAILS = [
-  'josh@retireprotected.com',
-  'jdm@retireprotected.com',
-]
-
 /**
  * Build an entitlement context from an AuthUser.
  *
- * For now, hardcodes OWNER for JDM's emails and defaults to USER for everyone else.
- * When Firestore user docs have entitlements populated, this will read from there.
+ * Reads the user's level + permissions from their Firestore profile
+ * (passed in via firestoreOverrides). Falls back to USER level when
+ * no profile exists.
  */
 export function buildEntitlementContext(
   authUser: AuthUser | null,
@@ -93,13 +88,8 @@ export function buildEntitlementContext(
 
   const email = authUser.email.toLowerCase()
 
-  // Determine user level: owner emails get OWNER, otherwise check overrides or default
-  let userLevel: UserLevelName = DEFAULT_LEVEL
-  if (OWNER_EMAILS.includes(email)) {
-    userLevel = 'OWNER'
-  } else if (firestoreOverrides?.userLevel) {
-    userLevel = firestoreOverrides.userLevel
-  }
+  // Determine user level from Firestore profile, default to USER
+  const userLevel: UserLevelName = firestoreOverrides?.userLevel || DEFAULT_LEVEL
 
   return {
     email,

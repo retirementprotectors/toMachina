@@ -1,5 +1,5 @@
-export { AuthProvider, useAuth } from './provider'
-export type { AuthUser, AuthState } from './provider'
+export { AuthProvider, useAuth, UserProfileProvider, useEntitlements } from './provider'
+export type { AuthUser, AuthState, UserProfile, EntitlementState } from './provider'
 
 // Core entitlement system (re-exported from @tomachina/core)
 export {

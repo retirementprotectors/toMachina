@@ -1,15 +1,17 @@
 'use client'
 
-import { AuthProvider } from '@tomachina/auth'
+import { AuthProvider, UserProfileProvider } from '@tomachina/auth'
 import { ToastProvider } from '@tomachina/ui'
 import type { ReactNode } from 'react'
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
-      <ToastProvider>
-        {children}
-      </ToastProvider>
+      <UserProfileProvider>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+      </UserProfileProvider>
     </AuthProvider>
   )
 }
