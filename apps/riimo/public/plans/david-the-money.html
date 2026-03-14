@@ -553,46 +553,50 @@
     <p class="section-sub">Here's what a single $500K acquisition looks like through the model. This is the deal valuation engine from DAVID HUB &mdash; built into SENTINEL, running on toMachina.</p>
 
     <div class="econ-block">
-      <h3>Sample Acquisition: $500K Annual Revenue Book</h3>
-      <div class="econ-sub">Medicare + Life + Annuity mix. Central Iowa. 200 clients.</div>
+      <h3>Sample Acquisition: The Avatar</h3>
+      <div class="econ-sub">500 clients. $100K recurring. Medicare + Life mix. Independent agent, age 70-80. Every town in America.</div>
     </div>
 
     <div class="val-grid">
       <div class="val-card">
         <div class="val-label">Low (1.5x)</div>
-        <div class="val-number">$750K</div>
+        <div class="val-number">$150K</div>
         <div class="val-note">Conservative</div>
       </div>
       <div class="val-card highlight">
         <div class="val-label">Mid (2.25x)</div>
-        <div class="val-number">$1.125M</div>
+        <div class="val-number">$225K</div>
         <div class="val-note">Market rate</div>
       </div>
       <div class="val-card">
         <div class="val-label">High (3.0x)</div>
-        <div class="val-number">$1.5M</div>
+        <div class="val-number">$300K</div>
         <div class="val-note">Premium</div>
       </div>
     </div>
 
     <div class="math-block">
-      <span class="comment">// Annual revenue from acquired book</span><br>
-      <span class="keyword">annualRevenue</span> = <span class="value">$500,000</span><br>
+      <span class="comment">// The Avatar: 500 clients, $100K recurring</span><br>
+      <span class="keyword">annualRevenue</span> = <span class="value">$100,000</span><br>
       <span class="keyword">growthRate</span> = <span class="value">5%</span><br>
       <span class="keyword">retentionRate</span> = <span class="value">92%</span><br><br>
       <span class="comment">// Year 1: Revenue hits the tier system</span><br>
-      <span class="keyword">grossRevenue</span> = <span class="value">$500,000</span> &times; <span class="value">92%</span> = <span class="result">$460,000</span><br>
-      <span class="keyword">tierLevel</span> = <span class="result">Silver (22%)</span><br>
-      <span class="keyword">partnerPayout</span> = <span class="value">$460,000</span> &times; <span class="value">22%</span> = <span class="value">$101,200</span><br>
-      <span class="keyword">rpiNet</span> = <span class="value">$460,000</span> - <span class="value">$101,200</span> = <span class="result">$358,800</span><br><br>
-      <span class="comment">// Year 2: Growth compounds</span><br>
-      <span class="keyword">grossRevenue</span> = <span class="value">$460,000</span> &times; <span class="value">1.05</span> = <span class="result">$483,000</span><br>
-      <span class="keyword">rpiNet</span> = <span class="result">$376,740</span><br><br>
-      <span class="comment">// Year 5: DCF valuation</span><br>
-      <span class="keyword">dcfValuation</span> = <span class="result">$4,280,000</span><br>
-      <span class="keyword">npvCashflows</span> = <span class="result">$1,720,000</span><br><br>
+      <span class="keyword">grossRevenue</span> = <span class="value">$100,000</span> &times; <span class="value">92%</span> = <span class="result">$92,000</span><br>
+      <span class="keyword">tierLevel</span> = <span class="result">Bronze (20%)</span><br>
+      <span class="keyword">partnerPayout</span> = <span class="value">$92,000</span> &times; <span class="value">20%</span> = <span class="value">$18,400</span><br>
+      <span class="keyword">rpiNet</span> = <span class="value">$92,000</span> - <span class="value">$18,400</span> = <span class="result">$73,600</span><br><br>
+      <span class="comment">// Now multiply the avatar across the TAM</span><br>
+      <span class="keyword">targetMarket</span> = <span class="value">30,000</span> independent Medicare agents, age 70-80<br>
+      <span class="keyword">that's</span> = <span class="value">80%</span> of all independent Medicare agents in the US<br><br>
+      <span class="comment">// Acquire just 1% of the TAM = 300 books</span><br>
+      <span class="keyword">booksAcquired</span> = <span class="value">300</span><br>
+      <span class="keyword">totalRevenue</span> = <span class="value">300</span> &times; <span class="value">$100,000</span> = <span class="result">$30,000,000</span><br>
+      <span class="keyword">totalClients</span> = <span class="value">300</span> &times; <span class="value">500</span> = <span class="result">150,000 clients</span><br>
+      <span class="keyword">acquisitionCost</span> = <span class="value">300</span> &times; <span class="value">$225,000</span> = <span class="result">$67,500,000</span><br>
+      <span class="keyword">rpiNetRevenue</span> = <span class="result">$22,080,000 / year</span><br><br>
       <span class="comment">// Same math. Whether it was a merger, acquisition, or partnership.</span><br>
-      <span class="comment">// The source doesn't matter. The tier system doesn't care.</span>
+      <span class="comment">// The source doesn't matter. The tier system doesn't care.</span><br>
+      <span class="comment">// 30,000 books are out there. We just need to go get them.</span>
     </div>
 
     <div class="punchline">
