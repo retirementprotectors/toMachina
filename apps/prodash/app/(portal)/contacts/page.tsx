@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import { query, orderBy, type Query, type DocumentData } from 'firebase/firestore'
 import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
@@ -34,6 +33,11 @@ function getAge(dob: unknown): number | null {
   return age >= 0 ? age : null
 }
 
+/** Strip surrounding quotes from a name (e.g., "jane" → jane) */
+function cleanName(name: string): string {
+  return name.replace(/^["']|["']$/g, '')
+}
+
 // ---------------------------------------------------------------------------
 // Types & Constants
 // ---------------------------------------------------------------------------
@@ -57,7 +61,6 @@ const PAGE_SIZE = 25
 // ---------------------------------------------------------------------------
 
 export default function ClientsPage() {
-  const router = useRouter()
   const { data: rawClients, loading, error } = useCollection<ClientRow>(clientsQuery, 'all-clients')
 
   const [search, setSearch] = useState('')
@@ -221,9 +224,9 @@ export default function ClientsPage() {
 
   const handleRowClick = useCallback(
     (client: ClientRow) => {
-      router.push(`/contacts/${client._id || client.client_id}`)
+      window.open(`/contacts/${client._id || client.client_id}`, '_blank')
     },
-    [router]
+    []
   )
 
   // Shorthand: is column visible?
@@ -260,7 +263,7 @@ export default function ClientsPage() {
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-            <p className="text-sm text-[var(--text-muted)]">Loading clients...</p>
+            <p className="text-sm text-[var(--text-muted)]">Loading contacts...</p>
           </div>
         </div>
       </div>
@@ -294,6 +297,7 @@ export default function ClientsPage() {
   return (
     <div className="flex flex-col gap-5">
       {/* Header + Filters */}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4">
       <ClientFilters
         search={search}
         onSearchChange={handleSearchChange}
@@ -318,22 +322,23 @@ export default function ClientsPage() {
 
       {/* DeDup button — shown when 2+ clients selected */}
       {selectedIds.size >= 2 && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mt-3">
           <button
             onClick={handleDdup}
-            className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 h-[34px] px-4 text-sm font-medium text-white transition-colors hover:bg-amber-600"
+            className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 h-[34px] px-4 text-sm font-medium text-white transition-colors hover:bg-amber-600 cursor-pointer"
           >
             <span className="material-icons-outlined text-[16px]">merge_type</span>
-            Ddup Selected ({selectedIds.size})
+            DeDup Selected ({selectedIds.size})
           </button>
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] h-[34px] px-3 text-sm font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] h-[34px] px-3 text-sm font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)] cursor-pointer"
           >
             Clear
           </button>
         </div>
       )}
+      </div>
 
       {/* No results */}
       {sorted.length === 0 && (
@@ -418,7 +423,8 @@ export default function ClientsPage() {
                           />
                           <div className="min-w-0">
                             <p className="truncate font-medium text-[var(--text-primary)]">
-                              {client.first_name} {client.last_name}
+                              {cleanName(String(client.preferred_name || client.first_name || ''))}{' '}
+                              {cleanName(String(client.last_name || ''))}
                             </p>
                             {age != null && (
                               <p className="text-xs text-[var(--text-muted)]">Age {age}</p>
@@ -600,7 +606,7 @@ export default function ClientsPage() {
               <button
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-lg border border-[var(--border)] px-4 py-1.5 text-sm transition-colors hover:bg-[var(--bg-hover)] disabled:cursor-not-allowed disabled:opacity-30"
+                className="cursor-pointer rounded-lg border border-[var(--border)] px-4 py-1.5 text-sm transition-colors hover:bg-[var(--bg-hover)] disabled:cursor-not-allowed disabled:opacity-30"
               >
                 Previous
               </button>
@@ -612,7 +618,7 @@ export default function ClientsPage() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                className="rounded-lg border border-[var(--border)] px-4 py-1.5 text-sm transition-colors hover:bg-[var(--bg-hover)] disabled:cursor-not-allowed disabled:opacity-30"
+                className="cursor-pointer rounded-lg border border-[var(--border)] px-4 py-1.5 text-sm transition-colors hover:bg-[var(--bg-hover)] disabled:cursor-not-allowed disabled:opacity-30"
               >
                 Next
               </button>

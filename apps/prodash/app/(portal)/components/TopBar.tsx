@@ -29,6 +29,7 @@ function usePageTitle(): string {
     // Handle known route patterns
     const titles: Record<string, string> = {
       clients: 'Contacts',
+      contacts: 'Contacts',
       accounts: 'Accounts',
       intake: 'Quick Intake',
       admin: 'Admin',
@@ -46,13 +47,24 @@ function usePageTitle(): string {
       dex: 'DEX',
       c3: 'C3',
       'command-center': 'Command Center',
+      myrpi: 'My RPI',
+      ddup: 'DeDup',
+      'service-centers': 'Service Centers',
+      'sales-centers': 'Sales Centers',
     }
     // Check for known title first, then capitalize
     if (titles[last]) return titles[last]
-    // If it looks like an ID (contains numbers or hyphens), use the parent segment
-    if (/^[a-f0-9-]{8,}$/.test(last) && segments.length >= 2) {
+    // If it looks like an ID (UUID, hash, Firestore doc IDs — alphanumeric + hyphens, 8+ chars), use the parent segment
+    if (/^[a-f0-9A-F-]{8,}$/.test(last) && segments.length >= 2) {
       const parent = segments[segments.length - 2]
       if (titles[parent]) return titles[parent]
+      return parent.charAt(0).toUpperCase() + parent.slice(1).replace(/-/g, ' ')
+    }
+    // Also handle Firestore IDs that mix letters and numbers (e.g., "abc123def456")
+    if (/[0-9]/.test(last) && /[a-zA-Z]/.test(last) && last.length >= 8 && segments.length >= 2) {
+      const parent = segments[segments.length - 2]
+      if (titles[parent]) return titles[parent]
+      return parent.charAt(0).toUpperCase() + parent.slice(1).replace(/-/g, ' ')
     }
     return last.charAt(0).toUpperCase() + last.slice(1).replace(/-/g, ' ')
   }, [pathname])
@@ -127,7 +139,7 @@ export function TopBar({ user }: TopBarProps) {
           {/* Sign Out */}
           <button
             onClick={signOut}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors hover:bg-[rgba(74,122,181,0.08)] hover:text-[var(--text-primary)]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors hover:bg-[rgba(74,122,181,0.08)] hover:text-[var(--text-primary)] cursor-pointer"
             title="Sign Out"
           >
             <span className="material-icons-outlined" style={{ fontSize: '18px' }}>logout</span>
