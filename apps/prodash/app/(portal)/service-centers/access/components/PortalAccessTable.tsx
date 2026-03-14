@@ -85,7 +85,7 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials }: Port
               <table className="w-full text-sm">
                 <thead className="bg-[var(--bg-surface)]">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Carrier / Service</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Carrier / Product Type</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Username</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Status</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Last Login</th>
@@ -95,15 +95,11 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials }: Port
                 <tbody>
                   {(grouped[cat] ?? []).map((item) => {
                     const isVerifying = verifying === item.access_id
+                    const isVerified = item.status === 'connected'
                     return (
                       <tr key={item.access_id} className="border-t border-[var(--border)] hover:bg-[var(--bg-hover)]">
                         <td className="px-4 py-3">
-                          <div>
-                            <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
-                            {item.portal_url && (
-                              <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate max-w-[200px]">{item.portal_url}</p>
-                            )}
-                          </div>
+                          <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
                         </td>
                         <td className="px-4 py-3 font-mono text-xs text-[var(--text-secondary)]">
                           {maskUsername(item.username)}
@@ -120,7 +116,11 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials }: Port
                             <button
                               onClick={() => handleVerify(item.access_id)}
                               disabled={isVerifying}
-                              className="inline-flex items-center gap-1 rounded-md h-[34px] px-2.5 text-xs font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-all hover:border-[var(--portal)] hover:text-[var(--portal)] disabled:opacity-50"
+                              className={`inline-flex items-center gap-1 rounded-md h-[34px] px-2.5 text-xs font-medium border transition-all disabled:opacity-50 ${
+                                isVerified
+                                  ? 'border-emerald-500/30 text-emerald-400 hover:border-emerald-500/50'
+                                  : 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
+                              }`}
                               title="Mark as verified"
                             >
                               {isVerifying ? (

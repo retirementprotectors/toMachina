@@ -17,6 +17,7 @@ interface AccessItem {
   client_id: string
   type: AccessType
   service_name: string
+  subcategory?: string
   category: AccessCategory
   status: AccessStatus
   portal_url?: string
@@ -35,13 +36,13 @@ interface AccessItem {
 const SEED_DATA: AccessItem[] = [
   {
     access_id: 'api-001', client_id: 'demo', type: 'api',
-    service_name: 'Medicare.gov', category: 'medicare', status: 'connected',
+    service_name: 'cms.gov', subcategory: 'Original Medicare', category: 'medicare', status: 'connected',
     last_verified: '2026-01-15', notes: 'Part A & B lookup — verified via CMS API',
     created_at: '2025-01-01', updated_at: '2026-01-15',
   },
   {
     access_id: 'api-002', client_id: 'demo', type: 'api',
-    service_name: 'Social Security', category: 'government', status: 'pending',
+    service_name: 'ssa.gov', subcategory: 'Social Security', category: 'government', status: 'pending',
     notes: 'SSA.gov — awaiting authorization from client',
     created_at: '2025-01-01', updated_at: '2025-06-01',
   },
