@@ -1,17 +1,41 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { Client } from '@tomachina/core'
 import { getAge, getInitials, hashColor } from '../lib/formatters'
+import { AI3Report } from './AI3Report'
+import { getAuth } from 'firebase/auth'
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface AI3Data {
+  client: Record<string, unknown>
+  accounts: Array<Record<string, unknown> & { category: string }>
+  connected_contacts: Array<Record<string, unknown>>
+  access_items: Array<Record<string, unknown>>
+  recent_activities: Array<Record<string, unknown>>
+  generated_at: string
+  generated_by: string
+}
 
 interface ClientHeaderProps {
   client: Client
   clientId: string
 }
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps) {
   const fullName = [client.first_name, client.last_name].filter(Boolean).join(' ') || 'Unknown'
-  const displayName = (client.preferred_name as string) || client.first_name || fullName
+  // Strip surrounding quotes from preferred_name to prevent
+  // display like "jane" with literal quote characters
+  const rawPref = client.preferred_name as string
+  const cleanPref = rawPref ? rawPref.replace(/^["']|["']$/g, '') : ''
+  const displayName = cleanPref || client.first_name || fullName
   const status = (client.client_status as string) || 'Unknown'
   const initials = getInitials(fullName)
   const avatarColor = hashColor(fullName)
@@ -24,11 +48,71 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
   const acfLink = client.acf_link as string | undefined
 
   const [ai3Loading, setAi3Loading] = useState(false)
+  const [ai3Data, setAi3Data] = useState<AI3Data | null>(null)
+  const ai3Ref = useRef<HTMLDivElement>(null)
 
-  const handleAI3 = () => {
+  const handleAI3 = async () => {
     setAi3Loading(true)
-    // Placeholder: will trigger PDF_SERVICE generation
-    setTimeout(() => setAi3Loading(false), 2000)
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+
+      // 1. Fetch aggregated data from AI3 endpoint
+      const res = await fetch(`/api/ai3/${_clientId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error || 'Failed to fetch AI3 data')
+
+      setAi3Data(json.data as AI3Data)
+
+      // 2. Wait for React to render the hidden report
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // 3. Capture to canvas via dynamic import
+      const { default: html2canvas } = await import('html2canvas')
+      const { jsPDF } = await import('jspdf')
+
+      const reportEl = ai3Ref.current
+      if (!reportEl) throw new Error('Report element not found')
+
+      const canvas = await html2canvas(reportEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+      })
+
+      // 4. Generate PDF
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'letter')
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const imgWidth = pageWidth - 20 // 10mm margins
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+
+      // Handle multi-page
+      let yOffset = 10
+      const pageHeight = pdf.internal.pageSize.getHeight() - 20
+      let remainingHeight = imgHeight
+
+      while (remainingHeight > 0) {
+        if (yOffset > 10) pdf.addPage()
+        pdf.addImage(imgData, 'PNG', 10, yOffset - (imgHeight - remainingHeight), imgWidth, imgHeight)
+        remainingHeight -= pageHeight
+        yOffset = 10
+      }
+
+      // 5. Download
+      const clientName = [json.data.client.first_name, json.data.client.last_name].filter(Boolean).join('_')
+      const date = new Date().toISOString().slice(0, 10)
+      pdf.save(`AI3_Report_${clientName}_${date}.pdf`)
+
+    } catch (err) {
+      // Do not expose PHI in error messages
+      console.error('AI3 generation failed:', err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setAi3Loading(false)
+      setAi3Data(null)
+    }
   }
 
   return (
@@ -117,6 +201,13 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
           <MetaChip icon="schedule" label={String(timezone)} />
         )}
       </div>
+
+      {/* Hidden AI3 Report — rendered off-screen for PDF capture */}
+      {ai3Data && (
+        <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+          <AI3Report ref={ai3Ref} data={ai3Data} />
+        </div>
+      )}
     </div>
   )
 }
