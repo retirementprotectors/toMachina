@@ -2,7 +2,7 @@
 
 > The complete vision from migration through full feature buildout.
 > Operating Model: 3-6 Builder Agents + 1 Planner/Auditor Agent
-> Updated: 2026-03-11
+> Updated: 2026-03-13
 
 ---
 
@@ -13,16 +13,27 @@
 | 1 | Data Integrity | **COMPLETE** | 26,889 docs cleaned, normalized, FK-validated |
 | 2 | Shared Modules | **COMPLETE** | 8 shared components, 24 portal pages → 3-line imports |
 | 3 | Portal Depth | **COMPLETE** | 18 features: CLIENT360, RMD, Beni, Medicare quoting, DAVID HUB calcs, rich dashboards |
-| 4 | GAS Engine Migration | **IN PROGRESS** | COMMS + FLOW + C3 + ATLAS + CAM backends → toMachina |
-| 5 | Infrastructure Cutover + RAPID_IMPORT | PLANNED | Cloud Run live, Sheets writes killed, RAPID_IMPORT ported |
-| 6 | MyDropZone | PLANNED | Field agent capture → intelligence → routing (needs Cloud Run from Sprint 5) |
-| 7 | DEX Modernization | PLANNED | PDF/Drive ops → Cloud Functions, form library in Firestore (unblocks Sprint 12 pipelines) |
-| 8 | C3 Refresh | PLANNED | Full send orchestration, scheduling, A/B testing, analytics |
-| 9 | CAM Modernization | PLANNED | Full commission management: grid editing, reconciliation, agent onboarding |
-| 10 | ATLAS Refresh | PLANNED | Full source intelligence: wire diagrams, automation scoring, health monitoring |
-| 11 | Command Center Refresh | PLANNED | Full leadership dashboard: cross-platform KPIs, team performance, alerts |
-| 12 | Pipeline Factory (QUE/NBX/Ops/Deal) | PLANNED | Revenue workflows built on PROVEN foundation (DEX + C3 + CAM + ATLAS + CC all online) |
-| 13 | DAVID M&A Platform | PLANNED | Acquisition tooling, Operating System distribution, book migration |
+| 4 | GAS Engine Migration | **COMPLETE** | COMMS + FLOW + C3 + ATLAS + CAM backends → toMachina API |
+| 5 | Infrastructure Cutover | **COMPLETE** | Cloud Run live (tm-api + tm-bridge), approval engine, intake Cloud Functions, 6 GAS engines archived |
+| 6 | UI Extravaganza | **COMPLETE** | 6 parallel builders, 34 API routes, 9 shared UI modules, full visual overhaul |
+| 7a | Pipeline Factory | **COMPLETE** | 13 pipelines, Kanban UI, seed script, dynamic sidebar modules |
+| 7b | Pipeline Studio | **COMPLETE** | Full-screen pipeline builder app (teal brand), admin CRUD API, ~16,000 lines |
+| 8 | Design Polish | **COMPLETE** | COMMS Center, Access Center, DeDup Overhaul, Document Buttons, 47-item design punch list |
+| 8p | Sprint 8 Polish | **COMPLETE** | Grid polish, Client360 tab restructure, shared component cleanup (3 builders) |
+| 9 | Sprint 9 Kickoff | **IN PROGRESS** | 23 bug fixes (~16 shipped), Communications Module mockup, RPI Connect mockup, CI fix |
+| 10 | Production Polish + Wiring | PLANNED | Wire Communications + RPI Connect to real APIs (Twilio, Google Chat, Calendar), solve slide-out UX |
+| 11 | DEX Modernization | PLANNED | PDF/Drive ops → Cloud Functions, form library in Firestore |
+| 12 | DAVID M&A Platform | PLANNED | Acquisition tooling, Operating System distribution, book migration |
+
+### What Shipped (2026-03-11 through 2026-03-13)
+- **~80,000+ lines** across Sprints 1-9 in 3 days
+- **3 portals live**: prodash.tomachina.com, riimo.tomachina.com, sentinel.tomachina.com
+- **CI green** for the first time — Firebase App Hosting auto-deploying
+- **30+ builder sessions**, 9.9/10 execution rate
+- **/clients/ → /contacts/** route rename shipped
+- **Communications Module** slide-out mockup (feed + compose + dialer + inbound call card)
+- **RPI Connect** slide-out redesign (Channels + People with presence + Meet)
+- **Pipeline Studio** full builder app + 13 pipeline configs seeded
 
 ---
 
