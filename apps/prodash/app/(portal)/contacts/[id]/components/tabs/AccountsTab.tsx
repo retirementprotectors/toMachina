@@ -197,7 +197,7 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
               className="inline-flex items-center gap-1.5 rounded border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.15)] px-4 py-1.5 text-sm font-medium text-[#f59e0b] transition-all hover:bg-[rgba(245,158,11,0.25)]"
             >
               <span className="material-icons-outlined text-[16px]">compare_arrows</span>
-              Ddup Selected ({selected.size})
+              DeDup Selected ({selected.size})
             </button>
           )}
         </div>

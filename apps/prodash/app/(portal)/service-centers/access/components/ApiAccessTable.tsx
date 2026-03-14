@@ -31,12 +31,20 @@ function formatDate(raw: string | undefined): string {
 }
 
 const SERVICE_ICONS: Record<string, string> = {
+  'cms.gov': 'health_and_safety',
   'Medicare.gov': 'health_and_safety',
+  'ssa.gov': 'account_balance',
   'Social Security': 'account_balance',
-  'Social Security / SSA.gov': 'account_balance',
   'IRS.gov': 'account_balance',
   'State Insurance Commissioner': 'gavel',
   'default': 'public',
+}
+
+// Display name overrides: normalize legacy service names to current branding
+const DISPLAY_NAMES: Record<string, { name: string; sub?: string }> = {
+  'Medicare.gov': { name: 'cms.gov', sub: 'Original Medicare' },
+  'Social Security': { name: 'ssa.gov', sub: 'Social Security' },
+  'Social Security / SSA.gov': { name: 'ssa.gov', sub: 'Social Security' },
 }
 
 const AUTH_CONFIG: Record<AuthStatus, { label: string; bg: string; text: string }> = {
@@ -92,6 +100,9 @@ export function ApiAccessTable({ items, onVerify, onAuthCycle }: ApiAccessTableP
             const isVerifying = verifying === item.access_id
             const authStatus: AuthStatus = item.auth_status || 'none'
             const authConfig = AUTH_CONFIG[authStatus]
+            const display = DISPLAY_NAMES[item.service_name]
+            const displayName = display?.name || item.service_name
+            const displaySub = display?.sub || item.category
 
             return (
               <tr key={item.access_id} className="border-t border-[var(--border)] hover:bg-[var(--bg-hover)]">
@@ -99,8 +110,8 @@ export function ApiAccessTable({ items, onVerify, onAuthCycle }: ApiAccessTableP
                   <div className="flex items-center gap-2.5">
                     <span className="material-icons-outlined text-[20px] text-[var(--text-muted)]">{icon}</span>
                     <div>
-                      <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
-                      <p className="text-xs capitalize text-[var(--text-muted)]">{item.category}</p>
+                      <p className="font-medium text-[var(--text-primary)]">{displayName}</p>
+                      <p className="text-xs text-[var(--text-muted)]">{displaySub}</p>
                     </div>
                   </div>
                 </td>

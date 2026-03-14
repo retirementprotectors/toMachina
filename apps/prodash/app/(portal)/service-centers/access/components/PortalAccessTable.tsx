@@ -101,7 +101,7 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials, onAuth
               <table className="w-full text-sm">
                 <thead className="bg-[var(--bg-surface)]">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Carrier / Service</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Carrier / Product Type</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Product Type</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Username</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Status</th>
@@ -118,19 +118,7 @@ export function PortalAccessTable({ items, onVerify, onUpdateCredentials, onAuth
                     return (
                       <tr key={item.access_id} className="border-t border-[var(--border)] hover:bg-[var(--bg-hover)]">
                         <td className="px-4 py-3">
-                          <div>
-                            <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
-                            {item.portal_url && (
-                              <a
-                                href={item.portal_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-0.5 text-xs text-[var(--portal)] truncate max-w-[200px] block hover:underline"
-                              >
-                                {item.portal_url}
-                              </a>
-                            )}
-                          </div>
+                          <p className="font-medium text-[var(--text-primary)]">{item.service_name}</p>
                         </td>
                         <td className="px-4 py-3 text-xs text-[var(--text-secondary)]">
                           {item.product_type || '\u2014'}
