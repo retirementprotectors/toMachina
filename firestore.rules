@@ -7,105 +7,100 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ----------------------------------------------------------------
+    // Helper functions
+    // ----------------------------------------------------------------
+
     // Authenticated @retireprotected.com users only
     function isRPIUser() {
       return request.auth != null &&
              request.auth.token.email.matches('.*@retireprotected\\.com');
     }
 
-    // Collection group query support (for cross-client account queries)
+    // Executive or above (level 0 = OWNER, level 1 = EXECUTIVE)
+    function isExecutiveOrAbove() {
+      return isRPIUser() &&
+             get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.level <= 1;
+    }
+
+    // Leader or above (level 0 = OWNER, level 1 = EXECUTIVE, level 2 = LEADER)
+    function isLeaderOrAbove() {
+      return isRPIUser() &&
+             get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.level <= 2;
+    }
+
+    // Check if user is modifying their own profile
+    function isOwnProfile(email) {
+      return isRPIUser() && request.auth.token.email == email;
+    }
+
+    // ----------------------------------------------------------------
+    // Collection group queries
+    // ----------------------------------------------------------------
+
+    // Cross-client account queries
     match /{path=**}/accounts/{docId} {
       allow read: if isRPIUser();
     }
 
-    // All collections: RPI domain users only
-    match /clients/{clientId} {
-      allow read, write: if isRPIUser();
-      match /{subcollection}/{docId} {
-        allow read, write: if isRPIUser();
-      }
-    }
-
-    match /agents/{agentId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /producers/{producerId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /opportunities/{oppId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /revenue/{revenueId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /carriers/{carrierId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /products/{productId} {
-      allow read, write: if isRPIUser();
-    }
-
+    // ----------------------------------------------------------------
+    // Users — self-update (restricted fields) + executive full write
+    // ----------------------------------------------------------------
     match /users/{email} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+
+      // Users can update their own profile EXCEPT protected fields
+      allow update: if isOwnProfile(email) &&
+        !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['level', 'user_level', 'role_template', 'module_permissions', 'status']);
+
+      // Executives can do anything (create, update, delete)
+      allow write: if isExecutiveOrAbove();
     }
 
+    // ----------------------------------------------------------------
+    // Org structure — executive only writes
+    // ----------------------------------------------------------------
     match /org/{unitId} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
     }
 
-    match /campaigns/{campaignId} {
-      allow read, write: if isRPIUser();
+    // ----------------------------------------------------------------
+    // Portal config — leader+ writes
+    // ----------------------------------------------------------------
+    match /portal_config/{portal}/{subcol}/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
 
-    match /templates/{templateId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /content_blocks/{blockId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /flow/{subcol}/{docId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /atlas/{subcol}/{docId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /comp_grids/{type}/{gridId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /case_tasks/{taskId} {
-      allow read, write: if isRPIUser();
-    }
-
-    match /communications/{commId} {
-      allow read, write: if isRPIUser();
-    }
-
-    // Pipeline Factory collections
+    // ----------------------------------------------------------------
+    // Pipeline Factory — definition collections (leader+ writes)
+    // ----------------------------------------------------------------
     match /flow_pipelines/{docId} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
     match /flow_stages/{docId} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
     match /flow_workflows/{docId} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
     match /flow_steps/{docId} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
     match /flow_task_templates/{docId} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
+
+    // ----------------------------------------------------------------
+    // Pipeline Factory — instance collections (daily work, all RPI users)
+    // ----------------------------------------------------------------
     match /flow_instances/{docId} {
       allow read, write: if isRPIUser();
     }
@@ -121,9 +116,88 @@ service cloud.firestore {
       allow read, write: if isRPIUser();
     }
 
-    // Portal config (app availability)
-    match /portal_config/{portal}/{subcol}/{docId} {
+    // ----------------------------------------------------------------
+    // Clients + subcollections (daily work)
+    // ----------------------------------------------------------------
+    match /clients/{clientId} {
       allow read, write: if isRPIUser();
+      match /{subcollection}/{docId} {
+        allow read, write: if isRPIUser();
+      }
+    }
+
+    // ----------------------------------------------------------------
+    // Daily work collections — all RPI users
+    // ----------------------------------------------------------------
+    match /agents/{agentId} {
+      allow read, write: if isRPIUser();
+    }
+    match /producers/{producerId} {
+      allow read, write: if isRPIUser();
+    }
+    match /opportunities/{oppId} {
+      allow read, write: if isRPIUser();
+    }
+    match /case_tasks/{taskId} {
+      allow read, write: if isRPIUser();
+    }
+    match /communications/{commId} {
+      allow read, write: if isRPIUser();
+    }
+
+    // ----------------------------------------------------------------
+    // Revenue, carriers, products — leader+ writes
+    // ----------------------------------------------------------------
+    match /revenue/{revenueId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /carriers/{carrierId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /products/{productId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Campaign engine — leader+ writes
+    // ----------------------------------------------------------------
+    match /campaigns/{campaignId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /templates/{templateId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /content_blocks/{blockId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Comp grids — executive only writes
+    // ----------------------------------------------------------------
+    match /comp_grids/{type}/{gridId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Flow (legacy) — daily work
+    // ----------------------------------------------------------------
+    match /flow/{subcol}/{docId} {
+      allow read, write: if isRPIUser();
+    }
+
+    // ----------------------------------------------------------------
+    // ATLAS — leader+ writes
+    // ----------------------------------------------------------------
+    match /atlas/{subcol}/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
   }
 }
