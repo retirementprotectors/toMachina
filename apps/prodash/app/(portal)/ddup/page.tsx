@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, setDoc, getDocs, collection, deleteDoc, arrayUnion } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import Link from 'next/link'
 
@@ -269,17 +269,30 @@ function DdupContent() {
         try {
           let ref
           let path: string
-          if (type === 'account' && id.includes('-')) {
-            const [clientId, accountId] = id.split('-')
-            ref = doc(db, 'clients', clientId, 'accounts', accountId)
-            path = `clients/${clientId}/accounts/${accountId}`
+          // Items 6-7 (DD-2, FIX-4): Use '::' delimiter for account composite IDs
+          // to avoid conflicts with hyphens in Firestore doc IDs (UUID format).
+          // Format: clientId::accountId — also supports legacy '-' separator as fallback.
+          if (type === 'account' && (id.includes('::') || id.includes('-'))) {
+            const sep = id.includes('::') ? '::' : '-'
+            const sepIndex = id.indexOf(sep)
+            const clientIdPart = id.slice(0, sepIndex)
+            const accountId = id.slice(sepIndex + sep.length)
+            ref = doc(db, 'clients', clientIdPart, 'accounts', accountId)
+            path = `clients/${clientIdPart}/accounts/${accountId}`
           } else {
             ref = doc(db, 'clients', id)
             path = `clients/${id}`
           }
           const snap = await getDoc(ref)
           if (snap.exists()) {
-            results.push({ id: snap.id, data: snap.data() as Record<string, unknown>, path })
+            const data = snap.data() as Record<string, unknown>
+            // Item 8 (FIX-5): Skip records that have already been merged
+            const clientStatus = str(data.client_status).toLowerCase()
+            const status = str(data.status).toLowerCase()
+            if (clientStatus === 'merged' || status === 'merged' || data._merged_into) {
+              continue
+            }
+            results.push({ id: snap.id, data, path })
           }
         } catch {
           // Skip failed loads
@@ -393,16 +406,55 @@ function DdupContent() {
 
       await updateDoc(doc(db, winner.path), mergedData)
 
-      // Archive losers
+      // Archive losers and move associated records
       for (let i = 1; i < records.length; i++) {
         const loser = records[i]
+        const loserId = loser.id
         const statusField = type === 'client' ? 'client_status' : 'status'
+
         await updateDoc(doc(db, loser.path), {
           [statusField]: 'merged',
           _merged_into: winner.id,
           _merged_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
+
+        // Item 5 (FIX-21): Move child collections from loser to winner
+        if (type === 'client') {
+          // 1. Move accounts subcollection
+          try {
+            const loserAccounts = await getDocs(collection(db, 'clients', loserId, 'accounts'))
+            for (const accountDoc of loserAccounts.docs) {
+              await setDoc(doc(db, 'clients', winner.id, 'accounts', accountDoc.id), accountDoc.data())
+              await deleteDoc(accountDoc.ref)
+            }
+          } catch {
+            // Non-critical — accounts may not exist
+          }
+
+          // 2. Merge connected_contacts from loser into winner
+          const loserConnected = loser.data.connected_contacts as Array<Record<string, unknown>> | undefined
+          if (Array.isArray(loserConnected) && loserConnected.length > 0) {
+            try {
+              await updateDoc(doc(db, winner.path), {
+                connected_contacts: arrayUnion(...loserConnected),
+              })
+            } catch {
+              // Non-critical
+            }
+          }
+
+          // 3. Move communications subcollection
+          try {
+            const loserComms = await getDocs(collection(db, 'clients', loserId, 'communications'))
+            for (const commDoc of loserComms.docs) {
+              await setDoc(doc(db, 'clients', winner.id, 'communications', commDoc.id), commDoc.data())
+              await deleteDoc(commDoc.ref)
+            }
+          } catch {
+            // Non-critical — communications may not exist
+          }
+        }
       }
 
       setMergedWinnerId(winner.id)
@@ -562,19 +614,49 @@ function DdupContent() {
               <tr>
                 <th className="sticky left-0 z-10 bg-[var(--bg-surface)] px-4 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] w-40">Field</th>
                 <th className="px-2 py-3 w-8"></th>
-                {records.map((rec, i) => (
-                  <th key={rec.id} className="px-4 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] min-w-[220px]">
-                    <div className="flex items-center gap-2">
-                      {i === 0 && (
-                        <span className="rounded bg-[var(--portal)] px-1.5 py-0.5 text-[10px] text-white font-bold">WINNER</span>
+                {records.map((rec, i) => {
+                  const recName = i === 0 ? winnerName : loserName
+                  const acfUrl = str(rec.data.acf_link)
+                  return (
+                    <th key={rec.id} className="px-4 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] min-w-[220px]">
+                      <div className="flex items-center gap-2">
+                        {i === 0 && (
+                          <span className="rounded bg-[var(--portal)] px-1.5 py-0.5 text-[10px] text-white font-bold">WINNER</span>
+                        )}
+                        {/* Item 9: Contact name links to contact page in new tab */}
+                        {type === 'client' ? (
+                          <a
+                            href={`/contacts/${rec.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[var(--portal)] hover:underline normal-case"
+                          >
+                            {recName}
+                          </a>
+                        ) : (
+                          recName
+                        )}
+                        <span className="text-[var(--text-muted)] font-normal normal-case font-mono text-[10px]">
+                          {rec.id.slice(0, 8)}
+                        </span>
+                      </div>
+                      {/* Item 10: ACF link row */}
+                      {acfUrl && (
+                        <div className="mt-1">
+                          <a
+                            href={acfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[10px] font-normal normal-case text-[var(--portal)] hover:underline"
+                          >
+                            <span className="material-icons-outlined text-[11px]">folder_open</span>
+                            ACF
+                          </a>
+                        </div>
                       )}
-                      {i === 0 ? winnerName : loserName}
-                      <span className="text-[var(--text-muted)] font-normal normal-case font-mono text-[10px]">
-                        {rec.id.slice(0, 8)}
-                      </span>
-                    </div>
-                  </th>
-                ))}
+                    </th>
+                  )
+                })}
                 {records.length >= 2 && (
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] w-28">Keep</th>
                 )}

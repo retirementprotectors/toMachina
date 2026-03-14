@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { query, where, getDocs, collection, limit, orderBy, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
+import { query, where, getDocs, collection, limit, orderBy, doc, updateDoc, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Client } from '@tomachina/core'
 import { formatPhone, str } from '../../lib/formatters'
@@ -35,6 +35,19 @@ type FilterMode = 'all' | 'needs_review' | 'confirmed'
 const RELATIONSHIP_TYPES = [
   'Spouse', 'Child', 'Parent', 'Sibling', 'Referrer', 'Referral', 'Business Partner', 'Other',
 ]
+
+// Item 1: Inverse relationship mapper for reciprocal connections
+const INVERSE_RELATIONSHIPS: Record<string, string> = {
+  'Spouse': 'Spouse',
+  'Child': 'Parent',
+  'Parent': 'Child',
+  'Sibling': 'Sibling',
+  'Referrer': 'Referral',
+  'Referral': 'Referrer',
+  'Business Partner': 'Business Partner',
+  'Other': 'Other',
+}
+const getInverseRelationship = (rel: string) => INVERSE_RELATIONSHIPS[rel] || 'Other'
 
 export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
   // Parse connected_contacts from client doc (stored as array of objects)
@@ -281,6 +294,8 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
     try {
       const db = getDb()
       const ref = doc(db, 'clients', clientId)
+
+      // Write connection on current client
       await updateDoc(ref, {
         connected_contacts: arrayUnion({
           id: personId,
@@ -292,22 +307,58 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
         }),
         updated_at: new Date().toISOString(),
       })
+
+      // Item 1: Write inverse connection on the linked person
+      const inverseRelationship = getInverseRelationship(selectedRelationship)
+      const inverseConnection: ConnectedPerson = {
+        id: clientId,
+        name: `${client.first_name || ''} ${client.last_name || ''}`.trim(),
+        relationship: inverseRelationship,
+        phone: (client.phone as string) || '',
+        email: (client.email as string) || '',
+        created_via: 'manual',
+      }
+      await updateDoc(doc(db, 'clients', personId), {
+        connected_contacts: arrayUnion(inverseConnection),
+        updated_at: new Date().toISOString(),
+      })
+
       setShowSearch(false)
       setSearchQuery('')
       setSearchResults([])
     } catch (err) {
       console.error('Failed to link contact:', err)
     }
-  }, [clientId, selectedRelationship])
+  }, [clientId, selectedRelationship, client])
 
   const handleUnlink = useCallback(async (person: ConnectedPerson) => {
     try {
       const db = getDb()
       const ref = doc(db, 'clients', clientId)
+
+      // Remove from current client
       await updateDoc(ref, {
         connected_contacts: arrayRemove(person),
         updated_at: new Date().toISOString(),
       })
+
+      // Item 2: Remove the inverse connection from the other person's doc.
+      // arrayRemove requires exact object match, so read the other doc and filter.
+      if (person.id) {
+        const otherRef = doc(db, 'clients', person.id)
+        const otherSnap = await getDoc(otherRef)
+        if (otherSnap.exists()) {
+          const otherData = otherSnap.data()
+          const otherConnections = otherData.connected_contacts as ConnectedPerson[] | undefined
+          if (Array.isArray(otherConnections)) {
+            const filtered = otherConnections.filter((c) => c.id !== clientId)
+            await updateDoc(otherRef, {
+              connected_contacts: filtered,
+              updated_at: new Date().toISOString(),
+            })
+          }
+        }
+      }
     } catch (err) {
       console.error('Failed to unlink contact:', err)
     }
@@ -392,12 +443,23 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
   }, [connections, potentialMatches])
 
   // Helper: get card styling based on source/match status
+  //
+  // Item 12 (FIX-22): Yellow highlight triggers when: potential match found via
+  // email/phone/name similarity from findMatches(). The findMatches() function
+  // runs on component mount and checks each connected contact against the clients
+  // collection for matches by email (95% confidence), phone (90%), or last name
+  // similarity (75%). Results stored in potentialMatches Map.
+  //
+  // Item 13 (FIX-23): Green highlight triggers when created_via is one of:
+  //   - 'bulk_import' — imported via bulk data load
+  //   - 'auto_match' — auto-created by matching algorithm
+  // These connections need manual review/confirmation before they become 'confirmed'.
   function getCardStyle(person: ConnectedPerson): { border: string; bg: string } {
     // FIX-22: Yellow = potential duplicate match (takes priority)
     if (potentialMatches.has(person.id)) {
       return { border: 'border-yellow-500', bg: 'bg-yellow-500/10' }
     }
-    // FIX-23: Green = auto-created via bulk action
+    // FIX-23: Green = auto-created via bulk action (bulk_import or auto_match)
     const via = person.created_via || 'manual'
     if (via === 'bulk_import' || via === 'auto_match') {
       return { border: 'border-green-500', bg: 'bg-green-500/10' }

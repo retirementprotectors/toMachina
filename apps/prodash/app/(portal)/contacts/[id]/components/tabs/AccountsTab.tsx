@@ -123,10 +123,14 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
     })
   }, [])
 
+  // Items 6-7 (DD-2, FIX-4): Build composite IDs as clientId::accountId
+  // for the dedup page, using '::' delimiter to avoid conflicts with hyphens
+  // in Firestore doc IDs that may use UUID format.
   const handleDdupSelected = useCallback(() => {
-    const ids = Array.from(selected).join(',')
+    const compositeIds = Array.from(selected).map((acctId) => `${clientId}::${acctId}`)
+    const ids = compositeIds.join(',')
     window.open(`/ddup?ids=${ids}&type=account`, '_blank', 'noopener,noreferrer')
-  }, [selected])
+  }, [selected, clientId])
 
   if (loading) {
     return (
@@ -274,6 +278,8 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
 // Product-type-specific summary card
 // ---------------------------------------------------------------------------
 
+// Item 14 (AT-4): No bottom chevron/expand arrow exists on account cards.
+// Navigation is via card click (opens account detail in new tab) and document buttons.
 function AccountSummaryCard({
   account,
   category,

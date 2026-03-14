@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { doc, updateDoc, collection, getDocs } from 'firebase/firestore'
+import { doc, updateDoc, collection, getDocs, query, limit } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Client } from '@tomachina/core'
 import { formatPhone, str } from '../../lib/formatters'
@@ -29,14 +29,8 @@ const RELATIONSHIP_OPTIONS = [
   { label: 'Other', value: 'Other' },
 ]
 
-const BOOK_OF_BUSINESS_OPTIONS = [
-  { label: 'RPI', value: 'RPI' },
-  { label: 'Sprenger', value: 'Sprenger' },
-  { label: 'McCormick', value: 'McCormick' },
-  { label: 'Gradient', value: 'Gradient' },
-  { label: 'Signal', value: 'Signal' },
-  { label: 'Other', value: 'Other' },
-]
+// Item 3 (FIX-8): BoB options are fetched dynamically from Firestore
+// instead of being hardcoded. See useEffect in ContactTab below.
 
 const SOURCE_OPTIONS = [
   { label: 'Referral', value: 'Referral' },
@@ -169,6 +163,8 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
   const docPath = `clients/${clientId}`
 
   const [agentOptions, setAgentOptions] = useState<{ label: string; value: string }[]>([])
+  // Item 3 (FIX-8): Dynamic BoB options fetched from Firestore
+  const [bobOptions, setBobOptions] = useState<{ label: string; value: string }[]>([])
 
   useEffect(() => {
     async function fetchUsers() {
@@ -189,6 +185,25 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
       }
     }
     fetchUsers()
+  }, [])
+
+  // Item 3 (FIX-8): Fetch unique book_of_business values from clients collection
+  useEffect(() => {
+    async function fetchBobs() {
+      try {
+        const snap = await getDocs(query(collection(getDb(), 'clients'), limit(5000)))
+        const bobs = new Set<string>()
+        snap.forEach((d) => {
+          const bob = d.data().book_of_business
+          if (bob && typeof bob === 'string') bobs.add(bob)
+        })
+        const sorted = Array.from(bobs).sort()
+        setBobOptions(sorted.map((b) => ({ label: b, value: b })))
+      } catch {
+        // Non-critical — BoB dropdown stays empty
+      }
+    }
+    fetchBobs()
   }, [])
 
   return (
@@ -317,7 +332,7 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             fieldKey="book_of_business"
             docPath={docPath}
             type="select"
-            options={BOOK_OF_BUSINESS_OPTIONS}
+            options={bobOptions}
           />
           <InlineField
             label="Source"
