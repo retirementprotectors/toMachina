@@ -6,6 +6,8 @@ WORKDIR /app
 # Copy monorepo structure needed for this service
 COPY package.json package-lock.json turbo.json tsconfig.json ./
 COPY packages/core/package.json ./packages/core/
+COPY packages/auth/package.json ./packages/auth/
+COPY packages/db/package.json ./packages/db/
 COPY services/api/package.json ./services/api/
 
 # Install all workspace deps
