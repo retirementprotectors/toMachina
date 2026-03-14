@@ -42,6 +42,11 @@ import { dexPipelineRoutes } from './routes/dex-pipeline.js'
 import { campaignAnalyticsRoutes } from './routes/campaign-analytics.js'
 import { leadershipRoutes } from './routes/leadership.js'
 import { flowAdminRoutes } from './routes/flow-admin.js'
+import { searchRoutes } from './routes/search.js'
+import { accessRoutes } from './routes/access.js'
+import { activityRoutes } from './routes/activities.js'
+import { ai3Routes } from './routes/ai3.js'
+import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -65,6 +70,9 @@ app.use(requestLogger)
 
 // Auth + rate limit for all API routes
 app.use('/api', requireAuth, rateLimit)
+
+// Audit trail — logs mutations to activities collection (fire-and-forget, non-blocking)
+app.use('/api', auditMiddleware)
 
 // Route mounting: normalize body on write routes
 app.use('/api/clients', normalizeBody, clientRoutes)
@@ -102,6 +110,10 @@ app.use('/api/dex', normalizeBody, dexRoutes)
 app.use('/api/dex-pipeline', normalizeBody, dexPipelineRoutes)
 app.use('/api/campaign-analytics', campaignAnalyticsRoutes)
 app.use('/api/leadership', normalizeBody, leadershipRoutes)
+app.use('/api/search', searchRoutes)
+app.use('/api/access', normalizeBody, accessRoutes)
+app.use('/api/activities', normalizeBody, activityRoutes)
+app.use('/api/ai3', ai3Routes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

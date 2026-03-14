@@ -116,6 +116,11 @@ service cloud.firestore {
       allow read, write: if isRPIUser();
     }
 
+    // Audit trail — global activity log
+    match /activities/{activityId} {
+      allow read, write: if isRPIUser();
+    }
+
     // Portal config (app availability)
     match /portal_config/{portal}/{subcol}/{docId} {
       allow read, write: if isRPIUser();
