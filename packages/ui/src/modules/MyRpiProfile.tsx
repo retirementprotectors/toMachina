@@ -58,6 +58,20 @@ function getAge(dob: unknown): number | null {
   return age >= 0 ? age : null
 }
 
+/** Safely parse aliases that may be a JSON string, array, or other */
+function parseAliases(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw.filter((a) => typeof a === 'string')
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed.filter((a: unknown) => typeof a === 'string') : []
+    } catch {
+      return raw.trim() ? [raw] : []
+    }
+  }
+  return []
+}
+
 const LEVEL_LABELS: Record<number, string> = {
   0: 'Owner',
   1: 'Executive',
@@ -191,11 +205,11 @@ function AliasEditor({
   isOwnProfile,
   profileId,
 }: {
-  aliases: string[] | string | undefined
+  aliases: unknown
   isOwnProfile: boolean
   profileId: string | undefined
 }) {
-  const aliases = Array.isArray(rawAliases) ? rawAliases : rawAliases ? [rawAliases] : []
+  const aliases = parseAliases(rawAliases)
   const [adding, setAdding] = useState(false)
   const [newAlias, setNewAlias] = useState('')
   const [saving, setSaving] = useState(false)
@@ -559,7 +573,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
           >
             <option value="">My Profile</option>
             {teamMembers
-              .filter((m) => m.email !== user?.email)
+              .filter((m, i, arr) => m.email !== user?.email && arr.findIndex((x) => x.email === m.email) === i)
               .map((m) => (
                 <option key={m._id} value={m.email}>
                   {m.first_name} {m.last_name}
@@ -599,11 +613,14 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
                 ? `${profile.first_name} ${profile.last_name}`
                 : user?.displayName || 'Unknown'}
             </h2>
-            {profile?.aliases && profile.aliases.length > 0 && (
-              <p className="text-sm text-[var(--text-muted)]">
-                Goes by: {profile.aliases[0]}
-              </p>
-            )}
+            {(() => {
+              const aliases = parseAliases(profile?.aliases)
+              return aliases.length > 0 ? (
+                <p className="text-sm text-[var(--text-muted)]">
+                  Goes by: {aliases.join(', ')}
+                </p>
+              ) : null
+            })()}
             <div className="mt-1 flex items-center gap-2">
               {profile?.status && (
                 <span

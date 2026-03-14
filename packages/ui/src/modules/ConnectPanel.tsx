@@ -20,6 +20,7 @@ interface TeamMember {
   role: string
   division: string
   presence: PresenceStatus
+  photo_url?: string
 }
 
 interface ChannelData {
@@ -89,7 +90,8 @@ const PRESENCE_LABEL: Record<PresenceStatus, string> = {
   offline: 'Offline',
 }
 
-function avatarUrl(name: string): string {
+function avatarUrl(name: string, photoUrl?: string): string {
+  if (photoUrl) return photoUrl
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=72`
 }
 
@@ -201,7 +203,7 @@ function PersonCard({ member }: { member: TeamMember }) {
       <div className="flex items-start gap-3">
         <div className="relative flex-shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={avatarUrl(member.name)} alt="" className="h-9 w-9 rounded-full object-cover" referrerPolicy="no-referrer" />
+          <img src={avatarUrl(member.name, member.photo_url)} alt="" className="h-9 w-9 rounded-full object-cover" referrerPolicy="no-referrer" />
           <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[var(--bg-card)] ${PRESENCE_DOT[member.presence]}`} />
         </div>
         <div className="min-w-0 flex-1">
