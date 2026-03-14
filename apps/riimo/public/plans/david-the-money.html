@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAVID — The Money | AgentX</title>
+<title>DAVID. — The Money | AgentX</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -159,6 +159,29 @@
   .story-card .story-outcome p {
     font-size: 14px; color: var(--money); font-weight: 600; line-height: 1.6;
   }
+  .story-card .impact {
+    margin-top: 20px; padding: 20px;
+    background: var(--bg-accent); border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .story-card .impact-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 12px;
+  }
+  .story-card .impact-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  .story-card .impact-stat { text-align: center; }
+  .story-card .impact-stat .imp-num {
+    font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: -0.5px;
+  }
+  .story-card .impact-stat .imp-label {
+    font-size: 11px; color: var(--text-dim); margin-top: 2px;
+  }
+  .story-card .impact-note {
+    margin-top: 12px; font-size: 12px; color: var(--text-dim);
+    line-height: 1.6; text-align: center; font-style: italic;
+  }
 
   /* ── ECONOMICS ── */
   .econ-block {
@@ -286,7 +309,7 @@
 <!-- HERO -->
 <div class="hero">
   <div class="hero-context">Agent<span style="color: var(--gold);">X</span> &nbsp;&middot;&nbsp; The Money</div>
-  <h1>DAVID</h1>
+  <h1>DAVID.</h1>
   <div class="hero-epithet">The Money</div>
   <div class="hero-full"><strong>D</strong>isruptive and <strong>V</strong>ertically <strong>I</strong>ntegrated <strong>D</strong>istribution</div>
   <p class="hero-statement">
@@ -297,7 +320,7 @@
 <!-- TABS -->
 <div class="tab-bar">
   <div class="tab-btn active" onclick="switchTab('prospects')">Prospects</div>
-  <div class="tab-btn" onclick="switchTab('economics')">Economics</div>
+  <div class="tab-btn" onclick="switchTab('owners')">Owners</div>
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -326,6 +349,15 @@
         <div class="story-outcome">
           <p>DAVID shows up: "Merge with us. Keep your brand. Keep your clients. Keep your team. But now you have toMachina, MDJ AI, 14 automated pipelines, and a compliance engine that runs itself. Your capacity problem disappears overnight."</p>
         </div>
+        <div class="impact">
+          <div class="impact-label">Their Impact &mdash; Year 1</div>
+          <div class="impact-grid">
+            <div class="impact-stat"><div class="imp-num">$800K</div><div class="imp-label">Current Revenue</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--money)">$1.04M</div><div class="imp-label">Projected w/ Machine</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--amber)">+30%</div><div class="imp-label">Capacity Unlocked</div></div>
+          </div>
+          <div class="impact-note">No new hires needed. MDJ handles service load. Pipeline Studio automates workflows. Owner goes back to selling.</div>
+        </div>
       </div>
 
       <div class="story-card">
@@ -334,6 +366,15 @@
         <p class="story-scenario">Financial advisor with $50M AUM. Clients keep asking about Medicare. They send them down the street. Every referral out is revenue walking away &mdash; and a relationship they can't control anymore.</p>
         <div class="story-outcome">
           <p>DAVID shows up: "Merge with us. We don't just add Medicare &mdash; we add life, annuity, legacy planning, AND the tech platform to manage all of it. Your clients never leave the building again."</p>
+        </div>
+        <div class="impact">
+          <div class="impact-label">Their Impact &mdash; Year 1</div>
+          <div class="impact-grid">
+            <div class="impact-stat"><div class="imp-num">1 Line</div><div class="imp-label">Current Product</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--money)">5 Lines</div><div class="imp-label">Product w/ Machine</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--amber)">$0 Leakage</div><div class="imp-label">Referrals Stay Inside</div></div>
+          </div>
+          <div class="impact-note">Medicare, life, annuity, advisory, legacy &mdash; all quoted through one platform. Every client need met under one roof. Zero revenue walks out the door.</div>
         </div>
       </div>
     </div>
@@ -347,6 +388,15 @@
         <div class="story-outcome">
           <p>DAVID shows up: "We acquire your book. Your clients get an MDJ on day one &mdash; they'll get BETTER service than they're getting now. You get a clean exit with a fair multiple. And you can walk away knowing your life's work is protected."</p>
         </div>
+        <div class="impact">
+          <div class="impact-label">Their Impact &mdash; At Close</div>
+          <div class="impact-grid">
+            <div class="impact-stat"><div class="imp-num">$2M</div><div class="imp-label">Annual Book Revenue</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--money)">$4.5M</div><div class="imp-label">Acquisition Value (2.25x)</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--amber)">92%</div><div class="imp-label">Projected Retention</div></div>
+          </div>
+          <div class="impact-note">Clean exit at market rate. Clients onboarded into toMachina same week. MDJ handles service continuity. Retention actually improves because service gets better, not worse.</div>
+        </div>
       </div>
 
       <div class="story-card">
@@ -355,6 +405,15 @@
         <p class="story-scenario">The lead producer died. The book is orphaned. Carriers are sending retention letters. Clients are confused. The surviving partner doesn't have the licenses or relationships to hold it together.</p>
         <div class="story-outcome">
           <p>DAVID shows up: "We acquire immediately. We onboard every client into toMachina, assign agents, and run automated retention campaigns through C3 within 48 hours. Nobody falls through the cracks."</p>
+        </div>
+        <div class="impact">
+          <div class="impact-label">Their Impact &mdash; First 48 Hours</div>
+          <div class="impact-grid">
+            <div class="impact-stat"><div class="imp-num" style="color:var(--red)">Orphaned</div><div class="imp-label">Current Status</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--money)">Assigned</div><div class="imp-label">Within 48 Hours</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--amber)">C3 Active</div><div class="imp-label">Retention Campaigns Live</div></div>
+          </div>
+          <div class="impact-note">Every client gets a call, an email, and an assigned agent before carriers can poach. The book that was dying is stabilized and growing within a month.</div>
         </div>
       </div>
     </div>
@@ -368,6 +427,15 @@
         <div class="story-outcome">
           <p>DAVID shows up: "Partner with us. We ARE the distribution channel. Employed agents, not contractors. Your product goes into toMachina, gets quoted through MDJ AI, and flows through our pipelines. You get exclusive access to a vertically integrated sales force that doesn't sell your competition."</p>
         </div>
+        <div class="impact">
+          <div class="impact-label">Their Impact &mdash; Year 1</div>
+          <div class="impact-grid">
+            <div class="impact-stat"><div class="imp-num">0</div><div class="imp-label">Current D2C Agents</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--money)">Full Team</div><div class="imp-label">Exclusive Sales Force</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--amber)">100%</div><div class="imp-label">Share of Wallet</div></div>
+          </div>
+          <div class="impact-note">No competing products on the shelf. Employed agents only sell what's in the platform. Carrier gets clean data, real-time pipeline visibility, and zero channel conflict.</div>
+        </div>
       </div>
 
       <div class="story-card">
@@ -376,6 +444,15 @@
         <p class="story-scenario">Independent Marketing Organization with 200 agents. Good override structure. But agents keep leaving for shops with better tech, better CRM, better client management. The IMO can't build it, can't buy it, and can't stop the bleed.</p>
         <div class="story-outcome">
           <p>DAVID shows up: "Partner with us. Your agents get toMachina portals. They get MDJ AI. They get Pipeline Studio, Communications Center, the whole platform. You keep your override structure. We keep the distribution. Nobody leaves because there's nowhere better to go."</p>
+        </div>
+        <div class="impact">
+          <div class="impact-label">Their Impact &mdash; Year 1</div>
+          <div class="impact-grid">
+            <div class="impact-stat"><div class="imp-num" style="color:var(--red)">-15%/yr</div><div class="imp-label">Current Agent Attrition</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--money)">~0%</div><div class="imp-label">Attrition w/ Machine</div></div>
+            <div class="impact-stat"><div class="imp-num" style="color:var(--amber)">200</div><div class="imp-label">Agents Now Armed</div></div>
+          </div>
+          <div class="impact-note">Agents stop leaving because there's nowhere with better tech. The platform becomes the retention strategy. The IMO keeps their override, we keep the distribution. Bleed stops. Growth starts.</div>
         </div>
       </div>
     </div>
@@ -387,7 +464,7 @@
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- ECONOMICS TAB                                                   -->
 <!-- ════════════════════════════════════════════════════════════════ -->
-<div id="tab-economics" class="tab-content">
+<div id="tab-owners" class="tab-content">
 
 <section>
   <div class="container">
@@ -510,7 +587,7 @@
 
 <!-- FOOTER -->
 <div class="footer">
-  <div class="sig">Agent<span style="color: var(--gold);">X</span> &mdash; DAVID (The Money) &mdash; #WeAreWithDAVID</div>
+  <div class="sig">Agent<span style="color: var(--gold);">X</span> &mdash; DAVID. (The Money) &mdash; #WeAreWithDAVID</div>
   <div class="sub">Confidential &middot; March 2026 &middot; #RunningOurOwnRACE</div>
 </div>
 
