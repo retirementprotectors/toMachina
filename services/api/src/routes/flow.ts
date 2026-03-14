@@ -149,16 +149,19 @@ flowRoutes.get('/instances/:id', async (req: Request, res: Response) => {
 
     const instance = { id: doc.id, ...doc.data() } as Record<string, unknown>
 
-    // Fetch tasks and recent activity
-    const [tasksSnap, activitySnap] = await Promise.all([
+    // Fetch tasks, activity, and pipeline stages
+    const pipelineKey = instance.pipeline_key as string
+    const [tasksSnap, activitySnap, stagesSnap] = await Promise.all([
       db.collection(TASKS).where('instance_id', '==', id).orderBy('task_order', 'asc').get(),
       db.collection(ACTIVITY).where('instance_id', '==', id).orderBy('performed_at', 'desc').limit(20).get(),
+      db.collection(STAGES).where('pipeline_key', '==', pipelineKey).orderBy('stage_order', 'asc').get(),
     ])
 
     const tasks = tasksSnap.docs.map(d => ({ id: d.id, ...d.data() }))
     const activity = activitySnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const stages = stagesSnap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse({ instance: stripInternalFields(instance), tasks, activity }))
+    res.json(successResponse({ instance: stripInternalFields(instance), tasks, activity, stages }))
   } catch (err) {
     console.error('GET /api/flow/instances/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -97,7 +97,7 @@ export default function InstanceDetail({
       setInstance(json.data.instance)
       setTasks(json.data.tasks)
       setActivity(json.data.activity)
-      setStages(json.data.stages)
+      setStages(json.data.stages || [])
       setGateResult(json.data.gateResult ?? null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')

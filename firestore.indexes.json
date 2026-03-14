@@ -1,4 +1,37 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "flow_instance_tasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "instance_id", "order": "ASCENDING" },
+        { "fieldPath": "task_order", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "flow_activity",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "instance_id", "order": "ASCENDING" },
+        { "fieldPath": "performed_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "flow_stages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "pipeline_key", "order": "ASCENDING" },
+        { "fieldPath": "stage_order", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "flow_instance_tasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "instance_id", "order": "ASCENDING" },
+        { "fieldPath": "stage_id", "order": "ASCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
