@@ -33,9 +33,9 @@ function getAge(dob: unknown): number | null {
   return age >= 0 ? age : null
 }
 
-/** Strip surrounding quotes from a name (e.g., "jane" → jane) */
+/** Strip all quote characters from a name (e.g., Carol "jane" Groff → Carol jane Groff) */
 function cleanName(name: string): string {
-  return name.replace(/^["']|["']$/g, '')
+  return name.replace(/["']/g, '').replace(/\s+/g, ' ').trim()
 }
 
 // ---------------------------------------------------------------------------

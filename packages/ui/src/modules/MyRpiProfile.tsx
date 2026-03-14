@@ -573,7 +573,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
           >
             <option value="">My Profile</option>
             {teamMembers
-              .filter((m, i, arr) => m.email !== user?.email && arr.findIndex((x) => x.email === m.email) === i)
+              .filter((m, i, arr) => m.email !== user?.email && arr.findIndex((x) => x.email === m.email || (`${x.first_name} ${x.last_name}` === `${m.first_name} ${m.last_name}`)) === i)
               .map((m) => (
                 <option key={m._id} value={m.email}>
                   {m.first_name} {m.last_name}
