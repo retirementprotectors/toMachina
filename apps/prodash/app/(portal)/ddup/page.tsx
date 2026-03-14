@@ -296,13 +296,29 @@ function DdupContent() {
   // All unique fields
   const allFields = useMemo(() => {
     const skip = new Set(['_id', '_migrated_at', '_source', 'created_at', 'updated_at', 'ghl_contact_id', 'ghl_object_id', 'import_source', '_merged_into', '_merged_at'])
+    // Logical field order: name → contact → personal → dates → ids → everything else
+    const priority: Record<string, number> = {
+      first_name: 1, last_name: 2, full_name: 3, preferred_name: 4,
+      phone: 10, mobile_phone: 11, home_phone: 12, work_phone: 13, email: 14, secondary_email: 15,
+      address: 20, address_line_1: 21, address_line_2: 22, city: 23, state: 24, zip: 25, county: 26,
+      date_of_birth: 30, dob: 31, gender: 32, ssn: 33, ssn_last4: 34,
+      medicare_id: 40, medicare_part_a_date: 41, medicare_part_b_date: 42,
+      dl_number: 50, dl_state: 51, dl_issue_date: 52, dl_expiration: 53,
+      agent: 60, book_of_business: 61, source: 62, client_status: 63, classification: 64,
+      client_id: 90, account_id: 91, policy_number: 92, account_number: 93,
+    }
     const fields = new Set<string>()
     for (const rec of records) {
       for (const key of Object.keys(rec.data)) {
         if (!skip.has(key)) fields.add(key)
       }
     }
-    return Array.from(fields).sort()
+    return Array.from(fields).sort((a, b) => {
+      const pa = priority[a] ?? 100
+      const pb = priority[b] ?? 100
+      if (pa !== pb) return pa - pb
+      return a.localeCompare(b)
+    })
   }, [records])
 
   // Per-field match types

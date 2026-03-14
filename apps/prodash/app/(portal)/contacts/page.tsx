@@ -89,7 +89,8 @@ export default function ClientsPage() {
 
   // Filter logic
   const filtered = useMemo(() => {
-    let result = rawClients
+    // Exclude merged records — they've been absorbed into another record
+    let result = rawClients.filter((c) => (c.client_status || '').toLowerCase() !== 'merged')
 
     // Search filter
     if (search) {

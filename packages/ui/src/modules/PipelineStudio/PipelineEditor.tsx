@@ -111,7 +111,7 @@ export default function PipelineEditor({
       await Promise.all(
         fetchedStages.map(async (stage) => {
           try {
-            const stepsRes = await fetchWithAuth(`${apiBase}/flow/admin/stages/${stage.stage_id}/steps`)
+            const stepsRes = await fetchWithAuth(`${apiBase}/flow/admin/stages/${stage.stage_id}/steps?pipeline_key=${pipelineKey}`)
             const stepsJson: ApiResponse<FlowStepDef[]> = await stepsRes.json()
             const fetchedSteps = stepsJson.data || []
             stepsMap[stage.stage_id] = fetchedSteps
@@ -120,7 +120,7 @@ export default function PipelineEditor({
             await Promise.all(
               fetchedSteps.map(async (step) => {
                 try {
-                  const tasksRes = await fetchWithAuth(`${apiBase}/flow/admin/steps/${step.step_id}/tasks`)
+                  const tasksRes = await fetchWithAuth(`${apiBase}/flow/admin/steps/${step.step_id}/tasks?pipeline_key=${pipelineKey}&stage_id=${stage.stage_id}`)
                   const tasksJson: ApiResponse<FlowTaskTemplateDef[]> = await tasksRes.json()
                   tasksMap[step.step_id] = tasksJson.data || []
                 } catch {

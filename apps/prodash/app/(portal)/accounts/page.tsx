@@ -361,7 +361,7 @@ export default function AccountsPage() {
         <button
           onClick={() => setShowColumnPicker(!showColumnPicker)}
           className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-all ${
-            showColumnPicker ? 'border-[var(--portal)] bg-[var(--portal)] text-white' : 'border-[var(--border)] text-[var(--portal)] hover:border-[var(--portal)]'
+            showColumnPicker ? 'border-[var(--portal)] bg-[var(--portal)] text-white' : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
           }`}
         >
           <span className="material-icons-outlined text-[16px]">view_column</span>
