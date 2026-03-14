@@ -123,8 +123,11 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
       </InlineSection>
 
       {/* Driver's License Info (consolidated from removed Financial tab) */}
+      {/* Item 11 (FIX-9): DL fields forced to 4-column on md+ screens.
+          Using direct grid class instead of FieldGrid to ensure md:grid-cols-4
+          (FieldGrid jumps from sm:2 to lg:4, leaving md at 2 columns). */}
       <InlineSection title="Driver's License Info" icon="badge">
-        <FieldGrid cols={4}>
+        <dl className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4">
           <InlineField
             label="DL Number"
             value={str(client.dl_number)}
@@ -156,7 +159,7 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
             type="date"
             formatDisplay={formatDLDate}
           />
-        </FieldGrid>
+        </dl>
       </InlineSection>
     </div>
   )

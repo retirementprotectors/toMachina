@@ -11,7 +11,11 @@ interface ClientHeaderProps {
 
 export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps) {
   const fullName = [client.first_name, client.last_name].filter(Boolean).join(' ') || 'Unknown'
-  const displayName = (client.preferred_name as string) || client.first_name || fullName
+  // Item 4 (CT-3): Strip surrounding quotes from preferred_name to prevent
+  // display like "jane" with literal quote characters
+  const rawPref = client.preferred_name as string
+  const cleanPref = rawPref ? rawPref.replace(/^["']|["']$/g, '') : ''
+  const displayName = cleanPref || client.first_name || fullName
   const status = (client.client_status as string) || 'Unknown'
   const initials = getInitials(fullName)
   const avatarColor = hashColor(fullName)
