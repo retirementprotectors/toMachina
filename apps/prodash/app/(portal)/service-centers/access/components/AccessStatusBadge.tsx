@@ -7,7 +7,7 @@ interface AccessStatusBadgeProps {
 }
 
 const STATUS_CONFIG: Record<AccessStatus, { label: string; bg: string; text: string; icon: string }> = {
-  connected: { label: 'Connected', bg: 'bg-emerald-500/15', text: 'text-emerald-400', icon: 'check_circle' },
+  connected: { label: 'Active', bg: 'bg-emerald-500/15', text: 'text-emerald-400', icon: 'check_circle' },
   pending: { label: 'Pending', bg: 'bg-amber-500/15', text: 'text-amber-400', icon: 'schedule' },
   expired: { label: 'Expired', bg: 'bg-red-500/15', text: 'text-red-400', icon: 'error' },
   not_started: { label: 'Not Started', bg: 'bg-gray-500/15', text: 'text-gray-400', icon: 'radio_button_unchecked' },
