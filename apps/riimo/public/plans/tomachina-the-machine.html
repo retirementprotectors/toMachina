@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>toMachina — The Machine | AgentX</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg: #06080d;
+    --bg-card: #0c0f18;
+    --bg-card-hover: #131824;
+    --bg-accent: #101420;
+    --border: #1a2030;
+    --border-accent: #252e40;
+    --text: #e4e8f2;
+    --text-muted: #8090a8;
+    --text-dim: #445068;
+    --machine: #60a5fa;
+    --machine-bright: #93c5fd;
+    --machine-dim: #2563eb;
+    --machine-glow: rgba(96, 165, 250, 0.12);
+    --machine-border: rgba(96, 165, 250, 0.28);
+    --money: #4ade80;
+    --money-glow: rgba(74, 222, 128, 0.10);
+    --money-border: rgba(74, 222, 128, 0.25);
+    --magic: #c084fc;
+    --magic-glow: rgba(192, 132, 252, 0.10);
+    --magic-border: rgba(192, 132, 252, 0.25);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+    --gold-border: rgba(212, 164, 76, 0.25);
+    --red: #f87171;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --teal: #2dd4bf;
+    --prodash: #4a7ab5;
+    --riimo: #a78bfa;
+    --sentinel: #40bc58;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 90px 40px 70px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle,
+      rgba(96, 165, 250, 0.08) 0%,
+      rgba(37, 99, 235, 0.04) 40%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+  .hero-context {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    border-radius: 100px;
+    background: var(--gold-glow);
+    border: 1px solid var(--gold-border);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-size: 64px;
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 1;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .hero h1 .to {
+    font-weight: 300;
+    color: var(--text-dim);
+  }
+  .hero h1 .machina {
+    background: linear-gradient(135deg, var(--machine-bright) 0%, var(--machine) 50%, var(--machine-dim) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-epithet {
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+  }
+  .hero-statement {
+    max-width: 700px;
+    margin: 0 auto 32px;
+    font-size: 20px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  .hero-statement strong { color: var(--machine); font-weight: 700; }
+  .hero-statement em { color: var(--text); font-style: normal; font-weight: 600; }
+
+  /* ── TAB SYSTEM ── */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { background: var(--bg-accent); color: var(--text-muted); }
+  .tab-btn.active { background: var(--machine-glow); border-color: var(--machine-border); color: var(--machine); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── SECTIONS ── */
+  section { padding: 80px 0; }
+  section + section { border-top: 1px solid var(--border); }
+
+  h2 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  h2 .accent { color: var(--machine); }
+
+  .section-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 48px;
+    max-width: 680px;
+    line-height: 1.75;
+  }
+
+  /* ── PORTALS ── */
+  .portal-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .portal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .portal-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .portal-card.prodash::before { background: var(--prodash); }
+  .portal-card.riimo::before { background: var(--riimo); }
+  .portal-card.sentinel::before { background: var(--sentinel); }
+
+  .portal-card .portal-name {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .portal-card.prodash .portal-name { color: var(--prodash); }
+  .portal-card.riimo .portal-name { color: var(--riimo); }
+  .portal-card.sentinel .portal-name { color: var(--sentinel); }
+
+  .portal-card .portal-channel {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .portal-card .portal-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+  .portal-card .portal-url {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    padding: 6px 14px;
+    border-radius: 6px;
+    background: var(--bg-accent);
+    border: 1px solid var(--border);
+    display: inline-block;
+  }
+
+  /* ── BEFORE/AFTER ── */
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    margin-top: 40px;
+    align-items: center;
+  }
+  .ba-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+  }
+  .ba-card h3 {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .ba-card.before h3 { color: var(--red); }
+  .ba-card.after h3 { color: var(--green); }
+  .ba-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .ba-card li {
+    font-size: 14px;
+    color: var(--text-muted);
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  .ba-card li:first-child { border-top: none; }
+  .ba-card.before li { text-decoration: line-through; color: var(--text-dim); }
+  .ba-card.after li strong { color: var(--text); }
+  .ba-arrow {
+    font-size: 32px;
+    color: var(--machine);
+  }
+
+  /* ── STATS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .stat-card .number {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--machine-bright) 0%, var(--machine) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* ── CARDS ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 32px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    transition: all 0.2s;
+  }
+  .card:hover { background: var(--bg-card-hover); border-color: var(--border-accent); }
+  .card-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 16px;
+  }
+  .card-icon.blue { background: var(--machine-glow); }
+  .card-icon.green { background: rgba(74, 222, 128, 0.12); }
+  .card-icon.purple { background: rgba(167, 139, 250, 0.12); }
+  .card-icon.amber { background: rgba(251, 191, 36, 0.12); }
+  .card-icon.teal { background: rgba(45, 212, 191, 0.12); }
+  .card-icon.red { background: rgba(248, 113, 113, 0.12); }
+  .card h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+  .card p { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+  .card .tag {
+    display: inline-block; padding: 3px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-top: 12px;
+  }
+  .tag.live { background: rgba(74, 222, 128, 0.12); color: var(--green); }
+  .tag.built { background: var(--machine-glow); color: var(--machine); }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px;
+    margin-top: 32px;
+    text-align: center;
+  }
+  .arch-label {
+    font-size: 11px; color: var(--text-dim); text-transform: uppercase;
+    letter-spacing: 2px; margin-bottom: 12px; font-weight: 600;
+  }
+  .arch-layer {
+    display: flex; justify-content: center; gap: 16px;
+    flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .arch-box {
+    padding: 14px 24px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; text-align: center; min-width: 140px;
+  }
+  .arch-box.app {
+    border: 1px solid; min-width: 160px;
+  }
+  .arch-box.app.prodash { background: rgba(74, 122, 181, 0.1); border-color: rgba(74, 122, 181, 0.3); color: var(--prodash); }
+  .arch-box.app.riimo { background: rgba(167, 139, 250, 0.1); border-color: rgba(167, 139, 250, 0.3); color: var(--riimo); }
+  .arch-box.app.sentinel { background: rgba(64, 188, 88, 0.1); border-color: rgba(64, 188, 88, 0.3); color: var(--sentinel); }
+  .arch-box.pkg {
+    background: var(--machine-glow); border: 1px solid var(--machine-border); color: var(--machine);
+  }
+  .arch-box.svc {
+    background: rgba(45, 212, 191, 0.08); border: 1px solid rgba(45, 212, 191, 0.2); color: var(--teal);
+  }
+  .arch-arrow { color: var(--text-dim); font-size: 24px; margin: 8px 0; }
+
+  /* ── TECH TABLE ── */
+  .tech-table {
+    width: 100%; border-collapse: collapse; margin-top: 32px; font-size: 14px;
+  }
+  .tech-table th {
+    text-align: left; padding: 12px 20px;
+    border-bottom: 2px solid var(--border-accent);
+    color: var(--machine); font-weight: 700;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .tech-table td {
+    padding: 14px 20px; border-bottom: 1px solid var(--border); vertical-align: top;
+  }
+  .tech-table tr:hover td { background: var(--bg-accent); }
+  .tech-table .layer { font-weight: 700; color: var(--text); white-space: nowrap; }
+
+  /* ── MODULE VS APP ── */
+  .mva-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .mva-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mva-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .mva-card.module::before { background: var(--machine); }
+  .mva-card.app-type::before { background: var(--teal); }
+  .mva-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .mva-card.module h3 { color: var(--machine); }
+  .mva-card.app-type h3 { color: var(--teal); }
+  .mva-card .mva-desc { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 16px; }
+  .mva-card .mva-list { list-style: none; padding: 0; }
+  .mva-card .mva-list li {
+    font-size: 13px; color: var(--text-muted); padding: 6px 0;
+    border-top: 1px solid var(--border);
+  }
+  .mva-card .mva-list li strong { color: var(--text); }
+
+  /* ── IGNITE BLOCK ── */
+  .ignite-block {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 48px; text-align: center;
+    margin-top: 48px; position: relative; overflow: hidden;
+  }
+  .ignite-block::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--money), var(--machine), var(--magic));
+  }
+  .ignite-block .verb {
+    font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px;
+  }
+  .ignite-block .verb .f { color: var(--money); }
+  .ignite-block .verb .a { color: var(--machine); }
+  .ignite-block .verb .i { color: var(--magic); }
+  .ignite-block .verb .dot { color: var(--text-dim); }
+  .ignite-block .statement {
+    font-size: 24px; font-weight: 800; letter-spacing: -0.5px;
+    color: var(--text); line-height: 1.5;
+  }
+  .ignite-block .statement em { font-style: normal; color: var(--machine); }
+
+  /* ── SPRINT STATUS ── */
+  .sprint-timeline {
+    margin-top: 32px; position: relative; padding-left: 32px;
+  }
+  .sprint-timeline::before {
+    content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border-accent);
+  }
+  .sprint-item {
+    position: relative; margin-bottom: 24px; padding-left: 24px;
+  }
+  .sprint-item::before {
+    content: ''; position: absolute; left: -28px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 3px solid var(--machine); background: var(--bg);
+  }
+  .sprint-item.complete::before { background: var(--machine); }
+  .sprint-item.active::before { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 12px rgba(251, 191, 36, 0.3); }
+  .sprint-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .sprint-item .sprint-status {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    display: inline-block; padding: 2px 10px; border-radius: 4px; margin-bottom: 6px;
+  }
+  .sprint-item .sprint-status.done { background: rgba(74, 222, 128, 0.12); color: var(--green); }
+  .sprint-item .sprint-status.wip { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
+  .sprint-item p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 48px 40px; text-align: center; border-top: 1px solid var(--border);
+  }
+  .footer .sig { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+  .footer .sub { font-size: 12px; color: var(--text-dim); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 44px; }
+    .portal-cards { grid-template-columns: 1fr; }
+    .before-after { grid-template-columns: 1fr; }
+    .ba-arrow { transform: rotate(90deg); text-align: center; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .cards { grid-template-columns: 1fr; }
+    .mva-grid { grid-template-columns: 1fr; }
+    .tab-btn { padding: 8px 16px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                            -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-context">Agent<span style="color: var(--gold);">X</span> &nbsp;&middot;&nbsp; The Machine</div>
+  <h1><span class="to">to</span><span class="machina">Machina</span></h1>
+  <div class="hero-epithet">The Machine</div>
+  <p class="hero-statement">
+    A <strong>Transcendent</strong> Tech Platform, which <strong>arms</strong> our Industry-Leading Team in providing <em>Unrivaled</em> Service.
+  </p>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- TABS                                                            -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="tab-bar">
+  <div class="tab-btn active" onclick="switchTab('admirer')">Admirer</div>
+  <div class="tab-btn" onclick="switchTab('user')">User</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- ADMIRER TAB                                                     -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div id="tab-admirer" class="tab-content active">
+
+<!-- WHAT IT IS -->
+<section>
+  <div class="container">
+    <h2>What <span class="accent">toMachina</span> Is</h2>
+    <p class="section-sub">toMachina isn't a vendor product. It IS the business. Built from the inside by someone who lives every workflow, every data flow, every client touchpoint. Not purchased. Not configured. Forged.</p>
+
+    <div class="before-after">
+      <div class="ba-card before">
+        <h3>Before</h3>
+        <ul>
+          <li>GoHighLevel for CRM</li>
+          <li>Google Sheets for everything else</li>
+          <li>6 disconnected GAS engines</li>
+          <li>Manual data entry across systems</li>
+          <li>No pipeline visibility</li>
+          <li>No compliance automation</li>
+          <li>Josh is the bottleneck</li>
+        </ul>
+      </div>
+      <div class="ba-arrow">&rarr;</div>
+      <div class="ba-card after">
+        <h3>After</h3>
+        <ul>
+          <li><strong>3 purpose-built portals</strong> &mdash; one for each channel</li>
+          <li><strong>One unified database</strong> &mdash; 29K+ normalized docs</li>
+          <li><strong>38+ API routes</strong> &mdash; every action is an endpoint</li>
+          <li><strong>14 automated pipelines</strong> &mdash; every workflow tracked</li>
+          <li><strong>Self-enforcing compliance</strong> &mdash; 22 immune system rules</li>
+          <li><strong>AI-ready infrastructure</strong> &mdash; MDJ plugs in, not bolts on</li>
+          <li><strong>The team is armed</strong> &mdash; no bottleneck</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE THREE PORTALS -->
+<section>
+  <div class="container">
+    <h2>Three Portals. <span class="accent">One Platform.</span></h2>
+    <p class="section-sub">Each channel gets its own front door. Same data, same engine, same modules &mdash; different brand, different permissions, different mission. Change once, all three update.</p>
+
+    <div class="portal-cards">
+      <div class="portal-card prodash">
+        <div class="portal-name">ProDashX</div>
+        <div class="portal-channel">B2C &mdash; Sales + Service</div>
+        <p class="portal-desc">The team's daily driver. Clients, accounts, pipelines, communications, quoting &mdash; everything Vinnie and Nikki's teams touch, in one place.</p>
+        <div class="portal-url">prodash.tomachina.com</div>
+      </div>
+      <div class="portal-card riimo">
+        <div class="portal-name">RIIMO</div>
+        <div class="portal-channel">B2E &mdash; Leadership + Operations</div>
+        <p class="portal-desc">The command center. Team performance, compliance oversight, analytics, pipeline health, and the Leadership Center &mdash; built for Josh and John.</p>
+        <div class="portal-url">riimo.tomachina.com</div>
+      </div>
+      <div class="portal-card sentinel">
+        <div class="portal-name">SENTINEL</div>
+        <div class="portal-channel">B2B &mdash; M&amp;A + Partnerships</div>
+        <p class="portal-desc">DAVID's war room. Deal pipelines, book analysis, partnership proposals, acquisition onboarding &mdash; Matt's domain.</p>
+        <div class="portal-url">sentinel.tomachina.com</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT MAKES IT TRANSCENDENT -->
+<section>
+  <div class="container">
+    <h2>What Makes It <span class="accent">Transcendent</span></h2>
+    <p class="section-sub">A platform is a tool. A transcendent platform is an organism &mdash; it sees, it learns, it enforces, it adapts, and it turns every person who touches it into something they couldn't be without it.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon blue">&#x26A1;</div>
+        <h3>It doesn't live in one industry</h3>
+        <p>Health + Wealth + Legacy, unified. Every competitor picks a lane. toMachina erases the lanes.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">&#x1F504;</div>
+        <h3>It doesn't live in one channel</h3>
+        <p>B2C, B2B, B2E &mdash; three portals, one brain. Everyone else has three different vendor stacks duct-taped together.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon red">&#x1F6E1;</div>
+        <h3>It has its own immune system</h3>
+        <p>22 rules, self-enforcing. PHI never leaks. Credentials never hardcode. Violations get logged and the system gets smarter. No human in the loop.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon teal">&#x1F9E0;</div>
+        <h3>It has its own nervous system</h3>
+        <p>ATLAS knows where every piece of data comes from, how it moves, and what's broken &mdash; before anyone else does. 54 sources mapped.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon green">&#x1F527;</div>
+        <h3>It wasn't bought. It was forged.</h3>
+        <p>Not Salesforce with a skin. Not Wealthbox with plugins. Ground-up, from nothing, for exactly this business, by the person who IS the business.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon amber">&#x1F50C;</div>
+        <h3>It's AI-native, not AI-bolted</h3>
+        <p>MDJ doesn't get attached later. The entire platform was designed so that AI plugs into every portal, every pipeline, every workflow from day one.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROVABLE -->
+<section>
+  <div class="container">
+    <h2 style="text-align:center;">Provable. Not <span class="accent">Promised.</span></h2>
+    <p class="section-sub" style="text-align:center; margin-left:auto; margin-right:auto;">
+      This isn't a pitch deck. Every number is live. Every claim can be demonstrated by logging in and watching it work.
+    </p>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="number">3</div><div class="label">Portals &mdash; Live in Production</div></div>
+      <div class="stat-card"><div class="number">38+</div><div class="label">API Routes &mdash; Cloud Run</div></div>
+      <div class="stat-card"><div class="number">29K+</div><div class="label">Firestore Docs &mdash; Normalized</div></div>
+      <div class="stat-card"><div class="number">14</div><div class="label">Pipelines &mdash; Pipeline Studio</div></div>
+      <div class="stat-card"><div class="number">9</div><div class="label">Integrations &mdash; MCP Hub</div></div>
+      <div class="stat-card"><div class="number">22</div><div class="label">Immune System Rules &mdash; Live</div></div>
+      <div class="stat-card"><div class="number">54</div><div class="label">Data Sources &mdash; ATLAS Mapped</div></div>
+      <div class="stat-card"><div class="number">9</div><div class="label">Sprints Shipped &mdash; 3 Months</div></div>
+    </div>
+
+    <div class="ignite-block">
+      <div class="verb">
+        <span class="f">Forge</span>
+        <span class="dot"> &middot; </span>
+        <span class="a">Arm</span>
+        <span class="dot"> &middot; </span>
+        <span class="i">Ignite</span>
+      </div>
+      <p class="statement">
+        DAVID forges the deals. toMachina <em>arms the team</em>.<br>
+        MDJ ignites our Enterprise Value.
+      </p>
+    </div>
+  </div>
+</section>
+
+</div><!-- /tab-admirer -->
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- USER TAB                                                        -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div id="tab-user" class="tab-content">
+
+<!-- ARCHITECTURE -->
+<section>
+  <div class="container">
+    <h2>Platform <span class="accent">Architecture</span></h2>
+    <p class="section-sub">Turborepo monorepo. Three portal apps, four shared packages, four backend services. Everything typed. Everything tested. Everything deploys from one push to main.</p>
+
+    <div class="arch">
+      <div class="arch-label">Portal Apps</div>
+      <div class="arch-layer">
+        <div class="arch-box app prodash">ProDashX<br><small style="opacity:0.6">:3001 &mdash; B2C</small></div>
+        <div class="arch-box app riimo">RIIMO<br><small style="opacity:0.6">:3002 &mdash; B2E</small></div>
+        <div class="arch-box app sentinel">SENTINEL<br><small style="opacity:0.6">:3003 &mdash; B2B</small></div>
+      </div>
+      <div class="arch-arrow">&darr; imports &darr;</div>
+      <div class="arch-label">Shared Packages</div>
+      <div class="arch-layer">
+        <div class="arch-box pkg">@tomachina/ui<br><small>Components + Modules</small></div>
+        <div class="arch-box pkg">@tomachina/core<br><small>Business Logic + Flow</small></div>
+        <div class="arch-box pkg">@tomachina/auth<br><small>Firebase Auth + RBAC</small></div>
+        <div class="arch-box pkg">@tomachina/db<br><small>Typed Firestore</small></div>
+      </div>
+      <div class="arch-arrow">&darr; calls &darr;</div>
+      <div class="arch-label">Backend Services</div>
+      <div class="arch-layer">
+        <div class="arch-box svc">API<br><small>Cloud Run &mdash; 38+ routes</small></div>
+        <div class="arch-box svc">Bridge<br><small>Firestore &harr; Sheets</small></div>
+        <div class="arch-box svc">Intake<br><small>Cloud Functions</small></div>
+        <div class="arch-box svc">BigQuery<br><small>Streaming Sink</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section>
+  <div class="container">
+    <h2>Tech <span class="accent">Stack</span></h2>
+    <p class="section-sub">Modern, typed, production-grade. Every layer chosen for speed, reliability, and developer experience.</p>
+
+    <table class="tech-table">
+      <thead>
+        <tr><th>Layer</th><th>Technology</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="layer">Frontend</td><td>Next.js 15 (App Router), React 19, Tailwind CSS v4, shadcn/ui, @base-ui/react</td></tr>
+        <tr><td class="layer">Auth</td><td>Firebase Auth &mdash; Google Workspace SSO, @retireprotected.com domain lock</td></tr>
+        <tr><td class="layer">Database</td><td>Firestore (Native mode) &mdash; 29K+ docs, normalized, FK-validated</td></tr>
+        <tr><td class="layer">Analytics</td><td>BigQuery &mdash; feed-forward via Cloud Functions (real-time streaming)</td></tr>
+        <tr><td class="layer">Backend</td><td>Cloud Run (Express/TypeScript) &mdash; 38+ route files, 1Gi/2CPU</td></tr>
+        <tr><td class="layer">Build</td><td>Turborepo &mdash; incremental builds, 13/13 type-check CI gate</td></tr>
+        <tr><td class="layer">Hosting</td><td>Firebase App Hosting &mdash; auto-deploy from main when CI passes</td></tr>
+        <tr><td class="layer">GCP Project</td><td>claude-mcp-484718</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODULE VS APP -->
+<section>
+  <div class="container">
+    <h2>Modules vs <span class="accent">Apps</span></h2>
+    <p class="section-sub">Two types of features live in the platform. Understanding the difference is key to understanding how toMachina scales.</p>
+
+    <div class="mva-grid">
+      <div class="mva-card module">
+        <h3>Modules</h3>
+        <p class="mva-desc">Portal-branded via CSS variables. Same component renders differently in each portal &mdash; ProDashX blue, RIIMO purple, SENTINEL green. Change the module once, all three portals update.</p>
+        <ul class="mva-list">
+          <li><strong>Admin Center</strong> &mdash; user management, org structure</li>
+          <li><strong>MyRPI</strong> &mdash; personal dashboard, preferences</li>
+          <li><strong>Communications</strong> &mdash; feed + compose + dialer</li>
+          <li><strong>RPI Connect</strong> &mdash; channels + people + meet</li>
+          <li><strong>Access Center</strong> &mdash; credential tracking</li>
+          <li><strong>DeDup Center</strong> &mdash; duplicate management</li>
+        </ul>
+      </div>
+      <div class="mva-card app-type">
+        <h3>Apps</h3>
+        <p class="mva-desc">Own brand identity. Same look in every portal &mdash; they don't change color. Apps are standalone tools that happen to live inside the portals.</p>
+        <ul class="mva-list">
+          <li><strong>Pipeline Studio</strong> &mdash; teal brand, full-screen builder</li>
+          <li><strong>ATLAS</strong> &mdash; data lineage intelligence</li>
+          <li><strong>CAM</strong> &mdash; compliance + access management</li>
+          <li><strong>DEX</strong> &mdash; document + PDF operations</li>
+          <li><strong>C3</strong> &mdash; campaign engine (60 campaigns, 661 templates)</li>
+          <li><strong>Command Center</strong> &mdash; metrics + dashboards</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S BEEN SHIPPED -->
+<section>
+  <div class="container">
+    <h2>What's Been <span class="accent">Shipped</span></h2>
+    <p class="section-sub">9 sprints in 3 months. From empty repo to three production portals with 80,000+ lines of code.</p>
+
+    <div class="sprint-timeline">
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 1 &mdash; Data Integrity</h4>
+        <p>26,889 Firestore docs cleaned, normalized, and FK-validated. The foundation.</p>
+      </div>
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 2 &mdash; Shared Modules</h4>
+        <p>8 shared UI components. Build once, render in all 3 portals with CSS variable theming.</p>
+      </div>
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 3 &mdash; Portal Depth</h4>
+        <p>18 features: RMD Calculator, Beni Center, Medicare quoting (4 CSG APIs), DAVID HUB calculations.</p>
+      </div>
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 4 &mdash; GAS Migration</h4>
+        <p>COMMS, FLOW, C3, ATLAS, CAM backends replaced. Cloud Run API routes live.</p>
+      </div>
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 5 &mdash; Infrastructure</h4>
+        <p>Cloud Run live. Approval engine. Intake Cloud Functions. 6 GAS engines archived.</p>
+      </div>
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 6 &mdash; UI Extravaganza</h4>
+        <p>6 parallel builders. 34 API routes. 9 shared UI modules. ~16,000 lines in one sprint.</p>
+      </div>
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 7 &mdash; Pipeline Factory + Studio</h4>
+        <p>13 pipelines, Kanban UI, seed script, dynamic sidebar. Full Pipeline Studio builder app.</p>
+      </div>
+      <div class="sprint-item complete">
+        <div class="sprint-status done">Complete</div>
+        <h4>Sprint 8 &mdash; Design Polish</h4>
+        <p>COMMS Center, Access Center, DeDup Overhaul, Document Buttons, 47-item punch list.</p>
+      </div>
+      <div class="sprint-item active">
+        <div class="sprint-status wip">In Progress</div>
+        <h4>Sprint 9 &mdash; Bug Fixes + Mockups</h4>
+        <p>23 bug fixes (~16 shipped), Communications Module mockup, RPI Connect mockup.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE OPERATING SYSTEM -->
+<section>
+  <div class="container">
+    <h2>The Operating <span class="accent">System</span></h2>
+    <p class="section-sub">toMachina doesn't just run the business. It governs itself. Standards, compliance, enforcement, and learning &mdash; all automated, all closed-loop.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon red">&#x1F6E1;</div>
+        <h3>The Immune System</h3>
+        <p>22 hookify rules across 4 event types. Block rules prevent violations at the code level. Warn rules flag risks. Quality gates enforce deploy discipline. The system teaches itself.</p>
+        <span class="tag live">Live &mdash; Closed Loop</span>
+      </div>
+      <div class="card">
+        <div class="card-icon teal">&#x1F9E0;</div>
+        <h3>ATLAS</h3>
+        <p>54 data sources cataloged. Every carrier, every API, every manual process tracked. Source Registry + Tool Registry + Wire Definitions. The nervous system.</p>
+        <span class="tag live">Live &mdash; 54 Sources</span>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">&#x1F4DA;</div>
+        <h3>Knowledge Pipeline</h3>
+        <p>Sessions generate insights &rarr; MEMORY.md captures &rarr; knowledge-promote runs daily &rarr; CLAUDE.md updated &rarr; every future session inherits. One person learns, everybody learns.</p>
+        <span class="tag live">Live &mdash; Daily 4am</span>
+      </div>
+      <div class="card">
+        <div class="card-icon amber">&#x1F4CA;</div>
+        <h3>BigQuery Streaming</h3>
+        <p>Every Firestore write feeds forward to BigQuery in real-time via Cloud Functions. Analytics without querying the production database. Feed-forward, never extract.</p>
+        <span class="tag live">Live &mdash; Real-time</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /tab-user -->
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                          -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div class="footer">
+  <div class="sig">Agent<span style="color: var(--gold);">X</span> &mdash; toMachina (The Machine) &mdash; #WeAreAgentX</div>
+  <div class="sub">Confidential &middot; March 2026 &middot; #RunningOurOwnRACE</div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelector('.tab-btn[onclick*="' + tab + '"]').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
