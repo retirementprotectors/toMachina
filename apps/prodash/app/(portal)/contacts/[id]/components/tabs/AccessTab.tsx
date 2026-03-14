@@ -1,80 +1,28 @@
 'use client'
 
-import { useState, useMemo, Suspense } from 'react'
+import { useState, useMemo, useEffect, useCallback, Suspense } from 'react'
+import { getAuth } from 'firebase/auth'
+import type { AccessItem } from '@tomachina/core'
 import { ApiAccessTable } from '../../../../service-centers/access/components/ApiAccessTable'
 import { PortalAccessTable } from '../../../../service-centers/access/components/PortalAccessTable'
 
 // ---------------------------------------------------------------------------
-// Types (mirrored from Access Center page)
+// API Helper
 // ---------------------------------------------------------------------------
 
-type AccessStatus = 'connected' | 'pending' | 'expired' | 'not_started'
-type AccessType = 'api' | 'portal'
-type AccessCategory = 'medicare' | 'annuity' | 'life' | 'investment' | 'government' | 'other'
-
-interface AccessItem {
-  access_id: string
-  client_id: string
-  type: AccessType
-  service_name: string
-  category: AccessCategory
-  status: AccessStatus
-  portal_url?: string
-  username?: string
-  last_verified?: string
-  last_login?: string
-  notes?: string
-  created_at: string
-  updated_at: string
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<{ success: boolean; data?: T; error?: string }> {
+  const auth = getAuth()
+  const token = await auth.currentUser?.getIdToken()
+  const res = await fetch(path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  })
+  return res.json()
 }
-
-// ---------------------------------------------------------------------------
-// Static seed data (same as Access Center — will be replaced with Firestore)
-// ---------------------------------------------------------------------------
-
-const SEED_DATA: AccessItem[] = [
-  {
-    access_id: 'api-001', client_id: 'demo', type: 'api',
-    service_name: 'Medicare.gov', category: 'medicare', status: 'connected',
-    last_verified: '2026-01-15', notes: 'Part A & B lookup — verified via CMS API',
-    created_at: '2025-01-01', updated_at: '2026-01-15',
-  },
-  {
-    access_id: 'api-002', client_id: 'demo', type: 'api',
-    service_name: 'Social Security', category: 'government', status: 'pending',
-    notes: 'SSA.gov — awaiting authorization from client',
-    created_at: '2025-01-01', updated_at: '2025-06-01',
-  },
-  {
-    access_id: 'portal-001', client_id: 'demo', type: 'portal',
-    service_name: 'Athene Annuity', category: 'annuity', status: 'connected',
-    portal_url: 'https://www.athene.com/annuity-owners', username: 'jsmith@email.com',
-    last_verified: '2026-02-01', last_login: '2026-02-28', notes: 'Phone 2FA on file',
-    created_at: '2025-01-01', updated_at: '2026-02-28',
-  },
-  {
-    access_id: 'portal-002', client_id: 'demo', type: 'portal',
-    service_name: 'American Equity', category: 'annuity', status: 'expired',
-    portal_url: 'https://www.american-equity.com', username: 'jsmith1943',
-    last_verified: '2025-08-10', last_login: '2025-08-10',
-    notes: 'Password expired — client needs to reset',
-    created_at: '2025-01-01', updated_at: '2025-08-10',
-  },
-  {
-    access_id: 'portal-003', client_id: 'demo', type: 'portal',
-    service_name: 'Nationwide Life', category: 'life', status: 'connected',
-    portal_url: 'https://www.nationwide.com', username: 'john.smith.43',
-    last_verified: '2026-01-20', last_login: '2026-03-01',
-    created_at: '2025-01-01', updated_at: '2026-03-01',
-  },
-  {
-    access_id: 'portal-004', client_id: 'demo', type: 'portal',
-    service_name: 'Humana Medicare', category: 'medicare', status: 'pending',
-    portal_url: 'https://www.humana.com/login',
-    notes: 'Waiting for enrollment confirmation',
-    created_at: '2026-01-01', updated_at: '2026-01-01',
-  },
-]
 
 // ---------------------------------------------------------------------------
 // AccessTab — renders Access Center scoped to a client, inline in Client360
@@ -86,48 +34,104 @@ interface AccessTabProps {
 
 function AccessTabContent({ clientId }: AccessTabProps) {
   const [activeTab, setActiveTab] = useState<'apis' | 'portals'>('portals')
-  const [items, setItems] = useState<AccessItem[]>(SEED_DATA)
+  const [items, setItems] = useState<AccessItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [autoGenerating, setAutoGenerating] = useState(false)
 
-  const displayItems = items.filter((i) => i.client_id === clientId || i.client_id === 'demo')
-  const apiItems = displayItems.filter((i) => i.type === 'api')
-  const portalItems = displayItems.filter((i) => i.type === 'portal')
+  const fetchItems = useCallback(async () => {
+    setLoading(true)
+    try {
+      const json = await apiFetch<AccessItem[]>(`/api/access/${clientId}`)
+      if (json.success && json.data) {
+        setItems(json.data)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }, [clientId])
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
+
+  const apiItems = items.filter((i) => i.type === 'api')
+  const portalItems = items.filter((i) => i.type === 'portal')
 
   const stats = useMemo(() => {
-    const connected = displayItems.filter((i) => i.status === 'connected').length
-    const pending = displayItems.filter((i) => i.status === 'pending').length
-    const expired = displayItems.filter((i) => i.status === 'expired').length
-    const notStarted = displayItems.filter((i) => i.status === 'not_started').length
-    return { connected, pending, expired, notStarted }
-  }, [displayItems])
+    const active = items.filter((i) => i.status === 'active').length
+    const pending = items.filter((i) => i.status === 'pending').length
+    const expired = items.filter((i) => i.status === 'expired').length
+    const notStarted = items.filter((i) => i.status === 'not_started').length
+    return { active, pending, expired, notStarted }
+  }, [items])
 
   const handleVerify = async (accessId: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.access_id === accessId
-          ? { ...item, status: 'connected' as AccessStatus, last_verified: new Date().toISOString(), updated_at: new Date().toISOString() }
-          : item
-      )
-    )
+    await apiFetch(`/api/access/${clientId}/${accessId}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        status: 'active',
+        last_verified: new Date().toISOString(),
+      }),
+    })
+    await fetchItems()
   }
 
-  const handleUpdateCredentials = (accessId: string, username: string, notes: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.access_id === accessId
-          ? { ...item, username, notes, updated_at: new Date().toISOString() }
-          : item
-      )
+  const handleUpdateCredentials = async (accessId: string, username: string, notes: string) => {
+    await apiFetch(`/api/access/${clientId}/${accessId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ username, notes }),
+    })
+    await fetchItems()
+  }
+
+  const handleAuthCycle = async (accessId: string, newStatus: string) => {
+    await apiFetch(`/api/access/${clientId}/${accessId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ auth_status: newStatus }),
+    })
+    await fetchItems()
+  }
+
+  const handleAutoGenerate = async () => {
+    setAutoGenerating(true)
+    try {
+      await apiFetch(`/api/access/${clientId}/auto-generate`, { method: 'POST' })
+      await fetchItems()
+    } finally {
+      setAutoGenerating(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+      </div>
     )
   }
 
   return (
     <div className="space-y-5">
-      {/* Summary chips */}
-      <div className="flex flex-wrap gap-3">
-        <StatChip label="Connected" value={stats.connected} color="text-green-500" icon="check_circle" />
-        <StatChip label="Pending" value={stats.pending} color="text-yellow-500" icon="schedule" />
-        <StatChip label="Expired" value={stats.expired} color="text-red-500" icon="error" />
-        <StatChip label="Not Started" value={stats.notStarted} color="text-[var(--text-muted)]" icon="radio_button_unchecked" />
+      {/* Auto-Generate button + Summary chips */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-3">
+          <StatChip label="Active" value={stats.active} color="text-green-500" icon="check_circle" />
+          <StatChip label="Pending" value={stats.pending} color="text-yellow-500" icon="schedule" />
+          <StatChip label="Expired" value={stats.expired} color="text-red-500" icon="error" />
+          <StatChip label="Not Started" value={stats.notStarted} color="text-[var(--text-muted)]" icon="radio_button_unchecked" />
+        </div>
+        <button
+          onClick={handleAutoGenerate}
+          disabled={autoGenerating}
+          className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-all hover:border-[var(--portal)] hover:text-[var(--portal)] disabled:opacity-50"
+        >
+          {autoGenerating ? (
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+          ) : (
+            <span className="material-icons-outlined text-[14px]">auto_awesome</span>
+          )}
+          Auto-Generate from Accounts
+        </button>
       </div>
 
       {/* Sub-tabs: Portals / APIs */}
@@ -159,13 +163,18 @@ function AccessTabContent({ clientId }: AccessTabProps) {
       </div>
 
       {activeTab === 'apis' && (
-        <ApiAccessTable items={apiItems} onVerify={handleVerify} />
+        <ApiAccessTable
+          items={apiItems}
+          onVerify={handleVerify}
+          onAuthCycle={handleAuthCycle}
+        />
       )}
       {activeTab === 'portals' && (
         <PortalAccessTable
           items={portalItems}
           onVerify={handleVerify}
           onUpdateCredentials={handleUpdateCredentials}
+          onAuthCycle={handleAuthCycle}
         />
       )}
     </div>

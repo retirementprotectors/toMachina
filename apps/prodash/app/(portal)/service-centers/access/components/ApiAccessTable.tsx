@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { AccessStatusBadge } from './AccessStatusBadge'
 
-type AccessStatus = 'connected' | 'pending' | 'expired' | 'not_started'
+type AccessStatus = 'active' | 'connected' | 'pending' | 'expired' | 'not_started'
+type AuthStatus = 'none' | 'sent' | 'on_file'
 
 interface ApiAccessItem {
   access_id: string
@@ -11,6 +12,7 @@ interface ApiAccessItem {
   service_name: string
   category: string
   status: AccessStatus
+  auth_status?: AuthStatus
   last_verified?: string
   notes?: string
 }
@@ -18,10 +20,11 @@ interface ApiAccessItem {
 interface ApiAccessTableProps {
   items: ApiAccessItem[]
   onVerify: (accessId: string) => void
+  onAuthCycle?: (accessId: string, newStatus: AuthStatus) => void
 }
 
 function formatDate(raw: string | undefined): string {
-  if (!raw) return '—'
+  if (!raw) return '\u2014'
   const d = new Date(raw)
   if (isNaN(d.getTime())) return raw
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -30,11 +33,25 @@ function formatDate(raw: string | undefined): string {
 const SERVICE_ICONS: Record<string, string> = {
   'Medicare.gov': 'health_and_safety',
   'Social Security': 'account_balance',
+  'Social Security / SSA.gov': 'account_balance',
+  'IRS.gov': 'account_balance',
   'State Insurance Commissioner': 'gavel',
   'default': 'public',
 }
 
-export function ApiAccessTable({ items, onVerify }: ApiAccessTableProps) {
+const AUTH_CONFIG: Record<AuthStatus, { label: string; bg: string; text: string }> = {
+  none: { label: 'None', bg: 'bg-gray-500/15', text: 'text-gray-400' },
+  sent: { label: 'Sent', bg: 'bg-amber-500/15', text: 'text-amber-400' },
+  on_file: { label: 'On File', bg: 'bg-emerald-500/15', text: 'text-emerald-400' },
+}
+
+const AUTH_CYCLE: Record<AuthStatus, AuthStatus> = {
+  none: 'sent',
+  sent: 'on_file',
+  on_file: 'none',
+}
+
+export function ApiAccessTable({ items, onVerify, onAuthCycle }: ApiAccessTableProps) {
   const [verifying, setVerifying] = useState<string | null>(null)
 
   const handleVerify = async (accessId: string) => {
@@ -63,6 +80,7 @@ export function ApiAccessTable({ items, onVerify }: ApiAccessTableProps) {
           <tr>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Service</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Status</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Authorization</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Last Verified</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Notes</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Action</th>
@@ -72,6 +90,8 @@ export function ApiAccessTable({ items, onVerify }: ApiAccessTableProps) {
           {items.map((item) => {
             const icon = SERVICE_ICONS[item.service_name] ?? SERVICE_ICONS.default
             const isVerifying = verifying === item.access_id
+            const authStatus: AuthStatus = item.auth_status || 'none'
+            const authConfig = AUTH_CONFIG[authStatus]
 
             return (
               <tr key={item.access_id} className="border-t border-[var(--border)] hover:bg-[var(--bg-hover)]">
@@ -87,11 +107,20 @@ export function ApiAccessTable({ items, onVerify }: ApiAccessTableProps) {
                 <td className="px-4 py-3">
                   <AccessStatusBadge status={item.status} />
                 </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => onAuthCycle?.(item.access_id, AUTH_CYCLE[authStatus])}
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium cursor-pointer transition-opacity hover:opacity-80 ${authConfig.bg} ${authConfig.text}`}
+                    title={`Click to cycle: ${authStatus} \u2192 ${AUTH_CYCLE[authStatus]}`}
+                  >
+                    {authConfig.label}
+                  </button>
+                </td>
                 <td className="px-4 py-3 text-[var(--text-secondary)]">
                   {formatDate(item.last_verified)}
                 </td>
                 <td className="px-4 py-3 text-xs text-[var(--text-muted)] max-w-[200px] truncate">
-                  {item.notes || '—'}
+                  {item.notes || '\u2014'}
                 </td>
                 <td className="px-4 py-3">
                   <button

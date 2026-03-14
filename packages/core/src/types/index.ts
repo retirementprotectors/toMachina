@@ -398,3 +398,32 @@ export const ACCOUNT_TYPE_CATEGORIES = [
 ] as const
 
 export type AccountTypeCategory = typeof ACCOUNT_TYPE_CATEGORIES[number]
+
+// ============================================================================
+// ACCESS CENTER TYPES
+// ============================================================================
+
+export type AccessStatus = 'active' | 'pending' | 'expired' | 'not_started'
+export type AccessType = 'api' | 'portal'
+export type AccessCategory = 'medicare' | 'annuity' | 'life' | 'investment' | 'government' | 'other'
+
+export interface AccessItem {
+  access_id: string
+  client_id: string
+  type: AccessType
+  service_name: string
+  category: AccessCategory
+  carrier_id?: string
+  product_type?: string
+  status: AccessStatus
+  portal_url?: string
+  username?: string
+  auth_status: 'none' | 'sent' | 'on_file'
+  auth_doc_url?: string
+  last_verified?: string
+  last_login?: string
+  notes?: string
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
