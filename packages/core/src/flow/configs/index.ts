@@ -24,6 +24,9 @@ export { PROSPECT_LEGACY_CONFIG } from './prospect-legacy'
 export { REACTIVE_RETIREMENT_CONFIG } from './reactive-retirement'
 export { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
 
+// Session Agent Workflow (engineering ops)
+export { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
+
 // Convenience lookup — all 13 configs by pipeline key
 import { NBX_SECURITIES_CONFIG } from './nbx-securities'
 import { NBX_LIFE_CONFIG } from './nbx-life'
@@ -38,6 +41,7 @@ import { PROSPECT_MEDICARE_CONFIG } from './prospect-medicare'
 import { PROSPECT_LEGACY_CONFIG } from './prospect-legacy'
 import { REACTIVE_RETIREMENT_CONFIG } from './reactive-retirement'
 import { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
+import { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
 
 export const ALL_PIPELINE_CONFIGS = {
   NBX_SECURITIES: NBX_SECURITIES_CONFIG,
@@ -53,6 +57,7 @@ export const ALL_PIPELINE_CONFIGS = {
   PROSPECT_LEGACY: PROSPECT_LEGACY_CONFIG,
   REACTIVE_RETIREMENT: REACTIVE_RETIREMENT_CONFIG,
   REACTIVE_MEDICARE: REACTIVE_MEDICARE_CONFIG,
+  SESSION_AGENT_WORKFLOW: SESSION_AGENT_WORKFLOW_CONFIG,
 } as const
 
 export type PipelineKey = keyof typeof ALL_PIPELINE_CONFIGS

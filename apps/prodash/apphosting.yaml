@@ -18,3 +18,5 @@ env:
     value: "365181509090"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:365181509090:web:08aea23422c813d23b6dbb"
+  - variable: API_PROXY_URL
+    value: https://tm-api-365181509090.us-central1.run.app

@@ -5,6 +5,9 @@ import { Providers } from './providers'
 export const metadata: Metadata = {
   title: 'ProDashX | toMachina',
   description: 'RPI Client Portal — Powered by toMachina',
+  icons: {
+    icon: '/prodashx-mark.svg',
+  },
 }
 
 export default function RootLayout({

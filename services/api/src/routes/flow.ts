@@ -29,13 +29,34 @@ const TASK_TEMPLATES = 'flow_task_templates'
 flowRoutes.get('/pipelines', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    let query: Query<DocumentData> = db.collection(PIPELINES)
-    if (req.query.portal) query = query.where('portal', '==', req.query.portal)
-    if (req.query.status) query = query.where('status', '==', req.query.status)
+    const portalFilter = req.query.portal as string | undefined
+    const statusFilter = req.query.status as string | undefined
 
-    const snap = await query.get()
-    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(data))
+    // Query pipelines that match portal via string field OR portals array field
+    // This supports both legacy single-portal and multi-portal pipelines
+    let results: Array<Record<string, unknown>> = []
+
+    if (portalFilter) {
+      // Query 1: portal == 'X' (legacy single-portal)
+      let q1: Query<DocumentData> = db.collection(PIPELINES).where('portal', '==', portalFilter)
+      if (statusFilter) q1 = q1.where('status', '==', statusFilter)
+      const snap1 = await q1.get()
+      const ids = new Set<string>()
+      snap1.docs.forEach(d => { ids.add(d.id); results.push({ id: d.id, ...d.data() }) })
+
+      // Query 2: portals array-contains 'X' (multi-portal)
+      let q2: Query<DocumentData> = db.collection(PIPELINES).where('portals', 'array-contains', portalFilter)
+      if (statusFilter) q2 = q2.where('status', '==', statusFilter)
+      const snap2 = await q2.get()
+      snap2.docs.forEach(d => { if (!ids.has(d.id)) results.push({ id: d.id, ...d.data() }) })
+    } else {
+      let q: Query<DocumentData> = db.collection(PIPELINES)
+      if (statusFilter) q = q.where('status', '==', statusFilter)
+      const snap = await q.get()
+      results = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    }
+
+    res.json(successResponse(results))
   } catch (err) {
     console.error('GET /api/flow/pipelines error:', err)
     res.status(500).json(errorResponse(String(err)))

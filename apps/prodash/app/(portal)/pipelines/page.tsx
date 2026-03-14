@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth, buildEntitlementContext } from '@tomachina/auth'
+import { useAuth, useEntitlements } from '@tomachina/auth'
 import type { FlowPipelineDef } from '@tomachina/core'
+import { fetchWithAuth } from '@tomachina/ui/src/modules/fetchWithAuth'
 import { toSlug } from './pipeline-keys'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
@@ -20,17 +21,23 @@ function isLeaderOrAbove(userLevel: string): boolean {
 export default function PipelinesPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const { ctx, loading: entLoading } = useEntitlements()
   const [loading, setLoading] = useState(true)
   const [noPipelines, setNoPipelines] = useState(false)
 
   useEffect(() => {
-    if (!user) return
+    if (!user || entLoading) return
 
     let cancelled = false
 
     async function resolve() {
       try {
-        const res = await fetch(`${API_BASE}/flow/pipelines?portal=PRODASHX&status=active`)
+        const res = await fetchWithAuth(`${API_BASE}/flow/pipelines?portal=PRODASHX&status=active`)
+        if (cancelled) return
+
+        // Auth not ready yet — skip, the effect will re-run when user state settles
+        if (res.status === 401) return
+
         const json = await res.json() as { success: boolean; data?: FlowPipelineDef[] }
 
         if (cancelled) return
@@ -40,7 +47,6 @@ export default function PipelinesPage() {
           return
         }
 
-        const ctx = buildEntitlementContext(user)
         const assignedPipelines = ctx.assignedModules || []
 
         // Filter pipelines based on user level
@@ -73,7 +79,7 @@ export default function PipelinesPage() {
 
     resolve()
     return () => { cancelled = true }
-  }, [user, router])
+  }, [user, router, ctx, entLoading])
 
   /* ─── Loading ─── */
   if (loading && !noPipelines) {
