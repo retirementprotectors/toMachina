@@ -10,8 +10,8 @@ import {
   type Query,
   type DocumentData,
 } from 'firebase/firestore'
-import { useAuth, useEntitlements } from '@tomachina/auth'
-import type { UserLevelName, ModuleAction } from '@tomachina/auth'
+import { useAuth, useEntitlements, computeModulePermissions, PRODASH_ROLE_TEMPLATES, UNIT_MODULE_DEFAULTS, USER_LEVELS, MODULES } from '@tomachina/auth'
+import type { UserLevelName, ModuleAction, RoleTemplateKey } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
 import { APP_BRANDS, type AppKey } from '../apps/brands'
@@ -489,6 +489,190 @@ const LEVEL_ICONS: Record<string, string> = {
 /** All app keys for Team Config assignment */
 const ALL_APP_KEYS = Object.keys(APP_BRANDS) as AppKey[]
 
+/* ─── Role + Unit Assignment ─── */
+
+const ROLE_TEMPLATE_KEYS = Object.keys(PRODASH_ROLE_TEMPLATES) as RoleTemplateKey[]
+const UNIT_KEYS = Object.keys(UNIT_MODULE_DEFAULTS)
+const DIVISIONS = ['Sales', 'Service', 'Legacy'] as const
+
+function RoleUnitAssignment({
+  member,
+  onUpdate,
+}: {
+  member: UserRecord
+  onUpdate: (userId: string, updates: {
+    role_template?: string
+    division?: string
+    unit?: string
+    level?: number
+    user_level?: string
+    module_permissions?: Record<string, string[]>
+  }) => void
+}) {
+  const [selectedRole, setSelectedRole] = useState<RoleTemplateKey>(
+    (member.role_template || 'readonly') as RoleTemplateKey
+  )
+  const [selectedDivision, setSelectedDivision] = useState(member.division || '')
+  const [selectedUnit, setSelectedUnit] = useState(member.unit || '')
+  const [saving, setSaving] = useState(false)
+
+  // Live preview of computed permissions
+  const preview = useMemo(
+    () => computeModulePermissions(selectedRole, selectedUnit || undefined),
+    [selectedRole, selectedUnit]
+  )
+
+  const templateDef = PRODASH_ROLE_TEMPLATES[selectedRole]
+  const derivedLevel = templateDef?.userLevel || 'USER'
+  const derivedLevelNum = USER_LEVELS[derivedLevel]?.level ?? 3
+
+  // Count modules with at least one action
+  const previewModuleCount = useMemo(
+    () => Object.values(preview).filter((acts) => acts.length > 0).length,
+    [preview]
+  )
+
+  const hasChanges =
+    selectedRole !== (member.role_template || 'readonly') ||
+    selectedDivision !== (member.division || '') ||
+    selectedUnit !== (member.unit || '')
+
+  const handleApply = async () => {
+    setSaving(true)
+    try {
+      await onUpdate(member._id, {
+        role_template: selectedRole,
+        division: selectedDivision || undefined,
+        unit: selectedUnit || undefined,
+        level: derivedLevelNum,
+        user_level: derivedLevel,
+        module_permissions: preview,
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 space-y-3">
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>
+          admin_panel_settings
+        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Role + Unit Assignment
+        </span>
+      </div>
+
+      {/* Dropdowns row */}
+      <div className="grid grid-cols-3 gap-2">
+        {/* Role Template */}
+        <div>
+          <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Role Template</label>
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value as RoleTemplateKey)}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
+          >
+            {ROLE_TEMPLATE_KEYS.map((key) => (
+              <option key={key} value={key}>
+                {PRODASH_ROLE_TEMPLATES[key].label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Division */}
+        <div>
+          <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Division</label>
+          <select
+            value={selectedDivision}
+            onChange={(e) => setSelectedDivision(e.target.value)}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
+          >
+            <option value="">-- None --</option>
+            {DIVISIONS.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Unit */}
+        <div>
+          <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Unit</label>
+          <select
+            value={selectedUnit}
+            onChange={(e) => setSelectedUnit(e.target.value)}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
+          >
+            <option value="">-- None --</option>
+            {UNIT_KEYS.map((key) => (
+              <option key={key} value={key}>
+                {UNIT_MODULE_DEFAULTS[key].label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Level preview */}
+      <div className="flex items-center gap-2 text-xs">
+        <span className="text-[var(--text-muted)]">Derived level:</span>
+        <span className="rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-primary)]">
+          {USER_LEVELS[derivedLevel]?.displayName || derivedLevel} (L{derivedLevelNum})
+        </span>
+        <span className="text-[var(--text-muted)]">|</span>
+        <span className="text-[var(--text-muted)]">{previewModuleCount} modules</span>
+      </div>
+
+      {/* Permissions preview */}
+      <div className="rounded-md bg-[var(--bg-surface)] p-2">
+        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Permissions Preview
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {Object.entries(preview)
+            .filter(([, actions]) => actions.length > 0)
+            .map(([moduleKey, actions]) => {
+              const moduleDef = MODULES[moduleKey]
+              return (
+                <span
+                  key={moduleKey}
+                  className="inline-flex items-center gap-1 rounded-md bg-[var(--bg-card)] px-2 py-0.5 text-[10px] text-[var(--text-primary)]"
+                  title={`${moduleDef?.fullName || moduleKey}: ${actions.join(', ')}`}
+                >
+                  {moduleDef?.name || moduleKey}
+                  <span className="text-[var(--text-muted)]">
+                    {actions.map((a: string) => a[0]).join('')}
+                  </span>
+                </span>
+              )
+            })}
+        </div>
+        {previewModuleCount === 0 && (
+          <p className="text-[10px] text-[var(--text-muted)]">No modules assigned for this configuration.</p>
+        )}
+      </div>
+
+      {/* Apply button */}
+      <button
+        onClick={handleApply}
+        disabled={!hasChanges || saving}
+        className="rounded-md px-3 py-1.5 text-xs font-medium text-white transition-opacity disabled:opacity-40"
+        style={{ background: 'var(--portal)' }}
+      >
+        {saving ? 'Applying...' : 'Apply Role + Recompute Permissions'}
+      </button>
+
+      {templateDef && (
+        <p className="text-[10px] text-[var(--text-muted)]">
+          {templateDef.description}
+        </p>
+      )}
+    </div>
+  )
+}
+
 /* ─── Member row — extracted to a proper component so hooks are valid ─── */
 
 function TeamMemberRow({
@@ -499,6 +683,7 @@ function TeamMemberRow({
   onEntitlementChange,
   onPipelineAssignmentChange,
   onAppAssignmentChange,
+  onRoleUnitUpdate,
 }: {
   member: UserRecord
   currentUserEmail: string
@@ -507,6 +692,10 @@ function TeamMemberRow({
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
   onPipelineAssignmentChange: (userId: string, pipelineKey: string, assigned: boolean) => void
   onAppAssignmentChange: (userId: string, appKey: string, assigned: boolean) => void
+  onRoleUnitUpdate: (userId: string, updates: {
+    role_template?: string; division?: string; unit?: string;
+    level?: number; user_level?: string; module_permissions?: Record<string, string[]>
+  }) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const isSelf = member.email === currentUserEmail
@@ -587,6 +776,11 @@ function TeamMemberRow({
 
       {expanded && (
         <div className="border-t border-[var(--border-subtle)] px-3 pb-3 pt-2 space-y-3">
+          {/* Role + Unit Assignment (leaders only, not self) */}
+          {isLeader && !isSelf && (
+            <RoleUnitAssignment member={member} onUpdate={onRoleUnitUpdate} />
+          )}
+
           {/* Modules Section */}
           <div>
             <div className="mb-1.5 flex items-center gap-1.5">
@@ -701,6 +895,7 @@ function TeamConfigTab({
   onEntitlementChange,
   onPipelineAssignmentChange,
   onAppAssignmentChange,
+  onRoleUnitUpdate,
 }: {
   users: UserRecord[]
   currentUserEmail: string
@@ -709,6 +904,10 @@ function TeamConfigTab({
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
   onPipelineAssignmentChange: (userId: string, pipelineKey: string, assigned: boolean) => void
   onAppAssignmentChange: (userId: string, appKey: string, assigned: boolean) => void
+  onRoleUnitUpdate: (userId: string, updates: {
+    role_template?: string; division?: string; unit?: string;
+    level?: number; user_level?: string; module_permissions?: Record<string, string[]>
+  }) => void
 }) {
   // AD-1: Active users only
   const activeUsers = useMemo(
@@ -781,6 +980,7 @@ function TeamConfigTab({
                     onEntitlementChange={onEntitlementChange}
                     onPipelineAssignmentChange={onPipelineAssignmentChange}
                     onAppAssignmentChange={onAppAssignmentChange}
+                    onRoleUnitUpdate={onRoleUnitUpdate}
                   />
                 ))}
               </div>
@@ -1283,6 +1483,27 @@ export function AdminPanel({ portal }: AdminPanelProps) {
     [isLeader, users]
   )
 
+  // Role + Unit update handler (for Team Config role template assignment)
+  const handleRoleUnitUpdate = useCallback(
+    async (userId: string, updates: {
+      role_template?: string; division?: string; unit?: string;
+      level?: number; user_level?: string; module_permissions?: Record<string, string[]>
+    }) => {
+      if (!isLeader) return
+      try {
+        const ref = doc(getDb(), 'users', userId)
+        await updateDoc(ref, {
+          ...updates,
+          updated_at: new Date().toISOString(),
+          _updated_by: user?.email || 'unknown',
+        })
+      } catch {
+        // Error handling — toast would go here
+      }
+    },
+    [isLeader, user?.email]
+  )
+
   // Pipeline section assignment handler
   const handlePipelineSectionChange = useCallback(
     async (pipelineId: string, section: SectionAssignment) => {
@@ -1505,6 +1726,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           onEntitlementChange={handleEntitlementChange}
           onPipelineAssignmentChange={handlePipelineAssignmentChange}
           onAppAssignmentChange={handleAppAssignmentChange}
+          onRoleUnitUpdate={handleRoleUnitUpdate}
         />
       )}
     </div>
