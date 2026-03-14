@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth, type AuthUser } from '@tomachina/auth'
 import { PortalSwitcher } from '@tomachina/ui'
 import { InboundCallCard, MOCK_INBOUND_CALL } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
+import { SmartSearch } from './SmartSearch'
 
 interface TopBarProps {
   user: AuthUser
@@ -93,13 +94,7 @@ export function TopBar({ user }: TopBarProps) {
         {/* Center — Global Search */}
         <div className="hidden flex-1 justify-center px-8 md:flex">
           <div className="relative w-full max-w-sm">
-            <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" style={{ fontSize: '18px' }}>search</span>
-            <input
-              type="text"
-              placeholder="Search clients, accounts, agents..."
-              className="w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] py-1.5 pl-10 pr-3 text-sm font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none transition-all focus:border-[var(--portal)]"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-[var(--border-medium)] px-1.5 py-0.5 text-[10px] text-[var(--text-muted)]">/</span>
+            <SmartSearch />
           </div>
         </div>
 
