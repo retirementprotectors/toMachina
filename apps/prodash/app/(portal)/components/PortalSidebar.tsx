@@ -158,9 +158,11 @@ interface PortalSidebarProps {
   commsOpen?: boolean
   onConnectToggle?: () => void
   connectOpen?: boolean
+  panelOpen?: boolean
+  onCollapsedChange?: (collapsed: boolean) => void
 }
 
-export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen }: PortalSidebarProps) {
+export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen, panelOpen, onCollapsedChange }: PortalSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
@@ -275,10 +277,31 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
     }
   }, [])
 
+  /* Auto-collapse when a slide-out panel opens; restore when all panels close */
+  useEffect(() => {
+    if (panelOpen) {
+      // Panel opened: force collapse (don't touch localStorage — this is temporary)
+      if (!collapsed) {
+        setCollapsed(true)
+      }
+    } else {
+      // All panels closed: restore to user's saved preference
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY)
+        const shouldCollapse = saved ? JSON.parse(saved) : false
+        setCollapsed(shouldCollapse)
+      } catch {
+        setCollapsed(false)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panelOpen])
+
   const toggleCollapse = () => {
     const next = !collapsed
     setCollapsed(next)
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch { /* noop */ }
+    onCollapsedChange?.(next)
   }
 
   const toggleSection = (key: string) => {
