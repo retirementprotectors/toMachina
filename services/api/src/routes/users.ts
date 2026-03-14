@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import { requireLevel, invalidateProfileCache } from '../middleware/rbac.js'
 
 export const userRoutes = Router()
 const COLLECTION = 'users'
@@ -25,7 +26,7 @@ userRoutes.get('/', async (_req: Request, res: Response) => {
 userRoutes.get('/me', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const email = (req as any).user?.email
+    const email = (req as unknown as { user?: { email?: string } }).user?.email
     if (!email) { res.status(401).json(errorResponse('No authenticated user')); return }
 
     const doc = await db.collection(COLLECTION).doc(email).get()
@@ -53,19 +54,11 @@ userRoutes.get('/:email', async (req: Request, res: Response) => {
   }
 })
 
-userRoutes.patch('/:email', async (req: Request, res: Response) => {
+userRoutes.patch('/:email', requireLevel('EXECUTIVE'), async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const requestingUser = (req as any).user?.email
+    const requestingUser = (req as unknown as { user?: { email?: string } }).user?.email
     const email = param(req.params.email)
-
-    const requesterDoc = await db.collection(COLLECTION).doc(requestingUser).get()
-    const requesterLevel = requesterDoc.exists ? parseInt(String(requesterDoc.data()?.level || '3')) : 3
-
-    if (requesterLevel > 1) {
-      res.status(403).json(errorResponse('Insufficient permissions — EXECUTIVE or OWNER required'))
-      return
-    }
 
     const docRef = db.collection(COLLECTION).doc(email)
     const doc = await docRef.get()
@@ -74,6 +67,8 @@ userRoutes.patch('/:email', async (req: Request, res: Response) => {
     const updates = { ...req.body, updated_at: new Date().toISOString(), _updated_by: requestingUser }
     delete updates.email; delete updates.id; delete updates.created_at
     await docRef.update(updates)
+
+    invalidateProfileCache(email)
 
     const updated = await docRef.get()
     res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
