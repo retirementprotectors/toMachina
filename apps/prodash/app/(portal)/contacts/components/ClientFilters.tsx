@@ -86,10 +86,9 @@ export function ClientFilters({
     } focus:border-[var(--portal)]`
 
   return (
-    <div className="space-y-3">
-      {/* Row 1: Search + New Contact */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative">
+    <div className="flex flex-wrap items-center gap-2">
+      {/* Search */}
+      <div className="relative">
           <svg
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"
             fill="none"
@@ -108,21 +107,10 @@ export function ClientFilters({
             placeholder="Search contacts..."
             value={localSearch}
             onChange={(e) => handleSearchInput(e.target.value)}
-            className="h-[34px] w-72 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 pl-9 text-sm font-medium text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-colors focus:border-[var(--portal)]"
+            className="h-[34px] w-56 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 pl-9 text-sm font-medium text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-colors focus:border-[var(--portal)]"
           />
         </div>
-        <a
-          href="/intake"
-          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
-          title="New Contact"
-        >
-          <span className="material-icons-outlined text-[18px]">add</span>
-          New
-        </a>
-      </div>
 
-      {/* Row 2: Filter dropdowns + count pill */}
-      <div className="flex flex-wrap items-center gap-2">
         {/* Status */}
         <select
           value={statusFilter}
@@ -181,24 +169,33 @@ export function ClientFilters({
         {hasActiveFilters && (
           <button
             onClick={handleReset}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] h-[34px] px-3 text-xs font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
           >
             <span className="material-icons-outlined text-[14px]">filter_alt_off</span>
-            Reset Filters
+            Reset
           </button>
         )}
 
         {/* Column Selector */}
         {columnSelector}
 
-        {/* Count pill — same shape as filters, blue font */}
-        <span
-          className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-3 text-sm font-medium ml-auto"
-          style={{ color: 'var(--portal)' }}
-        >
-          {totalCount.toLocaleString()}
-        </span>
-      </div>
+        {/* Right-side: count pill + New Contact */}
+        <div className="ml-auto flex items-center gap-2">
+          <span
+            className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-3 text-sm font-medium text-[var(--portal)]"
+          >
+            {totalCount.toLocaleString()}
+          </span>
+
+          <a
+            href="/intake"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
+            title="New Contact"
+          >
+            <span className="material-icons-outlined text-[18px]">add</span>
+            New
+          </a>
+        </div>
     </div>
   )
 }

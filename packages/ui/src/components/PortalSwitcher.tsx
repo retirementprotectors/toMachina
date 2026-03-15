@@ -2,12 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-const PORTAL_MARKS: Record<string, string> = {
-  prodash: '/prodashx-mark.svg',
-  riimo: '/riimo-mark.svg',
-  sentinel: '/sentinel-mark.svg',
-}
-
 const TOMACHINA_MARK = '/tomachina-transparent.png'
 
 interface PortalDef {
@@ -43,7 +37,6 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
 
   const current = PORTALS.find((p) => p.key === currentPortal) ?? PORTALS[0]
   const others = PORTALS.filter((p) => p.key !== currentPortal)
-  const markSrc = PORTAL_MARKS[currentPortal] || TOMACHINA_MARK
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -74,7 +67,7 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
         title="Switch portal"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={markSrc} alt={current.label} style={{ height: '28px' }} />
+        <img src={TOMACHINA_MARK} alt="toMachina" style={{ height: '28px' }} />
         <span
           className="material-icons-outlined transition-transform duration-150"
           style={{ fontSize: '16px', color: 'var(--text-muted)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}

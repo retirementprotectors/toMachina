@@ -90,21 +90,54 @@ const PRESENCE_LABEL: Record<PresenceStatus, string> = {
   offline: 'Offline',
 }
 
-function avatarUrl(name: string, photoUrl?: string): string {
-  if (photoUrl) return photoUrl
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=72`
+/* ─── Avatar Helpers ─── */
+
+/** Deterministic color from name string for initials avatars */
+const AVATAR_COLORS = [
+  '#4a7ab5', '#a78bfa', '#40bc58', '#f59e0b', '#ef4444',
+  '#06b6d4', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316',
+]
+
+function nameToColor(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0][0].toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+/** Inline initials avatar — Sprint 10 will wire Google People API photos */
+function InitialsAvatar({ name, size = 36 }: { name: string; size?: number }) {
+  const bg = nameToColor(name)
+  const initials = getInitials(name)
+  const fontSize = Math.round(size * 0.4)
+  return (
+    <span
+      className="inline-flex flex-shrink-0 items-center justify-center rounded-full font-semibold text-white"
+      style={{ width: size, height: size, background: bg, fontSize }}
+    >
+      {initials}
+    </span>
+  )
 }
 
 /* ═══════════════════════════════════════════════
    Tab 1: Channels
    ═══════════════════════════════════════════════ */
 
-function ChannelRow({ channel }: { channel: ChannelData }) {
+function ChannelRow({ channel, onSelect }: { channel: ChannelData; onSelect: (name: string) => void }) {
   const hasUnread = channel.unreadCount > 0
   return (
     <button
       className="flex w-full items-start gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-hover)]"
-      onClick={() => window.open('https://chat.google.com', '_blank')}
+      onClick={() => onSelect(channel.name)}
     >
       <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-[var(--bg-surface)]">
         <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>tag</span>
@@ -136,14 +169,84 @@ function ChannelRow({ channel }: { channel: ChannelData }) {
   )
 }
 
+/** In-panel chat placeholder shown when a channel is selected (TRK-073/074) */
+function ChannelChatView({ channelName, onBack }: { channelName: string; onBack: () => void }) {
+  return (
+    <div className="flex h-full flex-col">
+      {/* Channel chat header */}
+      <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
+        <button
+          onClick={onBack}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+          title="Back to channels"
+        >
+          <span className="material-icons-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
+        </button>
+        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>tag</span>
+        <span className="text-sm font-semibold text-[var(--text-primary)]">{channelName}</span>
+      </div>
+
+      {/* Placeholder content */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+        <span
+          className="flex h-14 w-14 items-center justify-center rounded-full"
+          style={{ background: 'var(--portal-glow)' }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: '28px', color: 'var(--portal)' }}>chat_bubble_outline</span>
+        </span>
+        <p className="mt-4 text-sm font-medium text-[var(--text-primary)]">#{channelName}</p>
+        <p className="mt-1 text-xs text-[var(--text-muted)]">
+          Messages coming in Sprint 10 with Google Chat integration.
+        </p>
+      </div>
+
+      {/* Disabled compose bar */}
+      <div className="border-t border-[var(--border-subtle)] px-4 py-3">
+        <div className="flex items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
+          <span className="text-xs text-[var(--text-muted)]">Message #{channelName} — Sprint 10</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ChannelsTab() {
   const [search, setSearch] = useState('')
+  const [activeChannel, setActiveChannel] = useState<string | null>(null)
+  const [showNewForm, setShowNewForm] = useState(false)
+  const [newChannelName, setNewChannelName] = useState('')
+  const [localChannels, setLocalChannels] = useState<ChannelData[]>(CHANNELS)
+
+  /* TRK-073/074: If a channel is selected, show in-panel chat view */
+  if (activeChannel) {
+    return <ChannelChatView channelName={activeChannel} onBack={() => setActiveChannel(null)} />
+  }
 
   const filterFn = (c: ChannelData) =>
     !search || c.name.toLowerCase().includes(search.toLowerCase())
 
-  const filteredPinned = CHANNELS.filter((c) => c.pinned).filter(filterFn)
-  const filteredAll = CHANNELS.filter((c) => !c.pinned).filter(filterFn)
+  const filteredPinned = localChannels.filter((c) => c.pinned).filter(filterFn)
+  const filteredAll = localChannels.filter((c) => !c.pinned).filter(filterFn)
+
+  /* TRK-075: Handle new channel creation */
+  const handleCreateChannel = () => {
+    const trimmed = newChannelName.trim().toLowerCase().replace(/\s+/g, '-')
+    if (!trimmed) return
+    if (localChannels.some((c) => c.name === trimmed)) return
+    setLocalChannels((prev) => [
+      ...prev,
+      {
+        name: trimmed,
+        pinned: false,
+        unreadCount: 0,
+        lastSender: 'You',
+        lastMessage: 'Channel created',
+        timestamp: 'now',
+      },
+    ])
+    setNewChannelName('')
+    setShowNewForm(false)
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -165,7 +268,7 @@ function ChannelsTab() {
           <div className="mb-3">
             <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Pinned</span>
             <div className="mt-1.5 space-y-0.5">
-              {filteredPinned.map((ch) => <ChannelRow key={ch.name} channel={ch} />)}
+              {filteredPinned.map((ch) => <ChannelRow key={ch.name} channel={ch} onSelect={setActiveChannel} />)}
             </div>
           </div>
         )}
@@ -174,20 +277,54 @@ function ChannelsTab() {
           <div className="mb-3">
             <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">All Channels</span>
             <div className="mt-1.5 space-y-0.5">
-              {filteredAll.map((ch) => <ChannelRow key={ch.name} channel={ch} />)}
+              {filteredAll.map((ch) => <ChannelRow key={ch.name} channel={ch} onSelect={setActiveChannel} />)}
             </div>
           </div>
         )}
       </div>
 
       <div className="px-4 py-3">
-        <button
-          className="flex w-full items-center justify-center gap-1.5 rounded-md h-[34px] text-xs font-medium text-white transition-colors hover:opacity-90"
-          style={{ background: 'var(--portal)' }}
-        >
-          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
-          New Channel
-        </button>
+        {showNewForm ? (
+          /* TRK-075: Inline new channel form */
+          <div className="space-y-2">
+            <p className="text-[10px] font-medium text-[var(--text-muted)]">
+              Real Google Chat integration in Sprint 10
+            </p>
+            <input
+              type="text"
+              value={newChannelName}
+              onChange={(e) => setNewChannelName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleCreateChannel() }}
+              placeholder="channel-name"
+              autoFocus
+              className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleCreateChannel}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-md h-[34px] text-xs font-medium text-white transition-colors hover:opacity-90"
+                style={{ background: 'var(--portal)' }}
+              >
+                Create
+              </button>
+              <button
+                onClick={() => { setShowNewForm(false); setNewChannelName('') }}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-md h-[34px] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowNewForm(true)}
+            className="flex w-full items-center justify-center gap-1.5 rounded-md h-[34px] text-xs font-medium text-white transition-colors hover:opacity-90"
+            style={{ background: 'var(--portal)' }}
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
+            New Channel
+          </button>
+        )}
       </div>
     </div>
   )
@@ -200,19 +337,12 @@ function ChannelsTab() {
 function PersonCard({ member }: { member: TeamMember }) {
   return (
     <div className="group rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-3 transition-colors hover:bg-[var(--bg-hover)]">
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <div className="relative flex-shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={avatarUrl(member.name, member.photo_url)} alt="" className="h-9 w-9 rounded-full object-cover" referrerPolicy="no-referrer" />
+          <InitialsAvatar name={member.name} size={36} />
           <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[var(--bg-card)] ${PRESENCE_DOT[member.presence]}`} />
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-[var(--text-primary)]">{member.name}</span>
-            <span className="text-[10px] text-[var(--text-muted)]">{member.role}</span>
-          </div>
-          <p className="text-xs text-[var(--text-muted)]">{member.email}</p>
-        </div>
+        <span className="text-sm font-semibold text-[var(--text-primary)]">{member.name}</span>
       </div>
 
       <div className="mt-2 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">

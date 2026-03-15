@@ -5,11 +5,10 @@ import { query, orderBy, type Query, type DocumentData } from 'firebase/firestor
 import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
 import { normalizePhone } from '@tomachina/core'
-import type { Client } from '@tomachina/core'
+import type { Client, Agent } from '@tomachina/core'
 import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
-import { AccountTypePills } from './components/AccountTypePills'
 import { ColumnSelector, getDefaultVisibleColumns } from './components/ColumnSelector'
 
 // ---------------------------------------------------------------------------
@@ -43,15 +42,21 @@ function cleanName(name: string): string {
 // ---------------------------------------------------------------------------
 
 const clientsQuery: Query<DocumentData> = query(collections.clients(), orderBy('last_name'))
+const agentsQuery: Query<DocumentData> = query(collections.agents())
 
 type SortKey = 'name' | 'location' | 'book_of_business' | 'agent_name' | 'client_status' | null
+
+interface AgentDoc extends Agent {
+  _id: string
+}
 
 interface ClientRow extends Client {
   _id: string
   account_types?: string[]
   book_of_business?: string
+  agent_id?: string
   agent_name?: string
-  acf_link?: string
+  gdrive_folder_url?: string
 }
 
 const PAGE_SIZE = 25
@@ -61,7 +66,21 @@ const PAGE_SIZE = 25
 // ---------------------------------------------------------------------------
 
 export default function ClientsPage() {
-  const { data: rawClients, loading, error } = useCollection<ClientRow>(clientsQuery, 'all-clients')
+  const { data: rawClients, loading: clientsLoading, error } = useCollection<ClientRow>(clientsQuery, 'all-clients')
+  const { data: rawAgents, loading: agentsLoading } = useCollection<AgentDoc>(agentsQuery, 'all-agents')
+
+  const loading = clientsLoading || agentsLoading
+
+  // Build agent lookup map: agent_id -> "First Last"
+  const agentMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const agent of rawAgents) {
+      const key = agent._id || agent.agent_id
+      const name = `${agent.first_name || ''} ${agent.last_name || ''}`.trim()
+      if (key && name) map.set(key, name)
+    }
+    return map
+  }, [rawAgents])
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('Active')
@@ -74,11 +93,19 @@ export default function ClientsPage() {
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(getDefaultVisibleColumns)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
+  // Resolve agent names on each client row
+  const clients = useMemo((): ClientRow[] => {
+    return rawClients.map((c) => {
+      const resolved = agentMap.get(String(c.agent_id || '')) || String(c.agent_name || '')
+      return { ...c, agent_name: resolved } as ClientRow
+    })
+  }, [rawClients, agentMap])
+
   // Extract unique books & agents from data
   const { books, agents } = useMemo(() => {
     const bookSet = new Set<string>()
     const agentSet = new Set<string>()
-    for (const c of rawClients) {
+    for (const c of clients) {
       const b = String(c.book_of_business || '').trim()
       const a = String(c.agent_name || '').trim()
       if (b) bookSet.add(b)
@@ -88,12 +115,12 @@ export default function ClientsPage() {
       books: Array.from(bookSet).sort(),
       agents: Array.from(agentSet).sort(),
     }
-  }, [rawClients])
+  }, [clients])
 
   // Filter logic
   const filtered = useMemo(() => {
     // Exclude merged records — they've been absorbed into another record
-    let result = rawClients.filter((c) => (c.client_status || '').toLowerCase() !== 'merged')
+    let result = clients.filter((c) => (c.client_status || '').toLowerCase() !== 'merged')
 
     // Search filter
     if (search) {
@@ -136,14 +163,14 @@ export default function ClientsPage() {
     // ACF filter
     if (acfFilter !== 'All') {
       if (acfFilter === 'Has ACF') {
-        result = result.filter((c) => Boolean(c.acf_link))
+        result = result.filter((c) => Boolean(c.gdrive_folder_url))
       } else if (acfFilter === 'No ACF') {
-        result = result.filter((c) => !c.acf_link)
+        result = result.filter((c) => !c.gdrive_folder_url)
       }
     }
 
     return result
-  }, [rawClients, search, statusFilter, bookFilter, agentFilter, acfFilter])
+  }, [clients, search, statusFilter, bookFilter, agentFilter, acfFilter])
 
   // Sort logic
   const sorted = useMemo(() => {
@@ -384,7 +411,6 @@ export default function ClientsPage() {
                   {col('book') && renderSortHeader('Book', 'book_of_business')}
                   {col('agent') && renderSortHeader('Agent', 'agent_name')}
                   {col('status') && renderSortHeader('Status', 'client_status')}
-                  {col('business') && renderStaticHeader('Business')}
                   {col('acf') && renderStaticHeader('ACF', 'text-center')}
                   {col('age') && renderStaticHeader('Age')}
                   {col('dob') && renderStaticHeader('DOB')}
@@ -499,19 +525,12 @@ export default function ClientsPage() {
                         </td>
                       )}
 
-                      {/* Business Type */}
-                      {col('business') && (
-                        <td className="px-3 py-3">
-                          <AccountTypePills accountTypes={client.account_types || []} />
-                        </td>
-                      )}
-
-                      {/* ACF */}
+                      {/* ACF (Google Drive folder) */}
                       {col('acf') && (
                         <td className="px-3 py-3 text-center">
-                          {client.acf_link ? (
+                          {client.gdrive_folder_url ? (
                             <a
-                              href={String(client.acf_link)}
+                              href={String(client.gdrive_folder_url)}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}

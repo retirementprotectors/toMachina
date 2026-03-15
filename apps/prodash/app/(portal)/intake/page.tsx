@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Client } from '@tomachina/core'
@@ -35,12 +35,41 @@ const SOURCE_OPTIONS = [
 
 export default function QuickIntakePage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [form, setForm] = useState<IntakeForm>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [checking, setChecking] = useState(false)
   const [duplicates, setDuplicates] = useState<Client[]>([])
   const [dupChecked, setDupChecked] = useState(false)
   const [error, setError] = useState('')
+
+  // ========================================================================
+  // PREFILL FROM QUERY PARAM (from IntakeFAB paste data)
+  // ========================================================================
+
+  useEffect(() => {
+    const prefillParam = searchParams.get('prefill')
+    if (!prefillParam) return
+
+    try {
+      const parsed = JSON.parse(decodeURIComponent(prefillParam)) as Record<string, string>
+      setForm((prev) => {
+        const next = { ...prev }
+        const validKeys: (keyof IntakeForm)[] = [
+          'first_name', 'last_name', 'phone', 'email', 'dob',
+          'address', 'city', 'state', 'zip', 'source',
+        ]
+        for (const key of validKeys) {
+          if (parsed[key] && typeof parsed[key] === 'string') {
+            next[key] = parsed[key]
+          }
+        }
+        return next
+      })
+    } catch {
+      // Invalid prefill JSON — ignore silently
+    }
+  }, [searchParams])
 
   const isValid = useMemo(() => {
     return form.first_name.trim() && form.last_name.trim() && (form.phone.trim() || form.email.trim())

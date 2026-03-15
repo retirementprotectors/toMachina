@@ -256,6 +256,8 @@ function DdupContent() {
   const [showMergeModal, setShowMergeModal] = useState(false)
   const [ignoring, setIgnoring] = useState(false)
   const [ignored, setIgnored] = useState(false)
+  // TRK-036: For account comparisons, store the parent client's ACF link per record
+  const [parentAcfLinks, setParentAcfLinks] = useState<Record<string, string>>({})
 
   // Load records
   useEffect(() => {
@@ -286,10 +288,11 @@ function DdupContent() {
           const snap = await getDoc(ref)
           if (snap.exists()) {
             const data = snap.data() as Record<string, unknown>
-            // Item 8 (FIX-5): Skip records that have already been merged
+            // TRK-042: Skip records that are merged, deleted, terminated, or marked _merged_into
             const clientStatus = str(data.client_status).toLowerCase()
             const status = str(data.status).toLowerCase()
-            if (clientStatus === 'merged' || status === 'merged' || data._merged_into) {
+            const excludeStatuses = ['merged', 'deleted', 'terminated']
+            if (excludeStatuses.includes(clientStatus) || excludeStatuses.includes(status) || data._merged_into) {
               continue
             }
             results.push({ id: snap.id, data, path })
@@ -300,6 +303,38 @@ function DdupContent() {
       }
 
       setRecords(results)
+
+      // TRK-036: For account comparisons, load parent client docs to get ACF link
+      if (type === 'account') {
+        const acfMap: Record<string, string> = {}
+        const loadedClients = new Set<string>()
+        for (const rec of results) {
+          // Extract clientId from the path: clients/{clientId}/accounts/{accountId}
+          const parts = rec.path.split('/')
+          const parentClientId = parts[1]
+          if (!parentClientId || loadedClients.has(parentClientId)) continue
+          loadedClients.add(parentClientId)
+          try {
+            const clientSnap = await getDoc(doc(db, 'clients', parentClientId))
+            if (clientSnap.exists()) {
+              const clientData = clientSnap.data() as Record<string, unknown>
+              const acfUrl = str(clientData.gdrive_folder_url) || str(clientData.acf_link) || str(clientData.acf_url)
+              if (acfUrl) {
+                // Map each account record ID to the parent's ACF link
+                for (const r of results) {
+                  if (r.path.startsWith(`clients/${parentClientId}/`)) {
+                    acfMap[r.id] = acfUrl
+                  }
+                }
+              }
+            }
+          } catch {
+            // Non-critical
+          }
+        }
+        setParentAcfLinks(acfMap)
+      }
+
       setLoading(false)
     }
     loadRecords()
@@ -627,17 +662,31 @@ function DdupContent() {
                 <th className="px-2 py-3 w-8"></th>
                 {records.map((rec, i) => {
                   const recName = i === 0 ? winnerName : loserName
-                  const acfUrl = str(rec.data.acf_link)
+                  // TRK-036: For clients, ACF link is on the record; for accounts, use parent client's ACF link
+                  const acfUrl = type === 'account'
+                    ? (parentAcfLinks[rec.id] || '')
+                    : (str(rec.data.gdrive_folder_url) || str(rec.data.acf_link) || str(rec.data.acf_url))
+                  // For account comparisons, extract clientId from path for linking
+                  const parentClientId = type === 'account' ? rec.path.split('/')[1] : null
                   return (
                     <th key={rec.id} className="px-4 py-3 text-left text-xs font-semibold uppercase text-[var(--text-muted)] min-w-[220px]">
                       <div className="flex items-center gap-2">
                         {i === 0 && (
                           <span className="rounded bg-[var(--portal)] px-1.5 py-0.5 text-[10px] text-white font-bold">WINNER</span>
                         )}
-                        {/* Item 9: Contact name links to contact page in new tab */}
+                        {/* Contact/Account name links to detail page in new tab */}
                         {type === 'client' ? (
                           <a
                             href={`/contacts/${rec.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[var(--portal)] hover:underline normal-case"
+                          >
+                            {recName}
+                          </a>
+                        ) : type === 'account' && parentClientId ? (
+                          <a
+                            href={`/contacts/${parentClientId}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-[var(--portal)] hover:underline normal-case"
@@ -651,7 +700,7 @@ function DdupContent() {
                           {rec.id.slice(0, 8)}
                         </span>
                       </div>
-                      {/* Item 10: ACF link row */}
+                      {/* ACF link row — from client doc (directly or via parent) */}
                       {acfUrl && (
                         <div className="mt-1">
                           <a

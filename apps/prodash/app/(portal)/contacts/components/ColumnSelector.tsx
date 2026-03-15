@@ -20,7 +20,6 @@ export const ALL_COLUMNS: ColumnDef[] = [
   { key: 'book', label: 'Book', defaultVisible: true },
   { key: 'agent', label: 'Agent', defaultVisible: true },
   { key: 'status', label: 'Status', defaultVisible: true },
-  { key: 'business', label: 'Business Type', defaultVisible: true },
   { key: 'acf', label: 'ACF', defaultVisible: true },
   { key: 'age', label: 'Age', defaultVisible: false },
   { key: 'dob', label: 'Date of Birth', defaultVisible: false },

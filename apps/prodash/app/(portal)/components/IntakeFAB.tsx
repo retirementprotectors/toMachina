@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@tomachina/ui'
 
 // ---------------------------------------------------------------------------
 // Intake FAB — Floating Action Button for quick data entry
@@ -21,8 +22,128 @@ const FAB_ACTIONS: FABAction[] = [
   { key: 'paste-data', label: 'Paste Data', icon: 'content_paste', color: '#8b5cf6' },
 ]
 
+// ========================================================================
+// PASTE PARSER — detect tab-delimited, CSV, or key-value pairs
+// ========================================================================
+
+interface ParsedFields {
+  first_name?: string
+  last_name?: string
+  phone?: string
+  email?: string
+  dob?: string
+  address?: string
+  city?: string
+  state?: string
+  zip?: string
+}
+
+const FIELD_ALIASES: Record<string, keyof ParsedFields> = {
+  'first name': 'first_name', 'first_name': 'first_name', 'firstname': 'first_name', 'first': 'first_name', 'fname': 'first_name',
+  'last name': 'last_name', 'last_name': 'last_name', 'lastname': 'last_name', 'last': 'last_name', 'lname': 'last_name',
+  'phone': 'phone', 'phone number': 'phone', 'phone_number': 'phone', 'cell': 'phone', 'mobile': 'phone', 'telephone': 'phone',
+  'email': 'email', 'email address': 'email', 'email_address': 'email', 'e-mail': 'email',
+  'dob': 'dob', 'date of birth': 'dob', 'date_of_birth': 'dob', 'birthdate': 'dob', 'birth date': 'dob', 'birthday': 'dob',
+  'address': 'address', 'street': 'address', 'street address': 'address', 'address1': 'address',
+  'city': 'city',
+  'state': 'state', 'st': 'state',
+  'zip': 'zip', 'zipcode': 'zip', 'zip code': 'zip', 'zip_code': 'zip', 'postal': 'zip', 'postal code': 'zip',
+}
+
+function parsePastedText(text: string): ParsedFields {
+  const result: ParsedFields = {}
+  const lines = text.trim().split('\n').map((l) => l.trim()).filter(Boolean)
+  if (lines.length === 0) return result
+
+  // Strategy 1: Key-value pairs (e.g., "First Name: John" or "First Name = John")
+  const kvLines = lines.filter((l) => /[:=]/.test(l))
+  if (kvLines.length >= 2) {
+    for (const line of kvLines) {
+      const match = line.match(/^([^:=]+)\s*[:=]\s*(.+)$/)
+      if (match) {
+        const key = match[1].trim().toLowerCase()
+        const value = match[2].trim()
+        const fieldKey = FIELD_ALIASES[key]
+        if (fieldKey) {
+          result[fieldKey] = value
+        }
+      }
+    }
+    if (Object.keys(result).length >= 1) return result
+  }
+
+  // Strategy 2: Tab-delimited with header row
+  const tabColumns = lines[0].split('\t')
+  if (tabColumns.length >= 2 && lines.length >= 2) {
+    const headers = tabColumns.map((h) => h.trim().toLowerCase())
+    const values = lines[1].split('\t').map((v) => v.trim())
+    for (let i = 0; i < headers.length; i++) {
+      const fieldKey = FIELD_ALIASES[headers[i]]
+      if (fieldKey && values[i]) {
+        result[fieldKey] = values[i]
+      }
+    }
+    if (Object.keys(result).length >= 1) return result
+  }
+
+  // Strategy 3: CSV with header row
+  const csvColumns = lines[0].split(',')
+  if (csvColumns.length >= 2 && lines.length >= 2) {
+    const headers = csvColumns.map((h) => h.trim().toLowerCase().replace(/^"|"$/g, ''))
+    const values = lines[1].split(',').map((v) => v.trim().replace(/^"|"$/g, ''))
+    for (let i = 0; i < headers.length; i++) {
+      const fieldKey = FIELD_ALIASES[headers[i]]
+      if (fieldKey && values[i]) {
+        result[fieldKey] = values[i]
+      }
+    }
+    if (Object.keys(result).length >= 1) return result
+  }
+
+  // Strategy 4: Heuristic — detect email, phone, name from unstructured lines
+  for (const line of lines) {
+    const trimmed = line.trim()
+    // Email detection
+    if (!result.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      result.email = trimmed
+      continue
+    }
+    // Phone detection (7+ digits)
+    const digits = trimmed.replace(/\D/g, '')
+    if (!result.phone && digits.length >= 7 && digits.length <= 11 && /[\d()\-.\s]{7,}/.test(trimmed)) {
+      result.phone = trimmed
+      continue
+    }
+    // Date detection (MM/DD/YYYY, YYYY-MM-DD, etc.)
+    if (!result.dob && /^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/.test(trimmed)) {
+      result.dob = trimmed
+      continue
+    }
+    if (!result.dob && /^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      result.dob = trimmed
+      continue
+    }
+    // Name detection — if we don't have names yet and it looks like "First Last"
+    if (!result.first_name && !result.last_name && /^[A-Za-z]+\s+[A-Za-z]+/.test(trimmed)) {
+      const parts = trimmed.split(/\s+/)
+      result.first_name = parts[0]
+      result.last_name = parts.slice(1).join(' ')
+      continue
+    }
+  }
+
+  return result
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 export function IntakeFAB() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [expanded, setExpanded] = useState(false)
   const [pasteModalOpen, setPasteModalOpen] = useState(false)
   const [pasteText, setPasteText] = useState('')
@@ -78,27 +199,44 @@ export function IntakeFAB() {
   }, [router])
 
   const handleFileSelect = useCallback((_e: React.ChangeEvent<HTMLInputElement>) => {
-    // Placeholder — real upload endpoint requires Sprint 11 DEX work
-    // For now, show feedback that the feature is coming
     const input = fileInputRef.current
     if (input?.files?.length) {
+      const file = input.files[0]
+      const size = formatFileSize(file.size)
+      showToast(`Document received: ${file.name} (${size}). Filing available in Sprint 11.`, 'info')
       // Reset input so the same file can be selected again
       input.value = ''
     }
-  }, [])
+  }, [showToast])
 
   const handlePasteProcess = useCallback(async () => {
     if (!pasteText.trim()) return
     setPasteProcessing(true)
 
-    // Placeholder — hooks into intake pipeline in Sprint 11
-    // For now, simulate a brief processing delay
-    await new Promise(resolve => setTimeout(resolve, 800))
+    try {
+      const parsed = parsePastedText(pasteText)
+      const fieldCount = Object.keys(parsed).length
 
-    setPasteProcessing(false)
-    setPasteModalOpen(false)
-    setPasteText('')
-  }, [pasteText])
+      if (fieldCount === 0) {
+        showToast('Could not detect any fields in the pasted text. Try key-value, tab-delimited, or CSV format.', 'warning')
+        setPasteProcessing(false)
+        return
+      }
+
+      // Encode parsed fields as JSON query param for the intake page
+      const prefill = encodeURIComponent(JSON.stringify(parsed))
+      const fieldNames = Object.keys(parsed).map((k) => k.replace(/_/g, ' ')).join(', ')
+      showToast(`Detected ${fieldCount} field${fieldCount > 1 ? 's' : ''}: ${fieldNames}`, 'success')
+
+      setPasteProcessing(false)
+      setPasteModalOpen(false)
+      setPasteText('')
+      router.push(`/intake?prefill=${prefill}`)
+    } catch {
+      showToast('Failed to parse pasted data. Please check the format.', 'error')
+      setPasteProcessing(false)
+    }
+  }, [pasteText, router, showToast])
 
   return (
     <>

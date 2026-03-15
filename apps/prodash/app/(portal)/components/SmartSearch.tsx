@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getAuth } from 'firebase/auth'
+import { collection, query, where, getDocs, limit as firestoreLimit } from 'firebase/firestore'
+import { getDb } from '@tomachina/db'
 
 interface SearchResult {
   id: string
@@ -15,6 +17,74 @@ interface SearchResult {
 interface SearchResponse {
   clients: SearchResult[]
   accounts: SearchResult[]
+}
+
+// ========================================================================
+// FIRESTORE FALLBACK — query clients directly when API is unreachable
+// ========================================================================
+
+async function firestoreFallbackSearch(searchQuery: string, maxResults: number): Promise<SearchResponse> {
+  const db = getDb()
+  const seenIds = new Set<string>()
+  const clients: SearchResult[] = []
+
+  // Helper to add a client doc to results without duplicates
+  const addClient = (docId: string, data: Record<string, unknown>) => {
+    if (seenIds.has(docId) || clients.length >= maxResults) return
+    seenIds.add(docId)
+    const firstName = String(data.first_name || '')
+    const lastName = String(data.last_name || '')
+    const status = String(data.client_status || 'Unknown')
+    const city = String(data.city || '')
+    const state = String(data.state || '')
+    const location = [city, state].filter(Boolean).join(', ')
+
+    clients.push({
+      id: docId,
+      type: 'client',
+      label: `${firstName} ${lastName}`.trim(),
+      sublabel: [status, location].filter(Boolean).join(' | '),
+      href: `/contacts/${docId}`,
+    })
+  }
+
+  // 1. last_name prefix match
+  const lastUpper = searchQuery.charAt(0).toUpperCase() + searchQuery.slice(1).toLowerCase()
+  const lastEnd = lastUpper.slice(0, -1) + String.fromCharCode(lastUpper.charCodeAt(lastUpper.length - 1) + 1)
+
+  try {
+    const lastSnap = await getDocs(
+      query(
+        collection(db, 'clients'),
+        where('last_name', '>=', lastUpper),
+        where('last_name', '<', lastEnd),
+        firestoreLimit(maxResults)
+      )
+    )
+    lastSnap.forEach((doc) => addClient(doc.id, doc.data() as Record<string, unknown>))
+  } catch {
+    // Silently continue — index may not exist
+  }
+
+  // 2. first_name prefix match
+  const firstUpper = searchQuery.charAt(0).toUpperCase() + searchQuery.slice(1).toLowerCase()
+  const firstEnd = firstUpper.slice(0, -1) + String.fromCharCode(firstUpper.charCodeAt(firstUpper.length - 1) + 1)
+
+  try {
+    const firstSnap = await getDocs(
+      query(
+        collection(db, 'clients'),
+        where('first_name', '>=', firstUpper),
+        where('first_name', '<', firstEnd),
+        firestoreLimit(maxResults)
+      )
+    )
+    firstSnap.forEach((doc) => addClient(doc.id, doc.data() as Record<string, unknown>))
+  } catch {
+    // Silently continue
+  }
+
+  return { clients, accounts: [] }
 }
 
 export function SmartSearch() {
@@ -57,7 +127,7 @@ export function SmartSearch() {
   }, [])
 
   // ========================================================================
-  // DEBOUNCED API CALL
+  // DEBOUNCED API CALL — with Firestore fallback when API is unreachable
   // ========================================================================
 
   const fetchResults = useCallback(async (searchQuery: string) => {
@@ -76,14 +146,17 @@ export function SmartSearch() {
         return
       }
 
-      const url = `/api/search?q=${encodeURIComponent(searchQuery)}&limit=10`
+      // Try the API first (works in production via api.tomachina.com)
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://api.tomachina.com'
+      const url = `${apiBase}/api/search?q=${encodeURIComponent(searchQuery)}&limit=10`
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
       if (!res.ok) {
-        setResults({ clients: [], accounts: [] })
-        setLoading(false)
+        // API returned an error — fall back to Firestore
+        const fallback = await firestoreFallbackSearch(searchQuery, 10)
+        setResults(fallback)
         return
       }
 
@@ -94,7 +167,13 @@ export function SmartSearch() {
         setResults({ clients: [], accounts: [] })
       }
     } catch {
-      setResults({ clients: [], accounts: [] })
+      // API unreachable (dev without proxy, network error, etc.) — Firestore fallback
+      try {
+        const fallback = await firestoreFallbackSearch(searchQuery, 10)
+        setResults(fallback)
+      } catch {
+        setResults({ clients: [], accounts: [] })
+      }
     } finally {
       setLoading(false)
     }
