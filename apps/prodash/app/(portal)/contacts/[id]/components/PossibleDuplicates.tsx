@@ -38,6 +38,15 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
       const seenIds = new Set<string>([clientId])
 
       try {
+        // Helper: skip merged/deleted/terminated clients
+        const isExcluded = (d: Record<string, unknown>) => {
+          const cs = String(d.client_status || '').toLowerCase()
+          const st = String(d.status || '').toLowerCase()
+          return ['merged', 'deleted', 'terminated'].includes(cs) ||
+                 ['merged', 'deleted', 'terminated'].includes(st) ||
+                 !!d._merged_into
+        }
+
         // Match by email
         if (client.email) {
           const emailQ = query(
@@ -48,8 +57,9 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
           const snap = await getDocs(emailQ)
           snap.docs.forEach((doc) => {
             if (!seenIds.has(doc.id)) {
-              seenIds.add(doc.id)
               const d = doc.data()
+              if (isExcluded(d)) return
+              seenIds.add(doc.id)
               found.push({
                 id: doc.id,
                 name: `${d.first_name || ''} ${d.last_name || ''}`.trim(),
@@ -72,8 +82,9 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
             const snap = await getDocs(phoneQ)
             snap.docs.forEach((doc) => {
               if (!seenIds.has(doc.id)) {
-                seenIds.add(doc.id)
                 const d = doc.data()
+                if (isExcluded(d)) return
+                seenIds.add(doc.id)
                 found.push({
                   id: doc.id,
                   name: `${d.first_name || ''} ${d.last_name || ''}`.trim(),
@@ -96,8 +107,9 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
           const snap = await getDocs(nameQ)
           snap.docs.forEach((doc) => {
             if (!seenIds.has(doc.id)) {
-              seenIds.add(doc.id)
               const d = doc.data()
+              if (isExcluded(d)) return
+              seenIds.add(doc.id)
               found.push({
                 id: doc.id,
                 name: `${d.first_name || ''} ${d.last_name || ''}`.trim(),

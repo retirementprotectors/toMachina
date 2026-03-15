@@ -11,10 +11,10 @@ interface ActivityTabProps {
   clientId: string
 }
 
-type SubTab = 'all' | 'client' | 'account'
+type FilterKey = 'all' | 'calls' | 'emails' | 'sms' | 'status_changes' | 'notes'
 
 export function ActivityTab({ clientId }: ActivityTabProps) {
-  const [subTab, setSubTab] = useState<SubTab>('all')
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
 
   // Query activities subcollection
   const activitiesQuery = useMemo(() => {
@@ -28,22 +28,28 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
 
   const { data: activities, loading } = useCollection<Activity>(activitiesQuery, `activities-${clientId}`)
 
-  // Filter by sub-tab
+  // Filter by active filter pill
   const filtered = useMemo(() => {
     return activities.filter((a) => {
       const t = str(a.activity_type).toLowerCase()
-      switch (subTab) {
+      switch (activeFilter) {
         case 'all':
           return true
-        case 'client':
-          return t.includes('create') || t.includes('update') || t.includes('status') || t.includes('edit') || t.includes('import') || t.includes('note') || t.includes('profile')
-        case 'account':
-          return t.includes('account') || t.includes('policy') || t.includes('transaction') || t.includes('valuation')
+        case 'calls':
+          return t.includes('call') || t.includes('phone') || t.includes('dial')
+        case 'emails':
+          return t.includes('email') || t.includes('send') || t.includes('mail')
+        case 'sms':
+          return t.includes('sms') || t.includes('text') || t.includes('message')
+        case 'status_changes':
+          return t.includes('status') || t.includes('change') || t.includes('update') || t.includes('transition')
+        case 'notes':
+          return t.includes('note') || t.includes('comment') || t.includes('memo')
         default:
           return true
       }
     })
-  }, [activities, subTab])
+  }, [activities, activeFilter])
 
   if (loading) {
     return (
@@ -63,24 +69,27 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
 
   return (
     <div className="space-y-4">
-      {/* Sub-tabs */}
-      <div className="flex gap-1 rounded-lg bg-[var(--bg-surface)] p-1">
+      {/* Filter pills */}
+      <div className="flex flex-wrap gap-1.5">
         {([
           { key: 'all', label: 'All', icon: 'list' },
-          { key: 'client', label: 'Client', icon: 'person' },
-          { key: 'account', label: 'Account', icon: 'account_balance_wallet' },
-        ] as const).map((tab) => (
+          { key: 'calls', label: 'Calls', icon: 'phone' },
+          { key: 'emails', label: 'Emails', icon: 'email' },
+          { key: 'sms', label: 'SMS', icon: 'sms' },
+          { key: 'status_changes', label: 'Status Changes', icon: 'swap_horiz' },
+          { key: 'notes', label: 'Notes', icon: 'sticky_note_2' },
+        ] as const).map((pill) => (
           <button
-            key={tab.key}
-            onClick={() => setSubTab(tab.key)}
-            className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-all ${
-              subTab === tab.key
+            key={pill.key}
+            onClick={() => setActiveFilter(pill.key)}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+              activeFilter === pill.key
                 ? 'bg-[var(--portal)] text-white shadow-sm'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
             }`}
           >
-            <span className="material-icons-outlined text-[16px]">{tab.icon}</span>
-            {tab.label}
+            <span className="material-icons-outlined text-[14px]">{pill.icon}</span>
+            {pill.label}
           </button>
         ))}
       </div>
@@ -89,7 +98,7 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
       {filtered.length === 0 ? (
         <EmptyState
           icon="history"
-          message={subTab === 'all' ? 'No activity recorded yet.' : `No ${subTab} activity recorded yet.`}
+          message={activeFilter === 'all' ? 'No activity recorded yet.' : `No ${activeFilter.replace('_', ' ')} activity recorded yet.`}
         />
       ) : (
         <div className="relative">

@@ -709,6 +709,38 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
           })}
         </div>
       )}
+
+      {/* TRK-027: Suggested Connections (concept only) */}
+      <div className="mt-6 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="material-icons-outlined text-[18px] text-amber-400">lightbulb</span>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Suggested</h3>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { title: 'Same household', desc: 'Shared address', icon: 'home' },
+            { title: 'Same last name', desc: `Other "${client.last_name || ''}" contacts`, icon: 'badge' },
+            { title: 'Shared carrier accounts', desc: 'Same carrier or policy', icon: 'account_balance' },
+          ].map((suggestion) => (
+            <div
+              key={suggestion.title}
+              className="flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-center"
+            >
+              <span className="material-icons-outlined text-[24px] text-[var(--text-muted)]">
+                {suggestion.icon}
+              </span>
+              <p className="text-sm font-medium text-[var(--text-primary)]">{suggestion.title}</p>
+              <p className="text-xs text-[var(--text-muted)]">{suggestion.desc}</p>
+              <button
+                className="mt-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1 text-xs font-medium text-[var(--text-muted)] cursor-default opacity-60"
+                disabled
+              >
+                Connect
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

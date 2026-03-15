@@ -13,7 +13,6 @@ import { EstateTab } from './components/tabs/EstateTab'
 import { AccountsTab } from './components/tabs/AccountsTab'
 import { ConnectedTab } from './components/tabs/ConnectedTab'
 import { ActivityTab } from './components/tabs/ActivityTab'
-import { CommsTab } from './components/tabs/CommsTab'
 import { AccessTab } from './components/tabs/AccessTab'
 import { PossibleDuplicates } from './components/PossibleDuplicates'
 
@@ -91,8 +90,6 @@ export default function Client360Page({
   // --- Tab content renderer ---
   function renderTabContent() {
     switch (activeTab) {
-      case 'communications':
-        return <CommsTab clientId={id} client={client!} />
       case 'contact':
         return <ContactTab client={client!} clientId={id} />
       case 'personal':

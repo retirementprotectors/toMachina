@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo, useCallback, useEffect } from 'react'
-import { collectionGroup, getDocs, query, orderBy } from 'firebase/firestore'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { collectionGroup, getDocs, query, orderBy, collection, where, limit, addDoc } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
@@ -92,6 +92,296 @@ const COLUMN_LABELS: Record<string, string> = {
 
 const PAGE_SIZE = 25
 
+const PRODUCT_TYPE_OPTIONS = ['Annuity', 'Life', 'Medicare', 'Investment', 'Banking']
+const STATUS_OPTIONS = ['Active', 'Pending', 'Inactive']
+
+// ---------------------------------------------------------------------------
+// Client Search Result
+// ---------------------------------------------------------------------------
+
+interface ClientSearchResult {
+  id: string
+  name: string
+}
+
+// ---------------------------------------------------------------------------
+// New Account Modal
+// ---------------------------------------------------------------------------
+
+interface NewAccountModalProps {
+  onClose: () => void
+  onCreated: () => void
+}
+
+function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
+  const [clientSearch, setClientSearch] = useState('')
+  const [clientResults, setClientResults] = useState<ClientSearchResult[]>([])
+  const [searching, setSearching] = useState(false)
+  const [selectedClient, setSelectedClient] = useState<ClientSearchResult | null>(null)
+  const [showResults, setShowResults] = useState(false)
+  const [carrierName, setCarrierName] = useState('')
+  const [productType, setProductType] = useState('Annuity')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [status, setStatus] = useState('Active')
+  const [effectiveDate, setEffectiveDate] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const resultsRef = useRef<HTMLDivElement>(null)
+
+  // Client search with debounce
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current)
+
+    if (clientSearch.trim().length < 2) {
+      setClientResults([])
+      setShowResults(false)
+      return
+    }
+
+    searchTimeout.current = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const db = getDb()
+        const q = query(
+          collection(db, 'clients'),
+          where('last_name', '>=', clientSearch.trim()),
+          where('last_name', '<=', clientSearch.trim() + '\uf8ff'),
+          limit(10)
+        )
+        const snap = await getDocs(q)
+        const results: ClientSearchResult[] = snap.docs.map((d) => {
+          const data = d.data()
+          return {
+            id: d.id,
+            name: `${data.first_name || ''} ${data.last_name || ''}`.trim() || d.id.slice(0, 12),
+          }
+        })
+        setClientResults(results)
+        setShowResults(true)
+      } catch {
+        setClientResults([])
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+
+    return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current) }
+  }, [clientSearch])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (resultsRef.current && !resultsRef.current.contains(e.target as Node)) {
+        setShowResults(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const handleSelectClient = useCallback((client: ClientSearchResult) => {
+    setSelectedClient(client)
+    setClientSearch(client.name)
+    setShowResults(false)
+  }, [])
+
+  const handleSubmit = useCallback(async () => {
+    if (!selectedClient) {
+      setSubmitError('Please select a client.')
+      return
+    }
+    if (!carrierName.trim()) {
+      setSubmitError('Carrier name is required.')
+      return
+    }
+
+    setSubmitting(true)
+    setSubmitError('')
+    try {
+      const db = getDb()
+      const accountData = {
+        client_id: selectedClient.id,
+        carrier_name: carrierName.trim(),
+        product_type: productType,
+        account_number: accountNumber.trim(),
+        status,
+        effective_date: effectiveDate || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+      await addDoc(collection(db, 'clients', selectedClient.id, 'accounts'), accountData)
+      onCreated()
+    } catch (err) {
+      setSubmitError(String(err))
+    } finally {
+      setSubmitting(false)
+    }
+  }, [selectedClient, carrierName, productType, accountNumber, status, effectiveDate, onCreated])
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-6 shadow-xl">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-icons-outlined text-[22px] text-[var(--portal)]">add_circle</span>
+            <h3 className="text-lg font-semibold text-[var(--text-primary)]">New Account</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-md p-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+          >
+            <span className="material-icons-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Client Search */}
+          <div className="relative" ref={resultsRef}>
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Client *</label>
+            {selectedClient ? (
+              <div className="flex items-center gap-2 rounded-md border border-[var(--portal)] bg-[var(--portal)]/10 px-3 py-2">
+                <span className="material-icons-outlined text-[16px] text-[var(--portal)]">person</span>
+                <span className="flex-1 text-sm font-medium text-[var(--text-primary)]">{selectedClient.name}</span>
+                <button
+                  onClick={() => { setSelectedClient(null); setClientSearch('') }}
+                  className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                >
+                  <span className="material-icons-outlined text-[16px]">close</span>
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-[var(--text-muted)]">search</span>
+                <input
+                  type="text"
+                  placeholder="Search by last name..."
+                  value={clientSearch}
+                  onChange={(e) => { setClientSearch(e.target.value); setSelectedClient(null) }}
+                  onFocus={() => { if (clientResults.length > 0) setShowResults(true) }}
+                  className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-9 pr-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+                />
+                {searching && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+                  </div>
+                )}
+              </div>
+            )}
+            {showResults && clientResults.length > 0 && !selectedClient && (
+              <div className="absolute z-10 mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--bg-card)] shadow-lg max-h-48 overflow-y-auto">
+                {clientResults.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => handleSelectClient(c)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-hover)]"
+                  >
+                    <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">person</span>
+                    {c.name}
+                    <span className="ml-auto text-[10px] font-mono text-[var(--text-muted)]">{c.id.slice(0, 8)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {showResults && clientResults.length === 0 && clientSearch.trim().length >= 2 && !searching && !selectedClient && (
+              <div className="absolute z-10 mt-1 w-full rounded-md border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 shadow-lg">
+                <p className="text-xs text-[var(--text-muted)]">No clients found.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Carrier Name */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Carrier Name *</label>
+            <input
+              type="text"
+              value={carrierName}
+              onChange={(e) => setCarrierName(e.target.value)}
+              placeholder="e.g. Athene, Mutual of Omaha"
+              className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+            />
+          </div>
+
+          {/* Product Type + Status row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Product Type</label>
+              <select
+                value={productType}
+                onChange={(e) => setProductType(e.target.value)}
+                className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+              >
+                {PRODUCT_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Status</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+              >
+                {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Account Number + Effective Date row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Account Number</label>
+              <input
+                type="text"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                placeholder="Optional"
+                className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Effective Date</label>
+              <input
+                type="date"
+                value={effectiveDate}
+                onChange={(e) => setEffectiveDate(e.target.value)}
+                className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+              />
+            </div>
+          </div>
+
+          {/* Error */}
+          {submitError && (
+            <p className="text-xs text-red-400">{submitError}</p>
+          )}
+
+          {/* Actions */}
+          <div className="flex justify-end gap-2 pt-1">
+            <button
+              onClick={onClose}
+              disabled={submitting}
+              className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium bg-[var(--portal)] text-white hover:brightness-110 disabled:opacity-50"
+            >
+              {submitting ? (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <span className="material-icons-outlined text-[16px]">add</span>
+              )}
+              Create Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Page Component
 // ---------------------------------------------------------------------------
@@ -110,6 +400,7 @@ export default function AccountsPage() {
   const [sortKey, setSortKey] = useState<string | null>('carrier_name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
+  const [showNewModal, setShowNewModal] = useState(false)
 
   // Load ALL client names for enrichment (real-time listener, same pattern as contacts)
   const clientsQ = useMemo(() => query(collections.clients()), [])
@@ -125,26 +416,31 @@ export default function AccountsPage() {
   }, [clientDocs])
 
   // Load ALL accounts (one-time fetch — no limit)
-  useEffect(() => {
-    async function loadAll() {
-      try {
-        const db = getDb()
-        const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'))
-        const snap = await getDocs(q)
-        const rows: AccountRow[] = snap.docs.map((d) => {
-          const data = d.data() as unknown as Account
-          const pathParts = d.ref.path.split('/')
-          return { ...data, _id: d.id, _clientId: pathParts[1] || '' }
-        })
-        setRawAccounts(rows)
-      } catch (err) {
-        setError(String(err))
-      } finally {
-        setLoading(false)
-      }
+  const loadAllAccounts = useCallback(async () => {
+    try {
+      const db = getDb()
+      const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'))
+      const snap = await getDocs(q)
+      const rows: AccountRow[] = snap.docs.map((d) => {
+        const data = d.data() as unknown as Account
+        const pathParts = d.ref.path.split('/')
+        return { ...data, _id: d.id, _clientId: pathParts[1] || '' }
+      })
+      // Filter out merged/deleted/terminated accounts and those merged into another record
+      const filtered = rows.filter(
+        (a) => !['merged', 'deleted', 'terminated'].includes((str(a.status) || '').toLowerCase()) && !a._merged_into
+      )
+      setRawAccounts(filtered)
+    } catch (err) {
+      setError(String(err))
+    } finally {
+      setLoading(false)
     }
-    loadAll()
   }, [])
+
+  useEffect(() => {
+    loadAllAccounts()
+  }, [loadAllAccounts])
 
   // Enrich accounts with client names
   const accounts = useMemo(() => {
@@ -310,7 +606,7 @@ export default function AccountsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Filters — no background wrapper, matches dark bg throughout */}
+      {/* Filters — consolidated into 2 rows */}
       <div className="space-y-3">
         {/* Row 1: Search + New */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -324,18 +620,39 @@ export default function AccountsPage() {
               className="h-[34px] w-72 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-10 pr-4 text-sm font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
             />
           </div>
-          <a
-            href="/intake"
+          <button
+            onClick={() => setShowNewModal(true)}
             className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
             title="New Account"
           >
             <span className="material-icons-outlined text-[18px]">add</span>
             New
-          </a>
+          </button>
         </div>
 
-        {/* Row 2: Filters + Columns */}
+        {/* Row 2: Type pills + Status + Carrier + Columns + Ddup (consolidated) */}
         <div className="flex flex-wrap items-center gap-2">
+          {FILTER_TABS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-3.5 text-sm font-medium transition-all ${
+                filter === f.key ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+              style={filter === f.key ? { backgroundColor: f.color } : undefined}
+            >
+              {f.label}
+              <span className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-xs ${
+                filter === f.key ? 'bg-white/20 text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
+              }`}>
+                {counts[f.key].toLocaleString()}
+              </span>
+            </button>
+          ))}
+
+          {/* Divider */}
+          <div className="mx-1 h-5 w-px bg-[var(--border)]" />
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -377,29 +694,8 @@ export default function AccountsPage() {
               Ddup Selected ({selectedIds.size})
             </button>
           )}
-        </div>
 
-        {/* Row 3: Type pills + Count */}
-        <div className="flex flex-wrap items-center gap-2">
-          {FILTER_TABS.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-3.5 text-sm font-medium transition-all ${
-                filter === f.key ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-              }`}
-              style={filter === f.key ? { backgroundColor: f.color } : undefined}
-            >
-              {f.label}
-              <span className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-xs ${
-                filter === f.key ? 'bg-white/20 text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
-              }`}>
-                {counts[f.key].toLocaleString()}
-              </span>
-            </button>
-          ))}
-
-          {/* Count pill — matches contacts pattern */}
+          {/* Count pill — pushed to the right */}
           <span
             className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-3 text-sm font-medium ml-auto"
             style={{ color: 'var(--portal)' }}
@@ -569,6 +865,16 @@ export default function AccountsPage() {
             </div>
           </div>
         </>
+      )}
+      {/* New Account Modal */}
+      {showNewModal && (
+        <NewAccountModal
+          onClose={() => setShowNewModal(false)}
+          onCreated={() => {
+            setShowNewModal(false)
+            loadAllAccounts()
+          }}
+        />
       )}
     </div>
   )

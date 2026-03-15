@@ -532,8 +532,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">My RPI</h1>
-        <div className="mt-8 flex items-center justify-center py-20">
+        <div className="flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
         </div>
       </div>
@@ -544,8 +543,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
   if (error) {
     return (
       <div className="mx-auto max-w-4xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">My RPI</h1>
-        <div className="mt-6 rounded-xl border border-[var(--error)] bg-[rgba(239,68,68,0.05)] p-6 text-sm text-[var(--text-secondary)]">
+        <div className="rounded-xl border border-[var(--error)] bg-[rgba(239,68,68,0.05)] p-6 text-sm text-[var(--text-secondary)]">
           Failed to load profile: {error.message}
         </div>
       </div>
@@ -554,12 +552,6 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">My RPI</h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">Your employee profile</p>
-      </div>
-
       {/* Profile Switcher (LEADER+ only) */}
       {isLeaderPlus && teamMembers.length > 0 && (
         <div className="flex items-center gap-3">

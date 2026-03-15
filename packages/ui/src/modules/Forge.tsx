@@ -197,6 +197,7 @@ interface ForgeProps {
 
 export function Forge({ portal }: ForgeProps) {
   const [items, setItems] = useState<TrackerItem[]>([])
+  const [allItems, setAllItems] = useState<TrackerItem[]>([])
   const [sprints, setSprints] = useState<Sprint[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -242,7 +243,25 @@ export function Forge({ portal }: ForgeProps) {
       }
     } catch { /* silent */ }
     setLoading(false)
+    // Also refresh unfiltered items for sprint cards
+    try {
+      const allRes = await fetchWithAuth(`${API_BASE}/tracker?limit=500`)
+      if (allRes.ok) {
+        const allJson = await allRes.json()
+        if (allJson.success) setAllItems(allJson.data || [])
+      }
+    } catch { /* silent */ }
   }, [filters, search])
+
+  const loadAllItems = useCallback(async () => {
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/tracker?limit=500`)
+      if (res.ok) {
+        const json = await res.json()
+        if (json.success) setAllItems(json.data || [])
+      }
+    } catch { /* silent */ }
+  }, [])
 
   const loadSprints = useCallback(async () => {
     try {
@@ -255,6 +274,7 @@ export function Forge({ portal }: ForgeProps) {
   }, [])
 
   useEffect(() => { loadItems() }, [loadItems])
+  useEffect(() => { loadAllItems() }, [loadAllItems])
   useEffect(() => { loadSprints() }, [loadSprints])
 
   /* ─── Derived ─── */
@@ -330,7 +350,7 @@ export function Forge({ portal }: ForgeProps) {
 
   const sprintCards = useMemo(() => {
     return sprints.map(sp => {
-      const sprintItems = items.filter(i => i.sprint_id === sp.id)
+      const sprintItems = allItems.filter(i => i.sprint_id === sp.id)
       const bugs = sprintItems.filter(i => i.type === 'broken').length
       const enhancements = sprintItems.filter(i => i.type === 'improve').length
       const features = sprintItems.filter(i => i.type === 'idea').length
@@ -354,7 +374,7 @@ export function Forge({ portal }: ForgeProps) {
 
       return { ...sp, items: sprintItems, bugs, enhancements, features, questions, confirmed, total, phase }
     })
-  }, [sprints, items])
+  }, [sprints, allItems])
 
   /* ─── Handlers ─── */
   const toggleSelect = (id: string) => {
@@ -939,6 +959,22 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <Icon name="map" size={16} /> Roadmap
         </button>
       </div>
+
+      {/* Back to Sprints breadcrumb when sprint-filtered */}
+      {filters.sprint_id && view !== 'sprints' && (
+        <button
+          onClick={() => { setFilters(f => ({ ...f, sprint_id: '' })); setView('sprints') }}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10,
+            background: 'none', border: 'none', cursor: 'pointer', color: s.textSecondary,
+            fontSize: 13, padding: 0,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = s.text }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = s.textSecondary }}
+        >
+          <Icon name="arrow_back" size={16} /> Back to Sprints
+        </button>
+      )}
 
       {/* Row 2: Filters */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>

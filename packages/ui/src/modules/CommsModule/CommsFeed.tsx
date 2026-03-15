@@ -23,16 +23,15 @@ type ChannelFilter = 'all' | 'sms' | 'email' | 'voice'
 type DirectionFilter = 'all' | 'inbound' | 'outbound'
 type ScopeFilter = 'all' | 'mine' | 'assigned' | 'unassigned'
 
-interface CommsFeedProps {
-  onCompose: () => void
-}
-
 /* ─── Mock Data ─── */
 
 const now = new Date()
 function ago(minutes: number): Date {
   return new Date(now.getTime() - minutes * 60 * 1000)
 }
+
+/** Mock current user — replace with real auth context in Sprint 10 */
+const CURRENT_USER = 'Josh Millang'
 
 const MOCK_COMMS: CommEntry[] = [
   { id: '1', type: 'sms', direction: 'outbound', contactName: 'John Smith', contactDetail: '(515) 555-1234', agentName: 'Vinnie Vazquez', preview: 'Hi John, just following up on your annuity renewal. Let me know if you have any questions about the new rates.', timestamp: ago(2), book: 'RPI', accountType: 'Medicare', status: 'delivered' },
@@ -88,29 +87,37 @@ const STATUS_CONFIG: Record<string, { icon: string; color: string; label: string
 
 /* ─── Component ─── */
 
-export function CommsFeed({ onCompose }: CommsFeedProps) {
+export function CommsFeed() {
   const [search, setSearch] = useState('')
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all')
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>('all')
-  const [_scopeFilter, setScopeFilter] = useState<ScopeFilter>('all')
+  const [scopeFilter, setScopeFilter] = useState<ScopeFilter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const filteredComms = useMemo(() => {
     return MOCK_COMMS.filter((c) => {
+      // Channel filter
       if (channelFilter !== 'all' && c.type !== channelFilter) return false
+      // Direction filter
       if (directionFilter !== 'all' && c.direction !== directionFilter) return false
+      // Scope filter (TRK-067)
+      if (scopeFilter === 'mine' && c.agentName !== CURRENT_USER) return false
+      if (scopeFilter === 'assigned' && c.agentName !== CURRENT_USER) return false
+      if (scopeFilter === 'unassigned' && c.agentName !== '') return false
+      // Search — includes subject field (TRK-070)
       if (search) {
         const q = search.toLowerCase()
         if (
           !c.contactName.toLowerCase().includes(q) &&
           !c.agentName.toLowerCase().includes(q) &&
           !c.preview.toLowerCase().includes(q) &&
-          !c.contactDetail.toLowerCase().includes(q)
+          !c.contactDetail.toLowerCase().includes(q) &&
+          !(c.subject && c.subject.toLowerCase().includes(q))
         ) return false
       }
       return true
     })
-  }, [search, channelFilter, directionFilter])
+  }, [search, channelFilter, directionFilter, scopeFilter])
 
   const channelPills: Array<{ key: ChannelFilter; label: string }> = [
     { key: 'all', label: 'All' },
@@ -141,14 +148,14 @@ export function CommsFeed({ onCompose }: CommsFeedProps) {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters — TRK-068: rounded h-[34px] pills */}
       <div className="flex items-center justify-between gap-2 px-4 pb-3">
         <div className="flex items-center gap-1.5">
           {channelPills.map((pill) => (
             <button
               key={pill.key}
               onClick={() => setChannelFilter(pill.key)}
-              className={`rounded-md h-[30px] px-3 text-xs font-medium transition-colors ${
+              className={`rounded h-[34px] px-3 text-xs font-medium transition-colors ${
                 channelFilter === pill.key
                   ? 'text-white'
                   : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
@@ -163,7 +170,7 @@ export function CommsFeed({ onCompose }: CommsFeedProps) {
             <button
               key={pill.key}
               onClick={() => setDirectionFilter(pill.key)}
-              className={`flex items-center gap-1 rounded-md h-[30px] px-2.5 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1 rounded h-[34px] px-2.5 text-xs font-medium transition-colors ${
                 directionFilter === pill.key
                   ? 'text-white'
                   : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
@@ -176,8 +183,9 @@ export function CommsFeed({ onCompose }: CommsFeedProps) {
           ))}
         </div>
         <select
+          value={scopeFilter}
           onChange={(e) => setScopeFilter(e.target.value as ScopeFilter)}
-          className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] h-[30px] px-2 text-xs text-[var(--text-secondary)] outline-none"
+          className="rounded h-[34px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 text-xs text-[var(--text-secondary)] outline-none"
         >
           <option value="all">All Team</option>
           <option value="mine">My Communications</option>
@@ -246,7 +254,7 @@ export function CommsFeed({ onCompose }: CommsFeedProps) {
                     </div>
                   </button>
 
-                  {/* Expanded view */}
+                  {/* Expanded view — TRK-063: standardized pill buttons */}
                   {isExpanded && (
                     <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3">
                       <div className="rounded-lg bg-[var(--bg-card)] p-4">
@@ -270,8 +278,8 @@ export function CommsFeed({ onCompose }: CommsFeedProps) {
                       </div>
                       <div className="mt-3 flex items-center gap-2">
                         <button
-                          onClick={(e) => { e.stopPropagation(); onCompose() }}
-                          className="flex items-center gap-1 rounded-md h-[30px] px-3 text-xs font-medium text-white transition-colors"
+                          onClick={(e) => { e.stopPropagation() }}
+                          className="flex items-center gap-1 rounded-md h-[34px] px-4 text-xs font-medium text-white transition-colors hover:brightness-110"
                           style={{ background: 'var(--portal)' }}
                         >
                           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
@@ -279,7 +287,7 @@ export function CommsFeed({ onCompose }: CommsFeedProps) {
                           </span>
                           {entry.type === 'voice' ? 'Call Back' : 'Reply'}
                         </button>
-                        <button className="flex items-center gap-1 rounded-md h-[30px] px-3 text-xs font-medium border border-[var(--border-subtle)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]">
+                        <button className="flex items-center gap-1 rounded-md h-[34px] px-4 text-xs font-medium border border-[var(--border-subtle)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]">
                           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>open_in_new</span>
                           View Client
                         </button>
@@ -301,14 +309,7 @@ export function CommsFeed({ onCompose }: CommsFeedProps) {
 
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-[var(--border-subtle)] px-4 py-3">
-        <button
-          onClick={onCompose}
-          className="flex items-center gap-1.5 rounded-md h-[34px] px-4 text-xs font-medium text-white transition-colors hover:brightness-110"
-          style={{ background: 'var(--portal)' }}
-        >
-          <span className="material-icons-outlined" style={{ fontSize: '16px' }}>add</span>
-          New Message
-        </button>
+        <span className="text-xs text-[var(--text-muted)]">{filteredComms.length} of {MOCK_COMMS.length} entries</span>
         <button className="flex items-center gap-1 text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]">
           Load More
           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>expand_more</span>

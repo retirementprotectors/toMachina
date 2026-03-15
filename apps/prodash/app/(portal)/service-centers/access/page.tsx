@@ -4,6 +4,15 @@ import { useState, useMemo, useEffect, useRef, useCallback, Suspense } from 'rea
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { getAuth } from 'firebase/auth'
+import {
+  collection,
+  query as fsQuery,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+} from 'firebase/firestore'
+import { getDb } from '@tomachina/db'
 import type { AccessItem, AccessStatus, AccessType, AccessCategory } from '@tomachina/core'
 import { ApiAccessTable } from './components/ApiAccessTable'
 import { PortalAccessTable } from './components/PortalAccessTable'
@@ -31,7 +40,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<{ succe
 }
 
 // ---------------------------------------------------------------------------
-// Client Search (debounced)
+// Client Search (debounced, multi-strategy Firestore query)
 // ---------------------------------------------------------------------------
 
 interface ClientSearchResult {
@@ -41,6 +50,92 @@ interface ClientSearchResult {
   client_status: string
   city?: string
   state?: string
+  email?: string
+  phone?: string
+}
+
+/**
+ * Determines query type from user input:
+ * - '@' in query => email search
+ * - purely digits (after stripping dashes/parens/spaces) => phone search
+ * - otherwise => name search (last_name + first_name)
+ */
+function detectQueryType(q: string): 'email' | 'phone' | 'name' {
+  if (q.includes('@')) return 'email'
+  const digits = q.replace(/[\s\-().+]/g, '')
+  if (/^\d+$/.test(digits) && digits.length >= 3) return 'phone'
+  return 'name'
+}
+
+async function searchClients(q: string): Promise<ClientSearchResult[]> {
+  const db = getDb()
+  const clientsRef = collection(db, 'clients')
+  const queryType = detectQueryType(q)
+
+  if (queryType === 'email') {
+    // Exact email match (emails are stored lowercase)
+    const emailQ = fsQuery(
+      clientsRef,
+      where('email', '==', q.trim().toLowerCase()),
+      limit(10)
+    )
+    const snap = await getDocs(emailQ)
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as ClientSearchResult))
+  }
+
+  if (queryType === 'phone') {
+    // Strip non-digits and search by phone field
+    const digits = q.replace(/[\s\-().+]/g, '')
+    const phoneQ = fsQuery(
+      clientsRef,
+      where('phone', '>=', digits),
+      where('phone', '<=', digits + '\uf8ff'),
+      limit(10)
+    )
+    const snap = await getDocs(phoneQ)
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as ClientSearchResult))
+  }
+
+  // Name search: try last_name prefix AND first_name prefix in parallel
+  const upper = q.charAt(0).toUpperCase() + q.slice(1).toLowerCase()
+  const lastNameQ = fsQuery(
+    clientsRef,
+    where('last_name', '>=', upper),
+    where('last_name', '<=', upper + '\uf8ff'),
+    orderBy('last_name', 'asc'),
+    limit(10)
+  )
+  const firstNameQ = fsQuery(
+    clientsRef,
+    where('first_name', '>=', upper),
+    where('first_name', '<=', upper + '\uf8ff'),
+    orderBy('first_name', 'asc'),
+    limit(10)
+  )
+
+  const [lastSnap, firstSnap] = await Promise.all([
+    getDocs(lastNameQ),
+    getDocs(firstNameQ),
+  ])
+
+  // Merge + deduplicate
+  const seen = new Set<string>()
+  const merged: ClientSearchResult[] = []
+
+  for (const d of lastSnap.docs) {
+    if (!seen.has(d.id)) {
+      seen.add(d.id)
+      merged.push({ id: d.id, ...d.data() } as ClientSearchResult)
+    }
+  }
+  for (const d of firstSnap.docs) {
+    if (!seen.has(d.id)) {
+      seen.add(d.id)
+      merged.push({ id: d.id, ...d.data() } as ClientSearchResult)
+    }
+  }
+
+  return merged.slice(0, 10)
 }
 
 function ClientSearch({ onSelect }: { onSelect: (clientId: string, name: string) => void }) {
@@ -53,10 +148,8 @@ function ClientSearch({ onSelect }: { onSelect: (clientId: string, name: string)
     if (q.length < 2) { setResults([]); return }
     setLoading(true)
     try {
-      const json = await apiFetch<ClientSearchResult[]>(`/api/clients?q=${encodeURIComponent(q)}&limit=10`)
-      if (json.success && json.data) {
-        setResults(json.data)
-      }
+      const data = await searchClients(q)
+      setResults(data)
     } finally {
       setLoading(false)
     }
@@ -68,19 +161,26 @@ function ClientSearch({ onSelect }: { onSelect: (clientId: string, name: string)
     timerRef.current = setTimeout(() => search(val), 300)
   }
 
+  const queryType = query.length >= 2 ? detectQueryType(query) : 'name'
+  const placeholderMap: Record<string, string> = {
+    name: 'Search by name, email, or phone...',
+    email: 'Searching by email...',
+    phone: 'Searching by phone...',
+  }
+
   return (
     <div className="mx-auto max-w-lg">
       <div className="flex flex-col items-center gap-4 py-12">
         <span className="material-icons-outlined text-5xl text-[var(--text-muted)]">person_search</span>
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">Select a Client</h2>
-        <p className="text-sm text-[var(--text-muted)]">Search for a client to view or manage their access items</p>
+        <p className="text-sm text-[var(--text-muted)]">Search by name, email address, or phone number</p>
         <div className="relative w-full">
           <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-[var(--text-muted)]">search</span>
           <input
             type="text"
             value={query}
             onChange={(e) => handleChange(e.target.value)}
-            placeholder="Search by last name..."
+            placeholder={placeholderMap[queryType]}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] py-2.5 pl-10 pr-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
           />
           {loading && (
@@ -100,7 +200,10 @@ function ClientSearch({ onSelect }: { onSelect: (clientId: string, name: string)
                 <span className="material-icons-outlined text-[20px] text-[var(--text-muted)]">person</span>
                 <div>
                   <p className="text-sm font-medium text-[var(--text-primary)]">{c.first_name} {c.last_name}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{c.client_status}{c.city ? ` \u2022 ${c.city}, ${c.state}` : ''}</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {c.client_status}{c.city ? ` \u2022 ${c.city}, ${c.state}` : ''}
+                    {c.email ? ` \u2022 ${c.email}` : ''}
+                  </p>
                 </div>
               </button>
             ))}
@@ -275,6 +378,87 @@ function StatCard({ label, value, className, icon }: { label: string; value: num
 }
 
 // ---------------------------------------------------------------------------
+// OAuth Integrations (TRK-056 — stub for Sprint 10)
+// ---------------------------------------------------------------------------
+
+const OAUTH_SERVICES = [
+  {
+    name: 'SSA',
+    fullName: 'Social Security Administration',
+    description: 'Access client benefit statements, earnings records, and SSA correspondence.',
+    icon: 'account_balance',
+    status: 'not_connected' as const,
+  },
+  {
+    name: 'CMS Medicare',
+    fullName: 'Centers for Medicare & Medicaid Services',
+    description: 'Pull enrollment data, plan details, and coverage history from CMS.',
+    icon: 'health_and_safety',
+    status: 'not_connected' as const,
+  },
+  {
+    name: 'DST Vision',
+    fullName: 'DST Vision Data Aggregator',
+    description: 'Aggregate directly held mutual fund and variable annuity account data.',
+    icon: 'insights',
+    status: 'not_connected' as const,
+  },
+]
+
+function OAuthIntegrations() {
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const handleConnect = (serviceName: string) => {
+    setToastMessage(`OAuth integration for ${serviceName} coming in Sprint 10`)
+    setTimeout(() => setToastMessage(null), 3000)
+  }
+
+  return (
+    <div className="space-y-3">
+      {toastMessage && (
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--portal)] bg-[var(--portal)]/10 px-4 py-3 text-sm text-[var(--portal)]">
+          <span className="material-icons-outlined text-[18px]">info</span>
+          {toastMessage}
+        </div>
+      )}
+      {OAUTH_SERVICES.map((service) => (
+        <div
+          key={service.name}
+          className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-4"
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--bg-surface)]"
+            >
+              <span className="material-icons-outlined text-[22px] text-[var(--text-muted)]">
+                {service.icon}
+              </span>
+            </span>
+            <div>
+              <h4 className="text-sm font-semibold text-[var(--text-primary)]">{service.name}</h4>
+              <p className="text-xs text-[var(--text-muted)]">{service.description}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-surface)] px-2.5 py-1 text-[10px] font-medium text-[var(--text-muted)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--text-muted)]" />
+              Not Connected
+            </span>
+            <button
+              onClick={() => handleConnect(service.name)}
+              className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-all hover:border-[var(--portal)] hover:text-[var(--portal)]"
+            >
+              <span className="material-icons-outlined text-[14px]">link</span>
+              Connect
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main Access Center Content
 // ---------------------------------------------------------------------------
 
@@ -284,7 +468,7 @@ function AccessCenterContent() {
 
   const [clientId, setClientId] = useState<string | null>(urlClientId)
   const [clientName, setClientName] = useState<string>('')
-  const [activeTab, setActiveTab] = useState<'apis' | 'portals'>('portals')
+  const [activeTab, setActiveTab] = useState<'apis' | 'portals' | 'integrations'>('portals')
   const [items, setItems] = useState<AccessItem[]>([])
   const [loading, setLoading] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -442,9 +626,10 @@ function AccessCenterContent() {
           <div className="flex gap-1 border-b border-[var(--border)]">
             {(
               [
-                { key: 'portals', label: 'Portals', icon: 'vpn_key', count: portalItems.length },
-                { key: 'apis', label: 'APIs', icon: 'api', count: apiItems.length },
-              ] as const
+                { key: 'portals' as const, label: 'Portals', icon: 'vpn_key', count: portalItems.length },
+                { key: 'apis' as const, label: 'APIs', icon: 'api', count: apiItems.length },
+                { key: 'integrations' as const, label: 'Integrations', icon: 'cable', count: undefined },
+              ]
             ).map((tab) => (
               <button
                 key={tab.key}
@@ -457,13 +642,15 @@ function AccessCenterContent() {
               >
                 <span className="material-icons-outlined text-[16px]">{tab.icon}</span>
                 {tab.label}
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                  activeTab === tab.key
-                    ? 'bg-[var(--portal)]/15 text-[var(--portal)]'
-                    : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
-                }`}>
-                  {tab.count}
-                </span>
+                {tab.count !== undefined && (
+                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                    activeTab === tab.key
+                      ? 'bg-[var(--portal)]/15 text-[var(--portal)]'
+                      : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+                  }`}>
+                    {tab.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -484,6 +671,10 @@ function AccessCenterContent() {
               onUpdateCredentials={handleUpdateCredentials}
               onAuthCycle={handleAuthCycle}
             />
+          )}
+
+          {activeTab === 'integrations' && (
+            <OAuthIntegrations />
           )}
         </>
       )}

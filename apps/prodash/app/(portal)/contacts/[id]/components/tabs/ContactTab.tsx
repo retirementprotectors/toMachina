@@ -170,14 +170,22 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
     async function fetchUsers() {
       try {
         const snap = await getDocs(collection(getDb(), 'users'))
-        const opts = snap.docs.map((d) => {
-          const data = d.data() as Record<string, unknown>
-          const last = String(data.last_name || '').trim()
-          const first = String(data.first_name || '').trim()
-          const email = String(data.email || d.id).trim()
-          const label = last && first ? `${last}, ${first}` : first || email
-          return { label, value: email }
-        })
+        const SALES_DIVISIONS = ['Sales', 'Medicare', 'Retirement']
+        const opts = snap.docs
+          .filter((d) => {
+            const data = d.data() as Record<string, unknown>
+            const status = String(data.status || '').toLowerCase()
+            const division = String(data.division || '')
+            return status === 'active' && SALES_DIVISIONS.includes(division)
+          })
+          .map((d) => {
+            const data = d.data() as Record<string, unknown>
+            const last = String(data.last_name || '').trim()
+            const first = String(data.first_name || '').trim()
+            const email = String(data.email || d.id).trim()
+            const label = first && last ? `${first} ${last}` : first || last || email
+            return { label, value: email }
+          })
         opts.sort((a, b) => a.label.localeCompare(b.label))
         setAgentOptions(opts)
       } catch {

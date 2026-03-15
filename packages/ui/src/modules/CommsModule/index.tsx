@@ -11,17 +11,24 @@ interface CommsModuleProps {
   onClose: () => void
 }
 
-type CommsView = 'feed' | 'compose'
+type CommsTab = 'log' | 'text' | 'email' | 'call'
+
+const TABS: Array<{ key: CommsTab; label: string; icon: string }> = [
+  { key: 'log', label: 'Log', icon: 'list_alt' },
+  { key: 'text', label: 'Text', icon: 'sms' },
+  { key: 'email', label: 'Email', icon: 'email' },
+  { key: 'call', label: 'Call', icon: 'phone' },
+]
 
 /* ─── Main Component ─── */
 
 export function CommsModule({ open, onClose }: CommsModuleProps) {
-  const [view, setView] = useState<CommsView>('feed')
+  const [activeTab, setActiveTab] = useState<CommsTab>('log')
 
   if (!open) return null
 
   const handleClose = () => {
-    setView('feed')
+    setActiveTab('log')
     onClose()
   }
 
@@ -39,24 +46,46 @@ export function CommsModule({ open, onClose }: CommsModuleProps) {
         style={{ width: '460px' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>forum</span>
-            <h2 className="text-sm font-semibold text-[var(--text-primary)]">Communications</h2>
+        <div className="border-b border-[var(--border-subtle)]">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>forum</span>
+              <h2 className="text-sm font-semibold text-[var(--text-primary)]">Communications</h2>
+            </div>
+            <button
+              onClick={handleClose}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+              title="Close panel"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
+            </button>
           </div>
-          <button
-            onClick={handleClose}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-            title="Close panel"
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
-          </button>
+
+          {/* Tab Bar */}
+          <div className="flex items-center gap-0 px-2">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 py-2.5 text-xs font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-[var(--portal)] text-[var(--portal)]'
+                    : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                }`}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-hidden">
-          {view === 'feed' && <CommsFeed onCompose={() => setView('compose')} />}
-          {view === 'compose' && <CommsCompose onBack={() => setView('feed')} />}
+          {activeTab === 'log' && <CommsFeed />}
+          {activeTab === 'text' && <CommsCompose presetChannel="sms" onBack={() => setActiveTab('log')} />}
+          {activeTab === 'email' && <CommsCompose presetChannel="email" onBack={() => setActiveTab('log')} />}
+          {activeTab === 'call' && <CommsCompose presetChannel="call" onBack={() => setActiveTab('log')} />}
         </div>
       </div>
     </>
