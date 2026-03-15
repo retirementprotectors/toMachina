@@ -178,10 +178,10 @@ sprintRoutes.get('/roadmap', async (_req: Request, res: Response) => {
     const logoDir = tryPaths.find(p => { try { return fs.existsSync(p) } catch { return false } }) || tryPaths[0]
     const encode = (file: string) => { try { return fs.readFileSync(path.join(logoDir, file)).toString('base64') } catch { return '' } }
     const logos: Record<string, { data: string; mime: string }> = {
-      PRODASHX: { data: encode('prodashx/prodashx-on-dark.png'), mime: 'image/png' },
-      RIIMO: { data: encode('riimo-tm/riimo-tm-on-dark.png'), mime: 'image/png' },
-      SENTINEL: { data: encode('sentinel-tm/sentinel-tm-on-dark.png'), mime: 'image/png' },
-      SHARED: { data: encode('tomachina/tomachina-on-dark.png'), mime: 'image/png' },
+      PRODASHX: { data: encode('prodashx-tm/prodashx-tm-transparent.png'), mime: 'image/png' },
+      RIIMO: { data: encode('riimo-tm/riimo-tm-transparent.png'), mime: 'image/png' },
+      SENTINEL: { data: encode('sentinel-tm/sentinel-tm-transparent.png'), mime: 'image/png' },
+      SHARED: { data: encode('tomachina/tomachina-transparent.png'), mime: 'image/png' },
     }
 
     const typeLabels: Record<string, string> = { broken: 'Bug', improve: 'Enhancement', idea: 'Feature', question: 'Question' }
@@ -235,11 +235,13 @@ sprintRoutes.get('/roadmap', async (_req: Request, res: Response) => {
   .container { padding: 0 !important; }
   .hero { margin-bottom: 20px !important; padding: 24px !important; }
   .tab-bar { display: none !important; }
-  .tab-content { display: block !important; padding-top: 0 !important; }
+  .tab-content { display: block !important; padding-top: 8px !important; }
   .tab-content + .tab-content { page-break-before: always; }
-  .portal-banner { margin-bottom: 16px !important; padding: 14px 18px !important; }
-  .category { margin-bottom: 14px !important; page-break-inside: avoid; }
-  .item-row { padding: 5px 8px !important; font-size: 12px !important; }
+  .portal-banner { margin-bottom: 10px !important; padding: 12px 16px !important; page-break-after: avoid !important; }
+  .portal-banner + .category { page-break-before: avoid !important; }
+  .category { margin-bottom: 10px !important; }
+  .cat-header { page-break-after: avoid !important; }
+  .item-row { padding: 4px 8px !important; font-size: 11px !important; page-break-inside: avoid; }
   .footer { margin-top: 24px !important; }
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -285,6 +287,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .footer p { color: #4a5568; font-size: 11px; }
 .footer strong { color: #e07c3e; }
 .print-btn { position: fixed; bottom: 28px; right: 28px; padding: 14px 28px; background: linear-gradient(135deg, #e07c3e, #d4691e); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(224,124,62,0.3); z-index: 10; transition: all 0.2s; }
+.summary { display: none; }
+@media print { .summary { display: block !important; } }
 .print-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(224,124,62,0.4); }
 </style></head><body>
 <button class="print-btn no-print" onclick="window.print()">Print / Save PDF</button>
@@ -306,6 +310,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </div>
 </div>
 </div>
+
+<!-- Executive Summary (print only on page 1) -->
+<div class="summary" style="margin-bottom:28px">`
+
+    // Generate summary banners for all portals
+    for (const t of tabs) {
+      const portalItems = items.filter(it => it.portal === t.key)
+      if (portalItems.length === 0) continue
+
+      const pBugs = portalItems.filter(it => it.type === 'broken').length
+      const pEnh = portalItems.filter(it => it.type === 'improve').length
+      const pFeat = portalItems.filter(it => it.type === 'idea').length
+      const pQ = portalItems.filter(it => it.type === 'question').length
+      const pConf = portalItems.filter(it => it.status === 'confirmed').length
+
+      const sLogo = logos[t.key]
+      const sLogoImg = sLogo?.data ? `<img src="data:${sLogo.mime};base64,${sLogo.data}" style="height:36px;width:auto" />` : `<span class="dot" style="background:${t.color};width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:13px">${t.label[0]}</span>`
+
+      html += `<div style="display:flex;align-items:center;gap:14px;padding:12px 18px;border-radius:10px;background:${t.color}08;border:1px solid ${t.color}20;margin-bottom:8px">
+${sLogoImg}
+<div style="flex:1"></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+${pBugs ? `<span class="ps" style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#ef444415;color:#ef4444">${pBugs} bugs</span>` : ''}
+${pEnh ? `<span class="ps" style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f59e0b15;color:#f59e0b">${pEnh} enh</span>` : ''}
+${pFeat ? `<span class="ps" style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#a855f715;color:#a855f7">${pFeat} feat</span>` : ''}
+${pQ ? `<span class="ps" style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#3b82f615;color:#3b82f6">${pQ} q</span>` : ''}
+<span class="ps" style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:#22c55e15;color:#22c55e">${pConf}/${portalItems.length} done</span>
+</div>
+</div>`
+    }
+
+    html += `</div>
 
 <!-- Tab bar -->
 <div class="tab-bar no-print">`
@@ -518,6 +554,71 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     res.json(successResponse({ prompt: md }))
   } catch (err) {
     console.error('GET /api/sprints/:id/prompt error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// POST /:id/sendit — confirm all items + close sprint + git commit
+sprintRoutes.post('/:id/sendit', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
+    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
+
+    const sprint = sprintDoc.data() as Record<string, unknown>
+    const now = new Date().toISOString()
+    const userEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+
+    // 1. Confirm all active items in this sprint
+    const allSnap = await db.collection(TRACKER_COLLECTION).get()
+    const sprintItems = allSnap.docs.filter(d => d.data().sprint_id === id)
+    const batch = db.batch()
+    let confirmed = 0
+    for (const doc of sprintItems) {
+      const status = doc.data().status as string
+      if (!['confirmed', 'deferred', 'wont_fix'].includes(status)) {
+        batch.update(doc.ref, { status: 'confirmed', updated_at: now, _updated_by: userEmail })
+        confirmed++
+      }
+    }
+
+    // 2. Close the sprint
+    batch.update(sprintDoc.ref, { status: 'complete', updated_at: now, _updated_by: userEmail })
+    await batch.commit()
+
+    // 3. Git stage + commit (local dev only — exec runs on same machine as repo)
+    let gitResult = { committed: false, message: '' }
+    try {
+      const { execSync } = await import('child_process')
+      const repoDir = process.env.REPO_DIR || '/Users/joshd.millang/Projects/toMachina'
+      const sprintName = (sprint.name as string) || 'Sprint'
+      const sprintDesc = (sprint.description as string) || ''
+      const commitMsg = `${sprintName}${sprintDesc ? ' — ' + sprintDesc : ''}\n\n#SendIt via FORGE\nItems: ${sprintItems.map(d => d.data().item_id).join(', ')}\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>`
+
+      execSync('git add -A', { cwd: repoDir, timeout: 10000 })
+      try {
+        execSync(`git commit -m ${JSON.stringify(commitMsg)}`, { cwd: repoDir, timeout: 15000 })
+        gitResult = { committed: true, message: `Committed: ${sprintName}` }
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e)
+        if (msg.includes('nothing to commit')) {
+          gitResult = { committed: false, message: 'Nothing to commit — working tree clean' }
+        } else {
+          gitResult = { committed: false, message: `Git commit failed: ${msg.substring(0, 200)}` }
+        }
+      }
+    } catch (e: unknown) {
+      gitResult = { committed: false, message: `Git not available: ${e instanceof Error ? e.message : String(e)}` }
+    }
+
+    res.json(successResponse({
+      confirmed,
+      sprint_closed: true,
+      git: gitResult,
+    }))
+  } catch (err) {
+    console.error('POST /api/sprints/:id/sendit error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

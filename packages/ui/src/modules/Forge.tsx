@@ -97,6 +97,99 @@ function Icon({ name, size = 18, color }: { name: string; size?: number; color?:
   return <span className="material-icons-outlined" style={{ fontSize: size, color }}>{name}</span>
 }
 
+/* ─── Sub-Components (outside main to preserve focus) ─── */
+
+function FSelect({ value, onChange, options, placeholder }: {
+  value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; placeholder: string
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        background: 'var(--bg-surface, #1c2333)',
+        border: '1px solid var(--border-color, #2a3347)',
+        borderRadius: 6,
+        padding: '6px 10px',
+        color: 'var(--text-primary, #e2e8f0)',
+        fontSize: 13,
+        outline: 'none',
+        minWidth: 110,
+      }}
+    >
+      <option value="">{placeholder}</option>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  )
+}
+
+function FInput({ label, value, onChange, textarea }: {
+  label: string; value: string; onChange: (v: string) => void; textarea?: boolean
+}) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary, #94a3b8)', marginBottom: 4 }}>{label}</label>
+      {textarea ? (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={3}
+          style={{
+            width: '100%', background: 'var(--bg-surface, #1c2333)', border: '1px solid var(--border-color, #2a3347)',
+            borderRadius: 6, padding: '8px 10px', color: 'var(--text-primary, #e2e8f0)', fontSize: 13,
+            outline: 'none', resize: 'vertical',
+          }}
+        />
+      ) : (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            width: '100%', background: 'var(--bg-surface, #1c2333)', border: '1px solid var(--border-color, #2a3347)',
+            borderRadius: 6, padding: '8px 10px', color: 'var(--text-primary, #e2e8f0)', fontSize: 13,
+            outline: 'none',
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+function FFormSelect({ label, value, onChange, options }: {
+  label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]
+}) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary, #94a3b8)', marginBottom: 4 }}>{label}</label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%', background: 'var(--bg-surface, #1c2333)', border: '1px solid var(--border-color, #2a3347)',
+          borderRadius: 6, padding: '8px 10px', color: 'var(--text-primary, #e2e8f0)', fontSize: 13, outline: 'none',
+        }}
+      >
+        <option value="">—</option>
+        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </div>
+  )
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const cfg = STATUS_CONFIG[status] || { color: 'var(--text-muted, #64748b)', bg: 'rgba(100,116,139,0.15)', label: status }
+  return (
+    <span style={{
+      display: 'inline-block', padding: '2px 10px', borderRadius: 12,
+      fontSize: 11, fontWeight: 600, background: cfg.bg, color: cfg.color,
+      whiteSpace: 'nowrap',
+    }}>
+      {cfg.label}
+    </span>
+  )
+}
+
 /* ─── Main Component ─── */
 interface ForgeProps {
   portal: string
@@ -117,8 +210,14 @@ export function Forge({ portal }: ForgeProps) {
   const [promptText, setPromptText] = useState('')
   const [promptSprintId, setPromptSprintId] = useState<string | null>(null)
   const [page, setPage] = useState(0)
+  const [sortField, setSortField] = useState<string>('item_id')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [bulkStatus, setBulkStatus] = useState('')
-  const [view, setView] = useState<'grid' | 'workflow' | 'sprints'>('grid')
+  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'dedup'>('grid')
+  const [dedupGroups, setDedupGroups] = useState<Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }>>([])
+  const [dedupLoading, setDedupLoading] = useState(false)
+  // Track selected field values per group: { groupIndex: { fieldKey: itemIndex } }
+  const [dedupSelections, setDedupSelections] = useState<Record<number, Record<string, number>>>({})
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const pageSize = 25
@@ -164,10 +263,21 @@ export function Forge({ portal }: ForgeProps) {
     return Array.from(set).sort()
   }, [items])
 
+  const sortedItems = useMemo(() => {
+    const sorted = [...items]
+    sorted.sort((a, b) => {
+      const av = (a as unknown as Record<string, unknown>)[sortField] as string || ''
+      const bv = (b as unknown as Record<string, unknown>)[sortField] as string || ''
+      const cmp = av.localeCompare(bv)
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+    return sorted
+  }, [items, sortField, sortDir])
+
   const pagedItems = useMemo(() => {
     const start = page * pageSize
-    return items.slice(start, start + pageSize)
-  }, [items, page])
+    return sortedItems.slice(start, start + pageSize)
+  }, [sortedItems, page])
 
   const totalPages = Math.ceil(items.length / pageSize)
 
@@ -438,21 +548,62 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     // Select all unassigned
     setSelectedIds(new Set(sorted.map(i => i.id)))
 
-    // Auto-generate name + description
-    const sprintNum = sprints.length + 1
+    // Smart name generation from content
     const bugs = sorted.filter(i => i.type === 'broken').length
     const enhancements = sorted.filter(i => i.type === 'improve').length
     const features = sorted.filter(i => i.type === 'idea').length
     const questions = sorted.filter(i => i.type === 'question').length
-    const parts: string[] = []
-    if (bugs) parts.push(`${bugs} bugs`)
-    if (enhancements) parts.push(`${enhancements} enhancements`)
-    if (features) parts.push(`${features} features`)
-    if (questions) parts.push(`${questions} questions`)
+
+    // Find the highest existing sprint number
+    const existingNums = sprints.map(sp => {
+      const match = sp.name.match(/Sprint\s+(\d+)/i)
+      return match ? parseInt(match[1], 10) : 0
+    })
+    const nextNum = Math.max(0, ...existingNums) + 1
+
+    // Determine dominant portals
+    const portalCounts: Record<string, number> = {}
+    sorted.forEach(i => { portalCounts[i.portal] = (portalCounts[i.portal] || 0) + 1 })
+    const topPortals = Object.entries(portalCounts).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([p]) => p)
+
+    // Determine dominant components
+    const compCounts: Record<string, number> = {}
+    sorted.forEach(i => { if (i.component) compCounts[i.component] = (compCounts[i.component] || 0) + 1 })
+    const topComps = Object.entries(compCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c]) => c)
+
+    // Build smart name
+    let smartName = `Sprint ${nextNum}`
+    if (bugs > enhancements + features && bugs > sorted.length * 0.6) {
+      // Bug-heavy sprint
+      smartName += ' — Bug Fixes'
+      if (topPortals.length === 1 && topPortals[0] !== 'SHARED') smartName += ` (${topPortals[0]})`
+      else if (topComps.length <= 2) smartName += ` (${topComps.join(' + ')})`
+    } else if (features > bugs && features > sorted.length * 0.4) {
+      // Feature-heavy sprint
+      smartName += ' — New Features'
+      if (topComps.length <= 2) smartName += ` (${topComps.join(' + ')})`
+    } else if (topComps.length === 1) {
+      // Single component focus
+      smartName += ` — ${topComps[0]}`
+    } else if (topPortals.length === 1 && topPortals[0] !== 'SHARED') {
+      smartName += ` — ${topPortals[0]}`
+    } else {
+      // Mixed
+      const mixParts: string[] = []
+      if (bugs) mixParts.push(`${bugs} fixes`)
+      if (enhancements + features) mixParts.push(`${enhancements + features} improvements`)
+      smartName += ` — ${mixParts.join(', ')}`
+    }
+
+    const descParts: string[] = []
+    if (bugs) descParts.push(`${bugs} bugs`)
+    if (enhancements) descParts.push(`${enhancements} enhancements`)
+    if (features) descParts.push(`${features} features`)
+    if (questions) descParts.push(`${questions} questions`)
 
     setSprintForm({
-      name: `Sprint ${sprintNum}`,
-      description: `${sorted.length} items: ${parts.join(', ')}`,
+      name: smartName,
+      description: `${sorted.length} items: ${descParts.join(', ')}. Top: ${topComps.slice(0, 3).join(', ') || 'mixed'}`,
     })
     setShowCreateSprint(true)
   }
@@ -490,6 +641,52 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         body: JSON.stringify({ status: 'complete' }),
       })
       await loadSprints()
+    } catch { /* silent */ }
+  }
+
+  const loadDedup = useCallback(async () => {
+    setDedupLoading(true)
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/tracker/dedup`)
+      if (res.ok) {
+        const json = await res.json()
+        setDedupGroups(json.data?.groups || [])
+      }
+    } catch { /* silent */ }
+    setDedupLoading(false)
+  }, [])
+
+  const mergeDedup = async (groupIndex: number, winnerId: string, loserIds: string[], allItems: TrackerItem[]) => {
+    // Build overrides from selected cells
+    const selections = dedupSelections[groupIndex] || {}
+    const overrides: Record<string, unknown> = {}
+    const mergeableFields = ['title', 'description', 'type', 'portal', 'scope', 'component', 'section', 'notes', 'sprint_id']
+    for (const field of mergeableFields) {
+      const selectedIdx = selections[field]
+      if (selectedIdx !== undefined && selectedIdx > 0 && allItems[selectedIdx]) {
+        const val = (allItems[selectedIdx] as unknown as Record<string, unknown>)[field]
+        if (val) overrides[field] = val
+      }
+    }
+
+    try {
+      // First merge (combines attachments, notes, deletes losers)
+      const res = await fetchWithAuth(`${API_BASE}/tracker/dedup/merge`, {
+        method: 'POST',
+        body: JSON.stringify({ winner_id: winnerId, loser_ids: loserIds }),
+      })
+      // Then apply field overrides from selections
+      if (res.ok && Object.keys(overrides).length > 0) {
+        await fetchWithAuth(`${API_BASE}/tracker/${winnerId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(overrides),
+        })
+      }
+      if (res.ok) {
+        setDedupSelections(prev => { const next = { ...prev }; delete next[groupIndex]; return next })
+        await loadDedup()
+        await loadItems()
+      }
     } catch { /* silent */ }
   }
 
@@ -608,94 +805,10 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     return `${(bytes / (1024 * 1024)).toFixed(1)}MB`
   }
 
-  /* ─── Select Dropdown ─── */
-  const Select = ({ value, onChange, options, placeholder }: {
-    value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; placeholder: string
-  }) => (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{
-        background: s.surface,
-        border: `1px solid ${s.border}`,
-        borderRadius: 6,
-        padding: '6px 10px',
-        color: s.text,
-        fontSize: 13,
-        outline: 'none',
-        minWidth: 110,
-      }}
-    >
-      <option value="">{placeholder}</option>
-      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-    </select>
-  )
-
-  /* ─── Form Input ─── */
-  const FormInput = ({ label, value, onChange, textarea }: {
-    label: string; value: string; onChange: (v: string) => void; textarea?: boolean
-  }) => (
-    <div style={{ marginBottom: 12 }}>
-      <label style={{ display: 'block', fontSize: 12, color: s.textSecondary, marginBottom: 4 }}>{label}</label>
-      {textarea ? (
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          rows={3}
-          style={{
-            width: '100%', background: s.surface, border: `1px solid ${s.border}`,
-            borderRadius: 6, padding: '8px 10px', color: s.text, fontSize: 13,
-            outline: 'none', resize: 'vertical',
-          }}
-        />
-      ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            width: '100%', background: s.surface, border: `1px solid ${s.border}`,
-            borderRadius: 6, padding: '8px 10px', color: s.text, fontSize: 13,
-            outline: 'none',
-          }}
-        />
-      )}
-    </div>
-  )
-
-  /* ─── Form Select ─── */
-  const FormSelect = ({ label, value, onChange, options }: {
-    label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]
-  }) => (
-    <div style={{ marginBottom: 12 }}>
-      <label style={{ display: 'block', fontSize: 12, color: s.textSecondary, marginBottom: 4 }}>{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        style={{
-          width: '100%', background: s.surface, border: `1px solid ${s.border}`,
-          borderRadius: 6, padding: '8px 10px', color: s.text, fontSize: 13, outline: 'none',
-        }}
-      >
-        <option value="">—</option>
-        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
-    </div>
-  )
-
-  /* ─── Status Badge ─── */
-  const StatusBadge = ({ status }: { status: string }) => {
-    const cfg = STATUS_CONFIG[status] || { color: s.textMuted, bg: 'rgba(100,116,139,0.15)', label: status }
-    return (
-      <span style={{
-        display: 'inline-block', padding: '2px 10px', borderRadius: 12,
-        fontSize: 11, fontWeight: 600, background: cfg.bg, color: cfg.color,
-        whiteSpace: 'nowrap',
-      }}>
-        {cfg.label}
-      </span>
-    )
-  }
+  // Sub-components aliased from top-level (preserves focus on re-render)
+  const Select = FSelect
+  const FormInput = FInput
+  const FormSelect = FFormSelect
 
   /* ─── Render ─── */
   return (
@@ -752,6 +865,17 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           >
             <Icon name="bolt" size={18} />
           </button>
+          <button
+            onClick={() => { setView('dedup'); loadDedup() }}
+            style={{
+              padding: '6px 10px', border: 'none', cursor: 'pointer',
+              background: view === 'dedup' ? s.surface : 'transparent',
+              color: view === 'dedup' ? s.text : s.textMuted,
+            }}
+            title="DeDup"
+          >
+            <Icon name="compare_arrows" size={18} />
+          </button>
         </div>
         <div style={{ flex: 1 }} />
         {selectedIds.size > 0 && (
@@ -790,9 +914,14 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             padding: '8px 14px', borderRadius: 6, border: `1px solid ${s.border}`, cursor: 'pointer',
             background: 'transparent', color: s.textSecondary, fontSize: 13, fontWeight: 500,
             display: 'flex', alignItems: 'center', gap: 6,
+            transition: 'all 0.15s',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = s.border; e.currentTarget.style.color = s.textSecondary }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.96)'; e.currentTarget.style.background = '#e07c3e'; e.currentTarget.style.borderColor = '#e07c3e'; e.currentTarget.style.color = '#fff' }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
         >
-          <Icon name="auto_fix_high" size={16} color={s.textSecondary} /> Auto Sprint
+          <Icon name="auto_fix_high" size={16} /> Auto Sprint
         </button>
         <button
           onClick={openRoadmap}
@@ -800,9 +929,14 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             padding: '8px 14px', borderRadius: 6, border: `1px solid ${s.border}`, cursor: 'pointer',
             background: 'transparent', color: s.textSecondary, fontSize: 13, fontWeight: 500,
             display: 'flex', alignItems: 'center', gap: 6,
+            transition: 'all 0.15s',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = s.border; e.currentTarget.style.color = s.textSecondary }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.96)'; e.currentTarget.style.background = '#e07c3e'; e.currentTarget.style.borderColor = '#e07c3e'; e.currentTarget.style.color = '#fff' }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
         >
-          <Icon name="map" size={16} color={s.textSecondary} /> Roadmap
+          <Icon name="map" size={16} /> Roadmap
         </button>
       </div>
 
@@ -857,6 +991,152 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         )}
       </div>
 
+
+      {/* ─── DeDup View ─── */}
+      {view === 'dedup' && (
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {dedupLoading ? (
+            <div style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>Scanning for duplicates...</div>
+          ) : dedupGroups.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>
+              <Icon name="check_circle" size={32} color="rgb(34,197,94)" />
+              <div style={{ marginTop: 8 }}>No duplicates detected</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ fontSize: 13, color: s.textSecondary, marginBottom: 4 }}>
+                {dedupGroups.length} potential duplicate group{dedupGroups.length !== 1 ? 's' : ''} found
+              </div>
+              {dedupGroups.map((group, gi) => {
+                const reasonLabel = { exact_match: 'Exact Match', substring_match: 'Substring Match', jaccard_similarity: 'Similar Words' }[group.reason] || group.reason
+                const reasonColor = { exact_match: 'rgb(239,68,68)', substring_match: 'rgb(245,158,11)', jaccard_similarity: 'rgb(59,130,246)' }[group.reason] || s.textMuted
+                return (
+                  <div key={gi} style={{ background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`, overflow: 'hidden' }}>
+                    {/* Header */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderBottom: `1px solid ${s.border}` }}>
+                      <Icon name="compare_arrows" size={16} color={reasonColor} />
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: `${reasonColor}20`, color: reasonColor }}>{reasonLabel}</span>
+                      <div style={{ flex: 1 }} />
+                      <button
+                        onClick={() => mergeDedup(gi, group.winner.id, group.duplicates.map(d => d.id), [group.winner, ...group.duplicates])}
+                        style={{
+                          padding: '4px 14px', borderRadius: 6, border: 'none',
+                          background: 'rgb(34,197,94)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          transition: 'all 0.15s',
+                        }}
+                        onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.96)' }}
+                        onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
+                      >
+                        <Icon name="merge" size={14} color="#fff" /> Merge
+                      </button>
+                    </div>
+
+                    {/* Field-by-field comparison table */}
+                    {(() => {
+                      const allItems = [group.winner, ...group.duplicates]
+                      const fields: { key: string; label: string }[] = [
+                        { key: 'item_id', label: 'ID' },
+                        { key: 'title', label: 'Title' },
+                        { key: 'description', label: 'Description' },
+                        { key: 'type', label: 'Type' },
+                        { key: 'status', label: 'Status' },
+                        { key: 'portal', label: 'Portal' },
+                        { key: 'scope', label: 'Scope' },
+                        { key: 'component', label: 'Component' },
+                        { key: 'section', label: 'Section' },
+                        { key: 'sprint_id', label: 'Sprint' },
+                        { key: 'notes', label: 'Notes' },
+                        { key: 'created_by', label: 'Created By' },
+                        { key: 'created_at', label: 'Created' },
+                      ]
+                      return (
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                            <thead>
+                              <tr>
+                                <th style={{ padding: '8px 12px', textAlign: 'left', color: s.textMuted, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: `1px solid ${s.border}`, width: 100 }}>Field</th>
+                                {allItems.map((item, idx) => (
+                                  <th key={idx} style={{ padding: '8px 12px', textAlign: 'left', borderBottom: `1px solid ${s.border}`, minWidth: 180 }}>
+                                    <span style={{
+                                      fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 8,
+                                      background: idx === 0 ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
+                                      color: idx === 0 ? 'rgb(34,197,94)' : 'rgb(239,68,68)',
+                                    }}>{idx === 0 ? 'WINNER' : 'DUPLICATE'}</span>
+                                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: s.textMuted, marginLeft: 8 }}>{item.item_id}</span>
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {fields.map(field => {
+                                const values = allItems.map(item => {
+                                  const val = (item as unknown as Record<string, unknown>)[field.key]
+                                  if (field.key === 'status') return val as string
+                                  if (field.key === 'type') {
+                                    const tc = TYPE_CONFIG[val as string]
+                                    return tc ? tc.label : (val as string) || '—'
+                                  }
+                                  if (field.key === 'sprint_id') {
+                                    const sp = sprints.find(sp2 => sp2.id === val)
+                                    return sp ? sp.name : (val ? String(val) : '—')
+                                  }
+                                  if (field.key === 'created_at') return formatDate(val as string)
+                                  return val ? String(val) : '—'
+                                })
+                                const allSame = values.every(v => v === values[0])
+                                return (
+                                  <tr key={field.key} style={{ background: allSame ? 'transparent' : 'rgba(245,158,11,0.04)' }}>
+                                    <td style={{ padding: '6px 12px', color: s.textMuted, fontSize: 11, fontWeight: 600, borderBottom: `1px solid ${s.border}`, whiteSpace: 'nowrap' }}>{field.label}</td>
+                                    {values.map((val, idx) => {
+                                      const isSelectable = idx > 0 && !allSame && !['item_id', 'created_at', 'created_by'].includes(field.key)
+                                      const selectedIdx = (dedupSelections[gi] || {})[field.key]
+                                      const isSelected = selectedIdx === idx
+                                      const isWinnerDefault = selectedIdx === undefined && idx === 0 && !allSame && !['item_id', 'created_at', 'created_by'].includes(field.key)
+                                      return (
+                                        <td
+                                          key={idx}
+                                          onClick={isSelectable ? () => {
+                                            setDedupSelections(prev => ({
+                                              ...prev,
+                                              [gi]: { ...(prev[gi] || {}), [field.key]: idx },
+                                            }))
+                                          } : idx === 0 && !allSame && !['item_id', 'created_at', 'created_by'].includes(field.key) ? () => {
+                                            setDedupSelections(prev => {
+                                              const next = { ...prev, [gi]: { ...(prev[gi] || {}) } }
+                                              delete next[gi][field.key]
+                                              return next
+                                            })
+                                          } : undefined}
+                                          style={{
+                                            padding: '6px 12px', borderBottom: `1px solid ${s.border}`,
+                                            color: idx === 0 ? s.text : s.textSecondary,
+                                            maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis',
+                                            cursor: (!allSame && !['item_id', 'created_at', 'created_by'].includes(field.key)) ? 'pointer' : 'default',
+                                            background: isSelected ? 'rgba(224,124,62,0.15)' : isWinnerDefault ? 'rgba(34,197,94,0.06)' : 'transparent',
+                                            borderLeft: isSelected ? '3px solid #e07c3e' : isWinnerDefault ? '3px solid rgba(34,197,94,0.3)' : '3px solid transparent',
+                                            transition: 'all 0.1s',
+                                          }}
+                                        >
+                                          {field.key === 'status' ? <StatusBadge status={val} /> : val}
+                                        </td>
+                                      )
+                                    })}
+                                  </tr>
+                                )
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ─── Sprint Kanban View ─── */}
       {view === 'sprints' && (
@@ -958,7 +1238,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                                   if (phase === 'in_sprint') generatePrompt(sp.id, 'discovery')
                                   else if (phase === 'planned') generatePrompt(sp.id, 'building')
                                   else if (phase === 'built') generateAuditPrompt(sp.id)
-                                  else if (phase === 'audited') { await confirmAllInSprint(sp.id); await closeSprint(sp.id) }
+                                  else if (phase === 'audited') {
+                                    try {
+                                      const r = await fetchWithAuth(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
+                                      if (r.ok) { await loadItems(); await loadSprints() }
+                                    } catch { /* silent */ }
+                                  }
                                 }}
                                 style={{
                                   width: '100%', padding: '6px 0', borderRadius: 6, border: 'none',
@@ -1008,14 +1293,33 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                   style={{ cursor: 'pointer' }}
                 />
               </th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Type</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Title</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Component</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Section</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Portal</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
-              <th style={{ padding: '10px 12px', textAlign: 'left', color: s.textSecondary, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sprint</th>
+              {[
+                { key: 'item_id', label: 'ID' },
+                { key: 'type', label: 'Type' },
+                { key: 'title', label: 'Title' },
+                { key: 'component', label: 'Component' },
+                { key: 'section', label: 'Section' },
+                { key: 'portal', label: 'Portal' },
+                { key: 'status', label: 'Status' },
+                { key: 'sprint_id', label: 'Sprint' },
+              ].map(col => (
+                <th
+                  key={col.key}
+                  onClick={() => {
+                    if (sortField === col.key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+                    else { setSortField(col.key); setSortDir('asc') }
+                    setPage(0)
+                  }}
+                  style={{
+                    padding: '10px 12px', textAlign: 'left', fontWeight: 600, fontSize: 11,
+                    textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
+                    color: sortField === col.key ? s.text : s.textSecondary,
+                    userSelect: 'none',
+                  }}
+                >
+                  {col.label} {sortField === col.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
