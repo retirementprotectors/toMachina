@@ -20,6 +20,15 @@ const TABS: Array<{ key: CommsTab; label: string; icon: string }> = [
   { key: 'call', label: 'Call', icon: 'phone' },
 ]
 
+/* ─── TRK-101: Responsive panel width classes ─── */
+
+const PANEL_RESPONSIVE_CLASSES = [
+  'fixed right-0 top-0 z-50 flex h-full flex-col bg-[var(--bg-card)] shadow-2xl',
+  'w-screen',                    /* < 1024px: full-width overlay */
+  'lg:w-[360px]',                /* 1024-1399px: compact */
+  'min-[1400px]:w-[460px]',      /* >= 1400px: full width (original) */
+].join(' ')
+
 /* ─── Main Component ─── */
 
 export function CommsModule({ open, onClose }: CommsModuleProps) {
@@ -40,11 +49,8 @@ export function CommsModule({ open, onClose }: CommsModuleProps) {
         onClick={handleClose}
       />
 
-      {/* Panel */}
-      <div
-        className="fixed right-0 top-0 z-50 flex h-full flex-col bg-[var(--bg-card)] shadow-2xl"
-        style={{ width: '460px' }}
-      >
+      {/* Panel — TRK-101: responsive widths */}
+      <div className={PANEL_RESPONSIVE_CLASSES}>
         {/* Header */}
         <div className="border-b border-[var(--border-subtle)]">
           <div className="flex items-center justify-between px-4 py-3">

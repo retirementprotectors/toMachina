@@ -394,6 +394,590 @@ function DropZoneLink({
   )
 }
 
+/* ─── Drop Zone: Audio Recorder ─── */
+
+type RecordingState = 'idle' | 'recording' | 'recorded'
+
+function AudioRecorder() {
+  const [state, setState] = useState<RecordingState>('idle')
+  const [duration, setDuration] = useState(0)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const chunksRef = useRef<Blob[]>([])
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+
+  const cleanup = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      cleanup()
+      if (audioUrl) URL.revokeObjectURL(audioUrl)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream
+      chunksRef.current = []
+      const recorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = recorder
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data)
+      }
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        const url = URL.createObjectURL(blob)
+        if (audioUrl) URL.revokeObjectURL(audioUrl)
+        setAudioUrl(url)
+        setState('recorded')
+        cleanup()
+      }
+
+      recorder.start()
+      setDuration(0)
+      setState('recording')
+      timerRef.current = setInterval(() => {
+        setDuration((d) => d + 1)
+      }, 1000)
+    } catch {
+      // Microphone access denied or unavailable
+    }
+  }, [audioUrl, cleanup])
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop()
+    }
+  }, [])
+
+  const discardRecording = useCallback(() => {
+    if (audioUrl) URL.revokeObjectURL(audioUrl)
+    setAudioUrl(null)
+    setState('idle')
+    setDuration(0)
+    setSubmitted(false)
+  }, [audioUrl])
+
+  const handleSubmit = useCallback(() => {
+    setSubmitted(true)
+  }, [])
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+          mic
+        </span>
+        <span className="text-sm font-medium text-[var(--text-primary)]">Audio Recorder</span>
+      </div>
+
+      {state === 'idle' && (
+        <button
+          onClick={() => void startRecording()}
+          className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] px-4 py-3 text-sm text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:bg-[var(--bg-hover)] hover:text-[var(--portal)]"
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--portal)]">
+            <span className="material-icons-outlined text-white" style={{ fontSize: '16px' }}>mic</span>
+          </span>
+          Start Recording
+        </button>
+      )}
+
+      {state === 'recording' && (
+        <div className="flex items-center gap-4 rounded-lg border border-[var(--error)] bg-[rgba(239,68,68,0.04)] px-4 py-3">
+          <div className="relative flex h-10 w-10 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--error)] opacity-20" />
+            <span className="relative flex h-3 w-3 rounded-full bg-[var(--error)]" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-[var(--error)]">Recording...</p>
+            <p className="font-mono text-xs text-[var(--text-muted)]">{formatTime(duration)}</p>
+          </div>
+          <button
+            onClick={stopRecording}
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--error)] px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>stop</span>
+            Stop
+          </button>
+        </div>
+      )}
+
+      {state === 'recorded' && audioUrl && (
+        <div className="space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+              audio_file
+            </span>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-[var(--text-primary)]">Recording captured</p>
+              <p className="text-xs text-[var(--text-muted)]">{formatTime(duration)} duration</p>
+            </div>
+          </div>
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          <audio src={audioUrl} controls className="w-full" style={{ height: '32px' }} />
+          {submitted ? (
+            <div className="flex items-center gap-2 rounded-md bg-[rgba(16,185,129,0.08)] px-3 py-2">
+              <span className="material-icons-outlined text-[var(--success)]" style={{ fontSize: '16px' }}>
+                schedule
+              </span>
+              <span className="text-xs text-[var(--success)]">
+                Queued for processing — Vision intelligence available in Sprint 11
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSubmit}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                style={{ background: 'var(--portal)' }}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>cloud_upload</span>
+                Submit Recording
+              </button>
+              <button
+                onClick={discardRecording}
+                className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-sm text-[var(--text-muted)] transition-colors hover:border-[var(--error)] hover:text-[var(--error)]"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>delete</span>
+                Discard
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─── Drop Zone: Document Camera ─── */
+
+type CameraState = 'idle' | 'previewing' | 'captured'
+
+function DocumentCamera() {
+  const [state, setState] = useState<CameraState>('idle')
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [uploaded, setUploaded] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+
+  const stopStream = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      stopStream()
+      if (imageUrl) URL.revokeObjectURL(imageUrl)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const openCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      })
+      streamRef.current = stream
+      setState('previewing')
+      // Assign stream after state update so videoRef is mounted
+      requestAnimationFrame(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+        }
+      })
+    } catch {
+      // Camera access denied or unavailable
+    }
+  }, [])
+
+  const capturePhoto = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    canvas.width = video.videoWidth || 640
+    canvas.height = video.videoHeight || 480
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    canvas.toBlob((blob) => {
+      if (!blob) return
+      if (imageUrl) URL.revokeObjectURL(imageUrl)
+      const url = URL.createObjectURL(blob)
+      setImageUrl(url)
+      setState('captured')
+      stopStream()
+    }, 'image/jpeg', 0.92)
+  }, [imageUrl, stopStream])
+
+  const retake = useCallback(() => {
+    if (imageUrl) URL.revokeObjectURL(imageUrl)
+    setImageUrl(null)
+    setUploaded(false)
+    setState('idle')
+  }, [imageUrl])
+
+  const closeCamera = useCallback(() => {
+    stopStream()
+    setState('idle')
+  }, [stopStream])
+
+  const handleUpload = useCallback(() => {
+    setUploaded(true)
+  }, [])
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+          photo_camera
+        </span>
+        <span className="text-sm font-medium text-[var(--text-primary)]">Document Camera</span>
+      </div>
+
+      {/* Hidden canvas for capturing */}
+      <canvas ref={canvasRef} className="hidden" />
+
+      {state === 'idle' && (
+        <button
+          onClick={() => void openCamera()}
+          className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] px-4 py-3 text-sm text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:bg-[var(--bg-hover)] hover:text-[var(--portal)]"
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--portal)]">
+            <span className="material-icons-outlined text-white" style={{ fontSize: '16px' }}>photo_camera</span>
+          </span>
+          Open Camera
+        </button>
+      )}
+
+      {state === 'previewing' && (
+        <div className="space-y-2">
+          <div className="relative overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-black">
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full"
+              style={{ maxHeight: '280px', objectFit: 'cover' }}
+            />
+            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 bg-gradient-to-t from-black/60 to-transparent p-3">
+              <button
+                onClick={closeCamera}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+                title="Close camera"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '20px' }}>close</span>
+              </button>
+              <button
+                onClick={capturePhoto}
+                className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-white/30 backdrop-blur-sm transition-colors hover:bg-white/50"
+                title="Capture photo"
+              >
+                <span className="material-icons-outlined text-white" style={{ fontSize: '24px' }}>camera</span>
+              </button>
+              <div className="h-10 w-10" /> {/* Spacer for centering */}
+            </div>
+          </div>
+          <p className="text-center text-xs text-[var(--text-muted)]">
+            Position document within frame, then tap the capture button
+          </p>
+        </div>
+      )}
+
+      {state === 'captured' && imageUrl && (
+        <div className="space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+          <div className="overflow-hidden rounded-md border border-[var(--border-subtle)]">
+            <img
+              src={imageUrl}
+              alt="Captured document"
+              className="w-full"
+              style={{ maxHeight: '200px', objectFit: 'contain', background: '#f5f5f5' }}
+            />
+          </div>
+          {uploaded ? (
+            <div className="flex items-center gap-2 rounded-md bg-[rgba(16,185,129,0.08)] px-3 py-2">
+              <span className="material-icons-outlined text-[var(--success)]" style={{ fontSize: '16px' }}>
+                schedule
+              </span>
+              <span className="text-xs text-[var(--success)]">
+                Queued for processing — Vision intelligence available in Sprint 11
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleUpload}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                style={{ background: 'var(--portal)' }}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>cloud_upload</span>
+                Upload to Drive
+              </button>
+              <button
+                onClick={retake}
+                className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-sm text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>replay</span>
+                Retake
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─── Drop Zone: Processing Status ─── */
+
+interface DropZoneSubmission {
+  id: string
+  type: 'audio' | 'document' | 'file'
+  name: string
+  submitted_at: string
+  status: 'processing' | 'approved' | 'pending_review' | 'rejected'
+  extracted_type?: string
+}
+
+const MOCK_SUBMISSIONS: DropZoneSubmission[] = [
+  {
+    id: 'dz-001',
+    type: 'audio',
+    name: 'Client meeting — Johnson review',
+    submitted_at: '2026-03-15T09:14:00Z',
+    status: 'processing',
+    extracted_type: 'Meeting notes',
+  },
+  {
+    id: 'dz-002',
+    type: 'document',
+    name: 'Annuity application — page 1',
+    submitted_at: '2026-03-15T08:45:00Z',
+    status: 'approved',
+    extracted_type: '1035 Exchange',
+  },
+  {
+    id: 'dz-003',
+    type: 'document',
+    name: 'Driver license — front',
+    submitted_at: '2026-03-14T16:30:00Z',
+    status: 'pending_review',
+    extracted_type: 'ID Verification',
+  },
+  {
+    id: 'dz-004',
+    type: 'audio',
+    name: 'Voicemail — carrier callback',
+    submitted_at: '2026-03-14T14:22:00Z',
+    status: 'processing',
+    extracted_type: 'Voicemail transcription',
+  },
+  {
+    id: 'dz-005',
+    type: 'file',
+    name: 'Statement — Schwab Q1',
+    submitted_at: '2026-03-14T11:05:00Z',
+    status: 'approved',
+    extracted_type: 'Account statement',
+  },
+  {
+    id: 'dz-006',
+    type: 'document',
+    name: 'Medicare card — Smith',
+    submitted_at: '2026-03-14T10:18:00Z',
+    status: 'processing',
+    extracted_type: 'Medicare ID',
+  },
+]
+
+const STATUS_CONFIG: Record<DropZoneSubmission['status'], { label: string; color: string; bg: string; icon: string }> = {
+  processing: { label: 'Processing', color: 'var(--portal)', bg: 'var(--portal-glow)', icon: 'autorenew' },
+  approved: { label: 'Approved', color: 'var(--success)', bg: 'rgba(16,185,129,0.1)', icon: 'check_circle' },
+  pending_review: { label: 'Pending Review', color: 'var(--warning)', bg: 'rgba(245,158,11,0.1)', icon: 'pending' },
+  rejected: { label: 'Rejected', color: 'var(--error)', bg: 'rgba(239,68,68,0.1)', icon: 'cancel' },
+}
+
+const TYPE_ICONS: Record<DropZoneSubmission['type'], string> = {
+  audio: 'audio_file',
+  document: 'image',
+  file: 'description',
+}
+
+function ProcessingStatus() {
+  const submissions = MOCK_SUBMISSIONS
+
+  const counts = useMemo(() => {
+    const c = { processing: 0, approved: 0, pending_review: 0, rejected: 0 }
+    for (const s of submissions) c[s.status]++
+    return c
+  }, [submissions])
+
+  const formatRelative = (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return `${mins}m ago`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs}h ago`
+    return `${Math.floor(hrs / 24)}d ago`
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+          fact_check
+        </span>
+        <span className="text-sm font-medium text-[var(--text-primary)]">Processing Status</span>
+      </div>
+
+      {/* Summary bar */}
+      <div className="flex flex-wrap gap-2">
+        {(Object.entries(counts) as [DropZoneSubmission['status'], number][])
+          .filter(([, v]) => v > 0)
+          .map(([status, count]) => {
+            const cfg = STATUS_CONFIG[status]
+            return (
+              <span
+                key={status}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                style={{ background: cfg.bg, color: cfg.color }}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '13px' }}>{cfg.icon}</span>
+                {count} {cfg.label}
+              </span>
+            )
+          })}
+      </div>
+
+      {/* Submission cards */}
+      <div className="space-y-1.5">
+        {submissions.map((s) => {
+          const cfg = STATUS_CONFIG[s.status]
+          return (
+            <div
+              key={s.id}
+              className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5"
+            >
+              <span
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+                style={{ background: cfg.bg }}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '16px', color: cfg.color }}>
+                  {TYPE_ICONS[s.type]}
+                </span>
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-[var(--text-primary)]">{s.name}</p>
+                <div className="flex items-center gap-2">
+                  {s.extracted_type && (
+                    <span className="text-xs text-[var(--text-muted)]">{s.extracted_type}</span>
+                  )}
+                  <span className="text-xs text-[var(--text-muted)]">{formatRelative(s.submitted_at)}</span>
+                </div>
+              </div>
+              <span
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                style={{ background: cfg.bg, color: cfg.color }}
+              >
+                <span
+                  className={`material-icons-outlined ${s.status === 'processing' ? 'animate-spin' : ''}`}
+                  style={{ fontSize: '11px' }}
+                >
+                  {cfg.icon}
+                </span>
+                {cfg.label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ─── Drop Zone: Agent Status ─── */
+
+function AgentStatus() {
+  const agents: { name: string; status: 'active' | 'idle' | 'offline'; task?: string; icon: string }[] = [
+    { name: 'Vision Processor', status: 'active', task: 'Analyzing annuity application...', icon: 'visibility' },
+    { name: 'Transcription Engine', status: 'active', task: 'Transcribing client meeting...', icon: 'hearing' },
+    { name: 'Data Router', status: 'idle', icon: 'alt_route' },
+    { name: 'Approval Gateway', status: 'active', task: '1 item awaiting review', icon: 'verified_user' },
+  ]
+
+  const statusColors: Record<string, { dot: string; text: string }> = {
+    active: { dot: 'var(--success)', text: 'var(--success)' },
+    idle: { dot: 'var(--text-muted)', text: 'var(--text-muted)' },
+    offline: { dot: 'var(--error)', text: 'var(--error)' },
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
+          smart_toy
+        </span>
+        <span className="text-sm font-medium text-[var(--text-primary)]">Agent Status</span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {agents.map((a) => {
+          const sc = statusColors[a.status]
+          return (
+            <div
+              key={a.name}
+              className="flex items-start gap-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5"
+            >
+              <span className="material-icons-outlined mt-0.5" style={{ fontSize: '16px', color: 'var(--portal)' }}>
+                {a.icon}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="inline-block h-2 w-2 rounded-full"
+                    style={{ background: sc.dot }}
+                  />
+                  <span className="text-xs font-medium text-[var(--text-primary)]">{a.name}</span>
+                </div>
+                <p className="mt-0.5 truncate text-[11px]" style={{ color: sc.text }}>
+                  {a.task || (a.status === 'idle' ? 'Waiting for work...' : 'Offline')}
+                </p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Main Component ─── */
 
 interface MyRpiProfileProps {
@@ -804,6 +1388,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
           Your single entry point into MACHINA. Share your links, record meetings, snap documents.
         </p>
 
+        {/* Quick Links */}
         <div className="mt-4 space-y-3">
           <DropZoneLink
             label="Meet Link"
@@ -836,6 +1421,28 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
             </p>
           </div>
         )}
+
+        {/* Capture Tools */}
+        <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
+          <h4 className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>build</span>
+            Capture Tools
+          </h4>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <AudioRecorder />
+            <DocumentCamera />
+          </div>
+        </div>
+
+        {/* Processing Status */}
+        <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
+          <ProcessingStatus />
+        </div>
+
+        {/* Agent Status */}
+        <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
+          <AgentStatus />
+        </div>
       </div>
 
       {/* ─── Section 5: Meeting Config ─── */}

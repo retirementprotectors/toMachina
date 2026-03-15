@@ -169,8 +169,39 @@ function ChannelRow({ channel, onSelect }: { channel: ChannelData; onSelect: (na
   )
 }
 
-/** In-panel chat placeholder shown when a channel is selected (TRK-073/074) */
+/* ─── Mock Chat Messages (TRK-098) ─── */
+
+interface MockChatMessage {
+  sender: string
+  text: string
+  time: string
+}
+
+const MOCK_CHANNEL_MESSAGES: Record<string, MockChatMessage[]> = {
+  'rpi-leadership': [
+    { sender: 'John B', text: 'Pipeline metrics for Q1 are updated. Revenue tracking ahead of forecast.', time: '10:42 AM' },
+    { sender: 'Vinnie', text: 'T65 list pull is ready, 847 names for March. Starting outreach tomorrow.', time: '10:55 AM' },
+    { sender: 'Josh', text: 'Great work team. Lets review in standup.', time: '11:03 AM' },
+  ],
+  'sales-team': [
+    { sender: 'Vinnie', text: 'AEP numbers coming in strong. 12 enrollments this week.', time: '9:15 AM' },
+    { sender: 'Nikki', text: 'Reminder to get RMD paperwork in by Friday.', time: '9:32 AM' },
+  ],
+  'service-team': [
+    { sender: 'Nikki', text: 'Sprenger RMDs are done for March. All 23 processed.', time: '2:00 PM' },
+    { sender: 'John B', text: 'Nice. Any Gradient stragglers?', time: '2:15 PM' },
+    { sender: 'Nikki', text: 'Two left, waiting on carrier paperwork. Should clear by EOD.', time: '2:18 PM' },
+  ],
+}
+
+const DEFAULT_MOCK_MESSAGES: MockChatMessage[] = [
+  { sender: 'System', text: 'Channel created. Start chatting!', time: 'now' },
+]
+
+/** In-panel chat placeholder shown when a channel is selected (TRK-073/074, TRK-098) */
 function ChannelChatView({ channelName, onBack }: { channelName: string; onBack: () => void }) {
+  const messages = MOCK_CHANNEL_MESSAGES[channelName] ?? DEFAULT_MOCK_MESSAGES
+
   return (
     <div className="flex h-full flex-col">
       {/* Channel chat header */}
@@ -184,23 +215,30 @@ function ChannelChatView({ channelName, onBack }: { channelName: string; onBack:
         </button>
         <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>tag</span>
         <span className="text-sm font-semibold text-[var(--text-primary)]">{channelName}</span>
-      </div>
-
-      {/* Placeholder content */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <span
-          className="flex h-14 w-14 items-center justify-center rounded-full"
-          style={{ background: 'var(--portal-glow)' }}
-        >
-          <span className="material-icons-outlined" style={{ fontSize: '28px', color: 'var(--portal)' }}>chat_bubble_outline</span>
+        {/* TRK-098: Powered by Google Chat badge */}
+        <span className="ml-auto flex items-center gap-1 rounded bg-[var(--bg-surface)] px-2 py-0.5">
+          <span className="text-[9px] text-[var(--text-muted)]">Powered by</span>
+          <span className="text-[9px] font-semibold text-[#1a73e8]">Google Chat</span>
         </span>
-        <p className="mt-4 text-sm font-medium text-[var(--text-primary)]">#{channelName}</p>
-        <p className="mt-1 text-xs text-[var(--text-muted)]">
-          Messages coming in Sprint 10 with Google Chat integration.
-        </p>
       </div>
 
-      {/* Disabled compose bar */}
+      {/* TRK-098: Mock messages */}
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 py-3 space-y-3">
+        {messages.map((msg, idx) => (
+          <div key={idx} className="flex items-start gap-2.5">
+            <InitialsAvatar name={msg.sender} size={28} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs font-semibold text-[var(--text-primary)]">{msg.sender}</span>
+                <span className="text-[10px] text-[var(--text-muted)]">{msg.time}</span>
+              </div>
+              <p className="mt-0.5 text-sm text-[var(--text-secondary)]">{msg.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Compose bar (stub) */}
       <div className="border-t border-[var(--border-subtle)] px-4 py-3">
         <div className="flex items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
           <span className="text-xs text-[var(--text-muted)]">Message #{channelName} — Sprint 10</span>
@@ -504,6 +542,15 @@ function MeetTab() {
    Main Component — Slide-out Panel
    ═══════════════════════════════════════════════ */
 
+/* ─── TRK-101: Responsive panel width classes ─── */
+
+const CONNECT_PANEL_CLASSES = [
+  'fixed right-0 top-0 z-50 flex h-full flex-col bg-[var(--bg-card)]',
+  'w-screen',                    /* < 1024px: full-width overlay */
+  'lg:w-[360px]',                /* 1024-1399px: compact */
+  'min-[1400px]:w-[460px]',      /* >= 1400px: full width */
+].join(' ')
+
 export function ConnectPanel({ open, onClose }: ConnectPanelProps) {
   const [activeTab, setActiveTab] = useState<ConnectTab>('channels')
 
@@ -520,8 +567,9 @@ export function ConnectPanel({ open, onClose }: ConnectPanelProps) {
       {/* Backdrop — click to close */}
       <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
 
+      {/* TRK-101: Responsive panel widths */}
       <div
-        className="fixed right-0 top-0 z-50 flex h-full w-[400px] flex-col bg-[var(--bg-card)]"
+        className={CONNECT_PANEL_CLASSES}
         style={{ boxShadow: '-8px 0 32px rgba(0,0,0,0.4)' }}
       >
         <div className="flex items-center gap-1 border-b border-[var(--border-subtle)] px-3 py-2">

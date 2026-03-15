@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { ActiveCallScreen } from './ActiveCallScreen'
+import type { ActiveCallData } from './ActiveCallScreen'
 
 /* ─── Types ─── */
 
@@ -40,29 +42,47 @@ const MOCK_CLIENTS = [
   { id: '5', name: 'David Chen', phone: '(515) 555-7890', email: 'd.chen@gmail.com', book: 'Gradient' },
 ]
 
+/* ─── Twilio Stub Constants (TRK-095/096) ─── */
+
+const TWILIO_888_NUMBER = '+1 (888) 620-8587'
+const TWILIO_888_LABEL = 'RPI Toll-Free'
+
+type StubSendState = 'idle' | 'sending' | 'sent'
+
 /* ─── Dialer Key Pad (TRK-069: keyboard input) ─── */
 
-function DialerPad({ number, onDigit, inputRef }: { number: string; onDigit: (d: string) => void; inputRef: React.RefObject<HTMLInputElement | null> }) {
+function DialerPad({ number, onDigit, inputRef, onStartCall, callState }: {
+  number: string
+  onDigit: (d: string) => void
+  inputRef: React.RefObject<HTMLInputElement | null>
+  onStartCall: () => void
+  callState: 'idle' | 'connecting' | 'active'
+}) {
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#']
 
   return (
     <div className="space-y-4">
+      {/* TRK-096: Outbound Caller ID — Twilio 888 */}
+      <div className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2">
+        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>phone_forwarded</span>
+        <span className="text-xs text-[var(--text-muted)]">Caller ID:</span>
+        <span className="text-xs font-medium text-[var(--text-primary)]">{TWILIO_888_NUMBER}</span>
+        <span className="ml-auto rounded bg-[var(--bg-hover)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">{TWILIO_888_LABEL}</span>
+      </div>
+
       <div className="rounded-lg bg-[var(--bg-surface)] px-4 py-3 text-center">
         <input
           ref={inputRef}
           type="text"
           value={number || ''}
           onChange={(e) => {
-            // Only allow valid dialer characters
             const cleaned = e.target.value.replace(/[^0-9*#]/g, '')
-            // Calculate what was added
             if (cleaned.length > number.length) {
               const added = cleaned.slice(number.length)
               for (const ch of added) {
                 onDigit(ch)
               }
             } else if (cleaned.length < number.length) {
-              // Characters were removed — set via DEL signals
               const diff = number.length - cleaned.length
               for (let i = 0; i < diff; i++) {
                 onDigit('DEL')
@@ -87,11 +107,15 @@ function DialerPad({ number, onDigit, inputRef }: { number: string; onDigit: (d:
       </div>
       <div className="flex gap-2">
         <button
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg h-12 text-sm font-medium text-white transition-colors hover:brightness-110"
-          style={{ background: 'var(--success, #10b981)' }}
+          onClick={onStartCall}
+          disabled={callState !== 'idle' || number.length < 3}
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg h-12 text-sm font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ background: callState === 'connecting' ? 'var(--warning, #f59e0b)' : 'var(--success, #10b981)' }}
         >
-          <span className="material-icons-outlined" style={{ fontSize: '20px' }}>call</span>
-          Start Call
+          <span className="material-icons-outlined" style={{ fontSize: '20px' }}>
+            {callState === 'connecting' ? 'hourglass_top' : 'call'}
+          </span>
+          {callState === 'connecting' ? 'Connecting...' : 'Start Call'}
         </button>
         <button
           onClick={() => { onDigit('DEL'); inputRef.current?.focus() }}
@@ -99,6 +123,13 @@ function DialerPad({ number, onDigit, inputRef }: { number: string; onDigit: (d:
         >
           <span className="material-icons-outlined" style={{ fontSize: '20px' }}>backspace</span>
         </button>
+      </div>
+
+      {/* TRK-096: Powered by Twilio badge */}
+      <div className="flex items-center justify-center gap-1.5 pt-1">
+        <span className="text-[10px] text-[var(--text-muted)]">Powered by</span>
+        <span className="text-[10px] font-semibold text-[#f22f46]">Twilio</span>
+        <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--text-muted)]">Sprint 10</span>
       </div>
     </div>
   )
@@ -302,6 +333,12 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
   const [templates, setTemplates] = useState<CommsTemplate[]>(DEFAULT_TEMPLATES)
   const dialerInputRef = useRef<HTMLInputElement | null>(null)
 
+  /* TRK-095/096/097: Stub send/call states */
+  const [smsSendState, setSmsSendState] = useState<StubSendState>('idle')
+  const [emailSendState, setEmailSendState] = useState<StubSendState>('idle')
+  const [callState, setCallState] = useState<'idle' | 'connecting' | 'active'>('idle')
+  const [activeCall, setActiveCall] = useState<ActiveCallData | null>(null)
+
   // Sync channel when presetChannel changes (tab navigation)
   useEffect(() => {
     if (presetChannel) {
@@ -367,6 +404,45 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     setTemplates((prev) => prev.filter((tmpl) => tmpl.id !== id))
     if (template === id) setTemplate('none')
   }
+
+  /* TRK-095: Stub SMS send via Twilio */
+  const handleStubSmsSend = useCallback(() => {
+    setSmsSendState('sending')
+    setTimeout(() => {
+      setSmsSendState('sent')
+      setTimeout(() => setSmsSendState('idle'), 2000)
+    }, 1200)
+  }, [])
+
+  /* TRK-097: Stub email send via Gmail */
+  const handleStubEmailSend = useCallback(() => {
+    setEmailSendState('sending')
+    setTimeout(() => {
+      setEmailSendState('sent')
+      setTimeout(() => setEmailSendState('idle'), 2000)
+    }, 1200)
+  }, [])
+
+  /* TRK-096: Stub call connect via Twilio */
+  const handleStubStartCall = useCallback(() => {
+    if (callState !== 'idle' || dialerNumber.length < 3) return
+    setCallState('connecting')
+    setTimeout(() => {
+      setCallState('active')
+      setActiveCall({
+        callId: `stub-${Date.now()}`,
+        callerName: selectedClient?.name ?? 'Unknown',
+        callerPhone: dialerNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3'),
+        callerLabel: selectedClient?.book,
+      })
+    }, 2000)
+  }, [callState, dialerNumber, selectedClient])
+
+  const handleStubEndCall = useCallback(() => {
+    setActiveCall(null)
+    setCallState('idle')
+    setDialerNumber('')
+  }, [])
 
   // Filter templates by current channel for the dropdown
   const availableTemplates = templates.filter((t) => {
@@ -478,7 +554,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
           </div>
         )}
 
-        {/* SMS mode */}
+        {/* SMS mode — TRK-095: Twilio stub */}
         {channel === 'sms' && (
           <>
             <div>
@@ -497,15 +573,21 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">From</label>
-              <select className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] h-[38px] px-3 text-sm text-[var(--text-primary)] outline-none">
-                <option>+1 (888) 620-8587 (RPI Toll-Free)</option>
-                <option>+1 (515) 500-2308 (RPI Local)</option>
-              </select>
+              <div className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] h-[38px] px-3">
+                <span className="material-icons-outlined text-[#f22f46]" style={{ fontSize: '14px' }}>phone</span>
+                <span className="text-sm font-medium text-[var(--text-primary)]">{TWILIO_888_NUMBER}</span>
+                <span className="ml-auto rounded bg-[var(--bg-hover)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">{TWILIO_888_LABEL}</span>
+              </div>
+              <div className="mt-1.5 flex items-center gap-1">
+                <span className="text-[10px] text-[var(--text-muted)]">Powered by</span>
+                <span className="text-[10px] font-semibold text-[#f22f46]">Twilio</span>
+                <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--text-muted)]">Sprint 10</span>
+              </div>
             </div>
           </>
         )}
 
-        {/* Email mode */}
+        {/* Email mode — TRK-097: Gmail API stub */}
         {channel === 'email' && (
           <>
             <div>
@@ -530,18 +612,29 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">From</label>
-              <select className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] h-[38px] px-3 text-sm text-[var(--text-primary)] outline-none">
-                <option>josh@retireprotected.com</option>
-                <option>vince@retireprotected.com</option>
-                <option>nikki@retireprotected.com</option>
-              </select>
+              <div className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] h-[38px] px-3">
+                <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>email</span>
+                <span className="text-sm font-medium text-[var(--text-primary)]">you@retireprotected.com</span>
+                <span className="ml-auto rounded bg-[var(--bg-hover)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">Workspace</span>
+              </div>
+              <div className="mt-1.5 flex items-center gap-1">
+                <span className="text-[10px] text-[var(--text-muted)]">Send via</span>
+                <span className="text-[10px] font-semibold text-[var(--text-secondary)]">Gmail API</span>
+                <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--text-muted)]">Sprint 10</span>
+              </div>
             </div>
           </>
         )}
 
-        {/* Call mode */}
+        {/* Call mode — TRK-096: Twilio voice stub */}
         {channel === 'call' && (
-          <DialerPad number={dialerNumber} onDigit={handleDialerDigit} inputRef={dialerInputRef} />
+          <DialerPad
+            number={dialerNumber}
+            onDigit={handleDialerDigit}
+            inputRef={dialerInputRef}
+            onStartCall={handleStubStartCall}
+            callState={callState}
+          />
         )}
 
         {/* Template with Manage button (SMS/Email only — TRK-064) */}
@@ -571,17 +664,52 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
         )}
       </div>
 
-      {/* Send button (SMS/Email only) */}
+      {/* Send button — TRK-095/097: Twilio SMS / Gmail stub sends */}
       {channel !== 'call' && (
         <div className="border-t border-[var(--border-subtle)] px-4 py-3">
-          <button
-            className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110"
-            style={{ background: 'var(--portal)' }}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '18px' }}>send</span>
-            {channel === 'sms' ? 'Send SMS' : 'Send Email'}
-          </button>
+          {channel === 'sms' ? (
+            <button
+              onClick={handleStubSmsSend}
+              disabled={smsSendState !== 'idle'}
+              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed"
+              style={{
+                background: smsSendState === 'sent'
+                  ? 'var(--success, #10b981)'
+                  : smsSendState === 'sending'
+                    ? 'var(--warning, #f59e0b)'
+                    : 'var(--portal)',
+              }}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
+                {smsSendState === 'sent' ? 'check_circle' : smsSendState === 'sending' ? 'hourglass_top' : 'send'}
+              </span>
+              {smsSendState === 'sent' ? 'Sent via Twilio' : smsSendState === 'sending' ? 'Sending...' : 'Send via Twilio'}
+            </button>
+          ) : (
+            <button
+              onClick={handleStubEmailSend}
+              disabled={emailSendState !== 'idle'}
+              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed"
+              style={{
+                background: emailSendState === 'sent'
+                  ? 'var(--success, #10b981)'
+                  : emailSendState === 'sending'
+                    ? 'var(--warning, #f59e0b)'
+                    : 'var(--portal)',
+              }}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
+                {emailSendState === 'sent' ? 'check_circle' : emailSendState === 'sending' ? 'hourglass_top' : 'send'}
+              </span>
+              {emailSendState === 'sent' ? 'Sent via Gmail' : emailSendState === 'sending' ? 'Sending...' : 'Send via Gmail'}
+            </button>
+          )}
         </div>
+      )}
+
+      {/* TRK-096: Active Call Screen overlay (mock) */}
+      {activeCall && (
+        <ActiveCallScreen call={activeCall} onEndCall={handleStubEndCall} />
       )}
     </div>
   )
