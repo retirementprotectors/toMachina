@@ -1296,6 +1296,24 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                                 {phaseConfig.actionLabel}
                               </button>
                             )}
+
+                            {/* Audit Walkthrough link for sprints ready for/in audit */}
+                            {(phase === 'built' || phase === 'audited') && (
+                              <a
+                                href={`/modules/forge/audit?sprint=${sp.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                  width: '100%', padding: '5px 0', borderRadius: 6,
+                                  border: `1px solid #e07c3e`, marginTop: 4,
+                                  background: 'transparent', color: '#e07c3e', fontSize: 11, fontWeight: 600,
+                                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                  textDecoration: 'none',
+                                }}
+                              >
+                                <Icon name="fact_check" size={13} color="#e07c3e" />
+                                Audit Walkthrough
+                              </a>
+                            )}
                           </div>
                         )
                       })}
