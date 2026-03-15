@@ -11,6 +11,7 @@ export { DataTable } from './components/DataTable'
 export { KanbanBoard } from './components/KanbanBoard'
 export type { KanbanCard, KanbanColumn } from './components/KanbanBoard'
 export { PortalSwitcher } from './components/PortalSwitcher'
+export { ReportButton } from './components/ReportButton'
 export { WireDiagram, WireDiagramList } from './components/WireDiagram'
 
 // App brand system

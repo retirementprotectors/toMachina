@@ -64,7 +64,7 @@ export default function ClientsPage() {
   const { data: rawClients, loading, error } = useCollection<ClientRow>(clientsQuery, 'all-clients')
 
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('All')
+  const [statusFilter, setStatusFilter] = useState('Active')
   const [bookFilter, setBookFilter] = useState('All')
   const [agentFilter, setAgentFilter] = useState('All')
   const [acfFilter, setAcfFilter] = useState('All')
@@ -296,8 +296,8 @@ export default function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Header + Filters */}
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4">
+      {/* Filters */}
+      <div className="space-y-3">
       <ClientFilters
         search={search}
         onSearchChange={handleSearchChange}

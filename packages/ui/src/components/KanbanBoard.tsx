@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 
 export interface KanbanCard {
   id: string
@@ -22,13 +22,20 @@ interface KanbanBoardProps {
   columns: KanbanColumn[]
   emptyMessage?: string
   renderCard?: (card: KanbanCard) => ReactNode
+  onCardMove?: (cardId: string, fromColumnId: string, toColumnId: string) => void
 }
 
-function DefaultCard({ card }: { card: KanbanCard }) {
+function DefaultCard({ card, draggable, onDragStart }: {
+  card: KanbanCard
+  draggable?: boolean
+  onDragStart?: (e: React.DragEvent) => void
+}) {
   return (
     <div
+      draggable={draggable}
+      onDragStart={onDragStart}
       onClick={card.onClick}
-      className={`rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 transition-all hover:border-[var(--border)] hover:bg-[var(--bg-card-hover)] ${card.onClick ? 'cursor-pointer' : ''}`}
+      className={`rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 transition-all hover:border-[var(--border)] hover:bg-[var(--bg-card-hover)] ${card.onClick ? 'cursor-pointer' : ''} ${draggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       <p className="text-sm font-medium text-[var(--text-primary)] truncate">{card.title}</p>
       {card.subtitle && (
@@ -66,8 +73,9 @@ function DefaultCard({ card }: { card: KanbanCard }) {
   )
 }
 
-export function KanbanBoard({ columns, emptyMessage, renderCard }: KanbanBoardProps) {
+export function KanbanBoard({ columns, emptyMessage, renderCard, onCardMove }: KanbanBoardProps) {
   const totalCards = columns.reduce((sum, col) => sum + col.cards.length, 0)
+  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null)
 
   if (totalCards === 0 && emptyMessage) {
     return (
@@ -78,46 +86,87 @@ export function KanbanBoard({ columns, emptyMessage, renderCard }: KanbanBoardPr
     )
   }
 
+  const handleDragStart = (e: React.DragEvent, cardId: string, fromColumnId: string) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({ cardId, fromColumnId }))
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent, columnId: string) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (dragOverColumn !== columnId) setDragOverColumn(columnId)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverColumn(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, toColumnId: string) => {
+    e.preventDefault()
+    setDragOverColumn(null)
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('text/plain'))
+      if (data.cardId && data.fromColumnId && data.fromColumnId !== toColumnId && onCardMove) {
+        onCardMove(data.cardId, data.fromColumnId, toColumnId)
+      }
+    } catch { /* invalid drag data */ }
+  }
+
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
-      {columns.map((column) => (
-        <div
-          key={column.id}
-          className="flex w-72 shrink-0 flex-col rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
-        >
-          {/* Column Header */}
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-[var(--border-subtle)]">
-            <div className="flex items-center gap-2">
-              {column.color && (
-                <span className="h-2 w-2 rounded-full" style={{ background: column.color }} />
-              )}
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                {column.title}
+      {columns.map((column) => {
+        const isOver = dragOverColumn === column.id
+        return (
+          <div
+            key={column.id}
+            onDragOver={(e) => handleDragOver(e, column.id)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, column.id)}
+            className="flex w-72 shrink-0 flex-col rounded-xl border bg-[var(--bg-secondary)] transition-colors"
+            style={{
+              borderColor: isOver ? (column.color || 'var(--portal, #4a7ab5)') : 'var(--border-subtle, #2a3347)',
+              background: isOver ? 'rgba(255,255,255,0.02)' : undefined,
+            }}
+          >
+            {/* Column Header */}
+            <div className="flex items-center justify-between px-3 py-2.5 border-b border-[var(--border-subtle)]">
+              <div className="flex items-center gap-2">
+                {column.color && (
+                  <span className="h-2 w-2 rounded-full" style={{ background: column.color }} />
+                )}
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                  {column.title}
+                </span>
+              </div>
+              <span className="rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">
+                {column.cards.length}
               </span>
             </div>
-            <span className="rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">
-              {column.cards.length}
-            </span>
-          </div>
 
-          {/* Cards */}
-          <div className="flex flex-col gap-2 p-2 overflow-y-auto max-h-[calc(100vh-240px)]">
-            {column.cards.length === 0 ? (
-              <div className="flex items-center justify-center py-8 text-xs text-[var(--text-muted)]">
-                No items
-              </div>
-            ) : (
-              column.cards.map((card) =>
-                renderCard ? (
-                  <div key={card.id}>{renderCard(card)}</div>
-                ) : (
-                  <DefaultCard key={card.id} card={card} />
+            {/* Cards */}
+            <div className="flex flex-col gap-2 p-2 overflow-y-auto max-h-[calc(100vh-240px)]">
+              {column.cards.length === 0 ? (
+                <div className="flex items-center justify-center py-8 text-xs text-[var(--text-muted)]">
+                  {isOver ? 'Drop here' : 'No items'}
+                </div>
+              ) : (
+                column.cards.map((card) =>
+                  renderCard ? (
+                    <div key={card.id}>{renderCard(card)}</div>
+                  ) : (
+                    <DefaultCard
+                      key={card.id}
+                      card={card}
+                      draggable={!!onCardMove}
+                      onDragStart={(e) => handleDragStart(e, card.id, column.id)}
+                    />
+                  )
                 )
-              )
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

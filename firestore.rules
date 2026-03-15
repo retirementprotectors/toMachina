@@ -199,5 +199,17 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
+
+    // ----------------------------------------------------------------
+    // FORGE — Build Tracker (leader+ writes)
+    // ----------------------------------------------------------------
+    match /tracker_items/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /sprints/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
   }
 }

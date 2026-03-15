@@ -117,7 +117,7 @@ export const TOOL_SUITES: Record<SuiteKey, ToolSuiteDef> = {
     name: 'Admin',
     description: 'Organization & Permissions Management',
     matrix: 'RAPID',
-    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER'],
+    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'FORGE'],
   },
 }
 
@@ -419,6 +419,16 @@ export const MODULES: Record<string, ModuleDef> = {
     description: 'User termination and offboarding workflow',
     status: 'active',
     suite: 'PIPELINES',
+    minUserLevel: 'LEADER',
+  },
+
+  // ---- Build Tracker (1) ----
+  FORGE: {
+    name: 'FORGE',
+    fullName: 'Build Tracker',
+    description: 'Platform build tracker with screenshot reporting and sprint management',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
     minUserLevel: 'LEADER',
   },
 

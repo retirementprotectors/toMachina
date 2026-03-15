@@ -51,6 +51,9 @@
   --radius-lg: 14px;
 }
 
+/* ─── Global cursor-pointer for interactive elements ─── */
+button, a, [role="button"], [tabindex="0"] { cursor: pointer; }
+
 body {
   background: var(--bg-primary);
   color: var(--text-primary);

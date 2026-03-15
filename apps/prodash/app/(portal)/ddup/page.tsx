@@ -454,6 +454,17 @@ function DdupContent() {
           } catch {
             // Non-critical — communications may not exist
           }
+
+          // 4. Move access_items subcollection
+          try {
+            const loserAccessItems = await getDocs(collection(db, 'clients', loserId, 'access_items'))
+            for (const accessDoc of loserAccessItems.docs) {
+              await setDoc(doc(db, 'clients', winner.id, 'access_items', accessDoc.id), accessDoc.data())
+              await deleteDoc(accessDoc.ref)
+            }
+          } catch {
+            // Non-critical — access_items may not exist
+          }
         }
       }
 

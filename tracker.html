@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>toMachina UI Tracker</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1219;
+    --bg-card: #161b26;
+    --bg-surface: #1c2333;
+    --bg-hover: #232b3e;
+    --border: #2a3347;
+    --text: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --portal: #4a7ab5;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --purple: #a78bfa;
+    --teal: #14b8a6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header { padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 50; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header h1 span { color: var(--portal); }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  .stats { display: flex; gap: 12px; padding: 16px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+  .stat { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+  .stat:hover { border-color: var(--border); }
+  .stat.active { border-color: var(--portal); background: rgba(74,122,181,0.1); }
+  .stat .count { font-size: 15px; font-weight: 700; }
+  .stat-all .count { color: var(--text); }
+  .stat-not_touched .count { color: var(--red); }
+  .stat-in_progress .count { color: var(--amber); }
+  .stat-done .count { color: var(--teal); }
+  .stat-confirmed .count { color: var(--green); }
+  .stat-deferred .count { color: var(--purple); }
+
+  .filters { display: flex; gap: 8px; padding: 12px 32px; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-right: 4px; }
+  select, .search-input { height: 32px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text); padding: 0 10px; font-size: 13px; outline: none; }
+  select:focus, .search-input:focus { border-color: var(--portal); }
+  .search-input { width: 220px; }
+
+  .btn { height: 32px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .btn:hover { border-color: var(--portal); color: var(--text); }
+  .btn-primary { background: var(--portal); border-color: var(--portal); color: white; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn .material-icons-outlined { font-size: 16px; }
+
+  .content { padding: 0 32px 32px; }
+
+  .group { margin-top: 20px; }
+  .group-header { display: flex; align-items: center; gap: 10px; padding: 10px 0; cursor: pointer; user-select: none; }
+  .group-header h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--portal); }
+  .group-header .group-count { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .group-header .material-icons-outlined { font-size: 18px; color: var(--text-muted); transition: transform 0.2s; }
+  .group-header.collapsed .material-icons-outlined { transform: rotate(-90deg); }
+
+  .item { display: grid; grid-template-columns: 40px 100px 1fr 140px 180px; gap: 0; align-items: stretch; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; background: var(--bg-card); transition: all 0.15s; overflow: hidden; }
+  .item:hover { border-color: rgba(74,122,181,0.4); }
+  .item.status-confirmed { border-left: 3px solid var(--green); }
+  .item.status-done { border-left: 3px solid var(--teal); }
+  .item.status-in_progress { border-left: 3px solid var(--amber); }
+  .item.status-not_touched { border-left: 3px solid var(--red); }
+  .item.status-deferred { border-left: 3px solid var(--purple); }
+
+  .item-id { padding: 10px 8px; font-size: 10px; font-weight: 700; font-family: monospace; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+  .item-section-badge { padding: 10px 8px; display: flex; align-items: center; justify-content: center; }
+  .item-section-badge span { font-size: 10px; font-weight: 600; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: var(--bg-surface); color: var(--text-muted); white-space: nowrap; }
+
+  .item-body { padding: 10px 12px; min-width: 0; }
+  .item-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .item-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+  .item-tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+  .item-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: rgba(74,122,181,0.1); color: var(--portal); font-weight: 500; }
+
+  .item-status { padding: 10px 8px; display: flex; align-items: center; justify-content: center; }
+  .status-select { height: 28px; font-size: 11px; font-weight: 600; border-radius: 6px; padding: 0 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text); cursor: pointer; width: 120px; }
+
+  .item-notes { padding: 10px 8px; display: flex; align-items: center; }
+  .notes-input { width: 100%; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-secondary); padding: 0 8px; font-size: 11px; outline: none; }
+  .notes-input:focus { border-color: var(--portal); }
+  .notes-input::placeholder { color: var(--text-muted); }
+
+  .hidden { display: none !important; }
+
+  .add-item-form { display: none; padding: 16px 32px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+  .add-item-form.show { display: block; }
+  .form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .form-row input, .form-row select, .form-row textarea { flex: 1; min-width: 150px; }
+  .form-row textarea { height: 60px; padding: 8px 10px; resize: vertical; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text); font-size: 13px; font-family: inherit; outline: none; }
+  .form-row textarea:focus { border-color: var(--portal); }
+
+  .export-info { font-size: 11px; color: var(--text-muted); }
+
+  @media (max-width: 900px) {
+    .item { grid-template-columns: 1fr; }
+    .header { padding: 16px; }
+    .content { padding: 0 16px 16px; }
+    .stats, .filters { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1><span>toMachina</span> UI Tracker</h1>
+    <div class="export-info" id="lastSaved"></div>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="toggleAddForm()"><span class="material-icons-outlined">add</span> Add Item</button>
+    <button class="btn" onclick="exportJSON()"><span class="material-icons-outlined">download</span> Export</button>
+    <button class="btn" onclick="importJSON()"><span class="material-icons-outlined">upload</span> Import</button>
+  </div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="filters">
+  <span class="filter-label">Portal</span>
+  <select id="filterPortal" onchange="renderItems()">
+    <option value="all">All Portals</option>
+    <option value="PRODASHX">ProDashX</option>
+    <option value="SHARED">Shared (All Portals)</option>
+    <option value="RIIMO">RIIMO</option>
+    <option value="SENTINEL">SENTINEL</option>
+    <option value="INFRA">Infrastructure</option>
+    <option value="DATA">Data</option>
+  </select>
+  <span class="filter-label">Scope</span>
+  <select id="filterScope" onchange="renderItems()">
+    <option value="all">All Scopes</option>
+    <option value="Module">Module (Portal-Branded)</option>
+    <option value="App">App (Own Brand)</option>
+    <option value="Platform">Platform / Global</option>
+    <option value="Data">Data / Firestore</option>
+  </select>
+  <span class="filter-label">Component</span>
+  <select id="filterComponent" onchange="renderItems()"></select>
+  <input type="text" class="search-input" id="searchInput" placeholder="Search items..." oninput="renderItems()">
+</div>
+
+<div class="add-item-form" id="addForm">
+  <div class="form-row">
+    <input type="text" id="newTitle" placeholder="Title" class="search-input" style="width:auto;flex:2">
+    <select id="newPortal" style="width:auto">
+      <option value="PRODASHX">ProDashX</option>
+      <option value="SHARED">Shared</option>
+      <option value="RIIMO">RIIMO</option>
+      <option value="SENTINEL">SENTINEL</option>
+      <option value="INFRA">Infrastructure</option>
+      <option value="DATA">Data</option>
+    </select>
+    <select id="newScope" style="width:auto">
+      <option value="Module">Module</option>
+      <option value="App">App</option>
+      <option value="Platform">Platform</option>
+      <option value="Data">Data</option>
+    </select>
+    <input type="text" id="newComponent" placeholder="Component" class="search-input" style="width:auto">
+    <input type="text" id="newSection" placeholder="Section" class="search-input" style="width:auto;flex:0.5">
+  </div>
+  <div class="form-row">
+    <textarea id="newDesc" placeholder="Description"></textarea>
+  </div>
+  <div class="form-row">
+    <button class="btn btn-primary" onclick="addNewItem()">Add Item</button>
+    <button class="btn" onclick="toggleAddForm()">Cancel</button>
+  </div>
+</div>
+
+<div class="content" id="content"></div>
+
+<script>
+const STORAGE_KEY = 'tomachina-ui-tracker';
+
+const STATUS_LABELS = {
+  not_touched: 'Not Touched',
+  in_progress: 'In Progress',
+  done: 'Done',
+  confirmed: 'Confirmed by JDM',
+  deferred: 'Deferred',
+  wont_fix: "Won't Fix"
+};
+
+const STATUS_COLORS = {
+  not_touched: 'var(--red)',
+  in_progress: 'var(--amber)',
+  done: 'var(--teal)',
+  confirmed: 'var(--green)',
+  deferred: 'var(--purple)',
+  wont_fix: 'var(--text-muted)'
+};
+
+let activeStatusFilter = 'all';
+
+// ─── INITIAL DATA ───
+const DEFAULT_ITEMS = [
+  // ═══ ACCOUNTS GRID ═══
+  { id:'ACC-001', title:'Default to Active status', desc:'Accounts grid should default status filter to Active, not All', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Filters', status:'done', sprint:'9', notes:'Set useState default to Active' },
+  { id:'ACC-002', title:'+ New button opens new Account', desc:'+ New button must open new ACCOUNT creation, not contact intake. Currently links to /intake which creates contacts. Need account creation flow.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Header', status:'not_touched', sprint:'9', notes:'No account creation page exists yet' },
+  { id:'ACC-003', title:'Load ALL accounts (no 500 limit)', desc:'Grid was only loading 500 accounts via limit(). Rewrote to getDocs on full collectionGroup. All 17K+ accounts now loaded.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Body', status:'done', sprint:'9', notes:'Rewrote data loading' },
+  { id:'ACC-004', title:'Filters work on full dataset', desc:'Status, carrier, search, type filters now operate on ALL accounts, not just the first 500.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Filters', status:'done', sprint:'9', notes:'Consequence of ACC-003' },
+  { id:'ACC-005', title:'Counts accurate across type pills', desc:'All/Annuity/Life/Medicare/Investment counts now reflect the real totals from full dataset.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Filters', status:'done', sprint:'9', notes:'Consequence of ACC-003' },
+  { id:'ACC-006', title:'Carrier filter shows all carriers', desc:'Carrier dropdown now populated from ALL accounts, not just first 500.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Filters', status:'done', sprint:'9', notes:'Consequence of ACC-003' },
+  { id:'ACC-007', title:'Filter section spacing — consolidate rows', desc:'Three rows of filters takes too much vertical space. Needs consolidation into fewer rows.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Filters', status:'not_touched', sprint:'9', notes:'' },
+  { id:'ACC-008', title:'Row click opens account in new tab', desc:'Clicking a row opens the account detail page in a new browser tab.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'ACC-009', title:'Cursor pointer on rows', desc:'Rows show pointer cursor on hover to indicate clickability.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'ACC-010', title:'DeDup from grid — :: separator fix', desc:'Composite account IDs used - separator which collided with UUID hyphens. Changed to :: separator. DeDup page already supports ::', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Body', status:'done', sprint:'9', notes:'Fixed separator format' },
+  { id:'ACC-011', title:'Filter deleted/merged accounts from DeDup', desc:'Deleted and merged accounts should not appear as potential DeDup candidates in the grid.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+  { id:'ACC-012', title:'Dark background (no gray box on filters)', desc:'Filter section should not have a gray bg-surface container. Dark background throughout, matching the overall theme.', portal:'PRODASHX', scope:'Module', component:'Accounts Grid', section:'Filters', status:'done', sprint:'9', notes:'Removed boxed wrapper' },
+
+  // ═══ CONTACTS GRID ═══
+  { id:'CON-001', title:'Default to Active status', desc:'Contacts grid should default status filter to Active, not All.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Filters', status:'done', sprint:'9', notes:'Set useState default to Active' },
+  { id:'CON-002', title:'Remove Business column', desc:'Business column has nothing in it, no filter, invisible in default view. Remove entirely.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+  { id:'CON-003', title:'Move ACF closer to Status in default view', desc:'ACF column should be positioned right after Status for quick visibility. Currently too far right.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+  { id:'CON-004', title:'Dark background (no gray box on filters)', desc:'Filter section should not have bg-surface container. Dark background throughout.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Filters', status:'done', sprint:'9', notes:'Removed boxed wrapper' },
+  { id:'CON-005', title:'Filter section spacing consolidation', desc:'Too many rows for filters. Needs tighter layout.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Filters', status:'not_touched', sprint:'9', notes:'' },
+  { id:'CON-006', title:'Row click opens contact in new tab', desc:'Clicking a row opens contact detail in new browser tab.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'CON-007', title:'Cursor pointer on rows', desc:'Rows show pointer cursor on hover.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'CON-008', title:'Preferred name quotes stripped', desc:'Quotes in preferred names (e.g. Carol "jane" Groff) are stripped via cleanName().', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'CON-009', title:'Merged records filtered from grid', desc:'Records with client_status=merged are excluded from the contacts grid.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'CON-010', title:'0 ACFs showing — data issue', desc:'Zero ACF links showing for entire 5,017 contact population. Hundreds exist in reality. The acf_link field on client docs is either not populated or uses different field name.', portal:'DATA', scope:'Data', component:'Contacts Grid', section:'Data', status:'not_touched', sprint:'9', notes:'Investigation needed' },
+  { id:'CON-011', title:'agent_name empty across all clients', desc:'agent_name field is empty across all 5,017 clients. Data exists somewhere — likely under a different field name in PRODASH_MATRIX or via the import. Need to investigate correct field.', portal:'DATA', scope:'Data', component:'Contacts Grid', section:'Data', status:'not_touched', sprint:'9', notes:'Investigation needed' },
+
+  // ═══ CONTACT DETAIL ═══
+  { id:'DET-001', title:'Remove Communications tab', desc:'Communications tab on contact detail is redundant with the Communications module (one click away in apps). Should be removed.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Tabs', status:'not_touched', sprint:'9', notes:'' },
+  { id:'DET-002', title:'Agents: First Last (not Last, First)', desc:'Agents in the Connect tab of contact detail should display as "First Last", not "Last, First".', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Connect Tab', status:'not_touched', sprint:'9', notes:'' },
+  { id:'DET-003', title:'Agents: only active sales team', desc:'Only show active agents from sales teams (Medicare or Retirement). No inactive, no non-sales.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Connect Tab', status:'not_touched', sprint:'9', notes:'' },
+  { id:'DET-004', title:'Suggested connections / group suggestions UI', desc:'JDM wants a UI concept for suggested connections and group suggestions on the contact detail page. No concept exists yet. JDM considers this a great idea and will not let it go.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Connect Tab', status:'not_touched', sprint:'9', notes:'Needs design concept' },
+  { id:'DET-005', title:'Activity tab sub-filters', desc:'Activity tab needs sub-filters to narrow by type (calls, emails, status changes, etc). Currently shows flat list.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Activity Tab', status:'not_touched', sprint:'9', notes:'' },
+  { id:'DET-006', title:'MyRPI on window header only', desc:'MyRPI label should only appear on the window/page header, not duplicated on the screen header. Don\'t show location on two levels that are right next to each other.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Header', status:'not_touched', sprint:'9', notes:'Applies to all section headers' },
+  { id:'DET-007', title:'DL fields 4-on-one-row', desc:'Driver\'s license fields displayed in a 4-column grid row.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Personal Tab', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'DET-008', title:'Aliases/Goes-by rendering', desc:'parseAliases() correctly handles JSON arrays for alias display.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Personal Tab', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'DET-009', title:'Reciprocal connections auto-created', desc:'When connecting contacts, inverse/reciprocal relationship is auto-created via INVERSE_RELATIONSHIPS map.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Connect Tab', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'DET-010', title:'Connected accounts work perfectly', desc:'Connected accounts display and navigation works. Confirmed by JDM.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Accounts Tab', status:'confirmed', sprint:'9', notes:'JDM confirmed working' },
+  { id:'DET-011', title:'AI3 console error — OAuth reauth', desc:'AI3 generation throws invalid_grant/invalid_rapt error. OAuth token expired for Google API. Needs reauthorization.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Header', status:'not_touched', sprint:'9', notes:'Run reauth-scopes.js' },
+
+  // ═══ DEDUP ═══
+  { id:'DDP-001', title:'Account DeDup from grid (:: separator)', desc:'Account DeDup from the accounts grid was broken because composite IDs used - separator which conflicts with UUID hyphens. Fixed to use :: separator.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Body', status:'done', sprint:'9', notes:'Changed to :: separator' },
+  { id:'DDP-002', title:'Account DeDup: account link + ACF link rows', desc:'Account DeDup comparison should show: Row 1 = account link, Row 2 = ACF link as header rows for each record.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Header', status:'not_touched', sprint:'9', notes:'' },
+  { id:'DDP-003', title:'Contact DeDup: client link + ACF link rows', desc:'Contact DeDup comparison header already shows: Row 1 = clickable client name link, Row 2 = ACF link.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Header', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'DDP-004', title:'Merge moves accounts subcollection', desc:'DeDup merge correctly moves all account docs from loser to winner.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'DDP-005', title:'Merge moves connected_contacts', desc:'DeDup merge correctly moves connected_contacts array from loser to winner via arrayUnion.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'DDP-006', title:'Merge moves communications', desc:'DeDup merge correctly moves communications subcollection from loser to winner.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'DDP-007', title:'Merge moves access_items', desc:'DeDup merge now moves access_items subcollection from loser to winner. Added in Sprint 9.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Body', status:'done', sprint:'9', notes:'Just added' },
+  { id:'DDP-008', title:'Deleted accounts in DeDup suggestions', desc:'Deleted/terminated accounts should not appear as potential DeDup candidates.', portal:'PRODASHX', scope:'Module', component:'DeDup', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+
+  // ═══ SIDEBAR / NAVIGATION ═══
+  { id:'NAV-001', title:'Platform switcher = toMachina gears logo', desc:'Platform switcher should use the three horizontal gears from the toMachina logo that you click on to switch portals.', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Header', status:'not_touched', sprint:'9', notes:'Design change' },
+  { id:'NAV-002', title:'Remove footer from platform switcher', desc:'The footer on the platform switcher popup/screen is unnecessary. Remove it.', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Footer', status:'not_touched', sprint:'9', notes:'' },
+  { id:'NAV-003', title:'Workspace → Workspaces', desc:'Rename sidebar section label from "Workspace" to "Workspaces" (plural).', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Nav', status:'not_touched', sprint:'9', notes:'' },
+  { id:'NAV-004', title:'Sales Centers → Sales', desc:'Rename sidebar section label from "Sales Centers" to just "Sales".', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Nav', status:'not_touched', sprint:'9', notes:'' },
+  { id:'NAV-005', title:'Service Centers → Service', desc:'Rename sidebar section label from "Service Centers" to just "Service".', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Nav', status:'not_touched', sprint:'9', notes:'' },
+  { id:'NAV-006', title:'Archive Sales Center modules', desc:'Medicare, Life, Annuity, Investments Sales Centers have been or will be completely replaced. Archive/remove from sidebar and routes.', portal:'PRODASHX', scope:'Module', component:'Sidebar', section:'Nav', status:'not_touched', sprint:'9', notes:'Business decision confirmed by JDM' },
+  { id:'NAV-007', title:'Fixed bottom sections: Apps/Comms/Connect/Admin', desc:'Apps, Communication, Connect, and Admin should be fixed sections at the bottom of the sidebar in every portal.', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Nav', status:'not_touched', sprint:'9', notes:'Architectural change' },
+  { id:'NAV-008', title:'Apps section collapsible (scrolls up)', desc:'When you click Apps in the sidebar, it should scroll/unfold up to show available apps. Collapsible behavior for better UX.', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Nav', status:'not_touched', sprint:'9', notes:'Architectural change' },
+  { id:'NAV-009', title:'Comms/Connect = slider, Admin = section', desc:'Communication opens slide-out panel, Connect opens slide-out panel, Admin opens its section page. Clicking these in sidebar.', portal:'SHARED', scope:'Platform', component:'Sidebar', section:'Nav', status:'not_touched', sprint:'9', notes:'' },
+
+  // ═══ HEADER / GLOBAL ═══
+  { id:'HDR-001', title:'Header bar global search doesn\'t work', desc:'The global search bar in the top header (Search clients, accounts, agents...) does not function. Repeated ask across multiple sprints.', portal:'SHARED', scope:'Platform', component:'Header', section:'Header', status:'not_touched', sprint:'8', notes:'Multi-sprint repeat' },
+
+  // ═══ ACCESS CENTER ═══
+  { id:'AXC-001', title:'Client Lookup doesn\'t work', desc:'Access Center client lookup functionality is broken. Cannot search for or find clients.', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Body', status:'not_touched', sprint:'9', notes:'Multi-sprint repeat' },
+  { id:'AXC-002', title:'Title: "Access Center" not "Access"', desc:'The page title should say "Access Center", not just "Access".', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Header', status:'not_touched', sprint:'9', notes:'' },
+  { id:'AXC-003', title:'Don\'t repeat title in section', desc:'When you\'re already in the Access Center, don\'t show the title again as a section header. One level of breadcrumb is enough.', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Header', status:'not_touched', sprint:'9', notes:'Applies to all modules' },
+  { id:'AXC-004', title:'OAuth integrations (AX-12/13)', desc:'Access Center needs real OAuth integrations for external services. Currently mockup/placeholder.', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Body', status:'not_touched', sprint:'9', notes:'Feature work' },
+  { id:'AXC-005', title:'Medicare.gov → cms.gov display', desc:'Display mapping correctly shows cms.gov instead of medicare.gov.', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'AXC-006', title:'SSA.gov → ssa.gov display', desc:'Display mapping correctly shows ssa.gov.', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'AXC-007', title:'IRS.gov + MasterCard added', desc:'IRS.gov and MasterCard added to auto-generate and display maps.', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+  { id:'AXC-008', title:'Authorization field per API', desc:'PortalAccessTable has auth_status column per API entry.', portal:'PRODASHX', scope:'Module', component:'Access Center', section:'Body', status:'done', sprint:'8', notes:'Was already done' },
+
+  // ═══ QUICK INTAKE ═══
+  { id:'INT-001', title:'Paste window opens but nothing happens', desc:'Quick Intake allows you to open a paste window but nothing happens with the pasted content. No data persistence.', portal:'PRODASHX', scope:'Module', component:'Quick Intake', section:'Body', status:'not_touched', sprint:'9', notes:'Functionality broken' },
+  { id:'INT-002', title:'Upload attachment opens but nothing happens', desc:'Quick Intake allows you to open an upload window but nothing happens. No file processing or storage.', portal:'PRODASHX', scope:'Module', component:'Quick Intake', section:'Body', status:'not_touched', sprint:'9', notes:'Functionality broken' },
+
+  // ═══ COMMUNICATIONS MODULE ═══
+  { id:'COM-001', title:'Action buttons: standard pill styling', desc:'Send SMS, Send Email, Make Call buttons at bottom need standard pill styling — taller, less round edges. Match other buttons in platform.', portal:'SHARED', scope:'Module', component:'Communications', section:'Footer', status:'not_touched', sprint:'9', notes:'' },
+  { id:'COM-002', title:'Template management for SMS/email', desc:'Where is the section to add/manage new templates for SMS and email? Currently missing or not visible.', portal:'SHARED', scope:'Module', component:'Communications', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+  { id:'COM-003', title:'Client lookup doesn\'t work', desc:'Client lookup/search within the Communications module does not function.', portal:'SHARED', scope:'Module', component:'Communications', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+  { id:'COM-004', title:'Top-level nav: Log, Text, Email, Call', desc:'Communications module should have a top-level nav with four sections: Log, Text, Email, Call. Currently not structured this way.', portal:'SHARED', scope:'Module', component:'Communications', section:'Nav', status:'not_touched', sprint:'9', notes:'UI redesign' },
+  { id:'COM-005', title:'Log: filter by SMS/email/voice + all mine', desc:'Within the Log section, need ability to sort/filter by SMS, email, voice in/out, all, and "all mine" or similar.', portal:'SHARED', scope:'Module', component:'Communications', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+  { id:'COM-006', title:'Filter pills too round, not tall enough', desc:'Filter pills in Communications don\'t match standard pill styling. Need to be taller with less border-radius.', portal:'SHARED', scope:'Module', component:'Communications', section:'Filters', status:'not_touched', sprint:'9', notes:'' },
+  { id:'COM-007', title:'Keyboard number input for dial pad', desc:'Need ability to type numbers from keyboard, not just click dial pad buttons. Standard phone UX.', portal:'SHARED', scope:'Module', component:'Communications', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+  { id:'COM-008', title:'Search bar on content blocks', desc:'Does the search bar work on content blocks? Needs verification/fix.', portal:'SHARED', scope:'Module', component:'Communications', section:'Body', status:'not_touched', sprint:'9', notes:'' },
+
+  // ═══ RPI CONNECT MODULE ═══
+  { id:'RPC-001', title:'People: Google Workspace photos', desc:'People section should show Google Workspace profile photos instead of colored initials. Initials should be fallback only. Photos exist for all current team.', portal:'SHARED', scope:'Module', component:'RPI Connect', section:'People', status:'not_touched', sprint:'9', notes:'Need Google People API' },
+  { id:'RPC-002', title:'People: remove title, email; official name', desc:'People entries should not show title or email. Show official full name only (no aliases).', portal:'SHARED', scope:'Module', component:'RPI Connect', section:'People', status:'not_touched', sprint:'9', notes:'' },
+  { id:'RPC-003', title:'Chat: pop-out slider, not new tab', desc:'Clicking Chat should open a pop-out slider/panel within the current view, NOT open a new browser tab.', portal:'SHARED', scope:'Module', component:'RPI Connect', section:'Channels', status:'not_touched', sprint:'9', notes:'' },
+  { id:'RPC-004', title:'Channels: open in slider, not new tab', desc:'Clicking a channel should open it in a slider panel, NOT navigate to a new tab.', portal:'SHARED', scope:'Module', component:'RPI Connect', section:'Channels', status:'not_touched', sprint:'9', notes:'' },
+  { id:'RPC-005', title:'New Channel button doesn\'t work', desc:'The "New Channel" button in RPI Connect does nothing when clicked.', portal:'SHARED', scope:'Module', component:'RPI Connect', section:'Channels', status:'not_touched', sprint:'9', notes:'Broken' },
+  { id:'RPC-006', title:'Meet tab is exquisite masterpiece', desc:'Meet tab UI and UX is exactly right. Confirmed excellent by JDM.', portal:'SHARED', scope:'Module', component:'RPI Connect', section:'Meet', status:'confirmed', sprint:'9', notes:'JDM: absolutely a masterpiece' },
+
+  // ═══ ADMIN PANEL ═══
+  { id:'ADM-001', title:'Audit Trail tab added (not requested)', desc:'Audit Trail tab was added to Admin panel but JDM did not ask for it and doesn\'t know what it is. May need removal or explanation.', portal:'SHARED', scope:'Module', component:'Admin Panel', section:'Tabs', status:'done', sprint:'9', notes:'JDM: never asked for this' },
+  { id:'ADM-002', title:'Team Config audit — understand cascade', desc:'Need to audit Team Config: how does the permission cascade work? Is it actually functional?', portal:'SHARED', scope:'Module', component:'Admin Panel', section:'Team Config', status:'not_touched', sprint:'9', notes:'' },
+  { id:'ADM-003', title:'Team Config — wired into RIIMO?', desc:'Is Team Config connected to RIIMO at all? Does changing config in ProDashX affect RIIMO? Needs investigation.', portal:'SHARED', scope:'Module', component:'Admin Panel', section:'Team Config', status:'not_touched', sprint:'9', notes:'' },
+  { id:'ADM-004', title:'MyDropZone — nothing configured', desc:'MyDropZone UI exists but has zero admin data populated. Nothing configured. "Un-fucking-believable."', portal:'SHARED', scope:'Module', component:'Admin Panel', section:'MyDropZone', status:'not_touched', sprint:'9', notes:'Needs admin data' },
+  { id:'ADM-005', title:'Meeting Config — nothing configured', desc:'Meeting Configuration UI exists but has zero admin data populated. Nothing configured.', portal:'SHARED', scope:'Module', component:'Admin Panel', section:'Meeting Config', status:'not_touched', sprint:'9', notes:'Needs admin data' },
+
+  // ═══ INCOMING CALLS ═══
+  { id:'CAL-001', title:'Incoming call ring/noise mechanism', desc:'No mechanism for making noise/ringing when an incoming call arrives. Need audio notification.', portal:'INFRA', scope:'Platform', component:'Incoming Calls', section:'Body', status:'not_touched', sprint:'10', notes:'Twilio integration' },
+  { id:'CAL-002', title:'Call center routing configuration', desc:'No configuration for call center routing — how calls get routed to agents, queue management, etc.', portal:'INFRA', scope:'Platform', component:'Incoming Calls', section:'Body', status:'not_touched', sprint:'10', notes:'Twilio integration' },
+  { id:'CAL-003', title:'Voicemail configuration', desc:'No voicemail setup — recording greetings, configuring voicemail boxes, accessing messages.', portal:'INFRA', scope:'Platform', component:'Incoming Calls', section:'Body', status:'not_touched', sprint:'10', notes:'Twilio integration' },
+  { id:'CAL-004', title:'Phone call UX during active call', desc:'No UX design for what happens during an active phone call. Need in-call screen with mute, hold, transfer, etc.', portal:'INFRA', scope:'Platform', component:'Incoming Calls', section:'Body', status:'not_touched', sprint:'10', notes:'' },
+
+  // ═══ DATA / FIRESTORE ═══
+  { id:'DAT-001', title:'Shane Parmenter duplicate in users', desc:'shaneparmenter@gmail.com is stale migration artifact (Inactive, empty profile). Real record is shane@retireprotected.com. Ready to delete gmail one.', portal:'DATA', scope:'Data', component:'Firestore Users', section:'Data', status:'not_touched', sprint:'9', notes:'Identified, awaiting approval' },
+  { id:'DAT-002', title:'Steve Abernathey duplicate in clients', desc:'Two Active docs with identical data in Millang Financial Group. Need to check subcollections before merging.', portal:'DATA', scope:'Data', component:'Firestore Clients', section:'Data', status:'not_touched', sprint:'9', notes:'Identified, awaiting approval' },
+  { id:'DAT-003', title:'BoB values audit — CLEAN', desc:'8 distinct book_of_business values. No duplicates, no whitespace issues, no case mismatches.', portal:'DATA', scope:'Data', component:'Firestore Clients', section:'Data', status:'confirmed', sprint:'9', notes:'Audited, clean' },
+  { id:'DAT-004', title:'agent_name empty — investigate field', desc:'agent_name is empty across all clients. Need to find the correct field that carries agent assignment. May be in PRODASH_MATRIX or import mapping.', portal:'DATA', scope:'Data', component:'Firestore Clients', section:'Data', status:'not_touched', sprint:'9', notes:'' },
+  { id:'DAT-005', title:'ACF links showing 0 — investigate field', desc:'acf_link field appears empty on all client docs. Hundreds of ACF links exist in reality (Google Drive folders). Field may use different name or not be imported.', portal:'DATA', scope:'Data', component:'Firestore Clients', section:'Data', status:'not_touched', sprint:'9', notes:'' },
+  { id:'DAT-006', title:'access_items subcollection — document it', desc:'JDM wants to understand what the access_items subcollection is, how it works, whether it\'s all subcollections consolidated or something else.', portal:'DATA', scope:'Data', component:'Firestore Clients', section:'Data', status:'not_touched', sprint:'9', notes:'' },
+
+  // ═══ OTHER / DECISIONS ═══
+  { id:'OTH-001', title:'Enrichment strategy', desc:'Need to decide on data enrichment approach for client records. Deferred — needs business decision.', portal:'DATA', scope:'Data', component:'Platform', section:'Data', status:'deferred', sprint:'9', notes:'Decision needed from JDM' },
+  { id:'OTH-002', title:'New Contact UX', desc:'Need to design proper new contact creation UX. Deferred — needs business decision.', portal:'PRODASHX', scope:'Module', component:'Contacts Grid', section:'Body', status:'deferred', sprint:'9', notes:'Decision needed from JDM' },
+  { id:'OTH-003', title:'Client-level docs', desc:'Need to decide on client-level document storage/management approach. Deferred — needs business decision.', portal:'PRODASHX', scope:'Module', component:'Contact Detail', section:'Docs', status:'deferred', sprint:'9', notes:'Decision needed from JDM' },
+];
+
+// ─── STATE ───
+let items = [];
+
+function loadState() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try { items = JSON.parse(saved); } catch { items = [...DEFAULT_ITEMS]; }
+  } else {
+    items = [...DEFAULT_ITEMS];
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  document.getElementById('lastSaved').textContent = 'Saved ' + new Date().toLocaleTimeString();
+}
+
+// ─── RENDER ───
+function getStatusCounts() {
+  const counts = { all: items.length, not_touched: 0, in_progress: 0, done: 0, confirmed: 0, deferred: 0, wont_fix: 0 };
+  items.forEach(i => { if (counts[i.status] !== undefined) counts[i.status]++; });
+  return counts;
+}
+
+function renderStats() {
+  const counts = getStatusCounts();
+  const el = document.getElementById('stats');
+  el.innerHTML = Object.entries(counts).map(([key, count]) => {
+    const label = key === 'all' ? 'Total' : (STATUS_LABELS[key] || key);
+    const active = activeStatusFilter === key ? ' active' : '';
+    return `<div class="stat stat-${key}${active}" onclick="filterByStatus('${key}')"><span class="count">${count}</span> ${label}</div>`;
+  }).join('');
+}
+
+function filterByStatus(status) {
+  activeStatusFilter = status;
+  renderStats();
+  renderItems();
+}
+
+function getFilteredItems() {
+  const portal = document.getElementById('filterPortal').value;
+  const scope = document.getElementById('filterScope').value;
+  const component = document.getElementById('filterComponent').value;
+  const search = document.getElementById('searchInput').value.toLowerCase();
+
+  return items.filter(i => {
+    if (activeStatusFilter !== 'all' && i.status !== activeStatusFilter) return false;
+    if (portal !== 'all' && i.portal !== portal) return false;
+    if (scope !== 'all' && i.scope !== scope) return false;
+    if (component !== 'all' && i.component !== component) return false;
+    if (search && !i.title.toLowerCase().includes(search) && !i.desc.toLowerCase().includes(search) && !i.id.toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+
+function populateComponentFilter() {
+  const sel = document.getElementById('filterComponent');
+  const components = [...new Set(items.map(i => i.component))].sort();
+  sel.innerHTML = '<option value="all">All Components</option>' + components.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function renderItems() {
+  const filtered = getFilteredItems();
+  const groups = {};
+  filtered.forEach(i => {
+    const key = `${i.portal} > ${i.component}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(i);
+  });
+
+  const el = document.getElementById('content');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted)">No items match your filters.</div>';
+    return;
+  }
+
+  let html = '';
+  for (const [groupKey, groupItems] of Object.entries(groups)) {
+    html += `<div class="group">`;
+    html += `<div class="group-header" onclick="this.classList.toggle('collapsed');this.nextElementSibling.classList.toggle('hidden')">`;
+    html += `<span class="material-icons-outlined">expand_more</span>`;
+    html += `<h2>${groupKey}</h2>`;
+    html += `<span class="group-count">${groupItems.length} items</span>`;
+    html += `</div>`;
+    html += `<div class="group-items">`;
+    for (const item of groupItems) {
+      html += `<div class="item status-${item.status}">`;
+      html += `<div class="item-id">${item.id}</div>`;
+      html += `<div class="item-section-badge"><span>${item.section}</span></div>`;
+      html += `<div class="item-body">`;
+      html += `<div class="item-title">${item.title}</div>`;
+      html += `<div class="item-desc">${item.desc}</div>`;
+      html += `<div class="item-tags">`;
+      html += `<span class="item-tag">${item.scope}</span>`;
+      html += `<span class="item-tag">Sprint ${item.sprint}</span>`;
+      html += `</div></div>`;
+      html += `<div class="item-status"><select class="status-select" onchange="updateStatus('${item.id}',this.value)" style="color:${STATUS_COLORS[item.status] || 'var(--text)'}">`;
+      for (const [sk, sl] of Object.entries(STATUS_LABELS)) {
+        html += `<option value="${sk}" ${item.status === sk ? 'selected' : ''}>${sl}</option>`;
+      }
+      html += `</select></div>`;
+      html += `<div class="item-notes"><input class="notes-input" placeholder="Notes..." value="${(item.notes||'').replace(/"/g,'&quot;')}" onchange="updateNotes('${item.id}',this.value)"></div>`;
+      html += `</div>`;
+    }
+    html += `</div></div>`;
+  }
+  el.innerHTML = html;
+}
+
+function updateStatus(id, status) {
+  const item = items.find(i => i.id === id);
+  if (item) { item.status = status; item.dateUpdated = new Date().toISOString(); saveState(); renderStats(); renderItems(); }
+}
+
+function updateNotes(id, notes) {
+  const item = items.find(i => i.id === id);
+  if (item) { item.notes = notes; saveState(); }
+}
+
+// ─── ADD ITEM ───
+function toggleAddForm() {
+  document.getElementById('addForm').classList.toggle('show');
+}
+
+function addNewItem() {
+  const title = document.getElementById('newTitle').value.trim();
+  if (!title) return;
+  const maxNum = Math.max(0, ...items.map(i => parseInt(i.id.split('-')[1]) || 0));
+  const newItem = {
+    id: `NEW-${String(maxNum + 1).padStart(3, '0')}`,
+    title,
+    desc: document.getElementById('newDesc').value.trim(),
+    portal: document.getElementById('newPortal').value,
+    scope: document.getElementById('newScope').value,
+    component: document.getElementById('newComponent').value.trim() || 'Unassigned',
+    section: document.getElementById('newSection').value.trim() || 'Body',
+    status: 'not_touched',
+    sprint: '9',
+    notes: '',
+    dateAdded: new Date().toISOString()
+  };
+  items.push(newItem);
+  saveState();
+  toggleAddForm();
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newDesc').value = '';
+  document.getElementById('newComponent').value = '';
+  document.getElementById('newSection').value = '';
+  populateComponentFilter();
+  renderStats();
+  renderItems();
+}
+
+// ─── EXPORT / IMPORT ───
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tomachina-tracker-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importJSON() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        items = JSON.parse(ev.target.result);
+        saveState();
+        populateComponentFilter();
+        renderStats();
+        renderItems();
+      } catch { /* ignore bad file */ }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ─── INIT ───
+loadState();
+populateComponentFilter();
+renderStats();
+renderItems();
+</script>
+</body>
+</html>

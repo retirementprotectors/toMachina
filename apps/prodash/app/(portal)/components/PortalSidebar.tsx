@@ -48,7 +48,7 @@ interface AppItem {
 const NAV_SECTIONS: NavSection[] = [
   {
     key: 'workspace',
-    label: 'Workspace',
+    label: 'Workspaces',
     type: 'workspace',
     icon: 'workspaces',
     defaultExpanded: false,
@@ -60,20 +60,15 @@ const NAV_SECTIONS: NavSection[] = [
   },
   {
     key: 'sales-centers',
-    label: 'Sales Centers',
+    label: 'Sales',
     type: 'sales',
     icon: 'storefront',
     defaultExpanded: false,
-    items: [
-      { key: 'medicare', label: 'Medicare', href: '/sales-centers/medicare', icon: 'health_and_safety', moduleKey: 'QUE_MEDICARE' },
-      { key: 'life', label: 'Life', href: '/sales-centers/life', icon: 'shield', moduleKey: 'QUE_LIFE' },
-      { key: 'annuity', label: 'Annuity', href: '/sales-centers/annuity', icon: 'savings', moduleKey: 'QUE_ANNUITY' },
-      { key: 'advisory', label: 'Advisory', href: '/sales-centers/advisory', icon: 'trending_up', moduleKey: 'QUE_MEDSUP' },
-    ],
+    items: [],
   },
   {
     key: 'service-centers',
-    label: 'Service Centers',
+    label: 'Service',
     type: 'service',
     icon: 'support_agent',
     defaultExpanded: false,
@@ -93,6 +88,7 @@ const APP_ITEMS: AppItem[] = [
   { key: 'c3', href: '/modules/c3', moduleKey: 'C3' },
   { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
   { key: 'pipeline-studio', href: '/modules/pipeline-studio' },
+  { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
 ]
 
 /* ─── Fixed Bottom: Connect + Admin ─── */
@@ -113,6 +109,7 @@ const ADMIN_ITEM = {
 
 const STORAGE_KEY = 'prodash-sidebar-collapsed'
 const EXPANDED_KEY = 'prodash-sidebar-expanded'
+const APPS_EXPANDED_KEY = 'prodash-apps-expanded'
 
 /**
  * Filter nav sections based on the user's entitlement context.
@@ -169,6 +166,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
   const { ctx: entitlementCtx } = useEntitlements()
   const [collapsed, setCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+  const [appsExpanded, setAppsExpanded] = useState(true)
 
   // Dynamic pipeline loading
   const [pipelineItems, setPipelineItems] = useState<Array<{ pipeline_key: string; pipeline_name: string; icon: string; assigned_section: string }>>([])
@@ -193,9 +191,17 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
   }, [user])
 
   // Inject pipelines into Sales/Service sections
+  // NOTE: We filter entitlements on items first but keep all sections (even empty ones)
+  // so pipeline injection can populate them. Empty sections are filtered AFTER injection.
   const sectionsWithPipelines = useMemo(() => {
-    const sections = filterSections(NAV_SECTIONS, entitlementCtx)
-    if (pipelineItems.length === 0) return sections
+    const sections = NAV_SECTIONS
+      .filter((section) => !section.moduleKey || canAccessModule(entitlementCtx, section.moduleKey))
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((item) => !item.moduleKey || canAccessModule(entitlementCtx, item.moduleKey)),
+      }))
+
+    if (pipelineItems.length === 0) return sections.filter(s => s.items.length > 0)
 
     const isElevated = ['OWNER', 'EXECUTIVE', 'LEADER'].includes(entitlementCtx.userLevel)
     const assignedKeys = entitlementCtx.assignedModules || []
@@ -235,7 +241,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
         }
       }
       return section
-    })
+    }).filter(s => s.items.length > 0)
   }, [entitlementCtx, pipelineItems])
 
   const visibleSections = sectionsWithPipelines
@@ -265,6 +271,11 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
         const defaults: Record<string, boolean> = {}
         NAV_SECTIONS.forEach((s) => { defaults[s.key] = s.defaultExpanded })
         setExpandedSections(defaults)
+      }
+
+      const savedApps = localStorage.getItem(APPS_EXPANDED_KEY)
+      if (savedApps !== null) {
+        setAppsExpanded(JSON.parse(savedApps))
       }
     } catch {
       const defaults: Record<string, boolean> = {}
@@ -304,6 +315,14 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
     setExpandedSections((prev) => {
       const next = { ...prev, [key]: !prev[key] }
       try { localStorage.setItem(EXPANDED_KEY, JSON.stringify(next)) } catch { /* noop */ }
+      return next
+    })
+  }
+
+  const toggleApps = () => {
+    setAppsExpanded((prev) => {
+      const next = !prev
+      try { localStorage.setItem(APPS_EXPANDED_KEY, JSON.stringify(next)) } catch { /* noop */ }
       return next
     })
   }
@@ -473,43 +492,57 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
         {visibleApps.length > 0 && (
           <div className="border-t border-[var(--border-subtle)] px-2 py-2">
             {!collapsed && (
-              <div className="mb-1.5 flex items-center gap-1.5 px-1">
+              <button
+                onClick={toggleApps}
+                className="mb-1.5 flex w-full items-center gap-1.5 px-1 rounded-md hover:bg-[rgba(255,255,255,0.05)]"
+              >
                 <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>apps</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                <span className="flex-1 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
                   Apps
                 </span>
+                <span
+                  className="material-icons-outlined text-sm transition-transform duration-200"
+                  style={{
+                    color: 'var(--text-muted)',
+                    transform: appsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                  }}
+                >
+                  expand_more
+                </span>
+              </button>
+            )}
+            {(collapsed || appsExpanded) && (
+              <div className={collapsed ? 'flex flex-col items-center gap-1' : 'flex flex-col gap-0.5'}>
+                {visibleApps.map((app) => {
+                  const brand = APP_BRANDS[app.key]
+                  const active = isActive(app.href)
+                  return (
+                    <Link
+                      key={app.key}
+                      href={app.href}
+                      title={brand.label}
+                      className={`
+                        relative flex items-center gap-2.5 rounded-md transition-all duration-150
+                        ${collapsed ? 'justify-center p-1.5' : 'px-2.5 py-1.5'}
+                      `}
+                      style={{
+                        background: active
+                          ? `${brand.color}20`
+                          : `${brand.color}14`,
+                      }}
+                    >
+                      {/* No vertical bar on apps */}
+                      <AppIcon appKey={app.key} size={collapsed ? 28 : 22} />
+                      {!collapsed && (
+                        <span className="text-xs font-medium text-[var(--text-secondary)]">
+                          {brand.label}
+                        </span>
+                      )}
+                    </Link>
+                  )
+                })}
               </div>
             )}
-            <div className={collapsed ? 'flex flex-col items-center gap-1' : 'flex flex-col gap-0.5'}>
-              {visibleApps.map((app) => {
-                const brand = APP_BRANDS[app.key]
-                const active = isActive(app.href)
-                return (
-                  <Link
-                    key={app.key}
-                    href={app.href}
-                    title={brand.label}
-                    className={`
-                      relative flex items-center gap-2.5 rounded-md transition-all duration-150
-                      ${collapsed ? 'justify-center p-1.5' : 'px-2.5 py-1.5'}
-                    `}
-                    style={{
-                      background: active
-                        ? `${brand.color}20`
-                        : `${brand.color}14`,
-                    }}
-                  >
-                    {/* No vertical bar on apps */}
-                    <AppIcon appKey={app.key} size={collapsed ? 28 : 22} />
-                    {!collapsed && (
-                      <span className="text-xs font-medium text-[var(--text-secondary)]">
-                        {brand.label}
-                      </span>
-                    )}
-                  </Link>
-                )
-              })}
-            </div>
           </div>
         )}
 
@@ -522,11 +555,12 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
               relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
               transition-all duration-150
               ${collapsed ? 'justify-center' : ''}
+              ${commsOpen
+                ? 'bg-[rgba(74,122,181,0.15)]'
+                : 'bg-[rgba(74,122,181,0.06)] hover:bg-[rgba(74,122,181,0.15)]'
+              }
             `}
             style={{
-              background: commsOpen
-                ? 'rgba(74,122,181,0.15)'
-                : 'rgba(74,122,181,0.06)',
               color: commsOpen
                 ? 'var(--portal)'
                 : 'var(--text-secondary)',
@@ -557,11 +591,12 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
               relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
               transition-all duration-150
               ${collapsed ? 'justify-center' : ''}
+              ${connectOpen
+                ? 'bg-[rgba(104,211,145,0.15)]'
+                : 'bg-[rgba(104,211,145,0.06)] hover:bg-[rgba(104,211,145,0.15)]'
+              }
             `}
             style={{
-              background: connectOpen
-                ? 'rgba(104,211,145,0.15)'
-                : 'rgba(104,211,145,0.06)',
               color: connectOpen
                 ? 'var(--connect-color)'
                 : 'var(--text-secondary)',
@@ -593,15 +628,11 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
                 relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
                 transition-all duration-150
                 ${collapsed ? 'justify-center' : ''}
+                ${isActive(ADMIN_ITEM.href)
+                  ? 'bg-[rgba(220,38,38,0.12)] text-[#fca5a5]'
+                  : 'bg-[rgba(220,38,38,0.06)] hover:bg-[rgba(220,38,38,0.12)] text-[var(--text-secondary)]'
+                }
               `}
-              style={{
-                background: isActive(ADMIN_ITEM.href)
-                  ? 'rgba(220,38,38,0.12)'
-                  : 'rgba(220,38,38,0.06)',
-                color: isActive(ADMIN_ITEM.href)
-                  ? '#fca5a5'
-                  : 'var(--text-secondary)',
-              }}
             >
               {isActive(ADMIN_ITEM.href) && (
                 <div

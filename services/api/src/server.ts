@@ -46,6 +46,8 @@ import { searchRoutes } from './routes/search.js'
 import { accessRoutes } from './routes/access.js'
 import { activityRoutes } from './routes/activities.js'
 import { ai3Routes } from './routes/ai3.js'
+import { trackerRoutes } from './routes/tracker.js'
+import { sprintRoutes } from './routes/sprints.js'
 import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
@@ -114,6 +116,8 @@ app.use('/api/search', searchRoutes)
 app.use('/api/access', normalizeBody, accessRoutes)
 app.use('/api/activities', normalizeBody, activityRoutes)
 app.use('/api/ai3', ai3Routes)
+app.use('/api/tracker', normalizeBody, trackerRoutes)
+app.use('/api/sprints', normalizeBody, sprintRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

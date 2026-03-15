@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuth, useEntitlements, canAccessModule } from '@tomachina/auth'
 import type { UserEntitlementContext } from '@tomachina/auth'
 import { APP_BRANDS, AppIcon, type AppKey } from '@tomachina/ui'
@@ -46,7 +46,7 @@ interface AppItem {
 const NAV_SECTIONS: NavSection[] = [
   {
     key: 'workspace',
-    label: 'Workspace',
+    label: 'Workspaces',
     type: 'workspace',
     icon: 'workspaces',
     defaultExpanded: true,
@@ -59,7 +59,7 @@ const NAV_SECTIONS: NavSection[] = [
   },
   {
     key: 'service-centers',
-    label: 'Service Centers',
+    label: 'Service',
     type: 'service',
     icon: 'support_agent',
     defaultExpanded: false,
@@ -88,6 +88,7 @@ const APP_ITEMS: AppItem[] = [
   { key: 'c3', href: '/modules/c3', moduleKey: 'C3' },
   { key: 'atlas', href: '/modules/atlas', moduleKey: 'ATLAS' },
   { key: 'leadership-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
+  { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
 ]
 
 /* ─── Fixed Bottom: Connect + Admin ─── */
@@ -108,6 +109,7 @@ const ADMIN_ITEM = {
 
 const STORAGE_KEY = 'riimo-sidebar-collapsed'
 const EXPANDED_KEY = 'riimo-sidebar-expanded'
+const APPS_EXPANDED_KEY = 'riimo-apps-expanded'
 
 function filterSections(
   sections: NavSection[],
@@ -144,13 +146,22 @@ function filterAppItems(
   })
 }
 
-export function PortalSidebar() {
+interface PortalSidebarProps {
+  onCommsToggle?: () => void
+  commsOpen?: boolean
+  onConnectToggle?: () => void
+  connectOpen?: boolean
+  panelOpen?: boolean
+}
+
+export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen, panelOpen }: PortalSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
   const { ctx: entitlementCtx } = useEntitlements()
   const [collapsed, setCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+  const [appsExpanded, setAppsExpanded] = useState(true)
 
   const visibleSections = useMemo(
     () => filterSections(NAV_SECTIONS, entitlementCtx),
@@ -182,6 +193,11 @@ export function PortalSidebar() {
         NAV_SECTIONS.forEach((s) => { defaults[s.key] = s.defaultExpanded })
         setExpandedSections(defaults)
       }
+
+      const savedApps = localStorage.getItem(APPS_EXPANDED_KEY)
+      if (savedApps !== null) {
+        setAppsExpanded(JSON.parse(savedApps))
+      }
     } catch {
       const defaults: Record<string, boolean> = {}
       NAV_SECTIONS.forEach((s) => { defaults[s.key] = s.defaultExpanded })
@@ -202,6 +218,32 @@ export function PortalSidebar() {
       return next
     })
   }
+
+  const toggleApps = () => {
+    setAppsExpanded((prev) => {
+      const next = !prev
+      try { localStorage.setItem(APPS_EXPANDED_KEY, JSON.stringify(next)) } catch { /* noop */ }
+      return next
+    })
+  }
+
+  /* Auto-collapse when a slide-out panel opens; restore when all panels close */
+  useEffect(() => {
+    if (panelOpen) {
+      if (!collapsed) {
+        setCollapsed(true)
+      }
+    } else {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY)
+        const shouldCollapse = saved ? JSON.parse(saved) : false
+        setCollapsed(shouldCollapse)
+      } catch {
+        setCollapsed(false)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panelOpen])
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -332,10 +374,26 @@ export function PortalSidebar() {
         {visibleApps.length > 0 && (
           <div className="border-t border-[var(--border-subtle)] px-2 py-2">
             {!collapsed && (
-              <span className="mb-1.5 block px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Apps
-              </span>
+              <button
+                onClick={toggleApps}
+                className="mb-1.5 flex w-full items-center gap-1.5 px-1 rounded-md hover:bg-[var(--bg-hover)]"
+              >
+                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>apps</span>
+                <span className="flex-1 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                  Apps
+                </span>
+                <span
+                  className="material-icons-outlined text-sm transition-transform duration-200"
+                  style={{
+                    color: 'var(--text-muted)',
+                    transform: appsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                  }}
+                >
+                  expand_more
+                </span>
+              </button>
             )}
+            {(collapsed || appsExpanded) && (
             <div className={collapsed ? 'flex flex-col items-center gap-1' : 'flex flex-col gap-0.5'}>
               {visibleApps.map((app) => {
                 const brand = APP_BRANDS[app.key]
@@ -370,24 +428,67 @@ export function PortalSidebar() {
                 )
               })}
             </div>
+            )}
           </div>
         )}
 
+        {/* Communications — portal-tinted, opens slide-out */}
         <div className="border-t border-[var(--border-subtle)] px-2 py-1">
-          <Link
-            href={CONNECT_ITEM.href}
-            title={collapsed ? CONNECT_ITEM.label : undefined}
+          <button
+            onClick={onCommsToggle}
+            title={collapsed ? 'Communications' : undefined}
             className={`
-              relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm
+              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
               transition-all duration-150
               ${collapsed ? 'justify-center' : ''}
-              ${isActive(CONNECT_ITEM.href)
-                ? 'bg-[var(--portal-glow)] text-[var(--portal-accent)]'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+              ${commsOpen
+                ? 'bg-[rgba(167,139,250,0.15)]'
+                : 'bg-[rgba(167,139,250,0.06)] hover:bg-[rgba(167,139,250,0.15)]'
               }
             `}
+            style={{
+              color: commsOpen
+                ? 'var(--portal)'
+                : 'var(--text-secondary)',
+            }}
           >
-            {isActive(CONNECT_ITEM.href) && (
+            {commsOpen && (
+              <div
+                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
+                style={{ background: 'var(--portal)' }}
+              />
+            )}
+            <span
+              className="material-icons-outlined"
+              style={{ fontSize: '18px', color: commsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
+            >
+              forum
+            </span>
+            {!collapsed && <span>Communications</span>}
+          </button>
+        </div>
+
+        {/* RPI Connect — portal-tinted, opens slide-out */}
+        <div className="border-t border-[var(--border-subtle)] px-2 py-1">
+          <button
+            onClick={onConnectToggle}
+            title={collapsed ? CONNECT_ITEM.label : undefined}
+            className={`
+              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
+              transition-all duration-150
+              ${collapsed ? 'justify-center' : ''}
+              ${connectOpen
+                ? 'bg-[rgba(104,211,145,0.15)]'
+                : 'bg-[rgba(104,211,145,0.06)] hover:bg-[rgba(104,211,145,0.15)]'
+              }
+            `}
+            style={{
+              color: connectOpen
+                ? 'var(--connect-color)'
+                : 'var(--text-secondary)',
+            }}
+          >
+            {connectOpen && (
               <div
                 className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
                 style={{ background: 'var(--connect-color)' }}
@@ -395,12 +496,12 @@ export function PortalSidebar() {
             )}
             <span
               className="material-icons-outlined"
-              style={{ fontSize: '18px', color: 'var(--connect-color)' }}
+              style={{ fontSize: '18px', color: connectOpen ? 'var(--connect-color)' : 'var(--text-muted)' }}
             >
               {CONNECT_ITEM.icon}
             </span>
             {!collapsed && <span>{CONNECT_ITEM.label}</span>}
-          </Link>
+          </button>
         </div>
 
         {showAdmin && (

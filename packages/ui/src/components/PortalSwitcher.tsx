@@ -128,18 +128,6 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
             </a>
           ))}
 
-          {/* Footer — toMachina gear mark */}
-          <div
-            className="flex items-center justify-center gap-2 px-3 py-2.5"
-            style={{ borderColor: 'var(--border-subtle)' }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={TOMACHINA_MARK}
-              alt="toMachina — The Machine"
-              style={{ height: '22px', width: 'auto', opacity: 0.6 }}
-            />
-          </div>
         </div>
       )}
     </div>

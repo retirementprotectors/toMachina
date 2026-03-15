@@ -9,6 +9,7 @@ import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
 import { IntakeFAB } from './components/IntakeFAB'
+import { ReportButton } from '@tomachina/ui'
 
 export default function PortalLayout({
   children,
@@ -66,6 +67,9 @@ export default function PortalLayout({
 
       {/* Intake FAB — floating action button for quick data entry */}
       <IntakeFAB />
+
+      {/* FORGE Report — screenshot + auto-fill issue tracker */}
+      <ReportButton portal="prodashx" />
     </div>
   )
 }

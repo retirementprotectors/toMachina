@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { collectionGroup, getDocs, getCountFromServer, query, limit, orderBy, startAfter, type DocumentData, type DocumentSnapshot } from 'firebase/firestore'
+import { collectionGroup, getDocs, query, orderBy } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
+import { useCollection } from '@tomachina/db'
+import { collections } from '@tomachina/db/src/firestore'
 import type { Account } from '@tomachina/core'
 
 function str(val: unknown): string {
@@ -34,6 +36,12 @@ interface AccountRow extends Account {
   _id: string
   _clientId: string
   _clientName?: string
+}
+
+interface ClientNameDoc {
+  _id: string
+  first_name?: string
+  last_name?: string
 }
 
 const FILTER_TABS: { key: FilterKey; label: string; color: string }[] = [
@@ -82,23 +90,19 @@ const COLUMN_LABELS: Record<string, string> = {
   owner_name: 'Owner',
 }
 
-const ACCOUNTS_PAGE_SIZE = 500
+const PAGE_SIZE = 25
 
 // ---------------------------------------------------------------------------
 // Page Component
 // ---------------------------------------------------------------------------
 
 export default function AccountsPage() {
-  const [accounts, setAccounts] = useState<AccountRow[]>([])
+  const [rawAccounts, setRawAccounts] = useState<AccountRow[]>([])
   const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [hasMore, setHasMore] = useState(false)
-  const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null)
-  const [totalCount, setTotalCount] = useState<number | null>(null)
   const [filter, setFilter] = useState<FilterKey>('all')
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('All')
+  const [statusFilter, setStatusFilter] = useState('Active')
   const [carrierFilter, setCarrierFilter] = useState('All')
   const [visibleColumns, setVisibleColumns] = useState<string[]>(DEFAULT_COLUMNS['all'])
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -106,76 +110,50 @@ export default function AccountsPage() {
   const [sortKey, setSortKey] = useState<string | null>('carrier_name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
-  const pageSize = 25
 
-  // Load accounts
+  // Load ALL client names for enrichment (real-time listener, same pattern as contacts)
+  const clientsQ = useMemo(() => query(collections.clients()), [])
+  const { data: clientDocs } = useCollection<ClientNameDoc>(clientsQ, 'accounts-client-names')
+
+  const clientNameMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const c of clientDocs) {
+      const name = `${c.first_name || ''} ${c.last_name || ''}`.trim()
+      if (name) map.set(c._id, name)
+    }
+    return map
+  }, [clientDocs])
+
+  // Load ALL accounts (one-time fetch — no limit)
   useEffect(() => {
-    async function load() {
+    async function loadAll() {
       try {
         const db = getDb()
-        const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'), limit(ACCOUNTS_PAGE_SIZE))
+        const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'))
         const snap = await getDocs(q)
         const rows: AccountRow[] = snap.docs.map((d) => {
           const data = d.data() as unknown as Account
           const pathParts = d.ref.path.split('/')
           return { ...data, _id: d.id, _clientId: pathParts[1] || '' }
         })
-        setAccounts(rows)
-        setHasMore(snap.docs.length === ACCOUNTS_PAGE_SIZE)
-        setLastDoc(snap.docs[snap.docs.length - 1] ?? null)
+        setRawAccounts(rows)
       } catch (err) {
         setError(String(err))
       } finally {
         setLoading(false)
       }
     }
-    load()
+    loadAll()
   }, [])
 
-  // Fetch total account count
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const db = getDb()
-        const snapshot = await getCountFromServer(collectionGroup(db, 'accounts'))
-        setTotalCount(snapshot.data().count)
-      } catch {
-        setTotalCount(null)
-      }
-    }
-    fetchCount()
-  }, [])
-
-  // Enrich with client names
-  useEffect(() => {
-    if (accounts.length === 0) return
-    const clientIds = [...new Set(accounts.map((a) => a._clientId).filter(Boolean))]
-    if (clientIds.length === 0) return
-
-    async function enrichNames() {
-      const db = getDb()
-      const { doc, getDoc } = await import('firebase/firestore')
-      const nameMap = new Map<string, string>()
-      const batch = clientIds.slice(0, 500)
-      const results = await Promise.all(
-        batch.map(async (id) => {
-          try {
-            const snap = await getDoc(doc(db, 'clients', id))
-            if (snap.exists()) {
-              const d = snap.data()
-              return { id, name: `${d.first_name || ''} ${d.last_name || ''}`.trim() }
-            }
-          } catch { /* skip */ }
-          return { id, name: '' }
-        })
-      )
-      results.forEach((r) => { if (r.name) nameMap.set(r.id, r.name) })
-      setAccounts((prev) =>
-        prev.map((a) => ({ ...a, _clientName: nameMap.get(a._clientId) || a._clientName }))
-      )
-    }
-    enrichNames()
-  }, [accounts.length])
+  // Enrich accounts with client names
+  const accounts = useMemo(() => {
+    if (clientNameMap.size === 0) return rawAccounts
+    return rawAccounts.map((a) => ({
+      ...a,
+      _clientName: clientNameMap.get(a._clientId) || a._clientName || '',
+    }))
+  }, [rawAccounts, clientNameMap])
 
   // Update columns when filter changes
   useEffect(() => {
@@ -198,21 +176,21 @@ export default function AccountsPage() {
     return 'all'
   }, [])
 
-  // Counts
+  // Counts — computed from ALL accounts, always accurate
   const counts = useMemo(() => {
     const c: Record<FilterKey, number> = { all: accounts.length, annuity: 0, life: 0, medicare: 0, bdria: 0 }
     accounts.forEach((a) => { const cat = getCategory(a); if (cat !== 'all') c[cat]++ })
     return c
   }, [accounts, getCategory])
 
-  // Unique carriers
+  // Unique carriers — from ALL accounts
   const carriers = useMemo(() => {
     const set = new Set<string>()
     accounts.forEach((a) => { const c = str(a.carrier_name) || str(a.carrier); if (c) set.add(c) })
     return Array.from(set).sort()
   }, [accounts])
 
-  // Search + filter
+  // Search + filter — operates on FULL dataset
   const filtered = useMemo(() => {
     let result = filter === 'all' ? accounts : accounts.filter((a) => getCategory(a) === filter)
 
@@ -244,7 +222,6 @@ export default function AccountsPage() {
     return [...filtered].sort((a, b) => {
       const av = str((a as Record<string, unknown>)[sortKey])
       const bv = str((b as Record<string, unknown>)[sortKey])
-      // Try numeric sort for value/amount fields
       const na = parseFloat(av.replace(/[$,\s]/g, ''))
       const nb = parseFloat(bv.replace(/[$,\s]/g, ''))
       if (!isNaN(na) && !isNaN(nb)) return sortDir === 'asc' ? na - nb : nb - na
@@ -254,8 +231,10 @@ export default function AccountsPage() {
   }, [filtered, sortKey, sortDir])
 
   // Paginate
-  const totalPages = Math.ceil(sorted.length / pageSize)
-  const paged = sorted.slice(page * pageSize, (page + 1) * pageSize)
+  const totalPages = Math.ceil(sorted.length / PAGE_SIZE)
+  const paged = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+  const showingStart = sorted.length > 0 ? page * PAGE_SIZE + 1 : 0
+  const showingEnd = Math.min((page + 1) * PAGE_SIZE, sorted.length)
 
   const handleSort = useCallback((key: string) => {
     if (sortKey === key) setSortDir((d) => d === 'asc' ? 'desc' : 'asc')
@@ -278,12 +257,11 @@ export default function AccountsPage() {
   const toggleColumn = useCallback((col: string) => {
     setVisibleColumns((prev) => {
       if (prev.includes(col)) return prev.filter((c) => c !== col)
-      if (prev.length >= 10) return prev // Max 10 columns
+      if (prev.length >= 10) return prev
       return [...prev, col]
     })
   }, [])
 
-  // Get cell value for display
   const getCellValue = useCallback((acct: AccountRow, col: string): string => {
     const val = (acct as Record<string, unknown>)[col]
     if (col.includes('value') || col.includes('premium') || col.includes('amount') || col.includes('benefit')) return formatCurrency(val)
@@ -293,7 +271,7 @@ export default function AccountsPage() {
 
   useEffect(() => { setPage(0) }, [filter, search, statusFilter, carrierFilter])
 
-  // Style for active vs inactive filter dropdown (matches ClientFilters pattern)
+  // Style for active vs inactive filter dropdown
   const filterSelectClass = (isActive: boolean) =>
     `h-[34px] rounded-md border px-3 text-sm font-medium outline-none transition-all cursor-pointer ${
       isActive
@@ -303,19 +281,23 @@ export default function AccountsPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl animate-pulse space-y-4">
-        <div className="h-8 w-48 rounded bg-[var(--bg-surface)]" />
-        <div className="h-12 rounded bg-[var(--bg-surface)]" />
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-14 rounded bg-[var(--bg-card)]" />
-        ))}
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Accounts</h1>
+        </div>
+        <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+            <p className="text-sm text-[var(--text-muted)]">Loading accounts...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-7xl">
+      <div className="flex flex-col gap-5">
         <h1 className="text-2xl font-bold text-[var(--text-primary)]">Accounts</h1>
         <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] py-20">
           <span className="material-icons-outlined text-5xl text-[var(--error)]">warning</span>
@@ -327,286 +309,266 @@ export default function AccountsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4">
-      {/* Row 1: Search + New */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative">
-          <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]">search</span>
-          <input
-            type="text"
-            placeholder="Search accounts..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-[34px] w-72 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-10 pr-4 text-sm font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-          />
-        </div>
-        <a
-          href="/intake"
-          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
-          title="Add a new contact — accounts are added from client detail"
-        >
-          <span className="material-icons-outlined text-[18px]">add</span>
-          New Contact
-        </a>
-      </div>
-
-      {/* Row 2: Filters + Columns */}
-      <div className="flex flex-wrap items-center gap-2">
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className={filterSelectClass(statusFilter !== 'All')}
-        >
-          <option value="All">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="In Force">In Force</option>
-          <option value="Pending">Pending</option>
-          <option value="Inactive">Inactive</option>
-          <option value="Terminated">Terminated</option>
-        </select>
-
-        <select
-          value={carrierFilter}
-          onChange={(e) => setCarrierFilter(e.target.value)}
-          className={filterSelectClass(carrierFilter !== 'All')}
-        >
-          <option value="All">All Carriers</option>
-          {carriers.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-
-        <button
-          onClick={() => setShowColumnPicker(!showColumnPicker)}
-          className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-all ${
-            showColumnPicker ? 'border-[var(--portal)] bg-[var(--portal)] text-white' : 'border-[var(--portal)] bg-[var(--bg-surface)] text-[var(--portal)] hover:bg-[var(--portal)] hover:text-white'
-          }`}
-        >
-          <span className="material-icons-outlined text-[16px]">view_column</span>
-          Columns
-        </button>
-
-        {selectedIds.size >= 2 && (
-          <button
-            onClick={handleDdup}
-            className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 h-[34px] px-4 text-sm font-medium text-white transition-colors hover:bg-amber-600"
+    <div className="flex flex-col gap-5">
+      {/* Filters — no background wrapper, matches dark bg throughout */}
+      <div className="space-y-3">
+        {/* Row 1: Search + New */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative">
+            <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]">search</span>
+            <input
+              type="text"
+              placeholder="Search accounts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-[34px] w-72 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-10 pr-4 text-sm font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+            />
+          </div>
+          <a
+            href="/intake"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
+            title="New Account"
           >
-            <span className="material-icons-outlined text-[16px]">merge_type</span>
-            Ddup Selected ({selectedIds.size})
+            <span className="material-icons-outlined text-[18px]">add</span>
+            New
+          </a>
+        </div>
+
+        {/* Row 2: Filters + Columns */}
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className={filterSelectClass(statusFilter !== 'All')}
+          >
+            <option value="All">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="In Force">In Force</option>
+            <option value="Pending">Pending</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Terminated">Terminated</option>
+          </select>
+
+          <select
+            value={carrierFilter}
+            onChange={(e) => setCarrierFilter(e.target.value)}
+            className={filterSelectClass(carrierFilter !== 'All')}
+          >
+            <option value="All">All Carriers</option>
+            {carriers.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+
+          <button
+            onClick={() => setShowColumnPicker(!showColumnPicker)}
+            className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-all ${
+              showColumnPicker ? 'border-[var(--portal)] bg-[var(--portal)] text-white' : 'border-[var(--portal)] bg-[var(--bg-surface)] text-[var(--portal)] hover:bg-[var(--portal)] hover:text-white'
+            }`}
+          >
+            <span className="material-icons-outlined text-[16px]">view_column</span>
+            Columns
           </button>
+
+          {selectedIds.size >= 2 && (
+            <button
+              onClick={handleDdup}
+              className="inline-flex items-center gap-1.5 rounded-md bg-amber-500 h-[34px] px-4 text-sm font-medium text-white transition-colors hover:bg-amber-600"
+            >
+              <span className="material-icons-outlined text-[16px]">merge_type</span>
+              Ddup Selected ({selectedIds.size})
+            </button>
+          )}
+        </div>
+
+        {/* Row 3: Type pills + Count */}
+        <div className="flex flex-wrap items-center gap-2">
+          {FILTER_TABS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-3.5 text-sm font-medium transition-all ${
+                filter === f.key ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+              style={filter === f.key ? { backgroundColor: f.color } : undefined}
+            >
+              {f.label}
+              <span className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-xs ${
+                filter === f.key ? 'bg-white/20 text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
+              }`}>
+                {counts[f.key].toLocaleString()}
+              </span>
+            </button>
+          ))}
+
+          {/* Count pill — matches contacts pattern */}
+          <span
+            className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-3 text-sm font-medium ml-auto"
+            style={{ color: 'var(--portal)' }}
+          >
+            {filtered.length.toLocaleString()}
+          </span>
+        </div>
+
+        {/* Column picker panel */}
+        {showColumnPicker && (
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium text-[var(--text-primary)]">Visible Columns ({visibleColumns.length}/10)</p>
+              <button
+                onClick={() => setVisibleColumns(DEFAULT_COLUMNS[filter])}
+                className="text-xs text-[var(--portal)] hover:underline"
+              >
+                Reset to Default
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Object.keys(COLUMN_LABELS).map((col) => (
+                <label
+                  key={col}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium cursor-pointer transition-all ${
+                    visibleColumns.includes(col)
+                      ? 'bg-[var(--portal)]/15 text-[var(--portal)]'
+                      : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={visibleColumns.includes(col)}
+                    onChange={() => toggleColumn(col)}
+                    className="sr-only"
+                  />
+                  {COLUMN_LABELS[col]}
+                </label>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Row 3: Type pills + Count */}
-      <div className="flex flex-wrap items-center gap-2">
-        {FILTER_TABS.map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className={`inline-flex items-center gap-1.5 rounded-md h-[34px] px-3.5 text-sm font-medium transition-all ${
-              filter === f.key ? 'text-white' : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-            }`}
-            style={filter === f.key ? { backgroundColor: f.color } : undefined}
-          >
-            {f.label}
-            <span className={`ml-0.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-xs ${
-              filter === f.key ? 'bg-white/20 text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
-            }`}>
-              {counts[f.key].toLocaleString()}
-            </span>
-          </button>
-        ))}
-        <span className="ml-auto text-sm font-medium text-[var(--text-secondary)]">
-          Showing {filtered.length.toLocaleString()} of {totalCount?.toLocaleString() ?? accounts.length.toLocaleString()}
-        </span>
-      </div>
-
-      {/* Column picker panel */}
-      {showColumnPicker && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-[var(--text-primary)]">Visible Columns ({visibleColumns.length}/10)</p>
-            <button
-              onClick={() => setVisibleColumns(DEFAULT_COLUMNS[filter])}
-              className="text-xs text-[var(--portal)] hover:underline"
-            >
-              Reset to Default
-            </button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(COLUMN_LABELS).map((col) => (
-              <label
-                key={col}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium cursor-pointer transition-all ${
-                  visibleColumns.includes(col)
-                    ? 'bg-[var(--portal)]/15 text-[var(--portal)]'
-                    : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={visibleColumns.includes(col)}
-                  onChange={() => toggleColumn(col)}
-                  className="sr-only"
-                />
-                {COLUMN_LABELS[col]}
-              </label>
-            ))}
+      {/* No results */}
+      {sorted.length === 0 && (
+        <div className="flex items-center justify-center py-16">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">search</span>
+            <p className="text-sm text-[var(--text-muted)]">
+              No accounts match your filters. Try adjusting your search or filters.
+            </p>
           </div>
         </div>
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--bg-card)]">
-        <table className="w-full text-sm">
-          <thead className="bg-[var(--bg-surface)]">
-            <tr>
-              <th className="w-10 px-3 py-3">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
-                  checked={paged.length > 0 && paged.every((a) => selectedIds.has(`${a._clientId}-${a._id}`))}
-                  onChange={(e) => {
-                    const ids = paged.map((a) => `${a._clientId}-${a._id}`)
-                    setSelectedIds((prev) => {
-                      const next = new Set(prev)
-                      ids.forEach((id) => e.target.checked ? next.add(id) : next.delete(id))
-                      return next
-                    })
-                  }}
-                />
-              </th>
-              {visibleColumns.map((col) => (
-                <th
-                  key={col}
-                  onClick={() => handleSort(col)}
-                  className="cursor-pointer select-none px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--portal)] transition-colors hover:text-[var(--text-primary)]"
-                >
-                  <span className="inline-flex items-center gap-1">
-                    {COLUMN_LABELS[col] || col}
-                    {sortKey === col && (
-                      <span className="text-[var(--portal)]">{sortDir === 'asc' ? '\u2191' : '\u2193'}</span>
-                    )}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {paged.length === 0 ? (
-              <tr>
-                <td colSpan={visibleColumns.length + 1} className="px-4 py-16 text-center text-sm text-[var(--text-muted)]">
-                  {search || filter !== 'all' || statusFilter !== 'All' ? 'No accounts match your filters.' : 'No accounts found.'}
-                </td>
-              </tr>
-            ) : (
-              paged.map((acct) => {
-                const rowKey = `${acct._clientId}-${acct._id}`
-                const isSelected = selectedIds.has(rowKey)
-                const statusColor = getStatusColor(str(acct.status))
+      {sorted.length > 0 && (
+        <>
+          <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--bg-card)]">
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--bg-surface)]">
+                <tr>
+                  <th className="w-10 px-3 py-3">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
+                      checked={paged.length > 0 && paged.every((a) => selectedIds.has(`${a._clientId}::${a._id}`))}
+                      onChange={(e) => {
+                        const ids = paged.map((a) => `${a._clientId}::${a._id}`)
+                        setSelectedIds((prev) => {
+                          const next = new Set(prev)
+                          ids.forEach((id) => e.target.checked ? next.add(id) : next.delete(id))
+                          return next
+                        })
+                      }}
+                    />
+                  </th>
+                  {visibleColumns.map((col) => (
+                    <th
+                      key={col}
+                      onClick={() => handleSort(col)}
+                      className="cursor-pointer select-none px-3 py-3 text-left text-xs font-semibold uppercase text-[var(--portal)] transition-colors hover:text-[var(--text-primary)]"
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {COLUMN_LABELS[col] || col}
+                        {sortKey === col && (
+                          <span className="text-[var(--portal)]">{sortDir === 'asc' ? '\u2191' : '\u2193'}</span>
+                        )}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {paged.map((acct) => {
+                  const rowKey = `${acct._clientId}::${acct._id}`
+                  const isSelected = selectedIds.has(rowKey)
+                  const statusColor = getStatusColor(str(acct.status))
 
-                return (
-                  <tr
-                    key={rowKey}
-                    onClick={() => window.open(`/accounts/${acct._clientId}/${acct._id}`, '_blank')}
-                    className={`cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)] ${isSelected ? 'bg-[var(--portal)]/5' : ''}`}
-                  >
-                    <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleSelect(rowKey)}
-                        className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
-                      />
-                    </td>
-                    {visibleColumns.map((col) => {
-                      const cellVal = getCellValue(acct, col)
-                      const isStatus = col === 'status'
+                  return (
+                    <tr
+                      key={rowKey}
+                      onClick={() => window.open(`/accounts/${acct._clientId}/${acct._id}`, '_blank')}
+                      className={`cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)] ${isSelected ? 'bg-[var(--portal)]/5' : ''}`}
+                    >
+                      <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(rowKey)}
+                          className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
+                        />
+                      </td>
+                      {visibleColumns.map((col) => {
+                        const cellVal = getCellValue(acct, col)
+                        const isStatus = col === 'status'
 
-                      return (
-                        <td key={col} className="px-3 py-3">
-                          {isStatus ? (
-                            <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
-                              {cellVal || 'Unknown'}
-                            </span>
-                          ) : col === '_clientName' ? (
-                            <p className="font-medium text-[var(--text-primary)]">{cellVal || acct._clientId.slice(0, 8)}</p>
-                          ) : (
-                            <p className={`text-[var(--text-secondary)] ${col.includes('number') || col.includes('id') ? 'font-mono text-xs' : ''}`}>
-                              {cellVal || '\u2014'}
-                            </p>
-                          )}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
-          <span>
-            {(page * pageSize + 1).toLocaleString()}–{Math.min((page + 1) * pageSize, sorted.length).toLocaleString()} of{' '}
-            <span className="text-[var(--portal)] font-medium">{sorted.length.toLocaleString()} filtered</span>
-            {totalCount !== null && <span className="text-[var(--text-muted)]"> ({totalCount.toLocaleString()} total)</span>}
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="rounded-md border border-[var(--border)] h-[34px] px-3 transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-30"
-            >
-              Previous
-            </button>
-            <span>Page {page + 1} of {totalPages}</span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              disabled={page >= totalPages - 1}
-              className="rounded-md border border-[var(--border)] h-[34px] px-3 transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-30"
-            >
-              Next
-            </button>
+                        return (
+                          <td key={col} className="px-3 py-3">
+                            {isStatus ? (
+                              <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
+                                {cellVal || 'Unknown'}
+                              </span>
+                            ) : col === '_clientName' ? (
+                              <p className="font-medium text-[var(--text-primary)]">{cellVal || acct._clientId.slice(0, 8)}</p>
+                            ) : (
+                              <p className={`text-[var(--text-secondary)] ${col.includes('number') || col.includes('id') ? 'font-mono text-xs' : ''}`}>
+                                {cellVal || '\u2014'}
+                              </p>
+                            )}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-        </div>
-      )}
 
-      {/* Load More */}
-      {hasMore && (
-        <div className="flex justify-center">
-          <button
-            onClick={async () => {
-              if (!lastDoc || loadingMore) return
-              setLoadingMore(true)
-              try {
-                const db = getDb()
-                const q = query(collectionGroup(db, 'accounts'), orderBy('carrier_name'), startAfter(lastDoc), limit(ACCOUNTS_PAGE_SIZE))
-                const snap = await getDocs(q)
-                const rows: AccountRow[] = snap.docs.map((d) => {
-                  const data = d.data() as unknown as Account
-                  const pathParts = d.ref.path.split('/')
-                  return { ...data, _id: d.id, _clientId: pathParts[1] || '' }
-                })
-                setAccounts((prev) => [...prev, ...rows])
-                setHasMore(snap.docs.length === ACCOUNTS_PAGE_SIZE)
-                setLastDoc(snap.docs[snap.docs.length - 1] ?? null)
-              } catch (err) { setError(String(err)) } finally { setLoadingMore(false) }
-            }}
-            disabled={loadingMore}
-            className="rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-6 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-50"
-          >
-            {loadingMore ? (
-              <span className="inline-flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-                Loading...
-              </span>
-            ) : (
-              `Load More Accounts (${accounts.length.toLocaleString()} loaded)`
-            )}
-          </button>
-        </div>
+          {/* Pagination */}
+          <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
+            <span>
+              Showing {showingStart}&ndash;{showingEnd} of {sorted.length.toLocaleString()}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="cursor-pointer rounded-lg border border-[var(--border)] px-4 py-1.5 text-sm transition-colors hover:bg-[var(--bg-hover)] disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                Previous
+              </button>
+              {totalPages > 1 && (
+                <span className="flex items-center px-2 text-xs">
+                  Page {page + 1} of {totalPages}
+                </span>
+              )}
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="cursor-pointer rounded-lg border border-[var(--border)] px-4 py-1.5 text-sm transition-colors hover:bg-[var(--bg-hover)] disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
