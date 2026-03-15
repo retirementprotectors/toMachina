@@ -117,7 +117,7 @@ export const TOOL_SUITES: Record<SuiteKey, ToolSuiteDef> = {
     name: 'Admin',
     description: 'Organization & Permissions Management',
     matrix: 'RAPID',
-    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'FORGE'],
+    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE'],
   },
 }
 
@@ -423,13 +423,21 @@ export const MODULES: Record<string, ModuleDef> = {
   },
 
   // ---- Build Tracker (1) ----
+  PIPELINE_STUDIO: {
+    name: 'Pipeline Studio',
+    fullName: 'Pipeline Design Tool',
+    description: 'Full-screen pipeline builder and admin configuration',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
+    minUserLevel: 'OWNER',
+  },
   FORGE: {
     name: 'FORGE',
     fullName: 'Build Tracker',
     description: 'Platform build tracker with screenshot reporting and sprint management',
     status: 'active',
     suite: 'ADMIN_TOOLS',
-    minUserLevel: 'LEADER',
+    minUserLevel: 'OWNER',
   },
 
   // ---- Admin Tools (3) ----
