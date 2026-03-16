@@ -165,7 +165,9 @@ sprintRoutes.get('/roadmap', async (_req: Request, res: Response) => {
   try {
     const db = getFirestore()
     const snap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
-    const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Record<string, unknown>))
+    const allItems = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Record<string, unknown>))
+    // Exclude completed work — roadmap only shows what's NOT done
+    const items = allItems.filter(i => !['confirmed', 'deferred', 'wont_fix'].includes(i.status as string))
 
     // Read logos and base64 encode them
     const fs = await import('fs')
@@ -223,7 +225,7 @@ sprintRoutes.get('/roadmap', async (_req: Request, res: Response) => {
     const totalEnhancements = items.filter(i => i.type === 'improve').length
     const totalFeatures = items.filter(i => i.type === 'idea').length
     const totalQuestions = items.filter(i => i.type === 'question').length
-    const totalConfirmed = items.filter(i => i.status === 'confirmed').length
+    const completedCount = allItems.length - items.length
     const genDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
     let html = `<!DOCTYPE html>
@@ -308,7 +310,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div class="stat"><div class="num" style="color:#f59e0b">${totalEnhancements}</div><div class="lbl">Enhance</div></div>
 <div class="stat"><div class="num" style="color:#a855f7">${totalFeatures}</div><div class="lbl">Feature</div></div>
 <div class="stat"><div class="num" style="color:#3b82f6">${totalQuestions}</div><div class="lbl">Question</div></div>
-<div class="stat"><div class="num" style="color:#22c55e">${totalConfirmed}</div><div class="lbl">Done</div></div>
+<div class="stat"><div class="num" style="color:#22c55e">${completedCount}</div><div class="lbl">Done</div></div>
 </div>
 </div>
 </div>

@@ -563,9 +563,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   }
 
   const autoCreateSprint = () => {
-    // Find all unassigned items
-    const unassigned = items.filter(i => !i.sprint_id && ['queue', 'not_touched'].includes(i.status))
-    if (unassigned.length === 0) return
+    // Find all unassigned items — use allItems (not filtered items)
+    const unassigned = allItems.filter(i => !i.sprint_id && ['queue', 'not_touched'].includes(i.status))
+    if (unassigned.length === 0) {
+      showToast('No unassigned items to sprint — all items are already in sprints', 'warning')
+      return
+    }
 
     // Sort: bugs → enhancements → features → questions, clustered by component
     const typePriority: Record<string, number> = { broken: 0, improve: 1, idea: 2, question: 3 }
@@ -791,8 +794,14 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         const html = await res.text()
         const win = window.open('', '_blank')
         if (win) { win.document.write(html); win.document.close() }
+        else showToast('Pop-up blocked — allow pop-ups for this site', 'warning')
+      } else {
+        const body = await res.json().catch(() => ({}))
+        showToast(`Roadmap failed: ${(body as Record<string, string>).error || res.statusText}`, 'error')
       }
-    } catch { /* silent */ }
+    } catch (err) {
+      showToast(`Roadmap error: ${String(err)}`, 'error')
+    }
   }
 
   /* ─── Discovery Import Handlers ─── */

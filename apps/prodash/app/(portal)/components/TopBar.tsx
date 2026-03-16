@@ -52,6 +52,9 @@ function usePageTitle(): string {
       ddup: 'DeDup',
       'service-centers': 'Service Centers',
       'sales-centers': 'Sales Centers',
+      forge: 'FORGE',
+      'pipeline-studio': 'Pipeline Studio',
+      'leadership-center': 'Leadership Center',
     }
     // Check for known title first, then capitalize
     if (titles[last]) return titles[last]
