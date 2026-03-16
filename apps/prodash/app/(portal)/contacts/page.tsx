@@ -5,7 +5,7 @@ import { query, orderBy, type Query, type DocumentData } from 'firebase/firestor
 import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
 import { normalizePhone } from '@tomachina/core'
-import type { Client, Agent } from '@tomachina/core'
+import type { Client, User } from '@tomachina/core'
 import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
@@ -42,11 +42,11 @@ function cleanName(name: string): string {
 // ---------------------------------------------------------------------------
 
 const clientsQuery: Query<DocumentData> = query(collections.clients(), orderBy('last_name'))
-const agentsQuery: Query<DocumentData> = query(collections.agents())
+const usersQuery: Query<DocumentData> = query(collections.users())
 
 type SortKey = 'name' | 'location' | 'book_of_business' | 'agent_name' | 'client_status' | null
 
-interface AgentDoc extends Agent {
+interface UserDoc extends User {
   _id: string
 }
 
@@ -55,6 +55,7 @@ interface ClientRow extends Client {
   account_types?: string[]
   book_of_business?: string
   agent_id?: string
+  assigned_user_id?: string
   agent_name?: string
   gdrive_folder_url?: string
 }
@@ -67,20 +68,29 @@ const PAGE_SIZE = 25
 
 export default function ClientsPage() {
   const { data: rawClients, loading: clientsLoading, error } = useCollection<ClientRow>(clientsQuery, 'all-clients')
-  const { data: rawAgents, loading: agentsLoading } = useCollection<AgentDoc>(agentsQuery, 'all-agents')
+  const { data: rawUsers, loading: usersLoading } = useCollection<UserDoc>(usersQuery, 'all-users')
 
-  const loading = clientsLoading || agentsLoading
+  const loading = clientsLoading || usersLoading
 
-  // Build agent lookup map: agent_id -> "First Last"
-  const agentMap = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const agent of rawAgents) {
-      const key = agent._id || agent.agent_id
-      const name = `${agent.first_name || ''} ${agent.last_name || ''}`.trim()
-      if (key && name) map.set(key, name)
+  // Build user lookup maps:
+  // - userMap: user_id (UUID) -> "First Last" (all users, for resolving assigned_user_id)
+  // - userDocIdMap: doc _id (email) -> "First Last" (fallback for legacy agent_id values that might be emails)
+  // - agentUsers: users where is_agent: true (for the filter dropdown)
+  const { userMap, userDocIdMap, agentUsers } = useMemo(() => {
+    const byUserId = new Map<string, string>()
+    const byDocId = new Map<string, string>()
+    const agents: { userId: string; name: string }[] = []
+    for (const u of rawUsers) {
+      const name = `${u.first_name || ''} ${u.last_name || ''}`.trim()
+      if (!name) continue
+      // Map by user_id UUID (primary key for assigned_user_id)
+      if (u.user_id) byUserId.set(u.user_id, name)
+      // Map by doc ID (email) as fallback
+      if (u._id) byDocId.set(u._id, name)
+      if (u.is_agent) agents.push({ userId: u.user_id || u._id, name })
     }
-    return map
-  }, [rawAgents])
+    return { userMap: byUserId, userDocIdMap: byDocId, agentUsers: agents }
+  }, [rawUsers])
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('Active')
@@ -94,28 +104,32 @@ export default function ClientsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // Resolve agent names on each client row
+  // Priority: assigned_user_id (new) -> agent_id (legacy row_N or email) -> agent_name (raw field)
   const clients = useMemo((): ClientRow[] => {
     return rawClients.map((c) => {
-      const resolved = agentMap.get(String(c.agent_id || '')) || String(c.agent_name || '')
+      const assignedId = String(c.assigned_user_id || '')
+      const legacyId = String(c.agent_id || '')
+      const resolved =
+        userMap.get(assignedId) ||
+        userMap.get(legacyId) ||
+        userDocIdMap.get(legacyId) ||
+        String(c.agent_name || '')
       return { ...c, agent_name: resolved } as ClientRow
     })
-  }, [rawClients, agentMap])
+  }, [rawClients, userMap, userDocIdMap])
 
-  // Extract unique books & agents from data
+  // Extract unique books from data; agents come from users where is_agent: true
   const { books, agents } = useMemo(() => {
     const bookSet = new Set<string>()
-    const agentSet = new Set<string>()
     for (const c of clients) {
       const b = String(c.book_of_business || '').trim()
-      const a = String(c.agent_name || '').trim()
       if (b) bookSet.add(b)
-      if (a) agentSet.add(a)
     }
     return {
       books: Array.from(bookSet).sort(),
-      agents: Array.from(agentSet).sort(),
+      agents: agentUsers.map((a) => a.name).sort(),
     }
-  }, [clients])
+  }, [clients, agentUsers])
 
   // Filter logic
   const filtered = useMemo(() => {

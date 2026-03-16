@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JDM-TECH-GUIDE.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="jdm-technology-translation-guide">JDM Technology Translation Guide</h1>
+<blockquote>
+<p><strong>You don't need to learn to code. You need to know what things ARE so you can make decisions.</strong>
+This guide maps everything in toMachina back to the Sheets/GAS world you already understand.
+Keep this open during sessions. Ctrl+F when something comes up.</p>
+</blockquote>
+<hr>
+<h2 id="section-1-the-big-picture">Section 1: The Big Picture</h2>
+<p>Here's the entire platform in one flow:</p>
+<pre class="hljs"><code><div> YOU (or a team member)
+   |
+   | open a browser
+   v
+ NEXT.JS PORTAL (ProDashX / RIIMO / SENTINEL)
+   |
+   | &quot;I want to see my clients&quot; or &quot;Send a campaign&quot;
+   v
+ CLOUD RUN API (the new RAPID_API)
+   |
+   | talks to the database
+   v
+ FIRESTORE (the new MATRIX)
+   |
+   | copies data for reporting
+   v
+ BIGQUERY (same BigQuery you already know)
+</div></code></pre>
+<p><strong>That's it.</strong> Five layers. Every single thing in toMachina follows this path.</p>
+<p><strong>The Sheets World equivalent was:</strong></p>
+<pre class="hljs"><code><div> YOU
+   |
+   | open a browser
+   v
+ GAS WEB APP (PRODASHX / RIIMO / SENTINEL sidebar)
+   |
+   | ran a script
+   v
+ RAPID_API / RAPID_CORE (GAS functions)
+   |
+   | read/wrote cells
+   v
+ GOOGLE SHEETS (PRODASH_MATRIX / RAPID_MATRIX)
+</div></code></pre>
+<p>Same shape. Faster engine. No more &quot;the script timed out&quot; or &quot;too many simultaneous users.&quot;</p>
+<hr>
+<h2 id="section-2-data----where-stuff-lives">Section 2: Data -- Where Stuff Lives</h2>
+<h3 id="the-core-translation">The Core Translation</h3>
+<table>
+<thead>
+<tr>
+<th>Sheets World</th>
+<th>Firebase World</th>
+<th>Plain English</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A spreadsheet (PRODASH_MATRIX)</td>
+<td>Firestore database</td>
+<td><strong>The whole database</strong> -- all the data for one system</td>
+</tr>
+<tr>
+<td>A tab (Clients, Accounts, Users)</td>
+<td>A <strong>collection</strong></td>
+<td><strong>A group of similar records</strong> -- all clients, all accounts, etc.</td>
+</tr>
+<tr>
+<td>A row</td>
+<td>A <strong>document</strong></td>
+<td><strong>One record</strong> -- one client, one account, one user</td>
+</tr>
+<tr>
+<td>A column header (first_name, phone)</td>
+<td>A <strong>field</strong></td>
+<td><strong>One piece of info</strong> about that record</td>
+</tr>
+<tr>
+<td>A cell value (&quot;Josh&quot;, &quot;515-707-0207&quot;)</td>
+<td>A <strong>field value</strong></td>
+<td><strong>The actual data</strong> sitting in that spot</td>
+</tr>
+<tr>
+<td>The row number (Row 47)</td>
+<td>A <strong>document ID</strong> (a unique string like <code>abc123</code>)</td>
+<td><strong>How you find a specific record</strong> -- except IDs never change even if you sort</td>
+</tr>
+<tr>
+<td>VLOOKUP to another tab</td>
+<td>A <strong>reference</strong> (foreign key)</td>
+<td><strong>&quot;Go look up this person in that other tab&quot;</strong></td>
+</tr>
+<tr>
+<td>Conditional formatting (red if overdue)</td>
+<td><strong>Firestore rules</strong></td>
+<td><strong>Who can see/edit what</strong> (but enforced by the system, not just colors)</td>
+</tr>
+<tr>
+<td>Sheet protection / sharing settings</td>
+<td><strong>Auth + entitlements</strong></td>
+<td><strong>Who has access at all</strong></td>
+</tr>
+<tr>
+<td>A filter view</td>
+<td>A <strong>query</strong></td>
+<td><strong>Narrowing down what you see</strong> -- &quot;show me only Active clients in Iowa&quot;</td>
+</tr>
+<tr>
+<td>A pivot table</td>
+<td>A <strong>BigQuery query</strong> or <strong>aggregation</strong></td>
+<td><strong>Summarizing data</strong> -- totals, counts, averages</td>
+</tr>
+</tbody>
+</table>
+<h3 id="subcollections----the-one-new-concept">Subcollections -- The One New Concept</h3>
+<p>This is the only thing Firestore does that Sheets literally cannot.</p>
+<p><strong>Sheets World:</strong> Accounts are a separate tab. Each account row has a <code>client_id</code> column that points back to the Clients tab. To see all accounts for Client #47, you filter the Accounts tab by <code>client_id = 47</code>.</p>
+<p><strong>Firestore World:</strong> Accounts literally live INSIDE the client document. Like a folder inside a folder:</p>
+<pre class="hljs"><code><div>clients/
+  abc123/                    &lt;-- This IS client Josh Millang
+    first_name: &quot;Josh&quot;
+    last_name: &quot;Millang&quot;
+    accounts/                &lt;-- A folder of accounts INSIDE Josh's record
+      def456/                &lt;-- One specific account
+        carrier: &quot;Athene&quot;
+        product: &quot;FIA&quot;
+      ghi789/                &lt;-- Another account
+        carrier: &quot;Nationwide&quot;
+        product: &quot;MYGA&quot;
+</div></code></pre>
+<p>The path <code>clients/abc123/accounts/def456</code> is like saying &quot;Clients tab, row for Josh, then Accounts tab filtered to Josh, row for the Athene FIA.&quot;</p>
+<p><strong>Why this matters to you:</strong> When someone says &quot;subcollection,&quot; they mean &quot;data that lives inside another record.&quot; Accounts live inside clients. Communications live inside clients. Activities live inside clients. It's cleaner than VLOOKUPs and it's instant -- no script running to connect the dots.</p>
+<h3 id="what-29000-documents-means">What 29,000+ Documents Means</h3>
+<p>In Sheets, you had maybe 5,000 rows across all your MATRIX tabs. In Firestore, every client, every account, every user, every pipeline card, every communication, every revenue record -- they're all individual documents. 29,000+ just means there's a lot of data in there, and unlike Sheets, it doesn't slow down when you add more.</p>
+<hr>
+<h2 id="section-3-code----who-does-what">Section 3: Code -- Who Does What</h2>
+<table>
+<thead>
+<tr>
+<th>Sheets World</th>
+<th>GAS World</th>
+<th>Firebase/Next World</th>
+<th>Plain English</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>You type in a cell</td>
+<td>A trigger fires a function</td>
+<td>User fills a form, clicks Save, API route runs</td>
+<td><strong>Data gets created/updated</strong></td>
+</tr>
+<tr>
+<td>A formula (<code>=SUM</code>, <code>=IF</code>, <code>=VLOOKUP</code>)</td>
+<td>A GAS function in RAPID_CORE</td>
+<td>A TypeScript function in <code>packages/core</code></td>
+<td><strong>Business logic / calculations</strong> -- the math and rules</td>
+</tr>
+<tr>
+<td>An <code>onEdit</code> trigger</td>
+<td><code>ScriptApp.newTrigger()</code></td>
+<td>A Cloud Function trigger</td>
+<td><strong>&quot;When X happens, do Y automatically&quot;</strong> -- like when a new file lands in a folder</td>
+</tr>
+<tr>
+<td>A custom menu item (&quot;RPI Tools &gt; Import&quot;)</td>
+<td>A GAS web app (HTML service)</td>
+<td>A page/route in Next.js (<code>/admin</code>, <code>/intake</code>)</td>
+<td><strong>A screen the user clicks on</strong></td>
+</tr>
+<tr>
+<td>A button with an assigned script</td>
+<td>An HTML form with a submit handler</td>
+<td>A React component with an <code>onClick</code></td>
+<td><strong>User clicks a button, something happens</strong></td>
+</tr>
+<tr>
+<td>The GAS editor (script.google.com)</td>
+<td>Same</td>
+<td>VS Code / Claude Code</td>
+<td><strong>Where code gets written</strong> -- you never touch this</td>
+</tr>
+<tr>
+<td><code>clasp push</code></td>
+<td>Same</td>
+<td><code>git push</code> to main -&gt; auto-deploy</td>
+<td><strong>How code gets to production</strong> -- push = live</td>
+</tr>
+<tr>
+<td>Waiting 6 minutes for the script to finish</td>
+<td>Same</td>
+<td>It just... happens. Instantly.</td>
+<td><strong>Speed</strong> -- Cloud Run doesn't have GAS execution limits</td>
+</tr>
+<tr>
+<td>&quot;Exceeded maximum execution time&quot;</td>
+<td>Same</td>
+<td>Doesn't happen</td>
+<td><strong>No timeouts</strong> -- Cloud Run can run for as long as it needs</td>
+</tr>
+<tr>
+<td>&quot;Too many simultaneous executions&quot;</td>
+<td>Same</td>
+<td>Doesn't happen</td>
+<td><strong>No user limits</strong> -- 100 people can use the portal at the same time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-key-upgrade-in-plain-english">The Key Upgrade in Plain English</h3>
+<p>In the Sheets/GAS world, everything was single-threaded. One person runs a script, everyone else waits. The script times out after 6 minutes. The spreadsheet locks up. You get &quot;trying to connect&quot; spinners.</p>
+<p>In the toMachina world, the database (Firestore) handles thousands of simultaneous reads/writes. The API (Cloud Run) spins up more copies of itself when traffic increases. Nobody waits for anyone else. The portals load in under 2 seconds.</p>
+<hr>
+<h2 id="section-4-ui----what-users-see">Section 4: UI -- What Users See</h2>
+<table>
+<thead>
+<tr>
+<th>Sheets World</th>
+<th>Next.js World</th>
+<th>Plain English</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A spreadsheet with tabs at the bottom</td>
+<td>A portal with sidebar navigation</td>
+<td><strong>The main app</strong> -- ProDashX, RIIMO, or SENTINEL</td>
+</tr>
+<tr>
+<td>A tab you click (Clients, Accounts)</td>
+<td>A route/page (<code>/contacts</code>, <code>/accounts</code>)</td>
+<td><strong>A screen</strong> -- each URL is a different screen</td>
+</tr>
+<tr>
+<td>A dropdown in a cell (data validation list)</td>
+<td>A select/dropdown component</td>
+<td><strong>A picker</strong> -- choose from a list</td>
+</tr>
+<tr>
+<td>A checkbox in a cell</td>
+<td>A toggle/checkbox component</td>
+<td><strong>Yes/no choice</strong></td>
+</tr>
+<tr>
+<td>Data validation (&quot;must be a number&quot;)</td>
+<td>Form validation</td>
+<td><strong>&quot;You can't type letters in the phone field&quot;</strong> -- the form stops you before you screw it up</td>
+</tr>
+<tr>
+<td>A filter view (show only Active)</td>
+<td>Filter dropdowns + search bar</td>
+<td><strong>Narrowing down what you see</strong></td>
+</tr>
+<tr>
+<td>Sort A-Z on a column</td>
+<td>Click a column header (arrows appear)</td>
+<td><strong>Reordering rows</strong></td>
+</tr>
+<tr>
+<td>A GAS HTML sidebar</td>
+<td>A slide-out panel (CommsModule, ConnectPanel)</td>
+<td><strong>A panel that slides in from the right side</strong></td>
+</tr>
+<tr>
+<td>A GAS modal dialog</td>
+<td>A modal component</td>
+<td><strong>A popup box</strong> -- &quot;Are you sure you want to delete this?&quot;</td>
+</tr>
+<tr>
+<td>A GAS toast notification</td>
+<td>A toast component</td>
+<td><strong>A brief message</strong> -- &quot;Saved!&quot; or &quot;Error: missing phone number&quot; pops up and fades away</td>
+</tr>
+<tr>
+<td>Conditional formatting (green/red cells)</td>
+<td>Status badges and colored indicators</td>
+<td><strong>Visual signals</strong> -- green = good, red = attention, yellow = pending</td>
+</tr>
+<tr>
+<td>A Google Form</td>
+<td>A page with a form component</td>
+<td><strong>Collecting info from users</strong> -- but it's built into the portal, not a separate Google Form</td>
+</tr>
+<tr>
+<td>A named range</td>
+<td>A reusable component</td>
+<td><strong>Something built once, used everywhere</strong> -- like a client card that appears on 5 different pages</td>
+</tr>
+</tbody>
+</table>
+<h3 id="portals--the-new-spreadsheets">Portals = The New Spreadsheets</h3>
+<p>Think of it this way:</p>
+<table>
+<thead>
+<tr>
+<th>Old World</th>
+<th>New World</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PRODASH_MATRIX (the spreadsheet)</td>
+<td><strong>ProDashX portal</strong> (prodash.tomachina.com)</td>
+</tr>
+<tr>
+<td>RAPID_MATRIX (the spreadsheet)</td>
+<td><strong>RIIMO portal</strong> (riimo.tomachina.com)</td>
+</tr>
+<tr>
+<td>SENTINEL_MATRIX (the spreadsheet)</td>
+<td><strong>SENTINEL portal</strong> (sentinel.tomachina.com)</td>
+</tr>
+</tbody>
+</table>
+<p>Same three worlds. Same three audiences. Just not spreadsheets anymore.</p>
+<hr>
+<h2 id="section-5-architecture----how-things-connect">Section 5: Architecture -- How Things Connect</h2>
+<table>
+<thead>
+<tr>
+<th>Sheets/GAS World</th>
+<th>toMachina World</th>
+<th>Plain English</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PRODASH_MATRIX</td>
+<td>ProDashX portal + Firestore</td>
+<td><strong>The B2C platform</strong> -- client-facing sales + service</td>
+</tr>
+<tr>
+<td>RAPID_MATRIX</td>
+<td>RIIMO portal + Firestore</td>
+<td><strong>The B2E platform</strong> -- internal shared services</td>
+</tr>
+<tr>
+<td>SENTINEL_MATRIX</td>
+<td>SENTINEL portal + Firestore</td>
+<td><strong>The B2B platform</strong> -- M&amp;A + partnerships</td>
+</tr>
+<tr>
+<td>RAPID_CORE (GAS library used by everything)</td>
+<td><code>packages/core</code></td>
+<td><strong>Shared business logic</strong> -- calculations, rules, normalizers used by all 3 portals</td>
+</tr>
+<tr>
+<td>RAPID_API (GAS web app that handled requests)</td>
+<td><code>services/api</code> on Cloud Run</td>
+<td><strong>The backend</strong> -- the middleman between the portal and the database</td>
+</tr>
+<tr>
+<td>RAPID_IMPORT (GAS intake triggers)</td>
+<td><code>services/intake</code> (Cloud Functions)</td>
+<td><strong>Data ingestion</strong> -- how data gets INTO the system from external sources</td>
+</tr>
+<tr>
+<td>RAPID_COMMS (GAS communications engine)</td>
+<td>CommsModule (React) + Twilio</td>
+<td><strong>Communications</strong> -- calls, texts, emails</td>
+</tr>
+<tr>
+<td>RAPID_FLOW (GAS workflow engine)</td>
+<td>Flow Engine in <code>packages/core/flow</code></td>
+<td><strong>Workflow automation</strong> -- &quot;when this stage completes, move to the next one&quot;</td>
+</tr>
+<tr>
+<td>C3 (GAS campaign engine)</td>
+<td>C3 Manager (React) + API routes</td>
+<td><strong>Campaign management</strong> -- sending marketing to clients</td>
+</tr>
+<tr>
+<td>ATLAS (GAS data registry)</td>
+<td>ATLAS Registry (React) + API routes</td>
+<td><strong>Data source tracking</strong> -- where every piece of data comes from</td>
+</tr>
+<tr>
+<td>CAM (GAS commission analytics)</td>
+<td>CAM Dashboard (React) + API routes</td>
+<td><strong>Commission/revenue analytics</strong></td>
+</tr>
+<tr>
+<td>GHL (GoHighLevel CRM)</td>
+<td>The portals themselves</td>
+<td><strong>CRM / client management</strong> -- we replaced GHL with our own system</td>
+</tr>
+<tr>
+<td>A Google Form</td>
+<td>A page with form components</td>
+<td><strong>Collecting info</strong></td>
+</tr>
+<tr>
+<td>Google Drive folders</td>
+<td>Firebase Storage (+ Drive for legacy files)</td>
+<td><strong>File storage</strong></td>
+</tr>
+<tr>
+<td>BigQuery</td>
+<td>BigQuery (same!)</td>
+<td><strong>Analytics and reporting</strong> -- this one didn't change</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-gas-migration-scorecard">The GAS Migration Scorecard</h3>
+<table>
+<thead>
+<tr>
+<th>GAS Engine</th>
+<th>Status</th>
+<th>Where It Went</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAPID_COMMS</td>
+<td>Archived (Sprint 4)</td>
+<td><code>services/api/src/routes/comms.ts</code> + <code>communications.ts</code></td>
+</tr>
+<tr>
+<td>RAPID_FLOW</td>
+<td>Archived (Sprint 4)</td>
+<td><code>packages/core/flow/</code> + <code>services/api/src/routes/flow.ts</code></td>
+</tr>
+<tr>
+<td>C3</td>
+<td>Archived (Sprint 4)</td>
+<td><code>services/api/src/routes/campaigns.ts</code> + <code>campaign-send.ts</code> + <code>campaign-analytics.ts</code></td>
+</tr>
+<tr>
+<td>ATLAS</td>
+<td>Archived (Sprint 4)</td>
+<td><code>services/api/src/routes/atlas.ts</code></td>
+</tr>
+<tr>
+<td>CAM</td>
+<td>Archived (Sprint 5)</td>
+<td><code>services/api/src/routes/cam.ts</code> + <code>revenue.ts</code></td>
+</tr>
+<tr>
+<td>RAPID_API</td>
+<td>Archived (Sprint 5)</td>
+<td><code>services/api/</code> (the entire Cloud Run API replaced it)</td>
+</tr>
+<tr>
+<td>RAPID_CORE</td>
+<td>Still running</td>
+<td>Thin adapter for the 2 remaining GAS projects</td>
+</tr>
+<tr>
+<td>RAPID_IMPORT</td>
+<td>Still running</td>
+<td>Being ported to Cloud Functions</td>
+</tr>
+<tr>
+<td>DEX</td>
+<td>Still running</td>
+<td>Sprint 11 target</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3 left. 6 archived. The finish line is visible.</strong></p>
+<hr>
+<h2 id="section-6-the-rpi-specific-map">Section 6: The RPI-Specific Map</h2>
+<p>This is the one you'll Ctrl+F the most. Every major thing you work with, where it lives in all three worlds.</p>
+<table>
+<thead>
+<tr>
+<th>What You Call It</th>
+<th>Sheets Location</th>
+<th>Firestore Path</th>
+<th>Portal Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A client</strong></td>
+<td>PRODASH_MATRIX -&gt; Clients tab</td>
+<td><code>clients/{uuid}</code></td>
+<td><code>/contacts</code> list and <code>/contacts/{id}</code> detail</td>
+</tr>
+<tr>
+<td><strong>An account/policy</strong></td>
+<td>PRODASH_MATRIX -&gt; Accounts tab</td>
+<td><code>clients/{uuid}/accounts/{uuid}</code> (subcollection)</td>
+<td><code>/accounts</code> list and Contact Detail -&gt; Accounts tab</td>
+</tr>
+<tr>
+<td><strong>A communication</strong></td>
+<td>RAPID_COMMS logs</td>
+<td><code>clients/{uuid}/communications/{uuid}</code> (subcollection)</td>
+<td>Communications Module (slide-out panel)</td>
+</tr>
+<tr>
+<td><strong>An agent/producer</strong></td>
+<td>PRODASH_MATRIX -&gt; Agents tab</td>
+<td><code>agents/{id}</code> or <code>producers/{id}</code></td>
+<td>Admin Panel, DAVID HUB</td>
+</tr>
+<tr>
+<td><strong>A team member</strong></td>
+<td>RAPID_MATRIX -&gt; Users tab</td>
+<td><code>users/{email}</code> (keyed by email address)</td>
+<td>Admin Panel -&gt; Team Config</td>
+</tr>
+<tr>
+<td><strong>A pipeline</strong></td>
+<td>Various RAPID_MATRIX tabs</td>
+<td><code>flow_pipelines/{id}</code> + <code>flow_stages/{id}</code></td>
+<td><code>/pipelines</code> view, Pipeline Studio (builder)</td>
+</tr>
+<tr>
+<td><strong>A pipeline card</strong></td>
+<td>A row in a pipeline tab</td>
+<td><code>flow_instances/{id}</code></td>
+<td>Kanban board card</td>
+</tr>
+<tr>
+<td><strong>A campaign</strong></td>
+<td>C3 engine Sheets</td>
+<td><code>campaigns/{id}</code> + <code>templates/{id}</code> + <code>content_blocks/{id}</code></td>
+<td>C3 Manager</td>
+</tr>
+<tr>
+<td><strong>A revenue record</strong></td>
+<td>PRODASH_MATRIX -&gt; Revenue tab</td>
+<td><code>revenue/{id}</code></td>
+<td>CAM Dashboard</td>
+</tr>
+<tr>
+<td><strong>A carrier</strong></td>
+<td>PRODASH_MATRIX -&gt; Carriers tab</td>
+<td><code>carriers/{id}</code></td>
+<td>Various dropdowns across portals</td>
+</tr>
+<tr>
+<td><strong>A product</strong></td>
+<td>PRODASH_MATRIX -&gt; Products tab</td>
+<td><code>products/{id}</code></td>
+<td>Product pickers in QUE, NBX</td>
+</tr>
+<tr>
+<td><strong>A case/task</strong></td>
+<td>RAPID_FLOW</td>
+<td><code>case_tasks/{id}</code></td>
+<td>Tasks page</td>
+</tr>
+<tr>
+<td><strong>An opportunity</strong></td>
+<td>RAPID_FLOW</td>
+<td><code>opportunities/{id}</code></td>
+<td>Pipeline views</td>
+</tr>
+<tr>
+<td><strong>A comp grid</strong></td>
+<td>PRODASH_MATRIX -&gt; Comp tabs</td>
+<td><code>comp_grids/{type}/{id}</code></td>
+<td>CAM -&gt; Comp Grids</td>
+</tr>
+<tr>
+<td><strong>Book of Business</strong></td>
+<td>A column on the Clients tab</td>
+<td><code>client.book_of_business</code> field</td>
+<td>Contacts grid filter</td>
+</tr>
+<tr>
+<td><strong>Active Client File (ACF)</strong></td>
+<td>A Google Drive folder link in a cell</td>
+<td><code>client.gdrive_folder_url</code> field</td>
+<td>ACF icon on contacts grid</td>
+</tr>
+<tr>
+<td><strong>Org structure</strong></td>
+<td>RAPID_MATRIX -&gt; Org tab</td>
+<td><code>org/{unitId}</code></td>
+<td>Admin Panel -&gt; Org Chart</td>
+</tr>
+<tr>
+<td><strong>A tracker item (FORGE)</strong></td>
+<td>Didn't exist in Sheets</td>
+<td><code>tracker_items/{id}</code> + <code>sprints/{id}</code></td>
+<td>FORGE (the copper bug-report button)</td>
+</tr>
+<tr>
+<td><strong>An activity log entry</strong></td>
+<td>Didn't exist in Sheets</td>
+<td><code>activities/{id}</code></td>
+<td>Audit trail in Contact Detail</td>
+</tr>
+</tbody>
+</table>
+<h3 id="access-control-translation">Access Control Translation</h3>
+<table>
+<thead>
+<tr>
+<th>Sheets World</th>
+<th>Firestore World</th>
+<th>Who</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sheet protection: &quot;Only Josh and John can edit&quot;</td>
+<td><code>isExecutiveOrAbove()</code> rule</td>
+<td>Owner + Executive level users</td>
+</tr>
+<tr>
+<td>Sheet protection: &quot;Leaders can edit&quot;</td>
+<td><code>isLeaderOrAbove()</code> rule</td>
+<td>Owner + Executive + Leader level</td>
+</tr>
+<tr>
+<td>Sheet sharing: &quot;Anyone at RPI can view&quot;</td>
+<td><code>isRPIUser()</code> rule</td>
+<td>Any @retireprotected.com user</td>
+</tr>
+<tr>
+<td>Tab hidden from view</td>
+<td>Module permission in user profile</td>
+<td>User doesn't see the sidebar item at all</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="section-7-common-operations-translated">Section 7: Common Operations Translated</h2>
+<table>
+<thead>
+<tr>
+<th>What You Want To Do</th>
+<th>Sheets Way</th>
+<th>toMachina Way</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Find a client</strong></td>
+<td>Ctrl+F on the Clients tab</td>
+<td>Search bar on <code>/contacts</code> or global search</td>
+</tr>
+<tr>
+<td><strong>Add a new client</strong></td>
+<td>Type in a new row at the bottom</td>
+<td>Quick Intake button or <code>/intake</code> page</td>
+</tr>
+<tr>
+<td><strong>Update a client field</strong></td>
+<td>Click the cell, type, press Enter</td>
+<td>Click the field on Contact Detail, edit, click Save</td>
+</tr>
+<tr>
+<td><strong>See all accounts for a client</strong></td>
+<td>Filter Accounts tab by client_id</td>
+<td>Click the client -&gt; Accounts tab (they're right there, no filtering needed)</td>
+</tr>
+<tr>
+<td><strong>See communication history</strong></td>
+<td>Check RAPID_COMMS logs (good luck)</td>
+<td>Click the client -&gt; Communications tab, or open CommsModule</td>
+</tr>
+<tr>
+<td><strong>Run a report</strong></td>
+<td>Pivot table or custom GAS function</td>
+<td>Command Center / CAM Dashboard / ATLAS</td>
+</tr>
+<tr>
+<td><strong>Send a campaign</strong></td>
+<td>C3 GAS engine (pray it doesn't timeout)</td>
+<td>C3 Manager -&gt; select audience -&gt; schedule send</td>
+</tr>
+<tr>
+<td><strong>Send a text/email</strong></td>
+<td>RAPID_COMMS (or GHL)</td>
+<td>Communications Module -&gt; compose -&gt; send</td>
+</tr>
+<tr>
+<td><strong>Check who has access</strong></td>
+<td>Look at Sheet sharing settings</td>
+<td>Admin Panel -&gt; Team Config</td>
+</tr>
+<tr>
+<td><strong>Change someone's permissions</strong></td>
+<td>Edit Sheet protection</td>
+<td>Admin Panel -&gt; edit user -&gt; set level + module permissions</td>
+</tr>
+<tr>
+<td><strong>Import data</strong></td>
+<td>RAPID_IMPORT (GAS triggers, manual runs)</td>
+<td>Import API route or intake Cloud Functions (automatic)</td>
+</tr>
+<tr>
+<td><strong>See pipeline status</strong></td>
+<td>Check the pipeline tab, count rows per stage</td>
+<td>Pipeline Kanban board (drag cards between columns)</td>
+</tr>
+<tr>
+<td><strong>Build a new pipeline</strong></td>
+<td>Create a new tab, add columns, pray</td>
+<td>Pipeline Studio (visual builder, point and click)</td>
+</tr>
+<tr>
+<td><strong>Track a bug or feature request</strong></td>
+<td>Tell Josh on Slack, hope he remembers</td>
+<td>Click the copper FORGE button -&gt; describe it -&gt; submit</td>
+</tr>
+<tr>
+<td><strong>See what data sources exist</strong></td>
+<td>Ask Josh, or dig through RAPID_IMPORT</td>
+<td>ATLAS Registry (every source listed with status)</td>
+</tr>
+<tr>
+<td><strong>Check commission analytics</strong></td>
+<td>Pivot table on Revenue tab</td>
+<td>CAM Dashboard (charts, grids, drill-down)</td>
+</tr>
+<tr>
+<td><strong>Export data</strong></td>
+<td>Download tab as CSV</td>
+<td>Export button on any grid (coming) or BigQuery</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="section-8-glossary">Section 8: Glossary</h2>
+<p>Quick reference. Alphabetical. Ctrl+F friendly.</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>What It Actually Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API</strong></td>
+<td>The middleman between the portal (what you see) and the database (where data lives). Like RAPID_API but faster and on Cloud Run.</td>
+</tr>
+<tr>
+<td><strong>App</strong></td>
+<td>A standalone tool with its own brand identity. Looks the same in every portal. Examples: FORGE, Pipeline Studio, ATLAS, C3.</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>Authentication -- proving you are who you say you are. You sign in with your @retireprotected.com Google account.</td>
+</tr>
+<tr>
+<td><strong>Batch write</strong></td>
+<td>Updating many records at once. Like selecting 500 rows in Sheets and changing a column value, but the system does it in one atomic operation.</td>
+</tr>
+<tr>
+<td><strong>BigQuery</strong></td>
+<td>Google's analytics database. Same one you already know. Data flows from Firestore to BigQuery automatically now.</td>
+</tr>
+<tr>
+<td><strong>Build</strong></td>
+<td>Converting the code into something the browser/server can run. Like compiling. You don't need to know more than that.</td>
+</tr>
+<tr>
+<td><strong>CI</strong></td>
+<td>Continuous Integration. Automated checks that run every time code is pushed. If any check fails, the code doesn't deploy. It's the bouncer at the door.</td>
+</tr>
+<tr>
+<td><strong>Cloud Function</strong></td>
+<td>A trigger that fires automatically when something happens. Like a GAS <code>onEdit</code> trigger, but for Firestore or file uploads.</td>
+</tr>
+<tr>
+<td><strong>Cloud Run</strong></td>
+<td>A server that runs our API. Like a GAS web app but it doesn't time out, doesn't have user limits, and scales automatically.</td>
+</tr>
+<tr>
+<td><strong>Collection</strong></td>
+<td>A group of similar records. Like a Sheet tab. <code>clients</code> is a collection. <code>users</code> is a collection.</td>
+</tr>
+<tr>
+<td><strong>Commit</strong></td>
+<td>Saving a snapshot of code changes. Like hitting &quot;Save&quot; but it also records WHO changed WHAT and WHEN.</td>
+</tr>
+<tr>
+<td><strong>Component</strong></td>
+<td>A reusable UI building block. A button, a table, a form, a card. Built once, used across all portals.</td>
+</tr>
+<tr>
+<td><strong>Deploy</strong></td>
+<td>Pushing code to production so users can see the changes. In toMachina, push to <code>main</code> branch and it auto-deploys.</td>
+</tr>
+<tr>
+<td><strong>Document</strong></td>
+<td>One record in Firestore. Like one row in a Sheet. A client document, a user document, an account document.</td>
+</tr>
+<tr>
+<td><strong>Entitlements</strong></td>
+<td>What a logged-in user is allowed to DO. Not just &quot;can they get in&quot; but &quot;can they see the Admin panel? Can they edit comp grids?&quot;</td>
+</tr>
+<tr>
+<td><strong>Env var</strong></td>
+<td>Environment variable. A secret value (like an API key) stored securely on the server, not in the code. Like Script Properties in GAS.</td>
+</tr>
+<tr>
+<td><strong>Field</strong></td>
+<td>One piece of data on a document. Like a column. <code>first_name</code>, <code>phone</code>, <code>status</code> are all fields.</td>
+</tr>
+<tr>
+<td><strong>Firestore</strong></td>
+<td>Google's NoSQL database. The new MATRIX. Faster, scales infinitely, supports real-time updates.</td>
+</tr>
+<tr>
+<td><strong>FK (Foreign Key)</strong></td>
+<td>A field that points to a record in another collection. Like a <code>client_id</code> column in the Accounts tab that points back to the Clients tab.</td>
+</tr>
+<tr>
+<td><strong>Hook</strong></td>
+<td>A rule that runs automatically. Hookify enforces coding standards. Think of it as the immune system checking for infections before code ships.</td>
+</tr>
+<tr>
+<td><strong>Module</strong></td>
+<td>A feature area inside a portal. Takes on the portal's brand colors. Examples: Communications, Admin, MyRPI, RPI Connect.</td>
+</tr>
+<tr>
+<td><strong>Monorepo</strong></td>
+<td>One repository (code storage) for the entire platform. All 3 portals, all packages, all services -- one place.</td>
+</tr>
+<tr>
+<td><strong>Next.js</strong></td>
+<td>The framework that builds the portal websites. It's what makes ProDashX, RIIMO, and SENTINEL actual web applications instead of spreadsheets.</td>
+</tr>
+<tr>
+<td><strong>Package</strong></td>
+<td>A shared code library used by multiple apps. <code>packages/core</code> = business logic. <code>packages/ui</code> = shared components. <code>packages/auth</code> = login system.</td>
+</tr>
+<tr>
+<td><strong>PR (Pull Request)</strong></td>
+<td>A request to review code before it goes to production. Someone proposes changes, someone else approves, then it merges.</td>
+</tr>
+<tr>
+<td><strong>Push</strong></td>
+<td>Sending committed code to the remote repository (GitHub). When you push to <code>main</code>, it triggers auto-deploy.</td>
+</tr>
+<tr>
+<td><strong>Query</strong></td>
+<td>A filter + sort on a collection. &quot;Give me all clients where status = Active, sorted by last_name.&quot; Same as a filter view on a Sheet tab.</td>
+</tr>
+<tr>
+<td><strong>React</strong></td>
+<td>The UI library that builds the interactive screens. It's what makes buttons click, forms submit, and data tables sort.</td>
+</tr>
+<tr>
+<td><strong>Route</strong></td>
+<td>A URL path that shows a specific page. <code>/contacts</code> is a route. <code>/admin</code> is a route. <code>/modules/forge</code> is a route. Each route = one screen.</td>
+</tr>
+<tr>
+<td><strong>Subcollection</strong></td>
+<td>A collection that lives INSIDE a document. Accounts live inside clients. Communications live inside clients. Like a tab nested inside a row.</td>
+</tr>
+<tr>
+<td><strong>Toast</strong></td>
+<td>A brief popup message. &quot;Saved successfully!&quot; or &quot;Error: phone number required.&quot; Shows for 3-5 seconds and disappears.</td>
+</tr>
+<tr>
+<td><strong>Turborepo</strong></td>
+<td>The tool that manages the monorepo. Makes sure packages build in the right order. You never interact with it directly.</td>
+</tr>
+<tr>
+<td><strong>Type-check</strong></td>
+<td>Automated verification that all the code is correct -- variables match their expected types, functions receive the right inputs. Like spell-check but for code. Must pass 13/13 workspaces before deploy.</td>
+</tr>
+<tr>
+<td><strong>TypeScript</strong></td>
+<td>JavaScript with type-checking. It catches errors before the code runs instead of after. Every file in toMachina is TypeScript.</td>
+</tr>
+<tr>
+<td><strong>UUID</strong></td>
+<td>Universally Unique Identifier. A random string like <code>f47ac10b-58cc-4372-a567-0e02b2c3d479</code> that identifies a record. Unlike row numbers, UUIDs never change even if you sort, filter, or delete other records.</td>
+</tr>
+<tr>
+<td><strong>Worktree</strong></td>
+<td>An isolated copy of the codebase for building features without affecting the main code. Like making a copy of a Sheet to test changes before applying them to the real one.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="quick-reference-card">Quick Reference Card</h2>
+<p><strong>When someone says...</strong> -&gt; <strong>They mean...</strong></p>
+<table>
+<thead>
+<tr>
+<th>They Say</th>
+<th>They Mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;Check the collection&quot;</td>
+<td>Look at the Firestore equivalent of a Sheet tab</td>
+</tr>
+<tr>
+<td>&quot;That document is missing a field&quot;</td>
+<td>A record is missing data in one column</td>
+</tr>
+<tr>
+<td>&quot;The query is slow&quot;</td>
+<td>The filter view takes too long to load</td>
+</tr>
+<tr>
+<td>&quot;The API returned an error&quot;</td>
+<td>The middleman between the screen and the database choked</td>
+</tr>
+<tr>
+<td>&quot;The build failed&quot;</td>
+<td>The code has an error and can't deploy -- nothing is broken in production</td>
+</tr>
+<tr>
+<td>&quot;CI is red&quot;</td>
+<td>The automated checks found a problem -- deploy is blocked until it's fixed</td>
+</tr>
+<tr>
+<td>&quot;Push to main&quot;</td>
+<td>Send the code to production (auto-deploys)</td>
+</tr>
+<tr>
+<td>&quot;The component re-renders&quot;</td>
+<td>A piece of the screen refreshes/redraws (usually a performance conversation)</td>
+</tr>
+<tr>
+<td>&quot;That's a subcollection&quot;</td>
+<td>That data lives inside another record (like accounts inside a client)</td>
+</tr>
+<tr>
+<td>&quot;Add a route&quot;</td>
+<td>Create a new page/screen at a new URL</td>
+</tr>
+<tr>
+<td>&quot;Wire it up&quot;</td>
+<td>Connect the UI to real data (replace mock/fake data with actual database calls)</td>
+</tr>
+<tr>
+<td>&quot;Seed the database&quot;</td>
+<td>Load initial data into Firestore (like pre-filling a Sheet with starter rows)</td>
+</tr>
+<tr>
+<td>&quot;The bridge is off&quot;</td>
+<td>Sheets are no longer receiving copies of Firestore changes</td>
+</tr>
+<tr>
+<td>&quot;Spawn a builder&quot;</td>
+<td>Launch a parallel agent to work on a specific piece of the build</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><em>This guide is for JDM. If you're an engineer, you already know this stuff. Go read CLAUDE.md.</em></p>
+<p><em>#RunningOurOwnRACE</em></p>
+
+</body>
+</html>

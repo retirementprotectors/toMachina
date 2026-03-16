@@ -1,4 +1,5 @@
 'use client'
+// Verified 2026-03-16: No NPI/NPN confusion. Agent sections (Phase 2) will add NPN display here.
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { QRCodeSVG as QRCode } from 'qrcode.react'

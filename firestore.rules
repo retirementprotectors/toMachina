@@ -129,11 +129,15 @@ service cloud.firestore {
     // ----------------------------------------------------------------
     // Daily work collections — all RPI users
     // ----------------------------------------------------------------
+    // @deprecated — agents collection is being replaced by users (is_agent: true) + producers.
+    // Retained during transition for backward compatibility.
     match /agents/{agentId} {
       allow read, write: if isRPIUser();
     }
+    // External producers (recruited via DAVID/SENTINEL). Replaces internal entries from agents.
     match /producers/{producerId} {
-      allow read, write: if isRPIUser();
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
     match /opportunities/{oppId} {
       allow read, write: if isRPIUser();
@@ -193,7 +197,23 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
-    // ATLAS — leader+ writes
+    // ATLAS — source + tool registries (top-level collections)
+    // ----------------------------------------------------------------
+    match /source_registry/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /tool_registry/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /atlas_audit/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // ATLAS — subcollections (formats, introspect_runs)
     // ----------------------------------------------------------------
     match /atlas/{subcol}/{docId} {
       allow read: if isRPIUser();

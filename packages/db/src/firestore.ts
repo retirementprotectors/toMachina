@@ -20,7 +20,9 @@ export const db = {} as Firestore // placeholder — use getDb() instead
 
 export const collections = {
   clients: () => collection(getDb(), 'clients'),
+  /** @deprecated Use `producers` for external producers and resolve internal agents from `users` (is_agent: true). Retained during transition. */
   agents: () => collection(getDb(), 'agents'),
+  /** External producers (recruited via DAVID/SENTINEL). Replaces internal team entries formerly in agents. */
   producers: () => collection(getDb(), 'producers'),
   opportunities: () => collection(getDb(), 'opportunities'),
   revenue: () => collection(getDb(), 'revenue'),

@@ -95,20 +95,21 @@ export const WIRE_DEFINITIONS: WireDefinition[] = [
       { type: 'MATRIX_TAB', name: '_CLIENT_MASTER', detail: 'Validation flags set' },
     ],
   },
-  {
-    wire_id: 'WIRE_NPI_LOOKUP',
-    name: 'Agent NPI Lookup',
-    product_line: 'ALL',
-    data_domain: 'LICENSING',
-    stages: [
-      { type: 'MATRIX_TAB', name: '_PRODUCER_MASTER', detail: 'Agent record needing NPI' },
-      { type: 'MCP_TOOL', name: 'npi_search', server: 'rpi-healthcare', detail: 'Search NPI registry by name' },
-      { type: 'MCP_TOOL', name: 'npi_lookup', server: 'rpi-healthcare', detail: 'Get full provider details' },
-      { type: 'API_ENDPOINT', name: 'PATCH /api/agents/:id', project: 'services/api', detail: 'Update agent with NPI data' },
-      { type: 'MATRIX_TAB', name: '_PRODUCER_MASTER', detail: 'Agent NPI populated' },
-      { type: 'FRONTEND', name: 'Producers', platform: 'SENTINEL', view: '/producers', detail: 'NPI visible in producer card' },
-    ],
-  },
+  // WIRE_NPI_LOOKUP — REMOVED 2026-03-15.
+  // NPI (National Provider Identifier) is for HEALTHCARE PROVIDERS (doctors, nurses, facilities).
+  // NPN (National Producer Number) is for INSURANCE PRODUCERS (agents, brokers).
+  // These are completely different registries:
+  //   NPI → CMS NPPES → used in QUE-Medicare client workflows
+  //   NPN → NIPR (state insurance depts) → used in producer licensing/contracting (LC3)
+  // The old wire incorrectly used NPI tools to look up producers by NPN. It never worked
+  // because producers aren't healthcare providers.
+  //
+  // TODO: Replace with WIRE_NIPR_LOOKUP — a proper producer licensing wire that:
+  //   1. Takes NPN from producer/agent record
+  //   2. Queries NIPR PDB (Producer Database) for licensing status
+  //   3. Returns: state licenses, carrier appointments, license expiration dates
+  //   4. Updates LC3 subcollection on the user doc (when LC3 module is built)
+  //   Source: https://npn-lookup.app.nipr.com/npn-lookup/PacNpnSearch.htm
   {
     wire_id: 'WIRE_MAPD_QUOTING',
     name: 'Medicare Plan Quoting',
@@ -159,7 +160,6 @@ export const WIRE_DEFINITIONS: WireDefinition[] = [
       { type: 'EXTERNAL', name: 'Agent Application', detail: 'New agent onboarding or update' },
       { type: 'FRONTEND', name: 'DAVID HUB', platform: 'SENTINEL', view: '/modules/david-hub', detail: 'Agent entered via SENTINEL' },
       { type: 'API_ENDPOINT', name: 'POST /api/agents', project: 'services/api', detail: 'Create agent record' },
-      { type: 'MCP_TOOL', name: 'npi_search', server: 'rpi-healthcare', detail: 'Auto-lookup NPI' },
       { type: 'MATRIX_TAB', name: '_PRODUCER_MASTER', detail: 'Agent record created' },
       { type: 'FRONTEND', name: 'Producers', platform: 'SENTINEL', view: '/producers', detail: 'Agent visible in SENTINEL' },
     ],
@@ -232,6 +232,22 @@ export const WIRE_DEFINITIONS: WireDefinition[] = [
       { type: 'FRONTEND', name: 'DEX', platform: 'All Portals', view: '/modules/dex', detail: 'Document center' },
       { type: 'FRONTEND', name: 'ATLAS', platform: 'All Portals', view: '/modules/atlas', detail: 'Source intelligence' },
       { type: 'FRONTEND', name: 'Command Center', platform: 'All Portals', view: '/modules/command-center', detail: 'Leadership dashboard' },
+    ],
+  },
+  {
+    wire_id: 'WIRE_MEDICARE_ACCOUNTS',
+    name: 'Medicare Account Processing',
+    product_line: 'MAPD',
+    data_domain: 'ACCOUNTS',
+    stages: [
+      { type: 'EXTERNAL', name: 'Carrier Medicare Export', detail: 'CSV from carrier/IMO with Medicare account data' },
+      { type: 'API_ENDPOINT', name: 'POST /api/atlas/introspect', project: 'services/api', detail: 'Column mapping via introspection engine' },
+      { type: 'SCRIPT', name: 'normalizeData()', project: 'packages/core', detail: 'Apply field normalizers to all mapped fields' },
+      { type: 'API_ENDPOINT', name: 'POST /api/import/validate-full', project: 'services/api', detail: 'Dry run validation before commit' },
+      { type: 'SCRIPT', name: 'matchClient() + matchAccount()', project: 'packages/core', detail: 'Dedup against existing records' },
+      { type: 'API_ENDPOINT', name: 'POST /api/import/accounts', project: 'services/api', detail: 'Batch write Medicare accounts' },
+      { type: 'MATRIX_TAB', name: '_ACCOUNT_MEDICARE', detail: 'account_category: medicare' },
+      { type: 'FRONTEND', name: 'CLIENT360 Accounts', platform: 'ProDashX', view: '/contacts/[id]', detail: 'Medicare accounts visible in client profile' },
     ],
   },
   {

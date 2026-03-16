@@ -163,6 +163,8 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
   const docPath = `clients/${clientId}`
 
   const [agentOptions, setAgentOptions] = useState<{ label: string; value: string }[]>([])
+  // Lookup map: user_id UUID -> "First Last" for resolving the current agent display name
+  const [userNameMap, setUserNameMap] = useState<Map<string, string>>(new Map())
   // Item 3 (FIX-8): Dynamic BoB options fetched from Firestore
   const [bobOptions, setBobOptions] = useState<{ label: string; value: string }[]>([])
 
@@ -170,24 +172,30 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
     async function fetchUsers() {
       try {
         const snap = await getDocs(collection(getDb(), 'users'))
-        const SALES_DIVISIONS = ['Sales', 'Medicare', 'Retirement']
-        const opts = snap.docs
-          .filter((d) => {
-            const data = d.data() as Record<string, unknown>
-            const status = String(data.status || '').toLowerCase()
-            const division = String(data.division || '')
-            return status === 'active' && SALES_DIVISIONS.includes(division)
-          })
-          .map((d) => {
-            const data = d.data() as Record<string, unknown>
-            const last = String(data.last_name || '').trim()
-            const first = String(data.first_name || '').trim()
-            const email = String(data.email || d.id).trim()
-            const label = first && last ? `${first} ${last}` : first || last || email
-            return { label, value: email }
-          })
+        const nameMap = new Map<string, string>()
+        const opts: { label: string; value: string }[] = []
+        for (const d of snap.docs) {
+          const data = d.data() as Record<string, unknown>
+          const last = String(data.last_name || '').trim()
+          const first = String(data.first_name || '').trim()
+          const userId = String(data.user_id || '').trim()
+          const email = String(data.email || d.id).trim()
+          const label = first && last ? `${first} ${last}` : first || last || email
+
+          // Build name map for display resolution (all users)
+          if (userId) nameMap.set(userId, label)
+          nameMap.set(email, label) // fallback by email/doc ID
+
+          // Agent dropdown: only users with is_agent: true and active status
+          const isAgent = Boolean(data.is_agent)
+          const status = String(data.status || '').toLowerCase()
+          if (isAgent && status === 'active' && userId) {
+            opts.push({ label, value: userId })
+          }
+        }
         opts.sort((a, b) => a.label.localeCompare(b.label))
         setAgentOptions(opts)
+        setUserNameMap(nameMap)
       } catch {
         // Non-critical — agent dropdown stays empty
       }
@@ -328,11 +336,16 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
           />
           <InlineField
             label="Agent"
-            value={str(client.agent_name)}
-            fieldKey="agent_name"
+            value={str(client.assigned_user_id || client.agent_id || '')}
+            fieldKey="assigned_user_id"
             docPath={docPath}
             type="select"
             options={agentOptions}
+            formatDisplay={(val) => {
+              if (!val) return ''
+              // Resolve UUID or legacy ID to display name
+              return userNameMap.get(val) || str(client.agent_name) || val
+            }}
           />
           <InlineField
             label="Book of Business"

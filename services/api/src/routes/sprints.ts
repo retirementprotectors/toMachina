@@ -39,6 +39,8 @@ sprintRoutes.post('/', async (req: Request, res: Response) => {
     const sprintData = {
       name: req.body.name,
       description: req.body.description || '',
+      discovery_url: req.body.discovery_url || null,
+      plan_link: req.body.plan_link || null,
       item_ids: req.body.item_ids || [],
       status: 'active',
       created_at: now,
@@ -444,6 +446,169 @@ function showTab(key) {
   }
 })
 
+// POST /import-discovery — parse a discovery markdown doc into sprint + tracker items
+sprintRoutes.post('/import-discovery', async (req: Request, res: Response) => {
+  try {
+    const { content, discovery_url, dry_run } = req.body as { content: string; discovery_url?: string; dry_run?: boolean }
+    if (!content) { res.status(400).json(errorResponse('content (markdown) is required')); return }
+
+    const db = getFirestore()
+    const now = new Date().toISOString()
+    const userEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+
+    // --- Parse markdown ---
+
+    // Extract sprint name from title: "# DISCOVERY HANDOFF: <name>"
+    const titleMatch = content.match(/^#\s+(?:DISCOVERY HANDOFF:\s*)?(.+)/m)
+    const sprintName = titleMatch ? titleMatch[1].trim() : 'Imported Discovery'
+
+    // Extract description from first paragraph after title (before next ##)
+    const descMatch = content.match(/^#\s+.+\n+(?:\*\*.+\*\*\n+)*(.+?)(?=\n##|\n---)/ms)
+    const sprintDesc = descMatch ? descMatch[1].trim().substring(0, 500) : ''
+
+    // Extract deliverables from "### Deliverable N:" sections
+    const deliverableRegex = /###\s+Deliverable\s+\d+:\s+(.+)\n([\s\S]*?)(?=###\s+Deliverable|\n##\s+\d+\.|\n---\s*$)/g
+    const items: Array<Record<string, unknown>> = []
+    let match
+
+    while ((match = deliverableRegex.exec(content)) !== null) {
+      const deliverableName = match[1].trim()
+      const deliverableBody = match[2]
+
+      // Extract **What:** as description
+      const whatMatch = deliverableBody.match(/\*\*What:\*\*\s*(.+?)(?=\n\*\*|\n\n)/s)
+      const description = whatMatch ? whatMatch[1].trim() : ''
+
+      // Extract **Where:** for section
+      const whereMatch = deliverableBody.match(/\*\*Where:\*\*\s*(.+?)(?=\n\*\*|\n\n)/s)
+      const section = whereMatch ? whereMatch[1].trim().substring(0, 200) : ''
+
+      // Determine portal + scope from content
+      const isInfra = /wire|api|firestore|backend|engine|collection/i.test(deliverableName + description)
+      const isShared = /ui|frontend|screen|module|drop.zone|review/i.test(deliverableName + description)
+      const portal = isInfra ? 'INFRA' : isShared ? 'SHARED' : 'INFRA'
+      const scope = isInfra ? 'Data' : 'App'
+
+      // Extract sub-items: "**Layer N —", "**Screen N —", or bold sub-headers
+      const subItemRegex = /\*\*(?:Layer|Screen|Step)\s+\d+\s*[—–-]\s*(.+?)\*\*/g
+      const subItems: string[] = []
+      let subMatch
+      while ((subMatch = subItemRegex.exec(deliverableBody)) !== null) {
+        subItems.push(subMatch[1].trim())
+      }
+
+      if (subItems.length > 0) {
+        // Create one item per sub-item, grouped under the deliverable as component
+        for (const subItem of subItems) {
+          // Extract description for sub-item: bullet points after the sub-header
+          const subPattern = new RegExp(`\\*\\*(?:Layer|Screen|Step)\\s+\\d+\\s*[—–-]\\s*${subItem.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*\\n([\\s\\S]*?)(?=\\*\\*(?:Layer|Screen|Step)|$)`)
+          const subDescMatch = deliverableBody.match(subPattern)
+          const subDesc = subDescMatch
+            ? subDescMatch[1].split('\n').filter(l => l.trim().startsWith('-')).map(l => l.trim().replace(/^-\s*/, '')).join('. ').substring(0, 500)
+            : ''
+
+          items.push({
+            title: subItem,
+            description: subDesc,
+            portal: /ui|frontend|review|drop|report/i.test(subItem) ? 'SHARED' : portal,
+            scope: /ui|frontend|review|drop|report/i.test(subItem) ? 'App' : scope,
+            component: deliverableName.replace(/\s*\(.+\)\s*$/, ''),
+            section: '',
+            type: 'idea',
+            discovery_url: discovery_url || null,
+          })
+        }
+      } else {
+        // No sub-items — create one item for the whole deliverable
+        items.push({
+          title: deliverableName,
+          description,
+          portal,
+          scope,
+          component: deliverableName.replace(/\s*\(.+\)\s*$/, ''),
+          section,
+          type: 'idea',
+          discovery_url: discovery_url || null,
+        })
+      }
+    }
+
+    // --- Dry run: return preview ---
+    if (dry_run) {
+      res.json(successResponse({
+        sprint: { name: sprintName, description: sprintDesc, discovery_url: discovery_url || null },
+        sprint_name: sprintName,
+        items,
+        item_count: items.length,
+        items_created: items.length,
+      }))
+      return
+    }
+
+    // --- Commit: create sprint + items ---
+
+    // Get next TRK number
+    const lastSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'desc').limit(1).get()
+    let nextNum = 1
+    if (!lastSnap.empty) {
+      const lastId = (lastSnap.docs[0].data().item_id || 'TRK-000') as string
+      nextNum = parseInt(lastId.replace('TRK-', ''), 10) + 1
+    }
+
+    // Create tracker items
+    const itemIds: string[] = []
+    const batch = db.batch()
+    for (const item of items) {
+      const itemId = `TRK-${String(nextNum).padStart(3, '0')}`
+      const ref = db.collection(TRACKER_COLLECTION).doc(itemId)
+      batch.set(ref, {
+        ...item,
+        item_id: itemId,
+        status: 'in_sprint',
+        plan_link: null,
+        notes: '',
+        created_at: now,
+        updated_at: now,
+        _created_by: userEmail,
+      })
+      itemIds.push(itemId)
+      nextNum++
+    }
+
+    // Create sprint
+    const sprintRef = db.collection(SPRINT_COLLECTION).doc()
+    batch.set(sprintRef, {
+      name: sprintName,
+      description: sprintDesc,
+      discovery_url: discovery_url || null,
+      plan_link: null,
+      item_ids: itemIds,
+      status: 'active',
+      created_at: now,
+      updated_at: now,
+      _created_by: userEmail,
+    })
+
+    // Link items to sprint
+    for (const itemId of itemIds) {
+      batch.update(db.collection(TRACKER_COLLECTION).doc(itemId), { sprint_id: sprintRef.id })
+    }
+
+    await batch.commit()
+
+    res.status(201).json(successResponse({
+      sprint_id: sprintRef.id,
+      sprint_name: sprintName,
+      discovery_url: discovery_url || null,
+      items_created: itemIds.length,
+      item_ids: itemIds,
+    }))
+  } catch (err) {
+    console.error('POST /api/sprints/import-discovery error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
 // GET /:id/prompt — generate markdown prompt from sprint items
 sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
   try {
@@ -478,12 +643,14 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     if (phase === 'building') {
       md += `# Build — ${sprint.name}\n`
       md += `> Sprint is in **Building** phase. The plan has been approved. Execute it.\n`
+      if (sprint.discovery_url) md += `> **Discovery:** ${sprint.discovery_url}\n`
       if (sprint.plan_link) md += `> **Plan:** ${sprint.plan_link}\n`
       if (sprint.description) md += `\n${sprint.description}\n`
     } else {
       md += `# ${sprint.name}`
       if (sprint.description) md += ` — ${sprint.description}`
       md += '\n'
+      if (sprint.discovery_url) md += `> **Discovery Document:** ${sprint.discovery_url}\n`
     }
 
     // Separate questions from build items

@@ -10,8 +10,18 @@ import {
   param,
   writeThroughBridge,
 } from '../lib/helpers.js'
-import { randomUUID } from 'crypto'
+import { randomUUID, createHash } from 'crypto'
 import { getRecentRuns, type ImportRunRecord } from '../lib/import-tracker.js'
+import { detectCarrierFormat } from '../lib/carrier-formats.js'
+import {
+  hashHeaderFingerprint,
+  profileCsvColumns,
+  profileCollection,
+  matchProfiles,
+  matchFingerprint,
+  type AtlasFormat,
+  type ColumnMapping,
+} from '@tomachina/core'
 
 export const atlasRoutes = Router()
 
@@ -108,17 +118,10 @@ const WIRE_DEFINITIONS = [
       { type: 'MATRIX_TAB', name: '_CLIENT_MASTER', platform: 'RAPID' },
     ],
   },
-  {
-    wire_id: 'WIRE_NPI_LOOKUP', name: 'NPI Verification Pipeline',
-    product_line: 'ALL', data_domain: 'LICENSING',
-    stages: [
-      { type: 'FRONTEND', name: 'Agent NPN Input', view: 'producers', platform: 'SENTINEL' },
-      { type: 'MCP_TOOL', name: 'validate_npi', server: 'rpi-healthcare' },
-      { type: 'MCP_TOOL', name: 'lookup_npi', server: 'rpi-healthcare' },
-      { type: 'MATRIX_TAB', name: '_AGENT_MASTER', platform: 'RAPID' },
-      { type: 'FRONTEND', name: 'Producer Card', view: 'producers', platform: 'SENTINEL' },
-    ],
-  },
+  // WIRE_NPI_LOOKUP — REMOVED 2026-03-15.
+  // NPI ≠ NPN. NPI = healthcare providers (CMS NPPES). NPN = insurance producers (NIPR).
+  // TODO: Replace with WIRE_NIPR_LOOKUP for producer licensing via NIPR PDB.
+  // See packages/core/src/atlas/wires.ts for full explanation.
   {
     wire_id: 'WIRE_MAPD_QUOTING', name: 'Medicare Plan Quoting',
     product_line: 'MAPD', data_domain: 'ACCOUNTS',
@@ -207,6 +210,20 @@ const WIRE_DEFINITIONS = [
       { type: 'GAS_FUNCTION', name: 'processCarrierSeed', project: 'RAPID_IMPORT' },
       { type: 'MATRIX_TAB', name: '_CARRIER_MASTER', platform: 'RAPID' },
       { type: 'FRONTEND', name: 'Carrier Grid', view: 'carriers', platform: 'ALL' },
+    ],
+  },
+  {
+    wire_id: 'WIRE_MEDICARE_ACCOUNTS', name: 'Medicare Account Pipeline',
+    product_line: 'MAPD', data_domain: 'ACCOUNTS',
+    stages: [
+      { type: 'EXTERNAL', name: 'Carrier Medicare Export', detail: 'CSV from carrier/IMO' },
+      { type: 'API_ENDPOINT', name: 'POST /api/atlas/introspect', detail: 'Column mapping' },
+      { type: 'SCRIPT', name: 'normalizeData', detail: 'Field normalization' },
+      { type: 'API_ENDPOINT', name: 'POST /api/import/validate-full', detail: 'Dry run' },
+      { type: 'SCRIPT', name: 'matchClient + matchAccount', detail: 'Dedup' },
+      { type: 'API_ENDPOINT', name: 'POST /api/import/accounts', detail: 'Batch write' },
+      { type: 'MATRIX_TAB', name: '_ACCOUNT_MEDICARE', platform: 'RAPID' },
+      { type: 'FRONTEND', name: 'CLIENT360 Accounts', view: 'contacts', platform: 'PRODASH' },
     ],
   },
 ]
@@ -987,6 +1004,278 @@ atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) =
     res.json(successResponse({ id, status: 'running', retried_at: now }))
   } catch (err) {
     console.error('POST /api/atlas/import-runs/:id/retry error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// FORMAT LIBRARY — CRUD for saved carrier/export formats
+// ============================================================================
+
+/**
+ * GET /api/atlas/formats
+ * List saved formats. Filter by carrier_name, default_category.
+ */
+atlasRoutes.get('/formats', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    let query: Query<DocumentData> = db.collection('atlas').doc('formats').collection('items')
+    if (req.query.carrier_name) query = query.where('carrier_name', '==', req.query.carrier_name)
+    if (req.query.default_category) query = query.where('default_category', '==', req.query.default_category)
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
+    const snap = await query.orderBy('last_used_at', 'desc').limit(limit).get()
+    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    res.json(successResponse(data, { count: data.length }))
+  } catch (err) {
+    console.error('GET /api/atlas/formats error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/atlas/formats
+ * Create a new format in the library.
+ */
+atlasRoutes.post('/formats', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const now = new Date().toISOString()
+    const formatId = `FMT_${randomUUID().slice(0, 8)}`
+    const data = {
+      format_id: formatId,
+      ...req.body,
+      times_used: 0,
+      last_used_at: now,
+      created_at: now,
+      updated_at: now,
+    }
+    await db.collection('atlas').doc('formats').collection('items').doc(formatId).set(data)
+    res.status(201).json(successResponse({ id: formatId, ...data }))
+  } catch (err) {
+    console.error('POST /api/atlas/formats error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * PATCH /api/atlas/formats/:id
+ * Update a saved format.
+ */
+atlasRoutes.patch('/formats/:id', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const ref = db.collection('atlas').doc('formats').collection('items').doc(id)
+    const doc = await ref.get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Format not found')); return }
+    const updates = { ...req.body, updated_at: new Date().toISOString() }
+    await ref.update(updates)
+    res.json(successResponse({ id, updated_at: updates.updated_at }))
+  } catch (err) {
+    console.error('PATCH /api/atlas/formats/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// INTROSPECTION ENGINE — Column mapping + format detection
+// ============================================================================
+
+/**
+ * POST /api/atlas/introspect
+ * Main introspection endpoint. Accepts headers + sample_rows, returns column mappings.
+ * Tries: 1) fingerprint match, 2) carrier format detection, 3) full introspection.
+ */
+atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
+  try {
+    const { headers, sample_rows, target_category } = req.body as {
+      headers: string[]; sample_rows: Record<string, unknown>[]; target_category?: string
+    }
+    if (!headers || !Array.isArray(headers) || headers.length === 0) {
+      res.status(400).json(errorResponse('headers (string[]) is required')); return
+    }
+    if (!sample_rows || !Array.isArray(sample_rows) || sample_rows.length === 0) {
+      res.status(400).json(errorResponse('sample_rows (Record[]) is required')); return
+    }
+
+    const db = getFirestore()
+    const now = new Date().toISOString()
+    const fingerprint = hashHeaderFingerprint(headers)
+    const runId = `INTR_${randomUUID().slice(0, 8)}`
+
+    // 1. Check format library for fingerprint match
+    const fmtSnap = await db.collection('atlas').doc('formats').collection('items').get()
+    const savedFormats = fmtSnap.docs.map(d => d.data() as AtlasFormat)
+    const fpMatch = matchFingerprint(fingerprint, headers, savedFormats)
+
+    if (fpMatch && fpMatch.confidence === 100) {
+      // Exact match — return saved mapping
+      const mappings: ColumnMapping[] = headers.map(h => ({
+        csv_header: h,
+        firestore_field: fpMatch.format.column_map[h] || '',
+        confidence: fpMatch.format.column_map[h] ? 100 : 0,
+        status: fpMatch.format.column_map[h] ? 'auto' as const : 'unmapped' as const,
+        alternatives: [],
+      }))
+
+      const run = {
+        run_id: runId, format_id: fpMatch.format.format_id,
+        header_fingerprint: fingerprint, headers, target_category: target_category || fpMatch.format.default_category,
+        match_method: 'fingerprint_exact' as const, overall_confidence: 100,
+        column_mappings: mappings, triggered_by: 'api', created_at: now,
+      }
+      await db.collection('atlas').doc('introspect_runs').collection('items').doc(runId).set(run)
+
+      // Increment times_used
+      const fmtRef = db.collection('atlas').doc('formats').collection('items').doc(fpMatch.format.format_id)
+      await fmtRef.update({ times_used: (fpMatch.format.times_used || 0) + 1, last_used_at: now })
+
+      res.json(successResponse({
+        run_id: runId, match_method: 'fingerprint_exact', format_id: fpMatch.format.format_id,
+        overall_confidence: 100, column_mappings: mappings,
+        carrier_detection: { detected_carrier: fpMatch.format.carrier_name, carrier_confidence: 100, default_category: fpMatch.format.default_category },
+        sample_normalized: [],
+      }))
+      return
+    }
+
+    // 2. Try carrier format detection
+    const carrierMatch = detectCarrierFormat(headers)
+    if (carrierMatch) {
+      const mappings: ColumnMapping[] = headers.map(h => ({
+        csv_header: h,
+        firestore_field: carrierMatch.column_map[h] || '',
+        confidence: carrierMatch.column_map[h] ? 95 : 0,
+        status: (carrierMatch.column_map[h] ? 'auto' : 'unmapped') as 'auto' | 'unmapped',
+        alternatives: [],
+      }))
+      const overallConf = Math.round(mappings.filter(m => m.confidence > 0).length / mappings.length * 100)
+
+      const run = {
+        run_id: runId, format_id: null, header_fingerprint: fingerprint, headers,
+        target_category: target_category || carrierMatch.default_category,
+        match_method: 'carrier_detect' as const, overall_confidence: overallConf,
+        column_mappings: mappings, triggered_by: 'api', created_at: now,
+      }
+      await db.collection('atlas').doc('introspect_runs').collection('items').doc(runId).set(run)
+
+      res.json(successResponse({
+        run_id: runId, match_method: 'carrier_detect', format_id: null,
+        overall_confidence: overallConf, column_mappings: mappings,
+        carrier_detection: { detected_carrier: carrierMatch.carrier_name, carrier_confidence: overallConf, default_category: carrierMatch.default_category },
+        sample_normalized: [],
+      }))
+      return
+    }
+
+    // 3. Full introspection — sample collection docs and compare profiles
+    const category = target_category || 'medicare'
+    const collectionPath = 'clients' // Sample from clients collection
+    const sampleSnap = await db.collection(collectionPath).limit(50).get()
+    const sampleDocs = sampleSnap.docs.map(d => d.data() as Record<string, unknown>)
+
+    const csvProfiles = profileCsvColumns(headers, sample_rows)
+    const collectionProfiles = profileCollection(sampleDocs)
+
+    // Gather all carrier column maps for matching boost
+    const allCarrierMaps = savedFormats.map(f => f.column_map)
+    const mappings = matchProfiles(csvProfiles, collectionProfiles, allCarrierMaps)
+    const overallConf = mappings.length > 0
+      ? Math.round(mappings.reduce((s, m) => s + m.confidence, 0) / mappings.length)
+      : 0
+
+    const run = {
+      run_id: runId, format_id: fpMatch?.format.format_id || null,
+      header_fingerprint: fingerprint, headers, target_category: category,
+      match_method: (fpMatch ? 'fingerprint_partial' : 'full_introspect') as 'fingerprint_partial' | 'full_introspect',
+      overall_confidence: overallConf, column_mappings: mappings,
+      triggered_by: 'api', created_at: now,
+    }
+    await db.collection('atlas').doc('introspect_runs').collection('items').doc(runId).set(run)
+
+    res.json(successResponse({
+      run_id: runId, match_method: run.match_method,
+      format_id: fpMatch?.format.format_id || null,
+      overall_confidence: overallConf, column_mappings: mappings,
+      carrier_detection: { detected_carrier: null, carrier_confidence: 0, default_category: category },
+      sample_normalized: [],
+    }))
+  } catch (err) {
+    console.error('POST /api/atlas/introspect error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/atlas/introspect/confirm
+ * Confirm mappings from an introspect run + optionally save to format library.
+ */
+atlasRoutes.post('/introspect/confirm', async (req: Request, res: Response) => {
+  try {
+    const { run_id, confirmed_mappings, carrier_export_type, save_to_format_library } = req.body as {
+      run_id: string
+      confirmed_mappings: { csv_header: string; firestore_field: string }[]
+      carrier_export_type?: string
+      save_to_format_library?: boolean
+    }
+    if (!run_id) { res.status(400).json(errorResponse('run_id is required')); return }
+    if (!confirmed_mappings || !Array.isArray(confirmed_mappings)) {
+      res.status(400).json(errorResponse('confirmed_mappings is required')); return
+    }
+
+    const db = getFirestore()
+    const now = new Date().toISOString()
+
+    // Load the introspect run
+    const runRef = db.collection('atlas').doc('introspect_runs').collection('items').doc(run_id)
+    const runDoc = await runRef.get()
+    if (!runDoc.exists) { res.status(404).json(errorResponse('Introspect run not found')); return }
+    const runData = runDoc.data() as Record<string, unknown>
+
+    // Update run with confirmed mappings
+    const updatedMappings = confirmed_mappings.map(cm => ({
+      csv_header: cm.csv_header,
+      firestore_field: cm.firestore_field,
+      confidence: 100,
+      status: 'auto' as const,
+      alternatives: [],
+    }))
+    await runRef.update({ column_mappings: updatedMappings, updated_at: now })
+
+    let formatId: string | null = null
+
+    // Save to format library if requested
+    if (save_to_format_library !== false) {
+      formatId = `FMT_${randomUUID().slice(0, 8)}`
+      const columnMap: Record<string, string> = {}
+      for (const cm of confirmed_mappings) {
+        if (cm.firestore_field) columnMap[cm.csv_header] = cm.firestore_field
+      }
+      const formatData = {
+        format_id: formatId,
+        carrier_export_type: carrier_export_type || 'unknown',
+        carrier_name: '',
+        header_fingerprint: runData.header_fingerprint,
+        column_map: columnMap,
+        value_patterns: {},
+        dedup_keys: [],
+        default_category: runData.target_category || 'medicare',
+        times_used: 1,
+        last_used_at: now,
+        created_by: 'api',
+        created_at: now,
+        updated_at: now,
+      }
+      await db.collection('atlas').doc('formats').collection('items').doc(formatId).set(formatData)
+    }
+
+    res.json(successResponse({
+      format_id: formatId,
+      mappings_confirmed: confirmed_mappings.length,
+      ready_for_import: true,
+    }))
+  } catch (err) {
+    console.error('POST /api/atlas/introspect/confirm error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

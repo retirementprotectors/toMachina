@@ -9,6 +9,7 @@ import { requestLogger } from './middleware/request-logger.js'
 import { clientRoutes } from './routes/clients.js'
 import { accountRoutes } from './routes/accounts.js'
 import { agentRoutes } from './routes/agents.js'
+import { producerRoutes } from './routes/producers.js'
 import { revenueRoutes } from './routes/revenue.js'
 import { userRoutes } from './routes/users.js'
 import { healthRoutes } from './routes/health.js'
@@ -79,7 +80,8 @@ app.use('/api', auditMiddleware)
 // Route mounting: normalize body on write routes
 app.use('/api/clients', normalizeBody, clientRoutes)
 app.use('/api/accounts', normalizeBody, accountRoutes)
-app.use('/api/agents', normalizeBody, agentRoutes)
+app.use('/api/agents', normalizeBody, agentRoutes) // @deprecated — retained during transition
+app.use('/api/producers', normalizeBody, producerRoutes)
 app.use('/api/revenue', normalizeBody, revenueRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/opportunities', normalizeBody, opportunityRoutes)

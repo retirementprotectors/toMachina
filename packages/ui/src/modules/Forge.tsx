@@ -28,6 +28,7 @@ interface TrackerItem {
   type: string
   status: string
   sprint_id: string | null
+  discovery_url: string | null
   plan_link: string | null
   notes: string
   attachments?: Attachment[]
@@ -41,6 +42,7 @@ interface Sprint {
   name: string
   description: string
   status: string
+  discovery_url: string | null
   plan_link: string | null
   prompt_text: string
   created_by: string
@@ -206,7 +208,7 @@ export function Forge({ portal }: ForgeProps) {
   const [editItem, setEditItem] = useState<TrackerItem | null>(null)
   const [editForm, setEditForm] = useState<Partial<TrackerItem>>({})
   const [showCreateSprint, setShowCreateSprint] = useState(false)
-  const [sprintForm, setSprintForm] = useState({ name: '', description: '' })
+  const [sprintForm, setSprintForm] = useState({ name: '', description: '', discovery_url: '' })
   const [showPrompt, setShowPrompt] = useState(false)
   const [promptText, setPromptText] = useState('')
   const [promptSprintId, setPromptSprintId] = useState<string | null>(null)
@@ -221,6 +223,11 @@ export function Forge({ portal }: ForgeProps) {
   const [dedupSelections, setDedupSelections] = useState<Record<number, Record<string, number>>>({})
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [showDiscoveryImport, setShowDiscoveryImport] = useState(false)
+  const [discoveryContent, setDiscoveryContent] = useState('')
+  const [discoveryPreview, setDiscoveryPreview] = useState<Record<string, unknown> | null>(null)
+  const [discoveryPreviewing, setDiscoveryPreviewing] = useState(false)
+  const [discoveryImporting, setDiscoveryImporting] = useState(false)
   const pageSize = 25
 
   /* ─── Data Loading ─── */
@@ -447,12 +454,13 @@ export function Forge({ portal }: ForgeProps) {
         body: JSON.stringify({
           name: sprintForm.name,
           description: sprintForm.description,
+          discovery_url: sprintForm.discovery_url || null,
           item_ids: Array.from(selectedIds),
         }),
       })
       if (res.ok) {
         setShowCreateSprint(false)
-        setSprintForm({ name: '', description: '' })
+        setSprintForm({ name: '', description: '', discovery_url: '' })
         setSelectedIds(new Set())
         await loadItems()
         await loadSprints()
@@ -624,6 +632,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     setSprintForm({
       name: smartName,
       description: `${sorted.length} items: ${descParts.join(', ')}. Top: ${topComps.slice(0, 3).join(', ') || 'mixed'}`,
+      discovery_url: '',
     })
     setShowCreateSprint(true)
   }
@@ -751,6 +760,63 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       }
     } catch { /* silent */ }
   }
+
+  /* ─── Discovery Import Handlers ─── */
+  const handleDiscoveryDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (file && (file.name.endsWith('.md') || file.name.endsWith('.txt'))) {
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        setDiscoveryContent(ev.target?.result as string || '')
+      }
+      reader.readAsText(file)
+    }
+  }, [])
+
+  const previewDiscovery = useCallback(async () => {
+    if (!discoveryContent.trim()) return
+    setDiscoveryPreviewing(true)
+    setDiscoveryPreview(null)
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/sprints/import-discovery`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: discoveryContent,
+          discovery_url: sprintForm.discovery_url || undefined,
+          dry_run: true,
+        }),
+      })
+      const json = await res.json() as { success: boolean; data?: Record<string, unknown>; error?: string }
+      if (json.success && json.data) {
+        setDiscoveryPreview(json.data)
+      }
+    } catch { /* silent */ }
+    setDiscoveryPreviewing(false)
+  }, [discoveryContent, sprintForm.discovery_url])
+
+  const importDiscovery = useCallback(async () => {
+    if (!discoveryContent.trim()) return
+    setDiscoveryImporting(true)
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/sprints/import-discovery`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: discoveryContent,
+          discovery_url: sprintForm.discovery_url || undefined,
+        }),
+      })
+      const json = await res.json() as { success: boolean; data?: Record<string, unknown>; error?: string }
+      if (json.success) {
+        setShowCreateSprint(false)
+        setShowDiscoveryImport(false)
+        setDiscoveryContent('')
+        setDiscoveryPreview(null)
+        loadSprints()
+      }
+    } catch { /* silent */ }
+    setDiscoveryImporting(false)
+  }, [discoveryContent, sprintForm.discovery_url, loadSprints])
 
   /* ─── Attachment Handlers ─── */
   const uploadAttachment = async (file: File) => {
@@ -1510,6 +1576,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               <FormInput label="Section" value={editForm.section || ''} onChange={(v) => setEditForm(f => ({ ...f, section: v }))} />
               <FormSelect label="Sprint" value={editForm.sprint_id || ''} onChange={(v) => setEditForm(f => ({ ...f, sprint_id: v || null }))}
                 options={sprints.map(sp => ({ value: sp.id, label: sp.name }))} />
+              <FormInput label="Discovery Document" value={editForm.discovery_url || ''} onChange={(v) => setEditForm(f => ({ ...f, discovery_url: v || null }))} />
               <FormInput label="Plan Link" value={editForm.plan_link || ''} onChange={(v) => setEditForm(f => ({ ...f, plan_link: v || null }))} />
               <FormInput label="Notes" value={editForm.notes || ''} onChange={(v) => setEditForm(f => ({ ...f, notes: v }))} textarea />
 
@@ -1675,6 +1742,94 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             </p>
             <FormInput label="Sprint Name" value={sprintForm.name} onChange={(v) => setSprintForm(f => ({ ...f, name: v }))} />
             <FormInput label="Description" value={sprintForm.description} onChange={(v) => setSprintForm(f => ({ ...f, description: v }))} textarea />
+            <FormInput label="Discovery Document URL" value={sprintForm.discovery_url} onChange={(v) => setSprintForm(f => ({ ...f, discovery_url: v }))} />
+            {/* ─── Discovery Import Section ─── */}
+            <div style={{ marginTop: 16, borderTop: `1px solid ${s.border}`, paddingTop: 16 }}>
+              <button
+                onClick={() => setShowDiscoveryImport(!showDiscoveryImport)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  color: s.textSecondary, fontSize: 13,
+                }}
+              >
+                <Icon name={showDiscoveryImport ? 'expand_less' : 'expand_more'} size={18} color={s.textSecondary} />
+                <Icon name="description" size={16} color={s.portal} />
+                Or Import from Discovery Document
+              </button>
+
+              {showDiscoveryImport && (
+                <div style={{ marginTop: 12 }}>
+                  <textarea
+                    placeholder="Paste discovery markdown here, or drop a .md/.txt file..."
+                    value={discoveryContent}
+                    onChange={(e) => setDiscoveryContent(e.target.value)}
+                    onDrop={handleDiscoveryDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                    style={{
+                      width: '100%', minHeight: 120, background: s.surface,
+                      border: `1px solid ${s.border}`, borderRadius: 8, padding: 12,
+                      color: s.text, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.5,
+                      resize: 'vertical', outline: 'none',
+                    }}
+                  />
+
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <button
+                      onClick={previewDiscovery}
+                      disabled={!discoveryContent.trim() || discoveryPreviewing}
+                      style={{
+                        padding: '6px 14px', borderRadius: 6, border: `1px solid ${s.border}`,
+                        background: 'transparent', color: !discoveryContent.trim() ? s.textMuted : s.textSecondary,
+                        fontSize: 12, cursor: !discoveryContent.trim() ? 'default' : 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 6,
+                      }}
+                    >
+                      {discoveryPreviewing ? 'Previewing...' : 'Preview'}
+                    </button>
+                    {discoveryPreview && (
+                      <button
+                        onClick={importDiscovery}
+                        disabled={discoveryImporting}
+                        style={{
+                          padding: '6px 14px', borderRadius: 6, border: 'none',
+                          background: s.portal, color: '#fff',
+                          fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >
+                        {discoveryImporting ? 'Importing...' : `Import ${discoveryPreview.items_created} Items`}
+                      </button>
+                    )}
+                  </div>
+
+                  {discoveryPreview && (
+                    <div style={{
+                      marginTop: 12, padding: 12, borderRadius: 8,
+                      background: s.surface, border: `1px solid ${s.border}`,
+                    }}>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: s.text }}>
+                        {String(discoveryPreview.sprint_name || '')}
+                      </p>
+                      <p style={{ fontSize: 11, color: s.textMuted, marginTop: 4 }}>
+                        {String(discoveryPreview.items_created || 0)} items found
+                      </p>
+                      <ul style={{ marginTop: 8, paddingLeft: 16 }}>
+                        {(discoveryPreview.items as Array<Record<string, unknown>> | undefined)?.slice(0, 10).map((item: Record<string, unknown>, i: number) => (
+                          <li key={i} style={{ fontSize: 11, color: s.textSecondary, marginTop: 2 }}>
+                            {String(item.title || item.item_id || `Item ${i + 1}`)}
+                          </li>
+                        ))}
+                        {((discoveryPreview.items as Array<Record<string, unknown>> | undefined)?.length || 0) > 10 && (
+                          <li style={{ fontSize: 11, color: s.textMuted, marginTop: 2 }}>
+                            ...and {(discoveryPreview.items as Array<Record<string, unknown>>).length - 10} more
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
               <button
                 onClick={() => setShowCreateSprint(false)}

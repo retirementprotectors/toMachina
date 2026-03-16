@@ -88,3 +88,53 @@ export interface GapGroup {
   avg_automation: number
   health_score: number
 }
+
+// ---------------------------------------------------------------------------
+// Format Library + Introspection Types
+// ---------------------------------------------------------------------------
+
+export interface AtlasFormat {
+  format_id: string
+  carrier_export_type: string
+  carrier_name: string
+  header_fingerprint: string
+  column_map: Record<string, string>
+  value_patterns: Record<string, { distinct_count: number; sample_values: unknown[]; dominant_type: string; null_rate: number }>
+  dedup_keys: string[]
+  default_category: string // 'medicare' | 'annuity' | 'life' | 'bdria'
+  times_used: number
+  last_used_at: string
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export interface IntrospectRun {
+  run_id: string
+  format_id: string | null
+  header_fingerprint: string
+  headers: string[]
+  target_category: string
+  match_method: 'fingerprint_exact' | 'fingerprint_partial' | 'carrier_detect' | 'full_introspect'
+  overall_confidence: number
+  column_mappings: ColumnMapping[]
+  triggered_by: string
+  created_at: string
+}
+
+export interface ColumnMapping {
+  csv_header: string
+  firestore_field: string
+  confidence: number
+  status: 'auto' | 'suggested' | 'unmapped'
+  alternatives: { field: string; confidence: number }[]
+}
+
+export interface FieldProfile {
+  distinct_count: number
+  sample_values: unknown[]
+  dominant_type: 'string' | 'number' | 'date' | 'currency' | 'boolean' | 'mixed'
+  null_rate: number
+  min_length?: number
+  max_length?: number
+}

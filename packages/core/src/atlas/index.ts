@@ -2,3 +2,10 @@
 export * from './types'
 export { computeAutomationHealth, isSourceStale, getAutomationSummary, calculateGapAnalysis } from './health'
 export { WIRE_DEFINITIONS, getWires, getWireStats } from './wires'
+export {
+  hashHeaderFingerprint,
+  profileCsvColumns,
+  profileCollection,
+  matchProfiles,
+  matchFingerprint,
+} from './introspect'

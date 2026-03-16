@@ -19,11 +19,20 @@ export interface Client {
   client_status: string
   client_classification: string
   source: string
+  /** UUID of the assigned user (from users collection, user_id field). Replaces legacy agent_id. */
+  assigned_user_id?: string
+  /** @deprecated Legacy field — use assigned_user_id instead. Points to row_N in old agents collection. */
+  agent_id?: string
   created_at: string
   updated_at: string
   [key: string]: unknown // 107 total fields
 }
 
+/**
+ * @deprecated The agents collection is being replaced. Internal team members are
+ * now tracked via `users` with `is_agent: true`. External producers use the `producers`
+ * collection. This interface is retained for backward compatibility during the transition.
+ */
 export interface Agent {
   agent_id: string
   first_name: string
@@ -91,6 +100,8 @@ export interface Revenue {
 
 export interface User {
   email: string
+  /** Stable UUID for cross-collection references. All 14 users already have this populated. */
+  user_id?: string
   first_name: string
   last_name: string
   role: string
@@ -106,7 +117,10 @@ export interface User {
   aliases?: string[]
   personal_email?: string
   location?: string
+  /** National Producer Number — only relevant when is_agent is true. */
   npn?: string
+  /** Whether this user is a licensed insurance agent eligible for client assignment. */
+  is_agent?: boolean
   hire_date?: string
   google_chat_id?: string
   employee_profile?: Record<string, unknown>

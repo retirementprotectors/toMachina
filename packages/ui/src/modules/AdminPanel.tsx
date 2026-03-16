@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 import {
   query,
   collection,
@@ -39,7 +39,10 @@ interface UserRecord {
   job_title?: string
   manager_email?: string
   location?: string
+  /** National Producer Number — only relevant when is_agent is true */
   npn?: string
+  /** Whether this user is a licensed insurance agent eligible for client assignment */
+  is_agent?: boolean
   module_permissions?: Record<string, string[]>
   entitlements?: string[]
   assigned_pipelines?: string[]
@@ -658,6 +661,149 @@ function RoleUnitAssignment({
   )
 }
 
+/* ─── Agent Designation (is_agent toggle + NPN field) ─── */
+
+function AgentDesignation({
+  member,
+  isLeader,
+  isSelf,
+}: {
+  member: UserRecord
+  isLeader: boolean
+  isSelf: boolean
+}) {
+  const [isAgent, setIsAgent] = useState(Boolean(member.is_agent))
+  const [npn, setNpn] = useState(member.npn || '')
+  const [saving, setSaving] = useState(false)
+  const [npnError, setNpnError] = useState('')
+  const editable = isLeader && !isSelf
+
+  // Sync with prop changes
+  useEffect(() => {
+    setIsAgent(Boolean(member.is_agent))
+    setNpn(member.npn || '')
+  }, [member.is_agent, member.npn])
+
+  const validateNpn = (val: string): boolean => {
+    if (!val) return true // empty is OK (agents may not have NPN entered yet)
+    const digits = val.replace(/\D/g, '')
+    if (digits.length < 7 || digits.length > 10) {
+      setNpnError('NPN must be 7-10 digits')
+      return false
+    }
+    setNpnError('')
+    return true
+  }
+
+  const handleToggle = async () => {
+    if (!editable) return
+    setSaving(true)
+    try {
+      const newVal = !isAgent
+      const ref = doc(getDb(), 'users', member._id)
+      const updates: Record<string, unknown> = {
+        is_agent: newVal,
+        updated_at: new Date().toISOString(),
+      }
+      // If turning off agent status, clear NPN
+      if (!newVal) {
+        updates.npn = ''
+        setNpn('')
+      }
+      await updateDoc(ref, updates)
+      setIsAgent(newVal)
+    } catch {
+      // Revert on failure
+      setIsAgent(Boolean(member.is_agent))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleNpnSave = async () => {
+    if (!editable || !isAgent) return
+    const cleaned = npn.replace(/\D/g, '')
+    if (!validateNpn(cleaned)) return
+    setSaving(true)
+    try {
+      const ref = doc(getDb(), 'users', member._id)
+      await updateDoc(ref, {
+        npn: cleaned,
+        updated_at: new Date().toISOString(),
+      })
+    } catch {
+      setNpn(member.npn || '')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 space-y-3">
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>
+          badge
+        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Agent Designation
+        </span>
+      </div>
+
+      {/* Licensed Agent toggle */}
+      <div className="flex items-center gap-3">
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={isAgent}
+            onChange={handleToggle}
+            disabled={!editable || saving}
+            className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)] disabled:opacity-40"
+          />
+          <span className="text-xs text-[var(--text-primary)]">Licensed Agent</span>
+        </label>
+        {saving && (
+          <span className="h-3 w-3 animate-spin rounded-full border border-[var(--portal)] border-t-transparent" />
+        )}
+        {isAgent && (
+          <span className="rounded-full bg-[var(--portal)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--portal)]">
+            Eligible for client assignment
+          </span>
+        )}
+      </div>
+
+      {/* NPN field — visible only when is_agent is true */}
+      {isAgent && (
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">NPN (National Producer Number)</label>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={npn}
+                onChange={(e) => {
+                  setNpn(e.target.value)
+                  setNpnError('')
+                }}
+                onBlur={handleNpnSave}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleNpnSave() }}
+                disabled={!editable}
+                placeholder="7-10 digit NPN"
+                className="w-40 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1.5 text-xs text-[var(--text-primary)] font-mono disabled:opacity-50"
+              />
+              {saving && (
+                <span className="h-3 w-3 animate-spin rounded-full border border-[var(--portal)] border-t-transparent" />
+              )}
+            </div>
+            {npnError && (
+              <p className="mt-0.5 text-[10px] text-[var(--error)]">{npnError}</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ─── Member row — extracted to a proper component so hooks are valid ─── */
 
 /** Unified item type used by section-based rendering in TeamMemberRow */
@@ -862,6 +1008,11 @@ function TeamMemberRow({
           {member.unit && (
             <span className="text-[10px] text-[var(--text-muted)]">{member.unit}</span>
           )}
+          {member.is_agent && (
+            <span className="rounded-full bg-[var(--portal)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--portal)]">
+              Agent
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-3">
           {/* Section-based summary counts */}
@@ -889,6 +1040,11 @@ function TeamMemberRow({
           {/* Role + Unit Assignment (leaders only, not self) */}
           {isLeader && !isSelf && (
             <RoleUnitAssignment member={member} onUpdate={onRoleUnitUpdate} />
+          )}
+
+          {/* Agent Designation — is_agent toggle + NPN (leaders only, not self) */}
+          {isLeader && !isSelf && (
+            <AgentDesignation member={member} isLeader={isLeader} isSelf={isSelf} />
           )}
 
           {isElevated && (
