@@ -78,7 +78,7 @@ interface PortalAppConfig {
 
 type SectionAssignment = 'sales' | 'service' | null
 
-type AdminTab = 'module-config' | 'pipeline-config' | 'app-config' | 'team-config' | 'dropzone-config' | 'meeting-config'
+type AdminTab = 'module-config' | 'pipeline-config' | 'app-config' | 'team-config'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -111,35 +111,18 @@ const MODULE_SECTIONS: SectionDef[] = [
   },
   {
     key: 'sales-centers',
-    label: 'Sales Centers',
+    label: 'Sales',
     icon: 'storefront',
-    items: [
-      { key: 'medicare', label: 'Medicare', icon: 'health_and_safety', moduleKey: 'QUE_MEDICARE' },
-      { key: 'life', label: 'Life', icon: 'shield', moduleKey: 'QUE_LIFE' },
-      { key: 'annuity', label: 'Annuity', icon: 'savings', moduleKey: 'QUE_ANNUITY' },
-      { key: 'advisory', label: 'Advisory', icon: 'trending_up', moduleKey: 'QUE_MEDSUP' },
-    ],
+    items: [],  // Populated dynamically by pipelines assigned to 'sales' via Pipeline Studio
   },
   {
     key: 'service-centers',
-    label: 'Service Centers',
+    label: 'Service',
     icon: 'support_agent',
     items: [
       { key: 'rmd', label: 'RMD Center', icon: 'calendar_month', moduleKey: 'RMD_CENTER' },
       { key: 'beni', label: 'Beni Center', icon: 'volunteer_activism', moduleKey: 'BENI_CENTER' },
-    ],
-  },
-  {
-    key: 'pipelines',
-    label: 'Pipelines',
-    icon: 'view_kanban',
-    items: [
-      { key: 'pipeline-board', label: 'Pipeline Board', icon: 'view_kanban', moduleKey: 'PRODASH_PIPELINES' },
-      { key: 'discovery-kit', label: 'Discovery Kit', icon: 'assignment', moduleKey: 'DISCOVERY_KIT' },
-      { key: 'discovery', label: 'Discovery', icon: 'search', moduleKey: 'PRODASH_PIPELINES' },
-      { key: 'data-foundation', label: 'Data Foundation', icon: 'storage', moduleKey: 'PRODASH_PIPELINES' },
-      { key: 'case-building', label: 'Case Building', icon: 'construction', moduleKey: 'PRODASH_PIPELINES' },
-      { key: 'close', label: 'Close', icon: 'check_circle', moduleKey: 'PRODASH_PIPELINES' },
+      { key: 'access', label: 'Access Center', icon: 'security', moduleKey: 'ACCESS_CENTER' },
     ],
   },
   {
@@ -152,6 +135,8 @@ const MODULE_SECTIONS: SectionDef[] = [
       { key: 'dex', label: 'DEX', icon: 'description', moduleKey: 'DEX' },
       { key: 'c3', label: 'C3', icon: 'campaign', moduleKey: 'C3' },
       { key: 'command-center', label: 'Command Center', icon: 'dashboard', moduleKey: 'RPI_COMMAND_CENTER' },
+      { key: 'pipeline-studio', label: 'Pipeline Studio', icon: 'view_kanban', moduleKey: 'PIPELINE_STUDIO' },
+      { key: 'forge', label: 'FORGE', icon: 'construction', moduleKey: 'FORGE' },
     ],
   },
 ]
@@ -675,6 +660,22 @@ function RoleUnitAssignment({
 
 /* ─── Member row — extracted to a proper component so hooks are valid ─── */
 
+/** Unified item type used by section-based rendering in TeamMemberRow */
+interface UnifiedItem {
+  key: string
+  label: string
+  icon: string
+  moduleKey: string
+  isPipeline?: boolean
+}
+
+interface UnifiedSection {
+  key: string
+  label: string
+  icon: string
+  allItems: UnifiedItem[]
+}
+
 function TeamMemberRow({
   member,
   currentUserEmail,
@@ -698,6 +699,7 @@ function TeamMemberRow({
   }) => void
 }) {
   const [expanded, setExpanded] = useState(false)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const isSelf = member.email === currentUserEmail
 
   // Determine if this user has elevated role (all access locked)
@@ -705,31 +707,137 @@ function TeamMemberRow({
   const normalizedLevel = memberLevel.charAt(0).toUpperCase() + memberLevel.slice(1).toLowerCase()
   const isElevated = ELEVATED_LEVELS.includes(normalizedLevel)
 
-  // Group modules by section, only those with permissions
-  const modulesBySectionKey = useMemo(() => {
-    const map: Record<string, { sectionLabel: string; items: FlatModule[] }> = {}
-    for (const mod of ALL_MODULES_FLAT) {
-      const perms = member.module_permissions?.[mod.key]
-      if (!perms || perms.length === 0) continue
-      if (!map[mod.sectionKey]) {
-        map[mod.sectionKey] = { sectionLabel: mod.section, items: [] }
-      }
-      map[mod.sectionKey].items.push(mod)
-    }
-    return map
-  }, [member.module_permissions])
+  // Backward-compat permission resolvers: module_permissions first, fall back to legacy arrays
+  const pipelinePerms = useCallback((pipelineKey: string): string[] => {
+    const mk = `PIPELINE_${pipelineKey}`
+    const perms = member.module_permissions?.[mk]
+    if (perms && perms.length > 0) return perms
+    // Backward compat: if in legacy assigned_pipelines, treat as full access
+    if ((member.assigned_pipelines || []).includes(pipelineKey)) return ['VIEW', 'EDIT', 'ADD']
+    return []
+  }, [member.module_permissions, member.assigned_pipelines])
 
-  const totalModules = useMemo(
-    () => Object.values(modulesBySectionKey).reduce((sum, s) => sum + s.items.length, 0),
-    [modulesBySectionKey]
+  const appPerms = useCallback((moduleKey: string, appKey: string): string[] => {
+    const perms = member.module_permissions?.[moduleKey]
+    if (perms && perms.length > 0) return perms
+    // Backward compat: if in legacy assigned_apps, treat as full access
+    if ((member.assigned_apps || []).includes(appKey)) return ['VIEW', 'EDIT', 'ADD']
+    return []
+  }, [member.module_permissions, member.assigned_apps])
+
+  // Build unified sections: static modules + dynamic pipelines injected into sales/service
+  const unifiedSections: UnifiedSection[] = useMemo(() => {
+    return MODULE_SECTIONS.map((section) => {
+      // Start with static items from MODULE_SECTIONS
+      const items: UnifiedItem[] = section.items
+        .filter((i) => !!i.moduleKey)
+        .map((i) => ({
+          key: i.key,
+          label: i.label,
+          icon: i.icon,
+          moduleKey: i.moduleKey!,
+        }))
+
+      // For sales section, inject pipelines assigned to 'sales'
+      if (section.key === 'sales-centers') {
+        const salesPipelines = flowPipelines.filter(
+          (fp) => (fp.assigned_section || '') === 'sales'
+        )
+        for (const fp of salesPipelines) {
+          const pKey = fp.pipeline_key || fp._id
+          items.push({
+            key: `pipe-${pKey}`,
+            label: fp.pipeline_name || pKey,
+            icon: fp.icon || DOMAIN_ICONS[(fp.domain || '').toLowerCase()] || 'route',
+            moduleKey: `PIPELINE_${pKey}`,
+            isPipeline: true,
+          })
+        }
+      }
+
+      // For service section, inject pipelines assigned to 'service'
+      if (section.key === 'service-centers') {
+        const servicePipelines = flowPipelines.filter(
+          (fp) => fp.assigned_section === 'service'
+        )
+        for (const fp of servicePipelines) {
+          const pKey = fp.pipeline_key || fp._id
+          items.push({
+            key: `pipe-${pKey}`,
+            label: fp.pipeline_name || pKey,
+            icon: fp.icon || DOMAIN_ICONS[(fp.domain || '').toLowerCase()] || 'route',
+            moduleKey: `PIPELINE_${pKey}`,
+            isPipeline: true,
+          })
+        }
+      }
+
+      return { ...section, allItems: items }
+    })
+  }, [flowPipelines])
+
+  // Get permissions for any item (static module, pipeline, or app)
+  const getItemPerms = useCallback((item: UnifiedItem, sectionKey: string): string[] => {
+    if (isElevated) return [...ALL_ACTIONS]
+    if (item.isPipeline) {
+      // Extract pipeline key from moduleKey 'PIPELINE_xxx'
+      const pKey = item.moduleKey.replace('PIPELINE_', '')
+      return pipelinePerms(pKey)
+    }
+    if (sectionKey === 'apps') {
+      // Find matching app key for backward-compat fallback
+      const appSection = MODULE_SECTIONS.find((s) => s.key === 'apps')
+      const appItem = appSection?.items.find((i) => i.moduleKey === item.moduleKey)
+      return appPerms(item.moduleKey, appItem?.key || item.key)
+    }
+    return member.module_permissions?.[item.moduleKey] || []
+  }, [isElevated, pipelinePerms, appPerms, member.module_permissions])
+
+  // Count items with any permission per section
+  const sectionCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const section of unifiedSections) {
+      counts[section.key] = section.allItems.filter(
+        (item) => getItemPerms(item, section.key).length > 0
+      ).length
+    }
+    return counts
+  }, [unifiedSections, getItemPerms])
+
+  const totalItemsWithPerms = useMemo(
+    () => Object.values(sectionCounts).reduce((sum, c) => sum + c, 0),
+    [sectionCounts]
   )
 
-  const assignedPipelines = member.assigned_pipelines || []
-  const assignedApps = member.assigned_apps || []
+  // Section-level bulk V/E/A toggle
+  const handleSectionToggle = useCallback(
+    (sectionItems: UnifiedItem[], sectionKey: string, action: ModuleAction) => {
+      const allHaveAction = sectionItems.every((item) => {
+        const perms = getItemPerms(item, sectionKey)
+        return perms.includes(action)
+      })
+      for (const item of sectionItems) {
+        onEntitlementChange(member._id, item.moduleKey, action, !allHaveAction)
+      }
+    },
+    [getItemPerms, onEntitlementChange, member._id]
+  )
 
-  // Count summary for the collapsed row
-  const totalPipelines = isElevated ? flowPipelines.length : assignedPipelines.length
-  const totalApps = isElevated ? ALL_APP_KEYS.length : assignedApps.length
+  // Check if all items in a section have a given action
+  const sectionAllHaveAction = useCallback(
+    (sectionItems: UnifiedItem[], sectionKey: string, action: ModuleAction): boolean => {
+      if (sectionItems.length === 0) return false
+      return sectionItems.every((item) => {
+        const perms = getItemPerms(item, sectionKey)
+        return perms.includes(action)
+      })
+    },
+    [getItemPerms]
+  )
+
+  const toggleSection = useCallback((sectionKey: string) => {
+    setExpandedSections((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey] }))
+  }, [])
 
   return (
     <div className="rounded-lg bg-[var(--bg-surface)]">
@@ -756,15 +864,17 @@ function TeamMemberRow({
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] text-[var(--text-muted)]">
-            {totalModules} module{totalModules !== 1 ? 's' : ''}
-          </span>
-          <span className="text-[10px] text-[var(--text-muted)]">
-            {totalPipelines} pipeline{totalPipelines !== 1 ? 's' : ''}
-          </span>
-          <span className="text-[10px] text-[var(--text-muted)]">
-            {totalApps} app{totalApps !== 1 ? 's' : ''}
-          </span>
+          {/* Section-based summary counts */}
+          {unifiedSections
+            .filter((s) => sectionCounts[s.key] > 0)
+            .map((s) => (
+              <span key={s.key} className="text-[10px] text-[var(--text-muted)]">
+                {s.label}: {sectionCounts[s.key]}
+              </span>
+            ))}
+          {totalItemsWithPerms === 0 && (
+            <span className="text-[10px] text-[var(--text-muted)]">No permissions</span>
+          )}
           <span
             className="material-icons-outlined text-[var(--text-muted)] transition-transform"
             style={{ fontSize: '16px', transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
@@ -781,105 +891,110 @@ function TeamMemberRow({
             <RoleUnitAssignment member={member} onUpdate={onRoleUnitUpdate} />
           )}
 
-          {/* Modules Section */}
-          <div>
-            <div className="mb-1.5 flex items-center gap-1.5">
-              <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>grid_view</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                Modules {isElevated && '(all access)'}
+          {isElevated && (
+            <div className="flex items-center gap-1.5 rounded-md bg-[var(--bg-card)] px-3 py-2">
+              <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>verified</span>
+              <span className="text-[10px] text-[var(--text-muted)]">
+                Elevated role ({normalizedLevel}) — all access granted across all sections
               </span>
             </div>
-            {totalModules > 0 ? (
-              Object.entries(modulesBySectionKey).map(([sectionKey, { sectionLabel, items }]) => (
-                <div key={sectionKey} className="mb-2">
-                  <div className="mb-1">
-                    <span className="text-[10px] text-[var(--text-muted)]">{sectionLabel}</span>
+          )}
+
+          {/* Unified section-based rendering */}
+          <div className="space-y-2">
+            {unifiedSections.map((section) => {
+              const isOpen = expandedSections[section.key] ?? false
+              const itemCount = section.allItems.length
+              const withPermsCount = sectionCounts[section.key]
+
+              if (itemCount === 0) return null
+
+              return (
+                <div key={section.key} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+                  {/* Section header with icon + label + count + section-level V/E/A */}
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <button
+                      onClick={() => toggleSection(section.key)}
+                      className="flex items-center gap-2"
+                    >
+                      <span
+                        className="material-icons-outlined text-[var(--text-muted)] transition-transform"
+                        style={{ fontSize: '14px', transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                      >
+                        expand_more
+                      </span>
+                      <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '16px' }}>
+                        {section.icon}
+                      </span>
+                      <span className="text-xs font-semibold text-[var(--text-primary)]">{section.label}</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">
+                        {withPermsCount}/{itemCount}
+                      </span>
+                    </button>
+
+                    {/* Section-level bulk V/E/A toggles */}
+                    <div className="flex items-center gap-1">
+                      {ALL_ACTIONS.map((action) => (
+                        <EntitlementBadge
+                          key={action}
+                          action={action}
+                          active={sectionAllHaveAction(section.allItems, section.key, action)}
+                          editable={!isElevated && isLeader && !isSelf}
+                          onToggle={() =>
+                            handleSectionToggle(section.allItems, section.key, action)
+                          }
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    {items.map((mod) => {
-                      const perms = member.module_permissions?.[mod.key] || []
-                      return (
-                        <div
-                          key={mod.key}
-                          className="flex items-center justify-between rounded-md bg-[var(--bg-card)] px-3 py-2"
-                        >
-                          <span className="text-xs text-[var(--text-primary)]">{mod.label}</span>
-                          <div className="flex items-center gap-1">
-                            {ALL_ACTIONS.map((action) => (
-                              <EntitlementBadge
-                                key={action}
-                                action={action}
-                                active={perms.includes(action)}
-                                editable={isLeader && !isSelf}
-                                onToggle={() =>
-                                  onEntitlementChange(member._id, mod.key, action, !perms.includes(action))
-                                }
-                              />
-                            ))}
+
+                  {/* Expanded: per-item V/E/A rows */}
+                  {isOpen && (
+                    <div className="border-t border-[var(--border-subtle)] px-3 pb-2.5 pt-2 space-y-1">
+                      {section.allItems.map((item) => {
+                        const perms = getItemPerms(item, section.key)
+                        return (
+                          <div
+                            key={item.key}
+                            className="flex items-center justify-between rounded-md bg-[var(--bg-surface)] px-3 py-2"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                                {item.icon}
+                              </span>
+                              <span className="text-xs text-[var(--text-primary)]">{item.label}</span>
+                              {item.isPipeline && (
+                                <span className="rounded-full bg-[var(--portal)]/10 px-1.5 py-0.5 text-[9px] text-[var(--portal)]">
+                                  pipeline
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {ALL_ACTIONS.map((action) => (
+                                <EntitlementBadge
+                                  key={action}
+                                  action={action}
+                                  active={perms.includes(action)}
+                                  editable={!isElevated && isLeader && !isSelf}
+                                  onToggle={() =>
+                                    onEntitlementChange(
+                                      member._id,
+                                      item.moduleKey,
+                                      action,
+                                      !perms.includes(action)
+                                    )
+                                  }
+                                />
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-              ))
-            ) : (
-              <p className="text-xs text-[var(--text-muted)] py-1">No module permissions assigned.</p>
-            )}
-          </div>
-
-          {/* Pipelines Section */}
-          <div>
-            <div className="mb-1.5 flex items-center gap-1.5">
-              <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>route</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                Pipelines {isElevated && '(all access)'}
-              </span>
-            </div>
-            {flowPipelines.length > 0 ? (
-              <div className="flex flex-wrap gap-1">
-                {flowPipelines.map((fp) => {
-                  const pKey = fp.pipeline_key || fp._id
-                  const isAssigned = isElevated || assignedPipelines.includes(pKey)
-                  return (
-                    <AssignmentCheckbox
-                      key={pKey}
-                      checked={isAssigned}
-                      editable={!isElevated && isLeader && !isSelf}
-                      onToggle={() => onPipelineAssignmentChange(member._id, pKey, !isAssigned)}
-                      label={fp.pipeline_name || pKey}
-                    />
-                  )
-                })}
-              </div>
-            ) : (
-              <p className="text-xs text-[var(--text-muted)] py-1">No pipelines configured.</p>
-            )}
-          </div>
-
-          {/* Apps Section */}
-          <div>
-            <div className="mb-1.5 flex items-center gap-1.5">
-              <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>apps</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                Apps {isElevated && '(all access)'}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {ALL_APP_KEYS.map((appKey) => {
-                const brand = APP_BRANDS[appKey]
-                const isAssigned = isElevated || assignedApps.includes(appKey)
-                return (
-                  <AssignmentCheckbox
-                    key={appKey}
-                    checked={isAssigned}
-                    editable={!isElevated && isLeader && !isSelf}
-                    onToggle={() => onAppAssignmentChange(member._id, appKey, !isAssigned)}
-                    label={brand.label}
-                  />
-                )
-              })}
-            </div>
+              )
+            })}
           </div>
         </div>
       )}
@@ -1047,8 +1162,8 @@ function PipelineConfigCard({
           className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-[var(--portal)] disabled:opacity-50"
         >
           <option value="">Unassigned</option>
-          <option value="sales">Sales Centers</option>
-          <option value="service">Service Centers</option>
+          <option value="sales">Sales</option>
+          <option value="service">Service</option>
         </select>
       </div>
     </div>
@@ -1325,270 +1440,6 @@ function PipelineCard({
         {sortedStages.length === 0 && !editing && (
           <p className="mt-2 text-xs text-[var(--text-muted)]">No stages configured.</p>
         )}
-      </div>
-    </div>
-  )
-}
-
-/* ─── MyDropZone Config Tab (TRK-080) ─── */
-
-const DROPZONE_DOC_TYPES = [
-  { key: 'applications', label: 'Applications' },
-  { key: 'tax_docs', label: 'Tax Docs' },
-  { key: 'id_documents', label: 'ID Documents' },
-  { key: 'medical_records', label: 'Medical Records' },
-] as const
-
-function DropZoneConfigTab() {
-  const [enabled, setEnabled] = useState(false)
-  const [docTypes, setDocTypes] = useState<Record<string, boolean>>({
-    applications: true,
-    tax_docs: true,
-    id_documents: true,
-    medical_records: false,
-  })
-  const [defaultFolder, setDefaultFolder] = useState('client-uploads')
-  const [saved, setSaved] = useState(false)
-
-  const toggleDocType = (key: string) => {
-    setDocTypes((prev) => ({ ...prev, [key]: !prev[key] }))
-    setSaved(false)
-  }
-
-  const handleSave = () => {
-    // Stub — data not persisted yet
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 space-y-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>cloud_upload</span>
-            <h3 className="text-base font-semibold text-[var(--text-primary)]">MyDropZone Configuration</h3>
-          </div>
-          <ToggleSwitch
-            enabled={enabled}
-            editable={true}
-            onToggle={() => { setEnabled((v) => !v); setSaved(false) }}
-            label={enabled ? 'MyDropZone Enabled' : 'MyDropZone Disabled'}
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-[var(--text-muted)] mb-2">Document Type Categories</label>
-          <div className="flex flex-wrap gap-2">
-            {DROPZONE_DOC_TYPES.map((dt) => (
-              <button
-                key={dt.key}
-                onClick={() => toggleDocType(dt.key)}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium border transition-colors ${
-                  docTypes[dt.key]
-                    ? 'border-[var(--portal)] text-[var(--portal)] bg-[var(--portal)]/10'
-                    : 'border-[var(--border-subtle)] text-[var(--text-muted)]'
-                }`}
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-                  {docTypes[dt.key] ? 'check_box' : 'check_box_outline_blank'}
-                </span>
-                {dt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Default Upload Folder</label>
-          <input
-            type="text"
-            value={defaultFolder}
-            onChange={(e) => { setDefaultFolder(e.target.value); setSaved(false) }}
-            placeholder="e.g. client-uploads"
-            className="w-full max-w-sm rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleSave}
-            className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium text-white transition-all hover:brightness-110"
-            style={{ background: 'var(--portal)' }}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>save</span>
-            Save Configuration
-          </button>
-          {saved && (
-            <span className="flex items-center gap-1 text-xs text-green-500">
-              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check_circle</span>
-              Configuration saved successfully
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ─── Meeting Config Tab (TRK-081) ─── */
-
-interface MeetingType {
-  id: string
-  name: string
-  duration: number
-  description: string
-}
-
-let meetingIdCounter = 4
-
-function MeetingConfigTab() {
-  const [meetingTypes, setMeetingTypes] = useState<MeetingType[]>([
-    { id: '1', name: 'Client Review', duration: 30, description: 'Regular client portfolio and account review' },
-    { id: '2', name: 'Team Standup', duration: 15, description: 'Daily team sync and priority alignment' },
-    { id: '3', name: 'New Client Intake', duration: 60, description: 'Initial onboarding meeting for new clients' },
-  ])
-  const [newName, setNewName] = useState('')
-  const [newDuration, setNewDuration] = useState(30)
-  const [newDescription, setNewDescription] = useState('')
-  const [saved, setSaved] = useState(false)
-
-  const handleAdd = () => {
-    if (!newName.trim()) return
-    setMeetingTypes((prev) => [
-      ...prev,
-      { id: String(meetingIdCounter++), name: newName.trim(), duration: newDuration, description: newDescription.trim() },
-    ])
-    setNewName('')
-    setNewDuration(30)
-    setNewDescription('')
-    setSaved(false)
-  }
-
-  const handleRemove = (id: string) => {
-    setMeetingTypes((prev) => prev.filter((mt) => mt.id !== id))
-    setSaved(false)
-  }
-
-  const handleSave = () => {
-    // Stub — data not persisted yet
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 space-y-5">
-        <div className="flex items-center gap-2">
-          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>event</span>
-          <h3 className="text-base font-semibold text-[var(--text-primary)]">Meeting Configuration</h3>
-        </div>
-
-        {/* Meeting types table */}
-        <div className="rounded-lg border border-[var(--border-subtle)] overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-[var(--bg-surface)]">
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Type</th>
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Duration</th>
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Description</th>
-                <th className="px-4 py-2.5 text-right text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {meetingTypes.map((mt) => (
-                <tr key={mt.id} className="border-t border-[var(--border-subtle)]">
-                  <td className="px-4 py-3 text-sm font-medium text-[var(--text-primary)]">{mt.name}</td>
-                  <td className="px-4 py-3 text-sm text-[var(--text-secondary)]">{mt.duration} min</td>
-                  <td className="px-4 py-3 text-xs text-[var(--text-muted)]">{mt.description}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleRemove(mt.id)}
-                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-red-400 transition-colors hover:bg-red-500/10"
-                    >
-                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>delete</span>
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {meetingTypes.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-xs text-[var(--text-muted)]">
-                    No meeting types configured. Add one below.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Add new meeting type */}
-        <div className="rounded-lg bg-[var(--bg-surface)] p-4 space-y-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Add Meeting Type</span>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Name</label>
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="e.g. Annual Review"
-                className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAdd() }}
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Duration (minutes)</label>
-              <input
-                type="number"
-                value={newDuration}
-                onChange={(e) => setNewDuration(parseInt(e.target.value) || 30)}
-                min={5}
-                max={480}
-                className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Description</label>
-              <input
-                type="text"
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="Brief description..."
-                className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAdd() }}
-              />
-            </div>
-          </div>
-          <button
-            onClick={handleAdd}
-            disabled={!newName.trim()}
-            className="inline-flex items-center gap-1.5 rounded-md h-[30px] px-3 text-xs font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
-            style={{ background: 'var(--portal)' }}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '12px' }}>add</span>
-            Add
-          </button>
-        </div>
-
-        {/* Save */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleSave}
-            className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium text-white transition-all hover:brightness-110"
-            style={{ background: 'var(--portal)' }}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>save</span>
-            Save Configuration
-          </button>
-          {saved && (
-            <span className="flex items-center gap-1 text-xs text-green-500">
-              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check_circle</span>
-              Configuration saved successfully
-            </span>
-          )}
-        </div>
       </div>
     </div>
   )
@@ -1897,8 +1748,6 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           { key: 'pipeline-config' as AdminTab, label: 'Pipeline Config', icon: 'route' },
           { key: 'app-config' as AdminTab, label: 'App Config', icon: 'apps' },
           { key: 'team-config' as AdminTab, label: 'Team Config', icon: 'groups' },
-          { key: 'dropzone-config' as AdminTab, label: 'MyDropZone', icon: 'cloud_upload' },
-          { key: 'meeting-config' as AdminTab, label: 'Meetings', icon: 'event' },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -2004,15 +1853,6 @@ export function AdminPanel({ portal }: AdminPanelProps) {
         </div>
       )}
 
-      {/* MyDropZone Config (TRK-080) */}
-      {activeTab === 'dropzone-config' && (
-        <DropZoneConfigTab />
-      )}
-
-      {/* Meeting Config (TRK-081) */}
-      {activeTab === 'meeting-config' && (
-        <MeetingConfigTab />
-      )}
     </div>
   )
 }
