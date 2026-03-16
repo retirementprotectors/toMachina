@@ -376,9 +376,17 @@ function ImportSection() {
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setDragOver(false)
     const f = e.dataTransfer.files[0]
-    if (f && f.name.endsWith('.csv')) handleFileRead(f)
+    if (f) {
+      const name = f.name.toLowerCase()
+      if (name.endsWith('.csv') || name.endsWith('.tsv') || name.endsWith('.txt')) {
+        handleFileRead(f)
+      } else {
+        setAnalyzeError(`Unsupported file type: ${f.name}. Please upload a .csv file.`)
+      }
+    }
   }, [handleFileRead])
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
