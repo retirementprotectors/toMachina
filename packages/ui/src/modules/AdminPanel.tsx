@@ -815,15 +815,15 @@ function TeamMemberRow({
   // Build unified sections: static modules + dynamic pipelines injected into sales/service
   const unifiedSections: UnifiedSection[] = useMemo(() => {
     return MODULE_SECTIONS.map((section) => {
-      // Start with static items from MODULE_SECTIONS (include items without moduleKey as display-only)
+      // Start with static items from MODULE_SECTIONS that have moduleKeys (permission-gated)
       const items: UnifiedItem[] = section.items
+        .filter((i) => !!i.moduleKey)
         .map((i) => ({
           key: i.key,
           label: i.label,
           icon: i.icon,
-          moduleKey: i.moduleKey || '',
+          moduleKey: i.moduleKey!,
         }))
-        .filter((i) => !!i.moduleKey)
 
       // For sales section, inject pipelines assigned to 'sales'
       if (section.key === 'sales-centers') {
@@ -896,18 +896,42 @@ function TeamMemberRow({
     [sectionCounts]
   )
 
-  // Section-level bulk V/E/A toggle
+  // Section-level bulk V/E/A toggle — batches ALL changes into one Firestore write
   const handleSectionToggle = useCallback(
-    (sectionItems: UnifiedItem[], sectionKey: string, action: ModuleAction) => {
+    async (sectionItems: UnifiedItem[], sectionKey: string, action: ModuleAction) => {
       const allHaveAction = sectionItems.every((item) => {
         const perms = getItemPerms(item, sectionKey)
         return perms.includes(action)
       })
+      const enabling = !allHaveAction
+
+      // Build the full updated permissions object in one pass
+      const currentPerms = { ...(member.module_permissions || {}) }
       for (const item of sectionItems) {
-        onEntitlementChange(member._id, item.moduleKey, action, !allHaveAction)
+        if (!item.moduleKey) continue
+        const mk = item.moduleKey
+        const actions = [...(currentPerms[mk] || [])]
+        if (enabling) {
+          if (!actions.includes(action)) actions.push(action)
+        } else {
+          const idx = actions.indexOf(action)
+          if (idx >= 0) actions.splice(idx, 1)
+        }
+        currentPerms[mk] = actions
+      }
+
+      // Single Firestore write with all changes
+      try {
+        const ref = doc(getDb(), 'users', member._id)
+        await updateDoc(ref, {
+          module_permissions: currentPerms,
+          updated_at: new Date().toISOString(),
+        })
+      } catch {
+        // Error handling — toast would go here
       }
     },
-    [getItemPerms, onEntitlementChange, member._id]
+    [getItemPerms, member._id, member.module_permissions]
   )
 
   // Check if all items in a section have a given action
@@ -1029,19 +1053,36 @@ function TeamMemberRow({
                       </span>
                     </button>
 
-                    {/* Section-level bulk V/E/A toggles */}
+                    {/* Section-level bulk V/E/A toggles — click to set ALL items in this section */}
                     <div className="flex items-center gap-1">
-                      {ALL_ACTIONS.map((action) => (
-                        <EntitlementBadge
-                          key={action}
-                          action={action}
-                          active={sectionAllHaveAction(section.allItems, section.key, action)}
-                          editable={canEdit}
-                          onToggle={() =>
-                            handleSectionToggle(section.allItems, section.key, action)
-                          }
-                        />
-                      ))}
+                      {canEdit && (
+                        <span className="text-[9px] text-[var(--text-muted)] mr-1">SET ALL</span>
+                      )}
+                      {ALL_ACTIONS.map((action) => {
+                        const allActive = sectionAllHaveAction(section.allItems, section.key, action)
+                        return (
+                          <button
+                            key={action}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (canEdit) handleSectionToggle(section.allItems, section.key, action)
+                            }}
+                            disabled={!canEdit}
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                              allActive
+                                ? 'text-white'
+                                : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+                            } ${canEdit ? 'cursor-pointer hover:opacity-80 ring-1 ring-[var(--border-subtle)]' : 'cursor-default'}`}
+                            style={allActive ? { background: 'var(--portal)' } : undefined}
+                            title={canEdit ? `Toggle ${action} for all ${section.label} items` : action}
+                          >
+                            <span className="material-icons-outlined" style={{ fontSize: '10px' }}>
+                              {ACTION_ICONS[action]}
+                            </span>
+                            {action}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
 

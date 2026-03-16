@@ -181,8 +181,13 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
             || 'USER',
           modulePermissions: profile.module_permissions as UserEntitlementContext['modulePermissions'],
           assignedModules: [
+            // Legacy arrays (backward compat)
             ...(profile.assigned_pipelines || []),
             ...(profile.assigned_apps || []),
+            // Modern: extract PIPELINE_* and app moduleKeys from module_permissions
+            ...Object.entries(profile.module_permissions || {})
+              .filter(([, perms]) => Array.isArray(perms) && perms.length > 0)
+              .map(([key]) => key),
           ],
         }
       : undefined
