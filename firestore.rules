@@ -29,6 +29,12 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.level <= 2;
     }
 
+    // Owner only (level 0)
+    function isOwner() {
+      return isRPIUser() &&
+             get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.level == 0;
+    }
+
     // Check if user is modifying their own profile
     function isOwnProfile(email) {
       return isRPIUser() && request.auth.token.email == email;
@@ -79,21 +85,29 @@ service cloud.firestore {
     // ----------------------------------------------------------------
     match /flow_pipelines/{docId} {
       allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow write: if isOwner();
     }
     match /flow_stages/{docId} {
       allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow write: if isOwner();
     }
     match /flow_workflows/{docId} {
       allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow write: if isOwner();
     }
     match /flow_steps/{docId} {
       allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow write: if isOwner();
     }
     match /flow_task_templates/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isOwner();
+    }
+
+    // ----------------------------------------------------------------
+    // Pipelines — top-level pipeline records
+    // ----------------------------------------------------------------
+    match /pipelines/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
@@ -153,7 +167,7 @@ service cloud.firestore {
     // Revenue, carriers, products — leader+ writes
     // ----------------------------------------------------------------
     match /revenue/{revenueId} {
-      allow read: if isRPIUser();
+      allow read: if isExecutiveOrAbove();
       allow write: if isLeaderOrAbove();
     }
     match /carriers/{carrierId} {
@@ -180,11 +194,40 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
+    // C3 operational collections — send logs, delivery tracking, enrollments
+    match /campaign_send_log/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /campaign_delivery_events/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /campaign_enrollments/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /drip_sequences/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /campaign_schedules/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /campaign_jobs/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /queued_sends/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
 
     // ----------------------------------------------------------------
     // Comp grids — executive only writes
     // ----------------------------------------------------------------
-    match /comp_grids/{type}/{gridId} {
+    match /comp_grids/{docId} {
       allow read: if isRPIUser();
       allow write: if isExecutiveOrAbove();
     }
@@ -198,36 +241,101 @@ service cloud.firestore {
 
     // ----------------------------------------------------------------
     // ATLAS — source + tool registries (top-level collections)
+    // Aligned with ATLAS module minUserLevel: EXECUTIVE
     // ----------------------------------------------------------------
     match /source_registry/{docId} {
-      allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
     }
     match /tool_registry/{docId} {
-      allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
     }
     match /atlas_audit/{docId} {
-      allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
     }
 
     // ----------------------------------------------------------------
     // ATLAS — subcollections (formats, introspect_runs)
     // ----------------------------------------------------------------
     match /atlas/{subcol}/{docId} {
-      allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
     }
 
     // ----------------------------------------------------------------
     // FORGE — Build Tracker (leader+ writes)
     // ----------------------------------------------------------------
     match /tracker_items/{docId} {
+      allow read: if isLeaderOrAbove();
+      allow write: if isOwner();
+    }
+    match /sprints/{docId} {
+      allow read: if isLeaderOrAbove();
+      allow write: if isOwner();
+    }
+
+    // ----------------------------------------------------------------
+    // Approval queue — import/data approvals (leader+ only)
+    // ----------------------------------------------------------------
+    match /approval_queue/{docId} {
+      allow read: if isLeaderOrAbove();
+      allow write: if isLeaderOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // CAM operational — commission discrepancies + comp grid history
+    // ----------------------------------------------------------------
+    match /commission_discrepancies/{docId} {
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
+    }
+    match /comp_grid_history/{docId} {
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // DEX — document package pipeline
+    // ----------------------------------------------------------------
+    match /dex_packages/{docId} {
+      allow read: if isLeaderOrAbove();
+      allow write: if isLeaderOrAbove();
+    }
+    match /dex_package_events/{docId} {
+      allow read: if isLeaderOrAbove();
+      allow write: if isLeaderOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Communications log — structured send/receive history
+    // ----------------------------------------------------------------
+    match /communication_log/{docId} {
+      allow read: if isLeaderOrAbove();
+      allow write: if isLeaderOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Compliance + Security — workspace users, audit records
+    // ----------------------------------------------------------------
+    match /workspace_users/{docId} {
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
+    }
+    match /compliance_audits/{docId} {
+      allow read: if isExecutiveOrAbove();
+      allow write: if isExecutiveOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Account dedup — split account collections (life, BD/RIA)
+    // ----------------------------------------------------------------
+    match /accounts_life/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
-    match /sprints/{docId} {
+    match /accounts_bdria/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
