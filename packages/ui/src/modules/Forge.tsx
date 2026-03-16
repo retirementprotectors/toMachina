@@ -221,6 +221,7 @@ export function Forge({ portal }: ForgeProps) {
   const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'dedup'>('grid')
   const [dedupGroups, setDedupGroups] = useState<Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }>>([])
   const [dedupLoading, setDedupLoading] = useState(false)
+  const [reopeningSprintId, setReopeningSprintId] = useState<string | null>(null)
   // Track selected field values per group: { groupIndex: { fieldKey: itemIndex } }
   const [dedupSelections, setDedupSelections] = useState<Record<number, Record<string, number>>>({})
   const [uploading, setUploading] = useState(false)
@@ -676,9 +677,11 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   }
 
   const reopenSprint = async (sprintId: string) => {
+    setReopeningSprintId(sprintId)
     try {
       const r = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/reopen`, { method: 'POST' })
       if (r.ok) {
+        showToast('Sprint reopened — items moved back to Audit', 'success')
         await loadItems()
         await loadSprints()
       } else {
@@ -687,6 +690,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       }
     } catch (err) {
       showToast(`Reopen error: ${String(err)}`, 'error')
+    } finally {
+      setReopeningSprintId(null)
     }
   }
 
@@ -928,6 +933,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   /* ─── Render ─── */
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', color: s.text, fontFamily: 'inherit' }}>
+      <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
 
       {/* Row 1: Toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -1395,23 +1401,31 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                                 }
                                 else if (phase === 'confirmed') reopenSprint(sp.id)
                               }}
+                              disabled={phase === 'confirmed' && reopeningSprintId === sp.id}
                               style={{
                                 width: '100%', padding: '6px 0', borderRadius: 6,
                                 border: phase === 'confirmed' ? '1px solid rgb(245,158,11)' : 'none',
-                                background: phase === 'confirmed' ? 'transparent' : phaseConfig.color,
-                                color: phase === 'confirmed' ? 'rgb(245,158,11)' : '#fff',
+                                background: phase === 'confirmed'
+                                  ? (reopeningSprintId === sp.id ? 'rgb(245,158,11)' : 'transparent')
+                                  : phaseConfig.color,
+                                color: phase === 'confirmed'
+                                  ? (reopeningSprintId === sp.id ? '#fff' : 'rgb(245,158,11)')
+                                  : '#fff',
                                 fontSize: 12, fontWeight: 600,
-                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                cursor: reopeningSprintId === sp.id ? 'wait' : 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                transition: 'all 0.2s ease',
                               }}
                             >
                               <Icon name={
+                                (phase === 'confirmed' && reopeningSprintId === sp.id) ? 'sync' :
                                 phase === 'in_sprint' ? 'terminal' :
                                 phase === 'planned' ? 'terminal' :
                                 phase === 'built' ? 'fact_check' :
                                 phase === 'confirmed' ? 'undo' :
                                 'rocket_launch'
-                              } size={14} color={phase === 'confirmed' ? 'rgb(245,158,11)' : '#fff'} />
-                              {phaseConfig.actionLabel}
+                              } size={14} color={phase === 'confirmed' ? (reopeningSprintId === sp.id ? '#fff' : 'rgb(245,158,11)') : '#fff'} />
+                              {(phase === 'confirmed' && reopeningSprintId === sp.id) ? 'Reopening...' : phaseConfig.actionLabel}
                             </button>
 
                             {/* Audit Walkthrough link for sprints ready for/in audit */}
