@@ -317,20 +317,124 @@ importRoutes.post('/accounts', async (req: Request, res: Response) => {
 })
 
 // ============================================================================
+// ATLAS WIZARD import_type → collection routing
+// ============================================================================
+
+const ATLAS_IMPORT_COLLECTIONS: Record<string, string | null> = {
+  medicare: 'accounts',    // routed to accounts subcollection via existing flow
+  annuity: 'accounts',
+  life: 'accounts',
+  bdria: 'accounts',
+  client: 'clients',
+  commission: 'revenue',
+  revenue: 'revenue',
+  agent: 'users',          // agents are stored in the users collection
+}
+
+// ============================================================================
 // BATCH IMPORT (CLIENTS + ACCOUNTS)
 // ============================================================================
 
 /**
  * POST /api/import/batch
- * Import clients and accounts in a single request
+ * Import clients and accounts in a single request.
+ * Also handles ATLAS wizard payloads: { records, import_type, format_id }
  */
 importRoutes.post('/batch', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
+    const now = new Date().toISOString()
+
+    // ── ATLAS Wizard payload: { records, import_type, format_id } ──
+    const atlasRecords = req.body.records as Record<string, unknown>[] | undefined
+    const importType = req.body.import_type as string | undefined
+
+    if (atlasRecords && Array.isArray(atlasRecords) && importType) {
+      const targetCollection = ATLAS_IMPORT_COLLECTIONS[importType]
+
+      if (!targetCollection) {
+        res.status(400).json(errorResponse(
+          `Unsupported import_type: "${importType}". Supported types: ${Object.keys(ATLAS_IMPORT_COLLECTIONS).join(', ')}`
+        ))
+        return
+      }
+
+      // Route known product-line account types to existing account endpoints
+      if (['medicare', 'annuity', 'life', 'bdria'].includes(importType)) {
+        // Reshape into the accounts endpoint shape and delegate
+        const accountRecords = atlasRecords.map(r => ({
+          ...r,
+          account_category: importType,
+          import_source: 'ATLAS_WIZARD',
+          created_at: now,
+          updated_at: now,
+        }))
+        // Use existing account import logic below — fall through to legacy handler
+        req.body.accounts = accountRecords
+        req.body.clients = []
+        req.body.options = { source: 'ATLAS_WIZARD' }
+        // Fall through to legacy batch logic below
+      } else {
+        // New category types: client, commission, revenue, agent
+        // Stub handlers — write to target collection with tracking
+        const importRunId = await startImportRun({
+          import_type: `atlas_${importType}`,
+          source: 'ATLAS_WIZARD',
+          total_records: atlasRecords.length,
+          triggered_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+        })
+
+        const batch = db.batch()
+        let imported = 0
+        let skipped = 0
+        const errors: Array<{ index: number; error: string }> = []
+
+        for (let i = 0; i < atlasRecords.length; i++) {
+          try {
+            const record = { ...atlasRecords[i] } as Record<string, unknown>
+            record.import_source = 'ATLAS_WIZARD'
+            record.import_type = importType
+            record.import_run_id = importRunId
+            record.created_at = record.created_at || now
+            record.updated_at = now
+
+            const docId = (record.client_id || record.agent_id || record.revenue_id || randomUUID()) as string
+            batch.set(db.collection(targetCollection).doc(docId), record, { merge: true })
+            imported++
+          } catch (recErr) {
+            errors.push({ index: i, error: String(recErr) })
+            skipped++
+          }
+        }
+
+        await batch.commit()
+        await completeImportRun(importRunId, {
+          imported,
+          skipped,
+          duplicates: 0,
+          errors: errors.length,
+          error_details: errors,
+        })
+
+        res.json(successResponse({
+          total_received: atlasRecords.length,
+          auto_matched: 0,
+          new_created: imported,
+          updated: 0,
+          duplicates_removed: 0,
+          flagged: 0,
+          skipped,
+          errors: errors.length,
+          run_id: importRunId,
+          details: errors.length > 0 ? { errors } : undefined,
+        }))
+        return
+      }
+    }
+
     const clients = req.body.clients || []
     const accounts = req.body.accounts || []
     const options = req.body.options || {}
-    const now = new Date().toISOString()
 
     const results = {
       clients: { imported: 0, updated: 0, skipped: 0, errors: [] as Array<{ index: number; error: string }>, mapping: {} as Record<string, string> },

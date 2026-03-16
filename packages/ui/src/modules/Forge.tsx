@@ -1312,6 +1312,25 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                               <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 8, lineHeight: 1.4 }}>{sp.description}</div>
                             )}
 
+                            {/* Discovery URL */}
+                            {sp.discovery_url && (
+                              <a
+                                href={sp.discovery_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                                  fontSize: 10, color: s.portal, marginBottom: 8, textDecoration: 'none',
+                                }}
+                                onMouseEnter={(e) => { (e.currentTarget.style.textDecoration = 'underline') }}
+                                onMouseLeave={(e) => { (e.currentTarget.style.textDecoration = 'none') }}
+                              >
+                                <Icon name="link" size={12} color={s.portal} />
+                                Discovery
+                              </a>
+                            )}
+
                             {/* Progress */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                               <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)' }}>
@@ -1481,7 +1500,21 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                     const tc = TYPE_CONFIG[item.type]
                     return tc ? <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 12, fontSize: 10, fontWeight: 600, background: tc.bg, color: tc.color, whiteSpace: 'nowrap' }}>{tc.label}</span> : <span style={{ color: s.textMuted, fontSize: 11 }}>—</span>
                   })()}</td>
-                  <td style={{ padding: '8px 12px', fontWeight: 500 }}>{item.title}</td>
+                  <td style={{ padding: '8px 12px', fontWeight: 500 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      {item.title}
+                      {item.discovery_url && (
+                        <a href={item.discovery_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} title="Discovery URL">
+                          <Icon name="link" size={14} color={s.portal} />
+                        </a>
+                      )}
+                      {item.plan_link && (
+                        <a href={item.plan_link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} title="Plan Link">
+                          <Icon name="description" size={14} color="rgb(245,158,11)" />
+                        </a>
+                      )}
+                    </span>
+                  </td>
                   <td style={{ padding: '8px 12px', color: s.textSecondary }}>{item.component || '—'}</td>
                   <td style={{ padding: '8px 12px', color: s.textSecondary }}>{item.section || '—'}</td>
                   <td style={{ padding: '8px 12px', color: s.textSecondary, fontSize: 11 }}>{item.portal || '—'}</td>
@@ -1576,8 +1609,62 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               <FormInput label="Section" value={editForm.section || ''} onChange={(v) => setEditForm(f => ({ ...f, section: v }))} />
               <FormSelect label="Sprint" value={editForm.sprint_id || ''} onChange={(v) => setEditForm(f => ({ ...f, sprint_id: v || null }))}
                 options={sprints.map(sp => ({ value: sp.id, label: sp.name }))} />
-              <FormInput label="Discovery Document" value={editForm.discovery_url || ''} onChange={(v) => setEditForm(f => ({ ...f, discovery_url: v || null }))} />
-              <FormInput label="Plan Link" value={editForm.plan_link || ''} onChange={(v) => setEditForm(f => ({ ...f, plan_link: v || null }))} />
+              {/* Discovery URL */}
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary, #94a3b8)', marginBottom: 4 }}>Discovery URL</label>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <span className="material-icons-outlined" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted, #64748b)' }}>link</span>
+                    <input
+                      type="url"
+                      placeholder="Where was this found? (URL)"
+                      value={editForm.discovery_url || ''}
+                      onChange={(e) => setEditForm(f => ({ ...f, discovery_url: e.target.value || null }))}
+                      style={{
+                        width: '100%', background: 'var(--bg-surface, #1c2333)', border: '1px solid var(--border-color, #2a3347)',
+                        borderRadius: 6, padding: '8px 10px 8px 30px', color: 'var(--text-primary, #e2e8f0)', fontSize: 13,
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                  {editForm.discovery_url && (
+                    <a href={editForm.discovery_url} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 6, border: `1px solid ${s.border}`, background: 'transparent', cursor: 'pointer', flexShrink: 0 }}
+                      title="Open Discovery URL"
+                    >
+                      <Icon name="open_in_new" size={16} color={s.portal} />
+                    </a>
+                  )}
+                </div>
+              </div>
+              {/* Plan Link */}
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary, #94a3b8)', marginBottom: 4 }}>Plan Link</label>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <span className="material-icons-outlined" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted, #64748b)' }}>description</span>
+                    <input
+                      type="url"
+                      placeholder="Link to plan document (URL)"
+                      value={editForm.plan_link || ''}
+                      onChange={(e) => setEditForm(f => ({ ...f, plan_link: e.target.value || null }))}
+                      style={{
+                        width: '100%', background: 'var(--bg-surface, #1c2333)', border: '1px solid var(--border-color, #2a3347)',
+                        borderRadius: 6, padding: '8px 10px 8px 30px', color: 'var(--text-primary, #e2e8f0)', fontSize: 13,
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                  {editForm.plan_link && (
+                    <a href={editForm.plan_link} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 6, border: `1px solid ${s.border}`, background: 'transparent', cursor: 'pointer', flexShrink: 0 }}
+                      title="Open Plan Link"
+                    >
+                      <Icon name="open_in_new" size={16} color={s.portal} />
+                    </a>
+                  )}
+                </div>
+              </div>
               <FormInput label="Notes" value={editForm.notes || ''} onChange={(v) => setEditForm(f => ({ ...f, notes: v }))} textarea />
 
               {/* Attachments */}
@@ -1742,7 +1829,34 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             </p>
             <FormInput label="Sprint Name" value={sprintForm.name} onChange={(v) => setSprintForm(f => ({ ...f, name: v }))} />
             <FormInput label="Description" value={sprintForm.description} onChange={(v) => setSprintForm(f => ({ ...f, description: v }))} textarea />
-            <FormInput label="Discovery Document URL" value={sprintForm.discovery_url} onChange={(v) => setSprintForm(f => ({ ...f, discovery_url: v }))} />
+            {/* Discovery URL */}
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: 'block', fontSize: 12, color: 'var(--text-secondary, #94a3b8)', marginBottom: 4 }}>Discovery URL</label>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <span className="material-icons-outlined" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted, #64748b)' }}>link</span>
+                  <input
+                    type="url"
+                    placeholder="Where was this found? (URL)"
+                    value={sprintForm.discovery_url}
+                    onChange={(e) => setSprintForm(f => ({ ...f, discovery_url: e.target.value }))}
+                    style={{
+                      width: '100%', background: 'var(--bg-surface, #1c2333)', border: '1px solid var(--border-color, #2a3347)',
+                      borderRadius: 6, padding: '8px 10px 8px 30px', color: 'var(--text-primary, #e2e8f0)', fontSize: 13,
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+                {sprintForm.discovery_url && (
+                  <a href={sprintForm.discovery_url} target="_blank" rel="noopener noreferrer"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 6, border: `1px solid ${s.border}`, background: 'transparent', cursor: 'pointer', flexShrink: 0 }}
+                    title="Open Discovery URL"
+                  >
+                    <Icon name="open_in_new" size={16} color={s.portal} />
+                  </a>
+                )}
+              </div>
+            </div>
             {/* ─── Discovery Import Section ─── */}
             <div style={{ marginTop: 16, borderTop: `1px solid ${s.border}`, paddingTop: 16 }}>
               <button

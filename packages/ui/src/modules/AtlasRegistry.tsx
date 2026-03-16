@@ -44,13 +44,22 @@ interface IntrospectResult {
   match_method: string
   overall_confidence: number
   mappings: ColumnMapping[]
-  format_id?: string
+  format_id?: string | null
+  run_id?: string
+  header_fingerprint?: string
+  carrier_detection?: {
+    detected_carrier: string | null
+    carrier_confidence: number
+    default_category?: string
+  }
 }
 
 interface ImportReportRow {
   category: string
+  key: string
   count: number
   status: 'complete' | 'in_review' | 'skipped' | 'none'
+  drillable: boolean
 }
 
 interface ImportResult {
@@ -62,6 +71,8 @@ interface ImportResult {
   flagged: number
   skipped: number
   errors: number
+  run_id?: string
+  details?: Record<string, Record<string, unknown>[]>
 }
 
 interface RecordMatchCandidate {
@@ -111,6 +122,10 @@ const IMPORT_CATEGORIES = [
   { key: 'annuity', label: 'Annuity' },
   { key: 'life', label: 'Life' },
   { key: 'bdria', label: 'BD/RIA' },
+  { key: 'client', label: 'Client' },
+  { key: 'commission', label: 'Commission' },
+  { key: 'revenue', label: 'Revenue' },
+  { key: 'agent', label: 'Agent' },
 ] as const
 
 const CAT_COLORS: Record<string, string> = {
@@ -341,6 +356,7 @@ function ImportSection() {
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
+  const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
   // ── File handling ──
 
@@ -392,10 +408,21 @@ function ImportSection() {
           target_category: category,
         }),
       })
-      const json = await res.json() as { success: boolean; data?: IntrospectResult; error?: string }
+      const json = await res.json() as { success: boolean; data?: Record<string, unknown>; error?: string }
       if (json.success && json.data) {
-        setIntrospectResult(json.data)
-        setEditedMappings(json.data.mappings.map(m => ({ ...m })))
+        // API returns column_mappings; normalize to mappings for UI
+        const raw = json.data
+        const result: IntrospectResult = {
+          match_method: String(raw.match_method || 'unknown'),
+          overall_confidence: Number(raw.overall_confidence || 0),
+          mappings: (raw.column_mappings || raw.mappings || []) as ColumnMapping[],
+          format_id: raw.format_id as string | null | undefined,
+          run_id: raw.run_id as string | undefined,
+          header_fingerprint: raw.header_fingerprint as string | undefined,
+          carrier_detection: raw.carrier_detection as IntrospectResult['carrier_detection'],
+        }
+        setIntrospectResult(result)
+        setEditedMappings(result.mappings.map(m => ({ ...m })))
         setStep(2)
       } else {
         setAnalyzeError(json.error || 'Analysis failed')
@@ -412,6 +439,9 @@ function ImportSection() {
   const handleConfirmMapping = useCallback(async () => {
     setConfirming(true)
     setConfirmError(null)
+    const warnings: string[] = []
+
+    // Try to confirm mappings via API (saves to format library) — non-blocking
     try {
       const res = await fetchWithAuth(`${API_BASE}/atlas/introspect/confirm`, {
         method: 'POST',
@@ -423,56 +453,56 @@ function ImportSection() {
         }),
       })
       const json = await res.json() as { success: boolean; error?: string }
-      if (json.success) {
-        // Build preview from first 5 rows using mappings
-        setValidating(true)
-        setPreviewError(null)
-        const normalizedRows = parsedRows.slice(0, 5).map(row => {
-          const normalized: Record<string, unknown> = {}
-          editedMappings.forEach(m => {
-            if (m.firestore_field && m.status !== 'unmapped') {
-              normalized[m.firestore_field] = row[m.csv_header] ?? ''
-            }
-          })
-          return normalized
-        })
-        setPreviewData(normalizedRows)
-        // Validate via API + fetch match candidates
-        try {
-          const valRes = await fetchWithAuth(`${API_BASE}/import/validate-full`, {
-            method: 'POST',
-            body: JSON.stringify({
-              records: normalizedRows,
-              import_type: category,
-              dry_run: true,
-            }),
-          })
-          const valJson = await valRes.json() as { success: boolean; errors?: string[]; warnings?: string[]; data?: { match_candidates?: RecordMatchCandidate[] } }
-          setValidationErrors(valJson.errors || valJson.warnings || [])
-
-          // If the API returns match candidates, populate for review
-          if (valJson.data?.match_candidates && valJson.data.match_candidates.length > 0) {
-            setRecordMatches(valJson.data.match_candidates.map(mc => ({ ...mc, status: 'unresolved' as const })))
-            setShowMatchReview(true)
-          } else {
-            setRecordMatches([])
-            setShowMatchReview(false)
-          }
-        } catch {
-          setValidationErrors(['Could not reach validation endpoint — preview shown without validation'])
-          setRecordMatches([])
-          setShowMatchReview(false)
-        }
-        setValidating(false)
-        setStep(3)
-      } else {
-        setConfirmError(json.error || 'Confirmation failed')
+      if (!json.success) {
+        warnings.push(`Mapping confirmation: ${json.error || 'Server error'} — proceeding with local mappings`)
       }
     } catch (err) {
-      setConfirmError(err instanceof Error ? err.message : 'Network error')
-    } finally {
-      setConfirming(false)
+      warnings.push(`Could not save mapping to library: ${err instanceof Error ? err.message : 'Network error'} — proceeding with local mappings`)
     }
+
+    // Build preview from first 5 rows using mappings (always runs)
+    setValidating(true)
+    setPreviewError(null)
+    const normalizedRows = parsedRows.slice(0, 5).map(row => {
+      const normalized: Record<string, unknown> = {}
+      editedMappings.forEach(m => {
+        if (m.firestore_field && m.status !== 'unmapped') {
+          normalized[m.firestore_field] = row[m.csv_header] ?? ''
+        }
+      })
+      return normalized
+    })
+    setPreviewData(normalizedRows)
+
+    // Validate via API + fetch match candidates (non-blocking)
+    try {
+      const valRes = await fetchWithAuth(`${API_BASE}/import/validate-full`, {
+        method: 'POST',
+        body: JSON.stringify({
+          records: normalizedRows,
+          import_type: category,
+          dry_run: true,
+        }),
+      })
+      const valJson = await valRes.json() as { success: boolean; errors?: string[]; warnings?: string[]; data?: { match_candidates?: RecordMatchCandidate[] } }
+      setValidationErrors([...warnings, ...(valJson.errors || valJson.warnings || [])])
+
+      // If the API returns match candidates, populate for review
+      if (valJson.data?.match_candidates && valJson.data.match_candidates.length > 0) {
+        setRecordMatches(valJson.data.match_candidates.map(mc => ({ ...mc, status: 'unresolved' as const })))
+        setShowMatchReview(true)
+      } else {
+        setRecordMatches([])
+        setShowMatchReview(false)
+      }
+    } catch {
+      setValidationErrors([...warnings, 'Could not reach validation endpoint — preview shown without validation'])
+      setRecordMatches([])
+      setShowMatchReview(false)
+    }
+    setValidating(false)
+    setConfirming(false)
+    setStep(3)
   }, [introspectResult, editedMappings, saveToLibrary, category, parsedRows])
 
   // ── Step 3 → 4: Execute Import ──
@@ -504,7 +534,14 @@ function ImportSection() {
         setImportResult(json.data)
         setStep(4)
       } else {
-        setImportError(json.error || 'Import failed')
+        // Show error on Step 3 but also build a partial result so Step 4 is reachable
+        const errorMsg = json.error || 'Import failed'
+        setImportError(errorMsg)
+        // If the server returned partial data, show it in Step 4
+        if (json.data) {
+          setImportResult(json.data)
+          setStep(4)
+        }
       }
     } catch (err) {
       setImportError(err instanceof Error ? err.message : 'Network error')
@@ -533,6 +570,7 @@ function ImportSection() {
     setShowMatchReview(false)
     setImportResult(null)
     setImportError(null)
+    setExpandedRow(null)
   }, [])
 
   // ── Update a mapping's firestore_field ──
@@ -570,16 +608,17 @@ function ImportSection() {
     const r = importResult
     const total = r.total_received
     const outputSum = r.auto_matched + r.new_created + r.duplicates_removed + r.flagged + r.skipped + r.errors
+    const hasDetails = (key: string) => !!(r.details && r.details[key] && r.details[key].length > 0)
     return [
-      { category: 'Total Received', count: total, status: 'none' },
-      { category: 'Auto-Matched', count: r.auto_matched, status: 'complete' },
-      { category: 'New Created', count: r.new_created, status: 'complete' },
-      { category: 'Updated', count: r.updated, status: 'complete' },
-      { category: 'Duplicates Removed', count: r.duplicates_removed, status: 'complete' },
-      { category: 'Flagged', count: r.flagged, status: r.flagged > 0 ? 'in_review' : 'none' },
-      { category: 'Skipped', count: r.skipped, status: r.skipped > 0 ? 'skipped' : 'none' },
-      { category: 'Errors', count: r.errors, status: 'none' },
-      { category: 'Input = Output', count: outputSum, status: total === outputSum ? 'complete' : 'none' },
+      { category: 'Total Received', key: 'total', count: total, status: 'none', drillable: false },
+      { category: 'Auto-Matched', key: 'auto_matched', count: r.auto_matched, status: 'complete', drillable: hasDetails('auto_matched') },
+      { category: 'New Created', key: 'new_created', count: r.new_created, status: 'complete', drillable: hasDetails('new_created') },
+      { category: 'Updated', key: 'updated', count: r.updated, status: 'complete', drillable: hasDetails('updated') },
+      { category: 'Duplicates Removed', key: 'duplicates_removed', count: r.duplicates_removed, status: 'complete', drillable: hasDetails('duplicates_removed') },
+      { category: 'Flagged', key: 'flagged', count: r.flagged, status: r.flagged > 0 ? 'in_review' : 'none', drillable: hasDetails('flagged') },
+      { category: 'Skipped', key: 'skipped', count: r.skipped, status: r.skipped > 0 ? 'skipped' : 'none', drillable: hasDetails('skipped') },
+      { category: 'Errors', key: 'errors', count: r.errors, status: 'none', drillable: hasDetails('errors') },
+      { category: 'Input = Output', key: 'balance', count: outputSum, status: total === outputSum ? 'complete' : 'none', drillable: false },
     ]
   }, [importResult])
 
@@ -722,6 +761,81 @@ function ImportSection() {
             >
               <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_back</span>Back
             </button>
+          </div>
+
+          {/* Fingerprint Recognition Info Card */}
+          <div className="mb-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+            <div className="flex items-start gap-3">
+              <span className="material-icons-outlined mt-0.5" style={{ fontSize: '20px', color: 'rgb(59,130,246)' }}>fingerprint</span>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-[var(--text-primary)]">Format Recognition</p>
+                  <Badge
+                    text={
+                      introspectResult.match_method === 'fingerprint_exact' ? 'Exact Match' :
+                      introspectResult.match_method === 'fingerprint_partial' ? 'Partial Match' :
+                      introspectResult.match_method === 'carrier_detect' ? 'Carrier Detected' :
+                      'New Format'
+                    }
+                    bg={
+                      introspectResult.match_method === 'fingerprint_exact' ? 'rgba(16,185,129,0.15)' :
+                      introspectResult.match_method === 'fingerprint_partial' ? 'rgba(245,158,11,0.15)' :
+                      introspectResult.match_method === 'carrier_detect' ? 'rgba(6,182,212,0.15)' :
+                      'rgba(156,163,175,0.15)'
+                    }
+                    fg={
+                      introspectResult.match_method === 'fingerprint_exact' ? 'rgb(16,185,129)' :
+                      introspectResult.match_method === 'fingerprint_partial' ? 'rgb(245,158,11)' :
+                      introspectResult.match_method === 'carrier_detect' ? 'rgb(6,182,212)' :
+                      'rgb(156,163,175)'
+                    }
+                  />
+                </div>
+                <p className="mt-1 text-xs text-[var(--text-muted)]">
+                  {introspectResult.match_method === 'fingerprint_exact'
+                    ? 'This file matched a previously saved format exactly. All column mappings were applied automatically from the format library.'
+                    : introspectResult.match_method === 'fingerprint_partial'
+                    ? 'This file partially matched a saved format. Some columns were auto-mapped; others need manual review.'
+                    : introspectResult.match_method === 'carrier_detect'
+                    ? 'ATLAS detected a known carrier export format and applied its column mapping template.'
+                    : 'No matching format found. ATLAS analyzed column names and sample data to suggest mappings.'}
+                </p>
+                <div className="mt-2.5 flex flex-wrap gap-x-6 gap-y-1.5">
+                  {introspectResult.header_fingerprint && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Fingerprint</span>
+                      <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-secondary)]">
+                        {introspectResult.header_fingerprint.slice(0, 16)}...
+                      </span>
+                    </div>
+                  )}
+                  {introspectResult.format_id && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Format ID</span>
+                      <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-secondary)]">
+                        {introspectResult.format_id}
+                      </span>
+                    </div>
+                  )}
+                  {introspectResult.carrier_detection?.detected_carrier && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Carrier</span>
+                      <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] text-[var(--text-secondary)]">
+                        {introspectResult.carrier_detection.detected_carrier}
+                      </span>
+                    </div>
+                  )}
+                  {introspectResult.run_id && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Run</span>
+                      <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--text-secondary)]">
+                        {introspectResult.run_id}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Mapping Table */}
@@ -978,10 +1092,23 @@ function ImportSection() {
       )}
 
       {/* ── STEP 4: Import Report ── */}
-      {step === 4 && importResult && (
+      {step === 4 && (
         <div>
+          {importError && (
+            <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+              <div className="flex items-start gap-2">
+                <span className="material-icons-outlined shrink-0" style={{ fontSize: '18px', color: 'rgb(239,68,68)' }}>error</span>
+                <div>
+                  <p className="text-sm font-medium text-red-400">Import Error</p>
+                  <p className="mt-0.5 text-xs text-red-300">{importError}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          {importResult ? (
+          <>
           <div className="mb-4 flex items-center gap-3">
-            <span className="material-icons-outlined text-2xl" style={{ color: 'rgb(16,185,129)' }}>check_circle</span>
+            <span className="material-icons-outlined text-2xl" style={{ color: importError ? 'rgb(245,158,11)' : 'rgb(16,185,129)' }}>{importError ? 'warning' : 'check_circle'}</span>
             <div>
               <h3 className="text-base font-semibold text-[var(--text-primary)]">Import Complete</h3>
               <p className="text-xs text-[var(--text-muted)]">{file?.name} &mdash; {category} category</p>
@@ -999,56 +1126,114 @@ function ImportSection() {
                 </tr>
               </thead>
               <tbody>
-                {buildLedgerRows().map((row, i) => {
-                  const isBalance = row.category === 'Input = Output'
+                {buildLedgerRows().map((row) => {
+                  const isBalance = row.key === 'balance'
                   const balanced = isBalance && importResult.total_received === row.count
+                  const isExpanded = expandedRow === row.key
+                  const canExpand = row.drillable && row.count > 0
+                  const detailRecords = importResult.details?.[row.key] || []
+
                   return (
-                    <tr
-                      key={i}
-                      className="border-b border-[var(--border-subtle)]"
-                      style={isBalance ? { background: balanced ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)' } : undefined}
-                    >
-                      <td className="px-4 py-2.5">
-                        <span className={`text-sm ${isBalance ? 'font-bold' : 'font-medium'} text-[var(--text-primary)]`}>
-                          {row.category}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2.5 text-right">
-                        <span className={`text-sm ${isBalance ? 'font-bold' : ''} text-[var(--text-primary)]`}>
-                          {row.count.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        {row.status === 'complete' && (
-                          <span className="inline-flex items-center gap-1 text-xs text-[rgb(16,185,129)]">
-                            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check_circle</span>Complete
+                    <React.Fragment key={row.key}>
+                      <tr
+                        className={`border-b border-[var(--border-subtle)] ${canExpand ? 'cursor-pointer hover:bg-[var(--bg-surface)]' : ''}`}
+                        style={isBalance ? { background: balanced ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)' } : undefined}
+                        onClick={() => canExpand && setExpandedRow(isExpanded ? null : row.key)}
+                      >
+                        <td className="px-4 py-2.5">
+                          <span className="flex items-center gap-1.5">
+                            {canExpand && (
+                              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                                {isExpanded ? 'expand_less' : 'expand_more'}
+                              </span>
+                            )}
+                            <span className={`text-sm ${isBalance ? 'font-bold' : 'font-medium'} text-[var(--text-primary)]`}>
+                              {row.category}
+                            </span>
                           </span>
-                        )}
-                        {row.status === 'in_review' && (
-                          <span className="inline-flex items-center gap-1 text-xs text-[rgb(245,158,11)]">
-                            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>pending</span>In Review
+                        </td>
+                        <td className="px-3 py-2.5 text-right">
+                          <span className={`text-sm ${isBalance ? 'font-bold' : ''} ${canExpand ? 'underline decoration-dotted underline-offset-2' : ''} text-[var(--text-primary)]`}>
+                            {row.count.toLocaleString()}
                           </span>
-                        )}
-                        {row.status === 'skipped' && (
-                          <span className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)]">
-                            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>skip_next</span>Skipped
-                          </span>
-                        )}
-                        {row.status === 'none' && isBalance && balanced && (
-                          <span className="inline-flex items-center gap-1 text-xs font-bold text-[rgb(16,185,129)]">
-                            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>verified</span>Balanced
-                          </span>
-                        )}
-                        {row.status === 'none' && isBalance && !balanced && (
-                          <span className="inline-flex items-center gap-1 text-xs font-bold text-[rgb(239,68,68)]">
-                            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>error</span>Mismatch
-                          </span>
-                        )}
-                        {row.status === 'none' && !isBalance && (
-                          <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
-                        )}
-                      </td>
-                    </tr>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {row.status === 'complete' && (
+                            <span className="inline-flex items-center gap-1 text-xs text-[rgb(16,185,129)]">
+                              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check_circle</span>Complete
+                            </span>
+                          )}
+                          {row.status === 'in_review' && (
+                            <span className="inline-flex items-center gap-1 text-xs text-[rgb(245,158,11)]">
+                              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>pending</span>In Review
+                            </span>
+                          )}
+                          {row.status === 'skipped' && (
+                            <span className="inline-flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>skip_next</span>Skipped
+                            </span>
+                          )}
+                          {row.status === 'none' && isBalance && balanced && (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-[rgb(16,185,129)]">
+                              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>verified</span>Balanced
+                            </span>
+                          )}
+                          {row.status === 'none' && isBalance && !balanced && (
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-[rgb(239,68,68)]">
+                              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>error</span>Mismatch
+                            </span>
+                          )}
+                          {row.status === 'none' && !isBalance && (
+                            <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
+                          )}
+                        </td>
+                      </tr>
+                      {/* Drill-down detail rows */}
+                      {isExpanded && detailRecords.length > 0 && (
+                        <tr>
+                          <td colSpan={3} className="bg-[var(--bg-surface)] p-0">
+                            <div className="max-h-64 overflow-y-auto">
+                              <table className="w-full text-xs">
+                                <thead>
+                                  <tr className="border-b border-[var(--border-subtle)] text-left">
+                                    <th className="px-6 py-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">#</th>
+                                    {Object.keys(detailRecords[0]).slice(0, 6).map((k) => (
+                                      <th key={k} className="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{k}</th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {detailRecords.slice(0, 50).map((rec, ri) => (
+                                    <tr key={ri} className="border-b border-[var(--border-subtle)]">
+                                      <td className="px-6 py-1.5 text-[var(--text-muted)]">{ri + 1}</td>
+                                      {Object.keys(rec).slice(0, 6).map((k) => (
+                                        <td key={k} className="px-3 py-1.5 text-[var(--text-secondary)]">
+                                          {String(rec[k] ?? '').slice(0, 40)}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  ))}
+                                  {detailRecords.length > 50 && (
+                                    <tr>
+                                      <td colSpan={7} className="px-6 py-2 text-center text-[var(--text-muted)]">
+                                        ...and {(detailRecords.length - 50).toLocaleString()} more records
+                                      </td>
+                                    </tr>
+                                  )}
+                                </tbody>
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      {isExpanded && detailRecords.length === 0 && (
+                        <tr>
+                          <td colSpan={3} className="bg-[var(--bg-surface)] px-6 py-4 text-center text-xs text-[var(--text-muted)]">
+                            Detail records not available for this category. Check the import run in ATLAS Operations &gt; Audit.
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   )
                 })}
               </tbody>
@@ -1066,6 +1251,21 @@ function ImportSection() {
               Import Another
             </button>
           </div>
+          </>
+          ) : (
+          <div className="py-12 text-center">
+            <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">cloud_off</span>
+            <p className="mt-3 text-sm text-[var(--text-muted)]">No import results available.</p>
+            <button
+              onClick={handleReset}
+              className="mt-4 inline-flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-medium transition-all hover:bg-[var(--bg-surface)]"
+              style={{ color: 'var(--portal)', border: '1px solid var(--portal)' }}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>refresh</span>
+              Start Over
+            </button>
+          </div>
+          )}
         </div>
       )}
     </div>
