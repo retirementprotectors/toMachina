@@ -37,6 +37,7 @@ export const collections = {
   communications: () => collection(getDb(), 'communications'),
   pipelines: () => collection(getDb(), 'pipelines'),
   sourceRegistry: () => collection(getDb(), 'source_registry'),
+  toolRegistry: () => collection(getDb(), 'tool_registry'),
   activities: () => collection(getDb(), 'activities'),
   campaignSendLog: () => collection(getDb(), 'campaign_send_log'),
   campaignDeliveryEvents: () => collection(getDb(), 'campaign_delivery_events'),

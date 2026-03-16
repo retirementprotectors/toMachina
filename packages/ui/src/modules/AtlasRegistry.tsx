@@ -225,7 +225,9 @@ function confidenceColor(confidence: number) {
 
 export function AtlasRegistry({ portal }: { portal?: string }) {
   const srcQ = useMemo<Query<DocumentData>>(() => query(collections.sourceRegistry()), [])
+  const toolQ = useMemo<Query<DocumentData>>(() => query(collections.toolRegistry()), [])
   const { data: sources, loading, error } = useCollection<SourceRecord>(srcQ, `atlas-src-${portal || 'all'}`)
+  const { data: tools } = useCollection<ToolRecord>(toolQ, `atlas-tools-${portal || 'all'}`)
   const [activeSection, setActiveSection] = useState<Section>('import')
   const [registryTab, setRegistryTab] = useState<RegistrySubTab>('sources')
   const [opsTab, setOpsTab] = useState<OpsSubTab>('pipeline')
@@ -288,7 +290,7 @@ export function AtlasRegistry({ portal }: { portal?: string }) {
               </button>
             </div>
             {registryTab === 'sources' && <SourcesTab sources={sources} />}
-            {registryTab === 'tools' && <ToolsTab />}
+            {registryTab === 'tools' && <ToolsTab tools={tools} />}
           </div>
         )}
         {activeSection === 'operations' && (
@@ -1670,8 +1672,7 @@ function SourcesTab({ sources }: { sources: SourceRecord[] }) {
 // Tab 2: Tools
 // ---------------------------------------------------------------------------
 
-function ToolsTab() {
-  const [tools] = useState<ToolRecord[]>([]) // tool_registry — empty until seeded
+function ToolsTab({ tools }: { tools: ToolRecord[] }) {
   const [catF, setCatF] = useState('All')
   const [typeF, setTypeF] = useState('All')
   const [search, setSearch] = useState('')
@@ -1692,14 +1693,16 @@ function ToolsTab() {
       <Empty icon="build" title="Tool Registry" desc="Seed ATLAS to populate the tool registry. 150+ tools across 6 pipeline categories will appear here." />
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {TOOL_CATS.map((cat) => (
-          <div key={cat.key} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+          <button key={cat.key} onClick={() => setCatF(catF === cat.key ? 'All' : cat.key)}
+            className="rounded-lg border p-4 text-left transition-all"
+            style={{ borderColor: catF === cat.key ? catColor(cat.key) : 'var(--border-subtle)', background: catF === cat.key ? `${catColor(cat.key)}10` : 'var(--bg-card)' }}>
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full" style={{ background: `${catColor(cat.key)}15` }}>
                 <span className="material-icons-outlined" style={{ fontSize: '20px', color: catColor(cat.key) }}>{cat.icon}</span>
               </span>
               <div><p className="text-sm font-semibold text-[var(--text-primary)]">{cat.label}</p><p className="text-xs text-[var(--text-muted)]">{cat.desc}</p></div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </div>
