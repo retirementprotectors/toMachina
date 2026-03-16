@@ -211,7 +211,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
 
     return sections.map(section => {
       if (section.key === 'sales-centers') {
-        const salesPipelines = visible.filter(p => (p.assigned_section || 'sales') === 'sales')
+        const salesPipelines = visible.filter(p => p.assigned_section === 'sales' || p.assigned_section === 'both')
         return {
           ...section,
           items: [
@@ -226,7 +226,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
         }
       }
       if (section.key === 'service-centers') {
-        const servicePipelines = visible.filter(p => p.assigned_section === 'service')
+        const servicePipelines = visible.filter(p => p.assigned_section === 'service' || p.assigned_section === 'both')
         return {
           ...section,
           items: [

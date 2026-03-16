@@ -265,14 +265,16 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
-    // FORGE — Build Tracker (leader+ writes)
+    // FORGE — Build Tracker
+    // Read: any RPI user (Report Button is universal, leaders see the board)
+    // Write: owner only (sprint/item management is JDM-only for now)
     // ----------------------------------------------------------------
     match /tracker_items/{docId} {
-      allow read: if isLeaderOrAbove();
+      allow read: if isRPIUser();
       allow write: if isOwner();
     }
     match /sprints/{docId} {
-      allow read: if isLeaderOrAbove();
+      allow read: if isRPIUser();
       allow write: if isOwner();
     }
 

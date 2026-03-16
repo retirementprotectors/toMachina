@@ -7,9 +7,13 @@ import type { UserLevelName, ModuleAction } from '@tomachina/core'
 const profileCache = new Map<string, { data: UserProfileData; expires: number }>()
 const CACHE_TTL_MS = 60_000
 
+const LEVEL_NAMES: Record<number, string> = { 0: 'OWNER', 1: 'EXECUTIVE', 2: 'LEADER', 3: 'USER' }
+
 interface UserProfileData {
   email: string
+  /** Single source of truth: 0=OWNER, 1=EXECUTIVE, 2=LEADER, 3=USER */
   level: number
+  /** Derived from level — kept on the cached object for convenience */
   user_level: string
   module_permissions?: Record<string, string[]>
   status?: string
@@ -25,10 +29,11 @@ async function getUserProfile(email: string): Promise<UserProfileData | null> {
   if (!doc.exists) return null
 
   const data = doc.data() as UserProfileData
+  const numLevel = typeof data.level === 'number' ? data.level : 3
   const profile: UserProfileData = {
     email: data.email || email,
-    level: typeof data.level === 'number' ? data.level : 3,
-    user_level: data.user_level || 'USER',
+    level: numLevel,
+    user_level: LEVEL_NAMES[numLevel] || 'USER',
     module_permissions: data.module_permissions,
     status: data.status,
   }
@@ -52,7 +57,7 @@ export function requireLevel(minLevel: UserLevelName) {
     const profile = await getUserProfile(email)
     if (!profile) {
       if (minNumeric < 3) { res.status(403).json(errorResponse(`Insufficient permissions -- ${minLevel} or higher required`)); return }
-      ;(req as unknown as Record<string, unknown>).userProfile = { email, level: 3, user_level: 'USER' }
+      ;(req as unknown as Record<string, unknown>).userProfile = { email, level: 3, user_level: 'USER' } as UserProfileData
       next(); return
     }
 

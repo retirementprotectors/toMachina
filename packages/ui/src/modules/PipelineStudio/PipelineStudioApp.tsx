@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { FlowPipelineDef } from '@tomachina/core'
 import PipelineEditor from './PipelineEditor'
 import PipelineWizard from './PipelineWizard'
@@ -34,15 +34,33 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
 
 /* --- Pipeline Card --- */
 
+const SECTION_STYLES: Record<string, { icon: string; label: string; color: string }> = {
+  sales:   { icon: 'storefront',    label: 'Sales',   color: '#4a7ab5' },
+  service: { icon: 'support_agent', label: 'Service', color: '#4a7ab5' },
+  both:    { icon: 'swap_horiz',    label: 'Both',    color: '#4a7ab5' },
+}
+
 function StudioPipelineCard({
   pipeline,
   onClick,
+  onSectionChange,
 }: {
   pipeline: FlowPipelineDef
   onClick: () => void
+  onSectionChange: (pipelineKey: string, section: string) => Promise<void>
 }) {
   const status = (pipeline.status || 'draft').toLowerCase()
   const style = STATUS_STYLES[status] || STATUS_STYLES.draft
+  const savedSection = (pipeline as FlowPipelineDef & { assigned_section?: string }).assigned_section || ''
+  const [localSection, setLocalSection] = useState(savedSection)
+  const [saving, setSaving] = useState(false)
+  const hasChanged = localSection !== savedSection
+  const sectionStyle = SECTION_STYLES[localSection]
+
+  // Sync local state when Firestore data updates
+  useEffect(() => {
+    setLocalSection(savedSection)
+  }, [savedSection])
 
   // Count stages from metadata if available
   const stageCount = typeof pipeline.stage_count === 'number'
@@ -50,12 +68,11 @@ function StudioPipelineCard({
     : null
 
   return (
-    <button
-      onClick={onClick}
+    <div
       className="group w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5 text-left transition-all hover:border-[var(--border-medium)] hover:shadow-lg hover:shadow-black/5"
     >
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
+        <button onClick={onClick} className="flex items-center gap-3">
           <span
             className="flex h-10 w-10 items-center justify-center rounded-lg"
             style={{ backgroundColor: 'var(--portal-glow)' }}
@@ -78,7 +95,7 @@ function StudioPipelineCard({
               </p>
             )}
           </div>
-        </div>
+        </button>
 
         <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${style.bg} ${style.text}`}>
           {style.label}
@@ -91,7 +108,44 @@ function StudioPipelineCard({
         </p>
       )}
 
-      <div className="mt-3 flex items-center justify-between">
+      {/* Section Assignment */}
+      <div className="mt-3 flex items-center gap-2 rounded-md bg-[var(--bg-surface)] px-2.5 py-1.5">
+        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+          {sectionStyle?.icon || 'help_outline'}
+        </span>
+        <span className="text-[10px] text-[var(--text-muted)]">Section:</span>
+        <select
+          value={localSection}
+          onChange={(e) => {
+            e.stopPropagation()
+            setLocalSection(e.target.value)
+          }}
+          onClick={(e) => e.stopPropagation()}
+          className="flex-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-0.5 text-[11px] text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+        >
+          <option value="">Unassigned</option>
+          <option value="sales">Sales</option>
+          <option value="service">Service</option>
+          <option value="both">Both</option>
+        </select>
+        {hasChanged && (
+          <button
+            onClick={async (e) => {
+              e.stopPropagation()
+              setSaving(true)
+              await onSectionChange(pipeline.pipeline_key, localSection)
+              setSaving(false)
+            }}
+            disabled={saving}
+            className="rounded-md px-2.5 py-0.5 text-[10px] font-semibold text-white transition-opacity disabled:opacity-50"
+            style={{ background: 'var(--portal)' }}
+          >
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+        )}
+      </div>
+
+      <div className="mt-2.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {stageCount !== null && (
             <span className="flex items-center gap-1 text-[10px] text-[var(--text-muted)]">
@@ -107,15 +161,16 @@ function StudioPipelineCard({
           )}
         </div>
 
-        <span
+        <button
+          onClick={onClick}
           className="flex items-center gap-1 text-xs font-medium opacity-0 transition-opacity group-hover:opacity-100"
           style={{ color: 'var(--portal)' }}
         >
           Edit
           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_forward</span>
-        </span>
+        </button>
       </div>
-    </button>
+    </div>
   )
 }
 
@@ -193,6 +248,27 @@ export default function PipelineStudioApp({
     draft: pipelines.filter((p) => (p.status || 'draft').toLowerCase() === 'draft').length,
     archived: pipelines.filter((p) => (p.status || '').toLowerCase() === 'archived').length,
   }
+
+  /* --- Section assignment handler --- */
+  const handleSectionChange = useCallback(async (pipelineKey: string, section: string) => {
+    try {
+      await fetchWithAuth(`${apiBase}/flow/admin/pipelines/${pipelineKey}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assigned_section: section || null }),
+      })
+      // Update local state immediately
+      setPipelines((prev) =>
+        prev.map((p) =>
+          p.pipeline_key === pipelineKey
+            ? { ...p, assigned_section: section || null } as FlowPipelineDef
+            : p
+        )
+      )
+    } catch {
+      // Silent — will refresh on next load
+    }
+  }, [apiBase])
 
   /* --- Wizard complete handler --- */
   const handleCreate = useCallback((pipelineKey: string) => {
@@ -304,6 +380,7 @@ export default function PipelineStudioApp({
             key={pipeline.pipeline_key}
             pipeline={pipeline}
             onClick={() => setSelectedPipelineKey(pipeline.pipeline_key)}
+            onSectionChange={handleSectionChange}
           />
         ))}
       </div>

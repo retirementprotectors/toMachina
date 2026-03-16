@@ -25,7 +25,7 @@ interface UserRecord {
   first_name?: string
   last_name?: string
   full_name?: string
-  user_level?: number
+  level?: number
   unit?: string
   division?: string
   job_title?: string

@@ -100,7 +100,9 @@ export interface UserProfile {
   first_name?: string
   last_name?: string
   display_name?: string
+  /** Numeric level is the single source of truth: 0=OWNER, 1=EXECUTIVE, 2=LEADER, 3=USER */
   level?: number
+  /** @deprecated Use `level` instead. Kept for backward compat reads only. */
   user_level?: string
   status?: string
   division?: string
@@ -163,8 +165,8 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe()
   }, [user])
 
-  // Map numeric level to UserLevelName (fallback when user_level string is missing)
-  const levelMap: Record<number, UserEntitlementContext['userLevel']> = {
+  // Single source of truth: numeric level → string name
+  const LEVEL_TO_NAME: Record<number, UserEntitlementContext['userLevel']> = {
     0: 'OWNER',
     1: 'EXECUTIVE',
     2: 'LEADER',
@@ -176,9 +178,7 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     user,
     profile
       ? {
-          userLevel: (profile.user_level as UserEntitlementContext['userLevel'])
-            || levelMap[profile.level ?? 3]
-            || 'USER',
+          userLevel: LEVEL_TO_NAME[profile.level ?? 3] || 'USER',
           modulePermissions: profile.module_permissions as UserEntitlementContext['modulePermissions'],
           assignedModules: [
             // Legacy arrays (backward compat)

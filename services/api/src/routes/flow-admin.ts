@@ -127,7 +127,7 @@ flowAdminRoutes.put('/pipelines/:key', async (req: Request, res: Response) => {
       return
     }
 
-    const allowedFields = ['pipeline_name', 'description', 'portal', 'domain', 'icon', 'status', 'platform_carrier', 'product_type', 'default_view']
+    const allowedFields = ['pipeline_name', 'description', 'portal', 'domain', 'icon', 'status', 'platform_carrier', 'product_type', 'default_view', 'assigned_section']
     const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
     for (const field of allowedFields) {
       if (body[field] !== undefined) {

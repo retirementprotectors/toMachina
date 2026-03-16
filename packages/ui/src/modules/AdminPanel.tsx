@@ -26,7 +26,7 @@ interface UserRecord {
   first_name?: string
   last_name?: string
   display_name?: string
-  user_level?: string
+  /** Single source of truth: 0=OWNER, 1=EXECUTIVE, 2=LEADER, 3=USER */
   level?: number
   status?: string
   division?: string
@@ -65,7 +65,7 @@ interface FlowPipelineRecord {
   domain?: string
   icon?: string
   status?: string
-  assigned_section?: 'sales' | 'service' | null
+  assigned_section?: 'sales' | 'service' | 'both' | null
 }
 
 type AdminTab = 'module-config' | 'team-config'
@@ -137,9 +137,8 @@ const ACTION_ICONS: Record<ModuleAction, string> = {
   ADD: 'add_circle',
 }
 
-/** Only Owner-level users get fully locked "all access" display.
- *  Executives and Leaders have scoped permissions that Owners can edit. */
-const FULLY_LOCKED_LEVELS = ['Owner']
+/** Derive display name from numeric level */
+const LEVEL_NAMES: Record<number, string> = { 0: 'Owner', 1: 'Executive', 2: 'Leader', 3: 'User' }
 
 /** Icon map for pipeline domain categories */
 const DOMAIN_ICONS: Record<string, string> = {
@@ -358,8 +357,8 @@ function ModuleExpandRow({
                     {teamUser.first_name} {teamUser.last_name}
                     {isSelf && <span className="ml-1 text-[10px] text-[var(--text-muted)]">(you)</span>}
                   </span>
-                  {teamUser.user_level && (
-                    <span className="text-[10px] text-[var(--text-muted)]">{teamUser.user_level}</span>
+                  {teamUser.level !== undefined && (
+                    <span className="text-[10px] text-[var(--text-muted)]">{LEVEL_NAMES[teamUser.level ?? 3] || 'User'}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
@@ -430,7 +429,6 @@ function RoleUnitAssignment({
     division?: string
     unit?: string
     level?: number
-    user_level?: string
     module_permissions?: Record<string, string[]>
   }) => void
 }) {
@@ -470,7 +468,6 @@ function RoleUnitAssignment({
         division: selectedDivision || undefined,
         unit: selectedUnit || undefined,
         level: derivedLevelNum,
-        user_level: derivedLevel,
         module_permissions: preview,
       })
     } finally {
@@ -778,17 +775,17 @@ function TeamMemberRow({
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
   onRoleUnitUpdate: (userId: string, updates: {
     role_template?: string; division?: string; unit?: string;
-    level?: number; user_level?: string; module_permissions?: Record<string, string[]>
+    level?: number; module_permissions?: Record<string, string[]>
   }) => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const isSelf = member.email === currentUserEmail
 
-  // Only Owners are fully locked (all access by definition, non-editable)
-  const memberLevel = member.user_level || member.role_template || 'User'
-  const normalizedLevel = memberLevel.charAt(0).toUpperCase() + memberLevel.slice(1).toLowerCase()
-  const isFullyLocked = FULLY_LOCKED_LEVELS.includes(normalizedLevel)
+  // Derive display name from numeric level (single source of truth)
+  const memberLevelNum = member.level ?? 3
+  const memberLevelName = LEVEL_NAMES[memberLevelNum] || 'User'
+  const isFullyLocked = memberLevelNum === 0 // Only Owner is fully locked
 
   // Can the current user edit this member's permissions?
   // Owner can edit anyone except self. Leaders can edit non-locked users.
@@ -828,7 +825,7 @@ function TeamMemberRow({
       // For sales section, inject pipelines assigned to 'sales'
       if (section.key === 'sales-centers') {
         const salesPipelines = flowPipelines.filter(
-          (fp) => (fp.assigned_section || '') === 'sales'
+          (fp) => fp.assigned_section === 'sales' || fp.assigned_section === 'both'
         )
         for (const fp of salesPipelines) {
           const pKey = fp.pipeline_key || fp._id
@@ -845,7 +842,7 @@ function TeamMemberRow({
       // For service section, inject pipelines assigned to 'service'
       if (section.key === 'service-centers') {
         const servicePipelines = flowPipelines.filter(
-          (fp) => fp.assigned_section === 'service'
+          (fp) => fp.assigned_section === 'service' || fp.assigned_section === 'both'
         )
         for (const fp of servicePipelines) {
           const pKey = fp.pipeline_key || fp._id
@@ -1159,7 +1156,7 @@ function TeamConfigTab({
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
   onRoleUnitUpdate: (userId: string, updates: {
     role_template?: string; division?: string; unit?: string;
-    level?: number; user_level?: string; module_permissions?: Record<string, string[]>
+    level?: number; module_permissions?: Record<string, string[]>
   }) => void
 }) {
   // AD-1: Active users only
@@ -1177,8 +1174,7 @@ function TeamConfigTab({
       User: [],
     }
     for (const u of activeUsers) {
-      const raw = u.user_level || u.role_template || 'User'
-      const normalized = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase()
+      const normalized = LEVEL_NAMES[u.level ?? 3] || 'User'
       if (normalized in groups) groups[normalized].push(u)
       else groups.User.push(u)
     }
@@ -1334,7 +1330,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
   const handleRoleUnitUpdate = useCallback(
     async (userId: string, updates: {
       role_template?: string; division?: string; unit?: string;
-      level?: number; user_level?: string; module_permissions?: Record<string, string[]>
+      level?: number; module_permissions?: Record<string, string[]>
     }) => {
       if (!isLeader) return
       try {
@@ -1415,7 +1411,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
             let augmented = section
             if (section.key === 'sales-centers') {
               const salesPipelines = activeFlowPipelines.filter(
-                (fp) => (fp.assigned_section || '') === 'sales'
+                (fp) => fp.assigned_section === 'sales' || fp.assigned_section === 'both'
               )
               augmented = {
                 ...section,
@@ -1432,7 +1428,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
             }
             if (section.key === 'service-centers') {
               const servicePipelines = activeFlowPipelines.filter(
-                (fp) => fp.assigned_section === 'service'
+                (fp) => fp.assigned_section === 'service' || fp.assigned_section === 'both'
               )
               augmented = {
                 ...section,
