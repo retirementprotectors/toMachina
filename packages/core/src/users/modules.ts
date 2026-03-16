@@ -782,7 +782,8 @@ export interface UnitModuleDefaultDef {
   modules: string[]
 }
 
-export const UNIT_MODULE_DEFAULTS: Record<string, UnitModuleDefaultDef> = {
+/** Hardcoded fallback — used when Firestore `unit_module_defaults` collection is unavailable. */
+export const DEFAULT_UNIT_MODULE_DEFAULTS: Record<string, UnitModuleDefaultDef> = {
   MEDICARE: {
     label: 'Medicare',
     description: 'Medicare sales and service',
@@ -799,6 +800,9 @@ export const UNIT_MODULE_DEFAULTS: Record<string, UnitModuleDefaultDef> = {
     modules: ['BENI_CENTER', 'DISCOVERY_KIT'],
   },
 }
+
+/** @deprecated Use DEFAULT_UNIT_MODULE_DEFAULTS. Kept for backward compatibility. */
+export const UNIT_MODULE_DEFAULTS = DEFAULT_UNIT_MODULE_DEFAULTS
 
 /** Base PRODASH modules every user gets (action level from role template). */
 export const BASE_PRODASH_MODULES = [
@@ -825,20 +829,23 @@ export const LEADER_DEFAULT_RAPID_TOOLS = ['C3', 'RAPID_IMPORT', 'DEX'] as const
 export function computeModulePermissions(
   roleTemplateKey: string,
   unitId?: string,
-  sentinelPerms?: Record<string, ModuleAction[]>
+  sentinelPerms?: Record<string, ModuleAction[]>,
+  unitDefaults?: Record<string, UnitModuleDefaultDef>
 ): Record<string, ModuleAction[]> {
   const template = PRODASH_ROLE_TEMPLATES[(roleTemplateKey || '').toLowerCase() as RoleTemplateKey]
     || PRODASH_ROLE_TEMPLATES.readonly
 
+  const effectiveDefaults = unitDefaults || DEFAULT_UNIT_MODULE_DEFAULTS
+
   const isLeaderOrAbove = ['OWNER', 'EXECUTIVE', 'LEADER'].includes(template.userLevel)
   const unitUpper = (unitId || '').toUpperCase()
-  const unitDef = UNIT_MODULE_DEFAULTS[unitUpper]
+  const unitDef = effectiveDefaults[unitUpper]
 
   // Get the list of specialty modules this user should have
   let allowedSpecialty: string[] = []
   if (isLeaderOrAbove) {
     // Leaders+ get ALL specialty modules
-    for (const unit of Object.values(UNIT_MODULE_DEFAULTS)) {
+    for (const unit of Object.values(effectiveDefaults)) {
       for (const mod of unit.modules) {
         if (!allowedSpecialty.includes(mod)) allowedSpecialty.push(mod)
       }

@@ -329,6 +329,14 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
+    // Unit module defaults — Firestore-driven config for unit→module mapping
+    // ----------------------------------------------------------------
+    match /unit_module_defaults/{unitKey} {
+      allow read: if isRPIUser();
+      allow write: if isOwner();
+    }
+
+    // ----------------------------------------------------------------
     // Account dedup — split account collections (life, BD/RIA)
     // ----------------------------------------------------------------
     match /accounts_life/{docId} {

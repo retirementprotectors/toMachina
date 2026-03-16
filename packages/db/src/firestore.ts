@@ -45,6 +45,7 @@ export const collections = {
   campaignEnrollments: () => collection(getDb(), 'campaign_enrollments'),
   trackerItems: () => collection(getDb(), 'tracker_items'),
   sprints: () => collection(getDb(), 'sprints'),
+  unitModuleDefaults: () => collection(getDb(), 'unit_module_defaults'),
 } as const
 
 export type Collections = typeof collections

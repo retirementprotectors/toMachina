@@ -6,7 +6,6 @@ import {
   collection,
   doc,
   updateDoc,
-  setDoc,
   type Query,
   type DocumentData,
 } from 'firebase/firestore'
@@ -14,7 +13,6 @@ import { useAuth, useEntitlements, computeModulePermissions, PRODASH_ROLE_TEMPLA
 import type { UserLevelName, ModuleAction, RoleTemplateKey } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
-import { APP_BRANDS, type AppKey } from '../apps/brands'
 
 /* ─── Types ─── */
 
@@ -49,16 +47,13 @@ interface UserRecord {
   assigned_apps?: string[]
 }
 
-interface PipelineRecord {
+/** Org unit from org collection (divisions, units, etc.) */
+interface OrgRecord {
   _id: string
+  entity_type?: string
   name?: string
-  category?: string
+  entity_name?: string
   status?: string
-  stages?: Array<{
-    name: string
-    order: number
-    status?: string
-  }>
 }
 
 /** Flow pipeline definition from flow_pipelines collection */
@@ -73,15 +68,7 @@ interface FlowPipelineRecord {
   assigned_section?: 'sales' | 'service' | null
 }
 
-/** Portal app config from portal_config/{portal}/apps/{appKey} */
-interface PortalAppConfig {
-  _id: string
-  enabled: boolean
-}
-
-type SectionAssignment = 'sales' | 'service' | null
-
-type AdminTab = 'module-config' | 'pipeline-config' | 'app-config' | 'team-config'
+type AdminTab = 'module-config' | 'team-config'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -99,24 +86,22 @@ interface SectionDef {
   items: ModuleItem[]
 }
 
+/* ─── MODULE_SECTIONS: Mirrors PortalSidebar NAV_SECTIONS exactly ─── */
 const MODULE_SECTIONS: SectionDef[] = [
   {
     key: 'workspace',
     label: 'Workspace',
-    icon: 'dashboard',
+    icon: 'workspaces',
     items: [
-      { key: 'clients', label: 'Clients', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'contacts', label: 'Contacts', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
       { key: 'accounts', label: 'Accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
-      { key: 'casework', label: 'My Cases', icon: 'work', moduleKey: 'PRODASH_PIPELINES' },
-      { key: 'myrpi', label: 'MyRPI', icon: 'person', moduleKey: 'MY_RPI' },
-      { key: 'intake', label: 'Quick Intake', icon: 'person_add', moduleKey: 'PRODASH_CLIENTS' },
     ],
   },
   {
     key: 'sales-centers',
     label: 'Sales',
     icon: 'storefront',
-    items: [],  // Populated dynamically by pipelines assigned to 'sales' via Pipeline Studio
+    items: [],  // Populated dynamically by pipelines assigned to 'sales'
   },
   {
     key: 'service-centers',
@@ -125,7 +110,7 @@ const MODULE_SECTIONS: SectionDef[] = [
     items: [
       { key: 'rmd', label: 'RMD Center', icon: 'calendar_month', moduleKey: 'RMD_CENTER' },
       { key: 'beni', label: 'Beni Center', icon: 'volunteer_activism', moduleKey: 'BENI_CENTER' },
-      { key: 'access', label: 'Access Center', icon: 'security', moduleKey: 'ACCESS_CENTER' },
+      { key: 'access', label: 'Access Center', icon: 'security' },
     ],
   },
   {
@@ -152,8 +137,9 @@ const ACTION_ICONS: Record<ModuleAction, string> = {
   ADD: 'add_circle',
 }
 
-/** Elevated roles that get all access locked */
-const ELEVATED_LEVELS = ['Owner', 'Executive', 'Leader']
+/** Only Owner-level users get fully locked "all access" display.
+ *  Executives and Leaders have scoped permissions that Owners can edit. */
+const FULLY_LOCKED_LEVELS = ['Owner']
 
 /** Icon map for pipeline domain categories */
 const DOMAIN_ICONS: Record<string, string> = {
@@ -200,69 +186,6 @@ function EntitlementBadge({
   )
 }
 
-/** Generic toggle switch used by App Config and other tabs */
-function ToggleSwitch({
-  enabled,
-  editable,
-  onToggle,
-  label,
-}: {
-  enabled: boolean
-  editable: boolean
-  onToggle: () => void
-  label?: string
-}) {
-  return (
-    <button
-      onClick={editable ? onToggle : undefined}
-      disabled={!editable}
-      className={`relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors ${
-        editable ? 'cursor-pointer' : 'cursor-default opacity-70'
-      }`}
-      style={{ background: enabled ? 'var(--portal)' : 'var(--bg-surface)' }}
-      title={label || (enabled ? 'Enabled' : 'Disabled')}
-    >
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-          enabled ? 'translate-x-[18px]' : 'translate-x-0.5'
-        } mt-0.5`}
-      />
-    </button>
-  )
-}
-
-/** Checkbox used in Team Config for pipeline/app assignment */
-function AssignmentCheckbox({
-  checked,
-  editable,
-  onToggle,
-  label,
-}: {
-  checked: boolean
-  editable: boolean
-  onToggle: () => void
-  label: string
-}) {
-  return (
-    <button
-      onClick={editable ? onToggle : undefined}
-      disabled={!editable}
-      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] transition-colors ${
-        checked
-          ? 'text-white'
-          : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
-      } ${editable ? 'cursor-pointer hover:opacity-80' : 'cursor-default opacity-70'}`}
-      style={checked ? { background: 'var(--portal)' } : undefined}
-      title={`${label}${!editable ? ' (locked)' : checked ? ' (click to remove)' : ' (click to assign)'}`}
-    >
-      <span className="material-icons-outlined" style={{ fontSize: '12px' }}>
-        {checked ? 'check_box' : 'check_box_outline_blank'}
-      </span>
-      {label}
-    </button>
-  )
-}
-
 function CollapsibleSection({
   section,
   users,
@@ -304,7 +227,16 @@ function CollapsibleSection({
         <div className="border-t border-[var(--border-subtle)] px-5 pb-4 pt-3">
           <div className="space-y-1">
             {section.items.map((item) => {
-              if (!item.moduleKey) return null
+              if (!item.moduleKey) {
+                // Items without a moduleKey (e.g., Access Center) are always visible
+                return (
+                  <div key={item.key} className="flex items-center gap-2.5 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5">
+                    <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>{item.icon}</span>
+                    <span className="text-sm text-[var(--text-primary)]">{item.label}</span>
+                    <span className="text-[10px] text-[var(--text-muted)]">Always visible</span>
+                  </div>
+                )
+              }
               const mk = item.moduleKey
 
               return (
@@ -376,6 +308,12 @@ function ModuleExpandRow({
             {item.icon}
           </span>
           <span className="text-sm text-[var(--text-primary)]">{item.label}</span>
+          {/* Show minUserLevel from modules.ts if the module has a Firestore-level restriction */}
+          {moduleKey && MODULES[moduleKey]?.minUserLevel && MODULES[moduleKey].minUserLevel !== 'USER' && (
+            <span className="rounded-full bg-[rgba(245,158,11,0.1)] px-1.5 py-0.5 text-[9px] font-medium text-[rgb(245,158,11)]">
+              {MODULES[moduleKey].minUserLevel}+
+            </span>
+          )}
           <span className="text-[10px] text-[var(--text-muted)]">
             {usersWithAccess.length} user{usersWithAccess.length !== 1 ? 's' : ''}
           </span>
@@ -474,20 +412,19 @@ const LEVEL_ICONS: Record<string, string> = {
   User: 'person',
 }
 
-/** All app keys for Team Config assignment */
-const ALL_APP_KEYS = Object.keys(APP_BRANDS) as AppKey[]
-
 /* ─── Role + Unit Assignment ─── */
 
 const ROLE_TEMPLATE_KEYS = Object.keys(PRODASH_ROLE_TEMPLATES) as RoleTemplateKey[]
 const UNIT_KEYS = Object.keys(UNIT_MODULE_DEFAULTS)
-const DIVISIONS = ['Sales', 'Service', 'Legacy'] as const
+const DIVISIONS_FALLBACK = ['Sales', 'Service', 'Legacy']
 
 function RoleUnitAssignment({
   member,
+  divisions,
   onUpdate,
 }: {
   member: UserRecord
+  divisions: string[]
   onUpdate: (userId: string, updates: {
     role_template?: string
     division?: string
@@ -579,7 +516,7 @@ function RoleUnitAssignment({
             className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
           >
             <option value="">-- None --</option>
-            {DIVISIONS.map((d) => (
+            {divisions.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
           </select>
@@ -826,19 +763,19 @@ function TeamMemberRow({
   member,
   currentUserEmail,
   isLeader,
+  isOwner,
   flowPipelines,
+  divisions,
   onEntitlementChange,
-  onPipelineAssignmentChange,
-  onAppAssignmentChange,
   onRoleUnitUpdate,
 }: {
   member: UserRecord
   currentUserEmail: string
   isLeader: boolean
+  isOwner: boolean
   flowPipelines: FlowPipelineRecord[]
+  divisions: string[]
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
-  onPipelineAssignmentChange: (userId: string, pipelineKey: string, assigned: boolean) => void
-  onAppAssignmentChange: (userId: string, appKey: string, assigned: boolean) => void
   onRoleUnitUpdate: (userId: string, updates: {
     role_template?: string; division?: string; unit?: string;
     level?: number; user_level?: string; module_permissions?: Record<string, string[]>
@@ -848,10 +785,14 @@ function TeamMemberRow({
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const isSelf = member.email === currentUserEmail
 
-  // Determine if this user has elevated role (all access locked)
+  // Only Owners are fully locked (all access by definition, non-editable)
   const memberLevel = member.user_level || member.role_template || 'User'
   const normalizedLevel = memberLevel.charAt(0).toUpperCase() + memberLevel.slice(1).toLowerCase()
-  const isElevated = ELEVATED_LEVELS.includes(normalizedLevel)
+  const isFullyLocked = FULLY_LOCKED_LEVELS.includes(normalizedLevel)
+
+  // Can the current user edit this member's permissions?
+  // Owner can edit anyone except self. Leaders can edit non-locked users.
+  const canEdit = !isSelf && (isOwner || (!isFullyLocked && isLeader))
 
   // Backward-compat permission resolvers: module_permissions first, fall back to legacy arrays
   const pipelinePerms = useCallback((pipelineKey: string): string[] => {
@@ -874,15 +815,15 @@ function TeamMemberRow({
   // Build unified sections: static modules + dynamic pipelines injected into sales/service
   const unifiedSections: UnifiedSection[] = useMemo(() => {
     return MODULE_SECTIONS.map((section) => {
-      // Start with static items from MODULE_SECTIONS
+      // Start with static items from MODULE_SECTIONS (include items without moduleKey as display-only)
       const items: UnifiedItem[] = section.items
-        .filter((i) => !!i.moduleKey)
         .map((i) => ({
           key: i.key,
           label: i.label,
           icon: i.icon,
-          moduleKey: i.moduleKey!,
+          moduleKey: i.moduleKey || '',
         }))
+        .filter((i) => !!i.moduleKey)
 
       // For sales section, inject pipelines assigned to 'sales'
       if (section.key === 'sales-centers') {
@@ -924,7 +865,7 @@ function TeamMemberRow({
 
   // Get permissions for any item (static module, pipeline, or app)
   const getItemPerms = useCallback((item: UnifiedItem, sectionKey: string): string[] => {
-    if (isElevated) return [...ALL_ACTIONS]
+    if (isFullyLocked) return [...ALL_ACTIONS]
     if (item.isPipeline) {
       // Extract pipeline key from moduleKey 'PIPELINE_xxx'
       const pKey = item.moduleKey.replace('PIPELINE_', '')
@@ -937,7 +878,7 @@ function TeamMemberRow({
       return appPerms(item.moduleKey, appItem?.key || item.key)
     }
     return member.module_permissions?.[item.moduleKey] || []
-  }, [isElevated, pipelinePerms, appPerms, member.module_permissions])
+  }, [isFullyLocked, pipelinePerms, appPerms, member.module_permissions])
 
   // Count items with any permission per section
   const sectionCounts = useMemo(() => {
@@ -1037,21 +978,21 @@ function TeamMemberRow({
 
       {expanded && (
         <div className="border-t border-[var(--border-subtle)] px-3 pb-3 pt-2 space-y-3">
-          {/* Role + Unit Assignment (leaders only, not self) */}
-          {isLeader && !isSelf && (
-            <RoleUnitAssignment member={member} onUpdate={onRoleUnitUpdate} />
+          {/* Role + Unit Assignment */}
+          {canEdit && (
+            <RoleUnitAssignment member={member} divisions={divisions} onUpdate={onRoleUnitUpdate} />
           )}
 
-          {/* Agent Designation — is_agent toggle + NPN (leaders only, not self) */}
-          {isLeader && !isSelf && (
-            <AgentDesignation member={member} isLeader={isLeader} isSelf={isSelf} />
+          {/* Agent Designation — is_agent toggle + NPN */}
+          {canEdit && (
+            <AgentDesignation member={member} isLeader={canEdit} isSelf={false} />
           )}
 
-          {isElevated && (
+          {isFullyLocked && (
             <div className="flex items-center gap-1.5 rounded-md bg-[var(--bg-card)] px-3 py-2">
               <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>verified</span>
               <span className="text-[10px] text-[var(--text-muted)]">
-                Elevated role ({normalizedLevel}) — all access granted across all sections
+                Owner — all access granted across all sections
               </span>
             </div>
           )}
@@ -1095,7 +1036,7 @@ function TeamMemberRow({
                           key={action}
                           action={action}
                           active={sectionAllHaveAction(section.allItems, section.key, action)}
-                          editable={!isElevated && isLeader && !isSelf}
+                          editable={canEdit}
                           onToggle={() =>
                             handleSectionToggle(section.allItems, section.key, action)
                           }
@@ -1131,7 +1072,7 @@ function TeamMemberRow({
                                   key={action}
                                   action={action}
                                   active={perms.includes(action)}
-                                  editable={!isElevated && isLeader && !isSelf}
+                                  editable={canEdit}
                                   onToggle={() =>
                                     onEntitlementChange(
                                       member._id,
@@ -1162,19 +1103,19 @@ function TeamConfigTab({
   users,
   currentUserEmail,
   isLeader,
+  isOwner,
   flowPipelines,
+  divisions,
   onEntitlementChange,
-  onPipelineAssignmentChange,
-  onAppAssignmentChange,
   onRoleUnitUpdate,
 }: {
   users: UserRecord[]
   currentUserEmail: string
   isLeader: boolean
+  isOwner: boolean
   flowPipelines: FlowPipelineRecord[]
+  divisions: string[]
   onEntitlementChange: (userId: string, moduleKey: string, action: ModuleAction, enabled: boolean) => void
-  onPipelineAssignmentChange: (userId: string, pipelineKey: string, assigned: boolean) => void
-  onAppAssignmentChange: (userId: string, appKey: string, assigned: boolean) => void
   onRoleUnitUpdate: (userId: string, updates: {
     role_template?: string; division?: string; unit?: string;
     level?: number; user_level?: string; module_permissions?: Record<string, string[]>
@@ -1247,10 +1188,10 @@ function TeamConfigTab({
                     member={member}
                     currentUserEmail={currentUserEmail}
                     isLeader={isLeader}
+                    isOwner={isOwner}
                     flowPipelines={flowPipelines}
+                    divisions={divisions}
                     onEntitlementChange={onEntitlementChange}
-                    onPipelineAssignmentChange={onPipelineAssignmentChange}
-                    onAppAssignmentChange={onAppAssignmentChange}
                     onRoleUnitUpdate={onRoleUnitUpdate}
                   />
                 ))}
@@ -1262,358 +1203,17 @@ function TeamConfigTab({
   )
 }
 
-/* ─── Pipeline Config Tab (with Section Assignment) ─── */
-
-function PipelineConfigCard({
-  pipeline,
-  isLeader,
-  onSectionChange,
-}: {
-  pipeline: FlowPipelineRecord
-  isLeader: boolean
-  onSectionChange: (pipelineId: string, section: SectionAssignment) => void
-}) {
-  const pipelineKey = pipeline.pipeline_key || pipeline._id
-  const domainLower = (pipeline.domain || '').toLowerCase()
-  const icon = pipeline.icon || DOMAIN_ICONS[domainLower] || 'route'
-
-  return (
-    <div className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-4">
-      <div className="flex items-center gap-3">
-        <span
-          className="flex h-9 w-9 items-center justify-center rounded-lg"
-          style={{ background: 'var(--portal-glow)' }}
-        >
-          <span className="material-icons-outlined" style={{ fontSize: '18px', color: 'var(--portal)' }}>
-            {icon}
-          </span>
-        </span>
-        <div>
-          <h4 className="text-sm font-semibold text-[var(--text-primary)]">
-            {pipeline.pipeline_name || pipelineKey}
-          </h4>
-          <div className="flex items-center gap-2">
-            {pipeline.domain && (
-              <span className="text-xs text-[var(--text-muted)]">{pipeline.domain}</span>
-            )}
-            {pipeline.description && (
-              <span className="text-xs text-[var(--text-muted)]">{pipeline.description}</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-[var(--text-muted)]">Section:</span>
-        <select
-          value={pipeline.assigned_section || ''}
-          onChange={(e) => {
-            const val = e.target.value
-            onSectionChange(
-              pipeline._id,
-              val === 'sales' ? 'sales' : val === 'service' ? 'service' : null
-            )
-          }}
-          disabled={!isLeader}
-          className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] outline-none focus:border-[var(--portal)] disabled:opacity-50"
-        >
-          <option value="">Unassigned</option>
-          <option value="sales">Sales</option>
-          <option value="service">Service</option>
-        </select>
-      </div>
-    </div>
-  )
-}
-
-function PipelineConfigTab({
-  flowPipelines,
-  loading,
-  isLeader,
-  onSectionChange,
-}: {
-  flowPipelines: FlowPipelineRecord[]
-  loading: boolean
-  isLeader: boolean
-  onSectionChange: (pipelineId: string, section: SectionAssignment) => void
-}) {
-  // Summary counts
-  const counts = useMemo(() => {
-    let sales = 0
-    let service = 0
-    let unassigned = 0
-    for (const fp of flowPipelines) {
-      if (fp.assigned_section === 'sales') sales++
-      else if (fp.assigned_section === 'service') service++
-      else unassigned++
-    }
-    return { sales, service, unassigned }
-  }, [flowPipelines])
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-      </div>
-    )
-  }
-
-  if (flowPipelines.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] py-16">
-        <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">route</span>
-        <p className="mt-3 text-sm text-[var(--text-muted)]">
-          No flow pipelines configured yet. Pipelines are created via the Pipeline Studio.
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* Summary counts */}
-      <div className="flex gap-3">
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)] px-3 py-2">
-          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '16px' }}>storefront</span>
-          <span className="text-xs text-[var(--text-primary)]">{counts.sales} in Sales</span>
-        </div>
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)] px-3 py-2">
-          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '16px' }}>support_agent</span>
-          <span className="text-xs text-[var(--text-primary)]">{counts.service} in Service</span>
-        </div>
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)] px-3 py-2">
-          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>help_outline</span>
-          <span className="text-xs text-[var(--text-muted)]">{counts.unassigned} Unassigned</span>
-        </div>
-      </div>
-
-      {/* Pipeline cards */}
-      {flowPipelines.map((fp) => (
-        <PipelineConfigCard
-          key={fp._id}
-          pipeline={fp}
-          isLeader={isLeader}
-          onSectionChange={onSectionChange}
-        />
-      ))}
-    </div>
-  )
-}
-
-/* ─── App Config Tab ─── */
-
-function AppConfigTab({
-  portal,
-  appConfigs,
-  isLeader,
-  onAppToggle,
-}: {
-  portal: string
-  appConfigs: Record<string, boolean>
-  isLeader: boolean
-  onAppToggle: (appKey: string, enabled: boolean) => void
-}) {
-  const enabledCount = ALL_APP_KEYS.filter((k) => appConfigs[k] !== false).length
-
-  return (
-    <div className="space-y-4">
-      {/* Summary */}
-      <div className="flex items-center gap-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border-subtle)] px-4 py-2.5">
-        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '16px' }}>apps</span>
-        <span className="text-xs text-[var(--text-primary)]">
-          {enabledCount} of {ALL_APP_KEYS.length} apps enabled for this portal
-        </span>
-        <span className="ml-2 text-[10px] text-[var(--text-muted)]">
-          Leaders, Executives, and Owners always see all apps regardless.
-        </span>
-      </div>
-
-      {/* App cards */}
-      <div className="space-y-2">
-        {ALL_APP_KEYS.map((appKey) => {
-          const brand = APP_BRANDS[appKey]
-          const enabled = appConfigs[appKey] !== false
-
-          return (
-            <div
-              key={appKey}
-              className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-4"
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className="flex h-9 w-9 items-center justify-center rounded-lg"
-                  style={{ background: 'var(--portal-glow)' }}
-                >
-                  <span className="material-icons-outlined" style={{ fontSize: '18px', color: 'var(--portal)' }}>
-                    {brand.icon}
-                  </span>
-                </span>
-                <div>
-                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">{brand.label}</h4>
-                  <span className="text-xs text-[var(--text-muted)]">{brand.description}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-[var(--text-muted)]">
-                  {enabled ? 'Enabled' : 'Disabled'}
-                </span>
-                <ToggleSwitch
-                  enabled={enabled}
-                  editable={isLeader}
-                  onToggle={() => onAppToggle(appKey, !enabled)}
-                  label={`${brand.label}: ${enabled ? 'Enabled' : 'Disabled'}`}
-                />
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-/* ─── Pipeline Config (Legacy — stage editor) ─── */
-
-function PipelineCard({
-  pipeline,
-  isLeader,
-  onStageAdd,
-  onStageUpdate,
-}: {
-  pipeline: PipelineRecord
-  isLeader: boolean
-  onStageAdd: (pipelineId: string, stageName: string) => void
-  onStageUpdate: (pipelineId: string, stageIndex: number, name: string) => void
-}) {
-  const [editing, setEditing] = useState(false)
-  const [newStageName, setNewStageName] = useState('')
-  const sortedStages = useMemo(
-    () => [...(pipeline.stages || [])].sort((a, b) => a.order - b.order),
-    [pipeline.stages]
-  )
-
-  const handleAddStage = () => {
-    if (!newStageName.trim()) return
-    onStageAdd(pipeline._id, newStageName.trim())
-    setNewStageName('')
-  }
-
-  return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span
-            className="flex h-9 w-9 items-center justify-center rounded-lg"
-            style={{ background: 'var(--portal-glow)' }}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '18px', color: 'var(--portal)' }}>
-              view_kanban
-            </span>
-          </span>
-          <div>
-            <h4 className="text-sm font-semibold text-[var(--text-primary)]">{pipeline.name || 'Unnamed Pipeline'}</h4>
-            {pipeline.category && (
-              <span className="text-xs text-[var(--text-muted)]">{pipeline.category}</span>
-            )}
-          </div>
-        </div>
-        {isLeader && (
-          <button
-            onClick={() => setEditing((v) => !v)}
-            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
-              editing
-                ? 'text-white'
-                : 'border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-            }`}
-            style={editing ? { background: 'var(--portal)' } : undefined}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-              {editing ? 'check' : 'edit'}
-            </span>
-            {editing ? 'Done' : 'Edit'}
-          </button>
-        )}
-      </div>
-
-      {/* Stages */}
-      <div className="mt-4">
-        <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
-          Stages ({sortedStages.length})
-        </span>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {sortedStages.map((stage, idx) => (
-            <div key={idx} className="flex items-center gap-1">
-              {editing ? (
-                <input
-                  type="text"
-                  value={stage.name}
-                  onChange={(e) => onStageUpdate(pipeline._id, idx, e.target.value)}
-                  className="rounded-md border border-[var(--portal)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)] outline-none"
-                  style={{ width: `${Math.max(stage.name.length * 7, 60)}px` }}
-                />
-              ) : (
-                <span className="flex items-center gap-1 rounded-full bg-[var(--bg-surface)] px-2.5 py-1 text-xs text-[var(--text-secondary)]">
-                  <span className="text-[10px] font-bold text-[var(--text-muted)]">{idx + 1}</span>
-                  {stage.name}
-                </span>
-              )}
-              {idx < sortedStages.length - 1 && !editing && (
-                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '12px' }}>
-                  arrow_forward
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Add stage (leader editing mode) */}
-        {editing && isLeader && (
-          <div className="mt-3 flex items-center gap-2">
-            <input
-              type="text"
-              value={newStageName}
-              onChange={(e) => setNewStageName(e.target.value)}
-              placeholder="New stage name..."
-              className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleAddStage()
-              }}
-            />
-            <button
-              onClick={handleAddStage}
-              disabled={!newStageName.trim()}
-              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-50"
-              style={{ background: 'var(--portal)' }}
-            >
-              <span className="material-icons-outlined" style={{ fontSize: '12px' }}>add</span>
-              Add
-            </button>
-          </div>
-        )}
-
-        {/* Empty state */}
-        {sortedStages.length === 0 && !editing && (
-          <p className="mt-2 text-xs text-[var(--text-muted)]">No stages configured.</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
 /* ─── Main Component ─── */
 
 export function AdminPanel({ portal }: AdminPanelProps) {
   const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState<AdminTab>('module-config')
-
-  // Local app config state (loaded from Firestore, managed locally for optimistic updates)
-  const [appConfigOverrides, setAppConfigOverrides] = useState<Record<string, boolean>>({})
+  const [activeTab, setActiveTab] = useState<AdminTab>('team-config')
 
   // Build entitlement context from Firestore profile
   const { ctx: entitlementCtx } = useEntitlements()
+  const isOwner = entitlementCtx.userLevel === 'OWNER'
   const isLeader =
-    entitlementCtx.userLevel === 'OWNER' ||
+    isOwner ||
     entitlementCtx.userLevel === 'EXECUTIVE' ||
     entitlementCtx.userLevel === 'LEADER'
 
@@ -1622,41 +1222,32 @@ export function AdminPanel({ portal }: AdminPanelProps) {
     () => query(collection(getDb(), 'users')),
     []
   )
-  const pipelinesQ = useMemo<Query<DocumentData>>(
-    () => query(collection(getDb(), 'pipelines')),
-    []
-  )
   const flowPipelinesQ = useMemo<Query<DocumentData>>(
     () => query(collection(getDb(), 'flow_pipelines')),
     []
   )
-  const portalAppsQ = useMemo<Query<DocumentData>>(
-    () => query(collection(getDb(), 'portal_config', portal, 'apps')),
-    [portal]
+  const orgQ = useMemo<Query<DocumentData>>(
+    () => query(collection(getDb(), 'org')),
+    []
   )
 
   const { data: users, loading: uLoad, error: uError } = useCollection<UserRecord>(usersQ, 'admin-users')
-  const { data: pipelines, loading: pLoad } = useCollection<PipelineRecord>(pipelinesQ, 'admin-pipelines')
-  const { data: flowPipelines, loading: fpLoad } = useCollection<FlowPipelineRecord>(flowPipelinesQ, 'admin-flow-pipelines')
-  const { data: portalAppsRaw } = useCollection<PortalAppConfig>(portalAppsQ, `admin-portal-apps-${portal}`)
+  const { data: flowPipelines } = useCollection<FlowPipelineRecord>(flowPipelinesQ, 'admin-flow-pipelines')
+  const { data: orgUnits } = useCollection<OrgRecord>(orgQ, 'admin-org')
 
-  // Build app config state from Firestore + local overrides
-  const appConfigs = useMemo(() => {
-    const configs: Record<string, boolean> = {}
-    // Default all apps to enabled
-    for (const key of ALL_APP_KEYS) {
-      configs[key] = true
-    }
-    // Apply Firestore values
-    for (const doc of portalAppsRaw) {
-      configs[doc._id] = doc.enabled
-    }
-    // Apply local overrides (optimistic)
-    for (const [key, val] of Object.entries(appConfigOverrides)) {
-      configs[key] = val
-    }
-    return configs
-  }, [portalAppsRaw, appConfigOverrides])
+  // Derive divisions from org collection, fallback to hardcoded list
+  const divisions = useMemo(() => {
+    const raw = orgUnits
+      .filter((u) => u.entity_type === 'DIVISION' && (u.name || u.entity_name))
+      .map((u) => {
+        const name = (u.name || u.entity_name) as string
+        // Strip trailing " Division" if present (e.g., "Sales Division" → "Sales")
+        return name.replace(/\s+Division$/i, '')
+      })
+    // Deduplicate and sort
+    const unique = [...new Set(raw)].sort()
+    return unique.length > 0 ? unique : DIVISIONS_FALLBACK
+  }, [orgUnits])
 
   // Active flow pipelines only
   const activeFlowPipelines = useMemo(
@@ -1698,62 +1289,6 @@ export function AdminPanel({ portal }: AdminPanelProps) {
     [isLeader, users]
   )
 
-  // Pipeline assignment handler (for Team Config)
-  const handlePipelineAssignmentChange = useCallback(
-    async (userId: string, pipelineKey: string, assigned: boolean) => {
-      if (!isLeader) return
-      const targetUser = users.find((u) => u._id === userId)
-      if (!targetUser) return
-
-      const current = [...(targetUser.assigned_pipelines || [])]
-      if (assigned) {
-        if (!current.includes(pipelineKey)) current.push(pipelineKey)
-      } else {
-        const idx = current.indexOf(pipelineKey)
-        if (idx >= 0) current.splice(idx, 1)
-      }
-
-      try {
-        const ref = doc(getDb(), 'users', userId)
-        await updateDoc(ref, {
-          assigned_pipelines: current,
-          updated_at: new Date().toISOString(),
-        })
-      } catch {
-        // Error handling — toast would go here
-      }
-    },
-    [isLeader, users]
-  )
-
-  // App assignment handler (for Team Config per-user)
-  const handleAppAssignmentChange = useCallback(
-    async (userId: string, appKey: string, assigned: boolean) => {
-      if (!isLeader) return
-      const targetUser = users.find((u) => u._id === userId)
-      if (!targetUser) return
-
-      const current = [...(targetUser.assigned_apps || [])]
-      if (assigned) {
-        if (!current.includes(appKey)) current.push(appKey)
-      } else {
-        const idx = current.indexOf(appKey)
-        if (idx >= 0) current.splice(idx, 1)
-      }
-
-      try {
-        const ref = doc(getDb(), 'users', userId)
-        await updateDoc(ref, {
-          assigned_apps: current,
-          updated_at: new Date().toISOString(),
-        })
-      } catch {
-        // Error handling — toast would go here
-      }
-    },
-    [isLeader, users]
-  )
-
   // Role + Unit update handler (for Team Config role template assignment)
   const handleRoleUnitUpdate = useCallback(
     async (userId: string, updates: {
@@ -1773,94 +1308,6 @@ export function AdminPanel({ portal }: AdminPanelProps) {
       }
     },
     [isLeader, user?.email]
-  )
-
-  // Pipeline section assignment handler
-  const handlePipelineSectionChange = useCallback(
-    async (pipelineId: string, section: SectionAssignment) => {
-      if (!isLeader) return
-      try {
-        const ref = doc(getDb(), 'flow_pipelines', pipelineId)
-        await updateDoc(ref, {
-          assigned_section: section,
-          updated_at: new Date().toISOString(),
-        })
-      } catch {
-        // Error handling — toast would go here
-      }
-    },
-    [isLeader]
-  )
-
-  // App toggle handler (portal-level availability)
-  const handleAppToggle = useCallback(
-    async (appKey: string, enabled: boolean) => {
-      if (!isLeader) return
-
-      // Optimistic update
-      setAppConfigOverrides((prev) => ({ ...prev, [appKey]: enabled }))
-
-      try {
-        const ref = doc(getDb(), 'portal_config', portal, 'apps', appKey)
-        await setDoc(ref, {
-          enabled,
-          updated_at: new Date().toISOString(),
-        }, { merge: true })
-      } catch {
-        // Revert optimistic update on failure
-        setAppConfigOverrides((prev) => {
-          const next = { ...prev }
-          delete next[appKey]
-          return next
-        })
-      }
-    },
-    [isLeader, portal]
-  )
-
-  // Pipeline stage handlers (legacy pipelines collection)
-  const handleStageAdd = useCallback(
-    async (pipelineId: string, stageName: string) => {
-      const pipeline = pipelines.find((p) => p._id === pipelineId)
-      if (!pipeline) return
-
-      const currentStages = [...(pipeline.stages || [])]
-      const maxOrder = currentStages.reduce((max, s) => Math.max(max, s.order), 0)
-      currentStages.push({ name: stageName, order: maxOrder + 1, status: 'active' })
-
-      try {
-        const ref = doc(getDb(), 'pipelines', pipelineId)
-        await updateDoc(ref, {
-          stages: currentStages,
-          updated_at: new Date().toISOString(),
-        })
-      } catch {
-        // Error handling
-      }
-    },
-    [pipelines]
-  )
-
-  const handleStageUpdate = useCallback(
-    async (pipelineId: string, stageIndex: number, name: string) => {
-      const pipeline = pipelines.find((p) => p._id === pipelineId)
-      if (!pipeline) return
-
-      const sortedStages = [...(pipeline.stages || [])].sort((a, b) => a.order - b.order)
-      if (stageIndex >= sortedStages.length) return
-      sortedStages[stageIndex] = { ...sortedStages[stageIndex], name }
-
-      try {
-        const ref = doc(getDb(), 'pipelines', pipelineId)
-        await updateDoc(ref, {
-          stages: sortedStages,
-          updated_at: new Date().toISOString(),
-        })
-      } catch {
-        // Error handling
-      }
-    },
-    [pipelines]
   )
 
   /* ─── Loading ─── */
@@ -1893,17 +1340,15 @@ export function AdminPanel({ portal }: AdminPanelProps) {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
         <p className="mt-1 text-sm text-[var(--text-muted)]">
-          {isLeader ? 'Module permissions, pipeline configuration, and app management' : 'Your module permissions'}
+          {isLeader ? 'Team permissions and module access audit' : 'Your module permissions'}
         </p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-1.5 overflow-x-auto">
         {([
-          { key: 'module-config' as AdminTab, label: 'Module Config', icon: 'grid_view' },
-          { key: 'pipeline-config' as AdminTab, label: 'Pipeline Config', icon: 'route' },
-          { key: 'app-config' as AdminTab, label: 'App Config', icon: 'apps' },
           { key: 'team-config' as AdminTab, label: 'Team Config', icon: 'groups' },
+          { key: 'module-config' as AdminTab, label: 'Permissions Audit', icon: 'grid_view' },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -1921,70 +1366,58 @@ export function AdminPanel({ portal }: AdminPanelProps) {
         ))}
       </div>
 
-      {/* Module Config Tab */}
+      {/* Permissions Audit Tab — same sections as sidebar, with pipelines injected */}
       {activeTab === 'module-config' && (
         <div className="space-y-4">
-          {MODULE_SECTIONS.map((section) => (
-            <CollapsibleSection
-              key={section.key}
-              section={section}
-              users={users}
-              currentUserEmail={user?.email || ''}
-              isLeader={isLeader}
-              onEntitlementChange={handleEntitlementChange}
-            />
-          ))}
+          {MODULE_SECTIONS.map((section) => {
+            // Inject pipelines into Sales/Service just like the sidebar does
+            let augmented = section
+            if (section.key === 'sales-centers') {
+              const salesPipelines = activeFlowPipelines.filter(
+                (fp) => (fp.assigned_section || '') === 'sales'
+              )
+              augmented = {
+                ...section,
+                items: [
+                  ...section.items,
+                  ...salesPipelines.map((fp) => ({
+                    key: `pipe-${fp.pipeline_key || fp._id}`,
+                    label: fp.pipeline_name || fp.pipeline_key || fp._id,
+                    icon: fp.icon || DOMAIN_ICONS[(fp.domain || '').toLowerCase()] || 'route',
+                    moduleKey: `PIPELINE_${fp.pipeline_key || fp._id}`,
+                  })),
+                ],
+              }
+            }
+            if (section.key === 'service-centers') {
+              const servicePipelines = activeFlowPipelines.filter(
+                (fp) => fp.assigned_section === 'service'
+              )
+              augmented = {
+                ...section,
+                items: [
+                  ...section.items,
+                  ...servicePipelines.map((fp) => ({
+                    key: `pipe-${fp.pipeline_key || fp._id}`,
+                    label: fp.pipeline_name || fp.pipeline_key || fp._id,
+                    icon: fp.icon || DOMAIN_ICONS[(fp.domain || '').toLowerCase()] || 'route',
+                    moduleKey: `PIPELINE_${fp.pipeline_key || fp._id}`,
+                  })),
+                ],
+              }
+            }
+            return (
+              <CollapsibleSection
+                key={section.key}
+                section={augmented}
+                users={users}
+                currentUserEmail={user?.email || ''}
+                isLeader={isLeader}
+                onEntitlementChange={handleEntitlementChange}
+              />
+            )
+          })}
         </div>
-      )}
-
-      {/* Pipeline Config Tab */}
-      {activeTab === 'pipeline-config' && (
-        <div className="space-y-6">
-          {/* Flow Pipelines — Section Assignment */}
-          <PipelineConfigTab
-            flowPipelines={activeFlowPipelines}
-            loading={fpLoad}
-            isLeader={isLeader}
-            onSectionChange={handlePipelineSectionChange}
-          />
-
-          {/* Legacy Pipelines — Stage Editor (if any exist) */}
-          {pipelines.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>view_kanban</span>
-                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Legacy Pipelines (Stage Editor)
-                </span>
-              </div>
-              {pLoad ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-                </div>
-              ) : (
-                pipelines.map((pipeline) => (
-                  <PipelineCard
-                    key={pipeline._id}
-                    pipeline={pipeline}
-                    isLeader={isLeader}
-                    onStageAdd={handleStageAdd}
-                    onStageUpdate={handleStageUpdate}
-                  />
-                ))
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* App Config Tab */}
-      {activeTab === 'app-config' && (
-        <AppConfigTab
-          portal={portal}
-          appConfigs={appConfigs}
-          isLeader={isLeader}
-          onAppToggle={handleAppToggle}
-        />
       )}
 
       {/* Team Config Tab */}
@@ -2000,10 +1433,10 @@ export function AdminPanel({ portal }: AdminPanelProps) {
             users={users}
             currentUserEmail={user?.email || ''}
             isLeader={isLeader}
+            isOwner={isOwner}
             flowPipelines={activeFlowPipelines}
+            divisions={divisions}
             onEntitlementChange={handleEntitlementChange}
-            onPipelineAssignmentChange={handlePipelineAssignmentChange}
-            onAppAssignmentChange={handleAppAssignmentChange}
             onRoleUnitUpdate={handleRoleUnitUpdate}
           />
         </div>

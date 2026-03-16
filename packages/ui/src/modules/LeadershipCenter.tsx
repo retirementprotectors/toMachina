@@ -72,6 +72,7 @@ interface UserRecord {
   last_name?: string
   division?: string
   status?: string
+  level?: number
 }
 
 interface CaseTaskRecord {
@@ -181,20 +182,38 @@ export function LeadershipCenter() {
     })
   }, [allActions, actionFilter])
 
-  // Division aggregates
+  // Division aggregates — derived dynamically from users collection
   const divisionData = useMemo(() => {
-    const divs: Record<string, { leader: string; team_size: number; open_tasks: number; roadmap_status: string }> = {
-      Sales: { leader: 'Vinnie Vazquez', team_size: 0, open_tasks: 0, roadmap_status: 'on_track' },
-      Service: { leader: 'Nikki Gray', team_size: 0, open_tasks: 0, roadmap_status: 'on_track' },
-      Legacy: { leader: 'Dr. Aprille Trupiano', team_size: 0, open_tasks: 0, roadmap_status: 'on_track' },
-      'B2B': { leader: 'Matt McCormick', team_size: 0, open_tasks: 0, roadmap_status: 'on_track' },
-    }
+    const divs: Record<string, { leader: string; team_size: number; open_tasks: number; roadmap_status: string }> = {}
 
+    // Group users by division, track the user with the lowest level as leader
     for (const u of users) {
-      const div = u.division || ''
-      if (divs[div]) divs[div].team_size++
+      const div = u.division
+      if (!div) continue
+
+      if (!divs[div]) {
+        divs[div] = { leader: '', team_size: 0, open_tasks: 0, roadmap_status: 'on_track' }
+      }
+      divs[div].team_size++
+
+      // Leader = user with lowest level number (OWNER=0, EXECUTIVE=1, etc.)
+      const uLevel = u.level ?? 99
+      if (uLevel <= 1) {
+        const currentLeaderLevel = (() => {
+          // Find the current leader's level for comparison
+          if (!divs[div].leader) return 99
+          const current = users.find(
+            x => x.division === div && `${x.first_name || ''} ${x.last_name || ''}`.trim() === divs[div].leader,
+          )
+          return current?.level ?? 99
+        })()
+        if (uLevel < currentLeaderLevel || !divs[div].leader) {
+          divs[div].leader = `${u.first_name || ''} ${u.last_name || ''}`.trim()
+        }
+      }
     }
 
+    // Apply roadmap statuses
     for (const r of roadmaps) {
       const div = r.division || ''
       if (divs[div]) divs[div].roadmap_status = r.status
