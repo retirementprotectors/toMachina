@@ -350,7 +350,7 @@ export function Forge({ portal }: ForgeProps) {
     planned:    { label: 'Building',  color: 'var(--portal, #4a7ab5)', action: 'prompt', actionLabel: '#LetsBuildIt' },
     built:      { label: 'Audit',     color: 'rgb(20,184,166)', action: 'audit', actionLabel: '#LetsAuditIt' },
     audited:    { label: 'Confirm',   color: 'rgb(168,85,247)', action: 'sendit', actionLabel: '#SendIt' },
-    confirmed:  { label: 'Complete',  color: 'rgb(34,197,94)', action: 'none', actionLabel: '' },
+    confirmed:  { label: 'Complete',  color: 'rgb(34,197,94)', action: 'reopen', actionLabel: 'Reopen Sprint' },
   }
 
   const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, planned: 3, built: 4, audited: 5, confirmed: 6 }
@@ -670,6 +670,25 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         body: JSON.stringify({ status: 'complete' }),
       })
       await loadSprints()
+    } catch { /* silent */ }
+  }
+
+  const reopenSprint = async (sprintId: string) => {
+    try {
+      const r = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/reopen`, { method: 'POST' })
+      if (r.ok) { await loadItems(); await loadSprints() }
+    } catch { /* silent */ }
+  }
+
+  const unconfirmItem = async () => {
+    if (!editItem) return
+    try {
+      await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'audited' }),
+      })
+      closeEdit()
+      await loadItems()
     } catch { /* silent */ }
   }
 
@@ -1351,36 +1370,39 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                               {sp.questions > 0 && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 8, background: 'rgba(59,130,246,0.12)', color: 'rgb(59,130,246)', fontWeight: 600 }}>{sp.questions} q</span>}
                             </div>
 
-                            {/* Phase action button — hidden in Confirm phase (JDM confirms tickets individually) */}
-                            {phaseConfig.action !== 'none' && (
-                              <button
-                                onClick={async (e) => {
-                                  e.stopPropagation()
-                                  if (phase === 'in_sprint') generatePrompt(sp.id, 'discovery')
-                                  else if (phase === 'planned') generatePrompt(sp.id, 'building')
-                                  else if (phase === 'built') generateAuditPrompt(sp.id)
-                                  else if (phase === 'audited') {
-                                    try {
-                                      const r = await fetchWithAuth(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
-                                      if (r.ok) { await loadItems(); await loadSprints() }
-                                    } catch { /* silent */ }
-                                  }
-                                }}
-                                style={{
-                                  width: '100%', padding: '6px 0', borderRadius: 6, border: 'none',
-                                  background: phaseConfig.color, color: '#fff', fontSize: 12, fontWeight: 600,
-                                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                }}
-                              >
-                                <Icon name={
-                                  phase === 'in_sprint' ? 'terminal' :
-                                  phase === 'planned' ? 'terminal' :
-                                  phase === 'built' ? 'fact_check' :
-                                  'rocket_launch'
-                                } size={14} color="#fff" />
-                                {phaseConfig.actionLabel}
-                              </button>
-                            )}
+                            {/* Phase action button */}
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                if (phase === 'in_sprint') generatePrompt(sp.id, 'discovery')
+                                else if (phase === 'planned') generatePrompt(sp.id, 'building')
+                                else if (phase === 'built') generateAuditPrompt(sp.id)
+                                else if (phase === 'audited') {
+                                  try {
+                                    const r = await fetchWithAuth(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
+                                    if (r.ok) { await loadItems(); await loadSprints() }
+                                  } catch { /* silent */ }
+                                }
+                                else if (phase === 'confirmed') reopenSprint(sp.id)
+                              }}
+                              style={{
+                                width: '100%', padding: '6px 0', borderRadius: 6,
+                                border: phase === 'confirmed' ? '1px solid rgb(245,158,11)' : 'none',
+                                background: phase === 'confirmed' ? 'transparent' : phaseConfig.color,
+                                color: phase === 'confirmed' ? 'rgb(245,158,11)' : '#fff',
+                                fontSize: 12, fontWeight: 600,
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                              }}
+                            >
+                              <Icon name={
+                                phase === 'in_sprint' ? 'terminal' :
+                                phase === 'planned' ? 'terminal' :
+                                phase === 'built' ? 'fact_check' :
+                                phase === 'confirmed' ? 'undo' :
+                                'rocket_launch'
+                              } size={14} color={phase === 'confirmed' ? 'rgb(245,158,11)' : '#fff'} />
+                              {phaseConfig.actionLabel}
+                            </button>
 
                             {/* Audit Walkthrough link for sprints ready for/in audit */}
                             {(phase === 'built' || phase === 'audited') && (
@@ -1770,7 +1792,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               >
                 Delete
               </button>
-              {editItem?.status !== 'confirmed' && (
+              {editItem?.status !== 'confirmed' ? (
                 <button
                   onClick={confirmItem}
                   style={{
@@ -1780,6 +1802,17 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                   }}
                 >
                   <Icon name="check_circle" size={16} color="#fff" /> Confirm
+                </button>
+              ) : (
+                <button
+                  onClick={unconfirmItem}
+                  style={{
+                    padding: '8px 16px', borderRadius: 6, border: '1px solid rgb(245,158,11)',
+                    background: 'transparent', color: 'rgb(245,158,11)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  <Icon name="undo" size={16} color="rgb(245,158,11)" /> Unconfirm
                 </button>
               )}
               <div style={{ flex: 1 }} />

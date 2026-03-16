@@ -30,6 +30,9 @@ interface TrackerItem {
   plan_link: string | null
   notes: string
   attachments?: Attachment[]
+  audit_round?: number
+  audit_status?: 'pending' | 'passed' | 'failed' | null
+  audit_notes?: string
   created_by: string
   created_at: string
   updated_at: string
@@ -68,6 +71,17 @@ interface MediaCapture {
 interface CreatedIssue {
   title: string
   item_id?: string
+}
+
+interface AuditRoundInfo {
+  current_round: number
+  total_items: number
+  pending: TrackerItem[]
+  pending_count: number
+  passed: TrackerItem[]
+  passed_count: number
+  failed: TrackerItem[]
+  failed_count: number
 }
 
 /* ─── Constants ─── */
@@ -146,6 +160,9 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
   const [generatedPrompt, setGeneratedPrompt] = useState('')
   // Track active video recordings per item
   const [activeRecordings, setActiveRecordings] = useState<Record<string, MediaRecorder>>({})
+  // Audit round state
+  const [roundInfo, setRoundInfo] = useState<AuditRoundInfo | null>(null)
+  const [creatingRound, setCreatingRound] = useState(false)
 
   /* ─── Data Loading ─── */
   const loadData = useCallback(async () => {
@@ -177,6 +194,22 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
     if (sprintParam) setSelectedSprintId(sprintParam)
   }, [])
 
+  // Load audit round info when sprint is selected
+  const loadRoundInfo = useCallback(async (sprintId: string) => {
+    if (!sprintId) { setRoundInfo(null); return }
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit-round`)
+      if (res.ok) {
+        const json = await res.json()
+        if (json.success) setRoundInfo(json.data)
+      }
+    } catch { /* silent */ }
+  }, [])
+
+  useEffect(() => {
+    if (selectedSprintId) loadRoundInfo(selectedSprintId)
+  }, [selectedSprintId, loadRoundInfo])
+
   /* ─── Derived ─── */
   // Sprints in audited/confirm phase (items status >= audited)
   const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, planned: 3, built: 4, audited: 5, confirmed: 6 }
@@ -202,13 +235,31 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
     return sprints.find(sp => sp.id === selectedSprintId) || null
   }, [sprints, selectedSprintId])
 
-  // Summary counts
+  // Current round number
+  const currentRound = roundInfo?.current_round || 1
+
+  // Items to audit in the current round (pending items in the current round)
+  const auditableItems = useMemo(() => {
+    if (!roundInfo) return sprintItems
+    // Show only items that are pending in the current round
+    const pendingIds = new Set(roundInfo.pending.map(i => i.id))
+    return sprintItems.filter(i => pendingIds.has(i.id))
+  }, [sprintItems, roundInfo])
+
+  // Items that already passed in previous rounds (greyed out)
+  const previouslyPassedItems = useMemo(() => {
+    if (!roundInfo) return []
+    const passedIds = new Set(roundInfo.passed.map(i => i.id))
+    return sprintItems.filter(i => passedIds.has(i.id))
+  }, [sprintItems, roundInfo])
+
+  // Summary counts — only for auditable items in this round
   const summary = useMemo(() => {
-    const passed = sprintItems.filter(i => auditEntries[i.id]?.verdict === 'pass').length
-    const failed = sprintItems.filter(i => auditEntries[i.id]?.verdict === 'fail').length
-    const unreviewed = sprintItems.length - passed - failed
-    return { passed, failed, unreviewed, total: sprintItems.length }
-  }, [sprintItems, auditEntries])
+    const passed = auditableItems.filter(i => auditEntries[i.id]?.verdict === 'pass').length
+    const failed = auditableItems.filter(i => auditEntries[i.id]?.verdict === 'fail').length
+    const unreviewed = auditableItems.length - passed - failed
+    return { passed, failed, unreviewed, total: auditableItems.length }
+  }, [auditableItems, auditEntries])
 
   /* ─── Handlers ─── */
   const initEntry = (item: TrackerItem): AuditEntry => {
@@ -327,81 +378,79 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
     const createdIssues: CreatedIssue[] = []
 
     try {
-      // 1. PASS items → status = confirmed
-      const passItems = sprintItems.filter(i => auditEntries[i.id]?.verdict === 'pass')
+      // 1. PASS items → audit_status='passed', status='confirmed'
+      const passItems = auditableItems.filter(i => auditEntries[i.id]?.verdict === 'pass')
       await Promise.all(passItems.map(async (item) => {
+        const entry = auditEntries[item.id]
         const res = await fetchWithAuth(`${API_BASE}/tracker/${item.id}`, {
           method: 'PATCH',
-          body: JSON.stringify({ status: 'confirmed' }),
+          body: JSON.stringify({
+            status: 'confirmed',
+            audit_status: 'passed',
+            audit_round: currentRound,
+            audit_notes: entry?.findings || '',
+          }),
         })
         if (res.ok) confirmedCount++
       }))
 
-      // 2. FAIL items → create new tracker items for each failure
-      const failItems = sprintItems.filter(i => auditEntries[i.id]?.verdict === 'fail')
+      // 2. FAIL items → audit_status='failed', keep current status, store notes
+      const failItems = auditableItems.filter(i => auditEntries[i.id]?.verdict === 'fail')
       await Promise.all(failItems.map(async (item) => {
         const entry = auditEntries[item.id]
         if (!entry) return
 
-        const polishTitle = `Polish: ${item.title}${entry.whatsWrong ? ` — ${entry.whatsWrong}` : ''}`
-        const notes = [
-          `Found during audit of ${selectedSprint?.name || 'sprint'}`,
-          entry.findings ? `Findings: ${entry.findings}` : '',
-          `Original item: ${item.item_id}`,
-        ].filter(Boolean).join('\n')
+        const auditNotes = [
+          entry.whatsWrong || '',
+          entry.findings || '',
+        ].filter(Boolean).join(' | ')
 
-        const res = await fetchWithAuth(`${API_BASE}/tracker`, {
-          method: 'POST',
+        // Mark the item as failed in the current round
+        await fetchWithAuth(`${API_BASE}/tracker/${item.id}`, {
+          method: 'PATCH',
           body: JSON.stringify({
-            title: polishTitle,
-            type: 'broken',
-            status: 'queue',
-            description: entry.whatsWrong || item.description,
-            portal: item.portal,
-            scope: item.scope,
-            component: item.component,
-            section: item.section,
-            notes,
+            audit_status: 'failed',
+            audit_round: currentRound,
+            audit_notes: auditNotes,
           }),
         })
 
-        if (res.ok) {
-          const json = await res.json()
-          const newId = json.data?.id || json.data?.item_id
-          createdIssues.push({ title: polishTitle, item_id: json.data?.item_id })
+        createdIssues.push({
+          title: `${item.title}${entry.whatsWrong ? ` — ${entry.whatsWrong}` : ''}`,
+          item_id: item.item_id,
+        })
 
-          // Upload captured media as attachments
-          if (newId && entry.media.length > 0) {
-            for (const m of entry.media) {
-              let base64: string
-              let contentType: string
-              let fileName: string
+        // Upload captured media as attachments to the original item
+        if (entry.media.length > 0) {
+          for (const m of entry.media) {
+            let base64: string
+            let contentType: string
+            let fileName: string
 
-              if (m.type === 'screenshot') {
-                base64 = m.dataUrl.split(',')[1]
-                contentType = 'image/png'
-                fileName = m.name
-              } else if (m.blob) {
-                base64 = await new Promise<string>((resolve) => {
-                  const reader = new FileReader()
-                  reader.onload = () => resolve((reader.result as string).split(',')[1])
-                  reader.readAsDataURL(m.blob!)
-                })
-                contentType = 'video/webm'
-                fileName = m.name
-              } else {
-                continue
-              }
-
-              await fetchWithAuth(`${API_BASE}/tracker/${newId}/attachments`, {
-                method: 'POST',
-                body: JSON.stringify({
-                  name: fileName,
-                  data: base64,
-                  content_type: contentType,
-                }),
+            if (m.type === 'screenshot') {
+              base64 = m.dataUrl.split(',')[1]
+              contentType = 'image/png'
+              fileName = m.name
+            } else if (m.blob) {
+              base64 = await new Promise<string>((resolve) => {
+                const reader = new FileReader()
+                reader.onload = () => resolve((reader.result as string).split(',')[1])
+                reader.readAsDataURL(m.blob!)
               })
+              contentType = 'video/webm'
+              fileName = m.name
+            } else {
+              continue
             }
+
+            await fetchWithAuth(`${API_BASE}/tracker/${item.id}/attachments`, {
+              method: 'POST',
+              body: JSON.stringify({
+                name: fileName,
+                data: base64,
+                content_type: contentType,
+              }),
+            })
           }
         }
       }))
@@ -409,9 +458,9 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
       // 3. Generate #LetsPolishIt prompt
       if (createdIssues.length > 0) {
         const promptLines = [
-          `# #LetsPolishIt — ${selectedSprint?.name || 'Sprint Audit'}`,
+          `# #LetsPolishIt — ${selectedSprint?.name || 'Sprint Audit'} (Round ${currentRound})`,
           '',
-          `Audit completed: ${confirmedCount} confirmed, ${createdIssues.length} issues found.`,
+          `Audit Round ${currentRound} completed: ${confirmedCount} confirmed, ${createdIssues.length} issues found.`,
           '',
           '## Issues to Fix',
           '',
@@ -419,7 +468,7 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
           '',
           '---',
           '',
-          'Fix all issues above, then re-audit. Each item is already tracked in FORGE as a new queue item.',
+          `Fix all issues above, then create a Re-Audit Round in FORGE to verify fixes.`,
         ]
         setGeneratedPrompt(promptLines.join('\n'))
       }
@@ -427,9 +476,33 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
       setSubmitResults({ confirmed: confirmedCount, issues: createdIssues })
       setSubmitted(true)
       await loadData()
+      await loadRoundInfo(selectedSprintId)
     } catch { /* silent */ }
 
     setSubmitting(false)
+  }
+
+  /* ─── Create Re-Audit Round ─── */
+  const handleCreateReAuditRound = async () => {
+    if (creatingRound || !selectedSprintId) return
+    setCreatingRound(true)
+
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/sprints/${selectedSprintId}/audit-rounds`, {
+        method: 'POST',
+      })
+      if (res.ok) {
+        // Reload data and round info, then reset to audit view
+        await loadData()
+        await loadRoundInfo(selectedSprintId)
+        setAuditEntries({})
+        setSubmitted(false)
+        setSubmitResults(null)
+        setGeneratedPrompt('')
+      }
+    } catch { /* silent */ }
+
+    setCreatingRound(false)
   }
 
   const copyPrompt = () => {
@@ -448,7 +521,7 @@ pre { white-space: pre-wrap; word-wrap: break-word; font-family: 'SF Mono', Menl
 h1 { font-size: 20px; margin-bottom: 8px; color: #e07c3e; }
 p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 </style></head><body>
-<h1>#LetsPolishIt — ${selectedSprint?.name || 'Sprint Audit'}</h1>
+<h1>#LetsPolishIt — ${selectedSprint?.name || 'Sprint Audit'} (Round ${currentRound})</h1>
 <p>Generated ${new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
 <pre>${generatedPrompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
 <script>window.print()<\/script>
@@ -480,8 +553,26 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             <Icon name="fact_check" size={20} color={s.copper} />
           </div>
           <div>
-            <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Audit Walkthrough</h1>
-            <p style={{ fontSize: 12, color: s.textMuted, margin: 0 }}>Walk through sprint items, pass or fail each one</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Audit Walkthrough</h1>
+              {selectedSprintId && (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: '2px 10px', borderRadius: 12,
+                  fontSize: 11, fontWeight: 700,
+                  background: currentRound > 1 ? 'rgba(245,158,11,0.15)' : 'rgba(74,122,181,0.15)',
+                  color: currentRound > 1 ? 'rgb(245,158,11)' : s.portal,
+                }}>
+                  Round {currentRound}
+                </span>
+              )}
+            </div>
+            <p style={{ fontSize: 12, color: s.textMuted, margin: 0 }}>
+              {currentRound > 1
+                ? `Re-auditing ${auditableItems.length} item${auditableItems.length !== 1 ? 's' : ''} from Round ${currentRound - 1}`
+                : 'Walk through sprint items, pass or fail each one'
+              }
+            </p>
           </div>
         </div>
 
@@ -495,6 +586,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             setAuditEntries({})
             setSubmitted(false)
             setSubmitResults(null)
+            setRoundInfo(null)
           }}
           style={{
             background: s.surface, border: `1px solid ${s.border}`,
@@ -554,15 +646,97 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                 <span style={{ fontSize: 12, color: s.textMuted }}>— {selectedSprint.description}</span>
               )}
               <div style={{ flex: 1 }} />
+              {currentRound > 1 && (
+                <span style={{
+                  fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 12,
+                  background: 'rgba(245,158,11,0.15)', color: 'rgb(245,158,11)',
+                }}>
+                  Round {currentRound}: {auditableItems.length} item{auditableItems.length !== 1 ? 's' : ''} to re-audit
+                </span>
+              )}
               <span style={{ fontSize: 12, color: s.textSecondary }}>
-                {sprintItems.length} item{sprintItems.length !== 1 ? 's' : ''}
+                {sprintItems.length} total item{sprintItems.length !== 1 ? 's' : ''}
               </span>
             </div>
           )}
 
-          {/* Audit cards */}
+          {/* Previously passed items (greyed out, read-only) */}
+          {previouslyPassedItems.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 12px', marginBottom: 8,
+              }}>
+                <Icon name="check_circle" size={16} color="rgb(34,197,94)" />
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'rgb(34,197,94)' }}>
+                  Previously Passed ({previouslyPassedItems.length})
+                </span>
+                <span style={{ fontSize: 11, color: s.textMuted }}>
+                  — These items passed in earlier rounds
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {previouslyPassedItems.map(item => {
+                  const typeCfg = TYPE_CONFIG[item.type]
+                  return (
+                    <div
+                      key={item.id}
+                      style={{
+                        background: s.surface,
+                        borderRadius: 8,
+                        border: `1px solid ${s.border}`,
+                        borderLeft: '4px solid rgb(34,197,94)',
+                        padding: '10px 16px',
+                        opacity: 0.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                      }}
+                    >
+                      <span style={{ fontFamily: 'monospace', fontSize: 11, color: s.textMuted, minWidth: 70 }}>
+                        {item.item_id}
+                      </span>
+                      {typeCfg && (
+                        <span style={{
+                          display: 'inline-block', padding: '2px 10px', borderRadius: 12,
+                          fontSize: 10, fontWeight: 600, background: typeCfg.bg, color: typeCfg.color,
+                          whiteSpace: 'nowrap',
+                        }}>
+                          {typeCfg.label}
+                        </span>
+                      )}
+                      <span style={{ flex: 1, fontSize: 13, color: s.textSecondary }}>
+                        {item.title}
+                      </span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 12,
+                        background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)',
+                      }}>
+                        Passed Round {(item.audit_round || 1)}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Current round items heading (only show if round > 1) */}
+          {currentRound > 1 && auditableItems.length > 0 && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '8px 12px', marginBottom: 8,
+            }}>
+              <Icon name="replay" size={16} color="rgb(245,158,11)" />
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgb(245,158,11)' }}>
+                Round {currentRound} — Re-Audit ({auditableItems.length} item{auditableItems.length !== 1 ? 's' : ''})
+              </span>
+            </div>
+          )}
+
+          {/* Audit cards — only auditable items for the current round */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {sprintItems.map(item => {
+            {auditableItems.map(item => {
               const entry = auditEntries[item.id] || initEntry(item)
               const typeCfg = TYPE_CONFIG[item.type]
               const isFail = entry.verdict === 'fail'
@@ -600,6 +774,17 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                       </span>
                     )}
 
+                    {/* Previous failure note */}
+                    {currentRound > 1 && item.audit_notes && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 12,
+                        background: 'rgba(239,68,68,0.1)', color: 'rgb(239,68,68)',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        Previously failed
+                      </span>
+                    )}
+
                     {/* Title + description */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -608,6 +793,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                       {item.description && (
                         <div style={{ fontSize: 12, color: s.textMuted, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {item.description}
+                        </div>
+                      )}
+                      {/* Show previous audit notes if re-auditing */}
+                      {currentRound > 1 && item.audit_notes && (
+                        <div style={{ fontSize: 11, color: 'rgb(239,68,68)', marginTop: 2, fontStyle: 'italic' }}>
+                          Previous: {item.audit_notes}
                         </div>
                       )}
                     </div>
@@ -837,15 +1028,21 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           }}>
             <div style={{
               width: 64, height: 64, borderRadius: '50%', margin: '0 auto 16px',
-              background: 'rgba(34,197,94,0.12)',
+              background: submitResults.issues.length > 0 ? 'rgba(245,158,11,0.12)' : 'rgba(34,197,94,0.12)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <Icon name="check_circle" size={36} color="rgb(34,197,94)" />
+              <Icon
+                name={submitResults.issues.length > 0 ? 'assignment_late' : 'check_circle'}
+                size={36}
+                color={submitResults.issues.length > 0 ? 'rgb(245,158,11)' : 'rgb(34,197,94)'}
+              />
             </div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Audit Complete</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
+              Audit Round {currentRound} Complete
+            </h2>
             <p style={{ fontSize: 14, color: s.textSecondary, marginBottom: 24 }}>
               {submitResults.confirmed} item{submitResults.confirmed !== 1 ? 's' : ''} confirmed,{' '}
-              {submitResults.issues.length} issue{submitResults.issues.length !== 1 ? 's' : ''} created
+              {submitResults.issues.length} issue{submitResults.issues.length !== 1 ? 's' : ''} failed
             </p>
 
             {/* Confirmed items */}
@@ -863,14 +1060,14 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               </div>
             )}
 
-            {/* Created issues */}
+            {/* Failed items */}
             {submitResults.issues.length > 0 && (
               <div style={{
                 background: 'rgba(239,68,68,0.08)', borderRadius: 8, padding: '12px 16px',
                 marginBottom: 24, textAlign: 'left',
               }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'rgb(239,68,68)', marginBottom: 8 }}>
-                  Issues Created ({submitResults.issues.length})
+                  Failed ({submitResults.issues.length})
                 </div>
                 {submitResults.issues.map((issue, i) => (
                   <div key={i} style={{
@@ -885,7 +1082,24 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             )}
 
             {/* Action buttons */}
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {/* Create Re-Audit Round button — only if there are failures */}
+              {submitResults.issues.length > 0 && (
+                <button
+                  onClick={handleCreateReAuditRound}
+                  disabled={creatingRound}
+                  style={{
+                    padding: '10px 20px', borderRadius: 8, border: 'none',
+                    background: creatingRound ? s.textMuted : 'rgb(245,158,11)',
+                    color: '#fff', fontSize: 14, fontWeight: 600,
+                    cursor: creatingRound ? 'default' : 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8,
+                  }}
+                >
+                  <Icon name="replay" size={16} color="#fff" />
+                  {creatingRound ? 'Creating...' : `Create Re-Audit Round ${currentRound + 1}`}
+                </button>
+              )}
               {generatedPrompt && (
                 <button
                   onClick={() => setShowPromptModal(true)}
@@ -921,6 +1135,16 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 16,
           zIndex: 20,
         }}>
+          {/* Round indicator */}
+          {currentRound > 1 && (
+            <span style={{
+              fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 12,
+              background: 'rgba(245,158,11,0.15)', color: 'rgb(245,158,11)',
+            }}>
+              R{currentRound}
+            </span>
+          )}
+
           {/* Summary pills */}
           <div style={{ display: 'flex', gap: 12, flex: 1 }}>
             <span style={{ fontSize: 13, color: 'rgb(34,197,94)', fontWeight: 600 }}>
@@ -932,6 +1156,11 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             <span style={{ fontSize: 13, color: s.textMuted }}>
               {summary.unreviewed} unreviewed
             </span>
+            {previouslyPassedItems.length > 0 && (
+              <span style={{ fontSize: 12, color: s.textMuted, fontStyle: 'italic' }}>
+                + {previouslyPassedItems.length} previously passed
+              </span>
+            )}
           </div>
 
           {/* Submit button */}
@@ -947,7 +1176,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             }}
           >
             <Icon name="gavel" size={18} color="#fff" />
-            {submitting ? 'Submitting...' : 'Submit Audit'}
+            {submitting ? 'Submitting...' : `Submit Round ${currentRound} Audit`}
           </button>
         </div>
       )}

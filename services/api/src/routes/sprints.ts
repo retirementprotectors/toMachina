@@ -790,6 +790,46 @@ sprintRoutes.post('/:id/sendit', async (req: Request, res: Response) => {
   }
 })
 
+// POST /:id/reopen — reopen a completed sprint (move back to active, unconfirm items to audited)
+sprintRoutes.post('/:id/reopen', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
+    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
+
+    const sprint = sprintDoc.data() as Record<string, unknown>
+    if (sprint.status !== 'complete') {
+      res.status(400).json(errorResponse('Sprint is not complete — nothing to reopen'))
+      return
+    }
+
+    const now = new Date().toISOString()
+    const userEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+
+    // Move all confirmed items back to audited
+    const allSnap = await db.collection(TRACKER_COLLECTION).get()
+    const sprintItems = allSnap.docs.filter(d => d.data().sprint_id === id)
+    const batch = db.batch()
+    let reverted = 0
+    for (const doc of sprintItems) {
+      if (doc.data().status === 'confirmed') {
+        batch.update(doc.ref, { status: 'audited', updated_at: now, _updated_by: userEmail })
+        reverted++
+      }
+    }
+
+    // Reopen the sprint
+    batch.update(sprintDoc.ref, { status: 'active', updated_at: now, _updated_by: userEmail })
+    await batch.commit()
+
+    res.json(successResponse({ reverted, sprint_reopened: true }))
+  } catch (err) {
+    console.error('POST /api/sprints/:id/reopen error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
 // GET /:id/audit — generate audit verification prompt
 sprintRoutes.get('/:id/audit', async (req: Request, res: Response) => {
   try {
@@ -835,6 +875,116 @@ sprintRoutes.get('/:id/audit', async (req: Request, res: Response) => {
     res.json(successResponse({ prompt: md }))
   } catch (err) {
     console.error('GET /api/sprints/:id/audit error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// GET /:id/audit-round — get current audit round info for a sprint
+sprintRoutes.get('/:id/audit-round', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
+    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
+
+    // Get all items in this sprint (excluding deferred/wont_fix)
+    const allSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
+    const sprintItems = allSnap.docs
+      .filter(d => d.data().sprint_id === id && !['deferred', 'wont_fix'].includes(d.data().status as string))
+      .map(d => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
+
+    // Determine current round: max audit_round across all items, default 1
+    const rounds = sprintItems.map(i => (i.audit_round as number) || 1)
+    const currentRound = rounds.length > 0 ? Math.max(...rounds) : 1
+
+    // Items pending audit in current round
+    const pendingItems = sprintItems.filter(i => {
+      const itemRound = (i.audit_round as number) || 1
+      return itemRound === currentRound && (i.audit_status === 'pending' || !i.audit_status)
+    })
+
+    // Items that already passed (in any round)
+    const passedItems = sprintItems.filter(i => i.audit_status === 'passed')
+
+    // Items that failed in current round (before re-audit round is created)
+    const failedItems = sprintItems.filter(i => {
+      const itemRound = (i.audit_round as number) || 1
+      return itemRound === currentRound && i.audit_status === 'failed'
+    })
+
+    res.json(successResponse({
+      current_round: currentRound,
+      total_items: sprintItems.length,
+      pending: pendingItems,
+      pending_count: pendingItems.length,
+      passed: passedItems,
+      passed_count: passedItems.length,
+      failed: failedItems,
+      failed_count: failedItems.length,
+    }))
+  } catch (err) {
+    console.error('GET /api/sprints/:id/audit-round error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// POST /:id/audit-rounds — create a new audit round from failed items
+sprintRoutes.post('/:id/audit-rounds', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const userEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+    const now = new Date().toISOString()
+
+    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
+    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
+
+    // Get all items in this sprint
+    const allSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
+    const sprintDocs = allSnap.docs.filter(d => d.data().sprint_id === id && !['deferred', 'wont_fix'].includes(d.data().status as string))
+
+    // Find items that failed audit
+    const failedDocs = sprintDocs.filter(d => d.data().audit_status === 'failed')
+
+    if (failedDocs.length === 0) {
+      res.status(400).json(errorResponse('No failed audit items found in this sprint'))
+      return
+    }
+
+    // Determine current round and new round number
+    const rounds = sprintDocs.map(d => (d.data().audit_round as number) || 1)
+    const currentRound = Math.max(...rounds)
+    const newRound = currentRound + 1
+
+    // Batch update: increment audit_round and reset audit_status to 'pending' for failed items
+    const batch = db.batch()
+    for (const doc of failedDocs) {
+      batch.update(doc.ref, {
+        audit_round: newRound,
+        audit_status: 'pending',
+        audit_notes: '',
+        updated_at: now,
+        _updated_by: userEmail,
+      })
+    }
+    await batch.commit()
+
+    // Return updated items
+    const updatedItems = await Promise.all(
+      failedDocs.map(async (doc) => {
+        const updated = await doc.ref.get()
+        return stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)
+      })
+    )
+
+    res.json(successResponse({
+      new_round: newRound,
+      previous_round: currentRound,
+      items: updatedItems,
+      item_count: updatedItems.length,
+    }))
+  } catch (err) {
+    console.error('POST /api/sprints/:id/audit-rounds error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })
