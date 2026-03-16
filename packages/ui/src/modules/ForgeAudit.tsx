@@ -163,6 +163,14 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
   // Audit round state
   const [roundInfo, setRoundInfo] = useState<AuditRoundInfo | null>(null)
   const [creatingRound, setCreatingRound] = useState(false)
+  // Found Something modal state
+  const [foundOpen, setFoundOpen] = useState(false)
+  const [foundTitle, setFoundTitle] = useState('')
+  const [foundDescription, setFoundDescription] = useState('')
+  const [foundScreenshot, setFoundScreenshot] = useState<string | null>(null)
+  const [foundDragOver, setFoundDragOver] = useState(false)
+  const [foundSubmitting, setFoundSubmitting] = useState(false)
+  const [foundSubmitted, setFoundSubmitted] = useState(false)
 
   /* ─── Data Loading ─── */
   const loadData = useCallback(async () => {
@@ -368,6 +376,132 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
       }
     }
   }
+
+  /* ─── Found Something ─── */
+  const handleFoundOpen = useCallback(() => {
+    setFoundTitle('')
+    setFoundDescription('')
+    setFoundScreenshot(null)
+    setFoundSubmitted(false)
+    setFoundOpen(true)
+  }, [])
+
+  const handleFoundClose = useCallback(() => {
+    setFoundOpen(false)
+    setFoundTitle('')
+    setFoundDescription('')
+    setFoundScreenshot(null)
+    setFoundSubmitted(false)
+    setFoundDragOver(false)
+  }, [])
+
+  const handleFoundPaste = useCallback((e: React.ClipboardEvent) => {
+    const items = Array.from(e.clipboardData.items)
+    const imageItem = items.find(i => i.type.startsWith('image/'))
+    if (imageItem) {
+      e.preventDefault()
+      const file = imageItem.getAsFile()
+      if (file) {
+        const reader = new FileReader()
+        reader.onload = () => setFoundScreenshot(reader.result as string)
+        reader.readAsDataURL(file)
+      }
+    }
+  }, [])
+
+  const handleFoundDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setFoundDragOver(false)
+    const file = Array.from(e.dataTransfer.files).find(f => f.type.startsWith('image/'))
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = () => setFoundScreenshot(reader.result as string)
+      reader.readAsDataURL(file)
+    }
+  }, [])
+
+  const handleFoundScreenshot = useCallback(async () => {
+    const dataUrl = await captureScreenshot()
+    if (dataUrl) setFoundScreenshot(dataUrl)
+  }, [])
+
+  const handleFoundSubmit = useCallback(async () => {
+    if (!foundTitle.trim() || foundSubmitting) return
+    setFoundSubmitting(true)
+
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/tracker`, {
+        method: 'POST',
+        body: JSON.stringify({
+          title: foundTitle.trim(),
+          description: foundDescription.trim() || '',
+          sprint_id: selectedSprintId || null,
+          status: 'built',
+          audit_status: 'pending',
+          audit_round: currentRound,
+          type: 'broken',
+          portal: portal.toUpperCase().replace('PRODASH', 'PRODASHX'),
+          scope: 'Module',
+          component: '',
+          section: '',
+          notes: `Discovered during Audit Round ${currentRound}`,
+        }),
+      })
+
+      if (res.ok) {
+        const json = await res.json()
+        const newItem = json.data
+        const itemId = newItem?.id || newItem?.item_id
+
+        // Upload screenshot attachment if captured
+        if (itemId && foundScreenshot) {
+          const base64 = foundScreenshot.split(',')[1]
+          await fetchWithAuth(`${API_BASE}/tracker/${itemId}/attachments`, {
+            method: 'POST',
+            body: JSON.stringify({
+              name: `found-screenshot-${Date.now()}.png`,
+              data: base64,
+              content_type: 'image/png',
+            }),
+          })
+        }
+
+        // Add the new item to allItems so it appears in the walkthrough immediately
+        if (newItem) {
+          const normalized: TrackerItem = {
+            id: newItem.id || newItem.item_id || itemId,
+            item_id: newItem.item_id || '',
+            title: newItem.title || foundTitle.trim(),
+            description: newItem.description || foundDescription.trim(),
+            portal: newItem.portal || portal.toUpperCase().replace('PRODASH', 'PRODASHX'),
+            scope: newItem.scope || 'Module',
+            component: newItem.component || '',
+            section: newItem.section || '',
+            type: newItem.type || 'broken',
+            status: newItem.status || 'built',
+            sprint_id: newItem.sprint_id || selectedSprintId || null,
+            plan_link: newItem.plan_link || null,
+            notes: newItem.notes || '',
+            attachments: newItem.attachments || [],
+            audit_round: newItem.audit_round || currentRound,
+            audit_status: newItem.audit_status || 'pending',
+            audit_notes: newItem.audit_notes || '',
+            created_by: newItem.created_by || newItem._created_by || '',
+            created_at: newItem.created_at || new Date().toISOString(),
+            updated_at: newItem.updated_at || new Date().toISOString(),
+          }
+          setAllItems(prev => [...prev, normalized])
+        }
+
+        setFoundSubmitted(true)
+        setTimeout(() => {
+          handleFoundClose()
+        }, 1200)
+      }
+    } catch { /* silent */ }
+
+    setFoundSubmitting(false)
+  }, [foundTitle, foundDescription, foundScreenshot, selectedSprintId, currentRound, portal, handleFoundClose])
 
   /* ─── Submit Audit ─── */
   const handleSubmit = async () => {
@@ -599,6 +733,22 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             <option key={sp.id} value={sp.id}>{sp.name}</option>
           ))}
         </select>
+
+        {/* Found Something — only visible when a sprint is selected and not in submitted state */}
+        {selectedSprintId && !submitted && (
+          <button
+            onClick={handleFoundOpen}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 14px', borderRadius: 6, border: 'none',
+              background: 'rgba(168,85,247,0.15)', color: 'rgb(168,85,247)', fontSize: 13,
+              fontWeight: 600, cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            <Icon name="add_circle" size={16} color="rgb(168,85,247)" /> Found Something
+          </button>
+        )}
 
         {/* Back to Forge */}
         <a
@@ -1179,6 +1329,200 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             {submitting ? 'Submitting...' : `Submit Round ${currentRound} Audit`}
           </button>
         </div>
+      )}
+
+      {/* ─── Found Something Modal ─── */}
+      {foundOpen && (
+        <>
+          <div
+            onClick={handleFoundClose}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 55 }}
+          />
+          <div
+            style={{
+              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+              width: 480, maxHeight: '85vh', overflowY: 'auto',
+              background: s.bg, border: `1px solid ${s.border}`,
+              borderRadius: 12, zIndex: 60,
+            }}
+            onPaste={handleFoundPaste}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '20px 20px 0' }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 8,
+                background: 'rgba(168,85,247,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <Icon name="add_circle" size={20} color="rgb(168,85,247)" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: s.text }}>Found Something</h3>
+                <p style={{ fontSize: 11, color: s.textMuted, margin: 0 }}>
+                  Capture a new item discovered during audit
+                </p>
+              </div>
+              <button
+                onClick={handleFoundClose}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+              >
+                <Icon name="close" size={18} color={s.textMuted} />
+              </button>
+            </div>
+
+            {foundSubmitted ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 20px' }}>
+                <Icon name="check_circle" size={48} color="rgb(34,197,94)" />
+                <p style={{ marginTop: 12, fontSize: 14, fontWeight: 600, color: s.text }}>
+                  Added to walkthrough
+                </p>
+              </div>
+            ) : (
+              <div style={{ padding: 20 }}>
+                {/* Context pills */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+                  {selectedSprint && (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600,
+                      background: 'rgba(245,158,11,0.12)', color: 'rgb(245,158,11)',
+                    }}>
+                      <Icon name="bolt" size={11} color="rgb(245,158,11)" />
+                      {selectedSprint.name}
+                    </span>
+                  )}
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600,
+                    background: 'rgba(74,122,181,0.12)', color: s.portal,
+                  }}>
+                    <Icon name="language" size={11} color={s.portal} />
+                    {portal.toUpperCase().replace('PRODASH', 'PRODASHX')}
+                  </span>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600,
+                    background: 'rgba(239,68,68,0.12)', color: 'rgb(239,68,68)',
+                  }}>
+                    <Icon name="error" size={11} color="rgb(239,68,68)" />
+                    Bug
+                  </span>
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600,
+                    background: 'rgba(156,163,175,0.12)', color: s.textSecondary,
+                  }}>
+                    Round {currentRound}
+                  </span>
+                </div>
+
+                {/* Screenshot / drop zone */}
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setFoundDragOver(true) }}
+                  onDragLeave={() => setFoundDragOver(false)}
+                  onDrop={handleFoundDrop}
+                  style={{
+                    marginBottom: 14, borderRadius: 8, overflow: 'hidden',
+                    border: `2px ${foundScreenshot ? 'solid' : 'dashed'} ${foundDragOver ? 'rgb(168,85,247)' : s.border}`,
+                    background: foundDragOver ? 'rgba(168,85,247,0.05)' : s.surface,
+                  }}
+                >
+                  {foundScreenshot ? (
+                    <div style={{ position: 'relative' }}>
+                      <img
+                        src={foundScreenshot}
+                        alt="Capture"
+                        style={{ width: '100%', maxHeight: 200, objectFit: 'contain', display: 'block' }}
+                      />
+                      <button
+                        onClick={() => setFoundScreenshot(null)}
+                        style={{
+                          position: 'absolute', top: 6, right: 6, width: 22, height: 22,
+                          borderRadius: '50%', border: 'none', cursor: 'pointer',
+                          background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 13,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center',
+                        justifyContent: 'center', padding: '20px 12px', cursor: 'pointer',
+                      }}
+                      onClick={handleFoundScreenshot}
+                    >
+                      <Icon name="screenshot_monitor" size={24} color={s.textMuted} />
+                      <p style={{ marginTop: 6, fontSize: 11, color: s.textMuted, textAlign: 'center' }}>
+                        Click to capture screen, paste (Cmd+V), or drag image
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Title */}
+                <input
+                  type="text"
+                  value={foundTitle}
+                  onChange={(e) => setFoundTitle(e.target.value)}
+                  placeholder="What did you find?"
+                  autoFocus
+                  style={{
+                    width: '100%', background: s.surface, border: `1px solid ${s.border}`,
+                    borderRadius: 8, padding: '10px 12px', color: s.text, fontSize: 14,
+                    outline: 'none',
+                  }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && foundTitle.trim()) handleFoundSubmit() }}
+                />
+
+                {/* Description */}
+                <textarea
+                  value={foundDescription}
+                  onChange={(e) => setFoundDescription(e.target.value)}
+                  placeholder="More details (optional)"
+                  rows={3}
+                  style={{
+                    width: '100%', marginTop: 10, background: s.surface,
+                    border: `1px solid ${s.border}`, borderRadius: 8,
+                    padding: '10px 12px', color: s.text, fontSize: 13,
+                    outline: 'none', resize: 'vertical',
+                  }}
+                />
+
+                {/* Actions */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
+                  <button
+                    onClick={handleFoundClose}
+                    style={{
+                      padding: '8px 16px', borderRadius: 6, border: 'none',
+                      background: 'transparent', color: s.textSecondary, fontSize: 13,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleFoundSubmit}
+                    disabled={!foundTitle.trim() || foundSubmitting}
+                    style={{
+                      padding: '8px 20px', borderRadius: 6, border: 'none',
+                      background: (!foundTitle.trim() || foundSubmitting) ? s.textMuted : 'rgb(168,85,247)',
+                      color: '#fff', fontSize: 13, fontWeight: 600,
+                      cursor: (!foundTitle.trim() || foundSubmitting) ? 'default' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    <Icon name="add_circle" size={14} color="#fff" />
+                    {foundSubmitting ? 'Adding...' : 'Add to Walkthrough'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* ─── #LetsPolishIt Prompt Modal ─── */}
