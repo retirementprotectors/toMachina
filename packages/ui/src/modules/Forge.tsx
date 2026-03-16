@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchWithAuth } from './fetchWithAuth'
 import { KanbanBoard, type KanbanColumn, type KanbanCard } from '../components/KanbanBoard'
+import { useToast } from '../components/Toast'
 
 /* ─── Types ─── */
 interface Attachment {
@@ -198,6 +199,7 @@ interface ForgeProps {
 }
 
 export function Forge({ portal }: ForgeProps) {
+  const { showToast } = useToast()
   const [items, setItems] = useState<TrackerItem[]>([])
   const [allItems, setAllItems] = useState<TrackerItem[]>([])
   const [sprints, setSprints] = useState<Sprint[]>([])
@@ -676,8 +678,16 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   const reopenSprint = async (sprintId: string) => {
     try {
       const r = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/reopen`, { method: 'POST' })
-      if (r.ok) { await loadItems(); await loadSprints() }
-    } catch { /* silent */ }
+      if (r.ok) {
+        await loadItems()
+        await loadSprints()
+      } else {
+        const body = await r.json().catch(() => ({}))
+        showToast(`Reopen failed: ${(body as Record<string, string>).error || r.statusText}`, 'error')
+      }
+    } catch (err) {
+      showToast(`Reopen error: ${String(err)}`, 'error')
+    }
   }
 
   const unconfirmItem = async () => {
