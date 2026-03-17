@@ -368,7 +368,7 @@ export function Forge({ portal }: ForgeProps) {
       const confirmed = sprintItems.filter(i => i.status === 'confirmed').length
       const total = sprintItems.length
 
-      // Phase = lowest status rank among active items (bottleneck)
+      // Phase = lowest status rank among active items (bottleneck), or stored phase for empty sprints
       const activeItems = sprintItems.filter(i => !['deferred', 'wont_fix'].includes(i.status))
       let phase = 'in_sprint'
       if (sp.status === 'complete') {
@@ -380,6 +380,9 @@ export function Forge({ portal }: ForgeProps) {
         else if (minRank >= 4) phase = 'built'
         else if (minRank >= 3) phase = 'planned'
         else phase = 'in_sprint'
+      } else if (sp.phase) {
+        // No active items — use stored phase from sprint doc
+        phase = sp.phase
       }
 
       return { ...sp, items: sprintItems, bugs, enhancements, features, questions, confirmed, total, phase }
@@ -482,8 +485,8 @@ export function Forge({ portal }: ForgeProps) {
         setPromptText(json.data?.prompt || json.prompt || '')
         setPromptSprintId(sid)
         setShowPrompt(true)
-        // Move items to 'planned' — the prompt IS the plan
-        const sprintItems = items.filter(i => i.sprint_id === sid && i.status === 'in_sprint')
+        // Move items to 'planned' — the prompt IS the plan (use allItems, not filtered items)
+        const sprintItems = allItems.filter(i => i.sprint_id === sid && i.status === 'in_sprint')
         if (sprintItems.length > 0) {
           await Promise.all(sprintItems.map(i =>
             fetchWithAuth(`${API_BASE}/tracker/${i.id}`, {
@@ -656,7 +659,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   }
 
   const confirmAllInSprint = async (sprintId: string) => {
-    const sprintItems = items.filter(i => i.sprint_id === sprintId && i.status !== 'confirmed' && i.status !== 'deferred' && i.status !== 'wont_fix')
+    const sprintItems = allItems.filter(i => i.sprint_id === sprintId && i.status !== 'confirmed' && i.status !== 'deferred' && i.status !== 'wont_fix')
     if (sprintItems.length === 0) return
     try {
       await Promise.all(sprintItems.map(i =>
@@ -775,15 +778,23 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       if (!data.sprintId || data.fromPhase === toPhase) return
       const targetStatus = PHASE_TO_STATUS[toPhase]
       if (!targetStatus) return
-      // Update all items in this sprint to the target status
-      const sprintItems = items.filter(i => i.sprint_id === data.sprintId && !['deferred', 'wont_fix'].includes(i.status))
-      await Promise.all(sprintItems.map(i =>
-        fetchWithAuth(`${API_BASE}/tracker/${i.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: targetStatus }),
-        })
-      ))
+      // Update all items in this sprint to the target status (use allItems, not filtered items)
+      const sprintItems = allItems.filter(i => i.sprint_id === data.sprintId && !['deferred', 'wont_fix'].includes(i.status))
+      // Always save phase to sprint doc (supports empty sprints)
+      await fetchWithAuth(`${API_BASE}/sprints/${data.sprintId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ phase: toPhase }),
+      })
+      if (sprintItems.length > 0) {
+        await Promise.all(sprintItems.map(i =>
+          fetchWithAuth(`${API_BASE}/tracker/${i.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: targetStatus }),
+          })
+        ))
+      }
       await loadItems()
+      await loadSprints()
     } catch { /* invalid drag data */ }
   }
 
