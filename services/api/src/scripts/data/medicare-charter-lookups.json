@@ -1,0 +1,734 @@
+{
+  "_metadata": {
+    "description": "Medicare charter lookup tables extracted from raw BoB files. NO PHI — only policy prefixes, CMS contracts, and charter mappings.",
+    "sources": [
+      "!Medicare BoBs.xlsx → MEDICARE- Composite! sheet (1,327 rows)",
+      "!Medicare BoBs.xlsx → MUTUAL BoB.ALL- 2BINTEGRATED sheet (15 rows)",
+      "+MFGAN BoB- UHC.xlsx → BOB Sheet (113 rows, 9 CMS contracts)",
+      "2025- AETNA MAPD BoB.xlsx → Sheet1 (540 rows, 12 CMS contracts)",
+      "Humana Policies.xlsx → Sheet 1 (4 CMS contracts)",
+      "Wellmark MAPD BoB- Q225.xlsx (member ID prefix patterns)",
+      "Bluecross MAPS.xlsx (member ID prefix patterns)"
+    ],
+    "extracted": "2026-03-17",
+    "ticket": "TRK-13338"
+  },
+
+  "by_policy_prefix": {
+    "_doc": "Policy number prefix → charter identity. Ordered longest-prefix-first for matching.",
+
+    "CLI": {
+      "charter": "Continental Life Insurance Company",
+      "charter_code": "CLI",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "product_types": ["Med Supp", "HIP Daily", "HIPFLX", "DENTAL", "DVH"],
+      "sample_prefixes": ["CLI0", "CLI2", "CLI6", "CLI9"],
+      "source_count": 127
+    },
+    "AHC": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "product_types": ["Med Supp"],
+      "sample_prefixes": ["AHC0", "AHC2", "AHC6"],
+      "source_count": 108
+    },
+    "AHL": {
+      "charter": "Aetna Health + Life Insurance Company",
+      "charter_code": "AHLC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "product_types": ["Med Supp"],
+      "sample_prefixes": ["AHL0", "AHL2", "AHL3", "AHL6"],
+      "source_count": 65
+    },
+    "ACC": {
+      "charter": "Accendo Insurance Company",
+      "charter_code": "ACC",
+      "naic": 63444,
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "product_types": ["Med Supp", "Final Exp"],
+      "sample_prefixes": ["ACC6"],
+      "source_count": 11
+    },
+    "ACI": {
+      "charter": "American Continental Insurance Company",
+      "charter_code": "ACI",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "product_types": ["Med Supp"],
+      "sample_prefixes": ["ACI2", "ACI3"],
+      "source_count": 23
+    },
+    "TER": {
+      "charter": "Aflac TierOne",
+      "charter_code": "TierOne",
+      "carrier_id": "aflac",
+      "parent": "Aflac",
+      "product_types": ["Med Supp"],
+      "sample_prefixes": ["TER6"],
+      "source_count": 11
+    },
+
+    "000M1M": {
+      "charter": "Medico Insurance Company",
+      "charter_code": "M1",
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe",
+      "product_types": ["Med Supp"],
+      "source_count": 9
+    },
+    "000M1D": {
+      "charter": "Medico Insurance Company",
+      "charter_code": "M1",
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe",
+      "product_types": ["Med Supp"],
+      "source_count": 0
+    },
+    "000M1I": {
+      "charter": "Medico Insurance Company",
+      "charter_code": "M1",
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe",
+      "product_types": ["Med Supp"],
+      "source_count": 0
+    },
+    "000MCM": {
+      "charter": "Medico Corp Life Insurance Company",
+      "charter_code": "ML",
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe",
+      "product_types": ["Med Supp"],
+      "source_count": 6
+    },
+    "000MLM": {
+      "charter": "Medico Life and Health Insurance Company",
+      "charter_code": "ML",
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe",
+      "product_types": ["Med Supp"],
+      "source_count": 0
+    },
+
+    "80F0": {
+      "charter": "CIGNA Health + Life Insurance Company",
+      "charter_code": "CHLIC",
+      "carrier_id": "cigna",
+      "parent": "Cigna",
+      "product_types": ["Med Supp"],
+      "source_count": 14
+    },
+    "80Y0": {
+      "charter": "CIGNA Health + Life Insurance Company",
+      "charter_code": "CHLIC",
+      "carrier_id": "cigna",
+      "parent": "Cigna",
+      "product_types": ["Med Supp"],
+      "source_count": 7
+    },
+    "60Y0": {
+      "charter": "CIGNA Health + Life Insurance Company",
+      "charter_code": "CHLIC",
+      "carrier_id": "cigna",
+      "parent": "Cigna",
+      "product_types": ["Med Supp"],
+      "source_count": 0
+    },
+    "36F0": {
+      "charter": "American Republic Life Insurance Company",
+      "charter_code": "ARLIC",
+      "carrier_id": "cigna",
+      "parent": "Cigna",
+      "product_types": ["Med Supp"],
+      "source_count": 2
+    },
+    "12F0": {
+      "charter": "Loyal American Life Insurance Company",
+      "charter_code": "LOYAL",
+      "carrier_id": "cigna",
+      "parent": "Cigna",
+      "product_types": ["Med Supp"],
+      "source_count": 1
+    },
+
+    "2002": {
+      "charter": "Lumico Life Insurance Company",
+      "charter_code": "LUM",
+      "naic": 73504,
+      "carrier_id": "lumico-cuna",
+      "parent": "Lumico",
+      "product_types": ["Med Supp"],
+      "source_count": 22
+    },
+    "2005": {
+      "charter": "Lumico Life Insurance Company",
+      "charter_code": "LUM",
+      "naic": 73504,
+      "carrier_id": "lumico-cuna",
+      "parent": "Lumico",
+      "product_types": ["Med Supp"],
+      "source_count": 7
+    },
+    "2015": {
+      "charter": "Elips Life Insurance Company",
+      "charter_code": "ELIPS",
+      "naic": 85561,
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe",
+      "product_types": ["Med Supp"],
+      "source_count": 4
+    },
+    "2402": {
+      "charter": "CHUBB (ACE)",
+      "charter_code": "ACE",
+      "carrier_id": "chubb",
+      "parent": "Chubb",
+      "product_types": ["Med Supp"],
+      "source_count": 2
+    },
+
+    "W": {
+      "charter": "Wellmark Blue Cross Blue Shield of Iowa",
+      "charter_code": "WBCBS",
+      "carrier_id": "wellmark-bcbs-iowa",
+      "parent": "Wellmark BCBS of Iowa",
+      "product_types": ["MAPD", "Med Supp", "DVH", "Dental"],
+      "sample_prefixes": ["W000", "W001", "W002", "W003", "W004", "W140"],
+      "source_count": 95,
+      "_note": "All Wellmark policies start with W followed by digits"
+    }
+  },
+
+  "by_cms_contract": {
+    "_doc": "CMS Contract ID → charter identity. Used for MAPD/PDP accounts where policy_number contains or matches a CMS contract.",
+
+    "H1608": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Premier (PPO)", "Aetna Medicare Premier Plus (PPO)", "Aetna Medicare SmartFit (PPO)", "Aetna Medicare Elite (PPO)"],
+      "product_type": "MA",
+      "source_count": 38
+    },
+    "H1609": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Premier (HMO-POS)", "Aetna Medicare Select Plus (HMO)", "Aetna Medicare SmartFit (HMO-POS)"],
+      "product_type": "MA",
+      "source_count": 191
+    },
+    "H2663": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Premier Preferred (HMO)", "Aetna Medicare Gold Advantage (HMO)"],
+      "product_type": "MA",
+      "source_count": 5
+    },
+    "H3748": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Elite Plan (HMO-POS)"],
+      "product_type": "MA",
+      "source_count": 2
+    },
+    "H3931": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Sunrise Plan (HMO-POS)"],
+      "product_type": "MA",
+      "source_count": 2
+    },
+    "H4982": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Plus Plan (HMO)"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H5325": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Assure (HMO D-SNP)"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H5521": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Value Plan (PPO)", "Aetna Medicare Premier Plan (PPO)", "Aetna Medicare Value (PPO)"],
+      "product_type": "MA",
+      "source_count": 4
+    },
+    "H5593": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Assure Premier (HMO D-SNP)"],
+      "product_type": "MA",
+      "source_count": 2
+    },
+    "H7149": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Premier (HMO-POS)"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H7301": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "plan_names": ["Aetna Medicare Choice (PPO)"],
+      "product_type": "MA",
+      "source_count": 4
+    },
+    "S5601": {
+      "charter": "SilverScript Insurance Company",
+      "charter_code": "SS",
+      "carrier_id": "silverscript",
+      "parent": "SilverScript",
+      "plan_names": ["SilverScript/Aetna PDP (PLUS)", "SilverScript/Aetna PDP (SMARTRX)"],
+      "product_type": "PDP",
+      "source_count": 20,
+      "_note": "SilverScript is a CVS/Aetna subsidiary but has its own charter"
+    },
+
+    "F01": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Supplement Plan"],
+      "product_type": "MS",
+      "source_count": 0,
+      "_note": "UHC Med Supp contract — F01/G01 are supplement contracts not typically in policy_number"
+    },
+    "G01": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Supplement Plan"],
+      "product_type": "MS",
+      "source_count": 0
+    },
+    "H0294": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Advantage from UHC CA-0031"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H0543": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["UHC Sharp Medicare Advantage ValueRx CA-12P"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H0609": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Advantage Extras from UHC TX-27"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H2802": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Advantage Extras from UHC ST-4", "AARP Medicare Advantage from UHC MO-0007", "AARP Medicare Advantage from UHC KC-0003", "AARP Medicare Advantage Essentials from UHC ST-3"],
+      "product_type": "MA",
+      "source_count": 4
+    },
+    "H5253": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Advantage from UHC IA-0002", "AARP Medicare Advantage from UHC IA-0001"],
+      "product_type": "MA",
+      "source_count": 2
+    },
+    "H8768": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Advantage Essentials from UHC KC-4", "AARP Medicare Advantage from UHC IA-0003", "AARP Medicare Advantage from UHC MO-0008", "AARP Medicare Advantage Extras from UHC KC-5", "AARP Medicare Advantage from UHC IA-0004"],
+      "product_type": "MA",
+      "source_count": 5
+    },
+    "S5921": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare",
+      "plan_names": ["AARP Medicare Rx Preferred from UHC", "AARP Medicare Rx Saver from UHC"],
+      "product_type": "PDP",
+      "source_count": 7
+    },
+
+    "H4820": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana PDP"],
+      "product_type": "PDP",
+      "source_count": 1
+    },
+    "H6101": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MA LPPO"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H6106": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MA LPPO"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+    "H7383": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MA LPPO"],
+      "product_type": "MA",
+      "source_count": 1
+    },
+
+    "H5549": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MAPD"],
+      "product_type": "MA",
+      "source_count": 0,
+      "_note": "From Medicare Composite H5549 prefix policies"
+    },
+    "H6534": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MAPD"],
+      "product_type": "MA",
+      "source_count": 0
+    },
+    "H4314": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MAPD"],
+      "product_type": "MA",
+      "source_count": 0
+    },
+    "H6042": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MAPD"],
+      "product_type": "MA",
+      "source_count": 0
+    },
+    "H4305": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "plan_names": ["Humana MAPD"],
+      "product_type": "MA",
+      "source_count": 0
+    }
+  },
+
+  "by_carrier_composite_name": {
+    "_doc": "Carrier names exactly as they appear in the MEDICARE Composite BoB, mapped to charter identity. This is a carrier_name → charter lookup for records that have the composite carrier_name format.",
+
+    "AETNA- CLI": {
+      "charter": "Continental Life Insurance Company",
+      "charter_code": "CLI",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna"
+    },
+    "AETNA- AHC": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna"
+    },
+    "AETNA- AHL": {
+      "charter": "Aetna Health + Life Insurance Company",
+      "charter_code": "AHLC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna"
+    },
+    "AETNA- ACI": {
+      "charter": "American Continental Insurance Company",
+      "charter_code": "ACI",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna"
+    },
+    "AETNA- ACC": {
+      "charter": "Accendo Insurance Company",
+      "charter_code": "ACC",
+      "naic": 63444,
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna"
+    },
+    "AETNA": {
+      "charter": "Aetna Health Insurance Company",
+      "charter_code": "AHIC",
+      "carrier_id": "aetna-cvs",
+      "parent": "Aetna",
+      "_note": "Default for MAPD/PDP rows where charter is embedded in CMS contract, not carrier name"
+    },
+
+    "Mutual- UW": {
+      "charter": "United World Life Insurance Company",
+      "charter_code": "UW",
+      "naic": 72850,
+      "carrier_id": "mutual-of-omaha",
+      "parent": "Mutual of Omaha"
+    },
+    "Mutual- UO": {
+      "charter": "United of Omaha Life Insurance Company",
+      "charter_code": "UO",
+      "naic": 69868,
+      "carrier_id": "mutual-of-omaha",
+      "parent": "Mutual of Omaha"
+    },
+    "Mutual- OIC": {
+      "charter": "Omaha Insurance Company",
+      "charter_code": "OIC",
+      "naic": 13100,
+      "carrier_id": "mutual-of-omaha",
+      "parent": "Mutual of Omaha"
+    },
+    "Mutual- MO": {
+      "charter": "Mutual of Omaha Insurance Company",
+      "charter_code": "MUT",
+      "naic": 71412,
+      "carrier_id": "mutual-of-omaha",
+      "parent": "Mutual of Omaha"
+    },
+    "Mutual- UW (1990)": {
+      "charter": "United World Life Insurance Company",
+      "charter_code": "UW",
+      "naic": 72850,
+      "carrier_id": "mutual-of-omaha",
+      "parent": "Mutual of Omaha"
+    },
+
+    "Medico- MIC": {
+      "charter": "Medico Insurance Company",
+      "charter_code": "M1",
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe"
+    },
+    "Medico- MCLIC": {
+      "charter": "Medico Corp Life Insurance Company",
+      "charter_code": "ML",
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe"
+    },
+
+    "CIGNA- CHLIC": {
+      "charter": "CIGNA Health + Life Insurance Company",
+      "charter_code": "CHLIC",
+      "carrier_id": "cigna",
+      "parent": "Cigna"
+    },
+    "CIGNA- ARLIC": {
+      "charter": "American Republic Life Insurance Company",
+      "charter_code": "ARLIC",
+      "carrier_id": "cigna",
+      "parent": "Cigna"
+    },
+    "CIGNA- LOYAL": {
+      "charter": "Loyal American Life Insurance Company",
+      "charter_code": "LOYAL",
+      "carrier_id": "cigna",
+      "parent": "Cigna"
+    },
+
+    "Lumico- LUM": {
+      "charter": "Lumico Life Insurance Company",
+      "charter_code": "LUM",
+      "naic": 73504,
+      "carrier_id": "lumico-cuna",
+      "parent": "Lumico"
+    },
+    "Lumico- ELIPS": {
+      "charter": "Elips Life Insurance Company",
+      "charter_code": "ELIPS",
+      "naic": 85561,
+      "carrier_id": "wellabe-medico",
+      "parent": "Wellabe"
+    },
+
+    "Manhattan- MLI": {
+      "charter": "Manhattan Life Insurance Company",
+      "charter_code": "MLI",
+      "carrier_id": "manhattan-life",
+      "parent": "Manhattan Life"
+    },
+
+    "ACE": {
+      "charter": "CHUBB (ACE)",
+      "charter_code": "ACE",
+      "carrier_id": "chubb",
+      "parent": "Chubb"
+    },
+
+    "TIER ONE (AFLAC)": {
+      "charter": "Aflac TierOne",
+      "charter_code": "TierOne",
+      "carrier_id": "aflac",
+      "parent": "Aflac"
+    },
+
+    "HUMANA- ACH": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana",
+      "_note": "ACH appears to be American Continental Holdings/Humana sub-brand"
+    },
+    "HUMANA": {
+      "charter": "Humana Insurance Company",
+      "charter_code": "HIC",
+      "naic": 73288,
+      "carrier_id": "humana",
+      "parent": "Humana"
+    },
+
+    "UHC": {
+      "charter": "UnitedHealthcare Insurance Company",
+      "charter_code": "UHC",
+      "carrier_id": "uhc",
+      "parent": "UnitedHealthcare"
+    },
+
+    "Wellmark": {
+      "charter": "Wellmark Blue Cross Blue Shield of Iowa",
+      "charter_code": "WBCBS",
+      "carrier_id": "wellmark-bcbs-iowa",
+      "parent": "Wellmark BCBS of Iowa"
+    },
+
+    "BlueKC": {
+      "charter": "Blue Cross and Blue Shield of Kansas City",
+      "charter_code": "BKC",
+      "carrier_id": "bluekc",
+      "parent": "Blue KC"
+    },
+
+    "Wellcare (CENTENE)": {
+      "charter": "WellCare Health Plans",
+      "charter_code": "WC",
+      "carrier_id": "wellcare-centene",
+      "parent": "WellCare"
+    }
+  },
+
+  "mutual_omaha_policy_patterns": {
+    "_doc": "Mutual of Omaha family uses 6-digit dash 2-digit policy format (e.g., 686880-94). Charter is determined by the numeric range of the prefix, confirmed from Composite BoB data.",
+    "ranges": [
+      {
+        "description": "United World Life (UW) — prefix digits ~262-747",
+        "charter": "United World Life Insurance Company",
+        "charter_code": "UW",
+        "naic": 72850,
+        "carrier_id": "mutual-of-omaha",
+        "parent": "Mutual of Omaha",
+        "sample_policies": ["324272-94", "362268-94", "592244-94", "686697-94", "686880-94", "724066-95", "747555-99"],
+        "source_count": 57
+      },
+      {
+        "description": "United of Omaha (UO) — prefix 33-xxxxxx format",
+        "charter": "United of Omaha Life Insurance Company",
+        "charter_code": "UO",
+        "naic": 69868,
+        "carrier_id": "mutual-of-omaha",
+        "parent": "Mutual of Omaha",
+        "sample_policies": ["33-138100", "33-138112", "33-144057", "33-144060", "33-149684"],
+        "source_count": 49,
+        "_note": "UO policies use 33-6digit format, distinct from other MutOmaha charters"
+      },
+      {
+        "description": "Omaha Insurance Company (OIC) — prefix digits ~479-964",
+        "charter": "Omaha Insurance Company",
+        "charter_code": "OIC",
+        "naic": 13100,
+        "carrier_id": "mutual-of-omaha",
+        "parent": "Mutual of Omaha",
+        "sample_policies": ["543186-92", "727479-91", "734246-92", "796012-92", "846432-94", "867459-91", "875999-92", "964619-92"],
+        "source_count": 29
+      },
+      {
+        "description": "Mutual of Omaha (MUT) — prefix digits 302-777",
+        "charter": "Mutual of Omaha Insurance Company",
+        "charter_code": "MUT",
+        "naic": 71412,
+        "carrier_id": "mutual-of-omaha",
+        "parent": "Mutual of Omaha",
+        "sample_policies": ["302495-96", "302528-96", "373971-95", "777120-90"],
+        "source_count": 4,
+        "_note": "Overlaps with UW/OIC ranges — use carrier_name to disambiguate when possible"
+      }
+    ]
+  }
+}
