@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { query, orderBy, type Query, type DocumentData } from 'firebase/firestore'
 import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
 import { normalizePhone } from '@tomachina/core'
-import type { Client, User } from '@tomachina/core'
+import type { Client, User, Household } from '@tomachina/core'
 import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
@@ -43,8 +43,9 @@ function cleanName(name: string): string {
 
 const clientsQuery: Query<DocumentData> = query(collections.clients(), orderBy('last_name'))
 const usersQuery: Query<DocumentData> = query(collections.users())
+const householdsQuery: Query<DocumentData> = query(collections.households())
 
-type SortKey = 'name' | 'location' | 'book_of_business' | 'agent_name' | 'client_status' | null
+type SortKey = 'name' | 'location' | 'book_of_business' | 'agent_name' | 'client_status' | 'household' | null
 
 interface UserDoc extends User {
   _id: string
@@ -58,6 +59,8 @@ interface ClientRow extends Client {
   assigned_user_id?: string
   agent_name?: string
   gdrive_folder_url?: string
+  household_id?: string
+  household_name?: string
 }
 
 const PAGE_SIZE = 25
@@ -69,8 +72,19 @@ const PAGE_SIZE = 25
 export default function ClientsPage() {
   const { data: rawClients, loading: clientsLoading, error } = useCollection<ClientRow>(clientsQuery, 'all-clients')
   const { data: rawUsers, loading: usersLoading } = useCollection<UserDoc>(usersQuery, 'all-users')
+  const { data: rawHouseholds, loading: householdsLoading } = useCollection<Household & { _id: string }>(householdsQuery, 'all-households')
 
-  const loading = clientsLoading || usersLoading
+  const loading = clientsLoading || usersLoading || householdsLoading
+
+  // Build household lookup: household_id -> household_name
+  const householdMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const h of rawHouseholds) {
+      const id = h.household_id || h._id
+      if (id && h.household_name) map.set(id, h.household_name)
+    }
+    return map
+  }, [rawHouseholds])
 
   // Build user lookup maps:
   // - userMap: user_id (UUID) -> "First Last" (all users, for resolving assigned_user_id)
@@ -101,6 +115,7 @@ export default function ClientsPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(getDefaultVisibleColumns)
+  const [groupByHousehold, setGroupByHousehold] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // Resolve agent names on each client row
@@ -114,9 +129,10 @@ export default function ClientsPage() {
         userMap.get(legacyId) ||
         userDocIdMap.get(legacyId) ||
         String(c.agent_name || '')
-      return { ...c, agent_name: resolved } as ClientRow
+      const householdName = householdMap.get(String(c.household_id || '')) || ''
+      return { ...c, agent_name: resolved, household_name: householdName } as ClientRow
     })
-  }, [rawClients, userMap, userDocIdMap])
+  }, [rawClients, userMap, userDocIdMap, householdMap])
 
   // Extract unique books from data; agents come from users where is_agent: true
   const { books, agents } = useMemo(() => {
@@ -215,6 +231,10 @@ export default function ClientsPage() {
           av = (a.client_status || '').toLowerCase()
           bv = (b.client_status || '').toLowerCase()
           break
+        case 'household':
+          av = (a.household_name || '').toLowerCase()
+          bv = (b.household_name || '').toLowerCase()
+          break
         default:
           return 0
       }
@@ -229,6 +249,34 @@ export default function ClientsPage() {
   const paged = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
   const showingStart = sorted.length > 0 ? page * PAGE_SIZE + 1 : 0
   const showingEnd = Math.min((page + 1) * PAGE_SIZE, sorted.length)
+
+  // Household grouping (applied to paged results)
+  const groupedRows = useMemo(() => {
+    if (!groupByHousehold) return null
+    const groups = new Map<string, { name: string; householdId: string; members: ClientRow[] }>()
+    const order: string[] = []
+    for (const client of paged) {
+      const key = client.household_name || 'No Household'
+      const hId = client.household_id || ''
+      if (!groups.has(key)) {
+        groups.set(key, { name: key, householdId: hId, members: [] })
+        order.push(key)
+      }
+      groups.get(key)!.members.push(client)
+    }
+    return order.map(key => groups.get(key)!)
+  }, [groupByHousehold, paged])
+
+  // Count visible columns for colSpan on group headers
+  const visibleColCount = useMemo(() => {
+    // 1 for checkbox + 1 for name (always visible) + each toggled column
+    let count = 2
+    const toggleable = ['location', 'phone', 'email', 'book', 'agent', 'status', 'household', 'acf', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
+    for (const k of toggleable) {
+      if (visibleColumns.has(k)) count++
+    }
+    return count
+  }, [visibleColumns])
 
   // Handlers — reset page on filter change
   const resetPage = useCallback(() => setPage(0), [])
@@ -361,6 +409,20 @@ export default function ClientsPage() {
         }
       />
 
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setGroupByHousehold(g => !g)}
+          className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-colors ${
+            groupByHousehold
+              ? 'border-[var(--portal)] bg-[var(--portal)] text-white'
+              : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
+          }`}
+        >
+          <span className="material-icons-outlined text-[16px]">home</span>
+          Group by Household
+        </button>
+      </div>
+
       {/* DeDup button — shown when 2+ clients selected */}
       {selectedIds.size >= 2 && (
         <div className="flex items-center gap-2 mt-3">
@@ -425,6 +487,7 @@ export default function ClientsPage() {
                   {col('book') && renderSortHeader('Book', 'book_of_business')}
                   {col('agent') && renderSortHeader('Agent', 'agent_name')}
                   {col('status') && renderSortHeader('Status', 'client_status')}
+                  {col('household') && renderSortHeader('Household', 'household')}
                   {col('acf') && renderStaticHeader('ACF', 'text-center')}
                   {col('age') && renderStaticHeader('Age')}
                   {col('dob') && renderStaticHeader('DOB')}
@@ -436,7 +499,76 @@ export default function ClientsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paged.map((client) => {
+                {groupedRows ? (
+                  /* Grouped by household rendering */
+                  groupedRows.map((group) => (
+                    <React.Fragment key={`group-${group.name}`}>
+                      <tr className="border-t border-[var(--border)] bg-[var(--bg-surface)]">
+                        <td colSpan={visibleColCount} className="px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            <span className="material-icons-outlined text-[16px] text-[var(--portal)]">home</span>
+                            {group.householdId ? (
+                              <a
+                                href={`/households/${group.householdId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-semibold text-[var(--portal)] hover:underline"
+                              >
+                                {group.name}
+                              </a>
+                            ) : (
+                              <span className="text-sm font-semibold text-[var(--text-muted)]">{group.name}</span>
+                            )}
+                            <span className="text-xs text-[var(--text-muted)]">
+                              ({group.members.length} {group.members.length === 1 ? 'member' : 'members'})
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      {group.members.map((client) => {
+                        const age = getAge(client.dob)
+                        const dash = <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
+                        return (
+                          <tr
+                            key={client._id || client.client_id}
+                            onClick={() => handleRowClick(client)}
+                            className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
+                          >
+                            <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                              <input type="checkbox" checked={selectedIds.has(client._id || client.client_id)} onChange={() => toggleClientSelect(client._id || client.client_id)} className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]" />
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="flex items-center gap-3">
+                                <ClientAvatar firstName={client.first_name} lastName={client.last_name} />
+                                <div className="min-w-0">
+                                  <p className="truncate font-medium text-[var(--text-primary)]">{cleanName(String(client.preferred_name || client.first_name || ''))}{' '}{cleanName(String(client.last_name || ''))}</p>
+                                  {age != null && <p className="text-xs text-[var(--text-muted)]">Age {age}</p>}
+                                </div>
+                              </div>
+                            </td>
+                            {col('location') && (<td className="px-3 py-3">{client.city || client.state ? <span className="text-[var(--text-secondary)]">{[client.city, client.state].filter(Boolean).join(', ')}</span> : dash}</td>)}
+                            {col('phone') && (<td className="px-3 py-3">{client.phone ? <span className="text-[var(--text-secondary)] whitespace-nowrap">{formatPhone(client.phone)}</span> : dash}</td>)}
+                            {col('email') && (<td className="px-3 py-3">{client.email ? <a href={`mailto:${client.email}`} onClick={(e) => e.stopPropagation()} className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block">{client.email}</a> : dash}</td>)}
+                            {col('book') && (<td className="px-3 py-3">{client.book_of_business ? <span className="text-[var(--text-secondary)] text-xs">{String(client.book_of_business)}</span> : dash}</td>)}
+                            {col('agent') && (<td className="px-3 py-3">{client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash}</td>)}
+                            {col('status') && (<td className="px-3 py-3"><StatusBadge status={client.client_status} /></td>)}
+                            {col('household') && (<td className="px-3 py-3">{client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash}</td>)}
+                            {col('acf') && (<td className="px-3 py-3 text-center">{client.gdrive_folder_url ? <a href={String(client.gdrive_folder_url)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors" title="Open Active Client File"><span className="material-icons-outlined text-[18px]">folder_open</span></a> : dash}</td>)}
+                            {col('age') && (<td className="px-3 py-3">{age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash}</td>)}
+                            {col('dob') && (<td className="px-3 py-3">{client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash}</td>)}
+                            {col('ssn') && (<td className="px-3 py-3">{client.ssn_last4 ? <span className="text-[var(--text-secondary)] text-xs">***-**-{String(client.ssn_last4)}</span> : dash}</td>)}
+                            {col('gender') && (<td className="px-3 py-3">{client.gender ? <span className="text-[var(--text-secondary)] text-xs">{String(client.gender)}</span> : dash}</td>)}
+                            {col('marital') && (<td className="px-3 py-3">{client.marital_status ? <span className="text-[var(--text-secondary)] text-xs">{String(client.marital_status)}</span> : dash}</td>)}
+                            {col('timezone') && (<td className="px-3 py-3">{client.timezone ? <span className="text-[var(--text-secondary)] text-xs">{String(client.timezone)}</span> : dash}</td>)}
+                            {col('employment') && (<td className="px-3 py-3">{client.employment_status ? <span className="text-[var(--text-secondary)] text-xs">{String(client.employment_status)}</span> : dash}</td>)}
+                          </tr>
+                        )
+                      })}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  /* Flat (ungrouped) rendering */
+                  paged.map((client) => {
                   const age = getAge(client.dob)
                   const dash = <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
                   return (
@@ -539,6 +671,23 @@ export default function ClientsPage() {
                         </td>
                       )}
 
+                      {/* Household */}
+                      {col('household') && (
+                        <td className="px-3 py-3">
+                          {client.household_name ? (
+                            <a
+                              href={`/households/${client.household_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs text-[var(--portal)] hover:underline"
+                            >
+                              {String(client.household_name)}
+                            </a>
+                          ) : dash}
+                        </td>
+                      )}
+
                       {/* ACF (Google Drive folder) */}
                       {col('acf') && (
                         <td className="px-3 py-3 text-center">
@@ -625,7 +774,8 @@ export default function ClientsPage() {
                       )}
                     </tr>
                   )
-                })}
+                })
+                )}
               </tbody>
             </table>
           </div>

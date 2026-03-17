@@ -36,6 +36,7 @@ interface ClientRow {
   net_worth?: number
   investable_assets?: number
   annual_income?: number
+  phone?: string
   assigned_user_id?: string
   [key: string]: unknown
 }
@@ -138,6 +139,69 @@ async function run() {
     })
   }
   console.log(`Found ${households.length} total after address matching`)
+
+  // 3.5: MFJ filing status detection
+  let mfjCount = 0
+  for (const [id, client] of clients) {
+    if (grouped.has(id)) continue
+    if (client.household_id) { grouped.add(id); continue }
+
+    const status = (client.filing_status || '').toLowerCase()
+    if (!status.includes('married') && !status.includes('mfj')) continue
+
+    // Find partner: same last name + same address
+    for (const [otherId, other] of clients) {
+      if (otherId === id || grouped.has(otherId)) continue
+      if (!other.last_name || !client.last_name) continue
+      if (other.last_name.toLowerCase().trim() !== client.last_name.toLowerCase().trim()) continue
+      if (!client.address || !other.address) continue
+      if (client.address.toLowerCase().trim() !== other.address.toLowerCase().trim()) continue
+
+      grouped.add(id)
+      grouped.add(otherId)
+      mfjCount++
+      households.push({
+        name: `${client.last_name} Household`,
+        primary_id: id,
+        member_ids: [id, otherId],
+        source: 'mfj_filing_status',
+      })
+      break
+    }
+  }
+  console.log(`Found ${households.length} total after MFJ filing status detection (${mfjCount} new)`)
+
+  // 3.6: Same phone + same last name detection
+  const phoneGroups = new Map<string, string[]>()
+  for (const [id, client] of clients) {
+    if (grouped.has(id)) continue
+    if (client.household_id) { grouped.add(id); continue }
+    if (!client.last_name || !client.phone) continue
+
+    const phone = String(client.phone).replace(/\D/g, '')
+    if (phone.length < 10) continue
+
+    const key = `${client.last_name.toLowerCase().trim()}|${phone}`
+    const group = phoneGroups.get(key) || []
+    group.push(id)
+    phoneGroups.set(key, group)
+  }
+
+  let phoneCount = 0
+  for (const [, memberIds] of phoneGroups) {
+    if (memberIds.length < 2) continue
+    for (const mid of memberIds) grouped.add(mid)
+    phoneCount++
+
+    const primary = clients.get(memberIds[0])!
+    households.push({
+      name: `${primary.last_name} Household`,
+      primary_id: memberIds[0],
+      member_ids: memberIds,
+      source: 'same_phone',
+    })
+  }
+  console.log(`Found ${households.length} total after same-phone detection (${phoneCount} new)`)
 
   // 5. Create single-person households for remaining ungrouped active clients
   let singleCount = 0
