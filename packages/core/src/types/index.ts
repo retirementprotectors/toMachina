@@ -23,6 +23,8 @@ export interface Client {
   assigned_user_id?: string
   /** @deprecated Legacy field — use assigned_user_id instead. Points to row_N in old agents collection. */
   agent_id?: string
+  /** FK to households collection — links this client to their household group. */
+  household_id?: string
   created_at: string
   updated_at: string
   [key: string]: unknown // 107 total fields
@@ -328,6 +330,47 @@ export interface SourceRegistry {
   source_type: string
   status: string
   [key: string]: unknown
+}
+
+// --- Householding ---
+
+export interface Household {
+  household_id: string
+  household_name: string
+  primary_contact_id: string
+  primary_contact_name?: string
+  members: HouseholdMember[]
+  address?: string
+  city?: string
+  state?: string
+  zip?: string
+  household_status: string
+  assigned_user_id?: string
+  acf_folder_id?: string
+  acf_folder_url?: string
+  aggregate_financials?: HouseholdFinancials
+  created_at: string
+  updated_at: string
+  [key: string]: unknown
+}
+
+export interface HouseholdMember {
+  client_id: string
+  client_name?: string
+  role: 'primary' | 'spouse' | 'child' | 'parent' | 'sibling' | 'other'
+  relationship: string
+  added_at: string
+}
+
+export interface HouseholdFinancials {
+  combined_income?: number
+  combined_net_worth?: number
+  combined_investable_assets?: number
+  filing_status?: string
+  total_accounts?: number
+  total_premium?: number
+  total_face_amount?: number
+  last_calculated?: string
 }
 
 // ============================================================================

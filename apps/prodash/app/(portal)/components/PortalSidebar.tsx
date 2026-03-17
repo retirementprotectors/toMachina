@@ -55,6 +55,7 @@ const NAV_SECTIONS: NavSection[] = [
     moduleKey: 'PRODASH',
     items: [
       { key: 'contacts', label: 'Contacts', href: '/contacts', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'households', label: 'Households', href: '/households', icon: 'home', moduleKey: 'PRODASH_HOUSEHOLDS' },
       { key: 'accounts', label: 'Accounts', href: '/accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
     ],
   },

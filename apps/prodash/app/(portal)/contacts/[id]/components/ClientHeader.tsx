@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Link from 'next/link'
 import type { Client } from '@tomachina/core'
 import { getAge, getInitials, hashColor } from '../lib/formatters'
 import { AI3Report } from './AI3Report'
@@ -147,6 +148,16 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-[var(--text-primary)]">{displayName}</h1>
               <StatusBadge status={status} />
+              {client.household_id && (
+                <Link
+                  href={`/households/${client.household_id}`}
+                  className="inline-flex items-center gap-1 rounded-full border border-[var(--portal)]/30 bg-[var(--portal)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--portal)]/20"
+                  title="View Household"
+                >
+                  <span className="material-icons-outlined text-[12px]">home</span>
+                  Household
+                </Link>
+              )}
             </div>
             {displayName !== fullName && (
               <p className="mt-0.5 text-sm text-[var(--text-muted)]">{fullName}</p>
