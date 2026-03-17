@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useMemo, useCallback } from 'react'
+import { use, useState, useMemo, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { useDocument } from '@tomachina/db'
 import { doc, getDoc, updateDoc, getFirestore } from 'firebase/firestore'
@@ -12,12 +12,15 @@ import type { Household, HouseholdMember } from '@tomachina/core'
 // HOUSEHOLD DETAIL — The household-level view
 // ---------------------------------------------------------------------------
 
-type TabKey = 'overview' | 'members' | 'financials'
+type TabKey = 'overview' | 'members' | 'accounts' | 'financials' | 'activity' | 'pipelines'
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: 'overview', label: 'Overview', icon: 'dashboard' },
   { key: 'members', label: 'Members', icon: 'group' },
-  { key: 'financials', label: 'Financials', icon: 'account_balance' },
+  { key: 'accounts', label: 'Accounts', icon: 'account_balance' },
+  { key: 'financials', label: 'Financials', icon: 'account_balance_wallet' },
+  { key: 'activity', label: 'Activity', icon: 'history' },
+  { key: 'pipelines', label: 'Pipelines', icon: 'route' },
 ]
 
 export default function HouseholdDetailPage({
@@ -96,7 +99,10 @@ export default function HouseholdDetailPage({
       <div className="min-h-[400px]">
         {activeTab === 'overview' && <OverviewTab household={household} />}
         {activeTab === 'members' && <MembersTab household={household} householdId={id} />}
+        {activeTab === 'accounts' && <AccountsTab household={household} />}
         {activeTab === 'financials' && <FinancialsTab household={household} householdId={id} />}
+        {activeTab === 'activity' && <ActivityTab householdId={id} />}
+        {activeTab === 'pipelines' && <PipelinesTab household={household} householdId={id} />}
       </div>
     </div>
   )
@@ -324,6 +330,31 @@ function MembersTab({ household, householdId }: { household: Household; househol
     }
   }, [householdId])
 
+  const handleSetPrimary = useCallback(async (clientId: string, clientName: string) => {
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      await fetch(`/api/households/${householdId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          primary_contact_id: clientId,
+          primary_contact_name: clientName,
+          members: members.map(m => ({
+            ...m,
+            role: m.client_id === clientId ? 'primary' : (m.role === 'primary' ? 'spouse' : m.role),
+          })),
+        }),
+      })
+      window.location.reload()
+    } catch {
+      // Failed
+    }
+  }, [householdId, members])
+
   return (
     <SectionCard title="Household Members" icon="group">
       <div className="space-y-4">
@@ -350,13 +381,22 @@ function MembersTab({ household, householdId }: { household: Household; househol
               </div>
             </div>
             {m.role !== 'primary' && (
-              <button
-                onClick={() => handleRemoveMember(m.client_id)}
-                className="rounded p-1 text-[var(--text-muted)] transition-colors hover:bg-red-500/15 hover:text-red-400"
-                title="Remove from household"
-              >
-                <span className="material-icons-outlined text-[18px]">person_remove</span>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => handleSetPrimary(m.client_id, m.client_name || '')}
+                  className="rounded p-1 text-[var(--text-muted)] transition-colors hover:bg-[var(--portal)]/15 hover:text-[var(--portal)]"
+                  title="Set as primary contact"
+                >
+                  <span className="material-icons-outlined text-[18px]">star_outline</span>
+                </button>
+                <button
+                  onClick={() => handleRemoveMember(m.client_id)}
+                  className="rounded p-1 text-[var(--text-muted)] transition-colors hover:bg-red-500/15 hover:text-red-400"
+                  title="Remove from household"
+                >
+                  <span className="material-icons-outlined text-[18px]">person_remove</span>
+                </button>
+              </div>
             )}
           </div>
         ))}
@@ -482,6 +522,305 @@ function FinancialsTab({ household, householdId }: { household: Household; house
           Last calculated: {new Date(financials.last_calculated).toLocaleString()}
         </p>
       )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Accounts Tab
+// ---------------------------------------------------------------------------
+
+function AccountsTab({ household }: { household: Household }) {
+  const members = (household.members || []) as HouseholdMember[]
+  const [accounts, setAccounts] = useState<Array<Record<string, unknown>>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadAccounts() {
+      const db = getDb()
+      const allAccounts: Array<Record<string, unknown>> = []
+
+      for (const member of members) {
+        try {
+          const { getDocs, collection } = await import('firebase/firestore')
+          const snap = await getDocs(collection(db, 'clients', member.client_id, 'accounts'))
+          for (const d of snap.docs) {
+            allAccounts.push({
+              id: d.id,
+              ...d.data(),
+              _owner_name: member.client_name || member.client_id,
+              _owner_client_id: member.client_id,
+            })
+          }
+        } catch {
+          // Skip
+        }
+      }
+
+      setAccounts(allAccounts)
+      setLoading(false)
+    }
+    loadAccounts()
+  }, [members])
+
+  if (loading) {
+    return (
+      <SectionCard title="Household Accounts" icon="account_balance">
+        <div className="flex items-center justify-center py-8">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+        </div>
+      </SectionCard>
+    )
+  }
+
+  if (accounts.length === 0) {
+    return (
+      <SectionCard title="Household Accounts" icon="account_balance">
+        <p className="text-sm text-[var(--text-muted)]">No accounts found across household members</p>
+      </SectionCard>
+    )
+  }
+
+  return (
+    <SectionCard title={`Household Accounts (${accounts.length})`} icon="account_balance">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-[var(--border)]">
+              <th className="px-3 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Owner</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Carrier</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Product</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Type</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Policy #</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Status</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-[var(--text-muted)]">Premium</th>
+              <th className="px-3 py-2 text-right text-xs font-semibold text-[var(--text-muted)]">Face Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {accounts.map((acct) => (
+              <tr
+                key={String(acct.id)}
+                onClick={() => window.open(`/contacts/${acct._owner_client_id}`, '_blank')}
+                className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-hover)]"
+              >
+                <td className="px-3 py-2 text-xs text-[var(--portal)] font-medium">{String(acct._owner_name)}</td>
+                <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{String(acct.carrier_name || acct.carrier || '')}</td>
+                <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{String(acct.product_name || acct.product || '')}</td>
+                <td className="px-3 py-2 text-xs text-[var(--text-muted)]">{String(acct.account_type || '')}</td>
+                <td className="px-3 py-2 text-xs text-[var(--text-secondary)] font-mono">{String(acct.policy_number || acct.account_number || '')}</td>
+                <td className="px-3 py-2"><StatusBadge status={String(acct.status || acct.account_status || '')} /></td>
+                <td className="px-3 py-2 text-right text-xs text-[var(--text-primary)]">
+                  {acct.premium ? `$${Number(acct.premium).toLocaleString()}` : '\u2014'}
+                </td>
+                <td className="px-3 py-2 text-right text-xs text-[var(--text-primary)]">
+                  {acct.face_amount ? `$${Number(acct.face_amount).toLocaleString()}` : '\u2014'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </SectionCard>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Activity Tab
+// ---------------------------------------------------------------------------
+
+function ActivityTab({ householdId }: { householdId: string }) {
+  const [activities, setActivities] = useState<Array<Record<string, unknown>>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const auth = getAuth()
+        const token = await auth.currentUser?.getIdToken()
+        const res = await fetch(`/api/activities/household/${householdId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        })
+        const json = await res.json()
+        if (json.success) setActivities(json.data || [])
+      } catch {
+        // Load failed
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [householdId])
+
+  if (loading) {
+    return (
+      <SectionCard title="Activity Feed" icon="history">
+        <div className="flex items-center justify-center py-8">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+        </div>
+      </SectionCard>
+    )
+  }
+
+  if (activities.length === 0) {
+    return (
+      <SectionCard title="Activity Feed" icon="history">
+        <p className="text-sm text-[var(--text-muted)]">No recent activity across household members</p>
+      </SectionCard>
+    )
+  }
+
+  return (
+    <SectionCard title={`Activity Feed (${activities.length})`} icon="history">
+      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+        {activities.map((activity, idx) => (
+          <div key={String(activity.id || idx)} className="flex items-start gap-3 rounded-lg border border-[var(--border-subtle)] p-3">
+            <span className="material-icons-outlined text-[16px] text-[var(--text-muted)] mt-0.5">
+              {activity.action === 'CREATE' ? 'add_circle' :
+               activity.action === 'UPDATE' ? 'edit' :
+               activity.action === 'DELETE' ? 'delete' : 'info'}
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-[var(--portal)]">{String(activity.member_name || '')}</span>
+                <span className="text-[10px] text-[var(--text-muted)]">
+                  {activity.created_at ? new Date(String(activity.created_at)).toLocaleString() : ''}
+                </span>
+              </div>
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5 truncate">
+                {String(activity.description || activity.action || '')}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </SectionCard>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Pipelines Tab
+// ---------------------------------------------------------------------------
+
+function PipelinesTab({ household, householdId }: { household: Household; householdId: string }) {
+  const members = (household.members || []) as HouseholdMember[]
+  const [householdPipelines, setHouseholdPipelines] = useState<Array<Record<string, unknown>>>([])
+  const [memberPipelines, setMemberPipelines] = useState<Array<Record<string, unknown>>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const auth = getAuth()
+        const token = await auth.currentUser?.getIdToken()
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+
+        // Fetch household-level pipeline instances
+        const hhRes = await fetch(`/api/flow/instances?entity_type=HOUSEHOLD&entity_id=${householdId}`, { headers })
+        const hhJson = await hhRes.json()
+        if (hhJson.success) setHouseholdPipelines(hhJson.data || [])
+
+        // Fetch member-level pipeline instances
+        const memberResults: Array<Record<string, unknown>> = []
+        await Promise.all(
+          members.map(async (member) => {
+            try {
+              const mRes = await fetch(`/api/flow/instances?entity_type=CLIENT&entity_id=${member.client_id}`, { headers })
+              const mJson = await mRes.json()
+              if (mJson.success) {
+                for (const inst of (mJson.data || []) as Array<Record<string, unknown>>) {
+                  memberResults.push({ ...inst, _member_name: member.client_name || member.client_id })
+                }
+              }
+            } catch {
+              // Skip
+            }
+          })
+        )
+        setMemberPipelines(memberResults)
+      } catch {
+        // Load failed
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [householdId, members])
+
+  if (loading) {
+    return (
+      <SectionCard title="Pipelines" icon="route">
+        <div className="flex items-center justify-center py-8">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+        </div>
+      </SectionCard>
+    )
+  }
+
+  const hasPipelines = householdPipelines.length > 0 || memberPipelines.length > 0
+
+  if (!hasPipelines) {
+    return (
+      <SectionCard title="Pipelines" icon="route">
+        <p className="text-sm text-[var(--text-muted)]">No active pipelines for this household or its members</p>
+      </SectionCard>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {householdPipelines.length > 0 && (
+        <SectionCard title={`Household Pipelines (${householdPipelines.length})`} icon="home">
+          <div className="space-y-2">
+            {householdPipelines.map((inst) => (
+              <PipelineCard key={String(inst.instance_id || inst.id)} instance={inst} />
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
+      {memberPipelines.length > 0 && (
+        <SectionCard title={`Member Pipelines (${memberPipelines.length})`} icon="person">
+          <div className="space-y-2">
+            {memberPipelines.map((inst) => (
+              <PipelineCard key={String(inst.instance_id || inst.id)} instance={inst} memberName={String(inst._member_name || '')} />
+            ))}
+          </div>
+        </SectionCard>
+      )}
+    </div>
+  )
+}
+
+function PipelineCard({ instance, memberName }: { instance: Record<string, unknown>; memberName?: string }) {
+  const status = String(instance.stage_status || 'pending')
+  const statusColor = status === 'complete' ? 'text-emerald-400' : status === 'blocked' ? 'text-red-400' : 'text-[var(--text-muted)]'
+
+  return (
+    <div className="flex items-center justify-between rounded-lg border border-[var(--border-subtle)] p-3 transition-colors hover:bg-[var(--bg-hover)]">
+      <div className="flex items-center gap-3">
+        <span className={`material-icons-outlined text-[16px] ${statusColor}`}>
+          {status === 'complete' ? 'check_circle' : status === 'blocked' ? 'block' : 'radio_button_checked'}
+        </span>
+        <div>
+          <p className="text-sm font-medium text-[var(--text-primary)]">
+            {String(instance.pipeline_name || instance.pipeline_key || '')}
+          </p>
+          <div className="flex items-center gap-2">
+            {memberName && <span className="text-[10px] text-[var(--portal)]">{memberName}</span>}
+            <span className="text-[10px] text-[var(--text-muted)]">Stage: {String(instance.current_stage || '')}</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {instance.priority ? (
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+            String(instance.priority).toUpperCase() === 'HIGH' ? 'bg-red-500/15 text-red-400' : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
+          }`}>
+            {String(instance.priority)}
+          </span>
+        ) : null}
+      </div>
     </div>
   )
 }

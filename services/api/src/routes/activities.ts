@@ -114,3 +114,67 @@ activityRoutes.post('/', async (req: Request, res: Response) => {
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+/**
+ * GET /api/activities/household/:householdId
+ * Merge-sorted activity feed across all household members.
+ */
+activityRoutes.get('/household/:householdId', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const householdId = param(req.params.householdId)
+
+    // Look up household to get member list
+    const householdDoc = await db.collection('households').doc(householdId).get()
+    if (!householdDoc.exists) {
+      res.status(404).json(errorResponse('Household not found'))
+      return
+    }
+
+    const hhData = householdDoc.data() as Record<string, unknown>
+    const members = (hhData.members || []) as Array<{ client_id: string; client_name?: string }>
+
+    if (members.length === 0) {
+      res.json(successResponse([]))
+      return
+    }
+
+    // Query each member's activities subcollection (limit 50 per member)
+    const allActivities: Array<Record<string, unknown>> = []
+
+    await Promise.all(
+      members.map(async (member) => {
+        try {
+          const snap = await db
+            .collection('clients')
+            .doc(member.client_id)
+            .collection('activities')
+            .orderBy('created_at', 'desc')
+            .limit(50)
+            .get()
+
+          for (const d of snap.docs) {
+            allActivities.push({
+              id: d.id,
+              ...d.data(),
+              member_name: member.client_name || member.client_id,
+              member_client_id: member.client_id,
+            })
+          }
+        } catch {
+          // Skip members with no activities subcollection
+        }
+      })
+    )
+
+    // Merge-sort by created_at desc, take top 100
+    allActivities.sort((a, b) =>
+      String(b.created_at || '').localeCompare(String(a.created_at || ''))
+    )
+
+    res.json(successResponse(allActivities.slice(0, 100)))
+  } catch (err) {
+    console.error('GET /api/activities/household/:householdId error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})

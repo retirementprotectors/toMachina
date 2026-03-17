@@ -260,3 +260,137 @@ export function summarizeBeneficiaryStatus(
 
   return summary
 }
+
+// ---------------------------------------------------------------------------
+// Household-level beneficiary analysis
+// ---------------------------------------------------------------------------
+
+export interface HouseholdBeneficiaryContext {
+  householdId: string
+  householdName: string
+  members: Array<{
+    clientId: string
+    clientName: string
+    spouseName: string
+    maritalStatus: string
+    accounts: BeneficiaryAccountInput[]
+  }>
+}
+
+export interface HouseholdBeneficiaryReport {
+  householdId: string
+  householdName: string
+  memberReports: Array<{
+    clientId: string
+    clientName: string
+    analyses: BeneficiaryAnalysis[]
+    summary: BeneficiaryStatusSummary
+  }>
+  householdSummary: BeneficiaryStatusSummary
+  crossMemberIssues: CrossMemberIssue[]
+}
+
+export interface CrossMemberIssue {
+  issueType: 'spouse_not_named' | 'asymmetric_beneficiary' | 'missing_contingent_crossover'
+  description: string
+  affectedMembers: string[]
+}
+
+/**
+ * Analyze beneficiary designations across an entire household.
+ * Runs per-member analysis + detects cross-member issues.
+ */
+export function analyzeHouseholdBeneficiaries(
+  context: HouseholdBeneficiaryContext,
+): HouseholdBeneficiaryReport {
+  const memberReports: HouseholdBeneficiaryReport['memberReports'] = []
+  const allAnalyses: BeneficiaryAnalysis[] = []
+
+  for (const member of context.members) {
+    const clientContext: BeneficiaryClientContext = {
+      clientId: member.clientId,
+      clientName: member.clientName,
+      spouseName: member.spouseName,
+      maritalStatus: member.maritalStatus,
+    }
+
+    const analyses = member.accounts.map(acct => analyzeBeneficiary(acct, clientContext))
+    allAnalyses.push(...analyses)
+
+    memberReports.push({
+      clientId: member.clientId,
+      clientName: member.clientName,
+      analyses,
+      summary: summarizeBeneficiaryStatus(analyses),
+    })
+  }
+
+  // Cross-member analysis
+  const crossMemberIssues: CrossMemberIssue[] = []
+
+  // Build name lookup for cross-referencing
+  const memberNames = context.members.map(m => ({
+    id: m.clientId,
+    name: m.clientName.toLowerCase(),
+    firstName: m.clientName.split(' ')[0]?.toLowerCase() || '',
+  }))
+
+  for (let i = 0; i < context.members.length; i++) {
+    for (let j = i + 1; j < context.members.length; j++) {
+      const memberA = context.members[i]
+      const memberB = context.members[j]
+      const nameA = memberNames[i]
+      const nameB = memberNames[j]
+
+      // Check if A names B as beneficiary on any account
+      const aNamesB = allAnalyses
+        .filter(a => a.clientId === memberA.clientId)
+        .some(a =>
+          a.primaryBeneficiaries.some(b => b.name.toLowerCase().includes(nameB.firstName)) ||
+          a.contingentBeneficiaries.some(b => b.name.toLowerCase().includes(nameB.firstName))
+        )
+
+      // Check if B names A as beneficiary on any account
+      const bNamesA = allAnalyses
+        .filter(a => a.clientId === memberB.clientId)
+        .some(a =>
+          a.primaryBeneficiaries.some(b => b.name.toLowerCase().includes(nameA.firstName)) ||
+          a.contingentBeneficiaries.some(b => b.name.toLowerCase().includes(nameA.firstName))
+        )
+
+      if (aNamesB && !bNamesA) {
+        crossMemberIssues.push({
+          issueType: 'asymmetric_beneficiary',
+          description: `${memberA.clientName} names ${memberB.clientName} as beneficiary, but not vice versa`,
+          affectedMembers: [memberA.clientId, memberB.clientId],
+        })
+      } else if (!aNamesB && bNamesA) {
+        crossMemberIssues.push({
+          issueType: 'asymmetric_beneficiary',
+          description: `${memberB.clientName} names ${memberA.clientName} as beneficiary, but not vice versa`,
+          affectedMembers: [memberB.clientId, memberA.clientId],
+        })
+      } else if (!aNamesB && !bNamesA) {
+        // Check if they're likely spouses (share last name or spouse field references each other)
+        const shareLastName = memberA.clientName.split(' ').pop()?.toLowerCase() === memberB.clientName.split(' ').pop()?.toLowerCase()
+        const isSpouseRef = memberA.spouseName.toLowerCase().includes(nameB.firstName) || memberB.spouseName.toLowerCase().includes(nameA.firstName)
+
+        if (shareLastName || isSpouseRef) {
+          crossMemberIssues.push({
+            issueType: 'spouse_not_named',
+            description: `Neither ${memberA.clientName} nor ${memberB.clientName} names the other as beneficiary`,
+            affectedMembers: [memberA.clientId, memberB.clientId],
+          })
+        }
+      }
+    }
+  }
+
+  return {
+    householdId: context.householdId,
+    householdName: context.householdName,
+    memberReports,
+    householdSummary: summarizeBeneficiaryStatus(allAnalyses),
+    crossMemberIssues,
+  }
+}
