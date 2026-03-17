@@ -70,6 +70,16 @@ export interface Account {
   premium: number
   face_amount: number
   effective_date: string
+  /** Underwriting charter legal entity (e.g., "Accendo Insurance Company") */
+  carrier_charter?: string
+  /** Charter short code (e.g., "ACC") */
+  charter_code?: string
+  /** NAIC code for the underwriting charter */
+  naic_code?: string
+  /** Parent brand (e.g., "Aetna / CVS Health") */
+  parent_carrier?: string
+  /** Carrier doc ID in Firestore carriers collection */
+  carrier_id?: string
   created_at: string
   updated_at: string
   [key: string]: unknown
