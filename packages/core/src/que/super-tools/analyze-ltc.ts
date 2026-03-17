@@ -142,7 +142,7 @@ export function analyzeLtc(household: SuperToolHousehold): SuperToolOutput {
   const carrierDetails: Array<{ carrier: string; products: unknown[] }> = []
   const uniqueCarriers = [...new Set(ltcContracts.map((c) => c.carrier))]
   for (const carrier of uniqueCarriers) {
-    const products = lookupCarrierProduct(carrier)
+    const products = lookupCarrierProduct({ carrier })
     if (products.length > 0) {
       carrierDetails.push({ carrier, products })
       toolsUsed.push('lookup-carrier-product')
