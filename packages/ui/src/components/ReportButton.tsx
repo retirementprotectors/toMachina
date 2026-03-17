@@ -264,7 +264,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
       const itemId = json.data?.id || json.data?.item_id
       if (itemId && screenshot) {
         const base64 = screenshot.split(',')[1]
-        await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
+        const attachRes = await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
           method: 'POST',
           body: JSON.stringify({
             name: `screenshot-${Date.now()}.png`,
@@ -272,6 +272,10 @@ export function ReportButton({ portal }: ReportButtonProps) {
             content_type: 'image/png',
           }),
         })
+        if (!attachRes.ok) {
+          const attachBody = await attachRes.json().catch(() => ({ error: `HTTP ${attachRes.status}` }))
+          setSubmitError(`Ticket created (${itemId}) but screenshot failed: ${(attachBody as Record<string, string>).error || attachRes.status}`)
+        }
       }
       if (itemId && recordingChunks.length > 0) {
         const blob = recordingChunks[0]
@@ -280,7 +284,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
           reader.onload = () => resolve((reader.result as string).split(',')[1])
           reader.readAsDataURL(blob)
         })
-        await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
+        const recRes = await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
           method: 'POST',
           body: JSON.stringify({
             name: `recording-${Date.now()}.webm`,
@@ -288,6 +292,10 @@ export function ReportButton({ portal }: ReportButtonProps) {
             content_type: 'video/webm',
           }),
         })
+        if (!recRes.ok) {
+          const recBody = await recRes.json().catch(() => ({ error: `HTTP ${recRes.status}` }))
+          setSubmitError(`Ticket created (${itemId}) but recording failed: ${(recBody as Record<string, string>).error || recRes.status}`)
+        }
       }
 
       setSubmitted(true)

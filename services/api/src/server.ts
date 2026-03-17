@@ -57,6 +57,7 @@ import { auditMiddleware } from './middleware/audit.js'
 if (getApps().length === 0) {
   initializeApp({
     projectId: process.env.GCP_PROJECT_ID || 'claude-mcp-484718',
+    storageBucket: process.env.STORAGE_BUCKET || 'claude-mcp-484718.firebasestorage.app',
   })
 }
 
