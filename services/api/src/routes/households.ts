@@ -294,3 +294,116 @@ householdRoutes.post('/:id/recalculate', async (req: Request, res: Response) => 
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+// ─── GET /:id/meeting-prep — Generate household meeting preparation data ───
+householdRoutes.get('/:id/meeting-prep', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const docSnap = await db.collection(COLLECTION).doc(id).get()
+    if (!docSnap.exists) { res.status(404).json(errorResponse('Household not found')); return }
+
+    const household = docSnap.data() as Record<string, unknown>
+    const members = (household.members || []) as Array<{ client_id: string; client_name?: string; role?: string }>
+
+    // Gather per-member data
+    const memberInventory: Array<{
+      client_id: string
+      client_name: string
+      role: string
+      accounts_by_category: Record<string, Array<Record<string, unknown>>>
+      total_premium: number
+      total_face_amount: number
+      account_count: number
+    }> = []
+
+    const opportunities: string[] = []
+    const actionItems: string[] = []
+
+    for (const member of members) {
+      const clientDoc = await db.collection('clients').doc(member.client_id).get()
+      if (!clientDoc.exists) continue
+      const clientData = clientDoc.data() as Record<string, unknown>
+
+      const accountsSnap = await db.collection('clients').doc(member.client_id).collection('accounts').get()
+      const accountsByCategory: Record<string, Array<Record<string, unknown>>> = {}
+      let memberPremium = 0
+      let memberFaceAmount = 0
+
+      for (const acctDoc of accountsSnap.docs) {
+        const acct = acctDoc.data()
+        const accountType = String(acct.account_type || '').toLowerCase()
+        let category = 'Other'
+        if (accountType.includes('annuity') || accountType.includes('fia') || accountType.includes('myga')) category = 'Annuity'
+        else if (accountType.includes('life') || accountType.includes('term') || accountType.includes('iul')) category = 'Life'
+        else if (accountType.includes('medicare') || accountType.includes('mapd')) category = 'Medicare'
+        else if (accountType.includes('ria') || accountType.includes('bd') || accountType.includes('advisory')) category = 'BD/RIA'
+
+        if (!accountsByCategory[category]) accountsByCategory[category] = []
+        accountsByCategory[category].push({ id: acctDoc.id, ...acct })
+
+        memberPremium += parseFloat(String(acct.premium || 0)) || 0
+        memberFaceAmount += parseFloat(String(acct.face_amount || 0)) || 0
+      }
+
+      memberInventory.push({
+        client_id: member.client_id,
+        client_name: member.client_name || `${clientData.first_name || ''} ${clientData.last_name || ''}`.trim(),
+        role: member.role || 'other',
+        accounts_by_category: accountsByCategory,
+        total_premium: memberPremium,
+        total_face_amount: memberFaceAmount,
+        account_count: accountsSnap.size,
+      })
+
+      // Opportunity identification
+      const age = clientData.dob ? Math.floor((Date.now() - new Date(String(clientData.dob)).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : null
+      const hasAnnuity = Boolean(accountsByCategory['Annuity']?.length)
+      const hasLife = Boolean(accountsByCategory['Life']?.length)
+      const hasMedicare = Boolean(accountsByCategory['Medicare']?.length)
+
+      if (age && age >= 62 && !hasMedicare) {
+        opportunities.push(`${member.client_name || member.client_id} is ${age} — Medicare eligibility approaching or active. No Medicare account on file.`)
+      }
+      if (age && age >= 72 && hasAnnuity) {
+        opportunities.push(`${member.client_name || member.client_id} is ${age} — RMD review needed for annuity accounts.`)
+      }
+      if (!hasLife && memberFaceAmount === 0) {
+        opportunities.push(`${member.client_name || member.client_id} has no life insurance coverage.`)
+      }
+
+      // Check beneficiary completeness per member
+      let missingBeneficiary = 0
+      for (const acctDoc of accountsSnap.docs) {
+        const acct = acctDoc.data()
+        if (!acct.primary_beneficiary && !acct.beneficiaries_json) missingBeneficiary++
+      }
+      if (missingBeneficiary > 0) {
+        actionItems.push(`${member.client_name || member.client_id}: ${missingBeneficiary} account(s) missing beneficiary designation`)
+      }
+    }
+
+    // Household-level analysis
+    if (members.length >= 2) {
+      actionItems.push('Review household estate plan and beneficiary cross-references')
+      opportunities.push('Household review: Confirm both members have consistent estate planning')
+    }
+
+    res.json(successResponse({
+      household_summary: {
+        household_id: id,
+        household_name: household.household_name,
+        member_count: members.length,
+        address: [household.address, household.city, household.state, household.zip].filter(Boolean).join(', '),
+        aggregate_financials: household.aggregate_financials || {},
+      },
+      member_inventory: memberInventory,
+      opportunities,
+      action_items: actionItems,
+      generated_at: new Date().toISOString(),
+    }))
+  } catch (err) {
+    console.error('GET /api/households/:id/meeting-prep error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
