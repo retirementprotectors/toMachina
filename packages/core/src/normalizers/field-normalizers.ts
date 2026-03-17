@@ -253,6 +253,8 @@ export const CARRIER_ALIASES: Record<string, string> = {
   'bcbs': 'BCBS',
   'blue cross': 'BCBS',
   'blue cross blue shield': 'BCBS',
+  'bluekc': 'BlueKC',
+  'blue kc': 'BlueKC',
   'wellmark bcbs of iowa': 'Wellmark BCBS of Iowa',
   'wellmark': 'Wellmark BCBS of Iowa',
   'elevance anthem bcbs': 'Elevance',
