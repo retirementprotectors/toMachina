@@ -696,7 +696,7 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     md += `\n---\n`
     md += `\n## FORGE Status Protocol\n`
     md += `This sprint is tracked in FORGE (Build Tracker). Sprint is in **${
-      phase === 'discovery' ? 'Discovery' : phase === 'building' ? 'Building' : 'Unknown'
+      phase === 'discovery' ? 'Plan' : phase === 'building' ? 'Build' : 'Unknown'
     }** phase.\n`
     md += `\n**Sprint ID:** \`${id}\``
     md += `\n**Items:** ${itemIds.join(', ')}`
@@ -832,6 +832,159 @@ sprintRoutes.post('/:id/reopen', async (req: Request, res: Response) => {
   }
 })
 
+// GET /:id/audit-discovery — verify tickets match discovery document
+sprintRoutes.get('/:id/audit-discovery', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
+    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
+
+    const sprint = sprintDoc.data() as Record<string, unknown>
+    const allSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
+    const sprintDocs = allSnap.docs.filter(d => d.data().sprint_id === id)
+    const docIds = sprintDocs.map(d => d.id)
+
+    let md = `# Discovery Audit — ${sprint.name}\n`
+    md += `> **Purpose:** Verify that the tracker tickets accurately and completely capture everything in the discovery document. Every requirement, feature, bug, and question from the discovery must have a corresponding ticket. Nothing should be missing, misinterpreted, or added without basis.\n\n`
+
+    if (sprint.discovery_url) {
+      md += `## Discovery Document\n`
+      md += `**URL:** ${sprint.discovery_url}\n`
+      md += `> Read the full discovery document at this URL before proceeding.\n\n`
+    } else {
+      md += `> ⚠️ No discovery_url set on this sprint. Check the sprint description or ask JDM for the discovery document.\n\n`
+    }
+
+    if (sprint.prompt_text) {
+      md += `## Discovery Content (Stored)\n`
+      md += `\`\`\`\n${sprint.prompt_text}\n\`\`\`\n\n`
+    }
+
+    md += `## Tickets Created (${sprintDocs.length})\n`
+    for (const doc of sprintDocs) {
+      const item = doc.data()
+      const typeLabel = ({ broken: 'Bug', improve: 'Enhancement', idea: 'Feature', question: 'Question' } as Record<string, string>)[item.type as string] || ''
+      md += `- **${item.item_id}**${typeLabel ? ` [${typeLabel}]` : ''}: ${item.title}`
+      if (item.description) md += ` — ${item.description}`
+      md += '\n'
+    }
+
+    md += `\n## Audit Checklist\n`
+    md += `For each requirement/feature/bug in the discovery document:\n`
+    md += `- [ ] Is there a matching ticket?\n`
+    md += `- [ ] Is the ticket type correct (Bug/Enhancement/Feature/Question)?\n`
+    md += `- [ ] Is the ticket description accurate and complete?\n`
+    md += `- [ ] Is the component/portal assignment correct?\n\n`
+    md += `Then check the reverse:\n`
+    md += `- [ ] Are there any tickets that have NO basis in the discovery document?\n`
+    md += `- [ ] Are there any tickets that misinterpret what the discovery asked for?\n\n`
+
+    md += `## Output Format\n`
+    md += `Report findings as:\n`
+    md += `1. **GAPS** — Requirements in discovery with no ticket (create them)\n`
+    md += `2. **MISMATCHES** — Tickets that don't match what discovery says (fix them)\n`
+    md += `3. **EXTRAS** — Tickets with no basis in discovery (flag for JDM decision)\n`
+    md += `4. **PASS** — Everything matches, no gaps found\n\n`
+
+    md += `## FORGE Status Protocol\n`
+    md += `After discovery audit passes — update items to \`disc_audited\`:\n`
+    md += '```bash\n'
+    md += `npx tsx -e "const{initializeApp,getApps}=require('firebase-admin/app');const{getFirestore}=require('firebase-admin/firestore');if(getApps().length===0)initializeApp({projectId:'claude-mcp-484718'});const db=getFirestore();(async()=>{const b=db.batch();${JSON.stringify(docIds)}.forEach(id=>b.update(db.collection('tracker_items').doc(id),{status:'disc_audited',updated_at:new Date().toISOString()}));await b.commit();console.log('FORGE: ${docIds.length} items → disc_audited')})()"`
+    md += '\n```\n'
+    md += `\n---\n`
+    md += `\n#LetsAuditTheDiscovery\n`
+
+    res.json(successResponse({ prompt: md }))
+  } catch (err) {
+    console.error('GET /api/sprints/:id/audit-discovery error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// GET /:id/audit-plan — verify plan covers all tickets and matches discovery
+sprintRoutes.get('/:id/audit-plan', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
+    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
+
+    const sprint = sprintDoc.data() as Record<string, unknown>
+    const allSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
+    const sprintDocs = allSnap.docs.filter(d => d.data().sprint_id === id)
+    const docIds = sprintDocs.map(d => d.id)
+
+    let md = `# Plan Audit — ${sprint.name}\n`
+    md += `> **Purpose:** Verify that the plan completely and accurately covers every ticket, and that the plan is faithful to the original discovery document. The plan is the blueprint — if it's wrong, the build will be wrong.\n\n`
+
+    if (sprint.discovery_url) {
+      md += `## Discovery Document\n`
+      md += `**URL:** ${sprint.discovery_url}\n`
+      md += `> Read the full discovery document. This is the source of truth.\n\n`
+    }
+
+    if (sprint.plan_link) {
+      md += `## Plan Document\n`
+      md += `**URL:** ${sprint.plan_link}\n`
+      md += `> Read the full plan document. This is what you're auditing.\n\n`
+    } else {
+      md += `> ⚠️ No plan_link set on this sprint. The plan may be in the prompt text or in a linked document. Check with JDM.\n\n`
+    }
+
+    if (sprint.prompt_text) {
+      md += `## Sprint Prompt (Stored)\n`
+      md += `\`\`\`\n${sprint.prompt_text}\n\`\`\`\n\n`
+    }
+
+    md += `## Tickets (${sprintDocs.length})\n`
+    for (const doc of sprintDocs) {
+      const item = doc.data()
+      const typeLabel = ({ broken: 'Bug', improve: 'Enhancement', idea: 'Feature', question: 'Question' } as Record<string, string>)[item.type as string] || ''
+      md += `- **${item.item_id}**${typeLabel ? ` [${typeLabel}]` : ''}: ${item.title}`
+      if (item.description) md += ` — ${item.description}`
+      md += '\n'
+    }
+
+    md += `\n## Audit Checklist\n`
+    md += `### Plan ↔ Tickets\n`
+    md += `For each ticket:\n`
+    md += `- [ ] Is there a corresponding section/task in the plan?\n`
+    md += `- [ ] Does the plan's approach correctly address what the ticket asks for?\n`
+    md += `- [ ] Are there any tickets the plan ignores or only partially covers?\n\n`
+    md += `### Plan ↔ Discovery\n`
+    md += `For each requirement in the discovery:\n`
+    md += `- [ ] Does the plan address it?\n`
+    md += `- [ ] Does the plan's approach match the discovery's intent (not just the letter)?\n`
+    md += `- [ ] Has the plan introduced scope that wasn't in the discovery?\n\n`
+    md += `### Plan Quality\n`
+    md += `- [ ] Are builders given enough detail to execute without guessing?\n`
+    md += `- [ ] Are dependencies between tasks identified?\n`
+    md += `- [ ] Are there any ambiguous instructions that could be misinterpreted?\n\n`
+
+    md += `## Output Format\n`
+    md += `Report findings as:\n`
+    md += `1. **GAPS** — Tickets or discovery requirements not covered by the plan\n`
+    md += `2. **MISMATCHES** — Plan approach doesn't match what was asked for\n`
+    md += `3. **AMBIGUITIES** — Plan instructions that could be misread by a builder\n`
+    md += `4. **SCOPE CREEP** — Plan includes work not grounded in discovery or tickets\n`
+    md += `5. **PASS** — Plan fully covers all tickets and faithfully represents the discovery\n\n`
+
+    md += `## FORGE Status Protocol\n`
+    md += `After plan audit passes — update items to \`plan_audited\`:\n`
+    md += '```bash\n'
+    md += `npx tsx -e "const{initializeApp,getApps}=require('firebase-admin/app');const{getFirestore}=require('firebase-admin/firestore');if(getApps().length===0)initializeApp({projectId:'claude-mcp-484718'});const db=getFirestore();(async()=>{const b=db.batch();${JSON.stringify(docIds)}.forEach(id=>b.update(db.collection('tracker_items').doc(id),{status:'plan_audited',updated_at:new Date().toISOString()}));await b.commit();console.log('FORGE: ${docIds.length} items → plan_audited')})()"`
+    md += '\n```\n'
+    md += `\n---\n`
+    md += `\n#LetsAuditThePlan\n`
+
+    res.json(successResponse({ prompt: md }))
+  } catch (err) {
+    console.error('GET /api/sprints/:id/audit-plan error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
 // GET /:id/audit — generate audit verification prompt
 sprintRoutes.get('/:id/audit', async (req: Request, res: Response) => {
   try {
@@ -872,7 +1025,7 @@ sprintRoutes.get('/:id/audit', async (req: Request, res: Response) => {
     md += '\n```\n'
     md += `\n> **Confirmed** status is set by JDM in FORGE after visual verification.\n`
     md += `\n---\n`
-    md += `\n#LetsAuditIt\n`
+    md += `\n#LetsAuditTheBuild\n`
 
     res.json(successResponse({ prompt: md }))
   } catch (err) {

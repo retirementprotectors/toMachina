@@ -137,6 +137,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
   const [recording, setRecording] = useState(false)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const [recordingChunks, setRecordingChunks] = useState<Blob[]>([])
+  const [submitError, setSubmitError] = useState('')
 
   const handleScreenshot = useCallback(async () => {
     setFabHover(false)
@@ -234,6 +235,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
   const handleSubmit = useCallback(async () => {
     if (!title.trim()) return
     setSubmitting(true)
+    setSubmitError('')
 
     try {
       const res = await fetchWithAuth('/api/tracker', {
@@ -251,36 +253,41 @@ export function ReportButton({ portal }: ReportButtonProps) {
         }),
       })
 
-      if (res.ok) {
-        const json = await res.json()
-        const itemId = json.data?.id || json.data?.item_id
-        if (itemId && screenshot) {
-          const base64 = screenshot.split(',')[1]
-          await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
-            method: 'POST',
-            body: JSON.stringify({
-              name: `screenshot-${Date.now()}.png`,
-              data: base64,
-              content_type: 'image/png',
-            }),
-          })
-        }
-        if (itemId && recordingChunks.length > 0) {
-          const blob = recordingChunks[0]
-          const reader = new FileReader()
-          const base64 = await new Promise<string>((resolve) => {
-            reader.onload = () => resolve((reader.result as string).split(',')[1])
-            reader.readAsDataURL(blob)
-          })
-          await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
-            method: 'POST',
-            body: JSON.stringify({
-              name: `recording-${Date.now()}.webm`,
-              data: base64,
-              content_type: 'video/webm',
-            }),
-          })
-        }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+        setSubmitError((body as Record<string, string>).error || `Failed (${res.status})`)
+        setSubmitting(false)
+        return
+      }
+
+      const json = await res.json()
+      const itemId = json.data?.id || json.data?.item_id
+      if (itemId && screenshot) {
+        const base64 = screenshot.split(',')[1]
+        await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
+          method: 'POST',
+          body: JSON.stringify({
+            name: `screenshot-${Date.now()}.png`,
+            data: base64,
+            content_type: 'image/png',
+          }),
+        })
+      }
+      if (itemId && recordingChunks.length > 0) {
+        const blob = recordingChunks[0]
+        const reader = new FileReader()
+        const base64 = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve((reader.result as string).split(',')[1])
+          reader.readAsDataURL(blob)
+        })
+        await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
+          method: 'POST',
+          body: JSON.stringify({
+            name: `recording-${Date.now()}.webm`,
+            data: base64,
+            content_type: 'video/webm',
+          }),
+        })
       }
 
       setSubmitted(true)
@@ -290,10 +297,13 @@ export function ReportButton({ portal }: ReportButtonProps) {
         setTitle('')
         setDescription('')
         setSubmitted(false)
+        setSubmitError('')
       }, 1500)
-    } catch { /* silent */ }
+    } catch (err) {
+      setSubmitError(`Network error: ${err instanceof Error ? err.message : 'Could not reach server'}`)
+    }
     setSubmitting(false)
-  }, [title, description, autoFields, portal, user, screenshot])
+  }, [title, description, autoFields, portal, user, screenshot, reportType, recordingChunks])
 
   const handleClose = useCallback(() => {
     setOpen(false)
@@ -301,6 +311,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
     setTitle('')
     setDescription('')
     setSubmitted(false)
+    setSubmitError('')
     setRecordingChunks([])
     setReportType('broken')
   }, [])
@@ -573,6 +584,11 @@ export function ReportButton({ portal }: ReportButtonProps) {
                     {submitting ? 'Sending...' : 'Submit'}
                   </button>
                 </div>
+                {submitError && (
+                  <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(239,68,68,0.12)', color: 'rgb(239,68,68)', fontSize: 12, fontWeight: 500 }}>
+                    {submitError}
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -43,6 +43,7 @@ interface Sprint {
   name: string
   description: string
   status: string
+  phase?: string
   discovery_url: string | null
   plan_link: string | null
   prompt_text: string
@@ -53,15 +54,17 @@ interface Sprint {
 
 /* ─── Constants ─── */
 const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  queue:       { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Queue' },
-  not_touched: { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Not Touched' },
-  in_sprint:   { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'In Sprint' },
-  planned:     { color: 'var(--portal, #4a7ab5)', bg: 'rgba(74,122,181,0.15)', label: 'Planned' },
-  built:       { color: 'rgb(20,184,166)', bg: 'rgba(20,184,166,0.15)', label: 'Built' },
-  audited:     { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Audited' },
-  confirmed:   { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Confirmed' },
-  deferred:    { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Deferred' },
-  wont_fix:    { color: 'rgb(100,116,139)', bg: 'rgba(100,116,139,0.15)', label: "Won't Fix" },
+  queue:           { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Queue' },
+  not_touched:     { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Not Touched' },
+  in_sprint:       { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'In Sprint' },
+  disc_audited:    { color: 'rgb(234,88,12)', bg: 'rgba(234,88,12,0.15)', label: 'Discovery Audited' },
+  planned:         { color: 'var(--portal, #4a7ab5)', bg: 'rgba(74,122,181,0.15)', label: 'Planned' },
+  plan_audited:    { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Plan Audited' },
+  built:           { color: 'rgb(20,184,166)', bg: 'rgba(20,184,166,0.15)', label: 'Built' },
+  audited:         { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Audited' },
+  confirmed:       { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Confirmed' },
+  deferred:        { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Deferred' },
+  wont_fix:        { color: 'rgb(100,116,139)', bg: 'rgba(100,116,139,0.15)', label: "Won't Fix" },
 }
 
 const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
@@ -74,7 +77,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 const TYPES = ['broken', 'idea', 'improve', 'question'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
-const STATUSES = ['queue', 'not_touched', 'in_sprint', 'planned', 'built', 'audited', 'confirmed', 'deferred', 'wont_fix'] as const
+const STATUSES = ['queue', 'not_touched', 'in_sprint', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed', 'deferred', 'wont_fix'] as const
 
 const API_BASE = '/api'
 
@@ -245,7 +248,7 @@ export function Forge({ portal }: ForgeProps) {
       if (filters.sprint_id) params.set('sprint_id', filters.sprint_id)
       if (filters.type) params.set('type', filters.type)
       if (search) params.set('search', search)
-      params.set('limit', '100')
+      params.set('limit', '1000')
       const res = await fetchWithAuth(`${API_BASE}/tracker?${params}`)
       if (res.ok) {
         const json = await res.json()
@@ -255,7 +258,7 @@ export function Forge({ portal }: ForgeProps) {
     setLoading(false)
     // Also refresh unfiltered items for sprint cards
     try {
-      const allRes = await fetchWithAuth(`${API_BASE}/tracker?limit=500`)
+      const allRes = await fetchWithAuth(`${API_BASE}/tracker?limit=1000`)
       if (allRes.ok) {
         const allJson = await allRes.json()
         if (allJson.success) setAllItems(allJson.data || [])
@@ -265,7 +268,7 @@ export function Forge({ portal }: ForgeProps) {
 
   const loadAllItems = useCallback(async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker?limit=500`)
+      const res = await fetchWithAuth(`${API_BASE}/tracker?limit=1000`)
       if (res.ok) {
         const json = await res.json()
         if (json.success) setAllItems(json.data || [])
@@ -286,6 +289,12 @@ export function Forge({ portal }: ForgeProps) {
   useEffect(() => { loadItems() }, [loadItems])
   useEffect(() => { loadAllItems() }, [loadAllItems])
   useEffect(() => { loadSprints() }, [loadSprints])
+
+  // Auto-refresh every 30s so new tickets from other agents appear
+  useEffect(() => {
+    const interval = setInterval(() => { loadItems(); loadAllItems(); loadSprints() }, 30000)
+    return () => clearInterval(interval)
+  }, [loadItems, loadAllItems, loadSprints])
 
   /* ─── Derived ─── */
   const components = useMemo(() => {
@@ -347,16 +356,18 @@ export function Forge({ portal }: ForgeProps) {
   }, [items])
 
   // Sprint lifecycle phases + phase detection
-  const SPRINT_PHASES = ['in_sprint', 'planned', 'built', 'audited', 'confirmed'] as const
+  const SPRINT_PHASES = ['in_sprint', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed'] as const
   const PHASE_CONFIG: Record<string, { label: string; color: string; action: string; actionLabel: string }> = {
-    in_sprint:  { label: 'Discovery', color: 'rgb(245,158,11)', action: 'prompt', actionLabel: '#LetsPlanIt' },
-    planned:    { label: 'Building',  color: 'var(--portal, #4a7ab5)', action: 'prompt', actionLabel: '#LetsBuildIt' },
-    built:      { label: 'Audit',     color: 'rgb(20,184,166)', action: 'audit', actionLabel: '#LetsAuditIt' },
-    audited:    { label: 'Confirm',   color: 'rgb(168,85,247)', action: 'sendit', actionLabel: '#SendIt' },
-    confirmed:  { label: 'Complete',  color: 'rgb(34,197,94)', action: 'reopen', actionLabel: 'Reopen Sprint' },
+    in_sprint:     { label: 'Discovery',       color: 'rgb(245,158,11)',        action: 'audit_discovery', actionLabel: '#LetsAuditTheDiscovery' },
+    disc_audited:  { label: 'Plan',            color: 'rgb(234,88,12)',         action: 'prompt',          actionLabel: '#LetsPlanIt' },
+    planned:       { label: 'Plan Audit',      color: 'var(--portal, #4a7ab5)', action: 'audit_plan',      actionLabel: '#LetsAuditThePlan' },
+    plan_audited:  { label: 'Build',           color: 'rgb(99,102,241)',        action: 'prompt',          actionLabel: '#LetsBuildIt' },
+    built:         { label: 'Audit',           color: 'rgb(20,184,166)',        action: 'audit',           actionLabel: '#LetsAuditTheBuild' },
+    audited:       { label: 'Confirm',         color: 'rgb(168,85,247)',        action: 'sendit',          actionLabel: '#SendIt' },
+    confirmed:     { label: 'Complete',        color: 'rgb(34,197,94)',         action: 'reopen',          actionLabel: 'Reopen Sprint' },
   }
 
-  const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, planned: 3, built: 4, audited: 5, confirmed: 6 }
+  const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, disc_audited: 3, planned: 4, plan_audited: 5, built: 6, audited: 7, confirmed: 8 }
 
   const sprintCards = useMemo(() => {
     return sprints.map(sp => {
@@ -375,10 +386,12 @@ export function Forge({ portal }: ForgeProps) {
         phase = 'confirmed'
       } else if (activeItems.length > 0) {
         const minRank = Math.min(...activeItems.map(i => STATUS_RANK[i.status] ?? 0))
-        if (minRank >= 6) phase = 'confirmed'
-        else if (minRank >= 5) phase = 'audited'
-        else if (minRank >= 4) phase = 'built'
-        else if (minRank >= 3) phase = 'planned'
+        if (minRank >= 8) phase = 'confirmed'
+        else if (minRank >= 7) phase = 'audited'
+        else if (minRank >= 6) phase = 'built'
+        else if (minRank >= 5) phase = 'plan_audited'
+        else if (minRank >= 4) phase = 'planned'
+        else if (minRank >= 3) phase = 'disc_audited'
         else phase = 'in_sprint'
       } else if (sp.phase) {
         // No active items — use stored phase from sprint doc
@@ -485,15 +498,15 @@ export function Forge({ portal }: ForgeProps) {
         setPromptText(json.data?.prompt || json.prompt || '')
         setPromptSprintId(sid)
         setShowPrompt(true)
-        // Move items to 'planned' — the prompt IS the plan (use allItems, not filtered items)
-        const sprintItems = allItems.filter(i => i.sprint_id === sid && i.status === 'in_sprint')
+        // Move items forward based on phase (use allItems, not filtered items)
+        const targetStatus = phaseParam === 'discovery' ? 'planned' : phaseParam === 'building' ? 'built' : null
+        const fromStatuses = phaseParam === 'discovery' ? ['disc_audited', 'in_sprint'] : phaseParam === 'building' ? ['plan_audited', 'planned'] : []
+        const sprintItems = targetStatus ? allItems.filter(i => i.sprint_id === sid && fromStatuses.includes(i.status)) : []
         if (sprintItems.length > 0) {
-          await Promise.all(sprintItems.map(i =>
-            fetchWithAuth(`${API_BASE}/tracker/${i.id}`, {
-              method: 'PATCH',
-              body: JSON.stringify({ status: 'planned' }),
-            })
-          ))
+          await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+            method: 'PATCH',
+            body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: targetStatus } }),
+          })
           await loadItems()
         }
       }
@@ -646,6 +659,29 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     setShowCreateSprint(true)
   }
 
+  const generatePhaseAudit = async (sprintId: string, auditType: 'discovery' | 'plan') => {
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit-${auditType}`)
+      if (res.ok) {
+        const json = await res.json()
+        setPromptText(json.data?.prompt || json.prompt || '')
+        setPromptSprintId(sprintId)
+        setShowPrompt(true)
+        // Advance items: discovery audit (in_sprint → disc_audited), plan audit (planned → plan_audited)
+        const targetStatus = auditType === 'discovery' ? 'disc_audited' : 'plan_audited'
+        const fromStatuses = auditType === 'discovery' ? ['in_sprint'] : ['planned']
+        const sprintItems = allItems.filter(i => i.sprint_id === sprintId && fromStatuses.includes(i.status))
+        if (sprintItems.length > 0) {
+          await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+            method: 'PATCH',
+            body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: targetStatus } }),
+          })
+          await loadItems()
+        }
+      }
+    } catch { /* silent */ }
+  }
+
   const generateAuditPrompt = async (sprintId: string) => {
     try {
       const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit`)
@@ -654,6 +690,15 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         setPromptText(json.data?.prompt || json.prompt || '')
         setPromptSprintId(sprintId)
         setShowPrompt(true)
+        // Advance items: build audit (built → audited)
+        const sprintItems = allItems.filter(i => i.sprint_id === sprintId && i.status === 'built')
+        if (sprintItems.length > 0) {
+          await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+            method: 'PATCH',
+            body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: 'audited' } }),
+          })
+          await loadItems()
+        }
       }
     } catch { /* silent */ }
   }
@@ -662,12 +707,10 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     const sprintItems = allItems.filter(i => i.sprint_id === sprintId && i.status !== 'confirmed' && i.status !== 'deferred' && i.status !== 'wont_fix')
     if (sprintItems.length === 0) return
     try {
-      await Promise.all(sprintItems.map(i =>
-        fetchWithAuth(`${API_BASE}/tracker/${i.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'confirmed' }),
-        })
-      ))
+      await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+        method: 'PATCH',
+        body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: 'confirmed' } }),
+      })
       await loadItems()
     } catch { /* silent */ }
   }
@@ -764,7 +807,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   // Map sprint phase columns to the ticket status that items should be set to
   const PHASE_TO_STATUS: Record<string, string> = {
     in_sprint: 'in_sprint',
+    disc_audited: 'disc_audited',
     planned: 'planned',
+    plan_audited: 'plan_audited',
     built: 'built',
     audited: 'audited',
     confirmed: 'confirmed',
@@ -786,12 +831,10 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         body: JSON.stringify({ phase: toPhase }),
       })
       if (sprintItems.length > 0) {
-        await Promise.all(sprintItems.map(i =>
-          fetchWithAuth(`${API_BASE}/tracker/${i.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({ status: targetStatus }),
-          })
-        ))
+        await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+          method: 'PATCH',
+          body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: targetStatus } }),
+        })
       }
       await loadItems()
       await loadSprints()
@@ -1410,8 +1453,10 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation()
-                                if (phase === 'in_sprint') generatePrompt(sp.id, 'discovery')
-                                else if (phase === 'planned') generatePrompt(sp.id, 'building')
+                                if (phase === 'in_sprint') generatePhaseAudit(sp.id, 'discovery')
+                                else if (phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
+                                else if (phase === 'planned') generatePhaseAudit(sp.id, 'plan')
+                                else if (phase === 'plan_audited') generatePrompt(sp.id, 'building')
                                 else if (phase === 'built') generateAuditPrompt(sp.id)
                                 else if (phase === 'audited') {
                                   try {
@@ -1439,8 +1484,10 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             >
                               <Icon name={
                                 (phase === 'confirmed' && reopeningSprintId === sp.id) ? 'sync' :
-                                phase === 'in_sprint' ? 'terminal' :
-                                phase === 'planned' ? 'terminal' :
+                                phase === 'in_sprint' ? 'fact_check' :
+                                phase === 'disc_audited' ? 'terminal' :
+                                phase === 'planned' ? 'fact_check' :
+                                phase === 'plan_audited' ? 'terminal' :
                                 phase === 'built' ? 'fact_check' :
                                 phase === 'confirmed' ? 'undo' :
                                 'rocket_launch'

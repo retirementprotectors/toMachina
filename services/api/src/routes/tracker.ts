@@ -39,8 +39,11 @@ trackerRoutes.get('/', async (req: Request, res: Response) => {
       )
     }
 
-    // Apply limit if requested
-    const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 100, 1), 500)
+    // Sort newest first (queue/new items always visible)
+    data.sort((a, b) => ((b.created_at as string) || '').localeCompare((a.created_at as string) || ''))
+
+    // Apply limit if requested (dataset is small — default high)
+    const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 1000, 1), 1000)
     const total = data.length
     data = data.slice(0, limit)
 
