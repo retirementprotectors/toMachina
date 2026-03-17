@@ -4,6 +4,13 @@
  * Reads all Medicare accounts from Firestore, resolves charter identity
  * from carrier_name + policy_number patterns, and updates the records.
  *
+ * Resolution strategies (in order):
+ *   1. Direct charter name match (CHARTER_IDENTITY_MAP)
+ *   2. Policy number prefix patterns (regex)
+ *   3. Single-charter parent auto-assign
+ *   4. BoB lookup JSON — cross-reference policy_number against extracted
+ *      charter data from raw carrier BoB files (TRK-13338)
+ *
  * Usage:
  *   npx tsx services/api/src/scripts/backfill-medicare-charter.ts           # DRY RUN (default)
  *   npx tsx services/api/src/scripts/backfill-medicare-charter.ts --execute # ACTUALLY WRITE
@@ -13,6 +20,9 @@
 
 import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
+import { readFileSync } from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
 // Import from source (scripts are excluded from API tsconfig rootDir)
 import { normalizeCarrierFull } from '../../../packages/core/src/normalizers/index'
@@ -21,6 +31,85 @@ import { resolveCharterIdentity, SINGLE_CHARTER_PARENTS } from '../../../package
 const PROJECT_ID = 'claude-mcp-484718'
 const BATCH_LIMIT = 400
 const DRY_RUN = !process.argv.includes('--execute')
+
+// ============================================================================
+// Strategy 4: BoB Lookup JSON (extracted from raw carrier BoB files)
+// ============================================================================
+
+interface BoBCharterEntry {
+  charter: string
+  charter_code: string
+  naic?: number
+  carrier_id: string
+  parent: string
+  plan_names?: string[]
+  product_type?: string
+  product_types?: string[]
+  sample_prefixes?: string[]
+  source_count?: number
+  _note?: string
+}
+
+interface BoBLookupData {
+  by_policy_prefix: Record<string, BoBCharterEntry>
+  by_cms_contract: Record<string, BoBCharterEntry>
+  by_carrier_composite_name: Record<string, BoBCharterEntry>
+}
+
+function loadBoBLookups(): BoBLookupData {
+  const scriptDir = dirname(fileURLToPath(import.meta.url))
+  const lookupPath = resolve(scriptDir, 'data', 'medicare-charter-lookups.json')
+  const raw = readFileSync(lookupPath, 'utf-8')
+  return JSON.parse(raw) as BoBLookupData
+}
+
+/**
+ * Strategy 4: Cross-reference policy_number against BoB lookup tables.
+ *
+ * Checks (in order):
+ *   a. CMS contract ID embedded in policy_number (H#### or S#### prefix)
+ *   b. Carrier composite name match (e.g., "AETNA- CLI")
+ *   c. Policy prefix match (longest prefix first)
+ */
+function resolveFromBoBLookup(
+  policyNumber: string,
+  carrierName: string,
+  lookups: BoBLookupData
+): { charter: string; charter_code: string; naic?: number; carrier_id: string; parent: string } | null {
+  // 4a: CMS contract ID in policy_number (Hxxxx or Sxxxx)
+  const cmsMatch = policyNumber.match(/^([HS]\d{4})/)
+  if (cmsMatch) {
+    const contractId = cmsMatch[1]
+    const entry = lookups.by_cms_contract[contractId]
+    if (entry) {
+      return { charter: entry.charter, charter_code: entry.charter_code, naic: entry.naic, carrier_id: entry.carrier_id, parent: entry.parent }
+    }
+  }
+
+  // 4b: Carrier composite name (from Composite BoB naming like "AETNA- CLI")
+  if (carrierName) {
+    const entry = lookups.by_carrier_composite_name[carrierName]
+    if (entry) {
+      return { charter: entry.charter, charter_code: entry.charter_code, naic: entry.naic, carrier_id: entry.carrier_id, parent: entry.parent }
+    }
+  }
+
+  // 4c: Policy prefix match — sort by key length descending (longest match first)
+  if (policyNumber) {
+    const prefixes = Object.keys(lookups.by_policy_prefix)
+      .filter(k => !k.startsWith('_'))
+      .sort((a, b) => b.length - a.length)
+
+    for (const prefix of prefixes) {
+      if (policyNumber.toUpperCase().startsWith(prefix.toUpperCase())) {
+        const entry = lookups.by_policy_prefix[prefix]
+        return { charter: entry.charter, charter_code: entry.charter_code, naic: entry.naic, carrier_id: entry.carrier_id, parent: entry.parent }
+      }
+    }
+  }
+
+  return null
+}
 
 // ============================================================================
 // Policy prefix → charter patterns (for multi-charter carriers)
@@ -86,11 +175,19 @@ async function main() {
 
   console.log(`Medicare accounts found: ${medicareAccounts.length}`)
 
+  // Load BoB lookup JSON for Strategy 4
+  const bobLookups = loadBoBLookups()
+  const bobPrefixCount = Object.keys(bobLookups.by_policy_prefix).filter(k => !k.startsWith('_')).length
+  const bobContractCount = Object.keys(bobLookups.by_cms_contract).filter(k => !k.startsWith('_')).length
+  const bobCompositeCount = Object.keys(bobLookups.by_carrier_composite_name).filter(k => !k.startsWith('_')).length
+  console.log(`BoB lookups loaded: ${bobPrefixCount} policy prefixes, ${bobContractCount} CMS contracts, ${bobCompositeCount} composite names`)
+
   let updated = 0
   let alreadyHasCharter = 0
   let resolvedByName = 0
   let resolvedByPrefix = 0
   let resolvedBySingleCharter = 0
+  let resolvedByBoBLookup = 0
   let unresolved = 0
   let errors = 0
 
@@ -137,6 +234,15 @@ async function main() {
       }
     }
 
+    // Strategy 4: BoB lookup JSON cross-reference (TRK-13338)
+    if (!resolved) {
+      const bobMatch = resolveFromBoBLookup(policyNumber, carrierName, bobLookups)
+      if (bobMatch) {
+        resolved = bobMatch
+        resolvedByBoBLookup++
+      }
+    }
+
     if (!resolved) {
       unresolved++
       if (!DRY_RUN) {
@@ -164,6 +270,7 @@ async function main() {
   console.log(`  Resolved by name:          ${resolvedByName}`)
   console.log(`  Resolved by policy prefix: ${resolvedByPrefix}`)
   console.log(`  Resolved by single-charter:${resolvedBySingleCharter}`)
+  console.log(`  Resolved by BoB lookup:    ${resolvedByBoBLookup}`)
   console.log(`  Unresolved:                ${unresolved}`)
   console.log(`  Total to update:           ${updated}`)
 
