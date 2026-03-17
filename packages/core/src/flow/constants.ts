@@ -31,3 +31,4 @@ export const FLOW_COLLECTIONS = {
 
 export const DEFAULT_PRIORITY = 'MEDIUM'
 export const DEFAULT_ENTITY_TYPE = 'CLIENT'
+export const HOUSEHOLD_ENTITY_TYPE = 'HOUSEHOLD'

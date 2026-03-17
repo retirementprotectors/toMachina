@@ -1,6 +1,6 @@
 /**
  * Pipeline configs barrel export.
- * Re-exports ALL 13 pipeline configs (Builder 01's NBX + Builder 02's Sales/Prospect/Reactive).
+ * Re-exports ALL 15 pipeline configs.
  */
 
 // NBX pipelines (Builder 01)
@@ -15,10 +15,11 @@ export { SALES_RETIREMENT_CONFIG } from './sales-retirement'
 export { SALES_MEDICARE_CONFIG } from './sales-medicare'
 export { SALES_LEGACY_CONFIG } from './sales-legacy'
 
-// Prospecting pipelines (Builder 02)
+// Prospecting pipelines (Builder 02 + Builder 03)
 export { PROSPECT_RETIREMENT_CONFIG } from './prospect-retirement'
 export { PROSPECT_MEDICARE_CONFIG } from './prospect-medicare'
 export { PROSPECT_LEGACY_CONFIG } from './prospect-legacy'
+export { PROSPECT_HOUSEHOLD_CONFIG } from './prospect-household'
 
 // Reactive pipelines (Builder 02)
 export { REACTIVE_RETIREMENT_CONFIG } from './reactive-retirement'
@@ -27,7 +28,7 @@ export { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
 // Session Agent Workflow (engineering ops)
 export { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
 
-// Convenience lookup — all 13 configs by pipeline key
+// Convenience lookup — all 15 configs by pipeline key
 import { NBX_SECURITIES_CONFIG } from './nbx-securities'
 import { NBX_LIFE_CONFIG } from './nbx-life'
 import { NBX_ANNUITY_CONFIG } from './nbx-annuity'
@@ -39,6 +40,7 @@ import { SALES_LEGACY_CONFIG } from './sales-legacy'
 import { PROSPECT_RETIREMENT_CONFIG } from './prospect-retirement'
 import { PROSPECT_MEDICARE_CONFIG } from './prospect-medicare'
 import { PROSPECT_LEGACY_CONFIG } from './prospect-legacy'
+import { PROSPECT_HOUSEHOLD_CONFIG } from './prospect-household'
 import { REACTIVE_RETIREMENT_CONFIG } from './reactive-retirement'
 import { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
 import { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
@@ -55,6 +57,7 @@ export const ALL_PIPELINE_CONFIGS = {
   PROSPECT_RETIREMENT: PROSPECT_RETIREMENT_CONFIG,
   PROSPECT_MEDICARE: PROSPECT_MEDICARE_CONFIG,
   PROSPECT_LEGACY: PROSPECT_LEGACY_CONFIG,
+  PROSPECT_HOUSEHOLD: PROSPECT_HOUSEHOLD_CONFIG,
   REACTIVE_RETIREMENT: REACTIVE_RETIREMENT_CONFIG,
   REACTIVE_MEDICARE: REACTIVE_MEDICARE_CONFIG,
   SESSION_AGENT_WORKFLOW: SESSION_AGENT_WORKFLOW_CONFIG,

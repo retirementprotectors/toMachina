@@ -122,6 +122,7 @@ flowRoutes.get('/instances', async (req: Request, res: Response) => {
     if (req.query.status) q = q.where('stage_status', '==', req.query.status)
     if (req.query.assigned_to) q = q.where('assigned_to', '==', req.query.assigned_to)
     if (req.query.entity_type) q = q.where('entity_type', '==', req.query.entity_type)
+    if (req.query.entity_id) q = q.where('entity_id', '==', req.query.entity_id)
 
     // Simple query without orderBy to avoid composite index requirements
     const snap = await q.get()
