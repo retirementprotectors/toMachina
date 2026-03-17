@@ -117,6 +117,7 @@ export interface FlowInstanceData {
   pipeline_key: string
   current_stage: string
   current_step: string
+  /** Entity type for this instance. Common values: 'CLIENT' | 'HOUSEHOLD' */
   entity_type: string
   entity_id: string
   entity_name: string

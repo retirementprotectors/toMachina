@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import type { FlowInstanceData } from '@tomachina/core'
 
 /* ─── Types ─── */
@@ -17,11 +18,29 @@ const PRIORITY_STYLES: Record<string, { bg: string; text: string }> = {
   LOW: { bg: 'bg-[var(--bg-surface)]', text: 'text-[var(--text-muted)] opacity-60' },
 }
 
+/* ─── Helpers ─── */
+
+function parseEntityData(raw: string | Record<string, unknown> | undefined): Record<string, unknown> | null {
+  if (!raw) return null
+  if (typeof raw === 'object') return raw
+  try { return JSON.parse(raw) } catch { return null }
+}
+
 /* ─── Component ─── */
 
 export function KanbanCard({ instance, onClick }: KanbanCardProps) {
   const priority = (instance.priority || 'MEDIUM').toUpperCase()
   const priorityStyle = PRIORITY_STYLES[priority] || PRIORITY_STYLES.MEDIUM
+  const isHousehold = (instance.entity_type || '').toUpperCase() === 'HOUSEHOLD'
+
+  // Parse entity_data for household member info
+  const entityData = useMemo(() => parseEntityData(instance.entity_data as string | Record<string, unknown>), [instance.entity_data])
+  const memberNames = useMemo(() => {
+    if (!isHousehold || !entityData) return []
+    const members = entityData.members as Array<Record<string, unknown>> | undefined
+    if (!Array.isArray(members)) return []
+    return members.slice(0, 4).map(m => String(m.client_name || m.name || '').split(' ')[0]).filter(Boolean)
+  }, [isHousehold, entityData])
 
   return (
     <div
@@ -33,10 +52,24 @@ export function KanbanCard({ instance, onClick }: KanbanCardProps) {
       onClick={onClick}
       className="cursor-pointer rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 transition-all hover:border-[var(--border)] hover:bg-[var(--bg-card-hover)] active:scale-[0.98]"
     >
-      {/* Entity name */}
-      <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
-        {instance.entity_name || 'Unnamed'}
-      </p>
+      {/* Entity name with household badge */}
+      <div className="flex items-center gap-1.5">
+        {isHousehold && (
+          <span className="material-icons-outlined text-[14px] text-[var(--portal)]" title="Household">
+            home
+          </span>
+        )}
+        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
+          {instance.entity_name || 'Unnamed'}
+        </p>
+      </div>
+
+      {/* Household member names */}
+      {isHousehold && memberNames.length > 0 && (
+        <p className="mt-0.5 text-[10px] text-[var(--text-muted)] truncate">
+          {memberNames.join(', ')}
+        </p>
+      )}
 
       {/* Assigned advisor */}
       {instance.assigned_to && (
