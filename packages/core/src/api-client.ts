@@ -10,10 +10,7 @@ export interface ApiResult<T = unknown> {
   error?: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-const API_BASE = typeof globalThis !== 'undefined' && 'NEXT_PUBLIC_API_URL' in (globalThis as Record<string, unknown>)
-  ? String((globalThis as Record<string, unknown>).NEXT_PUBLIC_API_URL) || 'https://api.tomachina.com'
-  : (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) || 'https://api.tomachina.com'
+const API_BASE = '/api'
 
 async function getIdToken(): Promise<string | null> {
   try {

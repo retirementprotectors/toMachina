@@ -24,9 +24,9 @@ import { readFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
-// Import from source (scripts are excluded from API tsconfig rootDir)
-import { normalizeCarrierFull } from '../../../packages/core/src/normalizers/index'
-import { resolveCharterIdentity, SINGLE_CHARTER_PARENTS } from '../../../packages/core/src/normalizers/carrier-charter-map'
+// Import from built dist (scripts are excluded from API tsconfig rootDir)
+import { normalizeCarrierFull } from '../../../../packages/core/dist/normalizers/index.js'
+import { resolveCharterIdentity, SINGLE_CHARTER_PARENTS } from '../../../../packages/core/dist/normalizers/carrier-charter-map.js'
 
 const PROJECT_ID = 'claude-mcp-484718'
 const BATCH_LIMIT = 400

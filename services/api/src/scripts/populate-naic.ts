@@ -14,11 +14,11 @@
 import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 
-// Import from source (scripts are excluded from API tsconfig rootDir)
+// Import from built dist (scripts are excluded from API tsconfig rootDir)
 import {
   CHARTER_IDENTITY_MAP,
   type CarrierIdentity,
-} from '../../../packages/core/src/normalizers/carrier-charter-map'
+} from '../../../../packages/core/dist/normalizers/carrier-charter-map.js'
 
 const PROJECT_ID = 'claude-mcp-484718'
 const BATCH_LIMIT = 400
