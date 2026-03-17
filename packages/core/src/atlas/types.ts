@@ -138,3 +138,102 @@ export interface FieldProfile {
   min_length?: number
   max_length?: number
 }
+
+// ---------------------------------------------------------------------------
+// Registry Types — TOOL | SUPER_TOOL | WIRE
+// ---------------------------------------------------------------------------
+
+export type RegistryEntryType = 'TOOL' | 'SUPER_TOOL' | 'WIRE'
+
+export interface RegistryEntry {
+  id: string
+  type: RegistryEntryType
+  name: string
+  description: string
+}
+
+// ---------------------------------------------------------------------------
+// Atomic Tool Definition
+// ---------------------------------------------------------------------------
+
+export interface AtomicToolDefinition {
+  tool_id: string
+  name: string
+  description: string
+  /** Which super tools use this atomic tool */
+  used_by: string[]
+}
+
+export interface AtomicToolResult<T = unknown> {
+  success: boolean
+  data?: T
+  error?: string
+  /** Number of records processed */
+  processed?: number
+  /** Number of records that passed/succeeded */
+  passed?: number
+  /** Number of records that failed/were filtered out */
+  failed?: number
+}
+
+// ---------------------------------------------------------------------------
+// Super Tool Definition
+// ---------------------------------------------------------------------------
+
+export interface SuperToolDefinition {
+  super_tool_id: string
+  name: string
+  description: string
+  /** IDs of atomic tools this super tool orchestrates, in execution order */
+  tools: string[]
+}
+
+export interface SuperToolContext {
+  /** Who or what triggered this execution */
+  triggered_by: string
+  /** Target Firestore collection (for write/match operations) */
+  target_collection?: string
+  /** Column mappings from introspection (for extract/normalize) */
+  column_mappings?: ColumnMapping[]
+  /** Format ID if matched from format library */
+  format_id?: string
+  /** Account category hint: medicare, annuity, life, bdria */
+  target_category?: string
+  /** Existing records for dedup matching */
+  existing_records?: Record<string, unknown>[]
+  /** Additional context data */
+  [key: string]: unknown
+}
+
+export interface SuperToolResult<T = unknown> {
+  success: boolean
+  data?: T
+  error?: string
+  /** Per-tool results for audit trail */
+  tool_results?: Record<string, AtomicToolResult>
+  /** Total records in, records out */
+  stats?: {
+    records_in: number
+    records_out: number
+    filtered: number
+    errors: number
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Wire Definition (updated — super tool composition)
+// ---------------------------------------------------------------------------
+
+export interface WireDefinitionV2 {
+  wire_id: string
+  name: string
+  description: string
+  /** Product lines this wire handles: 'ALL' | 'MAPD' | 'FIA' | etc. */
+  product_lines: string[]
+  /** Data domains: 'ENROLLMENT' | 'COMMISSIONS' | 'ACCOUNTS' | 'DEMOGRAPHICS' | 'REFERENCE' */
+  data_domains: string[]
+  /** Super tool IDs executed in sequence */
+  super_tools: string[]
+  /** Legacy stage list (retained for traceability, maps to old WireDefinition.stages) */
+  stages: WireStage[]
+}
