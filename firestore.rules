@@ -131,6 +131,16 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
+    // Households + subcollections (daily work)
+    // ----------------------------------------------------------------
+    match /households/{householdId} {
+      allow read, write: if isRPIUser();
+      match /{subcollection}/{docId} {
+        allow read, write: if isRPIUser();
+      }
+    }
+
+    // ----------------------------------------------------------------
     // Clients + subcollections (daily work)
     // ----------------------------------------------------------------
     match /clients/{clientId} {

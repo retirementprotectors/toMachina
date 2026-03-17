@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { query, where, getDocs, collection, limit, orderBy, doc, updateDoc, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
+import { getAuth } from 'firebase/auth'
 import type { Client } from '@tomachina/core'
 import { formatPhone, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
@@ -417,6 +418,44 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
     }
   }, [clientId])
 
+  // Promote spouse connection to a household
+  const handlePromoteToHousehold = useCallback(async (person: ConnectedPerson) => {
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      const clientName = [str(client.first_name), str(client.last_name)].filter(Boolean).join(' ')
+      const lastName = str(client.last_name) || 'Unknown'
+
+      const res = await fetch('/api/households', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          household_name: `${lastName} Household`,
+          primary_contact_id: clientId,
+          primary_contact_name: clientName,
+          address: str(client.address),
+          city: str(client.city),
+          state: str(client.state),
+          zip: str(client.zip),
+          assigned_user_id: str(client.assigned_user_id),
+          members: [
+            { client_id: clientId, client_name: clientName, role: 'primary', relationship: 'self', added_at: new Date().toISOString() },
+            { client_id: person.id, client_name: person.name, role: 'spouse', relationship: 'Spouse', added_at: new Date().toISOString() },
+          ],
+        }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        window.location.reload()
+      }
+    } catch (err) {
+      console.error('Failed to create household:', err)
+    }
+  }, [client, clientId])
+
   // FIX-23: Filter connections by review status
   const filteredConnections = useMemo(() => {
     if (filterMode === 'all') return connections
@@ -683,6 +722,17 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    {/* Promote to Household — shows for Spouse connections when no household exists */}
+                    {person.relationship === 'Spouse' && person.id && !client.household_id && (
+                      <button
+                        onClick={() => handlePromoteToHousehold(person)}
+                        className="inline-flex items-center gap-1 rounded-md bg-[var(--portal)]/10 px-2 py-1 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--portal)]/20"
+                        title="Create a household with this spouse"
+                      >
+                        <span className="material-icons-outlined text-[12px]">home</span>
+                        Create Household
+                      </button>
+                    )}
                     {person.id && (
                       <a
                         href={`/contacts/${person.id}`}
