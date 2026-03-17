@@ -208,11 +208,30 @@ export function normalizeAmount(raw: string | number | unknown): number {
 // ============================================================================
 
 import { CARRIER_ALIASES } from './field-normalizers'
+import { resolveCharterIdentity, resolveDefaultCharter, type CarrierIdentity } from './carrier-charter-map'
+
+export type { CarrierIdentity }
+
+export interface CarrierNormResult {
+  /** Parent brand display name (e.g., "Aetna") — backward-compatible string */
+  carrier_name: string
+  /** Underwriting charter legal entity (e.g., "Accendo Insurance Company") */
+  charter: string | null
+  /** Charter short code (e.g., "ACC") */
+  charter_code: string | null
+  /** NAIC code if known */
+  naic: number | null
+  /** Carrier doc ID in Firestore */
+  carrier_id: string | null
+}
 
 /**
  * Normalize carrier name using alias map.
  * Ported from CORE_Normalize.gs normalizeCarrierName().
  * Note: Database lookups removed -- pure function in toMachina.
+ *
+ * BACKWARD COMPATIBLE: Still returns a string (parent brand name).
+ * Use normalizeCarrierFull() for the two-layer identity.
  */
 export function normalizeCarrierName(raw: string): string {
   if (!raw) return ''
@@ -227,6 +246,54 @@ export function normalizeCarrierName(raw: string): string {
   return cleaned.split(/\s+/)
     .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
     .join(' ')
+}
+
+/**
+ * Full two-layer carrier normalization.
+ *
+ * Returns parent brand + underwriting charter + NAIC + carrier_id.
+ * First tries to resolve charter directly from raw input.
+ * If no charter match, resolves parent via CARRIER_ALIASES and checks
+ * if parent is a single-charter carrier (auto-assign).
+ */
+export function normalizeCarrierFull(raw: string): CarrierNormResult {
+  if (!raw) return { carrier_name: '', charter: null, charter_code: null, naic: null, carrier_id: null }
+
+  // Step 1: Try direct charter resolution
+  const charterMatch = resolveCharterIdentity(raw)
+  if (charterMatch) {
+    return {
+      carrier_name: charterMatch.parent,
+      charter: charterMatch.charter,
+      charter_code: charterMatch.charter_code,
+      naic: charterMatch.naic ?? null,
+      carrier_id: charterMatch.carrier_id,
+    }
+  }
+
+  // Step 2: Fall back to parent-level alias resolution
+  const parentName = normalizeCarrierName(raw)
+
+  // Step 3: Check if parent is single-charter (auto-assign)
+  const defaultCharter = resolveDefaultCharter(parentName)
+  if (defaultCharter) {
+    return {
+      carrier_name: parentName,
+      charter: defaultCharter.charter,
+      charter_code: defaultCharter.charter_code,
+      naic: defaultCharter.naic ?? null,
+      carrier_id: defaultCharter.carrier_id,
+    }
+  }
+
+  // Step 4: Multi-charter parent — can't determine charter from name alone
+  return {
+    carrier_name: parentName,
+    charter: null,
+    charter_code: null,
+    naic: null,
+    carrier_id: null,
+  }
 }
 
 // ============================================================================

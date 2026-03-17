@@ -108,7 +108,10 @@ export const FIELD_NORMALIZERS: Record<string, NormalizerType> = {
   custodian: 'carrier',
   institution_name: 'carrier',
   parent_carrier: 'skip',
+  carrier_charter: 'skip',
+  charter_code: 'skip',
   naic_code: 'skip',
+  carrier_id: 'skip',
 
   // === Product type fields -> normalizeProductType() ===
   product_type: 'product',
