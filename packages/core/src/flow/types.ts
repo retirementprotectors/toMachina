@@ -29,6 +29,15 @@ export type BuiltInCheckType =
   | 'NUMERIC_LIMIT'
   | 'ALL_FORMS_CHECKED'
   | 'MANUAL'
+  | 'QUE_SESSION_COMPLETE'
+
+export type StepExecutionType = 'manual' | 'que_workbench' | 'dex_output' | 'atlas_wire'
+
+export interface QueStepConfig {
+  profile_id: string
+  auto_create_session?: boolean
+  required_sources?: string[]
+}
 
 export type HookType = 'onEnter' | 'onExit' | 'onComplete'
 
@@ -84,7 +93,8 @@ export interface FlowStepDef {
   step_description?: string
   step_order: number
   gate_enforced: boolean
-  execution_type?: string
+  execution_type?: StepExecutionType
+  que_config?: QueStepConfig
   status: string
   [key: string]: unknown
 }

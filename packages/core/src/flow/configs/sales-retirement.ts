@@ -210,7 +210,8 @@ const steps: FlowStepDef[] = [
     step_description: 'Pull statements, Gradient reports, Morningstar, build recommendation.',
     step_order: 20,
     gate_enforced: false,
-    execution_type: 'manual',
+    execution_type: 'que_workbench',
+    que_config: { profile_id: 'QUE_INVESTMENT', auto_create_session: true },
     status: 'active',
   },
   {
@@ -222,7 +223,8 @@ const steps: FlowStepDef[] = [
     step_description: 'Run QUE-Medicare quoting, generate recommendation.',
     step_order: 30,
     gate_enforced: false,
-    execution_type: 'manual',
+    execution_type: 'que_workbench',
+    que_config: { profile_id: 'QUE_MEDICARE', auto_create_session: true },
     status: 'active',
   },
   {
@@ -234,7 +236,8 @@ const steps: FlowStepDef[] = [
     step_description: 'Pull life policies, IFI analysis, carrier comparison.',
     step_order: 40,
     gate_enforced: false,
-    execution_type: 'manual',
+    execution_type: 'que_workbench',
+    que_config: { profile_id: 'QUE_LIFE', auto_create_session: true },
     status: 'active',
   },
   {
@@ -246,7 +249,8 @@ const steps: FlowStepDef[] = [
     step_description: 'Pull annuity statements, income projections, FIA/MYGA comparison.',
     step_order: 50,
     gate_enforced: false,
-    execution_type: 'manual',
+    execution_type: 'que_workbench',
+    que_config: { profile_id: 'QUE_ANNUITY', auto_create_session: true },
     status: 'active',
   },
 
