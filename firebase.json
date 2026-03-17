@@ -2,34 +2,17 @@
   "firestore": {
     "rules": "firestore.rules"
   },
-  "hosting": [
-    {
-      "site": "tomachina-api",
-      "public": "services/api/public",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "rewrites": [
-        {
-          "source": "**",
-          "run": {
-            "serviceId": "tm-api",
-            "region": "us-central1"
-          }
+  "hosting": {
+    "public": "apps/prodash/public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "tm-prodash",
+          "region": "us-central1"
         }
-      ]
-    },
-    {
-      "site": "claude-mcp-484718",
-      "public": "apps/prodash/public",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "rewrites": [
-        {
-          "source": "**",
-          "run": {
-            "serviceId": "tm-prodash",
-            "region": "us-central1"
-          }
-        }
-      ]
-    }
-  ]
+      }
+    ]
+  }
 }
