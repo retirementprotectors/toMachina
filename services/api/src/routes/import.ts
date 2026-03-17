@@ -472,6 +472,172 @@ importRoutes.post('/batch', async (req: Request, res: Response) => {
 
     await batch1.commit()
 
+    // Phase 1.5: Auto-detect households from imported clients
+    const householdResults = { detected: 0, created: 0 }
+    try {
+      // Build address-group map from just-imported clients
+      const addressGroups = new Map<string, string[]>()
+      const importedClients = new Map<string, Record<string, unknown>>()
+
+      for (let i = 0; i < clients.length; i++) {
+        const client = clients[i] as Record<string, unknown>
+        const clientId = (client.client_id as string) || results.clients.mapping[client._ref as string || client.client_ref as string || `${client.first_name} ${client.last_name}`]
+        if (!clientId) continue
+        importedClients.set(clientId, client)
+
+        const lastName = String(client.last_name || '').toLowerCase().trim()
+        const address = String(client.address || '').toLowerCase().trim()
+        const zip = String(client.zip || '').trim()
+        if (!lastName || !address || !zip) continue
+
+        const key = `${lastName}|${address}|${zip}`
+        const group = addressGroups.get(key) || []
+        group.push(clientId)
+        addressGroups.set(key, group)
+      }
+
+      // Detect spouse-field matches
+      const spousePairs = new Set<string>()
+      for (const [clientId, client] of importedClients) {
+        const spouseName = String(client.spouse_name || client.spouse_first_name || '').toLowerCase().trim()
+        if (!spouseName) continue
+
+        for (const [otherId, other] of importedClients) {
+          if (otherId === clientId) continue
+          const otherFirst = String(other.first_name || '').toLowerCase().trim()
+          if (otherFirst && otherFirst === spouseName) {
+            const pairKey = [clientId, otherId].sort().join('|')
+            if (!spousePairs.has(pairKey)) {
+              spousePairs.add(pairKey)
+              // Merge into address group
+              const existingGroup = Array.from(addressGroups.values()).find(g => g.includes(clientId) || g.includes(otherId))
+              if (existingGroup) {
+                if (!existingGroup.includes(clientId)) existingGroup.push(clientId)
+                if (!existingGroup.includes(otherId)) existingGroup.push(otherId)
+              } else {
+                addressGroups.set(`spouse_${pairKey}`, [clientId, otherId])
+              }
+            }
+          }
+        }
+      }
+
+      // Check MFJ filing status — already handled by address grouping above
+      // This catches MFJ clients whose spouse isn't in the same import
+      for (const [, client] of importedClients) {
+        const filing = String(client.filing_status || '').toLowerCase()
+        if (!filing.includes('married') && !filing.includes('mfj')) continue
+        // Future: cross-reference existing clients for MFJ matches
+      }
+
+      // Create households for groups with 2+ members
+      const householdBatch = db.batch()
+      let householdOpsCount = 0
+      const grouped = new Set<string>()
+
+      for (const [, memberIds] of addressGroups) {
+        if (memberIds.length < 2) continue
+
+        // Check if any member already has a household_id (from existing data)
+        let existingHouseholdId: string | null = null
+        for (const mid of memberIds) {
+          const existingClient = await db.collection('clients').doc(mid).get()
+          if (existingClient.exists) {
+            const data = existingClient.data() as Record<string, unknown>
+            if (data.household_id) {
+              existingHouseholdId = data.household_id as string
+              break
+            }
+          }
+        }
+
+        householdResults.detected++
+        const hhNow = new Date().toISOString()
+
+        if (existingHouseholdId) {
+          // Add new members to existing household
+          const existingHH = await db.collection('households').doc(existingHouseholdId).get()
+          if (existingHH.exists) {
+            const hhData = existingHH.data() as Record<string, unknown>
+            const existingMembers = (hhData.members || []) as Array<Record<string, unknown>>
+            const existingIds = new Set(existingMembers.map(m => m.client_id as string))
+
+            for (const mid of memberIds) {
+              if (existingIds.has(mid) || grouped.has(mid)) continue
+              const c = importedClients.get(mid)
+              if (!c) continue
+              existingMembers.push({
+                client_id: mid,
+                client_name: `${c.first_name || ''} ${c.last_name || ''}`.trim(),
+                role: 'other',
+                relationship: 'Other',
+                added_at: hhNow,
+              })
+              householdBatch.update(db.collection('clients').doc(mid), { household_id: existingHouseholdId, updated_at: hhNow })
+              householdOpsCount++
+              grouped.add(mid)
+            }
+            householdBatch.update(db.collection('households').doc(existingHouseholdId), { members: existingMembers, updated_at: hhNow })
+            householdOpsCount++
+          }
+        } else {
+          // Create new household
+          const householdId = db.collection('households').doc().id
+          const primary = importedClients.get(memberIds[0])!
+          const members = memberIds.map((mid, idx) => {
+            const c = importedClients.get(mid) || {} as Record<string, unknown>
+            return {
+              client_id: mid,
+              client_name: `${c.first_name || ''} ${c.last_name || ''}`.trim(),
+              role: idx === 0 ? 'primary' : 'spouse',
+              relationship: idx === 0 ? 'self' : 'Spouse',
+              added_at: hhNow,
+            }
+          })
+
+          householdBatch.set(db.collection('households').doc(householdId), {
+            household_id: householdId,
+            household_name: `${primary.last_name || 'Unknown'} Household`,
+            primary_contact_id: memberIds[0],
+            primary_contact_name: `${primary.first_name || ''} ${primary.last_name || ''}`.trim(),
+            members,
+            address: String(primary.address || ''),
+            city: String(primary.city || ''),
+            state: String(primary.state || ''),
+            zip: String(primary.zip || ''),
+            household_status: 'Active',
+            assigned_user_id: String(primary.assigned_user_id || ''),
+            aggregate_financials: {},
+            created_at: hhNow,
+            updated_at: hhNow,
+            _source: 'import_auto_detect',
+          })
+          householdOpsCount++
+
+          for (const mid of memberIds) {
+            householdBatch.update(db.collection('clients').doc(mid), { household_id: householdId, updated_at: hhNow })
+            householdOpsCount++
+            grouped.add(mid)
+          }
+
+          householdResults.created++
+        }
+
+        // Guard against batch size limit
+        if (householdOpsCount >= 400) break
+      }
+
+      if (householdOpsCount > 0) {
+        await householdBatch.commit()
+      }
+    } catch (householdErr) {
+      console.error('Household auto-detect error:', householdErr)
+      // Non-critical — don't fail the import
+    }
+
+    // Add household results to response
+    ;(results as Record<string, unknown>).households = householdResults
+
     // Phase 2: Import accounts (with client_id resolution)
     const batch2 = db.batch()
     for (let i = 0; i < accounts.length; i++) {

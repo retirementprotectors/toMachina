@@ -500,6 +500,63 @@ function DdupContent() {
           } catch {
             // Non-critical — access_items may not exist
           }
+
+          // 5. Household membership reconciliation
+          try {
+            const winnerData = mergedData as Record<string, unknown>
+            const loserData = loser.data as Record<string, unknown>
+            const winnerHouseholdId = winnerData.household_id as string | undefined
+            const loserHouseholdId = loserData.household_id as string | undefined
+
+            if (loserHouseholdId && !winnerHouseholdId) {
+              // Scenario 1: Loser has household, winner doesn't — transfer membership
+              await updateDoc(doc(db, winner.path), { household_id: loserHouseholdId })
+              const householdRef = doc(db, 'households', loserHouseholdId)
+              const householdSnap = await getDoc(householdRef)
+              if (householdSnap.exists()) {
+                const hhData = householdSnap.data() as Record<string, unknown>
+                const members = (hhData.members || []) as Array<Record<string, unknown>>
+                const updatedMembers = members.map(m =>
+                  m.client_id === loserId
+                    ? { ...m, client_id: winner.id, client_name: `${winnerData.first_name || ''} ${winnerData.last_name || ''}`.trim() }
+                    : m
+                )
+                const updates: Record<string, unknown> = { members: updatedMembers, updated_at: new Date().toISOString() }
+                if (hhData.primary_contact_id === loserId) {
+                  updates.primary_contact_id = winner.id
+                  updates.primary_contact_name = `${winnerData.first_name || ''} ${winnerData.last_name || ''}`.trim()
+                }
+                await updateDoc(householdRef, updates)
+              }
+            } else if (loserHouseholdId && winnerHouseholdId && loserHouseholdId === winnerHouseholdId) {
+              // Scenario 2: Both in same household — just remove loser from members
+              const householdRef = doc(db, 'households', loserHouseholdId)
+              const householdSnap = await getDoc(householdRef)
+              if (householdSnap.exists()) {
+                const hhData = householdSnap.data() as Record<string, unknown>
+                const members = (hhData.members || []) as Array<Record<string, unknown>>
+                const filtered = members.filter(m => m.client_id !== loserId)
+                await updateDoc(householdRef, { members: filtered, updated_at: new Date().toISOString() })
+              }
+            } else if (loserHouseholdId && winnerHouseholdId && loserHouseholdId !== winnerHouseholdId) {
+              // Scenario 3: Different households — remove loser from their household
+              const loserHouseholdRef = doc(db, 'households', loserHouseholdId)
+              const loserHouseholdSnap = await getDoc(loserHouseholdRef)
+              if (loserHouseholdSnap.exists()) {
+                const hhData = loserHouseholdSnap.data() as Record<string, unknown>
+                const members = (hhData.members || []) as Array<Record<string, unknown>>
+                const filtered = members.filter(m => m.client_id !== loserId)
+                const updates: Record<string, unknown> = { members: filtered, updated_at: new Date().toISOString() }
+                if (filtered.length === 0) {
+                  updates.household_status = 'Inactive'
+                }
+                await updateDoc(loserHouseholdRef, updates)
+              }
+            }
+            // Scenario 4: Neither has household — no-op
+          } catch {
+            // Non-critical — household update failure shouldn't block merge
+          }
         }
       }
 
