@@ -14,6 +14,7 @@ export * from './approval'
 export * as campaigns from './campaigns'
 export * from './atlas'
 export * as dex from './dex'
+export * from './que'
 
 export { apiFetch, apiPost, apiGet } from './api-client'
 export type { ApiResult } from './api-client'
