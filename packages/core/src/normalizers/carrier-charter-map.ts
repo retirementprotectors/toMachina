@@ -140,6 +140,66 @@ export const CHARTER_IDENTITY_MAP: Record<string, CarrierIdentity> = {
   'wellpoint': { parent: 'Elevance', charter: 'Wellpoint Insurance Company', charter_code: 'WPI', naic: 14078, carrier_id: 'anthem-elevance' },
   'wellpoint insurance': { parent: 'Elevance', charter: 'Wellpoint Insurance Company', charter_code: 'WPI', naic: 14078, carrier_id: 'anthem-elevance' },
 
+  // ── GHL compound carrier names (CARRIER (CODE)- LEGAL NAME) ─────────────
+  // These are the exact strings from GHL/BoB imports before any normalization
+  'aetna acc- accendo': { parent: 'Aetna', charter: 'Accendo Insurance Company', charter_code: 'ACC', naic: 63444, carrier_id: 'aetna-cvs' },
+  'aetna acc accendo': { parent: 'Aetna', charter: 'Accendo Insurance Company', charter_code: 'ACC', naic: 63444, carrier_id: 'aetna-cvs' },
+  'aetna ahic- aetna health insurance company': { parent: 'Aetna', charter: 'Aetna Health Insurance Company', charter_code: 'AHIC', carrier_id: 'aetna-cvs' },
+  'aetna ahic aetna health insurance company': { parent: 'Aetna', charter: 'Aetna Health Insurance Company', charter_code: 'AHIC', carrier_id: 'aetna-cvs' },
+  'aetna ahlc- aetna health  life insurance company': { parent: 'Aetna', charter: 'Aetna Health + Life Insurance Company', charter_code: 'AHLC', carrier_id: 'aetna-cvs' },
+  'aetna ahlc aetna health  life insurance company': { parent: 'Aetna', charter: 'Aetna Health + Life Insurance Company', charter_code: 'AHLC', carrier_id: 'aetna-cvs' },
+  'aetna ahlc- aetna health life insurance company': { parent: 'Aetna', charter: 'Aetna Health + Life Insurance Company', charter_code: 'AHLC', carrier_id: 'aetna-cvs' },
+  'aetna cli- continental life': { parent: 'Aetna', charter: 'Continental Life Insurance Company', charter_code: 'CLI', carrier_id: 'aetna-cvs' },
+  'aetna cli continental life': { parent: 'Aetna', charter: 'Continental Life Insurance Company', charter_code: 'CLI', carrier_id: 'aetna-cvs' },
+  'aetna aci- american continental insurance': { parent: 'Aetna', charter: 'American Continental Insurance', charter_code: 'ACI', carrier_id: 'aetna-cvs' },
+  'aetna aci american continental insurance': { parent: 'Aetna', charter: 'American Continental Insurance', charter_code: 'ACI', carrier_id: 'aetna-cvs' },
+  'aetna mapd': { parent: 'Aetna', charter: 'Aetna Health Insurance Company', charter_code: 'AHIC', carrier_id: 'aetna-cvs' },
+  'aetna pdp': { parent: 'Aetna', charter: 'Aetna Health Insurance Company', charter_code: 'AHIC', carrier_id: 'aetna-cvs' },
+
+  'mutual of omaha mut- mutual of omaha': { parent: 'Mutual of Omaha', charter: 'Mutual of Omaha Insurance Company', charter_code: 'MUT', naic: 71412, carrier_id: 'mutual-of-omaha' },
+  'mutual of omaha mut mutual of omaha': { parent: 'Mutual of Omaha', charter: 'Mutual of Omaha Insurance Company', charter_code: 'MUT', naic: 71412, carrier_id: 'mutual-of-omaha' },
+  'mutual of omaha uo- united of omaha': { parent: 'Mutual of Omaha', charter: 'United of Omaha Life Insurance Company', charter_code: 'UO', naic: 69868, carrier_id: 'mutual-of-omaha' },
+  'mutual of omaha uo united of omaha': { parent: 'Mutual of Omaha', charter: 'United of Omaha Life Insurance Company', charter_code: 'UO', naic: 69868, carrier_id: 'mutual-of-omaha' },
+  'mutual of omaha oic- omaha insurance company': { parent: 'Mutual of Omaha', charter: 'Omaha Insurance Company', charter_code: 'OIC', naic: 13100, carrier_id: 'mutual-of-omaha' },
+  'mutual of omaha oic omaha insurance company': { parent: 'Mutual of Omaha', charter: 'Omaha Insurance Company', charter_code: 'OIC', naic: 13100, carrier_id: 'mutual-of-omaha' },
+  'mutual of omaha uw- united world': { parent: 'Mutual of Omaha', charter: 'United World Life Insurance Company', charter_code: 'UW', naic: 72850, carrier_id: 'mutual-of-omaha' },
+  'mutual of omaha uw united world': { parent: 'Mutual of Omaha', charter: 'United World Life Insurance Company', charter_code: 'UW', naic: 72850, carrier_id: 'mutual-of-omaha' },
+
+  'cigna chlic- cigna health  life insurance company': { parent: 'Cigna', charter: 'CIGNA Health + Life Insurance Company', charter_code: 'CHLIC', carrier_id: 'cigna' },
+  'cigna chlic cigna health  life insurance company': { parent: 'Cigna', charter: 'CIGNA Health + Life Insurance Company', charter_code: 'CHLIC', carrier_id: 'cigna' },
+  'cigna chlic- cigna health life insurance company': { parent: 'Cigna', charter: 'CIGNA Health + Life Insurance Company', charter_code: 'CHLIC', carrier_id: 'cigna' },
+  'cigna cnhic- cigna national health insurance company': { parent: 'Cigna', charter: 'CIGNA National Health Insurance Company', charter_code: 'CNHIC', carrier_id: 'cigna' },
+  'cigna cnhic cigna national health insurance company': { parent: 'Cigna', charter: 'CIGNA National Health Insurance Company', charter_code: 'CNHIC', carrier_id: 'cigna' },
+  'cigna mapd': { parent: 'Cigna', charter: 'CIGNA Health + Life Insurance Company', charter_code: 'CHLIC', carrier_id: 'cigna' },
+  'cigna pdp': { parent: 'Cigna', charter: 'CIGNA Health + Life Insurance Company', charter_code: 'CHLIC', carrier_id: 'cigna' },
+
+  'wellabe m1- medico insurance company': { parent: 'Wellabe', charter: 'Medico Insurance Company', charter_code: 'M1', carrier_id: 'wellabe-medico' },
+  'wellabe m1 medico insurance company': { parent: 'Wellabe', charter: 'Medico Insurance Company', charter_code: 'M1', carrier_id: 'wellabe-medico' },
+  'wellabe ml- medico life and health insurance company': { parent: 'Wellabe', charter: 'Medico Life and Health Insurance Company', charter_code: 'ML', carrier_id: 'wellabe-medico' },
+  'wellabe ml medico life and health insurance company': { parent: 'Wellabe', charter: 'Medico Life and Health Insurance Company', charter_code: 'ML', carrier_id: 'wellabe-medico' },
+  'wellabe fka medico': { parent: 'Wellabe', charter: 'Medico Insurance Company', charter_code: 'M1', carrier_id: 'wellabe-medico' },
+
+  'allstate natgen': { parent: 'Allstate', charter: 'National General Insurance', charter_code: 'NatGen', carrier_id: 'allstate-natgen' },
+
+  'elevance anthem bcbs': { parent: 'Elevance', charter: 'Wellpoint Insurance Company', charter_code: 'WPI', naic: 14078, carrier_id: 'anthem-elevance' },
+
+  'silac fka equitable': { parent: 'SILAC', charter: 'SILAC Insurance Company', charter_code: 'SILAC', carrier_id: 'silac' },
+
+  'prosperity fka susa life': { parent: 'Prosperity Life', charter: 'Prosperity Life Insurance Group', charter_code: 'PLIG', carrier_id: 'prosperity' },
+  'prosperity fka s usa life': { parent: 'Prosperity Life', charter: 'Prosperity Life Insurance Group', charter_code: 'PLIG', carrier_id: 'prosperity' },
+
+  'devoted': { parent: 'Devoted', charter: 'Devoted Health', charter_code: 'DEV', carrier_id: 'devoted' },
+  'devoted health': { parent: 'Devoted', charter: 'Devoted Health', charter_code: 'DEV', carrier_id: 'devoted' },
+
+  'alignment health': { parent: 'Alignment Health', charter: 'Alignment Health Plan', charter_code: 'AHP', carrier_id: 'alignment' },
+
+  'essence': { parent: 'Essence Healthcare', charter: 'Essence Healthcare', charter_code: 'ESS', carrier_id: 'essence' },
+  'essence healthcare': { parent: 'Essence Healthcare', charter: 'Essence Healthcare', charter_code: 'ESS', carrier_id: 'essence' },
+  'essence mapd': { parent: 'Essence Healthcare', charter: 'Essence Healthcare', charter_code: 'ESS', carrier_id: 'essence' },
+
+  'gerber life': { parent: 'Gerber Life', charter: 'Gerber Life Insurance Company', charter_code: 'GER', carrier_id: 'gerber-life' },
+  'gerber': { parent: 'Gerber Life', charter: 'Gerber Life Insurance Company', charter_code: 'GER', carrier_id: 'gerber-life' },
+
   // ── Single-charter carriers (auto-resolve) ──────────────────────────────
   'unitedhealthcare insurance company': { parent: 'UnitedHealthcare', charter: 'UnitedHealthcare Insurance Company', charter_code: 'UHC', carrier_id: 'uhc' },
   'wellmark blue cross blue shield of iowa': { parent: 'Wellmark BCBS of Iowa', charter: 'Wellmark Blue Cross Blue Shield of Iowa', charter_code: 'WBCBS', carrier_id: 'wellmark-bcbs-iowa' },
