@@ -9,12 +9,20 @@ export function getBaseStyles(): string {
     size: letter;
     margin: 0.5in 0.6in;
   }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  :root {
+    --navy: #1a3158;
+    --rpi-blue: #4a7ab5;
+    --pale-blue: #e5ecf6;
+    --gold: #c5a55a;
+    --green: #16a34a;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    font-size: 10pt;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 11pt;
     color: #1a1a1a;
-    line-height: 1.4;
+    line-height: 1.5;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -22,14 +30,14 @@ export function getBaseStyles(): string {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 3px solid #1a3a5c;
+    border-bottom: 3px solid #1a3158;
     padding-bottom: 10px;
     margin-bottom: 14px;
   }
   .header-left h1 {
     font-size: 18pt;
     font-weight: 700;
-    color: #1a3a5c;
+    color: #1a3158;
     letter-spacing: -0.3px;
   }
   .header-left .subtitle {
@@ -43,11 +51,11 @@ export function getBaseStyles(): string {
     color: #555;
     line-height: 1.5;
   }
-  .header-right strong { color: #1a3a5c; }
+  .header-right strong { color: #1a3158; }
   .brand {
     font-size: 11pt;
     font-weight: 700;
-    color: #1a3a5c;
+    color: #1a3158;
     letter-spacing: 1px;
   }
   .section {
@@ -58,7 +66,7 @@ export function getBaseStyles(): string {
     font-size: 11pt;
     font-weight: 700;
     color: #fff;
-    background: #1a3a5c;
+    background: #1a3158;
     padding: 4px 10px;
     margin-bottom: 6px;
     border-radius: 2px;
@@ -70,11 +78,11 @@ export function getBaseStyles(): string {
   }
   th {
     background: #e8edf2;
-    color: #1a3a5c;
+    color: #1a3158;
     font-weight: 700;
     text-align: left;
     padding: 4px 6px;
-    border-bottom: 1.5px solid #1a3a5c;
+    border-bottom: 1.5px solid #1a3158;
     font-size: 8pt;
     text-transform: uppercase;
     letter-spacing: 0.3px;
@@ -86,7 +94,7 @@ export function getBaseStyles(): string {
   }
   tr:last-child td { border-bottom: none; }
   .highlight-row td { background: #f0f6ff; }
-  .total-row { background: #1a3a5c; color: #fff; font-weight: 700; }
+  .total-row { background: #1a3158; color: #fff; font-weight: 700; }
   .total-row td { color: #fff; border-bottom: none; }
   .two-col {
     display: flex;
@@ -115,7 +123,7 @@ export function getBaseStyles(): string {
   .metric-card .value {
     font-size: 14pt;
     font-weight: 700;
-    color: #1a3a5c;
+    color: #1a3158;
   }
   .metric-card .value.green { color: #1a7a3a; }
   .metric-card .value.red { color: #c44; }
@@ -132,7 +140,7 @@ export function getBaseStyles(): string {
   .opp-title {
     font-weight: 700;
     font-size: 9.5pt;
-    color: #1a3a5c;
+    color: #1a3158;
     margin-bottom: 3px;
   }
   .opp-box p, .opp-box li { font-size: 8.5pt; line-height: 1.35; }

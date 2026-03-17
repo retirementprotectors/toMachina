@@ -13,6 +13,31 @@ import { dex } from '@tomachina/core'
 
 export const dexRoutes = Router()
 
+// QUE output generation endpoint — generates deliverables from QUE session data
+dexRoutes.post('/packages', async (req: Request, res: Response) => {
+  try {
+    const { source, session_id, output_types } = req.body as Record<string, unknown>
+    if (source !== 'que') {
+      res.status(400).json(errorResponse('Only source: "que" is currently supported'))
+      return
+    }
+    if (!session_id) {
+      res.status(400).json(errorResponse('session_id is required'))
+      return
+    }
+    // Placeholder — will wire to actual PDF generation + Drive filing in Sprint C enhancement
+    res.json(successResponse({
+      message: 'QUE output generation queued',
+      session_id,
+      output_types: output_types || ['summary', 'comparison', 'factfinder'],
+      status: 'queued',
+    }))
+  } catch (err) {
+    console.error('POST /api/dex/packages error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
 const FORMS = dex.COLLECTIONS.FORMS
 const MAPPINGS = dex.COLLECTIONS.FIELD_MAPPINGS
 const RULES = dex.COLLECTIONS.RULES
