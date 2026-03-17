@@ -5,6 +5,34 @@
 
 import type { WireDefinition } from './types'
 
+// ---------------------------------------------------------------------------
+// Pre-import tool chain — inserted at the front of ALL client-touching wires.
+// Registered in tool_registry: validate-client-qualification, import-review-pipeline
+// Learned from: GHL bulk import 2026-03-16 (18 manual rounds → 7 automated steps)
+// ---------------------------------------------------------------------------
+export const CLIENT_IMPORT_TOOL_CHAIN = [
+  { type: 'TOOL', name: 'introspect', tool_id: 'introspect', detail: 'Detect file type, match format fingerprint, map columns' },
+  { type: 'TOOL', name: 'validate-client-qualification', tool_id: 'validate-client-qualification', detail: 'Filter: must have (first+last + phone/email/address) OR existing account' },
+  { type: 'TOOL', name: 'normalize-fields', tool_id: 'normalize-fields', detail: 'Normalize ALL fields: book_of_business (BOB_ALIASES), carrier_name, phone, email, state, date, status. Runs BEFORE dedup so matching works on clean data.' },
+  { type: 'TOOL', name: 'dedup-exact', tool_id: 'match-client', detail: 'Match name+DOB against existing clients. Auto-reject exact dupes.' },
+  { type: 'TOOL', name: 'dedup-contact', tool_id: 'match-client', detail: 'Match name+phone/email. Same name = dupe. Different name = spouse (auto-prospect).' },
+  { type: 'TOOL', name: 'dedup-name-only', tool_id: 'match-client', detail: 'Name-only match. Flag as POSSIBLE DUPE for manual review.' },
+  { type: 'TOOL', name: 'generate-review-html', tool_id: 'generate-review-html', detail: 'Build interactive review HTML. Pre-tag: accounts=Client, dupes=Delete, spouses=Prospect.' },
+  { type: 'TOOL', name: 'apply-decisions', tool_id: 'apply-decisions', detail: 'Consume exported JSON. Delete/update/create per human decisions.' },
+] as const
+
+// Wires that MUST run the client import tool chain before writing to clients collection
+export const WIRES_REQUIRING_CLIENT_TOOL_CHAIN = [
+  'WIRE_MAPD_ENROLLMENT',
+  'WIRE_CLIENT_ENRICHMENT',
+  'WIRE_MEDICARE_ACCOUNTS',
+  'WIRE_LIFE_ANNUITY_ACCOUNTS',
+  'WIRE_BDRIA_ACCOUNTS',
+  'WIRE_DOC_INTAKE_MAIL',
+  'WIRE_DOC_INTAKE_EMAIL',
+  'WIRE_MEETING_PROCESSING',
+] as const
+
 export const WIRE_DEFINITIONS: WireDefinition[] = [
   {
     wire_id: 'WIRE_MAPD_ENROLLMENT',
