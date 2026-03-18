@@ -662,26 +662,58 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     // Artifact Persistence Protocol — always included
     md += `\n---\n`
     md += `\n## Artifact Persistence Protocol\n`
-    md += `> Every phase produces artifacts that must be saved to files. Future phases reference these files.\n\n`
-    md += `**Sprint directory:** \`${sprintDir}/\`\n\n`
+    md += `> Every phase produces artifacts. Artifacts MUST be saved to files AND linked to the FORGE sprint.\n`
+    md += `> A file without a FORGE link is invisible. A FORGE link without a file is broken.\n\n`
+    md += `**Sprint directory:** \`${sprintDir}/\`\n`
+    md += `**Sprint ID:** \`${id}\`\n\n`
 
     if (phase === 'discovery') {
-      md += `### Discovery Phase — You Are Here\n`
-      md += `1. **Create discovery document:** Save your research, analysis, and findings to \`${sprintDir}/DISCOVERY.md\` (or .html for visual mockups)\n`
-      md += `2. **Create tracker items:** Every deliverable identified during discovery becomes a tracker item in FORGE. Use the seed script pattern or POST /api/tracker to create items assigned to this sprint.\n`
-      md += `3. **Update sprint:** PATCH this sprint with \`discovery_url: '${sprintDir}/DISCOVERY.md'\` after saving\n`
-      md += `4. **Create the plan:** After discovery is complete, write the implementation plan to \`${sprintDir}/${(sprint.name as string || 'SPRINT').toUpperCase().replace(/[^A-Z0-9]+/g, '_')}_PLAN.md\`\n`
-      md += `5. **Update sprint:** PATCH this sprint with \`plan_link: '${sprintDir}/...PLAN.md'\` after saving\n`
-      md += `6. **Plan audit:** After the plan is written, run a Plan Audit (compare plan ↔ tickets ↔ discovery) before advancing to building phase\n\n`
-      md += `**The discovery document is the source of truth. The plan is the blueprint. If either is missing, the build will fail.**\n`
+      const planFileName = `${(sprint.name as string || 'SPRINT').toUpperCase().replace(/[^A-Z0-9]+/g, '_')}_PLAN.md`
+
+      md += `### Discovery Phase — You Are Here\n\n`
+
+      md += `**Step 1: Discovery Document**\n`
+      md += `- Save research/analysis to \`${sprintDir}/DISCOVERY.md\` (or .html for visual mockups)\n`
+      md += `- Link it to the sprint:\n`
+      md += '```bash\n'
+      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"discovery_url":"${sprintDir}/DISCOVERY.md"}'\n`
+      md += '```\n\n'
+
+      md += `**Step 2: Create Tracker Items**\n`
+      md += `- Every deliverable identified during discovery becomes a tracker item\n`
+      md += `- Create items via seed script or POST /api/tracker with \`sprint_id: '${id}'\`\n`
+      md += `- Each item needs: title, description, portal, scope, component, section, type\n\n`
+
+      md += `**Step 3: Write the Plan**\n`
+      md += `- Save implementation plan to \`${sprintDir}/${planFileName}\`\n`
+      md += `- Link it to the sprint:\n`
+      md += '```bash\n'
+      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"${sprintDir}/${planFileName}"}'\n`
+      md += '```\n\n'
+
+      md += `**Step 4: Plan Audit**\n`
+      md += `- Run a Plan Audit: compare plan ↔ tickets ↔ discovery document\n`
+      md += `- All 3 must align. Gaps = rejected plan.\n\n`
+
+      md += `**Nothing advances to building until: discovery file exists + plan file exists + both are linked to the sprint + tracker items are created + plan audit passes.**\n`
     } else if (phase === 'building') {
-      md += `### Building Phase — You Are Here\n`
+      md += `### Building Phase — You Are Here\n\n`
+
       md += `**Read BOTH files before writing any code:**\n`
-      md += `1. Discovery: \`${sprint.discovery_url || sprintDir + '/DISCOVERY.md'}\`\n`
-      md += `2. Plan: \`${sprint.plan_link || sprintDir + '/...PLAN.md'}\`\n\n`
+      if (sprint.discovery_url) {
+        md += `1. Discovery: \`${sprint.discovery_url}\`\n`
+      } else {
+        md += `1. Discovery: **NOT LINKED** — check \`${sprintDir}/\` or ask JDM\n`
+      }
+      if (sprint.plan_link) {
+        md += `2. Plan: \`${sprint.plan_link}\`\n\n`
+      } else {
+        md += `2. Plan: **NOT LINKED** — check \`${sprintDir}/\` or ask JDM\n\n`
+      }
+
       md += `**After build:**\n`
       md += `3. Save builder prompts to \`${sprintDir}/BUILDER_*.md\` (one per builder agent)\n`
-      md += `4. Save builder reports to \`.claude/_ARCHIVED/builder-reports/\` after completion\n`
+      md += `4. Save builder reports to \`.claude/_ARCHIVED/builder-reports/\`\n`
     }
 
     // Separate questions from build items
