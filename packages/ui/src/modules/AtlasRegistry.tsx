@@ -100,7 +100,7 @@ type ImportStep = 1 | 2 | 3 | 4
 const GAP_STATUSES = ['All', 'GREEN', 'YELLOW', 'RED', 'GRAY'] as const
 const PRIORITIES = ['All', 'HIGH', 'MEDIUM', 'LOW'] as const
 const DATA_DOMAINS = ['All', 'ACCOUNTS', 'COMMISSIONS', 'DEMOGRAPHICS', 'CLAIMS', 'ENROLLMENT', 'LICENSING', 'VALIDATION', 'RATES'] as const
-const PRODUCT_LINES = ['All', 'ALL', 'MAPD', 'FIA', 'MYGA', 'MED_SUPP', 'BDRIA', 'LIFE'] as const
+const PRODUCT_LINES = ['All', 'ALL', 'MAPD', 'FIA', 'MYGA', 'MED_SUPP', 'INVESTMENTS', 'LIFE'] as const
 
 const TOOL_CATS = [
   { key: 'INTAKE_QUEUING', label: 'Intake & Queuing', icon: 'inbox', desc: 'Scanning, filing, queueing' },
@@ -121,7 +121,7 @@ const IMPORT_CATEGORIES = [
   { key: 'medicare', label: 'Medicare' },
   { key: 'annuity', label: 'Annuity' },
   { key: 'life', label: 'Life' },
-  { key: 'bdria', label: 'BD/RIA' },
+  { key: 'investments', label: 'Investments' },
   { key: 'client', label: 'Client' },
   { key: 'commission', label: 'Commission' },
   { key: 'revenue', label: 'Revenue' },

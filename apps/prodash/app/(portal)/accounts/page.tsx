@@ -30,7 +30,7 @@ function formatDate(raw: unknown): string {
 // Types
 // ---------------------------------------------------------------------------
 
-type FilterKey = 'all' | 'annuity' | 'life' | 'medicare' | 'bdria'
+type FilterKey = 'all' | 'annuity' | 'life' | 'medicare' | 'investments'
 
 interface AccountRow extends Account {
   _id: string
@@ -49,7 +49,7 @@ const FILTER_TABS: { key: FilterKey; label: string; color: string }[] = [
   { key: 'annuity', label: 'Annuity', color: '#f59e0b' },
   { key: 'life', label: 'Life', color: '#10b981' },
   { key: 'medicare', label: 'Medicare', color: '#3b82f6' },
-  { key: 'bdria', label: 'Investment', color: '#a78bfa' },
+  { key: 'investments', label: 'Investment', color: '#a78bfa' },
 ]
 
 // Default column keys per product type
@@ -58,7 +58,7 @@ const DEFAULT_COLUMNS: Record<FilterKey, string[]> = {
   annuity: ['_clientName', 'carrier_name', 'product_name', 'account_type', 'tax_status', 'issue_date', 'market', 'account_value', 'account_number'],
   life: ['_clientName', 'carrier_name', 'product_name', 'face_amount', 'premium', 'issue_date', 'status', 'cash_value', 'account_number'],
   medicare: ['_clientName', 'carrier_name', 'plan_type', 'plan_id', 'effective_date', 'premium', 'coverage_type', 'status', 'account_number'],
-  bdria: ['_clientName', 'custodian', 'account_type', 'account_value', 'advisor', 'account_number', 'effective_date', 'status'],
+  investments: ['_clientName', 'custodian', 'account_type', 'account_value', 'advisor', 'account_number', 'effective_date', 'status'],
 }
 
 // Friendly labels
@@ -514,18 +514,18 @@ export default function AccountsPage() {
     if (cat === 'annuity') return 'annuity'
     if (cat === 'life') return 'life'
     if (cat === 'medicare') return 'medicare'
-    if (cat === 'bdria' || cat === 'bd_ria') return 'bdria'
+    if (cat === 'investments' || cat === 'investment' || cat === 'investments' || cat === 'bd_ria') return 'investments'
     const t = (str(acct.product_type) + ' ' + str(acct.account_type)).toLowerCase()
     if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) return 'annuity'
     if (t.includes('life')) return 'life'
     if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')) return 'medicare'
-    if (t.includes('bd') || t.includes('ria') || t.includes('advisory')) return 'bdria'
+    if (t.includes('investment') || t.includes('advisory') || t.includes('brokerage')) return 'investments'
     return 'all'
   }, [])
 
   // Counts — computed from ALL accounts, always accurate
   const counts = useMemo(() => {
-    const c: Record<FilterKey, number> = { all: accounts.length, annuity: 0, life: 0, medicare: 0, bdria: 0 }
+    const c: Record<FilterKey, number> = { all: accounts.length, annuity: 0, life: 0, medicare: 0, investments: 0 }
     accounts.forEach((a) => { const cat = getCategory(a); if (cat !== 'all') c[cat]++ })
     return c
   }, [accounts, getCategory])

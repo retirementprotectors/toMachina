@@ -26,7 +26,7 @@ const MEDICARE_SIGNALS = [
   'member id', 'disenroll', 'snp', 'hmo', 'ppo',
 ]
 
-const BDRIA_SIGNALS = [
+const INVESTMENT_SIGNALS = [
   'brokerage', 'advisory', 'ria', 'bd', 'custodian', 'rep code',
   'market value', 'portfolio', 'mutual fund', 'etf', 'cusip',
   'share class', 'nav', 'cost basis', 'fee schedule', 'management fee',
@@ -40,14 +40,14 @@ const BDRIA_SIGNALS = [
  * Scans field names, values, product names, and carrier identifiers
  * to determine the most likely category.
  *
- * Returns 'life' | 'annuity' | 'medicare' | 'bdria' | 'unknown'
+ * Returns 'life' | 'annuity' | 'medicare' | 'investments' | 'unknown'
  */
 export function inferAccountType(data: Record<string, unknown>): string {
   // If explicitly tagged, trust it
   if (data.account_category && typeof data.account_category === 'string') {
     const explicit = data.account_category.toLowerCase().trim()
-    if (['life', 'annuity', 'medicare', 'bdria', 'bd_ria', 'investment'].includes(explicit)) {
-      return explicit === 'bd_ria' || explicit === 'investment' ? 'bdria' : explicit
+    if (['life', 'annuity', 'medicare', 'investments', 'investment', 'bdria', 'bd_ria'].includes(explicit)) {
+      return (explicit === 'bd_ria' || explicit === 'bdria' || explicit === 'investment') ? 'investments' : explicit
     }
   }
 
@@ -56,7 +56,7 @@ export function inferAccountType(data: Record<string, unknown>): string {
     if (lob.includes('life')) return 'life'
     if (lob.includes('annuit')) return 'annuity'
     if (lob.includes('medicare') || lob.includes('health')) return 'medicare'
-    if (lob.includes('invest') || lob.includes('advisory') || lob.includes('brokerage')) return 'bdria'
+    if (lob.includes('invest') || lob.includes('advisory') || lob.includes('brokerage')) return 'investments'
   }
 
   // Build a searchable text blob from all string values + keys
@@ -74,7 +74,7 @@ export function inferAccountType(data: Record<string, unknown>): string {
     life: 0,
     annuity: 0,
     medicare: 0,
-    bdria: 0,
+    investments: 0,
   }
 
   for (const signal of LIFE_SIGNALS) {
@@ -86,8 +86,8 @@ export function inferAccountType(data: Record<string, unknown>): string {
   for (const signal of MEDICARE_SIGNALS) {
     if (blob.includes(signal)) scores.medicare++
   }
-  for (const signal of BDRIA_SIGNALS) {
-    if (blob.includes(signal)) scores.bdria++
+  for (const signal of INVESTMENT_SIGNALS) {
+    if (blob.includes(signal)) scores.investments++
   }
 
   // Structural signals (field presence)
@@ -101,7 +101,7 @@ export function inferAccountType(data: Record<string, unknown>): string {
     scores.medicare += 3
   }
   if (data.market_value != null || data.cusip != null || data.rep_code != null || data.nav != null) {
-    scores.bdria += 3
+    scores.investments += 3
   }
 
   // Find winner

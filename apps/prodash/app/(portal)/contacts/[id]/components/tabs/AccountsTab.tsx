@@ -11,7 +11,7 @@ interface AccountsTabProps {
   clientId: string
 }
 
-type CategoryKey = 'annuity' | 'life' | 'medicare' | 'bd_ria'
+type CategoryKey = 'annuity' | 'life' | 'medicare' | 'investments'
 
 // ---------------------------------------------------------------------------
 // Document types per product category
@@ -30,7 +30,7 @@ const CATEGORY_DOCS: Record<CategoryKey, DocType[]> = {
   annuity: ['statement', 'application', 'illustration', 'contract'],
   life: ['statement', 'application', 'illustration', 'policy'],
   medicare: ['statement', 'application', 'plan_summary'],
-  bd_ria: ['statement', 'application', 'prospectus'],
+  investments: ['statement', 'application', 'prospectus'],
 }
 
 const DOC_LABELS: Record<DocType, string> = {
@@ -47,7 +47,7 @@ const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color:
   annuity: { label: 'Annuity', icon: 'savings', color: '#f59e0b' },
   life: { label: 'Life', icon: 'favorite', color: '#10b981' },
   medicare: { label: 'Medicare', icon: 'health_and_safety', color: '#3b82f6' },
-  bd_ria: { label: 'Investment', icon: 'show_chart', color: '#a78bfa' },
+  investments: { label: 'Investments', icon: 'show_chart', color: '#a78bfa' },
 }
 
 type FilterKey = 'all' | CategoryKey
@@ -80,7 +80,7 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
 
   // Count by category
   const categoryCounts = useMemo(() => {
-    const counts: Record<CategoryKey, number> = { annuity: 0, life: 0, medicare: 0, bd_ria: 0 }
+    const counts: Record<CategoryKey, number> = { annuity: 0, life: 0, medicare: 0, investments: 0 }
     for (const acct of visibleAccounts) {
       const cat = getCategory(acct) as CategoryKey
       if (cat in counts) counts[cat]++
@@ -100,7 +100,7 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
       annuity: [],
       life: [],
       medicare: [],
-      bd_ria: [],
+      investments: [],
     }
     for (const acct of filteredByCategory) {
       const cat = getCategory(acct)
@@ -462,7 +462,7 @@ function getSummaryFields(account: Account, category: CategoryKey): SummaryField
         { label: 'Plan ID', value: str(account.plan_id || account.policy_number), mono: true },
         { label: 'Coverage Type', value: str(account.coverage_type) },
       ]
-    case 'bd_ria':
+    case 'investments':
       return [
         { label: 'Account Type', value: str(account.account_type) },
         { label: 'Custodian', value: str(account.custodian) || str(account.carrier_name) },
@@ -481,13 +481,13 @@ function getCategory(acct: Account): string {
   if (cat === 'annuity') return 'annuity'
   if (cat === 'life') return 'life'
   if (cat === 'medicare') return 'medicare'
-  if (cat === 'bdria' || cat === 'bd_ria') return 'bd_ria'
+  if (cat === 'bdria' || cat === 'investments') return 'investments'
 
   const t = (str(acct.product_type) + ' ' + str(acct.account_type)).toLowerCase()
   if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) return 'annuity'
   if (t.includes('life')) return 'life'
   if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('med supp')) return 'medicare'
-  if (t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')) return 'bd_ria'
+  if (t.includes('bd') || t.includes('ria') || t.includes('advisory') || t.includes('brokerage')) return 'investments'
   return 'annuity' // default fallback
 }
 

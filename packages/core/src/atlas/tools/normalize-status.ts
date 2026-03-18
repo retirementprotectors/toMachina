@@ -82,10 +82,10 @@ function normalizeStatusValue(raw: string): string {
     .trim()
     .toLowerCase()
     .replace(/_/g, ' ')
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\w\s()-]/g, '')
     .replace(/\s+eff\s+.*$/g, '')
     .replace(/\s+date\s+.*$/g, '')
-    .replace(/\s*[-]\s*\d[\d\s]*$/g, '')
+    .replace(/\s*[-]\s*\d[\d/\s]*$/g, '')
     .replace(/\s+\d{4,}$/g, '')
     .replace(/\s*-\s*$/g, '')
     .replace(/\s+/g, ' ')
@@ -94,9 +94,6 @@ function normalizeStatusValue(raw: string): string {
   if (!cleaned) return ''
   if (STATUS_MAP[cleaned]) return STATUS_MAP[cleaned]
 
-  // Title case fallback
-  return cleaned
-    .split(/\s+/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(' ')
+  // No title-case fallback — unmapped values are flagged as Unknown
+  return 'Unknown'
 }

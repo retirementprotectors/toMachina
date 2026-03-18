@@ -260,7 +260,7 @@ const FORMATS: FormatDef[] = [
       'Data Source': 'data_source',
       'Account Value': 'account_value',
       'Net Deposits': 'net_deposits',
-      'BD/ RIA Firm': 'bd_ria_firm',
+      'BD/ RIA Firm': 'investment_firm',
       'Custodian': 'custodian',
       'Broker/ Advisor of Record (Retail Agency/ Firm)': 'advisor_of_record',
       'As-Of Date ( CDT )': 'as_of_date',

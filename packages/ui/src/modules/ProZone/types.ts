@@ -42,6 +42,45 @@ export interface SpecialistConfig {
   updated_at: string
 }
 
+export interface InventoryFlags {
+  has_medicare: boolean
+  has_life: boolean
+  has_annuity: boolean
+  has_ria: boolean
+  has_bd: boolean
+}
+
+export interface ProspectWithInventory {
+  client_id: string
+  first_name: string
+  last_name: string
+  county: string
+  city: string
+  zip: string
+  phone: string
+  age: number | null
+  client_status: string
+  source: string
+  inventory: InventoryFlags
+  flags: string[]
+  meeting_type: 'field' | 'office' | 'none'
+  pipeline?: { pipeline_key: string; stage: string; priority: string }
+  cross_sell_from?: string
+}
+
+export interface ZoneWithProspects {
+  zone_id: string
+  zone_name: string
+  tier: 'I' | 'II' | 'III' | 'IV'
+  prospects: ProspectWithInventory[]
+  prospect_count: number
+  flagged_count: number
+  flag_summary: Record<string, number>
+  age_buckets: { under_60: number; '60_64': number; '65_80': number; '80_plus': number }
+  bob_breakdown: Record<string, number>
+}
+
+// Legacy types — retained for ScheduleView + admin components
 export interface Prospect {
   prospect_id: string
   first_name: string
@@ -76,6 +115,19 @@ export interface WeekSchedule {
   year: number
   week_number: number
   slots: ScheduleSlot[]
+}
+
+export interface ScheduleDay {
+  date: string
+  day: string
+  type: 'office' | 'field' | 'off'
+  slots: Array<{
+    time: string
+    duration_minutes: number
+    tier?: string
+    zones?: string[]
+    status: string
+  }>
 }
 
 export interface ZoneLead {

@@ -13,7 +13,7 @@ function deriveCategory(accountType: string): string {
   if (t.includes('annuity') || t.includes('fia') || t.includes('myga')) return 'Annuity'
   if (t.includes('life') || t.includes('term') || t.includes('whole') || t.includes('iul') || t.includes('ul')) return 'Life'
   if (t.includes('medicare') || t.includes('mapd') || t.includes('pdp') || t.includes('supplement')) return 'Medicare'
-  if (t.includes('ria') || t.includes('bd') || t.includes('brokerage') || t.includes('advisory') || t.includes('mutual')) return 'BD/RIA'
+  if (t.includes('ria') || t.includes('bd') || t.includes('brokerage') || t.includes('advisory') || t.includes('mutual') || t.includes('investment')) return 'Investments'
   if (t.includes('bank') || t.includes('cd') || t.includes('savings') || t.includes('checking')) return 'Banking'
   return 'Other'
 }

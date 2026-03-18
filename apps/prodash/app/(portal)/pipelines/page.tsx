@@ -5,52 +5,52 @@ import { useRouter } from 'next/navigation'
 import { useAuth, useEntitlements } from '@tomachina/auth'
 import type { FlowPipelineDef } from '@tomachina/core'
 import { fetchWithAuth } from '@tomachina/ui/src/modules/fetchWithAuth'
+import { AppWrapper } from '@tomachina/ui'
 import { toSlug } from './pipeline-keys'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
-/** Leaders, Executives, and Owners see all pipelines. */
 function isLeaderOrAbove(userLevel: string): boolean {
   return ['LEADER', 'EXECUTIVE', 'OWNER'].includes(userLevel)
 }
 
-/**
- * /pipelines — Smart redirect to the user's first assigned pipeline.
- * If no pipelines are assigned, shows an empty state message.
- */
-export default function PipelinesPage() {
+const PIPELINE_ICONS: Record<string, string> = {
+  NBX_SECURITIES: 'account_balance',
+  NBX_ANNUITY: 'savings',
+  NBX_LIFE: 'favorite',
+  NBX_MEDICARE_MAPD: 'health_and_safety',
+  NBX_MEDICARE_SUPP: 'medical_services',
+  SALES_RETIREMENT: 'trending_up',
+  SALES_LIFE: 'shield',
+  SALES_MEDICARE: 'local_hospital',
+  PROSPECT_T65: 'cake',
+  PROSPECT_AGE_IN: 'elderly',
+  REACTIVE_MEDICARE: 'support_agent',
+  REACTIVE_RETIREMENT: 'autorenew',
+  SESSION_AGENT_WORKFLOW: 'engineering',
+}
+
+export default function PipelinesListPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { ctx, loading: entLoading } = useEntitlements()
   const [loading, setLoading] = useState(true)
-  const [noPipelines, setNoPipelines] = useState(false)
+  const [pipelines, setPipelines] = useState<FlowPipelineDef[]>([])
+  const [instanceCounts, setInstanceCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
     if (!user || entLoading) return
-
     let cancelled = false
 
-    async function resolve() {
+    async function load() {
       try {
         const res = await fetchWithAuth(`${API_BASE}/flow/pipelines?portal=PRODASHX&status=active`)
-        if (cancelled) return
-
-        // Auth not ready yet — skip, the effect will re-run when user state settles
-        if (res.status === 401) return
-
+        if (cancelled || res.status === 401) return
         const json = await res.json() as { success: boolean; data?: FlowPipelineDef[] }
-
-        if (cancelled) return
-        if (!json.success || !json.data || json.data.length === 0) {
-          setNoPipelines(true)
-          setLoading(false)
-          return
-        }
+        if (cancelled || !json.success || !json.data) return
 
         const assignedPipelines = ctx.assignedModules || []
-
-        // Filter pipelines based on user level
-        const visiblePipelines = isLeaderOrAbove(ctx.userLevel)
+        const visible = isLeaderOrAbove(ctx.userLevel)
           ? json.data
           : json.data.filter(
               (p) =>
@@ -58,52 +58,116 @@ export default function PipelinesPage() {
                 assignedPipelines.includes(`PIPELINE_${p.pipeline_key}`)
             )
 
-        if (cancelled) return
+        setPipelines(visible)
 
-        if (visiblePipelines.length === 0) {
-          setNoPipelines(true)
-          setLoading(false)
-          return
-        }
-
-        // Redirect to the first available pipeline
-        const firstKey = visiblePipelines[0].pipeline_key
-        router.replace(`/pipelines/${toSlug(firstKey)}`)
-      } catch {
-        if (!cancelled) {
-          setNoPipelines(true)
-          setLoading(false)
-        }
+        // Fetch instance counts in parallel
+        const counts: Record<string, number> = {}
+        await Promise.all(
+          visible.map(async (p) => {
+            try {
+              const r = await fetchWithAuth(`${API_BASE}/flow/instances?pipeline_key=${p.pipeline_key}`)
+              if (r.ok) {
+                const j = await r.json() as { data?: unknown[] }
+                counts[p.pipeline_key] = j.data?.length || 0
+              }
+            } catch { /* skip */ }
+          })
+        )
+        if (!cancelled) setInstanceCounts(counts)
+      } catch { /* skip */ } finally {
+        if (!cancelled) setLoading(false)
       }
     }
 
-    resolve()
+    load()
     return () => { cancelled = true }
-  }, [user, router, ctx, entLoading])
+  }, [user, ctx, entLoading])
 
-  /* ─── Loading ─── */
-  if (loading && !noPipelines) {
+  if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
-      </div>
+      <AppWrapper appKey="pipelines">
+        <div className="space-y-6 p-2">
+          <div className="h-8 w-48 animate-pulse rounded bg-[var(--bg-surface)]" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="h-32 animate-pulse rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)]" />
+            ))}
+          </div>
+        </div>
+      </AppWrapper>
     )
   }
 
-  /* ─── Empty State ─── */
+  if (pipelines.length === 0) {
+    return (
+      <AppWrapper appKey="pipelines">
+        <div className="flex h-full items-center justify-center">
+          <div className="flex flex-col items-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] px-12 py-16">
+            <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">view_kanban</span>
+            <p className="mt-4 text-sm font-medium text-[var(--text-primary)]">No pipelines assigned</p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">Contact your team leader to get access to pipeline boards.</p>
+          </div>
+        </div>
+      </AppWrapper>
+    )
+  }
+
   return (
-    <div className="flex h-full items-center justify-center">
-      <div className="flex flex-col items-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] px-12 py-16">
-        <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">
-          view_kanban
-        </span>
-        <p className="mt-4 text-sm font-medium text-[var(--text-primary)]">
-          No pipelines assigned
-        </p>
-        <p className="mt-1 text-xs text-[var(--text-muted)]">
-          Contact your team leader to get access to pipeline boards.
-        </p>
+    <AppWrapper appKey="pipelines">
+      <div className="space-y-6 p-2">
+        <div>
+          <h1 className="text-xl font-bold text-[var(--text-primary)]">Pipelines</h1>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">Select a pipeline to view and manage cases.</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {pipelines.map((p) => {
+            const count = instanceCounts[p.pipeline_key] || 0
+            const icon = PIPELINE_ICONS[p.pipeline_key] || p.icon || 'view_kanban'
+            return (
+              <button
+                key={p.pipeline_key}
+                onClick={() => router.push(`/pipelines/${toSlug(p.pipeline_key)}`)}
+                className="group flex flex-col rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-5 text-left transition-all hover:border-[var(--portal)] hover:shadow-lg"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-lg"
+                      style={{ background: 'rgba(var(--portal-rgb, 74, 122, 181), 0.15)' }}
+                    >
+                      <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>
+                        {icon}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--text-primary)] group-hover:text-[var(--portal)]">
+                        {p.pipeline_name}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)]">{p.domain || p.product_type || ''}</p>
+                    </div>
+                  </div>
+                  <span className="material-icons-outlined text-[var(--text-muted)] opacity-0 transition-opacity group-hover:opacity-100" style={{ fontSize: '18px' }}>
+                    arrow_forward
+                  </span>
+                </div>
+                <div className="mt-4 flex items-center gap-4 text-xs text-[var(--text-muted)]">
+                  <span className="flex items-center gap-1">
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>assignment</span>
+                    {count} {count === 1 ? 'case' : 'cases'}
+                  </span>
+                  {p.default_view && (
+                    <span className="flex items-center gap-1">
+                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>view_kanban</span>
+                      {p.default_view}
+                    </span>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
       </div>
-    </div>
+    </AppWrapper>
   )
 }

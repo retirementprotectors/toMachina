@@ -201,7 +201,7 @@ Files: Infrastructure configs, `gas/` → `archive/` moves, docs
 | NBX-Medicare | App Submitted → Carrier Review → Approved → Enrolled → Active | Carrier confirmation webhook |
 | NBX-Life | App Submitted → Underwriting → Medical Review → Issued → Delivered | Underwriting decision |
 | NBX-Annuity | App Submitted → Suitability Review → Funded → Contract Issued → Active | Funding confirmation |
-| NBX-BDRIA | Account App → Compliance Review → Account Opened → Assets Transferred → Active | Custodian confirmation |
+| NBX-Investments | Account App → Compliance Review → Account Opened → Assets Transferred → Active | Custodian confirmation |
 
 **Operations Pipelines — RIIMO:**
 
@@ -225,7 +225,7 @@ Files: Infrastructure configs, `gas/` → `archive/` moves, docs
 
 **Builder 61:** QUE pipelines (Medicare, Life, Annuity, Advisory) — define pipeline configs in Firestore, build stage-specific business logic, create ProDashX module pages
 
-**Builder 62:** NBX pipelines (Medicare, Life, Annuity, BDRIA) — define pipeline configs, build carrier integration stubs, create ProDashX module pages
+**Builder 62:** NBX pipelines (Medicare, Life, Annuity, Investments) — define pipeline configs, build carrier integration stubs, create ProDashX module pages
 
 **Builder 63:** Operations + Deal pipelines (RIIMO: 5 pipelines, SENTINEL: 3 pipelines) — define pipeline configs, build stage logic, enhance existing Pipeline pages
 

@@ -70,9 +70,10 @@ const ACCOUNT_TABS: Record<string, string> = {
   annuity: 'accounts_annuity',
   life: 'accounts_life',
   medicare: 'accounts_medicare',
-  bdria: 'accounts_bdria',
-  bd_ria: 'accounts_bdria',
-  investment: 'accounts_bdria',
+  investments: 'accounts_investments',
+  bdria: 'accounts_investments',
+  bd_ria: 'accounts_investments',
+  investment: 'accounts_investments',
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -324,7 +325,7 @@ const ATLAS_IMPORT_COLLECTIONS: Record<string, string | null> = {
   medicare: 'accounts',    // routed to accounts subcollection via existing flow
   annuity: 'accounts',
   life: 'accounts',
-  bdria: 'accounts',
+  investments: 'accounts',
   client: 'clients',
   commission: 'revenue',
   revenue: 'revenue',
@@ -360,7 +361,7 @@ importRoutes.post('/batch', async (req: Request, res: Response) => {
       }
 
       // Route known product-line account types to existing account endpoints
-      if (['medicare', 'annuity', 'life', 'bdria'].includes(importType)) {
+      if (['medicare', 'annuity', 'life', 'investments'].includes(importType)) {
         // Reshape into the accounts endpoint shape and delegate
         const accountRecords = atlasRecords.map(r => ({
           ...r,
@@ -2041,9 +2042,10 @@ importRoutes.post('/carrier-accounts', async (req: Request, res: Response) => {
     const carrierWireMap: Record<string, string> = {
       life: 'WIRE_LIFE_ANNUITY_ACCOUNTS',
       annuity: 'WIRE_LIFE_ANNUITY_ACCOUNTS',
-      bdria: 'WIRE_BDRIA_ACCOUNTS',
-      bd_ria: 'WIRE_BDRIA_ACCOUNTS',
-      investment: 'WIRE_BDRIA_ACCOUNTS',
+      investments: 'WIRE_INVESTMENT_ACCOUNTS',
+      bdria: 'WIRE_INVESTMENT_ACCOUNTS',
+      bd_ria: 'WIRE_INVESTMENT_ACCOUNTS',
+      investment: 'WIRE_INVESTMENT_ACCOUNTS',
       medicare: 'WIRE_MAPD_ENROLLMENT',
     }
     const inferredWire = carrierWireMap[format.default_category || ''] || undefined
@@ -2058,7 +2060,7 @@ importRoutes.post('/carrier-accounts', async (req: Request, res: Response) => {
 
     const dryRun = options.dry_run || false
     const now = new Date().toISOString()
-    const categoryBreakdown: Record<string, number> = { life: 0, annuity: 0, medicare: 0, bdria: 0, unknown: 0 }
+    const categoryBreakdown: Record<string, number> = { life: 0, annuity: 0, medicare: 0, investments: 0, unknown: 0 }
     const summary = {
       total: rows.length,
       imported: 0,
@@ -2353,20 +2355,21 @@ importRoutes.post('/life-accounts', async (req: Request, res: Response) => {
 })
 
 // ============================================================================
-// SPECIALIZED BD/RIA ACCOUNT IMPORT
+// SPECIALIZED INVESTMENT ACCOUNT IMPORT
 // ============================================================================
 
 /**
- * POST /api/import/bdria-accounts
- * Specialized BD/RIA account import with investment-specific field handling.
+ * POST /api/import/investment-accounts
+ * Specialized investment account import with securities-specific field handling.
+ * Legacy route /api/import/bdria-accounts also supported.
  */
-importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
+importRoutes.post(['/investment-accounts', '/bdria-accounts'], async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const bdAccounts = req.body.accounts || []
+    const investmentAccounts = req.body.accounts || []
     const options = req.body.options || {}
 
-    if (!Array.isArray(bdAccounts) || bdAccounts.length === 0) {
+    if (!Array.isArray(investmentAccounts) || investmentAccounts.length === 0) {
       res.status(400).json(errorResponse('Payload must include non-empty accounts array'))
       return
     }
@@ -2374,17 +2377,17 @@ importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
     const dryRun = options.dry_run || false
 
     const importRunId = await startImportRun({
-      wire_id: 'WIRE_BDRIA_ACCOUNTS',
-      import_type: 'bdria_accounts',
-      source: options.source || 'BDRIA_IMPORT',
-      total_records: bdAccounts.length,
+      wire_id: 'WIRE_INVESTMENT_ACCOUNTS',
+      import_type: 'investment_accounts',
+      source: options.source || 'INVESTMENT_IMPORT',
+      total_records: investmentAccounts.length,
       triggered_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
     })
 
     const now = new Date().toISOString()
     const warnings: string[] = []
     const summary = {
-      total: bdAccounts.length,
+      total: investmentAccounts.length,
       imported: 0,
       skipped: 0,
       errors: 0,
@@ -2392,17 +2395,17 @@ importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
     }
 
     // Pre-load existing account numbers for dedup
-    const existingBdAccounts = new Set<string>()
-    const bdAcctSnap = await db.collection('accounts_bdria').select('account_number').get()
-    for (const doc of bdAcctSnap.docs) {
+    const existingAccounts = new Set<string>()
+    const acctSnap = await db.collection('accounts_investments').select('account_number').get()
+    for (const doc of acctSnap.docs) {
       const an = doc.data().account_number
-      if (an) existingBdAccounts.add(String(an))
+      if (an) existingAccounts.add(String(an))
     }
 
-    const BDRIA_BATCH = 400
-    for (let start = 0; start < bdAccounts.length; start += BDRIA_BATCH) {
-      const chunk = bdAccounts.slice(start, start + BDRIA_BATCH)
-      const bdriaBatch = db.batch()
+    const BATCH_SIZE = 400
+    for (let start = 0; start < investmentAccounts.length; start += BATCH_SIZE) {
+      const chunk = investmentAccounts.slice(start, start + BATCH_SIZE)
+      const investBatch = db.batch()
 
       for (let i = 0; i < chunk.length; i++) {
         const globalIdx = start + i
@@ -2419,7 +2422,7 @@ importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
           const accountNumber = String(account.account_number)
 
           // Dedup
-          if (existingBdAccounts.has(accountNumber) && !options.force) {
+          if (existingAccounts.has(accountNumber) && !options.force) {
             summary.skipped++
             continue
           }
@@ -2448,8 +2451,8 @@ importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
             account.status = normalizeAccountStatus(account.status)
           }
 
-          account.account_category = 'bdria'
-          account.import_source = options.source || 'BDRIA_IMPORT'
+          account.account_category = 'investments'
+          account.import_source = options.source || 'INVESTMENT_IMPORT'
           account.created_at = now
           account.updated_at = now
 
@@ -2457,20 +2460,20 @@ importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
           account.account_id = accountId
 
           if (!dryRun) {
-            const bridgeResult = await writeThroughBridge('accounts_bdria', 'insert', accountId, account as Record<string, unknown>)
+            const bridgeResult = await writeThroughBridge('accounts_investments', 'insert', accountId, account as Record<string, unknown>)
             if (!bridgeResult.success) {
               if (account.client_id) {
-                bdriaBatch.set(
+                investBatch.set(
                   db.collection('clients').doc(String(account.client_id)).collection('accounts').doc(accountId),
                   account
                 )
               } else {
-                bdriaBatch.set(db.collection('accounts_bdria').doc(accountId), account)
+                investBatch.set(db.collection('accounts_investments').doc(accountId), account)
               }
             }
           }
 
-          existingBdAccounts.add(accountNumber)
+          existingAccounts.add(accountNumber)
           summary.imported++
         } catch (rowErr) {
           summary.errors++
@@ -2479,7 +2482,7 @@ importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
       }
 
       if (!dryRun) {
-        await bdriaBatch.commit()
+        await investBatch.commit()
       }
     }
 
@@ -2499,7 +2502,7 @@ importRoutes.post('/bdria-accounts', async (req: Request, res: Response) => {
 
     res.json(successResponse({ ...summary, warnings, dry_run: dryRun, import_run_id: dryRun ? undefined : importRunId }))
   } catch (err) {
-    console.error('POST /api/import/bdria-accounts error:', err)
+    console.error('POST /api/import/investment-accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

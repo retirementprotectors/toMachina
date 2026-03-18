@@ -130,6 +130,16 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
       countyZoneMap.set(c.county.toLowerCase(), c.zone_id)
     }
 
+    // Build ZIP-to-zone lookup (ZIP takes precedence over county)
+    const zipZoneMap = new Map<string, string>()
+    const territoryZones = (territory.zones as Array<Record<string, unknown>>) || []
+    for (const z of territoryZones) {
+      const zipAssignments = (z.zip_assignments as Array<{ zip: string; zone_id: string }>) || []
+      for (const za of zipAssignments) {
+        zipZoneMap.set(za.zip, za.zone_id)
+      }
+    }
+
     // Build tier lookup from tier_map
     const tierMap = (config.tier_map as Array<{ zone_id: string; tier: string }>) || []
     const zoneTierMap = new Map<string, string>()
@@ -139,15 +149,46 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
 
     // Group clients by zone
     const zoneGroups = new Map<string, Record<string, unknown>[]>()
+    const seenClientIds = new Set<string>()
 
     for (const client of allClients) {
       const county = ((client.county as string) || '').toLowerCase()
-      const zoneId = countyZoneMap.get(county)
+      const clientZip = ((client.zip as string) || '').trim()
+      // ZIP takes precedence over county for zone resolution
+      const zoneId = zipZoneMap.get(clientZip) || countyZoneMap.get(county)
       if (!zoneId) continue
+
+      const clientId = (client.id || client.client_id) as string
+      seenClientIds.add(clientId)
 
       // Apply age filter
       const age = calculateAge(client.dob as string)
       if (age !== null && age > maxAge) continue
+
+      // Inventory computation — same logic as zone-leads endpoint
+      const accountTypes = ((client.account_types as string) || '').toLowerCase()
+      const hasM = !!(client.has_medicare) || accountTypes.includes('medicare')
+      const hasL = !!(client.has_life) || accountTypes.includes('life')
+      const hasA = !!(client.has_annuity) || accountTypes.includes('annuity')
+      const hasRIA = accountTypes.includes('ria')
+      const hasBD = accountTypes.includes('bd')
+
+      const inventory = { has_medicare: hasM, has_life: hasL, has_annuity: hasA, has_ria: hasRIA, has_bd: hasBD }
+      const flags: string[] = []
+      if (hasM) flags.push('Active Medicare')
+      if ((hasL || hasA) && age !== null && age >= 80) flags.push('L&A 80+')
+      if (age !== null && age < 80 && !hasL && !hasA && !hasM && !hasRIA && !hasBD) flags.push('No Core Product')
+
+      // Meeting type determination
+      const hasLA = hasL || hasA
+      let meetingType: 'field' | 'office' | 'none' = 'none'
+      const zoneTier = zoneTierMap.get(zoneId) || ''
+      const isOuterZone = zoneTier === 'III' || zoneTier === 'IV'
+      if (hasLA && age !== null && age < 80 && !isOuterZone) {
+        meetingType = 'field'
+      } else if (hasLA && (age === null || age >= 80 || isOuterZone)) {
+        meetingType = 'office'
+      }
 
       if (!zoneGroups.has(zoneId)) {
         zoneGroups.set(zoneId, [])
@@ -159,37 +200,158 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
         county: client.county,
         city: client.city,
         zip: client.zip,
+        phone: client.phone || client.phone_primary || '',
         age,
         client_status: client.client_status,
+        source: client.source || '',
+        inventory,
+        flags,
+        meeting_type: meetingType,
       })
     }
 
-    // Build zone response with tier info
+    // ─── Cross-sell: pull in clients from other specialist sources ───
+    const crossSellSources = (config.cross_sell_sources as string[]) || []
+    for (const csSource of crossSellSources) {
+      for (const chunk of chunks) {
+        const csSnap = await db.collection('clients')
+          .where('state', '==', state)
+          .where('county', 'in', chunk)
+          .where('source', '==', csSource)
+          .limit(500)
+          .get()
+        for (const csDoc of csSnap.docs) {
+          const cd = csDoc.data()
+          if (seenClientIds.has(csDoc.id)) continue
+          seenClientIds.add(csDoc.id)
+          const cStatus = (cd.client_status as string) || ''
+          if (cStatus !== 'Active' && cStatus !== 'Active - Internal') continue
+          const cCounty = ((cd.county as string) || '').toLowerCase()
+          const cZip = ((cd.zip as string) || '').trim()
+          const cZoneId = zipZoneMap.get(cZip) || countyZoneMap.get(cCounty)
+          if (!cZoneId) continue
+          const cAge = calculateAge(cd.dob as string)
+          const cAcct = ((cd.account_types as string) || '').toLowerCase()
+          if (!zoneGroups.has(cZoneId)) zoneGroups.set(cZoneId, [])
+          zoneGroups.get(cZoneId)!.push({
+            client_id: csDoc.id, first_name: cd.first_name, last_name: cd.last_name,
+            county: cd.county, city: cd.city, zip: cd.zip,
+            phone: cd.phone || cd.phone_primary || '', age: cAge,
+            client_status: cd.client_status, source: cd.source || '',
+            inventory: {
+              has_medicare: !!(cd.has_medicare) || cAcct.includes('medicare'),
+              has_life: !!(cd.has_life) || cAcct.includes('life'),
+              has_annuity: !!(cd.has_annuity) || cAcct.includes('annuity'),
+              has_ria: cAcct.includes('ria'), has_bd: cAcct.includes('bd'),
+            },
+            flags: [], meeting_type: 'office', cross_sell_from: csSource,
+          })
+        }
+      }
+    }
+
+    // ─── Pipeline Aggregation: find active flow_instances for these prospects ───
+    const allClientIds = allClients.map(c => (c.id || c.client_id) as string).filter(Boolean)
+    const pipelineMap = new Map<string, { pipeline_key: string; stage: string; priority: string }>()
+
+    if (allClientIds.length > 0) {
+      // Query flow_instances with active statuses, then filter entity_type in memory
+      const fiSnap = await db.collection('flow_instances')
+        .where('stage_status', 'in', ['pending', 'in_progress'])
+        .select('entity_id', 'entity_type', 'pipeline_key', 'current_stage', 'priority')
+        .get()
+
+      for (const fiDoc of fiSnap.docs) {
+        const fi = fiDoc.data()
+        const entityType = fi.entity_type as string
+        if (entityType !== 'CLIENT' && entityType !== 'HOUSEHOLD') continue
+        const entityId = fi.entity_id as string
+        if (!entityId) continue
+        // Only include if entity_id is among our prospect client_ids
+        if (!allClientIds.includes(entityId)) continue
+        pipelineMap.set(entityId, {
+          pipeline_key: (fi.pipeline_key as string) || '',
+          stage: (fi.current_stage as string) || '',
+          priority: (fi.priority as string) || '',
+        })
+      }
+    }
+
+    // Build zone response with tier info, flag summaries, and age buckets
     const zones = (territory.zones as Array<{ zone_id: string; zone_name: string }>) || []
-    const zoneResults = zones.map(zone => ({
-      zone_id: zone.zone_id,
-      zone_name: zone.zone_name,
-      tier: zoneTierMap.get(zone.zone_id) || 'Unknown',
-      prospects: (zoneGroups.get(zone.zone_id) || []).sort((a, b) => {
-        // Sort: older clients first (higher priority)
+    const zoneResults = zones.map(zone => {
+      const prospects = (zoneGroups.get(zone.zone_id) || []).sort((a, b) => {
         const ageA = (a.age as number) ?? 0
         const ageB = (b.age as number) ?? 0
         return ageB - ageA
-      }),
-      prospect_count: (zoneGroups.get(zone.zone_id) || []).length,
-    }))
+      })
+
+      // Attach pipeline data to prospects that have active flow instances
+      for (const p of prospects) {
+        const cid = p.client_id as string
+        const pipelineData = pipelineMap.get(cid)
+        if (pipelineData) {
+          p.pipeline = pipelineData
+        }
+      }
+
+      // Flag summary
+      const flagSummary: Record<string, number> = {}
+      let flaggedCount = 0
+      for (const p of prospects) {
+        const pFlags = p.flags as string[]
+        if (pFlags.length > 0) flaggedCount++
+        for (const f of pFlags) {
+          flagSummary[f] = (flagSummary[f] || 0) + 1
+        }
+      }
+
+      // Age buckets
+      let under60 = 0, age60_64 = 0, age65_80 = 0, age80plus = 0
+      // BoB breakdown by source
+      const bobBreakdown: Record<string, number> = {}
+      for (const p of prospects) {
+        const a = p.age as number | null
+        if (a !== null) {
+          if (a < 60) under60++
+          else if (a <= 64) age60_64++
+          else if (a <= 80) age65_80++
+          else age80plus++
+        }
+        const src = (p.source as string) || 'Unknown'
+        bobBreakdown[src] = (bobBreakdown[src] || 0) + 1
+      }
+
+      return {
+        zone_id: zone.zone_id,
+        zone_name: zone.zone_name,
+        tier: zoneTierMap.get(zone.zone_id) || 'Unknown',
+        prospects,
+        prospect_count: prospects.length,
+        flagged_count: flaggedCount,
+        flag_summary: flagSummary,
+        age_buckets: { under_60: under60, '60_64': age60_64, '65_80': age65_80, '80_plus': age80plus },
+        bob_breakdown: bobBreakdown,
+      }
+    })
 
     // Sort zones by tier (I first, IV last)
     const tierOrder: Record<string, number> = { 'I': 1, 'II': 2, 'III': 3, 'IV': 4 }
     zoneResults.sort((a, b) => (tierOrder[a.tier] || 99) - (tierOrder[b.tier] || 99))
 
     const totalProspects = zoneResults.reduce((sum, z) => sum + z.prospect_count, 0)
+    const totalFlagged = zoneResults.reduce((sum, z) => sum + z.flagged_count, 0)
+    const totalInPipeline = zoneResults.reduce((sum, z) => {
+      return sum + z.prospects.filter((p: Record<string, unknown>) => !!p.pipeline).length
+    }, 0)
 
     res.json(successResponse({
       specialist: config.specialist_name,
       territory: territory.territory_name,
       zones: zoneResults,
       total_prospects: totalProspects,
+      total_flagged: totalFlagged,
+      total_in_pipeline: totalInPipeline,
     }))
   } catch (err) {
     console.error('GET /api/prozone/prospects error:', err)
@@ -331,8 +493,8 @@ prozoneRoutes.get('/schedule/:specialist_id/:week', async (req: Request, res: Re
 
 /**
  * GET /zone-leads/:specialist_id/:zone_id
- * Get opportunistic zone leads when specialist is already in a zone.
- * Applies zone_lead_criteria from specialist config.
+ * @deprecated — inventory flags + meeting criteria now included in /prospects/:specialist_id.
+ * Retained for backward compatibility; remove when old UI components are deleted.
  */
 prozoneRoutes.get('/zone-leads/:specialist_id/:zone_id', async (req: Request, res: Response) => {
   try {

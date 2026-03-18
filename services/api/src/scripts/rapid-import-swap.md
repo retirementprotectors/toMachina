@@ -16,7 +16,7 @@ These functions have been fully migrated to `api.tomachina.com` routes. GAS call
 | `importLifeAccount` | `POST /api/import/account` | Set `account_type: 'life'` |
 | `importAnnuityAccount` | `POST /api/import/account` | Set `account_type: 'annuity'` |
 | `importMedicareAccount` | `POST /api/import/account` | Set `account_type: 'medicare'` |
-| `importBDRIAAccounts` | `POST /api/import/bdria-accounts` | BD/RIA batch import |
+| `importInvestmentAccounts` | `POST /api/import/investment-accounts` | Investment account batch import (legacy: /bdria-accounts also accepted) |
 | `importRevenueRecord` | `POST /api/import/revenue` | Single revenue record |
 | `batchImportRevenue` | `POST /api/import/revenue/batch` | Batch revenue import |
 | `importAgentRecord` | `POST /api/import/agent` | Single agent import |
@@ -34,7 +34,7 @@ These functions are still called via GAS `google.script.run` or `UrlFetchApp.fet
 |---|---|---|---|
 | `importSignalStatement` | `IMPORT_Signal.gs` | LOW | Signal being replaced by Gradient. Migrate only if Gradient needs same format. |
 | `importDTCCFeed` | `IMPORT_DTCC.gs` | MEDIUM | Structured carrier feed — straightforward to migrate. |
-| `importDSTVisionFeed` | `IMPORT_DSTVision.gs` | MEDIUM | BD/RIA account aggregator feed. |
+| `importDSTVisionFeed` | `IMPORT_DSTVision.gs` | MEDIUM | Investment account aggregator feed (DST Vision). |
 | `processIntakeQueue` | `IMPORT_Intake.gs` | HIGH | Core intake processor — drives all inbound data. Migrate when intake Cloud Function is ready. |
 | `enrichFromBoB` | `IMPORT_BoBEnrich.gs` | LOW | Book-of-business enrichment. Runs infrequently. |
 

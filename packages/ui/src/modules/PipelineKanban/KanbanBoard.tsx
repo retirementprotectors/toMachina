@@ -83,24 +83,136 @@ function applyFilters(instances: FlowInstanceData[], filters: PipelineFilters): 
   return result
 }
 
-/* ─── List View (placeholder with grouped instances) ─── */
+/* ─── List View ─── */
 
-function ListView({ message }: { message: string }) {
+interface ListViewProps {
+  columns: ReturnType<typeof buildKanbanBoard>
+  onInstanceClick?: (instanceId: string) => void
+}
+
+function ListView({ columns, onInstanceClick }: ListViewProps) {
+  const allEmpty = columns.every((c) => c.count === 0)
+  if (allEmpty) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] py-16">
+        <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">view_list</span>
+        <p className="mt-3 text-sm text-[var(--text-muted)]">No cases in this pipeline.</p>
+      </div>
+    )
+  }
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] py-16">
-      <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">view_list</span>
-      <p className="mt-3 text-sm text-[var(--text-muted)]">{message}</p>
+    <div className="space-y-4">
+      {columns.map((col) => (
+        <div key={col.stage_id} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] overflow-hidden">
+          <div className="flex items-center gap-3 border-b border-[var(--border-subtle)] px-4 py-3">
+            <div className="h-2.5 w-2.5 rounded-full" style={{ background: col.stage_color || 'var(--portal)' }} />
+            <span className="text-sm font-semibold text-[var(--text-primary)]">{col.stage_name}</span>
+            <span className="rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-xs font-medium text-[var(--text-muted)]">{col.count}</span>
+          </div>
+          {col.instances.length === 0 ? (
+            <div className="px-4 py-3 text-xs text-[var(--text-muted)]">No items</div>
+          ) : (
+            <div className="divide-y divide-[var(--border-subtle)]">
+              {col.instances.map((inst) => (
+                <button
+                  key={inst.instance_id}
+                  onClick={() => onInstanceClick?.(inst.instance_id)}
+                  className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-[var(--bg-card)]"
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--text-primary)]">{inst.entity_name}</span>
+                  {inst.assigned_to && (
+                    <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>person</span>
+                      {inst.assigned_to}
+                    </span>
+                  )}
+                  <span
+                    className="shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold uppercase"
+                    style={{
+                      background: inst.priority === 'HIGH' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)',
+                      color: inst.priority === 'HIGH' ? '#ef4444' : 'var(--text-muted)',
+                    }}
+                  >
+                    {inst.priority || 'MEDIUM'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   )
 }
 
-/* ─── Table View (placeholder) ─── */
+/* ─── Table View ─── */
 
-function TableView({ message }: { message: string }) {
+interface TableViewProps {
+  instances: FlowInstanceData[]
+  stages: StageWithGate[]
+  onInstanceClick?: (instanceId: string) => void
+}
+
+function TableView({ instances, stages, onInstanceClick }: TableViewProps) {
+  const stageMap = new Map(stages.map((s) => [s.stage_id, s.stage_name]))
+
+  if (instances.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] py-16">
+        <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">table_chart</span>
+        <p className="mt-3 text-sm text-[var(--text-muted)]">No cases in this pipeline.</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-card)] py-16">
-      <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">table_chart</span>
-      <p className="mt-3 text-sm text-[var(--text-muted)]">{message}</p>
+    <div className="overflow-x-auto rounded-xl border border-[var(--border-subtle)]">
+      <table className="w-full text-left text-sm">
+        <thead>
+          <tr className="border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
+            <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Client</th>
+            <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Stage</th>
+            <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Assigned To</th>
+            <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Priority</th>
+            <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-[var(--border-subtle)]">
+          {instances.map((inst) => (
+            <tr
+              key={inst.instance_id}
+              onClick={() => onInstanceClick?.(inst.instance_id)}
+              className="cursor-pointer transition-colors hover:bg-[var(--bg-card)]"
+            >
+              <td className="px-4 py-3 font-medium text-[var(--text-primary)]">{inst.entity_name}</td>
+              <td className="px-4 py-3 text-[var(--text-secondary)]">{stageMap.get(inst.current_stage) || inst.current_stage}</td>
+              <td className="px-4 py-3 text-[var(--text-muted)]">{inst.assigned_to || '—'}</td>
+              <td className="px-4 py-3">
+                <span
+                  className="rounded px-2 py-0.5 text-[10px] font-semibold uppercase"
+                  style={{
+                    background: inst.priority === 'HIGH' ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)',
+                    color: inst.priority === 'HIGH' ? '#ef4444' : 'var(--text-muted)',
+                  }}
+                >
+                  {inst.priority || 'MEDIUM'}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <span
+                  className="rounded px-2 py-0.5 text-[10px] font-semibold uppercase"
+                  style={{
+                    background: inst.stage_status === 'blocked' ? 'rgba(239,68,68,0.15)' : inst.stage_status === 'complete' ? 'rgba(16,185,129,0.15)' : 'rgba(59,130,246,0.15)',
+                    color: inst.stage_status === 'blocked' ? '#ef4444' : inst.stage_status === 'complete' ? '#10b981' : '#3b82f6',
+                  }}
+                >
+                  {inst.stage_status || 'in_progress'}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -328,8 +440,8 @@ export default function PipelineKanban({
         </div>
       )}
 
-      {view === 'list' && <ListView message="List view coming soon" />}
-      {view === 'table' && <TableView message="Table view coming soon" />}
+      {view === 'list' && <ListView columns={columns} onInstanceClick={handleInstanceClick} />}
+      {view === 'table' && <TableView instances={filteredInstances} stages={stages} onInstanceClick={handleInstanceClick} />}
 
       {/* Toast notification */}
       {toastMessage && (

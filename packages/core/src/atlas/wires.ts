@@ -15,7 +15,7 @@ export const WIRE_DEFINITIONS_V2: WireDefinitionV2[] = [
     wire_id: 'WIRE_DATA_IMPORT',
     name: 'Data Import Pipeline',
     description:
-      'Universal data import wire. Handles CSV/file ingestion for clients, accounts, and producers. Replaces old WIRE_MAPD_ENROLLMENT, WIRE_LIFE_ANNUITY_ACCOUNTS, WIRE_BDRIA_ACCOUNTS, WIRE_MEDICARE_ACCOUNTS, WIRE_CLIENT_ENRICHMENT, WIRE_DOC_INTAKE_MAIL, WIRE_DOC_INTAKE_EMAIL, WIRE_MEETING_PROCESSING, WIRE_AGENT_MANAGEMENT.',
+      'Universal data import wire. Handles CSV/file ingestion for clients, accounts, and producers. Replaces old WIRE_MAPD_ENROLLMENT, WIRE_LIFE_ANNUITY_ACCOUNTS, WIRE_INVESTMENT_ACCOUNTS, WIRE_MEDICARE_ACCOUNTS, WIRE_CLIENT_ENRICHMENT, WIRE_DOC_INTAKE_MAIL, WIRE_DOC_INTAKE_EMAIL, WIRE_MEETING_PROCESSING, WIRE_AGENT_MANAGEMENT.',
     product_lines: ['ALL'],
     data_domains: ['ENROLLMENT', 'ACCOUNTS', 'DEMOGRAPHICS'],
     super_tools: [

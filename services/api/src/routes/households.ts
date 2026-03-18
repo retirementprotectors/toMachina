@@ -337,7 +337,7 @@ householdRoutes.get('/:id/meeting-prep', async (req: Request, res: Response) => 
         if (accountType.includes('annuity') || accountType.includes('fia') || accountType.includes('myga')) category = 'Annuity'
         else if (accountType.includes('life') || accountType.includes('term') || accountType.includes('iul')) category = 'Life'
         else if (accountType.includes('medicare') || accountType.includes('mapd')) category = 'Medicare'
-        else if (accountType.includes('ria') || accountType.includes('bd') || accountType.includes('advisory')) category = 'BD/RIA'
+        else if (accountType.includes('ria') || accountType.includes('bd') || accountType.includes('advisory') || accountType.includes('investment')) category = 'Investments'
 
         if (!accountsByCategory[category]) accountsByCategory[category] = []
         accountsByCategory[category].push({ id: acctDoc.id, ...acct })
@@ -407,3 +407,105 @@ householdRoutes.get('/:id/meeting-prep', async (req: Request, res: Response) => 
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+// ─── POST /:id/appointments — create appointment for household ───
+householdRoutes.post('/:id/appointments', async (req: Request, res: Response) => {
+  try {
+    const { date, time, specialist_id, zone_id, tier, type, notes } = req.body as {
+      date?: string
+      time?: string
+      specialist_id?: string
+      zone_id?: string
+      tier?: string
+      type?: 'field' | 'office'
+      notes?: string
+    }
+
+    if (!date) { res.status(400).json(errorResponse('date is required')); return }
+    if (!time) { res.status(400).json(errorResponse('time is required')); return }
+    if (!specialist_id) { res.status(400).json(errorResponse('specialist_id is required')); return }
+
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const docRef = db.collection(COLLECTION).doc(id)
+    const doc = await docRef.get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Household not found')); return }
+
+    const email = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+    const now = new Date().toISOString()
+    const apptRef = docRef.collection('appointments').doc()
+
+    const appointmentData = {
+      appointment_id: apptRef.id,
+      date,
+      time,
+      specialist_id,
+      zone_id: zone_id || '',
+      tier: tier || '',
+      type: type || 'office',
+      notes: notes || '',
+      status: 'scheduled',
+      created_at: now,
+      _created_by: email,
+    }
+
+    await apptRef.set(appointmentData)
+
+    res.status(201).json(successResponse(appointmentData))
+  } catch (err) {
+    console.error('POST /api/households/:id/appointments error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ─── POST /enrich-territories — batch enrichment of household territory data ───
+householdRoutes.post('/enrich-territories', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const snap = await db.collection(COLLECTION).where('household_status', '==', 'Active').get()
+    if (snap.empty) {
+      res.json(successResponse({ enriched: 0, skipped: 0, total: 0 }))
+      return
+    }
+
+    let enriched = 0
+    let skipped = 0
+    let batchCount = 0
+    let batch = db.batch()
+
+    for (const hDoc of snap.docs) {
+      const hData = hDoc.data() as Record<string, unknown>
+      if (hData.territory_id && hData.zone_id) { skipped++; continue }
+
+      const members = (hData.members || []) as Array<{ client_id: string; role?: string }>
+      const primary = members.find(m => m.role === 'primary') || members[0]
+      if (!primary?.client_id) { skipped++; continue }
+
+      const clientDoc = await db.collection('clients').doc(primary.client_id).get()
+      if (!clientDoc.exists) { skipped++; continue }
+      const cData = clientDoc.data() as Record<string, unknown>
+      if (!cData.territory_id || !cData.zone_id) { skipped++; continue }
+
+      batch.update(hDoc.ref, {
+        territory_id: cData.territory_id,
+        zone_id: cData.zone_id,
+        updated_at: new Date().toISOString(),
+      })
+      enriched++
+      batchCount++
+
+      if (batchCount >= 500) {
+        await batch.commit()
+        batch = db.batch()
+        batchCount = 0
+      }
+    }
+
+    if (batchCount > 0) await batch.commit()
+    res.json(successResponse({ enriched, skipped, total: snap.size }))
+  } catch (err) {
+    console.error('POST /api/households/enrich-territories error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+

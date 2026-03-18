@@ -289,6 +289,20 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
+    // ProZone — Territories + Specialist Configs
+    // Read: any RPI user (specialists view their own config)
+    // Write: owner only (territory/specialist admin is JDM-only)
+    // ----------------------------------------------------------------
+    match /territories/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isOwner();
+    }
+    match /specialist_configs/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isOwner();
+    }
+
+    // ----------------------------------------------------------------
     // Approval queue — import/data approvals (leader+ only)
     // ----------------------------------------------------------------
     match /approval_queue/{docId} {

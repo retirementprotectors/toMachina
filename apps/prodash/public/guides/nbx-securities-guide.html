@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBX Securities Pipeline - Training Guide</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--bg2:#111827;--card:#1a2235;--card-hover:#1e2a40;--border:#2a3548;--text:#e8ecf4;--text2:#8899b0;--muted:#5a6a80;--blue:#4a7ab5;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--teal:#14b8a6;--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+
+/* Header */
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);border-bottom:2px solid var(--blue);padding:48px 0 40px}
+.hero-inner{max-width:900px;margin:0 auto;padding:0 32px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(74,122,181,0.2);border:1px solid rgba(74,122,181,0.3);border-radius:20px;font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.hero h1{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.hero h1 span{color:var(--blue)}
+.hero p{font-size:15px;color:var(--text2);max-width:600px;margin:0 auto}
+.hero-meta{display:flex;justify-content:center;gap:24px;margin-top:20px;font-size:12px;color:var(--muted)}
+.hero-meta span{display:flex;align-items:center;gap:4px}
+.hero-meta .material-icons-round{font-size:14px}
+
+/* Layout */
+.container{max-width:900px;margin:0 auto;padding:32px}
+
+/* Section */
+.section{margin-bottom:48px}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--accent);color:white;border-radius:50%;font-size:13px;font-weight:700;margin-right:10px}
+.section h2{display:flex;align-items:center;font-size:22px;font-weight:700;margin-bottom:16px;letter-spacing:-0.5px}
+.section h3{font-size:16px;font-weight:600;margin:20px 0 10px;color:var(--text)}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card.highlight{border-left:3px solid var(--accent)}
+.card.warn{border-left:3px solid var(--yellow)}
+.card.danger{border-left:3px solid var(--red)}
+.card.success{border-left:3px solid var(--green)}
+
+/* Stage cards */
+.stage-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.stage-grid{grid-template-columns:1fr}}
+.stage-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden}
+.stage-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stage-card.s-new::before{background:var(--accent)}
+.stage-card.s-intake::before{background:var(--blue)}
+.stage-card.s-suit::before{background:var(--purple)}
+.stage-card.s-qc::before{background:var(--yellow)}
+.stage-card.s-ready::before{background:var(--teal)}
+.stage-card.s-submit::before{background:#f97316}
+.stage-card.s-fund::before{background:var(--green)}
+.stage-card .stage-name{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.stage-card .stage-name .lock{font-size:14px;color:var(--yellow)}
+.stage-card .stage-desc{font-size:12px;color:var(--text2);margin-bottom:8px}
+.stage-card .stage-tasks{font-size:11px;color:var(--muted)}
+
+/* Steps */
+.step{display:flex;gap:14px;margin-bottom:16px}
+.step-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.step-icon.blue{background:rgba(59,130,246,0.15);color:var(--accent)}
+.step-icon.green{background:rgba(16,185,129,0.15);color:var(--green)}
+.step-icon.yellow{background:rgba(245,158,11,0.15);color:var(--yellow)}
+.step-icon.red{background:rgba(239,68,68,0.15);color:var(--red)}
+.step-icon.purple{background:rgba(139,92,246,0.15);color:var(--purple)}
+.step-icon.teal{background:rgba(20,184,166,0.15);color:var(--teal)}
+.step-body h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.step-body p{font-size:13px;color:var(--text2)}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;background:var(--bg2);color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.tag-blue{background:rgba(59,130,246,0.15);color:var(--accent)}
+.tag-green{background:rgba(16,185,129,0.15);color:var(--green)}
+.tag-yellow{background:rgba(245,158,11,0.15);color:var(--yellow)}
+.tag-red{background:rgba(239,68,68,0.15);color:var(--red)}
+.tag-purple{background:rgba(139,92,246,0.15);color:var(--purple)}
+.tag-gray{background:rgba(255,255,255,0.08);color:var(--muted)}
+
+/* Callouts */
+.callout{display:flex;gap:12px;padding:16px;border-radius:var(--radius);margin:16px 0;font-size:13px}
+.callout .material-icons-round{font-size:20px;flex-shrink:0;margin-top:1px}
+.callout-info{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--accent)}
+.callout-warn{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--yellow)}
+.callout-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.callout-success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green)}
+
+/* Keyboard shortcuts */
+kbd{display:inline-block;padding:2px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit;color:var(--text2)}
+
+/* Screenshots placeholder */
+.screenshot{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:40px;text-align:center;color:var(--muted);font-size:13px;margin:12px 0}
+
+/* Numbered list */
+.num-list{counter-reset:item;list-style:none;padding:0}
+.num-list li{counter-increment:item;display:flex;gap:12px;margin-bottom:12px;font-size:13px;color:var(--text2)}
+.num-list li::before{content:counter(item);display:flex;align-items:center;justify-content:center;min-width:24px;height:24px;background:rgba(59,130,246,0.15);color:var(--accent);border-radius:50%;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* Footer */
+.footer{text-align:center;padding:32px;border-top:1px solid var(--border);margin-top:48px;color:var(--muted);font-size:12px}
+.footer strong{color:var(--blue)}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:32px}
+.toc h3{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:12px}
+.toc ol{padding-left:20px;font-size:14px}
+.toc li{margin-bottom:6px}
+.toc a{color:var(--accent);text-decoration:none;font-weight:500}
+.toc a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="material-icons-round">account_balance</span> Service Pipeline</div>
+    <h1>NBX <span>Securities & Advisory</span></h1>
+    <p>Your complete guide to managing Gradient Securities transition cases in ProDashX. This is how we track every case from intake to funded.</p>
+    <div class="hero-meta">
+      <span><span class="material-icons-round">calendar_today</span> March 2026</span>
+      <span><span class="material-icons-round">person</span> For: Angelique, Nikki, Service Team</span>
+      <span><span class="material-icons-round">verified</span> Version 1.0</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TABLE OF CONTENTS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="toc">
+  <h3>In This Guide</h3>
+  <ol>
+    <li><a href="#overview">What is NBX Securities?</a></li>
+    <li><a href="#layers">The 5 Layers (Pipeline &rarr; Stage &rarr; Workflow &rarr; Step &rarr; Task)</a></li>
+    <li><a href="#stages">The 7 Stages</a></li>
+    <li><a href="#navigate">Navigating the Pipeline Board</a></li>
+    <li><a href="#case-detail">Working a Case</a></li>
+    <li><a href="#tasks">Completing Tasks &amp; System Checks</a></li>
+    <li><a href="#gates">Understanding Gates</a></li>
+    <li><a href="#new-case">Creating a New Case</a></li>
+    <li><a href="#drag-drop">Moving Cases Between Stages</a></li>
+    <li><a href="#roles">Who Does What</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 1. OVERVIEW -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="overview">
+  <h2><span class="section-num">1</span> What is NBX Securities?</h2>
+  <div class="card highlight">
+    <p><strong>NBX</strong> (NewBizXpress) is how we process <strong>new business cases for securities and advisory accounts</strong> through Gradient. Every client who needs a Schwab (RIA) or RBC (BD) account comes through this pipeline.</p>
+    <p style="margin-top:8px;color:var(--text2)">Think of it as a Kanban board &mdash; like a visual to-do list where each case (card) moves left to right through 7 stages, from "New" all the way to "Funded."</p>
+  </div>
+
+  <h3>Key Terms</h3>
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td><strong>Case</strong></td><td>One client (or household) going through the securities process. Each case is a card on the board.</td></tr>
+    <tr><td><strong>Stage</strong></td><td>A column on the board. Cases move through stages left to right.</td></tr>
+    <tr><td><strong>Task</strong></td><td>A checklist item inside a case. Must be completed before moving to the next stage.</td></tr>
+    <tr><td><strong>Gate</strong></td><td>A lock on certain stages. ALL required tasks must be done before the case can advance past a gate. <span class="material-icons-round" style="font-size:14px;color:var(--yellow);vertical-align:middle">lock</span></td></tr>
+    <tr><td><strong>System Check</strong></td><td>A task that runs automatically (e.g., checking if net worth is on the CAF). Shows <span class="tag tag-purple">System</span> badge.</td></tr>
+    <tr><td><strong>GI / Schwab</strong></td><td>Gradient Investments via Schwab custody (RIA side)</td></tr>
+    <tr><td><strong>RBC</strong></td><td>RBC Wealth Management via Gradient (BD side)</td></tr>
+    <tr><td><strong>CAF</strong></td><td>Client Assessment Form &mdash; the key document for suitability</td></tr>
+    <tr><td><strong>NIGO</strong></td><td>Not In Good Order &mdash; when the carrier rejects paperwork due to errors or missing info</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 2. THE 5 LAYERS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="layers">
+  <h2><span class="section-num">2</span> The 5 Layers</h2>
+  <p style="color:var(--text2);margin-bottom:16px">Every pipeline in toMachina is built from 5 nested layers. Understanding these layers is the key to understanding how everything fits together.</p>
+
+  <div class="card highlight" style="overflow-x:auto">
+    <div style="font-family:monospace;font-size:13px;line-height:1.8;color:var(--text2)">
+      <span style="color:var(--accent);font-weight:700">PIPELINE</span> <span style="color:var(--muted)">&mdash; NBX Securities &amp; Advisory</span><br>
+      <span style="color:var(--muted)">&nbsp;&nbsp;└─</span> <span style="color:var(--blue);font-weight:700">STAGE</span> <span style="color:var(--muted)">&mdash; QC Review (column on the board)</span><br>
+      <span style="color:var(--muted)">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─</span> <span style="color:var(--purple);font-weight:700">WORKFLOW</span> <span style="color:var(--muted)">&mdash; QC Review Workflow (the process for this stage)</span><br>
+      <span style="color:var(--muted)">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─</span> <span style="color:var(--teal);font-weight:700">STEP</span> <span style="color:var(--muted)">&mdash; Document Integrity (a group of related tasks)</span><br>
+      <span style="color:var(--muted)">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─</span> <span style="color:var(--green);font-weight:700">TASK</span> <span style="color:var(--muted)">&mdash; "All required forms in folder" (one checkbox)</span>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Layer</th><th>What It Is</th><th>Analogy</th><th>NBX Example</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">Pipeline</span></td>
+      <td>The overall workflow for a type of business. One pipeline per product line. This is what you see when you click "Pipelines" in the sidebar.</td>
+      <td>The whole assembly line</td>
+      <td><strong>NBX - Securities &amp; Advisory</strong> (the Gradient transition pipeline)</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">Stage</span></td>
+      <td>A major phase of work. Stages are the <strong>columns</strong> on the Kanban board. Cases move left to right through stages.</td>
+      <td>A station on the assembly line</td>
+      <td><strong>New &rarr; Intake &rarr; Suitability &rarr; QC Review &rarr; Ready to Submit &rarr; Submitted &rarr; Funded</strong></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">Workflow</span></td>
+      <td>The defined process that runs inside a stage. Each stage has one workflow that defines <em>how</em> work gets done in that stage. You won't see this layer in the UI &mdash; it works behind the scenes.</td>
+      <td>The instruction manual at each station</td>
+      <td><strong>QC Review Workflow</strong> &mdash; defines the review process for quality control</td>
+    </tr>
+    <tr>
+      <td><span class="tag" style="background:rgba(20,184,166,0.15);color:var(--teal)">Step</span></td>
+      <td>A logical group of tasks within a workflow. Steps appear as <strong>section headers</strong> in the task checklist (e.g., "DOCUMENT_INTEGRITY 3/3 tasks").</td>
+      <td>A sub-section of the instruction manual</td>
+      <td><strong>Document Integrity</strong>, <strong>Data Completeness</strong>, <strong>Compliance Checks</strong>, <strong>Final Approval</strong></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">Task</span></td>
+      <td>One individual checkbox. The atomic unit of work. Each task is something someone has to do (manual) or the system verifies automatically (system check).</td>
+      <td>One item on a checklist</td>
+      <td><strong>"All required forms in folder"</strong>, <strong>"No Signal Wealth references"</strong> (system check)</td>
+    </tr>
+  </table>
+
+  <div class="callout callout-info">
+    <span class="material-icons-round">lightbulb</span>
+    <div><strong>Why does this matter?</strong> When you open a case and see the task checklist, you're looking at Tasks grouped into Steps, inside a Workflow, for the current Stage, of this Pipeline. The grouping headers (DOCUMENT_INTEGRITY, DATA_COMPLETENESS, etc.) are the Steps. Each checkbox is a Task.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 3. THE 7 STAGES -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="stages">
+  <h2><span class="section-num">3</span> The 7 Stages</h2>
+  <p style="color:var(--text2);margin-bottom:16px">Every case flows through these stages from left to right. Stages with a <span class="material-icons-round" style="font-size:14px;color:var(--yellow);vertical-align:middle">lock</span> are <strong>gated</strong> &mdash; all required tasks must pass before the case can move forward.</p>
+
+  <div class="stage-grid">
+    <div class="stage-card s-new">
+      <div class="stage-name">1. New</div>
+      <div class="stage-desc">Case just created. Assign advisor, create Drive folder.</div>
+      <div class="stage-tasks">2 tasks &bull; No gate</div>
+    </div>
+    <div class="stage-card s-intake">
+      <div class="stage-name">2. Intake</div>
+      <div class="stage-desc">Gather statements, ID, existing forms. Conduct intro meeting. Complete risk profile.</div>
+      <div class="stage-tasks">6 tasks &bull; No gate</div>
+    </div>
+    <div class="stage-card s-suit">
+      <div class="stage-name">3. Suitability <span class="material-icons-round lock">lock</span></div>
+      <div class="stage-desc">Verify client profile (net worth, income, risk tolerance). Product suitability checks. CAF signing + Best Interest rationale.</div>
+      <div class="stage-tasks">10 tasks (4 system checks) &bull; <strong>Gated</strong></div>
+    </div>
+    <div class="stage-card s-qc">
+      <div class="stage-name">4. QC Review <span class="material-icons-round lock">lock</span></div>
+      <div class="stage-desc">Document integrity, data completeness, compliance checks. Verify correct custodian, no Signal references.</div>
+      <div class="stage-tasks">11 tasks (3 system checks) &bull; <strong>Gated</strong></div>
+    </div>
+    <div class="stage-card s-ready">
+      <div class="stage-name">5. Ready to Submit <span class="material-icons-round lock">lock</span></div>
+      <div class="stage-desc">Generate DEX form kit, review, send DocuSign. Confirm all docs signed.</div>
+      <div class="stage-tasks">5 tasks (2 system checks) &bull; <strong>Gated</strong></div>
+    </div>
+    <div class="stage-card s-submit">
+      <div class="stage-name">6. Submitted</div>
+      <div class="stage-desc">Package sent to custodian/carrier. Track confirmation. Resolve any NIGO items.</div>
+      <div class="stage-tasks">3 tasks &bull; No gate</div>
+    </div>
+    <div class="stage-card s-fund">
+      <div class="stage-name">7. Funded</div>
+      <div class="stage-desc">Account funded. Notify client. Link account in ProDashX for ongoing management.</div>
+      <div class="stage-tasks">3 tasks &bull; No gate</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 3. NAVIGATING THE BOARD -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="navigate">
+  <h2><span class="section-num">4</span> Navigating the Pipeline Board</h2>
+
+  <h3>Getting There</h3>
+  <div class="step">
+    <div class="step-icon blue"><span class="material-icons-round">login</span></div>
+    <div class="step-body">
+      <h4>Log in to ProDashX</h4>
+      <p>Go to <strong>prodash.tomachina.com</strong> and sign in with your @retireprotected.com account.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-icon blue"><span class="material-icons-round">menu</span></div>
+    <div class="step-body">
+      <h4>Open the sidebar and find "Pipelines"</h4>
+      <p>In the left sidebar, look under <strong>Sales</strong> or <strong>Service</strong> sections for the pipeline you need. You can also scroll to the <strong>Apps</strong> section at the bottom and click <strong>Pipeline Studio</strong> for admin configuration.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-icon blue"><span class="material-icons-round">grid_view</span></div>
+    <div class="step-body">
+      <h4>Pipeline Picker</h4>
+      <p>The <strong>Pipelines</strong> page shows all your assigned pipelines as cards. Each card shows the pipeline name, case count, and type. Click any card to open that pipeline's Kanban board.</p>
+    </div>
+  </div>
+
+  <h3>Board Layout</h3>
+  <div class="card">
+    <p>The board shows 7 columns (one per stage). Each card is a client case. Cards show:</p>
+    <ul style="margin-top:8px;padding-left:20px;color:var(--text2);font-size:13px">
+      <li><strong>Client name</strong> &mdash; who the case is for</li>
+      <li><strong>Assigned advisor</strong> &mdash; who's working it (person icon)</li>
+      <li><strong>Priority badge</strong> &mdash; <span class="tag tag-red">HIGH</span> <span class="tag tag-gray">MEDIUM</span> <span class="tag tag-gray" style="opacity:0.6">LOW</span></li>
+    </ul>
+  </div>
+
+  <h3>Filtering Cases</h3>
+  <p style="color:var(--text2);font-size:13px">Use the toolbar above the board to narrow down what you see:</p>
+  <table>
+    <tr><th>Filter</th><th>What It Does</th></tr>
+    <tr><td><strong>Search by name</strong></td><td>Type a client name to find their case instantly</td></tr>
+    <tr><td><strong>All Assignees</strong></td><td>Show only your cases or another team member's</td></tr>
+    <tr><td><strong>All Priorities</strong></td><td>Show only HIGH, MEDIUM, or LOW priority cases</td></tr>
+  </table>
+
+  <div class="callout callout-info">
+    <span class="material-icons-round">lightbulb</span>
+    <div><strong>Pro tip:</strong> Filter by your name in "All Assignees" to see only your workload. This is the best way to start your day.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 4. WORKING A CASE -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="case-detail">
+  <h2><span class="section-num">5</span> Working a Case</h2>
+
+  <h3>Opening a Case</h3>
+  <div class="step">
+    <div class="step-icon green"><span class="material-icons-round">mouse</span></div>
+    <div class="step-body">
+      <h4>Click any card on the board</h4>
+      <p>This opens the <strong>Case Detail</strong> view with the full task checklist, stage progress, and action buttons.</p>
+    </div>
+  </div>
+
+  <h3>What You'll See</h3>
+  <div class="card">
+    <table>
+      <tr><th>Section</th><th>What It Shows</th></tr>
+      <tr><td><strong>Header</strong></td><td>Client name, pipeline, priority badge (clickable to change), assigned advisor (clickable to reassign)</td></tr>
+      <tr><td><strong>Stage Progress</strong></td><td>Visual bar showing all 7 stages. Current stage is highlighted. Previous stages show checkmarks.</td></tr>
+      <tr><td><strong>Task Checklist</strong></td><td>All tasks for the current stage, grouped by step. Checkboxes to mark complete. System check badges.</td></tr>
+      <tr><td><strong>Actions</strong></td><td><strong>Advance Stage</strong> (move to next), <strong>Reassign</strong>, <strong>Priority</strong></td></tr>
+      <tr><td><strong>Activity</strong></td><td>Expandable timeline of everything that's happened on this case</td></tr>
+    </table>
+  </div>
+
+  <h3>Going Back</h3>
+  <div class="step">
+    <div class="step-icon blue"><span class="material-icons-round">arrow_back</span></div>
+    <div class="step-body">
+      <h4>"Back to Board" button</h4>
+      <p>Click <strong>&larr; Back to Board</strong> at the top to return to the Kanban view.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 5. COMPLETING TASKS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="tasks">
+  <h2><span class="section-num">6</span> Completing Tasks &amp; System Checks</h2>
+
+  <h3>Manual Tasks</h3>
+  <div class="step">
+    <div class="step-icon green"><span class="material-icons-round">check_box</span></div>
+    <div class="step-body">
+      <h4>Click the checkbox next to a task</h4>
+      <p>When you've completed the work (e.g., collected the statement, verified the signature), click the checkbox. It turns green with a checkmark and records who completed it and when.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="material-icons-round">warning</span>
+    <div><strong>Be honest with checkboxes.</strong> These are compliance records. Only check a task when the work is actually done. QC will verify.</div>
+  </div>
+
+  <h3>System Checks</h3>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:12px">Tasks marked with <span class="tag tag-purple">System</span> are automated. They verify data programmatically:</p>
+  <table>
+    <tr><th>Check</th><th>What It Verifies</th></tr>
+    <tr><td><span class="tag tag-purple">FIELD_PRESENT</span></td><td>A required field (net worth, income, risk tolerance) exists on the CAF</td></tr>
+    <tr><td><span class="tag tag-purple">LNW_LIMIT</span></td><td>Liquid net worth is within acceptable limits for the product</td></tr>
+    <tr><td><span class="tag tag-purple">BI_UNIQUE</span></td><td>Best Interest rationale is original &mdash; not copied from another case</td></tr>
+    <tr><td><span class="tag tag-purple">CORRECT_CUSTODIAN</span></td><td>Forms reference Schwab (RIA) or RBC (BD) &mdash; not a legacy custodian</td></tr>
+    <tr><td><span class="tag tag-purple">FIELD_NOT_CONTAINS</span></td><td>Custodian field does NOT contain "Signal" (legacy reference that's no longer valid)</td></tr>
+    <tr><td><span class="tag tag-purple">DEX_KIT_GENERATE</span></td><td>The DEX form kit has been generated for submission</td></tr>
+    <tr><td><span class="tag tag-purple">DEX_DOCUSIGN</span></td><td>DocuSign envelope has been sent via DEX</td></tr>
+  </table>
+
+  <h3>Skipping Tasks</h3>
+  <p style="color:var(--text2);font-size:13px">Optional tasks (no red <span style="color:var(--red)">*</span>) can be skipped with a reason. Required tasks (red <span style="color:var(--red)">*</span>) cannot be skipped.</p>
+
+  <h3>Adding Notes</h3>
+  <div class="step">
+    <div class="step-icon yellow"><span class="material-icons-round">note_add</span></div>
+    <div class="step-body">
+      <h4>Click the notes icon on any task</h4>
+      <p>Add context, flag issues, or leave instructions for the next person. Notes are visible to everyone on the team.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 6. UNDERSTANDING GATES -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="gates">
+  <h2><span class="section-num">7</span> Understanding Gates</h2>
+
+  <div class="card danger">
+    <p><strong>Gates are the guardrails.</strong> Three stages have gates: <strong>Suitability</strong>, <strong>QC Review</strong>, and <strong>Ready to Submit</strong>.</p>
+    <p style="margin-top:8px;color:var(--text2)">When a stage is gated, the system will NOT let you advance the case until every required task (marked with <span style="color:var(--red)">*</span>) is completed. This prevents incomplete or non-compliant cases from moving forward.</p>
+  </div>
+
+  <h3>What Happens When You Try to Advance Past a Gate</h3>
+  <ol class="num-list">
+    <li>You click <strong>Advance Stage</strong></li>
+    <li>The system checks all required tasks in the current stage</li>
+    <li>If any required task is still <span class="tag tag-gray">PENDING</span>, you get a <span style="color:var(--red)">red error message</span> listing the blockers</li>
+    <li>Complete the remaining tasks, then try again</li>
+  </ol>
+
+  <div class="callout callout-danger">
+    <span class="material-icons-round">gpp_bad</span>
+    <div><strong>Example from Clark, Sheila:</strong> QC gate was blocked because: net worth missing on CAF, document alteration detected, BI rationale was copy-pasted from Budd case (92% similarity), and Signal Wealth was still referenced in the Products Considered field. All 7 blockers had to be resolved before submission.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 7. CREATING A NEW OPPORTUNITY -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="new-case">
+  <h2><span class="section-num">8</span> Creating a New Case</h2>
+
+  <h3>Step by Step</h3>
+  <div class="step">
+    <div class="step-icon green"><span class="material-icons-round">add_circle</span></div>
+    <div class="step-body">
+      <h4>Click the "New Case" button</h4>
+      <p>On the pipeline board, click the blue <strong>+ New Case</strong> button in the top-right corner. A modal form will open.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-icon blue"><span class="material-icons-round">edit_note</span></div>
+    <div class="step-body">
+      <h4>Fill in the case details</h4>
+      <p>Complete the form. Fields marked with <span style="color:var(--red)">*</span> are required.</p>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Field</th><th>Required?</th><th>Example</th></tr>
+    <tr><td>Client Name</td><td><span style="color:var(--red)">Yes *</span></td><td>Smith, John & Jane</td></tr>
+    <tr><td>Account Type</td><td><span style="color:var(--red)">Yes *</span></td><td>Investments, Annuity, Life, Medicare, or Banking</td></tr>
+    <tr><td>Carrier</td><td><span style="color:var(--red)">Yes *</span></td><td>Select from dropdown &mdash; pulls from Firestore carrier database (27 carriers)</td></tr>
+    <tr><td>Assigned Advisor</td><td><span style="color:var(--red)">Yes *</span></td><td>Select from dropdown: Angelique, Nikki, Josh, Vince</td></tr>
+    <tr><td>Notes</td><td>No</td><td>Existing Fidelity rollover IRA, needs 1035 exchange</td></tr>
+  </table>
+
+  <div class="step">
+    <div class="step-icon green"><span class="material-icons-round">check_circle</span></div>
+    <div class="step-body">
+      <h4>Click "Create Case"</h4>
+      <p>The case appears in the <strong>New</strong> column on the board with its first tasks already generated. Start working it immediately.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="material-icons-round">lightbulb</span>
+    <div><strong>What happens behind the scenes:</strong> Creating a case puts it in the "New" stage and automatically generates the first set of tasks (Assign advisor, Create client folder). As you advance through stages, each new stage generates its own tasks.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 8. DRAG & DROP -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="drag-drop">
+  <h2><span class="section-num">9</span> Moving Cases Between Stages</h2>
+
+  <h3>Method 1: Advance Stage Button (Recommended)</h3>
+  <div class="step">
+    <div class="step-icon green"><span class="material-icons-round">arrow_forward</span></div>
+    <div class="step-body">
+      <h4>Open the case, then click "Advance Stage"</h4>
+      <p>This is the safest way &mdash; it checks gates and only allows the move if all required tasks are done. The case moves to the next stage in order.</p>
+    </div>
+  </div>
+
+  <h3>Method 2: Drag and Drop</h3>
+  <div class="step">
+    <div class="step-icon yellow"><span class="material-icons-round">drag_indicator</span></div>
+    <div class="step-body">
+      <h4>Drag a card from one column to another</h4>
+      <p>On the Kanban board, you can drag a card and drop it into any column. This is an <strong>admin override</strong> &mdash; it bypasses gate checks. Use with caution.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="material-icons-round">warning</span>
+    <div><strong>Drag-and-drop skips gates.</strong> Only use this if you have a specific reason (e.g., Josh instructed you to move a case). For normal workflow, always use the Advance Stage button inside the case detail.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 9. WHO DOES WHAT -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="roles">
+  <h2><span class="section-num">10</span> Who Does What</h2>
+
+  <table>
+    <tr><th>Role</th><th>Responsibilities</th></tr>
+    <tr>
+      <td><strong>Angelique</strong><br><span style="font-size:11px;color:var(--muted)">Service Coordinator</span></td>
+      <td>
+        &bull; Work Intake tasks (gather docs, schedule intro meetings)<br>
+        &bull; Prep cases through Suitability<br>
+        &bull; Handle Ready to Submit paperwork (DEX kits, DocuSign)<br>
+        &bull; Track Submitted cases and resolve NIGO items<br>
+        &bull; Close Funded cases (client notification, account linking)
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Nikki</strong><br><span style="font-size:11px;color:var(--muted)">Service Division Lead</span></td>
+      <td>
+        &bull; Oversee pipeline health and case velocity<br>
+        &bull; QC Review stage &mdash; final quality checks<br>
+        &bull; Escalation point for blocked cases<br>
+        &bull; Assign and prioritize incoming cases
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Josh</strong><br><span style="font-size:11px;color:var(--muted)">CEO</span></td>
+      <td>
+        &bull; Critical case resolution (Clark, Budd, Stirratt type situations)<br>
+        &bull; New case creation + pipeline configuration<br>
+        &bull; Pipeline configuration and stage/task changes<br>
+        &bull; Compliance escalations
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- 10. FAQ -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="faq">
+  <h2><span class="section-num">11</span> FAQ</h2>
+
+  <div class="card">
+    <h4 style="color:var(--accent)">Q: I accidentally checked a task that isn't actually done. Can I undo it?</h4>
+    <p style="color:var(--text2);font-size:13px;margin-top:4px">Not yet &mdash; completed tasks can't be unchecked in the UI. Let Josh or Nikki know and they can reset it from the admin side.</p>
+  </div>
+
+  <div class="card">
+    <h4 style="color:var(--accent)">Q: A system check is showing "Pending" but I've already done the work. Why?</h4>
+    <p style="color:var(--text2);font-size:13px;margin-top:4px">System checks verify data in the system, not whether you did the work. If the data hasn't been entered into the client record yet (e.g., net worth on the CAF), the check will stay Pending. Update the client record first, then the check should pass.</p>
+  </div>
+
+  <div class="card">
+    <h4 style="color:var(--accent)">Q: What's the difference between the Pipeline Board and Pipeline Studio?</h4>
+    <p style="color:var(--text2);font-size:13px;margin-top:4px"><strong>Pipeline Board</strong> (under Sales/Service) = where you WORK cases. See cards, complete tasks, advance stages.<br><strong>Pipeline Studio</strong> (under Apps) = where ADMINS configure the pipeline structure. Stages, steps, task templates. You don't need Pipeline Studio for daily work.</p>
+  </div>
+
+  <div class="card">
+    <h4 style="color:var(--accent)">Q: Can I see all pipelines, not just NBX Securities?</h4>
+    <p style="color:var(--text2);font-size:13px;margin-top:4px">Yes &mdash; there are 14 pipelines total (Annuity, Life Insurance, Medicare, etc.). Each appears in the Sales or Service sidebar sections. NBX Securities is the first one we're actively using with real case data.</p>
+  </div>
+
+  <div class="card">
+    <h4 style="color:var(--accent)">Q: What do the priority colors mean?</h4>
+    <p style="color:var(--text2);font-size:13px;margin-top:4px">
+      <span class="tag tag-red">HIGH</span> = Urgent &mdash; large AUM, time-sensitive, or compliance issue<br>
+      <span class="tag tag-gray">MEDIUM</span> = Normal workflow<br>
+      <span class="tag tag-gray" style="opacity:0.6">LOW</span> = Can wait &mdash; smaller accounts, no deadline pressure
+    </p>
+  </div>
+
+  <div class="card">
+    <h4 style="color:var(--accent)">Q: How do I change who's assigned to a case?</h4>
+    <p style="color:var(--text2);font-size:13px;margin-top:4px">Open the case detail, click the <strong>person badge</strong> (shows current assignee email) or click the <strong>Reassign</strong> button at the bottom. Enter the new person's @retireprotected.com email.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p><strong>Retirement Protectors, Inc.</strong> &mdash; Powered by toMachina</p>
+  <p style="margin-top:4px">Questions? Reach out to Josh or Nikki. We're Your People.</p>
+</div>
+
+</div>
+</body>
+</html>

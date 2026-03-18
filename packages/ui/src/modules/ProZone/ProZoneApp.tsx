@@ -1,38 +1,48 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchWithAuth } from '../fetchWithAuth'
 import SpecialistSelector from './SpecialistSelector'
-import TerritoryView from './TerritoryView'
-import ScheduleView from './ScheduleView'
-import ProspectQueue from './ProspectQueue'
-import ZoneLeadPanel from './ZoneLeadPanel'
-import type { SpecialistConfig, Zone } from './types'
+import StatsBar from './StatsBar'
+import WeekStrip from './WeekStrip'
+import ZoneAccordion from './ZoneAccordion'
+import CallPanel from './CallPanel'
+import type { CallDisposition } from './CallPanel'
+import type {
+  SpecialistConfig,
+  ZoneWithProspects,
+  ProspectWithInventory,
+  ScheduleDay,
+} from './types'
 
 // ============================================================================
-// ProZoneApp — Prospecting hub app shell
+// ProZoneApp — Single-pane prospecting hub (consolidated from 4-tab UI)
 // ============================================================================
 
 export interface ProZoneProps {
   portal: 'prodashx' | 'riimo' | 'sentinel'
 }
 
-type ProZoneTab = 'territory' | 'schedule' | 'prospects' | 'zone-leads'
-
-const TABS: Array<{ key: ProZoneTab; label: string; icon: string }> = [
-  { key: 'territory', label: 'Territory', icon: 'map' },
-  { key: 'schedule', label: 'Schedule', icon: 'calendar_month' },
-  { key: 'prospects', label: 'Prospects', icon: 'people' },
-  { key: 'zone-leads', label: 'Zone Leads', icon: 'leaderboard' },
-]
-
 export default function ProZoneApp({ portal }: ProZoneProps) {
   const [specialists, setSpecialists] = useState<SpecialistConfig[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<ProZoneTab>('territory')
+  const [zones, setZones] = useState<ZoneWithProspects[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [zones, setZones] = useState<Zone[]>([])
+
+  // Filter state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [tierFilter, setTierFilter] = useState('all')
+  const [flaggedOnly, setFlaggedOnly] = useState(false)
+
+  // Accordion state
+  const [openZones, setOpenZones] = useState<Set<string>>(new Set())
+
+  // Call panel state
+  const [callTarget, setCallTarget] = useState<ProspectWithInventory | null>(null)
+
+  // Schedule context — zone_ids with scheduled field meetings
+  const [scheduledZones, setScheduledZones] = useState<Map<string, { count: number; day: string }>>(new Map())
 
   // Fetch specialist configs on mount
   useEffect(() => {
@@ -46,7 +56,6 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
         if (!cancelled) {
           if (json.success && json.data) {
             setSpecialists(json.data)
-            // Auto-select first if only one
             if (json.data.length === 1) {
               setSelectedId(json.data[0].config_id)
             }
@@ -64,7 +73,7 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
     return () => { cancelled = true }
   }, [])
 
-  // Fetch zones when specialist changes
+  // Fetch prospects when specialist changes
   useEffect(() => {
     if (!selectedId) {
       setZones([])
@@ -74,27 +83,153 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
     if (!spec) return
 
     let cancelled = false
-    async function loadZones() {
+    async function loadData() {
       try {
-        const res = await fetchWithAuth(`/api/territories/${spec!.territory_id}`)
-        const json = await res.json() as { success: boolean; data?: { zones?: Zone[] }; error?: string }
-        if (!cancelled && json.success && json.data?.zones) {
-          setZones(json.data.zones)
+        setLoading(true)
+        setError(null)
+
+        const [territoryRes, prospectsRes] = await Promise.all([
+          fetchWithAuth(`/api/territories/${spec!.territory_id}`),
+          fetchWithAuth(`/api/prozone/prospects/${selectedId}`),
+        ])
+
+        const tJson = await territoryRes.json() as {
+          success: boolean
+          data?: { zones?: Array<{ zone_id: string; zone_name: string }> }
+          error?: string
         }
+        const pJson = await prospectsRes.json() as {
+          success: boolean
+          data?: { zones: Array<Record<string, unknown>>; total_prospects: number; total_flagged: number }
+          error?: string
+        }
+
+        if (cancelled) return
+
+        if (!pJson.success || !pJson.data) {
+          setError(pJson.error || 'Failed to load prospects')
+          setZones([])
+          return
+        }
+
+        // Build zone name lookup from territory data
+        const zoneNames = new Map<string, string>()
+        if (tJson.success && tJson.data?.zones) {
+          for (const z of tJson.data.zones) {
+            zoneNames.set(z.zone_id, z.zone_name)
+          }
+        }
+
+        // Map API zones to typed ZoneWithProspects
+        const mapped: ZoneWithProspects[] = pJson.data.zones.map((z) => ({
+          zone_id: String(z.zone_id || ''),
+          zone_name: zoneNames.get(String(z.zone_id || '')) || String(z.zone_name || z.zone_id || ''),
+          tier: (String(z.tier || 'I')) as ZoneWithProspects['tier'],
+          prospects: (z.prospects as ProspectWithInventory[]) || [],
+          prospect_count: Number(z.prospect_count) || 0,
+          flagged_count: Number(z.flagged_count) || 0,
+          flag_summary: (z.flag_summary as Record<string, number>) || {},
+          age_buckets: (z.age_buckets as ZoneWithProspects['age_buckets']) || { under_60: 0, '60_64': 0, '65_80': 0, '80_plus': 0 },
+          bob_breakdown: (z.bob_breakdown as Record<string, number>) || {},
+        }))
+
+        setZones(mapped)
       } catch {
-        // Zone data will load in sub-views too
+        if (!cancelled) setError('Failed to load prospect data')
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
-    loadZones()
+    loadData()
     return () => { cancelled = true }
   }, [selectedId, specialists])
 
   const handleSelectSpecialist = useCallback((id: string) => {
     setSelectedId(id)
-    setActiveTab('territory')
+    setOpenZones(new Set())
+    setSearchQuery('')
+    setTierFilter('all')
+    setFlaggedOnly(false)
   }, [])
 
-  const selected = specialists.find((s) => s.config_id === selectedId) || null
+  const toggleZone = useCallback((zoneId: string) => {
+    setOpenZones((prev) => {
+      const next = new Set(prev)
+      if (next.has(zoneId)) {
+        next.delete(zoneId)
+      } else {
+        next.add(zoneId)
+      }
+      return next
+    })
+  }, [])
+
+  // When WeekStrip loads a schedule, extract zone context for meeting indicators
+  const handleScheduleLoaded = useCallback((schedule: ScheduleDay[]) => {
+    const zoneMap = new Map<string, { count: number; day: string }>()
+    for (const day of schedule) {
+      if (day.type !== 'field') continue
+      const abbrev = day.day.slice(0, 3)
+      for (const slot of day.slots) {
+        if (slot.zones) {
+          for (const zoneId of slot.zones) {
+            const existing = zoneMap.get(zoneId)
+            if (existing) {
+              existing.count++
+            } else {
+              zoneMap.set(zoneId, { count: 1, day: abbrev })
+            }
+          }
+        }
+      }
+    }
+    setScheduledZones(zoneMap)
+  }, [])
+
+  // Filtering
+  const filteredZones = useMemo(() => {
+    let filtered = zones
+    if (tierFilter !== 'all') {
+      filtered = filtered.filter((z) => z.tier === tierFilter)
+    }
+    if (flaggedOnly) {
+      filtered = filtered.filter((z) => z.flagged_count > 0)
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      filtered = filtered.map((z) => ({
+        ...z,
+        prospects: z.prospects.filter((p) =>
+          `${p.first_name} ${p.last_name}`.toLowerCase().includes(q)
+        ),
+      })).filter((z) => z.prospects.length > 0)
+    }
+    return filtered
+  }, [zones, tierFilter, flaggedOnly, searchQuery])
+
+  const totalClients = useMemo(
+    () => filteredZones.reduce((s, z) => s + z.prospects.length, 0),
+    [filteredZones]
+  )
+  const totalFlagged = useMemo(
+    () => filteredZones.reduce((s, z) => s + z.flagged_count, 0),
+    [filteredZones]
+  )
+
+  const handleCallClick = useCallback((prospect: ProspectWithInventory) => {
+    setCallTarget(prospect)
+  }, [])
+
+  const handleCallDispositioned = useCallback((_disposition: CallDisposition) => {
+    setCallTarget(null)
+  }, [])
+
+  const handleFieldDayClick = useCallback((tier: string) => {
+    const zone = filteredZones.find((z) => z.tier === tier)
+    if (zone) {
+      setOpenZones((prev) => new Set(prev).add(zone.zone_id))
+    }
+  }, [filteredZones])
 
   return (
     <div className="mx-auto max-w-7xl space-y-5">
@@ -123,7 +258,7 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
       </div>
 
       {/* Loading / Error */}
-      {loading && (
+      {loading && !selectedId && (
         <div className="flex items-center justify-center py-16">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: 'var(--app-prozone, #0ea5e9)', borderTopColor: 'transparent' }} />
           <span className="ml-3 text-sm text-[var(--text-muted)]">Loading specialists...</span>
@@ -137,7 +272,7 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
       )}
 
       {/* Specialist Selector */}
-      {!loading && !error && (
+      {!loading && !error && specialists.length > 0 && (
         <SpecialistSelector
           specialists={specialists}
           selected={selectedId}
@@ -145,55 +280,73 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
         />
       )}
 
-      {/* Tab Navigation + Content */}
-      {selectedId && selected && (
+      {/* Single-Pane Content */}
+      {selectedId && (
         <>
-          {/* Tabs */}
-          <div className="flex items-center gap-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-1.5">
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                  activeTab === tab.key
-                    ? 'text-[var(--text-primary)] shadow-sm'
-                    : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-                }`}
-                style={
-                  activeTab === tab.key
-                    ? { backgroundColor: 'var(--bg-surface)' }
-                    : undefined
-                }
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '18px' }}>{tab.icon}</span>
-                <span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            ))}
-          </div>
+          <StatsBar
+            zoneCount={filteredZones.length}
+            clientCount={totalClients}
+            flaggedCount={totalFlagged}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            tierFilter={tierFilter}
+            onTierFilterChange={setTierFilter}
+            flaggedOnly={flaggedOnly}
+            onFlaggedOnlyChange={setFlaggedOnly}
+          />
 
-          {/* Tab Content */}
-          <div>
-            {activeTab === 'territory' && (
-              <TerritoryView specialistId={selectedId} territoryId={selected.territory_id} portal={portal} />
-            )}
-            {activeTab === 'schedule' && (
-              <ScheduleView specialistId={selectedId} portal={portal} />
-            )}
-            {activeTab === 'prospects' && (
-              <ProspectQueue specialistId={selectedId} portal={portal} />
-            )}
-            {activeTab === 'zone-leads' && (
-              <ZoneLeadPanel
-                specialistId={selectedId}
-                zones={zones.map((z) => ({ zone_id: z.zone_id, zone_name: z.zone_name }))}
-                portal={portal}
+          <WeekStrip
+            specialistId={selectedId}
+            onFieldDayClick={handleFieldDayClick}
+            onScheduleLoaded={handleScheduleLoaded}
+          />
+
+          {/* Loading prospects */}
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+              <span className="ml-3 text-sm text-[var(--text-muted)]">Loading prospects...</span>
+            </div>
+          )}
+
+          {/* Zone Accordions */}
+          {!loading && filteredZones.length === 0 && (
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-12 text-center">
+              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '36px' }}>people_outline</span>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">
+                {searchQuery || tierFilter !== 'all' || flaggedOnly
+                  ? 'No zones match your filters.'
+                  : 'No prospect data available.'}
+              </p>
+            </div>
+          )}
+
+          {!loading && filteredZones.map((zone) => {
+            const meetingCtx = scheduledZones.get(zone.zone_id)
+            return (
+              <ZoneAccordion
+                key={zone.zone_id}
+                zone={zone}
+                isOpen={openZones.has(zone.zone_id)}
+                onToggle={() => toggleZone(zone.zone_id)}
+                searchQuery={searchQuery}
+                scheduledMeetings={meetingCtx?.count}
+                scheduledDay={meetingCtx?.day}
+                onCallClick={handleCallClick}
               />
-            )}
-          </div>
+            )
+          })}
         </>
       )}
 
-      {/* Empty state */}
+      {/* Call Panel */}
+      <CallPanel
+        prospect={callTarget}
+        onClose={() => setCallTarget(null)}
+        onDispositioned={handleCallDispositioned}
+      />
+
+      {/* Empty state — no specialists */}
       {!loading && !error && specialists.length === 0 && (
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-6 py-16 text-center">
           <span

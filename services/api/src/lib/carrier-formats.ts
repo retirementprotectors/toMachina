@@ -174,7 +174,7 @@ const CONSOLIDATED: CarrierFormatDefinition = {
 
 const SCHWAB: CarrierFormatDefinition = {
   carrier_id: 'schwab',
-  carrier_name: 'Schwab (BD/RIA)',
+  carrier_name: 'Schwab (Investments)',
   column_map: {
     'Account Number': 'account_number',
     'Account #': 'account_number',
@@ -206,7 +206,7 @@ const SCHWAB: CarrierFormatDefinition = {
     'Account Number', 'Account Name', 'Account Type', 'Rep Code',
     'Market Value', 'Cash Balance', 'Opening Date', 'Fee Schedule',
   ],
-  default_category: 'bdria',
+  default_category: 'investments',
 }
 
 const RBC: CarrierFormatDefinition = {
@@ -238,7 +238,7 @@ const RBC: CarrierFormatDefinition = {
     'Account Number', 'Client Name', 'Account Registration', 'Rep ID',
     'Total Assets', 'Branch', 'Inception Date', 'Account Status',
   ],
-  default_category: 'bdria',
+  default_category: 'investments',
 }
 
 const DST_VISION: CarrierFormatDefinition = {
@@ -272,7 +272,7 @@ const DST_VISION: CarrierFormatDefinition = {
     'Account Number', 'Registration Name', 'Fund Name', 'CUSIP',
     'Share Class', 'Market Value', 'NAV', 'Dealer Number',
   ],
-  default_category: 'bdria',
+  default_category: 'investments',
 }
 
 const MEDICARE_GENERIC: CarrierFormatDefinition = {

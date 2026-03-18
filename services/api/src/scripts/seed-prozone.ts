@@ -43,16 +43,17 @@ interface TerritoryDef {
   territory_name: string
   state: string
   counties: Array<{ county: string; zone_id: string }>
-  zones: Array<{ zone_id: string; zone_name: string; territory_id: string; resolution_type: 'county' | 'zip'; assignments: Array<{ county: string; zone_id: string }> }>
+  zones: Array<{ zone_id: string; zone_name: string; territory_id: string; resolution_type: 'county' | 'zip'; assignments: Array<{ county: string; zone_id: string }>; zip_assignments?: Array<{ zip: string; zone_id: string }> }>
 }
 
-function makeZone(zoneId: string, zoneName: string, territoryId: string, counties: string[]): TerritoryDef['zones'][0] {
+function makeZone(zoneId: string, zoneName: string, territoryId: string, counties: string[], zips?: string[]): TerritoryDef['zones'][0] {
   return {
     zone_id: zoneId,
     zone_name: zoneName,
     territory_id: territoryId,
-    resolution_type: 'county',
+    resolution_type: zips && zips.length > 0 ? 'zip' : 'county',
     assignments: counties.map(c => ({ county: c, zone_id: zoneId })),
+    zip_assignments: zips?.map(z => ({ zip: z, zone_id: zoneId })) || [],
   }
 }
 
@@ -85,7 +86,10 @@ const TERRITORIES: TerritoryDef[] = [
       { county: 'Madison', zone_id: 'T2-Z2' },
     ],
     zones: [
-      makeZone('T2-Z1', 'Metro Core', 'T2', ['Polk', 'Dallas']),
+      makeZone('T2-Z1', 'Metro Core', 'T2', ['Polk', 'Dallas'], [
+        '50309', '50310', '50311', '50312', '50313', '50314', '50315',
+        '50316', '50317', '50319', '50320', '50321', '50322', '50325',
+      ]),
       makeZone('T2-Z2', 'Metro South', 'T2', ['Warren', 'Madison']),
     ],
   },
@@ -181,6 +185,23 @@ const TERRITORIES: TerritoryDef[] = [
       makeZone('T6-Z3', 'Eastern Outer', 'T6', ['Clayton', 'Winneshiek', 'Allamakee', 'Delaware']),
     ],
   },
+  {
+    territory_id: 'T7',
+    territory_name: 'Mason City',
+    state: 'IA',
+    counties: [
+      { county: 'Cerro Gordo', zone_id: 'T7-Z1' },
+      { county: 'Floyd', zone_id: 'T7-Z1' },
+      { county: 'Worth', zone_id: 'T7-Z2' },
+      { county: 'Winnebago', zone_id: 'T7-Z2' },
+      { county: 'Howard', zone_id: 'T7-Z2' },
+      { county: 'Mitchell', zone_id: 'T7-Z2' },
+    ],
+    zones: [
+      makeZone('T7-Z1', 'Mason City Core', 'T7', ['Cerro Gordo', 'Floyd']),
+      makeZone('T7-Z2', 'Mason City Outer', 'T7', ['Worth', 'Winnebago', 'Howard', 'Mitchell']),
+    ],
+  },
 ]
 
 // ============================================================================
@@ -231,8 +252,10 @@ const SPECIALISTS: SpecialistDef[] = [
       { zone_id: 'T3-Z1', tier: 'I', drive_minutes: 20, slots_per_day: 6, first_slot: '9:30', last_slot: '5:00' },
       { zone_id: 'T3-Z2', tier: 'II', drive_minutes: 40, slots_per_day: 5, first_slot: '10:00', last_slot: '4:00' },
       { zone_id: 'T3-Z3', tier: 'III', drive_minutes: 60, slots_per_day: 4, first_slot: '10:30', last_slot: '3:00' },
+      { zone_id: 'T7-Z1', tier: 'III', drive_minutes: 150, slots_per_day: 4, first_slot: '10:30', last_slot: '3:00' },
+      { zone_id: 'T7-Z2', tier: 'IV', drive_minutes: 180, slots_per_day: 6, first_slot: '9:00', last_slot: '4:30' },
     ],
-    slot_templates: [SLOT_TEMPLATES.I, SLOT_TEMPLATES.II, SLOT_TEMPLATES.III],
+    slot_templates: [SLOT_TEMPLATES.I, SLOT_TEMPLATES.II, SLOT_TEMPLATES.III, SLOT_TEMPLATES.IV],
     meeting_criteria: {
       field: { active_la: true, intra_territory: true, max_age: 95 },
       office: { active_la: true, outer_zone: true },

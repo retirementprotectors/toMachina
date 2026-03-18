@@ -139,11 +139,53 @@ export default function InstanceDetail({
 
   const handleAdvance = () => performAction('advance')
 
-  const handleCompleteTask = (taskId: string) =>
-    performAction('complete_task', { task_instance_id: taskId })
+  const handleCompleteTask = useCallback(
+    async (taskId: string) => {
+      try {
+        setActionLoading(true)
+        const res = await fetchWithAuth(`${apiBase}/flow/tasks/${taskId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'complete' }),
+        })
+        const json: ActionResponse = await res.json()
+        if (!json.success) {
+          setError(json.error || 'Failed to complete task')
+          return
+        }
+        await fetchInstance()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Network error')
+      } finally {
+        setActionLoading(false)
+      }
+    },
+    [apiBase, fetchInstance]
+  )
 
-  const handleSkipTask = (taskId: string, reason: string) =>
-    performAction('skip_task', { task_instance_id: taskId, reason })
+  const handleSkipTask = useCallback(
+    async (taskId: string, reason: string) => {
+      try {
+        setActionLoading(true)
+        const res = await fetchWithAuth(`${apiBase}/flow/tasks/${taskId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'skip', notes: reason }),
+        })
+        const json: ActionResponse = await res.json()
+        if (!json.success) {
+          setError(json.error || 'Failed to skip task')
+          return
+        }
+        await fetchInstance()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Network error')
+      } finally {
+        setActionLoading(false)
+      }
+    },
+    [apiBase, fetchInstance]
+  )
 
   const handleReassign = () => {
     if (reassignTo.trim()) {
@@ -154,7 +196,7 @@ export default function InstanceDetail({
   }
 
   const handlePriorityChange = (priority: string) => {
-    performAction('change_priority', { priority })
+    performAction('priority', { priority })
     setShowPriority(false)
   }
 

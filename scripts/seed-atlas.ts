@@ -57,10 +57,10 @@ const SOURCES = [
   { source_id: 'northamerican-fia', carrier_name: 'North American', product_line: 'FIA', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 20, portal: 'B2C', priority: 'HIGH', notes: 'FIA account statements' },
   { source_id: 'midland-fia', carrier_name: 'Midland National', product_line: 'FIA', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 20, portal: 'B2C', priority: 'MEDIUM', notes: 'FIA account statements' },
 
-  // YELLOW: BD/RIA
-  { source_id: 'schwab-bdria', carrier_name: 'Schwab', product_line: 'BDRIA', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 30, portal: 'B2C', priority: 'HIGH', notes: 'RIA custodian data' },
-  { source_id: 'gradient-bdria', carrier_name: 'Gradient', product_line: 'BDRIA', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 25, portal: 'B2C', priority: 'HIGH', notes: 'BD custodian data' },
-  { source_id: 'dst-bdria', carrier_name: 'DST Vision', product_line: 'BDRIA', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 25, portal: 'B2C', priority: 'MEDIUM', notes: 'Mutual fund/VA aggregator' },
+  // YELLOW: Investments
+  { source_id: 'schwab-investments', carrier_name: 'Schwab', product_line: 'INVESTMENTS', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 30, portal: 'B2C', priority: 'HIGH', notes: 'RIA custodian data' },
+  { source_id: 'gradient-investments', carrier_name: 'Gradient', product_line: 'INVESTMENTS', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 25, portal: 'B2C', priority: 'HIGH', notes: 'BD custodian data' },
+  { source_id: 'dst-investments', carrier_name: 'DST Vision', product_line: 'INVESTMENTS', data_domain: 'ACCOUNTS', current_method: 'MANUAL_CSV', current_frequency: 'MONTHLY', gap_status: 'YELLOW', automation_pct: 25, portal: 'B2C', priority: 'MEDIUM', notes: 'Mutual fund/VA aggregator' },
 
   // GREEN: Reference Data
   { source_id: 'naic-serff', carrier_name: 'NAIC/SERFF', product_line: 'MED_SUPP', data_domain: 'RATES', current_method: 'BIGQUERY', current_frequency: 'MONTHLY', gap_status: 'GREEN', automation_pct: 80, portal: 'B2C', priority: 'HIGH', notes: 'BigQuery SERFF_MedSupp dataset, 1.18M rows' },
@@ -92,8 +92,8 @@ const SOURCES = [
   { source_id: 'dtcc-myga', carrier_name: 'DTCC', product_line: 'MYGA', data_domain: 'ACCOUNTS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'MEDIUM', notes: 'DTCC feed for MYGA accounts' },
   { source_id: 'dtcc-life', carrier_name: 'DTCC', product_line: 'TERM_LIFE', data_domain: 'ACCOUNTS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'MEDIUM', notes: 'DTCC feed for life policies' },
   { source_id: 'bluebutton-claims', carrier_name: 'Blue Button', product_line: 'MAPD', data_domain: 'CLAIMS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'LOW', notes: 'CMS Blue Button 2.0 API' },
-  { source_id: 'schwab-api', carrier_name: 'Schwab', product_line: 'BDRIA', data_domain: 'ACCOUNTS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'HIGH', notes: 'Schwab API for real-time holdings' },
-  { source_id: 'gradient-api', carrier_name: 'Gradient', product_line: 'BDRIA', data_domain: 'ACCOUNTS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'HIGH', notes: 'Gradient API for BD data' },
+  { source_id: 'schwab-api', carrier_name: 'Schwab', product_line: 'INVESTMENTS', data_domain: 'ACCOUNTS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'HIGH', notes: 'Schwab API for real-time holdings' },
+  { source_id: 'gradient-api', carrier_name: 'Gradient', product_line: 'INVESTMENTS', data_domain: 'ACCOUNTS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'HIGH', notes: 'Gradient API for BD data' },
   { source_id: 'gradient-comm', carrier_name: 'Gradient', product_line: 'ALL', data_domain: 'COMMISSIONS', current_method: 'NOT_AVAILABLE', current_frequency: 'NONE', gap_status: 'RED', automation_pct: 0, portal: 'B2C', priority: 'HIGH', notes: 'Gradient commission feed (BD + RIA)' },
 ]
 

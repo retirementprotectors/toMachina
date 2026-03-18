@@ -31,6 +31,25 @@
         { "fieldPath": "instance_id", "order": "ASCENDING" },
         { "fieldPath": "stage_id", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "flow_steps",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "pipeline_key", "order": "ASCENDING" },
+        { "fieldPath": "stage_id", "order": "ASCENDING" },
+        { "fieldPath": "step_order", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "flow_task_templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "pipeline_key", "order": "ASCENDING" },
+        { "fieldPath": "stage_id", "order": "ASCENDING" },
+        { "fieldPath": "step_id", "order": "ASCENDING" },
+        { "fieldPath": "task_order", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

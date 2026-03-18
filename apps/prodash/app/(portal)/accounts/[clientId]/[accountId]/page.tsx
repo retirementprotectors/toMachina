@@ -306,13 +306,13 @@ function buildProductSections(account: Account, clientId: string, accountId: str
   if (cat === 'annuity' || t.includes('annuity') || t.includes('fia') || t.includes('myga')) category = 'annuity'
   else if (cat === 'life' || t.includes('life')) category = 'life'
   else if (cat === 'medicare' || t.includes('medicare') || t.includes('mapd')) category = 'medicare'
-  else if (cat === 'bdria' || cat === 'bd_ria' || t.includes('bd') || t.includes('ria') || t.includes('advisory')) category = 'bdria'
+  else if (cat === 'investments' || cat === 'investment' || cat === 'bdria' || cat === 'bd_ria' || t.includes('advisory') || t.includes('brokerage')) category = 'investments'
 
   switch (category) {
     case 'annuity': return buildAnnuitySections(account)
     case 'life': return buildLifeSections(account)
     case 'medicare': return buildMedicareSections(account)
-    case 'bdria': return buildBdRiaSections(account)
+    case 'investments': return buildInvestmentSections(account)
     default: return buildGenericSections(account)
   }
 }
@@ -439,7 +439,7 @@ function buildMedicareSections(a: Account): SectionDef[] {
   ]
 }
 
-function buildBdRiaSections(a: Account): SectionDef[] {
+function buildInvestmentSections(a: Account): SectionDef[] {
   return [
     {
       title: 'Account Details', icon: 'show_chart',

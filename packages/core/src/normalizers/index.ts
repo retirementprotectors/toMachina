@@ -392,15 +392,15 @@ export function normalizeIMOName(raw: string): string {
 
 import { STATUS_MAP } from './field-normalizers'
 
-/** Normalize status field. Strips date suffixes, maps aliases. */
+/** Normalize status field. Strips date suffixes, maps aliases. Unmapped values → 'Unknown'. */
 export function normalizeStatus(raw: string): string {
   if (!raw) return ''
   const cleaned = String(raw).trim().toLowerCase()
     .replace(/_/g, ' ')
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\w\s()-]/g, '')
     .replace(/\s+eff\s+.*$/g, '')
     .replace(/\s+date\s+.*$/g, '')
-    .replace(/\s*[-]\s*\d[\d\s]*$/g, '')
+    .replace(/\s*[-]\s*\d[\d/\s]*$/g, '')
     .replace(/\s+\d{4,}$/g, '')
     .replace(/\s*-\s*$/g, '')
     .replace(/\s+/g, ' ')
@@ -409,9 +409,8 @@ export function normalizeStatus(raw: string): string {
   if (!cleaned) return ''
   if (STATUS_MAP[cleaned]) return STATUS_MAP[cleaned]
 
-  return cleaned.split(/\s+/)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(' ')
+  // No title-case fallback — unmapped values are flagged as Unknown
+  return 'Unknown'
 }
 
 // ============================================================================

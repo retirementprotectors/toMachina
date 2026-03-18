@@ -45,7 +45,7 @@ const CARRIERS = [
   { carrier_id: 'CAR_040', carrier_name: 'Charles Schwab', carrier_type: 'CUSTODIAN', domain: 'WEALTH', lines: ['RIA Custody'] },
   { carrier_id: 'CAR_041', carrier_name: 'RBC', carrier_type: 'CUSTODIAN', domain: 'WEALTH', lines: ['BD Custody'] },
 
-  // BD/RIA
+  // Investments
   { carrier_id: 'CAR_050', carrier_name: 'Gradient Securities', carrier_type: 'BD_RIA', domain: 'WEALTH', lines: ['BD'] },
   { carrier_id: 'CAR_051', carrier_name: 'Gradient Wealth Management', carrier_type: 'BD_RIA', domain: 'WEALTH', lines: ['RIA'] },
   { carrier_id: 'CAR_052', carrier_name: 'Gradient Investments', carrier_type: 'BD_RIA', domain: 'WEALTH', lines: ['IAR'] },

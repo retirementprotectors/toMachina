@@ -31,7 +31,7 @@ export const atlasRoutes = Router()
 
 const PRODUCT_CATEGORY_MAP: Record<string, string> = {
   MAPD: 'HEALTH', MED_SUPP: 'HEALTH',
-  FIA: 'WEALTH', MYGA: 'WEALTH', BDRIA: 'WEALTH',
+  FIA: 'WEALTH', MYGA: 'WEALTH', INVESTMENTS: 'WEALTH',
   TERM_LIFE: 'LEGACY', WHOLE_LIFE: 'LEGACY', IUL: 'LEGACY',
   ANCILLARY: 'HEALTH', GROUP: 'HEALTH',
 }
@@ -145,13 +145,13 @@ const WIRE_DEFINITIONS = [
     ],
   },
   {
-    wire_id: 'WIRE_BDRIA_ACCOUNTS', name: 'BD/RIA Account Pipeline',
-    product_line: 'BDRIA', data_domain: 'ACCOUNTS',
+    wire_id: 'WIRE_INVESTMENT_ACCOUNTS', name: 'Investment Account Pipeline',
+    product_line: 'INVESTMENTS', data_domain: 'ACCOUNTS',
     stages: [
       { type: 'EXTERNAL', name: 'Schwab/RBC Feeds', detail: 'DST Vision + custodian files' },
       { type: 'GAS_FUNCTION', name: 'processAccountImport', project: 'RAPID_IMPORT' },
       { type: 'GAS_FUNCTION', name: 'normalizeAccountData', project: 'RAPID_CORE' },
-      { type: 'MATRIX_TAB', name: '_ACCOUNT_BDRIA', platform: 'RAPID' },
+      { type: 'MATRIX_TAB', name: '_ACCOUNT_INVESTMENTS', platform: 'RAPID' },
       { type: 'FRONTEND', name: 'Account Detail', view: 'accounts', platform: 'PRODASH' },
     ],
   },

@@ -20,7 +20,18 @@ interface ClientFiltersProps {
   columnSelector?: ReactNode
 }
 
-const STATUS_OPTIONS = ['All', 'Active', 'Prospect', 'Inactive', 'Deceased']
+const STATUS_OPTIONS = [
+  'All',
+  'Active',
+  'Active - Affiliate (OK to Market)',
+  'Active - Affiliate (Do Not Market)',
+  'Prospect',
+  'Inactive',
+  'Inactive - Fired',
+  'Inactive - Deceased',
+  'Inactive - Complaint',
+  'Unknown',
+]
 const ACF_OPTIONS = ['All', 'Has ACF', 'No ACF']
 
 export function ClientFilters({

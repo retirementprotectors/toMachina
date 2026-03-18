@@ -45,8 +45,8 @@ const LEADERS = [
     ],
   },
   {
-    owner_email: 'vinnie@retireprotected.com',
-    owner_name: 'Vinnie Vazquez',
+    owner_email: 'vince@retireprotected.com',
+    owner_name: 'Vince Vazquez',
     division: 'Sales',
     title: 'Sales Division Roadmap — Q1 2026',
     description: 'Medicare quoting, Discovery Kit, pipeline execution',

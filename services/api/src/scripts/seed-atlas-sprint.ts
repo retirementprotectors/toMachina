@@ -18,7 +18,7 @@ const ITEMS = [
   // --- Deliverable 1: WIRE_MEDICARE_ACCOUNTS ---
   {
     title: 'WIRE_MEDICARE_ACCOUNTS — Add wire #17',
-    description: 'Add Medicare account data wire to packages/core/src/atlas/wires.ts and services/api/src/routes/atlas.ts. Parallel to WIRE_LIFE_ANNUITY_ACCOUNTS (#9) and WIRE_BDRIA_ACCOUNTS (#10). Stages: Carrier data → TOOL_FIELD_INTROSPECT → Normalize → Validate → Match/Dedup → clients/{client_id}/accounts/ (account_category: medicare) → Frontend.',
+    description: 'Add Medicare account data wire to packages/core/src/atlas/wires.ts and services/api/src/routes/atlas.ts. Parallel to WIRE_LIFE_ANNUITY_ACCOUNTS (#9) and WIRE_INVESTMENTS_ACCOUNTS (#10). Stages: Carrier data → TOOL_FIELD_INTROSPECT → Normalize → Validate → Match/Dedup → clients/{client_id}/accounts/ (account_category: medicare) → Frontend.',
     portal: 'INFRA',
     scope: 'Data',
     component: 'ATLAS Wires',

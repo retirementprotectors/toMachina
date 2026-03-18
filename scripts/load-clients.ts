@@ -141,7 +141,7 @@ async function loadAccounts() {
     { sheet: '_ACCOUNT_ANNUITY', type: 'annuity' },
     { sheet: '_ACCOUNT_LIFE', type: 'life' },
     { sheet: '_ACCOUNT_MEDICARE', type: 'medicare' },
-    { sheet: '_ACCOUNT_BDRIA', type: 'bdria' },
+    { sheet: '_ACCOUNT_INVESTMENTS', type: 'investments' },
     { sheet: '_ACCOUNT_BANKING', type: 'banking' },
   ]
 
