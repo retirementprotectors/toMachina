@@ -50,6 +50,7 @@ function usePageTitle(): string {
       'command-center': 'Command Center',
       myrpi: 'My RPI',
       ddup: 'DeDup',
+      access: 'Access Center',
       'service-centers': 'Service Centers',
       'sales-centers': 'Sales Centers',
       forge: 'FORGE',

@@ -249,7 +249,6 @@ export default function BeniCenterPage() {
     return (
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Beni Center</h1>
           <p className="mt-1 text-sm text-[var(--text-muted)]">Beneficiary management and estate coordination</p>
         </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] py-20">
@@ -279,7 +278,6 @@ export default function BeniCenterPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Beni Center</h1>
           <p className="mt-1 text-sm text-[var(--text-muted)]">Beneficiary management and estate coordination</p>
         </div>
         <div className="flex items-center gap-2">

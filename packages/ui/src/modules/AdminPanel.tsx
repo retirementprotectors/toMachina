@@ -1351,7 +1351,6 @@ export function AdminPanel({ portal }: AdminPanelProps) {
   if (uLoad) {
     return (
       <div className="mx-auto max-w-5xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
         <div className="mt-8 flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
         </div>
@@ -1363,7 +1362,6 @@ export function AdminPanel({ portal }: AdminPanelProps) {
   if (uError) {
     return (
       <div className="mx-auto max-w-5xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
         <div className="mt-6 rounded-xl border border-[var(--error)] bg-[rgba(239,68,68,0.05)] p-6 text-sm text-[var(--text-secondary)]">
           Failed to load admin data: {uError.message}
         </div>
@@ -1375,8 +1373,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Admin</h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">
+        <p className="text-sm text-[var(--text-muted)]">
           {isLeader ? 'Team permissions and module access audit' : 'Your module permissions'}
         </p>
       </div>

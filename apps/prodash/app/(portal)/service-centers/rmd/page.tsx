@@ -265,7 +265,6 @@ export default function RmdCenterPage() {
     return (
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">RMD Center</h1>
           <p className="mt-1 text-sm text-[var(--text-muted)]">Required Minimum Distribution tracking and management</p>
         </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] py-20">
@@ -295,7 +294,6 @@ export default function RmdCenterPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">RMD Center</h1>
           <p className="mt-1 text-sm text-[var(--text-muted)]">{currentYear} Required Minimum Distributions</p>
         </div>
         <div className="flex items-center gap-2">

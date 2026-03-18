@@ -497,12 +497,6 @@ function AccessCenterContent() {
   if (!clientId) {
     return (
       <div className="mx-auto max-w-6xl space-y-6">
-        <div className="flex items-center gap-2">
-          <Link href="/service-centers" className="text-[var(--text-muted)] hover:text-[var(--portal)] transition-colors">
-            <span className="material-icons-outlined text-[20px]">arrow_back</span>
-          </Link>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Access Center</h1>
-        </div>
         <ClientSearch onSelect={(id, name) => { setClientId(id); setClientName(name) }} />
       </div>
     )
@@ -573,7 +567,6 @@ function AccessCenterContent() {
             >
               <span className="material-icons-outlined text-[20px]">arrow_back</span>
             </Link>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Access Center</h1>
             {pendingCount > 0 && (
               <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-semibold text-white">
                 {pendingCount} need attention

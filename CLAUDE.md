@@ -98,12 +98,20 @@ npx turbo run build --filter=@tomachina/core
 - `@retireprotected.com` domain restriction enforced at auth + Firestore rules
 - PHI rules from global CLAUDE.md apply — NEVER log PHI
 
+### Firestore Query Rules
+- **Firestore string queries are CASE-SENSITIVE.** There is no case-insensitive option.
+- ALL name searches must title-case the input before querying: `str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()`
+- Reference pattern: `apps/prodash/app/(portal)/service-centers/access/page.tsx` line 100
+- NEVER query `where('last_name', '>=', rawUserInput)` — always normalize case first
+- Long-term: `search_tokens` array field on client records (Sprint 11+)
+
 ### Forbidden
 - No `any` types (use `unknown` + type narrowing)
 - No inline styles for colors (use CSS variables or Tailwind)
 - No direct Sheets writes from portal apps (use bridge service)
 - No hardcoded credentials (use env vars)
 - No `alert()`, `confirm()`, `prompt()`
+- No raw case-sensitive Firestore string queries on name fields (see Firestore Query Rules above)
 
 ## Firestore Rules
 

@@ -143,10 +143,12 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
       setSearching(true)
       try {
         const db = getDb()
+        const searchStr = clientSearch.trim()
+        const titleCase = searchStr.charAt(0).toUpperCase() + searchStr.slice(1).toLowerCase()
         const q = query(
           collection(db, 'clients'),
-          where('last_name', '>=', clientSearch.trim()),
-          where('last_name', '<=', clientSearch.trim() + '\uf8ff'),
+          where('last_name', '>=', titleCase),
+          where('last_name', '<=', titleCase + '\uf8ff'),
           limit(10)
         )
         const snap = await getDocs(q)
