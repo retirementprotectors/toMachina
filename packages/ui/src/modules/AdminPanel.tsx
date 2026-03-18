@@ -125,6 +125,7 @@ const MODULE_SECTIONS: SectionDef[] = [
       { key: 'command-center', label: 'Command Center', icon: 'dashboard', moduleKey: 'RPI_COMMAND_CENTER' },
       { key: 'pipeline-studio', label: 'Pipeline Studio', icon: 'view_kanban', moduleKey: 'PIPELINE_STUDIO' },
       { key: 'forge', label: 'FORGE', icon: 'construction', moduleKey: 'FORGE' },
+      { key: 'guardian', label: 'GUARDIAN', icon: 'shield', moduleKey: 'GUARDIAN' },
     ],
   },
 ]
