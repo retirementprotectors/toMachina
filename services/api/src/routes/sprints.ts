@@ -640,6 +640,10 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     // Phase determines prompt framing
     const phase = (req.query.phase as string) || 'discovery'
 
+    // Sprint directory for artifacts
+    const sprintSlug = (sprint.name as string || 'sprint').toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    const sprintDir = `.claude/${sprintSlug}`
+
     // Build markdown
     let md = ''
     if (phase === 'building') {
@@ -653,6 +657,31 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       if (sprint.description) md += ` — ${sprint.description}`
       md += '\n'
       if (sprint.discovery_url) md += `> **Discovery Document:** ${sprint.discovery_url}\n`
+    }
+
+    // Artifact Persistence Protocol — always included
+    md += `\n---\n`
+    md += `\n## Artifact Persistence Protocol\n`
+    md += `> Every phase produces artifacts that must be saved to files. Future phases reference these files.\n\n`
+    md += `**Sprint directory:** \`${sprintDir}/\`\n\n`
+
+    if (phase === 'discovery') {
+      md += `### Discovery Phase — You Are Here\n`
+      md += `1. **Create discovery document:** Save your research, analysis, and findings to \`${sprintDir}/DISCOVERY.md\` (or .html for visual mockups)\n`
+      md += `2. **Create tracker items:** Every deliverable identified during discovery becomes a tracker item in FORGE. Use the seed script pattern or POST /api/tracker to create items assigned to this sprint.\n`
+      md += `3. **Update sprint:** PATCH this sprint with \`discovery_url: '${sprintDir}/DISCOVERY.md'\` after saving\n`
+      md += `4. **Create the plan:** After discovery is complete, write the implementation plan to \`${sprintDir}/${(sprint.name as string || 'SPRINT').toUpperCase().replace(/[^A-Z0-9]+/g, '_')}_PLAN.md\`\n`
+      md += `5. **Update sprint:** PATCH this sprint with \`plan_link: '${sprintDir}/...PLAN.md'\` after saving\n`
+      md += `6. **Plan audit:** After the plan is written, run a Plan Audit (compare plan ↔ tickets ↔ discovery) before advancing to building phase\n\n`
+      md += `**The discovery document is the source of truth. The plan is the blueprint. If either is missing, the build will fail.**\n`
+    } else if (phase === 'building') {
+      md += `### Building Phase — You Are Here\n`
+      md += `**Read BOTH files before writing any code:**\n`
+      md += `1. Discovery: \`${sprint.discovery_url || sprintDir + '/DISCOVERY.md'}\`\n`
+      md += `2. Plan: \`${sprint.plan_link || sprintDir + '/...PLAN.md'}\`\n\n`
+      md += `**After build:**\n`
+      md += `3. Save builder prompts to \`${sprintDir}/BUILDER_*.md\` (one per builder agent)\n`
+      md += `4. Save builder reports to \`.claude/_ARCHIVED/builder-reports/\` after completion\n`
     }
 
     // Separate questions from build items
