@@ -151,7 +151,7 @@ const WIRE_DEFINITIONS = [
       { type: 'EXTERNAL', name: 'Schwab/RBC Feeds', detail: 'DST Vision + custodian files' },
       { type: 'GAS_FUNCTION', name: 'processAccountImport', project: 'RAPID_IMPORT' },
       { type: 'GAS_FUNCTION', name: 'normalizeAccountData', project: 'RAPID_CORE' },
-      { type: 'MATRIX_TAB', name: '_ACCOUNT_BDRIA', platform: 'RAPID' },
+      { type: 'MATRIX_TAB', name: '_ACCOUNT_INVESTMENTS', platform: 'RAPID' },
       { type: 'FRONTEND', name: 'Account Detail', view: 'accounts', platform: 'PRODASH' },
     ],
   },

@@ -40,7 +40,7 @@ const INITIAL_RULES: RouteRule[] = [
     id: 'rule-2',
     name: 'Sales Inquiries',
     condition: 'Caller is new lead or Sales Division client',
-    destination: 'Vinnie Vazquez',
+    destination: 'Vince Vazquez',
     priority: 2,
   },
   {

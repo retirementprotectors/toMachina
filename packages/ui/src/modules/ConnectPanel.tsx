@@ -49,7 +49,7 @@ interface RecordingData {
 const TEAM_MEMBERS: TeamMember[] = [
   { name: 'Josh Millang', email: 'josh@retireprotected.com', role: 'CEO', division: 'Leadership', presence: 'online' },
   { name: 'John Behn', email: 'john@retireprotected.com', role: 'COO', division: 'Leadership', presence: 'online' },
-  { name: 'Vinnie Vazquez', email: 'vince@retireprotected.com', role: 'Sales Division', division: 'Sales', presence: 'online' },
+  { name: 'Vince Vazquez', email: 'vince@retireprotected.com', role: 'Sales Division', division: 'Sales', presence: 'online' },
   { name: 'Nikki Gray', email: 'nikki@retireprotected.com', role: 'Service Division', division: 'Service', presence: 'online' },
   { name: 'Matt McCormick', email: 'matt@retireprotected.com', role: 'DAVID/B2B', division: 'DAVID', presence: 'away' },
   { name: 'Dr. Aprille Trupiano', email: 'aprille@retireprotected.com', role: 'Legacy Services', division: 'Legacy', presence: 'away' },
@@ -58,14 +58,14 @@ const TEAM_MEMBERS: TeamMember[] = [
 
 const CHANNELS: ChannelData[] = [
   { name: 'rpi-leadership', pinned: true, unreadCount: 3, lastSender: 'John B', lastMessage: 'Updated the pipeline metrics for Q1...', timestamp: '10m ago' },
-  { name: 'sales-team', pinned: true, unreadCount: 1, lastSender: 'Vinnie', lastMessage: 'T65 list is ready for review...', timestamp: '25m ago' },
+  { name: 'sales-team', pinned: true, unreadCount: 1, lastSender: 'Vince', lastMessage: 'T65 list is ready for review...', timestamp: '25m ago' },
   { name: 'service-team', pinned: false, unreadCount: 0, lastSender: 'Nikki', lastMessage: 'Sprenger RMDs are done for March', timestamp: '2h ago' },
   { name: 'legacy-services', pinned: false, unreadCount: 0, lastSender: 'Aprille', lastMessage: 'Estate docs uploaded to DEX', timestamp: '1d ago' },
   { name: 'david-deals', pinned: false, unreadCount: 0, lastSender: 'Matt', lastMessage: 'Gradient onboarding Q2 timeline set...', timestamp: '2d ago' },
 ]
 
 const UPCOMING_MEETINGS: MeetingData[] = [
-  { title: 'Team Standup', participants: ['Josh', 'John', 'Vinnie', 'Nikki'], timeLabel: 'in 45 min', joinable: true },
+  { title: 'Team Standup', participants: ['Josh', 'John', 'Vince', 'Nikki'], timeLabel: 'in 45 min', joinable: true },
   { title: 'Client Review: Smith Family', participants: ['Nikki', 'Josh'], timeLabel: '2:00 PM', joinable: true },
   { title: 'DAVID Pipeline Review', participants: ['Matt', 'Josh', 'John'], timeLabel: 'Tomorrow', joinable: false },
 ]
@@ -180,11 +180,11 @@ interface MockChatMessage {
 const MOCK_CHANNEL_MESSAGES: Record<string, MockChatMessage[]> = {
   'rpi-leadership': [
     { sender: 'John B', text: 'Pipeline metrics for Q1 are updated. Revenue tracking ahead of forecast.', time: '10:42 AM' },
-    { sender: 'Vinnie', text: 'T65 list pull is ready, 847 names for March. Starting outreach tomorrow.', time: '10:55 AM' },
+    { sender: 'Vince', text: 'T65 list pull is ready, 847 names for March. Starting outreach tomorrow.', time: '10:55 AM' },
     { sender: 'Josh', text: 'Great work team. Lets review in standup.', time: '11:03 AM' },
   ],
   'sales-team': [
-    { sender: 'Vinnie', text: 'AEP numbers coming in strong. 12 enrollments this week.', time: '9:15 AM' },
+    { sender: 'Vince', text: 'AEP numbers coming in strong. 12 enrollments this week.', time: '9:15 AM' },
     { sender: 'Nikki', text: 'Reminder to get RMD paperwork in by Friday.', time: '9:32 AM' },
   ],
   'service-team': [
