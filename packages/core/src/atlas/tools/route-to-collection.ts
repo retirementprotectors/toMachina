@@ -22,7 +22,7 @@ const COLLECTION_ROUTES: Record<string, string> = {
   medicare: 'accounts',
   annuity: 'accounts',
   life: 'accounts',
-  bdria: 'accounts',
+  investments: 'accounts',
   banking: 'accounts',
 
   // Data domains
@@ -52,7 +52,7 @@ const SUBCOLLECTION_ROUTES: Record<string, string> = {
   medicare: 'medicare_accounts',
   annuity: 'annuity_accounts',
   life: 'life_accounts',
-  bdria: 'bdria_accounts',
+  investments: 'investment_accounts',
   banking: 'banking_accounts',
 }
 

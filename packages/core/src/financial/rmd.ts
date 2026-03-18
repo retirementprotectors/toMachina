@@ -189,7 +189,7 @@ export function generateRmdSchedule(
 
 /**
  * Check if an account type is RMD-eligible.
- * RMDs apply to: traditional IRA, SEP IRA, SIMPLE IRA, 401k, 403b, annuity (qualified), BD/RIA (qualified).
+ * RMDs apply to: traditional IRA, SEP IRA, SIMPLE IRA, 401k, 403b, annuity (qualified), Investments (qualified).
  * RMDs do NOT apply to: Roth IRA (during owner's lifetime), life insurance, medicare.
  */
 export function isRmdEligible(accountType: string, taxStatus?: string): boolean {
@@ -205,9 +205,9 @@ export function isRmdEligible(accountType: string, taxStatus?: string): boolean 
   // Qualified accounts are RMD-eligible
   if (tax.includes('qualified') || tax.includes('pre-tax') || tax.includes('traditional')) return true
 
-  // Annuity and BD/RIA are typically qualified
+  // Annuity and Investments are typically qualified
   if (t.includes('annuity') || t.includes('ira') || t.includes('401') || t.includes('403') || t.includes('sep') || t.includes('simple')) return true
-  if (t.includes('bdria') || t.includes('bd_ria') || t.includes('brokerage')) return true
+  if (t.includes('investment') || t.includes('bdria') || t.includes('bd_ria') || t.includes('brokerage')) return true
 
   return false
 }

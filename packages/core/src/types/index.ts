@@ -407,7 +407,7 @@ export const ACCOUNT_TYPE_CATEGORIES = [
   'Annuity',
   'Life',
   'Medicare',
-  'BD/RIA',
+  'Investments',
   'Banking',
 ] as const
 

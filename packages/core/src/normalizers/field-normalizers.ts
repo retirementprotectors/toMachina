@@ -363,7 +363,7 @@ export const PRODUCT_TYPES: Record<string, string> = {
   'spia single premium immediate': 'SPIA',
   'variable annuity': 'Variable Annuity',
 
-  // BD/RIA
+  // Investments (formerly BD/RIA)
   'advisory feebased': 'Advisory (Fee-Based)',
   'advisory fee-based': 'Advisory (Fee-Based)',
   'brokerage commissionbased': 'Brokerage (Commission-Based)',
@@ -373,9 +373,9 @@ export const PRODUCT_TYPES: Record<string, string> = {
   'medicare': 'Medicare',
   'life': 'Life',
   'annuities': 'Annuity',
-  'bd ria': 'BD/RIA',
-  'bd/ria': 'BD/RIA',
-  'bdria': 'BD/RIA',
+  'bd ria': 'Investments',
+  'bd/ria': 'Investments',
+  'bdria': 'Investments',
 
   // Ancillary
   'dental': 'Dental',
