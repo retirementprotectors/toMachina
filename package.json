@@ -4,7 +4,10 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "services/*"
+    "services/api",
+    "services/bigquery-stream",
+    "services/bridge",
+    "services/intake"
   ],
   "scripts": {
     "postinstall": "bash scripts/link-env.sh",
