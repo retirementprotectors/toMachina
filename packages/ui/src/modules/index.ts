@@ -24,3 +24,4 @@ export { ProZone, TerritoryBuilder, SpecialistConfigEditor } from './ProZone'
 
 export { QueRegistry } from './QueRegistry'
 export { QueWorkbench } from './QueWorkbench'
+export { Guardian } from './Guardian'
