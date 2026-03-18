@@ -79,7 +79,7 @@ async function charterNaicDestruction(): Promise<QueryResult> {
           PARTITION BY doc_id ORDER BY timestamp
         ) AS prev_naic
       FROM ${FULL_TABLE}
-      WHERE collection IN ('accounts', 'accounts_life', 'accounts_bdria')
+      WHERE collection IN ('accounts', 'accounts_life', 'accounts_investments')
     )
     SELECT
       doc_id,
@@ -170,7 +170,7 @@ async function orphanDetection(): Promise<QueryResult> {
         JSON_VALUE(data_json, '$.client_id') AS client_id,
         ROW_NUMBER() OVER (PARTITION BY doc_id ORDER BY timestamp DESC) AS rn
       FROM ${FULL_TABLE}
-      WHERE collection IN ('accounts', 'accounts_life', 'accounts_bdria')
+      WHERE collection IN ('accounts', 'accounts_life', 'accounts_investments')
         AND operation != 'delete'
     ),
     latest_clients AS (

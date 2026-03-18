@@ -11,7 +11,7 @@ import {
   type GuardianAudit,
   type GuardianFinding,
   type PhaseTransitionResult,
-} from '../types/guardian.js'
+} from '../types/guardian'
 
 /**
  * Get the next phase in the lifecycle. Returns null if already at final phase.

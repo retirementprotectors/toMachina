@@ -437,20 +437,42 @@ export const INTAKE_STATUSES = [
 export type IntakeStatus = typeof INTAKE_STATUSES[number]
 
 // ============================================================================
-// CLIENT STATUSES (Builder 3)
+// CLIENT STATUSES
 // ============================================================================
 
 export const CLIENT_STATUSES = [
   'Active',
-  'Active - Internal',
-  'Active - External',
+  'Active - Affiliate (OK to Market)',
+  'Active - Affiliate (Do Not Market)',
+  'Prospect',
   'Inactive',
-  'Pending',
-  'Deceased',
-  'Deleted',
+  'Inactive - Fired',
+  'Inactive - Deceased',
+  'Inactive - Complaint',
+  'Unknown',
 ] as const
 
 export type ClientStatus = typeof CLIENT_STATUSES[number]
+
+// ============================================================================
+// ACCOUNT STATUSES
+// ============================================================================
+
+export const ACCOUNT_STATUSES = [
+  'Active',
+  'Pending',
+  'Inactive',
+  'Terminated',
+  'Surrendered',
+  'Cancelled',
+  'Lapsed',
+  'Matured',
+  'Deceased',
+  'Claim',
+  'Unknown',
+] as const
+
+export type AccountStatus = typeof ACCOUNT_STATUSES[number]
 
 // ============================================================================
 // ACCOUNT TYPE CATEGORIES (Builder 3)
@@ -460,7 +482,7 @@ export const ACCOUNT_TYPE_CATEGORIES = [
   'Annuity',
   'Life',
   'Medicare',
-  'BD/RIA',
+  'Investments',
   'Banking',
 ] as const
 
@@ -587,3 +609,34 @@ export interface TeamMember {
   name: string
   role: 'coordinator' | 'associate'
 }
+
+// ============================================================================
+// GUARDIAN — Data Protection Engine
+// ============================================================================
+
+export type {
+  GuardianAudit,
+  GuardianFinding,
+  DataSnapshot,
+  CollectionSnapshot,
+  GuardianWrite,
+  AnomalyAlert,
+  AnomalyType,
+  CollectionSchema,
+  CollectionAuditResult,
+  AuditReport,
+  GuardianPhase,
+  FindingSeverity,
+  FindingCategory,
+  FindingStatus,
+  PhaseTransitionResult,
+} from './guardian'
+
+export {
+  GUARDIAN_PHASES,
+  GUARDIAN_PHASE_ORDER,
+  FINDING_SEVERITIES,
+  FINDING_CATEGORIES,
+  FINDING_STATUSES,
+  ANOMALY_TYPES,
+} from './guardian'

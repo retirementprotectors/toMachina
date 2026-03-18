@@ -4,7 +4,7 @@
 // Used by the Write Gate middleware to validate ALL Firestore writes.
 // ============================================================================
 
-import type { CollectionSchema } from '../types/guardian.js'
+import type { CollectionSchema } from '../types/guardian'
 
 export const COLLECTION_SCHEMAS: Record<string, CollectionSchema> = {
   clients: {
@@ -28,7 +28,7 @@ export const COLLECTION_SCHEMAS: Record<string, CollectionSchema> = {
     recommended: ['charter', 'naic', 'carrier_id', 'policy_number'],
   },
 
-  accounts_bdria: {
+  accounts_investments: {
     required: ['client_id', 'carrier_name', 'status'],
     neverNull: ['client_id', 'carrier_name'],
     immutableAfterCreate: ['created_at'],

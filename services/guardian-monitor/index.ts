@@ -53,7 +53,7 @@ const COLLECTION_SCHEMAS: Record<string, CollectionSchema> = {
     immutableAfterCreate: ['created_at'],
     recommended: ['charter', 'naic', 'carrier_id', 'policy_number'],
   },
-  accounts_bdria: {
+  accounts_investments: {
     required: ['client_id', 'carrier_name', 'status'],
     neverNull: ['client_id', 'carrier_name'],
     immutableAfterCreate: ['created_at'],

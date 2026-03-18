@@ -349,13 +349,13 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
-    // Account dedup — split account collections (life, BD/RIA)
+    // Account dedup — split account collections (life, investments)
     // ----------------------------------------------------------------
     match /accounts_life/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
-    match /accounts_bdria/{docId} {
+    match /accounts_investments/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
