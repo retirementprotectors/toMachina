@@ -692,6 +692,24 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       }
     }
 
+    // New App Registration Checklist — building phase only
+    if (phase === 'building') {
+      md += `\n---\n`
+      md += `\n## New App / Module Registration Checklist\n`
+      md += `> If this sprint introduces a NEW App or Module, ALL of the following must be completed.\n`
+      md += `> Skip this section if the sprint only modifies existing features.\n\n`
+      md += `| # | Registration Point | File | What |\n`
+      md += `|---|---|---|---|\n`
+      md += `| 1 | Module definition + suite | \`packages/core/src/users/modules.ts\` | Add to MODULES constant + appropriate TOOL_SUITES array |\n`
+      md += `| 2 | AppKey type + APP_BRANDS | \`packages/ui/src/apps/brands.ts\` | Add key to AppKey union + brand entry (color, icon, label, description) |\n`
+      md += `| 3 | Sidebar APP_ITEMS (x3) | \`apps/*/components/PortalSidebar.tsx\` | Add to APP_ITEMS in all 3 portal sidebars |\n`
+      md += `| 4 | AdminPanel MODULE_SECTIONS | \`packages/ui/src/modules/AdminPanel.tsx\` | Add to appropriate section so it appears in permissions audit |\n`
+      md += `| 5 | Module export | \`packages/ui/src/modules/index.ts\` | Export the new component |\n`
+      md += `| 6 | Portal pages (x3) | \`apps/*/app/(portal)/.../page.tsx\` | Create page in each portal that renders the module |\n`
+      md += `| 7 | Firestore rules | \`firestore.rules\` | Add rules for any new collections |\n`
+      md += `| 8 | API routes + server mount | \`services/api/src/server.ts\` | Import + mount new routes |\n`
+    }
+
     // FORGE status update protocol — phase-specific
     md += `\n---\n`
     md += `\n## FORGE Status Protocol\n`
