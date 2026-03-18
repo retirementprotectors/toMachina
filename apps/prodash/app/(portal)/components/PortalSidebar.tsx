@@ -90,6 +90,7 @@ const APP_ITEMS: AppItem[] = [
   { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
   { key: 'pipeline-studio', href: '/modules/pipeline-studio', moduleKey: 'PIPELINE_STUDIO' },
   { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
+  { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
   { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
 ]
 

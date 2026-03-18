@@ -1,6 +1,6 @@
 /** Canonical app brand definitions — identical across all portals. */
 
-export type AppKey = 'atlas' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'leadership-center' | 'pipeline-studio' | 'pipelines' | 'prozone'
+export type AppKey = 'atlas' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'guardian' | 'leadership-center' | 'pipeline-studio' | 'pipelines' | 'prozone'
 
 export interface AppBrand {
   color: string
@@ -18,6 +18,7 @@ export const APP_BRANDS: Record<AppKey, AppBrand> = {
   'command-center':   { color: '#718096', icon: 'speed',       label: 'Command Center',   description: 'Metrics Dashboard' },
   'david-hub':        { color: '#40bc58', icon: 'calculate',   label: 'DAVID HUB',        description: 'M&A Deal Evaluation' },
   forge:               { color: '#e07c3e', icon: 'construction', label: 'FORGE',             description: 'Build Tracker' },
+  guardian:            { color: '#c8872e', icon: 'shield',       label: 'GUARDIAN',          description: 'Data Protection Engine' },
   'leadership-center': { color: '#a78bfa', icon: 'leaderboard', label: 'Leadership Center', description: 'Leadership Intelligence' },
   'pipeline-studio':   { color: '#14b8a6', icon: 'architecture',  label: 'Pipeline Studio',  description: 'Pipeline Design Tool' },
   pipelines:           { color: '#4a7ab5', icon: 'route',        label: 'Pipelines',        description: 'Pipeline Factory' },

@@ -89,6 +89,7 @@ const APP_ITEMS: AppItem[] = [
   { key: 'atlas', href: '/modules/atlas', moduleKey: 'ATLAS' },
   { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
   { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
+  { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
   { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
 ]
 
