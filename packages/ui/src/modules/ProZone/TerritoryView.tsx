@@ -10,19 +10,8 @@ import type { CountyRow, Territory } from './types'
 
 interface TerritoryViewProps {
   specialistId: string
+  territoryId: string
   portal: string
-}
-
-interface ProspectsResponse {
-  success: boolean
-  data?: Array<{ county: string; zone_id: string; zone_name: string; tier: 'I' | 'II' | 'III' | 'IV' }>
-  error?: string
-}
-
-interface TerritoryResponse {
-  success: boolean
-  data?: Territory
-  error?: string
 }
 
 // Tier visual styles using CSS variable-friendly backgrounds
@@ -33,7 +22,7 @@ const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> =
   IV:  { bg: 'bg-red-500/10',     text: 'text-red-400',     label: 'Tier IV' },
 }
 
-export default function TerritoryView({ specialistId }: TerritoryViewProps) {
+export default function TerritoryView({ specialistId, territoryId }: TerritoryViewProps) {
   const [rows, setRows] = useState<CountyRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -45,14 +34,14 @@ export default function TerritoryView({ specialistId }: TerritoryViewProps) {
         setLoading(true)
         setError(null)
 
-        // Fetch both territory structure and prospect counts
+        // Fetch territory structure and prospect counts in parallel
         const [territoryRes, prospectsRes] = await Promise.all([
-          fetchWithAuth(`/api/territories/${specialistId}`),
+          fetchWithAuth(`/api/territories/${territoryId}`),
           fetchWithAuth(`/api/prozone/prospects/${specialistId}`),
         ])
 
-        const territoryJson = await territoryRes.json() as TerritoryResponse
-        const prospectsJson = await prospectsRes.json() as ProspectsResponse
+        const territoryJson = await territoryRes.json() as { success: boolean; data?: Territory; error?: string }
+        const prospectsJson = await prospectsRes.json() as { success: boolean; data?: { zones: Array<{ zone_id: string; prospects: Array<{ county?: string }>; prospect_count: number }> }; error?: string }
 
         if (cancelled) return
 
@@ -60,11 +49,16 @@ export default function TerritoryView({ specialistId }: TerritoryViewProps) {
         const countyRows: CountyRow[] = []
 
         if (territoryJson.success && territoryJson.data?.zones) {
+          // Count prospects per county from zone-grouped response
           const prospectCountByCounty: Record<string, number> = {}
-          if (prospectsJson.success && prospectsJson.data) {
-            for (const p of prospectsJson.data) {
-              const key = p.county.toLowerCase()
-              prospectCountByCounty[key] = (prospectCountByCounty[key] || 0) + 1
+          if (prospectsJson.success && prospectsJson.data?.zones) {
+            for (const zone of prospectsJson.data.zones) {
+              for (const p of zone.prospects || []) {
+                if (p.county) {
+                  const key = String(p.county).toLowerCase()
+                  prospectCountByCounty[key] = (prospectCountByCounty[key] || 0) + 1
+                }
+              }
             }
           }
 
@@ -90,7 +84,7 @@ export default function TerritoryView({ specialistId }: TerritoryViewProps) {
     }
     load()
     return () => { cancelled = true }
-  }, [specialistId])
+  }, [specialistId, territoryId])
 
   // Group by zone
   const zoneGroups = useMemo(() => {

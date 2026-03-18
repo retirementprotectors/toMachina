@@ -77,10 +77,27 @@ export default function ScheduleView({ specialistId }: ScheduleViewProps) {
         setError(null)
         const weekKey = formatWeekKey(year, week)
         const res = await fetchWithAuth(`/api/prozone/schedule/${specialistId}/${weekKey}`)
-        const json = await res.json() as { success: boolean; data?: WeekSchedule; error?: string }
+        interface ApiDay { date: string; day: string; type: string; slots: Array<{ time: string; duration_minutes: number; tier?: string; zones?: string[]; status: string; departure_time?: string; return_time?: string }> }
+        const json = await res.json() as { success: boolean; data?: { schedule: ApiDay[]; week: string; week_start: string; week_end: string }; error?: string }
         if (!cancelled) {
-          if (json.success && json.data) {
-            setSchedule(json.data)
+          if (json.success && json.data?.schedule) {
+            // Transform API day-grouped response into WeekSchedule
+            const dayAbbrev: Record<string, ScheduleSlot['day']> = { Monday: 'mon', Tuesday: 'tue', Wednesday: 'wed', Thursday: 'thu', Friday: 'fri' }
+            const flatSlots: ScheduleSlot[] = json.data.schedule.flatMap((dayObj) =>
+              (dayObj.slots || []).map((s, idx) => ({
+                slot_id: `${dayObj.date}-${idx}`,
+                day: dayAbbrev[dayObj.day] || 'mon' as ScheduleSlot['day'],
+                start_time: s.time,
+                end_time: '',
+                duration_minutes: s.duration_minutes,
+                slot_type: dayObj.type as 'office' | 'field',
+                zone_id: s.zones?.[0],
+                zone_name: s.tier ? `Tier ${s.tier}` : undefined,
+                tier: s.tier as ScheduleSlot['tier'],
+                status: s.status as ScheduleSlot['status'],
+              }))
+            )
+            setSchedule({ week_label: getWeekLabel(year, week), year, week_number: week, slots: flatSlots })
           } else {
             setSchedule({ week_label: getWeekLabel(year, week), year, week_number: week, slots: [] })
           }

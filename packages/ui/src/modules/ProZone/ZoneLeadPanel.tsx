@@ -50,10 +50,22 @@ export default function ZoneLeadPanel({ specialistId, zones }: ZoneLeadPanelProp
         setLoading(true)
         setError(null)
         const res = await fetchWithAuth(`/api/prozone/zone-leads/${specialistId}/${selectedZone}`)
-        const json = await res.json() as { success: boolean; data?: ZoneLead[]; error?: string }
+        const json = await res.json() as { success: boolean; data?: { leads: Array<Record<string, unknown>>; zone_id: string; total: number }; error?: string }
         if (!cancelled) {
-          if (json.success && json.data) {
-            setLeads(json.data)
+          if (json.success && json.data?.leads) {
+            // Map API response to ZoneLead shape
+            const mapped: ZoneLead[] = json.data.leads.map(l => ({
+              lead_id: String(l.client_id || ''),
+              first_name: String(l.first_name || ''),
+              last_name: String(l.last_name || ''),
+              age: Number(l.age) || 0,
+              county: String(l.county || ''),
+              city: String(l.city || ''),
+              reason: Array.isArray(l.reasons) ? (l.reasons as string[]).join(', ') : String(l.reasons || ''),
+              zone_id: json.data!.zone_id || selectedZone,
+              zone_name: '',
+            }))
+            setLeads(mapped)
           } else {
             setError(json.error || 'Failed to load zone leads')
             setLeads([])

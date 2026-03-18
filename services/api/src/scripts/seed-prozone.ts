@@ -262,7 +262,7 @@ const SPECIALISTS: SpecialistDef[] = [
       office: { active_la: true, outer_zone: true },
     },
     zone_lead_criteria: { active_medicare_all: true, active_la_80plus: true, no_core_under_80: true },
-    calendar_booking_url: undefined,
+    calendar_booking_url: '',
     team: [],
     config_status: 'Active',
   },

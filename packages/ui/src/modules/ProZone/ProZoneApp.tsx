@@ -174,7 +174,7 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
           {/* Tab Content */}
           <div>
             {activeTab === 'territory' && (
-              <TerritoryView specialistId={selectedId} portal={portal} />
+              <TerritoryView specialistId={selectedId} territoryId={selected.territory_id} portal={portal} />
             )}
             {activeTab === 'schedule' && (
               <ScheduleView specialistId={selectedId} portal={portal} />

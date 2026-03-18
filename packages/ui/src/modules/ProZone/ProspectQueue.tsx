@@ -35,10 +35,27 @@ export default function ProspectQueue({ specialistId }: ProspectQueueProps) {
         setLoading(true)
         setError(null)
         const res = await fetchWithAuth(`/api/prozone/prospects/${specialistId}`)
-        const json = await res.json() as { success: boolean; data?: Prospect[]; error?: string }
+        const json = await res.json() as { success: boolean; data?: { zones: Array<{ zone_id: string; zone_name: string; tier: string; prospects: Array<Record<string, unknown>>; prospect_count: number }> }; error?: string }
         if (!cancelled) {
-          if (json.success && json.data) {
-            setProspects(json.data)
+          if (json.success && json.data?.zones) {
+            // Flatten zone-grouped API response into flat Prospect[]
+            const flat: Prospect[] = json.data.zones.flatMap(zone =>
+              (zone.prospects || []).map(p => ({
+                prospect_id: String(p.client_id || p.prospect_id || ''),
+                first_name: String(p.first_name || ''),
+                last_name: String(p.last_name || ''),
+                county: String(p.county || ''),
+                city: String(p.city || ''),
+                state: String(p.state || ''),
+                zip: String(p.zip || ''),
+                age: Number(p.age) || 0,
+                zone_id: zone.zone_id,
+                zone_name: zone.zone_name,
+                tier: zone.tier as Prospect['tier'],
+                tags: Array.isArray(p.tags) ? p.tags as string[] : [],
+              }))
+            )
+            setProspects(flat)
           } else {
             setError(json.error || 'Failed to load prospects')
           }
