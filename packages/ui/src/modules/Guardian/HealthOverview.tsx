@@ -94,9 +94,34 @@ export function HealthOverview() {
       setLoading(true)
       const res = await fetchWithAuth('/api/guardian/health')
       if (!res.ok) throw new Error('Failed to fetch health data')
-      const json = await res.json() as { success: boolean; data?: CollectionHealth[] }
+      const json = await res.json() as {
+        success: boolean
+        data?: Record<string, { doc_count: number; field_coverage: Record<string, number> }>
+      }
       if (json.success && json.data) {
-        setData(json.data)
+        // API returns object keyed by collection name — transform to array
+        const arr: CollectionHealth[] = Object.entries(json.data).map(([collection, info]) => {
+          const fieldEntries = Object.entries(info.field_coverage)
+          const avgCoverage = fieldEntries.length > 0
+            ? Math.round(fieldEntries.reduce((sum, [, pct]) => sum + pct, 0) / fieldEntries.length)
+            : 0
+          const issues: string[] = []
+          for (const [field, pct] of fieldEntries) {
+            if (pct < 50) issues.push(`${field}: ${pct}% populated`)
+          }
+          return {
+            collection,
+            doc_count: info.doc_count,
+            field_coverage: avgCoverage,
+            field_details: fieldEntries.map(([field, pct]) => ({
+              field, filled: 0, total: 0, percentage: pct,
+            })),
+            status: avgCoverage >= 90 ? 'healthy' as const : avgCoverage >= 60 ? 'warning' as const : 'critical' as const,
+            issues,
+            last_updated: new Date().toISOString(),
+          }
+        })
+        setData(arr)
       }
     } catch {
       showToast('Failed to load health data', 'error')
