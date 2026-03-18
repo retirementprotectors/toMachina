@@ -40,19 +40,34 @@ export default function TerritoryView({ specialistId, territoryId }: TerritoryVi
           fetchWithAuth(`/api/prozone/prospects/${specialistId}`),
         ])
 
-        const territoryJson = await territoryRes.json() as { success: boolean; data?: Territory; error?: string }
-        const prospectsJson = await prospectsRes.json() as { success: boolean; data?: { zones: Array<{ zone_id: string; prospects: Array<{ county?: string }>; prospect_count: number }> }; error?: string }
+        const territoryJson = await territoryRes.json() as { success: boolean; data?: { territory_id: string; territory_name: string; counties: Array<{ county: string; zone_id: string }>; zones: Array<{ zone_id: string; zone_name: string }> }; error?: string }
+        const prospectsJson = await prospectsRes.json() as { success: boolean; data?: { zones: Array<{ zone_id: string; zone_name: string; tier: string; prospects: Array<{ county?: string }>; prospect_count: number }> }; error?: string }
 
         if (cancelled) return
 
-        // Build county rows from territory zones
         const countyRows: CountyRow[] = []
+        const tData = territoryJson.success ? territoryJson.data : null
+        const pData = prospectsJson.success ? prospectsJson.data : null
 
-        if (territoryJson.success && territoryJson.data?.zones) {
-          // Count prospects per county from zone-grouped response
+        if (tData) {
+          // Build zone name + tier lookup from prospects API (has tier info from specialist config)
+          const zoneInfo = new Map<string, { zone_name: string; tier: string }>()
+          if (pData?.zones) {
+            for (const z of pData.zones) {
+              zoneInfo.set(z.zone_id, { zone_name: z.zone_name, tier: z.tier })
+            }
+          }
+          // Fallback zone names from territory zones
+          for (const z of tData.zones || []) {
+            if (!zoneInfo.has(z.zone_id)) {
+              zoneInfo.set(z.zone_id, { zone_name: z.zone_name, tier: 'I' })
+            }
+          }
+
+          // Count prospects per county
           const prospectCountByCounty: Record<string, number> = {}
-          if (prospectsJson.success && prospectsJson.data?.zones) {
-            for (const zone of prospectsJson.data.zones) {
+          if (pData?.zones) {
+            for (const zone of pData.zones) {
               for (const p of zone.prospects || []) {
                 if (p.county) {
                   const key = String(p.county).toLowerCase()
@@ -62,16 +77,16 @@ export default function TerritoryView({ specialistId, territoryId }: TerritoryVi
             }
           }
 
-          for (const zone of territoryJson.data.zones) {
-            for (const county of zone.counties) {
-              countyRows.push({
-                county: county.county,
-                zone_id: zone.zone_id,
-                zone_name: zone.zone_name,
-                tier: zone.tier,
-                client_count: prospectCountByCounty[county.county.toLowerCase()] || 0,
-              })
-            }
+          // Build rows from territory.counties (flat array with zone_id)
+          for (const c of tData.counties || []) {
+            const info = zoneInfo.get(c.zone_id) || { zone_name: c.zone_id, tier: 'I' as const }
+            countyRows.push({
+              county: c.county,
+              zone_id: c.zone_id,
+              zone_name: info.zone_name,
+              tier: info.tier as CountyRow['tier'],
+              client_count: prospectCountByCounty[c.county.toLowerCase()] || 0,
+            })
           }
         }
 
