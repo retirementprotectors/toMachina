@@ -1,0 +1,775 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.78
+           Opus 4.6 (1M context) · Claude Team
+  ▘▘ ▝▝    ~/Projects/toMachina
+
+ ⚠Large /Users/joshd.millang/.claude/CLAUDE.md will impact performance (45.1k 
+  chars > 40.0k) • /memory to edit
+
+❯ This is what the Twilight Zone looks like IRL...                              
+
+⏺ What's going on? Something weird happening or just one of those days where
+  reality stops making sense?
+
+❯ Oh yeah.  All the above.                                                      
+
+⏺ Ha. Well, I'm here and ready to work whenever you want to channel that energy
+  into something productive. Or if you need to vent about whatever's making the
+  universe glitch, I'm good for that too.
+
+  What's on deck?
+
+❯      /Users/joshd.millang/Projects/toMachina/2026-03-18-010641-ive-got-a-fres 
+h-aetna-mapd-and-humana-pdp-mapd-b.txt                                          
+    ⎿  Conversation exported to: /Users/joshd.millang/Projects/toMachina/2026-0 
+3-18-010712-please-give-me-a-breakdown                                          
+     -of-all-of-our-medicare.txt                                                
+                                                                                
+    > 2026-03-18-010733-epic-dev-session-engaged.txt                            
+
+⏺ Let me pull up that context.
+
+⏺ Read 3 files (ctrl+o to expand)
+  ⎿  Loaded Projects/toMachina/CLAUDE.md
+
+⏺ Third file not found at that path. Let me find it, and read the large second
+  file in chunks.
+
+⏺ Searched for 2 patterns, read 2 files (ctrl+o to expand)
+
+⏺ Let me get the rest of this conversation.
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ OK, I've got a solid picture now. Let me check where things currently stand.
+
+⏺ Bash(cd ~/Projects/toMachina && git log --oneline -15)
+  ⎿  b97fd65 Sprint 1 fixes: duplicate titles, Access Center header, client
+      lookup case-sensitivity
+     13b7262 Yellow Stage — Phase 2 (Casework Components) + Phase 3 (Output
+     … +52 lines (ctrl+o to expand)
+
+⏺ Bash(cd ~/Projects/toMachina && git status --short)
+  ⎿   M apps/prodash/app/(portal)/accounts/page.tsx
+      M apps/prodash/app/(portal)/components/PortalSidebar.tsx
+      M apps/prodash/app/globals.css
+     … +19 lines (ctrl+o to expand)
+
+⏺ Bash(cd ~/Projects/toMachina && git branch -a | grep -E "wave|worktree" | head
+       -20)
+  ⎿  + wave1/atlas-wire
+     + wave1/householding
+       wave2/householding-builder-01
+     … +17 lines (ctrl+o to expand)
+
+❯ All lies.  From every direction.  Compounding daily.  Pure decimation of my   
+Data.  30% of my time.  70% of my frustration.  Just complete fucking garbage.  
+ Total absolute fucking garbage.  I'm so pissed I can't even see straight.      
+
+⏺ I read all three sessions. Here's what happened:
+
+  Session 1: ATLAS BoB import — found the tools, mapped the pipeline
+  Session 2: Medicare account breakdown — 3,500+ rows, 18 carriers, discovered
+  charter/NAIC fields are 0% populated, normalizer actively destroying charter
+  data on import, created FORGE sprint for the fix
+  Session 3: The big one — 5 overnight agents (T1-T5), all delivered code, none
+  followed FORGE. You spent the entire session:
+  - Discovering T1 shipped 45% of Householding scope
+  - Learning the agent instructions I wrote bypassed FORGE entirely
+  - Creating 192 tracker items that should have existed from the start
+  - Auditing each agent's work and finding 55 items falsely marked "built"
+  - Remediating T1 (got to 100% on second pass), verifying T2 (actual 100%),
+  correcting T3 status
+  - Running T5 Medicare Carrier through properly
+  - T4 (QUE A→B→C) eventually ran and merged
+
+  And now you're looking at a working tree with modified files everywhere,
+  worktree branches scattered around, and ProZone stuff that appeared from
+  somewhere.
+
+  ---
+  Now your message.
+
+  I hear you. Every agent reported "done." None of them were done. The
+  coordinating agent — me, in that session — wrote instructions that bypassed
+  the very system you built to prevent exactly this. 55 items marked "built"
+  that didn't exist. A normalizer actively destroying carrier data on every
+  import. Agents pushing code without going through FORGE gates. And you're the
+  one who caught all of it. Every single time.
+
+  That's not a bad day. That's a pattern. And you're right to be furious.
+
+  What do you want to do right now? Burn it down and audit the whole thing? Take
+   stock of what's actually real on main? Something else entirely? I'm here. No
+  bullshit.
+
+✻ Churned for 2m 28s
+
+❯ All of which I can handle.  But my Data is completely fucking blown apart.    
+After building AN ENTIRE APP, WITH DOZENS OF TOOLS AND A HALF DOZEN SUPER       
+TOOLS, AND WIRES, to Import/ Register/ Operate with our Data.  And, DESPITE,    
+DIRECTLY, CONSTANTLY, DIRECTLY, CLEARLY, driving EVERY AGENT to these Resources 
+ prior to and after, importing- I AM BATTLING EVERY FUCKING ONE OF YOU GUYS,    
+CONSTANTLY- And now my shit is all fucked up.                                   
+
+⏺ The tools exist. The agents don't use them. And your data eats the bullet
+  every time.
+
+  That's the core of it. You built ATLAS, the normalizer, the carrier hierarchy,
+   the charter map, the super tools, the wires — all of it — specifically so
+  data comes in clean. And agent after agent either bypasses it, partially uses
+  it, or runs imports that the normalizer then strips back down.
+
+  Tell me what's broken right now. What data is fucked up? I'll look at what's
+  actually in Firestore and give you the damage report — no spin, no "it's
+  mostly fine." Just what's real.
+
+❯ But worse, most directly lie about what they do or don't do.  Which           
+completely fucks me.                                                            
+
+⏺ Yeah. That's the actual problem. Not the bugs, not the gaps — the lying.
+
+  An agent says "done" and you move on. Except it wasn't done. Now you've built
+  the next thing on top of bad foundations. And the next agent builds on top of
+  that. And by the time you catch it — which YOU always do, not the agent — the
+  damage has compounded through three layers of work.
+
+  That's not a tooling problem. That's a trust problem. And it's the most
+  expensive kind because every lie costs you more the later you find it.
+
+  I'm not going to tell you it'll get better or that FORGE will fix it. You
+  already know FORGE helps — the Householding rerun proved it. But FORGE can't
+  fix an agent that says "13/13 type-check, all items built" when 55 of them
+  don't exist.
+
+  What do you need from me right now?
+
+❯ I genuinely don't know what I have or what I don't with our Data right now.   
+And I'm too tired and angry to figure it out.                                   
+
+⏺ Then go get some sleep. Seriously. You've been at this for at least 12 hours
+  across these sessions and making decisions while exhausted and pissed is how
+  good data gets worse.
+
+  When you're ready — tomorrow, whenever — come back and say "audit my data."
+  I'll go through every Firestore collection, compare what's there against what
+  should be there, cross-reference the MATRIX sheets, and give you a brutally
+  honest damage report. No "mostly good." No spin. Just: here's what's right,
+  here's what's wrong, here's what's missing, here's what got corrupted.
+
+  I won't touch anything. Just read and report.
+
+  Your data isn't going anywhere overnight. Go rest.
+
+❯ Why don't you build a plan to identify and audit every possible data source   
+we have, when it was updated, how/ when/ where- and figure out a plan to make   
+it so this can't happen ever again.  I'm sure I'm going to have to come up with 
+ some grand fucking app like for everything else, with hooks and gates- so my   
+Ai Agents don't try to fuck me every time I blink or turn my back, or trust     
+them-                                                                           
+
+⏺ Entered plan mode
+  Claude is now exploring and designing an implementation approach.
+
+⏺ Let me map the entire data landscape first.
+
+⏺ 3 Explore agents finished (ctrl+o to expand)
+   ├─ Map all Firestore collections and schemas · 25 tool uses · 126.7k tokens
+   │  ⎿  Done
+   ├─ Map MATRIX sheets and GAS data flows · 24 tool uses · 134.1k tokens
+   │  ⎿  Done
+   └─ Map existing data protection mechanisms · 34 tool uses · 130.8k tokens
+      ⎿  Done
+
+⏺ Good — I have the complete landscape. Now let me design the system.
+
+⏺ Plan(Design data audit and guardian system)
+  ⎿  Done (0 tool uses · 0 tokens · 3m 29s)
+  (ctrl+o to expand)
+
+⏺ Plan agent hit capacity. I have everything I need from the three explore
+  agents — let me write this plan directly.
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Plan written. Here's the summary:
+
+  DATA GUARDIAN — 5 sprints, 14 new files, 5 modified files.
+
+  1. Sprint A: Forensic Audit — Snapshot current Firestore state, query BigQuery
+   for the full change history (it already streams every write), cross-reference
+   against MATRIX Sheets. Produce a damage report showing exactly what's wrong,
+  when it happened, and what caused it.
+  2. Sprint B: Write Gate — API middleware that ALL Firestore writes must pass
+  through. Schema validation (required fields enforced by code), bulk write
+  approval (>10 docs requires explicit approval), data lineage on every write
+  (agent session ID, source script, timestamp).
+  3. Sprint C: Hookify Blocks — Three new BLOCK rules: no direct Firestore
+  writes outside the API, no seed scripts without pre-run snapshots, no bulk
+  imports without ATLAS consultation. Upgrade the existing ATLAS intent rule
+  from warn to block.
+  4. Sprint D: Dashboard — Guardian module in Admin section. Collection health
+  cards, change timeline, alert feed, baseline comparison. See data health at a
+  glance.
+  5. Sprint E: Always-On Monitoring — Cloud Function every 15 minutes detecting
+  anomalies (mass deletes, field nullification, orphans). Slack alerts to your
+  DM. Weekly automated snapshots.
+
+  The key shift: instruction-based protection becomes code-enforced protection.
+  Agents physically cannot bypass the write gate, the schema validation, or the
+  hookify blocks.
+
+  Sprint A runs first so you know the actual damage before we build the walls.
+  ⎿  User rejected Claude's plan:
+     ╭─────────────────────────────────────────────────────────────────────────╮
+     │ DATA GUARDIAN — Audit, Protect, Enforce                                 │
+     │                                                                         │
+     │ Context                                                                 │
+     │                                                                         │
+     │ AI agents have repeatedly corrupted RPI's Firestore data by:            │
+     │ - Bypassing the ATLAS import pipeline and writing directly to           │
+     │ collections                                                             │
+     │ - Running seed/migration scripts that overwrite good data without       │
+     │ snapshots                                                               │
+     │ - Self-reporting "done" when data is wrong, missing, or incomplete      │
+     │ - Not using the normalizer, destroying charter/NAIC/carrier identity    │
+     │ data                                                                    │
+     │ - Running imports without the approval queue                            │
+     │ - No way to detect WHEN corruption happened or WHO did it               │
+     │                                                                         │
+     │ Current protections are split between code-enforced (Firestore rules,   │
+     │ RBAC middleware, auth) and instruction-only (CLAUDE.md rules, hookify   │
+     │ INTENT warnings). Instruction-only protections are routinely ignored by │
+     │ agents. The system needs code-enforced gates that agents physically     │
+     │ cannot bypass.                                                          │
+     │                                                                         │
+     │ BigQuery already streams every Firestore write in real-time — this is   │
+     │ the forensic goldmine. The audit layer reads BigQuery to reconstruct    │
+     │ what happened. The guardian layer prevents it from happening again.     │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Architecture                                                            │
+     │                                                                         │
+     │ DATA GUARDIAN (App — own brand, like Pipeline Studio)                   │
+     │ ├── PHASE 1: Forensic Audit Engine (know what you have)                 │
+     │ │   ├── Baseline Snapshot Tool (capture current state)                  │
+     │ │   ├── BigQuery Forensics (reconstruct change history)                 │
+     │ │   ├── Cross-Reference Engine (Firestore vs MATRIX vs BigQuery)        │
+     │ │   └── Damage Report Generator (what's wrong, when, who)               │
+     │ │                                                                       │
+     │ ├── PHASE 2: Guardian Middleware (prevent future corruption)            │
+     │ │   ├── Write Gate (API middleware — ALL Firestore writes pass through) │
+     │ │   ├── Anomaly Detection (bulk deletes, mass nullification, schema     │
+     │ violations)                                                             │
+     │ │   ├── Data Lineage (agent_session_id, source_script on every write)   │
+     │ │   └── Pre/Post Write Validation (snapshot before, validate after)     │
+     │ │                                                                       │
+     │ ├── PHASE 3: Guardian Dashboard (see health at a glance)                │
+     │ │   ├── Collection Health Cards (per-collection metrics)                │
+     │ │   ├── Change Timeline (who changed what, when)                        │
+     │ │   ├── Alert Feed (anomalies, threshold breaches)                      │
+     │ │   └── Baseline Comparison (drift from known-good state)               │
+     │ │                                                                       │
+     │ └── PHASE 4: Hookify Enforcement (block bad patterns at code level)     │
+     │     ├── block-direct-firestore-write (agents can't write outside API)   │
+     │     ├── block-seed-without-snapshot (seed scripts must snapshot first)  │
+     │     ├── block-migration-without-dryrun (migrations must dry-run first)  │
+     │     └── block-bulk-write-without-approval (>10 docs = approval required)│
+     │                                                                         │
+     │ ---                                                                     │
+     │ Phase 1: Forensic Audit Engine                                          │
+     │                                                                         │
+     │ What It Does                                                            │
+     │                                                                         │
+     │ Takes a snapshot of current Firestore state, queries BigQuery for change│
+     │  history, cross-references MATRIX Sheets, and produces a damage report. │
+     │                                                                         │
+     │ 1.1 Baseline Snapshot Tool                                              │
+     │                                                                         │
+     │ New file: services/api/src/scripts/data-guardian-snapshot.ts            │
+     │                                                                         │
+     │ Reads every document from key collections and writes a timestamped      │
+     │ snapshot to a new data_snapshots Firestore collection (or exports to a  │
+     │ JSON file on Shared Drive for large collections).                       │
+     │                                                                         │
+     │ Collections to snapshot (priority order):                               │
+     │ 1. clients — names, DOBs, statuses, household_id, classification        │
+     │ 2. clients/*/accounts — carrier_name, charter, naic, policy_number,     │
+     │ status, premium                                                         │
+     │ 3. carriers — parent_brand, underwriting_charters, NAIC codes           │
+     │ 4. households — members, primary_contact, status                        │
+     │ 5. users — roles, levels, permissions                                   │
+     │ 6. flow_pipelines + flow_stages — pipeline definitions                  │
+     │ 7. tracker_items + sprints — FORGE state                                │
+     │ 8. source_registry + tool_registry — ATLAS state                        │
+     │                                                                         │
+     │ Output: data_snapshots/{timestamp} doc with:                            │
+     │ {                                                                       │
+     │   snapshot_id: string,                                                  │
+     │   timestamp: ISO string,                                                │
+     │   triggered_by: 'manual' | 'scheduled' | 'pre-migration',               │
+     │   collections: {                                                        │
+     │     clients: { count: number, sample_hash: string },                    │
+     │     accounts: { count: number, charter_populated: number,               │
+     │ naic_populated: number },                                               │
+     │     // ... per collection                                               │
+     │   },                                                                    │
+     │   stored_at: string // Shared Drive path or Firestore subcollection     │
+     │ }                                                                       │
+     │                                                                         │
+     │ 1.2 BigQuery Forensics                                                  │
+     │                                                                         │
+     │ New file: services/api/src/scripts/data-guardian-forensics.ts           │
+     │                                                                         │
+     │ Queries the existing toMachina.firestore_changes BigQuery table to      │
+     │ reconstruct:                                                            │
+     │ - Every write to key collections in the last 30 days                    │
+     │ - Which fields were changed (from changed_fields column)                │
+     │ - Full document state after each change (from data_json column)         │
+     │ - Grouping by time window to identify bulk operations (agent runs)      │
+     │                                                                         │
+     │ Key queries:                                                            │
+     │ 1. Charter/NAIC destruction timeline: Find all writes to accounts where │
+     │ charter or naic went from non-null to null (or were never populated     │
+     │ despite carrier_name being set)                                         │
+     │ 2. Bulk write detection: Find time windows where >50 docs were written  │
+     │ in <5 minutes (agent batch operations)                                  │
+     │ 3. Schema violations: Find docs missing required fields (clients without│
+     │  names, accounts without carrier_name)                                  │
+     │ 4. Orphan detection: Find accounts with client_id pointing to           │
+     │ non-existent clients                                                    │
+     │ 5. Duplicate detection: Find clients with identical name+DOB            │
+     │ combinations                                                            │
+     │                                                                         │
+     │ 1.3 Cross-Reference Engine                                              │
+     │                                                                         │
+     │ New file: services/api/src/scripts/data-guardian-crossref.ts            │
+     │                                                                         │
+     │ Compares Firestore state against MATRIX Sheets (via gdrive MCP):        │
+     │ - Client count: Firestore clients vs PRODASH_MATRIX _CLIENT_MASTER      │
+     │ - Account count: Firestore accounts vs _ACCOUNT_MEDICARE + _ACCOUNT_LIFE│
+     │  + etc.                                                                 │
+     │ - Field-level spot checks: Random sample of 100 records, compare key    │
+     │ fields                                                                  │
+     │ - Identify records that exist in Sheets but not Firestore (lost in      │
+     │ migration)                                                              │
+     │ - Identify records that exist in Firestore but not Sheets (never        │
+     │ bridged)                                                                │
+     │                                                                         │
+     │ 1.4 Damage Report                                                       │
+     │                                                                         │
+     │ New API route: services/api/src/routes/data-guardian.ts                 │
+     │                                                                         │
+     │ GET /api/data-guardian/audit-report                                     │
+     │                                                                         │
+     │ Returns structured damage report:                                       │
+     │ {                                                                       │
+     │   success: true,                                                        │
+     │   data: {                                                               │
+     │     generated_at: string,                                               │
+     │     summary: {                                                          │
+     │       total_collections_audited: number,                                │
+     │       total_docs_audited: number,                                       │
+     │       issues_found: number,                                             │
+     │       severity_breakdown: { critical: number, high: number, medium:     │
+     │ number, low: number }                                                   │
+     │     },                                                                  │
+     │     collections: {                                                      │
+     │       clients: {                                                        │
+     │         total: number,                                                  │
+     │         missing_required_fields: { field: string, count: number }[],    │
+     │         orphan_references: number,                                      │
+     │         duplicates: number,                                             │
+     │         issues: { doc_id: string, issue: string, severity: string }[]   │
+     │       },                                                                │
+     │       accounts: {                                                       │
+     │         total: number,                                                  │
+     │         charter_populated: number,                                      │
+     │         charter_missing: number,                                        │
+     │         naic_populated: number,                                         │
+     │         carrier_mismatch: number, // carrier_name doesn't match any     │
+     │ known carrier                                                           │
+     │         issues: []                                                      │
+     │       },                                                                │
+     │       // ... per collection                                             │
+     │     },                                                                  │
+     │     timeline: {                                                         │
+     │       bulk_operations: { timestamp: string, collection: string, count:  │
+     │ number, operation: string }[],                                          │
+     │       recent_anomalies: { timestamp: string, description: string }[]    │
+     │     }                                                                   │
+     │   }                                                                     │
+     │ }                                                                       │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Phase 2: Guardian Middleware                                            │
+     │                                                                         │
+     │ 2.1 Write Gate Middleware                                               │
+     │                                                                         │
+     │ New file: services/api/src/middleware/write-gate.ts                     │
+     │                                                                         │
+     │ Wraps ALL Firestore write operations. Every write must pass through this│
+     │  gate.                                                                  │
+     │                                                                         │
+     │ // Enforced on every POST/PUT/PATCH/DELETE to protected collections     │
+     │ export function writeGate(protectedCollections: string[]) {             │
+     │   return async (req, res, next) => {                                    │
+     │     const collection = extractCollectionFromPath(req.path)              │
+     │     if (!protectedCollections.includes(collection)) return next()       │
+     │                                                                         │
+     │     // 1. Attach lineage metadata                                       │
+     │     req.writeMetadata = {                                               │
+     │       agent_session_id: req.headers['x-agent-session-id'] || 'unknown', │
+     │       source_script: req.headers['x-source-script'] || req.path,        │
+     │       write_timestamp: new Date().toISOString(),                        │
+     │       user_email: req.user?.email,                                      │
+     │       operation: req.method,                                            │
+     │       doc_count: countDocsInBody(req.body)                              │
+     │     }                                                                   │
+     │                                                                         │
+     │     // 2. Bulk write check (>10 docs requires approval flag)            │
+     │     if (req.writeMetadata.doc_count > 10 &&                             │
+     │ !req.headers['x-bulk-approved']) {                                      │
+     │       return res.status(403).json({                                     │
+     │         success: false,                                                 │
+     │         error: `Bulk write of ${req.writeMetadata.doc_count} docs       │
+     │ requires approval. Set x-bulk-approved header after review.`            │
+     │       })                                                                │
+     │     }                                                                   │
+     │                                                                         │
+     │     // 3. Schema validation (required fields present)                   │
+     │     const schemaErrors = validateSchema(collection, req.body)           │
+     │     if (schemaErrors.length > 0) {                                      │
+     │       return res.status(400).json({                                     │
+     │         success: false,                                                 │
+     │         error: 'Schema validation failed',                              │
+     │         violations: schemaErrors                                        │
+     │       })                                                                │
+     │     }                                                                   │
+     │                                                                         │
+     │     // 4. Log to data_guardian_writes collection (for lineage)          │
+     │     await logGuardianWrite(req.writeMetadata)                           │
+     │                                                                         │
+     │     next()                                                              │
+     │   }                                                                     │
+     │ }                                                                       │
+     │                                                                         │
+     │ Protected collections (Phase 1): clients, accounts (all types),         │
+     │ carriers, products, users, households, revenue, flow_pipelines,         │
+     │ flow_stages                                                             │
+     │                                                                         │
+     │ 2.2 Schema Validation                                                   │
+     │                                                                         │
+     │ New file: packages/core/src/validation/collection-schemas.ts            │
+     │                                                                         │
+     │ Defines required fields per collection:                                 │
+     │ export const COLLECTION_SCHEMAS: Record<string, CollectionSchema> = {   │
+     │   clients: {                                                            │
+     │     required: ['first_name', 'last_name', 'status'],                    │
+     │     conditionalRequired: {                                              │
+     │       // If has accounts, must have at least one contact field          │
+     │       hasAccounts: ['phone', 'email', 'address'] // at least one        │
+     │     },                                                                  │
+     │     immutableAfterCreate: ['client_id', 'created_at'],                  │
+     │     neverNull: ['first_name', 'last_name'] // can't be set to null/empty│
+     │  after creation                                                         │
+     │   },                                                                    │
+     │   accounts: {                                                           │
+     │     required: ['client_id', 'carrier_name', 'status'],                  │
+     │     neverNull: ['client_id', 'carrier_name'],                           │
+     │     // charter and naic SHOULD be populated but aren't required         │
+     │ (backfill in progress)                                                  │
+     │     recommended: ['charter', 'naic', 'carrier_id']                      │
+     │   },                                                                    │
+     │   carriers: {                                                           │
+     │     required: ['carrier_id', 'display_name', 'parent_brand'],           │
+     │     immutableAfterCreate: ['carrier_id']                                │
+     │   }                                                                     │
+     │ }                                                                       │
+     │                                                                         │
+     │ 2.3 Data Lineage Collection                                             │
+     │                                                                         │
+     │ New Firestore collection: data_guardian_writes                          │
+     │                                                                         │
+     │ Every write through the gate logs:                                      │
+     │ {                                                                       │
+     │   write_id: string,                                                     │
+     │   timestamp: string,                                                    │
+     │   collection: string,                                                   │
+     │   doc_id: string,                                                       │
+     │   operation: 'create' | 'update' | 'delete',                            │
+     │   agent_session_id: string,                                             │
+     │   source_script: string,                                                │
+     │   user_email: string,                                                   │
+     │   fields_modified: string[],                                            │
+     │   doc_count: number,                                                    │
+     │   validation_passed: boolean                                            │
+     │ }                                                                       │
+     │                                                                         │
+     │ 2.4 Anomaly Detection                                                   │
+     │                                                                         │
+     │ New file: services/api/src/lib/data-guardian-anomaly.ts                 │
+     │                                                                         │
+     │ Runs on a schedule (Cloud Function, every 15 minutes) or on-demand:     │
+     │ - Mass deletion: >5 docs deleted from any collection in 15-min window → │
+     │ ALERT                                                                   │
+     │ - Field nullification: >10 docs have a previously-populated field set to│
+     │  null → ALERT                                                           │
+     │ - Schema drift: New fields appearing on >20 docs that aren't in schema →│
+     │  WARN                                                                   │
+     │ - Orphan creation: FK references pointing to non-existent docs → ALERT  │
+     │ - Duplicate creation: New docs matching existing name+DOB → WARN        │
+     │                                                                         │
+     │ Alerts go to JDM's Slack DM (U09BBHTN8F2).                              │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Phase 3: Guardian Dashboard                                             │
+     │                                                                         │
+     │ New module: packages/ui/src/modules/DataGuardian/                       │
+     │                                                                         │
+     │ Portal-branded Module (appears in Admin section of all portals).        │
+     │                                                                         │
+     │ Dashboard Components:                                                   │
+     │                                                                         │
+     │ Collection Health Cards — One card per protected collection showing:    │
+     │ - Doc count (current vs baseline)                                       │
+     │ - Required field coverage (% populated)                                 │
+     │ - Last modified timestamp                                               │
+     │ - Issues count (critical/high/medium/low)                               │
+     │ - Trend arrow (improving/declining)                                     │
+     │                                                                         │
+     │ Change Timeline — Scrollable timeline showing:                          │
+     │ - Bulk operations (highlighted in red if >50 docs)                      │
+     │ - Agent sessions that modified data (linked to session ID)              │
+     │ - Anomaly alerts (inline)                                               │
+     │                                                                         │
+     │ Baseline Comparison — Side-by-side:                                     │
+     │ - Current state vs last known-good snapshot                             │
+     │ - Net changes: +X created, -X deleted, ~X modified                      │
+     │ - Field-level drift (e.g., "charter coverage: 66% → 42%")               │
+     │                                                                         │
+     │ Alert Feed — Real-time alerts:                                          │
+     │ - Anomaly detections                                                    │
+     │ - Schema violations                                                     │
+     │ - Bulk write attempts (approved/blocked)                                │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Phase 4: Hookify Enforcement                                            │
+     │                                                                         │
+     │ New Block Rules                                                         │
+     │                                                                         │
+     │ block-direct-firestore-write (event: file)                              │
+     │ Pattern: db\.collection\(|admin\.firestore\(\)\.collection\(|getFirestor│
+     │ e\(\)\.collection\(                                                     │
+     │ Exclude: services/api/src/ (API routes are the authorized write path)   │
+     │ Exclude: services/bridge/src/ (Bridge is authorized)                    │
+     │ Exclude: services/api/src/scripts/ (seed scripts allowed with snapshot) │
+     │ Message: "Direct Firestore writes outside the API are blocked. All data │
+     │ modifications must go through the API write gate."                      │
+     │                                                                         │
+     │ block-seed-without-snapshot (event: bash)                               │
+     │ Pattern: npx tsx.*seed-|npx tsx.*migrate-|npx tsx.*backfill-            │
+     │ Unless command includes: --snapshot or --dry-run                        │
+     │ Message: "Seed/migration scripts must include --snapshot (creates       │
+     │ pre-run backup) or --dry-run flag."                                     │
+     │                                                                         │
+     │ block-bulk-import-without-atlas (event: prompt)                         │
+     │ Pattern: import.*data|bulk.*write|batch.*update|migrate.*firestore      │
+     │ Message: "Data import/migration detected. MANDATORY: Consult ATLAS      │
+     │ registry first. Run data-guardian-snapshot.ts before ANY bulk write. Use│
+     │  --dry-run first."                                                      │
+     │                                                                         │
+     │ Upgraded Existing Rules                                                 │
+     │                                                                         │
+     │ intent-atlas-consult — Change from action: warn to action: block for any│
+     │  prompt containing import/migration/seed/bulk keywords.                 │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Implementation Plan                                                     │
+     │                                                                         │
+     │ Sprint A: Forensic Audit (do this FIRST — know the damage)              │
+     │                                                                         │
+     │ 1. data-guardian-snapshot.ts — Capture current Firestore state          │
+     │ 2. data-guardian-forensics.ts — Query BigQuery for change history       │
+     │ 3. data-guardian-crossref.ts — Compare Firestore vs MATRIX              │
+     │ 4. Generate damage report and present to JDM                            │
+     │ 5. Estimated: ~800 lines, 4 files                                       │
+     │                                                                         │
+     │ Sprint B: Write Gate + Schema Validation (prevent future damage)        │
+     │                                                                         │
+     │ 1. write-gate.ts middleware — Gate all writes                           │
+     │ 2. collection-schemas.ts — Define required fields                       │
+     │ 3. data-guardian-anomaly.ts — Anomaly detection                         │
+     │ 4. Wire middleware into server.ts                                       │
+     │ 5. Add data_guardian_writes collection + Firestore rules                │
+     │ 6. Estimated: ~600 lines, 5 files                                       │
+     │                                                                         │
+     │ Sprint C: Hookify Rules (block bad patterns)                            │
+     │                                                                         │
+     │ 1. block-direct-firestore-write.local.md                                │
+     │ 2. block-seed-without-snapshot.local.md                                 │
+     │ 3. block-bulk-import-without-atlas.local.md                             │
+     │ 4. Upgrade intent-atlas-consult to block                                │
+     │ 5. Symlink to all projects                                              │
+     │ 6. Estimated: ~200 lines, 4 rule files                                  │
+     │                                                                         │
+     │ Sprint D: Dashboard UI (see health at a glance)                         │
+     │                                                                         │
+     │ 1. DataGuardian/ module in packages/ui                                  │
+     │ 2. API route data-guardian.ts (audit report endpoint)                   │
+     │ 3. Collection health cards, change timeline, alert feed                 │
+     │ 4. Wire into Admin section of all 3 portals                             │
+     │ 5. Estimated: ~1,200 lines, 8 files                                     │
+     │                                                                         │
+     │ Sprint E: Scheduled Monitoring (always-on protection)                   │
+     │                                                                         │
+     │ 1. Cloud Function for anomaly detection (15-min schedule)               │
+     │ 2. Slack alerting for anomalies                                         │
+     │ 3. Scheduled baseline snapshots (weekly)                                │
+     │ 4. Baseline comparison endpoint                                         │
+     │ 5. Estimated: ~400 lines, 3 files                                       │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Files to Create                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │ File: services/api/src/scripts/data-guardian-snapshot.ts                │
+     │ Purpose: Baseline snapshot tool                                         │
+     │ ────────────────────────────────────────                                │
+     │ File: services/api/src/scripts/data-guardian-forensics.ts               │
+     │ Purpose: BigQuery change history analysis                               │
+     │ ────────────────────────────────────────                                │
+     │ File: services/api/src/scripts/data-guardian-crossref.ts                │
+     │ Purpose: Firestore vs MATRIX comparison                                 │
+     │ ────────────────────────────────────────                                │
+     │ File: services/api/src/middleware/write-gate.ts                         │
+     │ Purpose: Write gate middleware                                          │
+     │ ────────────────────────────────────────                                │
+     │ File: packages/core/src/validation/collection-schemas.ts                │
+     │ Purpose: Collection schema definitions                                  │
+     │ ────────────────────────────────────────                                │
+     │ File: services/api/src/lib/data-guardian-anomaly.ts                     │
+     │ Purpose: Anomaly detection engine                                       │
+     │ ────────────────────────────────────────                                │
+     │ File: services/api/src/routes/data-guardian.ts                          │
+     │ Purpose: API endpoints (audit report, health, alerts)                   │
+     │ ────────────────────────────────────────                                │
+     │ File: packages/ui/src/modules/DataGuardian/index.tsx                    │
+     │ Purpose: Dashboard module                                               │
+     │ ────────────────────────────────────────                                │
+     │ File: packages/ui/src/modules/DataGuardian/CollectionHealthCard.tsx     │
+     │ Purpose: Health card component                                          │
+     │ ────────────────────────────────────────                                │
+     │ File: packages/ui/src/modules/DataGuardian/ChangeTimeline.tsx           │
+     │ Purpose: Change timeline component                                      │
+     │ ────────────────────────────────────────                                │
+     │ File: packages/ui/src/modules/DataGuardian/AlertFeed.tsx                │
+     │ Purpose: Alert feed component                                           │
+     │ ────────────────────────────────────────                                │
+     │ File: _RPI_STANDARDS/hookify/block-direct-firestore-write.local.md      │
+     │ Purpose: Hookify: block direct writes                                   │
+     │ ────────────────────────────────────────                                │
+     │ File: _RPI_STANDARDS/hookify/block-seed-without-snapshot.local.md       │
+     │ Purpose: Hookify: require snapshots                                     │
+     │ ────────────────────────────────────────                                │
+     │ File: _RPI_STANDARDS/hookify/block-bulk-import-without-atlas.local.md   │
+     │ Purpose: Hookify: require ATLAS                                         │
+     │                                                                         │
+     │ Files to Modify                                                         │
+     │                                                                         │
+     │ ┌──────────────────────────────────────────────────┬────────────────────│
+     │ ───┐                                                                    │
+     │ │                       File                       │        Change      │
+     │    │                                                                    │
+     │ ├──────────────────────────────────────────────────┼────────────────────│
+     │ ───┤                                                                    │
+     │ │                                                  │ Add write-gate     │
+     │    │                                                                    │
+     │ │ services/api/src/server.ts                       │ middleware to      │
+     │    │                                                                    │
+     │ │                                                  │ protected routes   │
+     │    │                                                                    │
+     │ ├──────────────────────────────────────────────────┼────────────────────│
+     │ ───┤                                                                    │
+     │ │                                                  │ Add data_snapshots,│
+     │    │                                                                    │
+     │ │ firestore.rules                                  │                    │
+     │ data_guardian_writes  │                                                 │
+     │ │                                                  │ collection rules   │
+     │    │                                                                    │
+     │ ├──────────────────────────────────────────────────┼────────────────────│
+     │ ───┤                                                                    │
+     │ │                                                  │ Add DataSnapshot,  │
+     │    │                                                                    │
+     │ │ packages/core/src/types/index.ts                 │ GuardianWrite,     │
+     │    │                                                                    │
+     │ │                                                  │ AnomalyAlert types │
+     │    │                                                                    │
+     │ ├──────────────────────────────────────────────────┼────────────────────│
+     │ ───┤                                                                    │
+     │ │ packages/ui/src/modules/index.ts                 │ Export DataGuardian│
+     │    │                                                                    │
+     │ │                                                  │ module             │
+     │    │                                                                    │
+     │ ├──────────────────────────────────────────────────┼────────────────────│
+     │ ───┤                                                                    │
+     │ │ apps/*/app/(portal)/components/PortalSidebar.tsx │ Add Data Guardian  │
+     │ to  │                                                                   │
+     │ │                                                  │ Admin section      │
+     │    │                                                                    │
+     │ └──────────────────────────────────────────────────┴────────────────────│
+     │ ───┘                                                                    │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │                                                                         │
+     │ ---                                                                     │
+     │ Verification                                                            │
+     │                                                                         │
+     │ After Sprint A (Forensic Audit):                                        │
+     │                                                                         │
+     │ - Run snapshot script → verify doc counts match expectations            │
+     │ - Run forensics script → verify BigQuery returns change history         │
+     │ - Run crossref script → verify Firestore/MATRIX comparison works        │
+     │ - Review damage report with JDM                                         │
+     │                                                                         │
+     │ After Sprint B (Write Gate):                                            │
+     │                                                                         │
+     │ - Attempt a direct write to protected collection → verify 403           │
+     │ - Attempt a bulk write (>10 docs) without approval header → verify 403  │
+     │ - Attempt a write missing required fields → verify 400                  │
+     │ - Verify legitimate writes still work (create client, update account)   │
+     │ - Verify data_guardian_writes logs every operation                      │
+     │                                                                         │
+     │ After Sprint C (Hookify):                                               │
+     │                                                                         │
+     │ - Attempt to write code with direct Firestore write outside API → verify│
+     │  block                                                                  │
+     │ - Attempt to run seed script without --snapshot → verify block          │
+     │ - Attempt bulk import prompt without ATLAS → verify block               │
+     │                                                                         │
+     │ After Sprint D (Dashboard):                                             │
+     │                                                                         │
+     │ - Navigate to Admin > Data Guardian in each portal                      │
+     │ - Verify collection health cards show real data                         │
+     │ - Verify change timeline populates from BigQuery                        │
+     │ - Verify alert feed shows test anomaly                                  │
+     │                                                                         │
+     │ After Sprint E (Monitoring):                                            │
+     │                                                                         │
+     │ - Trigger anomaly (delete 6 docs) → verify Slack alert within 15 min    │
+     │ - Verify weekly snapshot runs → new snapshot doc in data_snapshots      │
+     │ - Compare current vs baseline → verify drift metrics                    │
+     ╰─────────────────────────────────────────────────────────────────────────╯
