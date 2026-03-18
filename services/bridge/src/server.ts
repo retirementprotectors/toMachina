@@ -79,7 +79,7 @@ const ACCOUNT_TYPE_TO_TAB: Record<string, string> = {
   'annuity': '_ACCOUNT_ANNUITY',
   'life': '_ACCOUNT_LIFE',
   'medicare': '_ACCOUNT_MEDICARE',
-  'bdria': '_ACCOUNT_BDRIA',
+  'investments': '_ACCOUNT_INVESTMENTS',
   'banking': '_ACCOUNT_BANKING',
 }
 

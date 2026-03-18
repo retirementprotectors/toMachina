@@ -27,7 +27,7 @@ export const MOCK_INBOUND_CALL: InboundCall = {
   callerName: 'Jane Doe',
   callerPhone: '(515) 555-1234',
   book: 'RPI',
-  assignedAgent: "Vinnie's Client",
+  assignedAgent: "Vince's Client",
   startedAt: new Date(),
 }
 
