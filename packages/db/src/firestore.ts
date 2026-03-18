@@ -47,6 +47,8 @@ export const collections = {
   sprints: () => collection(getDb(), 'sprints'),
   unitModuleDefaults: () => collection(getDb(), 'unit_module_defaults'),
   households: () => collection(getDb(), 'households'),
+  territories: () => collection(getDb(), 'territories'),
+  specialistConfigs: () => collection(getDb(), 'specialist_configs'),
 } as const
 
 export type Collections = typeof collections

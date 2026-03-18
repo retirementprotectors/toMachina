@@ -180,6 +180,8 @@ async function pdfToImages(filePath: string, maxPages: number): Promise<PageImag
 // EXTRACTION
 // ═══════════════════════════════════════════════════════════════════════════
 
+const PAGES_PER_CHUNK = 25
+
 async function extractFromPdf(
   client: Anthropic,
   filePath: string,
@@ -190,8 +192,8 @@ async function extractFromPdf(
   const fileName = path.basename(filePath)
 
   try {
-    const images = await pdfToImages(filePath, maxPages)
-    if (images.length === 0) {
+    const allImages = await pdfToImages(filePath, maxPages)
+    if (allImages.length === 0) {
       return { success: false, fileName, error: 'No pages extracted from PDF' }
     }
 
@@ -200,29 +202,70 @@ async function extractFromPdf(
       prompt += `\n\nHint: This document is from carrier "${carrierHint}".`
     }
 
-    const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
-    for (const img of images) {
-      content.push({
-        type: 'image' as const,
-        source: { type: 'base64' as const, media_type: img.mediaType, data: img.base64 },
-      })
-    }
-    content.push({ type: 'text' as const, text: prompt })
-
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 16384,
-      messages: [{ role: 'user', content }],
-    })
-
-    const responseText = (response.content[0] as any).text
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      return { success: false, fileName, error: 'No JSON in response', pages: images.length }
+    // Chunk pages into batches to avoid API request size limits
+    const chunks: PageImage[][] = []
+    for (let i = 0; i < allImages.length; i += PAGES_PER_CHUNK) {
+      chunks.push(allImages.slice(i, i + PAGES_PER_CHUNK))
     }
 
-    const parsed = JSON.parse(jsonMatch[0])
-    return { success: true, fileName, data: parsed, pages: images.length }
+    const allResults: any[] = []
+
+    for (let c = 0; c < chunks.length; c++) {
+      const chunk = chunks[c]
+      const chunkLabel = `pages ${c * PAGES_PER_CHUNK + 1}-${c * PAGES_PER_CHUNK + chunk.length}`
+      process.stdout.write(`    chunk ${c + 1}/${chunks.length} (${chunkLabel})...`)
+
+      const content: Anthropic.MessageCreateParams['messages'][0]['content'] = []
+      for (const img of chunk) {
+        content.push({
+          type: 'image' as const,
+          source: { type: 'base64' as const, media_type: img.mediaType, data: img.base64 },
+        })
+      }
+      content.push({ type: 'text' as const, text: prompt + `\n\nThis is chunk ${c + 1} of ${chunks.length} (${chunkLabel} of ${allImages.length} total).` })
+
+      try {
+        const response = await client.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 16384,
+          messages: [{ role: 'user', content }],
+        })
+
+        const responseText = (response.content[0] as any).text
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0])
+          allResults.push(parsed)
+          console.log(' OK')
+        } else {
+          console.log(' no JSON')
+          // Save raw text for debugging
+          allResults.push({ _raw_text: responseText.substring(0, 2000), _chunk: c + 1 })
+        }
+      } catch (chunkErr: any) {
+        console.log(' FAIL: ' + chunkErr.message.substring(0, 100))
+        allResults.push({ _error: chunkErr.message, _chunk: c + 1 })
+      }
+    }
+
+    // Merge chunk results
+    const merged: any = { _chunks: allResults.length, _total_pages: allImages.length }
+    const allPolicies: any[] = []
+    for (const result of allResults) {
+      if (result.policies) allPolicies.push(...result.policies)
+      else if (result.policy_number) allPolicies.push(result)
+      // Merge top-level fields from first valid result
+      for (const [k, v] of Object.entries(result)) {
+        if (k !== 'policies' && k !== '_raw_text' && k !== '_error' && k !== '_chunk' && !merged[k]) {
+          merged[k] = v
+        }
+      }
+    }
+    if (allPolicies.length > 0) merged.policies = allPolicies
+    // Also keep all raw chunk results for full access
+    merged._chunk_results = allResults
+
+    return { success: true, fileName, data: merged, pages: allImages.length }
   } catch (err: any) {
     return { success: false, fileName, error: err.message }
   }

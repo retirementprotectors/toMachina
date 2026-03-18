@@ -92,8 +92,13 @@ const COLUMN_LABELS: Record<string, string> = {
 
 const PAGE_SIZE = 25
 
-const PRODUCT_TYPE_OPTIONS = ['Annuity', 'Life', 'Medicare', 'Investment', 'Banking']
 const STATUS_OPTIONS = ['Active', 'Pending', 'Inactive']
+
+interface CarrierOption {
+  id: string
+  name: string
+  product_types: string[]
+}
 
 // ---------------------------------------------------------------------------
 // Client Search Result
@@ -119,8 +124,10 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
   const [searching, setSearching] = useState(false)
   const [selectedClient, setSelectedClient] = useState<ClientSearchResult | null>(null)
   const [showResults, setShowResults] = useState(false)
+  const [carriers, setCarriers] = useState<CarrierOption[]>([])
+  const [allProductTypes, setAllProductTypes] = useState<string[]>([])
+  const [productType, setProductType] = useState('')
   const [carrierName, setCarrierName] = useState('')
-  const [productType, setProductType] = useState('Annuity')
   const [accountNumber, setAccountNumber] = useState('')
   const [status, setStatus] = useState('Active')
   const [effectiveDate, setEffectiveDate] = useState('')
@@ -128,6 +135,41 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
   const [submitError, setSubmitError] = useState('')
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
+
+  // Load carriers from Firestore
+  useEffect(() => {
+    (async () => {
+      try {
+        const db = getDb()
+        const snap = await getDocs(query(collection(db, 'carriers'), orderBy('name', 'asc')))
+        const typeSet = new Set<string>()
+        const carrierList: CarrierOption[] = snap.docs.map((d) => {
+          const data = d.data()
+          let types: string[] = []
+          if (Array.isArray(data.product_types)) {
+            types = data.product_types
+          } else if (typeof data.product_types === 'string') {
+            try { types = JSON.parse(data.product_types) } catch { types = [] }
+          }
+          types.forEach((t) => typeSet.add(t))
+          return { id: d.id, name: data.name || d.id, product_types: types }
+        })
+        setCarriers(carrierList)
+        setAllProductTypes(Array.from(typeSet).sort())
+      } catch { /* carriers load silently fails */ }
+    })()
+  }, [])
+
+  // Filter carriers by selected product type
+  const filteredCarriers = useMemo(() => {
+    if (!productType) return carriers
+    return carriers.filter((c) => c.product_types.includes(productType))
+  }, [carriers, productType])
+
+  // Reset carrier when product type changes
+  useEffect(() => {
+    setCarrierName('')
+  }, [productType])
 
   // Client search with debounce
   useEffect(() => {
@@ -193,8 +235,12 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
       setSubmitError('Please select a client.')
       return
     }
-    if (!carrierName.trim()) {
-      setSubmitError('Carrier name is required.')
+    if (!productType) {
+      setSubmitError('Please select a product type.')
+      return
+    }
+    if (!carrierName) {
+      setSubmitError('Please select a carrier.')
       return
     }
 
@@ -292,40 +338,43 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
             )}
           </div>
 
-          {/* Carrier Name */}
+          {/* Product Type — select first, filters carrier list */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Carrier Name *</label>
-            <input
-              type="text"
-              value={carrierName}
-              onChange={(e) => setCarrierName(e.target.value)}
-              placeholder="e.g. Athene, Mutual of Omaha"
-              className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
-            />
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Product Type *</label>
+            <select
+              value={productType}
+              onChange={(e) => setProductType(e.target.value)}
+              className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+            >
+              <option value="">Select product type...</option>
+              {allProductTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
           </div>
 
-          {/* Product Type + Status row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Product Type</label>
-              <select
-                value={productType}
-                onChange={(e) => setProductType(e.target.value)}
-                className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-              >
-                {PRODUCT_TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
-              >
-                {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
+          {/* Carrier — dropdown filtered by product type */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Carrier *</label>
+            <select
+              value={carrierName}
+              onChange={(e) => setCarrierName(e.target.value)}
+              disabled={!productType}
+              className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="">{productType ? `Select carrier (${filteredCarriers.length})...` : 'Select product type first'}</option>
+              {filteredCarriers.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
+            </select>
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="h-[36px] w-full rounded-md border border-[var(--border)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+            >
+              {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
           </div>
 
           {/* Account Number + Effective Date row */}

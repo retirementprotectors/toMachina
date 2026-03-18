@@ -51,6 +51,9 @@ import { trackerRoutes } from './routes/tracker.js'
 import { sprintRoutes } from './routes/sprints.js'
 import { unitDefaultRoutes } from './routes/unit-defaults.js'
 import { householdRoutes } from './routes/households.js'
+import { territoryRoutes } from './routes/territories.js'
+import { specialistConfigRoutes } from './routes/specialist-configs.js'
+import { prozoneRoutes } from './routes/prozone.js'
 import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
@@ -125,6 +128,9 @@ app.use('/api/tracker', normalizeBody, trackerRoutes)
 app.use('/api/sprints', normalizeBody, sprintRoutes)
 app.use('/api/unit-defaults', unitDefaultRoutes)
 app.use('/api/households', normalizeBody, householdRoutes)
+app.use('/api/territories', normalizeBody, territoryRoutes)
+app.use('/api/specialist-configs', normalizeBody, specialistConfigRoutes)
+app.use('/api/prozone', prozoneRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

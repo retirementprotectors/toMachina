@@ -495,3 +495,95 @@ export interface AccessItem {
   updated_at: string
   [key: string]: unknown
 }
+
+// ============================================================================
+// PROZONE TYPES
+// ============================================================================
+
+export interface Territory {
+  territory_id: string
+  territory_name: string
+  state: string
+  region?: string
+  counties: TerritoryCounty[]
+  zones: Zone[]
+  territory_status: 'Active' | 'Inactive'
+  created_at: string
+  updated_at: string
+}
+
+export interface TerritoryCounty {
+  county: string
+  zone_id: string
+  client_count?: number
+}
+
+export interface Zone {
+  zone_id: string
+  zone_name: string
+  territory_id: string
+  resolution_type: 'county' | 'zip'
+  assignments: ZoneAssignment[]
+}
+
+export interface ZoneAssignment {
+  county?: string
+  zip?: string
+  zone_id: string
+}
+
+export interface SpecialistConfig {
+  config_id: string
+  user_id: string
+  specialist_name: string
+  territory_id: string
+  origin_zip: string
+  tier_map: TierMapEntry[]
+  office_days: string[]
+  field_days: string[]
+  slot_templates: SlotTemplate[]
+  meeting_criteria: MeetingCriteria
+  zone_lead_criteria: ZoneLeadCriteria
+  calendar_booking_url?: string
+  team: TeamMember[]
+  config_status: 'Active' | 'Inactive'
+  created_at: string
+  updated_at: string
+}
+
+export interface TierMapEntry {
+  zone_id: string
+  county?: string
+  tier: 'I' | 'II' | 'III' | 'IV'
+  drive_minutes: number
+  slots_per_day: number
+  first_slot: string
+  last_slot: string
+}
+
+export interface SlotTemplate {
+  tier: 'I' | 'II' | 'III' | 'IV'
+  slots_per_day: number
+  first_slot: string
+  last_slot: string
+  slot_duration_minutes: number
+  departure_time?: string
+  return_time?: string
+}
+
+export interface MeetingCriteria {
+  field: { active_la: boolean; intra_territory: boolean; max_age: number }
+  office: { active_la: boolean; min_age?: number; outer_zone: boolean }
+}
+
+export interface ZoneLeadCriteria {
+  active_medicare_all: boolean
+  active_la_80plus: boolean
+  no_core_under_80: boolean
+}
+
+export interface TeamMember {
+  user_id: string
+  name: string
+  role: 'coordinator' | 'associate'
+}

@@ -105,6 +105,7 @@ export const TOOL_SUITES: Record<SuiteKey, ToolSuiteDef> = {
       'PRODASH', 'QUE_MEDICARE', 'QUE_ANNUITY', 'QUE_LIFE', 'QUE_MEDSUP',
       'PRODASH_CLIENTS', 'PRODASH_ACCOUNTS', 'PRODASH_PIPELINES', 'PRODASH_CAMPAIGNS',
       'RMD_CENTER', 'BENI_CENTER', 'DISCOVERY_KIT', 'PRODASH_ACTIVITY', 'PRODASH_ADMIN',
+      'PROZONE',
     ],
   },
   PIPELINES: {
@@ -438,6 +439,14 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'OWNER',
+  },
+  PROZONE: {
+    name: 'ProZone',
+    fullName: 'Prospecting Hub',
+    description: 'Territory-based prospecting engine with zone scheduling and lead surfacing',
+    status: 'active',
+    suite: 'RPI_TOOLS',
+    minUserLevel: 'LEADER',
   },
 
   // ---- Admin Tools (3) ----

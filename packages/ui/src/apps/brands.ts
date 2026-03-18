@@ -1,6 +1,6 @@
 /** Canonical app brand definitions — identical across all portals. */
 
-export type AppKey = 'atlas' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'leadership-center' | 'pipeline-studio' | 'pipelines'
+export type AppKey = 'atlas' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'leadership-center' | 'pipeline-studio' | 'pipelines' | 'prozone'
 
 export interface AppBrand {
   color: string
@@ -21,4 +21,5 @@ export const APP_BRANDS: Record<AppKey, AppBrand> = {
   'leadership-center': { color: '#a78bfa', icon: 'leaderboard', label: 'Leadership Center', description: 'Leadership Intelligence' },
   'pipeline-studio':   { color: '#14b8a6', icon: 'architecture',  label: 'Pipeline Studio',  description: 'Pipeline Design Tool' },
   pipelines:           { color: '#4a7ab5', icon: 'route',        label: 'Pipelines',        description: 'Pipeline Factory' },
+  prozone:             { color: '#0ea5e9', icon: 'explore',      label: 'ProZone',          description: 'Prospecting Hub' },
 } as const
