@@ -101,7 +101,7 @@ export interface AtlasFormat {
   column_map: Record<string, string>
   value_patterns: Record<string, { distinct_count: number; sample_values: unknown[]; dominant_type: string; null_rate: number }>
   dedup_keys: string[]
-  default_category: string // 'medicare' | 'annuity' | 'life' | 'bdria'
+  default_category: string // 'medicare' | 'annuity' | 'life' | 'investments'
   times_used: number
   last_used_at: string
   created_by: string

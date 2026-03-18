@@ -260,7 +260,7 @@ interface AccountRecord {
  * Match an account against arrays of existing accounts by tab.
  * Ported from CORE_Match.gs matchAccount().
  *
- * Searches up to 4 account tabs: _ACCOUNT_BDRIA, _ACCOUNT_LIFE, _ACCOUNT_ANNUITY, _ACCOUNT_MEDICARE.
+ * Searches up to 4 account tabs: _ACCOUNT_INVESTMENTS, _ACCOUNT_LIFE, _ACCOUNT_ANNUITY, _ACCOUNT_MEDICARE.
  */
 export function matchAccount(
   criteria: AccountMatchCriteria,
@@ -270,7 +270,7 @@ export function matchAccount(
     normalizeDate?: (s: string | Date | unknown) => string
   }
 ): AccountMatchResult<AccountRecord> {
-  const ACCOUNT_TABS = ['_ACCOUNT_BDRIA', '_ACCOUNT_LIFE', '_ACCOUNT_ANNUITY', '_ACCOUNT_MEDICARE']
+  const ACCOUNT_TABS = ['_ACCOUNT_INVESTMENTS', '_ACCOUNT_LIFE', '_ACCOUNT_ANNUITY', '_ACCOUNT_MEDICARE']
   const norm = normalizers || {}
   const normCarrier = norm.normalizeCarrierName || ((s: string) => (s || '').trim())
   const normDate = norm.normalizeDate || ((s: string | Date | unknown) => String(s || '').trim())

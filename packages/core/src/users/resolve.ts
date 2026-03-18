@@ -73,8 +73,8 @@ function getAliases(user: UserRecord): string[] {
  * 4. aliases[] (exact match against JSON array entries)
  * 5. first_name fuzzy (single-token input, case-insensitive)
  *
- * Sync mode: resolveUser('vinnie', users)
- * Async mode: resolveUser('vinnie', fetchUsers)
+ * Sync mode: resolveUser('vince', users)
+ * Async mode: resolveUser('vince', fetchUsers)
  */
 export function resolveUser(input: string, users: UserRecord[]): UserRecord | null
 export function resolveUser(input: string, lookup: UserLookupFn): Promise<UserRecord | null>

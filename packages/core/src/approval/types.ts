@@ -17,7 +17,7 @@ export type TargetMatrix = 'PRODASH' | 'SENTINEL'
 /** Target tabs (Firestore collection mapping) */
 export type TargetTab =
   | '_CLIENT_MASTER'
-  | '_ACCOUNT_BDRIA'
+  | '_ACCOUNT_INVESTMENTS'
   | '_ACCOUNT_LIFE'
   | '_ACCOUNT_ANNUITY'
   | '_ACCOUNT_MEDICARE'
@@ -30,7 +30,7 @@ export type TargetTab =
 export type ApiEndpoint = '/client' | '/account' | '/agent' | '/revenue'
 
 /** Account category canonical values */
-export type AccountCategory = 'bdria' | 'life' | 'annuity' | 'medicare' | 'banking'
+export type AccountCategory = 'investments' | 'life' | 'annuity' | 'medicare' | 'banking'
 
 // ---------------------------------------------------------------------------
 // Approval Item — one field-level write
@@ -147,7 +147,7 @@ export interface ExecutionResult {
 export interface ExtractedData {
   client?: Record<string, unknown>
   accounts?: {
-    bdria?: Record<string, unknown>[]
+    investments?: Record<string, unknown>[]
     life?: Record<string, unknown>[]
     annuity?: Record<string, unknown>[]
     medicare?: Record<string, unknown>[]
@@ -216,7 +216,7 @@ export const SKIP_FIELDS = new Set([
 /** Tab → API endpoint mapping */
 export const TAB_TO_ENDPOINT: Record<string, ApiEndpoint> = {
   '_CLIENT_MASTER': '/client',
-  '_ACCOUNT_BDRIA': '/account',
+  '_ACCOUNT_INVESTMENTS': '/account',
   '_ACCOUNT_LIFE': '/account',
   '_ACCOUNT_ANNUITY': '/account',
   '_ACCOUNT_MEDICARE': '/account',
@@ -229,7 +229,7 @@ export const TAB_TO_ENDPOINT: Record<string, ApiEndpoint> = {
 /** Tab → Matrix routing */
 export const TAB_TO_MATRIX: Record<string, TargetMatrix> = {
   '_CLIENT_MASTER': 'PRODASH',
-  '_ACCOUNT_BDRIA': 'PRODASH',
+  '_ACCOUNT_INVESTMENTS': 'PRODASH',
   '_ACCOUNT_LIFE': 'PRODASH',
   '_ACCOUNT_ANNUITY': 'PRODASH',
   '_ACCOUNT_MEDICARE': 'PRODASH',
@@ -241,10 +241,10 @@ export const TAB_TO_MATRIX: Record<string, TargetMatrix> = {
 
 /** Account category string → tab mapping (with aliases) */
 export const ACCOUNT_CATEGORY_TO_TAB: Record<string, TargetTab> = {
-  'bdria': '_ACCOUNT_BDRIA',
-  'bd_ria': '_ACCOUNT_BDRIA',
-  'investment': '_ACCOUNT_BDRIA',
-  'brokerage': '_ACCOUNT_BDRIA',
+  'investments': '_ACCOUNT_INVESTMENTS',
+  'bd_ria_legacy': '_ACCOUNT_INVESTMENTS',
+  'investment': '_ACCOUNT_INVESTMENTS',
+  'brokerage': '_ACCOUNT_INVESTMENTS',
   'life': '_ACCOUNT_LIFE',
   'annuity': '_ACCOUNT_ANNUITY',
   'medicare': '_ACCOUNT_MEDICARE',
@@ -254,7 +254,7 @@ export const ACCOUNT_CATEGORY_TO_TAB: Record<string, TargetTab> = {
 
 /** Tab → canonical account category */
 export const TAB_TO_CANONICAL_CATEGORY: Record<string, AccountCategory> = {
-  '_ACCOUNT_BDRIA': 'bdria',
+  '_ACCOUNT_INVESTMENTS': 'investments',
   '_ACCOUNT_LIFE': 'life',
   '_ACCOUNT_ANNUITY': 'annuity',
   '_ACCOUNT_MEDICARE': 'medicare',
@@ -264,7 +264,7 @@ export const TAB_TO_CANONICAL_CATEGORY: Record<string, AccountCategory> = {
 /** Tab → Firestore collection mapping */
 export const TAB_TO_COLLECTION: Record<string, string> = {
   '_CLIENT_MASTER': 'clients',
-  '_ACCOUNT_BDRIA': 'accounts',
+  '_ACCOUNT_INVESTMENTS': 'accounts',
   '_ACCOUNT_LIFE': 'accounts',
   '_ACCOUNT_ANNUITY': 'accounts',
   '_ACCOUNT_MEDICARE': 'accounts',
@@ -277,6 +277,6 @@ export const TAB_TO_COLLECTION: Record<string, string> = {
 /** Acronyms for display label generation */
 export const FIELD_ACRONYMS = new Set([
   'id', 'ghl', 'acf', 'dob', 'ssn', 'npn', 'pua', 'rmd', 'ltc', 'mec',
-  'myga', 'bdria', 'uw', 'soa', 'mapd', 'pbp', 'cms', 'hicn', 'fmv',
+  'myga', 'investments', 'uw', 'soa', 'mapd', 'pbp', 'cms', 'hicn', 'fmv',
   'rpi', 'db', 'poa', 'bd', 'ria', 'gi', 'pct', 'zip',
 ])
