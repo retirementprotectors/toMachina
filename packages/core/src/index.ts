@@ -18,3 +18,8 @@ export * from './que'
 
 export { apiFetch, apiPost, apiGet } from './api-client'
 export type { ApiResult } from './api-client'
+
+// Guardian — Data Protection Engine
+export * from './types/guardian'
+export * from './guardian/lifecycle'
+export * from './validation/collection-schemas'

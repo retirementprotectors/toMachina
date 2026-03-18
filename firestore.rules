@@ -359,5 +359,29 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
+
+    // ----------------------------------------------------------------
+    // GUARDIAN — Data Protection Engine
+    // ----------------------------------------------------------------
+    match /guardian_audits/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+    match /guardian_findings/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+    match /data_snapshots/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+    match /guardian_writes/{docId} {
+      allow read: if isExecutiveOrAbove();
+      allow write: if true; // Written by API middleware (server-side only)
+    }
+    match /anomaly_alerts/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
   }
 }

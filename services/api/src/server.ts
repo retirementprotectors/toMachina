@@ -54,6 +54,7 @@ import { householdRoutes } from './routes/households.js'
 import { territoryRoutes } from './routes/territories.js'
 import { specialistConfigRoutes } from './routes/specialist-configs.js'
 import { prozoneRoutes } from './routes/prozone.js'
+import { guardianRoutes } from './routes/guardian.js'
 import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
@@ -131,6 +132,7 @@ app.use('/api/households', normalizeBody, householdRoutes)
 app.use('/api/territories', normalizeBody, territoryRoutes)
 app.use('/api/specialist-configs', normalizeBody, specialistConfigRoutes)
 app.use('/api/prozone', prozoneRoutes)
+app.use('/api/guardian', normalizeBody, guardianRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
