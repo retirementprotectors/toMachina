@@ -126,7 +126,7 @@ const MODULE_SECTIONS: SectionDef[] = [
       { key: 'pipeline-studio', label: 'Pipeline Studio', icon: 'view_kanban', moduleKey: 'PIPELINE_STUDIO' },
       { key: 'forge', label: 'FORGE', icon: 'construction', moduleKey: 'FORGE' },
       { key: 'guardian', label: 'GUARDIAN', icon: 'shield', moduleKey: 'GUARDIAN' },
-      { key: 'prozone', label: 'ProZone', icon: 'explore', moduleKey: 'PROZONE' },
+      { key: 'prozone', label: 'ProZONE', icon: 'explore', moduleKey: 'PROZONE' },
     ],
   },
 ]

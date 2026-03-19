@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchWithAuth } from '../fetchWithAuth'
-import SpecialistSelector from './SpecialistSelector'
 import StatsBar from './StatsBar'
 import WeekStrip from './WeekStrip'
 import ZoneAccordion from './ZoneAccordion'
@@ -16,7 +15,7 @@ import type {
 } from './types'
 
 // ============================================================================
-// ProZoneApp — Single-pane prospecting hub (consolidated from 4-tab UI)
+// ProZONE — Prospecting Logic Engine + Pipeline
 // ============================================================================
 
 export interface ProZoneProps {
@@ -146,6 +145,7 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
 
   const handleSelectSpecialist = useCallback((id: string) => {
     setSelectedId(id)
+    setZones([])
     setOpenZones(new Set())
     setSearchQuery('')
     setTierFilter('all')
@@ -231,53 +231,56 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
     }
   }, [filteredZones])
 
+  const selected = specialists.find((s) => s.config_id === selectedId) || null
+
   return (
-    <div className="mx-auto max-w-7xl space-y-5">
-      {/* App Header */}
-      <div
-        className="rounded-xl border border-[var(--border-subtle)] px-6 py-4"
-        style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.12), rgba(14,165,233,0.03))' }}
-      >
-        <div className="flex items-center gap-3">
-          <span
-            className="flex h-10 w-10 items-center justify-center rounded-lg"
-            style={{ backgroundColor: 'rgba(14,165,233,0.15)' }}
-          >
-            <span
-              className="material-icons-outlined"
-              style={{ fontSize: '22px', color: 'var(--app-prozone, #0ea5e9)' }}
-            >
-              explore
-            </span>
+    <div className="mx-auto max-w-7xl space-y-4">
+      {/* Compact Top Bar — specialist dropdown + app identity */}
+      <div className="flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-4 py-2.5">
+        <span
+          className="material-icons-outlined"
+          style={{ fontSize: '20px', color: 'var(--app-prozone, #0ea5e9)' }}
+        >
+          explore
+        </span>
+        <span className="text-sm font-bold text-[var(--text-primary)]">ProZONE</span>
+
+        {/* Specialist Dropdown */}
+        <select
+          value={selectedId || ''}
+          onChange={(e) => handleSelectSpecialist(e.target.value)}
+          disabled={loading || specialists.length === 0}
+          className="ml-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+        >
+          {specialists.length === 0 && <option value="">No specialists</option>}
+          {!selectedId && specialists.length > 0 && <option value="">Select specialist...</option>}
+          {specialists.map((s) => (
+            <option key={s.config_id} value={s.config_id}>
+              {s.specialist_name} — {s.territory_name}
+            </option>
+          ))}
+        </select>
+
+        {/* Territory + zone count context */}
+        {selected && (
+          <span className="text-xs text-[var(--text-muted)]">
+            {selected.zone_count} zones &middot; {selected.origin_zip}
           </span>
-          <div>
-            <h1 className="text-xl font-bold text-[var(--text-primary)]">ProZone</h1>
-            <p className="text-xs text-[var(--text-muted)]">Prospecting Hub</p>
-          </div>
-        </div>
+        )}
+
+        <div className="flex-1" />
+
+        {/* Loading spinner */}
+        {loading && (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+        )}
       </div>
 
-      {/* Loading / Error */}
-      {loading && !selectedId && (
-        <div className="flex items-center justify-center py-16">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: 'var(--app-prozone, #0ea5e9)', borderTopColor: 'transparent' }} />
-          <span className="ml-3 text-sm text-[var(--text-muted)]">Loading specialists...</span>
-        </div>
-      )}
-
+      {/* Error */}
       {error && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/5 px-5 py-4">
           <p className="text-sm text-red-400">{error}</p>
         </div>
-      )}
-
-      {/* Specialist Selector */}
-      {!loading && !error && specialists.length > 0 && (
-        <SpecialistSelector
-          specialists={specialists}
-          selected={selectedId}
-          onSelect={handleSelectSpecialist}
-        />
       )}
 
       {/* Single-Pane Content */}
@@ -346,19 +349,11 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
         onDispositioned={handleCallDispositioned}
       />
 
-      {/* Empty state — no specialists */}
-      {!loading && !error && specialists.length === 0 && (
+      {/* Empty state — no specialist selected */}
+      {!loading && !error && !selectedId && specialists.length > 0 && (
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-6 py-16 text-center">
-          <span
-            className="material-icons-outlined"
-            style={{ fontSize: '48px', color: 'var(--text-muted)' }}
-          >
-            explore_off
-          </span>
-          <h3 className="mt-3 text-base font-semibold text-[var(--text-primary)]">No Specialist Configs</h3>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">
-            Configure specialists in ProZone Admin to get started.
-          </p>
+          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '36px' }}>person_search</span>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">Select a specialist to view their prospecting zones.</p>
         </div>
       )}
     </div>

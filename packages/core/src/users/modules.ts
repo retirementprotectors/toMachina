@@ -449,7 +449,7 @@ export const MODULES: Record<string, ModuleDef> = {
     minUserLevel: 'OWNER',
   },
   PROZONE: {
-    name: 'ProZone',
+    name: 'ProZONE',
     fullName: 'Prospecting Hub',
     description: 'Territory-based prospecting engine with zone scheduling and lead surfacing',
     status: 'active',
