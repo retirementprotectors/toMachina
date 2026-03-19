@@ -743,7 +743,115 @@ prozoneRoutes.get('/scorecard', async (req: Request, res: Response) => {
   }
 })
 
-// ─── POST /enroll — TRK-13538 ───
+
+/**
+ * POST /enroll — Auto-enroll prospects into PROSPECT_* pipelines.
+ * Body: { specialist_id: string, domain?: string }
+ * TRK-13538
+ */
+prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as { specialist_id?: string; domain?: string }
+    const specialistId = body.specialist_id
+    if (!specialistId) {
+      res.status(400).json(errorResponse('specialist_id required'))
+      return
+    }
+
+    const db = getFirestore()
+    const config = await loadSpecialistConfig(specialistId)
+    if (!config) {
+      res.status(404).json(errorResponse('Config not found'))
+      return
+    }
+
+    const territory = await loadTerritory(config.territory_id as string)
+    if (!territory) {
+      res.status(404).json(errorResponse('Territory not found'))
+      return
+    }
+
+    const counties = (territory.counties as Array<{ county: string }>) || []
+    const countyNames = counties.map(c => c.county)
+    const state = territory.state as string
+    if (countyNames.length === 0) {
+      res.json(successResponse({ enrolled: 0 }))
+      return
+    }
+
+    const chunks: string[][] = []
+    for (let i = 0; i < countyNames.length; i += 30) {
+      chunks.push(countyNames.slice(i, i + 30))
+    }
+
+    const clientIds: string[] = []
+    for (const chunk of chunks) {
+      const snap = await db.collection('clients')
+        .where('state', '==', state)
+        .where('county', 'in', chunk)
+        .limit(5000)
+        .get()
+      for (const doc of snap.docs) {
+        const d = doc.data()
+        const st = (d.client_status as string) || ''
+        if (st === 'Active' || st === 'Active - Internal') {
+          clientIds.push(doc.id)
+        }
+      }
+    }
+
+    const existingKeys = new Set<string>()
+    const eiSnap = await db.collection('flow_instances')
+      .where('entity_type', '==', 'CLIENT')
+      .where('stage_status', 'in', ['pending', 'in_progress'])
+      .select('entity_id', 'pipeline_key')
+      .get()
+    for (const doc of eiSnap.docs) {
+      const d = doc.data()
+      existingKeys.add(d.entity_id + '__' + d.pipeline_key)
+    }
+
+    const pipelineKey = body.domain || 'PROSPECT_RETIREMENT'
+    const now = new Date().toISOString()
+    let enrolled = 0
+    let pending: Array<{ ref: FirebaseFirestore.DocumentReference; data: Record<string, unknown> }> = []
+
+    for (const cid of clientIds) {
+      if (existingKeys.has(cid + '__' + pipelineKey)) continue
+
+      const ref = db.collection('flow_instances').doc()
+      pending.push({
+        ref,
+        data: {
+          instance_id: ref.id, pipeline_key: pipelineKey,
+          entity_id: cid, entity_type: 'CLIENT', entity_name: '',
+          current_stage: 'new', stage_status: 'pending', priority: 'MEDIUM',
+          assigned_to: (config.specialist_email as string) || '',
+          created_at: now, updated_at: now,
+        },
+      })
+      enrolled++
+
+      if (pending.length >= 400) {
+        const batch = db.batch()
+        for (const op of pending) batch.set(op.ref, op.data)
+        await batch.commit()
+        pending = []
+      }
+    }
+
+    if (pending.length > 0) {
+      const batch = db.batch()
+      for (const op of pending) batch.set(op.ref, op.data)
+      await batch.commit()
+    }
+
+    res.json(successResponse({ enrolled, pipeline: pipelineKey }))
+  } catch (err) {
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
 
 // ─── Utility: generate slot times ───
 function generateSlots(firstSlot: string, count: number, durationMinutes: number): string[] {

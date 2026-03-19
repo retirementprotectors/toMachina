@@ -5,7 +5,11 @@ import { fetchWithAuth } from '../fetchWithAuth'
 import ProZoneScorecard from './ProZoneScorecard'
 import CallPanel from './CallPanel'
 import type { CallDisposition } from './CallPanel'
+import TeamTab from './TeamTab'
+import MarketTab from './MarketTab'
 import TargetTab from './TargetTab'
+import FlowTab from './FlowTab'
+import InventoryTab from './InventoryTab'
 import type { SpecialistConfig, ProspectWithInventory, ProZoneTab } from './types'
 
 // ============================================================================
@@ -226,43 +230,3 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
   )
 }
 
-// ============================================================================
-// Placeholder Tab Components — will be replaced by other builders
-// ============================================================================
-
-function TeamTab({ portal: _portal, specialistId: _specialistId }: { portal: string; specialistId: string | null }) {
-  return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-12 text-center">
-      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>groups</span>
-      <p className="mt-2 text-sm text-[var(--text-muted)]">TEAM tab — SpecialistConfigEditor will render here</p>
-    </div>
-  )
-}
-
-function MarketTab({ portal: _portal }: { portal: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-12 text-center">
-      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>map</span>
-      <p className="mt-2 text-sm text-[var(--text-muted)]">MARKET tab — Territory overview + market data will render here</p>
-    </div>
-  )
-}
-
-
-function FlowTab({ portal: _portal, specialistId: _specialistId }: { portal: string; specialistId: string | null }) {
-  return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-12 text-center">
-      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>conversion_path</span>
-      <p className="mt-2 text-sm text-[var(--text-muted)]">FLOW tab — Pipeline Kanban + flow instances will render here</p>
-    </div>
-  )
-}
-
-function InventoryTab({ portal: _portal, specialists: _specialists, selectedId: _selectedId }: { portal: string; specialists: SpecialistConfig[]; selectedId: string | null }) {
-  return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-12 text-center">
-      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>inventory_2</span>
-      <p className="mt-2 text-sm text-[var(--text-muted)]">INVENTORY tab — Product inventory breakdown will render here</p>
-    </div>
-  )
-}
