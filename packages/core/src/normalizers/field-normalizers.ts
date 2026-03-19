@@ -368,7 +368,7 @@ export const PRODUCT_TYPES: Record<string, string> = {
   'spia single premium immediate': 'SPIA',
   'variable annuity': 'Variable Annuity',
 
-  // Investments
+  // Investments (Securities & Advisory)
   'advisory feebased': 'Advisory (Fee-Based)',
   'advisory fee-based': 'Advisory (Fee-Based)',
   'brokerage commissionbased': 'Brokerage (Commission-Based)',

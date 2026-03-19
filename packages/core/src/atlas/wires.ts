@@ -10,6 +10,18 @@ import type { WireDefinitionV2, WireDefinition } from './types'
 // Wire Definitions (v2 — super tool composition)
 // ---------------------------------------------------------------------------
 
+// Wires that MUST run the client import tool chain before writing to clients collection
+export const WIRES_REQUIRING_CLIENT_TOOL_CHAIN = [
+  'WIRE_MAPD_ENROLLMENT',
+  'WIRE_CLIENT_ENRICHMENT',
+  'WIRE_MEDICARE_ACCOUNTS',
+  'WIRE_LIFE_ANNUITY_ACCOUNTS',
+  'WIRE_INVESTMENT_ACCOUNTS',
+  'WIRE_DOC_INTAKE_MAIL',
+  'WIRE_DOC_INTAKE_EMAIL',
+  'WIRE_MEETING_PROCESSING',
+] as const
+
 export const WIRE_DEFINITIONS_V2: WireDefinitionV2[] = [
   {
     wire_id: 'WIRE_DATA_IMPORT',
