@@ -34,13 +34,8 @@ jobs:
           service_account: github-deployer@claude-mcp-484718.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
       - run: |
-          gcloud run deploy tm-api \
-            --source=services/api \
-            --region=us-central1 \
+          gcloud builds submit \
+            --config=cloudbuild-api-bridge.yaml \
             --project=claude-mcp-484718 \
-            --memory=1Gi \
-            --cpu=2 \
-            --min-instances=0 \
-            --max-instances=3 \
-            --port=8080 \
-            --no-allow-unauthenticated
+            --region=us-central1 \
+            .
