@@ -129,6 +129,39 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
       // Log failure is non-blocking
     }
 
+    // TRK-13539: Disposition → pipeline stage advancement
+    // booked → advance to "booked" stage, not_interested → advance to "closed"
+    if (outcome === 'booked' || outcome === 'not_interested') {
+      try {
+        // Look up active flow_instance for this client
+        const fiRes = await fetchWithAuth(
+          `/api/flow/instances?entity_id=${prospect.client_id}&entity_type=CLIENT`
+        )
+        const fiJson = await fiRes.json() as {
+          success: boolean
+          data?: Array<{ id: string; stage_status: string; pipeline_key: string }>
+        }
+        if (fiJson.success && fiJson.data) {
+          const activeInstance = fiJson.data.find(
+            (i) => i.stage_status === 'pending' || i.stage_status === 'in_progress'
+          )
+          if (activeInstance) {
+            const targetStage = outcome === 'booked' ? 'booked' : 'closed'
+            await fetchWithAuth(`/api/flow/instances/${activeInstance.id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                action: 'move',
+                target_stage: targetStage,
+                performed_by: 'prozone-callpanel',
+              }),
+            })
+          }
+        }
+      } catch {
+        // Pipeline advancement failure is non-blocking
+      }
+    }
+
     onDispositioned({
       client_id: prospect.client_id,
       outcome,
