@@ -149,3 +149,17 @@ export interface CountyRow {
   tier: 'I' | 'II' | 'III' | 'IV'
   client_count: number
 }
+
+// ─── Scorecard types ───
+export interface ScorecardData {
+  attempts: number
+  connected: number
+  booked: number
+  percentages: {
+    connected: number
+    booked: number
+  }
+}
+
+// ─── Tab types ───
+export type ProZoneTab = 'team' | 'market' | 'target' | 'flow' | 'inventory'

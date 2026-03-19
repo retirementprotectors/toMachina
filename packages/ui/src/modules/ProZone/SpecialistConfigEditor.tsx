@@ -90,6 +90,10 @@ interface ConfigSummary {
 
 interface SpecialistConfigEditorProps {
   portal: 'prodashx' | 'riimo' | 'sentinel'
+  /** If provided, skip the list view and jump directly to editing this config */
+  configId?: string
+  /** If true, disable all inputs and hide save/delete buttons */
+  readOnly?: boolean
 }
 
 // ---------------------------------------------------------------------------
@@ -191,12 +195,14 @@ function TextInput({
   onChange,
   placeholder,
   type = 'text',
+  disabled,
 }: {
   id: string
   value: string
   onChange: (v: string) => void
   placeholder?: string
   type?: string
+  disabled?: boolean
 }) {
   return (
     <input
@@ -205,7 +211,8 @@ function TextInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)]"
+      disabled={disabled}
+      className={`mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)] ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
     />
   )
 }
@@ -217,6 +224,7 @@ function NumberInput({
   min,
   max,
   placeholder,
+  disabled,
 }: {
   id: string
   value: number | undefined
@@ -224,6 +232,7 @@ function NumberInput({
   min?: number
   max?: number
   placeholder?: string
+  disabled?: boolean
 }) {
   return (
     <input
@@ -237,7 +246,8 @@ function NumberInput({
       min={min}
       max={max}
       placeholder={placeholder}
-      className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)]"
+      disabled={disabled}
+      className={`mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)] ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
     />
   )
 }
@@ -246,10 +256,12 @@ function TimeInput({
   id,
   value,
   onChange,
+  disabled,
 }: {
   id: string
   value: string
   onChange: (v: string) => void
+  disabled?: boolean
 }) {
   return (
     <input
@@ -257,7 +269,8 @@ function TimeInput({
       type="time"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)]"
+      disabled={disabled}
+      className={`mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)] ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
     />
   )
 }
@@ -267,19 +280,22 @@ function Checkbox({
   checked,
   onChange,
   label,
+  disabled,
 }: {
   id: string
   checked: boolean
   onChange: (v: boolean) => void
   label: string
+  disabled?: boolean
 }) {
   return (
-    <label htmlFor={id} className="flex cursor-pointer items-center gap-2">
+    <label htmlFor={id} className={`flex items-center gap-2 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>
       <input
         id={id}
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
+        disabled={disabled}
         className="h-4 w-4 rounded border-[var(--border-subtle)] accent-[var(--app-prozone,#0ea5e9)]"
       />
       <span className="text-sm text-[var(--text-primary)]">{label}</span>
@@ -307,21 +323,25 @@ function showToast(message: string, type: 'success' | 'error') {
 // Main Component
 // ============================================================================
 
-export default function SpecialistConfigEditor({ portal }: SpecialistConfigEditorProps) {
+export default function SpecialistConfigEditor({ portal, configId, readOnly }: SpecialistConfigEditorProps) {
   // ---- List view state ----
   const [configs, setConfigs] = useState<ConfigSummary[]>([])
   const [listLoading, setListLoading] = useState(true)
   const [listError, setListError] = useState<string | null>(null)
 
   // ---- Editor state ----
-  const [mode, setMode] = useState<'list' | 'create' | 'edit'>('list')
-  const [editingId, setEditingId] = useState<string | null>(null)
+  // If configId is provided externally, start in edit mode immediately
+  const [mode, setMode] = useState<'list' | 'create' | 'edit'>(configId ? 'edit' : 'list')
+  const [editingId, setEditingId] = useState<string | null>(configId ?? null)
   const [form, setForm] = useState(blankConfig())
   const [territories, setTerritories] = useState<TerritoryOption[]>([])
   const [territoryZones, setTerritoryZones] = useState<Array<{ zone_id: string; zone_name: string }>>([])
   const [saving, setSaving] = useState(false)
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+
+  // If an external configId is provided, auto-trigger edit mode on mount
+  const [didAutoLoad, setDidAutoLoad] = useState(false)
 
   // ---------------------------------------------------------------------------
   // Fetch config list
@@ -345,8 +365,11 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
   }, [])
 
   useEffect(() => {
-    loadConfigs()
-  }, [loadConfigs])
+    // Skip list load if configId was provided externally (we'll go straight to edit)
+    if (!configId) {
+      loadConfigs()
+    }
+  }, [loadConfigs, configId])
 
   // ---------------------------------------------------------------------------
   // Fetch territories (for dropdown) when entering editor
@@ -443,6 +466,16 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
       setFormLoading(false)
     }
   }, [loadTerritories, loadTerritoryZones])
+
+  // ---------------------------------------------------------------------------
+  // Auto-load when external configId is provided
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (configId && !didAutoLoad) {
+      setDidAutoLoad(true)
+      handleEdit(configId)
+    }
+  }, [configId, didAutoLoad, handleEdit])
 
   // ---------------------------------------------------------------------------
   // Back to list
@@ -612,14 +645,16 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                 <p className="text-xs text-[var(--text-muted)]">ProZone Admin</p>
               </div>
             </div>
-            <button
-              onClick={handleCreate}
-              className="btn btn-primary flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium"
-              style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
-            >
-              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>add</span>
-              Add Specialist
-            </button>
+            {!readOnly && (
+              <button
+                onClick={handleCreate}
+                className="btn btn-primary flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium"
+                style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '18px' }}>add</span>
+                Add Specialist
+              </button>
+            )}
           </div>
         </div>
 
@@ -728,14 +763,16 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
             <p className="mt-1 text-sm text-[var(--text-muted)]">
               Add your first specialist to configure territories, schedules, and meeting criteria.
             </p>
-            <button
-              onClick={handleCreate}
-              className="btn btn-primary mt-4 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
-              style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
-            >
-              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>add</span>
-              Add Specialist
-            </button>
+            {!readOnly && (
+              <button
+                onClick={handleCreate}
+                className="btn btn-primary mt-4 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium"
+                style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '18px' }}>add</span>
+                Add Specialist
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -749,37 +786,45 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
     <div className="mx-auto max-w-4xl space-y-5">
       {/* Top Bar */}
       <div className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-3">
-        <button
-          onClick={handleBack}
-          className="btn btn-secondary flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
-        >
-          <span className="material-icons-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
-          Back
-        </button>
+        {!configId ? (
+          <button
+            onClick={handleBack}
+            className="btn btn-secondary flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '18px' }}>arrow_back</span>
+            Back
+          </button>
+        ) : (
+          <div />
+        )}
         <h2 className="text-sm font-semibold text-[var(--text-primary)]">
-          {mode === 'create' ? 'New Specialist Config' : 'Edit Specialist Config'}
+          {readOnly ? 'Specialist Config (View Only)' : mode === 'create' ? 'New Specialist Config' : 'Edit Specialist Config'}
         </h2>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="btn btn-primary flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium disabled:opacity-50"
-          style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
-        >
-          {saving ? (
-            <>
-              <div
-                className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
-                style={{ borderColor: '#fff', borderTopColor: 'transparent' }}
-              />
-              Saving...
-            </>
-          ) : (
-            <>
-              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>save</span>
-              Save
-            </>
-          )}
-        </button>
+        {!readOnly ? (
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="btn btn-primary flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium disabled:opacity-50"
+            style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
+          >
+            {saving ? (
+              <>
+                <div
+                  className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
+                  style={{ borderColor: '#fff', borderTopColor: 'transparent' }}
+                />
+                Saving...
+              </>
+            ) : (
+              <>
+                <span className="material-icons-outlined" style={{ fontSize: '18px' }}>save</span>
+                Save
+              </>
+            )}
+          </button>
+        ) : (
+          <div />
+        )}
       </div>
 
       {/* Form Error */}
@@ -804,6 +849,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   value={form.specialist_name}
                   onChange={(v) => updateField('specialist_name', v)}
                   placeholder="e.g. Arch Shaner"
+                  disabled={readOnly}
                 />
               </div>
               <div>
@@ -813,6 +859,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   value={form.user_id}
                   onChange={(v) => updateField('user_id', v)}
                   placeholder="Firestore user ID"
+                  disabled={readOnly}
                 />
               </div>
               <div>
@@ -821,7 +868,8 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   id="territory_id"
                   value={form.territory_id}
                   onChange={(e) => handleTerritoryChange(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)]"
+                  disabled={readOnly}
+                  className={`mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--app-prozone,#0ea5e9)] focus:outline-none focus:ring-1 focus:ring-[var(--app-prozone,#0ea5e9)] ${readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
                 >
                   <option value="">Select territory...</option>
                   {territories.map((t) => (
@@ -838,6 +886,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   value={form.origin_zip}
                   onChange={(v) => updateField('origin_zip', v)}
                   placeholder="50265"
+                  disabled={readOnly}
                 />
               </div>
               <div>
@@ -847,6 +896,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   value={form.calendar_booking_url || ''}
                   onChange={(v) => updateField('calendar_booking_url', v)}
                   placeholder="https://..."
+                  disabled={readOnly}
                 />
               </div>
               <div className="flex items-end">
@@ -854,12 +904,13 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   <FieldLabel>Status</FieldLabel>
                   <button
                     type="button"
-                    onClick={() =>
-                      updateField('config_status', form.config_status === 'Active' ? 'Inactive' : 'Active')
-                    }
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                    onClick={() => {
+                      if (!readOnly) updateField('config_status', form.config_status === 'Active' ? 'Inactive' : 'Active')
+                    }}
+                    disabled={readOnly}
+                    className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
                       form.config_status === 'Active' ? '' : 'bg-[var(--bg-surface)]'
-                    }`}
+                    } ${readOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                     style={
                       form.config_status === 'Active'
                         ? { backgroundColor: 'var(--app-prozone, #0ea5e9)' }
@@ -894,12 +945,13 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     <button
                       key={`office-${day}`}
                       type="button"
-                      onClick={() => toggleDay('office_days', day)}
+                      onClick={() => { if (!readOnly) toggleDay('office_days', day) }}
+                      disabled={readOnly}
                       className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
                         isOffice
                           ? 'border-transparent text-white'
                           : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-                      }`}
+                      } ${readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
                       style={
                         isOffice
                           ? { backgroundColor: 'var(--app-prozone, #0ea5e9)' }
@@ -923,12 +975,13 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     <button
                       key={`field-${day}`}
                       type="button"
-                      onClick={() => toggleDay('field_days', day)}
+                      onClick={() => { if (!readOnly) toggleDay('field_days', day) }}
+                      disabled={readOnly}
                       className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
                         isField
                           ? 'border-transparent text-white'
                           : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-                      }`}
+                      } ${readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
                       style={
                         isField
                           ? { backgroundColor: 'rgb(245, 158, 11)' }
@@ -977,7 +1030,8 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                       <select
                         value={entry?.tier || 'I'}
                         onChange={(e) => updateTierMapEntry(zone.zone_id, 'tier', e.target.value)}
-                        className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] focus:outline-none"
+                        disabled={readOnly}
+                        className={`rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] focus:outline-none ${readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
                       >
                         {ALL_TIERS.map((t) => (
                           <option key={t} value={t}>Tier {t}</option>
@@ -988,7 +1042,8 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                         min={0}
                         value={entry?.drive_minutes ?? 0}
                         onChange={(e) => updateTierMapEntry(zone.zone_id, 'drive_minutes', Number(e.target.value))}
-                        className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] focus:outline-none"
+                        disabled={readOnly}
+                        className={`rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] focus:outline-none ${readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
                       />
                     </div>
                   )
@@ -1019,6 +1074,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                         onChange={(v) => updateSlotTemplate(st.tier, 'slots_per_day', v ?? 0)}
                         min={0}
                         max={20}
+                        disabled={readOnly}
                       />
                     </div>
                     <div>
@@ -1027,6 +1083,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                         id={`first-${st.tier}`}
                         value={st.first_slot}
                         onChange={(v) => updateSlotTemplate(st.tier, 'first_slot', v)}
+                        disabled={readOnly}
                       />
                     </div>
                     <div>
@@ -1035,6 +1092,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                         id={`last-${st.tier}`}
                         value={st.last_slot}
                         onChange={(v) => updateSlotTemplate(st.tier, 'last_slot', v)}
+                        disabled={readOnly}
                       />
                     </div>
                     <div>
@@ -1045,6 +1103,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                         onChange={(v) => updateSlotTemplate(st.tier, 'slot_duration_minutes', v ?? 60)}
                         min={15}
                         max={240}
+                        disabled={readOnly}
                       />
                     </div>
                   </div>
@@ -1058,6 +1117,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                           id="departure-IV"
                           value={st.departure_time || ''}
                           onChange={(v) => updateSlotTemplate('IV', 'departure_time', v)}
+                          disabled={readOnly}
                         />
                       </div>
                       <div>
@@ -1066,6 +1126,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                           id="return-IV"
                           value={st.return_time || ''}
                           onChange={(v) => updateSlotTemplate('IV', 'return_time', v)}
+                          disabled={readOnly}
                         />
                       </div>
                     </div>
@@ -1095,6 +1156,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     })
                   }
                   label="Active L&A required"
+                  disabled={readOnly}
                 />
                 <Checkbox
                   id="field-intra-territory"
@@ -1106,6 +1168,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     })
                   }
                   label="Intra-territory only"
+                  disabled={readOnly}
                 />
                 <div>
                   <FieldLabel htmlFor="field-max-age">Max Age</FieldLabel>
@@ -1120,6 +1183,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     }
                     min={50}
                     max={120}
+                    disabled={readOnly}
                   />
                 </div>
               </div>
@@ -1137,6 +1201,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     })
                   }
                   label="Active L&A required"
+                  disabled={readOnly}
                 />
                 <Checkbox
                   id="office-outer-zone"
@@ -1148,6 +1213,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     })
                   }
                   label="Outer zone eligible"
+                  disabled={readOnly}
                 />
                 <div>
                   <FieldLabel htmlFor="office-min-age">Min Age (optional)</FieldLabel>
@@ -1163,6 +1229,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     min={50}
                     max={120}
                     placeholder="No minimum"
+                    disabled={readOnly}
                   />
                 </div>
               </div>
@@ -1186,6 +1253,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   })
                 }
                 label="Active Medicare (all ages)"
+                disabled={readOnly}
               />
               <Checkbox
                 id="zlc-la-80plus"
@@ -1197,6 +1265,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   })
                 }
                 label="Active L&A (80+)"
+                disabled={readOnly}
               />
               <Checkbox
                 id="zlc-no-core-under-80"
@@ -1208,6 +1277,7 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                   })
                 }
                 label="No core product (under 80)"
+                disabled={readOnly}
               />
             </div>
           </div>
@@ -1235,66 +1305,78 @@ export default function SpecialistConfigEditor({ portal }: SpecialistConfigEdito
                     value={member.name}
                     onChange={(e) => updateTeamMember(idx, 'name', e.target.value)}
                     placeholder="Name"
-                    className="flex-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
+                    disabled={readOnly}
+                    className={`flex-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none ${readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
                   />
                   <select
                     value={member.role}
                     onChange={(e) => updateTeamMember(idx, 'role', e.target.value)}
-                    className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] focus:outline-none"
+                    disabled={readOnly}
+                    className={`rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] focus:outline-none ${readOnly ? 'cursor-not-allowed opacity-60' : ''}`}
                   >
                     <option value="coordinator">Coordinator</option>
                     <option value="associate">Associate</option>
                   </select>
-                  <button
-                    type="button"
-                    onClick={() => removeTeamMember(idx)}
-                    className="rounded-md p-1 text-[var(--text-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
-                  >
-                    <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => removeTeamMember(idx)}
+                      className="rounded-md p-1 text-[var(--text-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
+                    >
+                      <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
 
-            <button
-              type="button"
-              onClick={addTeamMember}
-              className="btn btn-secondary flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
-            >
-              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>person_add</span>
-              Add Team Member
-            </button>
+            {!readOnly && (
+              <button
+                type="button"
+                onClick={addTeamMember}
+                className="btn btn-secondary flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>person_add</span>
+                Add Team Member
+              </button>
+            )}
           </div>
 
           {/* ------------------------------------------------------------------ */}
-          {/* Bottom Save Bar */}
+          {/* Bottom Save Bar — hidden in readOnly mode */}
           {/* ------------------------------------------------------------------ */}
-          <div className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-3">
-            <button onClick={handleBack} className="btn btn-secondary rounded-lg px-4 py-2 text-sm">
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="btn btn-primary flex items-center gap-1.5 rounded-lg px-6 py-2 text-sm font-medium disabled:opacity-50"
-              style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
-            >
-              {saving ? (
-                <>
-                  <div
-                    className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
-                    style={{ borderColor: '#fff', borderTopColor: 'transparent' }}
-                  />
-                  Saving...
-                </>
+          {!readOnly && (
+            <div className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-3">
+              {!configId ? (
+                <button onClick={handleBack} className="btn btn-secondary rounded-lg px-4 py-2 text-sm">
+                  Cancel
+                </button>
               ) : (
-                <>
-                  <span className="material-icons-outlined" style={{ fontSize: '18px' }}>save</span>
-                  {mode === 'create' ? 'Create Config' : 'Save Changes'}
-                </>
+                <div />
               )}
-            </button>
-          </div>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="btn btn-primary flex items-center gap-1.5 rounded-lg px-6 py-2 text-sm font-medium disabled:opacity-50"
+                style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
+              >
+                {saving ? (
+                  <>
+                    <div
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
+                      style={{ borderColor: '#fff', borderTopColor: 'transparent' }}
+                    />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-icons-outlined" style={{ fontSize: '18px' }}>save</span>
+                    {mode === 'create' ? 'Create Config' : 'Save Changes'}
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -345,6 +345,35 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
       return sum + z.prospects.filter((p: Record<string, unknown>) => !!p.pipeline).length
     }, 0)
 
+    // ─── Pagination params ───
+    const offset = parseInt(req.query.offset as string) || 0
+    const limit = Math.min(parseInt(req.query.limit as string) || 200, 500)
+    const flat = req.query.flat === 'true'
+
+    // ─── Flat mode: flatten all zones into one paginated array ───
+    if (flat) {
+      const allProspects = zoneResults.flatMap(z =>
+        z.prospects.map((p: Record<string, unknown>) => ({
+          ...p,
+          zone_id: z.zone_id,
+          zone_name: z.zone_name,
+          zone_tier: z.tier,
+        }))
+      )
+      const paginated = allProspects.slice(offset, offset + limit)
+      res.json(successResponse({
+        specialist: config.specialist_name,
+        territory: territory.territory_name,
+        prospects: paginated,
+        total_prospects: allProspects.length,
+        total_flagged: totalFlagged,
+        total_in_pipeline: totalInPipeline,
+        meta: { offset, limit, total: allProspects.length },
+      }))
+      return
+    }
+
+    // ─── Default: zone-grouped response with meta ───
     res.json(successResponse({
       specialist: config.specialist_name,
       territory: territory.territory_name,
@@ -352,6 +381,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
       total_prospects: totalProspects,
       total_flagged: totalFlagged,
       total_in_pipeline: totalInPipeline,
+      meta: { offset, limit, total: totalProspects },
     }))
   } catch (err) {
     console.error('GET /api/prozone/prospects error:', err)
@@ -616,6 +646,104 @@ prozoneRoutes.get('/zone-leads/:specialist_id/:zone_id', async (req: Request, re
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+/**
+ * GET /scorecard
+ * Aggregates call metrics from communications collection.
+ * Query params: specialist_id, timeline (today|week|month|year|all), team (COR|AST|SPC|ALL), pipeline (retirement|medicare|legacy)
+ */
+prozoneRoutes.get('/scorecard', async (req: Request, res: Response) => {
+  try {
+    const specialistId = req.query.specialist_id as string
+    const timeline = (req.query.timeline as string) || 'week'
+    const team = (req.query.team as string) || 'ALL'
+    const pipeline = (req.query.pipeline as string) || ''
+
+    const db = getFirestore()
+
+    // Calculate date range
+    const now = new Date()
+    let startDate: Date | null = null
+    if (timeline === 'today') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    } else if (timeline === 'week') {
+      startDate = new Date(now)
+      startDate.setDate(now.getDate() - now.getDay()) // Start of week (Sunday)
+    } else if (timeline === 'month') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+    } else if (timeline === 'year') {
+      startDate = new Date(now.getFullYear(), 0, 1)
+    }
+    // 'all' = no date filter
+
+    // Query communications collection for outbound voice calls
+    let query: FirebaseFirestore.Query = db.collection('communications')
+      .where('channel', '==', 'voice')
+      .where('direction', '==', 'outbound')
+
+    if (startDate) {
+      query = query.where('created_at', '>=', startDate.toISOString())
+    }
+
+    // Specialist filter — load config to get associated user email
+    if (specialistId && specialistId !== 'ALL') {
+      const config = await loadSpecialistConfig(specialistId)
+      if (config) {
+        const email = config.specialist_email as string
+        if (email) {
+          query = query.where('sent_by', '==', email)
+        }
+      }
+    }
+
+    const snap = await query.limit(5000).get()
+
+    let attempts = 0
+    let connected = 0
+    let booked = 0
+
+    for (const doc of snap.docs) {
+      const data = doc.data()
+      const outcome = (data.outcome as string) || ''
+
+      // Team filter (COR/AST/SPC) — check sent_by user level
+      if (team !== 'ALL') {
+        const senderLevel = (data.sender_level as string) || ''
+        if (senderLevel.toUpperCase() !== team.toUpperCase()) continue
+      }
+
+      // Pipeline filter — check pipeline_key on the communication record
+      if (pipeline) {
+        const commPipeline = (data.pipeline_key as string) || ''
+        if (commPipeline.toLowerCase() !== pipeline.toLowerCase()) continue
+      }
+
+      attempts++
+      if (outcome === 'callback' || outcome === 'booked' || outcome === 'not_interested') {
+        connected++
+      }
+      if (outcome === 'booked') {
+        booked++
+      }
+    }
+
+    res.json(successResponse({
+      attempts,
+      connected,
+      booked,
+      percentages: {
+        connected: attempts > 0 ? Math.round((connected / attempts) * 1000) / 10 : 0,
+        booked: connected > 0 ? Math.round((booked / connected) * 1000) / 10 : 0,
+      },
+      filters: { specialist_id: specialistId, timeline, team, pipeline },
+    }))
+  } catch (err) {
+    console.error('GET /api/prozone/scorecard error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ─── POST /enroll — TRK-13538 ───
 
 // ─── Utility: generate slot times ───
 function generateSlots(firstSlot: string, count: number, durationMinutes: number): string[] {

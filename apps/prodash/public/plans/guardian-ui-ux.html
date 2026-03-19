@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guardian UI/UX — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 600px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.bug { background: rgba(248,81,73,0.12); color: var(--red); border: 1px solid rgba(248,81,73,0.25); }
+  .tag.enh { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+  .tag.new { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.mod { background: rgba(88,166,255,0.10); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; }
+  .flow-step { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .flow-arrow { padding: 0 8px; color: var(--dim); font-size: 18px; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 6px 0; font-size: 13px; }
+  .checklist li::before { content: '[ ] '; font-family: monospace; color: var(--dim); }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">FORGE Sprint &middot; Guardian UI/UX</div>
+  <h1>Implementation Plan</h1>
+  <div class="sub">Data integrity deep-dive. Fix the Damage Report so it tells the truth about 5,197 clients, 270 carriers, and every account in between.</div>
+</div>
+<div class="container">
+
+<h2>Deliverable <span class="accent">Overview</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Type</th><th>Deliverable</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TRK-13547</strong></td><td><span class="tag enh">Enhancement</span></td><td>Structural Health Script &mdash; full Firestore scan</td><td><span class="tag new">New File</span></td></tr>
+    <tr><td><strong>TRK-13548</strong></td><td><span class="tag bug">Bug</span></td><td>Firestore Duplicate Detection &mdash; baked into structural</td><td><span class="tag new">New File</span></td></tr>
+    <tr><td><strong>TRK-13545</strong></td><td><span class="tag bug">Bug</span></td><td>Sheets Cross-Reference &mdash; Firestore vs MATRIX</td><td><span class="tag mod">Rewrite</span></td></tr>
+    <tr><td><strong>TRK-13546</strong></td><td><span class="tag bug">Bug</span></td><td>Fix BigQuery Forensics &mdash; monitoring window context</td><td><span class="tag mod">Modify</span></td></tr>
+    <tr><td><strong>TRK-13549</strong></td><td><span class="tag enh">Enhancement</span></td><td>Update Damage Report &mdash; structural section + honest badges</td><td><span class="tag mod">Update</span></td></tr>
+  </tbody>
+</table>
+
+<h2>Deliverable 1: <span class="accent">Structural Health Script</span></h2>
+<p><span class="tag new">New</span> <code>services/api/src/scripts/guardian-structural.ts</code></p>
+<p>The script that answers: <strong>"What does our data ACTUALLY look like right now?"</strong></p>
+
+<div class="card">
+  <h4>Full Client Scan &mdash; ALL 5,197 (no sampling)</h4>
+  <ul>
+    <li>Field-by-field population rates: first_name, last_name, email, phone, dob, address, city, state, zip, client_status, household_id, agent_name, source, ghl_contact_id</li>
+    <li>Completeness score per client (% of recommended fields populated)</li>
+    <li>Distribution: how many clients are 100% complete? 75%? 50%? Below 25%?</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>Duplicate Detection (TRK-13548)</h4>
+  <ul>
+    <li>Group ALL clients by normalized(first_name) + normalized(last_name) + dob</li>
+    <li>Report duplicate clusters: count, doc IDs, which fields differ</li>
+    <li>Also check: same email across multiple clients, same phone across multiple clients</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>Carrier Normalization Audit</h4>
+  <ul>
+    <li>Read all 270 carriers + ALL accounts across every client subcollection</li>
+    <li>Map every account <code>carrier_name</code> against carriers collection</li>
+    <li>Report: exact matches, fuzzy matches (levenshtein &lt; 3), complete mismatches</li>
+    <li>Produce carrier alias mapping suggestion</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>Collection Size Report</h4>
+  <p>Every protected collection: doc count, last-modified sample. Full inventory of the database.</p>
+</div>
+
+<p><strong>Output:</strong> Console report + Firestore (<code>guardian_structural_reports/{id}</code>) + JSON file for Damage Report HTML</p>
+
+<h2>Deliverable 2: <span class="accent">Sheets Cross-Reference</span></h2>
+<p><span class="tag mod">Rewrite</span> <code>services/api/src/scripts/guardian-crossref.ts</code></p>
+<p>The original plan's most critical deliverable: <strong>Firestore vs MATRIX Sheets comparison.</strong></p>
+
+<div class="card">
+  <h4>Sheets Access</h4>
+  <p><code>googleapis</code> package with service account credentials. PRODASH_MATRIX: <code>1byyXMJD...Eg-w</code></p>
+  <p>Tabs: <code>_CLIENT_MASTER</code>, <code>_ACCOUNT_ANNUITY</code>, <code>_ACCOUNT_LIFE</code>, <code>_ACCOUNT_MEDICARE</code>, <code>_ACCOUNT_INVESTMENTS</code>, <code>_ACCOUNT_MASTER</code></p>
+</div>
+
+<table>
+  <thead><tr><th>Check</th><th>What It Measures</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Client Count Delta</strong></td><td>Firestore clients vs _CLIENT_MASTER rows</td></tr>
+    <tr><td><strong>Account Count Delta</strong></td><td>Firestore accounts vs _ACCOUNT_* tab rows (per type)</td></tr>
+    <tr><td><strong>Field Spot Check</strong></td><td>100 random clients: compare field values between Firestore and Sheets</td></tr>
+    <tr><td><strong>Lost in Migration</strong></td><td>Records in Sheets but NOT in Firestore</td></tr>
+    <tr><td><strong>Never Bridged</strong></td><td>Records in Firestore but NOT in Sheets</td></tr>
+  </tbody>
+</table>
+<p>Existing internal Firestore checks (linkage, orphans, carrier coverage, field completeness) are preserved alongside the new Sheets comparison.</p>
+
+<h2>Deliverable 3: <span class="accent">Fix BigQuery Forensics</span></h2>
+<p><span class="tag mod">Modify</span> <code>services/api/src/scripts/guardian-forensics.ts</code></p>
+
+<div class="card">
+  <h4>Changes</h4>
+  <ul>
+    <li><strong>Detect window:</strong> Query MIN/MAX timestamp + total change count. Print at top of output.</li>
+    <li><strong>Add disclaimer:</strong> "MONITORING WINDOW: {date} to {date} ({N} days). Changes before {date} are NOT visible."</li>
+    <li><strong>Fix language:</strong> "CLEAN" &rarr; "NO ISSUES IN WINDOW". The word "CLEAN" implies the data is healthy. It isn't.</li>
+    <li><strong>Add context:</strong> After summary: "For current-state analysis, run guardian-structural.ts."</li>
+  </ul>
+</div>
+
+<h2>Deliverable 4: <span class="accent">Update Damage Report</span></h2>
+<p><span class="tag mod">Update</span> <code>.claude/guardian-vision.html</code></p>
+
+<div class="card">
+  <h4>Changes</h4>
+  <ul>
+    <li><strong>Add Structural Health section</strong> &mdash; full collection counts, client completeness distribution, field population rates (all clients), duplicate clusters, carrier normalization status</li>
+    <li><strong>Fix BigQuery badges</strong> &mdash; remove green "ALL CLEAN", replace with amber "MONITORING WINDOW ONLY"</li>
+    <li><strong>Fix overall verdict</strong> &mdash; weight by ALL sections (structural = critical, cross-ref = high, BigQuery = low)</li>
+    <li><strong>Data source:</strong> reads from <code>structural-report.json</code> + <code>crossref-report.json</code> generated by scripts</li>
+  </ul>
+</div>
+
+<h2>Execution <span class="accent">Order</span></h2>
+<div class="flow">
+  <div class="flow-step">1. Build + run structural.ts</div><div class="flow-arrow">&rarr;</div>
+  <div class="flow-step">2. Rewrite + run crossref.ts</div><div class="flow-arrow">&rarr;</div>
+  <div class="flow-step">3. Fix forensics.ts + re-run</div><div class="flow-arrow">&rarr;</div>
+  <div class="flow-step">4. Regenerate Damage Report HTML</div>
+</div>
+<p style="font-size:12px;color:var(--dim);margin-top:8px">Steps 1 &amp; 2 can run in parallel. Step 4 depends on 1-3.</p>
+
+<h2><span class="accent">Verification</span></h2>
+<ul class="checklist">
+  <li><code>guardian-structural.ts</code> scans ALL 5,197 clients, writes report to Firestore + JSON</li>
+  <li><code>guardian-crossref.ts</code> reads MATRIX Sheets, produces count deltas, field spot checks, lost/never-bridged</li>
+  <li><code>guardian-forensics.ts</code> prints monitoring window, uses "no issues in window" language</li>
+  <li><code>guardian-vision.html</code> shows Structural Health section, no misleading green badges</li>
+  <li>Damage Report overall verdict reflects reality</li>
+  <li><code>npm run type-check</code> passes 13/13</li>
+</ul>
+
+</div>
+</body>
+</html>
