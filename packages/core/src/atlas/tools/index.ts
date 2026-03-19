@@ -26,47 +26,30 @@ export {
 } from './route-to-collection'
 export type { RouteInput, RouteOutput } from './route-to-collection'
 
-export {
-  definition as classifyBoundariesDefinition,
-  classifyBoundaries,
-} from './classify-boundaries'
+// Server-only tools — NOT exported from barrel (import fs/child_process).
+// Backend services import directly:
+//   import { classifyBoundaries } from '@tomachina/core/src/atlas/tools/classify-boundaries'
+//   import { splitPdf } from '@tomachina/core/src/atlas/tools/split-pdf'
+//   import { labelDocument } from '@tomachina/core/src/atlas/tools/label-document'
+//   import { notifySlackCase } from '@tomachina/core/src/atlas/tools/notify-slack'
+// Types are safe to export (no runtime Node.js imports):
 export type {
   ClassifyBoundariesInput,
   ClassifyBoundariesOutput,
   ClassifiedDocument,
 } from './classify-boundaries'
-
-export {
-  definition as splitPdfDefinition,
-  splitPdf,
-} from './split-pdf'
 export type { SplitPdfInput, SplitPdfOutput, SplitFile } from './split-pdf'
-
-export {
-  definition as labelDocumentDefinition,
-  labelDocument,
-} from './label-document'
 export type { LabelDocumentInput, LabelDocumentOutput } from './label-document'
-
-export {
-  definition as notifySlackDefinition,
-  notifySlackCase,
-  notifySlackSplit,
-  notifySlackAlert,
-} from './notify-slack'
 export type { SlackCaseInput, SlackSplitInput, SlackAlertInput } from './notify-slack'
 
 import { definition as _validateRecordDef } from './validate-record'
 import { definition as _normalizeBoBDef } from './normalize-book-of-business'
 import { definition as _normalizeStatusDef } from './normalize-status'
 import { definition as _routeToCollectionDef } from './route-to-collection'
-import { definition as _classifyBoundariesDef } from './classify-boundaries'
-import { definition as _splitPdfDef } from './split-pdf'
-import { definition as _labelDocumentDef } from './label-document'
-import { definition as _notifySlackDef } from './notify-slack'
 
 /**
  * All atomic tool definitions for registry purposes.
+ * Server-only tool definitions must be loaded dynamically at runtime.
  */
 export function getAtomicToolDefinitions() {
   return [
@@ -74,9 +57,5 @@ export function getAtomicToolDefinitions() {
     _normalizeBoBDef,
     _normalizeStatusDef,
     _routeToCollectionDef,
-    _classifyBoundariesDef,
-    _splitPdfDef,
-    _labelDocumentDef,
-    _notifySlackDef,
   ]
 }

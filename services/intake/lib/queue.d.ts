@@ -3,7 +3,7 @@
  * Status flow: QUEUED → EXTRACTING → REVIEWING → APPROVED → WRITING → COMPLETE
  */
 export type QueueStatus = 'QUEUED' | 'EXTRACTING' | 'REVIEWING' | 'APPROVED' | 'PARTIAL' | 'REJECTED' | 'WRITING' | 'COMPLETE' | 'ERROR' | 'SKIPPED';
-export type IntakeSource = 'SPC_INTAKE' | 'MEET_TRANSCRIPT' | 'MAIL' | 'EMAIL';
+export type IntakeSource = 'SPC_INTAKE' | 'COMMISSION' | 'MEET_TRANSCRIPT' | 'MAIL' | 'EMAIL';
 export interface QueueEntry {
     queue_id: string;
     source: IntakeSource;

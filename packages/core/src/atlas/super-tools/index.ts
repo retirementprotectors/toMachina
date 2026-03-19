@@ -20,7 +20,10 @@ export type { MatchInput, MatchOutput, MatchedRecord, MatchTag } from './match'
 export { definition as writeDefinition, execute as executeWrite } from './write'
 export type { WriteInput, WriteOutput, WriteRecord, WriteOperation } from './write'
 
-export { definition as classifyDefinition, execute as executeClassify } from './classify'
+// SUPER_CLASSIFY — NOT exported from barrel (imports server-only tools: fs, child_process).
+// Backend services import directly:
+//   import { execute as executeClassify } from '@tomachina/core/src/atlas/super-tools/classify'
+// Types are safe:
 export type { ClassifyInput, ClassifyOutput, ClassifiedOutputDoc } from './classify'
 
 import { definition as extractDef } from './extract'
@@ -29,10 +32,10 @@ import { definition as validateDef } from './validate'
 import { definition as normalizeDef } from './normalize'
 import { definition as matchDef } from './match'
 import { definition as writeDef } from './write'
-import { definition as classifyDef } from './classify'
 
 /**
  * All super tool definitions for registry purposes.
+ * SUPER_CLASSIFY definition must be loaded dynamically at runtime (server-only).
  */
 export function getSuperToolDefinitions() {
   return [
@@ -42,6 +45,5 @@ export function getSuperToolDefinitions() {
     normalizeDef,
     matchDef,
     writeDef,
-    classifyDef,
   ]
 }

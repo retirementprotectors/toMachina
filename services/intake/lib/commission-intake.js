@@ -69,7 +69,7 @@ export async function scanCommissionIntake() {
                     continue;
                 }
                 const meta = processFile(file.id, file.name, file.mimeType, file.size);
-                await createQueueEntry('SPC_INTAKE', {
+                await createQueueEntry('COMMISSION', {
                     file_id: file.id,
                     file_name: file.name,
                     file_type: meta.file_extension,
@@ -97,7 +97,7 @@ export async function scanCommissionIntake() {
                 }
             }
         }
-        await setLastScanTime('SPC_INTAKE', new Date().toISOString());
+        await setLastScanTime('COMMISSION', new Date().toISOString());
     }
     catch (err) {
         result.success = false;

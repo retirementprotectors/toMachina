@@ -38,7 +38,7 @@ export {
   getAtomicToolDefinitions,
 } from './tools'
 
-// Super tools
+// Super tools (browser-safe only — SUPER_CLASSIFY excluded, imports fs/child_process)
 export {
   extractDefinition,
   executeExtract,
@@ -52,8 +52,6 @@ export {
   executeMatch,
   writeDefinition,
   executeWrite,
-  classifyDefinition,
-  executeClassify,
   getSuperToolDefinitions,
 } from './super-tools'
 

@@ -61,7 +61,7 @@ async function loadExecuteWire(): Promise<
   (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
 > {
   const mod = await import('@tomachina/core/src/atlas/wire-executor.js')
-  return mod.executeWire as (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
+  return mod.executeWire as unknown as (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
 }
 
 /**

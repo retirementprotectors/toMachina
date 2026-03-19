@@ -3,6 +3,8 @@
  * Each function is triggered by Cloud Scheduler (5-minute interval)
  * or can be called directly via HTTP for manual triggers.
  */
+import { onClientWrite, onAccountWrite } from './notification-triggers.js';
+import { onIntakeQueueCreated } from './wire-trigger.js';
 /**
  * SPC Intake — Scan specialist Drive folders for new documents.
  * Trigger: Cloud Scheduler every 5 minutes.
@@ -41,4 +43,14 @@ export declare const commissionIntakeScheduled: import("firebase-functions/v2/sc
  * For monitoring and dashboards.
  */
 export declare const queueStatus: import("firebase-functions/v2/https").HttpsFunction;
+/**
+ * Notification Triggers — create notification docs on client/account writes.
+ */
+export { onClientWrite, onAccountWrite };
+/**
+ * Wire Trigger — process intake_queue entries through wire executor.
+ * Firestore onCreate on intake_queue/{queueId}.
+ * Maps source field to wire ID and calls executeWire().
+ */
+export { onIntakeQueueCreated };
 //# sourceMappingURL=index.d.ts.map
