@@ -1156,54 +1156,6 @@ sprintRoutes.get('/:id/audit', async (req: Request, res: Response) => {
   }
 })
 
-// GET /:id/audit-round — get current audit round info for a sprint
-sprintRoutes.get('/:id/audit-round', async (req: Request, res: Response) => {
-  try {
-    const db = getFirestore()
-    const id = param(req.params.id)
-    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
-    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
-
-    // Get all items in this sprint (excluding deferred/wont_fix)
-    const allSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
-    const sprintItems = allSnap.docs
-      .filter(d => d.data().sprint_id === id && !['deferred', 'wont_fix'].includes(d.data().status as string))
-      .map(d => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-
-    // Determine current round: max audit_round across all items, default 1
-    const rounds = sprintItems.map(i => (i.audit_round as number) || 1)
-    const currentRound = rounds.length > 0 ? Math.max(...rounds) : 1
-
-    // Items pending audit in current round
-    const pendingItems = sprintItems.filter(i => {
-      const itemRound = (i.audit_round as number) || 1
-      return itemRound === currentRound && (i.audit_status === 'pending' || !i.audit_status)
-    })
-
-    // Items that already passed (in any round)
-    const passedItems = sprintItems.filter(i => i.audit_status === 'passed')
-
-    // Items that failed in current round (before re-audit round is created)
-    const failedItems = sprintItems.filter(i => {
-      const itemRound = (i.audit_round as number) || 1
-      return itemRound === currentRound && i.audit_status === 'failed'
-    })
-
-    res.json(successResponse({
-      current_round: currentRound,
-      total_items: sprintItems.length,
-      pending: pendingItems,
-      pending_count: pendingItems.length,
-      passed: passedItems,
-      passed_count: passedItems.length,
-      failed: failedItems,
-      failed_count: failedItems.length,
-    }))
-  } catch (err) {
-    console.error('GET /api/sprints/:id/audit-round error:', err)
-    res.status(500).json(errorResponse(String(err)))
-  }
-})
 
 // POST /:id/audit-rounds — create a new audit round from failed items
 sprintRoutes.post('/:id/audit-rounds', async (req: Request, res: Response) => {
