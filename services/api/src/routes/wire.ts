@@ -41,18 +41,14 @@ function wireExecCol() {
 }
 
 /**
- * Dynamically load executeWire from @tomachina/core.
- * Uses variable import to avoid compile-time dependency on BUILDER_03's code.
+ * Load executeWire from the wire-executor module directly.
+ * Not exported from @tomachina/core barrel (pulls .js imports into webpack).
  */
 async function loadExecuteWire(): Promise<
   (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
 > {
-  const pkg = '@tomachina/core'
-  const mod = await import(pkg)
-  if (typeof mod.executeWire !== 'function') {
-    throw new Error('executeWire not exported from @tomachina/core — wire-executor.ts not merged yet')
-  }
-  return mod.executeWire as (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
+  const mod = await import('@tomachina/core/src/atlas/wire-executor.js')
+  return mod.executeWire as unknown as (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
 }
 
 // ─── POST /api/wire/execute ─────────────────────────────────────────────────

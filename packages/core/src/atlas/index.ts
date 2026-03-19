@@ -57,6 +57,8 @@ export {
   getSuperToolDefinitions,
 } from './super-tools'
 
-// Wire executor
-export { executeWire, resumeWireAfterApproval } from './wire-executor'
+// Wire executor — NOT exported from barrel.
+// Backend-only (services/api, services/intake) import directly:
+//   import { executeWire } from '@tomachina/core/src/atlas/wire-executor'
+// Exporting here pulls .js imports into Next.js webpack which can't resolve them.
 export type { WireInput, WireContext, WireResult, StageResult } from './wire-executor'
