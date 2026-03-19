@@ -1,6 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
+import { query, where, type Query, type DocumentData } from 'firebase/firestore'
+import { useCollection } from '@tomachina/db'
+import { collections, getDb } from '@tomachina/db/src/firestore'
+import { useAuth } from '@tomachina/auth'
+import { fetchWithAuth } from './fetchWithAuth'
+import { collection as firestoreCollection } from 'firebase/firestore'
 
 /* ─── Types ─── */
 
@@ -24,7 +30,10 @@ interface TeamMember {
 }
 
 interface ChannelData {
+  _id?: string
+  id?: string
   name: string
+  slug?: string
   pinned: boolean
   unreadCount: number
   lastSender: string
@@ -44,37 +53,22 @@ interface RecordingData {
   date: string
 }
 
-/* ─── Mock Data ─── */
+/* ─── Firestore User Doc Shape (partial) ─── */
 
-const TEAM_MEMBERS: TeamMember[] = [
-  { name: 'Josh Millang', email: 'josh@retireprotected.com', role: 'CEO', division: 'Leadership', presence: 'online' },
-  { name: 'John Behn', email: 'john@retireprotected.com', role: 'COO', division: 'Leadership', presence: 'online' },
-  { name: 'Vince Vazquez', email: 'vince@retireprotected.com', role: 'Sales Division', division: 'Sales', presence: 'online' },
-  { name: 'Nikki Gray', email: 'nikki@retireprotected.com', role: 'Service Division', division: 'Service', presence: 'online' },
-  { name: 'Matt McCormick', email: 'matt@retireprotected.com', role: 'DAVID/B2B', division: 'DAVID', presence: 'away' },
-  { name: 'Dr. Aprille Trupiano', email: 'aprille@retireprotected.com', role: 'Legacy Services', division: 'Legacy', presence: 'away' },
-  { name: 'Shane Parmenter', email: 'shane@retireprotected.com', role: 'CFO', division: 'Finance', presence: 'offline' },
-]
-
-const CHANNELS: ChannelData[] = [
-  { name: 'rpi-leadership', pinned: true, unreadCount: 3, lastSender: 'John B', lastMessage: 'Updated the pipeline metrics for Q1...', timestamp: '10m ago' },
-  { name: 'sales-team', pinned: true, unreadCount: 1, lastSender: 'Vince', lastMessage: 'T65 list is ready for review...', timestamp: '25m ago' },
-  { name: 'service-team', pinned: false, unreadCount: 0, lastSender: 'Nikki', lastMessage: 'Sprenger RMDs are done for March', timestamp: '2h ago' },
-  { name: 'legacy-services', pinned: false, unreadCount: 0, lastSender: 'Aprille', lastMessage: 'Estate docs uploaded to DEX', timestamp: '1d ago' },
-  { name: 'david-deals', pinned: false, unreadCount: 0, lastSender: 'Matt', lastMessage: 'Gradient onboarding Q2 timeline set...', timestamp: '2d ago' },
-]
-
-const UPCOMING_MEETINGS: MeetingData[] = [
-  { title: 'Team Standup', participants: ['Josh', 'John', 'Vince', 'Nikki'], timeLabel: 'in 45 min', joinable: true },
-  { title: 'Client Review: Smith Family', participants: ['Nikki', 'Josh'], timeLabel: '2:00 PM', joinable: true },
-  { title: 'DAVID Pipeline Review', participants: ['Matt', 'Josh', 'John'], timeLabel: 'Tomorrow', joinable: false },
-]
-
-const RECENT_RECORDINGS: RecordingData[] = [
-  { title: 'Weekly Leadership Sync', date: 'Mar 12, 2026' },
-  { title: 'Service Team Huddle', date: 'Mar 11, 2026' },
-  { title: 'Gradient Onboarding Call', date: 'Mar 10, 2026' },
-]
+interface UserDoc {
+  _id: string
+  email?: string
+  display_name?: string
+  first_name?: string
+  last_name?: string
+  role?: string
+  role_template?: string
+  division?: string
+  unit?: string
+  status?: string
+  last_active?: { seconds: number; nanoseconds: number } | string | null
+  photo_url?: string
+}
 
 /* ─── Presence Helpers ─── */
 
@@ -88,6 +82,23 @@ const PRESENCE_LABEL: Record<PresenceStatus, string> = {
   online: 'Online',
   away: 'Away',
   offline: 'Offline',
+}
+
+/** Compute presence from last_active timestamp */
+function computePresence(lastActive: UserDoc['last_active']): PresenceStatus {
+  if (!lastActive) return 'offline'
+  let ts: number
+  if (typeof lastActive === 'string') {
+    ts = new Date(lastActive).getTime()
+  } else if (lastActive && typeof lastActive === 'object' && 'seconds' in lastActive) {
+    ts = lastActive.seconds * 1000
+  } else {
+    return 'offline'
+  }
+  const diffMin = (Date.now() - ts) / 60000
+  if (diffMin < 5) return 'online'
+  if (diffMin < 30) return 'away'
+  return 'offline'
 }
 
 /* ─── Avatar Helpers ─── */
@@ -162,7 +173,7 @@ function ChannelRow({ channel, onSelect }: { channel: ChannelData; onSelect: (na
         </div>
         <p className="mt-0.5 truncate text-xs text-[var(--text-muted)]">
           <span className="text-[var(--text-secondary)]">{channel.lastSender}</span>
-          {' \u2014 \u201C'}{channel.lastMessage}{'\u201D'}
+          {channel.lastMessage && <>{' \u2014 \u201C'}{channel.lastMessage}{'\u201D'}</>}
         </p>
       </div>
     </button>
@@ -248,12 +259,55 @@ function ChannelChatView({ channelName, onBack }: { channelName: string; onBack:
   )
 }
 
+/* ─── Firestore Channel Doc Shape ─── */
+interface ChannelDoc {
+  _id: string
+  name?: string
+  slug?: string
+  pinned?: boolean
+  created_at?: string
+  updated_at?: string
+}
+
 function ChannelsTab() {
   const [search, setSearch] = useState('')
   const [activeChannel, setActiveChannel] = useState<string | null>(null)
   const [showNewForm, setShowNewForm] = useState(false)
   const [newChannelName, setNewChannelName] = useState('')
-  const [localChannels, setLocalChannels] = useState<ChannelData[]>(CHANNELS)
+  const [creating, setCreating] = useState(false)
+
+  // Query connect_channels from Firestore via useCollection
+  const channelsQuery = useMemo(() => {
+    const db = getDb()
+    return query(firestoreCollection(db, 'connect_channels'))
+  }, [])
+
+  const { data: channelDocs, loading: channelsLoading } = useCollection<ChannelDoc>(channelsQuery, 'connect-channels')
+
+  // Seed channels on first load if empty (via API)
+  const seeded = useRef(false)
+  useEffect(() => {
+    if (!channelsLoading && channelDocs.length === 0 && !seeded.current) {
+      seeded.current = true
+      // Trigger seed by calling GET /api/connect/channels
+      fetchWithAuth('/api/connect/channels').catch(() => {/* seed fire-and-forget */})
+    }
+  }, [channelsLoading, channelDocs.length])
+
+  // Map Firestore docs to ChannelData
+  const localChannels: ChannelData[] = useMemo(() => {
+    return channelDocs.map((doc) => ({
+      _id: doc._id,
+      id: doc._id,
+      name: doc.name || doc.slug || 'unnamed',
+      slug: doc.slug,
+      pinned: doc.pinned ?? false,
+      unreadCount: 0,
+      lastSender: '',
+      lastMessage: '',
+      timestamp: doc.updated_at || '',
+    }))
+  }, [channelDocs])
 
   /* TRK-073/074: If a channel is selected, show in-panel chat view */
   if (activeChannel) {
@@ -266,24 +320,25 @@ function ChannelsTab() {
   const filteredPinned = localChannels.filter((c) => c.pinned).filter(filterFn)
   const filteredAll = localChannels.filter((c) => !c.pinned).filter(filterFn)
 
-  /* TRK-075: Handle new channel creation */
-  const handleCreateChannel = () => {
+  /* TRK-075/13566: Handle new channel creation via API */
+  const handleCreateChannel = async () => {
     const trimmed = newChannelName.trim().toLowerCase().replace(/\s+/g, '-')
-    if (!trimmed) return
+    if (!trimmed || creating) return
     if (localChannels.some((c) => c.name === trimmed)) return
-    setLocalChannels((prev) => [
-      ...prev,
-      {
-        name: trimmed,
-        pinned: false,
-        unreadCount: 0,
-        lastSender: 'You',
-        lastMessage: 'Channel created',
-        timestamp: 'now',
-      },
-    ])
-    setNewChannelName('')
-    setShowNewForm(false)
+    setCreating(true)
+    try {
+      await fetchWithAuth('/api/connect/channels', {
+        method: 'POST',
+        body: JSON.stringify({ name: trimmed }),
+      })
+      // useCollection will pick up the new doc via onSnapshot
+      setNewChannelName('')
+      setShowNewForm(false)
+    } catch {
+      // Silently fail — Sprint 10 adds toast notifications
+    } finally {
+      setCreating(false)
+    }
   }
 
   return (
@@ -302,21 +357,34 @@ function ChannelsTab() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-3">
-        {filteredPinned.length > 0 && (
+        {channelsLoading && (
+          <div className="flex items-center justify-center py-8">
+            <span className="text-xs text-[var(--text-muted)]">Loading channels...</span>
+          </div>
+        )}
+
+        {!channelsLoading && filteredPinned.length > 0 && (
           <div className="mb-3">
             <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Pinned</span>
             <div className="mt-1.5 space-y-0.5">
-              {filteredPinned.map((ch) => <ChannelRow key={ch.name} channel={ch} onSelect={setActiveChannel} />)}
+              {filteredPinned.map((ch) => <ChannelRow key={ch._id || ch.name} channel={ch} onSelect={setActiveChannel} />)}
             </div>
           </div>
         )}
 
-        {filteredAll.length > 0 && (
+        {!channelsLoading && filteredAll.length > 0 && (
           <div className="mb-3">
             <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">All Channels</span>
             <div className="mt-1.5 space-y-0.5">
-              {filteredAll.map((ch) => <ChannelRow key={ch.name} channel={ch} onSelect={setActiveChannel} />)}
+              {filteredAll.map((ch) => <ChannelRow key={ch._id || ch.name} channel={ch} onSelect={setActiveChannel} />)}
             </div>
+          </div>
+        )}
+
+        {!channelsLoading && localChannels.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-8">
+            <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>tag</span>
+            <p className="mt-2 text-xs text-[var(--text-muted)]">No channels yet</p>
           </div>
         )}
       </div>
@@ -340,10 +408,11 @@ function ChannelsTab() {
             <div className="flex gap-2">
               <button
                 onClick={handleCreateChannel}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-md h-[34px] text-xs font-medium text-white transition-colors hover:opacity-90"
+                disabled={creating}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-md h-[34px] text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
                 style={{ background: 'var(--portal)' }}
               >
-                Create
+                {creating ? 'Creating...' : 'Create'}
               </button>
               <button
                 onClick={() => { setShowNewForm(false); setNewChannelName('') }}
@@ -409,14 +478,48 @@ function PersonCard({ member }: { member: TeamMember }) {
   )
 }
 
-function PeopleTab() {
+function PeopleTab({ open }: { open: boolean }) {
   const [search, setSearch] = useState('')
+  const { user } = useAuth()
+
+  // Query active users from Firestore
+  const usersQuery = useMemo(() => {
+    return query(collections.users(), where('status', '==', 'active'))
+  }, [])
+
+  const { data: userDocs, loading } = useCollection<UserDoc>(usersQuery, 'connect-people')
+
+  // Map Firestore docs to TeamMember with computed presence
+  const teamMembers: TeamMember[] = useMemo(() => {
+    return userDocs.map((u) => {
+      const displayName = u.display_name || [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email || 'Unknown'
+      return {
+        name: displayName,
+        email: u.email || u._id,
+        role: u.role_template || u.role || '',
+        division: u.division || u.unit || '',
+        presence: computePresence(u.last_active),
+        photo_url: u.photo_url,
+      }
+    })
+  }, [userDocs])
+
+  // Post presence heartbeat every 60s while panel is open
+  useEffect(() => {
+    if (!open || !user?.email) return
+    // Fire immediately
+    fetchWithAuth('/api/connect/presence', { method: 'POST' }).catch(() => {})
+    const interval = setInterval(() => {
+      fetchWithAuth('/api/connect/presence', { method: 'POST' }).catch(() => {})
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [open, user?.email])
 
   const filtered = useMemo(() => {
-    if (!search) return TEAM_MEMBERS
+    if (!search) return teamMembers
     const q = search.toLowerCase()
-    return TEAM_MEMBERS.filter((m) => m.name.toLowerCase().includes(q) || m.division.toLowerCase().includes(q) || m.role.toLowerCase().includes(q))
-  }, [search])
+    return teamMembers.filter((m) => m.name.toLowerCase().includes(q) || m.division.toLowerCase().includes(q) || m.role.toLowerCase().includes(q))
+  }, [search, teamMembers])
 
   const grouped = useMemo(() => {
     const groups: Record<PresenceStatus, TeamMember[]> = { online: [], away: [], offline: [] }
@@ -440,7 +543,13 @@ function PeopleTab() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-3">
-        {(['online', 'away', 'offline'] as PresenceStatus[]).map((status) => {
+        {loading && (
+          <div className="flex items-center justify-center py-8">
+            <span className="text-xs text-[var(--text-muted)]">Loading team...</span>
+          </div>
+        )}
+
+        {!loading && (['online', 'away', 'offline'] as PresenceStatus[]).map((status) => {
           const members = grouped[status]
           if (members.length === 0) return null
           return (
@@ -454,6 +563,13 @@ function PeopleTab() {
             </div>
           )
         })}
+
+        {!loading && teamMembers.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-8">
+            <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>people</span>
+            <p className="mt-2 text-xs text-[var(--text-muted)]">No active team members</p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -481,6 +597,32 @@ function MeetActionRow({ icon, title, subtitle, onClick }: { icon: string; title
 }
 
 function MeetTab() {
+  const [meetings, setMeetings] = useState<MeetingData[]>([])
+  const [recordings, setRecordings] = useState<RecordingData[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch calendar data from API
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetchWithAuth('/api/connect/calendar')
+        if (!res.ok) throw new Error('Failed to load calendar')
+        const json = await res.json()
+        if (!cancelled && json.success) {
+          setMeetings(json.data?.meetings || [])
+          setRecordings(json.data?.recordings || [])
+        }
+      } catch {
+        // Silent fail — empty state is fine
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto px-3 pt-3">
@@ -489,50 +631,71 @@ function MeetTab() {
           <div className="mt-1.5 space-y-1">
             <MeetActionRow icon="videocam" title="Start Instant Meeting" subtitle="Create a new Google Meet right now" onClick={() => window.open('https://meet.google.com/new', '_blank')} />
             <MeetActionRow icon="calendar_month" title="Schedule Meeting" subtitle="Open Google Calendar to schedule" onClick={() => window.open('https://calendar.google.com/calendar/r/eventedit', '_blank')} />
-            <MeetActionRow icon="link" title="Share My Meeting Link" subtitle="Copy your personal Meet room link" onClick={() => { /* mock */ }} />
+            <MeetActionRow icon="link" title="Share My Meeting Link" subtitle="Copy your personal Meet room link" onClick={() => { /* Sprint 10 */ }} />
           </div>
         </div>
 
-        <div className="mb-4">
-          <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Upcoming Meetings</span>
-          <div className="mt-1.5 space-y-1">
-            {UPCOMING_MEETINGS.map((mtg) => (
-              <div key={mtg.title} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-3">
-                <div className="flex items-start justify-between">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-[var(--text-primary)]">{mtg.title}</p>
-                    <p className="mt-0.5 text-xs text-[var(--text-muted)]">{mtg.participants.join(', ')}</p>
+        {loading && (
+          <div className="flex items-center justify-center py-4">
+            <span className="text-xs text-[var(--text-muted)]">Loading calendar...</span>
+          </div>
+        )}
+
+        {!loading && meetings.length > 0 && (
+          <div className="mb-4">
+            <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Upcoming Meetings</span>
+            <div className="mt-1.5 space-y-1">
+              {meetings.map((mtg) => (
+                <div key={mtg.title} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-3">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-[var(--text-primary)]">{mtg.title}</p>
+                      <p className="mt-0.5 text-xs text-[var(--text-muted)]">{mtg.participants.join(', ')}</p>
+                    </div>
+                    <span className="ml-2 flex-shrink-0 text-xs font-medium text-[var(--text-secondary)]">{mtg.timeLabel}</span>
                   </div>
-                  <span className="ml-2 flex-shrink-0 text-xs font-medium text-[var(--text-secondary)]">{mtg.timeLabel}</span>
+                  {mtg.joinable && (
+                    <button
+                      className="mt-2 flex items-center gap-1 rounded-md h-[34px] px-3 text-xs font-medium text-white transition-colors hover:opacity-90"
+                      style={{ background: 'var(--portal)' }}
+                      onClick={() => window.open('https://meet.google.com/new', '_blank')}
+                    >
+                      {mtg.timeLabel.startsWith('in') ? 'Join Now' : 'Join'}
+                    </button>
+                  )}
                 </div>
-                {mtg.joinable && (
-                  <button
-                    className="mt-2 flex items-center gap-1 rounded-md h-[34px] px-3 text-xs font-medium text-white transition-colors hover:opacity-90"
-                    style={{ background: 'var(--portal)' }}
-                    onClick={() => window.open('https://meet.google.com/new', '_blank')}
-                  >
-                    {mtg.timeLabel.startsWith('in') ? 'Join Now' : 'Join'}
-                  </button>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="mb-4">
-          <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Recent Recordings</span>
-          <div className="mt-1.5 space-y-0.5">
-            {RECENT_RECORDINGS.map((rec) => (
-              <button key={rec.title} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-hover)]">
-                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '18px' }}>play_circle</span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-[var(--text-primary)]">{rec.title}</p>
-                  <p className="text-xs text-[var(--text-muted)]">{rec.date}</p>
-                </div>
-              </button>
-            ))}
+        {!loading && recordings.length > 0 && (
+          <div className="mb-4">
+            <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Recent Recordings</span>
+            <div className="mt-1.5 space-y-0.5">
+              {recordings.map((rec) => (
+                <button key={rec.title} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-hover)]">
+                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '18px' }}>play_circle</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-[var(--text-primary)]">{rec.title}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{rec.date}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {!loading && meetings.length === 0 && recordings.length === 0 && (
+          <div className="mb-4">
+            <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Upcoming Meetings</span>
+            <div className="mt-3 flex flex-col items-center justify-center py-4">
+              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>calendar_today</span>
+              <p className="mt-2 text-xs text-[var(--text-muted)]">No upcoming meetings</p>
+              <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">Google Calendar integration in Sprint 10</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -599,7 +762,7 @@ export function ConnectPanel({ open, onClose }: ConnectPanelProps) {
 
         <div className="flex-1 overflow-hidden">
           {activeTab === 'channels' && <ChannelsTab />}
-          {activeTab === 'people' && <PeopleTab />}
+          {activeTab === 'people' && <PeopleTab open={open} />}
           {activeTab === 'meet' && <MeetTab />}
         </div>
       </div>

@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth, type AuthUser } from '@tomachina/auth'
 import { PortalSwitcher } from '@tomachina/ui'
-import { InboundCallCard, MOCK_INBOUND_CALL } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
+import { InboundCallCard } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
 import { SmartSearch } from './SmartSearch'
 
 interface TopBarProps {
@@ -103,8 +103,8 @@ export function TopBar({ user }: TopBarProps) {
 
         {/* Right — Inbound Call + Notifications + User */}
         <div className="flex items-center gap-2">
-          {/* Inbound Call Notification (mock active state) */}
-          <InboundCallCard call={MOCK_INBOUND_CALL} />
+          {/* Inbound Call Notification — null until real Twilio webhook wired */}
+          <InboundCallCard call={null} />
 
           {/* User — clicks to My RPI */}
           <Link

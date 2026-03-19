@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
-import { InboundCallCard, MOCK_INBOUND_CALL } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
+import { InboundCallCard } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
 
 /**
  * Standalone test page for Communications Module mockup.
@@ -49,7 +49,7 @@ export default function TestCommsPage() {
         <div className="flex items-center gap-4 rounded-lg bg-[var(--bg-surface)] px-4 py-3">
           <span className="text-xs text-[var(--text-muted)]">...search bar...</span>
           <div className="flex-1" />
-          <InboundCallCard call={MOCK_INBOUND_CALL} />
+          <InboundCallCard call={null} />
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--bg-card)] text-xs font-bold text-[var(--text-muted)]">JM</div>
         </div>
       </div>

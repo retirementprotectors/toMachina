@@ -8,7 +8,7 @@ import { SignInScreen } from './components/SignInScreen'
 import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
-import { IntakeFAB } from './components/IntakeFAB'
+import { IntakeFAB } from '@tomachina/ui/src/components/IntakeFAB'
 import { ReportButton } from '@tomachina/ui'
 
 export default function PortalLayout({

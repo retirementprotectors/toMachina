@@ -94,6 +94,7 @@ const MODULE_SECTIONS: SectionDef[] = [
     icon: 'workspaces',
     items: [
       { key: 'contacts', label: 'Contacts', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
+      { key: 'households', label: 'Households', icon: 'home', moduleKey: 'PRODASH_HOUSEHOLDS' },
       { key: 'accounts', label: 'Accounts', icon: 'account_balance', moduleKey: 'PRODASH_ACCOUNTS' },
     ],
   },
@@ -278,10 +279,12 @@ function ModuleExpandRow({
 }) {
   const [open, setOpen] = useState(false)
 
-  // Users who have any permission on this module
+  // Users who have any permission on this module (including OWNER who has implicit full access)
   const usersWithAccess = useMemo(() => {
     return users
       .filter((u) => {
+        // OWNER (level 0) has implicit access to everything
+        if ((u.level ?? 3) === 0) return true
         const perms = u.module_permissions?.[moduleKey]
         return perms && perms.length > 0
       })
@@ -293,7 +296,8 @@ function ModuleExpandRow({
   }, [users, moduleKey])
 
   const currentUser = users.find((u) => u.email === currentUserEmail)
-  const myPerms = currentUser?.module_permissions?.[moduleKey] || []
+  const isCurrentUserOwner = (currentUser?.level ?? 3) === 0
+  const myPerms = isCurrentUserOwner ? [...ALL_ACTIONS] : (currentUser?.module_permissions?.[moduleKey] || [])
 
   return (
     <div className="rounded-lg bg-[var(--bg-surface)]">
@@ -344,7 +348,9 @@ function ModuleExpandRow({
       {open && usersWithAccess.length > 0 && (
         <div className="border-t border-[var(--border-subtle)] px-3 pb-3 pt-2 space-y-1.5">
           {usersWithAccess.map((teamUser) => {
-            const perms = teamUser.module_permissions?.[moduleKey] || []
+            const isOwnerUser = (teamUser.level ?? 3) === 0
+            // OWNER users have implicit full V/E/A on everything
+            const perms = isOwnerUser ? [...ALL_ACTIONS] : (teamUser.module_permissions?.[moduleKey] || [])
             const isSelf = teamUser.email === currentUserEmail
             return (
               <div
@@ -359,7 +365,12 @@ function ModuleExpandRow({
                     {teamUser.first_name} {teamUser.last_name}
                     {isSelf && <span className="ml-1 text-[10px] text-[var(--text-muted)]">(you)</span>}
                   </span>
-                  {teamUser.level !== undefined && (
+                  {isOwnerUser && (
+                    <span className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold text-white" style={{ background: 'var(--portal)' }}>
+                      Super Admin
+                    </span>
+                  )}
+                  {!isOwnerUser && teamUser.level !== undefined && (
                     <span className="text-[10px] text-[var(--text-muted)]">{LEVEL_NAMES[teamUser.level ?? 3] || 'User'}</span>
                   )}
                 </div>
@@ -369,7 +380,7 @@ function ModuleExpandRow({
                       key={action}
                       action={action}
                       active={perms.includes(action)}
-                      editable={isLeader && !isSelf}
+                      editable={isLeader && !isSelf && !isOwnerUser}
                       onToggle={() =>
                         onEntitlementChange(
                           teamUser._id,

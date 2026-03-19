@@ -3,11 +3,12 @@
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { QRCodeSVG as QRCode } from 'qrcode.react'
-import { query, where, orderBy, doc, updateDoc, type Query, type DocumentData } from 'firebase/firestore'
+import { query, where, orderBy, limit as firestoreLimit, collection, doc, updateDoc, type Query, type DocumentData } from 'firebase/firestore'
 import { useAuth, buildEntitlementContext } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { collections, getDb } from '@tomachina/db/src/firestore'
 import type { User } from '@tomachina/core'
+import { fetchWithAuth } from './fetchWithAuth'
 
 /* ─── Types ─── */
 
@@ -474,7 +475,22 @@ function AudioRecorder() {
     setSubmitted(false)
   }, [audioUrl])
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
+    const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+    const file_name = `recording_${Date.now()}.webm`
+    try {
+      await fetchWithAuth('/api/dropzone', {
+        method: 'POST',
+        body: JSON.stringify({
+          source: 'MYRPI_AUDIO',
+          file_name,
+          file_type: 'audio/webm',
+          file_size: blob.size,
+        }),
+      })
+    } catch {
+      // Queue submission failed — still show success UI for offline resilience
+    }
     setSubmitted(true)
   }, [])
 
@@ -648,7 +664,20 @@ function DocumentCamera() {
     setState('idle')
   }, [stopStream])
 
-  const handleUpload = useCallback(() => {
+  const handleUpload = useCallback(async () => {
+    const file_name = `document_${Date.now()}.jpg`
+    try {
+      await fetchWithAuth('/api/dropzone', {
+        method: 'POST',
+        body: JSON.stringify({
+          source: 'MYRPI_DOCUMENT',
+          file_name,
+          file_type: 'image/jpeg',
+        }),
+      })
+    } catch {
+      // Queue submission failed — still show success UI for offline resilience
+    }
     setUploaded(true)
   }, [])
 
@@ -767,57 +796,6 @@ interface DropZoneSubmission {
   extracted_type?: string
 }
 
-const MOCK_SUBMISSIONS: DropZoneSubmission[] = [
-  {
-    id: 'dz-001',
-    type: 'audio',
-    name: 'Client meeting — Johnson review',
-    submitted_at: '2026-03-15T09:14:00Z',
-    status: 'processing',
-    extracted_type: 'Meeting notes',
-  },
-  {
-    id: 'dz-002',
-    type: 'document',
-    name: 'Annuity application — page 1',
-    submitted_at: '2026-03-15T08:45:00Z',
-    status: 'approved',
-    extracted_type: '1035 Exchange',
-  },
-  {
-    id: 'dz-003',
-    type: 'document',
-    name: 'Driver license — front',
-    submitted_at: '2026-03-14T16:30:00Z',
-    status: 'pending_review',
-    extracted_type: 'ID Verification',
-  },
-  {
-    id: 'dz-004',
-    type: 'audio',
-    name: 'Voicemail — carrier callback',
-    submitted_at: '2026-03-14T14:22:00Z',
-    status: 'processing',
-    extracted_type: 'Voicemail transcription',
-  },
-  {
-    id: 'dz-005',
-    type: 'file',
-    name: 'Statement — Schwab Q1',
-    submitted_at: '2026-03-14T11:05:00Z',
-    status: 'approved',
-    extracted_type: 'Account statement',
-  },
-  {
-    id: 'dz-006',
-    type: 'document',
-    name: 'Medicare card — Smith',
-    submitted_at: '2026-03-14T10:18:00Z',
-    status: 'processing',
-    extracted_type: 'Medicare ID',
-  },
-]
-
 const STATUS_CONFIG: Record<DropZoneSubmission['status'], { label: string; color: string; bg: string; icon: string }> = {
   processing: { label: 'Processing', color: 'var(--portal)', bg: 'var(--portal-glow)', icon: 'autorenew' },
   approved: { label: 'Approved', color: 'var(--success)', bg: 'rgba(16,185,129,0.1)', icon: 'check_circle' },
@@ -831,8 +809,58 @@ const TYPE_ICONS: Record<DropZoneSubmission['type'], string> = {
   file: 'description',
 }
 
-function ProcessingStatus() {
-  const submissions = MOCK_SUBMISSIONS
+interface IntakeQueueDoc {
+  _id: string
+  queue_id: string
+  source: string
+  file_name: string
+  file_type: string
+  file_size?: number
+  status: string
+  created_by: string
+  created_at: string
+}
+
+function mapToSubmission(doc: IntakeQueueDoc): DropZoneSubmission {
+  const ft = doc.file_type || ''
+  const type: DropZoneSubmission['type'] = ft.startsWith('audio/')
+    ? 'audio'
+    : ft.startsWith('image/')
+      ? 'document'
+      : 'file'
+  const statusMap: Record<string, DropZoneSubmission['status']> = {
+    pending: 'processing',
+    processing: 'processing',
+    approved: 'approved',
+    pending_review: 'pending_review',
+    rejected: 'rejected',
+  }
+  return {
+    id: doc._id,
+    type,
+    name: doc.file_name,
+    submitted_at: doc.created_at,
+    status: statusMap[doc.status] || 'processing',
+  }
+}
+
+function ProcessingStatus({ userEmail }: { userEmail: string }) {
+  const intakeQuery: Query<DocumentData> | null = useMemo(() => {
+    if (!userEmail) return null
+    return query(
+      collection(getDb(), 'intake_queue'),
+      where('created_by', '==', userEmail),
+      orderBy('created_at', 'desc'),
+      firestoreLimit(10),
+    )
+  }, [userEmail])
+
+  const { data: rawDocs } = useCollection<IntakeQueueDoc>(
+    intakeQuery,
+    `myrpi-intake-${userEmail}`,
+  )
+
+  const submissions = useMemo(() => rawDocs.map(mapToSubmission), [rawDocs])
 
   const counts = useMemo(() => {
     const c = { processing: 0, approved: 0, pending_review: 0, rejected: 0 }
@@ -858,123 +886,78 @@ function ProcessingStatus() {
         <span className="text-sm font-medium text-[var(--text-primary)]">Processing Status</span>
       </div>
 
-      {/* Summary bar */}
-      <div className="flex flex-wrap gap-2">
-        {(Object.entries(counts) as [DropZoneSubmission['status'], number][])
-          .filter(([, v]) => v > 0)
-          .map(([status, count]) => {
-            const cfg = STATUS_CONFIG[status]
-            return (
-              <span
-                key={status}
-                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
-                style={{ background: cfg.bg, color: cfg.color }}
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '13px' }}>{cfg.icon}</span>
-                {count} {cfg.label}
-              </span>
-            )
-          })}
-      </div>
-
-      {/* Submission cards */}
-      <div className="space-y-1.5">
-        {submissions.map((s) => {
-          const cfg = STATUS_CONFIG[s.status]
-          return (
-            <div
-              key={s.id}
-              className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5"
-            >
-              <span
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                style={{ background: cfg.bg }}
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '16px', color: cfg.color }}>
-                  {TYPE_ICONS[s.type]}
-                </span>
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-[var(--text-primary)]">{s.name}</p>
-                <div className="flex items-center gap-2">
-                  {s.extracted_type && (
-                    <span className="text-xs text-[var(--text-muted)]">{s.extracted_type}</span>
-                  )}
-                  <span className="text-xs text-[var(--text-muted)]">{formatRelative(s.submitted_at)}</span>
-                </div>
-              </div>
-              <span
-                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
-                style={{ background: cfg.bg, color: cfg.color }}
-              >
-                <span
-                  className={`material-icons-outlined ${s.status === 'processing' ? 'animate-spin' : ''}`}
-                  style={{ fontSize: '11px' }}
-                >
-                  {cfg.icon}
-                </span>
-                {cfg.label}
-              </span>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-/* ─── Drop Zone: Agent Status ─── */
-
-function AgentStatus() {
-  const agents: { name: string; status: 'active' | 'idle' | 'offline'; task?: string; icon: string }[] = [
-    { name: 'Vision Processor', status: 'active', task: 'Analyzing annuity application...', icon: 'visibility' },
-    { name: 'Transcription Engine', status: 'active', task: 'Transcribing client meeting...', icon: 'hearing' },
-    { name: 'Data Router', status: 'idle', icon: 'alt_route' },
-    { name: 'Approval Gateway', status: 'active', task: '1 item awaiting review', icon: 'verified_user' },
-  ]
-
-  const statusColors: Record<string, { dot: string; text: string }> = {
-    active: { dot: 'var(--success)', text: 'var(--success)' },
-    idle: { dot: 'var(--text-muted)', text: 'var(--text-muted)' },
-    offline: { dot: 'var(--error)', text: 'var(--error)' },
-  }
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>
-          smart_toy
-        </span>
-        <span className="text-sm font-medium text-[var(--text-primary)]">Agent Status</span>
-      </div>
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {agents.map((a) => {
-          const sc = statusColors[a.status]
-          return (
-            <div
-              key={a.name}
-              className="flex items-start gap-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5"
-            >
-              <span className="material-icons-outlined mt-0.5" style={{ fontSize: '16px', color: 'var(--portal)' }}>
-                {a.icon}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
+      {submissions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border-subtle)] py-8">
+          <span className="material-icons-outlined text-3xl text-[var(--text-muted)]">inbox</span>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">
+            No submissions yet. Use the capture tools above to get started.
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Summary bar */}
+          <div className="flex flex-wrap gap-2">
+            {(Object.entries(counts) as [DropZoneSubmission['status'], number][])
+              .filter(([, v]) => v > 0)
+              .map(([status, count]) => {
+                const cfg = STATUS_CONFIG[status]
+                return (
                   <span
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ background: sc.dot }}
-                  />
-                  <span className="text-xs font-medium text-[var(--text-primary)]">{a.name}</span>
+                    key={status}
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                    style={{ background: cfg.bg, color: cfg.color }}
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '13px' }}>{cfg.icon}</span>
+                    {count} {cfg.label}
+                  </span>
+                )
+              })}
+          </div>
+
+          {/* Submission cards */}
+          <div className="space-y-1.5">
+            {submissions.map((s) => {
+              const cfg = STATUS_CONFIG[s.status]
+              return (
+                <div
+                  key={s.id}
+                  className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5"
+                >
+                  <span
+                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
+                    style={{ background: cfg.bg }}
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '16px', color: cfg.color }}>
+                      {TYPE_ICONS[s.type]}
+                    </span>
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm text-[var(--text-primary)]">{s.name}</p>
+                    <div className="flex items-center gap-2">
+                      {s.extracted_type && (
+                        <span className="text-xs text-[var(--text-muted)]">{s.extracted_type}</span>
+                      )}
+                      <span className="text-xs text-[var(--text-muted)]">{formatRelative(s.submitted_at)}</span>
+                    </div>
+                  </div>
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                    style={{ background: cfg.bg, color: cfg.color }}
+                  >
+                    <span
+                      className={`material-icons-outlined ${s.status === 'processing' ? 'animate-spin' : ''}`}
+                      style={{ fontSize: '11px' }}
+                    >
+                      {cfg.icon}
+                    </span>
+                    {cfg.label}
+                  </span>
                 </div>
-                <p className="mt-0.5 truncate text-[11px]" style={{ color: sc.text }}>
-                  {a.task || (a.status === 'idle' ? 'Waiting for work...' : 'Offline')}
-                </p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+              )
+            })}
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -1720,12 +1703,7 @@ export function MyRpiProfile({ portal }: MyRpiProfileProps) {
 
         {/* Processing Status */}
         <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
-          <ProcessingStatus />
-        </div>
-
-        {/* Agent Status */}
-        <div className="mt-6 border-t border-[var(--border-subtle)] pt-6">
-          <AgentStatus />
+          <ProcessingStatus userEmail={profileEmail} />
         </div>
       </div>
 

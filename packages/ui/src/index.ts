@@ -12,6 +12,8 @@ export { KanbanBoard } from './components/KanbanBoard'
 export type { KanbanCard, KanbanColumn } from './components/KanbanBoard'
 export { PortalSwitcher } from './components/PortalSwitcher'
 export { ReportButton } from './components/ReportButton'
+export { DraggableFAB } from './components/DraggableFAB'
+export { IntakeFAB } from './components/IntakeFAB'
 export { WireDiagram, WireDiagramList } from './components/WireDiagram'
 
 // App brand system

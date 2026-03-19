@@ -303,6 +303,13 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
+    // Notifications — activity feed (all RPI users)
+    // ----------------------------------------------------------------
+    match /notifications/{notificationId} {
+      allow read, write: if isRPIUser();
+    }
+
+    // ----------------------------------------------------------------
     // Approval queue — import/data approvals (leader+ only)
     // ----------------------------------------------------------------
     match /approval_queue/{docId} {
@@ -396,6 +403,13 @@ service cloud.firestore {
     match /anomaly_alerts/{docId} {
       allow read: if isRPIUser();
       allow write: if isExecutiveOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // RPI Connect — channels for team communication
+    // ----------------------------------------------------------------
+    match /connect_channels/{channelId} {
+      allow read, write: if isRPIUser();
     }
   }
 }

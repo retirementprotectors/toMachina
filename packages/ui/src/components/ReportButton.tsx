@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAuth } from '@tomachina/auth'
 import { fetchWithAuth } from '../modules/fetchWithAuth'
+import { DraggableFAB } from './DraggableFAB'
 
 // ---------------------------------------------------------------------------
 // URL → Tracker field mapping
@@ -138,6 +139,69 @@ export function ReportButton({ portal }: ReportButtonProps) {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const [recordingChunks, setRecordingChunks] = useState<Blob[]>([])
   const [submitError, setSubmitError] = useState('')
+
+  // Badge count — items in queue matching current user
+  const [badgeCount, setBadgeCount] = useState(0)
+
+  // My Reports popover
+  const [myReportsOpen, setMyReportsOpen] = useState(false)
+  const [myReports, setMyReports] = useState<Array<{ item_id: string; title: string; status: string }>>([])
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Fetch badge count on mount + 30s interval
+  useEffect(() => {
+    if (!user?.email) return
+    let cancelled = false
+
+    async function fetchBadge() {
+      try {
+        const res = await fetchWithAuth('/api/tracker?status=queue&limit=100')
+        if (!res.ok || cancelled) return
+        const json = await res.json()
+        const items = json.data || []
+        const mine = items.filter(
+          (item: Record<string, unknown>) =>
+            typeof item.notes === 'string' && (item.notes as string).includes(user!.email!)
+        )
+        if (!cancelled) setBadgeCount(mine.length)
+      } catch {
+        // Silently fail — badge is non-critical
+      }
+    }
+
+    fetchBadge()
+    const interval = setInterval(fetchBadge, 30000)
+    return () => { cancelled = true; clearInterval(interval) }
+  }, [user?.email])
+
+  // Long-press handlers for My Reports
+  const handleFabPointerDown = useCallback(() => {
+    longPressTimer.current = setTimeout(async () => {
+      // Fetch last 5 items from tracker
+      try {
+        const res = await fetchWithAuth('/api/tracker?limit=5')
+        if (res.ok) {
+          const json = await res.json()
+          const items = (json.data || []).map((item: Record<string, unknown>) => ({
+            item_id: (item.item_id as string) || '',
+            title: (item.title as string) || '',
+            status: (item.status as string) || '',
+          }))
+          setMyReports(items)
+          setMyReportsOpen(true)
+        }
+      } catch {
+        // Silently fail
+      }
+    }, 500)
+  }, [])
+
+  const handleFabPointerUp = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current)
+      longPressTimer.current = null
+    }
+  }, [])
 
   const handleScreenshot = useCallback(async () => {
     setFabHover(false)
@@ -324,18 +388,16 @@ export function ReportButton({ portal }: ReportButtonProps) {
     setReportType('broken')
   }, [])
 
-  // ProDashX has IntakeFAB at bottom-6 right-6 — shift FORGE left
-  const fabRight = portal === 'prodashx' ? 88 : 24
-
   return (
     <>
+      <DraggableFAB fabId="forge-reporter" defaultPosition={{ bottom: 24, right: 24 }}>
       {/* ─── FORGE Report FAB ─── */}
       {recording ? (
         /* Stop Recording button — pulsing red */
         <button
           onClick={handleStopRecording}
-          className="fixed z-40 flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:shadow-xl"
-          style={{ bottom: 24, right: fabRight, background: '#ef4444', animation: 'forgePulse 1.5s ease-in-out infinite' }}
+          className="flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:shadow-xl"
+          style={{ background: '#ef4444', animation: 'forgePulse 1.5s ease-in-out infinite' }}
           title="Stop Recording"
         >
           <span className="material-icons-outlined text-white" style={{ fontSize: 22 }}>stop</span>
@@ -343,8 +405,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
       ) : (
         /* FORGE icon → hover reveals camera above + main button becomes record */
         <div
-          className="fixed z-40 flex flex-col items-center gap-2"
-          style={{ bottom: 24, right: fabRight }}
+          className="flex flex-col items-center gap-2"
           onMouseEnter={() => setFabHover(true)}
           onMouseLeave={() => setFabHover(false)}
         >
@@ -370,6 +431,9 @@ export function ReportButton({ portal }: ReportButtonProps) {
               setAutoFields(parsed)
               setOpen(true)
             }}
+            onPointerDown={handleFabPointerDown}
+            onPointerUp={handleFabPointerUp}
+            onPointerLeave={handleFabPointerUp}
             className="relative flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:shadow-xl"
             style={{ background: '#e07c3e', transform: fabHover ? 'scale(1.05)' : 'scale(1)' }}
             title={fabHover ? 'Record Screen' : 'Report Issue to FORGE'}
@@ -392,7 +456,62 @@ export function ReportButton({ portal }: ReportButtonProps) {
                 boxShadow: fabHover ? '0 0 0 3px rgba(239,68,68,0.3)' : 'none',
               }}
             />
+
+            {/* Badge count */}
+            {badgeCount > 0 && (
+              <span
+                className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-bold text-white"
+                style={{ background: '#ef4444', fontSize: 10 }}
+              >
+                {badgeCount}
+              </span>
+            )}
           </button>
+        </div>
+      )}
+      </DraggableFAB>
+
+      {/* ─── My Reports popover ─── */}
+      {myReportsOpen && (
+        <div className="fixed inset-0 z-50" onClick={() => setMyReportsOpen(false)}>
+          <div
+            className="absolute rounded-xl border shadow-2xl"
+            style={{
+              bottom: 80,
+              right: 24,
+              width: 280,
+              background: 'var(--bg-card, #161b26)',
+              borderColor: 'var(--border-color, #2a3347)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-3 border-b" style={{ borderColor: 'var(--border-color, #2a3347)' }}>
+              <h4 className="text-sm font-semibold" style={{ color: 'var(--text-primary, #e2e8f0)' }}>My Reports</h4>
+            </div>
+            <div className="p-2">
+              {myReports.length === 0 ? (
+                <p className="px-2 py-3 text-center text-xs" style={{ color: 'var(--text-muted, #64748b)' }}>No recent reports</p>
+              ) : (
+                myReports.map((r) => (
+                  <div key={r.item_id} className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-white/5">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-medium" style={{ color: 'var(--text-primary, #e2e8f0)' }}>{r.title}</p>
+                      <p className="text-xs" style={{ color: 'var(--text-muted, #64748b)' }}>{r.item_id}</p>
+                    </div>
+                    <span
+                      className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={{
+                        background: r.status === 'queue' ? 'rgba(245,158,11,0.15)' : r.status === 'confirmed' ? 'rgba(34,197,94,0.15)' : 'rgba(156,163,175,0.15)',
+                        color: r.status === 'queue' ? 'rgb(245,158,11)' : r.status === 'confirmed' ? 'rgb(34,197,94)' : 'var(--text-secondary, #94a3b8)',
+                      }}
+                    >
+                      {r.status}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
 

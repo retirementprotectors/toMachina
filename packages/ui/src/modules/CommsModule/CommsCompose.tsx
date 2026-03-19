@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { fetchWithAuth } from '../fetchWithAuth'
 import { ActiveCallScreen } from './ActiveCallScreen'
 import type { ActiveCallData } from './ActiveCallScreen'
 
@@ -12,6 +13,16 @@ interface CommsComposeProps {
   onBack: () => void
   /** When set, locks the channel to this value (from tab navigation) */
   presetChannel?: ComposeChannel
+}
+
+/* ─── Client Search Result ─── */
+
+interface ClientResult {
+  id: string
+  name: string
+  phone: string
+  email: string
+  book: string
 }
 
 /* ─── Mock Templates (TRK-064) ─── */
@@ -30,16 +41,6 @@ const DEFAULT_TEMPLATES: CommsTemplate[] = [
   { id: 'welcome', label: 'New Client Welcome', channel: 'both', body: 'Welcome to Retirement Protectors, {{name}}! We are excited to work with you. Your dedicated agent is {{agent}}.' },
   { id: 'birthday', label: 'Birthday Greeting', channel: 'sms', body: 'Happy Birthday, {{name}}! Wishing you all the best from your team at Retirement Protectors.' },
   { id: 'policy-review', label: 'Annual Policy Review', channel: 'email', body: 'Dear {{name}}, it is time for your annual policy review. We want to make sure your coverage still meets your needs. Please let us know a convenient time to connect.' },
-]
-
-/* ─── Mock Search Results ─── */
-
-const MOCK_CLIENTS = [
-  { id: '1', name: 'John Smith', phone: '(515) 555-1234', email: 'jsmith@email.com', book: 'RPI' },
-  { id: '2', name: 'Jane Doe', phone: '(515) 555-5678', email: 'jane.doe@email.com', book: 'Sprenger' },
-  { id: '3', name: 'Robert Johnson', phone: '(515) 555-9012', email: 'robert.j@email.com', book: 'RPI' },
-  { id: '4', name: 'Mary Williams', phone: '(515) 555-3456', email: 'mwilliams@yahoo.com', book: 'McCormick' },
-  { id: '5', name: 'David Chen', phone: '(515) 555-7890', email: 'd.chen@gmail.com', book: 'Gradient' },
 ]
 
 /* ─── Twilio Stub Constants (TRK-095/096) ─── */
@@ -323,8 +324,10 @@ function TemplateManager({
 export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
   const [channel, setChannel] = useState<ComposeChannel>(presetChannel ?? 'sms')
   const [toSearch, setToSearch] = useState('')
-  const [selectedClient, setSelectedClient] = useState<typeof MOCK_CLIENTS[0] | null>(null)
+  const [selectedClient, setSelectedClient] = useState<ClientResult | null>(null)
+  const [clientResults, setClientResults] = useState<ClientResult[]>([])
   const [showResults, setShowResults] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [subject, setSubject] = useState('')
   const [template, setTemplate] = useState('none')
@@ -332,12 +335,22 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
   const [showTemplateManager, setShowTemplateManager] = useState(false)
   const [templates, setTemplates] = useState<CommsTemplate[]>(DEFAULT_TEMPLATES)
   const dialerInputRef = useRef<HTMLInputElement | null>(null)
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  /* TRK-095/096/097: Stub send/call states */
+  /* TRK-095/096/097: Send/call states */
   const [smsSendState, setSmsSendState] = useState<StubSendState>('idle')
   const [emailSendState, setEmailSendState] = useState<StubSendState>('idle')
   const [callState, setCallState] = useState<'idle' | 'connecting' | 'active'>('idle')
   const [activeCall, setActiveCall] = useState<ActiveCallData | null>(null)
+  const [sendError, setSendError] = useState<string | null>(null)
+
+  /* TRK-13571: Manual call log state */
+  const [showLogCall, setShowLogCall] = useState(false)
+  const [logDirection, setLogDirection] = useState<'inbound' | 'outbound'>('outbound')
+  const [logOutcome, setLogOutcome] = useState('connected')
+  const [logNotes, setLogNotes] = useState('')
+  const [logDuration, setLogDuration] = useState('')
+  const [logCallState, setLogCallState] = useState<StubSendState>('idle')
 
   // Sync channel when presetChannel changes (tab navigation)
   useEffect(() => {
@@ -345,6 +358,38 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
       setChannel(presetChannel)
     }
   }, [presetChannel])
+
+  // Debounced client search via API
+  useEffect(() => {
+    if (!toSearch || toSearch.length < 2 || selectedClient) {
+      setClientResults([])
+      return
+    }
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    searchTimerRef.current = setTimeout(async () => {
+      setSearchLoading(true)
+      try {
+        const res = await fetchWithAuth(`/api/clients?q=${encodeURIComponent(toSearch)}&limit=10`)
+        if (res.ok) {
+          const json = await res.json() as { success: boolean; data?: Array<Record<string, unknown>> }
+          if (json.success && json.data) {
+            setClientResults(json.data.map((c) => ({
+              id: String(c.id || c.client_id || ''),
+              name: `${c.first_name || ''} ${c.last_name || ''}`.trim(),
+              phone: String(c.phone || c.mobile_phone || ''),
+              email: String(c.email || ''),
+              book: String(c.book || c.source || ''),
+            })))
+          }
+        }
+      } catch {
+        // Search failed silently — user can retry
+      } finally {
+        setSearchLoading(false)
+      }
+    }, 300)
+    return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current) }
+  }, [toSearch, selectedClient])
 
   // TRK-069: Keyboard event handler for dialer
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -370,16 +415,11 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  const filteredClients = MOCK_CLIENTS.filter((c) =>
-    c.name.toLowerCase().includes(toSearch.toLowerCase()) ||
-    c.phone.includes(toSearch) ||
-    c.email.toLowerCase().includes(toSearch.toLowerCase())
-  )
-
-  const selectClient = (client: typeof MOCK_CLIENTS[0]) => {
+  const selectClient = (client: ClientResult) => {
     setSelectedClient(client)
     setToSearch(client.name)
     setShowResults(false)
+    setClientResults([])
   }
 
   const handleDialerDigit = (d: string) => {
@@ -405,44 +445,122 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     if (template === id) setTemplate('none')
   }
 
-  /* TRK-095: Stub SMS send via Twilio */
-  const handleStubSmsSend = useCallback(() => {
+  /* TRK-13568: Send SMS via Twilio API */
+  const handleSmsSend = useCallback(async () => {
+    if (!selectedClient?.phone || !message.trim()) return
     setSmsSendState('sending')
-    setTimeout(() => {
+    setSendError(null)
+    try {
+      const res = await fetchWithAuth('/api/comms/send-sms', {
+        method: 'POST',
+        body: JSON.stringify({
+          to: selectedClient.phone.replace(/[^0-9+]/g, ''),
+          body: message.trim(),
+          client_id: selectedClient.id,
+        }),
+      })
+      const json = await res.json() as { success: boolean; error?: string }
+      if (!res.ok || !json.success) throw new Error(json.error || 'SMS send failed')
       setSmsSendState('sent')
-      setTimeout(() => setSmsSendState('idle'), 2000)
-    }, 1200)
-  }, [])
+      setTimeout(() => { setSmsSendState('idle'); setMessage('') }, 2000)
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'SMS send failed')
+      setSmsSendState('idle')
+    }
+  }, [selectedClient, message])
 
-  /* TRK-097: Stub email send via Gmail */
-  const handleStubEmailSend = useCallback(() => {
+  /* TRK-13569: Send email via SendGrid API */
+  const handleEmailSend = useCallback(async () => {
+    if (!selectedClient?.email || !message.trim()) return
     setEmailSendState('sending')
-    setTimeout(() => {
+    setSendError(null)
+    try {
+      const res = await fetchWithAuth('/api/comms/send-email', {
+        method: 'POST',
+        body: JSON.stringify({
+          to: selectedClient.email,
+          subject: subject.trim() || 'No Subject',
+          html: message.trim(),
+          client_id: selectedClient.id,
+        }),
+      })
+      const json = await res.json() as { success: boolean; error?: string }
+      if (!res.ok || !json.success) throw new Error(json.error || 'Email send failed')
       setEmailSendState('sent')
-      setTimeout(() => setEmailSendState('idle'), 2000)
-    }, 1200)
-  }, [])
+      setTimeout(() => { setEmailSendState('idle'); setMessage(''); setSubject('') }, 2000)
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Email send failed')
+      setEmailSendState('idle')
+    }
+  }, [selectedClient, message, subject])
 
-  /* TRK-096: Stub call connect via Twilio */
-  const handleStubStartCall = useCallback(() => {
+  /* TRK-13570: Initiate voice call via Twilio API */
+  const handleStartCall = useCallback(async () => {
     if (callState !== 'idle' || dialerNumber.length < 3) return
     setCallState('connecting')
-    setTimeout(() => {
+    setSendError(null)
+    try {
+      const to = dialerNumber.replace(/[^0-9+]/g, '')
+      const res = await fetchWithAuth('/api/comms/send-voice', {
+        method: 'POST',
+        body: JSON.stringify({
+          to: to.startsWith('+') ? to : `+1${to}`,
+          client_id: selectedClient?.id || null,
+          twiml: '<Response><Say>Connecting you now.</Say></Response>',
+        }),
+      })
+      const json = await res.json() as { success: boolean; data?: { callSid?: string }; error?: string }
+      if (!res.ok || !json.success) throw new Error(json.error || 'Call initiation failed')
       setCallState('active')
       setActiveCall({
-        callId: `stub-${Date.now()}`,
+        callId: json.data?.callSid || `call-${Date.now()}`,
         callerName: selectedClient?.name ?? 'Unknown',
         callerPhone: dialerNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3'),
         callerLabel: selectedClient?.book,
       })
-    }, 2000)
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Call failed')
+      setCallState('idle')
+    }
   }, [callState, dialerNumber, selectedClient])
 
-  const handleStubEndCall = useCallback(() => {
+  const handleEndCall = useCallback(() => {
     setActiveCall(null)
     setCallState('idle')
     setDialerNumber('')
   }, [])
+
+  /* TRK-13571: Manual call log */
+  const handleLogCall = useCallback(async () => {
+    if (!selectedClient?.id) return
+    setLogCallState('sending')
+    setSendError(null)
+    try {
+      const res = await fetchWithAuth('/api/comms/log-call', {
+        method: 'POST',
+        body: JSON.stringify({
+          client_id: selectedClient.id,
+          direction: logDirection,
+          outcome: logOutcome,
+          notes: logNotes.trim(),
+          duration: logDuration ? Number(logDuration) : null,
+          recipient: selectedClient.phone?.replace(/[^0-9+]/g, '') || null,
+        }),
+      })
+      const json = await res.json() as { success: boolean; error?: string }
+      if (!res.ok || !json.success) throw new Error(json.error || 'Call log failed')
+      setLogCallState('sent')
+      setTimeout(() => {
+        setLogCallState('idle')
+        setLogNotes('')
+        setLogDuration('')
+        setShowLogCall(false)
+      }, 1500)
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Call log failed')
+      setLogCallState('idle')
+    }
+  }, [selectedClient, logDirection, logOutcome, logNotes, logDuration])
 
   // Filter templates by current channel for the dropdown
   const availableTemplates = templates.filter((t) => {
@@ -452,9 +570,6 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
 
   // Determine if channel switcher should be shown (hidden when preset from tabs)
   const showChannelSwitcher = !presetChannel
-
-  // Suppress unused var warnings for mock state
-  void selectedClient
 
   // Template Manager view
   if (showTemplateManager) {
@@ -499,10 +614,12 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
               placeholder="Search client or enter number/email..."
               className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-2 pl-9 pr-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
             />
-            {showResults && toSearch.length > 0 && !selectedClient && (
+            {showResults && toSearch.length >= 2 && !selectedClient && (
               <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-lg">
-                {filteredClients.length > 0 ? (
-                  filteredClients.map((client) => (
+                {searchLoading ? (
+                  <div className="px-3 py-4 text-center text-xs text-[var(--text-muted)]">Searching...</div>
+                ) : clientResults.length > 0 ? (
+                  clientResults.map((client) => (
                     <button
                       key={client.id}
                       onClick={() => selectClient(client)}
@@ -515,7 +632,9 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
                         <p className="text-sm font-medium text-[var(--text-primary)]">{client.name}</p>
                         <p className="text-xs text-[var(--text-muted)]">{client.phone} &middot; {client.email}</p>
                       </div>
-                      <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">{client.book}</span>
+                      {client.book && (
+                        <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">{client.book}</span>
+                      )}
                     </button>
                   ))
                 ) : (
@@ -626,15 +745,129 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
           </>
         )}
 
-        {/* Call mode — TRK-096: Twilio voice stub */}
+        {/* Call mode — TRK-13570: Twilio voice + TRK-13571: Manual log */}
         {channel === 'call' && (
-          <DialerPad
-            number={dialerNumber}
-            onDigit={handleDialerDigit}
-            inputRef={dialerInputRef}
-            onStartCall={handleStubStartCall}
-            callState={callState}
-          />
+          <>
+            {!showLogCall ? (
+              <>
+                <DialerPad
+                  number={dialerNumber}
+                  onDigit={handleDialerDigit}
+                  inputRef={dialerInputRef}
+                  onStartCall={handleStartCall}
+                  callState={callState}
+                />
+                {/* Log Call toggle */}
+                <button
+                  onClick={() => setShowLogCall(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border-subtle)] h-[38px] text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)]"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '16px' }}>edit_note</span>
+                  Log a Call Manually
+                </button>
+              </>
+            ) : (
+              <div className="space-y-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">Log Call</h4>
+                  <button
+                    onClick={() => setShowLogCall(false)}
+                    className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '16px' }}>close</span>
+                  </button>
+                </div>
+
+                {/* Direction toggle */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Direction</label>
+                  <div className="flex gap-1.5">
+                    {(['inbound', 'outbound'] as const).map((dir) => (
+                      <button
+                        key={dir}
+                        onClick={() => setLogDirection(dir)}
+                        className={`flex flex-1 items-center justify-center gap-1.5 rounded-md h-[34px] text-xs font-medium transition-colors ${
+                          logDirection === dir
+                            ? 'text-white'
+                            : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                        }`}
+                        style={logDirection === dir ? { background: 'var(--portal)' } : undefined}
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
+                          {dir === 'inbound' ? 'call_received' : 'call_made'}
+                        </span>
+                        {dir === 'inbound' ? 'Inbound' : 'Outbound'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Outcome select */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Outcome</label>
+                  <select
+                    value={logOutcome}
+                    onChange={(e) => setLogOutcome(e.target.value)}
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] h-[38px] px-3 text-sm text-[var(--text-primary)] outline-none"
+                  >
+                    <option value="connected">Connected</option>
+                    <option value="voicemail">Voicemail</option>
+                    <option value="no_answer">No Answer</option>
+                    <option value="busy">Busy</option>
+                    <option value="wrong_number">Wrong Number</option>
+                    <option value="left_message">Left Message</option>
+                  </select>
+                </div>
+
+                {/* Duration */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Duration (seconds)</label>
+                  <input
+                    type="number"
+                    value={logDuration}
+                    onChange={(e) => setLogDuration(e.target.value)}
+                    placeholder="e.g. 120"
+                    min="0"
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] py-2 px-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+                  />
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Notes</label>
+                  <textarea
+                    value={logNotes}
+                    onChange={(e) => setLogNotes(e.target.value)}
+                    placeholder="Call notes..."
+                    rows={3}
+                    className="w-full resize-none rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+                  />
+                </div>
+
+                {/* Submit */}
+                <button
+                  onClick={handleLogCall}
+                  disabled={logCallState !== 'idle' || !selectedClient?.id}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{
+                    background: logCallState === 'sent'
+                      ? 'var(--success, #10b981)'
+                      : logCallState === 'sending'
+                        ? 'var(--warning, #f59e0b)'
+                        : 'var(--portal)',
+                  }}
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
+                    {logCallState === 'sent' ? 'check_circle' : logCallState === 'sending' ? 'hourglass_top' : 'save'}
+                  </span>
+                  {logCallState === 'sent' ? 'Call Logged' : logCallState === 'sending' ? 'Saving...' : 'Log Call'}
+                </button>
+                {!selectedClient?.id && (
+                  <p className="text-center text-xs text-[var(--text-muted)]">Select a client above to log a call</p>
+                )}
+              </div>
+            )}
+          </>
         )}
 
         {/* Template with Manage button (SMS/Email only — TRK-064) */}
@@ -664,14 +897,23 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
         )}
       </div>
 
-      {/* Send button — TRK-095/097: Twilio SMS / Gmail stub sends */}
+      {/* Send error banner */}
+      {sendError && (
+        <div className="flex items-center gap-2 border-t border-[var(--error,#ef4444)] bg-[rgba(239,68,68,0.08)] px-4 py-2">
+          <span className="material-icons-outlined text-[var(--error,#ef4444)]" style={{ fontSize: '16px' }}>error</span>
+          <span className="flex-1 text-xs text-[var(--error,#ef4444)]">{sendError}</span>
+          <button onClick={() => setSendError(null)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">Dismiss</button>
+        </div>
+      )}
+
+      {/* Send button — TRK-13568/13569: Twilio SMS / SendGrid Email */}
       {channel !== 'call' && (
         <div className="border-t border-[var(--border-subtle)] px-4 py-3">
           {channel === 'sms' ? (
             <button
-              onClick={handleStubSmsSend}
-              disabled={smsSendState !== 'idle'}
-              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed"
+              onClick={handleSmsSend}
+              disabled={smsSendState !== 'idle' || !selectedClient?.phone || !message.trim()}
+              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 background: smsSendState === 'sent'
                   ? 'var(--success, #10b981)'
@@ -687,9 +929,9 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
             </button>
           ) : (
             <button
-              onClick={handleStubEmailSend}
-              disabled={emailSendState !== 'idle'}
-              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed"
+              onClick={handleEmailSend}
+              disabled={emailSendState !== 'idle' || !selectedClient?.email || !message.trim()}
+              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 background: emailSendState === 'sent'
                   ? 'var(--success, #10b981)'
@@ -701,15 +943,15 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
               <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
                 {emailSendState === 'sent' ? 'check_circle' : emailSendState === 'sending' ? 'hourglass_top' : 'send'}
               </span>
-              {emailSendState === 'sent' ? 'Sent via Gmail' : emailSendState === 'sending' ? 'Sending...' : 'Send via Gmail'}
+              {emailSendState === 'sent' ? 'Sent via SendGrid' : emailSendState === 'sending' ? 'Sending...' : 'Send via SendGrid'}
             </button>
           )}
         </div>
       )}
 
-      {/* TRK-096: Active Call Screen overlay (mock) */}
+      {/* TRK-13570: Active Call Screen overlay */}
       {activeCall && (
-        <ActiveCallScreen call={activeCall} onEndCall={handleStubEndCall} />
+        <ActiveCallScreen call={activeCall} onEndCall={handleEndCall} />
       )}
     </div>
   )

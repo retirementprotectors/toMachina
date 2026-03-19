@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 9 Pre-Production — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 700px; margin: 0 auto; }
+  .header .stats { display: flex; justify-content: center; gap: 32px; margin-top: 20px; }
+  .header .stat { text-align: center; }
+  .header .stat-val { font-size: 28px; font-weight: 800; color: var(--gold-bright); }
+  .header .stat-label { font-size: 10px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.bug { background: rgba(248,81,73,0.12); color: var(--red); border: 1px solid rgba(248,81,73,0.25); }
+  .tag.enh { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+  .tag.new { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.mod { background: rgba(88,166,255,0.10); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .builder-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .b01 { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .b02 { background: rgba(212,164,76,0.10); color: var(--gold); border: 1px solid rgba(212,164,76,0.25); }
+  .b03 { background: rgba(88,166,255,0.10); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+  .b04 { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .b05 { background: rgba(63,185,80,0.10); color: var(--green); border: 1px solid rgba(63,185,80,0.25); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; }
+  .flow-step { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .flow-step.active { border-color: var(--gold-border); color: var(--gold); background: var(--gold-glow); }
+  .flow-arrow { padding: 0 8px; color: var(--dim); font-size: 18px; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 6px 0; font-size: 13px; }
+  .checklist li::before { content: '[ ] '; font-family: monospace; color: var(--dim); }
+  .deferred { opacity: 0.4; text-decoration: line-through; }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card { border-color: #ddd; } .tag { border-color: #ccc; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">FORGE Sprint &middot; Sprint 9 Pre-Production</div>
+  <h1>Implementation Plan</h1>
+  <div class="sub">Wire every mock-data module to real APIs/Firestore. Fix entitlement bugs. Make FABs draggable. No more fake data on ProDashX.</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">27</div><div class="stat-label">Tickets</div></div>
+    <div class="stat"><div class="stat-val">5</div><div class="stat-label">Builders</div></div>
+    <div class="stat"><div class="stat-val">8</div><div class="stat-label">Work Packages</div></div>
+    <div class="stat"><div class="stat-val">20</div><div class="stat-label">Files</div></div>
+  </div>
+</div>
+<div class="container">
+
+<h2>Execution <span class="accent">Timeline</span></h2>
+<div class="flow">
+  <div class="flow-step active">B01 BugFixes</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step">MERGE</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step">B02&ndash;B05 Parallel</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step">Audit + Merge</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step">WP9 A2P (Manual)</div>
+</div>
+
+<h2>Deliverable <span class="accent">Overview</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Type</th><th>Deliverable</th><th>Builder</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TRK-13546</strong></td><td><span class="tag bug">Bug</span></td><td>Add PRODASH_HOUSEHOLDS to MODULES</td><td><span class="tag b01">B01</span></td></tr>
+    <tr><td><strong>TRK-13547</strong></td><td><span class="tag bug">Bug</span></td><td>Fix Permissions Audit &mdash; include OWNER users</td><td><span class="tag b01">B01</span></td></tr>
+    <tr><td><strong>TRK-13548</strong></td><td><span class="tag bug">Bug</span></td><td>Populate OWNER module_permissions in Firestore</td><td><span class="tag b01">B01</span></td></tr>
+    <tr><td><strong>TRK-13551</strong></td><td><span class="tag new">Feature</span></td><td>Create DraggableFAB shared wrapper</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13552</strong></td><td><span class="tag enh">Enhance</span></td><td>Wrap FORGE ReportButton in DraggableFAB</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13553</strong></td><td><span class="tag enh">Enhance</span></td><td>Move IntakeFAB to shared + DraggableFAB</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13558</strong></td><td><span class="tag bug">Bug</span></td><td>Fix commission-intake source &rarr; COMMISSION</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13559</strong></td><td><span class="tag new">Feature</span></td><td>Build Intake Queue Viewer page</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13560</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire IntakeFAB Document Upload</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13561</strong></td><td><span class="tag enh">Enhance</span></td><td>FORGE Reporter badge counter</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13562</strong></td><td><span class="tag new">Feature</span></td><td>FORGE My Reports popover</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13563</strong></td><td><span class="tag enh">Enhance</span></td><td>FORGE Slack notification (STUB)</td><td><span class="tag b02">B02</span></td></tr>
+    <tr><td><strong>TRK-13554</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire MyRPI audio recorder + dropzone API</td><td><span class="tag b03">B03</span></td></tr>
+    <tr><td><strong>TRK-13555</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire MyRPI document camera</td><td><span class="tag b03">B03</span></td></tr>
+    <tr><td><strong>TRK-13556</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire Processing Status to Firestore</td><td><span class="tag b03">B03</span></td></tr>
+    <tr><td><strong>TRK-13557</strong></td><td><span class="tag enh">Enhance</span></td><td>Remove Agent Status section</td><td><span class="tag b03">B03</span></td></tr>
+    <tr><td><strong>TRK-13568</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire Comms SMS to real API</td><td><span class="tag b04">B04</span></td></tr>
+    <tr><td><strong>TRK-13569</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire Comms Email to real API</td><td><span class="tag b04">B04</span></td></tr>
+    <tr><td><strong>TRK-13570</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire Comms Call to real API</td><td><span class="tag b04">B04</span></td></tr>
+    <tr><td><strong>TRK-13571</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire Comms Log + manual Log Call</td><td><span class="tag b04">B04</span></td></tr>
+    <tr><td><strong>TRK-13572</strong></td><td><span class="tag bug">Bug</span></td><td>Remove inbound call mock</td><td><span class="tag b04">B04</span></td></tr>
+    <tr><td><strong>TRK-13564</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire Connect People to Firestore</td><td><span class="tag b05">B05</span></td></tr>
+    <tr><td><strong>TRK-13565</strong></td><td><span class="tag enh">Enhance</span></td><td>Wire Connect Meet to Calendar</td><td><span class="tag b05">B05</span></td></tr>
+    <tr><td><strong>TRK-13566</strong></td><td><span class="tag new">Feature</span></td><td>Wire Connect Channels to Firestore</td><td><span class="tag b05">B05</span></td></tr>
+    <tr><td><strong>TRK-13567</strong></td><td><span class="tag new">Feature</span></td><td>Presence indicators</td><td><span class="tag b05">B05</span></td></tr>
+    <tr><td><strong>TRK-13573</strong></td><td><span class="tag new">Feature</span></td><td>A2P compliant opt-in page</td><td>Manual</td></tr>
+    <tr><td><strong>TRK-13574</strong></td><td><span class="tag new">Feature</span></td><td>A2P campaign resubmission</td><td>Manual</td></tr>
+  </tbody>
+</table>
+
+<!-- BUILDER 01 -->
+<h2><span class="accent">Builder 01:</span> BugFixes (WP1)</h2>
+<div class="builder-badge b01">B01 &middot; Size: S &middot; 3 tickets</div>
+
+<div class="card">
+  <h4>TRK-13546 &mdash; Add PRODASH_HOUSEHOLDS to MODULES</h4>
+  <p><code>packages/core/src/users/modules.ts</code></p>
+  <ul>
+    <li>Add module def after PROZONE (~line 458): <code>PRODASH_HOUSEHOLDS</code> &mdash; active, RPI_TOOLS, minUserLevel: USER</li>
+    <li>Add <code>'PRODASH_HOUSEHOLDS'</code> to <code>TOOL_SUITES.RPI_TOOLS.modules</code> array (~line 108)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13547 &mdash; Fix Permissions Audit for OWNER</h4>
+  <p><code>packages/ui/src/modules/AdminPanel.tsx</code></p>
+  <ul>
+    <li>Fix <code>usersWithAccess</code> filter (~line 284): add <code>if ((u.level ?? 3) === 0) return true</code></li>
+    <li>Show "Super Admin" badge when <code>level === 0</code> in user row (~line 362)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13548 &mdash; Populate OWNER module_permissions</h4>
+  <p>Firestore script (inline npx tsx)</p>
+  <ul>
+    <li>Set ALL module keys with <code>['VIEW','EDIT','ADD']</code> for josh@ and john@</li>
+  </ul>
+</div>
+
+<!-- BUILDER 02 -->
+<h2><span class="accent">Builder 02:</span> FABs + Intake + FORGE (WP3+WP5+WP6)</h2>
+<div class="builder-badge b02">B02 &middot; Size: L &middot; 9 tickets &middot; 10 files</div>
+
+<div class="card">
+  <h4>TRK-13551 &mdash; DraggableFAB Wrapper</h4>
+  <p><span class="tag new">New</span> <code>packages/ui/src/components/DraggableFAB.tsx</code></p>
+  <ul>
+    <li>Pointer-event drag (mouse + touch) via <code>onPointerDown/Move/Up</code></li>
+    <li>Position persisted to Firestore: <code>users/{'{email}'}.employee_profile.fab_positions.{'{fabId}'}</code></li>
+    <li>Load saved position on mount, snap to viewport edges</li>
+    <li>Props: <code>fabId: string</code>, <code>defaultPosition: {'{ bottom, right }'}</code>, <code>children</code></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13552 + TRK-13561 + TRK-13562 + TRK-13563 &mdash; FORGE Reporter</h4>
+  <p><code>packages/ui/src/components/ReportButton.tsx</code></p>
+  <ul>
+    <li>Remove <code>fixed bottom-6 right-24</code> positioning (~line 346)</li>
+    <li>Wrap in <code>&lt;DraggableFAB fabId="forge-reporter"&gt;</code></li>
+    <li>Add <strong>badge counter</strong>: fetch <code>/api/tracker?status=queue&amp;created_by={'{email}'}</code> on mount + 30s interval</li>
+    <li>Add <strong>My Reports popover</strong>: long-press shows last 5 submitted items with status</li>
+    <li><strong>Slack notification</strong>: STUB only &mdash; add TODO comment for Notifications Module</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13553 + TRK-13560 &mdash; IntakeFAB Move + Upload Wiring</h4>
+  <p><code>apps/prodash/.../IntakeFAB.tsx</code> &rarr; <code>packages/ui/src/components/IntakeFAB.tsx</code></p>
+  <ul>
+    <li>Wire <code>handleFileSelect</code> (~line 201): replace toast with <code>fetchWithAuth('/api/dropzone', {'{ POST file, source: INTAKE_UPLOAD }'})</code></li>
+    <li>Remove fixed positioning, wrap in <code>&lt;DraggableFAB fabId="intake-fab"&gt;</code></li>
+    <li>Move file to <code>packages/ui/</code>. Update import in <code>layout.tsx</code></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13558 &mdash; Commission Source Bug</h4>
+  <p><code>services/intake/src/commission-intake.ts</code> line 95</p>
+  <ul><li><code>'SPC_INTAKE'</code> &rarr; <code>'COMMISSION'</code></li></ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13559 &mdash; Intake Queue Viewer</h4>
+  <p><span class="tag new">New</span> <code>packages/ui/src/modules/IntakeQueue.tsx</code> + <code>apps/prodash/.../admin/intake-queue/page.tsx</code></p>
+  <ul>
+    <li>Firestore query on <code>intake_queue</code> collection</li>
+    <li>Table: file_name, source, status, created_at, assigned_to</li>
+    <li>Filter pills: source channel, status, date range</li>
+    <li>Row click &rarr; detail panel. Approve / Reject / Skip buttons</li>
+  </ul>
+</div>
+
+<h3>Dropzone API Contract (Shared B02 + B03)</h3>
+<div class="card">
+  <p><code>POST /api/dropzone</code> &mdash; <code>Content-Type: multipart/form-data</code></p>
+  <p>Fields: <code>file</code> (File), <code>source</code> (string: MYRPI_AUDIO | MYRPI_DOCUMENT | INTAKE_UPLOAD)</p>
+  <p>Response: <code>{'{ success: true, data: { queue_id, file_id } }'}</code></p>
+</div>
+
+<!-- BUILDER 03 -->
+<h2><span class="accent">Builder 03:</span> MyRPI + Dropzone API (WP4)</h2>
+<div class="builder-badge b03">B03 &middot; Size: M &middot; 4 tickets</div>
+
+<div class="card">
+  <h4>TRK-13554 + TRK-13555 &mdash; Wire Drop Zone Submits</h4>
+  <p><code>packages/ui/src/modules/MyRpiProfile.tsx</code></p>
+  <ul>
+    <li><strong>Audio</strong> (~line 477): Replace <code>setSubmitted(true)</code> with <code>fetchWithAuth POST /api/dropzone</code> + source <code>MYRPI_AUDIO</code></li>
+    <li><strong>Camera</strong> (~line 651): Same pattern, source <code>MYRPI_DOCUMENT</code>, canvas &rarr; JPEG blob</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13556 &mdash; Wire Processing Status</h4>
+  <p><code>packages/ui/src/modules/MyRpiProfile.tsx</code> (~lines 770&ndash;819)</p>
+  <ul>
+    <li>Delete <code>MOCK_SUBMISSIONS</code> array</li>
+    <li>Add <code>useCollection</code> on <code>intake_queue</code> where <code>created_by == email</code>, ordered by <code>created_at desc</code></li>
+    <li>Map results to existing <code>DropZoneSubmission</code> card UI</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13557 &mdash; Remove Agent Status</h4>
+  <p><code>packages/ui/src/modules/MyRpiProfile.tsx</code> (~lines 926&ndash;980)</p>
+  <ul><li>Delete entire section &mdash; mock agents array + render block</li></ul>
+</div>
+
+<div class="card">
+  <h4>New API Route &mdash; Dropzone</h4>
+  <p><span class="tag new">New</span> <code>services/api/src/routes/dropzone.ts</code></p>
+  <ul>
+    <li>Accepts multipart file + source field</li>
+    <li>Uploads to Google Drive (intake folder)</li>
+    <li>Creates <code>intake_queue</code> Firestore entry</li>
+    <li>Register in <code>server.ts</code></li>
+  </ul>
+</div>
+
+<!-- BUILDER 04 -->
+<h2><span class="accent">Builder 04:</span> Communications (WP8)</h2>
+<div class="builder-badge b04">B04 &middot; Size: L &middot; 5 tickets</div>
+
+<div class="card">
+  <h4>TRK-13568 + TRK-13569 + TRK-13570 &mdash; Wire SMS / Email / Call</h4>
+  <p><code>packages/ui/src/modules/CommsModule/CommsCompose.tsx</code></p>
+  <ul>
+    <li><strong>SMS</strong> (~line 409): Replace stub &rarr; <code>fetchWithAuth('/api/comms/send-sms', {'{ to, body, client_id }'})</code></li>
+    <li><strong>Email</strong> (~line 418): Replace stub &rarr; <code>/api/comms/send-email</code></li>
+    <li><strong>Call</strong> (~line 427): Replace stub &rarr; <code>/api/comms/send-voice</code></li>
+    <li><strong>Client picker</strong> (~line 37): Replace <code>MOCK_CLIENTS</code> with <code>/api/clients?search=</code> type-ahead</li>
+    <li><strong>Manual Log Call</strong>: Add Log Call button near dialer &rarr; <code>POST /api/comms/log-call</code></li>
+    <li><strong>Templates</strong>: Keep 6 existing hardcoded templates + wire CRUD</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13571 &mdash; Wire Comms Log Feed</h4>
+  <p><code>packages/ui/src/modules/CommsModule/CommsFeed.tsx</code></p>
+  <ul>
+    <li>Delete <code>MOCK_COMMS</code> array (~lines 36&ndash;57)</li>
+    <li>Add <code>useCollection</code> on <code>communications</code>, <code>orderBy('created_at','desc')</code>, limit 50</li>
+    <li>Map Firestore fields to existing <code>CommEntry</code> interface</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13572 &mdash; Remove Inbound Call Mock</h4>
+  <ul>
+    <li><code>InboundCallCard.tsx</code>: Delete <code>MOCK_INBOUND_CALL</code> export. Render nothing when <code>call={'{null}'}</code></li>
+    <li><code>TopBar.tsx</code>: Remove mock import, pass <code>call={'{null}'}</code></li>
+  </ul>
+</div>
+
+<!-- BUILDER 05 -->
+<h2><span class="accent">Builder 05:</span> RPI Connect (WP7)</h2>
+<div class="builder-badge b05">B05 &middot; Size: M &middot; 4 tickets</div>
+
+<div class="card">
+  <h4>TRK-13564 + TRK-13567 &mdash; People + Presence</h4>
+  <p><code>packages/ui/src/modules/ConnectPanel.tsx</code></p>
+  <ul>
+    <li>Delete <code>TEAM_MEMBERS</code> mock (~lines 49&ndash;57)</li>
+    <li><code>useCollection</code> on <code>users</code> where <code>status=='active'</code></li>
+    <li>Presence from <code>last_active</code>: Online &lt;5min, Away 5&ndash;30min, Offline 30+min</li>
+    <li><code>useEffect</code> on mount: update current user's <code>last_active</code></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13565 &mdash; Meet Tab &rarr; Google Calendar</h4>
+  <ul>
+    <li>Delete <code>UPCOMING_MEETINGS</code> + <code>RECENT_RECORDINGS</code> mocks</li>
+    <li>Fetch <code>/api/connect/calendar</code> via <code>fetchWithAuth</code></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-13566 &mdash; Channels &rarr; Firestore</h4>
+  <ul>
+    <li>Delete <code>CHANNELS</code> mock (~lines 59&ndash;65)</li>
+    <li>Query <code>connect_channels</code> collection</li>
+    <li>Wire new channel form to <code>POST /api/connect/channels</code></li>
+    <li>Seed 3 defaults: <strong>#general</strong>, <strong>#sales</strong>, <strong>#service</strong></li>
+    <li>Message sync (Google Chat) deferred to Sprint 10</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>New API Route &mdash; Connect</h4>
+  <p><span class="tag new">New</span> <code>services/api/src/routes/connect.ts</code></p>
+  <ul>
+    <li><code>GET /api/connect/calendar</code> &mdash; Google Calendar proxy</li>
+    <li><code>POST/GET /api/connect/channels</code> &mdash; CRUD</li>
+    <li><code>POST /api/connect/presence</code> &mdash; update <code>last_active</code></li>
+  </ul>
+  <p>+ Add <code>connect_channels</code> to <code>firestore.rules</code> with <code>isRPIUser()</code> gate</p>
+</div>
+
+<!-- FILE OWNERSHIP -->
+<h2>File <span class="accent">Ownership Matrix</span></h2>
+<p>Zero overlaps between parallel builders.</p>
+<table>
+  <thead><tr><th>File</th><th>B01</th><th>B02</th><th>B03</th><th>B04</th><th>B05</th></tr></thead>
+  <tbody>
+    <tr><td><code>modules.ts</code></td><td>&bull;</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td><code>AdminPanel.tsx</code></td><td>&bull;</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td><code>DraggableFAB.tsx</code> <span class="tag new">new</span></td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>ReportButton.tsx</code></td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>IntakeFAB.tsx</code> (move)</td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>IntakeQueue.tsx</code> <span class="tag new">new</span></td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>intake-queue/page.tsx</code> <span class="tag new">new</span></td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>layout.tsx</code></td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>commission-intake.ts</code></td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>tracker.ts</code></td><td></td><td>&bull;</td><td></td><td></td><td></td></tr>
+    <tr><td><code>MyRpiProfile.tsx</code></td><td></td><td></td><td>&bull;</td><td></td><td></td></tr>
+    <tr><td><code>dropzone.ts</code> <span class="tag new">new</span></td><td></td><td></td><td>&bull;</td><td></td><td></td></tr>
+    <tr><td><code>server.ts</code></td><td></td><td></td><td>&bull;</td><td></td><td></td></tr>
+    <tr><td><code>CommsCompose.tsx</code></td><td></td><td></td><td></td><td>&bull;</td><td></td></tr>
+    <tr><td><code>CommsFeed.tsx</code></td><td></td><td></td><td></td><td>&bull;</td><td></td></tr>
+    <tr><td><code>InboundCallCard.tsx</code></td><td></td><td></td><td></td><td>&bull;</td><td></td></tr>
+    <tr><td><code>TopBar.tsx</code></td><td></td><td></td><td></td><td>&bull;</td><td></td></tr>
+    <tr><td><code>ConnectPanel.tsx</code></td><td></td><td></td><td></td><td></td><td>&bull;</td></tr>
+    <tr><td><code>connect.ts</code> <span class="tag new">new</span></td><td></td><td></td><td></td><td></td><td>&bull;</td></tr>
+    <tr><td><code>firestore.rules</code></td><td></td><td></td><td></td><td></td><td>&bull;</td></tr>
+  </tbody>
+</table>
+
+<!-- VERIFICATION -->
+<h2>Verification <span class="accent">Checklist</span></h2>
+<ul class="checklist">
+  <li><code>npm run type-check</code> passes 13/13</li>
+  <li>Households in sidebar for entitled users</li>
+  <li>OWNER in Permissions Audit with "Super Admin" badge</li>
+  <li>Both FABs draggable, positions persist across reload</li>
+  <li>FORGE badge shows pending count, long-press shows My Reports</li>
+  <li>MyRPI audio/camera submit &rarr; real intake_queue entry</li>
+  <li>MyRPI Processing Status &rarr; real queue items (or empty)</li>
+  <li>MyRPI Agent Status section gone</li>
+  <li>IntakeFAB Upload &rarr; real file upload (no "Sprint 11" toast)</li>
+  <li>Commission intake source = COMMISSION</li>
+  <li>Intake Queue Viewer &rarr; real items, approve/reject works</li>
+  <li>Comms SMS/Email/Call &rarr; real API calls (check Twilio/SendGrid)</li>
+  <li>Comms Log tab &rarr; real Firestore communications entries</li>
+  <li>No fake "Jane Doe" inbound call</li>
+  <li>Connect People &rarr; real Firestore users with presence</li>
+  <li>Connect Meet &rarr; real calendar events</li>
+  <li>Connect Channels &rarr; Firestore connect_channels</li>
+  <li>A2P resubmitted with DBA + compliant opt-in page</li>
+</ul>
+
+<p style="text-align:center;margin-top:48px;color:var(--dim);font-size:11px;">FORGE Sprint &middot; Sprint 9 Pre-Production &middot; nps9wSwgKumZSHBrULvV &middot; Generated 2026-03-19</p>
+</div>
+</body>
+</html>

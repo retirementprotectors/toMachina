@@ -20,17 +20,6 @@ interface InboundCallCardProps {
   onRoute?: () => void
 }
 
-/* ─── Mock Inbound Call ─── */
-
-export const MOCK_INBOUND_CALL: InboundCall = {
-  id: 'inbound-1',
-  callerName: 'Jane Doe',
-  callerPhone: '(515) 555-1234',
-  book: 'RPI',
-  assignedAgent: "Vince's Client",
-  startedAt: new Date(),
-}
-
 /* ─── Component ─── */
 
 export function InboundCallCard({ call, onAnswer, onDecline, onRoute }: InboundCallCardProps) {

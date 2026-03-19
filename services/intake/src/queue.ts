@@ -18,7 +18,7 @@ export type QueueStatus =
   | 'ERROR'
   | 'SKIPPED'
 
-export type IntakeSource = 'SPC_INTAKE' | 'MEET_TRANSCRIPT' | 'MAIL' | 'EMAIL'
+export type IntakeSource = 'SPC_INTAKE' | 'COMMISSION' | 'MEET_TRANSCRIPT' | 'MAIL' | 'EMAIL'
 
 export interface QueueEntry {
   queue_id: string

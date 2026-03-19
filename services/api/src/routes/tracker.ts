@@ -360,6 +360,8 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     }
 
     await db.collection(COLLECTION).doc(itemId).set(data)
+    // TODO: Notifications Module — notify assigned user / portal admins on new tracker items (Sprint 10+)
+
     res.status(201).json(successResponse({ id: itemId, ...data }))
   } catch (err) {
     console.error('POST /api/tracker error:', err)

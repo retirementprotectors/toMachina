@@ -2,7 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@tomachina/ui'
+import { useToast } from './Toast'
+import { DraggableFAB } from './DraggableFAB'
+import { fetchWithAuth } from '../modules/fetchWithAuth'
 
 // ---------------------------------------------------------------------------
 // Intake FAB — Floating Action Button for quick data entry
@@ -198,12 +200,30 @@ export function IntakeFAB() {
     }
   }, [router])
 
-  const handleFileSelect = useCallback((_e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback(async (_e: React.ChangeEvent<HTMLInputElement>) => {
     const input = fileInputRef.current
     if (input?.files?.length) {
       const file = input.files[0]
       const size = formatFileSize(file.size)
-      showToast(`Document received: ${file.name} (${size}). Filing available in Sprint 11.`, 'info')
+      try {
+        const res = await fetchWithAuth('/api/dropzone', {
+          method: 'POST',
+          body: JSON.stringify({
+            source: 'INTAKE_UPLOAD',
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size,
+          }),
+        })
+        if (res.ok) {
+          showToast(`Document queued: ${file.name} (${size})`, 'success')
+        } else {
+          const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+          showToast(`Upload failed: ${(body as Record<string, string>).error || res.status}`, 'error')
+        }
+      } catch (err) {
+        showToast(`Upload failed: ${err instanceof Error ? err.message : 'Network error'}`, 'error')
+      }
       // Reset input so the same file can be selected again
       input.value = ''
     }
@@ -249,48 +269,50 @@ export function IntakeFAB() {
         onChange={handleFileSelect}
       />
 
-      {/* FAB container */}
-      <div ref={fabRef} className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
-        {/* Expanded action buttons — animate up from FAB */}
-        {expanded && (
-          <div className="flex flex-col gap-2 mb-1">
-            {FAB_ACTIONS.map((action, index) => (
-              <button
-                key={action.key}
-                onClick={() => handleAction(action.key)}
-                className="flex items-center gap-3 rounded-full py-2.5 pl-4 pr-5 text-white shadow-lg transition-all duration-200 hover:brightness-110"
-                style={{
-                  background: action.color,
-                  animationDelay: `${index * 50}ms`,
-                  animation: 'fabSlideUp 200ms ease-out forwards',
-                  opacity: 0,
-                  transform: 'translateY(8px)',
-                }}
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '20px' }}>
-                  {action.icon}
-                </span>
-                <span className="text-sm font-medium whitespace-nowrap">{action.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
+      {/* FAB container — wrapped in DraggableFAB */}
+      <DraggableFAB fabId="intake-fab" defaultPosition={{ bottom: 24, right: 96 }}>
+        <div ref={fabRef} className="flex flex-col items-end gap-3">
+          {/* Expanded action buttons — animate up from FAB */}
+          {expanded && (
+            <div className="flex flex-col gap-2 mb-1">
+              {FAB_ACTIONS.map((action, index) => (
+                <button
+                  key={action.key}
+                  onClick={() => handleAction(action.key)}
+                  className="flex items-center gap-3 rounded-full py-2.5 pl-4 pr-5 text-white shadow-lg transition-all duration-200 hover:brightness-110"
+                  style={{
+                    background: action.color,
+                    animationDelay: `${index * 50}ms`,
+                    animation: 'fabSlideUp 200ms ease-out forwards',
+                    opacity: 0,
+                    transform: 'translateY(8px)',
+                  }}
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '20px' }}>
+                    {action.icon}
+                  </span>
+                  <span className="text-sm font-medium whitespace-nowrap">{action.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
-        {/* Main FAB button */}
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:brightness-110 hover:shadow-xl"
-          style={{
-            background: 'var(--portal)',
-            transform: expanded ? 'rotate(45deg)' : 'rotate(0deg)',
-          }}
-          title={expanded ? 'Close menu' : 'Quick actions'}
-        >
-          <span className="material-icons-outlined text-white" style={{ fontSize: '24px' }}>
-            bolt
-          </span>
-        </button>
-      </div>
+          {/* Main FAB button */}
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:brightness-110 hover:shadow-xl"
+            style={{
+              background: 'var(--portal)',
+              transform: expanded ? 'rotate(45deg)' : 'rotate(0deg)',
+            }}
+            title={expanded ? 'Close menu' : 'Quick actions'}
+          >
+            <span className="material-icons-outlined text-white" style={{ fontSize: '24px' }}>
+              bolt
+            </span>
+          </button>
+        </div>
+      </DraggableFAB>
 
       {/* Inline keyframe animation */}
       <style>{`

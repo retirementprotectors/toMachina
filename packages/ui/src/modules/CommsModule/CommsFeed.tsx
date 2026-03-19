@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useCollection, getDb } from '@tomachina/db'
+import { collection, query, orderBy, limit } from 'firebase/firestore'
 
 /* ─── Types ─── */
 
@@ -19,46 +21,66 @@ export interface CommEntry {
   status: 'delivered' | 'read' | 'failed' | 'missed' | 'answered' | 'voicemail'
 }
 
+/** Raw Firestore communication document */
+interface CommDoc {
+  _id: string
+  comm_id?: string
+  channel?: string
+  direction?: string
+  recipient?: string
+  body?: string
+  subject?: string
+  status?: string
+  sent_by?: string
+  client_id?: string
+  created_at?: string
+  call_type?: string
+  duration?: number
+}
+
 type ChannelFilter = 'all' | 'sms' | 'email' | 'voice'
 type DirectionFilter = 'all' | 'inbound' | 'outbound'
 type ScopeFilter = 'all' | 'mine' | 'assigned' | 'unassigned'
 
-/* ─── Mock Data ─── */
+/* ─── Map Firestore docs to CommEntry ─── */
 
-const now = new Date()
-function ago(minutes: number): Date {
-  return new Date(now.getTime() - minutes * 60 * 1000)
+function mapChannelToType(channel: string | undefined): CommEntry['type'] {
+  if (channel === 'sms') return 'sms'
+  if (channel === 'email') return 'email'
+  return 'voice'
 }
 
-/** Mock current user — replace with real auth context in Sprint 10 */
-const CURRENT_USER = 'Josh Millang'
+function mapStatus(status: string | undefined): CommEntry['status'] {
+  const valid: CommEntry['status'][] = ['delivered', 'read', 'failed', 'missed', 'answered', 'voicemail']
+  if (status && valid.includes(status as CommEntry['status'])) return status as CommEntry['status']
+  if (status === 'sent' || status === 'queued') return 'delivered'
+  if (status === 'connected') return 'answered'
+  if (status === 'no_answer') return 'missed'
+  if (status === 'dry_run') return 'delivered'
+  return 'delivered'
+}
 
-const MOCK_COMMS: CommEntry[] = [
-  { id: '1', type: 'sms', direction: 'outbound', contactName: 'John Smith', contactDetail: '(515) 555-1234', agentName: 'Vince Vazquez', preview: 'Hi John, just following up on your annuity renewal. Let me know if you have any questions about the new rates.', timestamp: ago(2), book: 'RPI', accountType: 'Medicare', status: 'delivered' },
-  { id: '2', type: 'voice', direction: 'inbound', contactName: 'Jane Doe', contactDetail: '(515) 555-5678', agentName: 'Nikki Gray', preview: 'Duration: 4:32', timestamp: ago(15), book: 'Sprenger', accountType: 'Annuity', status: 'answered' },
-  { id: '3', type: 'email', direction: 'outbound', contactName: 'Robert Johnson', contactDetail: 'robert.j@email.com', agentName: 'Josh Millang', preview: 'Your RMD Summary for 2026', subject: 'Your RMD Summary for 2026', timestamp: ago(60), book: 'RPI', accountType: 'Life', status: 'read' },
-  { id: '4', type: 'sms', direction: 'inbound', contactName: 'Mary Williams', contactDetail: '(515) 555-9012', agentName: 'Angelique', preview: 'Thank you for the information about the Medicare Advantage plans. I think Plan G looks best for my situation.', timestamp: ago(120), book: 'McCormick', accountType: 'Medicare', status: 'read' },
-  { id: '5', type: 'voice', direction: 'outbound', contactName: 'David Chen', contactDetail: '(515) 555-3456', agentName: 'Vince Vazquez', preview: 'Duration: 12:45', timestamp: ago(180), book: 'RPI', accountType: 'Advisory', status: 'answered' },
-  { id: '6', type: 'email', direction: 'inbound', contactName: 'Patricia Martinez', contactDetail: 'patricia.m@yahoo.com', agentName: 'Nikki Gray', preview: 'I wanted to ask about changing my beneficiary designation on my life policy. Can you walk me through the process?', subject: 'Re: Beneficiary Change Request', timestamp: ago(210), book: 'Gradient', accountType: 'Life', status: 'read' },
-  { id: '7', type: 'sms', direction: 'outbound', contactName: 'Thomas Brown', contactDetail: '(515) 555-7890', agentName: 'Matt McCormick', preview: 'Tom, your 1035 exchange paperwork is ready for review.', timestamp: ago(290), book: 'McCormick', accountType: 'Annuity', status: 'delivered' },
-  { id: '8', type: 'voice', direction: 'inbound', contactName: 'Linda Wilson', contactDetail: '(515) 555-2345', agentName: 'Angelique', preview: 'Duration: 2:18', timestamp: ago(350), book: 'Sprenger', accountType: 'Medicare', status: 'voicemail' },
-  { id: '9', type: 'email', direction: 'outbound', contactName: 'James Taylor', contactDetail: 'jtaylor@gmail.com', agentName: 'Josh Millang', preview: 'Here is your updated financial plan reflecting the new MYGA rates we discussed.', subject: 'Updated Financial Plan — MYGA Rates', timestamp: ago(420), book: 'RPI', accountType: 'Annuity', status: 'delivered' },
-  { id: '10', type: 'sms', direction: 'inbound', contactName: 'Barbara Anderson', contactDetail: '(515) 555-6789', agentName: 'Vince Vazquez', preview: 'Can we move our meeting to Thursday at 2pm instead? I have a doctor appointment Wednesday.', timestamp: ago(500), book: 'RPI', accountType: 'Medicare', status: 'read' },
-  { id: '11', type: 'voice', direction: 'outbound', contactName: 'Michael Garcia', contactDetail: '(515) 555-0123', agentName: 'Matt McCormick', preview: 'Duration: 8:15', timestamp: ago(600), book: 'Gradient', accountType: 'Advisory', status: 'answered' },
-  { id: '12', type: 'email', direction: 'inbound', contactName: 'Susan Harris', contactDetail: 'sharris@outlook.com', agentName: 'Nikki Gray', preview: 'I received the beneficiary form but I\'m confused about Section 3.', subject: 'Re: Beneficiary Designation Form', timestamp: ago(720), book: 'Sprenger', accountType: 'Life', status: 'read' },
-  { id: '13', type: 'sms', direction: 'outbound', contactName: 'Richard Clark', contactDetail: '(515) 555-4567', agentName: 'Angelique', preview: 'Hi Richard, your Medicare Part D renewal window opens next week.', timestamp: ago(840), book: 'McCormick', accountType: 'Medicare', status: 'read' },
-  { id: '14', type: 'voice', direction: 'inbound', contactName: 'Dorothy Lewis', contactDetail: '(515) 555-8901', agentName: 'Vince Vazquez', preview: 'Duration: 0:45', timestamp: ago(960), book: 'RPI', accountType: 'Annuity', status: 'missed' },
-  { id: '15', type: 'email', direction: 'outbound', contactName: 'William Robinson', contactDetail: 'w.robinson@aol.com', agentName: 'Josh Millang', preview: 'Attached is the comparison of the three FIA products we discussed.', subject: 'FIA Product Comparison — Athene vs. Nationwide vs. Global Atlantic', timestamp: ago(1100), book: 'Gradient', accountType: 'Annuity', status: 'delivered' },
-  { id: '16', type: 'sms', direction: 'inbound', contactName: 'Margaret Walker', contactDetail: '(515) 555-2468', agentName: 'Nikki Gray', preview: 'Got it, thanks! I\'ll sign the DocuSign tonight.', timestamp: ago(1260), book: 'RPI', accountType: 'Life', status: 'read' },
-  { id: '17', type: 'voice', direction: 'outbound', contactName: 'Charles Hall', contactDetail: '(515) 555-1357', agentName: 'Matt McCormick', preview: 'Duration: 22:10', timestamp: ago(1440), book: 'McCormick', accountType: 'Advisory', status: 'answered' },
-  { id: '18', type: 'email', direction: 'inbound', contactName: 'Elizabeth Young', contactDetail: 'eyoung@icloud.com', agentName: 'Angelique', preview: 'My husband and I would like to set up a joint meeting to discuss our retirement income strategy.', subject: 'Meeting Request — Retirement Income Planning', timestamp: ago(1600), book: 'Sprenger', accountType: 'Advisory', status: 'read' },
-  { id: '19', type: 'sms', direction: 'outbound', contactName: 'Joseph King', contactDetail: '(515) 555-9753', agentName: 'Vince Vazquez', preview: 'Joe, great news — your MAPD application was approved! Your new plan starts April 1st.', timestamp: ago(1800), book: 'RPI', accountType: 'Medicare', status: 'delivered' },
-  { id: '20', type: 'voice', direction: 'inbound', contactName: 'Karen Wright', contactDetail: '(515) 555-8642', agentName: 'Nikki Gray', preview: 'Duration: 6:55', timestamp: ago(2000), book: 'Gradient', accountType: 'Life', status: 'answered' },
-]
+function docToEntry(doc: CommDoc): CommEntry {
+  return {
+    id: doc._id || doc.comm_id || '',
+    type: mapChannelToType(doc.channel),
+    direction: (doc.direction === 'inbound' ? 'inbound' : 'outbound'),
+    contactName: doc.recipient || 'Unknown',
+    contactDetail: doc.recipient || '',
+    agentName: doc.sent_by || '',
+    preview: doc.body || (doc.channel === 'voice' && doc.duration ? `Duration: ${Math.floor(doc.duration / 60)}:${String(doc.duration % 60).padStart(2, '0')}` : ''),
+    subject: doc.subject,
+    timestamp: doc.created_at ? new Date(doc.created_at) : new Date(),
+    book: '',
+    accountType: '',
+    status: mapStatus(doc.status),
+  }
+}
 
 /* ─── Helpers ─── */
 
 function formatRelativeTime(date: Date): string {
+  const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const mins = Math.floor(diffMs / 60000)
   if (mins < 1) return 'Just now'
@@ -94,8 +116,26 @@ export function CommsFeed() {
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
+  /** TODO: Replace with real auth context user name in Sprint 10 */
+  const CURRENT_USER = 'Josh Millang'
+
+  // Live Firestore query — communications ordered by created_at desc, limit 50
+  const commsQuery = useMemo(() => {
+    try {
+      const db = getDb()
+      return query(collection(db, 'communications'), orderBy('created_at', 'desc'), limit(50))
+    } catch {
+      return null
+    }
+  }, [])
+
+  const { data: rawDocs, loading: commsLoading } = useCollection<CommDoc>(commsQuery, 'comms-feed')
+
+  // Map Firestore docs to CommEntry
+  const allComms = useMemo(() => rawDocs.map(docToEntry), [rawDocs])
+
   const filteredComms = useMemo(() => {
-    return MOCK_COMMS.filter((c) => {
+    return allComms.filter((c) => {
       // Channel filter
       if (channelFilter !== 'all' && c.type !== channelFilter) return false
       // Direction filter
@@ -117,7 +157,7 @@ export function CommsFeed() {
       }
       return true
     })
-  }, [search, channelFilter, directionFilter, scopeFilter])
+  }, [search, channelFilter, directionFilter, scopeFilter, allComms, CURRENT_USER])
 
   const channelPills: Array<{ key: ChannelFilter; label: string }> = [
     { key: 'all', label: 'All' },
@@ -196,7 +236,12 @@ export function CommsFeed() {
 
       {/* Feed */}
       <div className="flex-1 overflow-y-auto">
-        {filteredComms.length > 0 ? (
+        {commsLoading ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="material-icons-outlined animate-spin text-3xl text-[var(--text-muted)]">sync</span>
+            <p className="mt-3 text-sm text-[var(--text-muted)]">Loading communications...</p>
+          </div>
+        ) : filteredComms.length > 0 ? (
           <div className="space-y-0">
             {filteredComms.map((entry) => {
               const isExpanded = expandedId === entry.id
@@ -302,14 +347,14 @@ export function CommsFeed() {
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <span className="material-icons-outlined text-4xl text-[var(--text-muted)]">forum</span>
             <p className="mt-3 text-sm font-medium text-[var(--text-secondary)]">No communications found</p>
-            <p className="mt-1 text-xs text-[var(--text-muted)]">Try adjusting your filters</p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">{allComms.length === 0 ? 'No communications logged yet' : 'Try adjusting your filters'}</p>
           </div>
         )}
       </div>
 
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-[var(--border-subtle)] px-4 py-3">
-        <span className="text-xs text-[var(--text-muted)]">{filteredComms.length} of {MOCK_COMMS.length} entries</span>
+        <span className="text-xs text-[var(--text-muted)]">{filteredComms.length} of {allComms.length} entries</span>
         <button className="flex items-center gap-1 text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]">
           Load More
           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>expand_more</span>
