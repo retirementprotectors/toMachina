@@ -671,6 +671,9 @@ prozoneRoutes.get('/scorecard', async (req: Request, res: Response) => {
       startDate.setDate(now.getDate() - now.getDay()) // Start of week (Sunday)
     } else if (timeline === 'month') {
       startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+    } else if (timeline === 'r12') {
+      startDate = new Date(now)
+      startDate.setMonth(now.getMonth() - 12)
     } else if (timeline === 'year') {
       startDate = new Date(now.getFullYear(), 0, 1)
     }
@@ -784,7 +787,7 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
       chunks.push(countyNames.slice(i, i + 30))
     }
 
-    const clientIds: string[] = []
+    const clientDocs: Array<{ id: string; fn: string; ln: string; acctTypes: string }> = []
     for (const chunk of chunks) {
       const snap = await db.collection('clients')
         .where('state', '==', state)
@@ -795,7 +798,12 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
         const d = doc.data()
         const st = (d.client_status as string) || ''
         if (st === 'Active' || st === 'Active - Internal') {
-          clientIds.push(doc.id)
+          clientDocs.push({
+            id: doc.id,
+            fn: (d.first_name as string) || '',
+            ln: (d.last_name as string) || '',
+            acctTypes: ((d.account_types as string) || '').toLowerCase(),
+          })
         }
       }
     }
@@ -811,21 +819,30 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
       existingKeys.add(d.entity_id + '__' + d.pipeline_key)
     }
 
-    const pipelineKey = body.domain || 'PROSPECT_RETIREMENT'
+    const domainOverride = body.domain || ''
     const now = new Date().toISOString()
     let enrolled = 0
+    let alreadyEnrolled = 0
     let pending: Array<{ ref: FirebaseFirestore.DocumentReference; data: Record<string, unknown> }> = []
 
-    for (const cid of clientIds) {
-      if (existingKeys.has(cid + '__' + pipelineKey)) continue
+    for (const cd of clientDocs) {
+      // Route pipeline by account_types unless explicit domain override
+      let pKey = domainOverride || 'PROSPECT_RETIREMENT'
+      if (!domainOverride) {
+        if (cd.acctTypes.includes('medicare')) pKey = 'PROSPECT_MEDICARE'
+        else if (cd.acctTypes.includes('life') || cd.acctTypes.includes('annuity')) pKey = 'PROSPECT_RETIREMENT'
+      }
+      if (existingKeys.has(cd.id + '__' + pKey)) { alreadyEnrolled++; continue }
 
       const ref = db.collection('flow_instances').doc()
       pending.push({
         ref,
         data: {
-          instance_id: ref.id, pipeline_key: pipelineKey,
-          entity_id: cid, entity_type: 'CLIENT', entity_name: '',
+          instance_id: ref.id, pipeline_key: pKey,
+          entity_id: cd.id, entity_type: 'CLIENT',
+          entity_name: [cd.fn, cd.ln].filter(Boolean).join(' '),
           current_stage: 'new', stage_status: 'pending', priority: 'MEDIUM',
+          specialist_id: specialistId,
           assigned_to: (config.specialist_email as string) || '',
           created_at: now, updated_at: now,
         },
@@ -846,7 +863,7 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
       await batch.commit()
     }
 
-    res.json(successResponse({ enrolled, pipeline: pipelineKey }))
+    res.json(successResponse({ enrolled, already_enrolled: alreadyEnrolled, total: clientDocs.length }))
   } catch (err) {
     res.status(500).json(errorResponse(String(err)))
   }

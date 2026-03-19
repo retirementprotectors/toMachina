@@ -21,6 +21,7 @@ const TIMELINE_OPTIONS = [
   { key: 'week', label: 'This Week' },
   { key: 'month', label: 'This Month' },
   { key: 'year', label: 'Year' },
+  { key: 'r12', label: 'R12' },
   { key: 'all', label: 'ALL' },
 ] as const
 

@@ -66,10 +66,12 @@ interface DraftZone {
   zone_name: string
   resolution_type: 'county' | 'zip'
   assignedCounties: string[]
+  zipOverrides: string[] // ZIP codes that override county-level assignment into this zone
 }
 
 interface TerritoryBuilderProps {
   portal: 'prodashx' | 'riimo' | 'sentinel'
+  initialTerritoryId?: string
 }
 
 type View = 'list' | 'editor'
@@ -86,12 +88,12 @@ function generateZoneId(): string {
 // Main Component
 // ============================================================================
 
-export default function TerritoryBuilder({ portal }: TerritoryBuilderProps) {
-  const [view, setView] = useState<View>('list')
+export default function TerritoryBuilder({ portal, initialTerritoryId }: TerritoryBuilderProps) {
+  const [view, setView] = useState<View>(initialTerritoryId ? 'editor' : 'list')
   const [territories, setTerritories] = useState<TerritoryRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(initialTerritoryId || null)
 
   // ------------------------------------------------------------------
   // Fetch territory list
@@ -349,12 +351,16 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
           setStatus(t.territory_status)
 
           // Rebuild draft zones from API data
-          const draftZones: DraftZone[] = (t.zones || []).map((z) => ({
-            zone_id: z.zone_id,
-            zone_name: z.zone_name,
-            resolution_type: z.resolution_type || 'county',
-            assignedCounties: (z.assignments || []).map((a) => a.county),
-          }))
+          const draftZones: DraftZone[] = (t.zones || []).map((z) => {
+            const raw = z as TerritoryZone & { zip_assignments?: Array<{ zip: string }> }
+            return {
+              zone_id: z.zone_id,
+              zone_name: z.zone_name,
+              resolution_type: z.resolution_type || 'county',
+              assignedCounties: (z.assignments || []).map((a) => a.county),
+              zipOverrides: (raw.zip_assignments || []).map((za) => za.zip),
+            }
+          })
           setZones(draftZones)
           if (draftZones.length > 0) {
             setExpandedZone(draftZones[0].zone_id)
@@ -408,6 +414,7 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
       zone_name: `Zone ${zones.length + 1}`,
       resolution_type: 'county',
       assignedCounties: [],
+      zipOverrides: [],
     }
     setZones((prev) => [...prev, newZone])
     setExpandedZone(newZone.zone_id)
@@ -450,6 +457,30 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
     })
   }, [])
 
+  // Add a ZIP override to a zone
+  const handleAddZipOverride = useCallback((zoneId: string, zip: string) => {
+    const trimmed = zip.trim()
+    if (!trimmed || !/^\d{5}$/.test(trimmed)) return
+    setZones((prev) =>
+      prev.map((z) =>
+        z.zone_id === zoneId && !z.zipOverrides.includes(trimmed)
+          ? { ...z, zipOverrides: [...z.zipOverrides, trimmed] }
+          : z
+      )
+    )
+  }, [])
+
+  // Remove a ZIP override from a zone
+  const handleRemoveZipOverride = useCallback((zoneId: string, zip: string) => {
+    setZones((prev) =>
+      prev.map((z) =>
+        z.zone_id === zoneId
+          ? { ...z, zipOverrides: z.zipOverrides.filter((zp) => zp !== zip) }
+          : z
+      )
+    )
+  }, [])
+
   // Move all unassigned to a zone
   const handleAssignAllUnassigned = useCallback((zoneId: string) => {
     setZones((prev) => {
@@ -490,6 +521,7 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
         zone_name: z.zone_name,
         resolution_type: z.resolution_type,
         assignments: z.assignedCounties.map((county) => ({ county, zone_id: z.zone_id })),
+        zip_assignments: z.zipOverrides.map((zip) => ({ zip, zone_id: z.zone_id })),
       }))
 
       const payload = {
@@ -755,6 +787,8 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
                       onSearchChange={setCountySearch}
                       onToggleCounty={handleToggleCounty}
                       onAssignAllUnassigned={handleAssignAllUnassigned}
+                      onAddZipOverride={handleAddZipOverride}
+                      onRemoveZipOverride={handleRemoveZipOverride}
                     />
                   )}
                 </div>
@@ -863,6 +897,8 @@ interface CountyAssignmentPanelProps {
   onSearchChange: (q: string) => void
   onToggleCounty: (county: string, zoneId: string) => void
   onAssignAllUnassigned: (zoneId: string) => void
+  onAddZipOverride: (zoneId: string, zip: string) => void
+  onRemoveZipOverride: (zoneId: string, zip: string) => void
 }
 
 function CountyAssignmentPanel({
@@ -874,7 +910,10 @@ function CountyAssignmentPanel({
   onSearchChange,
   onToggleCounty,
   onAssignAllUnassigned,
+  onAddZipOverride,
+  onRemoveZipOverride,
 }: CountyAssignmentPanelProps) {
+  const [zipInput, setZipInput] = useState('')
   return (
     <div className="border-t border-[var(--border-subtle)] p-4">
       {/* Search + Bulk Actions */}
@@ -960,6 +999,71 @@ function CountyAssignmentPanel({
       <div className="mt-3 flex items-center gap-2 text-xs text-[var(--text-muted)]">
         <span className="material-icons-outlined" style={{ fontSize: '14px' }}>check_circle</span>
         {zone.assignedCounties.length} of {IOWA_COUNTIES.length} counties assigned to {zone.zone_name}
+      </div>
+
+      {/* ZIP Override Section */}
+      <div className="mt-4 border-t border-[var(--border-subtle)] pt-4">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>pin_drop</span>
+          <span className="text-xs font-medium text-[var(--text-secondary)]">ZIP Overrides</span>
+          <span className="text-[10px] text-[var(--text-muted)]">
+            (ZIP-level assignments take priority over county)
+          </span>
+        </div>
+
+        {/* Add ZIP input */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={zipInput}
+            onChange={(e) => setZipInput(e.target.value.replace(/\D/g, '').slice(0, 5))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && zipInput.length === 5) {
+                onAddZipOverride(zone.zone_id, zipInput)
+                setZipInput('')
+              }
+            }}
+            placeholder="Enter 5-digit ZIP..."
+            maxLength={5}
+            className="h-8 w-32 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 text-xs tabular-nums text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-sky-500 focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (zipInput.length === 5) {
+                onAddZipOverride(zone.zone_id, zipInput)
+                setZipInput('')
+              }
+            }}
+            disabled={zipInput.length !== 5}
+            className="flex h-8 items-center gap-1 rounded-lg px-2.5 text-[11px] font-medium text-white transition-colors disabled:opacity-40"
+            style={{ backgroundColor: 'var(--app-prozone, #0ea5e9)' }}
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
+            Add
+          </button>
+        </div>
+
+        {/* ZIP pill list */}
+        {zone.zipOverrides.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {zone.zipOverrides.map((zip) => (
+              <span
+                key={zip}
+                className="inline-flex items-center gap-1 rounded-full bg-sky-500/10 px-2.5 py-0.5 text-[10px] font-medium tabular-nums text-sky-400"
+              >
+                {zip}
+                <button
+                  type="button"
+                  onClick={() => onRemoveZipOverride(zone.zone_id, zip)}
+                  className="ml-0.5 rounded-full transition-colors hover:text-red-400"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>close</span>
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -44,10 +44,14 @@ export default function ProspectRow({ prospect, onCallClick }: ProspectRowProps)
         </span>
       </span>
 
-      {/* Name */}
-      <span className="min-w-[140px] text-sm font-medium text-[var(--text-primary)] truncate">
+      {/* Name — click navigates to contact detail */}
+      <a
+        href={`/contacts/${prospect.client_id}`}
+        onClick={(e) => { e.stopPropagation() }}
+        className="min-w-[140px] text-sm font-medium text-[var(--text-primary)] truncate hover:underline hover:text-[var(--portal)]"
+      >
         {prospect.first_name} {prospect.last_name}
-      </span>
+      </a>
 
       {/* Location */}
       <span className="min-w-[120px] text-xs text-[var(--text-muted)] truncate">

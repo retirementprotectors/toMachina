@@ -17,6 +17,7 @@ import type {
 interface TargetTabProps {
   portal: string
   specialistId: string | null
+  onCallClick?: (prospect: ProspectWithInventory) => void
 }
 
 // ─── Flat prospect: zone info attached ───
@@ -78,7 +79,7 @@ const BRAND = 'var(--app-prozone, #0ea5e9)'
 // ─── Page sizes ───
 const PAGE_SIZES = [25, 50, 100] as const
 
-export default function TargetTab({ portal: _portal, specialistId }: TargetTabProps) {
+export default function TargetTab({ portal: _portal, specialistId, onCallClick }: TargetTabProps) {
   // ─── Data state ───
   const [zones, setZones] = useState<ZoneWithProspects[]>([])
   const [totalProspects, setTotalProspects] = useState(0)
@@ -92,6 +93,9 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
   const [zoneFilter, setZoneFilter] = useState<string>('all')
   const [flaggedOnly, setFlaggedOnly] = useState(false)
   const [meetingFilter, setMeetingFilter] = useState<string>('all')
+  const [stageFilter, setStageFilter] = useState<string>('all')
+  const [ageMin, setAgeMin] = useState<string>('')
+  const [ageMax, setAgeMax] = useState<string>('')
 
   // ─── View state ───
   const [viewMode, setViewMode] = useState<'grid' | 'zones'>('grid')
@@ -180,6 +184,15 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
     return zones.map((z) => ({ id: z.zone_id, name: z.zone_name, tier: z.tier }))
   }, [zones])
 
+  // ─── Extract distinct pipeline stages for filter dropdown ───
+  const stageOptions = useMemo(() => {
+    const stages = new Set<string>()
+    for (const p of flatProspects) {
+      if (p.pipeline?.stage) stages.add(p.pipeline.stage)
+    }
+    return Array.from(stages).sort()
+  }, [flatProspects])
+
   // ─── Apply filters ───
   const filtered = useMemo(() => {
     let result = flatProspects
@@ -215,8 +228,27 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
       result = result.filter((p) => p.meeting_type === meetingFilter)
     }
 
+    // Stage filter
+    if (stageFilter !== 'all') {
+      if (stageFilter === 'none') {
+        result = result.filter((p) => !p.pipeline)
+      } else {
+        result = result.filter((p) => p.pipeline?.stage === stageFilter)
+      }
+    }
+
+    // Age range filter
+    const minAge = ageMin ? parseInt(ageMin) : null
+    const maxAge = ageMax ? parseInt(ageMax) : null
+    if (minAge !== null && !isNaN(minAge)) {
+      result = result.filter((p) => p.age !== null && p.age >= minAge)
+    }
+    if (maxAge !== null && !isNaN(maxAge)) {
+      result = result.filter((p) => p.age !== null && p.age <= maxAge)
+    }
+
     return result
-  }, [flatProspects, search, tierFilter, zoneFilter, flaggedOnly, meetingFilter])
+  }, [flatProspects, search, tierFilter, zoneFilter, flaggedOnly, meetingFilter, stageFilter, ageMin, ageMax])
 
   // ─── Apply sorting ───
   const sorted = useMemo(() => {
@@ -250,9 +282,11 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
 
   // ─── Filter zones for accordion view ───
   const filteredZones = useMemo((): ZoneWithProspects[] => {
-    if (tierFilter === 'all' && zoneFilter === 'all' && !flaggedOnly && meetingFilter === 'all') {
-      return zones
-    }
+    const minAge = ageMin ? parseInt(ageMin) : null
+    const maxAge = ageMax ? parseInt(ageMax) : null
+    const hasFilters = tierFilter !== 'all' || zoneFilter !== 'all' || flaggedOnly || meetingFilter !== 'all' || stageFilter !== 'all' || (minAge !== null && !isNaN(minAge)) || (maxAge !== null && !isNaN(maxAge))
+    if (!hasFilters) return zones
+
     return zones
       .filter((z) => {
         if (tierFilter !== 'all' && z.tier !== tierFilter) return false
@@ -263,10 +297,16 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
         let prospects = z.prospects
         if (flaggedOnly) prospects = prospects.filter((p) => p.flags.length > 0)
         if (meetingFilter !== 'all') prospects = prospects.filter((p) => p.meeting_type === meetingFilter)
+        if (stageFilter !== 'all') {
+          if (stageFilter === 'none') prospects = prospects.filter((p) => !p.pipeline)
+          else prospects = prospects.filter((p) => p.pipeline?.stage === stageFilter)
+        }
+        if (minAge !== null && !isNaN(minAge)) prospects = prospects.filter((p) => p.age !== null && p.age >= minAge)
+        if (maxAge !== null && !isNaN(maxAge)) prospects = prospects.filter((p) => p.age !== null && p.age <= maxAge)
         return { ...z, prospects, prospect_count: prospects.length }
       })
       .filter((z) => z.prospect_count > 0)
-  }, [zones, tierFilter, zoneFilter, flaggedOnly, meetingFilter])
+  }, [zones, tierFilter, zoneFilter, flaggedOnly, meetingFilter, stageFilter, ageMin, ageMax])
 
   // ─── Handlers ───
   const resetPage = useCallback(() => setPage(0), [])
@@ -450,6 +490,42 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
           <option value="office">Office</option>
           <option value="none">None</option>
         </select>
+
+        {/* Stage filter dropdown */}
+        <select
+          value={stageFilter}
+          onChange={(e) => {
+            setStageFilter(e.target.value)
+            resetPage()
+          }}
+          className="h-8 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 text-sm text-[var(--text-primary)] focus:border-sky-500 focus:outline-none"
+        >
+          <option value="all">All Stages</option>
+          <option value="none">No Pipeline</option>
+          {stageOptions.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+
+        {/* Age range inputs */}
+        <div className="flex items-center gap-1">
+          <span className="text-[10px] text-[var(--text-muted)]">Age</span>
+          <input
+            type="number"
+            placeholder="Min"
+            value={ageMin}
+            onChange={(e) => { setAgeMin(e.target.value); resetPage() }}
+            className="h-8 w-14 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 text-sm tabular-nums text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-sky-500 focus:outline-none"
+          />
+          <span className="text-[10px] text-[var(--text-muted)]">&ndash;</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={ageMax}
+            onChange={(e) => { setAgeMax(e.target.value); resetPage() }}
+            className="h-8 w-14 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 text-sm tabular-nums text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-sky-500 focus:outline-none"
+          />
+        </div>
 
         <div className="flex-1" />
 
@@ -733,7 +809,19 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
                         {/* Phone */}
                         {col('phone') && (
                           <td className="px-3 py-2.5 text-xs text-[var(--text-secondary)] whitespace-nowrap">
-                            {prospect.phone || '\u2014'}
+                            <div className="flex items-center gap-1.5">
+                              <span>{prospect.phone || '\u2014'}</span>
+                              {prospect.phone && onCallClick && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); onCallClick(prospect) }}
+                                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-emerald-500/10"
+                                  title={`Call ${prospect.first_name} ${prospect.last_name}`}
+                                >
+                                  <span className="material-icons-outlined text-emerald-400" style={{ fontSize: '14px' }}>call</span>
+                                </button>
+                              )}
+                            </div>
                           </td>
                         )}
 
@@ -839,6 +927,7 @@ export default function TargetTab({ portal: _portal, specialistId }: TargetTabPr
                 isOpen={openZones.has(zone.zone_id)}
                 onToggle={() => toggleZone(zone.zone_id)}
                 searchQuery={search}
+                onCallClick={onCallClick}
               />
             ))
           )}

@@ -129,23 +129,39 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
       // Log failure is non-blocking
     }
 
-    // TRK-13539: Disposition → pipeline stage advancement
-    // booked → advance to "booked" stage, not_interested → advance to "closed"
-    if (outcome === 'booked' || outcome === 'not_interested') {
-      try {
-        // Look up active flow_instance for this client
-        const fiRes = await fetchWithAuth(
-          `/api/flow/instances?entity_id=${prospect.client_id}&entity_type=CLIENT`
+    // TRK-13539: Disposition → pipeline stage advancement + activity logging
+    try {
+      // Look up active flow_instance for this client
+      const fiRes = await fetchWithAuth(
+        `/api/flow/instances?entity_id=${prospect.client_id}&entity_type=CLIENT`
+      )
+      const fiJson = await fiRes.json() as {
+        success: boolean
+        data?: Array<{ id: string; stage_status: string; pipeline_key: string }>
+      }
+      if (fiJson.success && fiJson.data) {
+        const activeInstance = fiJson.data.find(
+          (i) => i.stage_status === 'pending' || i.stage_status === 'in_progress'
         )
-        const fiJson = await fiRes.json() as {
-          success: boolean
-          data?: Array<{ id: string; stage_status: string; pipeline_key: string }>
-        }
-        if (fiJson.success && fiJson.data) {
-          const activeInstance = fiJson.data.find(
-            (i) => i.stage_status === 'pending' || i.stage_status === 'in_progress'
-          )
-          if (activeInstance) {
+        if (activeInstance) {
+          // Log flow activity for ALL outcomes
+          try {
+            await fetchWithAuth('/api/flow/activity', {
+              method: 'POST',
+              body: JSON.stringify({
+                instance_id: activeInstance.id,
+                action_type: 'call_disposition',
+                description: `Call outcome: ${outcome}${notes ? ` — ${notes}` : ''}`,
+                performed_by: 'prozone-callpanel',
+                metadata: { outcome, duration: elapsed },
+              }),
+            })
+          } catch {
+            // Activity logging failure is non-blocking
+          }
+
+          // Stage advancement for booked / not_interested
+          if (outcome === 'booked' || outcome === 'not_interested') {
             const targetStage = outcome === 'booked' ? 'booked' : 'closed'
             await fetchWithAuth(`/api/flow/instances/${activeInstance.id}`, {
               method: 'PATCH',
@@ -157,9 +173,9 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
             })
           }
         }
-      } catch {
-        // Pipeline advancement failure is non-blocking
       }
+    } catch {
+      // Pipeline operations are non-blocking
     }
 
     onDispositioned({

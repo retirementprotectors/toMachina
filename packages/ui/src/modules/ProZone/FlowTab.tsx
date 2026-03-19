@@ -40,7 +40,7 @@ export default function FlowTab({ portal, specialistId }: FlowTabProps) {
       const promises = DOMAINS.map(async (domain) => {
         try {
           const res = await fetchWithAuth(
-            `/api/flow/instances?pipeline_key=${domain.key}`
+            `/api/flow/instances?pipeline_key=${domain.key}&specialist_id=${specialistId}`
           )
           const json = await res.json() as { success: boolean; data?: Array<Record<string, unknown>> }
           if (json.success && json.data) {

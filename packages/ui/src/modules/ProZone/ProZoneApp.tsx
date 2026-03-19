@@ -212,8 +212,8 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
           {/* Tab Content */}
           <div className="min-h-[200px]">
             {activeTab === 'team' && <TeamTab portal={portal} specialistId={selectedId} />}
-            {activeTab === 'market' && <MarketTab portal={portal} />}
-            {activeTab === 'target' && <TargetTab portal={portal} specialistId={selectedId} />}
+            {activeTab === 'market' && <MarketTab portal={portal} territoryId={selected?.territory_id} />}
+            {activeTab === 'target' && <TargetTab portal={portal} specialistId={selectedId} onCallClick={setCallTarget} />}
             {activeTab === 'flow' && <FlowTab portal={portal} specialistId={selectedId} />}
             {activeTab === 'inventory' && <InventoryTab portal={portal} specialists={specialists} selectedId={selectedId} />}
           </div>

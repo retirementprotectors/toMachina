@@ -8,9 +8,18 @@ import type { ScheduleSlot, WeekSchedule } from './types'
 // ScheduleView — Weekly grid (Mon-Fri) with office/field day distinction
 // ============================================================================
 
+interface AppointmentSlot {
+  date: string
+  time: string
+  client_name: string
+  client_id: string
+  meeting_type?: 'office' | 'field'
+}
+
 interface ScheduleViewProps {
   specialistId: string
   portal: string
+  appointments?: AppointmentSlot[]
 }
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri'] as const
@@ -58,7 +67,7 @@ function getWeekLabel(year: number, week: number): string {
   return `${fmt(monday)} – ${fmt(friday)}, ${year}`
 }
 
-export default function ScheduleView({ specialistId }: ScheduleViewProps) {
+export default function ScheduleView({ specialistId, appointments = [] }: ScheduleViewProps) {
   const now = useMemo(() => new Date(), [])
   const currentWeek = useMemo(() => getISOWeek(now), [now])
 
@@ -128,6 +137,15 @@ export default function ScheduleView({ specialistId }: ScheduleViewProps) {
     setYear(newYear)
     setWeek(newWeek)
   }, [week, year])
+
+  // Build appointment lookup: date → time → appointment
+  const appointmentMap = useMemo(() => {
+    const map = new Map<string, AppointmentSlot>()
+    for (const appt of appointments) {
+      map.set(`${appt.date}__${appt.time}`, appt)
+    }
+    return map
+  }, [appointments])
 
   // Group slots by day
   const slotsByDay = useMemo(() => {
@@ -275,6 +293,19 @@ export default function ScheduleView({ specialistId }: ScheduleViewProps) {
                             </span>
                           )}
                         </div>
+                        {/* Booked appointment display */}
+                        {(() => {
+                          const slotDate = slot.slot_id.split('-').slice(0, 3).join('-')
+                          const appt = appointmentMap.get(`${slotDate}__${slot.start_time}`)
+                          if (!appt) return null
+                          return (
+                            <div className="mt-1 rounded bg-emerald-500/10 px-1.5 py-0.5">
+                              <p className="truncate text-[9px] font-medium text-emerald-400">
+                                {appt.client_name}
+                              </p>
+                            </div>
+                          )
+                        })()}
                       </div>
                     )
                   })
