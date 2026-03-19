@@ -243,7 +243,39 @@ async function main() {
     throw err
   }
 
-  console.log('BigQuery table found. Running forensic queries...\n')
+  console.log('BigQuery table found. Detecting monitoring window...\n')
+
+  // Detect monitoring window
+  let windowStart = 'unknown'
+  let windowEnd = 'unknown'
+  let windowDays = 0
+  let totalChanges = 0
+  try {
+    const [windowRows] = await bq.query({
+      query: `SELECT MIN(timestamp) as earliest, MAX(timestamp) as latest, COUNT(*) as total_changes FROM ${FULL_TABLE}`
+    })
+    if (windowRows.length > 0) {
+      const row = windowRows[0] as Record<string, { value?: string } | number>
+      const earliest = row.earliest
+      const latest = row.latest
+      windowStart = earliest && typeof earliest === 'object' && earliest.value
+        ? new Date(earliest.value).toISOString().split('T')[0]
+        : String(earliest || 'unknown')
+      windowEnd = latest && typeof latest === 'object' && latest.value
+        ? new Date(latest.value).toISOString().split('T')[0]
+        : String(latest || 'unknown')
+      totalChanges = Number(row.total_changes) || 0
+      if (windowStart !== 'unknown' && windowEnd !== 'unknown') {
+        windowDays = Math.ceil((new Date(windowEnd).getTime() - new Date(windowStart).getTime()) / 86400000)
+      }
+    }
+  } catch { /* non-fatal */ }
+
+  console.log(`  MONITORING WINDOW: ${windowStart} to ${windowEnd} (${windowDays} days)`)
+  console.log(`  Total changes recorded: ${totalChanges}`)
+  console.log(`  ⚠ Changes before ${windowStart} are NOT visible.\n`)
+
+  console.log('Running forensic queries...\n')
 
   const queries = [
     charterNaicDestruction,
@@ -278,12 +310,14 @@ async function main() {
 
   let totalIssues = 0
   for (const r of results) {
-    const status = r.count === 0 ? 'CLEAN' : `${r.count} found`
+    const status = r.count === 0 ? `NO ISSUES IN WINDOW (${windowStart} to ${windowEnd})` : `${r.count} found`
     console.log(`  ${r.title.split('(')[0].trim().padEnd(45)} ${status}`)
     totalIssues += r.count
   }
 
-  console.log(`\n  Total issues: ${totalIssues}`)
+  console.log(`\n  Total issues in window: ${totalIssues}`)
+  console.log(`\n  NOTE: These checks only cover changes recorded in BigQuery (${windowStart} to ${windowEnd}).`)
+  console.log('  For current-state structural analysis, run: npx tsx services/api/src/scripts/guardian-structural.ts')
   console.log('Done.')
 }
 
