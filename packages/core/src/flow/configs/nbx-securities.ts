@@ -1,7 +1,7 @@
 /**
- * NBX_SECURITIES pipeline config — Securities & Advisory (Gradient).
+ * NBX_INVESTMENTS pipeline config — Investments (Gradient).
  * Ported from archive/RAPID_FLOW/FLOW_DevTools.gs _seedNBXSecurities().
- * 7 stages, 7 workflows, 17 steps, 40 task templates, 3 gated stages.
+ * 7 stages, 7 workflows, 14 steps, 40 task templates, 3 gated stages.
  */
 import type {
   FlowPipelineDef,
@@ -11,16 +11,16 @@ import type {
   FlowTaskTemplateDef,
 } from '../types'
 
-const PK = 'NBX_SECURITIES'
+const PK = 'NBX_INVESTMENTS'
 const now = new Date().toISOString()
 
-export const NBX_SECURITIES_CONFIG = {
+export const NBX_INVESTMENTS_CONFIG = {
   pipeline: {
     pipeline_key: PK,
-    pipeline_name: 'NBX - Securities & Advisory',
-    description: 'New business processing for securities/advisory accounts (Gradient)',
+    pipeline_name: 'NBX - Investments',
+    description: 'New business processing for investment accounts (Gradient)',
     portal: 'PRODASHX',
-    domain: 'SECURITIES',
+    domain: 'INVESTMENTS',
     platform_carrier: 'GS_GWM_GI',
     product_type: 'TAMP',
     default_view: 'KANBAN',

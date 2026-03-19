@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProZONE UI/UX Overhaul — Build Plan</title>
+<style>
+  :root {
+    --bg: #0a0a0e;
+    --bg-card: #13131a;
+    --bg-hover: #1a1a24;
+    --bg-surface: #181822;
+    --border: #2a2a3a;
+    --text: #e8e8ef;
+    --text-dim: #8888a0;
+    --text-muted: #555566;
+    --prozone: #0ea5e9;
+    --prozone-dim: #0ea5e930;
+    --green: #40bc58;
+    --green-dim: #40bc5830;
+    --red: #e05555;
+    --yellow: #e0a030;
+    --purple: #a78bfa;
+    --purple-dim: #a78bfa30;
+    --orange: #f59e0b;
+    --cyan: #22d3ee;
+    --cyan-dim: #22d3ee20;
+  }
+  html { scroll-behavior: smooth; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+
+  .hero { background: linear-gradient(135deg, #0d1117 0%, #0c1929 50%, #0d1117 100%); border-bottom: 3px solid var(--prozone); padding: 48px; text-align: center; }
+  .hero h1 { font-size: 36px; font-weight: 800; letter-spacing: 0.04em; color: var(--prozone); }
+  .hero p { color: var(--text-dim); font-size: 16px; margin-top: 8px; }
+  .hero .badge { display: inline-block; margin-top: 16px; padding: 4px 16px; border-radius: 20px; background: var(--prozone-dim); color: var(--prozone); font-size: 12px; font-weight: 600; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px; }
+
+  .vision { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px 32px; margin-bottom: 40px; border-left: 4px solid var(--prozone); }
+  .vision p { color: var(--text-dim); font-size: 15px; }
+  .vision strong { color: var(--text); }
+
+  .architecture { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px 32px; margin-bottom: 40px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; color: var(--text-dim); white-space: pre; line-height: 1.8; overflow-x: auto; }
+
+  h2 { font-size: 22px; font-weight: 700; color: var(--text); margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h2 .phase-tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; margin-left: 12px; vertical-align: middle; }
+  .phase-1 { background: var(--prozone-dim); color: var(--prozone); }
+  .phase-2 { background: var(--purple-dim); color: var(--purple); }
+  .phase-3 { background: var(--cyan-dim); color: var(--cyan); }
+
+  h3 { font-size: 15px; font-weight: 600; color: var(--prozone); margin: 20px 0 8px; }
+
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+  .card .trk { font-size: 11px; font-weight: 700; color: var(--prozone); opacity: 0.7; letter-spacing: 0.05em; }
+  .card .title { font-size: 15px; font-weight: 600; color: var(--text); margin-top: 4px; }
+  .card .desc { font-size: 13px; color: var(--text-dim); margin-top: 8px; }
+  .card .file { font-size: 12px; font-family: 'SF Mono', monospace; color: var(--text-muted); margin-top: 8px; padding: 6px 10px; background: var(--bg-surface); border-radius: 6px; display: inline-block; }
+  .card .status-done { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px; background: #40bc5830; color: #40bc58; margin-left: 8px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th { text-align: left; padding: 8px 12px; background: var(--bg-surface); color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+  tr:hover td { background: var(--bg-hover); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  .tab-preview { display: flex; gap: 0; margin: 16px 0; }
+  .tab-pill { padding: 8px 20px; font-size: 13px; font-weight: 600; background: var(--bg-surface); color: var(--text-muted); border: 1px solid var(--border); cursor: default; }
+  .tab-pill:first-child { border-radius: 8px 0 0 8px; }
+  .tab-pill:last-child { border-radius: 0 8px 8px 0; }
+  .tab-pill.active { background: var(--prozone-dim); color: var(--prozone); border-color: var(--prozone); }
+
+  .verify-list { list-style: none; padding: 0; }
+  .verify-list li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-dim); }
+  .verify-list li::before { content: "[ ]"; font-family: monospace; color: var(--text-muted); margin-right: 10px; }
+
+  @media print { body { background: #fff; color: #000; } .hero { background: #f5f5f5; border-color: var(--prozone); } .card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>ProZONE</h1>
+  <p>UI/UX Overhaul &mdash; Tabbed Layout + Pipeline Integration</p>
+  <div class="badge">SPRINT-PROZONE-UX &bull; 15 Items &bull; 3 Phases &bull; 6 Builders</div>
+</div>
+
+<div class="container">
+
+<div class="vision">
+  <p><strong>ProZONE = Logic Engine + Pipeline in one.</strong> Territory intelligence tells you WHO to call, WHERE, and WHEN. The pipeline tracks what HAPPENED and what&rsquo;s NEXT. The UI puts both in the specialist&rsquo;s hands without switching apps.</p>
+</div>
+
+<div class="architecture">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+&#9474; [explore] ProZONE   [Specialist &#9660;]   [Timeline &#9660;] [&#9881;]  &#9474;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9508;
+&#9474; [Attempts: 142 / 100%] [Connected: 87 / 61%] [Booked: 34 / 24%] &#9474;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9508;
+&#9474; TEAM | MARKET | TARGET | FLOW | INVENTORY               &#9474;
+&#9500;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9508;
+&#9474;                   [Active Tab Content]                    &#9474;
+&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</div>
+
+<div class="tab-preview">
+  <div class="tab-pill">TEAM</div>
+  <div class="tab-pill">MARKET</div>
+  <div class="tab-pill active">TARGET</div>
+  <div class="tab-pill">FLOW</div>
+  <div class="tab-pill">INVENTORY</div>
+</div>
+
+<!-- ═══════════════ PHASE 1 ═══════════════ -->
+<h2>Phase 1: Foundation <span class="phase-tag phase-1">Sequential</span></h2>
+<p style="color:var(--text-dim); margin-bottom:16px">Builds the tabbed shell + scorecard. Unblocks all tab builders.</p>
+
+<div class="card">
+  <div class="trk">TRK-13532</div>
+  <div class="title">ProZoneApp Rewrite &mdash; Tabbed Layout (GUARDIAN Pattern)</div>
+  <div class="desc">5-tab UI: TEAM, MARKET, TARGET, FLOW, INVENTORY. Compact top bar with specialist dropdown + gear icon + timeline/team selectors. Scorecard always visible above tabs. Conditional tab content rendering. Types + index updates included.</div>
+  <div class="file">packages/ui/src/modules/ProZone/ProZoneApp.tsx &mdash; REWRITE</div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="trk">TRK-13530</div>
+    <div class="title">SCORECARD Component</div>
+    <div class="desc">3 StatCards: Attempts (raw + %), Connected (raw + %), Booked (raw + %). DEX pattern. Always visible above tabs.</div>
+    <div class="file">ProZoneScorecard.tsx &mdash; NEW</div>
+  </div>
+  <div class="card">
+    <div class="trk">TRK-13531</div>
+    <div class="title">Scorecard API Endpoint</div>
+    <div class="desc">GET /api/prozone/scorecard/:specialist_id. Queries communications collection. Timeline + team filters. Returns counts + percentages.</div>
+    <div class="file">services/api/src/routes/prozone.ts &mdash; ADD</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="trk">TRK-13541 <span class="status-done">DONE</span></div>
+    <div class="title">ProZONE Branding</div>
+    <div class="desc">Uppercase ZONE in APP_BRANDS, modules.ts, AdminPanel. Shipped commit dcc864e.</div>
+  </div>
+  <div class="card">
+    <div class="trk">TRK-13542 <span class="status-done">DONE</span></div>
+    <div class="title">Kill Gradient Header</div>
+    <div class="desc">Specialist dropdown in compact toolbar. Shipped commit dcc864e.</div>
+  </div>
+</div>
+
+<!-- ═══════════════ PHASE 2 ═══════════════ -->
+<h2>Phase 2: Tab Content <span class="phase-tag phase-2">5 Parallel Builders</span></h2>
+<p style="color:var(--text-dim); margin-bottom:16px">Each tab built in an isolated worktree. All depend on Phase 1 tabbed shell.</p>
+
+<div class="card">
+  <div class="trk">TRK-13533 &mdash; Builder 2</div>
+  <div class="title">Tab: TEAM &mdash; SpecialistConfigEditor</div>
+  <div class="desc">Thin wrapper rendering existing SpecialistConfigEditor.tsx inside tab content. Component already built. Permission gate: Owner/Executive edit, Leader+ view.</div>
+  <div class="file">TeamTab.tsx &mdash; NEW (~30 lines)</div>
+</div>
+
+<div class="card">
+  <div class="trk">TRK-13534 &mdash; Builder 3</div>
+  <div class="title">Tab: MARKET &mdash; TerritoryBuilder</div>
+  <div class="desc">Wrapper rendering existing TerritoryBuilder.tsx. Add ZIP-level zone override UI + specialist-to-territory assignment table. Territory map = FUTURE.</div>
+  <div class="file">MarketTab.tsx &mdash; NEW</div>
+</div>
+
+<div class="card">
+  <div class="trk">TRK-13535 + TRK-13536 &mdash; Builder 4</div>
+  <div class="title">Tab: TARGET &mdash; Contact Grid</div>
+  <div class="desc">&ldquo;Pick em / We&rsquo;ll Trim em!&rdquo; Flat sortable grid (Contacts Homepage pattern). 9 columns, 7 filters, column selector, row click &rarr; /contacts/{id}, phone icon &rarr; CallPanel. View toggle: Grid / Zone accordion.</div>
+  <div class="file">TargetGrid.tsx &mdash; NEW (~350 lines)</div>
+</div>
+
+<div class="card">
+  <div class="trk">TRK-13537 + TRK-13538 + TRK-13539 + TRK-13543 + TRK-13544 &mdash; Builder 5</div>
+  <div class="title">Tab: FLOW &mdash; Pipeline Integration</div>
+  <div class="desc">3 domain button cards (Retirement/Medicare/Legacy). Click &rarr; filtered KanbanBoard. Auto-enrollment API (POST /api/prozone/enroll). CallPanel disposition wires to pipeline stage advancement. Specialist filter on flow_instances.</div>
+  <div class="file">FlowView.tsx &mdash; NEW (~200 lines)</div>
+</div>
+
+<div class="card">
+  <div class="trk">TRK-13540 &mdash; Builder 6</div>
+  <div class="title">Tab: INVENTORY &mdash; Schedule</div>
+  <div class="desc">Large SPC filter buttons (Arch/Shane/Matt/JDM). Loads ScheduleView.tsx (currently orphaned). Shows booked appointments in slots.</div>
+  <div class="file">InventoryView.tsx &mdash; NEW (~100 lines)</div>
+</div>
+
+<!-- ═══════════════ PHASE 3 ═══════════════ -->
+<h2>Phase 3: Assembly <span class="phase-tag phase-3">Sequential</span></h2>
+<p style="color:var(--text-dim); margin-bottom:16px">Merge worktrees, wire everything together, verify.</p>
+
+<h3>Builder Assignment Matrix</h3>
+<table>
+  <tr><th>Phase</th><th>Builder</th><th>Items</th><th>Isolation</th></tr>
+  <tr><td>1</td><td>Builder 1 (GA)</td><td>TRK-13530, 13531, 13532</td><td>main</td></tr>
+  <tr><td>2</td><td>Builder 2</td><td>TRK-13533</td><td>worktree</td></tr>
+  <tr><td>2</td><td>Builder 3</td><td>TRK-13534</td><td>worktree</td></tr>
+  <tr><td>2</td><td>Builder 4</td><td>TRK-13535, 13536</td><td>worktree</td></tr>
+  <tr><td>2</td><td>Builder 5</td><td>TRK-13537, 13538, 13539, 13543, 13544</td><td>worktree</td></tr>
+  <tr><td>2</td><td>Builder 6</td><td>TRK-13540</td><td>worktree</td></tr>
+  <tr><td>3</td><td>GA</td><td>Merge + verify</td><td>main</td></tr>
+</table>
+
+<h3>Critical Files</h3>
+<table>
+  <tr><th>File</th><th>Action</th><th>TRK</th></tr>
+  <tr><td>ProZoneApp.tsx</td><td>REWRITE</td><td>13532</td></tr>
+  <tr><td>ProZoneScorecard.tsx</td><td>NEW</td><td>13530</td></tr>
+  <tr><td>TeamTab.tsx</td><td>NEW</td><td>13533</td></tr>
+  <tr><td>MarketTab.tsx</td><td>NEW</td><td>13534</td></tr>
+  <tr><td>TargetGrid.tsx</td><td>NEW</td><td>13535, 13536</td></tr>
+  <tr><td>FlowView.tsx</td><td>NEW</td><td>13537, 13543</td></tr>
+  <tr><td>InventoryView.tsx</td><td>NEW</td><td>13540</td></tr>
+  <tr><td>CallPanel.tsx</td><td>MODIFY</td><td>13539</td></tr>
+  <tr><td>prozone.ts (API)</td><td>MODIFY</td><td>13531, 13538</td></tr>
+  <tr><td>flow.ts (API)</td><td>MODIFY</td><td>13544</td></tr>
+</table>
+
+<h3>Verification Checklist</h3>
+<ul class="verify-list">
+  <li>npm run type-check passes 13/13</li>
+  <li>ProZONE loads on all 3 portals with tabbed UI</li>
+  <li>Scorecard shows Attempts/Connected/Booked with timeline selector</li>
+  <li>TEAM tab renders SpecialistConfigEditor</li>
+  <li>MARKET tab renders TerritoryBuilder</li>
+  <li>TARGET tab shows flat contact grid, row click opens contact detail</li>
+  <li>TARGET phone icon opens CallPanel</li>
+  <li>FLOW tab shows 3 domain cards with instance counts</li>
+  <li>FLOW domain click opens filtered Kanban board</li>
+  <li>INVENTORY tab shows SPC buttons + ScheduleView</li>
+  <li>CallPanel disposition advances pipeline stage</li>
+  <li>Gear icon switches to TEAM tab</li>
+</ul>
+
+</div>
+
+<div style="text-align:center; padding:32px; color:var(--text-muted); font-size:12px; border-top:1px solid var(--border);">
+  ProZONE UI/UX Overhaul &mdash; SPRINT-PROZONE-UX &mdash; toMachina Platform &mdash; Retirement Protectors, Inc.
+</div>
+
+</body>
+</html>

@@ -15,7 +15,7 @@ function isLeaderOrAbove(userLevel: string): boolean {
 }
 
 const PIPELINE_ICONS: Record<string, string> = {
-  NBX_SECURITIES: 'account_balance',
+  NBX_INVESTMENTS: 'account_balance',
   NBX_ANNUITY: 'savings',
   NBX_LIFE: 'favorite',
   NBX_MEDICARE_MAPD: 'health_and_safety',

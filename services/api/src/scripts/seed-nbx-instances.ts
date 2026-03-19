@@ -1,5 +1,5 @@
 /**
- * Seed NBX_SECURITIES flow instances from real Gradient transition cases.
+ * Seed NBX_INVESTMENTS flow instances from real Gradient transition cases.
  *
  * Data source: The-Machine/nbx.html — the original NBX preview JDM built
  * with all 38 real Gradient Securities transition cases.
@@ -40,7 +40,7 @@ const clean = process.argv.includes('--clean')
 const INSTANCES = 'flow_instances'
 const TASKS = 'flow_instance_tasks'
 const ACTIVITY = 'flow_activity'
-const PK = 'NBX_SECURITIES'
+const PK = 'NBX_INVESTMENTS'
 
 // ============================================================================
 // Real Gradient Transition Cases (from The-Machine/nbx.html)
@@ -461,7 +461,7 @@ function custodianLabel(c: GradientCase['custodian']): string {
 // ============================================================================
 
 async function cleanExisting() {
-  console.log('Cleaning existing NBX_SECURITIES instances...')
+  console.log('Cleaning existing NBX_INVESTMENTS instances...')
 
   const collections = [INSTANCES, TASKS, ACTIVITY]
   let totalDeleted = 0

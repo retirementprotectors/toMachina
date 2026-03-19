@@ -144,7 +144,7 @@ const LEVEL_NAMES: Record<number, string> = { 0: 'Owner', 1: 'Executive', 2: 'Le
 
 /** Icon map for pipeline domain categories */
 const DOMAIN_ICONS: Record<string, string> = {
-  securities: 'trending_up',
+  investments: 'trending_up',
   life: 'shield',
   annuity: 'savings',
   medicare: 'health_and_safety',

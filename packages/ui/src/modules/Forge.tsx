@@ -221,10 +221,14 @@ export function Forge({ portal }: ForgeProps) {
   const [sortField, setSortField] = useState<string>('item_id')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [bulkStatus, setBulkStatus] = useState('')
-  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'dedup'>('grid')
+  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'sprint-detail' | 'dedup'>('grid')
   const [dedupGroups, setDedupGroups] = useState<Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }>>([])
   const [dedupLoading, setDedupLoading] = useState(false)
   const [reopeningSprintId, setReopeningSprintId] = useState<string | null>(null)
+  const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
+  const [sprintEditField, setSprintEditField] = useState<string | null>(null)
+  const [sprintEditValue, setSprintEditValue] = useState('')
+  const [auditRound, setAuditRound] = useState<{ round: number; passed: number; failed: number; pending: number } | null>(null)
   // Track selected field values per group: { groupIndex: { fieldKey: itemIndex } }
   const [dedupSelections, setDedupSelections] = useState<Record<number, Record<string, number>>>({})
   const [uploading, setUploading] = useState(false)
@@ -742,6 +746,57 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     } finally {
       setReopeningSprintId(null)
     }
+  }
+
+  const saveSprint = async (sprintId: string, updates: Record<string, unknown>) => {
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+      })
+      if (res.ok) {
+        await loadSprints()
+        showToast('Sprint updated', 'success')
+      }
+    } catch { /* silent */ }
+  }
+
+  const loadAuditRound = async (sprintId: string) => {
+    try {
+      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit-round`)
+      if (res.ok) {
+        const json = await res.json()
+        if (json.success) setAuditRound(json.data)
+        else setAuditRound(null)
+      } else {
+        setAuditRound(null)
+      }
+    } catch { setAuditRound(null) }
+  }
+
+  const openSprintDetail = (sprintId: string) => {
+    setSelectedSprintId(sprintId)
+    setSprintEditField(null)
+    setSprintEditValue('')
+    setAuditRound(null)
+    setView('sprint-detail')
+    loadAuditRound(sprintId)
+  }
+
+  const startSprintEdit = (field: string, currentValue: string) => {
+    setSprintEditField(field)
+    setSprintEditValue(currentValue || '')
+  }
+
+  const cancelSprintEdit = () => {
+    setSprintEditField(null)
+    setSprintEditValue('')
+  }
+
+  const commitSprintEdit = async (sprintId: string, field: string) => {
+    await saveSprint(sprintId, { [field]: sprintEditValue || null })
+    setSprintEditField(null)
+    setSprintEditValue('')
   }
 
   const unconfirmItem = async () => {
@@ -1338,6 +1393,315 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </div>
       )}
 
+      {/* ─── Sprint Detail View ─── */}
+      {view === 'sprint-detail' && (() => {
+        const sp = sprintCards.find(c => c.id === selectedSprintId)
+        if (!sp) return <div style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>Sprint not found</div>
+
+        const sprintItems = allItems.filter(i => i.sprint_id === sp.id)
+        const activeItems = sprintItems.filter(i => !['deferred', 'wont_fix'].includes(i.status))
+        const pct = sp.total > 0 ? Math.round((sp.confirmed / sp.total) * 100) : 0
+        const phaseConfig = PHASE_CONFIG[sp.phase]
+
+        const EditableField = ({ field, value, label, textarea, icon }: { field: string; value: string | null; label: string; textarea?: boolean; icon?: string }) => {
+          const isEditing = sprintEditField === field
+          return (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                {icon && <Icon name={icon} size={14} color={s.textMuted} />}
+                {label}
+              </div>
+              {isEditing ? (
+                <div style={{ display: 'flex', gap: 6, alignItems: textarea ? 'flex-start' : 'center' }}>
+                  {textarea ? (
+                    <textarea
+                      autoFocus
+                      value={sprintEditValue}
+                      onChange={(e) => setSprintEditValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') cancelSprintEdit()
+                      }}
+                      rows={3}
+                      style={{
+                        flex: 1, background: s.surface, border: `1px solid ${s.portal}`,
+                        borderRadius: 6, padding: '8px 10px', color: s.text, fontSize: 13,
+                        outline: 'none', resize: 'vertical',
+                      }}
+                    />
+                  ) : (
+                    <input
+                      autoFocus
+                      type="text"
+                      value={sprintEditValue}
+                      onChange={(e) => setSprintEditValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') commitSprintEdit(sp.id, field)
+                        if (e.key === 'Escape') cancelSprintEdit()
+                      }}
+                      style={{
+                        flex: 1, background: s.surface, border: `1px solid ${s.portal}`,
+                        borderRadius: 6, padding: '8px 10px', color: s.text, fontSize: 13,
+                        outline: 'none',
+                      }}
+                    />
+                  )}
+                  <button
+                    onClick={() => commitSprintEdit(sp.id, field)}
+                    style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: s.portal, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                  >Save</button>
+                  <button
+                    onClick={cancelSprintEdit}
+                    style={{ padding: '6px 12px', borderRadius: 6, border: `1px solid ${s.border}`, background: 'transparent', color: s.textSecondary, fontSize: 12, cursor: 'pointer' }}
+                  >Cancel</button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => startSprintEdit(field, value || '')}
+                  style={{
+                    padding: '8px 10px', borderRadius: 6, cursor: 'pointer',
+                    border: `1px solid transparent`, minHeight: textarea ? 60 : 'auto',
+                    color: value ? s.text : s.textMuted, fontSize: 13,
+                    transition: 'border-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = s.border; e.currentTarget.style.background = s.surface }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'transparent' }}
+                >
+                  {value || `Click to add ${label.toLowerCase()}...`}
+                </div>
+              )}
+            </div>
+          )
+        }
+
+        const LinkField = ({ field, value, label, icon }: { field: string; value: string | null; label: string; icon: string }) => {
+          const isEditing = sprintEditField === field
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
+              <Icon name={icon} size={18} color={s.textMuted} />
+              <span style={{ fontSize: 12, color: s.textSecondary, minWidth: 90 }}>{label}:</span>
+              {isEditing ? (
+                <div style={{ display: 'flex', gap: 6, flex: 1, alignItems: 'center' }}>
+                  <input
+                    autoFocus
+                    type="url"
+                    value={sprintEditValue}
+                    onChange={(e) => setSprintEditValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitSprintEdit(sp.id, field)
+                      if (e.key === 'Escape') cancelSprintEdit()
+                    }}
+                    placeholder="Paste URL..."
+                    style={{
+                      flex: 1, background: s.surface, border: `1px solid ${s.portal}`,
+                      borderRadius: 6, padding: '6px 10px', color: s.text, fontSize: 12,
+                      outline: 'none',
+                    }}
+                  />
+                  <button onClick={() => commitSprintEdit(sp.id, field)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: s.portal, color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>Save</button>
+                  <button onClick={cancelSprintEdit} style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${s.border}`, background: 'transparent', color: s.textSecondary, fontSize: 11, cursor: 'pointer' }}>Cancel</button>
+                </div>
+              ) : value ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 12, color: s.portal, textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 400 }}
+                    onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                  >{value}</a>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); startSprintEdit(field, value) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
+                  ><Icon name="edit" size={14} color={s.textMuted} /></button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => startSprintEdit(field, '')}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: s.textMuted }}
+                >+ Add link</button>
+              )}
+            </div>
+          )
+        }
+
+        return (
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {/* Header */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: `1px solid ${s.border}`, marginBottom: 16,
+            }}>
+              <button
+                onClick={() => { setView('sprints'); setSelectedSprintId(null) }}
+                style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', color: s.textSecondary, fontSize: 13 }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = s.text }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = s.textSecondary }}
+              >
+                <Icon name="arrow_back" size={18} /> Back to Sprints
+              </button>
+              <div style={{ flex: 1 }} />
+              {phaseConfig && (
+                <span style={{
+                  padding: '4px 12px', borderRadius: 12, fontSize: 11, fontWeight: 700,
+                  background: `${phaseConfig.color}20`, color: phaseConfig.color,
+                  textTransform: 'uppercase', letterSpacing: '0.05em',
+                }}>{phaseConfig.label}</span>
+              )}
+              {phaseConfig && (
+                <button
+                  onClick={async () => {
+                    if (sp.phase === 'in_sprint') generatePhaseAudit(sp.id, 'discovery')
+                    else if (sp.phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
+                    else if (sp.phase === 'planned') generatePhaseAudit(sp.id, 'plan')
+                    else if (sp.phase === 'plan_audited') generatePrompt(sp.id, 'building')
+                    else if (sp.phase === 'built') generateAuditPrompt(sp.id)
+                    else if (sp.phase === 'audited') {
+                      try {
+                        const r = await fetchWithAuth(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
+                        if (r.ok) { await loadItems(); await loadSprints() }
+                      } catch { /* silent */ }
+                    }
+                    else if (sp.phase === 'confirmed') reopenSprint(sp.id)
+                  }}
+                  style={{
+                    padding: '6px 16px', borderRadius: 6,
+                    border: sp.phase === 'confirmed' ? '1px solid rgb(245,158,11)' : 'none',
+                    background: sp.phase === 'confirmed' ? 'transparent' : phaseConfig.color,
+                    color: sp.phase === 'confirmed' ? 'rgb(245,158,11)' : '#fff',
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 6,
+                  }}
+                >
+                  {phaseConfig.actionLabel}
+                </button>
+              )}
+              <button
+                onClick={() => { setFilters(f => ({ ...f, sprint_id: sp.id })); setView('grid') }}
+                style={{
+                  padding: '6px 14px', borderRadius: 6, border: `1px solid ${s.border}`,
+                  background: 'transparent', color: s.textSecondary, fontSize: 12, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}
+              >
+                <Icon name="view_list" size={14} /> Grid View
+              </button>
+            </div>
+
+            {/* Name (editable) */}
+            <EditableField field="name" value={sp.name} label="Sprint Name" icon="bolt" />
+
+            {/* Description (editable) */}
+            <EditableField field="description" value={sp.description} label="Description" textarea icon="notes" />
+
+            {/* Doc Links */}
+            <div style={{ background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`, padding: '8px 16px', marginBottom: 16 }}>
+              <LinkField field="discovery_url" value={sp.discovery_url} label="Discovery Doc" icon="description" />
+              <div style={{ borderTop: `1px solid ${s.border}` }} />
+              <LinkField field="plan_link" value={sp.plan_link} label="Plan Doc" icon="assignment" />
+            </div>
+
+            {/* Metadata */}
+            <div style={{ display: 'flex', gap: 24, padding: '8px 0', marginBottom: 16, fontSize: 12, color: s.textSecondary }}>
+              <span><strong style={{ color: s.textMuted }}>Created by:</strong> {sp.created_by || '—'}</span>
+              <span><strong style={{ color: s.textMuted }}>Created:</strong> {formatDate(sp.created_at)}</span>
+              <span><strong style={{ color: s.textMuted }}>Status:</strong> {sp.status}</span>
+            </div>
+
+            {/* Progress */}
+            <div style={{
+              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+              padding: 16, marginBottom: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.08)' }}>
+                  <div style={{
+                    width: `${pct}%`, height: '100%', borderRadius: 4,
+                    background: pct === 100 ? 'rgb(34,197,94)' : (phaseConfig?.color || s.portal),
+                    transition: 'width 0.3s',
+                  }} />
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 700, color: pct === 100 ? 'rgb(34,197,94)' : s.text }}>{sp.confirmed}/{sp.total}</span>
+                <span style={{ fontSize: 11, color: s.textMuted }}>confirmed</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {sp.bugs > 0 && <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 10, background: 'rgba(239,68,68,0.12)', color: 'rgb(239,68,68)', fontWeight: 600 }}>{sp.bugs} bug{sp.bugs > 1 ? 's' : ''}</span>}
+                {sp.enhancements > 0 && <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 10, background: 'rgba(245,158,11,0.12)', color: 'rgb(245,158,11)', fontWeight: 600 }}>{sp.enhancements} enhancement{sp.enhancements > 1 ? 's' : ''}</span>}
+                {sp.features > 0 && <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 10, background: 'rgba(168,85,247,0.12)', color: 'rgb(168,85,247)', fontWeight: 600 }}>{sp.features} feature{sp.features > 1 ? 's' : ''}</span>}
+                {sp.questions > 0 && <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 10, background: 'rgba(59,130,246,0.12)', color: 'rgb(59,130,246)', fontWeight: 600 }}>{sp.questions} question{sp.questions > 1 ? 's' : ''}</span>}
+              </div>
+            </div>
+
+            {/* Audit Round */}
+            {auditRound && (
+              <div style={{
+                background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+                padding: 16, marginBottom: 16,
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: s.text, marginBottom: 8 }}>
+                  Audit Round {auditRound.round}
+                </div>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(34,197,94,0.12)', color: 'rgb(34,197,94)', fontWeight: 600 }}>{auditRound.passed} passed</span>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(239,68,68,0.12)', color: 'rgb(239,68,68)', fontWeight: 600 }}>{auditRound.failed} failed</span>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(245,158,11,0.12)', color: 'rgb(245,158,11)', fontWeight: 600 }}>{auditRound.pending} pending</span>
+                </div>
+              </div>
+            )}
+
+            {/* Items table */}
+            <div style={{
+              borderRadius: 10, border: `1px solid ${s.border}`, overflow: 'hidden', flex: 1,
+            }}>
+              <div style={{
+                padding: '10px 16px', borderBottom: `1px solid ${s.border}`, background: s.surface,
+                fontSize: 12, fontWeight: 700, color: s.textSecondary, textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>
+                Items ({sprintItems.length})
+              </div>
+              <div style={{ overflowY: 'auto', maxHeight: 400 }}>
+                {sprintItems.length === 0 ? (
+                  <div style={{ padding: 24, textAlign: 'center', color: s.textMuted, fontSize: 13 }}>No items in this sprint</div>
+                ) : (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: s.surface }}>
+                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: s.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ID</th>
+                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: s.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Title</th>
+                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: s.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: s.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Type</th>
+                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: s.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Component</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sprintItems.map(item => {
+                        const tc = TYPE_CONFIG[item.type]
+                        return (
+                          <tr
+                            key={item.id}
+                            onClick={() => openEdit(item)}
+                            style={{ cursor: 'pointer', borderBottom: `1px solid ${s.border}` }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = s.hover }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                          >
+                            <td style={{ padding: '8px 12px', fontFamily: 'monospace', fontSize: 11, color: s.textMuted }}>{item.item_id}</td>
+                            <td style={{ padding: '8px 12px', fontWeight: 500 }}>{item.title}</td>
+                            <td style={{ padding: '8px 12px' }}><StatusBadge status={item.status} /></td>
+                            <td style={{ padding: '8px 12px' }}>
+                              {tc ? <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 12, background: tc.bg, color: tc.color }}>{tc.label}</span> : <span style={{ color: s.textMuted }}>—</span>}
+                            </td>
+                            <td style={{ padding: '8px 12px', color: s.textSecondary, fontSize: 12 }}>{item.component || '—'}</td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* ─── Sprint Kanban View ─── */}
       {view === 'sprints' && (
         <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
@@ -1397,7 +1761,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                               background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
                               padding: 14, cursor: 'grab',
                             }}
-                            onClick={() => { setFilters(f => ({ ...f, sprint_id: sp.id })); setView('grid') }}
+                            onClick={() => openSprintDetail(sp.id)}
                           >
                             {/* Name + action */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>

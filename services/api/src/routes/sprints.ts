@@ -691,6 +691,16 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"${sprintDir}/${planFileName}"}'\n`
       md += '```\n\n'
 
+      md += `**Step 3b: Generate HTML Plan Document**\n`
+      md += `- After creating the plan markdown, also generate a branded HTML plan document.\n`
+      md += `- Save it to \`apps/prodash/public/plans/${sprintSlug}.html\`\n`
+      md += `- Use the established FORGE HTML format: dark theme (#0d1117 bg), branded header with gradient, sections for each deliverable, print-friendly.\n`
+      md += `- Update the sprint plan_link to point to the HTML:\n`
+      md += '```bash\n'
+      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"/plans/${sprintSlug}.html"}'\n`
+      md += '```\n'
+      md += `- Open the plan in the browser after generation to verify it renders correctly.\n\n`
+
       md += `**Step 4: Plan Audit**\n`
       md += `- Run a Plan Audit: compare plan ↔ tickets ↔ discovery document\n`
       md += `- All 3 must align. Gaps = rejected plan.\n\n`
@@ -714,6 +724,10 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       md += `**After build:**\n`
       md += `3. Save builder prompts to \`${sprintDir}/BUILDER_*.md\` (one per builder agent)\n`
       md += `4. Save builder reports to \`.claude/_ARCHIVED/builder-reports/\`\n`
+      md += `5. If no HTML plan exists yet, generate one at \`apps/prodash/public/plans/${sprintSlug}.html\` (dark theme, branded FORGE header, sections per deliverable) and update plan_link:\n`
+      md += '```bash\n'
+      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"/plans/${sprintSlug}.html"}'\n`
+      md += '```\n'
     }
 
     // Separate questions from build items
@@ -802,6 +816,35 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     res.json(successResponse({ prompt: md }))
   } catch (err) {
     console.error('GET /api/sprints/:id/prompt error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// GET /:id/audit-round — summarize current audit round (pass/fail/pending)
+sprintRoutes.get('/:id/audit-round', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const sprintDoc = await db.collection(SPRINT_COLLECTION).doc(id).get()
+    if (!sprintDoc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
+
+    const allSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
+    const sprintItems = allSnap.docs
+      .filter(d => d.data().sprint_id === id)
+      .map(d => d.data())
+      .filter(d => !['deferred', 'wont_fix'].includes(d.status as string))
+
+    // Determine audit round based on item states
+    const passed = sprintItems.filter(d => ['confirmed', 'audited'].includes(d.status as string)).length
+    const failed = sprintItems.filter(d => ['built', 'planned', 'in_sprint', 'not_touched', 'queue'].includes(d.status as string)).length
+    const pending = sprintItems.filter(d => ['plan_audited', 'disc_audited'].includes(d.status as string)).length
+
+    // Round heuristic: if any items are confirmed, we are at least round 1
+    const round = passed > 0 ? 1 : 0
+
+    res.json(successResponse({ round: Math.max(round, 1), passed, failed, pending }))
+  } catch (err) {
+    console.error('GET /api/sprints/:id/audit-round error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

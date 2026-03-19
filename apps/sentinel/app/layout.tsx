@@ -3,7 +3,10 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'SENTINEL | toMachina',
+  title: {
+    template: 'SENTINEL | %s',
+    default: 'toMachina / SENTINEL',
+  },
   description: 'RPI B2B Portal — Powered by toMachina',
 }
 

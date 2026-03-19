@@ -1,6 +1,6 @@
 // Single source of truth for pipeline key ↔ URL slug mapping
 const PIPELINE_KEY_TO_SLUG: Record<string, string> = {
-  NBX_SECURITIES: 'nbx-investments',
+  NBX_INVESTMENTS: 'nbx-investments',
   NBX_LIFE: 'nbx-life',
   NBX_ANNUITY: 'nbx-annuity',
   NBX_MEDICARE_MEDSUP: 'nbx-medicare-medsup',
@@ -20,12 +20,12 @@ const SLUG_TO_PIPELINE_KEY: Record<string, string> = Object.fromEntries(
   Object.entries(PIPELINE_KEY_TO_SLUG).map(([key, slug]) => [slug, key])
 )
 
-/** Convert a pipeline key (e.g. NBX_SECURITIES) to a URL slug (e.g. nbx-investments) */
+/** Convert a pipeline key (e.g. NBX_INVESTMENTS) to a URL slug (e.g. nbx-investments) */
 export function toSlug(pipelineKey: string): string {
   return PIPELINE_KEY_TO_SLUG[pipelineKey] || pipelineKey.toLowerCase().replace(/_/g, '-')
 }
 
-/** Convert a URL slug (e.g. nbx-investments) back to a pipeline key (e.g. NBX_SECURITIES) */
+/** Convert a URL slug (e.g. nbx-investments) back to a pipeline key (e.g. NBX_INVESTMENTS) */
 export function toPipelineKey(slug: string): string {
   return SLUG_TO_PIPELINE_KEY[slug] || slug.toUpperCase().replace(/-/g, '_')
 }

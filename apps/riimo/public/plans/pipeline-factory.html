@@ -648,7 +648,7 @@
     <div class="status-item"><div class="status-dot live"></div><div><div class="label">Flow API Routes</div><div class="detail"><code>services/api/src/routes/flow.ts</code> &mdash; 8 endpoints</div></div></div>
     <div class="status-item"><div class="status-dot live"></div><div><div class="label">Pipeline List Route</div><div class="detail"><code>services/api/src/routes/pipelines.ts</code></div></div></div>
     <div class="status-item"><div class="status-dot empty"></div><div><div class="label">Firestore Collections</div><div class="detail">DEFINED but empty</div></div></div>
-    <div class="status-item"><div class="status-dot designed"></div><div><div class="label">NBX_SECURITIES 5-Layer</div><div class="detail">DESIGNED &mdash; 7 stages, 35+ tasks, gate enforcement</div></div></div>
+    <div class="status-item"><div class="status-dot designed"></div><div><div class="label">NBX_INVESTMENTS 5-Layer</div><div class="detail">DESIGNED &mdash; 7 stages, 35+ tasks, gate enforcement</div></div></div>
     <div class="status-item"><div class="status-dot archived"></div><div><div class="label">GHL Pipeline Stages</div><div class="detail">ARCHIVED &mdash; GHL_Pipelines.csv</div></div></div>
     <div class="status-item"><div class="status-dot archived"></div><div><div class="label">PRODASH Stage Dashboards</div><div class="detail">ARCHIVED (GAS) &mdash; Discovery Kit, Casework</div></div></div>
     <div class="status-item"><div class="status-dot live"></div><div><div class="label">DEX Pipeline</div><div class="detail">LIVE &mdash; document lifecycle</div></div></div>
@@ -659,7 +659,7 @@
 
   <h3 style="font-size:15px;margin:16px 0 10px;color:var(--green)">Tier 1: Ready to Seed</h3>
   <table><thead><tr><th>Pipeline</th><th>Key</th><th>Stages</th><th>Tasks</th><th>Gates</th><th>Status</th></tr></thead>
-  <tbody><tr><td><strong>NBX - Investments</strong></td><td><code>NBX_SECURITIES</code></td><td>7</td><td>35+</td><td>3</td><td><span class="pill seed">SEED NOW</span></td></tr></tbody></table>
+  <tbody><tr><td><strong>NBX - Investments</strong></td><td><code>NBX_INVESTMENTS</code></td><td>7</td><td>35+</td><td>3</td><td><span class="pill seed">SEED NOW</span></td></tr></tbody></table>
 
   <h3 style="font-size:15px;margin:20px 0 10px;color:var(--yellow)">Tier 2: Workflow Depth Needed</h3>
   <table><thead><tr><th>Pipeline</th><th>Key</th><th>Stages</th><th>Needs</th><th>Status</th></tr></thead>
@@ -739,7 +739,7 @@
     <!-- Level 1: Pipeline Bar -->
     <div class="pipeline-bar">
       <div>
-        <div class="pl-name">NBX - Securities &amp; Advisory</div>
+        <div class="pl-name">NBX - Investments</div>
         <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">7 stages &bull; 14 steps &bull; 35+ tasks &bull; 3 gated stages &bull; 6 system checks</div>
       </div>
       <div class="pl-meta">
@@ -969,23 +969,23 @@
 
   <div class="section-header"><h2>Firestore Structure</h2></div>
   <div class="firestore-block"><span class="collection">flow_pipelines/</span>
-  <span class="doc">NBX_SECURITIES/</span>
-    <span class="field">pipeline_key:</span> <span class="value">"NBX_SECURITIES"</span>
-    <span class="field">pipeline_name:</span> <span class="value">"NBX - Securities &amp; Advisory"</span>
+  <span class="doc">NBX_INVESTMENTS/</span>
+    <span class="field">pipeline_key:</span> <span class="value">"NBX_INVESTMENTS"</span>
+    <span class="field">pipeline_name:</span> <span class="value">"NBX - Investments"</span>
     <span class="field">portal:</span> <span class="value">"PRODASHX"</span>
     <span class="field">domain:</span> <span class="value">"SECURITIES"</span>
 
 <span class="collection">flow_stages/</span>
-  <span class="doc">NBX_SECURITIES__new/</span>
-    <span class="field">pipeline_key:</span> <span class="value">"NBX_SECURITIES"</span>
+  <span class="doc">NBX_INVESTMENTS__new/</span>
+    <span class="field">pipeline_key:</span> <span class="value">"NBX_INVESTMENTS"</span>
     <span class="field">stage_id:</span> <span class="value">"new"</span>
     <span class="field">stage_order:</span> <span class="value">10</span>
     <span class="field">gate_enforced:</span> <span class="value">false</span>
     <span class="field">ghl_stage_id:</span> <span class="value">"eba28b70-cfc2-..."</span>
 
 <span class="collection">flow_task_templates/</span>
-  <span class="doc">NBX_SECURITIES__suitability__net_worth_present/</span>
-    <span class="field">pipeline_key:</span> <span class="value">"NBX_SECURITIES"</span>
+  <span class="doc">NBX_INVESTMENTS__suitability__net_worth_present/</span>
+    <span class="field">pipeline_key:</span> <span class="value">"NBX_INVESTMENTS"</span>
     <span class="field">stage_id:</span> <span class="value">"suitability"</span>
     <span class="field">step_id:</span> <span class="value">"client_profile"</span>
     <span class="field">task_id:</span> <span class="value">"net_worth_present"</span>
@@ -1032,7 +1032,7 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
 
   <div class="section-header" style="margin-top:32px"><h2>Files to Create</h2></div>
   <div class="file-tree"><span class="dir">packages/core/flow/configs/</span>
-  nbx-securities.ts          <span class="phase-tag">&larr; Phase 1A</span>
+  nbx-investments.ts          <span class="phase-tag">&larr; Phase 1A</span>
   nbx-life.ts                <span class="phase-tag">&larr; Phase 2A</span>
   nbx-annuity.ts             <span class="phase-tag">&larr; Phase 2B</span>
   nbx-medicare-medsup.ts     <span class="phase-tag">&larr; Phase 2C</span>
@@ -1129,10 +1129,10 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <!-- ID Convention -->
   <div class="summary-card" style="border-left-color:var(--cyan);font-size:13px;">
     <strong>Document ID Convention:</strong> All IDs use <code style="background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px;font-size:12px;">__</code> (double underscore) as a compound key delimiter.<br>
-    Pipeline: <code>NBX_SECURITIES</code><br>
-    Stage: <code>NBX_SECURITIES__suitability</code><br>
-    Step: <code>NBX_SECURITIES__suitability__client_profile</code><br>
-    Task: <code>NBX_SECURITIES__suitability__net_worth_present</code><br>
+    Pipeline: <code>NBX_INVESTMENTS</code><br>
+    Stage: <code>NBX_INVESTMENTS__suitability</code><br>
+    Step: <code>NBX_INVESTMENTS__suitability__client_profile</code><br>
+    Task: <code>NBX_INVESTMENTS__suitability__net_worth_present</code><br>
     Self-documenting &mdash; you can read the hierarchy from the ID itself.
   </div>
 
@@ -1144,13 +1144,13 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">The top-level definition. One doc per pipeline. The front end fetches all pipelines for a portal to render the Pipeline Directory page.</p>
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;">
     <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES</span>
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_INVESTMENTS</span>
       <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_pipelines</span>
     </div>
     <div style="font-size:13px;">
-      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span></div>
-      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_name</span><span style="font-family:monospace;color:var(--green);">"NBX - Securities &amp; Advisory"</span></div>
-      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">description</span><span style="font-family:monospace;color:var(--green);">"New business processing for securities/advisory accounts (Gradient)"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_INVESTMENTS"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_name</span><span style="font-family:monospace;color:var(--green);">"NBX - Investments"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">description</span><span style="font-family:monospace;color:var(--green);">"New business processing for investment accounts (Gradient)"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">portal</span><span style="font-family:monospace;color:var(--green);">"PRODASHX"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Which portal owns this pipeline</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">domain</span><span style="font-family:monospace;color:var(--green);">"SECURITIES"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">SECURITIES, LIFE, MEDICARE, etc.</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">platform_carrier</span><span style="font-family:monospace;color:var(--green);">"GS_GWM_GI"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Gradient Securities</span></div>
@@ -1168,11 +1168,11 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">Each stage becomes a <strong style="color:var(--text);">Kanban column</strong>. The <code style="color:var(--yellow);">gate_enforced</code> field is the key &mdash; when true, instances can't advance past this stage until all required tasks pass.</p>
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
     <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability</span>
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_INVESTMENTS__suitability</span>
       <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_stages</span>
     </div>
     <div style="font-size:13px;">
-      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">FK to pipeline</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_INVESTMENTS"</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">FK to pipeline</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_id</span><span style="font-family:monospace;color:var(--green);">"suitability"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_name</span><span style="font-family:monospace;color:var(--green);">"Suitability"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_order</span><span style="font-family:monospace;color:var(--orange);">30</span><span style="font-size:11px;color:var(--text-muted);margin-left:12px;font-style:italic;">Increments of 10</span></div>
@@ -1190,11 +1190,11 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">One workflow per stage. Groups the steps. Think of it as the "work plan" for that stage.</p>
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
     <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__suitability_workflow</span>
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_INVESTMENTS__suitability__suitability_workflow</span>
       <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_workflows</span>
     </div>
     <div style="font-size:13px;">
-      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_INVESTMENTS"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_id</span><span style="font-family:monospace;color:var(--green);">"suitability"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">workflow_key</span><span style="font-family:monospace;color:var(--green);">"suitability_workflow"</span></div>
       <div style="display:flex;padding:7px 16px;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">workflow_name</span><span style="font-family:monospace;color:var(--green);">"Suitability Workflow"</span></div>
@@ -1209,11 +1209,11 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">Steps group tasks within a stage. The <strong style="color:var(--text);">TaskChecklist</strong> UI renders step headers with progress counts (e.g., "3/5 tasks"). Steps can also be individually gated.</p>
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;">
     <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__client_profile</span>
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_INVESTMENTS__suitability__client_profile</span>
       <span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;">flow_steps</span>
     </div>
     <div style="font-size:13px;">
-      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_SECURITIES"</span></div>
+      <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">pipeline_key</span><span style="font-family:monospace;color:var(--green);">"NBX_INVESTMENTS"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">stage_id</span><span style="font-family:monospace;color:var(--green);">"suitability"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">step_id</span><span style="font-family:monospace;color:var(--green);">"client_profile"</span></div>
       <div style="display:flex;padding:7px 16px;border-bottom:1px solid #1a1a24;"><span style="font-family:monospace;color:var(--purple);min-width:180px;font-weight:500;">step_name</span><span style="font-family:monospace;color:var(--green);">"Client Profile"</span></div>
@@ -1232,7 +1232,7 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <!-- System Check Example -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;">
     <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__net_worth_present</span>
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_INVESTMENTS__suitability__net_worth_present</span>
       <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--cyan);color:#000;">SYSTEM CHECK &mdash; FIELD_PRESENT</span>
     </div>
     <div style="font-size:13px;">
@@ -1247,7 +1247,7 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <!-- Custom Handler Example -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;">
     <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__lnw_limit_check</span>
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_INVESTMENTS__suitability__lnw_limit_check</span>
       <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--orange);color:#000;">CUSTOM HANDLER &mdash; LNW_LIMIT</span>
     </div>
     <div style="font-size:13px;">
@@ -1261,7 +1261,7 @@ Document IDs: <span class="field">__</span> delimiter for compound keys</div>
   <!-- Manual Example -->
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;">
     <div style="background:var(--bg-hover);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_SECURITIES__suitability__bi_written</span>
+      <span style="font-family:monospace;font-size:13px;color:var(--cyan);font-weight:600;">NBX_INVESTMENTS__suitability__bi_written</span>
       <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:var(--purple);color:#000;">MANUAL &mdash; HUMAN CHECKBOX</span>
     </div>
     <div style="font-size:13px;">

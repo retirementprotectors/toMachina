@@ -4,7 +4,7 @@
  */
 
 // NBX pipelines (Builder 01)
-export { NBX_SECURITIES_CONFIG } from './nbx-securities'
+export { NBX_INVESTMENTS_CONFIG } from './nbx-securities'
 export { NBX_LIFE_CONFIG } from './nbx-life'
 export { NBX_ANNUITY_CONFIG } from './nbx-annuity'
 export { NBX_MEDICARE_MEDSUP_CONFIG } from './nbx-medicare-medsup'
@@ -29,7 +29,7 @@ export { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
 export { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
 
 // Convenience lookup — all 15 configs by pipeline key
-import { NBX_SECURITIES_CONFIG } from './nbx-securities'
+import { NBX_INVESTMENTS_CONFIG } from './nbx-securities'
 import { NBX_LIFE_CONFIG } from './nbx-life'
 import { NBX_ANNUITY_CONFIG } from './nbx-annuity'
 import { NBX_MEDICARE_MEDSUP_CONFIG } from './nbx-medicare-medsup'
@@ -46,7 +46,7 @@ import { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
 import { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
 
 export const ALL_PIPELINE_CONFIGS = {
-  NBX_SECURITIES: NBX_SECURITIES_CONFIG,
+  NBX_INVESTMENTS: NBX_INVESTMENTS_CONFIG,
   NBX_LIFE: NBX_LIFE_CONFIG,
   NBX_ANNUITY: NBX_ANNUITY_CONFIG,
   NBX_MEDICARE_MEDSUP: NBX_MEDICARE_MEDSUP_CONFIG,

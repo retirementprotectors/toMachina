@@ -1,31 +1,41 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { PipelineKanban, AppWrapper } from '@tomachina/ui'
 import { useAuth } from '@tomachina/auth'
+import { ACCOUNT_TYPE_CATEGORIES } from '@tomachina/core'
+import type { AccountTypeCategory } from '@tomachina/core'
 import { fetchWithAuth } from '@tomachina/ui/src/modules/fetchWithAuth'
 import { toPipelineKey } from '../pipeline-keys'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
-
-const ACCOUNT_TYPE_CATEGORIES = [
-  'Annuity',
-  'Life',
-  'Medicare',
-  'Investments',
-  'Banking',
-] as const
-
-type AccountTypeCategory = typeof ACCOUNT_TYPE_CATEGORIES[number]
 
 interface Carrier {
   id: string
   carrier_name: string
 }
 
+interface Advisor {
+  email: string
+  first_name: string
+  last_name: string
+  is_rr?: boolean
+  is_iar?: boolean
+}
+
+interface ClientOption {
+  client_id: string
+  first_name: string
+  last_name: string
+  city?: string
+  state?: string
+  client_status?: string
+}
+
 interface NewCaseForm {
   entity_name: string
+  entity_id: string
   account_type_category: AccountTypeCategory | ''
   carrier_id: string
   carrier_name: string
@@ -35,6 +45,7 @@ interface NewCaseForm {
 
 const EMPTY_FORM: NewCaseForm = {
   entity_name: '',
+  entity_id: '',
   account_type_category: '',
   carrier_id: '',
   carrier_name: '',
@@ -55,36 +66,95 @@ export default function PipelineKanbanPage() {
   const [error, setError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Carrier data fetched once on mount
+  // Carrier + advisor data fetched once on mount
   const [carriers, setCarriers] = useState<Carrier[]>([])
   const [carriersLoading, setCarriersLoading] = useState(false)
+  const [advisors, setAdvisors] = useState<Advisor[]>([])
+
+  // Client typeahead
+  const [clientQuery, setClientQuery] = useState('')
+  const [clientResults, setClientResults] = useState<ClientOption[]>([])
+  const [clientSearching, setClientSearching] = useState(false)
+  const [showClientResults, setShowClientResults] = useState(false)
+  const clientDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const clientWrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelled = false
+
+    // Fetch carriers and advisors independently — one failure doesn't kill the other
     async function loadCarriers() {
-      setCarriersLoading(true)
       try {
         const res = await fetchWithAuth(`${API_BASE}/carriers`)
+        if (cancelled) return
         const json = await res.json() as { success: boolean; data?: Carrier[] }
         if (!cancelled && json.success && json.data) {
-          const sorted = [...json.data].sort((a, b) =>
-            a.carrier_name.localeCompare(b.carrier_name)
-          )
-          setCarriers(sorted)
+          setCarriers([...json.data].sort((a, b) => a.carrier_name.localeCompare(b.carrier_name)))
         }
-      } catch {
-        // Carrier load failure is non-fatal — user can still type carrier name
-      } finally {
-        if (!cancelled) setCarriersLoading(false)
-      }
+      } catch { /* non-fatal */ }
     }
+
+    async function loadAdvisors() {
+      try {
+        const res = await fetchWithAuth(`${API_BASE}/users`)
+        if (cancelled) return
+        const json = await res.json() as { success: boolean; data?: Advisor[] }
+        if (!cancelled && json.success && json.data) {
+          const qualified = json.data.filter(
+            (u) => u.is_rr || u.is_iar
+          ).sort((a, b) => a.first_name.localeCompare(b.first_name))
+          setAdvisors(qualified)
+        }
+      } catch { /* non-fatal */ }
+    }
+
     loadCarriers()
+    loadAdvisors()
     return () => { cancelled = true }
   }, [])
 
+  // Client typeahead search
+  const handleClientSearch = useCallback((value: string) => {
+    setClientQuery(value)
+    setForm((prev) => ({ ...prev, entity_name: value, entity_id: '' }))
+    if (clientDebounceRef.current) clearTimeout(clientDebounceRef.current)
+    if (value.length < 2) { setClientResults([]); setShowClientResults(false); return }
+    clientDebounceRef.current = setTimeout(async () => {
+      setClientSearching(true)
+      try {
+        const res = await fetchWithAuth(`${API_BASE}/clients?search=${encodeURIComponent(value)}&limit=8`)
+        const json = await res.json() as { success: boolean; data?: ClientOption[] }
+        if (json.success && json.data) {
+          setClientResults(json.data)
+          setShowClientResults(true)
+        }
+      } catch { /* non-fatal */ }
+      finally { setClientSearching(false) }
+    }, 300)
+  }, [])
+
+  const selectClient = useCallback((client: ClientOption) => {
+    const displayName = `${client.last_name}, ${client.first_name}`
+    setClientQuery(displayName)
+    setForm((prev) => ({ ...prev, entity_name: displayName, entity_id: client.client_id }))
+    setShowClientResults(false)
+    setClientResults([])
+  }, [])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (clientWrapperRef.current && !clientWrapperRef.current.contains(e.target as Node)) {
+        setShowClientResults(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
   const handleCreate = useCallback(async () => {
-    if (!form.entity_name.trim() || !form.assigned_to.trim()) {
-      setError('Client name and assigned advisor are required.')
+    if (!form.entity_id || !form.assigned_to.trim()) {
+      setError('Select a client from the list and assign an advisor.')
       return
     }
     if (!form.account_type_category) {
@@ -100,14 +170,12 @@ export default function PipelineKanbanPage() {
     setError(null)
 
     try {
-      const entityId = form.entity_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-
       const res = await fetchWithAuth(`${API_BASE}/flow/instances`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           pipeline_key: pipelineKey,
-          entity_id: entityId,
+          entity_id: form.entity_id,
           entity_name: form.entity_name.trim(),
           entity_type: 'CLIENT',
           assigned_to: form.assigned_to.trim(),
@@ -132,9 +200,11 @@ export default function PipelineKanbanPage() {
         return
       }
 
-      // Success — close modal, refresh board
+      // Success — close modal, reset state, refresh board
       setShowModal(false)
       setForm({ ...EMPTY_FORM })
+      setClientQuery('')
+      setClientResults([])
       setRefreshKey((k) => k + 1)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
@@ -214,19 +284,54 @@ export default function PipelineKanbanPage() {
                 </div>
               )}
 
-              {/* Client Name */}
-              <div>
+              {/* Client Lookup */}
+              <div ref={clientWrapperRef} className="relative">
                 <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
-                  Client Name <span className="text-[var(--error)]">*</span>
+                  Client <span className="text-[var(--error)]">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={form.entity_name}
-                  onChange={(e) => updateField('entity_name', e.target.value)}
-                  placeholder="Last, First (e.g., Smith, John & Jane)"
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--portal)]"
-                  autoFocus
-                />
+                <div className="relative">
+                  <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
+                    {form.entity_id ? 'check_circle' : 'search'}
+                  </span>
+                  <input
+                    type="text"
+                    value={clientQuery}
+                    onChange={(e) => handleClientSearch(e.target.value)}
+                    onFocus={() => { if (clientResults.length) setShowClientResults(true) }}
+                    placeholder="Type last name to search..."
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] py-2.5 pl-9 pr-3 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--portal)]"
+                    style={form.entity_id ? { borderColor: 'var(--success, #10b981)' } : undefined}
+                    autoFocus
+                  />
+                  {clientSearching && (
+                    <span className="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-[var(--text-muted)]" style={{ fontSize: '14px' }}>progress_activity</span>
+                  )}
+                </div>
+                {showClientResults && clientResults.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated,var(--bg-primary))] shadow-lg">
+                    {clientResults.map((c) => (
+                      <button
+                        key={c.client_id}
+                        type="button"
+                        onClick={() => selectClient(c)}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--bg-hover,rgba(255,255,255,0.05))]"
+                      >
+                        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>person</span>
+                        <span>
+                          <span className="font-medium text-[var(--text-primary)]">{c.last_name}, {c.first_name}</span>
+                          {(c.city || c.state) && (
+                            <span className="ml-2 text-xs text-[var(--text-muted)]">{[c.city, c.state].filter(Boolean).join(', ')}</span>
+                          )}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {showClientResults && clientResults.length === 0 && clientQuery.length >= 2 && !clientSearching && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated,var(--bg-primary))] px-3 py-2 text-xs text-[var(--text-muted)] shadow-lg">
+                    No clients found for &ldquo;{clientQuery}&rdquo;
+                  </div>
+                )}
               </div>
 
               {/* Account Type Category + Carrier row */}
@@ -283,11 +388,13 @@ export default function PipelineKanbanPage() {
                   onChange={(e) => updateField('assigned_to', e.target.value)}
                   className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
                 >
-                  <option value="">Select advisor...</option>
-                  <option value="angelique@retireprotected.com">Angelique</option>
-                  <option value="nikki@retireprotected.com">Nikki</option>
-                  <option value="josh@retireprotected.com">Josh</option>
-                  <option value="vince@retireprotected.com">Vince</option>
+                  <option value="">{advisors.length ? 'Select advisor...' : 'Loading advisors...'}</option>
+                  {advisors.map((a) => (
+                    <option key={a.email} value={a.email}>
+                      {a.first_name} {a.last_name}
+                      {a.is_rr && a.is_iar ? ' (RR + IAR)' : a.is_rr ? ' (RR)' : ' (IAR)'}
+                    </option>
+                  ))}
                 </select>
               </div>
 

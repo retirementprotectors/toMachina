@@ -363,9 +363,13 @@ export function ReportButton({ portal }: ReportButtonProps) {
             <span className="material-icons-outlined text-white" style={{ fontSize: 18 }}>photo_camera</span>
           </button>
 
-          {/* Main FORGE button — becomes record on hover (red dot inside copper) */}
+          {/* Main FORGE button — becomes record on hover, opens form on plain click */}
           <button
-            onClick={fabHover ? handleStartRecording : undefined}
+            onClick={fabHover ? handleStartRecording : () => {
+              const parsed = parseUrl()
+              setAutoFields(parsed)
+              setOpen(true)
+            }}
             className="relative flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:shadow-xl"
             style={{ background: '#e07c3e', transform: fabHover ? 'scale(1.05)' : 'scale(1)' }}
             title={fabHover ? 'Record Screen' : 'Report Issue to FORGE'}
@@ -392,13 +396,15 @@ export function ReportButton({ portal }: ReportButtonProps) {
         </div>
       )}
 
-      {/* Pulse animation for recording state */}
-      <style>{`
-        @keyframes forgePulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
-          50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
-        }
-      `}</style>
+      {/* Pulse animation — only injected when recording to avoid re-render flicker */}
+      {recording && (
+        <style>{`
+          @keyframes forgePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+            50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+          }
+        `}</style>
+      )}
 
       {/* ─── Report Modal ─── */}
       {open && (

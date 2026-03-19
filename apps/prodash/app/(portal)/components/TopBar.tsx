@@ -59,17 +59,16 @@ function usePageTitle(): string {
     }
     // Check for known title first, then capitalize
     if (titles[last]) return titles[last]
-    // If it looks like an ID (UUID, hash, Firestore doc IDs — alphanumeric + hyphens, 8+ chars), use the parent segment
-    if (/^[a-f0-9A-F-]{8,}$/.test(last) && segments.length >= 2) {
-      const parent = segments[segments.length - 2]
-      if (titles[parent]) return titles[parent]
-      return parent.charAt(0).toUpperCase() + parent.slice(1).replace(/-/g, ' ')
-    }
-    // Also handle Firestore IDs that mix letters and numbers (e.g., "abc123def456")
-    if (/[0-9]/.test(last) && /[a-zA-Z]/.test(last) && last.length >= 8 && segments.length >= 2) {
-      const parent = segments[segments.length - 2]
-      if (titles[parent]) return titles[parent]
-      return parent.charAt(0).toUpperCase() + parent.slice(1).replace(/-/g, ' ')
+    // If it looks like an ID, walk up segments until we find a real route name
+    const isId = (s: string) =>
+      /^[a-f0-9A-F-]{8,}$/.test(s) ||
+      (/[0-9]/.test(s) && /[a-zA-Z]/.test(s) && s.length >= 8)
+    if (isId(last)) {
+      for (let i = segments.length - 2; i >= 0; i--) {
+        const seg = segments[i]
+        if (titles[seg]) return titles[seg]
+        if (!isId(seg)) return seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, ' ')
+      }
     }
     return last.charAt(0).toUpperCase() + last.slice(1).replace(/-/g, ' ')
   }, [pathname])

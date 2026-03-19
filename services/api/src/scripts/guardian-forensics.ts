@@ -67,22 +67,22 @@ async function charterNaicDestruction(): Promise<QueryResult> {
   const sql = `
     WITH ordered_writes AS (
       SELECT
-        doc_id,
+        document_id,
         collection,
         timestamp,
         JSON_VALUE(data_json, '$.charter') AS charter,
         JSON_VALUE(data_json, '$.naic') AS naic,
         LAG(JSON_VALUE(data_json, '$.charter')) OVER (
-          PARTITION BY doc_id ORDER BY timestamp
+          PARTITION BY document_id ORDER BY timestamp
         ) AS prev_charter,
         LAG(JSON_VALUE(data_json, '$.naic')) OVER (
-          PARTITION BY doc_id ORDER BY timestamp
+          PARTITION BY document_id ORDER BY timestamp
         ) AS prev_naic
       FROM ${FULL_TABLE}
       WHERE collection IN ('accounts', 'accounts_life', 'accounts_investments')
     )
     SELECT
-      doc_id,
+      document_id,
       collection,
       timestamp,
       prev_charter,
@@ -108,7 +108,7 @@ async function bulkWriteDetection(): Promise<QueryResult> {
       collection,
       TIMESTAMP_TRUNC(timestamp, MINUTE) AS window_start,
       COUNT(*) AS write_count,
-      COUNT(DISTINCT doc_id) AS unique_docs,
+      COUNT(DISTINCT document_id) AS unique_docs,
       ARRAY_AGG(DISTINCT operation LIMIT 5) AS operations
     FROM ${FULL_TABLE}
     GROUP BY collection, window_start
@@ -126,7 +126,7 @@ async function schemaViolations(): Promise<QueryResult> {
   for (const [collection, schema] of Object.entries(COLLECTION_SCHEMAS)) {
     for (const field of schema.required) {
       cases.push(
-        `WHEN collection = '${collection}' AND (JSON_VALUE(data_json, '$.${field}') IS NULL OR JSON_VALUE(data_json, '$.${field}') = '') THEN STRUCT('${collection}' AS coll, '${field}' AS missing_field, doc_id AS did)`
+        `WHEN collection = '${collection}' AND (JSON_VALUE(data_json, '$.${field}') IS NULL OR JSON_VALUE(data_json, '$.${field}') = '') THEN STRUCT('${collection}' AS coll, '${field}' AS missing_field, document_id AS did)`
       )
     }
   }
@@ -140,7 +140,7 @@ async function schemaViolations(): Promise<QueryResult> {
   for (const [collection, schema] of Object.entries(COLLECTION_SCHEMAS)) {
     for (const field of schema.required) {
       unions.push(`
-        SELECT '${collection}' AS collection, '${field}' AS missing_field, doc_id, timestamp
+        SELECT '${collection}' AS collection, '${field}' AS missing_field, document_id, timestamp
         FROM ${FULL_TABLE}
         WHERE collection = '${collection}'
           AND operation = 'create'
@@ -166,20 +166,20 @@ async function orphanDetection(): Promise<QueryResult> {
   const sql = `
     WITH latest_accounts AS (
       SELECT
-        doc_id,
+        document_id,
         JSON_VALUE(data_json, '$.client_id') AS client_id,
-        ROW_NUMBER() OVER (PARTITION BY doc_id ORDER BY timestamp DESC) AS rn
+        ROW_NUMBER() OVER (PARTITION BY document_id ORDER BY timestamp DESC) AS rn
       FROM ${FULL_TABLE}
       WHERE collection IN ('accounts', 'accounts_life', 'accounts_investments')
         AND operation != 'delete'
     ),
     latest_clients AS (
-      SELECT DISTINCT doc_id AS client_id
+      SELECT DISTINCT document_id AS client_id
       FROM ${FULL_TABLE}
       WHERE collection = 'clients'
         AND operation != 'delete'
     )
-    SELECT a.doc_id, a.client_id
+    SELECT a.document_id, a.client_id
     FROM latest_accounts a
     LEFT JOIN latest_clients c ON a.client_id = c.client_id
     WHERE a.rn = 1
@@ -194,11 +194,11 @@ async function duplicateDetection(): Promise<QueryResult> {
   const sql = `
     WITH latest_clients AS (
       SELECT
-        doc_id,
+        document_id,
         JSON_VALUE(data_json, '$.first_name') AS first_name,
         JSON_VALUE(data_json, '$.last_name') AS last_name,
         JSON_VALUE(data_json, '$.dob') AS dob,
-        ROW_NUMBER() OVER (PARTITION BY doc_id ORDER BY timestamp DESC) AS rn
+        ROW_NUMBER() OVER (PARTITION BY document_id ORDER BY timestamp DESC) AS rn
       FROM ${FULL_TABLE}
       WHERE collection = 'clients'
         AND operation != 'delete'
@@ -208,7 +208,7 @@ async function duplicateDetection(): Promise<QueryResult> {
       last_name,
       dob,
       COUNT(*) AS duplicate_count,
-      ARRAY_AGG(doc_id LIMIT 5) AS doc_ids
+      ARRAY_AGG(document_id LIMIT 5) AS document_ids
     FROM latest_clients
     WHERE rn = 1
       AND first_name IS NOT NULL

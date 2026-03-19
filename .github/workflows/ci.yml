@@ -18,3 +18,29 @@ jobs:
       - run: npm ci
       - run: npx turbo run type-check
       - run: npx turbo run build
+
+  deploy-api:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/365181509090/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@claude-mcp-484718.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: |
+          gcloud run deploy tm-api \
+            --source=services/api \
+            --region=us-central1 \
+            --project=claude-mcp-484718 \
+            --memory=1Gi \
+            --cpu=2 \
+            --min-instances=0 \
+            --max-instances=3 \
+            --port=8080 \
+            --no-allow-unauthenticated

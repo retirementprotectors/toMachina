@@ -3,7 +3,10 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'RIIMO | toMachina',
+  title: {
+    template: 'RIIMO | %s',
+    default: 'toMachina / RIIMO',
+  },
   description: 'RPI Operations Portal — Powered by toMachina',
 }
 

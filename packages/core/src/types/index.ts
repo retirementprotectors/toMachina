@@ -133,6 +133,10 @@ export interface User {
   npn?: string
   /** Whether this user is a licensed insurance agent eligible for client assignment. */
   is_agent?: boolean
+  /** Whether this user is a Registered Rep (Series 7 — BD side: Gradient Securities, RBC). */
+  is_rr?: boolean
+  /** Whether this user is an Investment Advisor Rep (Series 65/66 — RIA side: Gradient Wealth, Schwab). */
+  is_iar?: boolean
   hire_date?: string
   google_chat_id?: string
   employee_profile?: Record<string, unknown>
