@@ -450,7 +450,20 @@ guardianRoutes.get('/health', async (_req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse(healthCards))
+    // Load latest structural report (from guardian-structural.ts runs)
+    let structural = null
+    try {
+      const structSnap = await db
+        .collection('guardian_structural_reports')
+        .orderBy('timestamp', 'desc')
+        .limit(1)
+        .get()
+      if (!structSnap.empty) {
+        structural = { id: structSnap.docs[0].id, ...structSnap.docs[0].data() }
+      }
+    } catch { /* non-fatal */ }
+
+    res.json(successResponse({ collections: healthCards, structural }))
   } catch (err) {
     console.error('[GUARDIAN] health error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to generate health cards'))

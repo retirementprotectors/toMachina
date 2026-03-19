@@ -22,6 +22,29 @@ interface CollectionHealth {
   last_updated: string
 }
 
+interface StructuralReport {
+  timestamp: string
+  clients: {
+    total: number
+    coverage: { field: string; populated: number; total: number; pct: number }[]
+    distribution: { tier: string; count: number; pct: number }[]
+  }
+  duplicates: {
+    name_dob_clusters: number
+    name_dob_total_records: number
+    shared_emails: number
+    shared_phones: number
+    top_name_clusters: { key: string; count: number }[]
+  }
+  carriers: {
+    total_accounts: number
+    exact_matches: number
+    fuzzy_matches: number
+    mismatches: { name: string; count: number }[]
+  }
+  collections: { name: string; count: number }[]
+}
+
 /* ─── Styles ─── */
 const s = {
   bg: 'var(--bg, #0f1219)',
@@ -87,6 +110,7 @@ function Icon({ name, size = 18, color }: { name: string; size?: number; color?:
 export function HealthOverview() {
   const { showToast } = useToast()
   const [data, setData] = useState<CollectionHealth[]>([])
+  const [structural, setStructural] = useState<StructuralReport | null>(null)
   const [loading, setLoading] = useState(true)
 
   const fetchHealth = useCallback(async () => {
@@ -94,33 +118,40 @@ export function HealthOverview() {
       setLoading(true)
       const res = await fetchWithAuth('/api/guardian/health')
       if (!res.ok) throw new Error('Failed to fetch health data')
-      const json = await res.json() as {
-        success: boolean
-        data?: Record<string, { doc_count: number; field_coverage: Record<string, number> }>
-      }
+      const json = await res.json() as { success: boolean; data?: Record<string, unknown> }
       if (json.success && json.data) {
-        // API returns object keyed by collection name — transform to array
-        const arr: CollectionHealth[] = Object.entries(json.data).map(([collection, info]) => {
-          const fieldEntries = Object.entries(info.field_coverage)
+        // Structural report (from guardian-structural.ts)
+        const rawData = json.data as Record<string, unknown>
+        if (rawData.structural) {
+          setStructural(rawData.structural as unknown as StructuralReport)
+        }
+        // API returns { collections: {...}, structural: {...} } or flat object
+        const collections = (rawData.collections || rawData) as Record<string, { doc_count: number; field_coverage: Record<string, number> }>
+        const arr: CollectionHealth[] = Object.entries(collections)
+          .filter(([key]) => key !== 'structural')
+          .map(([collection, info]) => {
+          const infoTyped = info as { doc_count: number; field_coverage: Record<string, number> }
+          if (!infoTyped.field_coverage) return null
+          const fieldEntries = Object.entries(infoTyped.field_coverage)
           const avgCoverage = fieldEntries.length > 0
-            ? Math.round(fieldEntries.reduce((sum, [, pct]) => sum + pct, 0) / fieldEntries.length)
+            ? Math.round(fieldEntries.reduce((sum, [, pct]) => sum + (pct as number), 0) / fieldEntries.length)
             : 0
           const issues: string[] = []
           for (const [field, pct] of fieldEntries) {
-            if (pct < 50) issues.push(`${field}: ${pct}% populated`)
+            if ((pct as number) < 50) issues.push(`${field}: ${pct}% populated`)
           }
           return {
             collection,
-            doc_count: info.doc_count,
+            doc_count: infoTyped.doc_count,
             field_coverage: avgCoverage,
             field_details: fieldEntries.map(([field, pct]) => ({
-              field, filled: 0, total: 0, percentage: pct,
+              field, filled: 0, total: 0, percentage: pct as number,
             })),
             status: avgCoverage >= 90 ? 'healthy' as const : avgCoverage >= 60 ? 'warning' as const : 'critical' as const,
             issues,
             last_updated: new Date().toISOString(),
           }
-        })
+        }).filter((x): x is CollectionHealth => x !== null)
         setData(arr)
       }
     } catch {
@@ -150,11 +181,96 @@ export function HealthOverview() {
   }
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      gap: 16,
-    }}>
+    <div>
+      {/* Structural Health Banner */}
+      {structural && (
+        <div style={{ marginBottom: 20 }}>
+          {/* Summary Stats */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 16,
+          }}>
+            {[
+              { label: 'Total Clients', value: structural.clients.total.toLocaleString(), color: s.guardian },
+              { label: 'Duplicate Clusters', value: String(structural.duplicates.name_dob_clusters), color: structural.duplicates.name_dob_clusters > 0 ? s.red : s.green },
+              { label: 'Shared Emails', value: String(structural.duplicates.shared_emails), color: structural.duplicates.shared_emails > 10 ? s.yellow : s.green },
+              { label: 'Shared Phones', value: String(structural.duplicates.shared_phones), color: structural.duplicates.shared_phones > 10 ? s.yellow : s.green },
+              { label: 'Carrier Mismatches', value: String(structural.carriers.mismatches.length), color: structural.carriers.mismatches.length > 0 ? s.red : s.green },
+              { label: 'Accounts Scanned', value: structural.carriers.total_accounts.toLocaleString(), color: s.guardian },
+            ].map((stat, i) => (
+              <div key={i} style={{
+                background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: '14px 16px', textAlign: 'center',
+              }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: stat.color }}>{stat.value}</div>
+                <div style={{ fontSize: 10, color: s.textMuted, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Client Field Coverage (full scan) */}
+          <div style={{
+            background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: 16, marginBottom: 16,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Icon name="analytics" size={16} color={s.guardian} />
+              <span style={{ fontSize: 13, fontWeight: 700 }}>Client Field Coverage (ALL {structural.clients.total.toLocaleString()} clients)</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: s.textMuted }}>
+                Last scan: {formatTimestamp(structural.timestamp)}
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 8 }}>
+              {structural.clients.coverage.map((f) => (
+                <div key={f.field} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, color: s.textSecondary, width: 100, textAlign: 'right', fontFamily: 'monospace' }}>{f.field}</span>
+                  <div style={{ flex: 1, height: 6, background: coverageBg(f.pct), borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ width: `${f.pct}%`, height: '100%', background: coverageColor(f.pct), borderRadius: 3 }} />
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: coverageColor(f.pct), width: 40, textAlign: 'right' }}>{f.pct.toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Completeness Distribution */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16,
+          }}>
+            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Icon name="pie_chart" size={14} color={s.guardian} /> Completeness Distribution
+              </div>
+              {structural.clients.distribution.map((d) => (
+                <div key={d.tier} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', fontSize: 12 }}>
+                  <span style={{ color: s.textSecondary }}>{d.tier}</span>
+                  <span style={{ fontWeight: 700, color: d.tier.includes('100') ? s.green : d.tier.includes('Below') ? s.red : s.text }}>
+                    {d.count.toLocaleString()} ({d.pct}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Icon name="warning" size={14} color={s.red} /> Top Carrier Mismatches
+              </div>
+              {structural.carriers.mismatches.slice(0, 8).map((m) => (
+                <div key={m.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '3px 0', fontSize: 11 }}>
+                  <span style={{ color: s.textSecondary, fontFamily: 'monospace', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.name}</span>
+                  <span style={{ fontWeight: 700, color: s.yellow }}>{m.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Per-Collection Health Cards */}
+      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12, color: s.textSecondary }}>
+        <Icon name="storage" size={14} color={s.textMuted} /> Collection Health (Schema-Based Sampling)
+      </div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: 16,
+      }}>
       {data.map((col) => (
         <div key={col.collection} style={{
           background: s.surface,
@@ -239,6 +355,7 @@ export function HealthOverview() {
           </div>
         </div>
       ))}
+      </div>
     </div>
   )
 }
