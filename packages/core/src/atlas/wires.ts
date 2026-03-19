@@ -20,6 +20,7 @@ export const WIRES_REQUIRING_CLIENT_TOOL_CHAIN = [
   'WIRE_DOC_INTAKE_MAIL',
   'WIRE_DOC_INTAKE_EMAIL',
   'WIRE_MEETING_PROCESSING',
+  'WIRE_INCOMING_CORRESPONDENCE',
 ] as const
 
 export const WIRE_DEFINITIONS_V2: WireDefinitionV2[] = [
@@ -97,6 +98,35 @@ export const WIRE_DEFINITIONS_V2: WireDefinitionV2[] = [
       { type: 'SCRIPT', name: 'SUPER_WRITE', project: 'packages/core', detail: 'Prepare reference data write batch' },
       { type: 'API_ENDPOINT', name: 'POST /api/reference/seed', project: 'services/api', detail: 'Execute reference data upserts' },
       { type: 'FRONTEND', name: 'ATLAS', platform: 'All Portals', view: '/modules/atlas', detail: 'Reference data visible in ATLAS' },
+    ],
+  },
+  {
+    wire_id: 'WIRE_INCOMING_CORRESPONDENCE',
+    name: 'Incoming Correspondence Processing',
+    description:
+      'Physical mail scan \u2192 classify \u2192 split \u2192 extract \u2192 validate \u2192 normalize \u2192 match \u2192 approve \u2192 write \u2192 ACF',
+    product_lines: ['ALL'],
+    data_domains: ['CORRESPONDENCE', 'DEMOGRAPHICS', 'ACCOUNTS'],
+    super_tools: [
+      'SUPER_CLASSIFY',
+      'SUPER_EXTRACT',
+      'SUPER_VALIDATE',
+      'SUPER_NORMALIZE',
+      'SUPER_MATCH',
+      'SUPER_WRITE',
+    ],
+    stages: [
+      { type: 'EXTERNAL', name: 'Google Drive', detail: 'Scanned mail PDF in intake folder' },
+      { type: 'CLOUD_FUNCTION', name: 'Intake Trigger', project: 'services/intake', detail: 'Firestore onCreate on intake_queue' },
+      { type: 'SCRIPT', name: 'SUPER_CLASSIFY', project: 'packages/core', detail: 'Boundary detect, split, label' },
+      { type: 'SCRIPT', name: 'SUPER_EXTRACT', project: 'packages/core', detail: 'Claude Vision document extraction (mode: vision)' },
+      { type: 'SCRIPT', name: 'SUPER_VALIDATE', project: 'packages/core', detail: 'Qualification gate' },
+      { type: 'SCRIPT', name: 'SUPER_NORMALIZE', project: 'packages/core', detail: '16 normalizers' },
+      { type: 'SCRIPT', name: 'SUPER_MATCH', project: 'packages/core', detail: '3-tier dedup' },
+      { type: 'API_ENDPOINT', name: 'Approval Pipeline', project: 'services/api', detail: 'Human review in Notifications APPROVALS tab' },
+      { type: 'SCRIPT', name: 'SUPER_WRITE', project: 'packages/core', detail: 'Write to Firestore' },
+      { type: 'SCRIPT', name: 'ACF Finalize', project: 'packages/core', detail: 'Create/route to ACF' },
+      { type: 'NOTIFICATION', name: 'Slack + In-App', detail: 'Notifications Module DATA tab' },
     ],
   },
 ]

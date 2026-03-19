@@ -8,6 +8,7 @@ import { SignInScreen } from './components/SignInScreen'
 import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
+import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
 import { IntakeFAB } from '@tomachina/ui/src/components/IntakeFAB'
 import { ReportButton } from '@tomachina/ui'
 
@@ -19,12 +20,14 @@ export default function PortalLayout({
   const { user, loading, signIn } = useAuth()
   const [commsOpen, setCommsOpen] = useState(false)
   const [connectOpen, setConnectOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
 
-  const panelOpen = commsOpen || connectOpen
+  const panelOpen = commsOpen || connectOpen || notificationsOpen
 
   const toggleComms = useCallback(() => {
     setCommsOpen((v) => !v)
     setConnectOpen(false)
+    setNotificationsOpen(false)
   }, [])
 
   const closeComms = useCallback(() => {
@@ -34,10 +37,21 @@ export default function PortalLayout({
   const toggleConnect = useCallback(() => {
     setConnectOpen((v) => !v)
     setCommsOpen(false)
+    setNotificationsOpen(false)
   }, [])
 
   const closeConnect = useCallback(() => {
     setConnectOpen(false)
+  }, [])
+
+  const toggleNotifications = useCallback(() => {
+    setNotificationsOpen((v) => !v)
+    setCommsOpen(false)
+    setConnectOpen(false)
+  }, [])
+
+  const closeNotifications = useCallback(() => {
+    setNotificationsOpen(false)
   }, [])
 
   if (loading) return <LoadingScreen />
@@ -50,6 +64,8 @@ export default function PortalLayout({
         commsOpen={commsOpen}
         onConnectToggle={toggleConnect}
         connectOpen={connectOpen}
+        onNotificationsToggle={toggleNotifications}
+        notificationsOpen={notificationsOpen}
         panelOpen={panelOpen}
       />
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -64,6 +80,9 @@ export default function PortalLayout({
 
       {/* RPI Connect — slide-out panel */}
       <ConnectPanel portal="prodash" open={connectOpen} onClose={closeConnect} />
+
+      {/* Notifications Module — slide-out panel */}
+      <NotificationsModule portal="prodash" open={notificationsOpen} onClose={closeNotifications} />
 
       {/* Intake FAB — floating action button for quick data entry */}
       <IntakeFAB />

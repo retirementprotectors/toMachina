@@ -15,6 +15,7 @@ import { ConnectedTab } from './components/tabs/ConnectedTab'
 import { ActivityTab } from './components/tabs/ActivityTab'
 import { AccessTab } from './components/tabs/AccessTab'
 import { PossibleDuplicates } from './components/PossibleDuplicates'
+import { ACFSection } from '@tomachina/ui/src/modules/ACFSection'
 
 // ---------------------------------------------------------------------------
 // CLIENT360 Detail Page — the heart of ProDash
@@ -98,6 +99,8 @@ export default function Client360Page({
         return <EstateTab client={client!} clientId={id} />
       case 'accounts':
         return <AccountsTab accounts={accounts} loading={accountsLoading} clientId={id} />
+      case 'acf':
+        return <ACFSection clientId={id} />
       case 'connected':
         return <ConnectedTab client={client!} clientId={id} />
       case 'access':

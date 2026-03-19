@@ -7,7 +7,7 @@ export type SourceMethod = 'API_FEED' | 'WEBHOOK' | 'MANUAL_CSV' | 'NOT_AVAILABL
 export type SourceFrequency = 'REALTIME' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'ON_DEMAND' | 'AS_NEEDED' | 'NONE'
 export type ToolType = 'FUNCTION' | 'MCP_TOOL' | 'API_ENDPOINT' | 'LAUNCHD' | 'SCRIPT'
 export type ToolCategory = 'INTAKE_QUEUING' | 'EXTRACTION_APPROVAL' | 'NORMALIZATION_VALIDATION' | 'MATCHING_DEDUP' | 'EXTERNAL_ENRICHMENT' | 'BULK_OPERATIONS'
-export type StageType = 'EXTERNAL' | 'MCP_TOOL' | 'GAS_FUNCTION' | 'API_ENDPOINT' | 'MATRIX_TAB' | 'FRONTEND' | 'LAUNCHD' | 'SCRIPT'
+export type StageType = 'EXTERNAL' | 'MCP_TOOL' | 'GAS_FUNCTION' | 'API_ENDPOINT' | 'MATRIX_TAB' | 'FRONTEND' | 'LAUNCHD' | 'SCRIPT' | 'CLOUD_FUNCTION' | 'NOTIFICATION'
 export type HealthStatus = 'GREEN' | 'YELLOW' | 'RED'
 export type AutomationType = 'LAUNCHD' | 'GAS_TRIGGER' | 'CLOUD_FUNCTION' | 'CLOUD_SCHEDULER'
 
@@ -161,7 +161,9 @@ export interface AtomicToolDefinition {
   name: string
   description: string
   /** Which super tools use this atomic tool */
-  used_by: string[]
+  used_by?: string[]
+  /** Tool category for ATLAS registry grouping */
+  category?: string
 }
 
 export interface AtomicToolResult<T = unknown> {

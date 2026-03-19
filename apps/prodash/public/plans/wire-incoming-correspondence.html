@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIRE_INCOMING_CORRESPONDENCE — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 640px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.engine { background: rgba(212,164,76,0.12); color: var(--gold); border: 1px solid rgba(212,164,76,0.28); }
+  .tag.tool { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .tag.infra { background: rgba(88,166,255,0.10); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+  .tag.audit { background: rgba(248,81,73,0.12); color: var(--red); border: 1px solid rgba(248,81,73,0.25); }
+  .tag.test { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; justify-content: center; }
+  .flow-step { padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .flow-arrow { padding: 0 6px; color: var(--dim); font-size: 16px; }
+  .wire-flow { display: flex; flex-direction: column; gap: 2px; margin: 24px 0; }
+  .wire-stage { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; }
+  .wire-stage .num { font-weight: 800; color: var(--gold); min-width: 20px; }
+  .wire-stage .name { font-weight: 700; color: var(--text); min-width: 160px; }
+  .wire-stage .detail { color: var(--muted); }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">FORGE Sprint &middot; SPRINT-WIRE-CORRESPONDENCE</div>
+  <h1>WIRE_INCOMING_CORRESPONDENCE</h1>
+  <div class="sub">Decompose the watcher into ATLAS tools, build the wire executor, create SUPER_CLASSIFY, move to cloud, land in Firestore. The first executable wire in The Machine.</div>
+</div>
+<div class="container">
+
+<h2>The <span class="accent">Wire</span></h2>
+<div class="wire-flow">
+  <div class="wire-stage"><span class="num">1</span><span class="name">GOOGLE DRIVE</span><span class="detail">Scanned mail PDF lands in intake folder</span></div>
+  <div class="wire-stage"><span class="num">2</span><span class="name">CLOUD RUN TRIGGER</span><span class="detail">Eventarc on Firestore intake_queue onCreate</span></div>
+  <div class="wire-stage"><span class="num">3</span><span class="name">SUPER_CLASSIFY</span><span class="detail">Boundary detect &rarr; split &rarr; label</span></div>
+  <div class="wire-stage"><span class="num">4</span><span class="name">SUPER_EXTRACT</span><span class="detail">Claude Vision document extraction (mode: vision)</span></div>
+  <div class="wire-stage"><span class="num">5</span><span class="name">SUPER_VALIDATE</span><span class="detail">Qualification gate &mdash; name + contact required</span></div>
+  <div class="wire-stage"><span class="num">6</span><span class="name">SUPER_NORMALIZE</span><span class="detail">16 normalizers across extracted fields</span></div>
+  <div class="wire-stage"><span class="num">7</span><span class="name">SUPER_MATCH</span><span class="detail">3-tier dedup against existing Firestore clients</span></div>
+  <div class="wire-stage"><span class="num">8</span><span class="name">APPROVAL</span><span class="detail">Human review in Notifications APPROVALS tab</span></div>
+  <div class="wire-stage"><span class="num">9</span><span class="name">SUPER_WRITE</span><span class="detail">Write client + accounts to Firestore</span></div>
+  <div class="wire-stage"><span class="num">10</span><span class="name">ACF FINALIZE</span><span class="detail">Create/route to Active Client File (from ACF sprint)</span></div>
+  <div class="wire-stage"><span class="num">11</span><span class="name">NOTIFY</span><span class="detail">Slack + Notifications Module DATA tab</span></div>
+</div>
+
+<h2>Deliverable <span class="accent">Overview</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Layer</th><th>Deliverable</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TRK-303</strong></td><td><span class="tag audit">Pre-Build</span></td><td>Pipeline Audit (15-point checklist)</td></tr>
+    <tr><td><strong>TRK-304</strong></td><td><span class="tag audit">Pre-Build</span></td><td>Input Folder Inventory verification</td></tr>
+    <tr><td><strong>TRK-291</strong></td><td><span class="tag engine">Engine</span></td><td>Wire Executor &mdash; the orchestrator</td></tr>
+    <tr><td><strong>TRK-292</strong></td><td><span class="tag engine">Engine</span></td><td>SUPER_CLASSIFY SuperTool</td></tr>
+    <tr><td><strong>TRK-293</strong></td><td><span class="tag tool">Tool</span></td><td><code>classify-boundaries</code> &mdash; Claude Vision</td></tr>
+    <tr><td><strong>TRK-294</strong></td><td><span class="tag tool">Tool</span></td><td><code>split-pdf</code> &mdash; PyMuPDF</td></tr>
+    <tr><td><strong>TRK-295</strong></td><td><span class="tag tool">Tool</span></td><td><code>label-document</code> &mdash; taxonomy</td></tr>
+    <tr><td><strong>TRK-296</strong></td><td><span class="tag tool">Tool</span></td><td>SUPER_EXTRACT vision mode enhancement</td></tr>
+    <tr><td><strong>TRK-297</strong></td><td><span class="tag infra">Infra</span></td><td>Cloud trigger &mdash; replace launchd</td></tr>
+    <tr><td><strong>TRK-298</strong></td><td><span class="tag infra">Infra</span></td><td>Approval rewiring &mdash; toMachina API</td></tr>
+    <tr><td><strong>TRK-299</strong></td><td><span class="tag engine">Engine</span></td><td>Wire definition + registration</td></tr>
+    <tr><td><strong>TRK-300</strong></td><td><span class="tag tool">Tool</span></td><td>ATLAS registration (8 tools, 2 categories)</td></tr>
+    <tr><td><strong>TRK-301</strong></td><td><span class="tag tool">Tool</span></td><td>Slack notification tools (3)</td></tr>
+    <tr><td><strong>TRK-302</strong></td><td><span class="tag test">Test</span></td><td>Phase A-E Testing (5 phases)</td></tr>
+  </tbody>
+</table>
+
+<h2>Build <span class="accent">Order</span></h2>
+<div class="flow">
+  <div class="flow-step" style="border-color:var(--red)"><strong>L0</strong> Audit</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L1</strong> Atomic Tools</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L2</strong> SUPER_CLASSIFY</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L3</strong> Wire Executor + Def</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L4</strong> Rewiring + Cloud</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step" style="border-color:var(--teal)"><strong>L5</strong> Testing</div>
+</div>
+
+<h2>Layer 0: <span class="accent">Pre-Build Audit</span></h2>
+<div class="card">
+  <h4>TRK-303: Pipeline Audit (15 points)</h4>
+  <ul>
+    <li>Sheets queue vs Firestore queue sync status</li>
+    <li>RAPID_API endpoint health (archived but still called)</li>
+    <li>Stuck approval batches + _INTAKE_QUEUE status distribution</li>
+    <li>Split PDF re-processing loops</li>
+    <li>Sample 20 watcher records &mdash; normalization quality</li>
+    <li>Duplicate client detection (no SUPER_MATCH in old pipeline)</li>
+    <li>Commission + Meet intake channel status (non-functional?)</li>
+    <li>Cloud Function deployment health</li>
+    <li>Watcher crash logs + uptime</li>
+  </ul>
+</div>
+
+<h2>Layer 1: <span class="accent">Atomic Tools</span></h2>
+<div class="card">
+  <h4>TRK-293: classify-boundaries</h4>
+  <p>Extract from <code>watcher.js:1373-1493</code>. Claude Vision analyzes all pages, detects document boundaries. <strong>Keep the proven prompt verbatim.</strong></p>
+</div>
+<div class="card">
+  <h4>TRK-294: split-pdf</h4>
+  <p>Extract from <code>watcher.js:1503-1565</code>. PyMuPDF via Python subprocess. Cloud Run needs Python + PyMuPDF in Docker image.</p>
+</div>
+<div class="card">
+  <h4>TRK-295: label-document</h4>
+  <p>Taxonomy lookup + file labeling. Phase 1: reads <code>_DOCUMENT_TAXONOMY</code> from Sheets (bridge). Phase 2: Firestore.</p>
+</div>
+<div class="card">
+  <h4>TRK-296: SUPER_EXTRACT vision mode</h4>
+  <p>Add <code>mode: 'vision'</code> to existing extract.ts. Extract <code>extractMailData()</code> and <code>extractDataFromImages()</code> from watcher.js. <strong>Keep proven Claude Vision prompts verbatim.</strong> Existing CSV mode unchanged.</p>
+</div>
+
+<h2>Layer 2&ndash;3: <span class="accent">Engine</span></h2>
+<div class="card">
+  <h4>TRK-292: SUPER_CLASSIFY</h4>
+  <p>Composes: classify-boundaries &rarr; split-pdf &rarr; label-document. Single-doc passthrough if only 1 document detected.</p>
+</div>
+<div class="card">
+  <h4>TRK-291: Wire Executor &mdash; THE missing piece</h4>
+  <p><code>executeWire(wireId, input, context)</code> &mdash; loads wire definition, runs SuperTools sequentially, passes output between stages, tracks status per stage, writes <code>wire_execution</code> audit doc, pauses at approval stage, resumes on approval execution.</p>
+</div>
+
+<h2>Layer 4: <span class="accent">Infrastructure</span></h2>
+<div class="card">
+  <h4>TRK-297: Cloud Trigger</h4>
+  <p>Eventarc on Firestore <code>intake_queue</code> onCreate &rarr; Cloud Run &rarr; <code>executeWire()</code>. Docker: Node.js + Python + PyMuPDF. Scales to zero. No timeout. Replaces launchd.</p>
+</div>
+<div class="card">
+  <h4>TRK-298: Approval Rewiring</h4>
+  <p>Wire executor creates approval batch via toMachina <code>POST /api/approval/batches</code> (not archived GAS). Pauses wire at <code>AWAITING_APPROVAL</code>. Resumes on execute &rarr; SUPER_WRITE &rarr; ACF &rarr; notify.</p>
+</div>
+
+<h2>Layer 5: <span class="accent">Testing</span></h2>
+<div class="card">
+  <h4>TRK-302: 5-Phase Test Plan</h4>
+  <table>
+    <thead><tr><th>Phase</th><th>What</th><th>Risk</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A</strong></td><td>Unit: 4 new tools</td><td>Low</td></tr>
+      <tr><td><strong>B</strong></td><td>Composition: 2 SuperTools</td><td>Medium</td></tr>
+      <tr><td style="color:var(--red)"><strong>C</strong></td><td>Integration: existing SuperTools with doc data</td><td style="color:var(--red)"><strong>HIGH</strong></td></tr>
+      <tr><td><strong>D</strong></td><td>Shadow: full wire vs old watcher (20 docs)</td><td>Medium</td></tr>
+      <tr><td><strong>E</strong></td><td>Cutover: disable launchd, enable cloud</td><td>Low (rollback available)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>External <span class="accent">Dependencies</span></h2>
+<ul>
+  <li><strong>SPRINT-NOTIFICATIONS-MODULE</strong> &mdash; APPROVALS tab for human review (TRK-287)</li>
+  <li><strong>SPRINT-ACF-OVERHAUL</strong> &mdash; acf-create + acf-route tools (TRK-267, TRK-268)</li>
+  <li>Both must be deployed before Phase D shadow testing</li>
+</ul>
+
+<h2>Key <span class="accent">Rules</span></h2>
+<ul>
+  <li><strong>Proven prompts are sacred.</strong> Extract Claude Vision prompts from watcher.js verbatim. Do NOT rewrite.</li>
+  <li><strong>Old watcher is NEVER deleted.</strong> Disable launchd, don't uninstall. One command to roll back.</li>
+  <li><strong>Taxonomy stays in Sheets (Phase 1).</strong> Don't block on Firestore migration for config.</li>
+  <li><strong>Wire executor pause/resume:</strong> Firestore listener on approval_batch status, not polling.</li>
+</ul>
+
+</div>
+</body>
+</html>

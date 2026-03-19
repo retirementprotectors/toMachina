@@ -8,6 +8,8 @@ import { initializeApp, getApps } from 'firebase-admin/app'
 import { onRequest } from 'firebase-functions/v2/https'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 
+import { onClientWrite, onAccountWrite } from './notification-triggers.js'
+import { onIntakeQueueCreated } from './wire-trigger.js'
 import { scanSpcFolders } from './spc-intake.js'
 import { scanMeetRecordings } from './meet-intake.js'
 import { scanMailIntake } from './mail-intake.js'
@@ -139,3 +141,15 @@ export const queueStatus = onRequest(
     res.json({ success: true, data: { by_status: byStatus, by_source: bySource } })
   }
 )
+
+/**
+ * Notification Triggers — create notification docs on client/account writes.
+ */
+export { onClientWrite, onAccountWrite }
+
+/**
+ * Wire Trigger — process intake_queue entries through wire executor.
+ * Firestore onCreate on intake_queue/{queueId}.
+ * Maps source field to wire ID and calls executeWire().
+ */
+export { onIntakeQueueCreated }

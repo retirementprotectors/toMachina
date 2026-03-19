@@ -158,11 +158,13 @@ interface PortalSidebarProps {
   commsOpen?: boolean
   onConnectToggle?: () => void
   connectOpen?: boolean
+  onNotificationsToggle?: () => void
+  notificationsOpen?: boolean
   panelOpen?: boolean
   onCollapsedChange?: (collapsed: boolean) => void
 }
 
-export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen, panelOpen, onCollapsedChange }: PortalSidebarProps) {
+export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen, onNotificationsToggle, notificationsOpen, panelOpen, onCollapsedChange }: PortalSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
@@ -618,6 +620,42 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
               style={{ height: '20px', width: 'auto', opacity: connectOpen ? 1 : 0.7 }}
             />
             {!collapsed && <span>Connect</span>}
+          </button>
+        </div>
+
+        {/* Notifications — portal-tinted, opens slide-out */}
+        <div className="border-t border-[var(--border-subtle)] px-2 py-1">
+          <button
+            onClick={onNotificationsToggle}
+            title={collapsed ? 'Notifications' : undefined}
+            className={`
+              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
+              transition-all duration-150
+              ${collapsed ? 'justify-center' : ''}
+              ${notificationsOpen
+                ? 'bg-[rgba(74,122,181,0.15)]'
+                : 'bg-[rgba(74,122,181,0.06)] hover:bg-[rgba(74,122,181,0.15)]'
+              }
+            `}
+            style={{
+              color: notificationsOpen
+                ? 'var(--portal)'
+                : 'var(--text-secondary)',
+            }}
+          >
+            {notificationsOpen && (
+              <div
+                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
+                style={{ background: 'var(--portal)' }}
+              />
+            )}
+            <span
+              className="material-icons-outlined"
+              style={{ fontSize: '18px', color: notificationsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
+            >
+              notifications
+            </span>
+            {!collapsed && <span>Notifications</span>}
           </button>
         </div>
 

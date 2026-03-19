@@ -10,6 +10,7 @@ import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
 import { ColumnSelector, getDefaultVisibleColumns } from './components/ColumnSelector'
+import { ACFStatusIcon } from '@tomachina/ui/src/modules/ACFStatusIcon'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -688,21 +689,13 @@ export default function ClientsPage() {
                         </td>
                       )}
 
-                      {/* ACF (Google Drive folder) */}
+                      {/* ACF (Google Drive folder) — status icon with tooltip */}
                       {col('acf') && (
-                        <td className="px-3 py-3 text-center">
-                          {client.gdrive_folder_url ? (
-                            <a
-                              href={String(client.gdrive_folder_url)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors"
-                              title="Open Active Client File"
-                            >
-                              <span className="material-icons-outlined text-[18px]">folder_open</span>
-                            </a>
-                          ) : dash}
+                        <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                          <ACFStatusIcon
+                            clientId={client._id || ''}
+                            gdriveFolderUrl={client.gdrive_folder_url ? String(client.gdrive_folder_url) : null}
+                          />
                         </td>
                       )}
 

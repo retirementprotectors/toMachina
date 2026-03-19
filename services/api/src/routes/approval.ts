@@ -33,6 +33,7 @@ import {
   writeThroughBridge,
   getPaginationParams,
 } from '../lib/helpers.js'
+import { resumeWireAfterApproval } from './wire.js'
 
 export const approvalRoutes = Router()
 
@@ -507,12 +508,24 @@ approvalRoutes.post('/batches/:id/execute', async (req: Request, res: Response) 
       }
     }
 
+    // If this batch is part of a wire execution, resume the wire (SUPER_WRITE → ACF → notify)
+    const wireExecutionId = (batch as unknown as Record<string, unknown>).wire_execution_id as string | undefined
+    if (wireExecutionId && results.some((r) => r.status === 'success')) {
+      try {
+        await resumeWireAfterApproval(wireExecutionId, executorEmail)
+      } catch {
+        // Non-critical — wire resume failure doesn't invalidate the batch execution
+        console.warn(`[approval] Wire resume failed for execution ${wireExecutionId}`)
+      }
+    }
+
     res.json(successResponse({
       batch_id: batchId,
       status: finalizedBatch.status,
       executed: results.filter((r) => r.status === 'success').length,
       errors: results.filter((r) => r.status === 'error').length,
       training_captured: trainingRecords.length,
+      wire_resumed: !!wireExecutionId,
       results,
     }))
   } catch (err) {

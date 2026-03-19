@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MATRIX Reconciliation Review</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1219; color: #e2e8f0; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 800; color: #c8872e; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+  .stats { display: flex; gap: 12px; margin-bottom: 24px; }
+  .stat { background: #1c2333; border: 1px solid #2a3347; border-radius: 10px; padding: 16px 20px; flex: 1; }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; }
+  .stat-value { font-size: 28px; font-weight: 800; margin-top: 4px; }
+  .stat-value.green { color: #22c55e; }
+  .stat-value.yellow { color: #fbbf24; }
+  .stat-value.red { color: #ef4444; }
+  .stat-value.blue { color: #3b82f6; }
+  h2 { font-size: 16px; font-weight: 700; color: #e2e8f0; margin: 24px 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #1c2333; color: #94a3b8; text-align: left; padding: 10px 12px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #2a3347; }
+  td { padding: 8px 12px; border-bottom: 1px solid #1e293b; }
+  tr:hover { background: #1c2333; }
+  .actions { margin: 24px 0; display: flex; gap: 12px; }
+  button { padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: #c8872e; color: white; }
+  .btn-secondary { background: #1c2333; color: #94a3b8; border: 1px solid #2a3347; }
+  .btn-primary:hover { background: #a06e24; }
+  #export-json { display: none; }
+</style>
+</head>
+<body>
+  <h1>MATRIX Reconciliation Review</h1>
+  <p class="subtitle">Generated 2026-03-19 — Review and approve imports</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total Lost</div><div class="stat-value">321</div></div>
+    <div class="stat"><div class="stat-label">Ready to Import</div><div class="stat-value green">212</div></div>
+    <div class="stat"><div class="stat-label">Skipped (Inactive)</div><div class="stat-value yellow">1</div></div>
+    <div class="stat"><div class="stat-label">Skipped (Duplicate)</div><div class="stat-value blue">108</div></div>
+    <div class="stat"><div class="stat-label">Investigate</div><div class="stat-value red">0</div></div>
+  </div>
+
+  <h2>Ready to Import (212)</h2>
+  <p style="font-size:12px;color:#64748b;margin-bottom:12px">Uncheck any you do NOT want imported. Then click Export.</p>
+  <table>
+    <thead><tr><th></th><th>Name</th><th>Email</th><th>Phone</th><th>DOB</th><th>Location</th><th>Status</th><th>Source</th></tr></thead>
+    <tbody><tr>
+      <td><input type="checkbox" checked data-id="74a09849-662c-468d-ac9e-43e289d7538f" class="import-check" /></td>
+      <td>James Alderson</td>
+      <td></td>
+      <td>(319) 217-0112</td>
+      <td></td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="15198d1e-c242-450f-8299-df38765c6dd9" class="import-check" /></td>
+      <td>James Alderson</td>
+      <td></td>
+      <td>(319) 217-0112</td>
+      <td></td>
+      <td>, </td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="c6cce374-fe22-42b7-8c85-d8d8378f9d13" class="import-check" /></td>
+      <td>James Alderson</td>
+      <td></td>
+      <td>(319) 217-0112</td>
+      <td></td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="61db11ce-9911-48cf-a2ac-c79e74242cb0" class="import-check" /></td>
+      <td>James Alderson</td>
+      <td></td>
+      <td>(319) 217-0112</td>
+      <td>1951-12-20</td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="ac0b3319-5eaa-4e27-bd88-ee9dd60f6e75" class="import-check" /></td>
+      <td>James Alderson</td>
+      <td></td>
+      <td>(319) 217-0112</td>
+      <td>1951-12-20</td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="39f1b468-d8aa-4dcf-969e-2f79010c4dab" class="import-check" /></td>
+      <td>Terry Allen</td>
+      <td></td>
+      <td>(515) 802-0970</td>
+      <td>1948-03-09</td>
+      <td>Altoona, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="c60b7f07-3f65-4a09-a84b-06f74de61e9a" class="import-check" /></td>
+      <td>Terry Allen</td>
+      <td></td>
+      <td>(515) 802-0970</td>
+      <td>1948-03-08</td>
+      <td>Altoona, IA</td>
+      <td>Inactive - No Active Accounts</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="0a01dc86-5eda-4ea9-a1ad-3d6d98ac3416" class="import-check" /></td>
+      <td>Terry Allen</td>
+      <td></td>
+      <td>(515) 802-0970</td>
+      <td>1948-03-09</td>
+      <td>Altoona, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="96c3549c-8829-4746-9b7e-a4d5feaf82e8" class="import-check" /></td>
+      <td>Haley Banwart</td>
+      <td></td>
+      <td>(515) 715-1081</td>
+      <td></td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="05cc93c6-f965-4273-9d4c-ae84e4537848" class="import-check" /></td>
+      <td>Haley Banwart</td>
+      <td></td>
+      <td>(515) 715-1081</td>
+      <td></td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2b735d2c-a1bd-4b17-84ad-19fbdddf7436" class="import-check" /></td>
+      <td>Haley Banwart</td>
+      <td></td>
+      <td>(515) 715-1081</td>
+      <td></td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="c3f97f31-9472-467c-b7c5-ba62e92a1bff" class="import-check" /></td>
+      <td>Haley Banwart</td>
+      <td></td>
+      <td>(515) 715-1081</td>
+      <td></td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="ae1c6d93-0648-43cf-b148-99dca33ea4e3" class="import-check" /></td>
+      <td>Haley Banwart</td>
+      <td></td>
+      <td>(515) 715-1081</td>
+      <td></td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2c3aa1d9-d507-4bce-ba2d-b222f1f67030" class="import-check" /></td>
+      <td>Haley Banwart</td>
+      <td></td>
+      <td>(515) 715-1081</td>
+      <td></td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d4a8d790-fe32-4065-8d50-4a6dc8dabe7f" class="import-check" /></td>
+      <td>Haley Banwart</td>
+      <td></td>
+      <td>(515) 715-1081</td>
+      <td></td>
+      <td>, IA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d08bae2c-f838-42c0-a0cb-14e2642b8602" class="import-check" /></td>
+      <td>Gregory Becker</td>
+      <td></td>
+      <td>(319) 240-5880</td>
+      <td>1961-07-27</td>
+      <td>, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e653e3f9-076d-4b9a-bafd-30f3069312b7" class="import-check" /></td>
+      <td>Curtis Beckley</td>
+      <td></td>
+      <td></td>
+      <td>1946-01-19</td>
+      <td>Fort Dodge, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9aab4830-1870-445e-bcdf-5995947c56fb" class="import-check" /></td>
+      <td>Sonja Bloomquist</td>
+      <td></td>
+      <td></td>
+      <td>1943-03-02</td>
+      <td>Fort Dodge, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="7e31e005-3cec-4edf-acb3-b1d053d2214e" class="import-check" /></td>
+      <td>Sonja Bloomquist</td>
+      <td></td>
+      <td></td>
+      <td>1943-03-02</td>
+      <td>Fort Dodge, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2b397990-295a-44b5-97a3-074102d0c938" class="import-check" /></td>
+      <td>Paul Cooper</td>
+      <td></td>
+      <td>(425) 842-8074</td>
+      <td></td>
+      <td>, WA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="8ab3f713-ec30-405a-983a-e1e7d0e503fc" class="import-check" /></td>
+      <td>Paul Cooper</td>
+      <td></td>
+      <td>(425) 842-8074</td>
+      <td></td>
+      <td>, WA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="eea8fb7a-e12b-454e-90bc-65d0b025d26e" class="import-check" /></td>
+      <td>Paul Cooper</td>
+      <td></td>
+      <td>(425) 842-8074</td>
+      <td></td>
+      <td>, WA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="5a83408e-901d-4d8e-9d1c-891b53bba066" class="import-check" /></td>
+      <td>Paul Cooper</td>
+      <td></td>
+      <td>(425) 842-8074</td>
+      <td></td>
+      <td>, WA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="11d49273-4171-401f-9ba4-ff1abb1a7992" class="import-check" /></td>
+      <td>Paul Cooper</td>
+      <td></td>
+      <td>(425) 842-8074</td>
+      <td></td>
+      <td>, WA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="235df499-b895-403d-b813-15866e9cae87" class="import-check" /></td>
+      <td>Paul Cooper</td>
+      <td></td>
+      <td>(425) 842-8074</td>
+      <td></td>
+      <td>, WA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9da6a3c2-b86d-44df-b519-f41eb113a9d5" class="import-check" /></td>
+      <td>Paul Cooper</td>
+      <td></td>
+      <td>(425) 842-8074</td>
+      <td></td>
+      <td>, WA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="5c36882a-23b3-452a-81a1-032bb57cd3f4" class="import-check" /></td>
+      <td>Larry Dean</td>
+      <td></td>
+      <td></td>
+      <td>1943-12-03</td>
+      <td>, KS</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="46fd3afa-1d1c-448b-8f03-f1ada1df5fde" class="import-check" /></td>
+      <td>Larry Dean</td>
+      <td></td>
+      <td></td>
+      <td>1943-12-03</td>
+      <td>, KS</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="c0c72150-aed7-4be9-a445-7e11baf33c79" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="ff49b193-a7f9-42bf-9a2c-f7800b78dce0" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="4c1a6fe0-e02b-4efe-a0a9-867a14926c5a" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="ddbfd9f5-a35b-450d-9bf0-82cb7e3a0d72" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="938b2c57-b8dd-4008-99a2-12654dfc35ed" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="5d5b7b57-4d28-49bc-90f7-7bc138cb551d" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="972ee3fb-1d39-461f-a41d-b609564a5177" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2f6d9f47-beb4-4e00-abdf-a6dce48d58f8" class="import-check" /></td>
+      <td>Kenne Dickerson</td>
+      <td></td>
+      <td>(515) 256-0725</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="7ed54bfd-ab0d-4093-a2e6-b6748453e799" class="import-check" /></td>
+      <td>Gloria Divelbiss</td>
+      <td></td>
+      <td>(641) 660-6787</td>
+      <td>1939-10-01</td>
+      <td>Oskaloosa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="60ee20df-632a-4883-8d69-8a9981d76bef" class="import-check" /></td>
+      <td>Gloria Divelbiss</td>
+      <td></td>
+      <td>(641) 660-6787</td>
+      <td>1939-10-01</td>
+      <td>Oskaloosa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="4b57c75d-5e5e-4a6e-bf93-d830ddbd8ab3" class="import-check" /></td>
+      <td>Gloria Divelbiss</td>
+      <td></td>
+      <td>(641) 660-6787</td>
+      <td>1939-10-01</td>
+      <td>Oskaloosa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="7aa13db1-bf6f-490f-ad7c-4c982c221730" class="import-check" /></td>
+      <td>Kenneth Even</td>
+      <td></td>
+      <td>(319) 232-7340</td>
+      <td>1944-08-20</td>
+      <td>Waterloo, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2541fdf9-9d13-4233-9516-83d4074e8dc5" class="import-check" /></td>
+      <td>Sharon Even</td>
+      <td></td>
+      <td>(319) 232-7340</td>
+      <td>1946-04-06</td>
+      <td>Waterloo, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e547edf2-c6f4-4672-ad90-606240f711d8" class="import-check" /></td>
+      <td>Linda Foster</td>
+      <td></td>
+      <td>(641) 740-2002</td>
+      <td>1944-11-07</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f8eb290f-1b70-4bdb-90b3-582a13230032" class="import-check" /></td>
+      <td>Linda Foster</td>
+      <td></td>
+      <td>(641) 740-2002</td>
+      <td>1944-11-06</td>
+      <td>Adair, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="582a850f-8b5b-48fb-a94c-ac2ea4dfd585" class="import-check" /></td>
+      <td>Linda Foster</td>
+      <td></td>
+      <td>(641) 740-2002</td>
+      <td>1944-11-07</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="04a4bfda-21cf-4c25-831a-11af84c9d09f" class="import-check" /></td>
+      <td>Linda Foster</td>
+      <td></td>
+      <td>(641) 740-2002</td>
+      <td>1944-11-06</td>
+      <td>Adair, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="6d45f3d0-acab-419b-9ed1-9a41024fca26" class="import-check" /></td>
+      <td>Linda Foster</td>
+      <td></td>
+      <td>(641) 740-2002</td>
+      <td>1944-11-07</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="595539de-3b32-46d9-987f-8bed56c94c5d" class="import-check" /></td>
+      <td>Linda Foster</td>
+      <td></td>
+      <td>(641) 740-2002</td>
+      <td>1944-11-06</td>
+      <td>Adair, MO</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f21dd659-433d-40ea-8d38-2b1170f65975" class="import-check" /></td>
+      <td>Jeffrey Frost</td>
+      <td></td>
+      <td>3192961830</td>
+      <td>1959-12-08</td>
+      <td>La Porte City, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="bae8ebe1-8b77-42af-836b-1b8fd5fd354b" class="import-check" /></td>
+      <td>Jennifer Frost</td>
+      <td></td>
+      <td>(319) 939-2640</td>
+      <td>1980-12-27</td>
+      <td>, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="92fa80c0-1a49-40e9-8aa7-33dbbd410587" class="import-check" /></td>
+      <td>Delores Gibson</td>
+      <td></td>
+      <td>(515) 977-1302</td>
+      <td></td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="55070aa4-0706-4fcc-a6fd-53d018ac6e2d" class="import-check" /></td>
+      <td>Christine Grillo</td>
+      <td>cagrillo@hotmail.com</td>
+      <td>(515) 230-7095</td>
+      <td>1949-06-15</td>
+      <td>Boone, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="faf6b16d-1413-4026-bcc1-a1e8d5b87915" class="import-check" /></td>
+      <td>Christine Grillo</td>
+      <td>cagrillo@hotmail.com</td>
+      <td>(515) 230-7095</td>
+      <td>1949-06-15</td>
+      <td>Boone, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="45acf9b7-69cf-4b15-959f-08cf992720bc" class="import-check" /></td>
+      <td>Dale Gronoski</td>
+      <td></td>
+      <td>(319) 239-3156</td>
+      <td></td>
+      <td>Waterloo, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="7fd3c6b5-a9f0-4018-acd2-d219c100e123" class="import-check" /></td>
+      <td>Dale Gronoski</td>
+      <td></td>
+      <td>(319) 239-3156</td>
+      <td></td>
+      <td>Waterloo, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="ea7f8b26-c23d-4a60-87b6-a19f19eac24f" class="import-check" /></td>
+      <td>Dale Gronoski</td>
+      <td></td>
+      <td>(319) 239-3156</td>
+      <td></td>
+      <td>Waterloo, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="10ffd1a9-b36f-4e30-a1e8-3d3dcfe5bfe8" class="import-check" /></td>
+      <td>Dale Gronoski</td>
+      <td></td>
+      <td>(319) 239-3156</td>
+      <td></td>
+      <td>Waterloo, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="4c0cb724-54af-42ac-a018-40f4ee85d93f" class="import-check" /></td>
+      <td>Dale Gronoski</td>
+      <td></td>
+      <td>(319) 239-3156</td>
+      <td></td>
+      <td>Waterloo, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="21ec0920-465d-4c47-8732-2b4031dae095" class="import-check" /></td>
+      <td>Dale Gronoski</td>
+      <td></td>
+      <td>(319) 239-3156</td>
+      <td></td>
+      <td>Waterloo, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="0586de5c-ae94-4a7e-bcf0-74c308cefc66" class="import-check" /></td>
+      <td>Linda Hall</td>
+      <td></td>
+      <td>(319) 752-8754</td>
+      <td>1953-01-25</td>
+      <td>Burlington, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="5253ac3e-1265-49b7-9506-9ad84f5741af" class="import-check" /></td>
+      <td>Linda Hall</td>
+      <td></td>
+      <td>(319) 752-8754</td>
+      <td>1953-01-26</td>
+      <td>Burlington, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="3ce7e689-53d2-43b6-9035-31ab4d50e01d" class="import-check" /></td>
+      <td>Linda Hall</td>
+      <td></td>
+      <td>(319) 752-8754</td>
+      <td>1953-01-25</td>
+      <td>Burlington, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="6d581fe2-135f-4b4a-9ca5-a1f36a9128f2" class="import-check" /></td>
+      <td>Linda Hall</td>
+      <td></td>
+      <td>(319) 752-8754</td>
+      <td>1953-01-26</td>
+      <td>Burlington, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="15ba7728-b36f-4c3e-9f40-0dd22d470237" class="import-check" /></td>
+      <td>Linda Hall</td>
+      <td></td>
+      <td>(319) 752-8754</td>
+      <td>1953-01-25</td>
+      <td>Burlington, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2d8867cf-142f-4b45-8ab3-58bab942715c" class="import-check" /></td>
+      <td>Linda Hall</td>
+      <td></td>
+      <td>(319) 752-8754</td>
+      <td>1953-01-26</td>
+      <td>Burlington, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="552eaed8-fd36-4a54-87e2-c2015860b3ad" class="import-check" /></td>
+      <td>Joyce Hoyt</td>
+      <td></td>
+      <td></td>
+      <td>1946-09-18</td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b8bd6ff5-2eb3-4e24-b1db-b4668b527602" class="import-check" /></td>
+      <td>Joyce Hoyt</td>
+      <td></td>
+      <td></td>
+      <td>1946-09-18</td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d10079ae-bf2d-4db9-91c6-47263a228b7a" class="import-check" /></td>
+      <td>Axford Ins Agnt</td>
+      <td></td>
+      <td>(308) 384-2580</td>
+      <td></td>
+      <td>Grand Island, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d671edee-a05b-421d-9abb-d0aed2d191c1" class="import-check" /></td>
+      <td>Axford Ins Agnt</td>
+      <td></td>
+      <td>(308) 384-2580</td>
+      <td></td>
+      <td>Grand Island, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="905f1b45-e2f5-4e31-9aae-e7b5088bb54a" class="import-check" /></td>
+      <td>Axford Ins Agnt</td>
+      <td></td>
+      <td>(308) 384-2580</td>
+      <td></td>
+      <td>Grand Island, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="decedee6-e710-4d58-a74f-268387a50aa9" class="import-check" /></td>
+      <td>Axford Ins Agnt</td>
+      <td></td>
+      <td>(308) 384-2580</td>
+      <td></td>
+      <td>Grand Island, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="847ef493-abfc-4f03-9a6d-66b939b84c55" class="import-check" /></td>
+      <td>Axford Ins Agnt</td>
+      <td></td>
+      <td>(308) 384-2580</td>
+      <td></td>
+      <td>Grand Island, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="7512e7b5-8879-4885-b626-3681f6005f36" class="import-check" /></td>
+      <td>Axford Ins Agnt</td>
+      <td></td>
+      <td>(308) 384-2580</td>
+      <td></td>
+      <td>Grand Island, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="3907de23-5348-4eee-98bf-a43de44b6307" class="import-check" /></td>
+      <td>Axford Ins Agnt</td>
+      <td></td>
+      <td>(308) 384-2580</td>
+      <td></td>
+      <td>Grand Island, NE</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="aec412ce-d97e-4918-a172-d259b50bb781" class="import-check" /></td>
+      <td>Christine Jarvis</td>
+      <td></td>
+      <td>(319) 371-0414</td>
+      <td>1960-11-30</td>
+      <td>Fort Madison, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="14a30ca5-24d6-47a1-a53e-1d5695894a26" class="import-check" /></td>
+      <td>Christine Jarvis</td>
+      <td></td>
+      <td>(319) 371-0414</td>
+      <td>1960-11-30</td>
+      <td>Fort Madison, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="de5e3029-c096-4e08-a850-a0f89b2bf970" class="import-check" /></td>
+      <td>Christine Jarvis</td>
+      <td></td>
+      <td>(319) 371-0414</td>
+      <td>1960-11-30</td>
+      <td>Fort Madison, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a022675e-5fda-4d55-a7b8-45ebf2b0d8ae" class="import-check" /></td>
+      <td>Christine Jarvis</td>
+      <td></td>
+      <td>(319) 371-0414</td>
+      <td>1960-12-01</td>
+      <td>Fort Madison, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e2d673e8-8e03-4228-a96d-d9c153098bcd" class="import-check" /></td>
+      <td>Christine Jarvis</td>
+      <td></td>
+      <td>(319) 371-0414</td>
+      <td>1960-11-30</td>
+      <td>Fort Madison, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="3bd256d6-c0f8-4540-8ae5-aba5c3e1e34f" class="import-check" /></td>
+      <td>Christine Jarvis</td>
+      <td></td>
+      <td>(319) 371-0414</td>
+      <td>1960-12-01</td>
+      <td>Fort Madison, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f373d8b7-2240-45dd-b9ca-425829c5bdbf" class="import-check" /></td>
+      <td>Arthur Jennings</td>
+      <td></td>
+      <td></td>
+      <td>1957-12-04</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f405b7ae-1a93-419c-a7ff-9490f9faa27d" class="import-check" /></td>
+      <td>Arthur Jennings</td>
+      <td></td>
+      <td></td>
+      <td>1957-12-04</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="46dccbf1-f233-43cb-ba25-c839cc41b73c" class="import-check" /></td>
+      <td>Arthur Jennings</td>
+      <td></td>
+      <td></td>
+      <td>1957-12-04</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="814417ca-3cac-44ed-a1ac-c68817d187d5" class="import-check" /></td>
+      <td>Arthur Jennings</td>
+      <td></td>
+      <td></td>
+      <td>1957-12-04</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="814fc9a3-fb51-46be-b4cd-397d921c952d" class="import-check" /></td>
+      <td>Arthur Jennings</td>
+      <td></td>
+      <td></td>
+      <td>1957-12-04</td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="3ac8f957-2134-4792-bc2e-c31d6c3da317" class="import-check" /></td>
+      <td>Donald Jones</td>
+      <td></td>
+      <td>(319) 231-2599</td>
+      <td>1947-03-03</td>
+      <td>Cedar Falls, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9148dcb2-656c-4ebd-87cf-432a95238edf" class="import-check" /></td>
+      <td>Donald Jones</td>
+      <td></td>
+      <td>(319) 231-2599</td>
+      <td>1947-03-03</td>
+      <td>Cedar Falls, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d7607978-fa09-42d6-8a23-c13190177151" class="import-check" /></td>
+      <td>Donald Jones</td>
+      <td></td>
+      <td>(319) 231-2599</td>
+      <td>1947-03-03</td>
+      <td>Cedar Falls, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="91459b9d-55be-490b-a3a8-3c48e3cc284c" class="import-check" /></td>
+      <td>Sandy Koechner</td>
+      <td></td>
+      <td></td>
+      <td>1945-06-13</td>
+      <td>Tipton, MO</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="1b1dee74-f725-47bc-ac8e-c43e9653563e" class="import-check" /></td>
+      <td>Sue Kos</td>
+      <td></td>
+      <td></td>
+      <td>1959-04-03</td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="abe9745d-fe4c-4fbd-9b46-6703ea643502" class="import-check" /></td>
+      <td>Sue Kos</td>
+      <td></td>
+      <td></td>
+      <td>1959-04-03</td>
+      <td>, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="8c56b112-8a3e-4b1c-812b-64ea1e0ae97e" class="import-check" /></td>
+      <td>James Krage</td>
+      <td></td>
+      <td>(515) 314-4111</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b51180fb-8c2e-43b9-8e3a-491b7a916e31" class="import-check" /></td>
+      <td>James Krage</td>
+      <td></td>
+      <td>(515) 314-4111</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="6d9b2f28-a5a0-4173-911e-0f1ba4f86254" class="import-check" /></td>
+      <td>James Krage</td>
+      <td></td>
+      <td>(515) 314-4111</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="fd3d5ce8-ed67-427e-8019-2b67ef37c88d" class="import-check" /></td>
+      <td>James Krage</td>
+      <td></td>
+      <td>(515) 314-4111</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e594c3da-983e-41d5-81d7-09a9a23fb898" class="import-check" /></td>
+      <td>James Krage</td>
+      <td></td>
+      <td>(515) 314-4111</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9d63f739-720f-4b04-a0e1-2b945997291e" class="import-check" /></td>
+      <td>James Krage</td>
+      <td></td>
+      <td>(515) 314-4111</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="4499bf3d-9563-4fe4-b769-509fa764ff82" class="import-check" /></td>
+      <td>James Krage</td>
+      <td></td>
+      <td>(515) 314-4111</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9cd09af2-f1a7-4988-a116-841df3a819e7" class="import-check" /></td>
+      <td>Paul Luetkemeyer</td>
+      <td></td>
+      <td></td>
+      <td>1952-08-08</td>
+      <td>, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="aa74efc1-6592-42ed-aa77-0656b6e186f7" class="import-check" /></td>
+      <td>Paul Luetkemeyer</td>
+      <td></td>
+      <td></td>
+      <td>1952-08-08</td>
+      <td>, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="6cd2f144-cafe-44eb-bf01-9da492f3e982" class="import-check" /></td>
+      <td>Patricia Mangrich</td>
+      <td></td>
+      <td>(319) 888-4510</td>
+      <td>1942-12-26</td>
+      <td>Gilbertville, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="64d65535-3ef8-4b55-93f3-bbf52e2425e7" class="import-check" /></td>
+      <td>Fig Marketing</td>
+      <td></td>
+      <td>(704) 439-2390</td>
+      <td></td>
+      <td>Davidson, NC</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="07da4300-3a98-443d-b273-cfb95b3759e0" class="import-check" /></td>
+      <td>Fig Marketing</td>
+      <td></td>
+      <td>(704) 439-2390</td>
+      <td></td>
+      <td>Davidson, NC</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d388a6d3-4ea3-4f7f-bfbb-db6ea2a3d5c9" class="import-check" /></td>
+      <td>Fig Marketing</td>
+      <td></td>
+      <td>(704) 439-2390</td>
+      <td></td>
+      <td>Davidson, NC</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e1f81cdb-577e-4731-99dd-eaef1fcfa1da" class="import-check" /></td>
+      <td>Fig Marketing</td>
+      <td></td>
+      <td>(704) 439-2390</td>
+      <td></td>
+      <td>Davidson, NC</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="cf4fc02f-7331-477f-ba9e-67ab43e36cae" class="import-check" /></td>
+      <td>Fig Marketing</td>
+      <td></td>
+      <td>(704) 439-2390</td>
+      <td></td>
+      <td>Davidson, NC</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="eb26e4f9-1030-4bd9-a86a-dfba5263a4eb" class="import-check" /></td>
+      <td>Fig Marketing</td>
+      <td></td>
+      <td>(704) 439-2390</td>
+      <td></td>
+      <td>Davidson, NC</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="104e1be1-c6ec-4382-8c56-d23bc2f47691" class="import-check" /></td>
+      <td>Fig Marketing</td>
+      <td></td>
+      <td>(704) 439-2390</td>
+      <td></td>
+      <td>Davidson, NC</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="05e65f34-606d-4ce5-8bc2-3576a7288ae5" class="import-check" /></td>
+      <td>Suzanne Martin</td>
+      <td></td>
+      <td>(509) 731-9538</td>
+      <td>1946-12-15</td>
+      <td>Ottumwa, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a7e49b0a-a5b1-4f61-ba45-6e9b31342c32" class="import-check" /></td>
+      <td>Suzanne Martin</td>
+      <td></td>
+      <td>(509) 731-9538</td>
+      <td>1946-12-15</td>
+      <td>Ottumwa, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="37538f4d-92bb-4007-98d2-9961c6a8b023" class="import-check" /></td>
+      <td>Suzanne Martin</td>
+      <td></td>
+      <td>(509) 731-9538</td>
+      <td>1946-12-15</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="bdf71b42-2c44-4c39-8e67-087346ef69e6" class="import-check" /></td>
+      <td>Suzanne Martin</td>
+      <td></td>
+      <td>(509) 731-9538</td>
+      <td>1946-12-16</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="31c05cf0-157f-4bd1-bdf3-dd77f12a222a" class="import-check" /></td>
+      <td>Suzanne Martin</td>
+      <td></td>
+      <td>(509) 731-9538</td>
+      <td>1946-12-15</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9fd87878-fdac-48d6-b322-2916f912b64b" class="import-check" /></td>
+      <td>Suzanne Martin</td>
+      <td></td>
+      <td>(509) 731-9538</td>
+      <td>1946-12-16</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="732c9b92-ae63-4774-a256-f2d3ede0c359" class="import-check" /></td>
+      <td>Grant Masteller</td>
+      <td></td>
+      <td></td>
+      <td>1899-12-31</td>
+      <td>Jesup, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d297e8c0-568b-44db-84c4-cd7d8a0a1083" class="import-check" /></td>
+      <td>Dick Michael</td>
+      <td></td>
+      <td>(816) 977-1869</td>
+      <td></td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d5168c01-9ee9-41a2-b5d1-6a6fd40852f4" class="import-check" /></td>
+      <td>Dick Michael</td>
+      <td></td>
+      <td>(816) 977-1869</td>
+      <td></td>
+      <td>, </td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a3458d05-9ca9-4439-90d0-4d93b3e1c9d5" class="import-check" /></td>
+      <td>Dick Michael</td>
+      <td></td>
+      <td>(816) 977-1869</td>
+      <td></td>
+      <td>, </td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a7a56089-4e54-4be5-8f61-f8e4e28de039" class="import-check" /></td>
+      <td>Dick Michael</td>
+      <td></td>
+      <td>(816) 977-1869</td>
+      <td>1947-10-30</td>
+      <td>, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="bf0a02ce-d174-4802-ade4-eae470fe4caa" class="import-check" /></td>
+      <td>Dick Michael</td>
+      <td></td>
+      <td>(816) 977-1869</td>
+      <td>1947-10-30</td>
+      <td>, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="dff6e655-ea6c-46c8-8847-429d9800aa1c" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="28a30ec9-1152-405f-bc91-f8d3b1a7c5af" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="ac6c6c17-52c1-4711-8d3c-898e6f28eca3" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="abf78b9b-93b7-4ad4-989b-78ac77e31214" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="dade08a3-defe-42de-b059-ee3f1c4bdb45" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="91a5cd54-48fa-4658-96b7-0db7c3dd2d2d" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="55f49b4e-6692-420a-9d89-9e94c09bade9" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="7969ee61-6cba-4a02-bde7-5dd66f2ff88e" class="import-check" /></td>
+      <td>Sean Mikael</td>
+      <td></td>
+      <td>(310) 739-6268</td>
+      <td></td>
+      <td>Beverly Hills, CA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="6d4e508c-6030-406e-8519-d734cf1c37d7" class="import-check" /></td>
+      <td>Robert Miller</td>
+      <td></td>
+      <td></td>
+      <td>1949-12-15</td>
+      <td>Mount Pleasant, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="4ca8f54f-5f0e-4bf5-b71a-0fa77a8d1c18" class="import-check" /></td>
+      <td>Robert Miller</td>
+      <td></td>
+      <td></td>
+      <td>1949-12-15</td>
+      <td>Mount Pleasant, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b5aaf9d6-1f3c-4684-ac47-95cc24677967" class="import-check" /></td>
+      <td>Keith Moore</td>
+      <td></td>
+      <td>(641) 672-2908</td>
+      <td>1949-07-23</td>
+      <td>Fremont, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="52a59bc4-78c5-4c7e-8716-d22ae0d64f20" class="import-check" /></td>
+      <td>Keith Moore</td>
+      <td></td>
+      <td>(641) 672-2908</td>
+      <td>1949-07-23</td>
+      <td>Fremont, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="677a82d2-54c8-45e7-9b8e-32d403e377c5" class="import-check" /></td>
+      <td>Keith Moore</td>
+      <td></td>
+      <td>(641) 672-2908</td>
+      <td>1949-07-23</td>
+      <td>Fremont, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e003c9d5-a767-4156-929e-0a464e536fff" class="import-check" /></td>
+      <td>Linda Olson</td>
+      <td>lmso22@sbcglobal.net</td>
+      <td>(414) 704-6688</td>
+      <td></td>
+      <td>Milwaukee, WI</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f72eae54-d978-48fa-a54c-21ddfde69c00" class="import-check" /></td>
+      <td>Linda Olson</td>
+      <td>lmso22@sbcglobal.net</td>
+      <td>(414) 704-6688</td>
+      <td></td>
+      <td>Milwaukee, WI</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b9bc71d5-541a-4f9d-b762-c1e7eeb9f5b3" class="import-check" /></td>
+      <td>Linda Olson</td>
+      <td>lmso22@sbcglobal.net</td>
+      <td>(414) 704-6688</td>
+      <td></td>
+      <td>Milwaukee, WI</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="58023600-371c-44eb-9c05-54c9fc392edd" class="import-check" /></td>
+      <td>Linda Olson</td>
+      <td>lmso22@sbcglobal.net</td>
+      <td>(414) 704-6688</td>
+      <td></td>
+      <td>Milwaukee, WI</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="db9087b2-a254-4b6b-91ce-7c5aad2f98a7" class="import-check" /></td>
+      <td>Linda Olson</td>
+      <td>lmso22@sbcglobal.net</td>
+      <td>(414) 704-6688</td>
+      <td></td>
+      <td>Milwaukee, WI</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="8b081a44-52b6-4496-b51c-cefca0dfe515" class="import-check" /></td>
+      <td>Linda Olson</td>
+      <td>lmso22@sbcglobal.net</td>
+      <td>(414) 704-6688</td>
+      <td></td>
+      <td>Milwaukee, WI</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a757d0b5-6fee-44e5-8938-fa28121246a0" class="import-check" /></td>
+      <td>Linda Olson</td>
+      <td>lmso22@sbcglobal.net</td>
+      <td>(414) 704-6688</td>
+      <td></td>
+      <td>Milwaukee, WI</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="318a37f4-491d-4225-b1c0-6540ef1f19bc" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d0966a4a-316a-4d9d-84af-26056956886f" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="c55ab31a-69bb-4041-ac56-29c0c451e3de" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e576263b-f251-49d3-83b8-5e516cc8a7dc" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b30faf2d-7793-450c-9788-e44c10725147" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9c58a142-dc35-4875-a526-2af4e3d9c829" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="654b9758-69d8-4e68-b737-2a70d597e4b8" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2fb5a2a6-05b1-43f1-b9be-4984c9a63dd5" class="import-check" /></td>
+      <td>Credit One</td>
+      <td></td>
+      <td>(213) 737-5045</td>
+      <td></td>
+      <td>, CA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="36e165ab-1208-463c-b722-c2de326a9913" class="import-check" /></td>
+      <td>Nancy Orourke</td>
+      <td></td>
+      <td>(712) 790-0552</td>
+      <td>1950-10-14</td>
+      <td>Carroll, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a8ab9e83-f7b8-4576-8eb0-e99a08ae253a" class="import-check" /></td>
+      <td>Nancy Orourke</td>
+      <td></td>
+      <td>(712) 790-0552</td>
+      <td>1950-10-16</td>
+      <td>Carroll, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="04ebb0c7-40db-4aed-ade2-69a173b69edf" class="import-check" /></td>
+      <td>Nancy Orourke</td>
+      <td></td>
+      <td></td>
+      <td>1950-10-16</td>
+      <td>Carroll, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="0714e073-8a17-4b16-8554-95eb504cab83" class="import-check" /></td>
+      <td>Nancy Orourke</td>
+      <td></td>
+      <td></td>
+      <td>1950-10-16</td>
+      <td>Carroll, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="1028b506-0d11-40cc-8fce-f2a2ba08adce" class="import-check" /></td>
+      <td>Nancy Orourke</td>
+      <td></td>
+      <td></td>
+      <td>1950-10-16</td>
+      <td>Carroll, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d9975989-9155-4bc6-9766-b6b95013ddff" class="import-check" /></td>
+      <td>Dc Recorder Ofc</td>
+      <td></td>
+      <td>(641) 664-2321</td>
+      <td></td>
+      <td>Bloomfield, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="60b6fc34-6aec-4614-8d76-5096f3f3e76c" class="import-check" /></td>
+      <td>Dc Recorder Ofc</td>
+      <td></td>
+      <td>(641) 664-2321</td>
+      <td></td>
+      <td>Bloomfield, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="efb1b01b-77e6-42ce-922b-af5533273a39" class="import-check" /></td>
+      <td>Dc Recorder Ofc</td>
+      <td></td>
+      <td>(641) 664-2321</td>
+      <td></td>
+      <td>Bloomfield, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="904fe549-761a-422b-8f70-fe9310fe952d" class="import-check" /></td>
+      <td>Dc Recorder Ofc</td>
+      <td></td>
+      <td>(641) 664-2321</td>
+      <td></td>
+      <td>Bloomfield, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="dd654565-057d-4c7a-b342-de0073a789f1" class="import-check" /></td>
+      <td>Dc Recorder Ofc</td>
+      <td></td>
+      <td>(641) 664-2321</td>
+      <td></td>
+      <td>Bloomfield, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="188b111c-6078-45c6-94f3-068c12a258d0" class="import-check" /></td>
+      <td>Dc Recorder Ofc</td>
+      <td></td>
+      <td>(641) 664-2321</td>
+      <td></td>
+      <td>Bloomfield, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="98d1096c-824b-403d-9e64-31c6a420879d" class="import-check" /></td>
+      <td>Dc Recorder Ofc</td>
+      <td></td>
+      <td>(641) 664-2321</td>
+      <td></td>
+      <td>Bloomfield, IA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="dbb3d2bb-7c69-4151-9900-8b26934a7f14" class="import-check" /></td>
+      <td>Richard Rund</td>
+      <td></td>
+      <td>(708) 533-1623</td>
+      <td></td>
+      <td>Northbrook, IL</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="54ba6da1-92f1-443a-8851-bc5f5a97d36d" class="import-check" /></td>
+      <td>Richard Rund</td>
+      <td></td>
+      <td>(708) 533-1623</td>
+      <td></td>
+      <td>Northbrook, IL</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f3880752-3ae1-4de1-a54f-039394fb543e" class="import-check" /></td>
+      <td>Richard Rund</td>
+      <td></td>
+      <td>(708) 533-1623</td>
+      <td></td>
+      <td>Northbrook, IL</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="94365b73-ae21-45df-ae26-6a4583a6335c" class="import-check" /></td>
+      <td>Richard Rund</td>
+      <td></td>
+      <td>(708) 533-1623</td>
+      <td></td>
+      <td>Northbrook, IL</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="afea3c7f-f685-4331-9585-cfa4208094a6" class="import-check" /></td>
+      <td>Richard Rund</td>
+      <td></td>
+      <td>(708) 533-1623</td>
+      <td></td>
+      <td>Northbrook, IL</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="86731448-63f9-4bb6-8b7d-2eae1f0f1197" class="import-check" /></td>
+      <td>Richard Rund</td>
+      <td></td>
+      <td>(708) 533-1623</td>
+      <td></td>
+      <td>Northbrook, IL</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="34965d6f-6f67-4bcd-8c9d-5f584648060e" class="import-check" /></td>
+      <td>Richard Rund</td>
+      <td></td>
+      <td>(708) 533-1623</td>
+      <td></td>
+      <td>Northbrook, IL</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="04924e26-5bf2-401e-bdf3-3938d8874476" class="import-check" /></td>
+      <td>Jean Salvage</td>
+      <td></td>
+      <td>(515) 262-3540</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e4717873-c272-4966-b22c-b378241c9028" class="import-check" /></td>
+      <td>Jean Salvage</td>
+      <td></td>
+      <td>(515) 262-3540</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="32595101-8d4d-4990-9a2f-d5fac9dade78" class="import-check" /></td>
+      <td>Jean Salvage</td>
+      <td></td>
+      <td>(515) 262-3540</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f352e8c3-b3d4-4072-bce6-b5fa027dfe87" class="import-check" /></td>
+      <td>Jean Salvage</td>
+      <td></td>
+      <td>(515) 262-3540</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9502951f-ed10-4cad-b496-5e2d70b29165" class="import-check" /></td>
+      <td>Jean Salvage</td>
+      <td></td>
+      <td>(515) 262-3540</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="1f268169-1ebf-4c8a-b0c4-26348734bcce" class="import-check" /></td>
+      <td>Jean Salvage</td>
+      <td></td>
+      <td>(515) 262-3540</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="886c299a-5bfd-4705-ab00-74aa4f4da5e0" class="import-check" /></td>
+      <td>Jean Salvage</td>
+      <td></td>
+      <td>(515) 262-3540</td>
+      <td></td>
+      <td>Des Moines, IA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="d9873665-5f05-4eb4-ae04-b80c8d15fae9" class="import-check" /></td>
+      <td>1st State Bank&</td>
+      <td></td>
+      <td>(402) 721-2500</td>
+      <td></td>
+      <td>Fremont, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a8c8ee93-c540-454d-855a-b35cfed8f694" class="import-check" /></td>
+      <td>1st State Bank&</td>
+      <td></td>
+      <td>(402) 721-2500</td>
+      <td></td>
+      <td>Fremont, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a3bc5500-3de0-4691-93fa-7b1f309f8d70" class="import-check" /></td>
+      <td>1st State Bank&</td>
+      <td></td>
+      <td>(402) 721-2500</td>
+      <td></td>
+      <td>Fremont, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="96555b58-b1c5-413e-aff0-6d4b577f40ff" class="import-check" /></td>
+      <td>1st State Bank&</td>
+      <td></td>
+      <td>(402) 721-2500</td>
+      <td></td>
+      <td>Fremont, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="177acda3-4696-49ab-a7ca-96ace7b45b83" class="import-check" /></td>
+      <td>1st State Bank&</td>
+      <td></td>
+      <td>(402) 721-2500</td>
+      <td></td>
+      <td>Fremont, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="3d953937-0fc3-4f45-94af-3437bbf8e2f0" class="import-check" /></td>
+      <td>1st State Bank&</td>
+      <td></td>
+      <td>(402) 721-2500</td>
+      <td></td>
+      <td>Fremont, NE</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="0bd3b109-694f-46ca-95ce-a267bda27b50" class="import-check" /></td>
+      <td>1st State Bank&</td>
+      <td></td>
+      <td>(402) 721-2500</td>
+      <td></td>
+      <td>Fremont, NE</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b03cc19f-9c5b-45b5-bd0f-c22d148e7879" class="import-check" /></td>
+      <td>Nina Stocker</td>
+      <td></td>
+      <td>(641) 777-5958</td>
+      <td>1956-06-17</td>
+      <td>Ottumwa, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="aef22b05-75f0-45fd-86bf-0326552c28e1" class="import-check" /></td>
+      <td>Nina Stocker</td>
+      <td></td>
+      <td>(641) 777-5958</td>
+      <td>1956-06-17</td>
+      <td>Ottumwa, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="5e09b1e4-dace-4654-826c-0b8d1e58f226" class="import-check" /></td>
+      <td>Nina Stocker</td>
+      <td></td>
+      <td>(641) 777-5958</td>
+      <td>1956-06-17</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="f92bdbd2-41da-4393-9c21-5af8925afa7c" class="import-check" /></td>
+      <td>Nina Stocker</td>
+      <td></td>
+      <td>(641) 777-5958</td>
+      <td>1956-06-18</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="51512317-fbd7-4406-a908-107563888bd6" class="import-check" /></td>
+      <td>Nina Stocker</td>
+      <td></td>
+      <td>(641) 777-5958</td>
+      <td>1956-06-17</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2370dd6b-2827-477d-93aa-63d6d12776ad" class="import-check" /></td>
+      <td>Nina Stocker</td>
+      <td></td>
+      <td>(641) 777-5958</td>
+      <td>1956-06-18</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="238fcf1e-6373-419d-bd3c-0fc96e2a2394" class="import-check" /></td>
+      <td>Tony Stocker</td>
+      <td></td>
+      <td>(641) 777-9964</td>
+      <td>1953-02-18</td>
+      <td>Ottumwa, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="924549b1-184a-43b0-b166-0c5dae018757" class="import-check" /></td>
+      <td>Tony Stocker</td>
+      <td></td>
+      <td>(641) 777-9964</td>
+      <td>1953-02-18</td>
+      <td>Ottumwa, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="6d72ed51-123f-4d5a-99aa-1167ca6a7f75" class="import-check" /></td>
+      <td>Tony Stocker</td>
+      <td></td>
+      <td>(641) 777-9964</td>
+      <td>1953-02-18</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="230f09c9-dca7-4047-8f4b-a408297a1168" class="import-check" /></td>
+      <td>Tony Stocker</td>
+      <td></td>
+      <td>(641) 777-9964</td>
+      <td>1953-02-19</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="9a9d463e-4990-400c-b4b9-f089f6aeb410" class="import-check" /></td>
+      <td>Tony Stocker</td>
+      <td></td>
+      <td>(641) 777-9964</td>
+      <td>1953-02-18</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="327fca19-b30d-4269-83fc-45623145e9bd" class="import-check" /></td>
+      <td>Tony Stocker</td>
+      <td></td>
+      <td>(641) 777-9964</td>
+      <td>1953-02-19</td>
+      <td>Ottumwa, IA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="bd0ef92a-331c-492c-aefc-f2e69a4df50e" class="import-check" /></td>
+      <td>Bpa Taxes</td>
+      <td></td>
+      <td>(562) 991-5401</td>
+      <td></td>
+      <td>Sherman Oaks, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="3e3dff24-63d3-42ee-9123-1f77acc6c42f" class="import-check" /></td>
+      <td>Bpa Taxes</td>
+      <td></td>
+      <td>(562) 991-5401</td>
+      <td></td>
+      <td>Sherman Oaks, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="c48b1df7-7d8f-4a95-be5a-fd84edb88629" class="import-check" /></td>
+      <td>Bpa Taxes</td>
+      <td></td>
+      <td>(562) 991-5401</td>
+      <td></td>
+      <td>Sherman Oaks, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="741ffd87-ef79-4ff0-9d15-de5569849fd0" class="import-check" /></td>
+      <td>Bpa Taxes</td>
+      <td></td>
+      <td>(562) 991-5401</td>
+      <td></td>
+      <td>Sherman Oaks, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="01cbde5d-ecac-4d5d-ab5b-d6acba43651b" class="import-check" /></td>
+      <td>Bpa Taxes</td>
+      <td></td>
+      <td>(562) 991-5401</td>
+      <td></td>
+      <td>Sherman Oaks, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="dd668795-ea03-448e-a5f0-cb6273e09b19" class="import-check" /></td>
+      <td>Bpa Taxes</td>
+      <td></td>
+      <td>(562) 991-5401</td>
+      <td></td>
+      <td>Sherman Oaks, CA</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="ed040354-6fbc-4523-8ae6-f66a17eac15e" class="import-check" /></td>
+      <td>Bpa Taxes</td>
+      <td></td>
+      <td>(562) 991-5401</td>
+      <td></td>
+      <td>Sherman Oaks, CA</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b4d758f9-23ad-407f-9896-7cc588cefbf4" class="import-check" /></td>
+      <td>William Walsh</td>
+      <td></td>
+      <td>(314) 467-9380</td>
+      <td></td>
+      <td>Creve Coeur, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="e07552b1-b6ad-4f32-8b69-c17e8f8cba82" class="import-check" /></td>
+      <td>William Walsh</td>
+      <td></td>
+      <td>(314) 467-9380</td>
+      <td></td>
+      <td>Creve Coeur, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="2c90952b-5d63-4804-bcf9-03f9cd436a73" class="import-check" /></td>
+      <td>William Walsh</td>
+      <td></td>
+      <td>(314) 467-9380</td>
+      <td></td>
+      <td>Creve Coeur, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="72a78216-5b5b-4bc1-ae19-943939bce850" class="import-check" /></td>
+      <td>William Walsh</td>
+      <td></td>
+      <td>(314) 467-9380</td>
+      <td></td>
+      <td>Creve Coeur, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="eaf9115f-40cb-4ff6-bdb8-5bcd3fbcb4fb" class="import-check" /></td>
+      <td>William Walsh</td>
+      <td></td>
+      <td>(314) 467-9380</td>
+      <td></td>
+      <td>Creve Coeur, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="65a7936c-d44d-4946-a74d-614499417def" class="import-check" /></td>
+      <td>William Walsh</td>
+      <td></td>
+      <td>(314) 467-9380</td>
+      <td></td>
+      <td>Creve Coeur, MO</td>
+      <td>Inactive - Merged</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="20d75afb-4202-44d9-8179-ffd244c93213" class="import-check" /></td>
+      <td>William Walsh</td>
+      <td></td>
+      <td>(314) 467-9380</td>
+      <td></td>
+      <td>Creve Coeur, MO</td>
+      <td>Prospect</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="446677d0-56a3-484d-8888-6a2c371f6129" class="import-check" /></td>
+      <td>Brian Weber</td>
+      <td>bjweber55@gmail.com</td>
+      <td>(758) 017-0901</td>
+      <td>1969-12-18</td>
+      <td>Waterloo, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="086b502f-1389-41de-96bc-265d3ea1f6f5" class="import-check" /></td>
+      <td>Brian Weber</td>
+      <td></td>
+      <td>(319) 296-3340</td>
+      <td>1994-12-13</td>
+      <td>Waterloo, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="1ae0970f-fc8e-47ec-b91d-78b11e783f4c" class="import-check" /></td>
+      <td>Gary Weber</td>
+      <td></td>
+      <td>(319) 296-1120</td>
+      <td>1948-07-03</td>
+      <td>, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="a6cd4b61-9eb9-4b1d-8753-f750cab5441d" class="import-check" /></td>
+      <td>Marjorie Weber</td>
+      <td></td>
+      <td>3198276530</td>
+      <td>1947-11-15</td>
+      <td>, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="b37641d3-68c3-4b34-90c3-2904e620a2a9" class="import-check" /></td>
+      <td>Renee Weber</td>
+      <td></td>
+      <td>(319) 240-3610</td>
+      <td>1965-02-15</td>
+      <td>Gilbertville, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr>
+<tr>
+      <td><input type="checkbox" checked data-id="fca75020-95e4-4814-8c53-0fcd6cafe126" class="import-check" /></td>
+      <td>Scott Weber</td>
+      <td></td>
+      <td>(757) 830-3071</td>
+      <td>1969-10-06</td>
+      <td>Cedar Falls, IA</td>
+      <td>Active - Internal</td>
+      <td></td>
+    </tr></tbody>
+  </table>
+
+  <div class="actions">
+    <button class="btn-primary" onclick="exportApproved()">Export Approved for Import</button>
+    <button class="btn-secondary" onclick="selectAll()">Select All</button>
+    <button class="btn-secondary" onclick="deselectAll()">Deselect All</button>
+  </div>
+
+  <h2>Skipped / Resolved (109)</h2>
+  <table>
+    <thead><tr><th>Classification</th><th>Name</th><th>Reason</th><th>Duplicate Of</th><th>Sheet ID</th></tr></thead>
+    <tbody><tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Linda Allen</td>
+      <td>Email match in Firestore: lmallen1017@yahoo.com</td>
+      <td>e27e52c5-8222-4474-900e-ce0b3068fe78</td>
+      <td>b45cb3b3-689e-4c67-8aba-253cdaa64724</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Linda Allen</td>
+      <td>Email match in Firestore: lmallen1017@yahoo.com</td>
+      <td>e27e52c5-8222-4474-900e-ce0b3068fe78</td>
+      <td>e7447dd9-b9e7-4a03-927e-5b6643027674</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Linda Allen</td>
+      <td>Email match in Firestore: lmallen1017@yahoo.com</td>
+      <td>e27e52c5-8222-4474-900e-ce0b3068fe78</td>
+      <td>79e27f6d-9389-43db-9cc7-a657e68a8dea</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Linda Allen</td>
+      <td>Email match in Firestore: lmallen1017@yahoo.com</td>
+      <td>e27e52c5-8222-4474-900e-ce0b3068fe78</td>
+      <td>6288c70b-9203-47f7-8c1d-d60494da0111</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Linda Allen</td>
+      <td>Email match in Firestore: lmallen1017@yahoo.com</td>
+      <td>e27e52c5-8222-4474-900e-ce0b3068fe78</td>
+      <td>070c8f12-7810-4970-ac35-b2543ed5a1ee</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Peggy Beaver</td>
+      <td>Email match in Firestore: pbeaver1234@gmail.com</td>
+      <td>a0e7a09a-f6cb-4fc2-9713-51bda6b36964</td>
+      <td>e9ab2f2f-4b18-469e-b1ba-27b4ab1afaaa</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Peggy Beaver</td>
+      <td>Email match in Firestore: pbeaver1234@gmail.com</td>
+      <td>a0e7a09a-f6cb-4fc2-9713-51bda6b36964</td>
+      <td>166c77d0-e9b3-4ffc-9478-b87007b5dfef</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Peggy Beaver</td>
+      <td>Email match in Firestore: pbeaver1234@gmail.com</td>
+      <td>a0e7a09a-f6cb-4fc2-9713-51bda6b36964</td>
+      <td>4347de83-32c8-4017-97e1-faa7f58ae2d9</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Larry Bennett</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>95bc22d9-93d9-4cc2-9b8b-099b1d60ea25</td>
+      <td>8696f57f-1e7a-4840-a4e4-0bc630d73a8b</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Michael Cook</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>b4c7de4e-dd80-464a-bd93-acc74460bba5</td>
+      <td>a7424e6f-562b-4b51-bc65-25f848dac62d</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Michael Cook</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>761ca077-9609-494f-9e10-5855af2e81b1</td>
+      <td>a3cc3ca9-0811-4f7f-8086-94608891ba86</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Michael Cook</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>761ca077-9609-494f-9e10-5855af2e81b1</td>
+      <td>3ab8e026-40b4-4f80-987c-040d7d0af131</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Michael Cook</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>761ca077-9609-494f-9e10-5855af2e81b1</td>
+      <td>8b47336f-9c09-4cf5-80c8-f15f71301a7e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Richard Cox</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>dbfd7fc8-2060-482a-8e4d-c83123f54d81</td>
+      <td>2839e4b8-3936-4ace-a04c-024735ebf744</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Francesca Damasceno</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e55c8350-35f0-4c97-88fe-014fb385e37e</td>
+      <td>2cf208b2-0ccd-4d71-9a6d-6108d04f48d5</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Francesca Damasceno</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e55c8350-35f0-4c97-88fe-014fb385e37e</td>
+      <td>d7f3b023-18ca-4241-8382-c34ab88b3eb7</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Francesca Damasceno</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e55c8350-35f0-4c97-88fe-014fb385e37e</td>
+      <td>2262ab60-b229-48a1-9f09-41d6131865d3</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Francesca Damasceno</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e55c8350-35f0-4c97-88fe-014fb385e37e</td>
+      <td>91db5c76-7653-43dc-830b-e9c97fbc3caa</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Francesca Damasceno</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e55c8350-35f0-4c97-88fe-014fb385e37e</td>
+      <td>6282fc07-48dd-4832-8578-3d353dd0bb90</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Francesca Damasceno</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e55c8350-35f0-4c97-88fe-014fb385e37e</td>
+      <td>e1e1534a-9533-4d13-a0eb-0adea8d31639</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Francesca Damasceno</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e55c8350-35f0-4c97-88fe-014fb385e37e</td>
+      <td>c4fc86f5-4140-44df-8861-6cf2a340d793</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Paula Delagardelle</td>
+      <td>Email match in Firestore: paulajean26@hotmail.com</td>
+      <td>0d69af18-2e27-4eb6-b47d-92cd84aa0dc9</td>
+      <td>fd873f8d-ea76-49be-aa2c-629208ab5676</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Sandy Dobson</td>
+      <td>Email match in Firestore: ssdobson57@gmail.com</td>
+      <td>fac5d355-322b-4e84-90b2-162f1de10bd7</td>
+      <td>dc1f32f1-6bfe-4f7c-8418-c8c9a364d1f4</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Sandy Dobson</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>56a0ba67-79a7-4ecc-9717-5cffbf40601b</td>
+      <td>6a57699b-1cc0-43d2-8d0d-7f0d98dd0ad3</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Sandy Dobson</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>56a0ba67-79a7-4ecc-9717-5cffbf40601b</td>
+      <td>23f9adff-372a-4da6-bc06-a3d1d15a09a6</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Sandy Dobson</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>56a0ba67-79a7-4ecc-9717-5cffbf40601b</td>
+      <td>b9eb81d2-b9ee-4e5b-ac03-71a42264d826</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Michael Even</td>
+      <td>Email match in Firestore: deven@yousq.net</td>
+      <td>1f8bb054-d11c-4eab-8aef-3824767bc621</td>
+      <td>ef3f0780-5138-4a43-841b-af201d21f02e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Sharon Even</td>
+      <td>Email match in Firestore: sharonbauler@yahoo.com</td>
+      <td>25de44b5-c1b8-4159-96c9-afffc98fc416</td>
+      <td>c16742cf-8dff-458f-aaea-bed4b27cc928</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Julie Frost</td>
+      <td>Email match in Firestore: cjfrost6@live.com</td>
+      <td>1f7306c8-7395-40dc-8701-057cfa30141c</td>
+      <td>7bc0c489-9571-4871-ac6a-de00bedf6ff3</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Christine Grillo</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>75186eca-a92d-4e68-85c3-a3c4e379f937</td>
+      <td>b78bd9ef-9cf0-46da-8fa5-c29799352ce1</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Christine Grillo</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>75186eca-a92d-4e68-85c3-a3c4e379f937</td>
+      <td>c187e48c-145d-4354-a29e-3f1e2f273fea</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Christine Grillo</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>75186eca-a92d-4e68-85c3-a3c4e379f937</td>
+      <td>a64c14ec-4413-4a61-98e9-79cd9740552e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Gloria Guinn</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e1c844ce-f13b-459d-b737-64f384b515e8</td>
+      <td>f39e2d21-11a2-4507-b2a5-38fbc2f6b489</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>John Hamann</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>2047e4e8-70a3-4e51-8641-10a0aa17da17</td>
+      <td>d103fd22-1675-42b9-9d25-26d81b3b7c64</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>David Herny</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>17031661-8dfe-4f40-b298-eecf562755fa</td>
+      <td>1069d3cd-cbd4-4a97-aa7a-faa31e76a5f8</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Richard Holmes</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>154783a8-da40-4207-b63c-79e882be1784</td>
+      <td>480f2d92-ee24-4eb9-a8be-f671ea77609d</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Richard Holmes</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>154783a8-da40-4207-b63c-79e882be1784</td>
+      <td>8dbc51dd-4ad6-4b13-a403-c4928f6990db</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Donna McClintock</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>841d3b25-db46-48ca-bd82-aa1b818fff85</td>
+      <td>6a95eb91-0270-47e4-8e60-8fc9b5468595</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Tori Michael</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>56eb50af-ff3a-4c19-b1f3-08ccf8070618</td>
+      <td>8f7d59ca-a9c9-42d1-9ba3-ef3f61cf8a27</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Miller</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>ebcaf34e-cfb3-4452-a44c-7b952130c699</td>
+      <td>a1bd22a0-e2c8-40a6-b543-df443589f821</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dennice Mills</td>
+      <td>Email match in Firestore: lmills51450@gmail.com</td>
+      <td>bedf90ad-7180-4eb0-aa2d-fe44521c5cf5</td>
+      <td>2c882d73-e67c-4f47-9c49-390f2ee3997e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Barbara Phelps</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>501c668f-ddc6-4f44-bf76-d5ad54295de6</td>
+      <td>c1921945-9d8d-4713-acec-1408985667be</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Barbara Phelps</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>501c668f-ddc6-4f44-bf76-d5ad54295de6</td>
+      <td>46831b4b-813e-4b70-ae0d-288ca6121488</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Lloyd Roberts</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>b79247c7-4729-4634-a009-1f3538fabeb6</td>
+      <td>e65e8faa-0d16-4710-bdf4-09bfd9f1f639</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dianne Rubino</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e368d4c5-9cd0-4307-a396-88cd6f5c946a</td>
+      <td>0571da5b-674c-4ace-8ba9-8c66f57ab215</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dianne Rubino</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e368d4c5-9cd0-4307-a396-88cd6f5c946a</td>
+      <td>b3890d7b-11c6-45c2-a14b-b3124c616d1e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dianne Rubino</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e368d4c5-9cd0-4307-a396-88cd6f5c946a</td>
+      <td>74ec18e0-8c8e-4e3c-bdeb-e7de4bc7f554</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dianne Rubino</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e368d4c5-9cd0-4307-a396-88cd6f5c946a</td>
+      <td>37e11047-807a-403b-a621-2cf5c2a02c2e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dianne Rubino</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>e368d4c5-9cd0-4307-a396-88cd6f5c946a</td>
+      <td>1ed7eb8e-d61b-4429-a7fc-d9aca23254cd</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Steven Schau</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>96199c91-174e-4873-b983-c838a3e2b9d7</td>
+      <td>bf6f4f3e-2966-433e-bb45-96acc67df286</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Barbara Scott</td>
+      <td>Email match in Firestore: bscott11439@gmail.com</td>
+      <td>321da24a-e040-4603-9364-2ead7f543210</td>
+      <td>de6e12e9-b7d3-4658-b0df-7ac208d098df</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Barbara Scott</td>
+      <td>Email match in Firestore: bscott11439@gmail.com</td>
+      <td>321da24a-e040-4603-9364-2ead7f543210</td>
+      <td>8b3622b9-b34c-4e12-bd3a-f76516a546c3</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Barbara Scott</td>
+      <td>Email match in Firestore: bscott11439@gmail.com</td>
+      <td>321da24a-e040-4603-9364-2ead7f543210</td>
+      <td>915fa1d9-77d0-4bad-b278-eeae931a8dca</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>John Smith</td>
+      <td>Email match in Firestore: wks1320@aol.com</td>
+      <td>9508fd53-5b2e-4a1d-bd93-01cb3ae43f8f</td>
+      <td>e1119899-f178-4672-922c-605331adb861</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>John Smith</td>
+      <td>Email match in Firestore: wks1320@aol.com</td>
+      <td>9508fd53-5b2e-4a1d-bd93-01cb3ae43f8f</td>
+      <td>adfc96c8-446d-4177-a777-5561083abde9</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>John Smith</td>
+      <td>Email match in Firestore: wks1320@aol.com</td>
+      <td>9508fd53-5b2e-4a1d-bd93-01cb3ae43f8f</td>
+      <td>9a0698df-5b30-4212-92e6-fcf3492ef9f5</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Email match in Firestore: spren888@gmail.com</td>
+      <td>9bf18dc7-f7a9-4f66-8038-588f5b439938</td>
+      <td>d4534b69-dad9-4d0a-ba1e-98bd0a331592</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>8b3d6877-7b57-411c-977a-7ab00dbd48b5</td>
+      <td>0d5a32e3-216f-44d2-8d78-789ef029f5d8</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Email match in Firestore: spren888@gmail.com</td>
+      <td>9bf18dc7-f7a9-4f66-8038-588f5b439938</td>
+      <td>7445fb77-f69a-459c-807d-26fb3ceefea1</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>8b3d6877-7b57-411c-977a-7ab00dbd48b5</td>
+      <td>4557b17b-9abd-480a-9b5d-1b6f863fb8d5</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Email match in Firestore: spren888@gmail.com</td>
+      <td>9bf18dc7-f7a9-4f66-8038-588f5b439938</td>
+      <td>caf410a1-3bae-4c3a-95d6-df30bef810ff</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>8b3d6877-7b57-411c-977a-7ab00dbd48b5</td>
+      <td>c83a6b70-a3d6-44d0-8e0a-792898092133</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Email match in Firestore: spren888@gmail.com</td>
+      <td>9bf18dc7-f7a9-4f66-8038-588f5b439938</td>
+      <td>2c97b080-d0f7-43b4-a5a3-30c81aef32d3</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Margo Sprenger</td>
+      <td>Email match in Firestore: spren888@gmail.com</td>
+      <td>9bf18dc7-f7a9-4f66-8038-588f5b439938</td>
+      <td>813dcd42-339c-4297-8976-7b1c65f195d9</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Randel Sprenger</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>003bae5d-9ea9-4334-bd25-63268eb5e0f9</td>
+      <td>c6bab062-5ab1-4943-beb6-9b13c5b38927</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Randel Sprenger</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>003bae5d-9ea9-4334-bd25-63268eb5e0f9</td>
+      <td>d523abd7-adbe-4c20-b4e2-550704e4cf50</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Randel Sprenger</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>003bae5d-9ea9-4334-bd25-63268eb5e0f9</td>
+      <td>290fad62-1c99-4c79-a894-f5cc141df517</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Randel Sprenger</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>003bae5d-9ea9-4334-bd25-63268eb5e0f9</td>
+      <td>5b4b4b28-3244-49b1-ad39-95579c4db1a1</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Randel Sprenger</td>
+      <td>Email match in Firestore: spren888@gmail.com</td>
+      <td>9bf18dc7-f7a9-4f66-8038-588f5b439938</td>
+      <td>4f078317-a30e-47c8-802c-13d414af9cd3</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Randel Sprenger</td>
+      <td>Email match in Firestore: spren888@gmail.com</td>
+      <td>9bf18dc7-f7a9-4f66-8038-588f5b439938</td>
+      <td>555046d3-d0a0-4e29-bb39-42661fa4355e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Steven Stone</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>427a3eca-3fb1-45a5-9b73-12a8de49262d</td>
+      <td>b4cbed46-c987-4f90-83bc-9b22133bf734</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Thomas</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>f81489b3-ab35-4f9e-9e21-8d3f65b9430a</td>
+      <td>29589093-4ae5-4772-b69b-0cff706cfcea</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Watson</td>
+      <td>Email match in Firestore: watkat1@yahoo.com</td>
+      <td>708b3bdd-5ded-4dfb-959d-591aa2d7369f</td>
+      <td>d2a9d734-8b22-4e30-a327-01f8dc682cdb</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Watson</td>
+      <td>Email match in Firestore: watkat1@yahoo.com</td>
+      <td>708b3bdd-5ded-4dfb-959d-591aa2d7369f</td>
+      <td>4f288fd9-d597-4c7a-b407-335b8d391a85</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Watson</td>
+      <td>Email match in Firestore: watkat1@yahoo.com</td>
+      <td>708b3bdd-5ded-4dfb-959d-591aa2d7369f</td>
+      <td>a47ee6ba-aa8c-4e68-bce5-77e1992d0725</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Watson</td>
+      <td>Email match in Firestore: watkat1@yahoo.com</td>
+      <td>708b3bdd-5ded-4dfb-959d-591aa2d7369f</td>
+      <td>7e881d24-a021-4096-974f-9d78afa61698</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Watson</td>
+      <td>Email match in Firestore: watkat1@yahoo.com</td>
+      <td>708b3bdd-5ded-4dfb-959d-591aa2d7369f</td>
+      <td>0607eb6c-59e7-4b7b-9857-9a52c5f0cbc6</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Watson</td>
+      <td>Email match in Firestore: watkat1@yahoo.com</td>
+      <td>708b3bdd-5ded-4dfb-959d-591aa2d7369f</td>
+      <td>836e1fbe-5111-4d88-8cfb-8a0e65ef43b2</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Kathleen Watson</td>
+      <td>Email match in Firestore: watkat1@yahoo.com</td>
+      <td>708b3bdd-5ded-4dfb-959d-591aa2d7369f</td>
+      <td>54df7bb7-c233-4b82-a97a-f0322b46c571</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Anna Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>2aab883a-398c-443c-ad90-a9df6aa358a1</td>
+      <td>cbda12a9-b3cd-41dd-bf19-3eaad345acaf</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Anna Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>2aab883a-398c-443c-ad90-a9df6aa358a1</td>
+      <td>7859d011-b50f-442f-bba2-36fd6542a47f</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Anna Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>2aab883a-398c-443c-ad90-a9df6aa358a1</td>
+      <td>e36963dc-d7ad-4fe4-8a51-456af4bf67bf</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Anna Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>2aab883a-398c-443c-ad90-a9df6aa358a1</td>
+      <td>77759d7b-df75-47e9-b174-1c126c14bcac</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Anna Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>2aab883a-398c-443c-ad90-a9df6aa358a1</td>
+      <td>44c564b8-f476-4ef1-a33a-f1deca5df40c</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Joseph Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>9584a842-1754-46e1-8cf2-a6708556a5a2</td>
+      <td>1317b709-f967-46f6-a439-8e5c25a12867</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Joseph Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>9584a842-1754-46e1-8cf2-a6708556a5a2</td>
+      <td>e973a8f3-e765-49bf-8898-53f4e76f85bf</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Joseph Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>9584a842-1754-46e1-8cf2-a6708556a5a2</td>
+      <td>d7444221-f722-4fa9-acee-6830618500a9</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Joseph Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>9584a842-1754-46e1-8cf2-a6708556a5a2</td>
+      <td>7ce821aa-c860-4ba9-b33c-27ea0fe85869</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Joseph Weigel</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>9584a842-1754-46e1-8cf2-a6708556a5a2</td>
+      <td>ca2e4a56-0db9-4f57-8ab0-749d0d644fcb</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Shirley Weldon</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>65f70b21-bfd1-44d6-ad91-69ccac503f2e</td>
+      <td>4b47232d-206b-4ef4-aaac-56ccec15ee91</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Shirley Weldon</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>65f70b21-bfd1-44d6-ad91-69ccac503f2e</td>
+      <td>499dc8d4-8cdc-48a2-acf0-0c0f7e9fefca</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dennis White</td>
+      <td>Email match in Firestore: dwhite2211956@gmail.com</td>
+      <td>c08e05a8-14e7-4a33-839f-c59db86a8644</td>
+      <td>35ba77c1-2853-491f-b899-39c0bc04b8b2</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dennis White</td>
+      <td>Email match in Firestore: dwhite2211956@gmail.com</td>
+      <td>c08e05a8-14e7-4a33-839f-c59db86a8644</td>
+      <td>aa1641ce-6e82-4506-a4e9-ad69239e8f0e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dennis White</td>
+      <td>Email match in Firestore: dwhite2211956@gmail.com</td>
+      <td>c08e05a8-14e7-4a33-839f-c59db86a8644</td>
+      <td>0828ab7c-dd3f-4033-ab5a-fcf49e9c51bb</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dennis White</td>
+      <td>Email match in Firestore: dwhite2211956@gmail.com</td>
+      <td>c08e05a8-14e7-4a33-839f-c59db86a8644</td>
+      <td>918a9db6-5c54-42b0-a162-4b74f8b87cb1</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dennis White</td>
+      <td>Email match in Firestore: dwhite2211956@gmail.com</td>
+      <td>c08e05a8-14e7-4a33-839f-c59db86a8644</td>
+      <td>db909e4c-75dc-4d99-9622-654735dfba54</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Dennis White</td>
+      <td>Email match in Firestore: dwhite2211956@gmail.com</td>
+      <td>c08e05a8-14e7-4a33-839f-c59db86a8644</td>
+      <td>ebf0c04d-acc6-4165-ba1d-e3af30fbc5c5</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Ellen White</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>a3e9926c-7a07-4bc0-ac2a-804b41015276</td>
+      <td>568b43b3-c91d-4be5-85be-a8686200086e</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Jodi White</td>
+      <td>Email match in Firestore: white.jodi0806@gmail.com</td>
+      <td>95012d06-013b-4eba-9788-1f42ce081d5c</td>
+      <td>7b85dbb9-7570-48c2-960d-6621159681f3</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Jodi White</td>
+      <td>Email match in Firestore: white.jodi0806@gmail.com</td>
+      <td>95012d06-013b-4eba-9788-1f42ce081d5c</td>
+      <td>4a3768e8-e5aa-4f09-9dff-153d8e8ee3c9</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Jodi White</td>
+      <td>Email match in Firestore: white.jodi0806@gmail.com</td>
+      <td>95012d06-013b-4eba-9788-1f42ce081d5c</td>
+      <td>2b10653a-9b9b-4691-bba2-42f7668bdde9</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Jodi White</td>
+      <td>Email match in Firestore: white.jodi0806@gmail.com</td>
+      <td>95012d06-013b-4eba-9788-1f42ce081d5c</td>
+      <td>c6d4c245-8a42-4ab9-9ccd-ad5a406d074f</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Jodi White</td>
+      <td>Email match in Firestore: white.jodi0806@gmail.com</td>
+      <td>95012d06-013b-4eba-9788-1f42ce081d5c</td>
+      <td>71d1b6bf-5c17-47f0-b5e7-b4ad63ee7057</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Jodi White</td>
+      <td>Email match in Firestore: white.jodi0806@gmail.com</td>
+      <td>95012d06-013b-4eba-9788-1f42ce081d5c</td>
+      <td>b86a2fdc-3b58-41ce-ab20-5352ec1cc889</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Lillard Williams</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>8370791a-a0b4-4e91-a634-e19250b72ec8</td>
+      <td>71e57843-3ecc-4655-b5dd-71d5b44eccd7</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Lillard Williams</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>b4b4b2ea-2dd9-4489-a27b-898febbce735</td>
+      <td>82a16fa1-d537-42f3-966a-eba9a8073fdf</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Lillard Williams</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>b4b4b2ea-2dd9-4489-a27b-898febbce735</td>
+      <td>5d239daf-ceb8-4442-a5ba-08628ab471f7</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_DUPLICATE</td>
+      <td>Lillard Williams</td>
+      <td>Name+DOB match in Firestore</td>
+      <td>b4b4b2ea-2dd9-4489-a27b-898febbce735</td>
+      <td>f3c3c7c3-4ae2-434e-8a10-dd54becb9c4a</td>
+    </tr>
+<tr style="opacity:0.6">
+      <td>SKIP_INACTIVE</td>
+      <td>Test BridgeUpdated</td>
+      <td>Status: deleted</td>
+      <td></td>
+      <td>test_bridge_001</td>
+    </tr></tbody>
+  </table>
+
+  <textarea id="export-json"></textarea>
+
+  <script>
+    function exportApproved() {
+      const checks = document.querySelectorAll('.import-check:checked');
+      const ids = [...checks].map(c => c.dataset.id);
+      const el = document.getElementById('export-json');
+      el.value = JSON.stringify(ids, null, 2);
+      el.style.display = 'block';
+      el.style.width = '100%';
+      el.style.height = '200px';
+      el.style.background = '#1c2333';
+      el.style.color = '#e2e8f0';
+      el.style.border = '1px solid #2a3347';
+      el.style.borderRadius = '8px';
+      el.style.padding = '12px';
+      el.style.marginTop = '12px';
+      el.style.fontFamily = 'monospace';
+      el.style.fontSize = '12px';
+      el.select();
+    }
+    function selectAll() { document.querySelectorAll('.import-check').forEach(c => c.checked = true); }
+    function deselectAll() { document.querySelectorAll('.import-check').forEach(c => c.checked = false); }
+  </script>
+</body>
+</html>

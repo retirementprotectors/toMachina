@@ -150,6 +150,24 @@ const TOOLS = [
   { tool_id: 'fix-auto-merge', tool_name: 'FIX_AutoMergeClients', source_project: 'gas/RAPID_IMPORT', category: 'BULK_OPERATIONS', tool_type: 'FUNCTION', runnable: true, description: 'Auto-merge high-confidence duplicate clients' },
   { tool_id: 'debug-orphaned', tool_name: 'DEBUG_ListOrphanedAccounts', source_project: 'gas/RAPID_IMPORT', category: 'BULK_OPERATIONS', tool_type: 'FUNCTION', runnable: true, description: 'Find accounts without valid client references' },
   { tool_id: 'debug-field-coverage', tool_name: 'DEBUG_ClientFieldCoverage', source_project: 'gas/RAPID_IMPORT', category: 'BULK_OPERATIONS', tool_type: 'FUNCTION', runnable: true, description: 'Field completion % report for all clients' },
+
+  // DOCUMENT_PROCESSING (Wire Incoming Correspondence sprint)
+  { tool_id: 'classify-boundaries', tool_name: 'classifyBoundaries', source_project: 'packages/core', category: 'DOCUMENT_PROCESSING', tool_type: 'FUNCTION', runnable: false, description: 'Claude Vision document boundary detection in multi-page scans' },
+  { tool_id: 'split-pdf', tool_name: 'splitPdf', source_project: 'packages/core', category: 'DOCUMENT_PROCESSING', tool_type: 'FUNCTION', runnable: false, description: 'PyMuPDF page extraction into individual PDFs' },
+  { tool_id: 'label-document', tool_name: 'labelDocument', source_project: 'packages/core', category: 'DOCUMENT_PROCESSING', tool_type: 'FUNCTION', runnable: false, description: 'Taxonomy lookup and file label generation' },
+  { tool_id: 'extract-vision', tool_name: 'extractVision', source_project: 'packages/core', category: 'DOCUMENT_PROCESSING', tool_type: 'FUNCTION', runnable: false, description: 'Claude Vision document data extraction (mode: vision on SUPER_EXTRACT)' },
+
+  // NOTIFICATIONS (Wire Incoming Correspondence sprint)
+  { tool_id: 'notify-slack-case', tool_name: 'notifySlackCase', source_project: 'packages/core', category: 'NOTIFICATIONS', tool_type: 'UTILITY', runnable: false, description: 'Slack case completion notification (Block Kit)' },
+  { tool_id: 'notify-slack-split', tool_name: 'notifySlackSplit', source_project: 'packages/core', category: 'NOTIFICATIONS', tool_type: 'UTILITY', runnable: false, description: 'Slack multi-doc split summary notification' },
+  { tool_id: 'notify-slack-alert', tool_name: 'notifySlackAlert', source_project: 'packages/core', category: 'NOTIFICATIONS', tool_type: 'UTILITY', runnable: false, description: 'Slack operational notification for errors and auth failures' },
+
+  // CASE_MANAGEMENT
+  { tool_id: 'acf-create', tool_name: 'acfCreate', source_project: 'packages/core', category: 'CASE_MANAGEMENT', tool_type: 'FUNCTION', runnable: false, description: 'Create ACF folder + subfolders + Ai3 for a client' },
+  { tool_id: 'acf-route', tool_name: 'acfRoute', source_project: 'packages/core', category: 'CASE_MANAGEMENT', tool_type: 'FUNCTION', runnable: false, description: 'Route documents to existing ACF subfolder' },
+  { tool_id: 'acf-status', tool_name: 'acfStatus', source_project: 'packages/core', category: 'CASE_MANAGEMENT', tool_type: 'FUNCTION', runnable: false, description: 'Get ACF status for a single client' },
+  { tool_id: 'acf-audit', tool_name: 'acfAudit', source_project: 'packages/core', category: 'CASE_MANAGEMENT', tool_type: 'FUNCTION', runnable: false, description: 'Audit all clients for ACF completeness' },
+  { tool_id: 'acf-rebuild', tool_name: 'acfRebuild', source_project: 'packages/core', category: 'CASE_MANAGEMENT', tool_type: 'FUNCTION', runnable: false, description: 'Bulk rebuild missing/broken ACFs' },
 ]
 
 // ---------------------------------------------------------------------------

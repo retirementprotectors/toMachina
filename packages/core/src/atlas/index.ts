@@ -52,5 +52,11 @@ export {
   executeMatch,
   writeDefinition,
   executeWrite,
+  classifyDefinition,
+  executeClassify,
   getSuperToolDefinitions,
 } from './super-tools'
+
+// Wire executor
+export { executeWire, resumeWireAfterApproval } from './wire-executor'
+export type { WireInput, WireContext, WireResult, StageResult } from './wire-executor'

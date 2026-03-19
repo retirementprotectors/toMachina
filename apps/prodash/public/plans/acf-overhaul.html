@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACF Overhaul — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 600px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.atlas { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .tag.ui { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.new { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; justify-content: center; }
+  .flow-step { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .flow-arrow { padding: 0 8px; color: var(--dim); font-size: 18px; }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">FORGE Sprint &middot; SPRINT-ACF-OVERHAUL</div>
+  <h1>ACF Overhaul</h1>
+  <div class="sub">5-pillar Active Client File lifecycle: Config, Creation, Update Logic, Front-End Exposure, Audit + Rebuild. Every client gets a proper home.</div>
+</div>
+<div class="container">
+
+<h2>Deliverable <span class="accent">Overview</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Pillar</th><th>Deliverable</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TRK-266</strong></td><td><span class="tag atlas">Config</span></td><td>Firestore <code>acf_config</code> collection + types</td></tr>
+    <tr><td><strong>TRK-267</strong></td><td><span class="tag atlas">Create</span></td><td><code>acf-create</code> ATLAS tool</td></tr>
+    <tr><td><strong>TRK-268</strong></td><td><span class="tag atlas">Update</span></td><td><code>acf-route</code> ATLAS tool</td></tr>
+    <tr><td><strong>TRK-269</strong></td><td><span class="tag atlas">Update</span></td><td><code>acf-status</code> ATLAS tool</td></tr>
+    <tr><td><strong>TRK-270</strong></td><td><span class="tag atlas">Audit</span></td><td><code>acf-audit</code> ATLAS tool</td></tr>
+    <tr><td><strong>TRK-271</strong></td><td><span class="tag atlas">Audit</span></td><td><code>acf-rebuild</code> ATLAS tool (3 modes)</td></tr>
+    <tr><td><strong>TRK-272</strong></td><td><span class="tag atlas">Reg</span></td><td>ATLAS registration &mdash; 5 tools in CASE_MANAGEMENT</td></tr>
+    <tr><td><strong>TRK-273</strong></td><td><span class="tag ui">UI</span></td><td>Contact Detail &mdash; ACF Section</td></tr>
+    <tr><td><strong>TRK-274</strong></td><td><span class="tag ui">UI</span></td><td>Contact Grid &mdash; ACF status icon + tooltip</td></tr>
+    <tr><td><strong>TRK-275</strong></td><td><span class="tag ui">UI</span></td><td>Admin &mdash; ACF Config tab</td></tr>
+    <tr><td><strong>TRK-276</strong></td><td><span class="tag ui">UI</span></td><td>Admin &mdash; Bulk ACF Audit + Rebuild page</td></tr>
+    <tr><td><strong>TRK-277</strong></td><td><span class="tag atlas">HH</span></td><td>Household-aware ACF creation + audit</td></tr>
+  </tbody>
+</table>
+
+<h2>Build <span class="accent">Order</span></h2>
+<div class="flow">
+  <div class="flow-step"><strong>L1</strong> Config + Registration</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L2</strong> Status + Create + Route</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L3</strong> Audit + Rebuild + HH</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L4</strong> All UI</div>
+</div>
+
+<h2>Builder 1: <span class="accent">ATLAS Tools</span></h2>
+
+<div class="card">
+  <h4>TRK-266: Firestore acf_config</h4>
+  <ul>
+    <li>Types in <code>packages/core/src/acf/types.ts</code>: ACFConfig, ACFCreateInput/Output, ACFRouteInput/Output, ACFAuditOutput, ACFRebuildInput/Output, ACFStatus</li>
+    <li>Seed with current hardcoded values from watcher.js:2557-2574</li>
+    <li>Security rules: admin-only write, all RPI users read</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-267: acf-create</h4>
+  <ul>
+    <li>Extract <code>createACFFolder()</code> + <code>shareFolderWithTeam()</code> from watcher.js:2664-2725</li>
+    <li>Reads config from Firestore <code>acf_config</code> (not hardcoded)</li>
+    <li>Creates Drive folder + subfolders + Ai3 copy + shares with domain</li>
+    <li>Writes <code>acf_folder_id</code> + <code>acf_folder_url</code> to Firestore client doc</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-268: acf-route &amp; TRK-269: acf-status</h4>
+  <ul>
+    <li><strong>acf-route:</strong> routes documents to specific ACF subfolder. Generalizes <code>copySourceDocsToACF()</code>. If ACF missing, flags <code>acf_missing: true</code>.</li>
+    <li><strong>acf-status:</strong> reads <code>acf_folder_id</code> from Firestore, verifies Drive access, counts subfolders/docs, checks Ai3. Replaces Sheets-based <code>getClientACFLink()</code>.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-270 + TRK-271: Audit + Rebuild</h4>
+  <ul>
+    <li><strong>acf-audit:</strong> scans ALL clients. Categorizes: with_acf, missing, broken_links, incomplete, orphaned. Returns client ID arrays.</li>
+    <li><strong>acf-rebuild:</strong> 3 modes &mdash; <code>create_missing</code>, <code>fix_broken</code>, <code>full_rebuild</code>. Supports <code>dry_run</code>.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-277: Household-Aware Logic</h4>
+  <ul>
+    <li><code>acf-create</code> checks <code>household_id</code> on client doc before creating folder</li>
+    <li>If household member &rarr; creates under household ACF with per-member subfolder</li>
+    <li>Respects shipped TRK-13308 + TRK-13309 patterns</li>
+  </ul>
+</div>
+
+<h2>Builder 2: <span class="accent">UI</span></h2>
+
+<div class="card">
+  <h4>TRK-273: Contact Detail &mdash; ACF Section</h4>
+  <ul>
+    <li>Status badge: Complete / Partial / Missing</li>
+    <li>Subfolder accordion with document counts</li>
+    <li>Expand subfolder &rarr; document list (name, date, type)</li>
+    <li>Buttons: Open in Drive, Upload to ACF (file picker + subfolder select), Create ACF (if missing)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-274: Contact Grid &mdash; ACF Status Icon</h4>
+  <ul>
+    <li>Green check (complete) / Yellow warning (partial) / Red X (missing)</li>
+    <li>Tooltip: subfolder count, document count, last updated</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-275 + TRK-276: Admin Pages</h4>
+  <ul>
+    <li><strong>Config tab:</strong> edit template, subfolders (add/remove/reorder), naming pattern, toggles, Test Config button</li>
+    <li><strong>Audit page:</strong> Run Audit &rarr; results table (Missing/Broken/Incomplete/Orphaned tabs) &rarr; select clients &rarr; choose mode &rarr; dry run &rarr; execute</li>
+  </ul>
+</div>
+
+<h2>New API <span class="accent">Routes</span></h2>
+<table>
+  <thead><tr><th>Method</th><th>Path</th><th>Tool</th></tr></thead>
+  <tbody>
+    <tr><td>GET</td><td><code>/api/acf/status/:clientId</code></td><td>acf-status</td></tr>
+    <tr><td>GET</td><td><code>/api/acf/:clientId</code></td><td>Full ACF detail</td></tr>
+    <tr><td>POST</td><td><code>/api/acf/:clientId/create</code></td><td>acf-create</td></tr>
+    <tr><td>POST</td><td><code>/api/acf/:clientId/route</code></td><td>acf-route</td></tr>
+    <tr><td>POST</td><td><code>/api/acf/:clientId/upload</code></td><td>File upload to subfolder</td></tr>
+    <tr><td>POST</td><td><code>/api/acf/audit</code></td><td>acf-audit</td></tr>
+    <tr><td>POST</td><td><code>/api/acf/rebuild</code></td><td>acf-rebuild</td></tr>
+  </tbody>
+</table>
+
+<h2>Key <span class="accent">Notes</span></h2>
+<ul>
+  <li><strong>Zero MATRIX dependency.</strong> All tools read/write Firestore only.</li>
+  <li><strong>Drive API auth:</strong> service account in Cloud Run, ADC in dev.</li>
+  <li><strong>Orphaned detection is expensive</strong> (scans Drive). Opt-in flag, not default.</li>
+  <li><strong>Never auto-delete Drive folders.</strong> Flag for manual review only.</li>
+</ul>
+
+</div>
+</body>
+</html>

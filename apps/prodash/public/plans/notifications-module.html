@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications Module — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 600px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.core { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .tag.ui { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.infra { background: rgba(88,166,255,0.10); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+  .tag.new { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; justify-content: center; }
+  .flow-step { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .flow-arrow { padding: 0 8px; color: var(--dim); font-size: 18px; }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">FORGE Sprint &middot; SPRINT-NOTIFICATIONS-MODULE</div>
+  <h1>Notifications Module</h1>
+  <div class="sub">Portal-wide activity center with 6 tabs. Surfaces all Firestore writes, wire outputs, and approval workflows. Replaces archived RAPID_IMPORT approval UI.</div>
+</div>
+<div class="container">
+
+<h2>Deliverable <span class="accent">Overview</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Layer</th><th>Deliverable</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TRK-278</strong></td><td><span class="tag core">Core</span></td><td>Firestore <code>notifications</code> collection + types</td></tr>
+    <tr><td><strong>TRK-279</strong></td><td><span class="tag infra">Infra</span></td><td>Cloud Function &mdash; client/account onWrite triggers</td></tr>
+    <tr><td><strong>TRK-280</strong></td><td><span class="tag core">Core</span></td><td><code>createNotification()</code> utility + wire hook</td></tr>
+    <tr><td><strong>TRK-281</strong></td><td><span class="tag ui">UI</span></td><td>NotificationsModule &mdash; slide-out shell + tab bar</td></tr>
+    <tr><td><strong>TRK-282</strong></td><td><span class="tag ui">UI</span></td><td>ALL tab &mdash; unified feed</td></tr>
+    <tr><td><strong>TRK-283</strong></td><td><span class="tag ui">UI</span></td><td>CONTACT tab</td></tr>
+    <tr><td><strong>TRK-284</strong></td><td><span class="tag ui">UI</span></td><td>ACCOUNT tab</td></tr>
+    <tr><td><strong>TRK-285</strong></td><td><span class="tag ui">UI</span></td><td>MyRPI tab</td></tr>
+    <tr><td><strong>TRK-286</strong></td><td><span class="tag ui">UI</span></td><td>DATA tab</td></tr>
+    <tr><td><strong>TRK-287</strong></td><td><span class="tag ui">UI</span></td><td>APPROVALS tab &mdash; list + detail + edit + execute</td></tr>
+    <tr><td><strong>TRK-288</strong></td><td><span class="tag ui">UI</span></td><td>NotificationRow component + navigation</td></tr>
+    <tr><td><strong>TRK-289</strong></td><td><span class="tag ui">UI</span></td><td>Unread badge + mark as read</td></tr>
+    <tr><td><strong>TRK-290</strong></td><td><span class="tag ui">UI</span></td><td>Sidebar registration (all 3 portals)</td></tr>
+  </tbody>
+</table>
+
+<h2>Build <span class="accent">Order</span></h2>
+<div class="flow">
+  <div class="flow-step"><strong>L1</strong> Types + Sidebar</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L2</strong> Cloud Function + Utility</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L3</strong> Shell + Row + Badge</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L4</strong> 6 Tab Views</div>
+</div>
+
+<h2>Builder 1: <span class="accent">CORE + INFRA</span></h2>
+
+<div class="card">
+  <h4>TRK-278: Firestore Collection + Types</h4>
+  <ul>
+    <li>Create <code>packages/core/src/notifications/types.ts</code> with <strong>Notification</strong> interface</li>
+    <li>Fields: type, entity_type, entity_id, entity_name, summary, fields_changed, source_type, source_id, source_label, user_id, team_scope, hyperlink, approval_batch_id, read, created_at, portal</li>
+    <li>Add <code>notifications</code> to <code>firestore.rules</code> with <code>isRPIUser()</code> gate</li>
+    <li>Composite indexes: [portal, created_at], [entity_type, created_at], [user_id, read, created_at], [source_type, created_at]</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-279: Cloud Function onWrite Triggers</h4>
+  <ul>
+    <li>Create <code>services/intake/src/notification-triggers.ts</code></li>
+    <li><code>onWrite</code> on <code>clients</code> &rarr; compare before/after &rarr; create notification with changed fields summary</li>
+    <li><code>onWrite</code> on <code>clients/{id}/accounts</code> &rarr; same pattern</li>
+    <li>Generate summary: <em>"Phone updated: (515) 555-1234 &rarr; (515) 555-5678"</em></li>
+    <li>Generate hyperlink: <code>/contacts/{clientId}</code></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-280: createNotification() Utility</h4>
+  <ul>
+    <li>Create <code>packages/core/src/notifications/create-notification.ts</code></li>
+    <li>Used by: wire executor (after SUPER_WRITE), approval.ts (on create/execute), Cloud Functions</li>
+    <li>Auto-sets: id, read=false, created_at</li>
+  </ul>
+</div>
+
+<h2>Builder 2: <span class="accent">UI</span></h2>
+
+<div class="card">
+  <h4>TRK-281: Slide-out Shell + Tab Bar</h4>
+  <ul>
+    <li>Create <code>packages/ui/src/modules/Notifications/NotificationsModule.tsx</code></li>
+    <li>Slide-out panel: same width/animation as Communications Module</li>
+    <li>Tab bar: ALL / CONTACT / ACCOUNT / MyRPI / DATA / APPROVALS</li>
+    <li>Firestore <code>onSnapshot</code> subscription filtered by portal</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-287: APPROVALS Tab (Most Complex)</h4>
+  <ul>
+    <li><strong>List view:</strong> pending <code>approval_batches</code> &mdash; source info, client name, field count, source wire</li>
+    <li><strong>Detail view:</strong> expand to field-level review &mdash; each field editable inline</li>
+    <li><strong>Actions:</strong> Approve All / Reject / Request Info / Execute</li>
+    <li>Execute calls <code>POST /api/approval/batches/:id/execute</code> (already built)</li>
+    <li><strong>No new API routes needed</strong> &mdash; uses existing approval.ts endpoints</li>
+    <li>This is the ProDashX-native replacement for the archived RAPID_IMPORT approval UI</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-282&ndash;286: Five Filter Tabs</h4>
+  <ul>
+    <li><strong>ALL:</strong> all notifications, reverse-chronological, paginated (50 initial + load more)</li>
+    <li><strong>CONTACT:</strong> filter <code>entity_type == 'client'</code></li>
+    <li><strong>ACCOUNT:</strong> filter <code>entity_type == 'account'</code></li>
+    <li><strong>MyRPI:</strong> filter <code>user_id == currentUser</code> or <code>source_id == currentUser.email</code></li>
+    <li><strong>DATA:</strong> filter <code>source_type in ['wire','import','intake']</code></li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>TRK-288 + TRK-289: Row Component + Unread Badge</h4>
+  <ul>
+    <li><strong>NotificationRow:</strong> type icon + entity name + summary + relative timestamp + unread dot</li>
+    <li>Click &rarr; navigates to hyperlink in main content area + marks as read</li>
+    <li><strong>Badge:</strong> unread count on sidebar icon via <code>onSnapshot</code> query</li>
+    <li>Bulk "Mark all read" button in slide-out header</li>
+  </ul>
+</div>
+
+<h2>File <span class="accent">Manifest</span></h2>
+<div class="card">
+<pre style="font-size:12px;color:var(--muted);white-space:pre;overflow-x:auto;">
+packages/core/src/notifications/
+  types.ts, create-notification.ts, index.ts
+
+packages/ui/src/modules/Notifications/
+  NotificationsModule.tsx, NotificationRow.tsx, UnreadBadge.tsx
+  tabs/AllTab.tsx, ContactTab.tsx, AccountTab.tsx,
+       MyRPITab.tsx, DataTab.tsx, ApprovalsTab.tsx
+  ApprovalDetail.tsx, index.tsx
+
+services/intake/src/notification-triggers.ts
+
+apps/{prodash,riimo,sentinel}/ — sidebar registration
+firestore.rules, firestore.indexes.json
+</pre>
+</div>
+
+<h2>Key <span class="accent">Notes</span></h2>
+<ul>
+  <li><strong>Real-time:</strong> Firestore <code>onSnapshot</code> for live updates. No polling.</li>
+  <li><strong>APPROVALS reads approval_batches directly</strong> &mdash; not the notifications collection. Separate data source.</li>
+  <li><strong>No new API routes.</strong> All data from Firestore + existing approval.ts.</li>
+  <li><strong>Slide-out width:</strong> matches Communications Module. Respects real estate constraints.</li>
+</ul>
+
+</div>
+</body>
+</html>

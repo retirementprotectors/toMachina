@@ -49,6 +49,8 @@ export const collections = {
   households: () => collection(getDb(), 'households'),
   territories: () => collection(getDb(), 'territories'),
   specialistConfigs: () => collection(getDb(), 'specialist_configs'),
+  notifications: () => collection(getDb(), 'notifications'),
+  approvalBatches: () => collection(getDb(), 'approval_queue'),
 } as const
 
 export type Collections = typeof collections

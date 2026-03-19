@@ -38,6 +38,7 @@ import { contentBlockRoutes } from './routes/content-blocks.js'
 import { atlasRoutes } from './routes/atlas.js'
 import { camRoutes } from './routes/cam.js'
 import { approvalRoutes } from './routes/approval.js'
+import { wireRoutes } from './routes/wire.js'
 import { dexRoutes } from './routes/dex.js'
 import { dexPipelineRoutes } from './routes/dex-pipeline.js'
 import { campaignAnalyticsRoutes } from './routes/campaign-analytics.js'
@@ -58,6 +59,7 @@ import { guardianRoutes } from './routes/guardian.js'
 import { dropzoneRoutes } from './routes/dropzone.js'
 import { connectRoutes } from './routes/connect.js'
 import { intakeQueueRoutes } from './routes/intake-queue.js'
+import { acfRoutes } from './routes/acf.js'
 import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
@@ -120,6 +122,7 @@ app.use('/api/content-blocks', normalizeBody, contentBlockRoutes)
 app.use('/api/atlas', normalizeBody, atlasRoutes)
 app.use('/api/cam', normalizeBody, camRoutes)
 app.use('/api/approval', normalizeBody, approvalRoutes)
+app.use('/api/wire', normalizeBody, wireRoutes)
 app.use('/api/dex', normalizeBody, dexRoutes)
 app.use('/api/dex-pipeline', normalizeBody, dexPipelineRoutes)
 app.use('/api/campaign-analytics', campaignAnalyticsRoutes)
@@ -139,6 +142,7 @@ app.use('/api/guardian', normalizeBody, guardianRoutes)
 app.use('/api/dropzone', normalizeBody, dropzoneRoutes)
 app.use('/api/connect', normalizeBody, connectRoutes)
 app.use('/api/intake-queue', normalizeBody, intakeQueueRoutes)
+app.use('/api/acf', normalizeBody, acfRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

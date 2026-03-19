@@ -13,6 +13,8 @@ import { useAuth, useEntitlements, computeModulePermissions, PRODASH_ROLE_TEMPLA
 import type { UserLevelName, ModuleAction, RoleTemplateKey } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
+import { ACFConfigAdmin } from './ACFConfigAdmin'
+import { ACFAuditAdmin } from './ACFAuditAdmin'
 
 /* ─── Types ─── */
 
@@ -68,7 +70,7 @@ interface FlowPipelineRecord {
   assigned_section?: 'sales' | 'service' | 'both' | null
 }
 
-type AdminTab = 'module-config' | 'team-config'
+type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'acf-audit'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -1396,6 +1398,8 @@ export function AdminPanel({ portal }: AdminPanelProps) {
         {([
           { key: 'team-config' as AdminTab, label: 'Team Config', icon: 'groups' },
           { key: 'module-config' as AdminTab, label: 'Permissions Audit', icon: 'grid_view' },
+          { key: 'acf-config' as AdminTab, label: 'ACF Config', icon: 'folder_special' },
+          { key: 'acf-audit' as AdminTab, label: 'ACF Audit', icon: 'fact_check' },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -1487,6 +1491,16 @@ export function AdminPanel({ portal }: AdminPanelProps) {
             onRoleUnitUpdate={handleRoleUnitUpdate}
           />
         </div>
+      )}
+
+      {/* ACF Config Tab */}
+      {activeTab === 'acf-config' && (
+        <ACFConfigAdmin portal={portal} />
+      )}
+
+      {/* ACF Audit Tab */}
+      {activeTab === 'acf-audit' && (
+        <ACFAuditAdmin portal={portal} />
       )}
 
     </div>

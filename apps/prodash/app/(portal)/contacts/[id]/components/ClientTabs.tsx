@@ -5,6 +5,7 @@ export type TabKey =
   | 'personal'
   | 'estate'
   | 'accounts'
+  | 'acf'
   | 'connected'
   | 'access'
   | 'activity'
@@ -24,6 +25,7 @@ const TABS: Tab[] = [
   { key: 'personal', label: 'Personal', icon: 'person' },
   { key: 'estate', label: 'Estate', icon: 'gavel' },
   { key: 'accounts', label: 'Accounts', icon: 'account_balance_wallet' },
+  { key: 'acf', label: 'ACF', icon: 'folder_special' },
   { key: 'connected', label: 'Connected', icon: 'people' },
   { key: 'access', label: 'Access', icon: 'security' },
   { key: 'activity', label: 'Activity', icon: 'history' },
