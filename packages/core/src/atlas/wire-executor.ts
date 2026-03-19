@@ -52,39 +52,26 @@ type SuperToolExecuteFn = (input: unknown, context: SuperToolContext) => Promise
  * Dynamically resolve a SuperTool's execute function by ID.
  * Maps super_tool IDs to their module paths.
  */
-async function resolveSuperTool(superToolId: string): Promise<SuperToolExecuteFn | null> {
-  try {
-    switch (superToolId) {
-      case 'SUPER_CLASSIFY': {
-        const mod = await import('./super-tools/classify.js')
-        return mod.execute as SuperToolExecuteFn
-      }
-      case 'SUPER_EXTRACT': {
-        const mod = await import('./super-tools/extract.js')
-        return mod.execute as SuperToolExecuteFn
-      }
-      case 'SUPER_VALIDATE': {
-        const mod = await import('./super-tools/validate.js')
-        return mod.execute as SuperToolExecuteFn
-      }
-      case 'SUPER_NORMALIZE': {
-        const mod = await import('./super-tools/normalize.js')
-        return mod.execute as SuperToolExecuteFn
-      }
-      case 'SUPER_MATCH': {
-        const mod = await import('./super-tools/match.js')
-        return mod.execute as SuperToolExecuteFn
-      }
-      case 'SUPER_WRITE': {
-        const mod = await import('./super-tools/write.js')
-        return mod.execute as SuperToolExecuteFn
-      }
-      default:
-        return null
-    }
-  } catch {
-    return null
-  }
+// Static imports — avoids dynamic import resolution conflicts between
+// Next.js bundler (no .js) and Node16 moduleResolution (requires .js)
+import { execute as executeClassify } from './super-tools/classify.js'
+import { execute as executeExtract } from './super-tools/extract.js'
+import { execute as executeValidate } from './super-tools/validate.js'
+import { execute as executeNormalize } from './super-tools/normalize.js'
+import { execute as executeMatch } from './super-tools/match.js'
+import { execute as executeWrite } from './super-tools/write.js'
+
+const SUPER_TOOL_MAP: Record<string, SuperToolExecuteFn> = {
+  SUPER_CLASSIFY: executeClassify as SuperToolExecuteFn,
+  SUPER_EXTRACT: executeExtract as SuperToolExecuteFn,
+  SUPER_VALIDATE: executeValidate as SuperToolExecuteFn,
+  SUPER_NORMALIZE: executeNormalize as SuperToolExecuteFn,
+  SUPER_MATCH: executeMatch as SuperToolExecuteFn,
+  SUPER_WRITE: executeWrite as SuperToolExecuteFn,
+}
+
+function resolveSuperTool(superToolId: string): SuperToolExecuteFn | null {
+  return SUPER_TOOL_MAP[superToolId] || null
 }
 
 /* ─── Main Executor ─── */
