@@ -78,3 +78,17 @@ jobs:
             --port 8080 \
             --no-allow-unauthenticated \
             --project ${{ env.PROJECT_ID }}
+
+      # Smoke test — verify API responds after deploy
+      - name: Smoke test API health
+        run: |
+          API_URL=$(gcloud run services describe tm-api --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }} --format 'value(status.url)')
+          TOKEN=$(gcloud auth print-identity-token --audiences=$API_URL)
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN" "$API_URL/health")
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::API health check failed with status $STATUS"
+            curl -s -H "Authorization: Bearer $TOKEN" "$API_URL/health"
+            exit 1
+          fi
+          echo "API health check passed (HTTP $STATUS)"
+          curl -s -H "Authorization: Bearer $TOKEN" "$API_URL/health" | jq .

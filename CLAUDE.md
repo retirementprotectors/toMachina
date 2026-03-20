@@ -30,7 +30,7 @@ toMachina/
 │   ├── auth/        → Firebase Auth + entitlements
 │   └── db/          → Typed Firestore client
 ├── services/
-│   ├── api/         → api.tomachina.com (Cloud Run, 38+ routes)
+│   ├── api/         → Cloud Run API (tm-api, 38+ routes, proxied via portal /api/*)
 │   ├── bridge/      → Dual-write Firestore + Sheets
 │   ├── intake/      → Cloud Functions (intake channels)
 │   └── bigquery-stream/ → Real-time BigQuery sink
@@ -145,4 +145,4 @@ Sprints 1-8 COMPLETE. Sprint 9 IN PROGRESS. See `ROADMAP.md` for full details.
 | ProDashX (prod) | https://prodash.tomachina.com |
 | RIIMO (prod) | https://riimo.tomachina.com |
 | SENTINEL (prod) | https://sentinel.tomachina.com |
-| API (prod) | https://api.tomachina.com |
+| API (Cloud Run) | Proxied via portal `/api/*` routes (no public URL — IAM protected) |
