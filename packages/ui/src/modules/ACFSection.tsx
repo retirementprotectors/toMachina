@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { ACFSubfolderDetail, ACFDriveFile } from '@tomachina/core'
+import { fetchWithAuth } from './fetchWithAuth'
 
 /**
  * ACF Section — rendered on Contact detail page.
@@ -32,7 +33,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   const loadDetail = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/acf/${clientId}`)
+      const res = await fetchWithAuth(`/api/acf/${clientId}`)
       const json = await res.json()
       if (json.success) setDetail(json.data)
     } catch {
@@ -49,7 +50,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   const handleCreate = async () => {
     setCreating(true)
     try {
-      const res = await fetch(`/api/acf/${clientId}/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+      const res = await fetchWithAuth(`/api/acf/${clientId}/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
       const json = await res.json()
       if (json.success) {
         await loadDetail()
@@ -86,7 +87,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
           reader.readAsDataURL(file)
         })
 
-        const res = await fetch(`/api/acf/${clientId}/upload`, {
+        const res = await fetchWithAuth(`/api/acf/${clientId}/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
