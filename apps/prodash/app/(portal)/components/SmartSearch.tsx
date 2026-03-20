@@ -146,9 +146,8 @@ export function SmartSearch() {
         return
       }
 
-      // Try the API first (works in production via api.tomachina.com)
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://api.tomachina.com'
-      const url = `${apiBase}/api/search?q=${encodeURIComponent(searchQuery)}&limit=10`
+      // API call goes through the portal's server-side proxy (/api/*)
+      const url = `/api/search?q=${encodeURIComponent(searchQuery)}&limit=10`
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       })

@@ -180,7 +180,7 @@ const WIRE_DEFINITIONS = [
     product_line: 'ALL', data_domain: 'ALL',
     stages: [
       { type: 'FRONTEND', name: 'ProDashX', view: 'portal', platform: 'PRODASH' },
-      { type: 'API_ENDPOINT', name: 'api.tomachina.com', detail: 'Cloud Run REST API' },
+      { type: 'API_ENDPOINT', name: 'tm-api (Cloud Run)', detail: 'Proxied via portal /api/* routes' },
       { type: 'MATRIX_TAB', name: 'Firestore', platform: 'ALL' },
     ],
   },
@@ -189,7 +189,7 @@ const WIRE_DEFINITIONS = [
     product_line: 'ALL', data_domain: 'ALL',
     stages: [
       { type: 'FRONTEND', name: 'SENTINEL', view: 'portal', platform: 'SENTINEL' },
-      { type: 'API_ENDPOINT', name: 'api.tomachina.com', detail: 'Cloud Run REST API' },
+      { type: 'API_ENDPOINT', name: 'tm-api (Cloud Run)', detail: 'Proxied via portal /api/* routes' },
       { type: 'MATRIX_TAB', name: 'Firestore', platform: 'ALL' },
     ],
   },
@@ -198,7 +198,7 @@ const WIRE_DEFINITIONS = [
     product_line: 'ALL', data_domain: 'ALL',
     stages: [
       { type: 'FRONTEND', name: 'RIIMO', view: 'portal', platform: 'RIIMO' },
-      { type: 'API_ENDPOINT', name: 'api.tomachina.com', detail: 'Cloud Run REST API' },
+      { type: 'API_ENDPOINT', name: 'tm-api (Cloud Run)', detail: 'Proxied via portal /api/* routes' },
       { type: 'MATRIX_TAB', name: 'Firestore', platform: 'ALL' },
     ],
   },
