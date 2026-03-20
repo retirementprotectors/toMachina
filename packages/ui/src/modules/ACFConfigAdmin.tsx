@@ -12,6 +12,12 @@ interface ACFConfigAdminProps {
   portal: string
 }
 
+interface ACFRoutingRule {
+  document_type: string
+  target_subfolder: string
+  patterns: string[]
+}
+
 interface ACFConfigData {
   template_folder_id: string
   ai3_template_id: string
@@ -21,6 +27,13 @@ interface ACFConfigData {
   auto_create_on_import: boolean
   auto_route_correspondence: boolean
   default_subfolder: string
+  routing_rules?: ACFRoutingRule[]
+}
+
+function driveUrl(id: string, type: 'folder' | 'file'): string {
+  return type === 'folder'
+    ? `https://drive.google.com/drive/folders/${id}`
+    : `https://docs.google.com/spreadsheets/d/${id}/edit`
 }
 
 export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
@@ -29,6 +42,9 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
   const [saving, setSaving] = useState(false)
   const [newSubfolder, setNewSubfolder] = useState('')
   const [saved, setSaved] = useState(false)
+  const [newRuleType, setNewRuleType] = useState('')
+  const [newRuleSubfolder, setNewRuleSubfolder] = useState('')
+  const [newRulePatterns, setNewRulePatterns] = useState('')
 
   const loadConfig = useCallback(async () => {
     setLoading(true)
@@ -91,6 +107,26 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
     setConfig({ ...config, subfolders: arr })
   }
 
+  const addRoutingRule = () => {
+    if (!config || !newRuleType.trim() || !newRuleSubfolder || !newRulePatterns.trim()) return
+    const rule: ACFRoutingRule = {
+      document_type: newRuleType.trim(),
+      target_subfolder: newRuleSubfolder,
+      patterns: newRulePatterns.split(',').map((p) => p.trim()).filter(Boolean),
+    }
+    setConfig({ ...config, routing_rules: [...(config.routing_rules || []), rule] })
+    setNewRuleType('')
+    setNewRuleSubfolder('')
+    setNewRulePatterns('')
+  }
+
+  const removeRoutingRule = (index: number) => {
+    if (!config) return
+    const rules = [...(config.routing_rules || [])]
+    rules.splice(index, 1)
+    setConfig({ ...config, routing_rules: rules })
+  }
+
   // Naming pattern preview
   const patternPreview = config
     ? config.naming_pattern
@@ -140,12 +176,26 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
         </button>
       </div>
 
-      {/* Template IDs */}
+      {/* Template IDs — with hyperlinks */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-3">
         <h4 className="text-sm font-medium text-[var(--text-secondary)]">Template Settings</h4>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Template Folder ID</label>
+            <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] mb-1">
+              Template Folder ID
+              {config.template_folder_id && (
+                <a
+                  href={driveUrl(config.template_folder_id, 'folder')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-0.5 text-[var(--portal)] hover:brightness-110"
+                  title="Open in Google Drive"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
+                  Open
+                </a>
+              )}
+            </label>
             <input
               type="text"
               value={config.template_folder_id}
@@ -154,7 +204,21 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Ai3 Template ID</label>
+            <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] mb-1">
+              Ai3 Template ID
+              {config.ai3_template_id && (
+                <a
+                  href={driveUrl(config.ai3_template_id, 'file')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-0.5 text-[var(--portal)] hover:brightness-110"
+                  title="Open Ai3 Template"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
+                  Open
+                </a>
+              )}
+            </label>
             <input
               type="text"
               value={config.ai3_template_id}
@@ -265,48 +329,126 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
         </div>
       </div>
 
-      {/* Toggles */}
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-3">
+      {/* Automation Toggles — fixed sizing */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-4">
         <h4 className="text-sm font-medium text-[var(--text-secondary)]">Automation</h4>
-        <div className="space-y-3">
-          <label className="flex items-center justify-between cursor-pointer">
-            <div>
-              <span className="text-sm text-[var(--text-primary)]">Auto-create on import</span>
-              <p className="text-xs text-[var(--text-muted)]">Automatically create ACF when a new client is imported</p>
-            </div>
-            <button
-              onClick={() => setConfig({ ...config, auto_create_on_import: !config.auto_create_on_import })}
-              className={`relative h-6 w-11 rounded-full transition-colors ${
-                config.auto_create_on_import ? '' : 'bg-[var(--bg-surface)]'
-              }`}
-              style={config.auto_create_on_import ? { background: 'var(--portal)' } : undefined}
+        <div className="flex items-center justify-between">
+          <div className="pr-4">
+            <span className="text-sm text-[var(--text-primary)]">Auto-create on import</span>
+            <p className="text-xs text-[var(--text-muted)]">Automatically create ACF when a new client is imported</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={config.auto_create_on_import}
+            onClick={() => setConfig({ ...config, auto_create_on_import: !config.auto_create_on_import })}
+            className="relative shrink-0 h-6 w-11 rounded-full transition-colors"
+            style={{ background: config.auto_create_on_import ? 'var(--portal)' : 'var(--bg-surface)' }}
+          >
+            <span
+              className="block h-5 w-5 rounded-full bg-white shadow transition-transform"
+              style={{ transform: config.auto_create_on_import ? 'translateX(22px)' : 'translateX(2px)', marginTop: '2px' }}
+            />
+          </button>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="pr-4">
+            <span className="text-sm text-[var(--text-primary)]">Auto-route correspondence</span>
+            <p className="text-xs text-[var(--text-muted)]">Automatically route new documents to ACF subfolders based on routing rules below</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={config.auto_route_correspondence}
+            onClick={() => setConfig({ ...config, auto_route_correspondence: !config.auto_route_correspondence })}
+            className="relative shrink-0 h-6 w-11 rounded-full transition-colors"
+            style={{ background: config.auto_route_correspondence ? 'var(--portal)' : 'var(--bg-surface)' }}
+          >
+            <span
+              className="block h-5 w-5 rounded-full bg-white shadow transition-transform"
+              style={{ transform: config.auto_route_correspondence ? 'translateX(22px)' : 'translateX(2px)', marginTop: '2px' }}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Routing Rules */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h4 className="text-sm font-medium text-[var(--text-secondary)]">Document Routing Rules</h4>
+            <p className="text-xs text-[var(--text-muted)]">When auto-route is on, incoming documents matching these patterns get filed automatically</p>
+          </div>
+          <span className="text-xs text-[var(--text-muted)]">{(config.routing_rules || []).length} rules</span>
+        </div>
+
+        {(config.routing_rules || []).length > 0 && (
+          <div className="space-y-1.5">
+            {(config.routing_rules || []).map((rule, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2"
+              >
+                <span className="material-icons-outlined text-[var(--text-muted)] mt-0.5" style={{ fontSize: '16px' }}>route</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-[var(--text-primary)]">{rule.document_type}</span>
+                    <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>arrow_forward</span>
+                    <span className="text-sm text-[var(--portal)]">{rule.target_subfolder}</span>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
+                    {rule.patterns.join(', ')}
+                  </p>
+                </div>
+                <button
+                  onClick={() => removeRoutingRule(i)}
+                  className="shrink-0 text-red-400 hover:text-red-300 mt-0.5"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add new rule */}
+        <div className="rounded-lg border border-dashed border-[var(--border-subtle)] p-3 space-y-2">
+          <p className="text-xs font-medium text-[var(--text-muted)]">Add Routing Rule</p>
+          <div className="grid grid-cols-3 gap-2">
+            <input
+              type="text"
+              value={newRuleType}
+              onChange={(e) => setNewRuleType(e.target.value)}
+              placeholder="Document type..."
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+            />
+            <select
+              value={newRuleSubfolder}
+              onChange={(e) => setNewRuleSubfolder(e.target.value)}
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
             >
-              <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  config.auto_create_on_import ? 'translate-x-5' : 'translate-x-0.5'
-                }`}
-              />
-            </button>
-          </label>
-          <label className="flex items-center justify-between cursor-pointer">
-            <div>
-              <span className="text-sm text-[var(--text-primary)]">Auto-route correspondence</span>
-              <p className="text-xs text-[var(--text-muted)]">Automatically route new documents to existing ACF subfolders</p>
-            </div>
-            <button
-              onClick={() => setConfig({ ...config, auto_route_correspondence: !config.auto_route_correspondence })}
-              className={`relative h-6 w-11 rounded-full transition-colors ${
-                config.auto_route_correspondence ? '' : 'bg-[var(--bg-surface)]'
-              }`}
-              style={config.auto_route_correspondence ? { background: 'var(--portal)' } : undefined}
-            >
-              <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                  config.auto_route_correspondence ? 'translate-x-5' : 'translate-x-0.5'
-                }`}
-              />
-            </button>
-          </label>
+              <option value="">Target subfolder...</option>
+              {config.subfolders.map((sf) => (
+                <option key={sf} value={sf}>{sf}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={newRulePatterns}
+              onChange={(e) => setNewRulePatterns(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addRoutingRule()}
+              placeholder="Patterns (comma-separated)..."
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+            />
+          </div>
+          <button
+            onClick={addRoutingRule}
+            disabled={!newRuleType.trim() || !newRuleSubfolder || !newRulePatterns.trim()}
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50"
+            style={{ background: 'var(--portal)' }}
+          >
+            Add Rule
+          </button>
         </div>
       </div>
     </div>
