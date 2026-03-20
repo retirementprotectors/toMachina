@@ -329,11 +329,11 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
         </div>
       </div>
 
-      {/* Automation Toggles — fixed sizing */}
+      {/* Automation Toggles */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-4">
         <h4 className="text-sm font-medium text-[var(--text-secondary)]">Automation</h4>
-        <div className="flex items-center justify-between">
-          <div className="pr-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
             <span className="text-sm text-[var(--text-primary)]">Auto-create on import</span>
             <p className="text-xs text-[var(--text-muted)]">Automatically create ACF when a new client is imported</p>
           </div>
@@ -342,17 +342,25 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
             role="switch"
             aria-checked={config.auto_create_on_import}
             onClick={() => setConfig({ ...config, auto_create_on_import: !config.auto_create_on_import })}
-            className="relative shrink-0 h-6 w-11 rounded-full transition-colors"
-            style={{ background: config.auto_create_on_import ? 'var(--portal)' : 'var(--bg-surface)' }}
+            className="shrink-0 flex items-center rounded-full p-0.5 transition-colors"
+            style={{
+              width: '44px',
+              height: '24px',
+              background: config.auto_create_on_import ? 'var(--portal)' : '#4b5563',
+            }}
           >
             <span
-              className="block h-5 w-5 rounded-full bg-white shadow transition-transform"
-              style={{ transform: config.auto_create_on_import ? 'translateX(22px)' : 'translateX(2px)', marginTop: '2px' }}
+              className="rounded-full bg-white shadow-sm transition-all duration-200"
+              style={{
+                width: '20px',
+                height: '20px',
+                marginLeft: config.auto_create_on_import ? '20px' : '0px',
+              }}
             />
           </button>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="pr-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
             <span className="text-sm text-[var(--text-primary)]">Auto-route correspondence</span>
             <p className="text-xs text-[var(--text-muted)]">Automatically route new documents to ACF subfolders based on routing rules below</p>
           </div>
@@ -361,12 +369,20 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
             role="switch"
             aria-checked={config.auto_route_correspondence}
             onClick={() => setConfig({ ...config, auto_route_correspondence: !config.auto_route_correspondence })}
-            className="relative shrink-0 h-6 w-11 rounded-full transition-colors"
-            style={{ background: config.auto_route_correspondence ? 'var(--portal)' : 'var(--bg-surface)' }}
+            className="shrink-0 flex items-center rounded-full p-0.5 transition-colors"
+            style={{
+              width: '44px',
+              height: '24px',
+              background: config.auto_route_correspondence ? 'var(--portal)' : '#4b5563',
+            }}
           >
             <span
-              className="block h-5 w-5 rounded-full bg-white shadow transition-transform"
-              style={{ transform: config.auto_route_correspondence ? 'translateX(22px)' : 'translateX(2px)', marginTop: '2px' }}
+              className="rounded-full bg-white shadow-sm transition-all duration-200"
+              style={{
+                width: '20px',
+                height: '20px',
+                marginLeft: config.auto_route_correspondence ? '20px' : '0px',
+              }}
             />
           </button>
         </div>
