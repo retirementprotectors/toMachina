@@ -831,18 +831,27 @@ sprintRoutes.get('/:id/audit-round', async (req: Request, res: Response) => {
     const allSnap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
     const sprintItems = allSnap.docs
       .filter(d => d.data().sprint_id === id)
-      .map(d => d.data())
-      .filter(d => !['deferred', 'wont_fix'].includes(d.status as string))
+      .filter(d => !['deferred', 'wont_fix'].includes(d.data().status as string))
+      .map(d => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
     // Determine audit round based on item states
-    const passed = sprintItems.filter(d => ['confirmed', 'audited'].includes(d.status as string)).length
-    const failed = sprintItems.filter(d => ['built', 'planned', 'in_sprint', 'not_touched', 'queue'].includes(d.status as string)).length
-    const pending = sprintItems.filter(d => ['plan_audited', 'disc_audited'].includes(d.status as string)).length
+    const passed = sprintItems.filter(d => ['confirmed', 'audited'].includes(d.status as string))
+    const failed = sprintItems.filter(d => ['built', 'planned', 'in_sprint', 'not_touched', 'queue'].includes(d.status as string))
+    const pending = sprintItems.filter(d => ['plan_audited', 'disc_audited'].includes(d.status as string))
 
     // Round heuristic: if any items are confirmed, we are at least round 1
-    const round = passed > 0 ? 1 : 0
+    const round = passed.length > 0 ? 1 : 0
 
-    res.json(successResponse({ round: Math.max(round, 1), passed, failed, pending }))
+    res.json(successResponse({
+      current_round: Math.max(round, 1),
+      total_items: sprintItems.length,
+      pending,
+      pending_count: pending.length,
+      passed,
+      passed_count: passed.length,
+      failed,
+      failed_count: failed.length,
+    }))
   } catch (err) {
     console.error('GET /api/sprints/:id/audit-round error:', err)
     res.status(500).json(errorResponse(String(err)))
