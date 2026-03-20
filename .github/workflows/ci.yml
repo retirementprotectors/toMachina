@@ -83,7 +83,7 @@ jobs:
       - name: Smoke test API health
         run: |
           API_URL=$(gcloud run services describe tm-api --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }} --format 'value(status.url)')
-          TOKEN=$(gcloud auth print-access-token)
+          TOKEN=$(gcloud auth print-identity-token --impersonate-service-account=github-deployer@claude-mcp-484718.iam.gserviceaccount.com --audiences="$API_URL" --include-email)
           STATUS=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN" "$API_URL/health")
           if [ "$STATUS" != "200" ]; then
             echo "::error::API health check failed with status $STATUS"
