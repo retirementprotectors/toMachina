@@ -4,6 +4,16 @@
  */
 
 /** Firestore acf_config document shape */
+/** Rule for auto-routing documents to ACF subfolders */
+export interface ACFRoutingRule {
+  /** Document type label (e.g., "Statement", "Application", "Correspondence") */
+  document_type: string
+  /** Which subfolder to route to */
+  target_subfolder: string
+  /** File name patterns to match (case-insensitive, supports *) */
+  patterns: string[]
+}
+
 export interface ACFConfig {
   template_folder_id: string
   ai3_template_id: string
@@ -13,6 +23,8 @@ export interface ACFConfig {
   auto_create_on_import: boolean
   auto_route_correspondence: boolean
   default_subfolder: string
+  /** Rules for auto-routing documents to subfolders by type/pattern */
+  routing_rules?: ACFRoutingRule[]
 }
 
 /** Input for acf-create tool */
