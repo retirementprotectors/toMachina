@@ -1399,7 +1399,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           { key: 'team-config' as AdminTab, label: 'Team Config', icon: 'groups' },
           { key: 'module-config' as AdminTab, label: 'Permissions Audit', icon: 'grid_view' },
           { key: 'acf-config' as AdminTab, label: 'ACF Config', icon: 'folder_special' },
-          { key: 'acf-audit' as AdminTab, label: 'ACF Audit', icon: 'fact_check' },
+          { key: 'acf-audit' as AdminTab, label: 'ACF History', icon: 'fact_check' },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -1498,9 +1498,12 @@ export function AdminPanel({ portal }: AdminPanelProps) {
         <ACFConfigAdmin portal={portal} />
       )}
 
-      {/* ACF Audit Tab */}
+      {/* ACF History Tab */}
       {activeTab === 'acf-audit' && (
-        <ACFAuditAdmin portal={portal} />
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--text-muted)]">Recent changes to client ACF folders</p>
+          <ACFAuditAdmin portal={portal} />
+        </div>
       )}
 
     </div>
