@@ -130,7 +130,6 @@ function DialerPad({ number, onDigit, inputRef, onStartCall, callState }: {
       <div className="flex items-center justify-center gap-1.5 pt-1">
         <span className="text-[10px] text-[var(--text-muted)]">Powered by</span>
         <span className="text-[10px] font-semibold text-[#f22f46]">Twilio</span>
-        <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--text-muted)]">Sprint 10</span>
       </div>
     </div>
   )
@@ -700,7 +699,6 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
               <div className="mt-1.5 flex items-center gap-1">
                 <span className="text-[10px] text-[var(--text-muted)]">Powered by</span>
                 <span className="text-[10px] font-semibold text-[#f22f46]">Twilio</span>
-                <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--text-muted)]">Sprint 10</span>
               </div>
             </div>
           </>
@@ -739,7 +737,6 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
               <div className="mt-1.5 flex items-center gap-1">
                 <span className="text-[10px] text-[var(--text-muted)]">Send via</span>
                 <span className="text-[10px] font-semibold text-[var(--text-secondary)]">Gmail API</span>
-                <span className="rounded bg-[var(--bg-surface)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--text-muted)]">Sprint 10</span>
               </div>
             </div>
           </>
@@ -870,17 +867,17 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
           </>
         )}
 
-        {/* Template with Manage button (SMS/Email only — TRK-064) */}
+        {/* Template with Manage button (SMS/Email only — TRK-064, TRK-416) */}
         {channel !== 'call' && (
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <label className="text-xs font-medium text-[var(--text-muted)]">Template</label>
               <button
                 onClick={() => setShowTemplateManager(true)}
-                className="flex items-center gap-1 text-xs font-medium text-[var(--portal)] transition-colors hover:brightness-110"
+                className="flex items-center gap-1 rounded-full border border-[var(--portal)] px-3 py-1 text-sm font-medium text-[var(--portal)] transition-colors hover:brightness-110"
               >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>settings</span>
-                Manage Templates
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>settings</span>
+                Manage Templates ({availableTemplates.length})
               </button>
             </div>
             <select

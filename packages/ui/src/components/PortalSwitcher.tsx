@@ -2,8 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-const TOMACHINA_MARK = '/tomachina-transparent.png'
-
 interface PortalDef {
   key: string
   label: string
@@ -60,14 +58,31 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
 
   return (
     <div ref={ref} className="relative">
-      {/* Trigger: mark + chevron */}
+      {/* Trigger: three portal gears + chevron */}
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-[rgba(66,100,167,0.08)]"
         title="Switch portal"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={TOMACHINA_MARK} alt="toMachina" style={{ height: '28px' }} />
+        <span className="inline-flex items-center gap-0.5">
+          {PORTALS.map((p) => {
+            const isCurrent = p.key === currentPortal
+            return (
+              <span
+                key={p.key}
+                className="material-icons"
+                style={{
+                  fontSize: isCurrent ? '20px' : '14px',
+                  color: p.color,
+                  opacity: isCurrent ? 1 : 0.4,
+                  lineHeight: 1,
+                }}
+              >
+                settings
+              </span>
+            )
+          })}
+        </span>
         <span
           className="material-icons-outlined transition-transform duration-150"
           style={{ fontSize: '16px', color: 'var(--text-muted)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
@@ -105,8 +120,7 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
               href={getPortalUrl(portal)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] border-b"
-              style={{ borderColor: 'var(--border-subtle)' }}
+              className="flex items-center px-4 py-3 transition-colors hover:bg-[var(--bg-hover)]"
               onClick={() => setOpen(false)}
             >
               <span style={{ color: portal.color, fontWeight: 700, fontSize: '18px' }}>

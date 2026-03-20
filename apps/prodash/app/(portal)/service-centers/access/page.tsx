@@ -409,7 +409,7 @@ function OAuthIntegrations() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const handleConnect = (serviceName: string) => {
-    setToastMessage(`OAuth integration for ${serviceName} coming in Sprint 10`)
+    setToastMessage(`OAuth integration for ${serviceName} coming soon`)
     setTimeout(() => setToastMessage(null), 3000)
   }
 
@@ -567,6 +567,7 @@ function AccessCenterContent() {
             >
               <span className="material-icons-outlined text-[20px]">arrow_back</span>
             </Link>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Access Center</h1>
             {pendingCount > 0 && (
               <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-semibold text-white">
                 {pendingCount} need attention

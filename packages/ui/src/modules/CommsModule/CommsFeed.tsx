@@ -116,7 +116,7 @@ export function CommsFeed() {
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  /** TODO: Replace with real auth context user name in Sprint 10 */
+  /** TODO: Replace with real auth context user name */
   const CURRENT_USER = 'Josh Millang'
 
   // Live Firestore query — communications ordered by created_at desc, limit 50
@@ -188,14 +188,14 @@ export function CommsFeed() {
         </div>
       </div>
 
-      {/* Filters — TRK-068: rounded h-[34px] pills */}
+      {/* Filters — TRK-412: rounded-md h-[36px] pills (rectangular with slight rounding) */}
       <div className="flex items-center justify-between gap-2 px-4 pb-3">
         <div className="flex items-center gap-1.5">
           {channelPills.map((pill) => (
             <button
               key={pill.key}
               onClick={() => setChannelFilter(pill.key)}
-              className={`rounded h-[34px] px-3 text-xs font-medium transition-colors ${
+              className={`rounded-md h-[36px] px-3 text-xs font-medium transition-colors ${
                 channelFilter === pill.key
                   ? 'text-white'
                   : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
@@ -210,7 +210,7 @@ export function CommsFeed() {
             <button
               key={pill.key}
               onClick={() => setDirectionFilter(pill.key)}
-              className={`flex items-center gap-1 rounded h-[34px] px-2.5 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1 rounded-md h-[36px] px-2.5 text-xs font-medium transition-colors ${
                 directionFilter === pill.key
                   ? 'text-white'
                   : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
@@ -225,7 +225,7 @@ export function CommsFeed() {
         <select
           value={scopeFilter}
           onChange={(e) => setScopeFilter(e.target.value as ScopeFilter)}
-          className="rounded h-[34px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 text-xs text-[var(--text-secondary)] outline-none"
+          className="rounded-md h-[36px] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 text-xs text-[var(--text-secondary)] outline-none"
         >
           <option value="all">All Team</option>
           <option value="mine">My Communications</option>

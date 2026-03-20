@@ -47,7 +47,7 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
   const age = getAge(client.dob)
   const location = [client.city, client.state].filter(Boolean).join(', ')
   const timezone = client.timezone as string | undefined
-  const acfLink = client.acf_link as string | undefined
+  const acfLink = (client.gdrive_folder_url || client.acf_link || client.acf_url) as string | undefined
 
   const [ai3Loading, setAi3Loading] = useState(false)
   const [ai3Data, setAi3Data] = useState<AI3Data | null>(null)

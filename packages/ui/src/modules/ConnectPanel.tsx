@@ -101,6 +101,17 @@ function computePresence(lastActive: UserDoc['last_active']): PresenceStatus {
   return 'offline'
 }
 
+/* ─── Name Normalization (TRK-409) ─── */
+
+/** Normalize "Last, First" format to "First Last" */
+function normalizeDisplayName(name: string): string {
+  if (name.includes(',')) {
+    const [last, first] = name.split(',').map(s => s.trim())
+    if (first && last) return first + ' ' + last
+  }
+  return name
+}
+
 /* ─── Avatar Helpers ─── */
 
 /** Deterministic color from name string for initials avatars */
@@ -124,7 +135,7 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-/** Inline initials avatar — Sprint 10 will wire Google People API photos */
+/** Inline initials avatar — renders photo_url when available, falls back to initials */
 function InitialsAvatar({ name, size = 36 }: { name: string; size?: number }) {
   const bg = nameToColor(name)
   const initials = getInitials(name)
@@ -252,7 +263,7 @@ function ChannelChatView({ channelName, onBack }: { channelName: string; onBack:
       {/* Compose bar (stub) */}
       <div className="border-t border-[var(--border-subtle)] px-4 py-3">
         <div className="flex items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
-          <span className="text-xs text-[var(--text-muted)]">Message #{channelName} — Sprint 10</span>
+          <span className="text-xs text-[var(--text-muted)]">Message #{channelName}</span>
         </div>
       </div>
     </div>
@@ -335,7 +346,7 @@ function ChannelsTab() {
       setNewChannelName('')
       setShowNewForm(false)
     } catch {
-      // Silently fail — Sprint 10 adds toast notifications
+      // Silently fail — toast notifications coming soon
     } finally {
       setCreating(false)
     }
@@ -394,7 +405,7 @@ function ChannelsTab() {
           /* TRK-075: Inline new channel form */
           <div className="space-y-2">
             <p className="text-[10px] font-medium text-[var(--text-muted)]">
-              Real Google Chat integration in Sprint 10
+              Google Chat integration coming soon
             </p>
             <input
               type="text"
@@ -446,7 +457,11 @@ function PersonCard({ member }: { member: TeamMember }) {
     <div className="group rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-3 transition-colors hover:bg-[var(--bg-hover)]">
       <div className="flex items-center gap-3">
         <div className="relative flex-shrink-0">
-          <InitialsAvatar name={member.name} size={36} />
+          {member.photo_url ? (
+            <img src={member.photo_url} className="w-9 h-9 rounded-full object-cover" alt="" />
+          ) : (
+            <InitialsAvatar name={member.name} size={36} />
+          )}
           <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[var(--bg-card)] ${PRESENCE_DOT[member.presence]}`} />
         </div>
         <span className="text-sm font-semibold text-[var(--text-primary)]">{member.name}</span>
@@ -492,7 +507,8 @@ function PeopleTab({ open }: { open: boolean }) {
   // Map Firestore docs to TeamMember with computed presence
   const teamMembers: TeamMember[] = useMemo(() => {
     return userDocs.map((u) => {
-      const displayName = u.display_name || [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email || 'Unknown'
+      const rawName = u.display_name || [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email || 'Unknown'
+      const displayName = normalizeDisplayName(rawName)
       return {
         name: displayName,
         email: u.email || u._id,
@@ -631,7 +647,7 @@ function MeetTab() {
           <div className="mt-1.5 space-y-1">
             <MeetActionRow icon="videocam" title="Start Instant Meeting" subtitle="Create a new Google Meet right now" onClick={() => window.open('https://meet.google.com/new', '_blank')} />
             <MeetActionRow icon="calendar_month" title="Schedule Meeting" subtitle="Open Google Calendar to schedule" onClick={() => window.open('https://calendar.google.com/calendar/r/eventedit', '_blank')} />
-            <MeetActionRow icon="link" title="Share My Meeting Link" subtitle="Copy your personal Meet room link" onClick={() => { /* Sprint 10 */ }} />
+            <MeetActionRow icon="link" title="Share My Meeting Link" subtitle="Copy your personal Meet room link" onClick={() => { /* TODO: wire personal Meet link */ }} />
           </div>
         </div>
 
@@ -692,7 +708,7 @@ function MeetTab() {
             <div className="mt-3 flex flex-col items-center justify-center py-4">
               <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>calendar_today</span>
               <p className="mt-2 text-xs text-[var(--text-muted)]">No upcoming meetings</p>
-              <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">Google Calendar integration in Sprint 10</p>
+              <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">Google Calendar integration coming soon</p>
             </div>
           </div>
         )}

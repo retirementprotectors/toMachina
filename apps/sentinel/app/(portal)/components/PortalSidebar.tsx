@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuth, useEntitlements, canAccessModule } from '@tomachina/auth'
 import type { UserEntitlementContext } from '@tomachina/auth'
 import { APP_BRANDS, AppIcon, type AppKey } from '@tomachina/ui'
@@ -436,145 +436,112 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
           </div>
         )}
 
-        {/* Communications — portal-tinted, opens slide-out */}
-        <div className="border-t border-[var(--border-subtle)] px-2 py-1">
+        {/* ─── Compact Action Bar ─── */}
+        <div
+          className={`border-t border-[var(--border-subtle)] ${
+            collapsed
+              ? 'flex flex-col items-center gap-1 px-1.5 py-2'
+              : 'flex items-center justify-around px-2 py-1.5'
+          }`}
+        >
+          {/* Comms */}
           <button
             onClick={onCommsToggle}
-            title={collapsed ? 'Communications' : undefined}
-            className={`
-              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
-              transition-all duration-150
-              ${collapsed ? 'justify-center' : ''}
-              ${commsOpen
-                ? 'bg-[rgba(64,188,88,0.15)]'
-                : 'bg-[rgba(64,188,88,0.06)] hover:bg-[rgba(64,188,88,0.15)]'
-              }
-            `}
+            title="Communications"
+            className={`flex flex-col items-center justify-center rounded-lg transition-all duration-150 ${
+              collapsed ? 'h-9 w-9' : 'h-9 w-9'
+            }`}
             style={{
-              color: commsOpen
-                ? 'var(--portal)'
-                : 'var(--text-secondary)',
+              background: commsOpen ? 'rgba(64,188,88,0.15)' : 'transparent',
             }}
           >
-            {commsOpen && (
-              <div
-                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                style={{ background: 'var(--portal)' }}
-              />
-            )}
             <span
               className="material-icons-outlined"
-              style={{ fontSize: '18px', color: commsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
+              style={{ fontSize: '20px', color: commsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
             >
               forum
             </span>
-            {!collapsed && <span>Communications</span>}
+            {!collapsed && (
+              <span className="text-[9px] mt-0.5" style={{ color: commsOpen ? 'var(--portal)' : 'var(--text-muted)' }}>
+                Comms
+              </span>
+            )}
           </button>
-        </div>
 
-        {/* RPI Connect — portal-tinted, opens slide-out */}
-        <div className="border-t border-[var(--border-subtle)] px-2 py-1">
+          {/* Connect */}
           <button
             onClick={onConnectToggle}
-            title={collapsed ? CONNECT_ITEM.label : undefined}
-            className={`
-              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
-              transition-all duration-150
-              ${collapsed ? 'justify-center' : ''}
-              ${connectOpen
-                ? 'bg-[rgba(104,211,145,0.15)]'
-                : 'bg-[rgba(104,211,145,0.06)] hover:bg-[rgba(104,211,145,0.15)]'
-              }
-            `}
+            title="RPI Connect"
+            className={`flex flex-col items-center justify-center rounded-lg transition-all duration-150 ${
+              collapsed ? 'h-9 w-9' : 'h-9 w-9'
+            }`}
             style={{
-              color: connectOpen
-                ? 'var(--connect-color)'
-                : 'var(--text-secondary)',
+              background: connectOpen ? 'rgba(104,211,145,0.15)' : 'transparent',
             }}
           >
-            {connectOpen && (
-              <div
-                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                style={{ background: 'var(--connect-color)' }}
-              />
-            )}
             <span
               className="material-icons-outlined"
-              style={{ fontSize: '18px', color: connectOpen ? 'var(--connect-color)' : 'var(--text-muted)' }}
+              style={{ fontSize: '20px', color: connectOpen ? 'var(--connect-color)' : 'var(--text-muted)' }}
             >
-              {CONNECT_ITEM.icon}
+              hub
             </span>
-            {!collapsed && <span>{CONNECT_ITEM.label}</span>}
+            {!collapsed && (
+              <span className="text-[9px] mt-0.5" style={{ color: connectOpen ? 'var(--connect-color)' : 'var(--text-muted)' }}>
+                Connect
+              </span>
+            )}
           </button>
-        </div>
 
-        {/* Notifications — portal-tinted, opens slide-out */}
-        <div className="border-t border-[var(--border-subtle)] px-2 py-1">
+          {/* Notifications */}
           <button
             onClick={onNotificationsToggle}
-            title={collapsed ? 'Notifications' : undefined}
-            className={`
-              relative flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm
-              transition-all duration-150
-              ${collapsed ? 'justify-center' : ''}
-              ${notificationsOpen
-                ? 'bg-[rgba(64,188,88,0.15)]'
-                : 'bg-[rgba(64,188,88,0.06)] hover:bg-[rgba(64,188,88,0.15)]'
-              }
-            `}
+            title="Notifications"
+            className={`relative flex flex-col items-center justify-center rounded-lg transition-all duration-150 ${
+              collapsed ? 'h-9 w-9' : 'h-9 w-9'
+            }`}
             style={{
-              color: notificationsOpen
-                ? 'var(--portal)'
-                : 'var(--text-secondary)',
+              background: notificationsOpen ? 'rgba(64,188,88,0.15)' : 'transparent',
             }}
           >
-            {notificationsOpen && (
-              <div
-                className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                style={{ background: 'var(--portal)' }}
-              />
-            )}
             <span
               className="material-icons-outlined"
-              style={{ fontSize: '18px', color: notificationsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
+              style={{ fontSize: '20px', color: notificationsOpen ? 'var(--portal)' : 'var(--text-muted)' }}
             >
               notifications
             </span>
-            {!collapsed && <span>Notifications</span>}
+            {!collapsed && (
+              <span className="text-[9px] mt-0.5" style={{ color: notificationsOpen ? 'var(--portal)' : 'var(--text-muted)' }}>
+                Alerts
+              </span>
+            )}
           </button>
-        </div>
 
-        {showAdmin && (
-          <div className="border-t border-[var(--border-subtle)] px-2 py-1">
+          {/* Admin */}
+          {showAdmin && (
             <Link
               href={ADMIN_ITEM.href}
-              title={collapsed ? ADMIN_ITEM.label : undefined}
-              className={`
-                relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm
-                transition-all duration-150
-                ${collapsed ? 'justify-center' : ''}
-                ${isActive(ADMIN_ITEM.href)
-                  ? 'bg-[rgba(220,38,38,0.12)] text-[#fca5a5]'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
-                }
-              `}
+              title="Admin"
+              className={`flex flex-col items-center justify-center rounded-lg transition-all duration-150 ${
+                collapsed ? 'h-9 w-9' : 'h-9 w-9'
+              }`}
+              style={{
+                background: isActive(ADMIN_ITEM.href) ? 'rgba(220,38,38,0.12)' : 'transparent',
+              }}
             >
-              {isActive(ADMIN_ITEM.href) && (
-                <div
-                  className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r"
-                  style={{ background: 'var(--admin-color)' }}
-                />
-              )}
               <span
                 className="material-icons-outlined"
-                style={{ fontSize: '18px', color: 'var(--admin-color)' }}
+                style={{ fontSize: '20px', color: 'var(--admin-color)' }}
               >
                 {ADMIN_ITEM.icon}
               </span>
-              {!collapsed && <span>{ADMIN_ITEM.label}</span>}
+              {!collapsed && (
+                <span className="text-[9px] mt-0.5" style={{ color: 'var(--admin-color)' }}>
+                  Admin
+                </span>
+              )}
             </Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </aside>
   )
