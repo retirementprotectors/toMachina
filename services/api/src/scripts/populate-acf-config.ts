@@ -21,7 +21,7 @@ const store = getFirestore()
 const isDryRun = process.argv.includes('--dry-run')
 
 const ACF_DEFAULT_CONFIG = {
-  template_folder_id: '1dEjv6YCLDa0QVtuStCpmpPECnMaGSZlV',
+  template_folder_id: '1g3lyRPnsWu0opfyv0vUiZTBEJoEhrP4m',
   ai3_template_id: '1bKYo-Zkm725lazCnLbwEOkK-i100yGy9_yBcMJwG49M',
   subfolders: [
     'Source Documents',
