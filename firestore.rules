@@ -398,7 +398,7 @@ service cloud.firestore {
     }
     match /guardian_writes/{docId} {
       allow read: if isExecutiveOrAbove();
-      allow write: if true; // Written by API middleware (server-side only)
+      allow write: if isExecutiveOrAbove();
     }
     match /anomaly_alerts/{docId} {
       allow read: if isRPIUser();
@@ -410,6 +410,38 @@ service cloud.firestore {
     // ----------------------------------------------------------------
     match /connect_channels/{channelId} {
       allow read, write: if isRPIUser();
+    }
+
+    // ----------------------------------------------------------------
+    // Intake + Wire — pipeline processing collections
+    // ----------------------------------------------------------------
+    match /intake_queue/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /intake_config/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /wire_executions/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /taxonomy_misses/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /email_inbox_config/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Approval batches — used by Notifications APPROVALS tab (browser reads)
+    // ----------------------------------------------------------------
+    match /approval_batches/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
     }
 
     // ----------------------------------------------------------------
