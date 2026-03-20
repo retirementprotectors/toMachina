@@ -79,6 +79,7 @@ toMachina/
 npm run dev          # Start all apps + services
 npm run build        # Build everything (incremental)
 npm run type-check   # TypeScript check all workspaces (must pass 13/13 for CI)
+npm run build        # Full production build — must pass before pushing (catches webpack/bundler issues type-check misses)
 
 # Single app
 npx turbo run dev --filter=@tomachina/prodash
@@ -87,7 +88,9 @@ npx turbo run dev --filter=@tomachina/prodash
 npx turbo run build --filter=@tomachina/core
 ```
 
-**CI requirement**: `npm run type-check` must pass 13/13 workspaces before Firebase App Hosting will deploy. The API tsconfig excludes `src/scripts/` (seed scripts import from core source, outside rootDir).
+**CI requirement**: `npm run type-check` (13/13) AND `npm run build` (11/11) must both pass before pushing. Type-check catches type errors fast (~10s). Build catches webpack/bundler issues that type-check misses (~1-4min). Both run in CI — if either fails, deploy is blocked. The API tsconfig excludes `src/scripts/` (seed scripts import from core source, outside rootDir).
+
+**Deploy pipeline**: Push to main → CI check (type-check + build) → deploy-api (Docker build + push to Artifact Registry + gcloud run deploy for tm-api + tm-bridge) → Firebase App Hosting auto-deploys portals. No Cloud Build — Docker runs directly on the GitHub Actions runner.
 
 ## Code Standards
 
