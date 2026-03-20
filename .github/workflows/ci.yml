@@ -51,7 +51,7 @@ jobs:
           docker build -t ${{ env.REGISTRY }}/tm-bridge:latest -f services/bridge/Dockerfile .
           docker push ${{ env.REGISTRY }}/tm-bridge:latest
 
-      # Deploy API to Cloud Run
+      # Deploy API to Cloud Run (with liveness probe — auto-restarts on Firestore stale connections)
       - run: |
           gcloud run deploy tm-api \
             --image ${{ env.REGISTRY }}/tm-api:latest \
@@ -63,9 +63,10 @@ jobs:
             --max-instances 20 \
             --port 8080 \
             --no-allow-unauthenticated \
+            --liveness-probe httpGet.path=/health,httpGet.port=8080,initialDelaySeconds=10,periodSeconds=30,failureThreshold=3,timeoutSeconds=10 \
             --project ${{ env.PROJECT_ID }}
 
-      # Deploy Bridge to Cloud Run
+      # Deploy Bridge to Cloud Run (with liveness probe)
       - run: |
           gcloud run deploy tm-bridge \
             --image ${{ env.REGISTRY }}/tm-bridge:latest \
@@ -77,6 +78,7 @@ jobs:
             --max-instances 5 \
             --port 8080 \
             --no-allow-unauthenticated \
+            --liveness-probe httpGet.path=/health,httpGet.port=8080,initialDelaySeconds=10,periodSeconds=30,failureThreshold=3,timeoutSeconds=10 \
             --project ${{ env.PROJECT_ID }}
 
       # Smoke test — verify API responds after deploy
