@@ -6,6 +6,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import { getUserCalendarEvents, createQuickMeet } from '../lib/calendar-client.js'
 
 export const connectRoutes = Router()
 
@@ -20,15 +21,71 @@ const SEED_CHANNELS = [
 
 // ============================================================================
 // GET /api/connect/calendar
-// Returns empty meetings/recordings for now (Sprint 10 wires Google Calendar)
+// Returns today's upcoming Google Calendar events via domain-wide delegation.
+// Requires GOOGLE_CALENDAR_CREDENTIALS env var with service account key JSON.
 // ============================================================================
 
-connectRoutes.get('/calendar', async (_req: Request, res: Response) => {
+connectRoutes.get('/calendar', async (req: Request, res: Response) => {
   try {
-    res.json(successResponse({ meetings: [], recordings: [] }))
-  } catch (err) {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    // If calendar credentials aren't configured, return empty gracefully
+    if (!process.env.GOOGLE_CALENDAR_CREDENTIALS) {
+      res.json(successResponse({ meetings: [], recordings: [] }))
+      return
+    }
+
+    const meetings = await getUserCalendarEvents(email)
+    res.json(successResponse({ meetings, recordings: [] }))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    // Handle Google auth expiry gracefully
+    if (errMsg.includes('invalid_grant') || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
     console.error('GET /api/connect/calendar error:', err)
-    res.status(500).json(errorResponse(String(err)))
+    res.status(500).json(errorResponse(errMsg))
+  }
+})
+
+// ============================================================================
+// POST /api/connect/meet
+// Create a quick Google Meet via Calendar API with auto-generated Meet link.
+// ============================================================================
+
+connectRoutes.post('/meet', async (req: Request, res: Response) => {
+  try {
+    const user = (req as unknown as { user?: { email?: string } }).user
+    const email = user?.email
+    if (!email) {
+      res.status(401).json(errorResponse('No authenticated user'))
+      return
+    }
+
+    if (!process.env.GOOGLE_CALENDAR_CREDENTIALS) {
+      res.status(503).json(errorResponse('Calendar integration not configured'))
+      return
+    }
+
+    const body = req.body as Record<string, unknown>
+    const title = body.title ? String(body.title).trim() : undefined
+
+    const result = await createQuickMeet(email, title)
+    res.json(successResponse(result))
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    if (errMsg.includes('invalid_grant') || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
+    console.error('POST /api/connect/meet error:', err)
+    res.status(500).json(errorResponse(errMsg))
   }
 })
 

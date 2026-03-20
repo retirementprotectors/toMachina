@@ -144,9 +144,15 @@ ai3Routes.get('/household/:householdId', async (req: Request, res: Response) => 
       generated_at: new Date().toISOString(),
       generated_by: userEmail,
     }))
-  } catch (err) {
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    const errBody = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+    if (errMsg.includes('invalid_grant') || errBody === 'invalid_grant' || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
     console.error('GET /api/ai3/household/:householdId error:', err)
-    res.status(500).json(errorResponse(String(err)))
+    res.status(500).json(errorResponse(errMsg))
   }
 })
 
@@ -215,8 +221,14 @@ ai3Routes.get('/:clientId', async (req: Request, res: Response) => {
       generated_at: new Date().toISOString(),
       generated_by: userEmail,
     }))
-  } catch (err) {
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err)
+    const errBody = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+    if (errMsg.includes('invalid_grant') || errBody === 'invalid_grant' || errMsg.includes('Token has been expired')) {
+      res.status(401).json(errorResponse('Google session expired. Please sign out and sign back in.'))
+      return
+    }
     console.error('GET /api/ai3/:clientId error:', err)
-    res.status(500).json(errorResponse(String(err)))
+    res.status(500).json(errorResponse(errMsg))
   }
 })
