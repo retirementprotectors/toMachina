@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operating System Audit — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(248,81,73,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: rgba(248,81,73,0.12); border: 1px solid rgba(248,81,73,0.28); color: var(--red); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--red), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 640px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--red); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--orange); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .stat-row { display: flex; gap: 12px; margin: 24px 0; flex-wrap: wrap; }
+  .stat { text-align: center; padding: 16px 24px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); flex: 1; min-width: 120px; }
+  .stat .num { font-size: 28px; font-weight: 800; }
+  .stat .lbl { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .stat.green .num { color: var(--green); }
+  .stat.red .num { color: var(--red); }
+  .stat.orange .num { color: var(--orange); }
+  .stat.dim .num { color: var(--dim); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; justify-content: center; }
+  .flow-step { padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .flow-arrow { padding: 0 6px; color: var(--dim); font-size: 16px; }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">FORGE Sprint &middot; SPRINT-OS-AUDIT &middot; DEFENSE</div>
+  <h1>Operating System Audit</h1>
+  <div class="sub">Full audit of The Machine's governance layer. Hookify rules, documentation integrity, CI pipeline, security posture, infrastructure health. Defense before offense.</div>
+</div>
+<div class="container">
+
+<div class="stat-row">
+  <div class="stat red"><div class="num">88</div><div class="lbl">Total Tickets</div></div>
+  <div class="stat green"><div class="num">15</div><div class="lbl">Already Fixed</div></div>
+  <div class="stat orange"><div class="num">49</div><div class="lbl">Remaining</div></div>
+  <div class="stat dim"><div class="num">24</div><div class="lbl">Won't Fix</div></div>
+</div>
+
+<h2>Build <span class="accent">Order</span></h2>
+<div class="flow">
+  <div class="flow-step" style="border-color:var(--red)"><strong>L0</strong> Critical Fixes</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L1</strong> Quick Fixes (11)</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L2</strong> New Hookify Rules (7-8)</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L3</strong> Doc Rewrites (10+)</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L4</strong> Decisions + Infra</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>L5</strong> Memory + Cleanup</div>
+</div>
+
+<h2>Layer 0: <span class="accent">Critical Fixes</span></h2>
+<div class="card">
+  <h4>TRK-392: Fix setup-hookify-symlinks.sh (CRITICAL)</h4>
+  <p>Line 129: <code>rm -rf "$PROJECT_PATH/.claude"</code> deletes everything. Change to: <code>rm -f "$PROJECT_PATH/.claude"/hookify.*.local.md</code>. This nuked all sprint artifacts tonight.</p>
+</div>
+<div class="card">
+  <h4>TRK-383: Deploy intake Cloud Functions</h4>
+  <p><code>firebase deploy --only functions</code> &mdash; deploys notification triggers + wire trigger. Features are code-complete but not deployed.</p>
+</div>
+
+<h2>Layer 1: <span class="accent">Quick Fixes</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Action</th></tr></thead>
+  <tbody>
+    <tr><td>331/328</td><td>Fix clone-all-repos.sh &mdash; move 5 archived GAS projects, add QUE-API</td></tr>
+    <tr><td>332</td><td>Delete reference/HOOKIFY_SYSTEM.md (duplicate)</td></tr>
+    <tr><td>335/340</td><td>Delete superseded maintenance/ files</td></tr>
+    <tr><td>338/363</td><td>Delete/redirect redundant compliance/ dir</td></tr>
+    <tr><td>364</td><td>Unload prodash-sync launchd agent</td></tr>
+    <tr><td>366</td><td>Mark GHL doc as ARCHIVED</td></tr>
+    <tr><td>370/382</td><td>npm audit fix (critical next vuln)</td></tr>
+    <tr><td>371/389</td><td>Update CI actions @v4 &rarr; @v6</td></tr>
+    <tr><td>380</td><td>Remove cloudbuild IAM role from github-deployer</td></tr>
+    <tr><td>384</td><td>Update machine manifest (run machine-check.sh)</td></tr>
+  </tbody>
+</table>
+
+<h2>Layer 2: <span class="accent">New Hookify Rules</span></h2>
+<div class="card">
+  <h4>TRK-308: 5 Priority Rules</h4>
+  <ul>
+    <li><strong>block-alert-confirm-prompt</strong> &mdash; browser dialog APIs</li>
+    <li><strong>block-hardcoded-colors</strong> &mdash; inline hex/rgb values</li>
+    <li><strong>intent-sendit</strong> &mdash; toMachina deploy protocol (NOT GAS)</li>
+    <li><strong>quality-gate-deploy-verify</strong> &mdash; blocks push without npm run build</li>
+    <li><strong>quality-gate-commit-remind</strong> &mdash; reminds to verify before commit</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>TRK-312/323 + TRK-324: 2 New Quality Gates</h4>
+  <ul>
+    <li><strong>quality-gate-build-verify</strong> &mdash; blocks "type-check passes" as sufficient</li>
+    <li><strong>quality-gate-done-without-evidence</strong> &mdash; blocks "PASS/Done" without git status + build proof</li>
+  </ul>
+</div>
+
+<h2>Layer 3: <span class="accent">Doc Rewrites</span></h2>
+<div class="card">
+  <h4>IMMUNE_SYSTEM.md (TRK-355) &mdash; Major Rewrite</h4>
+  <ul>
+    <li>Replace 6-step GAS deploy protocol with toMachina pipeline</li>
+    <li>Fix rule count, project count, propagation paths</li>
+    <li>Add undocumented rules, remove phantom rules</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>MONITORING.md (TRK-356/357/358) &mdash; Major Rewrite</h4>
+  <ul>
+    <li>Replace 18-project scan with monorepo model</li>
+    <li>Fix launchd agent section (all 6 agents)</li>
+    <li>Update health check script paths</li>
+  </ul>
+</div>
+<div class="card">
+  <h4>Other Doc Updates</h4>
+  <ul>
+    <li><strong>POSTURE.md</strong> (TRK-359) &mdash; check compliance boxes, add dates</li>
+    <li><strong>OPERATIONS.md</strong> (TRK-360) &mdash; update doc triggers for toMachina</li>
+    <li><strong>CLAUDE.md</strong> (TRK-325) &mdash; fix hookify section to match reality</li>
+    <li><strong>ATLAS briefing</strong> (TRK-337) &mdash; GAS &rarr; Firestore/API queries</li>
+    <li><strong>SMART_LOOKUP.md</strong> (TRK-352) &mdash; add React note</li>
+    <li><strong>portal/ docs</strong> (TRK-353) &mdash; GAS &rarr; toMachina modules</li>
+    <li><strong>data/ deprecation</strong> (TRK-334/339) &mdash; add headers pointing to ATLAS</li>
+    <li><strong>Date headers</strong> (TRK-362) &mdash; update all 4 os/ docs (do LAST)</li>
+  </ul>
+</div>
+
+<h2>Layer 4: <span class="accent">Decisions</span></h2>
+<div class="card">
+  <h4>JDM Decisions Required</h4>
+  <ul>
+    <li><strong>TRK-365:</strong> Document-watcher &mdash; fix DNS or leave down? (Rec: leave down, WIRE replaces it)</li>
+    <li><strong>TRK-381:</strong> Branch protection &mdash; require CI checks before push? (Rec: yes, require CI check job)</li>
+    <li><strong>TRK-374:</strong> Hookify excludes &mdash; fork plugin or fix rules? (Rec: fix rules, skip fork)</li>
+  </ul>
+</div>
+
+<h2>Already <span class="accent">Fixed</span> This Session</h2>
+<table>
+  <thead><tr><th>TRK</th><th>What</th></tr></thead>
+  <tbody>
+    <tr><td>336</td><td>Re-ran hookify symlinks (17 rules &rarr; 8 projects + global)</td></tr>
+    <tr><td>367</td><td>Firestore PITR + delete protection + daily backups</td></tr>
+    <tr><td>378</td><td>guardian_writes open write &rarr; isExecutiveOrAbove</td></tr>
+    <tr><td>379</td><td>6 missing Firestore collection rules added</td></tr>
+    <tr><td>390</td><td>3 MCP server paths fixed</td></tr>
+    <tr><td>391</td><td>DKIM TXT record added via GoDaddy API</td></tr>
+    <tr><td>385</td><td>SPF/DKIM/DMARC verified</td></tr>
+    <tr><td>386</td><td>Firebase App Hosting config clean</td></tr>
+    <tr><td>368-369</td><td>Firestore rules + IAM audited</td></tr>
+    <tr><td>372-376</td><td>BigQuery, DNS, knowledge-promote, machine-check verified</td></tr>
+    <tr><td>388</td><td>MCP health checked (14 connected, 3 fixed)</td></tr>
+  </tbody>
+</table>
+
+</div>
+</body>
+</html>
