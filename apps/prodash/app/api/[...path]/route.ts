@@ -8,7 +8,7 @@ async function handler(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const { path } = await params
-  const targetUrl = `${TARGET}/${path.join('/')}${new URL(request.url).search}`
+  const targetUrl = `${TARGET}/api/${path.join('/')}${new URL(request.url).search}`
 
   // Get identity token for Cloud Run IAM
   const client = await auth.getIdTokenClient(TARGET)
