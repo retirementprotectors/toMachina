@@ -273,9 +273,9 @@ function DdupContent() {
           let path: string
           // Items 6-7 (DD-2, FIX-4): Use '::' delimiter for account composite IDs
           // to avoid conflicts with hyphens in Firestore doc IDs (UUID format).
-          // Format: clientId::accountId — also supports legacy '-' separator as fallback.
-          if (type === 'account' && (id.includes('::') || id.includes('-'))) {
-            const sep = id.includes('::') ? '::' : '-'
+          // Format: clientId::accountId — '::' is the only valid separator (TRK-394).
+          if (type === 'account' && id.includes('::')) {
+            const sep = '::'
             const sepIndex = id.indexOf(sep)
             const clientIdPart = id.slice(0, sepIndex)
             const accountId = id.slice(sepIndex + sep.length)

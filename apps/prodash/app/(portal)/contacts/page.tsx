@@ -46,7 +46,7 @@ const clientsQuery: Query<DocumentData> = query(collections.clients(), orderBy('
 const usersQuery: Query<DocumentData> = query(collections.users())
 const householdsQuery: Query<DocumentData> = query(collections.households())
 
-type SortKey = 'name' | 'location' | 'book_of_business' | 'agent_name' | 'client_status' | 'household' | null
+type SortKey = 'name' | 'location' | 'agent_name' | 'client_status' | 'household' | null
 
 interface UserDoc extends User {
   _id: string
@@ -60,6 +60,8 @@ interface ClientRow extends Client {
   assigned_user_id?: string
   agent_name?: string
   gdrive_folder_url?: string
+  acf_link?: string
+  acf_url?: string
   household_id?: string
   household_name?: string
 }
@@ -191,12 +193,12 @@ export default function ClientsPage() {
       )
     }
 
-    // ACF filter
+    // ACF filter — check all 3 possible ACF URL fields
     if (acfFilter !== 'All') {
       if (acfFilter === 'Has ACF') {
-        result = result.filter((c) => Boolean(c.gdrive_folder_url))
+        result = result.filter((c) => Boolean(c.gdrive_folder_url || c.acf_link || c.acf_url))
       } else if (acfFilter === 'No ACF') {
-        result = result.filter((c) => !c.gdrive_folder_url)
+        result = result.filter((c) => !c.gdrive_folder_url && !c.acf_link && !c.acf_url)
       }
     }
 
@@ -219,10 +221,6 @@ export default function ClientsPage() {
         case 'location':
           av = `${a.state || ''} ${a.city || ''}`.toLowerCase()
           bv = `${b.state || ''} ${b.city || ''}`.toLowerCase()
-          break
-        case 'book_of_business':
-          av = (a.book_of_business || '').toLowerCase()
-          bv = (b.book_of_business || '').toLowerCase()
           break
         case 'agent_name':
           av = (a.agent_name || '').toLowerCase()
@@ -272,7 +270,7 @@ export default function ClientsPage() {
   const visibleColCount = useMemo(() => {
     // 1 for checkbox + 1 for name (always visible) + each toggled column
     let count = 2
-    const toggleable = ['location', 'phone', 'email', 'book', 'agent', 'status', 'household', 'acf', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
+    const toggleable = ['location', 'phone', 'email', 'agent', 'status', 'household', 'acf', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
     for (const k of toggleable) {
       if (visibleColumns.has(k)) count++
     }
@@ -485,11 +483,10 @@ export default function ClientsPage() {
                   {col('location') && renderSortHeader('City/State', 'location')}
                   {col('phone') && renderStaticHeader('Phone')}
                   {col('email') && renderStaticHeader('Email')}
-                  {col('book') && renderSortHeader('Book', 'book_of_business')}
                   {col('agent') && renderSortHeader('Agent', 'agent_name')}
                   {col('status') && renderSortHeader('Status', 'client_status')}
-                  {col('household') && renderSortHeader('Household', 'household')}
                   {col('acf') && renderStaticHeader('ACF', 'text-center')}
+                  {col('household') && renderSortHeader('Household', 'household')}
                   {col('age') && renderStaticHeader('Age')}
                   {col('dob') && renderStaticHeader('DOB')}
                   {col('ssn') && renderStaticHeader('SSN')}
@@ -550,11 +547,10 @@ export default function ClientsPage() {
                             {col('location') && (<td className="px-3 py-3">{client.city || client.state ? <span className="text-[var(--text-secondary)]">{[client.city, client.state].filter(Boolean).join(', ')}</span> : dash}</td>)}
                             {col('phone') && (<td className="px-3 py-3">{client.phone ? <span className="text-[var(--text-secondary)] whitespace-nowrap">{formatPhone(client.phone)}</span> : dash}</td>)}
                             {col('email') && (<td className="px-3 py-3">{client.email ? <a href={`mailto:${client.email}`} onClick={(e) => e.stopPropagation()} className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block">{client.email}</a> : dash}</td>)}
-                            {col('book') && (<td className="px-3 py-3">{client.book_of_business ? <span className="text-[var(--text-secondary)] text-xs">{String(client.book_of_business)}</span> : dash}</td>)}
                             {col('agent') && (<td className="px-3 py-3">{client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash}</td>)}
                             {col('status') && (<td className="px-3 py-3"><StatusBadge status={client.client_status} /></td>)}
+                            {col('acf') && (() => { const acfUrl = client.gdrive_folder_url || client.acf_link || client.acf_url; return (<td className="px-3 py-3 text-center">{acfUrl ? <a href={String(acfUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors" title="Open Active Client File"><span className="material-icons-outlined text-[18px]">folder_open</span></a> : dash}</td>) })()}
                             {col('household') && (<td className="px-3 py-3">{client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash}</td>)}
-                            {col('acf') && (<td className="px-3 py-3 text-center">{client.gdrive_folder_url ? <a href={String(client.gdrive_folder_url)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors" title="Open Active Client File"><span className="material-icons-outlined text-[18px]">folder_open</span></a> : dash}</td>)}
                             {col('age') && (<td className="px-3 py-3">{age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash}</td>)}
                             {col('dob') && (<td className="px-3 py-3">{client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash}</td>)}
                             {col('ssn') && (<td className="px-3 py-3">{client.ssn_last4 ? <span className="text-[var(--text-secondary)] text-xs">***-**-{String(client.ssn_last4)}</span> : dash}</td>)}
@@ -643,17 +639,6 @@ export default function ClientsPage() {
                         </td>
                       )}
 
-                      {/* Book */}
-                      {col('book') && (
-                        <td className="px-3 py-3">
-                          {client.book_of_business ? (
-                            <span className="text-[var(--text-secondary)] text-xs">
-                              {String(client.book_of_business)}
-                            </span>
-                          ) : dash}
-                        </td>
-                      )}
-
                       {/* Agent */}
                       {col('agent') && (
                         <td className="px-3 py-3">
@@ -672,6 +657,16 @@ export default function ClientsPage() {
                         </td>
                       )}
 
+                      {/* ACF (Google Drive folder) — status icon with tooltip */}
+                      {col('acf') && (
+                        <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                          <ACFStatusIcon
+                            clientId={client._id || ''}
+                            gdriveFolderUrl={client.gdrive_folder_url ? String(client.gdrive_folder_url) : client.acf_link ? String(client.acf_link) : client.acf_url ? String(client.acf_url) : null}
+                          />
+                        </td>
+                      )}
+
                       {/* Household */}
                       {col('household') && (
                         <td className="px-3 py-3">
@@ -686,16 +681,6 @@ export default function ClientsPage() {
                               {String(client.household_name)}
                             </a>
                           ) : dash}
-                        </td>
-                      )}
-
-                      {/* ACF (Google Drive folder) — status icon with tooltip */}
-                      {col('acf') && (
-                        <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                          <ACFStatusIcon
-                            clientId={client._id || ''}
-                            gdriveFolderUrl={client.gdrive_folder_url ? String(client.gdrive_folder_url) : null}
-                          />
                         </td>
                       )}
 
