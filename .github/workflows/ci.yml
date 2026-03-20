@@ -26,6 +26,10 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    env:
+      PROJECT_ID: claude-mcp-484718
+      REGION: us-central1
+      REGISTRY: us-central1-docker.pkg.dev/claude-mcp-484718/tomachina
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -33,9 +37,44 @@ jobs:
           workload_identity_provider: projects/365181509090/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@claude-mcp-484718.iam.gserviceaccount.com
       - uses: google-github-actions/setup-gcloud@v2
+
+      # Authenticate Docker to Artifact Registry
+      - run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      # Build + push API image
       - run: |
-          gcloud builds submit \
-            --config=cloudbuild-api-bridge.yaml \
-            --project=claude-mcp-484718 \
-            --region=us-central1 \
-            .
+          docker build -t ${{ env.REGISTRY }}/tm-api:latest -f services/api/Dockerfile .
+          docker push ${{ env.REGISTRY }}/tm-api:latest
+
+      # Build + push Bridge image
+      - run: |
+          docker build -t ${{ env.REGISTRY }}/tm-bridge:latest -f services/bridge/Dockerfile .
+          docker push ${{ env.REGISTRY }}/tm-bridge:latest
+
+      # Deploy API to Cloud Run
+      - run: |
+          gcloud run deploy tm-api \
+            --image ${{ env.REGISTRY }}/tm-api:latest \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --memory 1Gi \
+            --cpu 2 \
+            --min-instances 1 \
+            --max-instances 20 \
+            --port 8080 \
+            --no-allow-unauthenticated \
+            --project ${{ env.PROJECT_ID }}
+
+      # Deploy Bridge to Cloud Run
+      - run: |
+          gcloud run deploy tm-bridge \
+            --image ${{ env.REGISTRY }}/tm-bridge:latest \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --memory 512Mi \
+            --cpu 1 \
+            --min-instances 0 \
+            --max-instances 5 \
+            --port 8080 \
+            --no-allow-unauthenticated \
+            --project ${{ env.PROJECT_ID }}
