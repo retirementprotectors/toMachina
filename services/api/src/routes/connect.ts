@@ -22,7 +22,7 @@ const SEED_CHANNELS = [
 // ============================================================================
 // GET /api/connect/calendar
 // Returns today's upcoming Google Calendar events via domain-wide delegation.
-// Requires GOOGLE_CALENDAR_CREDENTIALS env var with service account key JSON.
+// Works keyless on Cloud Run (IAM signJwt) or with GOOGLE_CALENDAR_CREDENTIALS locally.
 // ============================================================================
 
 connectRoutes.get('/calendar', async (req: Request, res: Response) => {
@@ -31,12 +31,6 @@ connectRoutes.get('/calendar', async (req: Request, res: Response) => {
     const email = user?.email
     if (!email) {
       res.status(401).json(errorResponse('No authenticated user'))
-      return
-    }
-
-    // If calendar credentials aren't configured, return empty gracefully
-    if (!process.env.GOOGLE_CALENDAR_CREDENTIALS) {
-      res.json(successResponse({ meetings: [], recordings: [] }))
       return
     }
 
@@ -65,11 +59,6 @@ connectRoutes.post('/meet', async (req: Request, res: Response) => {
     const email = user?.email
     if (!email) {
       res.status(401).json(errorResponse('No authenticated user'))
-      return
-    }
-
-    if (!process.env.GOOGLE_CALENDAR_CREDENTIALS) {
-      res.status(503).json(errorResponse('Calendar integration not configured'))
       return
     }
 

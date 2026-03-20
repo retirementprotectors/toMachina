@@ -92,7 +92,7 @@ interface SectionDef {
 const MODULE_SECTIONS: SectionDef[] = [
   {
     key: 'workspace',
-    label: 'Workspace',
+    label: 'Workspaces',
     icon: 'workspaces',
     items: [
       { key: 'contacts', label: 'Contacts', icon: 'people', moduleKey: 'PRODASH_CLIENTS' },
