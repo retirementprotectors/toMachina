@@ -1139,7 +1139,7 @@ sprintRoutes.get('/:id/audit', async (req: Request, res: Response) => {
       md += `\n**Issues / Findings:**\n\n${'_'.repeat(60)}\n\n${'_'.repeat(60)}\n`
     }
 
-    md += `\n## Type Check\n\`\`\`bash\nnpm run type-check\n\`\`\`\nMust pass 13/13.\n`
+    md += `\n## Build Verification\n\`\`\`bash\nnpm run build\n\`\`\`\nMust pass all workspaces. Catches webpack/bundler issues that type-check misses.\n\nAlso verify: no server-only code (fs, child_process) exported from shared package barrels — types only.\n`
 
     md += `\n## FORGE Status Protocol\nAfter audit passes:\n`
     md += '```bash\n'
