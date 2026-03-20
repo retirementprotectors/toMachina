@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { fetchWithAuth } from './fetchWithAuth'
 
 /**
  * ACF Audit Admin — Admin page for bulk ACF audit and rebuild.
@@ -49,7 +50,7 @@ export function ACFAuditAdmin({ portal }: ACFAuditAdminProps) {
     setRebuildResult(null)
     setSelectedIds(new Set())
     try {
-      const res = await fetch('/api/acf/audit', { method: 'POST' })
+      const res = await fetchWithAuth('/api/acf/audit', { method: 'POST' })
       const json = await res.json()
       if (json.success) setAudit(json.data)
     } catch {
@@ -64,7 +65,7 @@ export function ACFAuditAdmin({ portal }: ACFAuditAdminProps) {
     setRebuilding(true)
     setRebuildResult(null)
     try {
-      const res = await fetch('/api/acf/rebuild', {
+      const res = await fetchWithAuth('/api/acf/rebuild', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

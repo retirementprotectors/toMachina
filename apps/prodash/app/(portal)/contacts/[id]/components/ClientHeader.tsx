@@ -47,8 +47,6 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
   const age = getAge(client.dob)
   const location = [client.city, client.state].filter(Boolean).join(', ')
   const timezone = client.timezone as string | undefined
-  const acfLink = (client.gdrive_folder_url || client.acf_link || client.acf_url) as string | undefined
-
   const [ai3Loading, setAi3Loading] = useState(false)
   const [ai3Data, setAi3Data] = useState<AI3Data | null>(null)
   const ai3Ref = useRef<HTMLDivElement>(null)
@@ -167,23 +165,6 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
-          {/* ACF Button */}
-          <button
-            onClick={() => {
-              if (acfLink) window.open(acfLink, '_blank', 'noopener,noreferrer')
-            }}
-            disabled={!acfLink}
-            className={`inline-flex items-center gap-1.5 rounded px-4 py-1.5 text-sm font-medium transition-all ${
-              acfLink
-                ? 'bg-[var(--portal)]/15 text-[var(--portal)] hover:bg-[var(--portal)]/25 border border-[var(--portal)]/30'
-                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] cursor-not-allowed opacity-50 border border-[var(--border)]'
-            }`}
-            title={acfLink ? 'Open Active Client File in Google Drive' : 'No ACF link on file'}
-          >
-            <span className="material-icons-outlined text-[18px]">folder_open</span>
-            ACF
-          </button>
-
           {/* AI3 Button */}
           <button
             onClick={handleAI3}
