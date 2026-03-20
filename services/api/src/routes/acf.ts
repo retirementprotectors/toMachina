@@ -77,50 +77,64 @@ async function getACFStatus(clientId: string): Promise<ACFStatus> {
     return { ...empty, folder_url: folderUrl || null }
   }
 
-  const accessible = await folderExists(folderId)
-  if (!accessible) {
-    return { ...empty, folder_id: folderId, folder_url: folderUrl || null }
-  }
-
-  const config = await loadConfig()
-  const subfolders = await listSubfolders(folderId)
-  const rootFiles = await listFolderFiles(folderId)
-
-  // Count files across all subfolders
-  let totalDocs = rootFiles.length
-  for (const sf of subfolders) {
-    const sfFiles = await listFolderFiles(sf.id)
-    totalDocs += sfFiles.length
-  }
-
-  // Check for Ai3 spreadsheet
-  const ai3Present = rootFiles.some(
-    (f) =>
-      f.mimeType === 'application/vnd.google-apps.spreadsheet' &&
-      f.name.toLowerCase().includes('ai3')
-  )
-
-  const complete =
-    subfolders.length >= config.subfolders.length && ai3Present
-
-  const lastMod =
-    rootFiles.length > 0
-      ? rootFiles.reduce(
-          (latest, f) =>
-            f.modifiedTime > latest ? f.modifiedTime : latest,
-          rootFiles[0].modifiedTime
-        )
-      : null
-
-  return {
+  // Trust Firestore — if folder ID exists, report it as existing.
+  // Drive listing may fail if service account lacks access to legacy folders.
+  const baseStatus: ACFStatus = {
     exists: true,
     folder_id: folderId,
-    folder_url: folderUrl || null,
-    complete,
-    subfolder_count: subfolders.length,
-    document_count: totalDocs,
-    ai3_present: ai3Present,
-    last_updated: lastMod,
+    folder_url: folderUrl || `https://drive.google.com/drive/folders/${folderId}`,
+    complete: false,
+    subfolder_count: 0,
+    document_count: 0,
+    ai3_present: false,
+    last_updated: null,
+  }
+
+  try {
+    const accessible = await folderExists(folderId)
+    if (!accessible) return baseStatus // Folder exists in Firestore but Drive can't verify — return basic status
+
+    const config = await loadConfig()
+    const subfolders = await listSubfolders(folderId)
+    const rootFiles = await listFolderFiles(folderId)
+
+    let totalDocs = rootFiles.length
+    for (const sf of subfolders) {
+      const sfFiles = await listFolderFiles(sf.id)
+      totalDocs += sfFiles.length
+    }
+
+    const ai3Present = rootFiles.some(
+      (f) =>
+        f.mimeType === 'application/vnd.google-apps.spreadsheet' &&
+        f.name.toLowerCase().includes('ai3')
+    )
+
+    const complete =
+      subfolders.length >= config.subfolders.length && ai3Present
+
+    const lastMod =
+      rootFiles.length > 0
+        ? rootFiles.reduce(
+            (latest, f) =>
+              f.modifiedTime > latest ? f.modifiedTime : latest,
+            rootFiles[0].modifiedTime
+          )
+        : null
+
+    return {
+      exists: true,
+      folder_id: folderId,
+      folder_url: folderUrl || `https://drive.google.com/drive/folders/${folderId}`,
+      complete,
+      subfolder_count: subfolders.length,
+      document_count: totalDocs,
+      ai3_present: ai3Present,
+      last_updated: lastMod,
+    }
+  } catch {
+    // Drive API failure — return basic status from Firestore
+    return baseStatus
   }
 }
 
@@ -519,46 +533,70 @@ acfRoutes.get('/:clientId', async (req: Request, res: Response) => {
       return
     }
 
-    const accessible = await folderExists(folderId)
-    if (!accessible) {
-      res.json(
-        successResponse({ exists: false, broken: true, subfolders: [] })
+    const folderUrl = (data.acf_folder_url || `https://drive.google.com/drive/folders/${folderId}`) as string
+
+    // Try Drive listing — gracefully degrade if service account lacks access
+    try {
+      const accessible = await folderExists(folderId)
+      if (!accessible) {
+        // Folder ID in Firestore but Drive can't verify — return basic info with Open in Drive link
+        res.json(
+          successResponse({
+            exists: true,
+            folder_id: folderId,
+            folder_url: folderUrl,
+            subfolders: [],
+            root_files: [],
+            drive_limited: true,
+          })
+        )
+        return
+      }
+
+      // Full Drive listing
+      const subfolders = await listSubfolders(folderId)
+      const subfolderDetails = await Promise.all(
+        subfolders.map(async (sf) => {
+          const files = await listFolderFiles(sf.id)
+          return {
+            id: sf.id,
+            name: sf.name,
+            file_count: files.length,
+            files: files.map((f) => ({
+              id: f.id,
+              name: f.name,
+              mimeType: f.mimeType,
+              modifiedTime: f.modifiedTime,
+              size: f.size,
+            })),
+          }
+        })
       )
-      return
+
+      const rootFiles = await listFolderFiles(folderId)
+
+      res.json(
+        successResponse({
+          exists: true,
+          folder_id: folderId,
+          folder_url: folderUrl,
+          subfolders: subfolderDetails,
+          root_files: rootFiles,
+        })
+      )
+    } catch {
+      // Drive API failure — return basic info from Firestore
+      res.json(
+        successResponse({
+          exists: true,
+          folder_id: folderId,
+          folder_url: folderUrl,
+          subfolders: [],
+          root_files: [],
+          drive_limited: true,
+        })
+      )
     }
-
-    // List subfolders with their files
-    const subfolders = await listSubfolders(folderId)
-    const subfolderDetails = await Promise.all(
-      subfolders.map(async (sf) => {
-        const files = await listFolderFiles(sf.id)
-        return {
-          id: sf.id,
-          name: sf.name,
-          file_count: files.length,
-          files: files.map((f) => ({
-            id: f.id,
-            name: f.name,
-            mimeType: f.mimeType,
-            modifiedTime: f.modifiedTime,
-            size: f.size,
-          })),
-        }
-      })
-    )
-
-    // Root-level files (Ai3, etc.)
-    const rootFiles = await listFolderFiles(folderId)
-
-    res.json(
-      successResponse({
-        exists: true,
-        folder_id: folderId,
-        folder_url: data.acf_folder_url || null,
-        subfolders: subfolderDetails,
-        root_files: rootFiles,
-      })
-    )
   } catch (err) {
     console.error('GET /api/acf/:clientId error:', err)
     res.status(500).json(errorResponse('Failed to get ACF details'))
