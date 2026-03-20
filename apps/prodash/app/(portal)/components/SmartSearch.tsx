@@ -161,7 +161,11 @@ export function SmartSearch() {
 
       const json = await res.json()
       if (json.success && json.data) {
-        setResults(json.data as SearchResponse)
+        const d = json.data as Record<string, unknown>
+        setResults({
+          clients: Array.isArray(d.clients) ? d.clients : [],
+          accounts: Array.isArray(d.accounts) ? d.accounts : [],
+        } as SearchResponse)
       } else {
         setResults({ clients: [], accounts: [] })
       }

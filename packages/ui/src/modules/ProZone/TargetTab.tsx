@@ -144,7 +144,7 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
         }
         if (!cancelled) {
           if (json.success && json.data) {
-            setZones(json.data.zones)
+            setZones(json.data.zones || [])
             setTotalProspects(json.data.total_prospects)
             setTotalFlagged(json.data.total_flagged)
           } else {

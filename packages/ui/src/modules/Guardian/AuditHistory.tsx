@@ -90,7 +90,7 @@ export function AuditHistory() {
       if (!res.ok) throw new Error('Failed to fetch audits')
       const json = await res.json() as { success: boolean; data?: AuditRecord[] }
       if (json.success && json.data) {
-        setAudits(json.data)
+        setAudits(Array.isArray(json.data) ? json.data : [])
       }
     } catch {
       showToast('Failed to load audit history', 'error')

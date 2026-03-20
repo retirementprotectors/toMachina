@@ -262,7 +262,7 @@ function RegistryTab() {
       const res = await fetchWithAuth(`${API_BASE}/que/admin/sources`)
       const json = await res.json() as { success: boolean; data?: QueSource[]; error?: string }
       if (json.success && json.data) {
-        setSources(json.data)
+        setSources(Array.isArray(json.data) ? json.data : [])
       } else {
         setError(json.error || 'Failed to load sources')
       }

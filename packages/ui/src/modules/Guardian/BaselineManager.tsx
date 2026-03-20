@@ -78,7 +78,7 @@ export function BaselineManager() {
       if (!res.ok) throw new Error('Failed to fetch baselines')
       const json = await res.json() as { success: boolean; data?: Baseline[] }
       if (json.success && json.data) {
-        setBaselines(json.data)
+        setBaselines(Array.isArray(json.data) ? json.data : [])
       }
     } catch {
       showToast('Failed to load baselines', 'error')

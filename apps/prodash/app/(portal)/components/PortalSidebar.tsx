@@ -188,7 +188,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
         })
         if (!res.ok || cancelled) return
         const json = await res.json()
-        if (json.success && json.data) setPipelineItems(json.data)
+        if (json.success && json.data) setPipelineItems(Array.isArray(json.data) ? json.data : [])
       } catch { /* silent — sidebar degrades to static items */ }
     }
     if (user) loadPipelines()

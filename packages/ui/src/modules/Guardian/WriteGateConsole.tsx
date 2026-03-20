@@ -105,7 +105,7 @@ export function WriteGateConsole() {
       if (!res.ok) throw new Error('Failed to fetch writes')
       const json = await res.json() as { success: boolean; data?: WriteEntry[] }
       if (json.success && json.data) {
-        setEntries(json.data)
+        setEntries(Array.isArray(json.data) ? json.data : [])
       }
     } catch {
       showToast('Failed to load write log', 'error')

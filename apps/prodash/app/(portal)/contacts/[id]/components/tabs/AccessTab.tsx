@@ -43,7 +43,7 @@ function AccessTabContent({ clientId }: AccessTabProps) {
     try {
       const json = await apiFetch<AccessItem[]>(`/api/access/${clientId}`)
       if (json.success && json.data) {
-        setItems(json.data)
+        setItems(Array.isArray(json.data) ? json.data : [])
       }
     } finally {
       setLoading(false)

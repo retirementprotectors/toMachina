@@ -250,14 +250,14 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
   const auditableItems = useMemo(() => {
     if (!roundInfo) return sprintItems
     // Show only items that are pending in the current round
-    const pendingIds = new Set(roundInfo.pending.map(i => i.id))
+    const pendingIds = new Set((roundInfo.pending || []).map(i => i.id))
     return sprintItems.filter(i => pendingIds.has(i.id))
   }, [sprintItems, roundInfo])
 
   // Items that already passed in previous rounds (greyed out)
   const previouslyPassedItems = useMemo(() => {
     if (!roundInfo) return []
-    const passedIds = new Set(roundInfo.passed.map(i => i.id))
+    const passedIds = new Set((roundInfo.passed || []).map(i => i.id))
     return sprintItems.filter(i => passedIds.has(i.id))
   }, [sprintItems, roundInfo])
 

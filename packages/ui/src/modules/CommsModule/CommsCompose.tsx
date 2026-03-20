@@ -373,7 +373,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
         if (res.ok) {
           const json = await res.json() as { success: boolean; data?: Array<Record<string, unknown>> }
           if (json.success && json.data) {
-            setClientResults(json.data.map((c) => ({
+            setClientResults((Array.isArray(json.data) ? json.data : []).map((c) => ({
               id: String(c.id || c.client_id || ''),
               name: `${c.first_name || ''} ${c.last_name || ''}`.trim(),
               phone: String(c.phone || c.mobile_phone || ''),

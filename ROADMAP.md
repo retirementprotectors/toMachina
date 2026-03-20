@@ -73,6 +73,7 @@
 | RPI Connect channels | Wire to real Google Chat spaces | Google Chat API |
 | RPI Connect presence | Show real online/offline status | Firebase Realtime Database or Firestore |
 | Slide-out UX | Solve the 400-460px panel eating screen real estate | Sidebar collapse or layout rethink |
+| Shared API Response DTOs | Create `packages/core/src/api-types/` with typed response interfaces for all 54 API route files. Both API handlers and frontend consumers import the same type. TypeScript catches contract mismatches at build time. Prevents the ForgeAudit audit-round bug class entirely. | `packages/core` + `services/api` + all portal apps |
 
 **Nikki's specific feedback (acceptance criteria):**
 - Shane (with phone number) must appear in Comms "To:" search

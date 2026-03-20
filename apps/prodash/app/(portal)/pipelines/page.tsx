@@ -49,10 +49,11 @@ export default function PipelinesListPage() {
         const json = await res.json() as { success: boolean; data?: FlowPipelineDef[] }
         if (cancelled || !json.success || !json.data) return
 
+        const apiData = Array.isArray(json.data) ? json.data : []
         const assignedPipelines = ctx.assignedModules || []
         const visible = isLeaderOrAbove(ctx.userLevel)
-          ? json.data
-          : json.data.filter(
+          ? apiData
+          : apiData.filter(
               (p) =>
                 assignedPipelines.includes(p.pipeline_key) ||
                 assignedPipelines.includes(`PIPELINE_${p.pipeline_key}`)

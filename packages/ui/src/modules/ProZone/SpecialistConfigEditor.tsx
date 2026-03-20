@@ -353,7 +353,7 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
       const res = await fetchWithAuth('/api/specialist-configs')
       const json = (await res.json()) as { success: boolean; data?: ConfigSummary[]; error?: string }
       if (json.success && json.data) {
-        setConfigs(json.data)
+        setConfigs(Array.isArray(json.data) ? json.data : [])
       } else {
         setListError(json.error || 'Failed to load configs')
       }
@@ -379,7 +379,7 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
       const res = await fetchWithAuth('/api/territories')
       const json = (await res.json()) as { success: boolean; data?: TerritoryOption[]; error?: string }
       if (json.success && json.data) {
-        setTerritories(json.data)
+        setTerritories(Array.isArray(json.data) ? json.data : [])
       }
     } catch {
       // silent — territory list is supplementary
@@ -402,7 +402,7 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
         error?: string
       }
       if (json.success && json.data?.zones) {
-        setTerritoryZones(json.data.zones)
+        setTerritoryZones(Array.isArray(json.data.zones) ? json.data.zones : [])
       } else {
         setTerritoryZones([])
       }

@@ -92,7 +92,7 @@ export default function ScheduleView({ specialistId, appointments = [] }: Schedu
           if (json.success && json.data?.schedule) {
             // Transform API day-grouped response into WeekSchedule
             const dayAbbrev: Record<string, ScheduleSlot['day']> = { Monday: 'mon', Tuesday: 'tue', Wednesday: 'wed', Thursday: 'thu', Friday: 'fri' }
-            const flatSlots: ScheduleSlot[] = json.data.schedule.flatMap((dayObj) =>
+            const flatSlots: ScheduleSlot[] = (Array.isArray(json.data.schedule) ? json.data.schedule : []).flatMap((dayObj) =>
               (dayObj.slots || []).map((s, idx) => ({
                 slot_id: `${dayObj.date}-${idx}`,
                 day: dayAbbrev[dayObj.day] || 'mon' as ScheduleSlot['day'],

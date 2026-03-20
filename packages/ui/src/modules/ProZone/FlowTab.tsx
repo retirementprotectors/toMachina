@@ -44,7 +44,7 @@ export default function FlowTab({ portal, specialistId }: FlowTabProps) {
           )
           const json = await res.json() as { success: boolean; data?: Array<Record<string, unknown>> }
           if (json.success && json.data) {
-            newCounts[domain.key] = json.data.filter(
+            newCounts[domain.key] = (Array.isArray(json.data) ? json.data : []).filter(
               (i) => i.stage_status === 'pending' || i.stage_status === 'in_progress'
             ).length
           } else {

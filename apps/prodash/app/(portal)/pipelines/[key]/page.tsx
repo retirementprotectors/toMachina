@@ -125,7 +125,7 @@ export default function PipelineKanbanPage() {
         const res = await fetchWithAuth(`${API_BASE}/clients?search=${encodeURIComponent(value)}&limit=8`)
         const json = await res.json() as { success: boolean; data?: ClientOption[] }
         if (json.success && json.data) {
-          setClientResults(json.data)
+          setClientResults(Array.isArray(json.data) ? json.data : [])
           setShowClientResults(true)
         }
       } catch { /* non-fatal */ }

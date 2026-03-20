@@ -281,7 +281,7 @@ function MembersTab({ household, householdId }: { household: Household; househol
       if (json.success) {
         const existingIds = new Set(members.map(m => m.client_id))
         setSearchResults(
-          (json.data as Array<Record<string, unknown>>)
+          (Array.isArray(json.data) ? json.data as Array<Record<string, unknown>> : [])
             .filter(c => !existingIds.has(c.client_id as string))
             .map(c => ({
               id: (c.client_id || c.id) as string,

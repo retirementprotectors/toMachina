@@ -224,7 +224,7 @@ export default function PipelineStudioApp({
         return
       }
 
-      setPipelines(json.data)
+      setPipelines(Array.isArray(json.data) ? json.data : [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {

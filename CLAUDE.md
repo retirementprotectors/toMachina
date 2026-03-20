@@ -108,6 +108,13 @@ npx turbo run build --filter=@tomachina/core
 - NEVER query `where('last_name', '>=', rawUserInput)` — always normalize case first
 - Long-term: `search_tokens` array field on client records (Sprint 11+)
 
+### API Contract Verification (MANDATORY) [Hook-enforced: warn-untyped-api-response]
+- Before writing ANY API route handler: **read the frontend component that consumes it**. Verify field names and types match.
+- Before writing ANY frontend fetch call: **read the API route that serves it**. Verify the response shape matches your interface.
+- NEVER return a count where the frontend expects an array. NEVER return a flat value where the frontend expects an object.
+- When shared types exist in `@tomachina/core/api-types/`, both sides MUST import the same type. (Sprint 10: create DTOs for all 54 route files)
+- Root cause: ForgeAudit crash (2026-03-20) — API returned `{ pending: 3 }`, frontend expected `{ pending: TrackerItem[] }`. TypeScript can't check across HTTP boundaries.
+
 ### Forbidden
 - No `any` types (use `unknown` + type narrowing)
 - No inline styles for colors (use CSS variables or Tailwind)

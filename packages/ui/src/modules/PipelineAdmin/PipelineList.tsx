@@ -138,7 +138,7 @@ export default function PipelineList({
           return
         }
 
-        setPipelines(json.data)
+        setPipelines(Array.isArray(json.data) ? json.data : [])
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Network error')

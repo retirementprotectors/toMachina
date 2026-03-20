@@ -73,7 +73,7 @@ export function AlertFeed() {
       if (!res.ok) throw new Error('Failed to fetch alerts')
       const json = await res.json() as { success: boolean; data?: GuardianAlert[] }
       if (json.success && json.data) {
-        setAlerts(json.data)
+        setAlerts(Array.isArray(json.data) ? json.data : [])
       }
     } catch {
       showToast('Failed to load alerts', 'error')

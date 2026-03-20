@@ -105,7 +105,7 @@ export default function TerritoryBuilder({ portal, initialTerritoryId }: Territo
       const res = await fetchWithAuth('/api/territories')
       const json = (await res.json()) as TerritoryListResponse
       if (json.success && json.data) {
-        setTerritories(json.data)
+        setTerritories(json.data || [])
       } else {
         setError(json.error || 'Failed to load territories')
       }

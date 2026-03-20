@@ -95,8 +95,8 @@ export default function InstanceDetail({
       }
 
       setInstance(json.data.instance)
-      setTasks(json.data.tasks)
-      setActivity(json.data.activity)
+      setTasks(json.data.tasks || [])
+      setActivity(json.data.activity || [])
       setStages(json.data.stages || [])
       setGateResult(json.data.gateResult ?? null)
     } catch (err) {

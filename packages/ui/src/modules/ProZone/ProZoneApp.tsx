@@ -58,9 +58,10 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
         const json = await res.json() as { success: boolean; data?: SpecialistConfig[]; error?: string }
         if (!cancelled) {
           if (json.success && json.data) {
-            setSpecialists(json.data)
-            if (json.data.length === 1) {
-              setSelectedId(json.data[0].config_id)
+            const specs = Array.isArray(json.data) ? json.data : []
+            setSpecialists(specs)
+            if (specs.length === 1) {
+              setSelectedId(specs[0].config_id)
             }
           } else {
             setError(json.error || 'Failed to load specialist configs')

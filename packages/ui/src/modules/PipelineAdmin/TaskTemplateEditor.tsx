@@ -159,7 +159,7 @@ export function TaskTemplateEditor({
           return
         }
 
-        setTemplates(json.data)
+        setTemplates(Array.isArray(json.data) ? json.data : [])
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Network error')
