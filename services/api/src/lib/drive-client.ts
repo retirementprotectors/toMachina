@@ -172,6 +172,32 @@ export async function renameFile(
   })
 }
 
+/** Upload a file to a Drive folder from a Buffer */
+export async function uploadFileToDrive(
+  name: string,
+  mimeType: string,
+  buffer: Buffer,
+  parentId: string
+): Promise<{ id: string; url: string }> {
+  const drive = getDriveClient()
+  const { Readable } = await import('stream')
+  const res = await drive.files.create({
+    requestBody: {
+      name,
+      parents: [parentId],
+    },
+    media: {
+      mimeType,
+      body: Readable.from(buffer),
+    },
+    fields: 'id, webViewLink',
+  })
+  return {
+    id: res.data.id!,
+    url: res.data.webViewLink || `https://drive.google.com/file/d/${res.data.id}/view`,
+  }
+}
+
 /** Search for folders by name pattern within a parent */
 export async function searchFoldersByName(
   parentId: string,

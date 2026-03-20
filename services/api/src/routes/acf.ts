@@ -22,6 +22,7 @@ import {
   moveFileToDrive,
   renameFile,
   searchFoldersByName,
+  uploadFileToDrive,
 } from '../lib/drive-client.js'
 import type {
   ACFConfig,
@@ -692,5 +693,109 @@ acfRoutes.post('/:clientId/route', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('POST /api/acf/:clientId/route error:', err)
     res.status(500).json(errorResponse('Failed to route documents'))
+  }
+})
+
+// ---------------------------------------------------------------------------
+// POST /api/acf/:clientId/upload — upload a file to an ACF subfolder
+// Accepts base64-encoded file in JSON body (consistent with tracker attachments)
+// ---------------------------------------------------------------------------
+acfRoutes.post('/:clientId/upload', async (req: Request, res: Response) => {
+  try {
+    const clientId = param(req.params.clientId)
+    const err = validateRequired(req.body, [
+      'file_name',
+      'file_data',
+      'mime_type',
+      'target_subfolder',
+    ])
+    if (err) {
+      res.status(400).json(errorResponse(err))
+      return
+    }
+
+    const { file_name, file_data, mime_type, target_subfolder } = req.body as {
+      file_name: string
+      file_data: string // base64
+      mime_type: string
+      target_subfolder: string
+    }
+
+    // Validate base64 payload size (10MB max after decode)
+    const buffer = Buffer.from(file_data, 'base64')
+    if (buffer.length > 10 * 1024 * 1024) {
+      res.status(413).json(errorResponse('File exceeds 10MB limit'))
+      return
+    }
+
+    const store = getFirestore()
+    const clientsColl = store.collection('clients')
+    const clientDoc = await clientsColl.doc(clientId).get()
+
+    if (!clientDoc.exists) {
+      res.status(404).json(errorResponse('Client not found'))
+      return
+    }
+
+    const data = clientDoc.data()!
+    const folderId = data.acf_folder_id as string | undefined
+
+    if (!folderId) {
+      res.status(400).json(errorResponse('Client has no ACF folder — create one first'))
+      return
+    }
+
+    // Find the target subfolder
+    const subfolders = await listSubfolders(folderId)
+    const targetSf = subfolders.find((sf) => sf.name === target_subfolder)
+
+    if (!targetSf) {
+      res
+        .status(400)
+        .json(
+          errorResponse(`Subfolder '${target_subfolder}' not found in ACF`)
+        )
+      return
+    }
+
+    // Upload to Drive
+    const uploaded = await uploadFileToDrive(
+      file_name,
+      mime_type,
+      buffer,
+      targetSf.id
+    )
+
+    // Log activity
+    const clientRef = clientsColl.doc(clientId)
+    const activitiesColl = clientRef.collection('activities')
+    const userEmail =
+      (
+        req as unknown as Record<string, unknown> & {
+          user?: { email?: string }
+        }
+      ).user?.email || 'api'
+
+    await activitiesColl.add({
+      type: 'acf_upload',
+      description: `Uploaded ${file_name} to ${target_subfolder}`,
+      file_id: uploaded.id,
+      file_name,
+      target_subfolder,
+      uploaded_by: userEmail,
+      created_at: new Date().toISOString(),
+    })
+
+    res.json(
+      successResponse({
+        file_id: uploaded.id,
+        file_url: uploaded.url,
+        file_name,
+        target_subfolder,
+      })
+    )
+  } catch (err) {
+    console.error('POST /api/acf/:clientId/upload error:', err)
+    res.status(500).json(errorResponse('Failed to upload file'))
   }
 })

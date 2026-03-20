@@ -26,6 +26,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadTarget, setUploadTarget] = useState<string | null>(null)
 
   const loadDetail = useCallback(async () => {
     setLoading(true)
@@ -57,6 +59,55 @@ export function ACFSection({ clientId }: ACFSectionProps) {
     } finally {
       setCreating(false)
     }
+  }
+
+  const handleUpload = async (subfolder: string) => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.gif,.txt'
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file) return
+
+      if (file.size > 10 * 1024 * 1024) {
+        return // 10MB limit
+      }
+
+      setUploading(true)
+      setUploadTarget(subfolder)
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => {
+            const result = reader.result as string
+            resolve(result.split(',')[1]) // strip data:...;base64, prefix
+          }
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+
+        const res = await fetch(`/api/acf/${clientId}/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            file_name: file.name,
+            file_data: base64,
+            mime_type: file.type || 'application/octet-stream',
+            target_subfolder: subfolder,
+          }),
+        })
+        const json = await res.json()
+        if (json.success) {
+          await loadDetail()
+        }
+      } catch {
+        // Silently fail
+      } finally {
+        setUploading(false)
+        setUploadTarget(null)
+      }
+    }
+    input.click()
   }
 
   const formatSize = (bytes: number) => {
@@ -198,6 +249,20 @@ export function ACFSection({ clientId }: ACFSectionProps) {
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleUpload(sf.name)
+                  }}
+                  disabled={uploading}
+                  className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)] disabled:opacity-50"
+                  title={`Upload file to ${sf.name}`}
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>
+                    {uploading && uploadTarget === sf.name ? 'hourglass_empty' : 'upload_file'}
+                  </span>
+                  {uploading && uploadTarget === sf.name ? 'Uploading...' : 'Upload'}
+                </button>
                 <span className="text-xs text-[var(--text-muted)]">
                   {sf.file_count} {sf.file_count === 1 ? 'file' : 'files'}
                 </span>
