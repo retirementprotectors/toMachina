@@ -649,14 +649,14 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     if (phase === 'building') {
       md += `# Build — ${sprint.name}\n`
       md += `> Sprint is in **Building** phase. The plan has been approved. Execute it.\n`
-      if (sprint.discovery_url) md += `> **Discovery:** ${sprint.discovery_url}\n`
-      if (sprint.plan_link) md += `> **Plan:** ${sprint.plan_link}\n`
+      if (sprint.discovery_url) md += `> **Discovery:** [${sprint.discovery_url}](${sprint.discovery_url})\n`
+      if (sprint.plan_link) md += `> **Plan:** [${sprint.plan_link}](${sprint.plan_link})\n`
       if (sprint.description) md += `\n${sprint.description}\n`
     } else {
       md += `# ${sprint.name}`
       if (sprint.description) md += ` — ${sprint.description}`
       md += '\n'
-      if (sprint.discovery_url) md += `> **Discovery Document:** ${sprint.discovery_url}\n`
+      if (sprint.discovery_url) md += `> **Discovery Document:** [${sprint.discovery_url}](${sprint.discovery_url})\n`
     }
 
     // Artifact Persistence Protocol — always included
@@ -697,7 +697,7 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       md += `- Use the established FORGE HTML format: dark theme (#0d1117 bg), branded header with gradient, sections for each deliverable, print-friendly.\n`
       md += `- Update the sprint plan_link to point to the HTML:\n`
       md += '```bash\n'
-      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"/plans/${sprintSlug}.html"}'\n`
+      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"https://prodash.tomachina.com/plans/${sprintSlug}.html"}'\n`
       md += '```\n'
       md += `- Open the plan in the browser after generation to verify it renders correctly.\n\n`
 
@@ -711,12 +711,12 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
 
       md += `**Read BOTH files before writing any code:**\n`
       if (sprint.discovery_url) {
-        md += `1. Discovery: \`${sprint.discovery_url}\`\n`
+        md += `1. Discovery: [${sprint.discovery_url}](${sprint.discovery_url})\n`
       } else {
         md += `1. Discovery: **NOT LINKED** — check \`${sprintDir}/\` or ask JDM\n`
       }
       if (sprint.plan_link) {
-        md += `2. Plan: \`${sprint.plan_link}\`\n\n`
+        md += `2. Plan: [${sprint.plan_link}](${sprint.plan_link})\n\n`
       } else {
         md += `2. Plan: **NOT LINKED** — check \`${sprintDir}/\` or ask JDM\n\n`
       }
@@ -726,7 +726,7 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       md += `4. Save builder reports to \`.claude/_ARCHIVED/builder-reports/\`\n`
       md += `5. If no HTML plan exists yet, generate one at \`apps/prodash/public/plans/${sprintSlug}.html\` (dark theme, branded FORGE header, sections per deliverable) and update plan_link:\n`
       md += '```bash\n'
-      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"/plans/${sprintSlug}.html"}'\n`
+      md += `curl -X PATCH http://localhost:8080/api/sprints/${id} -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -d '{"plan_link":"https://prodash.tomachina.com/plans/${sprintSlug}.html"}'\n`
       md += '```\n'
     }
 
