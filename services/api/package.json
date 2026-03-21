@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "prebuild": "tsx src/scripts/detect-wiring.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",

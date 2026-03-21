@@ -1,0 +1,74 @@
+{
+  "acf_config": {
+    "status": "full_stack",
+    "backend": "acf.ts",
+    "frontend": "ACFAuditAdmin.tsx",
+    "backend_endpoints": 18
+  },
+  "spark_config": {
+    "status": "backend_only",
+    "backend": "spark.ts",
+    "frontend": "",
+    "backend_endpoints": 10
+  },
+  "specialist_configs": {
+    "status": "full_stack",
+    "backend": "prozone.ts",
+    "frontend": "MarketTab.tsx",
+    "backend_endpoints": 27
+  },
+  "territories": {
+    "status": "full_stack",
+    "backend": "prozone.ts",
+    "frontend": "MarketTab.tsx",
+    "backend_endpoints": 27
+  },
+  "comp_grids": {
+    "status": "backend_only",
+    "backend": "cam.ts",
+    "frontend": "",
+    "backend_endpoints": 46
+  },
+  "comp_grid_history": {
+    "status": "backend_only",
+    "backend": "cam.ts",
+    "frontend": "",
+    "backend_endpoints": 46
+  },
+  "wire_definitions": {
+    "status": "backend_only",
+    "backend": "atlas.ts",
+    "frontend": "",
+    "backend_endpoints": 0
+  },
+  "source_registry": {
+    "status": "backend_only",
+    "backend": "atlas.ts",
+    "frontend": "",
+    "backend_endpoints": 0
+  },
+  "tool_registry": {
+    "status": "backend_only",
+    "backend": "atlas.ts",
+    "frontend": "",
+    "backend_endpoints": 0
+  },
+  "atlas_formats": {
+    "status": "none",
+    "backend": "",
+    "frontend": "",
+    "backend_endpoints": 0
+  },
+  "format_library": {
+    "status": "none",
+    "backend": "",
+    "frontend": "",
+    "backend_endpoints": 0
+  },
+  "org": {
+    "status": "full_stack",
+    "backend": "approval.ts",
+    "frontend": "PortalSidebar.tsx",
+    "backend_endpoints": 18
+  }
+}
