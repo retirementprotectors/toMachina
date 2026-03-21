@@ -226,6 +226,141 @@ documentIndexRoutes.post('/scan/:clientId', async (req: Request, res: Response) 
   }
 })
 
+// GET /api/document-index/dedup/:clientId — scan for duplicate files within a client's ACF
+documentIndexRoutes.get('/dedup/:clientId', async (req: Request, res: Response) => {
+  try {
+    const clientId = param(req.params.clientId)
+    const db = getFirestore()
+
+    const clientDoc = await db.collection('clients').doc(clientId).get()
+    if (!clientDoc.exists) {
+      res.status(404).json(errorResponse('Client not found'))
+      return
+    }
+    const clientData = clientDoc.data()!
+    const folderId = clientData.acf_folder_id as string
+    if (!folderId) {
+      res.json(successResponse({ duplicates: [], total_files: 0 }))
+      return
+    }
+
+    const { listSubfolders, listFolderFiles } = await import('../lib/drive-client.js')
+    const subfolders = await listSubfolders(folderId)
+
+    // Collect all files across all subfolders
+    const allFiles: Array<{ name: string; id: string; subfolder: string; size: number; modifiedTime: string }> = []
+
+    for (const sf of subfolders) {
+      const files = await listFolderFiles(sf.id)
+      for (const f of files) {
+        allFiles.push({ name: f.name, id: f.id, subfolder: sf.name, size: f.size, modifiedTime: f.modifiedTime })
+      }
+    }
+
+    // Also check root-level files
+    const rootFiles = await listFolderFiles(folderId)
+    for (const f of rootFiles) {
+      allFiles.push({ name: f.name, id: f.id, subfolder: '_root', size: f.size, modifiedTime: f.modifiedTime })
+    }
+
+    // Find duplicates by exact name match
+    const nameMap = new Map<string, typeof allFiles>()
+    for (const f of allFiles) {
+      const key = f.name.toLowerCase().trim()
+      const arr = nameMap.get(key) || []
+      arr.push(f)
+      nameMap.set(key, arr)
+    }
+
+    const duplicates = Array.from(nameMap.entries())
+      .filter(([, files]) => files.length > 1)
+      .map(([name, files]) => ({
+        name,
+        count: files.length,
+        files: files.map(f => ({
+          id: f.id,
+          subfolder: f.subfolder,
+          size: f.size,
+          modified_at: f.modifiedTime,
+        })),
+      }))
+      .sort((a, b) => b.count - a.count)
+
+    res.json(successResponse({ duplicates, total_files: allFiles.length, duplicate_groups: duplicates.length }))
+  } catch (err) {
+    console.error('GET /api/document-index/dedup error:', err)
+    res.status(500).json(errorResponse('Failed to scan for duplicates'))
+  }
+})
+
+// GET /api/document-index/dedup-report — scan ALL ACF folders for duplicates (admin)
+documentIndexRoutes.get('/dedup-report', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+
+    // Get all clients with ACF folders
+    const clientsSnap = await db.collection('clients')
+      .where('acf_folder_id', '!=', '')
+      .select('display_name', 'acf_folder_id')
+      .get()
+
+    const { listSubfolders, listFolderFiles } = await import('../lib/drive-client.js')
+    const report: Array<{ client_id: string; client_name: string; duplicate_groups: number; total_duplicates: number }> = []
+
+    // Process in batches of 5 to avoid rate limits
+    const clients = clientsSnap.docs
+    for (let i = 0; i < clients.length; i += 5) {
+      const batch = clients.slice(i, i + 5)
+      const results = await Promise.all(batch.map(async (clientDoc) => {
+        const data = clientDoc.data()
+        const folderId = data.acf_folder_id as string
+        if (!folderId) return null
+
+        try {
+          const subfolders = await listSubfolders(folderId)
+          const allFiles: Array<{ name: string }> = []
+
+          for (const sf of subfolders) {
+            const files = await listFolderFiles(sf.id)
+            allFiles.push(...files.map(f => ({ name: f.name })))
+          }
+
+          const nameMap = new Map<string, number>()
+          for (const f of allFiles) {
+            const key = f.name.toLowerCase().trim()
+            nameMap.set(key, (nameMap.get(key) || 0) + 1)
+          }
+
+          const dupeGroups = Array.from(nameMap.values()).filter(c => c > 1)
+          if (dupeGroups.length === 0) return null
+
+          return {
+            client_id: clientDoc.id,
+            client_name: (data.display_name as string) || clientDoc.id,
+            duplicate_groups: dupeGroups.length,
+            total_duplicates: dupeGroups.reduce((sum, c) => sum + c, 0),
+          }
+        } catch {
+          return null
+        }
+      }))
+
+      report.push(...results.filter((r): r is NonNullable<typeof r> => r !== null))
+    }
+
+    report.sort((a, b) => b.total_duplicates - a.total_duplicates)
+
+    res.json(successResponse({
+      clients_with_duplicates: report.length,
+      total_duplicate_groups: report.reduce((s, r) => s + r.duplicate_groups, 0),
+      report,
+    }))
+  } catch (err) {
+    console.error('GET /api/document-index/dedup-report error:', err)
+    res.status(500).json(errorResponse('Failed to generate dedup report'))
+  }
+})
+
 // GET /api/document-index/taxonomy — get all document taxonomy entries (for admin)
 documentIndexRoutes.get('/taxonomy', async (_req: Request, res: Response) => {
   try {

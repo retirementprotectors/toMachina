@@ -10,7 +10,7 @@ let driveClient: drive_v3.Drive | null = null
 function getDrive(): drive_v3.Drive {
   if (!driveClient) {
     const auth = new google.auth.GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+      scopes: ['https://www.googleapis.com/auth/drive'],
     })
     driveClient = google.drive({ version: 'v3', auth })
   }
