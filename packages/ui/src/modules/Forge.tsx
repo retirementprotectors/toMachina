@@ -1704,7 +1704,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
       {/* ─── Sprint Kanban View ─── */}
       {view === 'sprints' && (
-        <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
+        <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
           {sprintCards.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>
               <Icon name="bolt" size={32} color={s.textMuted} />
@@ -1890,7 +1890,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
       {/* ─── Workflow (Kanban) View ─── */}
       {view === 'workflow' && (
-        <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
+        <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
           <KanbanBoard columns={kanbanColumns} emptyMessage="No items match your filters" onCardMove={handleCardMove} />
         </div>
       )}
