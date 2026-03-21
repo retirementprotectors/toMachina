@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useDocument, getDb } from '@tomachina/db'
 import { doc, updateDoc } from 'firebase/firestore'
 import type { Account, Client } from '@tomachina/core'
+import { AccountDocuments } from '@tomachina/ui/src/modules/AccountDocuments'
 
 function str(val: unknown): string {
   if (val == null) return ''
@@ -238,6 +239,9 @@ export default function AccountDetailPage({
           View in RMD Center
         </Link>
       </div>
+
+      {/* Account Documents — linked files from ACF */}
+      <AccountDocuments accountId={accountId} />
 
       {/* Detail sections — inline editing */}
       {sections.map((section) => (

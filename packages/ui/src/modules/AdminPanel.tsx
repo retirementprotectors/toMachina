@@ -15,6 +15,7 @@ import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
 import { ACFConfigAdmin } from './ACFConfigAdmin'
 import { ACFAuditAdmin } from './ACFAuditAdmin'
+import { DocumentTaxonomyAdmin } from './DocumentTaxonomyAdmin'
 
 /* ─── Types ─── */
 
@@ -70,7 +71,7 @@ interface FlowPipelineRecord {
   assigned_section?: 'sales' | 'service' | 'both' | null
 }
 
-type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'acf-audit'
+type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'acf-audit' | 'doc-taxonomy'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -1399,6 +1400,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           { key: 'team-config' as AdminTab, label: 'Team Config', icon: 'groups' },
           { key: 'module-config' as AdminTab, label: 'Permissions Audit', icon: 'grid_view' },
           { key: 'acf-config' as AdminTab, label: 'ACF Config', icon: 'folder_special' },
+          { key: 'doc-taxonomy' as AdminTab, label: 'Doc Taxonomy', icon: 'category' },
           { key: 'acf-audit' as AdminTab, label: 'ACF History', icon: 'fact_check' },
         ]).map((tab) => (
           <button
@@ -1504,6 +1506,11 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           <p className="text-sm text-[var(--text-muted)]">Recent changes to client ACF folders</p>
           <ACFAuditAdmin portal={portal} />
         </div>
+      )}
+
+      {/* Document Taxonomy Tab */}
+      {activeTab === 'doc-taxonomy' && (
+        <DocumentTaxonomyAdmin />
       )}
 
     </div>

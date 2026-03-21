@@ -15,7 +15,8 @@ interface ACFConfigAdminProps {
 interface ACFRoutingRule {
   document_type: string
   target_subfolder: string
-  patterns: string[]
+  patterns?: string[]
+  file_label_template?: string
 }
 
 interface ACFConfigData {
@@ -413,7 +414,7 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
                     <span className="text-sm text-[var(--portal)]">{rule.target_subfolder}</span>
                   </div>
                   <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
-                    {rule.patterns.join(', ')}
+                    {(rule.patterns || []).join(', ') || rule.file_label_template || '—'}
                   </p>
                 </div>
                 <button
