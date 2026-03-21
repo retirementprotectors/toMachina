@@ -32,7 +32,7 @@ const STATUS_OPTIONS = [
   'Inactive - Complaint',
   'Unknown',
 ]
-const ACF_OPTIONS = ['All', 'Has ACF', 'No ACF']
+const ACF_OPTIONS = ['All', 'Has ACF', 'No ACF', 'Needs Setup']
 
 export function ClientFilters({
   search,

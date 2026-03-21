@@ -60,6 +60,7 @@ interface ClientRow extends Client {
   assigned_user_id?: string
   agent_name?: string
   gdrive_folder_url?: string
+  acf_folder_id?: string
   acf_link?: string
   acf_url?: string
   household_id?: string
@@ -193,12 +194,16 @@ export default function ClientsPage() {
       )
     }
 
-    // ACF filter — check all 3 possible ACF URL fields
+    // ACF filter
     if (acfFilter !== 'All') {
+      const hasAcf = (c: ClientRow) => Boolean(c.acf_folder_id || c.gdrive_folder_url || c.acf_link || c.acf_url)
       if (acfFilter === 'Has ACF') {
-        result = result.filter((c) => Boolean(c.gdrive_folder_url || c.acf_link || c.acf_url))
+        result = result.filter(hasAcf)
       } else if (acfFilter === 'No ACF') {
-        result = result.filter((c) => !c.gdrive_folder_url && !c.acf_link && !c.acf_url)
+        result = result.filter((c) => !hasAcf(c))
+      } else if (acfFilter === 'Needs Setup') {
+        // Active clients with no ACF folder — these need one created
+        result = result.filter((c) => !hasAcf(c) && (c.client_status === 'Active' || !c.client_status))
       }
     }
 
@@ -657,15 +662,24 @@ export default function ClientsPage() {
                         </td>
                       )}
 
-                      {/* ACF (Google Drive folder) — status icon with tooltip */}
-                      {col('acf') && (
-                        <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                          <ACFStatusIcon
-                            clientId={client._id || ''}
-                            gdriveFolderUrl={client.gdrive_folder_url ? String(client.gdrive_folder_url) : client.acf_link ? String(client.acf_link) : client.acf_url ? String(client.acf_url) : null}
-                          />
-                        </td>
-                      )}
+                      {/* ACF (Google Drive folder) — clickable link */}
+                      {col('acf') && (() => {
+                        const folderId = client.acf_folder_id
+                        const folderUrl = folderId
+                          ? `https://drive.google.com/drive/folders/${folderId}`
+                          : (client.gdrive_folder_url || client.acf_link || client.acf_url)
+                        return (
+                          <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                            {folderUrl ? (
+                              <a href={String(folderUrl)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors" title="Open Active Client File">
+                                <span className="material-icons-outlined text-[18px]">folder_open</span>
+                              </a>
+                            ) : (
+                              <span className="text-[var(--text-muted)]">—</span>
+                            )}
+                          </td>
+                        )
+                      })()}
 
                       {/* Household */}
                       {col('household') && (
