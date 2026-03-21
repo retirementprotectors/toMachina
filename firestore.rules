@@ -431,6 +431,10 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
+    match /learning_library/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
     match /email_inbox_config/{docId} {
       allow read: if isRPIUser();
       allow write: if isExecutiveOrAbove();
