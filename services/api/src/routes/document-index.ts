@@ -333,11 +333,14 @@ documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
                 if (lastScanTime && file.modifiedTime <= lastScanTime) continue
 
                 const docId = `${clientId}_${file.id}`
+                const existingDoc = await db.collection('document_index').doc(docId).get()
+                const isNew = !existingDoc.exists
+
                 batch.set(db.collection('document_index').doc(docId), {
                   client_id: clientId,
                   file_id: file.id,
                   file_name: file.name,
-                  document_type: '',
+                  document_type: existingDoc.exists ? (existingDoc.data()!.document_type || '') : '',
                   acf_subfolder: sf.name,
                   drive_url: `https://drive.google.com/file/d/${file.id}/view`,
                   mime_type: file.mimeType,
@@ -346,6 +349,23 @@ documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
                   indexed_at: now,
                 })
                 indexed++
+
+                // Queue new/modified extractable files for SUPER_EXTRACT pipeline
+                const extractable = file.mimeType === 'application/pdf' || file.mimeType.startsWith('image/')
+                if (isNew && extractable) {
+                  batch.set(db.collection('intake_queue').doc(), {
+                    status: 'QUEUED',
+                    source: 'ACF_SCAN',
+                    file_id: file.id,
+                    file_ids: [file.id],
+                    client_id: clientId,
+                    file_name: file.name,
+                    mime_type: file.mimeType,
+                    acf_subfolder: sf.name,
+                    mode: 'document',
+                    created_at: now,
+                  })
+                }
               }
             } catch {
               // Skip inaccessible subfolder
