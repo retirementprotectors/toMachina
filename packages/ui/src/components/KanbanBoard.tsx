@@ -37,9 +37,9 @@ function DefaultCard({ card, draggable, onDragStart }: {
       onClick={card.onClick}
       className={`rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 transition-all hover:border-[var(--border)] hover:bg-[var(--bg-card-hover)] ${card.onClick ? 'cursor-pointer' : ''} ${draggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
-      <p className="text-sm font-medium text-[var(--text-primary)] truncate">{card.title}</p>
+      <p className="text-sm font-medium text-[var(--text-primary)] truncate">{typeof card.title === 'object' ? JSON.stringify(card.title) : card.title}</p>
       {card.subtitle && (
-        <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">{card.subtitle}</p>
+        <p className="mt-0.5 text-xs text-[var(--text-muted)] truncate">{typeof card.subtitle === 'object' ? JSON.stringify(card.subtitle) : card.subtitle}</p>
       )}
       {card.badges && card.badges.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
@@ -52,7 +52,7 @@ function DefaultCard({ card, draggable, onDragStart }: {
                 color: badge.color || 'var(--text-muted)',
               }}
             >
-              {badge.label}
+              {typeof badge.label === 'object' ? JSON.stringify(badge.label) : badge.label}
             </span>
           ))}
         </div>
@@ -64,7 +64,7 @@ function DefaultCard({ card, draggable, onDragStart }: {
               {m.icon && (
                 <span className="material-icons-outlined" style={{ fontSize: '12px' }}>{m.icon}</span>
               )}
-              {m.text}
+              {typeof m.text === 'object' ? JSON.stringify(m.text) : m.text}
             </span>
           ))}
         </div>
