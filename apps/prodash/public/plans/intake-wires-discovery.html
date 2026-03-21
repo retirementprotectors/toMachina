@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intake Wires — Document Processing Pipeline | Discovery</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e2e8f0; max-width: 900px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; }
+  h1 { color: #a78bfa; font-size: 28px; border-bottom: 2px solid #a78bfa33; padding-bottom: 12px; }
+  h2 { color: #60a5fa; font-size: 20px; margin-top: 40px; }
+  h3 { color: #34d399; font-size: 16px; margin-top: 24px; }
+  code { background: #1e1e2e; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #f0abfc; }
+  pre { background: #1e1e2e; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; border: 1px solid #333; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 8px 12px; border: 1px solid #333; text-align: left; font-size: 13px; }
+  th { background: #1e1e2e; color: #a78bfa; }
+  .status-real { color: #34d399; } .status-broken { color: #f87171; } .status-missing { color: #fbbf24; }
+  .p0 { background: #dc262622; color: #f87171; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+  .p1 { background: #f59e0b22; color: #fbbf24; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+  .p2 { background: #3b82f622; color: #60a5fa; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+  .phase { background: #1e1e2e; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .tag-core { background: #a78bfa22; color: #a78bfa; } .tag-intake { background: #34d39922; color: #34d399; } .tag-api { background: #60a5fa22; color: #60a5fa; } .tag-ui { background: #f0abfc22; color: #f0abfc; }
+  blockquote { border-left: 3px solid #a78bfa; padding-left: 16px; color: #94a3b8; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>Intake Wires — Document Processing Pipeline</h1>
+<p>Sprint ID: <code>myCKZl4lRqU1kIWtfv9o</code> | 19 tickets | TRK-486 → TRK-504</p>
+
+<blockquote>Close every gap between file intake and Firestore. When done, all 4 intake sources run end-to-end through WIRE_INCOMING_CORRESPONDENCE with zero manual steps.</blockquote>
+
+<h2>The Problem</h2>
+
+<p>We have 4 working intake sources that queue files to <code>intake_queue</code>. We have a working wire executor that orchestrates 6 super tools. But <strong>they don't connect</strong>. The wire expects local filesystem image paths. The intake queue provides Drive file IDs. There's no bridge.</p>
+
+<h3>Current State (Verified 2026-03-21)</h3>
+
+<table>
+<tr><th>Component</th><th>Status</th><th>What It Does</th></tr>
+<tr><td>4 Intake Scanners</td><td class="status-real">BUILT + DEPLOYED</td><td>MAIL, SPC_INTAKE, ACF_UPLOAD, ACF_SCAN → intake_queue</td></tr>
+<tr><td>Wire Trigger</td><td class="status-real">BUILT + DEPLOYED</td><td>Firestore onCreate → maps source → calls executeWire</td></tr>
+<tr><td>Wire Executor</td><td class="status-real">BUILT</td><td>Orchestrates super tools sequentially, handles approval pause</td></tr>
+<tr><td>SUPER_CLASSIFY</td><td class="status-broken">BUILT — BREAKS on wire input</td><td>Expects image_paths[], receives file_id string</td></tr>
+<tr><td>SUPER_EXTRACT</td><td class="status-real">BUILT</td><td>Claude Vision reads images, extracts structured data</td></tr>
+<tr><td>SUPER_VALIDATE</td><td class="status-real">BUILT</td><td>Qualification gate</td></tr>
+<tr><td>SUPER_NORMALIZE</td><td class="status-real">BUILT</td><td>16 field normalizers</td></tr>
+<tr><td>SUPER_MATCH</td><td class="status-real">BUILT</td><td>3-tier dedup (exact → fuzzy → new)</td></tr>
+<tr><td>SUPER_WRITE</td><td class="status-real">BUILT</td><td>Prepares Firestore write batch</td></tr>
+<tr><td><strong>SUPER_PREPARE</strong></td><td class="status-missing">NOT BUILT</td><td>Drive file_id → download → PDF→PNG → image_paths</td></tr>
+<tr><td><strong>ACF_FINALIZE</strong></td><td class="status-missing">NOT BUILT</td><td>Post-wire: route file to ACF subfolder, update document_index</td></tr>
+<tr><td>Approval Pipeline UI</td><td class="status-missing">MOCKUP ONLY</td><td>Notifications APPROVALS tab — no real data</td></tr>
+</table>
+
+<h3>The Flow Today (All 4 Sources)</h3>
+<pre>
+File detected → intake_queue (QUEUED) → wire trigger fires
+→ executeWire('WIRE_INCOMING_CORRESPONDENCE', { file_id: "abc123" })
+→ SUPER_CLASSIFY receives { file_id: "abc123" }
+→ Expects { image_paths: string[], file_name, taxonomy_types }
+→ "image_paths array is required and must not be empty"
+→ ❌ WIRE STOPS. Status: ERROR.
+</pre>
+
+<h3>The Flow After This Sprint</h3>
+<pre>
+File detected → intake_queue (QUEUED) → wire trigger fires
+→ SUPER_PREPARE: download from Drive → PDF to PNG → output image_paths
+→ SUPER_CLASSIFY: boundary detect → split → label each document
+→ SUPER_EXTRACT: Claude Vision reads each page → extracts structured data
+→ SUPER_VALIDATE: qualification gate (complete? valid?)
+→ SUPER_NORMALIZE: 16 normalizers (names, phones, dates, addresses)
+→ SUPER_MATCH: 3-tier dedup (exact → fuzzy → new record)
+→ ⏸️ APPROVAL PIPELINE: human reviews in Notifications APPROVALS tab
+→ SUPER_WRITE: writes approved data to Firestore
+→ ACF_FINALIZE: route file to client ACF subfolder, update document_index
+→ ✅ COMPLETE. File classified, data extracted, client updated, document indexed.
+</pre>
+
+<h2>6 Phases</h2>
+
+<div class="phase">
+<h3>Phase 1: SUPER_PREPARE — The Missing Bridge <span class="p0">P0</span></h3>
+<p>4 tickets | <span class="tag tag-core">core</span> <span class="tag tag-intake">intake</span></p>
+<p>Build the super tool that converts a Drive file_id into local page images that SUPER_CLASSIFY can consume. This is THE critical path — nothing works without it.</p>
+<ul>
+<li><strong>TRK-486</strong>: Build SUPER_PREPARE — download from Drive, PDF→PNG conversion</li>
+<li><strong>TRK-487</strong>: Register in wire executor + wire definition (insert before SUPER_CLASSIFY)</li>
+<li><strong>TRK-488</strong>: Install PDF→image dependency (evaluate pdf-poppler vs pdf2pic vs ghostscript)</li>
+<li><strong>TRK-489</strong>: Temp file cleanup after wire completion</li>
+</ul>
+</div>
+
+<div class="phase">
+<h3>Phase 2: ACF_FINALIZE — File Lifecycle After Wire <span class="p0">P0</span></h3>
+<p>4 tickets | <span class="tag tag-core">core</span> <span class="tag tag-intake">intake</span></p>
+<p>After the wire successfully extracts data and writes to Firestore, the source file needs to end up in the right place.</p>
+<ul>
+<li><strong>TRK-490</strong>: Build ACF_FINALIZE — route file to matched client's ACF subfolder</li>
+<li><strong>TRK-491</strong>: Register in wire executor + wire definition</li>
+<li><strong>TRK-492</strong>: MAIL: move Incoming→Processed AFTER wire (not before)</li>
+<li><strong>TRK-493</strong>: SPC_INTAKE: add Processed folder + post-wire cleanup</li>
+</ul>
+</div>
+
+<div class="phase">
+<h3>Phase 3: Wire Input Normalization <span class="p1">P1</span></h3>
+<p>3 tickets | <span class="tag tag-intake">intake</span> <span class="tag tag-api">api</span></p>
+<p>Each intake source queues different metadata. Normalize so the wire always gets a consistent input shape.</p>
+<ul>
+<li><strong>TRK-494</strong>: Build input normalizer in wire-trigger</li>
+<li><strong>TRK-495</strong>: ACF_UPLOAD: pass client_id so SUPER_MATCH can skip matching</li>
+<li><strong>TRK-496</strong>: ACF_SCAN: pass client_id so SUPER_MATCH can skip matching</li>
+</ul>
+</div>
+
+<div class="phase">
+<h3>Phase 4: End-to-End Integration Testing <span class="p0">P0</span></h3>
+<p>4 tickets | <span class="tag tag-core">integration</span></p>
+<p>Verify every source runs the complete pipeline. No more "it should work" — prove it works.</p>
+<ul>
+<li><strong>TRK-497</strong>: E2E: ACF_UPLOAD → full wire → ACF subfolder + Firestore</li>
+<li><strong>TRK-498</strong>: E2E: MAIL → full wire → ACF + Processed folder</li>
+<li><strong>TRK-499</strong>: E2E: SPC_INTAKE → full wire → ACF subfolder</li>
+<li><strong>TRK-500</strong>: E2E: ACF_SCAN hourly → wire → classification</li>
+</ul>
+</div>
+
+<div class="phase">
+<h3>Phase 5: Approval Pipeline Wiring <span class="p1">P1</span></h3>
+<p>2 tickets | <span class="tag tag-ui">ui</span> <span class="tag tag-api">api</span></p>
+<p>Wire the Notifications APPROVALS tab to real data so humans can review/approve/reject extracted data before it writes to Firestore.</p>
+<ul>
+<li><strong>TRK-501</strong>: Wire Notifications APPROVALS tab to intake_queue</li>
+<li><strong>TRK-502</strong>: Build resume/reject API endpoints</li>
+</ul>
+</div>
+
+<div class="phase">
+<h3>Phase 6: document_index Completion <span class="p1">P1</span></h3>
+<p>2 tickets | <span class="tag tag-core">core</span> <span class="tag tag-core">scripts</span></p>
+<p>Close the loop: update document_index with classification results so the ProDash checklist widgets show accurate data.</p>
+<ul>
+<li><strong>TRK-503</strong>: Update document_index after successful wire</li>
+<li><strong>TRK-504</strong>: Backfill document_type on existing entries via pattern matching</li>
+</ul>
+</div>
+
+<h2>Architecture After Sprint</h2>
+<pre>
+┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│    MAIL     │  │ SPC_INTAKE  │  │ ACF_UPLOAD  │  │  ACF_SCAN   │
+│  (5 min)    │  │  (5 min)    │  │ (immediate) │  │  (hourly)   │
+└──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘
+       │                │                │                │
+       └────────────────┴────────────────┴────────────────┘
+                                │
+                    ┌───────────▼───────────┐
+                    │    intake_queue       │
+                    │    (Firestore)        │
+                    └───────────┬───────────┘
+                                │ onCreate trigger
+                    ┌───────────▼───────────┐
+                    │    Wire Trigger       │
+                    │    (Cloud Function)   │
+                    └───────────┬───────────┘
+                                │
+              ┌─────────────────▼─────────────────┐
+              │   WIRE_INCOMING_CORRESPONDENCE    │
+              │                                    │
+              │  1. SUPER_PREPARE  ← NEW          │
+              │     Drive file → local images      │
+              │                                    │
+              │  2. SUPER_CLASSIFY                 │
+              │     Boundary detect → split → label│
+              │                                    │
+              │  3. SUPER_EXTRACT                  │
+              │     Claude Vision → structured data│
+              │                                    │
+              │  4. SUPER_VALIDATE                 │
+              │     Qualification gate             │
+              │                                    │
+              │  5. SUPER_NORMALIZE                │
+              │     16 field normalizers            │
+              │                                    │
+              │  6. SUPER_MATCH                    │
+              │     3-tier dedup                    │
+              │                                    │
+              │  ⏸️ APPROVAL PIPELINE              │
+              │     Human review in Notifications  │
+              │                                    │
+              │  7. SUPER_WRITE                    │
+              │     Firestore writes               │
+              │                                    │
+              │  8. ACF_FINALIZE  ← NEW           │
+              │     Route to ACF + cleanup staging │
+              └────────────────────────────────────┘
+                                │
+              ┌─────────────────▼─────────────────┐
+              │         Firestore                  │
+              │  clients / accounts / document_index│
+              └─────────────────┬──────────────────┘
+                                │
+              ┌─────────────────▼─────────────────┐
+              │         ProDash UI                 │
+              │  Checklist widgets (auto-refresh)  │
+              └────────────────────────────────────┘
+</pre>
+
+<h2>Dependencies</h2>
+<ul>
+<li><strong>Phase 1 blocks everything.</strong> No other phase can be tested without SUPER_PREPARE.</li>
+<li>Phase 2 can be built in parallel with Phase 1 (different files), but can't be tested until Phase 1 works.</li>
+<li>Phase 3 is independent — can be built anytime.</li>
+<li>Phase 4 requires Phases 1 + 2.</li>
+<li>Phase 5 requires Phase 4 (need real wire executions to test approval flow).</li>
+<li>Phase 6 can start after Phase 1 (backfill script is independent).</li>
+</ul>
+
+<h2>Risk</h2>
+<ul>
+<li><strong>PDF→image conversion in Cloud Functions:</strong> May not support native dependencies (poppler, ghostscript). Fallback: run wire execution on Cloud Run (tm-api) instead of Cloud Functions. tm-api already has a Dockerfile we control.</li>
+<li><strong>Claude Vision API cost:</strong> Each document extraction = 1 API call. At ~277 clients × ~6 docs average = ~1,660 calls. At ~$0.01/call = ~$17. Not a concern. But don't run on all 1,807 files at once — batch by priority.</li>
+</ul>
+
+<p style="color: #64748b; margin-top: 40px; font-size: 12px;">Generated 2026-03-21 | FORGE Sprint myCKZl4lRqU1kIWtfv9o</p>
+
+</body>
+</html>
