@@ -7,10 +7,27 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
-import { executeWire, resumeWireAfterApproval } from '@tomachina/core/src/atlas/wire-executor.js'
-import type { WireInput, WireContext } from '@tomachina/core/src/atlas/wire-executor.js'
+import { resumeWireAfterApproval } from './wire.js'
 
 export const intakeRoutes = Router()
+
+/** Load executeWire dynamically (same pattern as wire.ts) */
+interface WireResult {
+  success: boolean
+  wire_id: string
+  execution_id: string
+  stages: Array<{ stage: string; status: string }>
+  created_records: Array<{ collection: string; id: string }>
+  execution_time_ms: number
+  status: string
+}
+
+async function loadExecuteWire(): Promise<
+  (wireId: string, input: unknown, context: unknown, writeAudit?: (doc: Record<string, unknown>) => Promise<string>) => Promise<WireResult>
+> {
+  const mod = await import('@tomachina/core/src/atlas/wire-executor.js')
+  return mod.executeWire as unknown as (wireId: string, input: unknown, context: unknown, writeAudit?: (doc: Record<string, unknown>) => Promise<string>) => Promise<WireResult>
+}
 
 // ---------------------------------------------------------------------------
 // POST /api/intake/execute-wire
@@ -33,7 +50,7 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
     const db = getFirestore()
 
     // Build wire context
-    const context: WireContext = {
+    const context = {
       wire_id,
       user_email: 'system@retireprotected.com',
       source_file_ids: (input.file_ids as string[]) || [],
@@ -42,11 +59,11 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
     }
 
     // Build wire input
-    const wireInput: WireInput = {
+    const wireInput = {
       file_id: input.file_id as string | undefined,
       file_ids: (input.file_ids as string[]) || [],
       data: input._meta,
-      mode: (input.mode as 'document' | 'csv' | 'commission') || 'document',
+      mode: (input.mode as string) || 'document',
     }
 
     // Audit writer callback — persists execution trail to Firestore
@@ -57,6 +74,7 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
       return ref.id
     }
 
+    const executeWire = await loadExecuteWire()
     const result = await executeWire(wire_id, wireInput, context, writeAudit)
 
     // Update intake_queue with result
@@ -133,24 +151,10 @@ intakeRoutes.post('/:executionId/approve', async (req: Request, res: Response) =
 
     const userEmail = (req as unknown as { user?: { email?: string } }).user?.email || 'api'
 
-    const context: WireContext = {
-      wire_id,
-      user_email: userEmail,
-      source_file_ids: [],
-      dry_run: false,
-      approval_required: false, // Already approved
-    }
-
     const db = getFirestore()
 
-    const writeAudit = async (doc: Record<string, unknown>): Promise<string> => {
-      const execColl = db.collection('wire_executions')
-      const ref = execColl.doc()
-      await ref.set(doc)
-      return ref.id
-    }
-
-    const result = await resumeWireAfterApproval(wire_id, executionId, approved_data, context, writeAudit)
+    // Use the wire.ts resumeWireAfterApproval (2-arg version: executionId + email)
+    const result = await resumeWireAfterApproval(executionId, userEmail)
 
     // Update intake_queue
     const queueColl = db.collection('intake_queue')
@@ -161,7 +165,7 @@ intakeRoutes.post('/:executionId/approve', async (req: Request, res: Response) =
 
     if (!queueSnap.empty) {
       await queueSnap.docs[0].ref.update({
-        status: result.success ? 'COMPLETE' : 'ERROR',
+        status: result?.success ? 'COMPLETE' : 'ERROR',
         approved_by: userEmail,
         approved_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
