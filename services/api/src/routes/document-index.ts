@@ -350,9 +350,16 @@ documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
                 })
                 indexed++
 
-                // Queue new/modified extractable files for SUPER_EXTRACT pipeline
+                // Queue files for SUPER_EXTRACT pipeline ONLY if:
+                // 1. File is extractable (PDF or image)
+                // 2. File hasn't already been classified (document_type is empty)
+                // 3. File isn't already in the intake queue
                 const extractable = file.mimeType === 'application/pdf' || file.mimeType.startsWith('image/')
-                if (isNew && extractable) {
+                const alreadyClassified = existingDoc.exists && (existingDoc.data()!.document_type as string || '').length > 0
+                const alreadyQueued = existingDoc.exists && existingDoc.data()!.extraction_queued === true
+                if (extractable && !alreadyClassified && !alreadyQueued) {
+                  // Mark as queued so we don't re-queue next scan
+                  batch.update(db.collection('document_index').doc(docId), { extraction_queued: true })
                   batch.set(db.collection('intake_queue').doc(), {
                     status: 'QUEUED',
                     source: 'ACF_SCAN',
