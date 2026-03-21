@@ -9,7 +9,6 @@ import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
 import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
-import { IntakeFAB } from '@tomachina/ui/src/components/IntakeFAB'
 import { ReportButton } from '@tomachina/ui'
 
 export default function PortalLayout({
@@ -83,9 +82,6 @@ export default function PortalLayout({
 
       {/* Notifications Module — slide-out panel */}
       <NotificationsModule portal="prodash" open={notificationsOpen} onClose={closeNotifications} />
-
-      {/* Intake FAB — floating action button for quick data entry */}
-      <IntakeFAB />
 
       {/* FORGE Report — screenshot + auto-fill issue tracker */}
       <ReportButton portal="prodashx" />

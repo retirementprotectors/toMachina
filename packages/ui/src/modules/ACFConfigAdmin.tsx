@@ -17,7 +17,13 @@ interface ACFRoutingRule {
   target_subfolder: string
   patterns?: string[]
   file_label_template?: string
+  pipeline?: string
+  owner_role?: string
+  active?: boolean
 }
+
+const PIPELINES = ['REACTIVE', 'PRO', 'NewBiz']
+const ROLES = ['COR', 'AST', 'SPC']
 
 interface ACFConfigData {
   template_folder_id: string
@@ -46,6 +52,9 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
   const [newRuleType, setNewRuleType] = useState('')
   const [newRuleSubfolder, setNewRuleSubfolder] = useState('')
   const [newRulePatterns, setNewRulePatterns] = useState('')
+  const [newRulePipeline, setNewRulePipeline] = useState('')
+  const [newRuleOwner, setNewRuleOwner] = useState('')
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
 
   const loadConfig = useCallback(async () => {
     setLoading(true)
@@ -114,11 +123,16 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
       document_type: newRuleType.trim(),
       target_subfolder: newRuleSubfolder,
       patterns: newRulePatterns.split(',').map((p) => p.trim()).filter(Boolean),
+      pipeline: newRulePipeline || 'REACTIVE',
+      owner_role: newRuleOwner || 'AST',
+      active: true,
     }
     setConfig({ ...config, routing_rules: [...(config.routing_rules || []), rule] })
     setNewRuleType('')
     setNewRuleSubfolder('')
     setNewRulePatterns('')
+    setNewRulePipeline('')
+    setNewRuleOwner('')
   }
 
   const removeRoutingRule = (index: number) => {
@@ -126,6 +140,17 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
     const rules = [...(config.routing_rules || [])]
     rules.splice(index, 1)
     setConfig({ ...config, routing_rules: rules })
+  }
+
+  const updateRoutingRule = (index: number, field: keyof ACFRoutingRule, value: unknown) => {
+    if (!config) return
+    const rules = [...(config.routing_rules || [])]
+    rules[index] = { ...rules[index], [field]: value }
+    setConfig({ ...config, routing_rules: rules })
+  }
+
+  const startEditing = (index: number) => {
+    setEditingIndex(editingIndex === index ? null : index)
   }
 
   // Naming pattern preview
@@ -404,25 +429,117 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
             {(config.routing_rules || []).map((rule, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2"
+                className={`rounded-lg border bg-[var(--bg-surface)] transition-colors ${
+                  editingIndex === i ? 'border-[var(--portal)]' : 'border-[var(--border-subtle)]'
+                }`}
               >
-                <span className="material-icons-outlined text-[var(--text-muted)] mt-0.5" style={{ fontSize: '16px' }}>route</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-[var(--text-primary)]">{rule.document_type}</span>
-                    <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>arrow_forward</span>
-                    <span className="text-sm text-[var(--portal)]">{rule.target_subfolder}</span>
-                  </div>
-                  <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
-                    {(rule.patterns || []).join(', ') || rule.file_label_template || '—'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => removeRoutingRule(i)}
-                  className="shrink-0 text-red-400 hover:text-red-300 mt-0.5"
+                {/* Summary row — click to toggle edit */}
+                <div
+                  className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-[var(--bg-card)] transition-colors"
+                  onClick={() => startEditing(i)}
                 >
-                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
-                </button>
+                  <span className={`material-icons-outlined ${rule.active === false ? 'text-red-400' : 'text-emerald-500'}`} style={{ fontSize: '14px' }}>
+                    {rule.active === false ? 'radio_button_unchecked' : 'check_circle'}
+                  </span>
+                  <span className="text-sm font-medium text-[var(--text-primary)] min-w-[140px]">{rule.document_type}</span>
+                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>arrow_forward</span>
+                  <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+                    rule.target_subfolder === 'Client' ? 'bg-blue-500/10 text-blue-400' :
+                    rule.target_subfolder === 'Cases' ? 'bg-purple-500/10 text-purple-400' :
+                    rule.target_subfolder === 'NewBiz' ? 'bg-emerald-500/10 text-emerald-400' :
+                    rule.target_subfolder === 'Account' ? 'bg-amber-500/10 text-amber-400' :
+                    'bg-red-500/10 text-red-400'
+                  }`}>{rule.target_subfolder}</span>
+                  {rule.pipeline && (
+                    <span className="text-[10px] text-[var(--text-muted)] ml-auto">{rule.pipeline}</span>
+                  )}
+                  {rule.owner_role && (
+                    <span className="text-[10px] text-[var(--text-muted)]">{rule.owner_role}</span>
+                  )}
+                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                    {editingIndex === i ? 'expand_less' : 'expand_more'}
+                  </span>
+                </div>
+
+                {/* Inline edit panel */}
+                {editingIndex === i && (
+                  <div className="border-t border-[var(--border-subtle)] px-3 py-3 space-y-2 bg-[var(--bg-base)]">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
+                        <input
+                          type="text"
+                          value={rule.document_type}
+                          onChange={(e) => updateRoutingRule(i, 'document_type', e.target.value)}
+                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Target Subfolder</label>
+                        <select
+                          value={rule.target_subfolder}
+                          onChange={(e) => updateRoutingRule(i, 'target_subfolder', e.target.value)}
+                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                        >
+                          {config.subfolders.map((sf) => (
+                            <option key={sf} value={sf}>{sf}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-separated)</label>
+                      <input
+                        type="text"
+                        value={(rule.patterns || []).join(', ')}
+                        onChange={(e) => updateRoutingRule(i, 'patterns', e.target.value.split(',').map(p => p.trim()).filter(Boolean))}
+                        className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Pipeline</label>
+                        <select
+                          value={rule.pipeline || ''}
+                          onChange={(e) => updateRoutingRule(i, 'pipeline', e.target.value)}
+                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                        >
+                          <option value="">None</option>
+                          {PIPELINES.map(p => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Owner Role</label>
+                        <select
+                          value={rule.owner_role || ''}
+                          onChange={(e) => updateRoutingRule(i, 'owner_role', e.target.value)}
+                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                        >
+                          <option value="">None</option>
+                          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-end gap-2 pb-1">
+                        <button
+                          onClick={() => updateRoutingRule(i, 'active', rule.active === false ? true : false)}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                            rule.active === false
+                              ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                              : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                          }`}
+                        >
+                          {rule.active === false ? 'Disabled' : 'Active'}
+                        </button>
+                        <button
+                          onClick={() => { removeRoutingRule(i); setEditingIndex(null) }}
+                          className="rounded-lg px-3 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -431,7 +548,7 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
         {/* Add new rule */}
         <div className="rounded-lg border border-dashed border-[var(--border-subtle)] p-3 space-y-2">
           <p className="text-xs font-medium text-[var(--text-muted)]">Add Routing Rule</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
               value={newRuleType}
@@ -449,6 +566,8 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
                 <option key={sf} value={sf}>{sf}</option>
               ))}
             </select>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
             <input
               type="text"
               value={newRulePatterns}
@@ -457,6 +576,22 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
               placeholder="Patterns (comma-separated)..."
               className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
             />
+            <select
+              value={newRulePipeline}
+              onChange={(e) => setNewRulePipeline(e.target.value)}
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+            >
+              <option value="">Pipeline...</option>
+              {PIPELINES.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+            <select
+              value={newRuleOwner}
+              onChange={(e) => setNewRuleOwner(e.target.value)}
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+            >
+              <option value="">Owner role...</option>
+              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
           </div>
           <button
             onClick={addRoutingRule}
