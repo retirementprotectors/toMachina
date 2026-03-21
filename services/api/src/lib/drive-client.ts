@@ -198,6 +198,66 @@ export async function uploadFileToDrive(
   }
 }
 
+/** Download a file as a Buffer (for non-Google-native files) */
+export async function downloadFile(
+  fileId: string
+): Promise<{ buffer: Buffer; mimeType: string; name: string }> {
+  const drive = getDriveClient()
+  const meta = await drive.files.get({ fileId, fields: 'name, mimeType' })
+  const name = meta.data.name!
+  const mimeType = meta.data.mimeType!
+
+  // Google-native files must be exported
+  const exportMap: Record<string, string> = {
+    'application/vnd.google-apps.document': 'application/pdf',
+    'application/vnd.google-apps.spreadsheet': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.google-apps.presentation': 'application/pdf',
+    'application/vnd.google-apps.drawing': 'image/png',
+  }
+
+  const exportMime = exportMap[mimeType]
+  let stream: NodeJS.ReadableStream
+
+  if (exportMime) {
+    const res = await drive.files.export(
+      { fileId, mimeType: exportMime },
+      { responseType: 'stream' }
+    )
+    stream = res.data as unknown as NodeJS.ReadableStream
+  } else {
+    const res = await drive.files.get(
+      { fileId, alt: 'media' },
+      { responseType: 'stream' }
+    )
+    stream = res.data as unknown as NodeJS.ReadableStream
+  }
+
+  const chunks: Buffer[] = []
+  for await (const chunk of stream) {
+    chunks.push(Buffer.from(chunk as Uint8Array))
+  }
+
+  return {
+    buffer: Buffer.concat(chunks),
+    mimeType: exportMime || mimeType,
+    name: exportMime ? name.replace(/\.[^.]+$/, '') + (exportMime.includes('pdf') ? '.pdf' : exportMime.includes('sheet') ? '.xlsx' : '.png') : name,
+  }
+}
+
+/** Get an embeddable preview URL for a file */
+export function getPreviewUrl(fileId: string, mimeType: string): string {
+  // Google-native files use the embedded viewer
+  if (mimeType.startsWith('application/vnd.google-apps.')) {
+    return `https://drive.google.com/file/d/${fileId}/preview`
+  }
+  // PDFs and images can use the Drive preview
+  if (mimeType === 'application/pdf' || mimeType.startsWith('image/')) {
+    return `https://drive.google.com/file/d/${fileId}/preview`
+  }
+  // Everything else: Drive viewer
+  return `https://drive.google.com/file/d/${fileId}/preview`
+}
+
 /** Search for folders by name pattern within a parent */
 export async function searchFoldersByName(
   parentId: string,
