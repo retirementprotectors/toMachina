@@ -64,6 +64,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   const [uploadTarget, setUploadTarget] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null) // subfolder name or '__global__'
   const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([])
+  const [previewFile, setPreviewFile] = useState<{ id: string; name: string; mimeType: string } | null>(null)
+  const [movingFile, setMovingFile] = useState<{ id: string; name: string; fromSubfolder: string } | null>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
   const dragCounterRef = useRef(0)
 
@@ -274,6 +276,33 @@ export function ACFSection({ clientId }: ACFSectionProps) {
     const files = Array.from(e.dataTransfer.files)
     handleDropFiles(files, sfName) // explicit target
   }, [handleDropFiles])
+
+  // ── Move file between subfolders ─────────────────────────────────
+  const handleMove = useCallback(async (fileId: string, fromSubfolder: string, toSubfolder: string) => {
+    try {
+      const res = await fetchWithAuth(`/api/acf/${clientId}/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_id: fileId, from_subfolder: fromSubfolder, to_subfolder: toSubfolder }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setMovingFile(null)
+        await loadDetail()
+      }
+    } catch {
+      // Silently fail
+    }
+  }, [clientId, loadDetail])
+
+  // ── Download file through our API ──────────────────────────────
+  const handleDownload = useCallback((fileId: string, fileName: string) => {
+    // Create a temporary link that hits our download proxy
+    const link = document.createElement('a')
+    link.href = `/api/acf/file/${fileId}/download`
+    link.download = fileName
+    link.click()
+  }, [])
 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -502,22 +531,49 @@ export function ACFSection({ clientId }: ACFSectionProps) {
             {expandedFolder === sf.id && sf.files.length > 0 && (
               <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-base)]">
                 {sf.files.map((f) => (
-                  <a
+                  <div
                     key={f.id}
-                    href={`https://drive.google.com/file/d/${f.id}/view`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-4 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] transition-colors border-b border-[var(--border-subtle)] last:border-b-0"
+                    className="flex items-center gap-3 px-4 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] transition-colors border-b border-[var(--border-subtle)] last:border-b-0 group"
                   >
                     <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
                       {mimeIcon(f.mimeType)}
                     </span>
-                    <span className="flex-1 truncate">{f.name}</span>
+                    <button
+                      onClick={() => setPreviewFile({ id: f.id, name: f.name, mimeType: f.mimeType })}
+                      className="flex-1 truncate text-left hover:text-[var(--portal)] transition-colors"
+                      title="Preview file"
+                    >
+                      {f.name}
+                    </button>
                     <span className="text-[var(--text-muted)] shrink-0">{formatSize(f.size)}</span>
                     <span className="text-[var(--text-muted)] shrink-0">
                       {new Date(f.modifiedTime).toLocaleDateString()}
                     </span>
-                  </a>
+                    {/* Action buttons — visible on hover */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      <button
+                        onClick={() => setPreviewFile({ id: f.id, name: f.name, mimeType: f.mimeType })}
+                        className="rounded p-1 hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--portal)]"
+                        title="Preview"
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>visibility</span>
+                      </button>
+                      <button
+                        onClick={() => handleDownload(f.id, f.name)}
+                        className="rounded p-1 hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--portal)]"
+                        title="Download"
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>download</span>
+                      </button>
+                      <button
+                        onClick={() => setMovingFile({ id: f.id, name: f.name, fromSubfolder: sf.name })}
+                        className="rounded p-1 hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--portal)]"
+                        title="Move to another subfolder"
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>drive_file_move</span>
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -530,6 +586,96 @@ export function ACFSection({ clientId }: ACFSectionProps) {
           </div>
         ))}
       </div>
+
+      {/* ── Preview Panel (slide-up overlay) ──────────────────────── */}
+      {previewFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setPreviewFile(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl h-[80vh] rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Preview header */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>
+                  {mimeIcon(previewFile.mimeType)}
+                </span>
+                <span className="text-sm font-medium text-[var(--text-primary)] truncate">{previewFile.name}</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => handleDownload(previewFile.id, previewFile.name)}
+                  className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-card)] transition-colors"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>download</span>
+                  Download
+                </button>
+                <button
+                  onClick={() => setPreviewFile(null)}
+                  className="rounded-lg p-1.5 hover:bg-[var(--bg-card)] text-[var(--text-muted)] transition-colors"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '20px' }}>close</span>
+                </button>
+              </div>
+            </div>
+            {/* Preview content */}
+            <div className="flex-1 overflow-hidden">
+              <iframe
+                src={`https://drive.google.com/file/d/${previewFile.id}/preview`}
+                className="w-full h-full border-0"
+                allow="autoplay"
+                sandbox="allow-scripts allow-same-origin"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Move File Modal ───────────────────────────────────────── */}
+      {movingFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setMovingFile(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>drive_file_move</span>
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Move File</h3>
+                <p className="text-xs text-[var(--text-muted)] truncate max-w-[280px]">{movingFile.name}</p>
+              </div>
+            </div>
+            <p className="text-xs text-[var(--text-muted)] mb-3">
+              Currently in <span className="font-medium text-[var(--text-secondary)]">{movingFile.fromSubfolder}</span>. Move to:
+            </p>
+            <div className="space-y-1.5">
+              {detail.subfolders
+                .filter(sf => sf.name !== movingFile.fromSubfolder)
+                .map(sf => (
+                  <button
+                    key={sf.id}
+                    onClick={() => handleMove(movingFile.id, movingFile.fromSubfolder, sf.name)}
+                    className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm text-left text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--portal)] transition-colors border border-[var(--border-subtle)]"
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '16px' }}>folder</span>
+                    {sf.name}
+                    <span className="text-[var(--text-muted)] text-xs ml-auto">{sf.file_count} files</span>
+                  </button>
+                ))}
+            </div>
+            <button
+              onClick={() => setMovingFile(null)}
+              className="mt-4 w-full rounded-lg border border-[var(--border-subtle)] px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
