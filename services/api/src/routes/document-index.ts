@@ -226,6 +226,88 @@ documentIndexRoutes.post('/scan/:clientId', async (req: Request, res: Response) 
   }
 })
 
+// POST /api/document-index/scan-all — proactive scan of ALL clients with ACF folders
+// Designed to be called by Cloud Scheduler on a weekly cadence
+documentIndexRoutes.post('/scan-all', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const { listSubfolders, listFolderFiles } = await import('../lib/drive-client.js')
+
+    // Get all clients with ACF folders
+    const clientsSnap = await db.collection('clients')
+      .where('acf_folder_id', '!=', '')
+      .select('acf_folder_id', 'display_name')
+      .get()
+
+    const now = new Date().toISOString()
+    let totalIndexed = 0
+    let clientsScanned = 0
+    let clientsFailed = 0
+
+    // Process 5 clients at a time to avoid rate limits
+    const clients = clientsSnap.docs
+    for (let i = 0; i < clients.length; i += 5) {
+      const chunk = clients.slice(i, i + 5)
+      const results = await Promise.all(chunk.map(async (clientDoc) => {
+        const clientId = clientDoc.id
+        const folderId = clientDoc.data().acf_folder_id as string
+        if (!folderId) return { indexed: 0, ok: true }
+
+        try {
+          const batch = db.batch()
+          let indexed = 0
+
+          const subfolders = await listSubfolders(folderId)
+          for (const sf of subfolders) {
+            try {
+              const files = await listFolderFiles(sf.id)
+              for (const file of files) {
+                const docId = `${clientId}_${file.id}`
+                batch.set(db.collection('document_index').doc(docId), {
+                  client_id: clientId,
+                  file_id: file.id,
+                  file_name: file.name,
+                  document_type: '',
+                  acf_subfolder: sf.name,
+                  drive_url: `https://drive.google.com/file/d/${file.id}/view`,
+                  mime_type: file.mimeType,
+                  size: file.size,
+                  modified_at: file.modifiedTime,
+                  indexed_at: now,
+                })
+                indexed++
+              }
+            } catch {
+              // Skip inaccessible subfolder
+            }
+          }
+
+          if (indexed > 0) await batch.commit()
+          return { indexed, ok: true }
+        } catch {
+          return { indexed: 0, ok: false }
+        }
+      }))
+
+      for (const r of results) {
+        totalIndexed += r.indexed
+        if (r.ok) clientsScanned++
+        else clientsFailed++
+      }
+    }
+
+    res.json(successResponse({
+      clients_scanned: clientsScanned,
+      clients_failed: clientsFailed,
+      total_indexed: totalIndexed,
+      scanned_at: now,
+    }))
+  } catch (err) {
+    console.error('POST /api/document-index/scan-all error:', err)
+    res.status(500).json(errorResponse('Failed to run proactive scan'))
+  }
+})
+
 // GET /api/document-index/dedup/:clientId — scan for duplicate files within a client's ACF
 documentIndexRoutes.get('/dedup/:clientId', async (req: Request, res: Response) => {
   try {
