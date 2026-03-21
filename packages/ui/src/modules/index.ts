@@ -28,3 +28,6 @@ export { Guardian } from './Guardian'
 export { IntakeQueue } from './IntakeQueue'
 
 export { NotificationsModule, UnreadBadge } from './Notifications'
+
+export { ClientDocuments } from './ClientDocuments'
+export { AccountDocuments } from './AccountDocuments'

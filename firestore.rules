@@ -451,5 +451,26 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isExecutiveOrAbove();
     }
+
+    // Document Taxonomy — document type definitions for ACF routing
+    // ----------------------------------------------------------------
+    match /document_taxonomy/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+
+    // Document Link Config — rules mapping doc types to UI locations
+    // ----------------------------------------------------------------
+    match /document_link_config/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+
+    // Document Index — cached metadata for fast UI retrieval
+    // ----------------------------------------------------------------
+    match /document_index/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
+    }
   }
 }
