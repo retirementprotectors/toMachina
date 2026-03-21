@@ -376,16 +376,16 @@ function ForgeInner({ portal }: ForgeProps) {
       const cfg = STATUS_CONFIG[status]
       const statusItems = items.filter(i => i.status === status)
       const cards: KanbanCard[] = statusItems.map(item => ({
-        id: item.id,
-        title: item.title,
-        subtitle: item.item_id,
+        id: safeStr(item.id),
+        title: safeStr(item.title),
+        subtitle: safeStr(item.item_id),
         badges: [
           ...(TYPE_CONFIG[item.type] ? [{ label: TYPE_CONFIG[item.type].label, color: TYPE_CONFIG[item.type].color }] : []),
-          { label: item.portal || '', color: 'var(--portal, #4a7ab5)' },
-          ...(item.component ? [{ label: item.component, color: '#e07c3e' }] : []),
+          { label: safeStr(item.portal), color: 'var(--portal, #4a7ab5)' },
+          ...(item.component ? [{ label: safeStr(item.component), color: '#e07c3e' }] : []),
         ].filter(b => b.label),
         meta: [
-          ...(item.section ? [{ text: item.section }] : []),
+          ...(item.section ? [{ text: safeStr(item.section) }] : []),
           ...(item.attachments?.length ? [{ icon: 'attach_file', text: `${item.attachments.length}` }] : []),
         ],
         onClick: () => openEdit(item),
