@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACF 2.0 — Document Intelligence Discovery</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 600px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.data { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .tag.app { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.cleanup { background: rgba(210,153,34,0.10); color: var(--orange); border: 1px solid rgba(210,153,34,0.25); }
+  .tag.infra { background: rgba(88,166,255,0.10); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat .num { font-size: 28px; font-weight: 900; color: var(--gold-bright); }
+  .stat .label { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; justify-content: center; }
+  .flow-step { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .flow-arrow { padding: 0 8px; color: var(--dim); font-size: 18px; }
+  .alert { background: rgba(248,81,73,0.08); border: 1px solid rgba(248,81,73,0.25); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .alert strong { color: var(--red); }
+  .success { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .success strong { color: var(--green); }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card { border-color: #ddd; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">Discovery Document &middot; ACF 2.0</div>
+  <h1>ACF 2.0 &mdash; Document Intelligence</h1>
+  <div class="sub">Restructure Active Client Files from a dumping ground into a document intelligence system. Cleanup, re-map, de-dupe, and wire documents directly into ProDash UI.</div>
+</div>
+<div class="container">
+
+<h2>Audit <span class="accent">Results</span></h2>
+<p>Comprehensive audit of the Active Client Files Google Drive folder conducted <strong>2026-03-20</strong>.</p>
+
+<div class="stat-grid">
+  <div class="stat"><div class="num">1,340</div><div class="label">Total Folders</div></div>
+  <div class="stat"><div class="num">~1,085</div><div class="label">Template-Only Shells (81%)</div></div>
+  <div class="stat"><div class="num">~120</div><div class="label">Real Client Data (9%)</div></div>
+  <div class="stat"><div class="num">~98</div><div class="label">Old-Format Folders</div></div>
+  <div class="stat"><div class="num">33+</div><div class="label">Duplicate Pairs</div></div>
+  <div class="stat"><div class="num">59</div><div class="label">Document Types</div></div>
+</div>
+
+<div class="alert">
+  <strong>Key Findings:</strong>
+  <ul>
+    <li><strong>81% are empty shells</strong> &mdash; default template with *Accounts, *Opportunities, Ai3 TEMPLATE. No real client data.</li>
+    <li><strong>33+ duplicate folder pairs</strong> &mdash; exact name dupes, cross-format dupes, misspelling dupes.</li>
+    <li><strong>Joe + Laura Dickson Ai3 misfile</strong> &mdash; their template got copied into 6+ unrelated client folders.</li>
+    <li><strong>5 "ACF - undefined" folders</strong> &mdash; automation errors from watcher.</li>
+    <li><strong>16 loose root-level files</strong> &mdash; orphaned PDFs not in any client folder.</li>
+    <li><strong>Source Documents is a dumping ground</strong> &mdash; 28 of 59 document types (47%) route there.</li>
+  </ul>
+</div>
+
+<h2>Current vs Proposed <span class="accent">Structure</span></h2>
+
+<h3>Current Subfolder Structure (from Watcher/Config)</h3>
+<p>Source Documents, Analysis, Proposals, Signed Documents, Correspondence</p>
+
+<h3>Proposed New Subfolder Structure (JDM Directive)</h3>
+<p>Based on <strong>business workflow</strong>, not document type:</p>
+
+<table>
+  <thead><tr><th>Subfolder</th><th>Contents</th><th>Serves</th></tr></thead>
+  <tbody>
+    <tr><td><strong>NewBiz</strong></td><td>Applications, quotes, illustrations, fact-finders, new biz requirements</td><td>Sales pipeline</td></tr>
+    <tr><td><strong>Reactive</strong></td><td>Service requests, address changes, correspondence, follow-ups, inquiries</td><td>Service team</td></tr>
+    <tr><td><strong>Cases</strong></td><td>Death claims, surrenders, policy changes, GMIB elections, AOR changes</td><td>Case management</td></tr>
+    <tr><td><strong>Account</strong></td><td>Statements, billing, tax docs, payments, withdrawals, income/EFT</td><td>Account detail UI</td></tr>
+    <tr><td><strong>Client</strong></td><td>DLs, voided checks, Ai3s, Medicare cards, SS cards, personal docs</td><td>Client detail UI</td></tr>
+  </tbody>
+</table>
+
+<h2>Document <span class="accent">Taxonomy</span></h2>
+<p>59 document types currently configured on <code>_DOCUMENT_TAXONOMY</code> (RAPID_MATRIX). Each has:</p>
+<ul>
+  <li><code>document_type</code>, <code>file_label_template</code>, <code>acf_subfolder</code>, <code>pipeline</code>, <code>owner_role</code>, <code>priority</code></li>
+  <li>File naming convention: <code>PolicyNum- LASTNAME Carrier DocType YYYY-MM-DD</code></li>
+</ul>
+
+<h2>ProDash UI <span class="accent">Document Linking</span></h2>
+<p>ACF subfolders must serve the ProDash UI directly:</p>
+
+<div class="card">
+  <h4>Client Detail Page</h4>
+  <ul>
+    <li>DL photo (always show latest from Client subfolder)</li>
+    <li>Medicare card (for Medicare clients)</li>
+    <li>Voided check (for payment setup)</li>
+    <li>Ai3 (most recent quarterly)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>Account Detail Page (by product type)</h4>
+  <ul>
+    <li>Most recent statement (from Account subfolder)</li>
+    <li>Policy document / application (from NewBiz subfolder)</li>
+    <li>Product-type-specific docs (MAPD enrollment, FIA illustration, etc.)</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4>Case Detail Page</h4>
+  <ul>
+    <li>All related case documents (from Cases subfolder)</li>
+  </ul>
+</div>
+
+<p><strong>Config needed:</strong> Rules for which docs link to which UI locations, by product type. Proactive pull (scheduled scan) + Reactive pull (on new document arrival).</p>
+
+<h2>Infrastructure <span class="accent">Completed</span></h2>
+
+<div class="success">
+  <strong>Already shipped (2026-03-20):</strong>
+  <ul>
+    <li>Cloud Run liveness probes (auto-restart on Firestore stale connections)</li>
+    <li>Health check with 5s timeout + 503 on failure</li>
+    <li>Auto-merge enabled on GitHub repo</li>
+    <li>Service account has Editor access to all 1,340 ACF folders</li>
+    <li>1,438 clients backfilled with <code>acf_folder_id</code> from legacy <code>gdrive_folder_url</code></li>
+    <li>ACF file upload endpoint (<code>POST /api/acf/:clientId/upload</code>)</li>
+    <li>ACF Config Admin UI (hyperlinks, toggle fixes, routing rules section)</li>
+    <li>ACF filter on contacts page (Has ACF, No ACF, Needs Setup)</li>
+  </ul>
+</div>
+
+<h2>Phase <span class="accent">Roadmap</span></h2>
+
+<div class="flow">
+  <div class="flow-step"><strong>P1</strong> Cleanup</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P2</strong> Audit Real Data</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P3</strong> Restructure</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P4</strong> De-dupe</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P5</strong> UI Linking</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P6</strong> Routing Rules</div>
+</div>
+
+<div class="card">
+  <h4><span class="tag cleanup">Cleanup</span> Phase 1 &mdash; Trash Template Shells</h4>
+  <ul>
+    <li>Trash ~1,085 verified template-only shell folders</li>
+    <li>Preserve all folders with real client data</li>
+    <li>30-day recovery window from Google Drive Trash</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4><span class="tag data">Data</span> Phase 2 &mdash; Audit Real Data Folders</h4>
+  <ul>
+    <li>Catalog document types across ~120 populated folders</li>
+    <li>Identify patterns in what people actually filed</li>
+    <li>Validate proposed subfolder structure against real data</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4><span class="tag data">Data</span> Phase 3 &mdash; Restructure</h4>
+  <ul>
+    <li>Update ACF Config with new 5-folder structure (NewBiz, Reactive, Cases, Account, Client)</li>
+    <li>Re-map <code>_DOCUMENT_TAXONOMY</code> acf_subfolder column to new structure</li>
+    <li>Create new subfolders in existing ACFs</li>
+    <li>Categorize and move existing documents into correct subfolders</li>
+    <li>Rename folders to standard <code>ACF - First Last</code> format</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4><span class="tag cleanup">Cleanup</span> Phase 4 &mdash; De-dupe + Consolidate</h4>
+  <ul>
+    <li>Merge 33+ duplicate folder pairs (pick winner with more data)</li>
+    <li>De-dupe documents within folders</li>
+    <li>Fix Joe + Laura Dickson misfiles</li>
+    <li>Clean up undefined/test/typo folders</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4><span class="tag app">App</span> Phase 5 &mdash; ProDash UI Document Linking</h4>
+  <ul>
+    <li>Build document linking config (which docs &rarr; which UI locations)</li>
+    <li>Product-type-aware rules (Medicare vs Retirement vs Life)</li>
+    <li>Proactive pull (scheduled scan of ACF for linkable docs)</li>
+    <li>Reactive pull (on new document arrival via Watcher)</li>
+    <li>Client detail page: DL, Medicare card, voided check, Ai3</li>
+    <li>Account detail page: latest statement, policy doc</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h4><span class="tag infra">Infra</span> Phase 6 &mdash; Update Routing Rules</h4>
+  <ul>
+    <li>Seed ACF Config <code>routing_rules</code> from <code>_DOCUMENT_TAXONOMY</code></li>
+    <li>Map 59 document types to new 5-folder structure</li>
+    <li>Update Watcher to use new subfolder targets</li>
+    <li>File naming convention enforcement</li>
+  </ul>
+</div>
+
+<h2>Related <span class="accent">Tickets</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Title</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TRK-439</strong></td><td>ACF Household Migration</td><td>Deferred to household consolidation sprint</td></tr>
+    <tr><td><strong>TRK-440</strong></td><td>ACF Orphaned Folder Detection</td><td>Deferred 60-90 days</td></tr>
+    <tr><td><strong>TRK-401</strong></td><td>Investigate 0 ACFs showing for contacts</td><td>Resolved &mdash; Drive access + backfill</td></tr>
+  </tbody>
+</table>
+
+</div>
+</body>
+</html>
