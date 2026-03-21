@@ -11,7 +11,7 @@ let driveClient: drive_v3.Drive | null = null
 export function getDriveClient(): drive_v3.Drive {
   if (!driveClient) {
     const auth = new google.auth.GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/drive'],
+      scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/cloud-platform'],
     })
     driveClient = google.drive({ version: 'v3', auth })
   }
