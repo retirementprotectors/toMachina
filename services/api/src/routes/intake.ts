@@ -60,6 +60,7 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
     const result = await executeWire(wire_id, wireInput, context, writeAudit)
 
     // Update intake_queue with result
+    const now = new Date().toISOString()
     if (queue_id) {
       const queueColl = db.collection('intake_queue')
       const queueRef = queueColl.doc(queue_id)
@@ -73,10 +74,38 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
           execution_time_ms: result.execution_time_ms,
           status: result.status,
         },
-        completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        completed_at: now,
+        updated_at: now,
       })
     }
+
+    // TRK-528: Wire completion summary → Notifications DATA tab
+    const meta = (input._meta || {}) as Record<string, unknown>
+    const stageNames = (result.stages || []).map((s: { stage: string; status: string }) => `${s.stage}: ${s.status}`)
+    await db.collection('notifications').add({
+      type: 'wire_completion',
+      source_type: 'wire',
+      title: result.success
+        ? `Document processed — ${(meta.file_name as string) || 'Unknown file'}`
+        : `Wire failed — ${(meta.file_name as string) || 'Unknown file'}`,
+      body: result.success
+        ? `${result.created_records?.length || 0} records created/updated via ${wire_id}. ${(result.execution_time_ms / 1000).toFixed(1)}s.`
+        : `Wire stopped at stage ${stageNames[stageNames.length - 1] || 'unknown'}. ${(result.execution_time_ms / 1000).toFixed(1)}s.`,
+      metadata: {
+        wire_id,
+        execution_id: result.execution_id,
+        source: (meta.source as string) || 'unknown',
+        file_name: (meta.file_name as string) || null,
+        client_id: (meta.client_id as string) || null,
+        status: result.status,
+        stages_completed: (result.stages || []).filter((s: { status: string }) => s.status === 'complete').length,
+        stages_total: (result.stages || []).length,
+        created_records: result.created_records?.length || 0,
+        execution_time_ms: result.execution_time_ms,
+      },
+      read: false,
+      created_at: now,
+    })
 
     res.json(successResponse(result))
   } catch (err) {
