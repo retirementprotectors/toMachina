@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Plan — Firestore Config Admin Panel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1117;color:#e2e8f0;padding:0;line-height:1.6}
+.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:40px;border-bottom:2px solid rgba(167,139,250,.3)}
+.header h1{font-size:28px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+.header .sub{font-size:14px;color:#94a3b8}
+.header .badges{display:flex;gap:8px;margin-top:12px}
+.header .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px}
+.header .badge.purple{color:#a78bfa;background:rgba(167,139,250,.2);border:1px solid rgba(167,139,250,.3)}
+.header .badge.blue{color:#60a5fa;background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.2)}
+.container{max-width:960px;margin:0 auto;padding:32px 40px 60px}
+h2{font-size:18px;font-weight:700;color:#a78bfa;margin:32px 0 12px;padding-bottom:6px;border-bottom:1px solid rgba(167,139,250,.15)}
+h3{font-size:14px;font-weight:600;color:#94a3b8;margin:16px 0 8px}
+p{font-size:13px;color:#94a3b8;margin:6px 0}
+code{font-family:'SF Mono',monospace;font-size:12px;background:rgba(148,163,184,.08);padding:1px 5px;border-radius:3px;color:#e2e8f0}
+ul,ol{margin:6px 0 6px 20px;font-size:13px;color:#94a3b8}
+li{margin:3px 0}
+.phase{background:#161b22;border:1px solid rgba(148,163,184,.08);border-radius:10px;padding:16px 20px;margin:16px 0}
+.phase-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.phase-num{font-size:11px;font-weight:700;color:#a78bfa;background:rgba(167,139,250,.15);padding:3px 10px;border-radius:6px}
+.phase-title{font-size:15px;font-weight:600;color:#f1f5f9}
+.ticket{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(148,163,184,.04);font-size:13px}
+.ticket:last-child{border-bottom:none}
+.trk{font-family:'SF Mono',monospace;font-size:11px;color:#a78bfa;min-width:58px;padding-top:1px}
+.scope{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 6px;border-radius:3px;min-width:32px;text-align:center}
+.scope.api{color:#06b6d4;background:rgba(6,182,212,.12)}
+.scope.ui{color:#f59e0b;background:rgba(245,158,11,.12)}
+.scope.both{color:#ec4899;background:rgba(236,72,153,.12)}
+.desc{color:#94a3b8;flex:1}
+.desc strong{color:#e2e8f0;font-weight:500}
+.note{font-size:12px;color:#64748b;background:rgba(148,163,184,.05);border-left:3px solid rgba(167,139,250,.3);padding:8px 12px;margin:8px 0;border-radius:0 6px 6px 0}
+.verify{background:#161b22;border:1px solid rgba(34,197,94,.15);border-radius:10px;padding:16px 20px;margin:20px 0}
+.verify h3{color:#22c55e;margin-top:0}
+.dep{background:#161b22;border:1px solid rgba(245,158,11,.15);border-radius:10px;padding:16px 20px;margin:20px 0}
+.dep h3{color:#f59e0b;margin-top:0}
+@media print{body{background:#fff;color:#1a1a1a}.header{background:#f8f8f8;border-bottom:2px solid #a78bfa}h2{color:#6d28d9}.phase{border:1px solid #e2e8f0}}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>Firestore Config Admin Panel</h1>
+<div class="sub">Implementation Plan — FORGE Sprint eGXjGs3bgOyag486opou<br>18 tickets | 6 phases | 2 file rewrites | Created 2026-03-21</div>
+<div class="badges">
+<span class="badge purple">Sprint: Active</span>
+<span class="badge blue">Phase: Plan</span>
+</div>
+</div>
+
+<div class="container">
+
+<h2>Phase 1 — API Completeness</h2>
+<div class="phase">
+<div class="phase-head"><span class="phase-num">P1</span><span class="phase-title">3 tickets — Foundation endpoints for all UI work</span></div>
+<div class="ticket"><span class="trk">TRK-505</span><span class="scope api">API</span><span class="desc"><strong>DELETE /:collection/:docId</strong> — Allow ANY collection in dropdown (whitelist + user-created). Validate snake_case + exists. Delete doc, return confirmation. Enables document-level delete in UI.</span></div>
+<div class="ticket"><span class="trk">TRK-506</span><span class="scope api">API</span><span class="desc"><strong>DELETE /:collection</strong> — Allow ANY collection in dropdown (whitelist + user-created). Type-to-confirm safety (<code>?confirm=name</code> must match). Batch deletes all docs. Note: Firestore has no collection-level delete — deleting all docs makes it disappear from queries. Enables collection-level delete in UI.</span></div>
+<div class="ticket"><span class="trk">TRK-507</span><span class="scope api">API</span><span class="desc"><strong>Wiring status metadata</strong> — Add <code>WIRING_STATUS</code> map to GET /collections. Each collection returns <code>{ status, backend, frontend }</code>. Status: full_stack / backend_only / placeholder.</span></div>
+<div class="note">PUT handler update: Support <code>_delete_fields</code> array in body — uses <code>FieldValue.delete()</code> to remove fields from a doc without sending the full doc.</div>
+</div>
+
+<h2>Phase 2 — Collection + Document CRUD</h2>
+<div class="phase">
+<div class="phase-head"><span class="phase-num">P2</span><span class="phase-title">3 tickets — Visible CRUD controls on collections and documents</span></div>
+<div class="ticket"><span class="trk">TRK-508</span><span class="scope ui">UI</span><span class="desc"><strong>Wiring status badges</strong> — Colored dot + label next to collection dropdown. Green = Full Stack, Amber = Backend Only, Gray = Placeholder. One-line description below.</span></div>
+<div class="ticket"><span class="trk">TRK-509</span><span class="scope ui">UI</span><span class="desc"><strong>Delete Collection</strong> — Red button. Opens inline form: "Type <code>{name}</code> to confirm." Input must match exactly. Calls DELETE API. Removes from dropdown on success.</span></div>
+<div class="ticket"><span class="trk">TRK-510</span><span class="scope ui">UI</span><span class="desc"><strong>Delete Document</strong> — Trash icon on each doc card header. Inline confirmation: "Delete <code>{docId}</code>? Cannot be undone." Calls DELETE API. Removes card on success.</span></div>
+</div>
+
+<h2>Phase 3 — Field-Level Add / Delete</h2>
+<div class="phase">
+<div class="phase-head"><span class="phase-num">P3</span><span class="phase-title">2 tickets — Every field can be added or removed</span></div>
+<div class="ticket"><span class="trk">TRK-511</span><span class="scope both">BOTH</span><span class="desc"><strong>Add Field</strong> — "+ Add Field" button at top of expanded doc. Inline row: [name input] [type select: string/number/boolean/array/object] [Create]. Default values: ""/ 0 / false / [] / {}. Field name validation: snake_case only, no spaces, no duplicates, no leading underscore. Sets dirty → Save persists.</span></div>
+<div class="ticket"><span class="trk">TRK-512</span><span class="scope both">BOTH</span><span class="desc"><strong>Delete Field</strong> — X button on every field label. Confirmation popup. Removes from editData AND tracks in <code>deletedFields[]</code> state. On Save: sends <code>_delete_fields</code> array alongside remaining data — required because plain omission from payload does NOT delete fields in Firestore.</span></div>
+</div>
+
+<h2>Phase 4 — Field Editor Upgrades</h2>
+<div class="phase">
+<div class="phase-head"><span class="phase-num">P4</span><span class="phase-title">4 tickets — Full inline editing for every field type</span></div>
+<div class="ticket"><span class="trk">TRK-513</span><span class="scope ui">UI</span><span class="desc"><strong>String array inline edit</strong> — Click tag text → transforms to input → blur/Enter saves. Replaces <code>window.prompt()</code> (forbidden pattern). New "+ Add" → empty input at end.</span></div>
+<div class="ticket"><span class="trk">TRK-514</span><span class="scope ui">UI</span><span class="desc"><strong>Object array cell edit</strong> — Click cell → transforms to text input → blur/Enter saves. String-array cells (like patterns) → comma-separated input → parses back to array. <strong>Depth limit:</strong> Only primitive cells (string, number) are inline-editable. Nested object/array cells render as JSON string, read-only.</span></div>
+<div class="ticket"><span class="trk">TRK-515</span><span class="scope ui">UI</span><span class="desc"><strong>Nested object edit</strong> — Click value → input → blur saves. "+ Add Key" button → [key input] [value input] [type select] [Add]. X per key to remove.</span></div>
+<div class="ticket"><span class="trk">TRK-516</span><span class="scope ui">UI</span><span class="desc"><strong>Collapsible sections</strong> — Chevron header on every array/object field. Click toggles content. Collapsed = name + type badge + count. Default = expanded.</span></div>
+</div>
+
+<h2>Phase 5 — UX Polish</h2>
+<div class="phase">
+<div class="phase-head"><span class="phase-num">P5</span><span class="phase-title">3 tickets — Visual consistency and user guidance</span></div>
+<div class="ticket"><span class="trk">TRK-517</span><span class="scope ui">UI</span><span class="desc"><strong>Button reorder</strong> — Left: Collection dropdown + wiring badge + count. Right: Add Collection (amber) | Add Document (portal) | Refresh (green).</span></div>
+<div class="ticket"><span class="trk">TRK-518</span><span class="scope ui">UI</span><span class="desc"><strong>Loading/saving states</strong> — Skeleton shimmer on load. Spinner + "Saving..." → "Saved!" on save. Spinner on delete. Brief skeleton on collection switch.</span></div>
+<div class="ticket"><span class="trk">TRK-519</span><span class="scope ui">UI</span><span class="desc"><strong>Empty states</strong> — Helpful prompts: "No documents yet — click Add Document" / "Empty document — click + Add Field" / "No items — click + Add".</span></div>
+</div>
+
+<h2>Phase 6 — Health + Final Audit</h2>
+<div class="phase">
+<div class="phase-head"><span class="phase-num">P6</span><span class="phase-title">3 tickets — Resilience, responsive, verification</span></div>
+<div class="ticket"><span class="trk">TRK-520</span><span class="scope ui">UI</span><span class="desc"><strong>Health bar responsive</strong> — flex-wrap on narrow screens. Collection counts = row 1, queues + gaps = row 2.</span></div>
+<div class="ticket"><span class="trk">TRK-521</span><span class="scope api">API</span><span class="desc"><strong>Health resilience</strong> — Individual query try/catch. Failed = -1 (rendered as "—"). Endpoint never 500s from a single query failure.</span></div>
+<div class="ticket"><span class="trk">TRK-522</span><span class="scope both">BOTH</span><span class="desc"><strong>Final audit</strong> — Full verification checklist per discovery doc Section 8. Every CRUD op, every field type, every wiring badge, every confirmation dialog.</span></div>
+</div>
+
+<div class="dep">
+<h3>Dependencies</h3>
+<ul>
+<li><strong>P1 before P2 + P3</strong> — API endpoints must exist before UI can call them</li>
+<li><strong>P2 + P3 parallel</strong> — Collection/doc CRUD and field CRUD are independent UI work</li>
+<li><strong>P4 after P3</strong> — Editor upgrades need field-level CRUD working first</li>
+<li><strong>P5 + P6 parallel</strong> — Polish and health are independent of each other</li>
+<li><strong>TRK-522 last</strong> — Final audit after all tickets complete</li>
+</ul>
+</div>
+
+<div class="verify">
+<h3>Verification</h3>
+<ul>
+<li><code>npm run type-check</code> — 13/13</li>
+<li><code>npm run build</code> — 11/11</li>
+<li>Create collection → appears in dropdown with gray badge</li>
+<li>Create document → appears as expandable card</li>
+<li>Add field (each type) → correct editor renders</li>
+<li>Edit every field type → save persists to Firestore</li>
+<li>Delete field → removed on save</li>
+<li>Delete document → card removed</li>
+<li>Delete collection → removed from dropdown</li>
+<li>Wiring badges → green/amber/gray correct for all 12</li>
+<li>Collapsible sections → chevron toggles</li>
+<li>Empty states → helpful prompts</li>
+<li>Health bar → wraps on narrow screens</li>
+<li>No <code>window.prompt()</code> anywhere</li>
+</ul>
+</div>
+
+<h2>Files Modified</h2>
+<ul>
+<li><code>services/api/src/routes/firestore-config.ts</code> — Rewrite (~300 lines). Add DELETE endpoints, wiring metadata, _delete_fields support.</li>
+<li><code>packages/ui/src/modules/FirestoreConfig.tsx</code> — Rewrite (~900 lines). Uniform CRUD, collapsible sections, wiring badges, inline editors, empty states.</li>
+</ul>
+
+
+<div class="phase" style="border-color: rgba(34,197,94,.2); margin-top: 32px;">
+<div class="phase-head"><span class="phase-num" style="background:rgba(34,197,94,.15);color:#22c55e;">AUDIT</span><span class="phase-title">Plan Audit Resolution — 2026-03-21</span></div>
+<p style="margin-bottom:8px;">Audit found 2 gaps + 3 ambiguities. All resolved:</p>
+<div class="ticket"><span class="trk" style="color:#22c55e;">G1/G2</span><span class="scope api">FIX</span><span class="desc">DELETE endpoints now accept ANY collection in dropdown, not just original 12 whitelist.</span></div>
+<div class="ticket"><span class="trk" style="color:#22c55e;">A1</span><span class="scope both">FIX</span><span class="desc">TRK-512: UI tracks <code>deletedFields[]</code> separately, sends as <code>_delete_fields</code> in PUT body. Plain omission won't delete.</span></div>
+<div class="ticket"><span class="trk" style="color:#22c55e;">A2</span><span class="scope ui">FIX</span><span class="desc">TRK-514: Only primitive cells inline-editable. Nested object/array cells render as JSON read-only.</span></div>
+<div class="ticket"><span class="trk" style="color:#22c55e;">A3</span><span class="scope ui">FIX</span><span class="desc">TRK-511: Field names validated — snake_case, no spaces, no duplicates, no leading underscore.</span></div>
+<p style="margin-top:8px;color:#22c55e;font-weight:600;">Status: PASS — all findings resolved.</p>
+</div>
+
+</div>
+</body>
+</html>
