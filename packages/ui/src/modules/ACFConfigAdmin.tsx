@@ -15,7 +15,8 @@ interface ACFConfigAdminProps {
 interface ACFRoutingRule {
   document_type: string
   target_subfolder: string
-  patterns: string[]
+  patterns?: string[]
+  file_label_template?: string
 }
 
 interface ACFConfigData {
