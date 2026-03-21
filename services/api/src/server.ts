@@ -60,6 +60,7 @@ import { dropzoneRoutes } from './routes/dropzone.js'
 import { connectRoutes } from './routes/connect.js'
 import { intakeQueueRoutes } from './routes/intake-queue.js'
 import { acfRoutes } from './routes/acf.js'
+import { documentIndexRoutes } from './routes/document-index.js'
 import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
@@ -143,6 +144,7 @@ app.use('/api/dropzone', normalizeBody, dropzoneRoutes)
 app.use('/api/connect', normalizeBody, connectRoutes)
 app.use('/api/intake-queue', normalizeBody, intakeQueueRoutes)
 app.use('/api/acf', normalizeBody, acfRoutes)
+app.use('/api/document-index', documentIndexRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
