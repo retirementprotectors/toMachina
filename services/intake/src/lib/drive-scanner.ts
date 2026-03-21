@@ -100,6 +100,31 @@ export async function moveFile(fileId: string, fromFolderId: string, toFolderId:
 }
 
 /**
+ * Get or create a subfolder by name within a parent folder.
+ * Returns the existing subfolder if found, otherwise creates it.
+ */
+export async function getOrCreateSubfolder(
+  parentId: string,
+  name: string
+): Promise<{ id: string; name: string }> {
+  const existing = await listSubfolders(parentId)
+  const match = existing.find(f => f.name.toLowerCase() === name.toLowerCase())
+  if (match) return match
+
+  const drive = getDrive()
+  const res = await drive.files.create({
+    requestBody: {
+      name,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [parentId],
+    },
+    fields: 'id, name',
+  })
+
+  return { id: res.data.id!, name: res.data.name! }
+}
+
+/**
  * Get file metadata.
  */
 export async function getFileMetadata(fileId: string): Promise<DriveFile | null> {

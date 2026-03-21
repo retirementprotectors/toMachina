@@ -203,6 +203,28 @@ export interface SuperToolContext {
   target_category?: string
   /** Existing records for dedup matching */
   existing_records?: Record<string, unknown>[]
+  // ── Injected by wire executor on Cloud Run ──
+  /** Download a file from Google Drive by ID */
+  downloadFile?: (fileId: string) => Promise<{ buffer: Buffer; mimeType: string; name: string }>
+  /** Move a file in Google Drive to a new folder */
+  moveFile?: (fileId: string, toFolderId: string, newName?: string) => Promise<void>
+  /** List subfolders within a Google Drive folder */
+  listSubfolders?: (folderId: string) => Promise<Array<{ id: string; name: string }>>
+  /** Load active document taxonomy entries from Firestore */
+  loadTaxonomy?: () => Promise<Array<{ document_type: string; pipeline?: string; owner_role?: string }>>
+  // ── Carried through pipeline ──
+  /** Source file ID from Drive (set by SUPER_PREPARE) */
+  source_file_id?: string
+  /** Client ID associated with this wire execution */
+  client_id?: string
+  /** Intake source identifier */
+  source?: string
+  /** Document type determined by classification */
+  document_type?: string
+  /** ACF subfolder for filing */
+  acf_subfolder?: string
+  /** Temp directory created by SUPER_PREPARE for cleanup */
+  tmp_dir?: string
   /** Additional context data */
   [key: string]: unknown
 }

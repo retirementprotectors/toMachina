@@ -75,7 +75,7 @@ export const mailIntake = onRequest(
   { region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' },
   async (_req, res) => {
     const result = await scanMailIntake()
-    console.log(`Mail Intake: ${result.new_files} new, ${result.moved_to_processed} processed`)
+    console.log(`Mail Intake: ${result.new_files} new, ${result.skipped_duplicates} skipped`)
     res.json({ success: result.success, data: result })
   }
 )

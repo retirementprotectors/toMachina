@@ -2,9 +2,10 @@
  * SPC_INTAKE — Specialist Drive folder scanner.
  * Scans subfolders under SPC_INTAKE_FOLDER for new files.
  * Each subfolder = one specialist (folder name = specialist name).
+ * Files stay in place until ACF_FINALIZE moves them after successful wire.
  */
 
-import { listFolderFiles, listSubfolders } from './lib/drive-scanner.js'
+import { listFolderFiles, listSubfolders, getOrCreateSubfolder } from './lib/drive-scanner.js'
 import { processFile, extractSpecialistName, generateContentPreview } from './lib/file-processor.js'
 import { createQueueEntry, isFileQueued, getLastScanTime, setLastScanTime } from './queue.js'
 
@@ -20,6 +21,7 @@ export interface SpcScanResult {
 
 /**
  * Scan all SPC specialist folders for new files since last scan.
+ * Files remain in the specialist folder — ACF_FINALIZE handles post-wire routing.
  */
 export async function scanSpcFolders(): Promise<SpcScanResult> {
   const result: SpcScanResult = {
@@ -35,9 +37,16 @@ export async function scanSpcFolders(): Promise<SpcScanResult> {
     const subfolders = await listSubfolders(SPC_INTAKE_FOLDER_ID)
 
     for (const folder of subfolders) {
+      // Skip Processed subfolders themselves
+      if (folder.name.toLowerCase() === 'processed') continue
+
       try {
         result.scanned_folders++
         const specialistName = extractSpecialistName(folder.name)
+
+        // Lazy-create Processed subfolder within each specialist folder
+        const processedFolder = await getOrCreateSubfolder(folder.id, 'Processed')
+
         const files = await listFolderFiles(folder.id, lastScan || undefined)
 
         for (const file of files) {
@@ -58,6 +67,8 @@ export async function scanSpcFolders(): Promise<SpcScanResult> {
             specialist_name: specialistName,
             document_type: meta.document_category,
             content_preview: generateContentPreview(file.name, meta.document_category),
+            source_folder_id: folder.id,
+            processed_folder_id: processedFolder.id,
           })
 
           result.new_files++

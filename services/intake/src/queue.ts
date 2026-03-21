@@ -37,6 +37,12 @@ export interface QueueEntry {
   email_from?: string
   email_subject?: string
   email_priority?: 'high' | 'normal' | 'low'
+  /** Folder the source file currently resides in (for post-wire moves) */
+  source_folder_id?: string
+  /** Processed folder ID (ACF_FINALIZE moves here on success) */
+  processed_folder_id?: string
+  /** Errors folder ID (error handler moves here on wire failure) */
+  errors_folder_id?: string
   error_message?: string
   created_at: string
   updated_at: string
@@ -65,6 +71,9 @@ export async function createQueueEntry(
     email_from?: string
     email_subject?: string
     email_priority?: 'high' | 'normal' | 'low'
+    source_folder_id?: string
+    processed_folder_id?: string
+    errors_folder_id?: string
   }
 ): Promise<QueueEntry> {
   const now = new Date().toISOString()
@@ -85,6 +94,9 @@ export async function createQueueEntry(
     email_from: fileData.email_from,
     email_subject: fileData.email_subject,
     email_priority: fileData.email_priority,
+    source_folder_id: fileData.source_folder_id,
+    processed_folder_id: fileData.processed_folder_id,
+    errors_folder_id: fileData.errors_folder_id,
     created_at: now,
     updated_at: now,
   }

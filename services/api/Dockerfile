@@ -20,6 +20,7 @@ RUN npx turbo run build --filter=@tomachina/core && npx turbo run build --filter
 
 # Production image — preserve monorepo symlink structure
 FROM node:20-alpine AS runner
+RUN apk add --no-cache poppler-utils
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080

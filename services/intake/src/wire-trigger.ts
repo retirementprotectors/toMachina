@@ -1,9 +1,8 @@
 /**
  * Cloud Function trigger for wire execution.
  * Fires on Firestore `intake_queue` document creation.
- * Determines wire based on source field and delegates to wire executor.
- *
- * DEPENDENCY: executeWire() from @tomachina/core (built by BUILDER_03)
+ * Determines wire based on source field and dispatches to Cloud Run API
+ * (tm-api) via HTTP POST for actual wire execution.
  *
  * NOTE: Uses separated collection/doc calls and `store` variable naming
  * to satisfy block-direct-firestore-write hookify rule. This file IS in an
@@ -32,19 +31,27 @@ interface QueueEntry {
   source: string
   file_id?: string
   file_ids?: string[]
+  file_name?: string
+  client_id?: string
+  mime_type?: string
   mode?: string
   user_email?: string
   [key: string]: unknown
 }
 
-/** Wire executor result shape (mirrors BUILDER_03's WireResult) */
-interface WireResult {
+/** Cloud Run API response shape */
+interface APIResponse {
   success: boolean
-  wire_id: string
-  stages: { stage_id: string; status: string }[]
-  created_records: { collection: string; id: string }[]
-  execution_time_ms: number
-  approval_batch_id?: string
+  data?: {
+    success: boolean
+    execution_id?: string
+    stages?: unknown[]
+    created_records?: unknown[]
+    execution_time_ms?: number
+    status?: string
+    approval_batch_id?: string
+  }
+  error?: string
 }
 
 /* ─── Firestore helpers (avoid hookify regex triggers) ─── */
@@ -55,118 +62,40 @@ function intakeQueueCol() {
   return (store as any)['collection']('intake_queue')
 }
 
+/** Cloud Run API base URL */
+const API_BASE_URL = process.env.API_BASE_URL || 'https://tm-api-caras2xr5a-uc.a.run.app'
+
 /**
- * Load executeWire from the wire-executor module directly.
- * Not exported from @tomachina/core barrel (pulls .js imports into webpack).
+ * Normalize queue entry data into a consistent WireInput shape
+ * regardless of which intake channel created the queue entry.
  */
-async function loadExecuteWire(): Promise<
-  (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
-> {
-  const mod = await import('@tomachina/core/src/atlas/wire-executor.js')
-  return mod.executeWire as unknown as (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
-}
-
-// ── TRK-461: ACF Reactive Hook ────────────────────────────────────────
-// After wire completion, route source files to ACF subfolder based on
-// the document classification result. Uses the acf-route API endpoint.
-
-/** Map document category → ACF lifecycle subfolder */
-const CATEGORY_TO_SUBFOLDER: Record<string, string> = {
-  // Client (static person docs)
-  id_document: 'Client',
-  voided_check: 'Client',
-  tax_document: 'Client',
-  trust_document: 'Client',
-  poa_hipaa: 'Client',
-  fact_finder: 'Client',
-  // NewBiz (opportunity becomes sale)
-  application_form: 'NewBiz',
-  transfer_form: 'NewBiz',
-  delivery_receipt: 'NewBiz',
-  replacement_form: 'NewBiz',
-  suitability: 'NewBiz',
-  // Cases (pipeline/analysis)
-  illustration: 'Cases',
-  comparison: 'Cases',
-  proposal: 'Cases',
-  analysis: 'Cases',
-  // Account (live account docs)
-  statement: 'Account',
-  confirmation: 'Account',
-  annual_review: 'Account',
-  distribution: 'Account',
-  // Reactive (service actions)
-  claim: 'Reactive',
-  complaint: 'Reactive',
-  service_request: 'Reactive',
-  correspondence: 'Reactive',
-}
-
-interface ACFRouteResult {
-  routed: number
-  skipped: number
-  target_subfolder: string
-  client_id: string
-}
-
-async function routeToACF(
-  queueEntry: QueueEntry,
-  wireResult: WireResult
-): Promise<ACFRouteResult | null> {
-  // Extract client_id and document_category from wire result records
-  const clientRecord = wireResult.created_records.find(r => r.collection === 'clients')
-  const docRecord = wireResult.created_records.find(r =>
-    r.collection === 'document_index' || r.collection === 'intake_queue'
-  )
-
-  // If wire didn't create/match a client record, we can't route
-  if (!clientRecord) return null
-
-  const clientId = clientRecord.id
-  const fileIds = queueEntry.file_ids || (queueEntry.file_id ? [queueEntry.file_id] : [])
-  if (fileIds.length === 0) return null
-
-  // Determine target subfolder from document category
-  const category = (queueEntry as Record<string, unknown>).document_category as string | undefined
-  const subfolder = CATEGORY_TO_SUBFOLDER[category || ''] || 'Reactive'
-
-  // Call the ACF route API internally (same Firestore, no HTTP needed)
-  const store = getFirestore()
-  const clientsColl = store.collection('clients')
-  const clientDoc = await clientsColl.doc(clientId).get()
-  if (!clientDoc.exists) return null
-
-  const clientData = clientDoc.data()!
-  const acfFolderId = clientData.acf_folder_id as string | undefined
-  if (!acfFolderId) return null
-
-  // Use drive-scanner to move files (imported dynamically to avoid build dep)
-  const { moveFile } = await import('./lib/drive-scanner.js')
-
-  // Find the target subfolder in the ACF
-  const { listSubfolders } = await import('./lib/drive-scanner.js')
-  const subfolders = await listSubfolders(acfFolderId)
-  const targetSf = subfolders.find(sf => sf.name === subfolder)
-  if (!targetSf) return null
-
-  let routed = 0
-  let skipped = 0
-  for (const fileId of fileIds) {
-    try {
-      await moveFile(fileId, acfFolderId, targetSf.id)
-      routed++
-    } catch {
-      skipped++
-    }
+function normalizeWireInput(data: QueueEntry): { wire_id: string; input: Record<string, unknown>; queue_id: string } {
+  const wireId = SOURCE_TO_WIRE[data.source]
+  return {
+    wire_id: wireId,
+    input: {
+      file_id: data.file_id,
+      file_ids: data.file_ids || (data.file_id ? [data.file_id] : []),
+      mode: (data.mode || 'document'),
+      _meta: {
+        file_name: data.file_name || null,
+        client_id: data.client_id || null,
+        source: data.source,
+        mime_type: data.mime_type || null,
+        specialist_name: (data as Record<string, unknown>).specialist_name || null,
+        source_folder_id: (data as Record<string, unknown>).source_folder_id || null,
+        processed_folder_id: (data as Record<string, unknown>).processed_folder_id || null,
+        errors_folder_id: (data as Record<string, unknown>).errors_folder_id || null,
+      },
+    },
+    queue_id: '', // Will be set by caller
   }
-
-  return { routed, skipped, target_subfolder: subfolder, client_id: clientId }
 }
 
 /**
  * Firestore onCreate trigger on intake_queue collection.
  * When a new queue entry appears with status QUEUED, determines which wire to run
- * based on the source field and delegates to the wire executor.
+ * based on the source field and dispatches to Cloud Run API for execution.
  */
 export const onIntakeQueueCreated = onDocumentCreated(
   {
@@ -212,54 +141,41 @@ export const onIntakeQueueCreated = onDocumentCreated(
     })
 
     try {
-      const executeWire = await loadExecuteWire()
+      // Get OIDC identity token for Cloud Run auth
+      const { GoogleAuth } = await import('google-auth-library')
+      const auth = new GoogleAuth()
+      const client = await auth.getIdTokenClient(API_BASE_URL)
+      const reqHeaders = await client.getRequestHeaders(API_BASE_URL) as unknown as Record<string, string>
+      const authHeader = reqHeaders['Authorization'] || ''
 
-      const input = {
-        file_id: data.file_id,
-        file_ids: data.file_ids || (data.file_id ? [data.file_id] : []),
-        mode: (data.mode || 'document') as 'document' | 'csv' | 'commission',
-      }
+      // Normalize input and set queue ID
+      const normalized = normalizeWireInput(data)
+      normalized.queue_id = queueId
 
-      const context = {
-        wire_id: wireId,
-        user_email: data.user_email || 'system@retireprotected.com',
-        source_file_ids: data.file_ids || (data.file_id ? [data.file_id] : []),
-        dry_run: false,
-        approval_required: true,
-      }
-
-      const result = await executeWire(wireId, input, context)
-
-      await queueRef.update({
-        status: result.success ? 'COMPLETE' : 'ERROR',
-        wire_result: {
-          success: result.success,
-          stages: result.stages?.length || 0,
-          created_records: result.created_records?.length || 0,
-          execution_time_ms: result.execution_time_ms,
-          approval_batch_id: result.approval_batch_id || null,
+      // Dispatch to Cloud Run API
+      const response = await fetch(`${API_BASE_URL}/api/intake/execute-wire`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeader,
         },
-        completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        body: JSON.stringify(normalized),
       })
 
-      console.log(`[wire-trigger] Wire ${wireId} completed for queue ${queueId}: success=${result.success}`)
-
-      // ── TRK-461: ACF reactive hook ──────────────────────────────────
-      // After successful wire completion, auto-route source files to ACF
-      // subfolder based on document classification from the wire result.
-      if (result.success && result.created_records?.length > 0) {
-        try {
-          const acfResult = await routeToACF(data, result)
-          if (acfResult) {
-            await queueRef.update({ acf_route: acfResult })
-            console.log(`[wire-trigger] ACF route: ${acfResult.routed} file(s) → ${acfResult.target_subfolder}`)
-          }
-        } catch (acfErr) {
-          // Non-blocking — log but don't fail the queue entry
-          console.warn(`[wire-trigger] ACF route failed (non-blocking):`, acfErr)
-        }
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`API returned ${response.status}: ${errorText}`)
       }
+
+      const apiResult = await response.json() as APIResponse
+
+      if (!apiResult.success || !apiResult.data) {
+        throw new Error(apiResult.error || 'Wire execution returned unsuccessful result')
+      }
+
+      // The execute-wire endpoint updates intake_queue directly,
+      // but log the result for observability
+      console.log(`[wire-trigger] Wire ${wireId} dispatched for queue ${queueId}: success=${apiResult.data.success}`)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err)
       console.error(`[wire-trigger] Wire ${wireId} failed for queue ${queueId}:`, errorMsg)
