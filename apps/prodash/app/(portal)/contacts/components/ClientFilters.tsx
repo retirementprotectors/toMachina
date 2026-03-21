@@ -11,8 +11,6 @@ interface ClientFiltersProps {
   onBookChange: (value: string) => void
   agentFilter: string
   onAgentChange: (value: string) => void
-  acfFilter: string
-  onAcfChange: (value: string) => void
   totalCount: number
   books: string[]
   agents: string[]
@@ -32,8 +30,6 @@ const STATUS_OPTIONS = [
   'Inactive - Complaint',
   'Unknown',
 ]
-const ACF_OPTIONS = ['All', 'Has ACF', 'No ACF', 'Needs Setup']
-
 export function ClientFilters({
   search,
   onSearchChange,
@@ -43,8 +39,6 @@ export function ClientFilters({
   onBookChange,
   agentFilter,
   onAgentChange,
-  acfFilter,
-  onAcfChange,
   totalCount,
   books,
   agents,
@@ -77,16 +71,14 @@ export function ClientFilters({
   const hasActiveFilters =
     statusFilter !== 'All' ||
     bookFilter !== 'All' ||
-    agentFilter !== 'All' ||
-    acfFilter !== 'All'
+    agentFilter !== 'All'
 
   const handleReset = useCallback(() => {
     onStatusChange('All')
     onBookChange('All')
     onAgentChange('All')
-    onAcfChange('All')
     handleSearchInput('')
-  }, [onStatusChange, onBookChange, onAgentChange, onAcfChange, handleSearchInput])
+  }, [onStatusChange, onBookChange, onAgentChange, handleSearchInput])
 
   // Style for active vs inactive filter dropdown
   const filterSelectClass = (isActive: boolean) =>
@@ -159,19 +151,6 @@ export function ClientFilters({
           {agents.map((a) => (
             <option key={a} value={a}>
               {a}
-            </option>
-          ))}
-        </select>
-
-        {/* ACF Status */}
-        <select
-          value={acfFilter}
-          onChange={(e) => onAcfChange(e.target.value)}
-          className={filterSelectClass(acfFilter !== 'All')}
-        >
-          {ACF_OPTIONS.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt === 'All' ? 'ACF Status' : opt}
             </option>
           ))}
         </select>

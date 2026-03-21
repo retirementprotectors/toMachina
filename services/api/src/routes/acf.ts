@@ -853,12 +853,32 @@ acfRoutes.post('/:clientId/upload', async (req: Request, res: Response) => {
       created_at: new Date().toISOString(),
     })
 
+    // Queue extractable files (PDF, images) for SUPER_EXTRACT pipeline
+    const extractable = mime_type === 'application/pdf' || mime_type.startsWith('image/')
+    if (extractable) {
+      const store = getFirestore()
+      await store.collection('intake_queue').add({
+        status: 'QUEUED',
+        source: 'ACF_UPLOAD',
+        file_id: uploaded.id,
+        file_ids: [uploaded.id],
+        client_id: clientId,
+        file_name,
+        mime_type,
+        acf_subfolder: target_subfolder,
+        mode: 'document',
+        user_email: userEmail,
+        created_at: new Date().toISOString(),
+      })
+    }
+
     res.json(
       successResponse({
         file_id: uploaded.id,
         file_url: uploaded.url,
         file_name,
         target_subfolder,
+        extraction_queued: extractable,
       })
     )
   } catch (err) {

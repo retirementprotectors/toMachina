@@ -10,7 +10,6 @@ import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
 import { ColumnSelector, getDefaultVisibleColumns } from './components/ColumnSelector'
-import { ACFStatusIcon } from '@tomachina/ui/src/modules/ACFStatusIcon'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -114,7 +113,6 @@ export default function ClientsPage() {
   const [statusFilter, setStatusFilter] = useState('Active')
   const [bookFilter, setBookFilter] = useState('All')
   const [agentFilter, setAgentFilter] = useState('All')
-  const [acfFilter, setAcfFilter] = useState('All')
   const [sortKey, setSortKey] = useState<SortKey>('name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
@@ -194,21 +192,8 @@ export default function ClientsPage() {
       )
     }
 
-    // ACF filter
-    if (acfFilter !== 'All') {
-      const hasAcf = (c: ClientRow) => Boolean(c.acf_folder_id || c.gdrive_folder_url || c.acf_link || c.acf_url)
-      if (acfFilter === 'Has ACF') {
-        result = result.filter(hasAcf)
-      } else if (acfFilter === 'No ACF') {
-        result = result.filter((c) => !hasAcf(c))
-      } else if (acfFilter === 'Needs Setup') {
-        // Active clients with no ACF folder — these need one created
-        result = result.filter((c) => !hasAcf(c) && (c.client_status === 'Active' || !c.client_status))
-      }
-    }
-
     return result
-  }, [clients, search, statusFilter, bookFilter, agentFilter, acfFilter])
+  }, [clients, search, statusFilter, bookFilter, agentFilter])
 
   // Sort logic
   const sorted = useMemo(() => {
@@ -275,7 +260,7 @@ export default function ClientsPage() {
   const visibleColCount = useMemo(() => {
     // 1 for checkbox + 1 for name (always visible) + each toggled column
     let count = 2
-    const toggleable = ['location', 'phone', 'email', 'agent', 'status', 'household', 'acf', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
+    const toggleable = ['location', 'phone', 'email', 'agent', 'status', 'household', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
     for (const k of toggleable) {
       if (visibleColumns.has(k)) count++
     }
@@ -288,8 +273,6 @@ export default function ClientsPage() {
   const handleStatusChange = useCallback((v: string) => { setStatusFilter(v); resetPage() }, [resetPage])
   const handleBookChange = useCallback((v: string) => { setBookFilter(v); resetPage() }, [resetPage])
   const handleAgentChange = useCallback((v: string) => { setAgentFilter(v); resetPage() }, [resetPage])
-  const handleAcfChange = useCallback((v: string) => { setAcfFilter(v); resetPage() }, [resetPage])
-
   const toggleClientSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
@@ -400,8 +383,6 @@ export default function ClientsPage() {
         onBookChange={handleBookChange}
         agentFilter={agentFilter}
         onAgentChange={handleAgentChange}
-        acfFilter={acfFilter}
-        onAcfChange={handleAcfChange}
         totalCount={filtered.length}
         books={books}
         agents={agents}
@@ -490,7 +471,6 @@ export default function ClientsPage() {
                   {col('email') && renderStaticHeader('Email')}
                   {col('agent') && renderSortHeader('Agent', 'agent_name')}
                   {col('status') && renderSortHeader('Status', 'client_status')}
-                  {col('acf') && renderStaticHeader('ACF', 'text-center')}
                   {col('household') && renderSortHeader('Household', 'household')}
                   {col('age') && renderStaticHeader('Age')}
                   {col('dob') && renderStaticHeader('DOB')}
@@ -554,7 +534,6 @@ export default function ClientsPage() {
                             {col('email') && (<td className="px-3 py-3">{client.email ? <a href={`mailto:${client.email}`} onClick={(e) => e.stopPropagation()} className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block">{client.email}</a> : dash}</td>)}
                             {col('agent') && (<td className="px-3 py-3">{client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash}</td>)}
                             {col('status') && (<td className="px-3 py-3"><StatusBadge status={client.client_status} /></td>)}
-                            {col('acf') && (() => { const acfUrl = client.gdrive_folder_url || client.acf_link || client.acf_url; return (<td className="px-3 py-3 text-center">{acfUrl ? <a href={String(acfUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors" title="Open Active Client File"><span className="material-icons-outlined text-[18px]">folder_open</span></a> : dash}</td>) })()}
                             {col('household') && (<td className="px-3 py-3">{client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash}</td>)}
                             {col('age') && (<td className="px-3 py-3">{age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash}</td>)}
                             {col('dob') && (<td className="px-3 py-3">{client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash}</td>)}
@@ -661,25 +640,6 @@ export default function ClientsPage() {
                           <StatusBadge status={client.client_status} />
                         </td>
                       )}
-
-                      {/* ACF (Google Drive folder) — clickable link */}
-                      {col('acf') && (() => {
-                        const folderId = client.acf_folder_id
-                        const folderUrl = folderId
-                          ? `https://drive.google.com/drive/folders/${folderId}`
-                          : (client.gdrive_folder_url || client.acf_link || client.acf_url)
-                        return (
-                          <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                            {folderUrl ? (
-                              <a href={String(folderUrl)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors" title="Open Active Client File">
-                                <span className="material-icons-outlined text-[18px]">folder_open</span>
-                              </a>
-                            ) : (
-                              <span className="text-[var(--text-muted)]">—</span>
-                            )}
-                          </td>
-                        )
-                      })()}
 
                       {/* Household */}
                       {col('household') && (

@@ -22,6 +22,8 @@ if (getApps().length === 0) {
 const SOURCE_TO_WIRE: Record<string, string> = {
   MAIL: 'WIRE_INCOMING_CORRESPONDENCE',
   SPC_INTAKE: 'WIRE_INCOMING_CORRESPONDENCE',
+  ACF_UPLOAD: 'WIRE_INCOMING_CORRESPONDENCE',
+  ACF_SCAN: 'WIRE_INCOMING_CORRESPONDENCE',
 }
 
 /** Queue entry shape from intake_queue collection */

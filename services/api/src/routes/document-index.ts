@@ -17,11 +17,13 @@ documentIndexRoutes.get('/client/:clientId', async (req: Request, res: Response)
     const clientId = param(req.params.clientId)
     const db = getFirestore()
 
-    // Get document link configs for client_detail
+    // Get document link configs for client_detail (only visible ones)
     const configSnap = await db.collection('document_link_config')
       .where('target_ui', '==', 'client_detail')
       .get()
-    const configs: FsDoc[] = configSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const configs: FsDoc[] = configSnap.docs
+      .map(d => ({ id: d.id, ...d.data() } as FsDoc))
+      .filter(c => c.visible !== false) // hidden configs don't show on UI
 
     // Get indexed documents for this client
     const indexSnap = await db.collection('document_index')
@@ -81,7 +83,9 @@ documentIndexRoutes.get('/account/:accountId', async (req: Request, res: Respons
     const configSnap = await db.collection('document_link_config')
       .where('target_ui', '==', 'account_detail')
       .get()
-    const configs: FsDoc[] = configSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    const configs: FsDoc[] = configSnap.docs
+      .map(d => ({ id: d.id, ...d.data() } as FsDoc))
+      .filter(c => c.visible !== false) // hidden configs don't show on UI
 
     // Filter configs by product type
     const applicable = configs.filter(c => {
@@ -134,6 +138,59 @@ documentIndexRoutes.get('/config', async (_req: Request, res: Response) => {
   } catch (err) {
     console.error('GET /api/document-index/config error:', err)
     res.status(500).json(errorResponse('Failed to get document link config'))
+  }
+})
+
+// POST /api/document-index/config — create or update a document link config
+documentIndexRoutes.post('/config', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const { document_type, ...rest } = req.body as Record<string, unknown>
+    if (!document_type || typeof document_type !== 'string') {
+      res.status(400).json(errorResponse('document_type is required'))
+      return
+    }
+
+    const docId = (document_type as string).toLowerCase().replace(/[^a-z0-9]+/g, '_')
+    await db.collection('document_link_config').doc(docId).set(
+      { document_type, ...rest, updated_at: new Date().toISOString() },
+      { merge: true }
+    )
+    res.json(successResponse({ id: docId, document_type }))
+  } catch (err) {
+    console.error('POST /api/document-index/config error:', err)
+    res.status(500).json(errorResponse('Failed to save document link config'))
+  }
+})
+
+// PUT /api/document-index/config/:configId — update a specific config
+documentIndexRoutes.put('/config/:configId', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const configId = param(req.params.configId)
+    const updates = req.body as Record<string, unknown>
+
+    await db.collection('document_link_config').doc(configId).update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    res.json(successResponse({ id: configId, updated: true }))
+  } catch (err) {
+    console.error('PUT /api/document-index/config error:', err)
+    res.status(500).json(errorResponse('Failed to update document link config'))
+  }
+})
+
+// DELETE /api/document-index/config/:configId — delete a config
+documentIndexRoutes.delete('/config/:configId', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const configId = param(req.params.configId)
+    await db.collection('document_link_config').doc(configId).delete()
+    res.json(successResponse({ id: configId, deleted: true }))
+  } catch (err) {
+    console.error('DELETE /api/document-index/config error:', err)
+    res.status(500).json(errorResponse('Failed to delete document link config'))
   }
 })
 
@@ -276,11 +333,14 @@ documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
                 if (lastScanTime && file.modifiedTime <= lastScanTime) continue
 
                 const docId = `${clientId}_${file.id}`
+                const existingDoc = await db.collection('document_index').doc(docId).get()
+                const isNew = !existingDoc.exists
+
                 batch.set(db.collection('document_index').doc(docId), {
                   client_id: clientId,
                   file_id: file.id,
                   file_name: file.name,
-                  document_type: '',
+                  document_type: existingDoc.exists ? (existingDoc.data()!.document_type || '') : '',
                   acf_subfolder: sf.name,
                   drive_url: `https://drive.google.com/file/d/${file.id}/view`,
                   mime_type: file.mimeType,
@@ -289,6 +349,30 @@ documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
                   indexed_at: now,
                 })
                 indexed++
+
+                // Queue files for SUPER_EXTRACT pipeline ONLY if:
+                // 1. File is extractable (PDF or image)
+                // 2. File hasn't already been classified (document_type is empty)
+                // 3. File isn't already in the intake queue
+                const extractable = file.mimeType === 'application/pdf' || file.mimeType.startsWith('image/')
+                const alreadyClassified = existingDoc.exists && (existingDoc.data()!.document_type as string || '').length > 0
+                const alreadyQueued = existingDoc.exists && existingDoc.data()!.extraction_queued === true
+                if (extractable && !alreadyClassified && !alreadyQueued) {
+                  // Mark as queued so we don't re-queue next scan
+                  batch.update(db.collection('document_index').doc(docId), { extraction_queued: true })
+                  batch.set(db.collection('intake_queue').doc(), {
+                    status: 'QUEUED',
+                    source: 'ACF_SCAN',
+                    file_id: file.id,
+                    file_ids: [file.id],
+                    client_id: clientId,
+                    file_name: file.name,
+                    mime_type: file.mimeType,
+                    acf_subfolder: sf.name,
+                    mode: 'document',
+                    created_at: now,
+                  })
+                }
               }
             } catch {
               // Skip inaccessible subfolder
