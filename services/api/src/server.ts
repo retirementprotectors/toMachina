@@ -59,6 +59,7 @@ import { guardianRoutes } from './routes/guardian.js'
 import { dropzoneRoutes } from './routes/dropzone.js'
 import { connectRoutes } from './routes/connect.js'
 import { intakeQueueRoutes } from './routes/intake-queue.js'
+import { intakeRoutes } from './routes/intake.js'
 import { acfRoutes } from './routes/acf.js'
 import { documentIndexRoutes } from './routes/document-index.js'
 import { firestoreConfigRoutes } from './routes/firestore-config.js'
@@ -144,6 +145,7 @@ app.use('/api/guardian', normalizeBody, guardianRoutes)
 app.use('/api/dropzone', normalizeBody, dropzoneRoutes)
 app.use('/api/connect', normalizeBody, connectRoutes)
 app.use('/api/intake-queue', normalizeBody, intakeQueueRoutes)
+app.use('/api/intake', normalizeBody, intakeRoutes)
 app.use('/api/acf', normalizeBody, acfRoutes)
 app.use('/api/document-index', documentIndexRoutes)
 app.use('/api/firestore-config', firestoreConfigRoutes)
