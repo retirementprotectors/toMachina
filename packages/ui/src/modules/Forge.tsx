@@ -65,16 +65,22 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   confirmed:       { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Confirmed' },
   deferred:        { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Deferred' },
   wont_fix:        { color: 'rgb(100,116,139)', bg: 'rgba(100,116,139,0.15)', label: "Won't Fix" },
+  backlog:         { color: 'rgb(148,163,184)', bg: 'rgba(148,163,184,0.15)', label: 'Backlog' },
 }
 
 const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  broken:   { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Bug' },
-  idea:     { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Feature' },
-  improve:  { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Enhancement' },
-  question: { color: 'rgb(59,130,246)', bg: 'rgba(59,130,246,0.15)', label: 'Question' },
+  broken:      { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Bug' },
+  bug:         { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Bug' },
+  idea:        { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Feature' },
+  feat:        { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Feature' },
+  feature:     { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Feature' },
+  improve:     { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Enhancement' },
+  enhancement: { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Enhancement' },
+  question:    { color: 'rgb(59,130,246)', bg: 'rgba(59,130,246,0.15)', label: 'Question' },
+  test:        { color: 'rgb(20,184,166)', bg: 'rgba(20,184,166,0.15)', label: 'Test' },
 }
 
-const TYPES = ['broken', 'idea', 'improve', 'question'] as const
+const TYPES = ['broken', 'idea', 'improve', 'question', 'feat', 'bug', 'enhancement', 'test'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
 const STATUSES = ['queue', 'not_touched', 'in_sprint', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed', 'deferred', 'wont_fix'] as const
