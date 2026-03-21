@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchWithAuth } from './fetchWithAuth'
 import { KanbanBoard, type KanbanColumn, type KanbanCard } from '../components/KanbanBoard'
 import { useToast } from '../components/Toast'
@@ -97,6 +97,35 @@ const s = {
   textSecondary: 'var(--text-secondary, #94a3b8)',
   textMuted: 'var(--text-muted, #64748b)',
   portal: 'var(--portal, #4a7ab5)',
+}
+
+/* ─── Error Boundary ─── */
+class ForgeErrorBoundary extends React.Component<{ children: React.ReactNode; fallback?: React.ReactNode }, { error: Error | null }> {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) { super(props); this.state = { error: null } }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  componentDidCatch(error: Error, info: React.ErrorInfo) { console.error('[FORGE ERROR BOUNDARY]', error.message, info.componentStack) }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 40, textAlign: 'center', color: '#ef4444' }}>
+          <p style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>FORGE encountered an error</p>
+          <pre style={{ fontSize: 12, color: '#94a3b8', whiteSpace: 'pre-wrap', maxWidth: 600, margin: '0 auto', textAlign: 'left', background: 'rgba(0,0,0,0.2)', padding: 16, borderRadius: 8 }}>{this.state.error.message}</pre>
+          <button onClick={() => this.setState({ error: null })} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 6, border: 'none', background: '#4a7ab5', color: '#fff', cursor: 'pointer', fontSize: 13 }}>Try Again</button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+/* ─── Safe Render: prevents React #31 by catching object-as-child ─── */
+function safeStr(val: unknown): string {
+  if (val === null || val === undefined) return ''
+  if (typeof val === 'object') {
+    console.warn('[FORGE] Object rendered as text — this would crash without safeStr:', val)
+    return JSON.stringify(val)
+  }
+  return String(val)
 }
 
 /* ─── Helpers ─── */
@@ -207,7 +236,7 @@ interface ForgeProps {
   portal: string
 }
 
-export function Forge({ portal }: ForgeProps) {
+function ForgeInner({ portal }: ForgeProps) {
   const { showToast } = useToast()
   const [items, setItems] = useState<TrackerItem[]>([])
   const [allItems, setAllItems] = useState<TrackerItem[]>([])
@@ -1472,7 +1501,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = s.border; e.currentTarget.style.background = s.surface }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'transparent' }}
                 >
-                  {value || `Click to add ${label.toLowerCase()}...`}
+                  {safeStr(value) || `Click to add ${label.toLowerCase()}...`}
                 </div>
               )}
             </div>
@@ -1608,9 +1637,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
             {/* Metadata */}
             <div style={{ display: 'flex', gap: 24, padding: '8px 0', marginBottom: 16, fontSize: 12, color: s.textSecondary }}>
-              <span><strong style={{ color: s.textMuted }}>Created by:</strong> {sp.created_by || '—'}</span>
+              <span><strong style={{ color: s.textMuted }}>Created by:</strong> {safeStr(sp.created_by) || '—'}</span>
               <span><strong style={{ color: s.textMuted }}>Created:</strong> {formatDate(sp.created_at)}</span>
-              <span><strong style={{ color: s.textMuted }}>Status:</strong> {sp.status}</span>
+              <span><strong style={{ color: s.textMuted }}>Status:</strong> {safeStr(sp.status)}</span>
             </div>
 
             {/* Progress */}
@@ -1998,9 +2027,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                       )}
                     </span>
                   </td>
-                  <td style={{ padding: '8px 12px', color: s.textSecondary }}>{item.component || '—'}</td>
-                  <td style={{ padding: '8px 12px', color: s.textSecondary }}>{item.section || '—'}</td>
-                  <td style={{ padding: '8px 12px', color: s.textSecondary, fontSize: 11 }}>{item.portal || '—'}</td>
+                  <td style={{ padding: '8px 12px', color: s.textSecondary }}>{safeStr(item.component) || '—'}</td>
+                  <td style={{ padding: '8px 12px', color: s.textSecondary }}>{safeStr(item.section) || '—'}</td>
+                  <td style={{ padding: '8px 12px', color: s.textSecondary, fontSize: 11 }}>{safeStr(item.portal) || '—'}</td>
                   <td style={{ padding: '8px 12px' }}><StatusBadge status={item.status} /></td>
                   <td style={{ padding: '8px 12px', color: s.textSecondary, fontSize: 12 }}>{sprintName}</td>
                 </tr>
@@ -2234,7 +2263,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
               {/* Timestamps */}
               <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${s.border}` }}>
-                <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 4 }}>Created: {formatDate(editItem.created_at)} by {editItem.created_by || '—'}</div>
+                <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 4 }}>Created: {formatDate(editItem.created_at)} by {safeStr(editItem.created_by) || '—'}</div>
                 <div style={{ fontSize: 11, color: s.textMuted }}>Updated: {formatDate(editItem.updated_at)}</div>
               </div>
             </div>
@@ -2528,4 +2557,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       )}
     </div>
   )
+}
+
+export function Forge(props: ForgeProps) {
+  return <ForgeErrorBoundary><ForgeInner {...props} /></ForgeErrorBoundary>
 }
