@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACF 2.0 — Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 700px; margin: 0 auto; }
+  .container { max-width: 960px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.data { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .tag.app { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.cleanup { background: rgba(210,153,34,0.10); color: var(--orange); border: 1px solid rgba(210,153,34,0.25); }
+  .tag.infra { background: rgba(88,166,255,0.10); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat .num { font-size: 28px; font-weight: 900; color: var(--gold-bright); }
+  .stat .label { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .flow { display: flex; align-items: center; gap: 0; margin: 24px 0; flex-wrap: wrap; justify-content: center; }
+  .flow-step { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .flow-arrow { padding: 0 8px; color: var(--dim); font-size: 18px; }
+  .alert { background: rgba(248,81,73,0.08); border: 1px solid rgba(248,81,73,0.25); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .alert strong { color: var(--red); }
+  .success { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.25); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .success strong { color: var(--green); }
+  .info { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.25); border-radius: 10px; padding: 16px 20px; margin: 16px 0; }
+  .info strong { color: var(--blue); }
+  .ticket { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 10px 0; }
+  .ticket-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .ticket-id { font-size: 11px; font-weight: 800; color: var(--gold); background: var(--gold-glow); border: 1px solid var(--gold-border); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px; }
+  .ticket-title { font-size: 14px; font-weight: 700; color: var(--text); }
+  .ticket-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 12px; }
+  .ticket-meta span { color: var(--dim); }
+  .ticket-meta span strong { color: var(--muted); font-weight: 600; }
+  .dep-chain { display: flex; align-items: stretch; gap: 0; margin: 24px 0; flex-wrap: wrap; justify-content: center; }
+  .dep-node { padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: 600; text-align: center; min-width: 100px; }
+  .dep-node .phase-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .dep-node .phase-name { color: var(--text); font-size: 13px; }
+  .dep-arrow { display: flex; align-items: center; padding: 0 6px; color: var(--dim); font-size: 18px; }
+  .dep-parallel { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .dep-parallel .dep-node { border-color: var(--teal); }
+  .dep-bracket { font-size: 10px; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--gold); text-decoration: none; font-size: 13px; font-weight: 600; margin-top: 48px; padding: 8px 16px; border: 1px solid var(--gold-border); border-radius: 8px; background: var(--gold-glow); transition: all 0.2s; }
+  .back-link:hover { background: rgba(212,164,76,0.18); }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card, .ticket { border-color: #ddd; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="context">FORGE Sprint &middot; CY3KCNEW1nGYeroDMFhr &middot; Implementation Plan</div>
+  <h1>ACF 2.0 &mdash; Implementation Plan</h1>
+  <div class="sub">The build blueprint. Six phases to transform Active Client Files from a dumping ground into a document intelligence system wired directly into ProDash.</div>
+</div>
+
+<div class="container">
+
+<!-- BUILD ORDER -->
+<h2>Build <span class="accent">Order</span></h2>
+
+<div class="flow">
+  <div class="flow-step"><strong>P1</strong> Cleanup</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P2</strong> Audit Real Data</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P3</strong> Restructure</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P4</strong> De-dupe</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P5</strong> UI Linking</div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-step"><strong>P6</strong> Routing Rules</div>
+</div>
+
+<!-- DEPENDENCY NOTES -->
+<h2>Dependency <span class="accent">Map</span></h2>
+
+<div class="info">
+  <strong>Sequential Dependencies:</strong>
+  <ul>
+    <li><strong>P2 depends on P1</strong> &mdash; Clean the junk first, then audit what remains</li>
+    <li><strong>P3 depends on P2</strong> &mdash; Validate the proposed structure against real data before restructuring</li>
+    <li><strong>P4 depends on P3</strong> &mdash; Restructure before de-duping (files need to be in their final folders first)</li>
+  </ul>
+</div>
+
+<div class="success">
+  <strong>Parallel Opportunities:</strong>
+  <ul>
+    <li><strong>P5 can start parallel with P4</strong> &mdash; UI component work is independent of Drive cleanup</li>
+    <li><strong>P6 can start parallel with P5</strong> &mdash; Routing rules config is independent of UI wiring</li>
+  </ul>
+</div>
+
+<div class="stat-grid">
+  <div class="stat"><div class="num">22</div><div class="label">Total Tickets</div></div>
+  <div class="stat"><div class="num">6</div><div class="label">Phases</div></div>
+  <div class="stat"><div class="num">4</div><div class="label">Sequential</div></div>
+  <div class="stat"><div class="num">2</div><div class="label">Parallelizable</div></div>
+</div>
+
+<!-- PHASE 1 -->
+<h2>Phase 1 &mdash; <span class="accent">Cleanup</span></h2>
+<p><span class="tag cleanup">Cleanup</span> Remove noise so the real data stands out. Trash template shells, fix errors, relocate orphans.</p>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-445</span>
+    <span class="ticket-title">Trash verified template-only shell folders</span>
+  </div>
+  <p>List each folder's contents. If ALL contents match the template baseline (subfolders: *Accounts, _Accounts, *Opportunities, _Opportunities, CLIENT FACING; files: Q325 Ai3 TEMPLATE, RPI 2025 Discovery Meeting Kit, Implemented Medicare + Retirement Strategies) &rarr; trash via <code>deleteItem</code>. Any content beyond baseline &rarr; skip.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP via sub-agents (parallel, 50+ folders per agent)</span>
+    <span><strong>Recovery:</strong> 30-day Google Drive Trash window</span>
+    <span><strong>Status:</strong> IN PROGRESS (~316 trashed)</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-446</span>
+    <span class="ticket-title">Clean up undefined + error folders</span>
+  </div>
+  <p>Trash 5 "ACF - undefined" folders, 1 "ACF - cli test", 1 "ACF - Messy Test". Rename 3 "AFC -" typo folders to "ACF -" (Susan Rogness, Steven Schau, Jerry &amp; Sondra Bottenfield).</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP &mdash; <code>deleteItem</code> for junk, <code>renameItem</code> for typos</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-447</span>
+    <span class="ticket-title">Relocate 16 loose root-level files</span>
+  </div>
+  <p>For each loose file at root of Active Client Files: parse client name / policy number from filename, search Firestore for match, move to client's ACF folder. No match &rarr; move to "_Unsorted" holding folder. 4 template ZIPs &rarr; trash. 3 client PDFs (Callahan, Soss, Rempe) &rarr; match to ACF.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP + Firestore lookup</span>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<h2>Phase 2 &mdash; <span class="accent">Audit Real Data</span></h2>
+<p><span class="tag data">Data</span> Catalog every populated folder. Know exactly what exists before restructuring anything.</p>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-448</span>
+    <span class="ticket-title">Catalog ~120 populated ACF- folders</span>
+  </div>
+  <p>For each populated ACF- folder: list all files + subfolders, record name/mimeType/size, classify document type by filename pattern matching against the 59 types in <code>_DOCUMENT_TAXONOMY</code>, record which of the proposed 5 subfolders each doc maps to.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP via parallel sub-agents</span>
+    <span><strong>Output:</strong> <code>.claude/acf-2-0-document-intelligence/CATALOG_ACF.json</code></span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-449</span>
+    <span class="ticket-title">Catalog ~98 old-format folders</span>
+  </div>
+  <p>Same method as TRK-448 but for xACF-, zACF-, ACFx-, AFC- folders. Additionally flag folders with unique data not duplicated in any standard ACF- folder.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP via parallel sub-agents</span>
+    <span><strong>Output:</strong> <code>.claude/acf-2-0-document-intelligence/CATALOG_OLD_FORMAT.json</code></span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-450</span>
+    <span class="ticket-title">Validate proposed subfolder structure</span>
+  </div>
+  <p>Load both catalogs. For every document found, attempt to classify into NewBiz / Reactive / Cases / Account / Client. Count documents per category, list any that don't fit cleanly. Present distribution + gaps to JDM for validation.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> Analysis of TRK-448 + TRK-449 catalogs</span>
+    <span><strong>Output:</strong> <code>.claude/acf-2-0-document-intelligence/STRUCTURE_VALIDATION.md</code></span>
+  </div>
+</div>
+
+<div class="alert">
+  <strong>Gate:</strong> JDM approval required on subfolder structure validation before Phase 3 proceeds.
+</div>
+
+<!-- PHASE 3 -->
+<h2>Phase 3 &mdash; <span class="accent">Restructure</span></h2>
+<p><span class="tag data">Data</span> Apply the new 5-folder structure. Update config, re-map taxonomy, create subfolders, move documents, standardize names.</p>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-451</span>
+    <span class="ticket-title">Update ACF Config with new 5-folder structure</span>
+  </div>
+  <p>Update Firestore <code>acf_config/default</code> document: set subfolders to <code>['NewBiz', 'Reactive', 'Cases', 'Account', 'Client']</code>.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> Firestore Admin SDK</span>
+    <span><strong>Script:</strong> <code>services/api/src/scripts/update-acf-config.ts</code></span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-452</span>
+    <span class="ticket-title">Re-map _DOCUMENT_TAXONOMY acf_subfolder column</span>
+  </div>
+  <p>For each of 59 rows: pipeline=NewBiz &rarr; NewBiz. pipeline=REACTIVE + owner_role=AST &rarr; Reactive. pipeline=REACTIVE + owner_role=COR &rarr; Cases or Account. pipeline=PRO &rarr; Account. Personal docs (DL, Medicare card) &rarr; Client.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> Google Sheets API via <code>updateGoogleSheet</code></span>
+    <span><strong>Gate:</strong> Mapping must be reviewed by JDM before write</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-453</span>
+    <span class="ticket-title">Create new subfolders in existing ACFs</span>
+  </div>
+  <p>For each remaining ACF folder: list existing subfolders, create any of the 5 new subfolders that don't exist, log folder ID + created subfolders. Batch 50 folders at a time.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> GAS script with <code>UrlFetchApp.fetchAll</code> (batch parallel)</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-454</span>
+    <span class="ticket-title">Categorize + move existing documents</span>
+  </div>
+  <p>Using catalog from Phase 2: for each document, look up classified subfolder, move file from current location to target subfolder. Documents that can't be classified &rarr; leave in place, log for manual review.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> GAS script with <code>UrlFetchApp.fetchAll</code></span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-455</span>
+    <span class="ticket-title">Rename folders to standard format</span>
+  </div>
+  <p>Rename non-standard prefixes: xACF- &rarr; ACF -, zACF- &rarr; ACF -, ACFx- &rarr; ACF -, AFC - &rarr; ACF -. Fix double spaces, case inconsistencies. Folder IDs stay the same on rename &mdash; no Firestore update needed.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP <code>renameItem</code></span>
+  </div>
+</div>
+
+<!-- PHASE 4 -->
+<h2>Phase 4 &mdash; <span class="accent">De-dupe + Consolidate</span></h2>
+<p><span class="tag cleanup">Cleanup</span> Merge duplicates, flag internal dupes, fix known misfiles.</p>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-456</span>
+    <span class="ticket-title">Merge 33+ duplicate folder pairs</span>
+  </div>
+  <p>For each duplicate pair: list both folders' contents, pick winner (more files + more recent modifications), move unique files from loser to winner, trash empty loser, update Firestore client doc to point to winner's folder ID.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP + Firestore Admin SDK</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-457</span>
+    <span class="ticket-title">De-dupe documents within folders</span>
+  </div>
+  <p>For each ACF folder: list all files, compare by exact name match, name similarity &gt;90%, identical file size. Flag potential dupes in report &mdash; DO NOT auto-delete.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP + analysis script</span>
+    <span><strong>Output:</strong> <code>.claude/acf-2-0-document-intelligence/DUPE_REPORT.md</code></span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-458</span>
+    <span class="ticket-title">Fix Dickson misfiles</span>
+  </div>
+  <p>Search all ACF folders for files containing "Dickson" in name. For each hit NOT in the Dickson family ACF &rarr; delete. Verify Dickson family ACF has their correct Ai3.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> gdrive MCP</span>
+  </div>
+</div>
+
+<!-- PHASE 5 -->
+<h2>Phase 5 &mdash; <span class="accent">ProDash UI Document Linking</span></h2>
+<p><span class="tag app">App</span> Wire documents directly into ProDash. Config-driven, product-aware, real-time.</p>
+
+<div class="info">
+  <strong>Can start parallel with Phase 4.</strong> UI component work is completely independent of Drive cleanup.
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-459</span>
+    <span class="ticket-title">Build document linking config</span>
+  </div>
+  <p>Firestore collection <code>document_link_config</code>. Each doc defines: document_type, display_name, target_ui (client_detail | account_detail | case_detail), acf_subfolder, product_types, file_patterns, priority, icon.</p>
+  <div class="ticket-meta">
+    <span><strong>Location:</strong> Firestore <code>document_link_config</code> collection</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-460</span>
+    <span class="ticket-title">Proactive pull (scheduled scan)</span>
+  </div>
+  <p>Cron job hits API endpoint. For each client with <code>acf_folder_id</code>: list files in each subfolder, match files to <code>document_link_config</code> patterns, upsert to Firestore <code>document_index</code> collection.</p>
+  <div class="ticket-meta">
+    <span><strong>Location:</strong> <code>services/api/src/routes/document-index.ts</code> + Cloud Scheduler</span>
+    <span><strong>Schedule:</strong> Daily at 2am CT</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-461</span>
+    <span class="ticket-title">Reactive pull (on document arrival)</span>
+  </div>
+  <p>After Watcher routes doc to ACF subfolder: match file against <code>document_link_config</code>, if match &rarr; upsert <code>document_index</code> entry immediately. Firestore <code>onSnapshot</code> triggers UI refresh.</p>
+  <div class="ticket-meta">
+    <span><strong>Location:</strong> Watcher post-processing hook</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-462</span>
+    <span class="ticket-title">Client detail page document widgets</span>
+  </div>
+  <p>React component reads <code>document_index</code> for client_id, filters by target_ui = 'client_detail'. Renders: DL thumbnail, Medicare card, voided check, latest Ai3. Click &rarr; opens Drive file in new tab.</p>
+  <div class="ticket-meta">
+    <span><strong>Location:</strong> <code>packages/ui/src/modules/ClientDocuments.tsx</code></span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-463</span>
+    <span class="ticket-title">Account detail page document widgets</span>
+  </div>
+  <p>Same pattern as TRK-462 but filtered by target_ui = 'account_detail' and product_type match. Shows: latest statement, policy doc, product-specific docs.</p>
+  <div class="ticket-meta">
+    <span><strong>Location:</strong> <code>packages/ui/src/modules/AccountDocuments.tsx</code></span>
+  </div>
+</div>
+
+<!-- PHASE 6 -->
+<h2>Phase 6 &mdash; <span class="accent">Routing Rules</span></h2>
+<p><span class="tag infra">Infra</span> Teach the Watcher the new structure. Seed config from taxonomy, enforce naming conventions.</p>
+
+<div class="info">
+  <strong>Can start parallel with Phase 5.</strong> Routing rules config is independent of UI wiring.
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-464</span>
+    <span class="ticket-title">Seed routing_rules from _DOCUMENT_TAXONOMY</span>
+  </div>
+  <p>Read all 59 rows from Sheets API, transform to <code>routing_rules</code> format, write to <code>acf_config/default</code> in Firestore.</p>
+  <div class="ticket-meta">
+    <span><strong>Tool:</strong> Script reading Sheets API &rarr; writing Firestore</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-465</span>
+    <span class="ticket-title">Update Watcher subfolder targets</span>
+  </div>
+  <p>The Watcher already reads <code>acf_subfolder</code> from <code>_DOCUMENT_TAXONOMY</code>. After TRK-452 re-maps the values, the Watcher automatically uses the new targets. Verify with test documents.</p>
+  <div class="ticket-meta">
+    <span><strong>Location:</strong> <code>~/Projects/RAPID_TOOLS/MCP-Hub/document-processor/src/watcher.js</code></span>
+    <span><strong>Method:</strong> Verification only &mdash; no code change needed</span>
+  </div>
+</div>
+
+<div class="ticket">
+  <div class="ticket-header">
+    <span class="ticket-id">TRK-466</span>
+    <span class="ticket-title">File naming enforcement</span>
+  </div>
+  <p>After document classification: check if filename matches <code>PolicyNum- LASTNAME Carrier DocType YYYY-MM-DD</code>. If not &rarr; rename using resolved file label from taxonomy. Log original filename in extraction metadata.</p>
+  <div class="ticket-meta">
+    <span><strong>Location:</strong> Watcher post-processing</span>
+  </div>
+</div>
+
+<!-- TOOLS & APIs -->
+<h2>Tools &amp; <span class="accent">APIs</span></h2>
+
+<table>
+  <thead>
+    <tr><th>Tool</th><th>Used For</th><th>Phases</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>gdrive MCP</strong></td><td>Folder listing, file ops, sub-agent parallelism</td><td>P1, P2, P3, P4</td></tr>
+    <tr><td><strong>GAS + UrlFetchApp.fetchAll</strong></td><td>Batch Drive ops needing Workspace auth</td><td>P3</td></tr>
+    <tr><td><strong>Firestore Admin SDK</strong></td><td>Config updates, document_index, document_link_config</td><td>P3, P4, P5, P6</td></tr>
+    <tr><td><strong>Google Sheets API</strong></td><td>_DOCUMENT_TAXONOMY updates</td><td>P3, P6</td></tr>
+    <tr><td><strong>Cloud Run service account</strong></td><td>Direct Drive API for automated operations</td><td>P5, P6</td></tr>
+    <tr><td><strong>Cloud Scheduler</strong></td><td>Proactive pull cron job (daily 2am CT)</td><td>P5</td></tr>
+  </tbody>
+</table>
+
+<!-- TICKET SUMMARY -->
+<h2>Ticket <span class="accent">Summary</span></h2>
+
+<table>
+  <thead>
+    <tr><th>TRK</th><th>Phase</th><th>Title</th><th>Type</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>TRK-445</strong></td><td>P1</td><td>Trash verified template-only shell folders</td><td><span class="tag cleanup">Cleanup</span></td></tr>
+    <tr><td><strong>TRK-446</strong></td><td>P1</td><td>Clean up undefined + error folders</td><td><span class="tag cleanup">Cleanup</span></td></tr>
+    <tr><td><strong>TRK-447</strong></td><td>P1</td><td>Relocate 16 loose root-level files</td><td><span class="tag cleanup">Cleanup</span></td></tr>
+    <tr><td><strong>TRK-448</strong></td><td>P2</td><td>Catalog ~120 populated ACF- folders</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-449</strong></td><td>P2</td><td>Catalog ~98 old-format folders</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-450</strong></td><td>P2</td><td>Validate proposed subfolder structure</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-451</strong></td><td>P3</td><td>Update ACF Config with new 5-folder structure</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-452</strong></td><td>P3</td><td>Re-map _DOCUMENT_TAXONOMY acf_subfolder column</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-453</strong></td><td>P3</td><td>Create new subfolders in existing ACFs</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-454</strong></td><td>P3</td><td>Categorize + move existing documents</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-455</strong></td><td>P3</td><td>Rename folders to standard format</td><td><span class="tag data">Data</span></td></tr>
+    <tr><td><strong>TRK-456</strong></td><td>P4</td><td>Merge 33+ duplicate folder pairs</td><td><span class="tag cleanup">Cleanup</span></td></tr>
+    <tr><td><strong>TRK-457</strong></td><td>P4</td><td>De-dupe documents within folders</td><td><span class="tag cleanup">Cleanup</span></td></tr>
+    <tr><td><strong>TRK-458</strong></td><td>P4</td><td>Fix Dickson misfiles</td><td><span class="tag cleanup">Cleanup</span></td></tr>
+    <tr><td><strong>TRK-459</strong></td><td>P5</td><td>Build document linking config</td><td><span class="tag app">App</span></td></tr>
+    <tr><td><strong>TRK-460</strong></td><td>P5</td><td>Proactive pull (scheduled scan)</td><td><span class="tag app">App</span></td></tr>
+    <tr><td><strong>TRK-461</strong></td><td>P5</td><td>Reactive pull (on document arrival)</td><td><span class="tag app">App</span></td></tr>
+    <tr><td><strong>TRK-462</strong></td><td>P5</td><td>Client detail page document widgets</td><td><span class="tag app">App</span></td></tr>
+    <tr><td><strong>TRK-463</strong></td><td>P5</td><td>Account detail page document widgets</td><td><span class="tag app">App</span></td></tr>
+    <tr><td><strong>TRK-464</strong></td><td>P6</td><td>Seed routing_rules from _DOCUMENT_TAXONOMY</td><td><span class="tag infra">Infra</span></td></tr>
+    <tr><td><strong>TRK-465</strong></td><td>P6</td><td>Update Watcher subfolder targets</td><td><span class="tag infra">Infra</span></td></tr>
+    <tr><td><strong>TRK-466</strong></td><td>P6</td><td>File naming enforcement</td><td><span class="tag infra">Infra</span></td></tr>
+  </tbody>
+</table>
+
+<a href="acf-2.0-discovery.html" class="back-link">&larr; Back to Discovery Document</a>
+
+</div>
+</body>
+</html>
