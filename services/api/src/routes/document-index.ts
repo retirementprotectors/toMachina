@@ -226,12 +226,21 @@ documentIndexRoutes.post('/scan/:clientId', async (req: Request, res: Response) 
   }
 })
 
-// POST /api/document-index/scan-all — proactive scan of ALL clients with ACF folders
-// Designed to be called by Cloud Scheduler on a weekly cadence
-documentIndexRoutes.post('/scan-all', async (_req: Request, res: Response) => {
+// POST /api/document-index/scan-all — incremental scan of clients with ACF folders
+// Only indexes files modified since the last scan. Called daily by Cloud Scheduler.
+// Pass ?full=true to force a full re-index of everything.
+documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
     const { listSubfolders, listFolderFiles } = await import('../lib/drive-client.js')
+    const forceFull = req.query.full === 'true'
+
+    // Read last scan timestamp
+    const metaRef = db.collection('system_meta').doc('document_index_scan')
+    const metaDoc = await metaRef.get()
+    const lastScanTime = (!forceFull && metaDoc.exists)
+      ? (metaDoc.data()!.last_scan_at as string)
+      : undefined
 
     // Get all clients with ACF folders
     const clientsSnap = await db.collection('clients')
@@ -242,16 +251,17 @@ documentIndexRoutes.post('/scan-all', async (_req: Request, res: Response) => {
     const now = new Date().toISOString()
     let totalIndexed = 0
     let clientsScanned = 0
+    let clientsSkipped = 0
     let clientsFailed = 0
 
-    // Process 5 clients at a time to avoid rate limits
+    // Process 5 clients at a time
     const clients = clientsSnap.docs
     for (let i = 0; i < clients.length; i += 5) {
       const chunk = clients.slice(i, i + 5)
       const results = await Promise.all(chunk.map(async (clientDoc) => {
         const clientId = clientDoc.id
         const folderId = clientDoc.data().acf_folder_id as string
-        if (!folderId) return { indexed: 0, ok: true }
+        if (!folderId) return { indexed: 0, ok: true, skipped: true }
 
         try {
           const batch = db.batch()
@@ -262,6 +272,9 @@ documentIndexRoutes.post('/scan-all', async (_req: Request, res: Response) => {
             try {
               const files = await listFolderFiles(sf.id)
               for (const file of files) {
+                // Incremental: skip files not modified since last scan
+                if (lastScanTime && file.modifiedTime <= lastScanTime) continue
+
                 const docId = `${clientId}_${file.id}`
                 batch.set(db.collection('document_index').doc(docId), {
                   client_id: clientId,
@@ -283,21 +296,28 @@ documentIndexRoutes.post('/scan-all', async (_req: Request, res: Response) => {
           }
 
           if (indexed > 0) await batch.commit()
-          return { indexed, ok: true }
+          return { indexed, ok: true, skipped: false }
         } catch {
-          return { indexed: 0, ok: false }
+          return { indexed: 0, ok: false, skipped: false }
         }
       }))
 
       for (const r of results) {
         totalIndexed += r.indexed
-        if (r.ok) clientsScanned++
+        if (r.skipped) clientsSkipped++
+        else if (r.ok) clientsScanned++
         else clientsFailed++
       }
     }
 
+    // Save scan timestamp for next incremental run
+    await metaRef.set({ last_scan_at: now, total_indexed: totalIndexed, mode: forceFull ? 'full' : 'incremental' })
+
     res.json(successResponse({
+      mode: forceFull ? 'full' : 'incremental',
+      since: lastScanTime || 'never (first run)',
       clients_scanned: clientsScanned,
+      clients_skipped: clientsSkipped,
       clients_failed: clientsFailed,
       total_indexed: totalIndexed,
       scanned_at: now,

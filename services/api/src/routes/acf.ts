@@ -866,3 +866,113 @@ acfRoutes.post('/:clientId/upload', async (req: Request, res: Response) => {
     res.status(500).json(errorResponse('Failed to upload file'))
   }
 })
+
+// ---------------------------------------------------------------------------
+// GET /api/acf/file/:fileId/preview — get embeddable preview URL
+// ---------------------------------------------------------------------------
+acfRoutes.get('/file/:fileId/preview', async (req: Request, res: Response) => {
+  try {
+    const fileId = param(req.params.fileId)
+    const { getPreviewUrl } = await import('../lib/drive-client.js')
+
+    // Get file metadata to determine mime type
+    const { getDriveClient } = await import('../lib/drive-client.js')
+    const drive = getDriveClient()
+    const meta = await drive.files.get({ fileId, fields: 'mimeType, name, webViewLink' })
+
+    res.json(successResponse({
+      preview_url: getPreviewUrl(fileId, meta.data.mimeType!),
+      file_name: meta.data.name,
+      mime_type: meta.data.mimeType,
+    }))
+  } catch (err) {
+    console.error('GET /api/acf/file/:fileId/preview error:', err)
+    res.status(500).json(errorResponse('Failed to get file preview'))
+  }
+})
+
+// ---------------------------------------------------------------------------
+// GET /api/acf/file/:fileId/download — stream file download through our API
+// ---------------------------------------------------------------------------
+acfRoutes.get('/file/:fileId/download', async (req: Request, res: Response) => {
+  try {
+    const fileId = param(req.params.fileId)
+    const { downloadFile } = await import('../lib/drive-client.js')
+
+    const { buffer, mimeType, name } = await downloadFile(fileId)
+
+    res.setHeader('Content-Type', mimeType)
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(name)}"`)
+    res.setHeader('Content-Length', buffer.length)
+    res.send(buffer)
+  } catch (err) {
+    console.error('GET /api/acf/file/:fileId/download error:', err)
+    res.status(500).json(errorResponse('Failed to download file'))
+  }
+})
+
+// ---------------------------------------------------------------------------
+// POST /api/acf/:clientId/move — move a file between ACF subfolders
+// ---------------------------------------------------------------------------
+acfRoutes.post('/:clientId/move', async (req: Request, res: Response) => {
+  try {
+    const clientId = param(req.params.clientId)
+    const err = validateRequired(req.body, ['file_id', 'from_subfolder', 'to_subfolder'])
+    if (err) {
+      res.status(400).json(errorResponse(err))
+      return
+    }
+
+    const { file_id, from_subfolder, to_subfolder } = req.body as {
+      file_id: string
+      from_subfolder: string
+      to_subfolder: string
+    }
+
+    if (from_subfolder === to_subfolder) {
+      res.json(successResponse({ moved: false, reason: 'Same subfolder' }))
+      return
+    }
+
+    const store = getFirestore()
+    const clientDoc = await store.collection('clients').doc(clientId).get()
+    if (!clientDoc.exists) {
+      res.status(404).json(errorResponse('Client not found'))
+      return
+    }
+
+    const folderId = clientDoc.data()!.acf_folder_id as string
+    if (!folderId) {
+      res.status(400).json(errorResponse('Client has no ACF folder'))
+      return
+    }
+
+    const subfolders = await listSubfolders(folderId)
+    const fromSf = subfolders.find(sf => sf.name === from_subfolder)
+    const toSf = subfolders.find(sf => sf.name === to_subfolder)
+
+    if (!fromSf || !toSf) {
+      res.status(400).json(errorResponse(`Subfolder not found: ${!fromSf ? from_subfolder : to_subfolder}`))
+      return
+    }
+
+    await moveFileToDrive(file_id, toSf.id)
+
+    // Log activity
+    const userEmail = (req as unknown as { user?: { email?: string } }).user?.email || 'api'
+    await store.collection('clients').doc(clientId).collection('activities').add({
+      type: 'acf_move',
+      description: `Moved file from ${from_subfolder} to ${to_subfolder}`,
+      file_id,
+      from_subfolder,
+      to_subfolder,
+      moved_by: userEmail,
+      created_at: new Date().toISOString(),
+    })
+
+    res.json(successResponse({ moved: true, file_id, from_subfolder, to_subfolder }))
+  } catch (err) {
+    console.error('POST /api/acf/:clientId/move error:', err)
+    res.status(500).json(errorResponse('Failed to move file'))
+  }
+})
