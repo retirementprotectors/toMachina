@@ -656,10 +656,11 @@ acfRoutes.post('/:clientId/route', async (req: Request, res: Response) => {
       return
     }
 
-    const { file_ids, target_subfolder, label } = req.body as {
+    const { file_ids, target_subfolder, label, enforce_naming } = req.body as {
       file_ids: string[]
       target_subfolder: string
       label?: string
+      enforce_naming?: boolean
     }
     const store = getFirestore()
     const clientsColl = store.collection('clients')
@@ -699,11 +700,39 @@ acfRoutes.post('/:clientId/route', async (req: Request, res: Response) => {
 
     let routed = 0
     let skipped = 0
+    const renamed: string[] = []
+
+    // TRK-466: File naming enforcement
+    // If enforce_naming is true or label is provided, rename files to match
+    // the taxonomy naming convention: "ClientLastName - DocumentType"
+    const clientName = (data.last_name as string) || (data.display_name as string) || ''
 
     for (const fileId of file_ids) {
       try {
-        await moveFileToDrive(fileId, targetSf.id, label || undefined)
+        // Build standardized name if enforcement is on
+        let newName: string | undefined = label || undefined
+        if (enforce_naming && clientName && !label) {
+          // Look up taxonomy for the target subfolder to get file_label_template
+          const taxSnap = await store
+            .collection('document_taxonomy')
+            .where('acf_subfolder', '==', target_subfolder)
+            .where('active', '==', true)
+            .limit(1)
+            .get()
+          if (!taxSnap.empty) {
+            const taxData = taxSnap.docs[0].data()
+            const template = taxData.file_label_template as string | undefined
+            if (template) {
+              newName = template
+                .replace('{client_name}', clientName)
+                .replace('{date}', new Date().toISOString().slice(0, 10))
+            }
+          }
+        }
+
+        await moveFileToDrive(fileId, targetSf.id, newName)
         routed++
+        if (newName) renamed.push(newName)
       } catch {
         skipped++
       }

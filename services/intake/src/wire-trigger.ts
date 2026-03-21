@@ -64,6 +64,103 @@ async function loadExecuteWire(): Promise<
   return mod.executeWire as unknown as (wireId: string, input: unknown, context: unknown) => Promise<WireResult>
 }
 
+// ── TRK-461: ACF Reactive Hook ────────────────────────────────────────
+// After wire completion, route source files to ACF subfolder based on
+// the document classification result. Uses the acf-route API endpoint.
+
+/** Map document category → ACF lifecycle subfolder */
+const CATEGORY_TO_SUBFOLDER: Record<string, string> = {
+  // Client (static person docs)
+  id_document: 'Client',
+  voided_check: 'Client',
+  tax_document: 'Client',
+  trust_document: 'Client',
+  poa_hipaa: 'Client',
+  fact_finder: 'Client',
+  // NewBiz (opportunity becomes sale)
+  application_form: 'NewBiz',
+  transfer_form: 'NewBiz',
+  delivery_receipt: 'NewBiz',
+  replacement_form: 'NewBiz',
+  suitability: 'NewBiz',
+  // Cases (pipeline/analysis)
+  illustration: 'Cases',
+  comparison: 'Cases',
+  proposal: 'Cases',
+  analysis: 'Cases',
+  // Account (live account docs)
+  statement: 'Account',
+  confirmation: 'Account',
+  annual_review: 'Account',
+  distribution: 'Account',
+  // Reactive (service actions)
+  claim: 'Reactive',
+  complaint: 'Reactive',
+  service_request: 'Reactive',
+  correspondence: 'Reactive',
+}
+
+interface ACFRouteResult {
+  routed: number
+  skipped: number
+  target_subfolder: string
+  client_id: string
+}
+
+async function routeToACF(
+  queueEntry: QueueEntry,
+  wireResult: WireResult
+): Promise<ACFRouteResult | null> {
+  // Extract client_id and document_category from wire result records
+  const clientRecord = wireResult.created_records.find(r => r.collection === 'clients')
+  const docRecord = wireResult.created_records.find(r =>
+    r.collection === 'document_index' || r.collection === 'intake_queue'
+  )
+
+  // If wire didn't create/match a client record, we can't route
+  if (!clientRecord) return null
+
+  const clientId = clientRecord.id
+  const fileIds = queueEntry.file_ids || (queueEntry.file_id ? [queueEntry.file_id] : [])
+  if (fileIds.length === 0) return null
+
+  // Determine target subfolder from document category
+  const category = (queueEntry as Record<string, unknown>).document_category as string | undefined
+  const subfolder = CATEGORY_TO_SUBFOLDER[category || ''] || 'Reactive'
+
+  // Call the ACF route API internally (same Firestore, no HTTP needed)
+  const store = getFirestore()
+  const clientsColl = store.collection('clients')
+  const clientDoc = await clientsColl.doc(clientId).get()
+  if (!clientDoc.exists) return null
+
+  const clientData = clientDoc.data()!
+  const acfFolderId = clientData.acf_folder_id as string | undefined
+  if (!acfFolderId) return null
+
+  // Use drive-scanner to move files (imported dynamically to avoid build dep)
+  const { moveFile } = await import('./lib/drive-scanner.js')
+
+  // Find the target subfolder in the ACF
+  const { listSubfolders } = await import('./lib/drive-scanner.js')
+  const subfolders = await listSubfolders(acfFolderId)
+  const targetSf = subfolders.find(sf => sf.name === subfolder)
+  if (!targetSf) return null
+
+  let routed = 0
+  let skipped = 0
+  for (const fileId of fileIds) {
+    try {
+      await moveFile(fileId, acfFolderId, targetSf.id)
+      routed++
+    } catch {
+      skipped++
+    }
+  }
+
+  return { routed, skipped, target_subfolder: subfolder, client_id: clientId }
+}
+
 /**
  * Firestore onCreate trigger on intake_queue collection.
  * When a new queue entry appears with status QUEUED, determines which wire to run
@@ -145,6 +242,22 @@ export const onIntakeQueueCreated = onDocumentCreated(
       })
 
       console.log(`[wire-trigger] Wire ${wireId} completed for queue ${queueId}: success=${result.success}`)
+
+      // ── TRK-461: ACF reactive hook ──────────────────────────────────
+      // After successful wire completion, auto-route source files to ACF
+      // subfolder based on document classification from the wire result.
+      if (result.success && result.created_records?.length > 0) {
+        try {
+          const acfResult = await routeToACF(data, result)
+          if (acfResult) {
+            await queueRef.update({ acf_route: acfResult })
+            console.log(`[wire-trigger] ACF route: ${acfResult.routed} file(s) → ${acfResult.target_subfolder}`)
+          }
+        } catch (acfErr) {
+          // Non-blocking — log but don't fail the queue entry
+          console.warn(`[wire-trigger] ACF route failed (non-blocking):`, acfErr)
+        }
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err)
       console.error(`[wire-trigger] Wire ${wireId} failed for queue ${queueId}:`, errorMsg)
