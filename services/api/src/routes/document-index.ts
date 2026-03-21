@@ -137,6 +137,95 @@ documentIndexRoutes.get('/config', async (_req: Request, res: Response) => {
   }
 })
 
+// POST /api/document-index/scan/:clientId — scan a client's ACF and index documents
+documentIndexRoutes.post('/scan/:clientId', async (req: Request, res: Response) => {
+  try {
+    const clientId = param(req.params.clientId)
+    const db = getFirestore()
+
+    // Get client's ACF folder ID
+    const clientDoc = await db.collection('clients').doc(clientId).get()
+    if (!clientDoc.exists) {
+      res.status(404).json(errorResponse('Client not found'))
+      return
+    }
+    const clientData = clientDoc.data()!
+    const folderId = clientData.acf_folder_id as string
+    if (!folderId) {
+      res.json(successResponse({ indexed: 0, message: 'No ACF folder linked' }))
+      return
+    }
+
+    // Import drive client to list files
+    const { listSubfolders, listFolderFiles } = await import('../lib/drive-client.js')
+
+    // List all subfolders and their files
+    let indexed = 0
+    const batch = db.batch()
+    const now = new Date().toISOString()
+
+    try {
+      const subfolders = await listSubfolders(folderId)
+
+      for (const sf of subfolders) {
+        try {
+          const files = await listFolderFiles(sf.id)
+          for (const file of files) {
+            const docId = `${clientId}_${file.id}`
+            batch.set(db.collection('document_index').doc(docId), {
+              client_id: clientId,
+              file_id: file.id,
+              file_name: file.name,
+              document_type: '', // Classification happens separately
+              acf_subfolder: sf.name,
+              drive_url: `https://drive.google.com/file/d/${file.id}/view`,
+              mime_type: file.mimeType,
+              size: file.size,
+              modified_at: file.modifiedTime,
+              indexed_at: now,
+            })
+            indexed++
+          }
+        } catch {
+          // Skip inaccessible subfolders
+        }
+      }
+
+      // Also index root-level files
+      try {
+        const rootFiles = await listFolderFiles(folderId)
+        for (const file of rootFiles) {
+          const docId = `${clientId}_${file.id}`
+          batch.set(db.collection('document_index').doc(docId), {
+            client_id: clientId,
+            file_id: file.id,
+            file_name: file.name,
+            document_type: '',
+            acf_subfolder: '_root',
+            drive_url: `https://drive.google.com/file/d/${file.id}/view`,
+            mime_type: file.mimeType,
+            size: file.size,
+            modified_at: file.modifiedTime,
+            indexed_at: now,
+          })
+          indexed++
+        }
+      } catch {
+        // Skip if root listing fails
+      }
+
+      if (indexed > 0) await batch.commit()
+    } catch {
+      // Drive access failed — return partial results
+    }
+
+    res.json(successResponse({ indexed, client_id: clientId }))
+  } catch (err) {
+    console.error('POST /api/document-index/scan error:', err)
+    res.status(500).json(errorResponse('Failed to scan client documents'))
+  }
+})
+
 // GET /api/document-index/taxonomy — get all document taxonomy entries (for admin)
 documentIndexRoutes.get('/taxonomy', async (_req: Request, res: Response) => {
   try {

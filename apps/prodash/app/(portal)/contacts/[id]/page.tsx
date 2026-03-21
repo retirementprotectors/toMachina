@@ -16,6 +16,7 @@ import { ActivityTab } from './components/tabs/ActivityTab'
 import { AccessTab } from './components/tabs/AccessTab'
 import { PossibleDuplicates } from './components/PossibleDuplicates'
 import { ACFSection } from '@tomachina/ui/src/modules/ACFSection'
+import { ClientDocuments } from '@tomachina/ui/src/modules/ClientDocuments'
 
 // ---------------------------------------------------------------------------
 // CLIENT360 Detail Page — the heart of ProDash
@@ -117,6 +118,7 @@ export default function Client360Page({
       <BackLink />
       <ClientHeader client={client} clientId={id} />
       <PossibleDuplicates client={client} clientId={id} />
+      <ClientDocuments clientId={id} />
       <ClientTabs activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="min-h-[400px]">{renderTabContent()}</div>
     </div>
