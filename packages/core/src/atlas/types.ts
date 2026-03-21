@@ -211,7 +211,9 @@ export interface SuperToolContext {
   /** List subfolders within a Google Drive folder */
   listSubfolders?: (folderId: string) => Promise<Array<{ id: string; name: string }>>
   /** Load active document taxonomy entries from Firestore */
-  loadTaxonomy?: () => Promise<Array<{ document_type: string; pipeline?: string; owner_role?: string }>>
+  loadTaxonomy?: () => Promise<Array<{ document_type: string; pipeline?: string; owner_role?: string; extraction_hints?: string; required_fields?: string; suppress_fields?: string }>>
+  /** Load learning library entries for building type-specific intelligence hints */
+  loadLearning?: () => Promise<Array<{ document_type: string; learning_type: string; target_field?: string; original_value?: string; corrected_value?: string }>>
   // ── Carried through pipeline ──
   /** Source file ID from Drive (set by SUPER_PREPARE) */
   source_file_id?: string

@@ -249,6 +249,27 @@ approvalRoutes.patch('/batches/:id/items/:itemId', async (req: Request, res: Res
       updated_at: batch.updated_at,
     })
 
+    // TRK-526: Record correction to learning library so SUPER_EXTRACT gets smarter
+    if (status === 'KILLED' || status === 'EDITED') {
+      try {
+        const originalItem = batch.items[itemIndex]
+        const learningType = status === 'KILLED' ? 'FIELD_KILL' : 'VALUE_CORRECT'
+        await db.collection('learning_library').add({
+          document_type: batch.source_type || '',
+          learning_type: learningType,
+          target_field: originalItem.display_label || originalItem.display_category || '',
+          original_value: originalItem.current_value || originalItem.proposed_value || '',
+          corrected_value: status === 'EDITED' ? (edited_value || '') : '',
+          corrected_by: decidedBy,
+          wire_execution_id: (batch as unknown as Record<string, unknown>).wire_execution_id || '',
+          source_file_id: (batch as unknown as Record<string, unknown>).source_file_id || '',
+          created_at: new Date().toISOString(),
+        })
+      } catch {
+        // Non-blocking — learning write failure doesn't invalidate the approval
+      }
+    }
+
     res.json(successResponse(updatedItem))
   } catch (err) {
     console.error('PATCH /api/approval/batches/:id/items/:itemId error:', err)
