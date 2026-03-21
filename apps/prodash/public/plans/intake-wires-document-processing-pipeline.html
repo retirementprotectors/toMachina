@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intake Wires — Document Processing Pipeline | Plan</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e2e8f0; max-width: 960px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 16px; padding: 32px; margin-bottom: 32px; border: 1px solid #333; }
+  .header h1 { color: #a78bfa; font-size: 28px; margin: 0 0 8px 0; }
+  .header p { color: #94a3b8; margin: 4px 0; font-size: 14px; }
+  .header .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-critical { background: #dc262633; color: #f87171; border: 1px solid #dc262644; }
+  .badge-info { background: #3b82f633; color: #60a5fa; border: 1px solid #3b82f644; }
+  h2 { color: #60a5fa; font-size: 20px; margin-top: 40px; border-bottom: 1px solid #1e293b; padding-bottom: 8px; }
+  h3 { color: #34d399; font-size: 16px; margin-top: 24px; }
+  code { background: #1e1e2e; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #f0abfc; }
+  pre { background: #1e1e2e; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; border: 1px solid #333; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 10px 12px; border: 1px solid #1e293b; text-align: left; font-size: 13px; }
+  th { background: #1e1e2e; color: #a78bfa; font-weight: 600; }
+  .decision { background: #dc262615; border: 1px solid #dc262633; border-radius: 12px; padding: 20px; margin: 20px 0; }
+  .decision h3 { color: #f87171; margin-top: 0; }
+  .phase { background: #1e1e2e; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .p0 { background: #dc262622; color: #f87171; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+  .p1 { background: #f59e0b22; color: #fbbf24; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+  .p2 { background: #3b82f622; color: #60a5fa; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 4px; }
+  .tag-core { background: #a78bfa22; color: #a78bfa; } .tag-intake { background: #34d39922; color: #34d399; } .tag-api { background: #60a5fa22; color: #60a5fa; } .tag-ui { background: #f0abfc22; color: #f0abfc; }
+  blockquote { border-left: 3px solid #a78bfa; padding-left: 16px; color: #94a3b8; font-style: italic; }
+  .flow-box { background: #0d1117; border: 2px solid #333; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .builder-table td:first-child { font-weight: 600; color: #a78bfa; }
+  ul li { margin-bottom: 6px; }
+  .strike { text-decoration: line-through; color: #64748b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Intake Wires — Document Processing Pipeline</h1>
+  <p>Implementation Plan</p>
+  <p>Sprint <code>myCKZl4lRqU1kIWtfv9o</code> | 22 tickets | TRK-486 → TRK-525</p>
+  <div style="margin-top: 12px;">
+    <span class="badge badge-critical">REPLACES watcher.js</span>
+    <span class="badge badge-info">Runs on Cloud Run (tm-api)</span>
+  </div>
+</div>
+
+<div class="decision">
+<h3>Critical Decision: watcher.js is REPLACED, not integrated</h3>
+<p>The existing document processor (<code>watcher.js</code>, ~4,300 lines) is a standalone Node script running as a local launchd agent on JDM's Mac. It reads taxonomy from a Google Sheet, spawns Python subprocesses, and writes to Sheets. It has <strong>zero connection to toMachina</strong>.</p>
+
+<table>
+<tr><th>Component</th><th>Before (watcher.js)</th><th>After (Wire Pipeline)</th></tr>
+<tr><td>Taxonomy source</td><td class="strike">_DOCUMENT_TAXONOMY on RAPID_MATRIX</td><td>Firestore <code>document_taxonomy</code> (58 entries)</td></tr>
+<tr><td>PDF conversion</td><td class="strike">Python/PyMuPDF subprocess</td><td><code>poppler-utils</code> (pdftoppm) on Cloud Run</td></tr>
+<tr><td>Classification</td><td class="strike">Claude Vision (inline prompts)</td><td>SUPER_CLASSIFY → SUPER_EXTRACT (proven prompts ported)</td></tr>
+<tr><td>Data writing</td><td class="strike">Google Sheets direct write</td><td>SUPER_WRITE → Firestore (with approval gate)</td></tr>
+<tr><td>File routing</td><td class="strike">Old 5-subfolder structure</td><td>ACF_FINALIZE → lifecycle subfolders (Client/Cases/NewBiz/Account/Reactive)</td></tr>
+<tr><td>Approval</td><td class="strike">None (auto-writes)</td><td>Human review in Notifications APPROVALS tab</td></tr>
+<tr><td>Runs on</td><td class="strike">JDM's Mac (launchd agent)</td><td>Cloud Run (tm-api) — always on, auto-scaling</td></tr>
+</table>
+
+<p><strong>After sprint ships:</strong> Disable <code>com.rpi.document-watcher</code> launchd agent. Archive <code>watcher.js</code>. All processing runs on Cloud Run.</p>
+</div>
+
+<h2>Execution Architecture</h2>
+
+<div class="flow-box">
+<pre style="border: none; background: transparent; padding: 0; margin: 0;">
+intake_queue (Firestore onCreate)
+  → wire-trigger (Cloud Function) — lightweight HTTP dispatcher
+    → POST /api/intake/execute-wire (Cloud Run tm-api)
+      → SUPER_PREPARE    — Download from Drive, PDF→PNG via poppler
+      → SUPER_CLASSIFY   — Boundary detect, split, label
+      → SUPER_EXTRACT    — Claude Vision reads pages, extracts data
+      → SUPER_VALIDATE   — Qualification gate
+      → SUPER_NORMALIZE  — 16 field normalizers
+      → SUPER_MATCH      — 3-tier dedup (exact → fuzzy → new)
+      → ⏸️ APPROVAL       — Human review in ProDash Notifications
+      → SUPER_WRITE      — Approved data → Firestore
+      → ACF_FINALIZE     — Route file to ACF + update document_index
+</pre>
+</div>
+
+<h2>Data Flow Contract</h2>
+
+<pre>
+WireInput { file_id, file_ids, mode, _meta: { file_name, client_id, source } }
+  ↓
+PrepareOutput { image_paths[], file_name, file_path, taxonomy_types[], source_file_id, client_id? }
+  ↓
+ClassifyOutput { document_count, documents: [{ type, label, acf_subfolder, pages[] }] }
+  ↓
+VisionExtractOutput { client: {}, accounts: {}, mail_metadata: {}, confidence: {} }
+  ↓
+ValidateOutput { qualified: Record[], disqualified: { record, reason }[] }
+  ↓
+NormalizeOutput { records: Record[], total_changes }
+  ↓
+MatchOutput { matched: [{ record, tag, existing_id?, confidence }], summary }
+  ↓
+WriteOutput { batch: WriteRecord[], summary: { creates, updates, skips } }
+  ↓
+FinalizeOutput { routed, target_subfolder, document_index_updated, source_file_cleaned }
+</pre>
+
+<h2>Implementation Phases</h2>
+
+<div class="phase">
+<h3>Phase 1: SUPER_PREPARE — The Missing Bridge <span class="p0">P0</span></h3>
+<p><span class="tag tag-core">core</span> <span class="tag tag-intake">intake</span> <span class="tag tag-api">api</span></p>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr><td>TRK-488</td><td>Install poppler-utils in Dockerfile</td><td><code>RUN apk add --no-cache poppler-utils</code> in Alpine image. Gives us <code>pdftoppm</code> for PDF→PNG.</td></tr>
+<tr><td>TRK-486</td><td>Build SUPER_PREPARE super tool</td><td>Download file from Drive → detect type → PDF: run <code>pdftoppm -png -r 150 -scale-to 1568</code> → load taxonomy from Firestore → output <code>PrepareOutput</code></td></tr>
+<tr><td>TRK-487</td><td>Register in wire executor</td><td>Static import + SUPER_TOOL_MAP + insert at position 0 in WIRE_INCOMING_CORRESPONDENCE super_tools array</td></tr>
+<tr><td>TRK-489</td><td>Temp file cleanup</td><td><code>finally</code> block in wire executor: <code>fs.rmSync(/tmp/wire-{execId}, { recursive: true })</code></td></tr>
+</table>
+</div>
+
+<div class="phase">
+<h3>Phase 2: ACF_FINALIZE — File Lifecycle <span class="p0">P0</span></h3>
+<p><span class="tag tag-core">core</span> <span class="tag tag-intake">intake</span></p>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr><td>TRK-490</td><td>Build ACF_FINALIZE super tool</td><td>Extract client_id from write batch → find acf_folder_id → determine subfolder → move file (MAIL/SPC) or update index (ACF_UPLOAD/SCAN) → update document_index</td></tr>
+<tr><td>TRK-491</td><td>Register in wire executor</td><td>After SUPER_WRITE in super_tools array</td></tr>
+<tr><td>TRK-492</td><td>MAIL: post-wire move</td><td>Remove pre-wire move from scanner. ACF_FINALIZE handles Incoming→Processed on success, Incoming→Errors on failure.</td></tr>
+<tr><td>TRK-493</td><td>SPC_INTAKE: add Processed</td><td>Lazy-create Processed subfolder per specialist. Same post-wire move pattern as MAIL.</td></tr>
+</table>
+
+<p><strong>Drive access pattern:</strong> Core package can't import from services. Wire executor on tm-api injects Drive functions (<code>moveFile</code>, <code>listSubfolders</code>, <code>downloadFile</code>) into <code>SuperToolContext</code> as callbacks.</p>
+</div>
+
+<div class="phase">
+<h3>Phase 3: Wire Input Normalization <span class="p1">P1</span></h3>
+<p><span class="tag tag-intake">intake</span> <span class="tag tag-api">api</span></p>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr><td>TRK-494</td><td>Wire trigger → HTTP dispatcher</td><td>Cloud Function becomes thin caller to <code>POST /api/intake/execute-wire</code>. Normalizes queue entry fields into consistent shape.</td></tr>
+<tr><td>TRK-495</td><td>ACF_UPLOAD: pass client_id</td><td>Already writes client_id to intake_queue. Normalizer passes through in _meta.</td></tr>
+<tr><td>TRK-496</td><td>ACF_SCAN: pass client_id</td><td>Same — already writes client_id. Normalizer passes through.</td></tr>
+</table>
+</div>
+
+<div class="phase">
+<h3>Phase 4: End-to-End Testing <span class="p0">P0</span></h3>
+<p><span class="tag tag-core">integration</span></p>
+
+<table>
+<tr><th>Ticket</th><th>Source</th><th>Verify</th></tr>
+<tr><td>TRK-497</td><td>ACF_UPLOAD</td><td>Drag-drop PDF → all 8 stages → document_type set → file in ACF</td></tr>
+<tr><td>TRK-498</td><td>MAIL</td><td>Drop in Incoming → wire runs → file in ACF + Processed</td></tr>
+<tr><td>TRK-499</td><td>SPC_INTAKE</td><td>Drop in specialist folder → wire runs → file in ACF + Processed</td></tr>
+<tr><td>TRK-500</td><td>ACF_SCAN</td><td>Upload via Drive → hourly scan → wire runs → document_type set</td></tr>
+</table>
+
+<p>Script-based tests using real RPI documents against deployed Cloud Run service.</p>
+</div>
+
+<div class="phase">
+<h3>Phase 5: Approval Pipeline <span class="p1">P1</span></h3>
+<p><span class="tag tag-ui">ui</span> <span class="tag tag-api">api</span></p>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr><td>TRK-501</td><td>Wire Notifications APPROVALS tab</td><td>Query intake_queue where status=awaiting_approval. Show extracted data, matched client, confidence. Approve/Reject buttons.</td></tr>
+<tr><td>TRK-502</td><td>Resume/reject API endpoints</td><td><code>POST /api/intake/:execId/approve</code> → resumeWireAfterApproval. <code>POST /api/intake/:execId/reject</code> → mark REJECTED.</td></tr>
+</table>
+</div>
+
+<div class="phase">
+<h3>Phase 6: document_index + Cleanup <span class="p1">P1</span> <span class="p2">P2</span></h3>
+<p><span class="tag tag-core">core</span> <span class="tag tag-core">scripts</span></p>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr><td>TRK-503</td><td>Update document_index after wire</td><td>Part of ACF_FINALIZE: set document_type, classified_at, wire_execution_id</td></tr>
+<tr><td>TRK-504</td><td>Backfill existing entries</td><td>Regex pattern matching against document_link_config. No Claude Vision.</td></tr>
+<tr><td>TRK-523</td><td>Dickson Ai3 misfiles</td><td>Search + delete 5 remaining copies in wrong folders</td></tr>
+<tr><td>TRK-524</td><td>Run dedup report</td><td>Hit dedup-report API, deliver results to JDM</td></tr>
+<tr><td>TRK-525</td><td>Verify no "undefined" folders</td><td>Search + cleanup, verify watcher no longer creates them</td></tr>
+</table>
+</div>
+
+<h2>Builder Assignment</h2>
+
+<table class="builder-table">
+<tr><th>Builder</th><th>Tickets</th><th>Focus</th></tr>
+<tr><td>Builder 1</td><td>TRK-488, 486, 487, 489</td><td>SUPER_PREPARE + Dockerfile + registration + cleanup</td></tr>
+<tr><td>Builder 2</td><td>TRK-490, 491, 492, 493, 503</td><td>ACF_FINALIZE + file lifecycle + doc index update</td></tr>
+<tr><td>Builder 3</td><td>TRK-494, 495, 496, 502</td><td>Wire trigger → HTTP, normalization, intake API routes</td></tr>
+<tr><td>After 1-3</td><td>TRK-497-501</td><td>E2E tests + approval UI</td></tr>
+<tr><td>Anytime</td><td>TRK-504, 523-525</td><td>Backfill + cleanup (independent)</td></tr>
+</table>
+
+<h2>Dependency Graph</h2>
+
+<pre>
+TRK-488 (poppler)
+  ↓
+TRK-486 (SUPER_PREPARE) + TRK-489 (cleanup)
+  ↓
+TRK-487 (register)          TRK-490 (ACF_FINALIZE) ← parallel
+  ↓                            ↓
+  └──────────┬─────────────────┘
+             ↓
+TRK-491 (register ACF_FINALIZE)
+             ↓
+TRK-492, 493 (file lifecycle)
+             ↓
+TRK-494-496 (normalization) ← can start anytime
+             ↓
+TRK-497-500 (E2E tests) ← requires all above
+             ↓
+TRK-501-502 (approval) ← requires working wire
+             ↓
+TRK-503 (doc index) ← part of 490
+TRK-504, 523-525 (backfill + cleanup) ← independent
+</pre>
+
+<h2>Post-Sprint</h2>
+<ol>
+<li><code>launchctl unload ~/Library/LaunchAgents/com.rpi.document-watcher.plist</code></li>
+<li>Archive <code>~/Projects/RAPID_TOOLS/MCP-Hub/document-processor/</code></li>
+<li>Update CLAUDE.md launchd agents list</li>
+<li>_DOCUMENT_TAXONOMY sheet becomes permanently read-only legacy</li>
+</ol>
+
+<p style="color: #64748b; margin-top: 40px; font-size: 12px;">Generated 2026-03-21 | FORGE Sprint myCKZl4lRqU1kIWtfv9o</p>
+
+</body>
+</html>
