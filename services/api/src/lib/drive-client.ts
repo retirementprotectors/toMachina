@@ -31,6 +31,7 @@ export async function createFolder(
       parents: parentId ? [parentId] : undefined,
     },
     fields: 'id, webViewLink',
+    supportsAllDrives: true,
   })
   return {
     id: res.data.id!,
@@ -49,6 +50,7 @@ export async function copyFile(
     fileId,
     requestBody: { name, parents: [parentId] },
     fields: 'id',
+    supportsAllDrives: true,
   })
   return res.data.id!
 }
@@ -60,7 +62,7 @@ export async function moveFileToDrive(
   newName?: string
 ): Promise<void> {
   const drive = getDriveClient()
-  const file = await drive.files.get({ fileId, fields: 'parents' })
+  const file = await drive.files.get({ fileId, fields: 'parents', supportsAllDrives: true })
   const previousParents = (file.data.parents || []).join(',')
   await drive.files.update({
     fileId,
@@ -68,6 +70,7 @@ export async function moveFileToDrive(
     removeParents: previousParents,
     requestBody: newName ? { name: newName } : undefined,
     fields: 'id',
+    supportsAllDrives: true,
   })
 }
 
@@ -96,6 +99,8 @@ export async function listSubfolders(
     q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
     fields: 'files(id, name)',
     pageSize: 100,
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   })
   return (res.data.files || []).map((f) => ({ id: f.id!, name: f.name! }))
 }
@@ -129,6 +134,8 @@ export async function listFolderFiles(
         'nextPageToken, files(id, name, mimeType, modifiedTime, size)',
       pageSize: 100,
       pageToken,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
     })
     for (const f of res.data.files || []) {
       files.push({
@@ -152,6 +159,7 @@ export async function folderExists(folderId: string): Promise<boolean> {
     const res = await drive.files.get({
       fileId: folderId,
       fields: 'id, trashed',
+      supportsAllDrives: true,
     })
     return !res.data.trashed
   } catch {
@@ -169,6 +177,7 @@ export async function renameFile(
     fileId,
     requestBody: { name: newName },
     fields: 'id',
+    supportsAllDrives: true,
   })
 }
 
@@ -191,6 +200,7 @@ export async function uploadFileToDrive(
       body: Readable.from(buffer),
     },
     fields: 'id, webViewLink',
+    supportsAllDrives: true,
   })
   return {
     id: res.data.id!,
@@ -203,7 +213,7 @@ export async function downloadFile(
   fileId: string
 ): Promise<{ buffer: Buffer; mimeType: string; name: string }> {
   const drive = getDriveClient()
-  const meta = await drive.files.get({ fileId, fields: 'name, mimeType' })
+  const meta = await drive.files.get({ fileId, fields: 'name, mimeType', supportsAllDrives: true })
   const name = meta.data.name!
   const mimeType = meta.data.mimeType!
 
@@ -270,6 +280,8 @@ export async function searchFoldersByName(
     q: `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and name contains '${safeName}' and trashed = false`,
     fields: 'files(id, name, webViewLink)',
     pageSize: 50,
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   })
   return (res.data.files || []).map((f) => ({
     id: f.id!,
