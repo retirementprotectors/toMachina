@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACF 2.0 — Document Intelligence | Plan</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e2e8f0; max-width: 960px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 16px; padding: 32px; margin-bottom: 32px; border: 1px solid #333; }
+  .header h1 { color: #4a7ab5; font-size: 28px; margin: 0 0 8px 0; }
+  .header p { color: #94a3b8; margin: 4px 0; font-size: 14px; }
+  .header .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #22c55e33; color: #22c55e; border: 1px solid #22c55e44; }
+  h2 { color: #60a5fa; font-size: 20px; margin-top: 40px; border-bottom: 1px solid #1e293b; padding-bottom: 8px; }
+  h3 { color: #34d399; font-size: 16px; margin-top: 24px; }
+  code { background: #1e1e2e; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #f0abfc; }
+  pre { background: #1e1e2e; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; border: 1px solid #333; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 10px 12px; border: 1px solid #1e293b; text-align: left; font-size: 13px; }
+  th { background: #1e1e2e; color: #4a7ab5; font-weight: 600; }
+  .phase { background: #1e1e2e; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  ul li { margin-bottom: 6px; }
+  .done { color: #22c55e; } .built { color: #14b8a6; }
+  @media print { body { background: #fff; color: #000; } .header { background: #f0f0f0; } th { background: #e0e0e0; } .phase { background: #f8f8f8; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>ACF 2.0 — Document Intelligence</h1>
+  <p>Implementation Plan</p>
+  <p>Sprint <code>CY3KCNEW1nGYeroDMFhr</code> | 23 tickets | TRK-445 → TRK-467</p>
+  <div style="margin-top: 12px;">
+    <span class="badge">COMPLETE — AUDITED</span>
+  </div>
+</div>
+
+<h2>Build Order</h2>
+<pre>P1 Cleanup → P2 Audit Real Data → P3 Restructure → P4 De-dupe → P5 UI Linking → P6 Routing Rules</pre>
+
+<h2>Phase 1 — Cleanup (P1)</h2>
+<div class="phase">
+<table>
+<tr><th>Ticket</th><th>What</th><th>Result</th></tr>
+<tr><td>TRK-445</td><td>Trash ~1,085 template-only shell folders</td><td class="done">828 shells trashed</td></tr>
+<tr><td>TRK-446</td><td>Clean up "ACF - undefined" + error folders</td><td class="done">5 non-ACF folders renamed, zero undefined found</td></tr>
+<tr><td>TRK-447</td><td>Relocate loose root-level files</td><td class="done">2 Gardner files housed in new ACF folder</td></tr>
+</table>
+</div>
+
+<h2>Phase 2 — Audit Real Data (P2)</h2>
+<div class="phase">
+<table>
+<tr><th>Ticket</th><th>What</th><th>Result</th></tr>
+<tr><td>TRK-448</td><td>Catalog document types across ~120 populated folders</td><td class="done">1,807 files classified via batch script</td></tr>
+<tr><td>TRK-449</td><td>Catalog ~98 old-format folders</td><td class="done">All ACF- folders identified and renamed</td></tr>
+<tr><td>TRK-450</td><td>Validate proposed subfolder structure</td><td class="done">5 lifecycle subfolders confirmed: Client, Cases, NewBiz, Account, Reactive</td></tr>
+</table>
+</div>
+
+<h2>Phase 3 — Restructure (P3)</h2>
+<div class="phase">
+<table>
+<tr><th>Ticket</th><th>What</th><th>Result</th></tr>
+<tr><td>TRK-451</td><td>Update ACF Config with new 5-folder structure</td><td class="done">Firestore acf_config updated</td></tr>
+<tr><td>TRK-452</td><td>Re-map taxonomy acf_subfolder column</td><td class="done">58 entries mapped to lifecycle subfolders</td></tr>
+<tr><td>TRK-453</td><td>Create new subfolders in existing ACFs</td><td class="done">277 folders with all 5 subfolders</td></tr>
+<tr><td>TRK-454</td><td>Move existing documents into correct subfolders</td><td class="done">1,807 files moved (batch script, 10 concurrent)</td></tr>
+<tr><td>TRK-455</td><td>Rename folders to standard ACF - First Last format</td><td class="done">101 renames + 5 non-ACF folders fixed</td></tr>
+<tr><td>TRK-467</td><td>Migrate taxonomy to Firestore + Admin UI</td><td class="done">58 entries in Firestore, Admin CRUD built</td></tr>
+</table>
+</div>
+
+<h2>Phase 4 — De-dupe + Consolidate (P4)</h2>
+<div class="phase">
+<table>
+<tr><th>Ticket</th><th>What</th><th>Result</th></tr>
+<tr><td>TRK-456</td><td>Merge duplicate folder pairs</td><td class="done">Beverly Gade + Donna Rempe merged, 3 folders restored from trash</td></tr>
+<tr><td>TRK-457</td><td>De-dupe documents within folders</td><td class="built">API built (per-client + batch report endpoints)</td></tr>
+<tr><td>TRK-458</td><td>Fix Dickson Ai3 misfiles</td><td class="done">18 deleted previously, only legitimate copy remains</td></tr>
+</table>
+</div>
+
+<h2>Phase 5 — ProDash UI Document Linking (P5)</h2>
+<div class="phase">
+<table>
+<tr><th>Ticket</th><th>What</th><th>Result</th></tr>
+<tr><td>TRK-459</td><td>Build document linking config</td><td class="done">28 configs in Firestore (8 client + 20 account by product type)</td></tr>
+<tr><td>TRK-460</td><td>Proactive pull (scheduled scan)</td><td class="done">Cloud Scheduler: hourly incremental scan</td></tr>
+<tr><td>TRK-461</td><td>Reactive pull (on document arrival)</td><td class="done">Wire trigger hook auto-routes after intake</td></tr>
+<tr><td>TRK-462</td><td>Client detail page document widgets</td><td class="done">Checklist format: DL, Medicare Card, Voided Check, SS Card, Ai3, Fact Finder, HIPAA/POA, Tax Return</td></tr>
+<tr><td>TRK-463</td><td>Account detail page document widgets</td><td class="done">Product-type-aware: Medicare, Annuity, Life, Investments checklists</td></tr>
+</table>
+
+<h3>UX Features Built</h3>
+<ul>
+<li><strong>Drag-and-drop upload</strong> — drop files on subfolder row (targeted) or ACF section (auto-classified)</li>
+<li><strong>Inline preview</strong> — click any filename, full preview inside ProDash (no Drive exposure)</li>
+<li><strong>Download proxy</strong> — streams through API, Google Docs auto-export to PDF/XLSX</li>
+<li><strong>Move between subfolders</strong> — click move icon, pick destination, instant move with activity log</li>
+<li><strong>Document checklist</strong> — green check (found, clickable) + empty circle (missing) per document type</li>
+<li><strong>Visible toggle</strong> — set <code>visible: false</code> in Firestore to hide from UI without deleting</li>
+</ul>
+</div>
+
+<h2>Phase 6 — Routing Rules (P6)</h2>
+<div class="phase">
+<table>
+<tr><th>Ticket</th><th>What</th><th>Result</th></tr>
+<tr><td>TRK-464</td><td>Seed routing rules from taxonomy</td><td class="done">52 routing rules in acf_config</td></tr>
+<tr><td>TRK-465</td><td>Update Watcher subfolder targets</td><td class="done">Wire trigger maps to new lifecycle subfolders</td></tr>
+<tr><td>TRK-466</td><td>File naming enforcement</td><td class="done">enforce_naming flag on acf-route endpoint</td></tr>
+</table>
+</div>
+
+<h2>Architecture</h2>
+<pre>
+4 Intake Sources → intake_queue (Firestore) → Wire Trigger → WIRE_INCOMING_CORRESPONDENCE
+  ├── MAIL (5 min scan)         Reactive hook (immediate on upload)
+  ├── SPC_INTAKE (5 min scan)   Proactive scan (hourly, incremental)
+  ├── ACF_UPLOAD (immediate)    Belt + suspenders coverage
+  └── ACF_SCAN (hourly)
+
+ACF Subfolders (Lifecycle):
+  Client → Cases → NewBiz → Account → Reactive
+  Static person    Pipeline    Sale becomes   Live account    Post-account
+  docs (DL,        opportunities  account      docs            service
+  Medicare card)   (quotes,       (applications, (statements,   actions
+                   comparisons)   1035s, TOAs)  reviews)
+
+ProDash UI:
+  Client Detail → 8-item checklist (DL, Medicare Card, Voided Check, SS Card, Ai3, FF, HIPAA, Tax)
+  Account Detail → Product-type checklist (Medicare: 5 items, Annuity: 6, Life: 5, Investments: 4)
+  ACF Section → Drag-drop upload, preview, download, move between subfolders
+  Admin → Routing rules CRUD with pipeline/owner/active fields
+</pre>
+
+<h2>Deployed Infrastructure</h2>
+<table>
+<tr><th>Component</th><th>Location</th></tr>
+<tr><td>Hourly scan</td><td>Cloud Scheduler <code>acf-proactive-scan</code> (every hour)</td></tr>
+<tr><td>Document index API</td><td>6 endpoints on Cloud Run (tm-api)</td></tr>
+<tr><td>Config CRUD API</td><td>POST/PUT/DELETE /api/document-index/config</td></tr>
+<tr><td>ACF file ops</td><td>Preview, download, move, upload, route endpoints</td></tr>
+<tr><td>Firestore collections</td><td>document_taxonomy (58), document_link_config (28), document_index, acf_config</td></tr>
+</table>
+
+<p style="color: #64748b; margin-top: 40px; font-size: 12px;">Sprint completed 2026-03-21 | AUDITED | 23 tickets</p>
+
+</body>
+</html>
