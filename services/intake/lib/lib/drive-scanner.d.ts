@@ -28,6 +28,14 @@ export declare function listSubfolders(folderId: string): Promise<Array<{
  */
 export declare function moveFile(fileId: string, fromFolderId: string, toFolderId: string): Promise<void>;
 /**
+ * Get or create a subfolder by name within a parent folder.
+ * Returns the existing subfolder if found, otherwise creates it.
+ */
+export declare function getOrCreateSubfolder(parentId: string, name: string): Promise<{
+    id: string;
+    name: string;
+}>;
+/**
  * Get file metadata.
  */
 export declare function getFileMetadata(fileId: string): Promise<DriveFile | null>;

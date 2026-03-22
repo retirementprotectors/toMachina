@@ -344,7 +344,13 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             formatDisplay={(val) => {
               if (!val) return ''
               // Resolve UUID or legacy ID to display name
-              return userNameMap.get(val) || str(client.agent_name) || val
+              const name = userNameMap.get(val) || str(client.agent_name) || val
+              // Reverse "Last, First" → "First Last" for legacy data
+              if (name.includes(',')) {
+                const [last, first] = name.split(',').map(s => s.trim())
+                if (first && last) return `${first} ${last}`
+              }
+              return name
             }}
           />
           <InlineField

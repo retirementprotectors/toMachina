@@ -647,11 +647,15 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     // Build markdown
     let md = ''
     if (phase === 'building') {
-      md += `# Build — ${sprint.name}\n`
-      md += `> Sprint is in **Building** phase. The plan has been approved. Execute it.\n`
-      if (sprint.discovery_url) md += `> **Discovery:** [${sprint.discovery_url}](${sprint.discovery_url})\n`
-      if (sprint.plan_link) md += `> **Plan:** [${sprint.plan_link}](${sprint.plan_link})\n`
-      if (sprint.description) md += `\n${sprint.description}\n`
+      md += `# FORGE Builder: ${sprint.name}\n\n`
+      md += `> **You are a builder agent executing the ${sprint.name} sprint.**\n`
+      md += `> Your job is to READ the plan, EXECUTE every ticket, and REPORT results.\n`
+      md += `> Do NOT deviate from the plan. Do NOT skip tickets. Do NOT add scope.\n`
+      md += `> **FORGE Standards:** Read \`.claude/sprints/FORGE_STANDARDS.md\` for reporting format requirements.\n\n`
+      md += `## Your Documents\n\n`
+      if (sprint.discovery_url) md += `**Discovery Doc (source of truth):**\nRead FIRST: \`${sprint.discovery_url}\`\n\n`
+      if (sprint.plan_link) md += `**Plan Doc (your blueprint):**\nRead SECOND: \`${sprint.plan_link}\`\n\n`
+      if (sprint.description) md += `**Sprint Goal:** ${sprint.description}\n\n`
     } else {
       md += `# ${sprint.name}`
       if (sprint.description) md += ` — ${sprint.description}`
@@ -804,13 +808,35 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       md += `\n---\n`
       md += `\n#LetsPlanIt\n`
     } else if (phase === 'building') {
+      md += `\n### Build Verification\n`
+      md += '```bash\n'
+      md += `npm run type-check    # Must pass 13/13\n`
+      md += `npm run build         # Must pass 11/11\n`
+      md += '```\n'
+
       md += `\n### After Build complete — update FORGE to \`built\`\n`
       md += '```bash\n'
       md += `npx tsx -e "const{initializeApp,getApps}=require('firebase-admin/app');const{getFirestore}=require('firebase-admin/firestore');if(getApps().length===0)initializeApp({projectId:'claude-mcp-484718'});const db=getFirestore();(async()=>{const b=db.batch();${JSON.stringify(docIds)}.forEach(id=>b.update(db.collection('tracker_items').doc(id),{status:'built',updated_at:new Date().toISOString()}));await b.commit();console.log('FORGE: ${docIds.length} items → built')})()"`
       md += '\n```\n'
+
+      md += `\n### Reporting Format (MANDATORY)\n`
+      md += 'When complete, report in this EXACT format:\n'
+      md += '```\n'
+      md += `✅ ${sprint.name} — Build Complete\n\n`
+      md += `| TRK | Status | What Changed |\n`
+      md += `|-----|--------|-------------|\n`
+      for (const item of allItems) {
+        md += `| ${item.item_id} | ✅/❌ | ... |\n`
+      }
+      md += `\nBuild verification:\n`
+      md += `- type-check: ✅ 13/13\n`
+      md += `- build: ✅ 11/11\n\n`
+      md += `Files changed: [list]\n`
+      md += `FORGE status: ${docIds.length} items → built\n`
+      md += '```\n'
       md += `\n> **Confirmed** status is set by JDM in FORGE after visual verification.\n`
       md += `\n---\n`
-      md += `\n#LetsBuildIt\n`
+      md += `\n**Read the plan. Execute the plan. Report results. Go.**\n`
     }
 
     res.json(successResponse({ prompt: md }))

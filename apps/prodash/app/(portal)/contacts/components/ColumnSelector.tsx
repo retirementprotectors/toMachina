@@ -19,6 +19,7 @@ export const ALL_COLUMNS: ColumnDef[] = [
   { key: 'email', label: 'Email', defaultVisible: true },
   { key: 'agent', label: 'Agent', defaultVisible: true },
   { key: 'status', label: 'Status', defaultVisible: true },
+  { key: 'acf', label: 'ACF', defaultVisible: true },
   { key: 'household', label: 'Household', defaultVisible: true },
   { key: 'age', label: 'Age', defaultVisible: false },
   { key: 'dob', label: 'Date of Birth', defaultVisible: false },

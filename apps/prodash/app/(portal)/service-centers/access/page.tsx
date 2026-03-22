@@ -142,14 +142,25 @@ function ClientSearch({ onSelect }: { onSelect: (clientId: string, name: string)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<ClientSearchResult[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setResults([]); return }
+    if (q.length < 2) { setResults([]); setError(null); return }
     setLoading(true)
+    setError(null)
     try {
       const data = await searchClients(q)
       setResults(data)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Search failed'
+      // Surface index errors to the user instead of silently swallowing
+      if (msg.includes('FAILED_PRECONDITION') || msg.includes('index')) {
+        setError('Search indexes are being built. Please try again in a few minutes.')
+      } else {
+        setError('Search failed. Please try again.')
+      }
+      setResults([])
     } finally {
       setLoading(false)
     }
@@ -209,7 +220,13 @@ function ClientSearch({ onSelect }: { onSelect: (clientId: string, name: string)
             ))}
           </div>
         )}
-        {query.length >= 2 && !loading && results.length === 0 && (
+        {error && (
+          <div className="flex items-center gap-2 rounded-lg border border-[var(--error)] bg-[var(--error)]/10 px-4 py-3">
+            <span className="material-icons-outlined text-[18px] text-[var(--error)]">error_outline</span>
+            <p className="text-sm text-[var(--error)]">{error}</p>
+          </div>
+        )}
+        {query.length >= 2 && !loading && !error && results.length === 0 && (
           <p className="text-sm text-[var(--text-muted)]">No clients found for &ldquo;{query}&rdquo;</p>
         )}
       </div>

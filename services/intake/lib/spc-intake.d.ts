@@ -2,6 +2,7 @@
  * SPC_INTAKE — Specialist Drive folder scanner.
  * Scans subfolders under SPC_INTAKE_FOLDER for new files.
  * Each subfolder = one specialist (folder name = specialist name).
+ * Files stay in place until ACF_FINALIZE moves them after successful wire.
  */
 export interface SpcScanResult {
     success: boolean;
@@ -12,6 +13,7 @@ export interface SpcScanResult {
 }
 /**
  * Scan all SPC specialist folders for new files since last scan.
+ * Files remain in the specialist folder — ACF_FINALIZE handles post-wire routing.
  */
 export declare function scanSpcFolders(): Promise<SpcScanResult>;
 //# sourceMappingURL=spc-intake.d.ts.map

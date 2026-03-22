@@ -21,10 +21,12 @@
     "migrate:remaining": "npx tsx scripts/load-remaining.ts",
     "migrate:activities": "npx tsx scripts/load-activities-comms.ts",
     "spot-check": "npx tsx scripts/spot-check.ts",
-    "test:e2e": "vitest run --config tests/e2e/vitest.config.ts",
-    "test:e2e:local": "TEST_API_URL=http://localhost:8080 vitest run --config tests/e2e/vitest.config.ts",
-    "test:e2e:seed": "npx tsx tests/e2e/scripts/seed-test-client.ts",
-    "test:e2e:ui": "npx playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test --project=prodash --project=riimo --project=sentinel",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:vitest": "vitest run --config tests/e2e/vitest.config.ts",
+    "test:e2e:vitest:local": "TEST_API_URL=http://localhost:8080 vitest run --config tests/e2e/vitest.config.ts",
+    "test:e2e:seed": "npx tsx tests/e2e/scripts/seed-test-client.ts"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.80.0",

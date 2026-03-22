@@ -1,7 +1,5 @@
 'use client'
 
-import { useMemo } from 'react'
-import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth, type AuthUser } from '@tomachina/auth'
 import { PortalSwitcher } from '@tomachina/ui'
@@ -21,77 +19,17 @@ function getInitials(name: string): string {
   return name[0].toUpperCase()
 }
 
-/** Derive a readable page title from the current pathname */
-function usePageTitle(): string {
-  const pathname = usePathname()
-  return useMemo(() => {
-    const segments = pathname.split('/').filter(Boolean)
-    const last = segments[segments.length - 1] || 'clients'
-    // Handle known route patterns
-    const titles: Record<string, string> = {
-      clients: 'Contacts',
-      contacts: 'Contacts',
-      accounts: 'Accounts',
-      intake: 'Quick Intake',
-      admin: 'Admin',
-      connect: 'RPI Connect',
-      pipelines: 'Pipelines',
-      modules: 'Modules',
-      medicare: 'Medicare',
-      life: 'Life',
-      annuity: 'Annuity',
-      advisory: 'Advisory',
-      rmd: 'RMD Center',
-      beni: 'Beni Center',
-      atlas: 'ATLAS',
-      cam: 'CAM',
-      dex: 'DEX',
-      c3: 'C3',
-      'command-center': 'Command Center',
-      myrpi: 'My RPI',
-      ddup: 'DeDup',
-      access: 'Access Center',
-      'service-centers': 'Service Centers',
-      'sales-centers': 'Sales Centers',
-      forge: 'FORGE',
-      'pipeline-studio': 'Pipeline Studio',
-      'leadership-center': 'Leadership Center',
-    }
-    // Check for known title first, then capitalize
-    if (titles[last]) return titles[last]
-    // If it looks like an ID, walk up segments until we find a real route name
-    const isId = (s: string) =>
-      /^[a-f0-9A-F-]{8,}$/.test(s) ||
-      (/[0-9]/.test(s) && /[a-zA-Z]/.test(s) && s.length >= 8)
-    if (isId(last)) {
-      for (let i = segments.length - 2; i >= 0; i--) {
-        const seg = segments[i]
-        if (titles[seg]) return titles[seg]
-        if (!isId(seg)) return seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, ' ')
-      }
-    }
-    return last.charAt(0).toUpperCase() + last.slice(1).replace(/-/g, ' ')
-  }, [pathname])
-}
-
 export function TopBar({ user }: TopBarProps) {
   const { signOut } = useAuth()
-  const pageTitle = usePageTitle()
 
   return (
     <div className="shrink-0">
       <header
         className="flex h-[60px] items-center justify-between pl-8 pr-6 bg-[var(--bg-card)]"
       >
-        {/* Left — Logo + Switcher + Page Title */}
+        {/* Left — Logo + Switcher */}
         <div className="flex items-center gap-3">
           <PortalSwitcher currentPortal="prodash" />
-
-          {/* Vertical separator */}
-          <div className="h-6 w-px bg-[var(--border-subtle)]" />
-
-          {/* Page title */}
-          <h1 className="text-page-title hidden sm:block">{pageTitle}</h1>
         </div>
 
         {/* Center — Global Search */}

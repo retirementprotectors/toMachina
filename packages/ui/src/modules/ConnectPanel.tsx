@@ -6,6 +6,7 @@ import { useCollection } from '@tomachina/db'
 import { collections, getDb } from '@tomachina/db/src/firestore'
 import { useAuth } from '@tomachina/auth'
 import { fetchWithAuth } from './fetchWithAuth'
+import { useToast } from '../components/Toast'
 import { collection as firestoreCollection } from 'firebase/firestore'
 
 /* ─── Types ─── */
@@ -286,6 +287,7 @@ function ChannelsTab() {
   const [showNewForm, setShowNewForm] = useState(false)
   const [newChannelName, setNewChannelName] = useState('')
   const [creating, setCreating] = useState(false)
+  const { showToast } = useToast()
 
   // Query connect_channels from Firestore via useCollection
   const channelsQuery = useMemo(() => {
@@ -345,8 +347,9 @@ function ChannelsTab() {
       // useCollection will pick up the new doc via onSnapshot
       setNewChannelName('')
       setShowNewForm(false)
-    } catch {
-      // Silently fail — toast notifications coming soon
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to create channel'
+      showToast(msg, 'error')
     } finally {
       setCreating(false)
     }

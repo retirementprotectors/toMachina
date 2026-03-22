@@ -67,6 +67,20 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
     )
   }
 
+  // Count activities per filter type for badges
+  const filterCounts = useMemo(() => {
+    const counts: Record<FilterKey, number> = { all: activities.length, calls: 0, emails: 0, sms: 0, status_changes: 0, notes: 0 }
+    for (const a of activities) {
+      const t = str(a.activity_type).toLowerCase()
+      if (t.includes('call') || t.includes('phone') || t.includes('dial')) counts.calls++
+      if (t.includes('email') || t.includes('send') || t.includes('mail')) counts.emails++
+      if (t.includes('sms') || t.includes('text') || t.includes('message')) counts.sms++
+      if (t.includes('status') || t.includes('change') || t.includes('update') || t.includes('transition')) counts.status_changes++
+      if (t.includes('note') || t.includes('comment') || t.includes('memo')) counts.notes++
+    }
+    return counts
+  }, [activities])
+
   return (
     <div className="space-y-4">
       {/* Filter pills */}
@@ -90,6 +104,15 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
           >
             <span className="material-icons-outlined text-[14px]">{pill.icon}</span>
             {pill.label}
+            {filterCounts[pill.key] > 0 && (
+              <span className={`ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold leading-none ${
+                activeFilter === pill.key
+                  ? 'bg-white/20 text-white'
+                  : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
+              }`}>
+                {filterCounts[pill.key]}
+              </span>
+            )}
           </button>
         ))}
       </div>

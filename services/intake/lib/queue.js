@@ -30,6 +30,9 @@ export async function createQueueEntry(source, fileData) {
         email_from: fileData.email_from,
         email_subject: fileData.email_subject,
         email_priority: fileData.email_priority,
+        source_folder_id: fileData.source_folder_id,
+        processed_folder_id: fileData.processed_folder_id,
+        errors_folder_id: fileData.errors_folder_id,
         created_at: now,
         updated_at: now,
     };

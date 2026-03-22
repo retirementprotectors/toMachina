@@ -130,10 +130,14 @@ npx turbo run build --filter=@tomachina/core
 ## Firestore Rules
 
 Collections gated behind `isRPIUser()` (@retireprotected.com domain check):
-- `clients`, `accounts` (+ subcollections), `users`, `carriers`, `products`
+- `clients`, `accounts`, `access_items` (+ subcollections under clients), `users`, `carriers`, `products`
 - `campaigns`, `templates`, `content_blocks`, `org_structure`
 - `communications`, `opportunities`, `revenue`, `case_tasks`
 - `flow_pipelines`, `flow_stages`, `flow_workflows`, `flow_steps`, `flow_task_templates`, `flow_instances`
+
+### Client Subcollections
+- `clients/{clientId}/accounts` — financial accounts (annuity, life, medicare, investment)
+- `clients/{clientId}/access_items` — portal/API access credentials per service. Schema: `AccessItem` in `@tomachina/core`. CRUD API: `services/api/src/routes/access.ts`. Auto-generation: `POST /api/clients/:clientId/auto-generate` creates portal entries from accounts + standard API items (Medicare.gov, SSA.gov, IRS.gov, MasterCard). Covered by wildcard rule in `firestore.rules` (line 148).
 
 ## GAS Bridge
 

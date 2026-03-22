@@ -6,6 +6,7 @@ import type { Client } from '@tomachina/core'
 import { getAge, getInitials, hashColor } from '../lib/formatters'
 import { AI3Report } from './AI3Report'
 import { getAuth } from 'firebase/auth'
+import { useToast } from '@tomachina/ui'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,6 +51,7 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
   const [ai3Loading, setAi3Loading] = useState(false)
   const [ai3Data, setAi3Data] = useState<AI3Data | null>(null)
   const ai3Ref = useRef<HTMLDivElement>(null)
+  const { showToast } = useToast()
 
   const handleAI3 = async () => {
     setAi3Loading(true)
@@ -107,8 +109,12 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
       pdf.save(`AI3_Report_${clientName}_${date}.pdf`)
 
     } catch (err) {
-      // Do not expose PHI in error messages
-      console.error('AI3 generation failed:', err instanceof Error ? err.message : 'Unknown error')
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      if (message.includes('Session expired') || message.includes('sign out')) {
+        showToast('Session expired. Please sign out and sign back in.', 'warning')
+      } else {
+        showToast('AI3 report generation failed. Please try again.', 'error')
+      }
     } finally {
       setAi3Loading(false)
       setAi3Data(null)

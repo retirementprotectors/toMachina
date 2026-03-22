@@ -7,7 +7,7 @@ let driveClient = null;
 function getDrive() {
     if (!driveClient) {
         const auth = new google.auth.GoogleAuth({
-            scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+            scopes: ['https://www.googleapis.com/auth/drive'],
         });
         driveClient = google.drive({ version: 'v3', auth });
     }
@@ -71,6 +71,26 @@ export async function moveFile(fileId, fromFolderId, toFolderId) {
         removeParents: fromFolderId,
         fields: 'id, parents',
     });
+}
+/**
+ * Get or create a subfolder by name within a parent folder.
+ * Returns the existing subfolder if found, otherwise creates it.
+ */
+export async function getOrCreateSubfolder(parentId, name) {
+    const existing = await listSubfolders(parentId);
+    const match = existing.find(f => f.name.toLowerCase() === name.toLowerCase());
+    if (match)
+        return match;
+    const drive = getDrive();
+    const res = await drive.files.create({
+        requestBody: {
+            name,
+            mimeType: 'application/vnd.google-apps.folder',
+            parents: [parentId],
+        },
+        fields: 'id, name',
+    });
+    return { id: res.data.id, name: res.data.name };
 }
 /**
  * Get file metadata.
