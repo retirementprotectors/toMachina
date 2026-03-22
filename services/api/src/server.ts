@@ -63,6 +63,7 @@ import { intakeRoutes } from './routes/intake.js'
 import { acfRoutes } from './routes/acf.js'
 import { documentIndexRoutes } from './routes/document-index.js'
 import { firestoreConfigRoutes } from './routes/firestore-config.js'
+import { queRoutes } from './routes/que.js'
 import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
@@ -149,6 +150,7 @@ app.use('/api/intake', normalizeBody, intakeRoutes)
 app.use('/api/acf', normalizeBody, acfRoutes)
 app.use('/api/document-index', documentIndexRoutes)
 app.use('/api/firestore-config', firestoreConfigRoutes)
+app.use('/api/que', normalizeBody, queRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

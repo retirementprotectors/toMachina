@@ -1,6 +1,17 @@
-// ProZone local types — mirrors @tomachina/core ProZone types when available.
-// Defined here to avoid blocking on core package changes.
+// ProZone view types — derived from @tomachina/core where fields overlap.
+// Uses Pick<CoreType, ...> & { local fields } to stay in sync with core
+// while adding UI-specific properties the core entity doesn't carry.
 
+import type {
+  Territory as CoreTerritory,
+  Zone as CoreZone,
+  SpecialistConfig as CoreSpecialistConfig,
+} from '@tomachina/core'
+
+// ─── TierMapEntry ───
+// Core TierMapEntry is a scheduling config (zone_id, slots_per_day, first_slot, last_slot).
+// ProZone's TierMapEntry is a geographic lookup row (county, fips, state).
+// These are structurally different view models — no Pick<> relationship.
 export interface TierMapEntry {
   county: string
   fips: string
@@ -8,39 +19,37 @@ export interface TierMapEntry {
   tier: 'I' | 'II' | 'III' | 'IV'
 }
 
-export interface Zone {
-  zone_id: string
-  zone_name: string
+// ─── Zone ───
+// Core Zone is a territory subdivision (territory_id, resolution_type, assignments).
+// ProZone Zone is a UI view with tier, origin_zip, drive_minutes, and nested counties.
+export type Zone = Pick<CoreZone, 'zone_id' | 'zone_name'> & {
   tier: 'I' | 'II' | 'III' | 'IV'
   origin_zip: string
   counties: TierMapEntry[]
   drive_minutes?: number
 }
 
-export interface Territory {
-  territory_id: string
-  territory_name: string
+// ─── Territory ───
+// Core Territory has state/region/territory_status/counties(TerritoryCounty[]).
+// ProZone Territory is an origin-centric view with origin_zip/county/state + Zone[].
+export type Territory = Pick<CoreTerritory, 'territory_id' | 'territory_name' | 'created_at' | 'updated_at'> & {
   origin_zip: string
   origin_county: string
   origin_state: string
   zones: Zone[]
   total_counties: number
-  created_at: string
-  updated_at: string
 }
 
-export interface SpecialistConfig {
-  config_id: string
-  specialist_name: string
+// ─── SpecialistConfig ───
+// Subset of core SpecialistConfig + UI summary fields (territory_name, zone_count, email).
+export type SpecialistConfig = Pick<CoreSpecialistConfig, 'config_id' | 'specialist_name' | 'territory_id' | 'origin_zip' | 'created_at' | 'updated_at'> & {
   specialist_email: string
-  territory_id: string
   territory_name: string
-  origin_zip: string
   zone_count: number
   status: 'active' | 'inactive'
-  created_at: string
-  updated_at: string
 }
+
+// ─── ProZone-specific view models (no core equivalent) ───
 
 export interface InventoryFlags {
   has_medicare: boolean

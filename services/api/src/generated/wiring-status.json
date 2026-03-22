@@ -3734,6 +3734,26 @@
       ],
       "status": "full_stack"
     },
+    "que.ts": {
+      "file": "que.ts",
+      "endpoints": 17,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [
+        "QueSessionList.tsx",
+        "ClientSnapshot.tsx",
+        "ComparisonStep.tsx",
+        "QuoteParameters.tsx",
+        "QuoteResults.tsx",
+        "RecommendationStep.tsx"
+      ],
+      "status": "full_stack"
+    },
     "revenue.ts": {
       "file": "revenue.ts",
       "endpoints": 14,
@@ -4651,14 +4671,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 56,
+    "route_files": 57,
     "ui_files": 120,
     "portal_pages": 159,
     "collections_found": 63,
-    "api_routes_found": 56,
+    "api_routes_found": 57,
     "cloud_functions_found": 14,
     "env_vars_found": 30,
     "hookify_rules_found": 35,
-    "scanned_at": "2026-03-22T06:04:16.738Z"
+    "scanned_at": "2026-03-22T06:10:39.600Z"
   }
 }
