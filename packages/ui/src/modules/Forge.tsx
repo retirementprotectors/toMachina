@@ -263,7 +263,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
   const [sprintEditField, setSprintEditField] = useState<string | null>(null)
   const [sprintEditValue, setSprintEditValue] = useState('')
-  const [auditRound, setAuditRound] = useState<{ round: number; passed: number; failed: number; pending: number } | null>(null)
+  const [auditRound, setAuditRound] = useState<{ current_round: number; passed_count: number; failed_count: number; pending_count: number; total_items: number } | null>(null)
   // Track selected field values per group: { groupIndex: { fieldKey: itemIndex } }
   const [dedupSelections, setDedupSelections] = useState<Record<number, Record<string, number>>>({})
   const [uploading, setUploading] = useState(false)
@@ -1673,12 +1673,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                 padding: 16, marginBottom: 16,
               }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: s.text, marginBottom: 8 }}>
-                  Audit Round {auditRound.round}
+                  Audit Round {auditRound.current_round}
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(34,197,94,0.12)', color: 'rgb(34,197,94)', fontWeight: 600 }}>{auditRound.passed} passed</span>
-                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(239,68,68,0.12)', color: 'rgb(239,68,68)', fontWeight: 600 }}>{auditRound.failed} failed</span>
-                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(245,158,11,0.12)', color: 'rgb(245,158,11)', fontWeight: 600 }}>{auditRound.pending} pending</span>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(34,197,94,0.12)', color: 'rgb(34,197,94)', fontWeight: 600 }}>{auditRound.passed_count} passed</span>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(239,68,68,0.12)', color: 'rgb(239,68,68)', fontWeight: 600 }}>{auditRound.failed_count} failed</span>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: 'rgba(245,158,11,0.12)', color: 'rgb(245,158,11)', fontWeight: 600 }}>{auditRound.pending_count} pending</span>
                 </div>
               </div>
             )}
