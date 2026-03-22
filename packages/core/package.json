@@ -4,6 +4,12 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./src/index.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./atlas/*": "./dist/atlas/*.js",
+    "./types/*": "./dist/types/*.js",
+    "./validation/*": "./dist/validation/*.js"
+  },
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",

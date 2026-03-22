@@ -8,7 +8,7 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import {
   COLLECTION_SCHEMAS,
   PROTECTED_COLLECTIONS,
-} from '@tomachina/core/src/validation/collection-schemas.js'
+} from '@tomachina/core/validation/collection-schemas'
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
