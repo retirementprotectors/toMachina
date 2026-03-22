@@ -4,9 +4,10 @@
  */
 
 import { google } from 'googleapis'
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { homedir } from 'os'
 import { Readable } from 'stream'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -16,10 +17,20 @@ let driveClient: ReturnType<typeof google.drive> | null = null
 
 function getDrive() {
   if (!driveClient) {
-    const auth = new google.auth.GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/drive'],
-    })
-    driveClient = google.drive({ version: 'v3', auth })
+    // Try gdrive MCP OAuth tokens first (has Drive scope)
+    const tokenPath = join(homedir(), '.config', 'google-drive-mcp', 'tokens.json')
+    if (existsSync(tokenPath)) {
+      const tokens = JSON.parse(readFileSync(tokenPath, 'utf-8'))
+      const oauth2 = new google.auth.OAuth2()
+      oauth2.setCredentials(tokens)
+      driveClient = google.drive({ version: 'v3', auth: oauth2 })
+    } else {
+      // Fallback to ADC (works in CI with WIF)
+      const auth = new google.auth.GoogleAuth({
+        scopes: ['https://www.googleapis.com/auth/drive'],
+      })
+      driveClient = google.drive({ version: 'v3', auth })
+    }
   }
   return driveClient
 }
