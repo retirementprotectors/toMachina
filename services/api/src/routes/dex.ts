@@ -389,7 +389,7 @@ dexRoutes.post('/kits/build', async (req: Request, res: Response) => {
       form_ids: allFormIds,
       form_count: allForms.length,
       status: 'Generated',
-      created_by: userEmail,
+      _created_by: userEmail,
       created_at: now,
       updated_at: now,
     }

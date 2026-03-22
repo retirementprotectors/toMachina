@@ -132,7 +132,7 @@ guardianRoutes.post('/audits', async (req: Request, res: Response) => {
       snapshot_id: null,
       finding_ids: [],
       triggered_by: (body.triggered_by as GuardianAudit['triggered_by']) || 'manual',
-      created_by: getUserEmail(req),
+      _created_by: getUserEmail(req),
       created_at: now,
       updated_at: now,
     }
@@ -539,7 +539,7 @@ guardianRoutes.post('/baselines', async (req: Request, res: Response) => {
       triggered_by: (body.triggered_by as string) || 'manual',
       collections: (body.collections as Record<string, unknown>) || {},
       stored_at: now,
-      created_by: getUserEmail(req),
+      _created_by: getUserEmail(req),
     }
 
     const ref = await db.collection('data_snapshots').add(snapshot)
