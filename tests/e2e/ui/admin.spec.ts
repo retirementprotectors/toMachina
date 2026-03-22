@@ -13,8 +13,10 @@ test.describe('Admin Module', () => {
     await expect(page.getByText('ACF Config')).toBeVisible({ timeout: 10000 })
     await expect(page.getByText('Firestore Config')).toBeVisible({ timeout: 10000 })
 
-    // Admin description text should be present (for leaders: "Team permissions and module access audit")
-    const description = page.getByText(/permissions|module access/i)
-    await expect(description.first()).toBeVisible({ timeout: 10000 })
+    // Platform Intel tab (new addition)
+    await expect(page.getByText('Platform Intel')).toBeVisible({ timeout: 10000 })
+
+    // Role groups visible under Team Config
+    await expect(page.getByText('Owner')).toBeVisible({ timeout: 10000 })
   })
 })
