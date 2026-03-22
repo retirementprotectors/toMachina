@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAuth } from '@tomachina/auth'
-import { fetchWithAuth } from '../modules/fetchWithAuth'
+import { fetchValidated } from '../modules/fetchValidated'
 import { DraggableFAB } from './DraggableFAB'
 
 // ---------------------------------------------------------------------------
@@ -151,10 +151,9 @@ export function ReportButton({ portal }: ReportButtonProps) {
 
     async function fetchBadge() {
       try {
-        const res = await fetchWithAuth('/api/tracker?status=queue&limit=100')
-        if (!res.ok || cancelled) return
-        const json = await res.json()
-        const items = json.data || []
+        const result = await fetchValidated<Record<string, unknown>[]>('/api/tracker?status=queue&limit=100')
+        if (!result.success || cancelled) return
+        const items = result.data || []
         const mine = items.filter(
           (item: Record<string, unknown>) =>
             typeof item.notes === 'string' && (item.notes as string).includes(user!.email!)
@@ -175,10 +174,9 @@ export function ReportButton({ portal }: ReportButtonProps) {
     longPressTimer.current = setTimeout(async () => {
       // Fetch last 5 items from tracker
       try {
-        const res = await fetchWithAuth('/api/tracker?limit=5')
-        if (res.ok) {
-          const json = await res.json()
-          const items = (json.data || []).map((item: Record<string, unknown>) => ({
+        const result = await fetchValidated<Record<string, unknown>[]>('/api/tracker?limit=5')
+        if (result.success) {
+          const items = (result.data || []).map((item: Record<string, unknown>) => ({
             item_id: (item.item_id as string) || '',
             title: (item.title as string) || '',
             status: (item.status as string) || '',
@@ -298,7 +296,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
     setSubmitError('')
 
     try {
-      const res = await fetchWithAuth('/api/tracker', {
+      const result = await fetchValidated<{ id?: string; item_id?: string }>('/api/tracker', {
         method: 'POST',
         body: JSON.stringify({
           title: title.trim(),
@@ -313,18 +311,16 @@ export function ReportButton({ portal }: ReportButtonProps) {
         }),
       })
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-        setSubmitError((body as Record<string, string>).error || `Failed (${res.status})`)
+      if (!result.success) {
+        setSubmitError(result.error || 'Failed to create ticket')
         setSubmitting(false)
         return
       }
 
-      const json = await res.json()
-      const itemId = json.data?.id || json.data?.item_id
+      const itemId = result.data?.id || result.data?.item_id
       if (itemId && screenshot) {
         const base64 = screenshot.split(',')[1]
-        const attachRes = await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
+        const attachResult = await fetchValidated(`/api/tracker/${itemId}/attachments`, {
           method: 'POST',
           body: JSON.stringify({
             name: `screenshot-${Date.now()}.png`,
@@ -332,9 +328,8 @@ export function ReportButton({ portal }: ReportButtonProps) {
             content_type: 'image/png',
           }),
         })
-        if (!attachRes.ok) {
-          const attachBody = await attachRes.json().catch(() => ({ error: `HTTP ${attachRes.status}` }))
-          setSubmitError(`Ticket created (${itemId}) but screenshot failed: ${(attachBody as Record<string, string>).error || attachRes.status}`)
+        if (!attachResult.success) {
+          setSubmitError(`Ticket created (${itemId}) but screenshot failed: ${attachResult.error || 'Unknown error'}`)
         }
       }
       if (itemId && recordingChunks.length > 0) {
@@ -344,7 +339,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
           reader.onload = () => resolve((reader.result as string).split(',')[1])
           reader.readAsDataURL(blob)
         })
-        const recRes = await fetchWithAuth(`/api/tracker/${itemId}/attachments`, {
+        const recResult = await fetchValidated(`/api/tracker/${itemId}/attachments`, {
           method: 'POST',
           body: JSON.stringify({
             name: `recording-${Date.now()}.webm`,
@@ -352,9 +347,8 @@ export function ReportButton({ portal }: ReportButtonProps) {
             content_type: 'video/webm',
           }),
         })
-        if (!recRes.ok) {
-          const recBody = await recRes.json().catch(() => ({ error: `HTTP ${recRes.status}` }))
-          setSubmitError(`Ticket created (${itemId}) but recording failed: ${(recBody as Record<string, string>).error || recRes.status}`)
+        if (!recResult.success) {
+          setSubmitError(`Ticket created (${itemId}) but recording failed: ${recResult.error || 'Unknown error'}`)
         }
       }
 

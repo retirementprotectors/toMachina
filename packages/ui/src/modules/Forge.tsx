@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { fetchValidated } from './fetchValidated'
-import { fetchWithAuth } from './fetchWithAuth' // roadmap endpoint returns HTML, not JSON
+import { fetchWithAuth } from './fetchWithAuth' // HTML endpoint (roadmap) — not JSON, can't use fetchValidated
 import { KanbanBoard, type KanbanColumn, type KanbanCard } from '../components/KanbanBoard'
 import { useToast } from '../components/Toast'
 

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from './Toast'
 import { DraggableFAB } from './DraggableFAB'
-import { fetchWithAuth } from '../modules/fetchWithAuth'
+import { fetchValidated } from '../modules/fetchValidated'
 
 // ---------------------------------------------------------------------------
 // Intake FAB — Floating Action Button for quick data entry
