@@ -882,7 +882,21 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
             </div>
             <select
               value={template}
-              onChange={(e) => setTemplate(e.target.value)}
+              onChange={(e) => {
+                const id = e.target.value
+                setTemplate(id)
+                if (id !== 'none') {
+                  const t = templates.find(tmpl => tmpl.id === id)
+                  if (t) {
+                    let body = t.body
+                    if (selectedClient) {
+                      body = body.replace(/\{\{name\}\}/g, selectedClient.name || '')
+                      body = body.replace(/\{\{date\}\}/g, new Date().toLocaleDateString())
+                    }
+                    setMessage(body)
+                  }
+                }
+              }}
               className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] h-[38px] px-3 text-sm text-[var(--text-primary)] outline-none"
             >
               <option value="none">None - Custom Message</option>
