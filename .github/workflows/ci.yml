@@ -21,7 +21,6 @@ jobs:
 
   e2e-ui:
     runs-on: ubuntu-latest
-    continue-on-error: true
     env:
       FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
