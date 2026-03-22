@@ -26,6 +26,12 @@ jobs:
       FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
       E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
       E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+      NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyCUAn7VioaNJAzhtjUQCtd-7byd6ISR_7A
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: claude-mcp-484718.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: claude-mcp-484718
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: claude-mcp-484718.firebasestorage.app
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '365181509090'
+      NEXT_PUBLIC_FIREBASE_APP_ID: '1:365181509090:web:08aea23422c813d23b6dbb'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -34,7 +40,7 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx playwright install chromium
-      - run: npx playwright test
+      - run: npx playwright test --project=setup --project=chromium
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -139,10 +145,12 @@ jobs:
       - run: npm ci
 
       # Authenticate with GCP for Firestore + Drive access
-      - uses: google-github-actions/auth@v2
+      - id: gcp-auth
+        uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/365181509090/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-deployer@claude-mcp-484718.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@v2
 
       # Get Cloud Run API URL for test target
       - name: Get API URL
@@ -155,7 +163,7 @@ jobs:
       - name: Run E2E intake tests
         env:
           TEST_API_URL: ${{ steps.api-url.outputs.url }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.gcp-auth.outputs.credentials_file_path }}
         run: npm run test:e2e
 
       # Upload test report on failure

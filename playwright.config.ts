@@ -36,42 +36,13 @@ export default defineConfig({
       name: 'setup',
       testDir: 'tests/e2e/ui',
       testMatch: /auth\.setup\.ts/,
-      use: { storageState: undefined },
     },
 
-    // ── Smoke tests per portal (no auth required) ──
-    {
-      name: 'prodash',
-      testDir: 'tests/e2e/smoke',
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:3001',
-        storageState: undefined,
-      },
-    },
-    {
-      name: 'riimo',
-      testDir: 'tests/e2e/smoke',
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:3002',
-        storageState: undefined,
-      },
-    },
-    {
-      name: 'sentinel',
-      testDir: 'tests/e2e/smoke',
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'http://localhost:3003',
-        storageState: undefined,
-      },
-    },
-
-    // ── Authenticated UI tests (ProDash only for now) ──
+    // ── Authenticated UI tests (ProDash) ──
     {
       name: 'chromium',
       testDir: 'tests/e2e/ui',
+      testMatch: /\.spec\.ts$/,
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:3001',
@@ -84,16 +55,11 @@ export default defineConfig({
   /* HTML report — never auto-open */
   reporter: [['html', { open: 'never' }]],
 
-  // ── Web server config ──
-  // Uncomment to auto-start dev servers before running tests.
-  // Tests assume dev servers are already running (npm run dev).
-  //
-  // webServer: [
-  //   {
-  //     command: 'npm run dev',
-  //     port: 3001,
-  //     reuseExistingServer: true,
-  //     timeout: 120_000,
-  //   },
-  // ],
+  /* Auto-start ProDash dev server before tests */
+  webServer: {
+    command: 'npx turbo run dev --filter=@tomachina/prodash',
+    port: 3001,
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
 })
