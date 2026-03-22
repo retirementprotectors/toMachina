@@ -165,6 +165,13 @@ function findPortals(componentFile: string, portalFiles: Map<string, string>): s
 /* ═══ Main ═══ */
 
 function main() {
+  // Skip scan if running in a limited context (Docker build, CI) where UI modules aren't available.
+  // The committed wiring-status.json from local builds is the source of truth.
+  if (!fs.existsSync(UI_MODULES)) {
+    console.log('Platform scan: UI modules not available (Docker/CI build) — using committed wiring-status.json')
+    return
+  }
+
   console.log('Detecting collection wiring status (Phase 1/2/3)...\n')
 
   // ── Load all source files ──

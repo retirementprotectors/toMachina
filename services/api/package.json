@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "prebuild": "if [ -z \"$CI\" ]; then tsx src/scripts/detect-wiring.ts || true; else echo 'CI: using committed wiring-status.json'; fi",
+    "prebuild": "tsx src/scripts/detect-wiring.ts || true",
     "build": "tsc && cp -r src/generated dist/generated 2>/dev/null || true",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",
