@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E2E Testing: Automated Pipeline + Visual Verification | Plan</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e2e8f0; max-width: 960px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 16px; padding: 32px; margin-bottom: 32px; border: 1px solid #333; }
+  .header h1 { color: #a78bfa; font-size: 28px; margin: 0 0 8px 0; }
+  .header p { color: #94a3b8; margin: 4px 0; font-size: 14px; }
+  .header .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-critical { background: #dc262633; color: #f87171; border: 1px solid #dc262644; }
+  .badge-info { background: #3b82f633; color: #60a5fa; border: 1px solid #3b82f644; }
+  .badge-layer1 { background: #3b82f622; color: #60a5fa; border: 1px solid #3b82f633; }
+  .badge-layer2 { background: #e07c3e22; color: #e07c3e; border: 1px solid #e07c3e44; }
+  .badge-phase2 { background: #fbbf2422; color: #fbbf24; border: 1px solid #fbbf2444; }
+  .badge-infra { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
+  h2 { color: #60a5fa; font-size: 20px; margin-top: 40px; border-bottom: 1px solid #1e293b; padding-bottom: 8px; }
+  h3 { color: #34d399; font-size: 16px; margin-top: 24px; }
+  h4 { color: #e2e8f0; font-size: 14px; margin-top: 16px; }
+  code { background: #1e1e2e; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #f0abfc; }
+  pre { background: #1e1e2e; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; border: 1px solid #333; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 10px 12px; border: 1px solid #1e293b; text-align: left; font-size: 13px; }
+  th { background: #1e1e2e; color: #a78bfa; font-weight: 600; }
+  .decision { background: #dc262615; border: 1px solid #dc262633; border-radius: 12px; padding: 20px; margin: 20px 0; }
+  .decision h3 { color: #f87171; margin-top: 0; }
+  .phase { background: #1e1e2e; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 4px; }
+  .tag-layer1 { background: #3b82f622; color: #60a5fa; }
+  .tag-layer2 { background: #e07c3e22; color: #e07c3e; }
+  .tag-phase2 { background: #fbbf2422; color: #fbbf24; }
+  .tag-infra { background: #4ade8022; color: #4ade80; }
+  blockquote { border-left: 3px solid #a78bfa; padding-left: 16px; color: #94a3b8; font-style: italic; }
+  .flow-box { background: #0d1117; border: 2px solid #333; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .builder-table td:first-child { font-weight: 600; color: #a78bfa; }
+  ul li { margin-bottom: 6px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+  .meta-item { background: #1e1e2e; border: 1px solid #333; border-radius: 8px; padding: 8px 14px; font-size: 12px; }
+  .meta-item .label { color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .meta-item .value { color: #e2e8f0; font-weight: 600; }
+  .impact-card { background: #4ade8015; border: 1px solid #4ade8033; border-radius: 12px; padding: 20px; margin: 20px 0; }
+  .impact-card h3 { color: #4ade80; margin-top: 0; }
+  .acceptance { background: #a78bfa15; border: 1px solid #a78bfa33; border-radius: 12px; padding: 20px; margin: 20px 0; }
+  .acceptance h3 { color: #a78bfa; margin-top: 0; }
+  .step-table td:first-child { font-weight: 600; color: #34d399; width: 140px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>E2E Testing: Automated Pipeline + Visual Verification</h1>
+  <p>Implementation Plan</p>
+  <p>Sprint <code>E2E-TESTING-001</code> | 28 tickets | TRK-531 &rarr; TRK-558</p>
+  <div style="margin-top: 12px;">
+    <span class="badge badge-critical">Zero test infrastructure today</span>
+    <span class="badge badge-info">Two-layer E2E suite</span>
+  </div>
+  <div class="meta-row">
+    <div class="meta-item"><div class="label">Discovery Doc</div><div class="value">tests/e2e/DISCOVERY.html</div></div>
+    <div class="meta-item"><div class="label">Builder Model</div><div class="value">2 parallel builders + GA</div></div>
+    <div class="meta-item"><div class="label">Estimated Build</div><div class="value">~14.5 hours</div></div>
+    <div class="meta-item"><div class="label">Created</div><div class="value">2026-03-21</div></div>
+  </div>
+</div>
+
+<h2>Overview</h2>
+
+<p>toMachina has shipped 674 items across 9 sprints with <strong>zero automated test infrastructure</strong>. CI currently covers only <code>type-check</code> (13/13) and <code>build</code> (11/11). Runtime behavior regressions, broken intake pipelines, and UI rendering failures are invisible to CI. 470 items require manual CEO visual verification after every deploy.</p>
+
+<p>This sprint builds a <strong>two-layer E2E test suite</strong>:</p>
+
+<table>
+<tr><th>Layer</th><th>Framework</th><th>Scope</th><th>CI Timing</th></tr>
+<tr><td><span class="tag tag-layer1">Layer 1</span> Backend Pipeline</td><td>Vitest</td><td>4 intake wire pipelines</td><td>After <code>deploy-api</code> on push to main</td></tr>
+<tr><td><span class="tag tag-layer2">Layer 2</span> UI Visual Verification</td><td>Playwright</td><td>10 ProDash module render tests</td><td>Before deploy on PR + push to main</td></tr>
+</table>
+
+<div class="impact-card">
+<h3>Manual Verification Impact</h3>
+<table>
+<tr><th>Metric</th><th>Before</th><th>After</th><th>Reduction</th></tr>
+<tr><td>Items requiring manual CEO verification</td><td style="color: #f87171;">~470</td><td style="color: #4ade80;">~50</td><td style="color: #4ade80;">~89%</td></tr>
+<tr><td>Time per release verification</td><td style="color: #f87171;">~2 hours</td><td style="color: #4ade80;">~15 min</td><td style="color: #4ade80;">~87%</td></tr>
+</table>
+</div>
+
+<h2>Target Architecture</h2>
+
+<div class="flow-box">
+<pre style="border: none; background: transparent; padding: 0; margin: 0;">
+CI Pipeline (GitHub Actions)
+  ├── type-check (13/13)          existing
+  ├── build (11/11)               existing
+  ├── <strong style="color:#60a5fa;">e2e-ui</strong> (NEW)                pre-deploy gate (PR + push)
+  ├── deploy-api                  existing
+  └── <strong style="color:#4ade80;">e2e-intake</strong> (NEW)            post-deploy verification (push to main)
+         │
+         ▼
+Layer 2: Playwright              Layer 1: Vitest
+  10 module render tests           4 pipeline E2E tests
+  Chromium screenshots             Real Firestore + Drive
+  localhost:3001                   Cloud Run API
+         │                              │
+         ▼                              ▼
+  ProDash Dev Server             Firebase Admin Auth
+                                 Google Drive API (Shared Drive)
+                                 Firestore (production, isolated test data)
+</pre>
+</div>
+
+<h2>Build Order (9 Phases, 28 Tickets)</h2>
+
+<!-- ===== PHASE 1 ===== -->
+<div class="phase">
+<h3>Phase 1: Foundation (TRK-531, TRK-537, TRK-538) &mdash; MUST BE FIRST <span class="tag tag-infra">Foundation</span></h3>
+<p>These establish the test runner, test client, and test fixtures that everything else depends on.</p>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr>
+  <td><strong>TRK-531</strong></td>
+  <td>Install Vitest + configure</td>
+  <td>Add <code>vitest</code> dev dep. Create <code>vitest.config.ts</code>: sequential mode (<code>pool: 'forks'</code>, <code>singleFork: true</code>), 120s timeout, path aliases. Create <code>setup.ts</code> + <code>teardown.ts</code>. Add <code>test:e2e</code> script to root <code>package.json</code>.</td>
+</tr>
+<tr>
+  <td><strong>TRK-537</strong></td>
+  <td>Seed test client + ACF folder</td>
+  <td>Seed "E2E Test Client LLC" in Firestore <code>clients</code> with known <code>client_id</code>. Create test ACF folder on Shared Drive (parent: <code>0AFUXPgL0EWC6Uk9PVA</code>) with 5 lifecycle subfolders (Client/Cases/NewBiz/Account/Reactive). Store all IDs in <code>constants.ts</code>.</td>
+</tr>
+<tr>
+  <td><strong>TRK-538</strong></td>
+  <td>Create test fixture PDF</td>
+  <td>1-page generic correspondence letter at <code>tests/e2e/fixtures/test-correspondence.pdf</code>. Synthetic data only &mdash; <strong>no PHI</strong>. Must be classifiable by SUPER_CLASSIFY.</td>
+</tr>
+</table>
+</div>
+
+<!-- ===== PHASE 2 ===== -->
+<div class="phase">
+<h3>Phase 2: Helpers (TRK-532, TRK-533, TRK-534, TRK-535, TRK-536) &mdash; Depends on Phase 1 <span class="tag tag-layer1">Layer 1</span></h3>
+<p>All helpers share <code>constants.ts</code>. All 5 can be built in parallel.</p>
+
+<table>
+<tr><th>Ticket</th><th>Helper</th><th>Exports</th><th>Key Detail</th></tr>
+<tr>
+  <td><strong>TRK-532</strong></td>
+  <td><code>helpers/auth.ts</code></td>
+  <td><code>getTestAuthToken()</code></td>
+  <td>Firebase Admin <code>createCustomToken('e2e-test@retireprotected.com')</code> &rarr; exchange via REST <code>signInWithCustomToken</code> &rarr; cache with 1hr TTL.</td>
+</tr>
+<tr>
+  <td><strong>TRK-533</strong></td>
+  <td><code>helpers/api-client.ts</code></td>
+  <td><code>apiGet</code>, <code>apiPost</code>, <code>apiPatch</code></td>
+  <td>Typed fetch wrapper. Auto-injects auth header. Base URL from <code>TEST_API_URL</code> env (default <code>localhost:8080</code>). Returns <code>{ success, data, error }</code>.</td>
+</tr>
+<tr>
+  <td><strong>TRK-534</strong></td>
+  <td><code>helpers/drive-client.ts</code></td>
+  <td><code>uploadTestPdf</code>, <code>deleteTestFile</code>, <code>moveTestFile</code>, <code>listFolderFiles</code></td>
+  <td>googleapis Drive v3 with ADC. All calls use <code>supportsAllDrives: true</code>.</td>
+</tr>
+<tr>
+  <td><strong>TRK-535</strong></td>
+  <td><code>helpers/poll.ts</code></td>
+  <td><code>pollQueueStatus</code></td>
+  <td>Poll <code>intake_queue</code> via Firestore Admin every 2s (configurable). Returns on COMPLETE, ERROR, AWAITING_APPROVAL, or REJECTED. Throws on 60s timeout.</td>
+</tr>
+<tr>
+  <td><strong>TRK-536</strong></td>
+  <td><code>helpers/cleanup.ts</code></td>
+  <td><code>cleanupTestData</code></td>
+  <td>Batch delete from <code>intake_queue</code>, <code>wire_executions</code>, <code>document_index</code>, <code>notifications</code> by test_run_id. Also deletes test files from Drive. Idempotent.</td>
+</tr>
+</table>
+</div>
+
+<!-- ===== PHASE 3 ===== -->
+<div class="phase">
+<h3>Phase 3: Backend Pipeline Tests (TRK-539, TRK-540, TRK-541, TRK-542) &mdash; Depends on Phase 2 <span class="tag tag-layer1">Layer 1</span></h3>
+<p>All 4 tests follow: <strong>setup &rarr; act &rarr; assert &rarr; cleanup</strong>. Can be built in parallel but MUST run sequentially.</p>
+
+<h4>TRK-539: ACF_UPLOAD Pipeline E2E</h4>
+<table class="step-table">
+<tr><td>Setup (beforeAll)</td><td>Upload test PDF to test client's Onboarding ACF subfolder via Drive API</td></tr>
+<tr><td>Act</td><td><code>POST /api/intake/execute-wire</code> with <code>{ wire_id: 'WIRE_INCOMING_CORRESPONDENCE', input: { file_id, file_ids: [file_id], mode: 'document', _meta: { source: 'ACF_UPLOAD', client_id: TEST_CLIENT_ID, file_name, mime_type: 'application/pdf' } } }</code></td></tr>
+<tr><td>Assert</td><td><code>response.success === true</code>, <code>response.stages.length === 8</code>, all stages <code>status === 'complete'</code>. Query <code>document_index</code> for file_id &rarr; <code>document_type</code> is not null. File still in ACF folder.</td></tr>
+<tr><td>Cleanup (afterAll)</td><td>Delete intake_queue entry, wire_execution, document_index entry, test file from Drive</td></tr>
+</table>
+
+<h4>TRK-540: MAIL Intake E2E</h4>
+<table class="step-table">
+<tr><td>Setup (beforeAll)</td><td>Upload test PDF to <code>MAIL_INTAKE/Incoming</code> folder (ID: <code>1LV32r7w1k98B0S_zfJoavzpLQgsAB1Dg</code>)</td></tr>
+<tr><td>Act</td><td>Call <code>scanMailIntake()</code> to create queue entry. Then <code>POST /api/intake/execute-wire</code> with the queue entry's payload.</td></tr>
+<tr><td>Assert</td><td>Wire success. File moved from Incoming to Processed subfolder. <code>document_index</code> populated.</td></tr>
+<tr><td>Cleanup (afterAll)</td><td>Delete queue entry, wire_execution, document_index. Move file back from Processed then delete.</td></tr>
+</table>
+
+<h4>TRK-541: SPC_INTAKE E2E</h4>
+<table class="step-table">
+<tr><td>Setup (beforeAll)</td><td>Create specialist subfolder "E2E Test Specialist" under SPC_INTAKE (<code>1NczjcEifjXuc2uMBN70lHE_ZbtmeFOaU</code>). Upload test PDF.</td></tr>
+<tr><td>Act</td><td>Call <code>scanSpcFolders()</code> to create queue entry with <code>specialist_name</code>. Then <code>POST /api/intake/execute-wire</code>.</td></tr>
+<tr><td>Assert</td><td>Wire success. <code>specialist_name</code> populated. File moved to Processed under specialist folder.</td></tr>
+<tr><td>Cleanup (afterAll)</td><td>Delete queue entry, wire_execution, document_index. Move/delete file.</td></tr>
+</table>
+
+<h4>TRK-542: ACF_SCAN E2E</h4>
+<table class="step-table">
+<tr><td>Setup (beforeAll)</td><td>Upload test PDF directly to test client's Client subfolder via Drive API (bypassing ProDash)</td></tr>
+<tr><td>Act</td><td><code>POST /api/document-index/scan-all</code> &rarr; creates <code>intake_queue</code> entry with <code>source: 'ACF_SCAN'</code>. Then <code>POST /api/intake/execute-wire</code>.</td></tr>
+<tr><td>Assert</td><td>Queue entry has <code>source === 'ACF_SCAN'</code>. Wire success. <code>document_index</code> has <code>document_type</code> populated.</td></tr>
+<tr><td>Cleanup (afterAll)</td><td>Delete all test data.</td></tr>
+</table>
+</div>
+
+<!-- ===== PHASE 4 ===== -->
+<div class="phase">
+<h3>Phase 4: Backend CI Integration (TRK-543) &mdash; Depends on Phase 3 <span class="tag tag-layer1">Layer 1</span></h3>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr>
+  <td><strong>TRK-543</strong></td>
+  <td>CI job: <code>e2e-intake</code></td>
+  <td>New job in <code>ci.yml</code>. <code>needs: deploy-api</code>. Runs only on <code>push</code> to <code>main</code>. Uses <code>google-github-actions/auth@v2</code> with Workload Identity. Sets <code>GOOGLE_APPLICATION_CREDENTIALS</code>, <code>FIREBASE_API_KEY</code>, <code>TEST_API_URL</code>. Runs <code>npm run test:e2e</code>. Uploads report artifact on failure.</td>
+</tr>
+</table>
+</div>
+
+<!-- ===== PHASE 5 ===== -->
+<div class="phase">
+<h3>Phase 5: Playwright Foundation (TRK-544, TRK-545) &mdash; Independent, starts after Phase 1 <span class="tag tag-layer2">Layer 2</span></h3>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr>
+  <td><strong>TRK-544</strong></td>
+  <td>Install @playwright/test + configure</td>
+  <td><code>playwright.config.ts</code>: baseURL <code>localhost:3001</code>, chromium only, screenshot on every test, video retain-on-failure, HTML reporter, <code>webServer</code> starts ProDash dev. Add <code>test:e2e:ui</code> script.</td>
+</tr>
+<tr>
+  <td><strong>TRK-545</strong></td>
+  <td>Playwright auth helper</td>
+  <td>Firebase Auth REST API sign-in with test user (email/password). Store auth in <code>storageState.json</code>. Global setup creates storage state once before all tests. All tests reuse auth.</td>
+</tr>
+</table>
+</div>
+
+<!-- ===== PHASE 6 ===== -->
+<div class="phase">
+<h3>Phase 6: UI Module Tests (TRK-546 &ndash; TRK-555) &mdash; Depends on Phase 5 <span class="tag tag-layer2">Layer 2</span></h3>
+<p>All 10 built in parallel. Each: navigate &rarr; wait for key element &rarr; assert &rarr; screenshot. ~20-40 lines each.</p>
+
+<table>
+<tr><th>Ticket</th><th>Module</th><th>File</th><th>Route</th><th>Key Assertions</th></tr>
+<tr><td><strong>TRK-546</strong></td><td>Contacts</td><td><code>contacts.spec.ts</code></td><td>/contacts</td><td>Table renders with rows, search input functional, click row opens detail</td></tr>
+<tr><td><strong>TRK-547</strong></td><td>Accounts</td><td><code>accounts.spec.ts</code></td><td>/accounts</td><td>Account cards/list render, click opens detail with policy section</td></tr>
+<tr><td><strong>TRK-548</strong></td><td>Communications</td><td><code>communications.spec.ts</code></td><td>/communications</td><td>Comms panel renders, message list populates</td></tr>
+<tr><td><strong>TRK-549</strong></td><td>RPI Connect</td><td><code>connect.spec.ts</code></td><td>/connect</td><td>Dashboard container renders, widget cards present</td></tr>
+<tr><td><strong>TRK-550</strong></td><td>Admin</td><td><code>admin.spec.ts</code></td><td>/admin</td><td>Admin panel accessible (entitlement-gated), settings sections render</td></tr>
+<tr><td><strong>TRK-551</strong></td><td>MyRPI</td><td><code>myrpi.spec.ts</code></td><td>/myrpi</td><td>Profile page loads, user info card displays name + role</td></tr>
+<tr><td><strong>TRK-552</strong></td><td>FORGE</td><td><code>forge.spec.ts</code></td><td>/forge</td><td>Board renders, ticket cards display with status indicators</td></tr>
+<tr><td><strong>TRK-553</strong></td><td>Pipeline Studio</td><td><code>pipeline-studio.spec.ts</code></td><td>/pipeline-studio</td><td>Pipeline view loads, stage columns render</td></tr>
+<tr><td><strong>TRK-554</strong></td><td>Quick Intake</td><td><code>quick-intake.spec.ts</code></td><td>/quick-intake</td><td>Intake form renders, dropzone element present and interactive</td></tr>
+<tr><td><strong>TRK-555</strong></td><td>Sidebar + Header</td><td><code>navigation.spec.ts</code></td><td>/ (any)</td><td>Sidebar nav all menu items, header shows user name, portal branding</td></tr>
+</table>
+</div>
+
+<!-- ===== PHASE 7 ===== -->
+<div class="phase">
+<h3>Phase 7: UI CI Integration (TRK-556) &mdash; Depends on Phase 6 <span class="tag tag-layer2">Layer 2</span></h3>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr>
+  <td><strong>TRK-556</strong></td>
+  <td>CI job: <code>e2e-ui</code></td>
+  <td>New job in <code>ci.yml</code>. Runs on <code>pull_request</code> AND <code>push</code> to main (pre-deploy gate). No <code>needs</code> &mdash; parallel with type-check/build. Installs chromium, runs <code>npx playwright test</code>. Uploads HTML report + screenshots as artifacts.</td>
+</tr>
+</table>
+</div>
+
+<!-- ===== PHASE 8 ===== -->
+<div class="phase">
+<h3>Phase 8: OS Registration (TRK-558) &mdash; After Everything Ships <span class="tag tag-infra">Infra</span></h3>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Docs Updated</th></tr>
+<tr>
+  <td><strong>TRK-558</strong></td>
+  <td>Register in Operating System</td>
+  <td><strong>MONITORING.md</strong>: add e2e-intake + e2e-ui to cadences table. <strong>IMMUNE_SYSTEM.md</strong>: add to enforcement hierarchy + deploy protocol. <strong>POSTURE.md</strong>: add test coverage verification. <strong>toMachina CLAUDE.md</strong>: update CI requirements + npm run commands.</td>
+</tr>
+</table>
+</div>
+
+<!-- ===== PHASE 9 ===== -->
+<div class="phase">
+<h3>Phase 9: Phase 2 Placeholder (TRK-557) &mdash; Deferred <span class="tag tag-phase2">Phase 2</span></h3>
+
+<table>
+<tr><th>Ticket</th><th>What</th><th>Key Detail</th></tr>
+<tr>
+  <td><strong>TRK-557</strong></td>
+  <td>FORGE Test Health Dashboard</td>
+  <td><strong>Not in this sprint.</strong> Future: green/red health indicators per suite, screenshot gallery, "Run Tests" button, historical trend chart.</td>
+</tr>
+</table>
+</div>
+
+<h2>Builder Assignment (Parallel Execution)</h2>
+
+<table class="builder-table">
+<tr><th>Builder</th><th>Tickets</th><th>Phases</th><th>Focus</th><th>Est.</th></tr>
+<tr><td>Builder A (Backend)</td><td>TRK-531, 537, 538, 532-536, 539-542, 543</td><td>1 &rarr; 2 &rarr; 3 &rarr; 4</td><td>Vitest + helpers + pipeline tests + backend CI</td><td>~8.5h</td></tr>
+<tr><td>Builder B (UI)</td><td>TRK-544, 545, 546-555, 556</td><td>5 &rarr; 6 &rarr; 7</td><td>Playwright + module tests + UI CI</td><td>~5.5h</td></tr>
+<tr><td>GA (after build)</td><td>TRK-558</td><td>8</td><td>OS registration</td><td>~0.5h</td></tr>
+</table>
+
+<p>Builders A and B work in <strong>PARALLEL</strong> &mdash; they share no files. Builder A owns <code>tests/e2e/intake/</code> + <code>helpers/</code>. Builder B owns <code>tests/e2e/ui/</code> + <code>playwright.config.ts</code>.</p>
+
+<h2>Dependency Graph</h2>
+
+<div class="flow-box">
+<pre style="border: none; background: transparent; padding: 0; margin: 0;">
+<strong style="color:#a78bfa;">Builder A (Backend)</strong>                     <strong style="color:#e07c3e;">Builder B (UI)</strong>
+
+Phase 1: Foundation                        (waits for Phase 1)
+  TRK-531 (Vitest config)                     |
+  TRK-537 (test client + constants)            |
+  TRK-538 (test fixture PDF)                   |
+      |                                        |
+      v                                        v
+Phase 2: Helpers (5 parallel)              Phase 5: Playwright Foundation
+  TRK-532 (auth)                             TRK-544 (Playwright config)
+  TRK-533 (api-client)                       TRK-545 (Playwright auth)
+  TRK-534 (drive-client)                        |
+  TRK-535 (poll)                                v
+  TRK-536 (cleanup)                        Phase 6: Module Tests (10 parallel)
+      |                                      TRK-546 Contacts
+      v                                      TRK-547 Accounts
+Phase 3: Pipeline Tests (4 sequential)       TRK-548 Communications
+  TRK-539 (ACF_UPLOAD)                       TRK-549 RPI Connect
+  TRK-540 (MAIL)                             TRK-550 Admin
+  TRK-541 (SPC_INTAKE)                       TRK-551 MyRPI
+  TRK-542 (ACF_SCAN)                         TRK-552 FORGE
+      |                                      TRK-553 Pipeline Studio
+      v                                      TRK-554 Quick Intake
+Phase 4: Backend CI                          TRK-555 Sidebar + Header
+  TRK-543 (e2e-intake job)                      |
+                                                v
+                                           Phase 7: UI CI
+                                             TRK-556 (e2e-ui job)
+
+                    ---- Both builders done ----
+
+                    Phase 8: OS Registration
+                      TRK-558 (4 doc updates)
+
+                    Phase 9: Deferred
+                      TRK-557 (FORGE dashboard)
+</pre>
+</div>
+
+<h2>Acceptance Criteria (Per Phase)</h2>
+
+<div class="acceptance">
+<h3>Quality Gates</h3>
+<table>
+<tr><th>Phase</th><th>Acceptance Criteria</th></tr>
+<tr><td><strong>Phase 1</strong></td><td><code>npm run test:e2e</code> command exists, runs vitest, finds 0 tests, exits clean</td></tr>
+<tr><td><strong>Phase 2</strong></td><td>Each helper has a smoke test in <code>setup.ts</code> that validates it works (auth token valid, Drive accessible, API reachable, Firestore readable)</td></tr>
+<tr><td><strong>Phase 3</strong></td><td><code>npm run test:e2e</code> runs all 4 tests, all pass, no orphaned test data in Firestore/Drive</td></tr>
+<tr><td><strong>Phase 4</strong></td><td>CI job runs on push to main, passes green</td></tr>
+<tr><td><strong>Phase 5</strong></td><td><code>npx playwright test</code> command exists, Playwright launches chromium, opens ProDash</td></tr>
+<tr><td><strong>Phase 6</strong></td><td>All 10 module tests pass, screenshots generated in <code>playwright-report/</code></td></tr>
+<tr><td><strong>Phase 7</strong></td><td>CI job runs on PR, uploads report artifacts</td></tr>
+<tr><td><strong>Phase 8</strong></td><td>All 4 OS docs updated</td></tr>
+</table>
+</div>
+
+<h2>File Structure</h2>
+
+<pre>
+tests/
+  e2e/
+    vitest.config.ts                # Vitest config (sequential, 120s timeout)
+    playwright.config.ts            # Playwright config (chromium, screenshots)
+    setup.ts                        # Global setup (auth, seed data)
+    teardown.ts                     # Global teardown (cleanup all test data)
+    helpers/
+      constants.ts                  # Test user UID, folder IDs, timeouts
+      auth.ts                       # Firebase custom token &rarr; ID token exchange
+      api-client.ts                 # Typed fetch wrapper with auth headers
+      drive-client.ts               # Upload/delete test PDFs to Drive
+      poll.ts                       # Wait for wire completion (poll Firestore)
+      cleanup.ts                    # Batch delete test documents + files
+    fixtures/
+      test-correspondence.pdf       # Synthetic test PDF (no PHI)
+    intake/
+      acf-upload.test.ts            # TRK-539: ACF_UPLOAD pipeline E2E
+      mail-intake.test.ts           # TRK-540: MAIL intake E2E
+      spc-intake.test.ts            # TRK-541: SPC_INTAKE E2E
+      acf-scan.test.ts              # TRK-542: ACF_SCAN E2E
+    ui/
+      .auth/storageState.json       # Playwright auth state (gitignored)
+      contacts.spec.ts              # TRK-546: Contacts module visual
+      accounts.spec.ts              # TRK-547: Accounts module visual
+      communications.spec.ts        # TRK-548: Communications module visual
+      connect.spec.ts               # TRK-549: RPI Connect visual
+      admin.spec.ts                 # TRK-550: Admin module visual
+      myrpi.spec.ts                 # TRK-551: MyRPI module visual
+      forge.spec.ts                 # TRK-552: FORGE module visual
+      pipeline-studio.spec.ts       # TRK-553: Pipeline Studio visual
+      quick-intake.spec.ts          # TRK-554: Quick Intake visual
+      navigation.spec.ts            # TRK-555: Sidebar + Header visual
+</pre>
+
+<h2>Risk Notes</h2>
+
+<table>
+<tr><th>#</th><th>Risk</th><th>Mitigation</th></tr>
+<tr><td>1</td><td><strong>Claude Vision costs</strong> &mdash; 4 tests x ~2 Vision calls = ~8 API calls per CI run</td><td>Cost is minimal (~$0.10/run). Monitor monthly spend.</td></tr>
+<tr><td>2</td><td><strong>Flaky Drive operations</strong> &mdash; Google Drive API has occasional latency spikes</td><td>Poll helper's 60s timeout accommodates this. Retry logic in drive-client.</td></tr>
+<tr><td>3</td><td><strong>Auth token expiry</strong> &mdash; Custom tokens last 1 hour</td><td>CI runs complete well within window. Cache invalidation on 401.</td></tr>
+<tr><td>4</td><td><strong>Shared Drive permissions</strong> &mdash; CI service account needs Editor access</td><td>Grant during Phase 4 setup. Document in POSTURE.md.</td></tr>
+</table>
+
+<p style="color: #64748b; margin-top: 40px; font-size: 12px;">Generated 2026-03-21 | FORGE Sprint E2E-TESTING-001 | 28 tickets | TRK-531 &ndash; TRK-558</p>
+
+</body>
+</html>
