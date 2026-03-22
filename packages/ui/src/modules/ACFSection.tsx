@@ -94,9 +94,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   useEffect(() => {
     loadDetail()
     // Load document configs for completeness bar (TRK-579)
-    fetchWithAuth('/api/document-index/config')
-      .then(r => r.json())
-      .then(json => { if (json.success) setDocConfigs((json.data || []).filter((c: Record<string, unknown>) => c.required && c.visible !== false)) })
+    fetchValidated<Array<{ id: string; display_name: string; file_patterns: string[]; required?: boolean; visible?: boolean }>>('/api/document-index/config')
+      .then(result => { if (result.success) setDocConfigs((result.data || []).filter(c => c.required && c.visible !== false)) })
       .catch(() => {})
   }, [loadDetail])
 
@@ -318,9 +317,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
     if (!deleteFile) return
     setDeleting(true)
     try {
-      const res = await fetchWithAuth(`/api/acf/file/${deleteFile.id}`, { method: 'DELETE' })
-      const json = await res.json()
-      if (json.success) {
+      const res = await fetchValidated(`/api/acf/file/${deleteFile.id}`, { method: 'DELETE' })
+            if (res.success) {
         // Remove file from local state optimistically
         setDetail(prev => {
           if (!prev) return prev

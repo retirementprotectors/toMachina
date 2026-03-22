@@ -654,9 +654,8 @@ function DocumentTypesAdmin() {
   const loadConfigs = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth('/api/document-index/config')
-      const json = await res.json()
-      if (json.success) setConfigs(json.data || [])
+      const res = await fetchValidated<DocTypeConfig[]>('/api/document-index/config')
+            if (res.success) setConfigs(res.data || [])
     } catch { /* */ } finally { setLoading(false) }
   }, [])
 
@@ -674,11 +673,11 @@ function DocumentTypesAdmin() {
       visible: true,
     }
     if (editingId) {
-      await fetchWithAuth(`/api/document-index/config/${editingId}`, {
+      await fetchValidated(`/api/document-index/config/${editingId}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       })
     } else {
-      await fetchWithAuth('/api/document-index/config', {
+      await fetchValidated('/api/document-index/config', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       })
     }
@@ -688,7 +687,7 @@ function DocumentTypesAdmin() {
   }
 
   const handleArchive = async (id: string) => {
-    await fetchWithAuth(`/api/document-index/config/${id}`, {
+    await fetchValidated(`/api/document-index/config/${id}`, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ visible: false }),
     })
