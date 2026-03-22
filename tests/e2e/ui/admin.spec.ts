@@ -4,6 +4,10 @@ test.describe('Admin Module', () => {
   test('renders admin panel with config tabs', async ({ page }) => {
     await page.goto('/admin')
 
+    // Dismiss any overlay/splash screen that may appear on navigation
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+
     // AdminPanel has NO h1 — it renders tab buttons directly
     // Default tab is "Team Config". Wait for tab buttons to appear.
     await expect(page.getByText('Team Config')).toBeVisible({ timeout: 15000 })
