@@ -12,12 +12,17 @@ async function handler(
 
   // Get identity token for Cloud Run IAM
   const client = await auth.getIdTokenClient(TARGET)
-  const headers = await client.getRequestHeaders()
+  const rawHeaders = await client.getRequestHeaders()
 
   // Forward original headers (especially Authorization for Firebase Auth)
+  // google-auth-library v10 returns Headers object — convert to plain record
   const forwardHeaders: Record<string, string> = {
-    ...headers,
     'content-type': request.headers.get('content-type') || 'application/json',
+  }
+  if (rawHeaders instanceof Headers) {
+    rawHeaders.forEach((v, k) => { forwardHeaders[k] = v })
+  } else {
+    Object.assign(forwardHeaders, rawHeaders)
   }
   const authHeader = request.headers.get('authorization')
   if (authHeader) {
