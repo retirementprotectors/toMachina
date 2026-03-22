@@ -10,7 +10,7 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "firebase": "^11.0.0",
+    "firebase": "^12.11.0",
     "react": "^19.0.0"
   },
   "devDependencies": {
