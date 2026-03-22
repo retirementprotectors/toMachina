@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Response Validation (Valibot) &mdash; Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --dim: #484f58; --gold: #d4a44c; --gold-bright: #e8c171; --gold-glow: rgba(212,164,76,0.12); --gold-border: rgba(212,164,76,0.28); --green: #3fb950; --red: #f85149; --orange: #d29922; --blue: #58a6ff; --purple: #bc8cff; --teal: #39d4b0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 48px 40px 32px; text-align: center; position: relative; border-bottom: 1px solid var(--border); }
+  .header::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(circle, rgba(212,164,76,0.08) 0%, transparent 70%); pointer-events: none; }
+  .header .context { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .header h1 { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--gold-bright), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 600px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--gold); }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: var(--gold-bright); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--gold); }
+  pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; overflow-x: auto; font-family: 'SF Mono', monospace; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .tag.feature { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.enh { background: var(--gold-glow); color: var(--gold); border: 1px solid var(--gold-border); }
+  .tag.research { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .tag.deferred { background: rgba(139,148,158,0.10); color: var(--dim); border: 1px solid rgba(139,148,158,0.25); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); }
+  .decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .decision-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .decision-card .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--dim); margin-bottom: 4px; }
+  .decision-card .value { font-size: 15px; font-weight: 700; color: var(--gold-bright); }
+  .decision-card .reason { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .phase { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .phase-num { font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 100px; background: var(--gold-glow); border: 1px solid var(--gold-border); color: var(--gold); letter-spacing: 1px; }
+  .phase-title { font-size: 16px; font-weight: 700; }
+  .phase-trk { font-size: 11px; color: var(--dim); font-weight: 600; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 6px 0; font-size: 13px; }
+  .checklist li::before { content: '[ ] '; font-family: monospace; color: var(--dim); }
+  @media print { body { background: white; color: #1a1a1a; } .header::before { display: none; } .card, .phase { border-color: #ddd; background: #f8f8f8; } h2, h3, .phase-title { color: #1a1a1a; } .decision-card .value { color: #b8860b; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="context">FORGE Sprint &middot; SPRINT-ZOD-1774161826084</div>
+  <h1>Response Validation (Valibot)</h1>
+  <div class="sub">Non-blocking runtime validation at every API call site. Safety net for type mismatches that TypeScript can&rsquo;t catch across HTTP boundaries.</div>
+</div>
+<div class="container">
+
+<h2>The <span class="accent">Problem</span></h2>
+<p>TypeScript types evaporate at the HTTP boundary. The FORGE React crash (2026-03-22) proved it: API returned <code>{ pending: TrackerItem[] }</code>, frontend expected <code>{ pending: number }</code>, React crashed rendering an array as a text node.</p>
+<p style="margin-top:12px"><strong>170 <code>fetchWithAuth</code> calls</strong> across <strong>52 UI modules</strong> &mdash; zero runtime validation on any of them.</p>
+
+<h2>Key <span class="accent">Decisions</span></h2>
+<div class="decision-grid">
+  <div class="decision-card">
+    <div class="label">Library</div>
+    <div class="value">Valibot v1</div>
+    <div class="reason">7KB tree-shaken vs Zod&rsquo;s 57KB. Same DX, same TS inference.</div>
+  </div>
+  <div class="decision-card">
+    <div class="label">Schema Location</div>
+    <div class="value">packages/core/src/schemas/</div>
+    <div class="reason">Next to types they validate. Shared by frontend + backend.</div>
+  </div>
+  <div class="decision-card">
+    <div class="label">Validation Mode</div>
+    <div class="value">Non-blocking</div>
+    <div class="reason">console.warn in dev, silent in prod. Never crashes.</div>
+  </div>
+  <div class="decision-card">
+    <div class="label">DTO Dependency</div>
+    <div class="value">Removed (JDM-approved)</div>
+    <div class="reason">Existing core types are sufficient. DTOs can tighten later.</div>
+  </div>
+</div>
+
+<h2>Deliverable <span class="accent">Overview</span></h2>
+<table>
+  <thead><tr><th>TRK</th><th>Type</th><th>Deliverable</th><th>Phase</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TRK-ZOD-001</strong></td><td><span class="tag research">Research</span></td><td>Evaluate Zod vs Valibot vs ArkType</td><td>1</td></tr>
+    <tr><td><strong>TRK-ZOD-002</strong></td><td><span class="tag feature">Feature</span></td><td>Install Valibot + configure barrel export</td><td>2</td></tr>
+    <tr><td><strong>TRK-ZOD-003</strong></td><td><span class="tag feature">Feature</span></td><td>Create response validators for all entities referenced by top 10 modules</td><td>3</td></tr>
+    <tr><td><strong>TRK-ZOD-004</strong></td><td><span class="tag feature">Feature</span></td><td>Create fetchValidated wrapper (drop-in for fetchWithAuth)</td><td>4</td></tr>
+    <tr><td><strong>TRK-ZOD-005</strong></td><td><span class="tag enh">Enhancement</span></td><td>Wire top 10 highest-risk modules to validated fetcher</td><td>5</td></tr>
+    <tr><td><strong>TRK-ZOD-006</strong></td><td><span class="tag enh">Enhancement</span></td><td>Validation error logging (verification step &mdash; built into Phase 4)</td><td>6</td></tr>
+    <tr><td><strong>TRK-ZOD-007</strong></td><td><span class="tag enh">Enhancement</span></td><td>Wire remaining 42 fetch call files to validated fetcher</td><td>7</td></tr>
+    <tr><td><strong>TRK-ZOD-008</strong></td><td><span class="tag enh">Enhancement</span></td><td>Final verification: zero unvalidated critical paths, CI 11/11</td><td>8</td></tr>
+    <tr><td><strong>TRK-ZOD-009</strong></td><td><span class="tag enh">Enhancement</span></td><td>Update OS Docs: IMMUNE_SYSTEM, MONITORING, STANDARDS for Layer 3</td><td>9a</td></tr>
+    <tr><td><strong>TRK-ZOD-010</strong></td><td><span class="tag feature">Feature</span></td><td>Hookify rules: warn-unvalidated-fetch + strengthen warn-untyped-api-response</td><td>9b</td></tr>
+    <tr><td><strong>TRK-ZOD-011</strong></td><td><span class="tag deferred">Deferred</span></td><td>Knowledge-promote pipeline integration (post-sprint follow-up)</td><td>&mdash;</td></tr>
+  </tbody>
+</table>
+
+<h2>Execution <span class="accent">Phases</span></h2>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 1</span>
+    <span class="phase-title">Library Evaluation</span>
+    <span class="phase-trk">TRK-ZOD-001</span>
+  </div>
+  <table>
+    <thead><tr><th>Criterion</th><th>Valibot</th><th>Zod</th><th>ArkType</th></tr></thead>
+    <tbody>
+      <tr><td>Bundle (tree-shaken)</td><td><strong style="color:var(--green)">~3-5KB</strong></td><td>57KB</td><td>12KB</td></tr>
+      <tr><td>TS inference</td><td>Excellent</td><td>Excellent</td><td>Excellent</td></tr>
+      <tr><td>Ecosystem</td><td>Stable v1, growing</td><td>Largest</td><td>Youngest</td></tr>
+      <tr><td>Tree-shaking</td><td><strong style="color:var(--green)">First-class</strong></td><td>None</td><td>Partial</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Recommendation: Valibot v1.</strong> Bundle size is decisive for 3 browser-shipped portal apps.</p>
+</div>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 2</span>
+    <span class="phase-title">Install + Configure</span>
+    <span class="phase-trk">TRK-ZOD-002</span>
+  </div>
+  <ul>
+    <li><code>packages/core/package.json</code> &mdash; add <code>"valibot": "^1.0.0"</code> to dependencies</li>
+    <li><code>packages/core/src/index.ts</code> &mdash; add <code>export * from './schemas'</code></li>
+    <li>Root <code>npm install</code> to update lockfile</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 3</span>
+    <span class="phase-title">Create Response Schemas</span>
+    <span class="phase-trk">TRK-ZOD-003</span>
+  </div>
+  <p>8 schema files in <code>packages/core/src/schemas/</code>:</p>
+  <pre>schemas/
+  index.ts        &mdash; Barrel export
+  envelope.ts     &mdash; ApiEnvelope&lt;T&gt;, PaginatedEnvelope&lt;T&gt;
+  tracker.ts      &mdash; TrackerItemSchema, SprintSchema
+  clients.ts      &mdash; ClientShapeSchema, AccountShapeSchema
+  users.ts        &mdash; UserShapeSchema
+  access.ts       &mdash; AccessItemSchema
+  flow.ts         &mdash; PipelineDefSchema, FlowInstanceSchema
+  guardian.ts     &mdash; CollectionHealthSchema, AuditReportSchema
+  prozone.ts      &mdash; SpecialistConfigSchema, TerritorySchema</pre>
+  <p>Shape validation only &mdash; 5-15 critical render fields per entity, <code>objectWithRest(..., unknown())</code> for passthrough.</p>
+</div>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 4</span>
+    <span class="phase-title">Create fetchValidated Wrapper</span>
+    <span class="phase-trk">TRK-ZOD-004</span>
+  </div>
+  <p>New file: <code>packages/ui/src/modules/fetchValidated.ts</code></p>
+  <ul>
+    <li>Wraps <code>fetchWithAuth</code> &mdash; reuses auth logic</li>
+    <li>Optional <code>schema</code> param &mdash; works without validation too</li>
+    <li>Dynamic <code>import('valibot')</code> for tree-shaking</li>
+    <li>Non-blocking: warns on mismatch, returns data anyway</li>
+    <li>Returns <code>ValidatedResult&lt;T&gt;</code>: <code>{ success, data, error, validationWarnings, pagination }</code></li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 5</span>
+    <span class="phase-title">Wire Top 10 Modules</span>
+    <span class="phase-trk">TRK-ZOD-005</span>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>Module</th><th>Calls</th><th>Schemas</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>ForgeAudit.tsx</strong></td><td>10</td><td>TrackerItem, Sprint, AuditRoundInfo</td></tr>
+      <tr><td>2</td><td><strong>Forge.tsx</strong></td><td>38</td><td>TrackerItem, Sprint</td></tr>
+      <tr><td>3</td><td><strong>PipelineEditor.tsx</strong></td><td>9</td><td>PipelineDef</td></tr>
+      <tr><td>4</td><td><strong>ForgeConfirmWalkthrough.tsx</strong></td><td>7</td><td>TrackerItem</td></tr>
+      <tr><td>5</td><td><strong>ConnectPanel.tsx</strong></td><td>6</td><td>envelope only</td></tr>
+      <tr><td>6</td><td><strong>SpecialistConfigEditor.tsx</strong></td><td>6</td><td>SpecialistConfig</td></tr>
+      <tr><td>7</td><td><strong>ACFSection.tsx</strong></td><td>6</td><td>ACFConfig</td></tr>
+      <tr><td>8</td><td><strong>FirestoreConfig.tsx</strong></td><td>6</td><td>envelope only</td></tr>
+      <tr><td>9</td><td><strong>InstanceDetail.tsx</strong></td><td>5</td><td>FlowInstance</td></tr>
+      <tr><td>10</td><td><strong>AtlasRegistry.tsx</strong></td><td>5</td><td>envelope only</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 7</span>
+    <span class="phase-title">Wire Remaining 42 Files</span>
+    <span class="phase-trk">TRK-ZOD-007</span>
+  </div>
+  <p>Mechanical import swap. No schemas &mdash; envelope validation + boilerplate elimination only.</p>
+</div>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 8</span>
+    <span class="phase-title">Final Verification</span>
+    <span class="phase-trk">TRK-ZOD-008</span>
+  </div>
+  <ul class="checklist">
+    <li><code>npm run build</code> passes 11/11</li>
+    <li><code>npm run type-check</code> passes 13/13</li>
+    <li>Grep for raw <code>fetchWithAuth</code> in critical paths &rarr; zero</li>
+    <li>E2E tests (e2e-ui + e2e-intake) pass</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">PHASE 9</span>
+    <span class="phase-title">OS Docs + Hookify</span>
+    <span class="phase-trk">TRK-ZOD-009 / TRK-ZOD-010</span>
+  </div>
+  <h3>OS Docs (TRK-ZOD-009)</h3>
+  <ul>
+    <li><strong>IMMUNE_SYSTEM.md:</strong> Add Layer 3 (runtime validation) to enforcement model</li>
+    <li><strong>MONITORING.md:</strong> Add <code>[ResponseValidation]</code> as a new signal type</li>
+    <li><strong>STANDARDS.md:</strong> Add <code>fetchValidated</code> as required pattern</li>
+  </ul>
+  <h3>Hookify Rules (TRK-ZOD-010)</h3>
+  <ul>
+    <li><strong>New:</strong> <code>warn-unvalidated-fetch</code> &mdash; catches raw <code>fetchWithAuth</code> in UI modules</li>
+    <li><strong>Strengthen:</strong> <code>warn-untyped-api-response</code> &mdash; expand for Layer 2+3 coverage</li>
+  </ul>
+</div>
+
+<h2>Risk <span class="accent">Register</span></h2>
+<table>
+  <thead><tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr></thead>
+  <tbody>
+    <tr><td>Schema rejects valid data</td><td style="color:var(--green)">LOW</td><td><code>objectWithRest()</code> passthrough + non-blocking mode</td></tr>
+    <tr><td>Bundle size regression</td><td style="color:var(--green)">LOW</td><td>Valibot tree-shakes to ~3KB; measure before/after</td></tr>
+    <tr><td>Dynamic import failure</td><td style="color:var(--green)">LOW</td><td>try/catch wraps all validation code</td></tr>
+    <tr><td>Developer bypass</td><td style="color:var(--orange)">MED</td><td>Hookify rule <code>warn-unvalidated-fetch</code></td></tr>
+  </tbody>
+</table>
+
+<h2>Verification <span class="accent">Checklist</span></h2>
+<ul class="checklist">
+  <li><code>npm run build</code> &mdash; 11/11 (no bundle regression)</li>
+  <li><code>npm run type-check</code> &mdash; 13/13</li>
+  <li><code>npm run test:e2e:ui</code> &mdash; 10/10 visual tests pass</li>
+  <li><code>npm run test:e2e:local</code> &mdash; 4/4 intake tests pass</li>
+  <li>ForgeAudit in dev &mdash; no unexpected validation warnings</li>
+  <li>Break API response shape in dev &mdash; warning appears, app doesn&rsquo;t crash</li>
+</ul>
+
+<div style="text-align:center; margin-top:60px; padding:20px; color:var(--dim); font-size:11px;">
+  FORGE Sprint SPRINT-ZOD-1774161826084 &middot; Plan Audited 2026-03-22 &middot; Generated by Claude Opus 4.6 (GA)
+</div>
+
+</div>
+</body>
+</html>

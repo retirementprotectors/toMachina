@@ -256,7 +256,7 @@ atlasRoutes.get('/sources', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, SOURCE_COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(data, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/atlas/sources error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -272,7 +272,7 @@ atlasRoutes.get('/sources/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(SOURCE_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Source not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/atlas/sources/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -309,7 +309,7 @@ atlasRoutes.post('/sources', sourceCreateValidation, async (req: Request, res: R
     await db.collection(SOURCE_COLLECTION).doc(sourceId).set(data)
     await writeThroughBridge(SOURCE_COLLECTION, 'insert', sourceId, data)
 
-    res.status(201).json(successResponse({ id: sourceId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: sourceId, ...data }))
   } catch (err) {
     console.error('POST /api/atlas/sources error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -337,7 +337,7 @@ atlasRoutes.patch('/sources/:id', async (req: Request, res: Response) => {
     await docRef.update(updates)
     await writeThroughBridge(SOURCE_COLLECTION, 'update', id, updates)
 
-    res.json(successResponse({ id, updated: Object.keys(updates) }))
+    res.json(successResponse<unknown>({ id, updated: Object.keys(updates) }))
   } catch (err) {
     console.error('PATCH /api/atlas/sources/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -358,7 +358,7 @@ atlasRoutes.delete('/sources/:id', async (req: Request, res: Response) => {
     await docRef.update({ status: 'DEPRECATED', updated_at: new Date().toISOString() })
     await writeThroughBridge(SOURCE_COLLECTION, 'update', id, { status: 'DEPRECATED' })
 
-    res.json(successResponse({ id, deleted: true }))
+    res.json(successResponse<unknown>({ id, deleted: true }))
   } catch (err) {
     console.error('DELETE /api/atlas/sources/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -389,7 +389,7 @@ atlasRoutes.get('/tools', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, TOOL_COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(data, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/atlas/tools error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -423,7 +423,7 @@ atlasRoutes.post('/tools', toolCreateValidation, async (req: Request, res: Respo
 
     await db.collection(TOOL_COLLECTION).doc(toolId).set(data)
 
-    res.status(201).json(successResponse({ id: toolId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: toolId, ...data }))
   } catch (err) {
     console.error('POST /api/atlas/tools error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -444,7 +444,7 @@ atlasRoutes.patch('/tools/:id', async (req: Request, res: Response) => {
     const updates = { ...req.body, updated_at: new Date().toISOString() }
     await docRef.update(updates)
 
-    res.json(successResponse({ id, updated: Object.keys(updates) }))
+    res.json(successResponse<unknown>({ id, updated: Object.keys(updates) }))
   } catch (err) {
     console.error('PATCH /api/atlas/tools/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -513,7 +513,7 @@ atlasRoutes.get('/analytics', async (req: Request, res: Response) => {
     // Sort worst first
     analysis.sort((a, b) => a.health_score - b.health_score)
 
-    res.json(successResponse(analysis, { group_by: groupBy, total_sources: sources.length }))
+    res.json(successResponse<unknown>(analysis, { group_by: groupBy, total_sources: sources.length }))
   } catch (err) {
     console.error('GET /api/atlas/analytics error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -565,7 +565,7 @@ atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse(scorecards, { pagination: { count: scorecards.length, total: scorecards.length } }))
+    res.json(successResponse<unknown>(scorecards, { pagination: { count: scorecards.length, total: scorecards.length } }))
   } catch (err) {
     console.error('GET /api/atlas/analytics/carriers error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -594,7 +594,7 @@ atlasRoutes.get('/audit', async (req: Request, res: Response) => {
     const snap = await query.orderBy('created_at', 'desc').limit(limit).get()
     const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/atlas/audit error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -626,7 +626,7 @@ atlasRoutes.post('/audit', auditValidation, async (req: Request, res: Response) 
 
     await db.collection(AUDIT_COLLECTION).doc(historyId).set(data)
 
-    res.status(201).json(successResponse(data))
+    res.status(201).json(successResponse<unknown>(data))
   } catch (err) {
     console.error('POST /api/atlas/audit error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -682,7 +682,7 @@ atlasRoutes.get('/pipeline', async (req: Request, res: Response) => {
       { stage: 'FRONTEND', label: 'Frontend', count: 3, pending: 3, processing: 0, color: '#f472b6' },
     ]
 
-    res.json(successResponse(stages))
+    res.json(successResponse<unknown>(stages))
   } catch (err) {
     console.error('GET /api/atlas/pipeline error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -710,7 +710,7 @@ atlasRoutes.get('/wires', async (req: Request, res: Response) => {
       wires = wires.filter((w) => w.data_domain === dataDomain || w.data_domain === 'ALL')
     }
 
-    res.json(successResponse(wires, { pagination: { count: wires.length, total: wires.length } }))
+    res.json(successResponse<unknown>(wires, { pagination: { count: wires.length, total: wires.length } }))
   } catch (err) {
     console.error('GET /api/atlas/wires error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -766,7 +766,7 @@ atlasRoutes.post('/digest', async (_req: Request, res: Response) => {
 
     if (!slackToken) {
       // Dry run — return the message but don't send
-      res.json(successResponse({ dry_run: true, message: text, note: 'SLACK_BOT_TOKEN not set' }))
+      res.json(successResponse<unknown>({ dry_run: true, message: text, note: 'SLACK_BOT_TOKEN not set' }))
       return
     }
 
@@ -787,7 +787,7 @@ atlasRoutes.post('/digest', async (_req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse({ sent: true, channel: JDM_SLACK_ID }))
+    res.json(successResponse<unknown>({ sent: true, channel: JDM_SLACK_ID }))
   } catch (err) {
     console.error('POST /api/atlas/digest error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -902,7 +902,7 @@ atlasRoutes.get('/health', async (_req: Request, res: Response) => {
       ? Math.round((wireHealthPct + sourceHealthPct) / 2)
       : sourceHealthPct
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       overall_health: overallHealth,
       wire_health_pct: wireHealthPct,
       source_health_pct: sourceHealthPct,
@@ -948,7 +948,7 @@ atlasRoutes.get('/import-runs', async (req: Request, res: Response) => {
     const snap = await query.limit(limitParam).get()
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/atlas/import-runs error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -965,7 +965,7 @@ atlasRoutes.get('/import-runs/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(IMPORT_RUNS_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Import run not found')); return }
-    res.json(successResponse({ id: doc.id, ...doc.data() } as Record<string, unknown>))
+    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() } as Record<string, unknown>))
   } catch (err) {
     console.error('GET /api/atlas/import-runs/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1001,7 +1001,7 @@ atlasRoutes.post('/import-runs/:id/retry', async (req: Request, res: Response) =
       error_details: [],
     })
 
-    res.json(successResponse({ id, status: 'running', retried_at: now }))
+    res.json(successResponse<unknown>({ id, status: 'running', retried_at: now }))
   } catch (err) {
     console.error('POST /api/atlas/import-runs/:id/retry error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1025,7 +1025,7 @@ atlasRoutes.get('/formats', async (req: Request, res: Response) => {
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
     const snap = await query.orderBy('last_used_at', 'desc').limit(limit).get()
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/atlas/formats error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1050,7 +1050,7 @@ atlasRoutes.post('/formats', async (req: Request, res: Response) => {
       updated_at: now,
     }
     await db.collection('atlas').doc('formats').collection('items').doc(formatId).set(data)
-    res.status(201).json(successResponse({ id: formatId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: formatId, ...data }))
   } catch (err) {
     console.error('POST /api/atlas/formats error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1070,7 +1070,7 @@ atlasRoutes.patch('/formats/:id', async (req: Request, res: Response) => {
     if (!doc.exists) { res.status(404).json(errorResponse('Format not found')); return }
     const updates = { ...req.body, updated_at: new Date().toISOString() }
     await ref.update(updates)
-    res.json(successResponse({ id, updated_at: updates.updated_at }))
+    res.json(successResponse<unknown>({ id, updated_at: updates.updated_at }))
   } catch (err) {
     console.error('PATCH /api/atlas/formats/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1130,7 +1130,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       const fmtRef = db.collection('atlas').doc('formats').collection('items').doc(fpMatch.format.format_id)
       await fmtRef.update({ times_used: (fpMatch.format.times_used || 0) + 1, last_used_at: now })
 
-      res.json(successResponse({
+      res.json(successResponse<unknown>({
         run_id: runId, match_method: 'fingerprint_exact', format_id: fpMatch.format.format_id,
         overall_confidence: 100, column_mappings: mappings,
         carrier_detection: { detected_carrier: fpMatch.format.carrier_name, carrier_confidence: 100, default_category: fpMatch.format.default_category },
@@ -1159,7 +1159,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
       }
       await db.collection('atlas').doc('introspect_runs').collection('items').doc(runId).set(run)
 
-      res.json(successResponse({
+      res.json(successResponse<unknown>({
         run_id: runId, match_method: 'carrier_detect', format_id: null,
         overall_confidence: overallConf, column_mappings: mappings,
         carrier_detection: { detected_carrier: carrierMatch.carrier_name, carrier_confidence: overallConf, default_category: carrierMatch.default_category },
@@ -1193,7 +1193,7 @@ atlasRoutes.post('/introspect', async (req: Request, res: Response) => {
     }
     await db.collection('atlas').doc('introspect_runs').collection('items').doc(runId).set(run)
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       run_id: runId, match_method: run.match_method,
       format_id: fpMatch?.format.format_id || null,
       overall_confidence: overallConf, column_mappings: mappings,
@@ -1269,7 +1269,7 @@ atlasRoutes.post('/introspect/confirm', async (req: Request, res: Response) => {
       await db.collection('atlas').doc('formats').collection('items').doc(formatId).set(formatData)
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       format_id: formatId,
       mappings_confirmed: confirmed_mappings.length,
       ready_for_import: true,

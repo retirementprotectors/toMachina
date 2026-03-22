@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { HouseholdDTO } from '@tomachina/core'
 
 export const householdRoutes = Router()
 const COLLECTION = 'households'
@@ -37,7 +38,7 @@ householdRoutes.get('/', async (req: Request, res: Response) => {
     const total = data.length
     data = data.slice(0, limit)
 
-    res.json(successResponse(data, { pagination: { count: data.length, total, hasMore: total > limit } }))
+    res.json(successResponse<HouseholdDTO[]>(data as unknown as HouseholdDTO[], { pagination: { count: data.length, total, hasMore: total > limit } }))
   } catch (err) {
     console.error('GET /api/households error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -51,7 +52,7 @@ householdRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Household not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/households/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -95,7 +96,7 @@ householdRoutes.post('/', async (req: Request, res: Response) => {
     }
     if (memberList.length > 0) await batch.commit()
 
-    res.status(201).json(successResponse(stripInternalFields({ id: householdId, ...householdData })))
+    res.status(201).json(successResponse<unknown>(stripInternalFields({ id: householdId, ...householdData })))
   } catch (err) {
     console.error('POST /api/households error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -122,7 +123,7 @@ householdRoutes.patch('/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('PATCH /api/households/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -144,7 +145,7 @@ householdRoutes.delete('/:id', async (req: Request, res: Response) => {
       updated_at: new Date().toISOString(),
       _deleted_by: email,
     })
-    res.json(successResponse({ id, status: 'Inactive' }))
+    res.json(successResponse<unknown>({ id, status: 'Inactive' }))
   } catch (err) {
     console.error('DELETE /api/households/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -193,7 +194,7 @@ householdRoutes.post('/:id/members', async (req: Request, res: Response) => {
     batch.update(db.collection('clients').doc(client_id), { household_id: id, updated_at: now })
     await batch.commit()
 
-    res.status(201).json(successResponse(newMember))
+    res.status(201).json(successResponse<unknown>(newMember))
   } catch (err) {
     console.error('POST /api/households/:id/members error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -227,7 +228,7 @@ householdRoutes.delete('/:id/members/:clientId', async (req: Request, res: Respo
     batch.update(db.collection('clients').doc(clientId), { household_id: null, updated_at: now })
     await batch.commit()
 
-    res.json(successResponse({ removed: clientId }))
+    res.json(successResponse<unknown>({ removed: clientId }))
   } catch (err) {
     console.error('DELETE /api/households/:id/members/:clientId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -288,7 +289,7 @@ householdRoutes.post('/:id/recalculate', async (req: Request, res: Response) => 
 
     await docRef.update({ aggregate_financials: aggregateFinancials, updated_at: new Date().toISOString() })
 
-    res.json(successResponse(aggregateFinancials))
+    res.json(successResponse<unknown>(aggregateFinancials))
   } catch (err) {
     console.error('POST /api/households/:id/recalculate error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -389,7 +390,7 @@ householdRoutes.get('/:id/meeting-prep', async (req: Request, res: Response) => 
       opportunities.push('Household review: Confirm both members have consistent estate planning')
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       household_summary: {
         household_id: id,
         household_name: household.household_name,
@@ -451,7 +452,7 @@ householdRoutes.post('/:id/appointments', async (req: Request, res: Response) =>
 
     await apptRef.set(appointmentData)
 
-    res.status(201).json(successResponse(appointmentData))
+    res.status(201).json(successResponse<unknown>(appointmentData))
   } catch (err) {
     console.error('POST /api/households/:id/appointments error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -464,7 +465,7 @@ householdRoutes.post('/enrich-territories', async (req: Request, res: Response) 
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).where('household_status', '==', 'Active').get()
     if (snap.empty) {
-      res.json(successResponse({ enriched: 0, skipped: 0, total: 0 }))
+      res.json(successResponse<unknown>({ enriched: 0, skipped: 0, total: 0 }))
       return
     }
 
@@ -502,7 +503,7 @@ householdRoutes.post('/enrich-territories', async (req: Request, res: Response) 
     }
 
     if (batchCount > 0) await batch.commit()
-    res.json(successResponse({ enriched, skipped, total: snap.size }))
+    res.json(successResponse<unknown>({ enriched, skipped, total: snap.size }))
   } catch (err) {
     console.error('POST /api/households/enrich-territories error:', err)
     res.status(500).json(errorResponse(String(err)))

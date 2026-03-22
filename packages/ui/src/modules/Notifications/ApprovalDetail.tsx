@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 
 /* ─── Types ─── */
 
@@ -64,13 +64,12 @@ export function ApprovalDetail({ batch, onBack, onExecuted }: ApprovalDetailProp
     setExecuting(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/approval/batches/${batch._id || batch.batch_id}/execute`, {
+      const res = await fetchValidated(`/api/approval/batches/${batch._id || batch.batch_id}/execute`, {
         method: 'POST',
         body: JSON.stringify({ edits }),
       })
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({ error: 'Execute failed' }))
-        throw new Error(json.error || `HTTP ${res.status}`)
+      if (!res.success) {
+        throw new Error(res.error || 'Execute failed')
       }
       onExecuted()
     } catch (err: unknown) {

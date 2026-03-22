@@ -8,6 +8,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { LegacyPipelineDTO } from '@tomachina/core'
 
 export const pipelineRoutes = Router()
 const COLLECTION = 'pipelines'
@@ -23,7 +24,7 @@ pipelineRoutes.get('/', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<LegacyPipelineDTO[]>(data as unknown as LegacyPipelineDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/pipelines error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -36,7 +37,7 @@ pipelineRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Pipeline not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/pipelines/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

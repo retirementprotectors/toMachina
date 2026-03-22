@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /* ═══ Types ═══ */
 
@@ -522,16 +522,15 @@ export function FirestoreConfig({ portal }: FirestoreConfigProps) {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [collRes, healthRes] = await Promise.all([
-        fetchWithAuth('/api/firestore-config/collections'),
-        fetchWithAuth('/api/firestore-config/health'),
+      const [collResult, healthResult] = await Promise.all([
+        fetchValidated<CollectionInfo[]>('/api/firestore-config/collections'),
+        fetchValidated<HealthData>('/api/firestore-config/health'),
       ])
-      const [collJson, healthJson] = await Promise.all([collRes.json(), healthRes.json()])
-      if (collJson.success) {
-        setCollections(collJson.data)
-        if (!selectedCollection && collJson.data.length > 0) setSelectedCollection(collJson.data[0].name)
+      if (collResult.success && collResult.data) {
+        setCollections(collResult.data)
+        if (!selectedCollection && collResult.data.length > 0) setSelectedCollection(collResult.data[0].name)
       }
-      if (healthJson.success) setHealth(healthJson.data)
+      if (healthResult.success) setHealth(healthResult.data ?? null)
     } catch { /* silent */ }
     finally { setLoading(false) }
   }, [selectedCollection])
@@ -541,15 +540,15 @@ export function FirestoreConfig({ portal }: FirestoreConfigProps) {
   const handleSave = async (coll: string, docId: string, data: Record<string, unknown>, deleteFields?: string[]) => {
     try {
       const payload = deleteFields ? { ...data, _delete_fields: deleteFields } : data
-      const res = await fetchWithAuth(`/api/firestore-config/${coll}/${docId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      if ((await res.json()).success) loadData()
+      const result = await fetchValidated(`/api/firestore-config/${coll}/${docId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      if (result.success) loadData()
     } catch { /* silent */ }
   }
 
   const handleDeleteDoc = async (coll: string, docId: string) => {
     try {
-      const res = await fetchWithAuth(`/api/firestore-config/${coll}/${docId}`, { method: 'DELETE' })
-      if ((await res.json()).success) loadData()
+      const result = await fetchValidated(`/api/firestore-config/${coll}/${docId}`, { method: 'DELETE' })
+      if (result.success) loadData()
     } catch { /* silent */ }
   }
 
@@ -569,8 +568,8 @@ export function FirestoreConfig({ portal }: FirestoreConfigProps) {
   const handleDeleteCollection = async () => {
     if (deleteConfirmText !== selectedCollection) return
     try {
-      const res = await fetchWithAuth(`/api/firestore-config/${selectedCollection}?confirm=${selectedCollection}`, { method: 'DELETE' })
-      if ((await res.json()).success) {
+      const delResult = await fetchValidated(`/api/firestore-config/${selectedCollection}?confirm=${selectedCollection}`, { method: 'DELETE' })
+      if (delResult.success) {
         setShowDeleteCollection(false); setDeleteConfirmText('')
         setSelectedCollection(collections.find(c => c.name !== selectedCollection)?.name || '')
         loadData()

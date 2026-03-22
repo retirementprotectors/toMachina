@@ -7,6 +7,7 @@ import {
   writeThroughBridge,
   param,
 } from '../lib/helpers.js'
+import type { BookingConfigData, BookingBusyData, BookingCreateResult, BookingClientSearchDTO } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const bookingRoutes = Router()
@@ -67,7 +68,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
     // Check if team booking first
     const teamCfg = TEAM_BOOKING_CONFIG[slug]
     if (teamCfg) {
-      res.json(successResponse({
+      res.json(successResponse<unknown>({
         agent: {
           email: teamCfg.leader_emails[0],
           all_emails: teamCfg.leader_emails,
@@ -123,7 +124,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       agent: {
         email: agent.email,
         first_name: agent.first_name,
@@ -170,7 +171,7 @@ bookingRoutes.get('/busy', async (req: Request, res: Response) => {
 
     const busy = doc.exists ? (doc.data()?.periods || []) : []
 
-    res.json(successResponse({ busy }))
+    res.json(successResponse<unknown>({ busy }))
   } catch (err) {
     console.error('GET /api/booking/busy error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -235,7 +236,7 @@ bookingRoutes.post('/', bookingValidation, async (req: Request, res: Response) =
     await db.collection('booking_log').doc(bookingId).set(bookingLog)
     await writeThroughBridge('booking_log', 'insert', bookingId, bookingLog)
 
-    res.status(201).json(successResponse({
+    res.status(201).json(successResponse<unknown>({
       booking_id: bookingId,
       agent_name: agentName || '',
       meeting_type: meetingType || '',
@@ -264,7 +265,7 @@ bookingRoutes.get('/search-clients', async (req: Request, res: Response) => {
     const query = (req.query.q as string || '').trim()
 
     if (query.length < 2) {
-      res.json(successResponse([], { pagination: { count: 0, total: 0 } }))
+      res.json(successResponse<unknown>([], { pagination: { count: 0, total: 0 } }))
       return
     }
 
@@ -288,7 +289,7 @@ bookingRoutes.get('/search-clients', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse(results, { pagination: { count: results.length, total: results.length } }))
+    res.json(successResponse<unknown>(results, { pagination: { count: results.length, total: results.length } }))
   } catch (err) {
     console.error('GET /api/booking/search-clients error:', err)
     res.status(500).json(errorResponse(String(err)))

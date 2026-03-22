@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /* ─── Types ─── */
 interface TrackerItem {
@@ -230,11 +230,8 @@ export function ForgeConfirmWalkthrough({ portal }: ForgeConfirmWalkthroughProps
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker?status=audited&limit=1000`)
-      if (res.ok) {
-        const json = await res.json()
-        if (json.success) setAllItems(json.data || [])
-      }
+      const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?status=audited&limit=1000`)
+      if (result.success) setAllItems(result.data || [])
     } catch { /* silent */ }
     setLoading(false)
   }, [])
@@ -406,7 +403,7 @@ export function ForgeConfirmWalkthrough({ portal }: ForgeConfirmWalkthroughProps
     if (!foundTitle.trim() || foundSubmitting) return
     setFoundSubmitting(true)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker`, {
+      const result = await fetchValidated<TrackerItem>(`${API_BASE}/tracker`, {
         method: 'POST',
         body: JSON.stringify({
           title: foundTitle.trim(),
@@ -420,14 +417,13 @@ export function ForgeConfirmWalkthrough({ portal }: ForgeConfirmWalkthroughProps
           notes: 'Discovered during Confirm Walkthrough',
         }),
       })
-      if (res.ok) {
-        const json = await res.json()
-        const newItem = json.data
+      if (result.success) {
+        const newItem = result.data
         const itemId = newItem?.id || newItem?.item_id
 
         if (itemId && foundScreenshot) {
           const base64 = foundScreenshot.split(',')[1]
-          await fetchWithAuth(`${API_BASE}/tracker/${itemId}/attachments`, {
+          await fetchValidated(`${API_BASE}/tracker/${itemId}/attachments`, {
             method: 'POST',
             body: JSON.stringify({
               name: `found-screenshot-${Date.now()}.png`,
@@ -459,7 +455,7 @@ export function ForgeConfirmWalkthrough({ portal }: ForgeConfirmWalkthroughProps
       // 1. DONE items — move audited → confirmed
       const doneItems = visibleItems.filter(i => entries[i.id]?.verdict === 'done')
       await Promise.all(doneItems.map(async (item) => {
-        const res = await fetchWithAuth(`${API_BASE}/tracker/${item.id}`, {
+        const result = await fetchValidated(`${API_BASE}/tracker/${item.id}`, {
           method: 'PATCH',
           body: JSON.stringify({
             status: 'confirmed',
@@ -467,7 +463,7 @@ export function ForgeConfirmWalkthrough({ portal }: ForgeConfirmWalkthroughProps
             audit_notes: entries[item.id]?.findings || 'CEO visual confirmation passed',
           }),
         })
-        if (res.ok) doneCount++
+        if (result.success) doneCount++
       }))
 
       // 2. NOT DONE items — move back to 'built', set audit_status='ceo_rejected'
@@ -478,7 +474,7 @@ export function ForgeConfirmWalkthrough({ portal }: ForgeConfirmWalkthroughProps
 
         const auditNotes = [entry.whatsWrong, entry.findings].filter(Boolean).join(' | ')
 
-        await fetchWithAuth(`${API_BASE}/tracker/${item.id}`, {
+        await fetchValidated(`${API_BASE}/tracker/${item.id}`, {
           method: 'PATCH',
           body: JSON.stringify({
             status: 'built',
@@ -508,7 +504,7 @@ export function ForgeConfirmWalkthrough({ portal }: ForgeConfirmWalkthroughProps
             } else {
               continue
             }
-            await fetchWithAuth(`${API_BASE}/tracker/${item.id}/attachments`, {
+            await fetchValidated(`${API_BASE}/tracker/${item.id}/attachments`, {
               method: 'POST',
               body: JSON.stringify({ name: m.name, data: base64, content_type: contentType }),
             })

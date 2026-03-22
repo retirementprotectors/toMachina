@@ -22,6 +22,12 @@ export * from './constants'
 export { apiFetch, apiPost, apiGet } from './api-client'
 export type { ApiResult } from './api-client'
 
+// API Contract DTOs — shared response types for all 54 routes
+export * from './api-types'
+
+// Response Validation Schemas (Valibot)
+export * from './schemas'
+
 // Guardian — Data Protection Engine
 export * from './types/guardian'
 export * from './guardian/lifecycle'

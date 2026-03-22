@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { TerritoryDTO } from '@tomachina/core'
 
 export const territoryRoutes = Router()
 const COLLECTION = 'territories'
@@ -32,7 +33,7 @@ territoryRoutes.get('/', async (req: Request, res: Response) => {
     const total = data.length
     data = data.slice(0, limit)
 
-    res.json(successResponse(data, { pagination: { count: data.length, total, hasMore: total > limit } }))
+    res.json(successResponse<TerritoryDTO[]>(data as unknown as TerritoryDTO[], { pagination: { count: data.length, total, hasMore: total > limit } }))
   } catch (err) {
     console.error('GET /api/territories error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -46,7 +47,7 @@ territoryRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Territory not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/territories/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -78,7 +79,7 @@ territoryRoutes.post('/', async (req: Request, res: Response) => {
 
     await db.collection(COLLECTION).doc(territoryId).set(territoryData)
 
-    res.status(201).json(successResponse(stripInternalFields({ id: territoryId, ...territoryData })))
+    res.status(201).json(successResponse<unknown>(stripInternalFields({ id: territoryId, ...territoryData })))
   } catch (err) {
     console.error('POST /api/territories error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -105,7 +106,7 @@ territoryRoutes.patch('/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('PATCH /api/territories/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

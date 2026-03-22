@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /**
  * Document Taxonomy Admin — manage document type definitions.
@@ -30,10 +30,9 @@ export function DocumentTaxonomyAdmin() {
   const loadEntries = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth('/api/document-index/taxonomy')
-      const json = await res.json()
-      if (json.success) {
-        const sorted = (json.data || []).sort((a: TaxonomyEntry, b: TaxonomyEntry) =>
+      const res = await fetchValidated<TaxonomyEntry[]>('/api/document-index/taxonomy')
+            if (res.success) {
+        const sorted = (res.data || []).sort((a: TaxonomyEntry, b: TaxonomyEntry) =>
           a.document_type.localeCompare(b.document_type)
         )
         setEntries(sorted)

@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { LeadershipDashboardData } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const leadershipRoutes = Router()
@@ -25,7 +26,7 @@ leadershipRoutes.get('/meetings', async (req: Request, res: Response) => {
     const snap = await q.limit(limit).get()
 
     const meetings = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(meetings))
+    res.json(successResponse<unknown>(meetings))
   } catch (err) {
     console.error('GET /api/leadership/meetings error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -69,7 +70,7 @@ leadershipRoutes.get('/meetings/actions', async (req: Request, res: Response) =>
       ? actions.filter(a => String(a.owner || '').toLowerCase().includes(owner))
       : actions
 
-    res.json(successResponse(filtered))
+    res.json(successResponse<unknown>(filtered))
   } catch (err) {
     console.error('GET /api/leadership/meetings/actions error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -83,7 +84,7 @@ leadershipRoutes.get('/meetings/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(MEETINGS_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Meeting not found')); return }
-    res.json(successResponse({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
   } catch (err) {
     console.error('GET /api/leadership/meetings/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -130,7 +131,7 @@ leadershipRoutes.post('/meetings', async (req: Request, res: Response) => {
     }
 
     await db.collection(MEETINGS_COLLECTION).doc(meetingId).set(meeting)
-    res.status(201).json(successResponse({ meeting_id: meetingId }))
+    res.status(201).json(successResponse<unknown>({ meeting_id: meetingId }))
   } catch (err) {
     console.error('POST /api/leadership/meetings error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -162,7 +163,7 @@ leadershipRoutes.patch('/meetings/actions/:id', async (req: Request, res: Respon
     if (status === 'completed') items[idx].completed_at = new Date().toISOString()
 
     await docRef.update({ action_items: items, updated_at: new Date().toISOString() })
-    res.json(successResponse({ action_id: actionId, status }))
+    res.json(successResponse<unknown>({ action_id: actionId, status }))
   } catch (err) {
     console.error('PATCH /api/leadership/meetings/actions/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -179,7 +180,7 @@ leadershipRoutes.get('/roadmaps', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(ROADMAPS_COLLECTION).orderBy('owner_name').get()
     const roadmaps = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(roadmaps))
+    res.json(successResponse<unknown>(roadmaps))
   } catch (err) {
     console.error('GET /api/leadership/roadmaps error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -193,7 +194,7 @@ leadershipRoutes.get('/roadmaps/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(ROADMAPS_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Roadmap not found')); return }
-    res.json(successResponse({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
   } catch (err) {
     console.error('GET /api/leadership/roadmaps/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -228,7 +229,7 @@ leadershipRoutes.post('/roadmaps', async (req: Request, res: Response) => {
     }
 
     await db.collection(ROADMAPS_COLLECTION).doc(roadmapId).set(roadmap)
-    res.status(201).json(successResponse({ roadmap_id: roadmapId }))
+    res.status(201).json(successResponse<unknown>({ roadmap_id: roadmapId }))
   } catch (err) {
     console.error('POST /api/leadership/roadmaps error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -245,7 +246,7 @@ leadershipRoutes.patch('/roadmaps/:id', async (req: Request, res: Response) => {
     delete updates.created_at
 
     await db.collection(ROADMAPS_COLLECTION).doc(id).update(updates)
-    res.json(successResponse({ roadmap_id: id }))
+    res.json(successResponse<unknown>({ roadmap_id: id }))
   } catch (err) {
     console.error('PATCH /api/leadership/roadmaps/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -272,7 +273,7 @@ leadershipRoutes.post('/roadmaps/:id/milestone', async (req: Request, res: Respo
       last_updated: new Date().toISOString(),
     })
 
-    res.status(201).json(successResponse({ milestone_id: milestone.id }))
+    res.status(201).json(successResponse<unknown>({ milestone_id: milestone.id }))
   } catch (err) {
     console.error('POST /api/leadership/roadmaps/:id/milestone error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -319,7 +320,7 @@ leadershipRoutes.get('/dashboard', async (_req: Request, res: Response) => {
       roadmapStatuses[status] = (roadmapStatuses[status] || 0) + 1
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       meetings_this_week: meetingsSnap.size,
       open_action_items: totalActions,
       overdue_action_items: overdueActions,
@@ -372,7 +373,7 @@ leadershipRoutes.get('/divisions', async (_req: Request, res: Response) => {
       if (divisions[div]) divisions[div].roadmap_status = doc.data().status || 'on_track'
     }
 
-    res.json(successResponse(divisions))
+    res.json(successResponse<unknown>(divisions))
   } catch (err) {
     console.error('GET /api/leadership/divisions error:', err)
     res.status(500).json(errorResponse(String(err)))

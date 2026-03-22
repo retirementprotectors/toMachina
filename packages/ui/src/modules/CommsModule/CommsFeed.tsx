@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { useCollection, getDb } from '@tomachina/db'
+import { useAuth } from '@tomachina/auth'
 import { collection, query, orderBy, limit } from 'firebase/firestore'
 
 /* ─── Types ─── */
@@ -13,6 +14,7 @@ export interface CommEntry {
   contactName: string
   contactDetail: string
   agentName: string
+  sentBy: string
   preview: string
   subject?: string
   timestamp: Date
@@ -68,6 +70,7 @@ function docToEntry(doc: CommDoc): CommEntry {
     contactName: doc.recipient || 'Unknown',
     contactDetail: doc.recipient || '',
     agentName: doc.sent_by || '',
+    sentBy: doc.sent_by || '',
     preview: doc.body || (doc.channel === 'voice' && doc.duration ? `Duration: ${Math.floor(doc.duration / 60)}:${String(doc.duration % 60).padStart(2, '0')}` : ''),
     subject: doc.subject,
     timestamp: doc.created_at ? new Date(doc.created_at) : new Date(),
@@ -117,7 +120,8 @@ export function CommsFeed() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   /** TODO: Replace with real auth context user name */
-  const CURRENT_USER = 'Josh Millang'
+  const { user } = useAuth()
+  const CURRENT_USER = user?.email || ''
 
   // Live Firestore query — communications ordered by created_at desc, limit 50
   const commsQuery = useMemo(() => {
@@ -141,7 +145,7 @@ export function CommsFeed() {
       // Direction filter
       if (directionFilter !== 'all' && c.direction !== directionFilter) return false
       // Scope filter (TRK-067)
-      if (scopeFilter === 'mine' && c.agentName !== CURRENT_USER) return false
+      if (scopeFilter === 'mine' && c.sentBy !== CURRENT_USER) return false
       if (scopeFilter === 'assigned' && c.agentName !== CURRENT_USER) return false
       if (scopeFilter === 'unassigned' && c.agentName !== '') return false
       // Search — includes subject field (TRK-070)

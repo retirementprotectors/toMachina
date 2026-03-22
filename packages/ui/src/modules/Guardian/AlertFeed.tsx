@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useToast } from '../../components/Toast'
 
 /* ─── Types ─── */
@@ -69,11 +69,9 @@ export function AlertFeed() {
   const fetchAlerts = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetchWithAuth('/api/guardian/alerts')
-      if (!res.ok) throw new Error('Failed to fetch alerts')
-      const json = await res.json() as { success: boolean; data?: GuardianAlert[] }
-      if (json.success && json.data) {
-        setAlerts(Array.isArray(json.data) ? json.data : [])
+      const result = await fetchValidated<GuardianAlert[]>('/api/guardian/alerts')
+      if (result.success && result.data) {
+        setAlerts(Array.isArray(result.data) ? result.data : [])
       }
     } catch {
       showToast('Failed to load alerts', 'error')
@@ -87,11 +85,11 @@ export function AlertFeed() {
   const handleAcknowledge = useCallback(async (alertId: string) => {
     try {
       setAcknowledging(alertId)
-      const res = await fetchWithAuth(`/api/guardian/alerts/${alertId}`, {
+      const result = await fetchValidated(`/api/guardian/alerts/${alertId}`, {
         method: 'PATCH',
         body: JSON.stringify({ acknowledged: true }),
       })
-      if (!res.ok) throw new Error('Failed to acknowledge')
+      if (!result.success) throw new Error(result.error ?? 'Failed to acknowledge')
       setAlerts((prev) => prev.map((a) =>
         a.id === alertId ? { ...a, acknowledged: true } : a
       ))

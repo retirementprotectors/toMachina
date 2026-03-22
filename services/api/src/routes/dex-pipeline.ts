@@ -13,6 +13,7 @@ import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   validateRequired, param, writeThroughBridge,
 } from '../lib/helpers.js'
+import type { DexPackageCreateData, DexPackageListDTO } from '@tomachina/core'
 
 export const dexPipelineRoutes = Router()
 
@@ -92,7 +93,7 @@ dexPipelineRoutes.post('/packages', async (req: Request, res: Response) => {
     // Log creation event
     await logPackageEvent(db, packageId, 'CREATED', null, STATUS.DRAFT, 'system', userEmail, {})
 
-    res.status(201).json(successResponse({
+    res.status(201).json(successResponse<unknown>({
       package_id: packageId,
       status: STATUS.DRAFT,
       kit_id: kitId,
@@ -135,7 +136,7 @@ dexPipelineRoutes.get('/packages/summary', async (req: Request, res: Response) =
       counts.total++
     })
 
-    res.json(successResponse(counts))
+    res.json(successResponse<unknown>(counts))
   } catch (err) {
     console.error('GET /api/dex-pipeline/packages/summary error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -157,7 +158,7 @@ dexPipelineRoutes.get('/packages', async (req: Request, res: Response) => {
     if (req.query.client_id) query = query.where('client_id', '==', req.query.client_id)
 
     const result = await paginatedQuery(query, PACKAGES, params)
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/dex-pipeline/packages error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -182,7 +183,7 @@ dexPipelineRoutes.get('/packages/:id', async (req: Request, res: Response) => {
       .get()
     const events = eventsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       package: { id: doc.id, ...doc.data() },
       timeline: events,
     }))
@@ -233,7 +234,7 @@ dexPipelineRoutes.patch('/packages/:id/status', async (req: Request, res: Respon
       notes: body.notes || null,
     })
 
-    res.json(successResponse({ package_id: id, old_status: oldStatus, new_status: newStatus }))
+    res.json(successResponse<unknown>({ package_id: id, old_status: oldStatus, new_status: newStatus }))
   } catch (err) {
     console.error('PATCH /api/dex-pipeline/packages/:id/status error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -386,7 +387,7 @@ dexPipelineRoutes.post('/packages/:id/generate-pdf', async (req: Request, res: R
       missing_count: totalMissing,
     })
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       package_id: id,
       pdf_page_count: pdfResult.pageCount,
       filled_count: totalFilled,
@@ -565,7 +566,7 @@ dexPipelineRoutes.post('/packages/:id/send-docusign', async (req: Request, res: 
       delivery_method: deliveryMethod,
     })
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       package_id: id,
       envelope_id: envelopeResult.envelopeId,
       status: STATUS.SENT,

@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse } from '../lib/helpers.js'
+import type { DropzoneUploadResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 import multer from 'multer'
 import { uploadFileToDrive } from '../lib/drive-client.js'
@@ -49,7 +50,7 @@ dropzoneRoutes.post('/', upload.single('file'), async (req: Request, res: Respon
         status: 'pending', _created_by: getUserEmail(req),
         created_at: now, updated_at: now,
       })
-      res.json(successResponse({ queue_id, file_id: null }))
+      res.json(successResponse<unknown>({ queue_id, file_id: null }))
       return
     }
 
@@ -83,7 +84,7 @@ dropzoneRoutes.post('/', upload.single('file'), async (req: Request, res: Respon
 
     await db.collection('intake_queue').doc(queue_id).set(entry)
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       queue_id,
       file_id: driveResult.id,
       file_url: driveResult.url,
