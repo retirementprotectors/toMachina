@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discovery Document — E2E Testing: Automated Pipeline + Visual Verification</title>
+  <style>
+    :root {
+      --bg-primary: #0f1219;
+      --bg-surface: #1c2333;
+      --bg-elevated: #242d3f;
+      --bg-hover: #2a3548;
+      --border: #2e3a4e;
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --copper: #e07c3e;
+      --copper-dim: #c06a32;
+      --copper-glow: rgba(224, 124, 62, 0.15);
+      --green: #4ade80;
+      --green-dim: rgba(74, 222, 128, 0.15);
+      --red: #f87171;
+      --red-dim: rgba(248, 113, 113, 0.15);
+      --yellow: #fbbf24;
+      --yellow-dim: rgba(251, 191, 36, 0.15);
+      --blue: #60a5fa;
+      --blue-dim: rgba(96, 165, 250, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .doc-header {
+      border-bottom: 2px solid var(--copper);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .doc-header .badge {
+      display: inline-block;
+      background: var(--copper-glow);
+      color: var(--copper);
+      border: 1px solid var(--copper-dim);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .doc-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .doc-header .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .meta-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+    }
+
+    .meta-item .label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.25rem;
+    }
+
+    .meta-item .value {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Section Headers */
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-number {
+      background: var(--copper);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--copper);
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+    }
+
+    thead th {
+      background: var(--bg-elevated);
+      color: var(--copper);
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid var(--copper-dim);
+    }
+
+    tbody td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    tbody tr:hover {
+      background: var(--bg-hover);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card.highlight {
+      border-left: 3px solid var(--copper);
+    }
+
+    .card.warning {
+      border-left: 3px solid var(--red);
+      background: var(--red-dim);
+    }
+
+    .card.success {
+      border-left: 3px solid var(--green);
+    }
+
+    .card.info {
+      border-left: 3px solid var(--blue);
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--copper);
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .stat-card .stat-value.red { color: var(--red); }
+    .stat-card .stat-value.green { color: var(--green); }
+    .stat-card .stat-value.yellow { color: var(--yellow); }
+
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      overflow-x: auto;
+      margin: 0.75rem 0;
+      white-space: pre;
+    }
+
+    .code-block .comment { color: var(--text-muted); }
+    .code-block .dir { color: var(--copper); }
+    .code-block .file { color: var(--text-secondary); }
+    .code-block .highlight-file { color: var(--green); }
+
+    /* Lifecycle tracker */
+    .lifecycle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .lifecycle-step {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .lifecycle-step.done {
+      border-color: var(--green);
+      background: var(--green-dim);
+    }
+
+    .lifecycle-step.done .step-icon { color: var(--green); }
+
+    .lifecycle-step.pending .step-icon { color: var(--text-muted); }
+
+    .lifecycle-step .step-num {
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+    }
+
+    .lifecycle-step.done .step-num { color: var(--green); }
+
+    /* Lists */
+    ul, ol {
+      margin: 0.5rem 0 0.75rem 1.25rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    li {
+      margin-bottom: 0.35rem;
+    }
+
+    li strong {
+      color: var(--text-primary);
+    }
+
+    /* Inline code */
+    code {
+      background: var(--bg-elevated);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.82em;
+      color: var(--copper);
+    }
+
+    /* Architecture diagram */
+    .arch-diagram {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+
+    .arch-layer {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 0.75rem auto;
+      max-width: 700px;
+      position: relative;
+    }
+
+    .arch-layer .layer-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--copper);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .arch-layer .layer-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .arch-layer .layer-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .arch-arrow {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      margin: 0.25rem 0;
+    }
+
+    /* Tag pills */
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .tag.layer1 { background: var(--blue-dim); color: var(--blue); }
+    .tag.layer2 { background: var(--copper-glow); color: var(--copper); }
+    .tag.phase2 { background: var(--yellow-dim); color: var(--yellow); }
+    .tag.infra { background: var(--green-dim); color: var(--green); }
+
+    /* Footer */
+    .doc-footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .doc-footer .brand {
+      color: var(--copper);
+      font-weight: 600;
+    }
+
+    /* TOC */
+    .toc {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .toc-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .toc ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      columns: 2;
+      column-gap: 2rem;
+    }
+
+    .toc li {
+      margin-bottom: 0.35rem;
+      break-inside: avoid;
+    }
+
+    .toc a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.15s;
+    }
+
+    .toc a:hover {
+      color: var(--copper);
+    }
+
+    .toc .toc-num {
+      color: var(--copper);
+      font-weight: 600;
+      margin-right: 0.35rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .doc-header h1 { font-size: 1.5rem; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .toc ol { columns: 1; }
+      .meta-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ============ HEADER ============ -->
+  <header class="doc-header">
+    <div class="badge">FORGE Sprint &mdash; Discovery Document</div>
+    <h1>E2E Testing: Automated Pipeline + Visual Verification</h1>
+    <p class="subtitle">Full audit, gap analysis, and scope definition for toMachina's first automated test infrastructure.</p>
+
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="label">Sprint ID</div>
+        <div class="value">E2E-TESTING-001</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Platform</div>
+        <div class="value">toMachina (monorepo)</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Ticket Range</div>
+        <div class="value">TRK-531 &ndash; TRK-558</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Total Tickets</div>
+        <div class="value">28</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Estimated Build</div>
+        <div class="value">~12 hours (2 NightShift sessions)</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Author</div>
+        <div class="value">Claude GA + JDM</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Created</div>
+        <div class="value">2026-03-21</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Status</div>
+        <div class="value" style="color: var(--copper);">Discovery Complete</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ SPRINT LIFECYCLE ============ -->
+  <div class="section" id="lifecycle">
+    <div class="section-header">
+      <div class="section-number">0</div>
+      <h2>Sprint Lifecycle Status</h2>
+    </div>
+
+    <p>The FORGE 11-step sprint lifecycle tracks this initiative from inception to OS registration.</p>
+
+    <div class="lifecycle">
+      <div class="lifecycle-step done">
+        <span class="step-num">1</span>
+        <span class="step-icon">&#10003;</span>
+        Sprint Ticket
+      </div>
+      <div class="lifecycle-step done">
+        <span class="step-num">2</span>
+        <span class="step-icon">&#10003;</span>
+        Discovery Doc
+      </div>
+      <div class="lifecycle-step done">
+        <span class="step-num">3</span>
+        <span class="step-icon">&#10003;</span>
+        Link Doc to Sprint
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">4</span>
+        <span class="step-icon">&#9711;</span>
+        Scope Approval
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">5</span>
+        <span class="step-icon">&#9711;</span>
+        Branch + Build
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">6</span>
+        <span class="step-icon">&#9711;</span>
+        PR + CI Pass
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">7</span>
+        <span class="step-icon">&#9711;</span>
+        Merge to Main
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">8</span>
+        <span class="step-icon">&#9711;</span>
+        Deploy Verified
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">9</span>
+        <span class="step-icon">&#9711;</span>
+        Confirm Walkthrough
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">10</span>
+        <span class="step-icon">&#9711;</span>
+        OS Registration
+      </div>
+      <div class="lifecycle-step pending">
+        <span class="step-num">11</span>
+        <span class="step-icon">&#9711;</span>
+        Sprint Closed
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TABLE OF CONTENTS ============ -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#current-state"><span class="toc-num">1.</span> Current State Audit</a></li>
+      <li><a href="#gaps"><span class="toc-num">2.</span> Gaps Identified</a></li>
+      <li><a href="#target"><span class="toc-num">3.</span> Target Architecture</a></li>
+      <li><a href="#file-structure"><span class="toc-num">4.</span> File Structure</a></li>
+      <li><a href="#tickets"><span class="toc-num">5.</span> Ticket Inventory (28)</a></li>
+      <li><a href="#decisions"><span class="toc-num">6.</span> Key Design Decisions</a></li>
+      <li><a href="#deps"><span class="toc-num">7.</span> Dependencies</a></li>
+      <li><a href="#os-reg"><span class="toc-num">8.</span> OS Registration Plan</a></li>
+      <li><a href="#estimates"><span class="toc-num">9.</span> Build Estimates</a></li>
+    </ol>
+  </div>
+
+  <!-- ============ 1. CURRENT STATE ============ -->
+  <div class="section" id="current-state">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2>Current State Audit</h2>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value red">0</div>
+        <div class="stat-label">Test Files</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value red">0</div>
+        <div class="stat-label">Test Runners</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value red">0</div>
+        <div class="stat-label">Test Frameworks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value red">0</div>
+        <div class="stat-label">Emulators</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value yellow">674</div>
+        <div class="stat-label">Items Shipped</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value yellow">470</div>
+        <div class="stat-label">Manual Verify Queue</div>
+      </div>
+    </div>
+
+    <div class="card warning">
+      <p style="margin:0; color: var(--red);"><strong>Zero test infrastructure exists in toMachina.</strong></p>
+      <p style="margin: 0.5rem 0 0 0;">No test runner, no test framework, no test files, no emulator configuration. The monorepo has shipped 674 items across 9 sprints with zero automated verification of any kind.</p>
+    </div>
+
+    <h3>What CI Currently Covers</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>CI Job</th>
+          <th>Scope</th>
+          <th>Gate Type</th>
+          <th>Pass Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>type-check</code></td>
+          <td>TypeScript strict mode across 13 packages/apps</td>
+          <td>Blocking</td>
+          <td>13/13</td>
+        </tr>
+        <tr>
+          <td><code>build</code></td>
+          <td>Full production build of 11 packages/apps</td>
+          <td>Blocking</td>
+          <td>11/11</td>
+        </tr>
+        <tr>
+          <td style="color: var(--red);"><em>tests</em></td>
+          <td style="color: var(--red);"><em>None</em></td>
+          <td style="color: var(--red);"><em>Does not exist</em></td>
+          <td style="color: var(--red);"><em>N/A</em></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Existing Test-Related Artifacts</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Title</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TRK-497</td>
+          <td>ACF_UPLOAD pipeline E2E test plan</td>
+          <td><span style="color: var(--yellow);">Plan only (no code)</span></td>
+        </tr>
+        <tr>
+          <td>TRK-498</td>
+          <td>MAIL intake E2E test plan</td>
+          <td><span style="color: var(--yellow);">Plan only (no code)</span></td>
+        </tr>
+        <tr>
+          <td>TRK-499</td>
+          <td>SPC_INTAKE E2E test plan</td>
+          <td><span style="color: var(--yellow);">Plan only (no code)</span></td>
+        </tr>
+        <tr>
+          <td>TRK-500</td>
+          <td>ACF_SCAN E2E test plan</td>
+          <td><span style="color: var(--yellow);">Plan only (no code)</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>TRK-497 through TRK-500 contain test <strong>descriptions</strong> (what to test, expected behavior) but zero test <strong>code</strong>. This sprint implements the actual test infrastructure and writes the code those tickets describe.</p>
+
+    <h3>Manual Verification Burden</h3>
+    <p>470 audited items currently require manual CEO visual confirmation ("Confirm Walkthrough") after each deploy. This process is:</p>
+    <ul>
+      <li>Time-intensive (requires navigating each module, verifying renders)</li>
+      <li>Error-prone (human eyes miss subtle regressions)</li>
+      <li>Blocking (CEO time is the scarcest resource)</li>
+      <li>Unscalable (grows linearly with shipped features)</li>
+    </ul>
+  </div>
+
+  <!-- ============ 2. GAPS ============ -->
+  <div class="section" id="gaps">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2>Gaps Identified</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 40px;">#</th>
+          <th>Gap</th>
+          <th>Impact</th>
+          <th>Risk Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">G1</td>
+          <td><strong>No regression detection</strong></td>
+          <td>Breaking changes only caught by type-check and build. Runtime behavior regressions are invisible to CI.</td>
+          <td><span style="color: var(--red); font-weight: 600;">CRITICAL</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">G2</td>
+          <td><strong>No pipeline verification</strong></td>
+          <td>Intake wires (8-stage document processing) are completely untested. A broken wire means client documents silently fail to process.</td>
+          <td><span style="color: var(--red); font-weight: 600;">CRITICAL</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">G3</td>
+          <td><strong>No UI verification</strong></td>
+          <td>470+ items need manual visual check on every release. CEO time spent on verification instead of strategy.</td>
+          <td><span style="color: var(--yellow); font-weight: 600;">HIGH</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">G4</td>
+          <td><strong>No CI test gate</strong></td>
+          <td>Deploys go to production with only type-check + build. Functionally broken code can ship if it compiles.</td>
+          <td><span style="color: var(--red); font-weight: 600;">CRITICAL</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">G5</td>
+          <td><strong>No test data isolation</strong></td>
+          <td>No emulator, no test fixtures, no cleanup strategy. Cannot run tests without polluting production data.</td>
+          <td><span style="color: var(--yellow); font-weight: 600;">HIGH</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">G6</td>
+          <td><strong>No visual regression</strong></td>
+          <td>UI changes are invisible to CI. Broken layouts, missing components, and styling regressions ship undetected.</td>
+          <td><span style="color: var(--yellow); font-weight: 600;">HIGH</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 3. TARGET ARCHITECTURE ============ -->
+  <div class="section" id="target">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2>Target Architecture</h2>
+    </div>
+
+    <p>A <strong>two-layer E2E test suite</strong> that verifies both backend pipeline integrity and frontend UI rendering, integrated into CI as blocking quality gates.</p>
+
+    <!-- Architecture Diagram -->
+    <div class="arch-diagram">
+      <div class="arch-layer" style="border-color: var(--copper);">
+        <div class="layer-label">CI Pipeline (GitHub Actions)</div>
+        <div class="layer-items">
+          <div class="layer-item">type-check (13/13)</div>
+          <div class="layer-item">build (11/11)</div>
+          <div class="layer-item" style="border-color: var(--blue); color: var(--blue);"><strong>e2e-ui</strong> (NEW)</div>
+          <div class="layer-item">deploy-api</div>
+          <div class="layer-item" style="border-color: var(--green); color: var(--green);"><strong>e2e-intake</strong> (NEW)</div>
+        </div>
+      </div>
+      <div class="arch-arrow">&darr;</div>
+      <div class="arch-layer">
+        <div class="layer-label">Layer 2 &mdash; UI Visual Verification (Playwright)</div>
+        <div class="layer-items">
+          <div class="layer-item">Contacts</div>
+          <div class="layer-item">Accounts</div>
+          <div class="layer-item">Communications</div>
+          <div class="layer-item">RPI Connect</div>
+          <div class="layer-item">Admin</div>
+          <div class="layer-item">MyRPI</div>
+          <div class="layer-item">FORGE</div>
+          <div class="layer-item">Pipeline Studio</div>
+          <div class="layer-item">Quick Intake</div>
+          <div class="layer-item">Sidebar+Header</div>
+        </div>
+      </div>
+      <div class="arch-arrow">&darr;</div>
+      <div class="arch-layer">
+        <div class="layer-label">Layer 1 &mdash; Backend Pipeline Tests (Vitest)</div>
+        <div class="layer-items">
+          <div class="layer-item">ACF_UPLOAD</div>
+          <div class="layer-item">MAIL</div>
+          <div class="layer-item">SPC_INTAKE</div>
+          <div class="layer-item">ACF_SCAN</div>
+        </div>
+      </div>
+      <div class="arch-arrow">&darr;</div>
+      <div class="arch-layer" style="border-color: var(--text-muted);">
+        <div class="layer-label">Infrastructure</div>
+        <div class="layer-items">
+          <div class="layer-item">Real Firestore</div>
+          <div class="layer-item">Real Google Drive</div>
+          <div class="layer-item">Firebase Admin Auth</div>
+          <div class="layer-item">toMachina API (Cloud Run)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 1 Detail -->
+    <h3>Layer 1: Backend Pipeline Tests (Vitest)</h3>
+
+    <div class="card highlight">
+      <h4 style="margin-top:0;">Purpose</h4>
+      <p style="margin-bottom:0;">Verify the 4 intake pipelines (TRK-497&ndash;500) actually process documents end-to-end through the full 8-stage wire.</p>
+    </div>
+
+    <h4>The 8-Stage Wire</h4>
+    <div class="code-block">PREPARE &rarr; CLASSIFY &rarr; EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE &rarr; ACF_FINALIZE</div>
+
+    <h4>4 Pipeline Tests</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Test</th>
+          <th>Plan Ticket</th>
+          <th>Code Ticket</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ACF_UPLOAD</strong></td>
+          <td>TRK-497</td>
+          <td>TRK-539</td>
+          <td>Upload PDF to ACF folder, verify wire produces classified document with extracted data</td>
+        </tr>
+        <tr>
+          <td><strong>MAIL</strong></td>
+          <td>TRK-498</td>
+          <td>TRK-540</td>
+          <td>Simulate inbound mail document, verify wire classifies and routes to correct client</td>
+        </tr>
+        <tr>
+          <td><strong>SPC_INTAKE</strong></td>
+          <td>TRK-499</td>
+          <td>TRK-541</td>
+          <td>Simulate specialist intake submission, verify wire processes and writes to Firestore</td>
+        </tr>
+        <tr>
+          <td><strong>ACF_SCAN</strong></td>
+          <td>TRK-500</td>
+          <td>TRK-542</td>
+          <td>Simulate batch scan trigger on ACF folder, verify all documents process through wire</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Execution Model</h4>
+    <ul>
+      <li><strong>Real Firestore + Real Drive</strong> &mdash; no emulator. Drive API cannot be emulated; these are TRUE end-to-end tests.</li>
+      <li><strong>Firebase Admin custom token auth</strong> &mdash; test user gets a custom token via Admin SDK, exchanged for ID token.</li>
+      <li><strong>Direct wire execution</strong> &mdash; tests call <code>POST /api/intake/execute-wire</code> directly, bypassing the Cloud Function trigger (trigger is trivial plumbing).</li>
+      <li><strong>Sequential execution</strong> &mdash; tests share real Firestore/Drive state and must not race.</li>
+      <li><strong>Cleanup after each test</strong> &mdash; batch delete test data from Firestore + Drive to leave no trace.</li>
+      <li><strong>CI timing</strong> &mdash; runs AFTER <code>deploy-api</code> on push to main (tests the live production API).</li>
+    </ul>
+
+    <!-- Layer 2 Detail -->
+    <h3>Layer 2: UI Visual Verification (Playwright)</h3>
+
+    <div class="card highlight">
+      <h4 style="margin-top:0;">Purpose</h4>
+      <p style="margin-bottom:0;">Navigate to each major ProDash module, verify key elements render correctly, take screenshots. Replaces manual Confirm Walkthrough for the majority of shipped items.</p>
+    </div>
+
+    <h4>10 Module Visual Tests</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>Ticket</th>
+          <th>Key Assertions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Contacts</strong></td>
+          <td>TRK-546</td>
+          <td>Table renders, search works, contact detail loads</td>
+        </tr>
+        <tr>
+          <td><strong>Accounts</strong></td>
+          <td>TRK-547</td>
+          <td>Account list loads, account detail with policies</td>
+        </tr>
+        <tr>
+          <td><strong>Communications</strong></td>
+          <td>TRK-548</td>
+          <td>Comms panel renders, message list populates</td>
+        </tr>
+        <tr>
+          <td><strong>RPI Connect</strong></td>
+          <td>TRK-549</td>
+          <td>Connect dashboard renders, widgets load</td>
+        </tr>
+        <tr>
+          <td><strong>Admin</strong></td>
+          <td>TRK-550</td>
+          <td>Admin panel accessible, settings render</td>
+        </tr>
+        <tr>
+          <td><strong>MyRPI</strong></td>
+          <td>TRK-551</td>
+          <td>Profile page loads, user info displays</td>
+        </tr>
+        <tr>
+          <td><strong>FORGE</strong></td>
+          <td>TRK-552</td>
+          <td>FORGE board renders, ticket cards display</td>
+        </tr>
+        <tr>
+          <td><strong>Pipeline Studio</strong></td>
+          <td>TRK-553</td>
+          <td>Pipeline view loads, stage columns render</td>
+        </tr>
+        <tr>
+          <td><strong>Quick Intake</strong></td>
+          <td>TRK-554</td>
+          <td>Intake form renders, dropzone functional</td>
+        </tr>
+        <tr>
+          <td><strong>Sidebar + Header</strong></td>
+          <td>TRK-555</td>
+          <td>Navigation renders, all menu items present, header shows user</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Execution Model</h4>
+    <ul>
+      <li><strong>@playwright/test framework</strong> &mdash; same tool we use via MCP, but as a proper test suite with assertions and reporting.</li>
+      <li><strong>Runs against localhost dev server</strong> &mdash; CI starts <code>npm run dev</code>, waits for ready, then runs Playwright.</li>
+      <li><strong>HTML test report with screenshot gallery</strong> &mdash; every test captures screenshots, failures include visual diff.</li>
+      <li><strong>CI timing</strong> &mdash; runs BEFORE deploy (catches UI regressions before they reach production).</li>
+      <li><strong>Manual walkthrough reduction</strong> &mdash; 470 manual items reduced to ~50 that require human judgment (subjective UX, new features not yet covered).</li>
+    </ul>
+
+    <div class="card info">
+      <h4 style="margin-top:0;">Impact: Manual Verify Queue</h4>
+      <p style="margin-bottom: 0.5rem;">With Layer 2 in place, the Confirm Walkthrough burden drops dramatically:</p>
+      <table style="margin:0;">
+        <thead>
+          <tr><th>Metric</th><th>Before</th><th>After</th><th>Reduction</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Items requiring manual CEO verification</td><td style="color: var(--red);">~470</td><td style="color: var(--green);">~50</td><td style="color: var(--green);">~89%</td></tr>
+          <tr><td>Time per release verification</td><td style="color: var(--red);">~2 hours</td><td style="color: var(--green);">~15 min</td><td style="color: var(--green);">~87%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Phase 2 -->
+    <h3>Phase 2 (Future): FORGE Test Health Dashboard</h3>
+    <div class="card" style="border-left: 3px solid var(--yellow);">
+      <p style="margin:0;"><strong>Not in this sprint.</strong> Phase 2 exposes test results directly in the FORGE UI:</p>
+      <ul style="margin-bottom:0;">
+        <li>Green/red health indicators per test suite</li>
+        <li>Screenshot gallery from latest Playwright run</li>
+        <li>"Run Tests" button for on-demand execution</li>
+        <li>Historical pass/fail trend chart</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 4. FILE STRUCTURE ============ -->
+  <div class="section" id="file-structure">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2>File Structure</h2>
+    </div>
+
+    <div class="code-block"><span class="dir">tests/</span>
+  <span class="dir">e2e/</span>
+    <span class="highlight-file">vitest.config.ts</span>              <span class="comment"># Vitest config (sequential, 120s timeout)</span>
+    <span class="highlight-file">playwright.config.ts</span>          <span class="comment"># Playwright config (chromium, screenshots)</span>
+    <span class="file">setup.ts</span>                       <span class="comment"># Global setup (auth, seed data)</span>
+    <span class="file">teardown.ts</span>                    <span class="comment"># Global teardown (cleanup all test data)</span>
+    <span class="dir">helpers/</span>
+      <span class="file">auth.ts</span>                      <span class="comment"># Firebase custom token → ID token exchange</span>
+      <span class="file">api-client.ts</span>                <span class="comment"># Typed fetch wrapper with auth headers</span>
+      <span class="file">drive-client.ts</span>              <span class="comment"># Upload/delete test PDFs to Drive</span>
+      <span class="file">poll.ts</span>                      <span class="comment"># Wait for wire completion (poll Firestore)</span>
+      <span class="file">cleanup.ts</span>                   <span class="comment"># Batch delete test documents + files</span>
+      <span class="file">constants.ts</span>                 <span class="comment"># Test user UID, folder IDs, timeouts</span>
+    <span class="dir">fixtures/</span>
+      <span class="file">test-correspondence.pdf</span>      <span class="comment"># Synthetic test PDF (no PHI)</span>
+    <span class="dir">intake/</span>
+      <span class="highlight-file">acf-upload.test.ts</span>         <span class="comment"># TRK-539: ACF_UPLOAD pipeline E2E</span>
+      <span class="highlight-file">mail-intake.test.ts</span>        <span class="comment"># TRK-540: MAIL intake E2E</span>
+      <span class="highlight-file">spc-intake.test.ts</span>         <span class="comment"># TRK-541: SPC_INTAKE E2E</span>
+      <span class="highlight-file">acf-scan.test.ts</span>           <span class="comment"># TRK-542: ACF_SCAN E2E</span>
+    <span class="dir">ui/</span>
+      <span class="highlight-file">contacts.spec.ts</span>           <span class="comment"># TRK-546: Contacts module visual</span>
+      <span class="highlight-file">accounts.spec.ts</span>           <span class="comment"># TRK-547: Accounts module visual</span>
+      <span class="highlight-file">communications.spec.ts</span>     <span class="comment"># TRK-548: Communications module visual</span>
+      <span class="highlight-file">connect.spec.ts</span>            <span class="comment"># TRK-549: RPI Connect visual</span>
+      <span class="highlight-file">admin.spec.ts</span>              <span class="comment"># TRK-550: Admin module visual</span>
+      <span class="highlight-file">myrpi.spec.ts</span>              <span class="comment"># TRK-551: MyRPI module visual</span>
+      <span class="highlight-file">forge.spec.ts</span>              <span class="comment"># TRK-552: FORGE module visual</span>
+      <span class="highlight-file">pipeline-studio.spec.ts</span>    <span class="comment"># TRK-553: Pipeline Studio visual</span>
+      <span class="highlight-file">quick-intake.spec.ts</span>       <span class="comment"># TRK-554: Quick Intake visual</span>
+      <span class="highlight-file">navigation.spec.ts</span>         <span class="comment"># TRK-555: Sidebar + Header visual</span></div>
+  </div>
+
+  <!-- ============ 5. TICKET INVENTORY ============ -->
+  <div class="section" id="tickets">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2>Ticket Inventory (28 Tickets)</h2>
+    </div>
+
+    <h3><span class="tag layer1">Layer 1</span> Backend E2E &mdash; Infrastructure (8 tickets)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px;">Ticket</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th style="width:70px;">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>TRK-531</strong></td>
+          <td>Install Vitest + configure</td>
+          <td>Add vitest to monorepo root, create <code>vitest.config.ts</code> with sequential mode, 120s timeout, path aliases matching tsconfig</td>
+          <td>30m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-532</strong></td>
+          <td>Auth helper</td>
+          <td>Firebase Admin custom token creation, exchange for ID token via REST API, cache for test session</td>
+          <td>45m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-533</strong></td>
+          <td>API client helper</td>
+          <td>Typed <code>fetch</code> wrapper with automatic auth header injection, base URL config, response parsing</td>
+          <td>30m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-534</strong></td>
+          <td>Drive client helper</td>
+          <td>Upload test PDFs to specific folder, list folder contents, delete files by ID. Uses <code>googleapis</code> (already installed)</td>
+          <td>45m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-535</strong></td>
+          <td>Poll helper</td>
+          <td>Poll Firestore for wire completion status. Configurable interval + timeout. Returns final wire document on success.</td>
+          <td>30m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-536</strong></td>
+          <td>Cleanup helper</td>
+          <td>Batch delete all test documents from Firestore (by <code>test_run_id</code> prefix), delete test files from Drive, idempotent</td>
+          <td>30m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-537</strong></td>
+          <td>Seed test client + ACF folder</td>
+          <td>Create test client in Firestore with known ID, create ACF folder structure in Drive, return references for tests</td>
+          <td>45m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-538</strong></td>
+          <td>Create test fixture PDF</td>
+          <td>Generate synthetic test PDF (correspondence format, no PHI) stored in <code>fixtures/</code></td>
+          <td>15m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3><span class="tag layer1">Layer 1</span> Backend E2E &mdash; Test Implementation (4 tickets)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px;">Ticket</th>
+          <th>Title</th>
+          <th>Wire Under Test</th>
+          <th style="width:70px;">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>TRK-539</strong></td>
+          <td>ACF_UPLOAD E2E test</td>
+          <td>Upload PDF to ACF folder &rarr; call execute-wire &rarr; verify all 8 stages complete &rarr; assert document classified + extracted</td>
+          <td>60m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-540</strong></td>
+          <td>MAIL intake E2E test</td>
+          <td>Simulate inbound mail &rarr; call execute-wire &rarr; verify classification + client match &rarr; assert Firestore write</td>
+          <td>60m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-541</strong></td>
+          <td>SPC_INTAKE E2E test</td>
+          <td>Simulate SPC submission &rarr; call execute-wire &rarr; verify processing + write &rarr; assert complete</td>
+          <td>60m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-542</strong></td>
+          <td>ACF_SCAN E2E test</td>
+          <td>Seed multiple test PDFs &rarr; trigger batch scan &rarr; verify all documents process through wire &rarr; assert all complete</td>
+          <td>60m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3><span class="tag layer1">Layer 1</span> Backend E2E &mdash; CI Integration (1 ticket)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px;">Ticket</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th style="width:70px;">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>TRK-543</strong></td>
+          <td>CI integration: <code>e2e-intake</code> job</td>
+          <td>Add <code>e2e-intake</code> job to <code>ci.yml</code>. Runs after <code>deploy-api</code>. Uses service account credentials from GH Secrets. Uploads test report as artifact on failure.</td>
+          <td>45m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3><span class="tag layer2">Layer 2</span> UI Visual Verification &mdash; Infrastructure (2 tickets)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px;">Ticket</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th style="width:70px;">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>TRK-544</strong></td>
+          <td>Install @playwright/test + configure</td>
+          <td>Add <code>@playwright/test</code> to monorepo root, create <code>playwright.config.ts</code> with Chromium, screenshot-on-failure, HTML reporter, dev server webServer config</td>
+          <td>30m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-545</strong></td>
+          <td>Playwright auth helper</td>
+          <td>Login flow via Firebase Auth REST API, store auth state for reuse across tests, cookie/session persistence</td>
+          <td>45m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3><span class="tag layer2">Layer 2</span> UI Visual Verification &mdash; Module Tests (10 tickets)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px;">Ticket</th>
+          <th>Module</th>
+          <th>Key Assertions</th>
+          <th style="width:70px;">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>TRK-546</strong></td>
+          <td>Contacts</td>
+          <td>Navigate to /contacts, verify table renders with rows, search input functional, click row opens detail</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-547</strong></td>
+          <td>Accounts</td>
+          <td>Navigate to /accounts, verify account cards/list render, click opens account detail with policy section</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-548</strong></td>
+          <td>Communications</td>
+          <td>Navigate to /communications, verify comms panel renders, message list has entries</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-549</strong></td>
+          <td>RPI Connect</td>
+          <td>Navigate to /connect, verify dashboard container renders, widget cards present</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-550</strong></td>
+          <td>Admin</td>
+          <td>Navigate to /admin, verify admin panel accessible (entitlement-gated), settings sections render</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-551</strong></td>
+          <td>MyRPI</td>
+          <td>Navigate to /myrpi, verify profile page loads, user info card displays name + role</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-552</strong></td>
+          <td>FORGE</td>
+          <td>Navigate to /forge, verify board renders, ticket cards display with status indicators</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-553</strong></td>
+          <td>Pipeline Studio</td>
+          <td>Navigate to /pipeline-studio, verify pipeline view loads, stage columns render</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-554</strong></td>
+          <td>Quick Intake</td>
+          <td>Navigate to /quick-intake, verify intake form renders, dropzone element present and interactive</td>
+          <td>25m</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-555</strong></td>
+          <td>Sidebar + Header</td>
+          <td>Verify sidebar navigation renders all menu items, header shows user name, portal branding correct</td>
+          <td>25m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3><span class="tag layer2">Layer 2</span> UI Visual Verification &mdash; CI Integration (1 ticket)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px;">Ticket</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th style="width:70px;">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>TRK-556</strong></td>
+          <td>CI integration: <code>e2e-ui</code> job</td>
+          <td>Add <code>e2e-ui</code> job to <code>ci.yml</code>. Starts dev server, installs Playwright browsers, runs tests. Uploads HTML report + screenshots as artifacts on failure. Runs BEFORE deploy (pre-production gate).</td>
+          <td>45m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3><span class="tag phase2">Phase 2</span> Registration + Future (2 tickets)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:80px;">Ticket</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th style="width:70px;">Est.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>TRK-557</strong></td>
+          <td>FORGE Test Health dashboard</td>
+          <td><em>Phase 2.</em> Expose test results in FORGE UI: green/red per suite, screenshot gallery, "Run Tests" button, trend chart.</td>
+          <td>TBD</td>
+        </tr>
+        <tr>
+          <td><strong>TRK-558</strong></td>
+          <td>Register in Operating System docs</td>
+          <td>Update MONITORING.md, IMMUNE_SYSTEM.md, POSTURE.md, and toMachina CLAUDE.md with new CI gates and test coverage info.</td>
+          <td>30m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Summary -->
+    <h3>Ticket Summary</h3>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">13</div>
+        <div class="stat-label">Layer 1 Tickets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">13</div>
+        <div class="stat-label">Layer 2 Tickets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Registration Tickets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--copper);">28</div>
+        <div class="stat-label">Total</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 6. KEY DESIGN DECISIONS ============ -->
+  <div class="section" id="decisions">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2>Key Design Decisions</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 40px;">#</th>
+          <th style="width: 180px;">Decision</th>
+          <th>Rationale</th>
+          <th style="width: 160px;">Alternative Rejected</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">D1</td>
+          <td><strong>Vitest over Jest</strong></td>
+          <td>TypeScript-native with zero config. Fast execution via esbuild. First-class monorepo support with workspace configs. No <code>ts-jest</code> transform layer needed.</td>
+          <td>Jest + ts-jest</td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">D2</td>
+          <td><strong>Real Firestore, not emulator</strong></td>
+          <td>Drive API cannot be emulated. The purpose is TRUE end-to-end verification. Emulator would give false confidence since production integration is what actually breaks.</td>
+          <td>Firebase Emulator Suite</td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">D3</td>
+          <td><strong>Direct wire execution</strong></td>
+          <td>Tests call <code>POST /api/intake/execute-wire</code> directly, bypassing the Cloud Function trigger. The trigger is trivial plumbing (reads event, calls API). The wire is where complexity and breakage live.</td>
+          <td>Trigger-based (upload and wait)</td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">D4</td>
+          <td><strong>Sequential execution</strong></td>
+          <td>Tests share real Firestore/Drive state. Parallel execution would cause race conditions on shared resources. Pipeline tests are inherently stateful and sequential.</td>
+          <td>Parallel test execution</td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">D5</td>
+          <td><strong>@playwright/test for UI</strong></td>
+          <td>Same tool already used via MCP plugin, but wrapped in a proper test framework with assertions, reporters, and CI-friendly output. Team already has muscle memory with Playwright.</td>
+          <td>Cypress, Puppeteer</td>
+        </tr>
+        <tr>
+          <td style="color: var(--copper); font-weight: 700;">D6</td>
+          <td><strong>Two separate CI jobs</strong></td>
+          <td><code>e2e-intake</code> runs AFTER deploy (needs live API). <code>e2e-ui</code> runs BEFORE deploy (needs only localhost). Different timing, different dependencies, different failure modes.</td>
+          <td>Single combined job</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 7. DEPENDENCIES ============ -->
+  <div class="section" id="deps">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <h2>Dependencies</h2>
+    </div>
+
+    <h3>New Dependencies (to install)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Package</th>
+          <th>Purpose</th>
+          <th>Scope</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>vitest</code></td>
+          <td>Test runner for backend pipeline E2E tests</td>
+          <td>devDependency (root)</td>
+        </tr>
+        <tr>
+          <td><code>@playwright/test</code></td>
+          <td>Browser test framework for UI visual verification</td>
+          <td>devDependency (root)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Existing Dependencies (already installed)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Package</th>
+          <th>Purpose in Tests</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>firebase-admin</code></td>
+          <td>Custom token auth, Firestore reads/writes, test data cleanup</td>
+        </tr>
+        <tr>
+          <td><code>googleapis</code></td>
+          <td>Drive API for uploading/deleting test PDFs</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>CI/Infrastructure Requirements</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Requirement</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GitHub Secret: <code>E2E_SERVICE_ACCOUNT_KEY</code></td>
+          <td>Firebase service account JSON for Admin SDK auth in CI</td>
+        </tr>
+        <tr>
+          <td>GitHub Secret: <code>E2E_TEST_USER_UID</code></td>
+          <td>Firebase UID of the designated test user</td>
+        </tr>
+        <tr>
+          <td>Test Drive Folder</td>
+          <td>Dedicated Google Drive folder for test file uploads (auto-cleaned)</td>
+        </tr>
+        <tr>
+          <td>Test Firestore Prefix</td>
+          <td>All test documents use <code>__test_</code> prefix for safe bulk deletion</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 8. OS REGISTRATION ============ -->
+  <div class="section" id="os-reg">
+    <div class="section-header">
+      <div class="section-number">8</div>
+      <h2>OS Registration Plan</h2>
+    </div>
+
+    <p>Upon sprint completion, the following Operating System documents must be updated to register the new test infrastructure.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Update Required</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>MONITORING.md</strong></td>
+          <td>Add E2E test suite as new automated cadence. Register <code>e2e-intake</code> and <code>e2e-ui</code> as monitored CI jobs with expected pass rates and alert thresholds.</td>
+        </tr>
+        <tr>
+          <td><strong>IMMUNE_SYSTEM.md</strong></td>
+          <td>Add new quality gates to the CI enforcement chain. <code>e2e-ui</code> blocks deploy (pre-production gate). <code>e2e-intake</code> blocks post-deploy verification (production gate).</td>
+        </tr>
+        <tr>
+          <td><strong>POSTURE.md</strong></td>
+          <td>Add test coverage verification entry. Document what is covered (4 pipelines, 10 UI modules) and what remains manual (~50 items).</td>
+        </tr>
+        <tr>
+          <td><strong>toMachina CLAUDE.md</strong></td>
+          <td>Update CI requirements section. Add <code>npm run test:e2e</code> and <code>npm run test:ui</code> to dev workflow. Document test data conventions (<code>__test_</code> prefix).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============ 9. BUILD ESTIMATES ============ -->
+  <div class="section" id="estimates">
+    <div class="section-header">
+      <div class="section-number">9</div>
+      <h2>Build Estimates</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Tickets</th>
+          <th>Hours</th>
+          <th>NightShift Session</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag layer1">Layer 1</span> Infrastructure (helpers + config)</td>
+          <td>TRK-531 &ndash; TRK-538</td>
+          <td>4.5h</td>
+          <td rowspan="2">Session 1</td>
+        </tr>
+        <tr>
+          <td><span class="tag layer1">Layer 1</span> Test implementation</td>
+          <td>TRK-539 &ndash; TRK-542</td>
+          <td>4.0h</td>
+        </tr>
+        <tr style="border-top: 2px solid var(--border);">
+          <td><span class="tag layer1">Layer 1</span> CI integration</td>
+          <td>TRK-543</td>
+          <td>0.75h</td>
+          <td rowspan="4">Session 2</td>
+        </tr>
+        <tr>
+          <td><span class="tag layer2">Layer 2</span> Infrastructure</td>
+          <td>TRK-544 &ndash; TRK-545</td>
+          <td>1.25h</td>
+        </tr>
+        <tr>
+          <td><span class="tag layer2">Layer 2</span> Module tests (10)</td>
+          <td>TRK-546 &ndash; TRK-555</td>
+          <td>4.2h</td>
+        </tr>
+        <tr>
+          <td><span class="tag layer2">Layer 2</span> CI + Registration</td>
+          <td>TRK-556, TRK-558</td>
+          <td>1.25h</td>
+        </tr>
+        <tr style="border-top: 2px solid var(--copper);">
+          <td style="color: var(--copper); font-weight: 600;">TOTAL</td>
+          <td style="color: var(--copper); font-weight: 600;">28 tickets</td>
+          <td style="color: var(--copper); font-weight: 600;">~12h</td>
+          <td style="color: var(--copper); font-weight: 600;">2 NightShift sessions</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card success">
+      <h4 style="margin-top:0;">What This Sprint Delivers</h4>
+      <ul style="margin-bottom: 0;">
+        <li><strong>4 automated pipeline tests</strong> verifying the full 8-stage intake wire for all 4 document sources</li>
+        <li><strong>10 automated UI visual tests</strong> covering every major ProDash module with screenshot capture</li>
+        <li><strong>2 new CI quality gates</strong> &mdash; <code>e2e-ui</code> (pre-deploy) and <code>e2e-intake</code> (post-deploy)</li>
+        <li><strong>~89% reduction</strong> in manual CEO verification burden (470 items &rarr; ~50)</li>
+        <li><strong>Regression detection</strong> for the first time in toMachina's history (674 items shipped blind)</li>
+        <li><strong>Full OS registration</strong> across MONITORING, IMMUNE_SYSTEM, POSTURE, and CLAUDE.md</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="doc-footer">
+    <p><span class="brand">toMachina</span> &mdash; E2E Testing Discovery Document &mdash; v1.0 &mdash; 2026-03-21</p>
+    <p>Retirement Protectors, Inc. &mdash; <em>#RunningOurOwnRACE</em></p>
+  </footer>
+
+</div>
+
+</body>
+</html>
