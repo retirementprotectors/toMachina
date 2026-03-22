@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { query, orderBy, type Query, type DocumentData } from 'firebase/firestore'
 import { useCollection } from '@tomachina/db'
 import { collections } from '@tomachina/db/src/firestore'
+import { getAuth } from 'firebase/auth'
 import type { Household } from '@tomachina/core'
 
 // ---------------------------------------------------------------------------
@@ -20,6 +21,30 @@ export default function HouseholdsPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('Active')
   const [page, setPage] = useState(0)
+  const [showCreate, setShowCreate] = useState(false)
+  const [createName, setCreateName] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  const handleCreateHousehold = useCallback(async () => {
+    if (!createName.trim()) return
+    setCreating(true)
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      const res = await fetch('/api/households', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ household_name: createName.trim(), primary_contact_id: 'pending', members: [] }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        const newId = json.data?.id || json.data?.household_id
+        if (newId) window.location.href = `/households/${newId}`
+        else window.location.reload()
+      }
+    } catch { /* handled */ }
+    setCreating(false)
+  }, [createName])
 
   const households = useMemo(() => {
     if (!rawHouseholds) return []
@@ -67,7 +92,42 @@ export default function HouseholdsPage() {
             {loading ? 'Loading...' : `${filtered.length} households`}
           </p>
         </div>
+        <button
+          onClick={() => { setShowCreate(true); setCreateName('') }}
+          className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-xs font-medium bg-[var(--portal)] text-white transition-colors hover:brightness-110"
+        >
+          <span className="material-icons-outlined text-[14px]">add</span>
+          Create Household
+        </button>
       </div>
+
+      {/* Create Household Modal */}
+      {showCreate && (
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Create Household</h3>
+          <div>
+            <label className="text-xs uppercase tracking-wide text-[var(--text-muted)]">Household Name</label>
+            <input
+              type="text"
+              value={createName}
+              onChange={(e) => setCreateName(e.target.value)}
+              placeholder="e.g. Smith Household"
+              className="mt-1 w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+              autoFocus
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCreateHousehold}
+              disabled={creating || !createName.trim()}
+              className="rounded-md h-[34px] px-4 text-xs font-medium bg-[var(--portal)] text-white transition-colors hover:brightness-110 disabled:opacity-40"
+            >
+              {creating ? 'Creating...' : 'Create'}
+            </button>
+            <button onClick={() => setShowCreate(false)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">Cancel</button>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex items-center gap-3">
