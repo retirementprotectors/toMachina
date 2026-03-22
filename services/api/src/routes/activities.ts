@@ -109,7 +109,7 @@ activityRoutes.post('/', async (req: Request, res: Response) => {
       })
     }
 
-    res.status(201).json(successResponse<unknown>(activity))
+    res.status(201).json(successResponse<ActivityDTO>(activity as unknown as ActivityDTO))
   } catch (err) {
     console.error('POST /api/activities error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -136,7 +136,7 @@ activityRoutes.get('/household/:householdId', async (req: Request, res: Response
     const members = (hhData.members || []) as Array<{ client_id: string; client_name?: string }>
 
     if (members.length === 0) {
-      res.json(successResponse<unknown>([]))
+      res.json(successResponse<HouseholdActivityDTO>([] as unknown as HouseholdActivityDTO))
       return
     }
 
@@ -173,7 +173,7 @@ activityRoutes.get('/household/:householdId', async (req: Request, res: Response
       String(b.created_at || '').localeCompare(String(a.created_at || ''))
     )
 
-    res.json(successResponse<unknown>(allActivities.slice(0, 100)))
+    res.json(successResponse<HouseholdActivityDTO>(allActivities.slice(0, 100) as unknown as HouseholdActivityDTO))
   } catch (err) {
     console.error('GET /api/activities/household/:householdId error:', err)
     res.status(500).json(errorResponse(String(err)))

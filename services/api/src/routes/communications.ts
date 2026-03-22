@@ -39,7 +39,7 @@ communicationRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Communication record not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<CommunicationDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as CommunicationDTO))
   } catch (err) {
     console.error('GET /api/communications/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

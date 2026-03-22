@@ -26,6 +26,33 @@ import {
   projectCashFlow,
   calculateNPV,
 } from '@tomachina/core'
+import type {
+  CamRevenueSummaryData,
+  CamRevenueTrendsData,
+  CamRevenueByCarrierDTO,
+  CamRevenueByAgentDTO,
+  CamRevenueByTypeDTO,
+  CommissionCalculateData,
+  CommissionProjectData,
+  CommissionScheduleData,
+  CompGridListDTO,
+  CompGridDTO,
+  CompGridCreateDTO,
+  CompGridUpdateDTO,
+  CompGridHistoryListDTO,
+  CamPipelineData,
+  CamPipelineForecastData,
+  HypotheticalProjectionData,
+  CommissionReconcileResult,
+  CommissionDiscrepancyListDTO,
+  CommissionDiscrepancyUpdateDTO,
+  AgentCommissionData,
+  AgentStatementData,
+  AgentOverrideData,
+  RetentionAnalyticsData,
+  SeasonalAnalyticsData,
+  CarrierRankDTO,
+} from '@tomachina/core'
 
 export const camRoutes = Router()
 
@@ -75,13 +102,13 @@ camRoutes.get('/revenue', async (req: Request, res: Response) => {
       byAgent[agentId].count += 1
     })
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CamRevenueSummaryData>({
       total: Math.round(total * 100) / 100,
       record_count: snap.size,
       by_type: byType,
       by_carrier: byCarrier,
       by_agent: byAgent,
-    }))
+    } as unknown as CamRevenueSummaryData))
   } catch (err) {
     console.error('GET /api/cam/revenue error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -127,7 +154,7 @@ camRoutes.get('/revenue/trends', async (req: Request, res: Response) => {
         count: data.count,
       }))
 
-    res.json(successResponse<unknown>({ months: trends, period_months: months }))
+    res.json(successResponse<CamRevenueTrendsData>({ months: trends, period_months: months } as unknown as CamRevenueTrendsData))
   } catch (err) {
     console.error('GET /api/cam/revenue/trends error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -160,7 +187,7 @@ camRoutes.get('/revenue/by-carrier', async (req: Request, res: Response) => {
       .map((c) => ({ ...c, total: Math.round(c.total * 100) / 100 }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse<unknown>(ranked, { pagination: { count: ranked.length, total: ranked.length } }))
+    res.json(successResponse<CamRevenueByCarrierDTO>(ranked as unknown as CamRevenueByCarrierDTO, { pagination: { count: ranked.length, total: ranked.length } }))
   } catch (err) {
     console.error('GET /api/cam/revenue/by-carrier error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -192,7 +219,7 @@ camRoutes.get('/revenue/by-agent', async (req: Request, res: Response) => {
       .map((a) => ({ ...a, total: Math.round(a.total * 100) / 100 }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse<unknown>(ranked, { pagination: { count: ranked.length, total: ranked.length } }))
+    res.json(successResponse<CamRevenueByAgentDTO>(ranked as unknown as CamRevenueByAgentDTO, { pagination: { count: ranked.length, total: ranked.length } }))
   } catch (err) {
     console.error('GET /api/cam/revenue/by-agent error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -225,7 +252,7 @@ camRoutes.get('/revenue/by-type', async (req: Request, res: Response) => {
       .map((t) => ({ ...t, total: Math.round(t.total * 100) / 100 }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse<unknown>(breakdown, { pagination: { count: breakdown.length, total: breakdown.length } }))
+    res.json(successResponse<CamRevenueByTypeDTO>(breakdown as unknown as CamRevenueByTypeDTO, { pagination: { count: breakdown.length, total: breakdown.length } }))
   } catch (err) {
     console.error('GET /api/cam/revenue/by-type error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -265,7 +292,7 @@ camRoutes.post('/commission/calculate', async (req: Request, res: Response) => {
         return
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CommissionCalculateData>({
       amount: parsedAmount,
       rate: parsedRate,
       type,
@@ -275,7 +302,7 @@ camRoutes.post('/commission/calculate', async (req: Request, res: Response) => {
         rate_applied: parsedRate,
         net_commission: commission,
       },
-    }))
+    } as unknown as CommissionCalculateData))
   } catch (err) {
     console.error('POST /api/cam/commission/calculate error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -303,11 +330,11 @@ camRoutes.post('/commission/project', async (req: Request, res: Response) => {
       npv = calculateNPV(cashflows, parseFloat(String(req.body.discount_rate)))
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CommissionProjectData>({
       projection,
       npv,
       inputs: { account_count: accounts.length, years: years || 5, growth_rate: growth_rate || 0 },
-    }))
+    } as unknown as CommissionProjectData))
   } catch (err) {
     console.error('POST /api/cam/commission/project error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -329,7 +356,7 @@ camRoutes.get('/commission/schedule/:id', async (req: Request, res: Response) =>
       .get()
 
     if (snap.empty) {
-      res.json(successResponse<unknown>({ account_id: accountId, schedule: [], total: 0 }))
+      res.json(successResponse<CommissionScheduleData>({ account_id: accountId, schedule: [], total: 0 } as unknown as CommissionScheduleData))
       return
     }
 
@@ -347,12 +374,12 @@ camRoutes.get('/commission/schedule/:id', async (req: Request, res: Response) =>
 
     const total = schedule.reduce((sum, s) => sum + (parseFloat(String(s.amount)) || 0), 0)
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CommissionScheduleData>({
       account_id: accountId,
       schedule,
       total: Math.round(total * 100) / 100,
       record_count: schedule.length,
-    }))
+    } as unknown as CommissionScheduleData))
   } catch (err) {
     console.error('GET /api/cam/commission/schedule/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -379,7 +406,7 @@ camRoutes.get('/comp-grids', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, 'comp_grids', params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse<unknown>(data, { pagination: result.pagination }))
+    res.json(successResponse<CompGridListDTO>(data as unknown as CompGridListDTO, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/cam/comp-grids error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -398,7 +425,7 @@ camRoutes.get('/comp-grids/:id', async (req: Request, res: Response) => {
       res.status(404).json(errorResponse('Comp grid not found'))
       return
     }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<CompGridDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as CompGridDTO))
   } catch (err) {
     console.error('GET /api/cam/comp-grids/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -431,7 +458,7 @@ camRoutes.post('/comp-grids', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge('comp_grids', 'insert', gridId, data)
     if (!bridgeResult.success) await db.collection('comp_grids').doc(gridId).set(data)
 
-    res.status(201).json(successResponse<unknown>({ id: gridId, ...data }))
+    res.status(201).json(successResponse<CompGridCreateDTO>({ id: gridId, ...data } as unknown as CompGridCreateDTO))
   } catch (err) {
     console.error('POST /api/cam/comp-grids error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -485,7 +512,7 @@ camRoutes.get('/pipeline', async (req: Request, res: Response) => {
       ? Math.round((summary.issued.count / summary.total.count) * 10000) / 100
       : 0
 
-    res.json(successResponse<unknown>({ ...summary, conversion_rate: conversionRate }))
+    res.json(successResponse<CamPipelineData>({ ...summary, conversion_rate: conversionRate } as unknown as CamPipelineData))
   } catch (err) {
     console.error('GET /api/cam/pipeline error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -518,13 +545,13 @@ camRoutes.get('/pipeline/forecast', async (req: Request, res: Response) => {
 
     const monthlyBase = forecast12.total / 12
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CamPipelineForecastData>({
       account_count: accounts.length,
       forecast_3m: Math.round(monthlyBase * 3 * 100) / 100,
       forecast_6m: Math.round(monthlyBase * 6 * 100) / 100,
       forecast_12m: Math.round(forecast12.total * 100) / 100,
       monthly_run_rate: Math.round(monthlyBase * 100) / 100,
-    }))
+    } as unknown as CamPipelineForecastData))
   } catch (err) {
     console.error('GET /api/cam/pipeline/forecast error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -615,7 +642,7 @@ camRoutes.post('/projections/hypothetical', async (req: Request, res: Response) 
       }
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<HypotheticalProjectionData>({
       tier: { key: tier_key || 'bronze', percent: tierPercent },
       revenue_per_client: rpc,
       retail: { year1: Math.round(retailYear1 * 100) / 100, monthly: retailMonthly },
@@ -628,7 +655,7 @@ camRoutes.post('/projections/hypothetical', async (req: Request, res: Response) 
       total: {
         year1: Math.round((retailYear1 + downlineYear1 + networkYear1) * 100) / 100,
       },
-    }))
+    } as unknown as HypotheticalProjectionData))
   } catch (err) {
     console.error('POST /api/cam/projections/hypothetical error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -689,11 +716,11 @@ camRoutes.post('/commission/reconcile', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CommissionReconcileResult>({
       records_checked: snap.size,
       discrepancies_found: discrepancies.length,
       discrepancies: discrepancies.slice(0, 50),
-    }))
+    } as unknown as CommissionReconcileResult))
   } catch (err) {
     console.error('POST /api/cam/commission/reconcile error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -717,7 +744,7 @@ camRoutes.get('/commission/discrepancies', async (req: Request, res: Response) =
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'created_at'
     const result = await paginatedQuery(query, 'commission_discrepancies', params)
-    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
+    res.json(successResponse<CommissionDiscrepancyListDTO>(result.data as unknown as CommissionDiscrepancyListDTO, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/cam/commission/discrepancies error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -751,7 +778,7 @@ camRoutes.patch('/commission/discrepancies/:id', async (req: Request, res: Respo
     await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ id, ...updated.data() }))
+    res.json(successResponse<CommissionDiscrepancyUpdateDTO>({ id, ...updated.data() } as unknown as CommissionDiscrepancyUpdateDTO))
   } catch (err) {
     console.error('PATCH /api/cam/commission/discrepancies/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -799,7 +826,7 @@ camRoutes.patch('/comp-grids/:id', async (req: Request, res: Response) => {
     if (!bridgeResult.success) await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<CompGridUpdateDTO>(stripInternalFields({ id, ...updated.data() } as Record<string, unknown>) as unknown as CompGridUpdateDTO))
   } catch (err) {
     console.error('PATCH /api/cam/comp-grids/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -819,7 +846,7 @@ camRoutes.get('/comp-grids/history', async (req: Request, res: Response) => {
     const params = getPaginationParams(req)
     if (!params.orderBy) params.orderBy = 'changed_at'
     const result = await paginatedQuery(query, 'comp_grid_history', params)
-    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
+    res.json(successResponse<CompGridHistoryListDTO>(result.data as unknown as CompGridHistoryListDTO, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/cam/comp-grids/history error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -862,7 +889,7 @@ camRoutes.get('/agent/:agentId/commission', async (req: Request, res: Response) 
       } as Record<string, unknown>)
     })
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<AgentCommissionData>({
       agent_id: agentId,
       records,
       totals: {
@@ -872,7 +899,7 @@ camRoutes.get('/agent/:agentId/commission', async (req: Request, res: Response) 
         total: Math.round((totalFYC + totalRenewal + totalOverride) * 100) / 100,
       },
       record_count: records.length,
-    }))
+    } as unknown as AgentCommissionData))
   } catch (err) {
     console.error('GET /api/cam/agent/:agentId/commission error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -913,7 +940,7 @@ camRoutes.get('/agent/:agentId/statement', async (req: Request, res: Response) =
 
     const totalAmount = lineItems.reduce((sum, li) => sum + li.amount, 0)
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<AgentStatementData>({
       statement: {
         agent_id: agentId,
         agent_name: agentData ? `${agentData.first_name || ''} ${agentData.last_name || ''}`.trim() : agentId,
@@ -923,7 +950,7 @@ camRoutes.get('/agent/:agentId/statement', async (req: Request, res: Response) =
         total: Math.round(totalAmount * 100) / 100,
         line_item_count: lineItems.length,
       },
-    }))
+    } as unknown as AgentStatementData))
   } catch (err) {
     console.error('GET /api/cam/agent/:agentId/statement error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -970,13 +997,13 @@ camRoutes.post('/agent/:agentId/override', async (req: Request, res: Response) =
       })
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<AgentOverrideData>({
       agent_id: agentId,
       period: period || 'all',
       override_rate: overrideRate,
       overrides,
       total_override: Math.round(totalOverride * 100) / 100,
-    }))
+    } as unknown as AgentOverrideData))
   } catch (err) {
     console.error('POST /api/cam/agent/:agentId/override error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1019,14 +1046,14 @@ camRoutes.get('/analytics/retention', async (req: Request, res: Response) => {
     const retentionRate = totalBase > 0 ? Math.round((totalActive / totalBase) * 10000) / 100 : 100
     const lapseRate = totalBase > 0 ? Math.round((totalLapsed / totalBase) * 10000) / 100 : 0
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<RetentionAnalyticsData>({
       retention_rate: retentionRate,
       lapse_rate: lapseRate,
       active_revenue: Math.round(totalActive * 100) / 100,
       renewal_revenue: Math.round(totalRenewal * 100) / 100,
       lapsed_revenue: Math.round(totalLapsed * 100) / 100,
       total_base: Math.round(totalBase * 100) / 100,
-    }))
+    } as unknown as RetentionAnalyticsData))
   } catch (err) {
     console.error('GET /api/cam/analytics/retention error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1066,12 +1093,12 @@ camRoutes.get('/analytics/seasonal', async (req: Request, res: Response) => {
     const avgMonthly = months.reduce((s, m) => s + m.total, 0) / 12
     const peakMonth = months.reduce((best, m) => m.total > best.total ? m : best, months[0])
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<SeasonalAnalyticsData>({
       months,
       avg_monthly: Math.round(avgMonthly * 100) / 100,
       peak_month: peakMonth.month_name,
       peak_revenue: peakMonth.total,
-    }))
+    } as unknown as SeasonalAnalyticsData))
   } catch (err) {
     console.error('GET /api/cam/analytics/seasonal error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1113,7 +1140,7 @@ camRoutes.get('/analytics/carrier-rank', async (req: Request, res: Response) => 
       }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse<unknown>(ranked, { pagination: { count: ranked.length, total: ranked.length } }))
+    res.json(successResponse<CarrierRankDTO>(ranked as unknown as CarrierRankDTO, { pagination: { count: ranked.length, total: ranked.length } }))
   } catch (err) {
     console.error('GET /api/cam/analytics/carrier-rank error:', err)
     res.status(500).json(errorResponse(String(err)))

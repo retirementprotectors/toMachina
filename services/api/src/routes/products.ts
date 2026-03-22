@@ -28,7 +28,7 @@ productRoutes.get('/', async (req: Request, res: Response) => {
 
     const snap = await query.limit(500).get()
     const products = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse<unknown>(products, { pagination: { count: products.length, total: products.length } }))
+    res.json(successResponse<ProductDTO[]>(products as unknown as ProductDTO[], { pagination: { count: products.length, total: products.length } }))
   } catch (err) {
     console.error('GET /api/products error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -41,7 +41,7 @@ productRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Product not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<ProductDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as ProductDTO))
   } catch (err) {
     console.error('GET /api/products/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

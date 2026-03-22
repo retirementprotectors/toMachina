@@ -16,7 +16,7 @@ intakeQueueRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).orderBy('created_at', 'desc').limit(200).get()
     const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    res.json(successResponse<unknown>(data))
+    res.json(successResponse<IntakeQueueListDTO>(data as unknown as IntakeQueueListDTO))
   } catch (err) {
     console.error('GET /api/intake-queue error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -40,7 +40,7 @@ intakeQueueRoutes.patch('/:id', async (req: Request, res: Response) => {
     }
 
     await ref.update(updates)
-    res.json(successResponse<unknown>({ id, ...updates }))
+    res.json(successResponse<IntakeQueueUpdateResult>({ id, ...updates } as unknown as IntakeQueueUpdateResult))
   } catch (err) {
     console.error('PATCH /api/intake-queue error:', err)
     res.status(500).json(errorResponse(String(err)))

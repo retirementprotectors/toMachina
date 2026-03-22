@@ -10,7 +10,7 @@ import {
   param,
   writeThroughBridge,
 } from '../lib/helpers.js'
-import type { TemplateDTO } from '@tomachina/core'
+import type { TemplateDTO, TemplateDetailDTO, TemplateCreateDTO, TemplateUpdateResult, TemplateDeleteResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const templateRoutes = Router()
@@ -82,7 +82,7 @@ templateRoutes.get('/:id', async (req: Request, res: Response) => {
       template._resolved_blocks = blockNames
     }
 
-    res.json(successResponse<unknown>(stripInternalFields(template)))
+    res.json(successResponse<TemplateDetailDTO>(stripInternalFields(template) as unknown as TemplateDetailDTO))
   } catch (err) {
     console.error('GET /api/templates/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -122,7 +122,7 @@ templateRoutes.post('/', createValidation, async (req: Request, res: Response) =
     await db.collection(COLLECTION).doc(templateId).set(data)
     await writeThroughBridge(COLLECTION, 'insert', templateId, data)
 
-    res.status(201).json(successResponse<unknown>({ id: templateId, ...data }))
+    res.status(201).json(successResponse<TemplateCreateDTO>({ id: templateId, ...data } as unknown as TemplateCreateDTO))
   } catch (err) {
     console.error('POST /api/templates error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -145,7 +145,7 @@ templateRoutes.patch('/:id', async (req: Request, res: Response) => {
     await docRef.update(updates)
     await writeThroughBridge(COLLECTION, 'update', id, updates)
 
-    res.json(successResponse<unknown>({ id, updated: Object.keys(updates) }))
+    res.json(successResponse<TemplateUpdateResult>({ id, updated: Object.keys(updates) } as unknown as TemplateUpdateResult))
   } catch (err) {
     console.error('PATCH /api/templates/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -168,7 +168,7 @@ templateRoutes.delete('/:id', async (req: Request, res: Response) => {
     await docRef.update(updates)
     await writeThroughBridge(COLLECTION, 'update', id, updates)
 
-    res.json(successResponse<unknown>({ id, deleted: true }))
+    res.json(successResponse<TemplateDeleteResult>({ id, deleted: true } as unknown as TemplateDeleteResult))
   } catch (err) {
     console.error('DELETE /api/templates/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

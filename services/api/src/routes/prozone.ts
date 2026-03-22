@@ -6,7 +6,14 @@ import {
   getPaginationParams,
   param,
 } from '../lib/helpers.js'
-import type { ProspectsByZoneData, ScorecardData, EnrollResult } from '@tomachina/core'
+import type {
+  ProspectsByZoneData,
+  ProspectsFlatData,
+  ScheduleData,
+  ZoneLeadsData,
+  ScorecardData,
+  EnrollResult,
+} from '@tomachina/core'
 
 export const prozoneRoutes = Router()
 
@@ -93,7 +100,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
     const state = territory.state as string
 
     if (countyNames.length === 0) {
-      res.json(successResponse<unknown>({ zones: [], total_prospects: 0 }))
+      res.json(successResponse<ProspectsByZoneData>({ zones: [], total_prospects: 0 } as unknown as ProspectsByZoneData))
       return
     }
 
@@ -362,7 +369,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
         }))
       )
       const paginated = allProspects.slice(offset, offset + limit)
-      res.json(successResponse<unknown>({
+      res.json(successResponse<ProspectsFlatData>({
         specialist: config.specialist_name,
         territory: territory.territory_name,
         prospects: paginated,
@@ -370,12 +377,12 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
         total_flagged: totalFlagged,
         total_in_pipeline: totalInPipeline,
         meta: { offset, limit, total: allProspects.length },
-      }))
+      } as unknown as ProspectsFlatData))
       return
     }
 
     // ─── Default: zone-grouped response with meta ───
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ProspectsByZoneData>({
       specialist: config.specialist_name,
       territory: territory.territory_name,
       zones: zoneResults,
@@ -383,7 +390,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
       total_flagged: totalFlagged,
       total_in_pipeline: totalInPipeline,
       meta: { offset, limit, total: totalProspects },
-    }))
+    } as unknown as ProspectsByZoneData))
   } catch (err) {
     console.error('GET /api/prozone/prospects error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -509,13 +516,13 @@ prozoneRoutes.get('/schedule/:specialist_id/:week', async (req: Request, res: Re
       current.setDate(current.getDate() + 1)
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ScheduleData>({
       specialist: config.specialist_name,
       week: weekStr,
       week_start: weekDates.start.toISOString().split('T')[0],
       week_end: weekDates.end.toISOString().split('T')[0],
       schedule,
-    }))
+    } as unknown as ScheduleData))
   } catch (err) {
     console.error('GET /api/prozone/schedule error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -549,7 +556,7 @@ prozoneRoutes.get('/zone-leads/:specialist_id/:zone_id', async (req: Request, re
     const state = territory.state as string
 
     if (zoneCounties.length === 0) {
-      res.json(successResponse<unknown>({ zone_id: zoneId, leads: [], total: 0 }))
+      res.json(successResponse<ZoneLeadsData>({ zone_id: zoneId, leads: [], total: 0 } as unknown as ZoneLeadsData))
       return
     }
 
@@ -635,13 +642,13 @@ prozoneRoutes.get('/zone-leads/:specialist_id/:zone_id', async (req: Request, re
       return ageB - ageA
     })
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ZoneLeadsData>({
       zone_id: zoneId,
       specialist: config.specialist_name,
       territory: territory.territory_name,
       leads,
       total: leads.length,
-    }))
+    } as unknown as ZoneLeadsData))
   } catch (err) {
     console.error('GET /api/prozone/zone-leads error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -731,7 +738,7 @@ prozoneRoutes.get('/scorecard', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ScorecardData>({
       attempts,
       connected,
       booked,
@@ -740,7 +747,7 @@ prozoneRoutes.get('/scorecard', async (req: Request, res: Response) => {
         booked: connected > 0 ? Math.round((booked / connected) * 1000) / 10 : 0,
       },
       filters: { specialist_id: specialistId, timeline, team, pipeline },
-    }))
+    } as unknown as ScorecardData))
   } catch (err) {
     console.error('GET /api/prozone/scorecard error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -779,7 +786,7 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
     const countyNames = counties.map(c => c.county)
     const state = territory.state as string
     if (countyNames.length === 0) {
-      res.json(successResponse<unknown>({ enrolled: 0 }))
+      res.json(successResponse<EnrollResult>({ enrolled: 0 } as unknown as EnrollResult))
       return
     }
 
@@ -864,7 +871,7 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
       await batch.commit()
     }
 
-    res.json(successResponse<unknown>({ enrolled, already_enrolled: alreadyEnrolled, total: clientDocs.length }))
+    res.json(successResponse<EnrollResult>({ enrolled, already_enrolled: alreadyEnrolled, total: clientDocs.length } as unknown as EnrollResult))
   } catch (err) {
     res.status(500).json(errorResponse(String(err)))
   }

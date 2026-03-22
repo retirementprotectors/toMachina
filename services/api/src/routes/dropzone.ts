@@ -50,7 +50,7 @@ dropzoneRoutes.post('/', upload.single('file'), async (req: Request, res: Respon
         status: 'pending', _created_by: getUserEmail(req),
         created_at: now, updated_at: now,
       })
-      res.json(successResponse<unknown>({ queue_id, file_id: null }))
+      res.json(successResponse<DropzoneUploadResult>({ queue_id, file_id: null } as unknown as DropzoneUploadResult))
       return
     }
 
@@ -84,11 +84,11 @@ dropzoneRoutes.post('/', upload.single('file'), async (req: Request, res: Respon
 
     await db.collection('intake_queue').doc(queue_id).set(entry)
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<DropzoneUploadResult>({
       queue_id,
       file_id: driveResult.id,
       file_url: driveResult.url,
-    }))
+    } as unknown as DropzoneUploadResult))
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
     res.status(500).json(errorResponse(msg))

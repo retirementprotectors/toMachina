@@ -7,7 +7,17 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, validateRequired, param } from '../lib/helpers.js'
-import type { CommsSendSmsResult } from '@tomachina/core'
+import type {
+  CommsSendEmailResult,
+  CommsSendEmailDryRunResult,
+  CommsSendSmsResult,
+  CommsSendSmsDryRunResult,
+  CommsSendVoiceResult,
+  CommsSendVoiceDryRunResult,
+  CommsLogCallResult,
+  CommsMessageStatusData,
+  CommsCallStatusData,
+} from '@tomachina/core'
 
 export const commsRoutes = Router()
 
@@ -179,7 +189,7 @@ commsRoutes.post('/send-email', async (req: Request, res: Response) => {
         sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
       })
-      res.status(200).json(successResponse<unknown>({ statusCode: 200, messageId: null, to, from, dryRun: true, commId }))
+      res.status(200).json(successResponse<CommsSendEmailDryRunResult>({ statusCode: 200, messageId: null, to, from, dryRun: true, commId } as unknown as CommsSendEmailDryRunResult))
       return
     }
 
@@ -191,7 +201,7 @@ commsRoutes.post('/send-email', async (req: Request, res: Response) => {
       sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
     })
-    res.status(201).json(successResponse<unknown>({ statusCode: result.statusCode, messageId: result.messageId, to, from, commId }))
+    res.status(201).json(successResponse<CommsSendEmailResult>({ statusCode: result.statusCode, messageId: result.messageId, to, from, commId } as unknown as CommsSendEmailResult))
   } catch (err) {
     console.error('POST /api/comms/send-email error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -221,7 +231,7 @@ commsRoutes.post('/send-sms', async (req: Request, res: Response) => {
         sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
       })
-      res.status(200).json(successResponse<unknown>({ messageSid: null, to, from, status: 'dry_run', dryRun: true, commId }))
+      res.status(200).json(successResponse<CommsSendSmsDryRunResult>({ messageSid: null, to, from, status: 'dry_run', dryRun: true, commId } as unknown as CommsSendSmsDryRunResult))
       return
     }
 
@@ -236,11 +246,11 @@ commsRoutes.post('/send-sms', async (req: Request, res: Response) => {
       sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
     })
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<CommsSendSmsResult>({
       messageSid: result.sid, to: result.to, from: result.from,
       status: result.status, dateCreated: result.date_created,
       numSegments: result.num_segments, commId,
-    }))
+    } as unknown as CommsSendSmsResult))
   } catch (err) {
     console.error('POST /api/comms/send-sms error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -274,7 +284,7 @@ commsRoutes.post('/send-voice', async (req: Request, res: Response) => {
         sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
       })
-      res.status(200).json(successResponse<unknown>({ callSid: null, to, from, status: 'dry_run', dryRun: true, commId }))
+      res.status(200).json(successResponse<CommsSendVoiceDryRunResult>({ callSid: null, to, from, status: 'dry_run', dryRun: true, commId } as unknown as CommsSendVoiceDryRunResult))
       return
     }
 
@@ -293,11 +303,11 @@ commsRoutes.post('/send-voice', async (req: Request, res: Response) => {
       sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
     })
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<CommsSendVoiceResult>({
       callSid: result.sid, to: result.to, from: result.from,
       status: result.status, direction: result.direction,
       dateCreated: result.date_created, commId,
-    }))
+    } as unknown as CommsSendVoiceResult))
   } catch (err) {
     console.error('POST /api/comms/send-voice error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -332,7 +342,7 @@ commsRoutes.post('/log-call', async (req: Request, res: Response) => {
       call_type: 'manual_log',
     })
 
-    res.status(201).json(successResponse<unknown>({ commId, direction, outcome, duration, notes }))
+    res.status(201).json(successResponse<CommsLogCallResult>({ commId, direction, outcome, duration, notes } as unknown as CommsLogCallResult))
   } catch (err) {
     console.error('POST /api/comms/log-call error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -353,7 +363,7 @@ commsRoutes.get('/status/:sid', async (req: Request, res: Response) => {
     const path = isCall ? `Calls/${sid}.json` : `Messages/${sid}.json`
 
     const result = await twilioRequest('GET', path)
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CommsMessageStatusData | CommsCallStatusData>({
       sid: result.sid,
       to: result.to,
       from: result.from,
@@ -377,7 +387,7 @@ commsRoutes.get('/status/:sid', async (req: Request, res: Response) => {
         price: result.price,
         priceUnit: result.price_unit,
       }),
-    }))
+    } as unknown as CommsMessageStatusData | CommsCallStatusData))
   } catch (err) {
     console.error('GET /api/comms/status/:sid error:', err)
     res.status(500).json(errorResponse(String(err)))

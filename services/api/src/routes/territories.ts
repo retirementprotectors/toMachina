@@ -47,7 +47,7 @@ territoryRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Territory not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<TerritoryDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as TerritoryDTO))
   } catch (err) {
     console.error('GET /api/territories/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -79,7 +79,7 @@ territoryRoutes.post('/', async (req: Request, res: Response) => {
 
     await db.collection(COLLECTION).doc(territoryId).set(territoryData)
 
-    res.status(201).json(successResponse<unknown>(stripInternalFields({ id: territoryId, ...territoryData })))
+    res.status(201).json(successResponse<TerritoryDTO>(stripInternalFields({ id: territoryId, ...territoryData }) as unknown as TerritoryDTO))
   } catch (err) {
     console.error('POST /api/territories error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -106,7 +106,7 @@ territoryRoutes.patch('/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<TerritoryDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as TerritoryDTO))
   } catch (err) {
     console.error('PATCH /api/territories/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

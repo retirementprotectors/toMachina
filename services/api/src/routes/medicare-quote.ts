@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from 'express'
 import { successResponse, errorResponse } from '../lib/helpers.js'
-import type { MedicareQuoteData } from '@tomachina/core'
+import type { MedicareQuoteData, MedicareCompaniesData, MedicarePlanLettersData, MedicareQuoteStatusData } from '@tomachina/core'
 
 export const medicareQuoteRoutes = Router()
 
@@ -167,11 +167,11 @@ medicareQuoteRoutes.post('/quotes', async (req: Request, res: Response) => {
       }
     }).sort((a, b) => a.monthly_premium - b.monthly_premium)
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<MedicareQuoteData>({
       quotes: normalized,
       count: normalized.length,
       input: { zip, age, gender, tobacco, plan_letter, effective_date },
-    }))
+    } as unknown as MedicareQuoteData))
   } catch (err) {
     console.error('POST /api/medicare-quote/quotes error:', err)
     res.status(500).json(errorResponse(String(err instanceof Error ? err.message : err)))
@@ -182,7 +182,7 @@ medicareQuoteRoutes.post('/quotes', async (req: Request, res: Response) => {
 medicareQuoteRoutes.get('/companies', async (_req: Request, res: Response) => {
   try {
     const companies = await getCompanies()
-    res.json(successResponse<unknown>({ companies, count: companies.length }))
+    res.json(successResponse<MedicareCompaniesData>({ companies, count: companies.length } as unknown as MedicareCompaniesData))
   } catch (err) {
     console.error('GET /api/medicare-quote/companies error:', err)
     res.status(500).json(errorResponse(String(err instanceof Error ? err.message : err)))
@@ -191,7 +191,7 @@ medicareQuoteRoutes.get('/companies', async (_req: Request, res: Response) => {
 
 // GET /api/medicare-quote/plan-letters — Available plan letters
 medicareQuoteRoutes.get('/plan-letters', (_req: Request, res: Response) => {
-  res.json(successResponse<unknown>({
+  res.json(successResponse<MedicarePlanLettersData>({
     plan_letters: [
       { key: 'A', label: 'Plan A', description: 'Basic benefits' },
       { key: 'B', label: 'Plan B', description: 'Basic + Part A deductible' },
@@ -204,11 +204,11 @@ medicareQuoteRoutes.get('/plan-letters', (_req: Request, res: Response) => {
       { key: 'M', label: 'Plan M', description: '50% Part A deductible' },
       { key: 'N', label: 'Plan N', description: 'Cost-sharing with copays' },
     ],
-  }))
+  } as unknown as MedicarePlanLettersData))
 })
 
 // GET /api/medicare-quote/status — Check if CSG API is configured
 medicareQuoteRoutes.get('/status', (_req: Request, res: Response) => {
   const configured = !!process.env.CSG_API_KEY
-  res.json(successResponse<unknown>({ configured, provider: 'CSG Actuarial' }))
+  res.json(successResponse<MedicareQuoteStatusData>({ configured, provider: 'CSG Actuarial' } as unknown as MedicareQuoteStatusData))
 })

@@ -62,7 +62,7 @@ syncRoutes.post('/agent', async (req: Request, res: Response) => {
       accountCount += accountSnap.size
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<SyncAgentData>({
       agent,
       stats: {
         clients: clients.length,
@@ -74,7 +74,7 @@ syncRoutes.post('/agent', async (req: Request, res: Response) => {
         clients,
         revenue,
       },
-    }))
+    } as unknown as SyncAgentData))
   } catch (err) {
     console.error('POST /api/sync/agent error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -146,7 +146,7 @@ syncRoutes.post('/client', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<SyncClientData>({
       client,
       agent,
       stats: {
@@ -158,7 +158,7 @@ syncRoutes.post('/client', async (req: Request, res: Response) => {
         accounts,
         revenue,
       },
-    }))
+    } as unknown as SyncClientData))
   } catch (err) {
     console.error('POST /api/sync/client error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -245,7 +245,7 @@ syncRoutes.post('/account', async (req: Request, res: Response) => {
     const revenue = revenueSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown>))
     const totalRevenue = revenue.reduce((sum, r) => sum + (parseFloat(String(r.amount)) || 0), 0)
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<SyncAccountData>({
       account,
       client,
       agent,
@@ -256,7 +256,7 @@ syncRoutes.post('/account', async (req: Request, res: Response) => {
       related: {
         revenue,
       },
-    }))
+    } as unknown as SyncAccountData))
   } catch (err) {
     console.error('POST /api/sync/account error:', err)
     res.status(500).json(errorResponse(String(err)))

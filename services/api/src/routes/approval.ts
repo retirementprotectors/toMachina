@@ -33,6 +33,17 @@ import {
   writeThroughBridge,
   getPaginationParams,
 } from '../lib/helpers.js'
+import type {
+  ApprovalBatchCreateResult,
+  ApprovalNotifyResult,
+  ApprovalItemDTO,
+  ApprovalBulkUpdateResult,
+  ApprovalExecuteResult,
+  ApprovalBatchListItem,
+  ApprovalBatchDetailDTO,
+  ApprovalStatsData,
+  ApprovalTrainingDTO,
+} from '@tomachina/core'
 import { resumeWireAfterApproval } from './wire.js'
 
 export const approvalRoutes = Router()
@@ -87,13 +98,13 @@ approvalRoutes.post('/batches', async (req: Request, res: Response) => {
       _original_values: originalValues,
     })
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<ApprovalBatchCreateResult>({
       batch_id: batchId,
       approval_count: batch.items.length,
       summary: batch.summary,
       assigned_to: batch.assigned_to,
       routing,
-    }))
+    } as unknown as ApprovalBatchCreateResult))
   } catch (err) {
     console.error('POST /api/approval/batches error:', err)
     res.status(500).json(errorResponse('Failed to create approval batch'))
@@ -180,7 +191,7 @@ approvalRoutes.post('/batches/:id/notify', async (req: Request, res: Response) =
         status: 'IN_REVIEW',
         updated_at: new Date().toISOString(),
       })
-      res.json(successResponse<unknown>({ ts: slackData.ts, channel: slackData.channel }))
+      res.json(successResponse<ApprovalNotifyResult>({ ts: slackData.ts, channel: slackData.channel } as unknown as ApprovalNotifyResult))
     } else {
       res.status(500).json(errorResponse(`Slack notification failed: ${slackData.error}`))
     }
@@ -270,7 +281,7 @@ approvalRoutes.patch('/batches/:id/items/:itemId', async (req: Request, res: Res
       }
     }
 
-    res.json(successResponse<unknown>(updatedItem))
+    res.json(successResponse<ApprovalItemDTO>(updatedItem as unknown as ApprovalItemDTO))
   } catch (err) {
     console.error('PATCH /api/approval/batches/:id/items/:itemId error:', err)
     res.status(500).json(errorResponse('Failed to update item'))
@@ -318,10 +329,10 @@ approvalRoutes.patch('/batches/:id/bulk', async (req: Request, res: Response) =>
       updated_at: now,
     })
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ApprovalBulkUpdateResult>({
       updated: updatedItems.filter((i) => i.decided_at === now).length,
       summary,
-    }))
+    } as unknown as ApprovalBulkUpdateResult))
   } catch (err) {
     console.error('PATCH /api/approval/batches/:id/bulk error:', err)
     res.status(500).json(errorResponse('Failed to bulk update'))
@@ -540,7 +551,7 @@ approvalRoutes.post('/batches/:id/execute', async (req: Request, res: Response) 
       }
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ApprovalExecuteResult>({
       batch_id: batchId,
       status: finalizedBatch.status,
       executed: results.filter((r) => r.status === 'success').length,
@@ -548,7 +559,7 @@ approvalRoutes.post('/batches/:id/execute', async (req: Request, res: Response) 
       training_captured: trainingRecords.length,
       wire_resumed: !!wireExecutionId,
       results,
-    }))
+    } as unknown as ApprovalExecuteResult))
   } catch (err) {
     console.error('POST /api/approval/batches/:id/execute error:', err)
     res.status(500).json(errorResponse('Failed to execute batch'))
@@ -600,7 +611,7 @@ approvalRoutes.get('/batches', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse<unknown>(batches, { pagination: { count: batches.length, total: batches.length } }))
+    res.json(successResponse<ApprovalBatchListItem[]>(batches as unknown as ApprovalBatchListItem[], { pagination: { count: batches.length, total: batches.length } }))
   } catch (err) {
     console.error('GET /api/approval/batches error:', err)
     res.status(500).json(errorResponse('Failed to list batches'))
@@ -627,7 +638,7 @@ approvalRoutes.get('/batches/:id', async (req: Request, res: Response) => {
     const { ...rest } = data
     delete (rest as Record<string, unknown>)._original_values
 
-    res.json(successResponse<unknown>(rest))
+    res.json(successResponse<ApprovalBatchDetailDTO>(rest as unknown as ApprovalBatchDetailDTO))
   } catch (err) {
     console.error('GET /api/approval/batches/:id error:', err)
     res.status(500).json(errorResponse('Failed to get batch'))
@@ -684,7 +695,7 @@ approvalRoutes.get('/stats', async (req: Request, res: Response) => {
       ? Math.round(totalApprovalTimeMs / completedCount / 60000)
       : 0
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ApprovalStatsData>({
       total: allSnap.size,
       pending,
       in_review: inReview,
@@ -693,7 +704,7 @@ approvalRoutes.get('/stats', async (req: Request, res: Response) => {
       error: errored,
       completed_today: completedToday,
       avg_approval_minutes: avgApprovalMinutes,
-    }))
+    } as unknown as ApprovalStatsData))
   } catch (err) {
     console.error('GET /api/approval/stats error:', err)
     res.status(500).json(errorResponse('Failed to get stats'))
@@ -714,7 +725,7 @@ approvalRoutes.get('/training', async (req: Request, res: Response) => {
       .get()
 
     const records = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(records, { pagination: { count: records.length, total: records.length } }))
+    res.json(successResponse<ApprovalTrainingDTO[]>(records as unknown as ApprovalTrainingDTO[], { pagination: { count: records.length, total: records.length } }))
   } catch (err) {
     console.error('GET /api/approval/training error:', err)
     res.status(500).json(errorResponse('Failed to get training data'))

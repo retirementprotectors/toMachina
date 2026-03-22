@@ -9,7 +9,22 @@ import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   stripInternalFields, validateRequired, param, writeThroughBridge,
 } from '../lib/helpers.js'
-import type { FlowPipelineDTO, FlowInstanceDTO, FlowInstanceDetailData, FlowInstanceCreateResult } from '@tomachina/core'
+import type {
+  FlowPipelineDTO,
+  FlowPipelineDetailDTO,
+  FlowStageDTO,
+  FlowInstanceDTO,
+  FlowInstanceDetailData,
+  FlowInstanceCreateResult,
+  FlowInstanceAdvanceResult,
+  FlowInstanceCompleteResult,
+  FlowInstanceReassignResult,
+  FlowInstancePriorityResult,
+  FlowInstanceMoveResult,
+  FlowTasksGenerateResult,
+  FlowTaskCompleteResult,
+  FlowTaskSkipResult,
+} from '@tomachina/core'
 
 export const flowRoutes = Router()
 
@@ -57,7 +72,7 @@ flowRoutes.get('/pipelines', async (req: Request, res: Response) => {
       results = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     }
 
-    res.json(successResponse<unknown>(results))
+    res.json(successResponse<FlowPipelineDTO[]>(results as unknown as FlowPipelineDTO[]))
   } catch (err) {
     console.error('GET /api/flow/pipelines error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -75,7 +90,7 @@ flowRoutes.get('/pipelines/:key', async (req: Request, res: Response) => {
     if (!doc.exists) {
       return res.status(404).json(errorResponse('Pipeline not found'))
     }
-    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<FlowPipelineDetailDTO>({ id: doc.id, ...doc.data() } as unknown as FlowPipelineDetailDTO))
   } catch (err) {
     console.error('GET /pipelines/:key error:', err)
     res.status(500).json(errorResponse('Failed to get pipeline'))
@@ -97,7 +112,7 @@ flowRoutes.get('/pipelines/:key/stages', async (req: Request, res: Response) => 
       .sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
         (Number(a.stage_order) || 0) - (Number(b.stage_order) || 0)
       )
-    res.json(successResponse<unknown>(data))
+    res.json(successResponse<FlowStageDTO[]>(data as unknown as FlowStageDTO[]))
   } catch (err) {
     console.error('GET /api/flow/pipelines/:key/stages error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -133,7 +148,7 @@ flowRoutes.get('/instances', async (req: Request, res: Response) => {
       .sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
         String(b.updated_at || '').localeCompare(String(a.updated_at || ''))
       )
-    res.json(successResponse<unknown>(data))
+    res.json(successResponse<FlowInstanceDTO[]>(data as unknown as FlowInstanceDTO[]))
   } catch (err) {
     console.error('GET /api/flow/instances error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -164,7 +179,7 @@ flowRoutes.get('/instances/:id', async (req: Request, res: Response) => {
     const activity = activitySnap.docs.map(d => ({ id: d.id, ...d.data() }))
     const stages = stagesSnap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse<unknown>({ instance: stripInternalFields(instance), tasks, activity, stages }))
+    res.json(successResponse<FlowInstanceDetailData>({ instance: stripInternalFields(instance), tasks, activity, stages } as unknown as FlowInstanceDetailData))
   } catch (err) {
     console.error('GET /api/flow/instances/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -246,12 +261,12 @@ flowRoutes.post('/instances', async (req: Request, res: Response) => {
       tasksGenerated = await generateStageTasks(db, instanceId, pipelineKey, String(firstStage.stage_id), String(body.assigned_to))
     }
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<FlowInstanceCreateResult>({
       instance_id: instanceId,
       pipeline_key: pipelineKey,
       current_stage: firstStage.stage_id,
       tasks_generated: tasksGenerated,
-    }))
+    } as unknown as FlowInstanceCreateResult))
   } catch (err) {
     console.error('POST /api/flow/instances error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -334,7 +349,7 @@ flowRoutes.patch('/instances/:id', async (req: Request, res: Response) => {
           tasksGenerated = await generateStageTasks(db, id, String(instance.pipeline_key), String(nextStage.stage_id), String(instance.assigned_to))
         }
 
-        res.json(successResponse<unknown>({ new_stage: nextStage.stage_id, tasks_generated: tasksGenerated }))
+        res.json(successResponse<FlowInstanceAdvanceResult>({ new_stage: nextStage.stage_id, tasks_generated: tasksGenerated } as unknown as FlowInstanceAdvanceResult))
         return
       }
 
@@ -350,7 +365,7 @@ flowRoutes.patch('/instances/:id', async (req: Request, res: Response) => {
           performed_by: userEmail, performed_at: now, notes: '',
         })
 
-        res.json(successResponse<unknown>({ instance_id: id, status: 'complete' }))
+        res.json(successResponse<FlowInstanceCompleteResult>({ instance_id: id, status: 'complete' } as unknown as FlowInstanceCompleteResult))
         return
       }
 
@@ -369,7 +384,7 @@ flowRoutes.patch('/instances/:id', async (req: Request, res: Response) => {
           performed_by: userEmail, performed_at: now, notes: '',
         })
 
-        res.json(successResponse<unknown>({ instance_id: id, assigned_to: newOwner }))
+        res.json(successResponse<FlowInstanceReassignResult>({ instance_id: id, assigned_to: newOwner } as unknown as FlowInstanceReassignResult))
         return
       }
 
@@ -388,7 +403,7 @@ flowRoutes.patch('/instances/:id', async (req: Request, res: Response) => {
           performed_by: userEmail, performed_at: now, notes: '',
         })
 
-        res.json(successResponse<unknown>({ instance_id: id, priority: newPriority }))
+        res.json(successResponse<FlowInstancePriorityResult>({ instance_id: id, priority: newPriority } as unknown as FlowInstancePriorityResult))
         return
       }
 
@@ -413,7 +428,7 @@ flowRoutes.patch('/instances/:id', async (req: Request, res: Response) => {
           performed_by: userEmail, performed_at: now, notes: String(body.notes || ''),
         })
 
-        res.json(successResponse<unknown>({ instance_id: id, new_stage: targetStage }))
+        res.json(successResponse<FlowInstanceMoveResult>({ instance_id: id, new_stage: targetStage } as unknown as FlowInstanceMoveResult))
         return
       }
 
@@ -447,7 +462,7 @@ flowRoutes.post('/instances/:id/tasks', async (req: Request, res: Response) => {
       String(instance.current_stage), String(instance.assigned_to)
     )
 
-    res.status(201).json(successResponse<unknown>({ instance_id: instanceId, tasks_generated: count }))
+    res.status(201).json(successResponse<FlowTasksGenerateResult>({ instance_id: instanceId, tasks_generated: count } as unknown as FlowTasksGenerateResult))
   } catch (err) {
     console.error('POST /api/flow/instances/:id/tasks error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -491,7 +506,7 @@ flowRoutes.patch('/tasks/:id', async (req: Request, res: Response) => {
         performed_by: userEmail, performed_at: now, notes,
       })
 
-      res.json(successResponse<unknown>({ task_instance_id: taskId, status: 'skipped' }))
+      res.json(successResponse<FlowTaskSkipResult>({ task_instance_id: taskId, status: 'skipped' } as unknown as FlowTaskSkipResult))
       return
     }
 
@@ -509,7 +524,7 @@ flowRoutes.patch('/tasks/:id', async (req: Request, res: Response) => {
       performed_by: userEmail, performed_at: now, notes,
     })
 
-    res.json(successResponse<unknown>({ task_instance_id: taskId, status: 'completed', check_result: 'PASS' }))
+    res.json(successResponse<FlowTaskCompleteResult>({ task_instance_id: taskId, status: 'completed', check_result: 'PASS' } as unknown as FlowTaskCompleteResult))
   } catch (err) {
     console.error('PATCH /api/flow/tasks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

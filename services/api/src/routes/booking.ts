@@ -68,7 +68,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
     // Check if team booking first
     const teamCfg = TEAM_BOOKING_CONFIG[slug]
     if (teamCfg) {
-      res.json(successResponse<unknown>({
+      res.json(successResponse<BookingConfigData>({
         agent: {
           email: teamCfg.leader_emails[0],
           all_emails: teamCfg.leader_emails,
@@ -78,7 +78,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
         bookingTypes: STANDARD_BOOKING_TYPES,
         availability: DEFAULT_AVAILABILITY,
         isTeam: true,
-      }))
+      } as unknown as BookingConfigData))
       return
     }
 
@@ -124,7 +124,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<BookingConfigData>({
       agent: {
         email: agent.email,
         first_name: agent.first_name,
@@ -138,7 +138,7 @@ bookingRoutes.get('/config/:slug', async (req: Request, res: Response) => {
       bookingTypes,
       availability: agent.availability,
       isTeam: false,
-    }))
+    } as unknown as BookingConfigData))
   } catch (err) {
     console.error('GET /api/booking/config/:slug error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -171,7 +171,7 @@ bookingRoutes.get('/busy', async (req: Request, res: Response) => {
 
     const busy = doc.exists ? (doc.data()?.periods || []) : []
 
-    res.json(successResponse<unknown>({ busy }))
+    res.json(successResponse<BookingBusyData>({ busy } as unknown as BookingBusyData))
   } catch (err) {
     console.error('GET /api/booking/busy error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -236,7 +236,7 @@ bookingRoutes.post('/', bookingValidation, async (req: Request, res: Response) =
     await db.collection('booking_log').doc(bookingId).set(bookingLog)
     await writeThroughBridge('booking_log', 'insert', bookingId, bookingLog)
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<BookingCreateResult>({
       booking_id: bookingId,
       agent_name: agentName || '',
       meeting_type: meetingType || '',
@@ -244,7 +244,7 @@ bookingRoutes.post('/', bookingValidation, async (req: Request, res: Response) =
       end: slot.end,
       mode: mode || 'meet',
       status: 'confirmed',
-    }))
+    } as unknown as BookingCreateResult))
   } catch (err) {
     console.error('POST /api/booking error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -265,7 +265,7 @@ bookingRoutes.get('/search-clients', async (req: Request, res: Response) => {
     const query = (req.query.q as string || '').trim()
 
     if (query.length < 2) {
-      res.json(successResponse<unknown>([], { pagination: { count: 0, total: 0 } }))
+      res.json(successResponse<BookingClientSearchDTO>([] as unknown as BookingClientSearchDTO, { pagination: { count: 0, total: 0 } }))
       return
     }
 
@@ -289,7 +289,7 @@ bookingRoutes.get('/search-clients', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse<unknown>(results, { pagination: { count: results.length, total: results.length } }))
+    res.json(successResponse<BookingClientSearchDTO>(results as unknown as BookingClientSearchDTO, { pagination: { count: results.length, total: results.length } }))
   } catch (err) {
     console.error('GET /api/booking/search-clients error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -65,7 +65,7 @@ webhookRoutes.post('/sendgrid', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse<unknown>({ processed, errors, total: events.length }))
+    res.json(successResponse<WebhookSendgridResult>({ processed, errors, total: events.length } as unknown as WebhookSendgridResult))
   } catch (err) {
     console.error('POST /api/webhooks/sendgrid error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -217,7 +217,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
     }
 
     if (!envelopeId) {
-      res.status(200).json(successResponse<unknown>({ processed: false, reason: 'No envelope ID found' }))
+      res.status(200).json(successResponse<WebhookDocusignResult>({ processed: false, reason: 'No envelope ID found' } as unknown as WebhookDocusignResult))
       return
     }
 
@@ -234,7 +234,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
     const newStatus = statusMap[dsStatus]
     if (!newStatus) {
       // Unknown status — log but don't fail
-      res.status(200).json(successResponse<unknown>({ processed: false, reason: `Unmapped status: ${dsStatus}` }))
+      res.status(200).json(successResponse<WebhookDocusignResult>({ processed: false, reason: `Unmapped status: ${dsStatus}` } as unknown as WebhookDocusignResult))
       return
     }
 
@@ -247,7 +247,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
 
     if (pkgSnap.empty) {
       // No matching package — could be from an envelope created outside our system
-      res.status(200).json(successResponse<unknown>({ processed: false, reason: 'No matching package' }))
+      res.status(200).json(successResponse<WebhookDocusignResult>({ processed: false, reason: 'No matching package' } as unknown as WebhookDocusignResult))
       return
     }
 
@@ -288,12 +288,12 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
       timestamp: now,
     })
 
-    res.status(200).json(successResponse<unknown>({
+    res.status(200).json(successResponse<WebhookDocusignResult>({
       processed: true,
       package_id: pkgDoc.id,
       old_status: oldStatus,
       new_status: newStatus,
-    }))
+    } as unknown as WebhookDocusignResult))
   } catch (err) {
     console.error('POST /api/webhooks/docusign error:', err)
     // Always return 200 to DocuSign to prevent retries on processing errors

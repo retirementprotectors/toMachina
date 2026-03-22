@@ -32,6 +32,19 @@ import type {
   ACFAuditOutput,
   ACFRebuildOutput,
 } from '@tomachina/core'
+import type {
+  ACFConfigData,
+  ACFConfigUpdateData,
+  ACFStatusData,
+  ACFAuditData,
+  ACFRebuildData,
+  ACFDetailData,
+  ACFCreateData,
+  ACFRouteData,
+  ACFUploadResult,
+  ACFFilePreviewData,
+  ACFFileMoveResult,
+} from '@tomachina/core'
 
 export const acfRoutes = Router()
 
@@ -255,7 +268,7 @@ async function createACF(
 acfRoutes.get('/config', async (_req: Request, res: Response) => {
   try {
     const config = await loadConfig()
-    res.json(successResponse<unknown>(config))
+    res.json(successResponse<ACFConfigData>(config as unknown as ACFConfigData))
   } catch (err) {
     console.error('GET /api/acf/config error:', err)
     res.status(500).json(errorResponse('Failed to get ACF config'))
@@ -276,7 +289,7 @@ acfRoutes.put('/config', async (req: Request, res: Response) => {
       updated_at: new Date().toISOString(),
     })
     const config = await loadConfig()
-    res.json(successResponse<unknown>(config))
+    res.json(successResponse<ACFConfigUpdateData>(config as unknown as ACFConfigUpdateData))
   } catch (err) {
     console.error('PUT /api/acf/config error:', err)
     res.status(500).json(errorResponse('Failed to update ACF config'))
@@ -345,7 +358,7 @@ acfRoutes.post('/audit', async (_req: Request, res: Response) => {
       result.with_acf++
     }
 
-    res.json(successResponse<unknown>(result))
+    res.json(successResponse<ACFAuditData>(result as unknown as ACFAuditData))
   } catch (err) {
     console.error('POST /api/acf/audit error:', err)
     res.status(500).json(errorResponse('ACF audit failed'))
@@ -485,7 +498,7 @@ acfRoutes.post('/rebuild', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse<unknown>(result))
+    res.json(successResponse<ACFRebuildData>(result as unknown as ACFRebuildData))
   } catch (err) {
     console.error('POST /api/acf/rebuild error:', err)
     res.status(500).json(errorResponse('ACF rebuild failed'))
@@ -503,7 +516,7 @@ acfRoutes.get('/status/:clientId', async (req: Request, res: Response) => {
   try {
     const clientId = param(req.params.clientId)
     const status = await getACFStatus(clientId)
-    res.json(successResponse<unknown>(status))
+    res.json(successResponse<ACFStatusData>(status as unknown as ACFStatusData))
   } catch (err) {
     console.error('GET /api/acf/status error:', err)
     res.status(500).json(errorResponse('Failed to get ACF status'))
@@ -529,7 +542,7 @@ acfRoutes.get('/:clientId', async (req: Request, res: Response) => {
     const folderId = data.acf_folder_id as string | undefined
 
     if (!folderId) {
-      res.json(successResponse<unknown>({ exists: false, subfolders: [] }))
+      res.json(successResponse<ACFDetailData>({ exists: false, subfolders: [] } as unknown as ACFDetailData))
       return
     }
 
@@ -541,14 +554,14 @@ acfRoutes.get('/:clientId', async (req: Request, res: Response) => {
       if (!accessible) {
         // Folder ID in Firestore but Drive can't verify — return basic info with Open in Drive link
         res.json(
-          successResponse<unknown>({
+          successResponse<ACFDetailData>({
             exists: true,
             folder_id: folderId,
             folder_url: folderUrl,
             subfolders: [],
             root_files: [],
             drive_limited: true,
-          })
+          } as unknown as ACFDetailData)
         )
         return
       }
@@ -576,25 +589,25 @@ acfRoutes.get('/:clientId', async (req: Request, res: Response) => {
       const rootFiles = await listFolderFiles(folderId)
 
       res.json(
-        successResponse<unknown>({
+        successResponse<ACFDetailData>({
           exists: true,
           folder_id: folderId,
           folder_url: folderUrl,
           subfolders: subfolderDetails,
           root_files: rootFiles,
-        })
+        } as unknown as ACFDetailData)
       )
     } catch {
       // Drive API failure — return basic info from Firestore
       res.json(
-        successResponse<unknown>({
+        successResponse<ACFDetailData>({
           exists: true,
           folder_id: folderId,
           folder_url: folderUrl,
           subfolders: [],
           root_files: [],
           drive_limited: true,
-        })
+        } as unknown as ACFDetailData)
       )
     }
   } catch (err) {
@@ -637,7 +650,7 @@ acfRoutes.post('/:clientId/create', async (req: Request, res: Response) => {
       client.household_id as string | undefined,
       req.body.config
     )
-    res.json(successResponse<unknown>(result))
+    res.json(successResponse<ACFCreateData>(result as unknown as ACFCreateData))
   } catch (err) {
     console.error('POST /api/acf/:clientId/create error:', err)
     res.status(500).json(errorResponse('Failed to create ACF'))
@@ -681,7 +694,7 @@ acfRoutes.post('/:clientId/route', async (req: Request, res: Response) => {
         skipped: 0,
         acf_missing: true,
       }
-      res.json(successResponse<unknown>(output))
+      res.json(successResponse<ACFRouteData>(output as unknown as ACFRouteData))
       return
     }
 
@@ -756,7 +769,7 @@ acfRoutes.post('/:clientId/route', async (req: Request, res: Response) => {
       skipped,
       acf_missing: false,
     }
-    res.json(successResponse<unknown>(output))
+    res.json(successResponse<ACFRouteData>(output as unknown as ACFRouteData))
   } catch (err) {
     console.error('POST /api/acf/:clientId/route error:', err)
     res.status(500).json(errorResponse('Failed to route documents'))
@@ -873,13 +886,13 @@ acfRoutes.post('/:clientId/upload', async (req: Request, res: Response) => {
     }
 
     res.json(
-      successResponse<unknown>({
+      successResponse<ACFUploadResult>({
         file_id: uploaded.id,
         file_url: uploaded.url,
         file_name,
         target_subfolder,
         extraction_queued: extractable,
-      })
+      } as unknown as ACFUploadResult)
     )
   } catch (err) {
     console.error('POST /api/acf/:clientId/upload error:', err)
@@ -900,11 +913,11 @@ acfRoutes.get('/file/:fileId/preview', async (req: Request, res: Response) => {
     const drive = getDriveClient()
     const meta = await drive.files.get({ fileId, fields: 'mimeType, name, webViewLink' })
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ACFFilePreviewData>({
       preview_url: getPreviewUrl(fileId, meta.data.mimeType!),
       file_name: meta.data.name,
       mime_type: meta.data.mimeType,
-    }))
+    } as unknown as ACFFilePreviewData))
   } catch (err) {
     console.error('GET /api/acf/file/:fileId/preview error:', err)
     res.status(500).json(errorResponse('Failed to get file preview'))
@@ -950,7 +963,7 @@ acfRoutes.post('/:clientId/move', async (req: Request, res: Response) => {
     }
 
     if (from_subfolder === to_subfolder) {
-      res.json(successResponse<unknown>({ moved: false, reason: 'Same subfolder' }))
+      res.json(successResponse<ACFFileMoveResult>({ moved: false, reason: 'Same subfolder' } as unknown as ACFFileMoveResult))
       return
     }
 
@@ -990,7 +1003,7 @@ acfRoutes.post('/:clientId/move', async (req: Request, res: Response) => {
       created_at: new Date().toISOString(),
     })
 
-    res.json(successResponse<unknown>({ moved: true, file_id, from_subfolder, to_subfolder }))
+    res.json(successResponse<ACFFileMoveResult>({ moved: true, file_id, from_subfolder, to_subfolder } as unknown as ACFFileMoveResult))
   } catch (err) {
     console.error('POST /api/acf/:clientId/move error:', err)
     res.status(500).json(errorResponse('Failed to move file'))
