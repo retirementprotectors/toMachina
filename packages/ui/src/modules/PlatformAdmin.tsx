@@ -109,6 +109,7 @@ export function PlatformAdmin({ portal }: PlatformAdminProps) {
   const [loading, setLoading] = useState(true)
   const [routeFilter, setRouteFilter] = useState<'all' | 'wired' | 'orphaned'>('all')
   const [envFilter, setEnvFilter] = useState<'all' | 'secrets' | 'empty' | 'set'>('all')
+  const [fnFilter, setFnFilter] = useState<'all' | 'scheduled' | 'http' | 'firestore_trigger'>('all')
   const [hookifyFilter, setHookifyFilter] = useState<string>('')
 
   const loadData = useCallback(async () => {
@@ -250,15 +251,26 @@ export function PlatformAdmin({ portal }: PlatformAdminProps) {
       {/* ═══ Cloud Functions View ═══ */}
       {view === 'cloud-functions' && (
         <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold" style={{ color: s.textSecondary }}>{data.cloud_functions.length} functions</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ ...FN_TYPE_CONFIG.scheduled }}>{data.cloud_functions.filter(f => f.type === 'scheduled').length} scheduled</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ ...FN_TYPE_CONFIG.http }}>{data.cloud_functions.filter(f => f.type === 'http').length} HTTP</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ ...FN_TYPE_CONFIG.firestore_trigger }}>{data.cloud_functions.filter(f => f.type === 'firestore_trigger').length} triggers</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-semibold" style={{ color: s.textSecondary }}>{data.cloud_functions.length} functions</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ ...FN_TYPE_CONFIG.scheduled }}>{data.cloud_functions.filter(f => f.type === 'scheduled').length} scheduled</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ ...FN_TYPE_CONFIG.http }}>{data.cloud_functions.filter(f => f.type === 'http').length} HTTP</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ ...FN_TYPE_CONFIG.firestore_trigger }}>{data.cloud_functions.filter(f => f.type === 'firestore_trigger').length} triggers</span>
+            </div>
+            <div className="flex gap-1">
+              {(['all', 'scheduled', 'http', 'firestore_trigger'] as const).map(f => (
+                <button key={f} onClick={() => setFnFilter(f)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${fnFilter === f ? 'text-white' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+                  style={fnFilter === f ? { background: s.portal } : undefined}>
+                  {f === 'all' ? 'All' : f === 'firestore_trigger' ? 'Triggers' : f === 'http' ? 'HTTP' : 'Scheduled'}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {data.cloud_functions.map(fn => {
+            {data.cloud_functions.filter(fn => fnFilter === 'all' || fn.type === fnFilter).map(fn => {
               const cfg = FN_TYPE_CONFIG[fn.type] || FN_TYPE_CONFIG.unknown
               return (
                 <div key={fn.name} className="rounded-xl border p-4 space-y-2" style={{ borderColor: s.border, background: s.card }}>
@@ -315,8 +327,8 @@ export function PlatformAdmin({ portal }: PlatformAdminProps) {
                 {data.env_vars
                   .filter(v => {
                     if (envFilter === 'secrets') return v.sensitive
-                    if (envFilter === 'empty') return !v.has_value
-                    if (envFilter === 'set') return v.has_value
+                    if (envFilter === 'empty') return !v.has_value && !v.sensitive
+                    if (envFilter === 'set') return v.has_value && !v.sensitive
                     return true
                   })
                   .map(ev => (
