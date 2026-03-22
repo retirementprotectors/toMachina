@@ -58,31 +58,17 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
 
   return (
     <div ref={ref} className="relative">
-      {/* Trigger: three portal gears + chevron */}
+      {/* Trigger: toMachina branded logo + chevron */}
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-[rgba(66,100,167,0.08)]"
         title="Switch portal"
       >
-        <span className="inline-flex items-center gap-0.5">
-          {PORTALS.map((p) => {
-            const isCurrent = p.key === currentPortal
-            return (
-              <span
-                key={p.key}
-                className="material-icons"
-                style={{
-                  fontSize: isCurrent ? '20px' : '14px',
-                  color: p.color,
-                  opacity: isCurrent ? 1 : 0.4,
-                  lineHeight: 1,
-                }}
-              >
-                settings
-              </span>
-            )
-          })}
-        </span>
+        <img
+          src="/tomachina-transparent.png"
+          alt="toMachina"
+          className="h-[22px] w-auto"
+        />
         <span
           className="material-icons-outlined transition-transform duration-150"
           style={{ fontSize: '16px', color: 'var(--text-muted)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
