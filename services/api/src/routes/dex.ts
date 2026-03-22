@@ -171,9 +171,9 @@ dexRoutes.get('/mappings', async (req: Request, res: Response) => {
         const uxConfig = dex.buildUxConfig(mapping)
         return { ...m, _ux: uxConfig }
       })
-      res.json(successResponse(enhanced, { count: enhanced.length }))
+      res.json(successResponse(enhanced, { pagination: { count: enhanced.length, total: enhanced.length } }))
     } else {
-      res.json(successResponse(raw, { count: raw.length }))
+      res.json(successResponse(raw, { pagination: { count: raw.length, total: raw.length } }))
     }
   } catch (err) {
     console.error('GET /api/dex/mappings error:', err)
@@ -243,7 +243,7 @@ dexRoutes.get('/taxonomy/:type', async (req: Request, res: Response) => {
       items = dex.filterByDomain(items as Array<{ domain?: string;[key: string]: unknown }>, domain) as typeof items
     }
 
-    res.json(successResponse(items, { count: items.length, type: taxonomyType }))
+    res.json(successResponse(items, { pagination: { count: items.length, total: items.length }, type: taxonomyType }))
   } catch (err) {
     console.error('GET /api/dex/taxonomy/:type error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -264,7 +264,7 @@ dexRoutes.get('/rules', async (req: Request, res: Response) => {
 
     const snap = await query.get()
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/dex/rules error:', err)
     res.status(500).json(errorResponse(String(err)))

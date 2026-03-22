@@ -144,7 +144,7 @@ campaignAnalyticsRoutes.get('/:campaignId/timeline', async (req: Request, res: R
       .map(([date, counts]) => ({ date, ...counts }))
       .sort((a, b) => a.date.localeCompare(b.date))
 
-    res.json(successResponse(timeline, { count: timeline.length }))
+    res.json(successResponse(timeline, { pagination: { count: timeline.length, total: timeline.length } }))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/timeline error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -182,7 +182,7 @@ campaignAnalyticsRoutes.get('/:campaignId/recipients', async (req: Request, res:
       }
     })
 
-    res.json(successResponse(recipients, { count: recipients.length }))
+    res.json(successResponse(recipients, { pagination: { count: recipients.length, total: recipients.length } }))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/recipients error:', err)
     res.status(500).json(errorResponse(String(err)))

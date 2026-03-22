@@ -54,7 +54,7 @@ campaignRoutes.get('/:id/templates', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const snap = await db.collection('templates').where('campaign_id', '==', id).get()
     const templates = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(templates, { count: templates.length }))
+    res.json(successResponse(templates, { pagination: { count: templates.length, total: templates.length } }))
   } catch (err) {
     console.error('GET /api/campaigns/:id/templates error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -82,7 +82,7 @@ campaignRoutes.post('/:id/assemble', async (req: Request, res: Response) => {
       res.json(successResponse(result))
     } else {
       const results = await assembleCampaignFull(id, ctx)
-      res.json(successResponse(results, { count: results.length }))
+      res.json(successResponse(results, { pagination: { count: results.length, total: results.length } }))
     }
   } catch (err) {
     console.error('POST /api/campaigns/:id/assemble error:', err)
@@ -102,7 +102,7 @@ campaignRoutes.get('/:id/preview', async (req: Request, res: Response) => {
   try {
     const id = param(req.params.id)
     const results = await assembleCampaignFull(id)
-    res.json(successResponse(results, { count: results.length, note: 'Merge fields left unresolved' }))
+    res.json(successResponse(results, { pagination: { count: results.length, total: results.length }, note: 'Merge fields left unresolved' }))
   } catch (err) {
     console.error('GET /api/campaigns/:id/preview error:', err)
     res.status(500).json(errorResponse(String(err)))

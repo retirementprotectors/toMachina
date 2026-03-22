@@ -15,7 +15,7 @@ orgRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).get()
     const units = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(units, { count: units.length }))
+    res.json(successResponse(units, { pagination: { count: units.length, total: units.length } }))
   } catch (err) {
     console.error('GET /api/org error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -47,7 +47,7 @@ orgRoutes.get('/:id/members', async (req: Request, res: Response) => {
 
     const snap = await db.collection('users').where('unit', '==', unitName).get()
     const members = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(members, { count: members.length }))
+    res.json(successResponse(members, { pagination: { count: members.length, total: members.length } }))
   } catch (err) {
     console.error('GET /api/org/:id/members error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -264,7 +264,7 @@ bookingRoutes.get('/search-clients', async (req: Request, res: Response) => {
     const query = (req.query.q as string || '').trim()
 
     if (query.length < 2) {
-      res.json(successResponse([], { count: 0 }))
+      res.json(successResponse([], { pagination: { count: 0, total: 0 } }))
       return
     }
 
@@ -288,7 +288,7 @@ bookingRoutes.get('/search-clients', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse(results, { count: results.length }))
+    res.json(successResponse(results, { pagination: { count: results.length, total: results.length } }))
   } catch (err) {
     console.error('GET /api/booking/search-clients error:', err)
     res.status(500).json(errorResponse(String(err)))

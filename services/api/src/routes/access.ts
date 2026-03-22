@@ -31,7 +31,7 @@ accessRoutes.get('/:clientId', async (req: Request, res: Response) => {
 
     const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse(items, { count: items.length }))
+    res.json(successResponse(items, { pagination: { count: items.length, total: items.length } }))
   } catch (err) {
     console.error('GET /api/access/:clientId error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -16,7 +16,7 @@ userRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).get()
     const users = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(users, { count: users.length }))
+    res.json(successResponse(users, { pagination: { count: users.length, total: users.length } }))
   } catch (err) {
     console.error('GET /api/users error:', err)
     res.status(500).json(errorResponse(String(err)))

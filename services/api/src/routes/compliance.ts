@@ -133,7 +133,7 @@ complianceRoutes.get('/audits', async (req: Request, res: Response) => {
       .get()
 
     const audits = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(audits, { count: audits.length }))
+    res.json(successResponse(audits, { pagination: { count: audits.length, total: audits.length } }))
   } catch (err) {
     console.error('GET /api/compliance/audits error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -195,7 +195,7 @@ complianceRoutes.post('/stale-users', async (req: Request, res: Response) => {
 
     stale.sort((a, b) => b.days_inactive - a.days_inactive)
 
-    res.json(successResponse(stale, { count: stale.length }))
+    res.json(successResponse(stale, { pagination: { count: stale.length, total: stale.length } }))
   } catch (err) {
     console.error('POST /api/compliance/stale-users error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -230,7 +230,7 @@ complianceRoutes.post('/new-users', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse(newUsers, { count: newUsers.length }))
+    res.json(successResponse(newUsers, { pagination: { count: newUsers.length, total: newUsers.length } }))
   } catch (err) {
     console.error('POST /api/compliance/new-users error:', err)
     res.status(500).json(errorResponse(String(err)))

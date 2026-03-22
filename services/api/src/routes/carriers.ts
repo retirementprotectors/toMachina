@@ -24,7 +24,7 @@ carrierRoutes.get('/', async (req: Request, res: Response) => {
 
     const snap = await query.limit(200).get()
     const carriers = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(carriers, { count: carriers.length }))
+    res.json(successResponse(carriers, { pagination: { count: carriers.length, total: carriers.length } }))
   } catch (err) {
     console.error('GET /api/carriers error:', err)
     res.status(500).json(errorResponse(String(err)))

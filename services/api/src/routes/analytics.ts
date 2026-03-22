@@ -45,7 +45,7 @@ analyticsRoutes.get('/', async (req: Request, res: Response) => {
     const snap = await query.orderBy('date', 'desc').limit(500).get()
     const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/analytics error:', err)
     res.status(500).json(errorResponse(String(err)))

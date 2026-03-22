@@ -250,7 +250,7 @@ campaignSendRoutes.get('/history', async (req: Request, res: Response) => {
     const snap = await query.orderBy('created_at', 'desc').limit(200).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/history error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -276,7 +276,7 @@ campaignSendRoutes.get('/enrollments', async (req: Request, res: Response) => {
     const snap = await query.orderBy('created_at', 'desc').limit(500).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/enrollments error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -333,7 +333,7 @@ campaignSendRoutes.post('/targets', async (req: Request, res: Response) => {
     }
 
     const data = matches.map((m) => stripInternalFields(m))
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('POST /api/campaign-send/targets error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -462,7 +462,7 @@ campaignSendRoutes.get('/queue', async (req: Request, res: Response) => {
     const snap = await query.orderBy('scheduled_for', 'asc').limit(200).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/queue error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -606,7 +606,7 @@ campaignSendRoutes.get('/scheduled', async (req: Request, res: Response) => {
     const snap = await query.orderBy('scheduled_for', 'asc').limit(100).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/scheduled error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -840,7 +840,7 @@ campaignSendRoutes.get('/drip', async (req: Request, res: Response) => {
     const snap = await q.orderBy('created_at', 'desc').limit(100).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/drip error:', err)
     res.status(500).json(errorResponse(String(err)))

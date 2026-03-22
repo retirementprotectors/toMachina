@@ -27,7 +27,7 @@ productRoutes.get('/', async (req: Request, res: Response) => {
 
     const snap = await query.limit(500).get()
     const products = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(products, { count: products.length }))
+    res.json(successResponse(products, { pagination: { count: products.length, total: products.length } }))
   } catch (err) {
     console.error('GET /api/products error:', err)
     res.status(500).json(errorResponse(String(err)))

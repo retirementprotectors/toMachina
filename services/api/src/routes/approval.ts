@@ -600,7 +600,7 @@ approvalRoutes.get('/batches', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse(batches, { count: batches.length }))
+    res.json(successResponse(batches, { pagination: { count: batches.length, total: batches.length } }))
   } catch (err) {
     console.error('GET /api/approval/batches error:', err)
     res.status(500).json(errorResponse('Failed to list batches'))
@@ -714,7 +714,7 @@ approvalRoutes.get('/training', async (req: Request, res: Response) => {
       .get()
 
     const records = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(records, { count: records.length }))
+    res.json(successResponse(records, { pagination: { count: records.length, total: records.length } }))
   } catch (err) {
     console.error('GET /api/approval/training error:', err)
     res.status(500).json(errorResponse('Failed to get training data'))

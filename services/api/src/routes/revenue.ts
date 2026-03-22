@@ -54,7 +54,7 @@ revenueRoutes.get('/summary/by-agent', async (req: Request, res: Response) => {
     })
 
     const summary = Object.values(byAgent).sort((a, b) => b.total - a.total)
-    res.json(successResponse(summary, { count: summary.length }))
+    res.json(successResponse(summary, { pagination: { count: summary.length, total: summary.length } }))
   } catch (err) {
     console.error('GET /api/revenue/summary/by-agent error:', err)
     res.status(500).json(errorResponse(String(err)))

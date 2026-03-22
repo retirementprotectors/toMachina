@@ -160,7 +160,7 @@ camRoutes.get('/revenue/by-carrier', async (req: Request, res: Response) => {
       .map((c) => ({ ...c, total: Math.round(c.total * 100) / 100 }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse(ranked, { count: ranked.length }))
+    res.json(successResponse(ranked, { pagination: { count: ranked.length, total: ranked.length } }))
   } catch (err) {
     console.error('GET /api/cam/revenue/by-carrier error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -192,7 +192,7 @@ camRoutes.get('/revenue/by-agent', async (req: Request, res: Response) => {
       .map((a) => ({ ...a, total: Math.round(a.total * 100) / 100 }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse(ranked, { count: ranked.length }))
+    res.json(successResponse(ranked, { pagination: { count: ranked.length, total: ranked.length } }))
   } catch (err) {
     console.error('GET /api/cam/revenue/by-agent error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -225,7 +225,7 @@ camRoutes.get('/revenue/by-type', async (req: Request, res: Response) => {
       .map((t) => ({ ...t, total: Math.round(t.total * 100) / 100 }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse(breakdown, { count: breakdown.length }))
+    res.json(successResponse(breakdown, { pagination: { count: breakdown.length, total: breakdown.length } }))
   } catch (err) {
     console.error('GET /api/cam/revenue/by-type error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1113,7 +1113,7 @@ camRoutes.get('/analytics/carrier-rank', async (req: Request, res: Response) => 
       }))
       .sort((a, b) => b.total - a.total)
 
-    res.json(successResponse(ranked, { count: ranked.length }))
+    res.json(successResponse(ranked, { pagination: { count: ranked.length, total: ranked.length } }))
   } catch (err) {
     console.error('GET /api/cam/analytics/carrier-rank error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -107,7 +107,7 @@ clientRoutes.get('/:id/accounts', async (req: Request, res: Response) => {
     const snap = await query.get()
     const accounts = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(accounts, { count: accounts.length }))
+    res.json(successResponse(accounts, { pagination: { count: accounts.length, total: accounts.length } }))
   } catch (err) {
     console.error('GET /api/clients/:id/accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -133,7 +133,7 @@ clientRoutes.get('/:id/activities', async (req: Request, res: Response) => {
 
     const activities = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(activities, { count: activities.length }))
+    res.json(successResponse(activities, { pagination: { count: activities.length, total: activities.length } }))
   } catch (err) {
     console.error('GET /api/clients/:id/activities error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -155,7 +155,7 @@ clientRoutes.get('/:id/relationships', async (req: Request, res: Response) => {
 
     const relationships = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(relationships, { count: relationships.length }))
+    res.json(successResponse(relationships, { pagination: { count: relationships.length, total: relationships.length } }))
   } catch (err) {
     console.error('GET /api/clients/:id/relationships error:', err)
     res.status(500).json(errorResponse(String(err)))

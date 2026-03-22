@@ -565,7 +565,7 @@ atlasRoutes.get('/analytics/carriers', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse(scorecards, { count: scorecards.length }))
+    res.json(successResponse(scorecards, { pagination: { count: scorecards.length, total: scorecards.length } }))
   } catch (err) {
     console.error('GET /api/atlas/analytics/carriers error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -594,7 +594,7 @@ atlasRoutes.get('/audit', async (req: Request, res: Response) => {
     const snap = await query.orderBy('created_at', 'desc').limit(limit).get()
     const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/atlas/audit error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -710,7 +710,7 @@ atlasRoutes.get('/wires', async (req: Request, res: Response) => {
       wires = wires.filter((w) => w.data_domain === dataDomain || w.data_domain === 'ALL')
     }
 
-    res.json(successResponse(wires, { count: wires.length }))
+    res.json(successResponse(wires, { pagination: { count: wires.length, total: wires.length } }))
   } catch (err) {
     console.error('GET /api/atlas/wires error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -948,7 +948,7 @@ atlasRoutes.get('/import-runs', async (req: Request, res: Response) => {
     const snap = await query.limit(limitParam).get()
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
 
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/atlas/import-runs error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1025,7 +1025,7 @@ atlasRoutes.get('/formats', async (req: Request, res: Response) => {
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200)
     const snap = await query.orderBy('last_used_at', 'desc').limit(limit).get()
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(data, { count: data.length }))
+    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/atlas/formats error:', err)
     res.status(500).json(errorResponse(String(err)))

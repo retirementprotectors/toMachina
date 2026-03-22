@@ -33,7 +33,7 @@ rulesRoutes.get('/', async (req: Request, res: Response) => {
     const snap = await query.get()
     const rules = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse(rules, { count: rules.length }))
+    res.json(successResponse(rules, { pagination: { count: rules.length, total: rules.length } }))
   } catch (err) {
     console.error('GET /api/rules error:', err)
     res.status(500).json(errorResponse(String(err)))

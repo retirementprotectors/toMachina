@@ -143,5 +143,7 @@ export function stripInternalFields(doc: Record<string, unknown>): Record<string
   const result = { ...doc }
   delete result._migrated_at
   delete result._source
+  delete result._created_by
+  delete result._updated_by
   return result
 }

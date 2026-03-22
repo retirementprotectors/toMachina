@@ -15,7 +15,7 @@ unitDefaultRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).get()
     const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(items, { count: items.length }))
+    res.json(successResponse(items, { pagination: { count: items.length, total: items.length } }))
   } catch (err) {
     console.error('GET /api/unit-defaults error:', err)
     res.status(500).json(errorResponse(String(err)))

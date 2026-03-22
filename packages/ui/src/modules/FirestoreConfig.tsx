@@ -7,7 +7,18 @@ import { fetchWithAuth } from './fetchWithAuth'
 
 interface FirestoreConfigProps { portal: string }
 
-interface WiringInfo { status: 'full_stack' | 'backend_only' | 'frontend_only' | 'none'; backend: string; frontend: string; backend_endpoints?: number }
+interface RouteRef { file: string; endpoints: number; reads: boolean; writes: boolean; operations: string[] }
+interface FrontendRef { file: string; api_calls: string[]; direct_firestore: boolean }
+interface WiringInfo {
+  status: 'full_stack' | 'backend_only' | 'frontend_only' | 'none'
+  backend: string; frontend: string; backend_endpoints?: number
+  // Phase 1+
+  hardcoded?: boolean; sub_collection?: boolean
+  // Phase 2+
+  backend_routes?: RouteRef[]; frontend_components?: FrontendRef[]; portals?: string[]
+  // Phase 3+
+  fk_to?: string[]; fk_from?: string[]; flow_paths?: string[]
+}
 
 interface DocInfo {
   id: string
@@ -662,13 +673,91 @@ export function FirestoreConfig({ portal }: FirestoreConfigProps) {
           </div>
         </div>
 
-        {/* TRK-508: Wiring description */}
-        {wiring && (
-          <p className="text-[11px] text-[var(--text-muted)]" style={{ marginTop: '-8px' }}>
-            <span style={{ color: wiring.color }}>{wiring.label}:</span> {wiring.desc}
-            {activeColl?.wiring?.backend && <span className="ml-2 font-mono text-[10px]">Backend: {activeColl.wiring.backend}</span>}
-            {activeColl?.wiring?.frontend && <span className="ml-2 font-mono text-[10px]">Frontend: {activeColl.wiring.frontend}</span>}
-          </p>
+        {/* Wiring detail panel */}
+        {wiring && activeColl?.wiring && (
+          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 space-y-2" style={{ marginTop: '-4px' }}>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-semibold" style={{ color: wiring.color }}>{wiring.label}</span>
+              <span className="text-[10px] text-[var(--text-muted)]">{wiring.desc}</span>
+              {activeColl.wiring.hardcoded && <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-medium">Hardcoded</span>}
+              {activeColl.wiring.sub_collection && <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-400 font-medium">Sub-collection</span>}
+            </div>
+
+            {/* Portal badges */}
+            {(activeColl.wiring.portals?.length ?? 0) > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wide">Portals:</span>
+                {activeColl.wiring.portals?.map(p => (
+                  <span key={p} className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ background: 'color-mix(in srgb, var(--portal) 15%, transparent)', color: 'var(--portal)' }}>{p}</span>
+                ))}
+              </div>
+            )}
+
+            {/* Backend routes */}
+            {(activeColl.wiring.backend_routes?.length ?? 0) > 0 && (
+              <div className="space-y-1">
+                <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wide">Backend Routes:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeColl.wiring.backend_routes?.map((r, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+                      <span className="text-[var(--text-secondary)]">{r.file}</span>
+                      <span className="text-[var(--text-muted)]">({r.operations.join('/')})</span>
+                      {r.reads && !r.writes && <span className="text-emerald-400">R</span>}
+                      {!r.reads && r.writes && <span className="text-amber-400">W</span>}
+                      {r.reads && r.writes && <span className="text-cyan-400">RW</span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Frontend components */}
+            {(activeColl.wiring.frontend_components?.length ?? 0) > 0 && (
+              <div className="space-y-1">
+                <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wide">Frontend Components:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeColl.wiring.frontend_components?.map((c, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded border border-[var(--border-subtle)] bg-[var(--bg-card)]">
+                      <span className="text-[var(--text-secondary)]">{c.file}</span>
+                      {c.direct_firestore && <span className="text-amber-400 text-[8px]">direct</span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* FK Dependencies */}
+            {((activeColl.wiring.fk_to?.length ?? 0) > 0 || (activeColl.wiring.fk_from?.length ?? 0) > 0) && (
+              <div className="flex items-center gap-3 flex-wrap">
+                {(activeColl.wiring.fk_to?.length ?? 0) > 0 && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-[var(--text-muted)] font-medium">References:</span>
+                    {activeColl.wiring.fk_to?.map(fk => (
+                      <span key={fk} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-400/10 text-purple-400">{fk}</span>
+                    ))}
+                  </div>
+                )}
+                {(activeColl.wiring.fk_from?.length ?? 0) > 0 && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-[var(--text-muted)] font-medium">Referenced by:</span>
+                    {activeColl.wiring.fk_from?.map(fk => (
+                      <span key={fk} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-pink-400/10 text-pink-400">{fk}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Flow paths */}
+            {(activeColl.wiring.flow_paths?.length ?? 0) > 0 && (
+              <div className="space-y-0.5">
+                <span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wide">Data Flow:</span>
+                {activeColl.wiring.flow_paths?.map((fp, i) => (
+                  <div key={i} className="text-[10px] font-mono text-[var(--text-secondary)]">{fp}</div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Add Collection inline */}
