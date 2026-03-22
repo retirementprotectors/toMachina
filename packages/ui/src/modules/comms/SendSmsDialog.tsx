@@ -52,14 +52,13 @@ export function SendSmsDialog({ open, onClose, client, onSent }: SendSmsDialogPr
     if (!selectedPhone || !body.trim()) return
     setSending(true)
     try {
-      // Always dryRun=true until Twilio env vars are deployed to Cloud Run
-      const result = await apiPost('/api/comms/send-sms?dryRun=true', {
+      const result = await apiPost('/api/comms/send-sms', {
         to: selectedPhone,
         body: body.trim(),
         client_id: client.client_id,
       })
       if (result.success) {
-        showToast('SMS sent (dry run)', 'success')
+        showToast('SMS sent', 'success')
         setBody('')
         onSent?.()
         onClose()
@@ -125,7 +124,7 @@ export function SendSmsDialog({ open, onClose, client, onSent }: SendSmsDialogPr
             <span className={`text-xs ${getCounterClass()}`}>
               {charCount}/160 ({segmentCount} {segmentCount === 1 ? 'segment' : 'segments'})
             </span>
-            <span className="text-[10px] text-[var(--text-muted)]">dryRun mode</span>
+            <span className="text-[10px] text-[var(--text-muted)]">via Twilio</span>
           </div>
         </div>
       </div>
