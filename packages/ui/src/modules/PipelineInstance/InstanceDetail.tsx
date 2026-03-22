@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useState, useEffect, useCallback } from 'react'
 import type {
   FlowInstanceData,
@@ -86,19 +86,18 @@ export default function InstanceDetail({
     try {
       setLoading(true)
       setError(null)
-      const res = await fetchWithAuth(`${apiBase}/flow/instances/${instanceId}`)
-      const json: InstanceDetailResponse = await res.json()
+      const result: InstanceDetailResponse = await fetchValidated(`${apiBase}/flow/instances/${instanceId}`)
 
-      if (!json.success || !json.data) {
-        setError(json.error || 'Failed to load instance')
+      if (!result.success || !result.data) {
+        setError(result.error || 'Failed to load instance')
         return
       }
 
-      setInstance(json.data.instance)
-      setTasks(json.data.tasks || [])
-      setActivity(json.data.activity || [])
-      setStages(json.data.stages || [])
-      setGateResult(json.data.gateResult ?? null)
+      setInstance(result.data.instance)
+      setTasks(result.data.tasks || [])
+      setActivity(result.data.activity || [])
+      setStages(result.data.stages || [])
+      setGateResult(result.data.gateResult ?? null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {
@@ -116,14 +115,13 @@ export default function InstanceDetail({
     async (action: string, body: Record<string, unknown> = {}) => {
       try {
         setActionLoading(true)
-        const res = await fetchWithAuth(`${apiBase}/flow/instances/${instanceId}`, {
+        const result: ActionResponse = await fetchValidated(`${apiBase}/flow/instances/${instanceId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action, ...body }),
         })
-        const json: ActionResponse = await res.json()
-        if (!json.success) {
-          setError(json.error || `Action "${action}" failed`)
+        if (!result.success) {
+          setError(result.error || `Action "${action}" failed`)
           return
         }
         // Refresh data
@@ -143,14 +141,13 @@ export default function InstanceDetail({
     async (taskId: string) => {
       try {
         setActionLoading(true)
-        const res = await fetchWithAuth(`${apiBase}/flow/tasks/${taskId}`, {
+        const result: ActionResponse = await fetchValidated(`${apiBase}/flow/tasks/${taskId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'complete' }),
         })
-        const json: ActionResponse = await res.json()
-        if (!json.success) {
-          setError(json.error || 'Failed to complete task')
+        if (!result.success) {
+          setError(result.error || 'Failed to complete task')
           return
         }
         await fetchInstance()
@@ -167,14 +164,13 @@ export default function InstanceDetail({
     async (taskId: string, reason: string) => {
       try {
         setActionLoading(true)
-        const res = await fetchWithAuth(`${apiBase}/flow/tasks/${taskId}`, {
+        const result: ActionResponse = await fetchValidated(`${apiBase}/flow/tasks/${taskId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'skip', notes: reason }),
         })
-        const json: ActionResponse = await res.json()
-        if (!json.success) {
-          setError(json.error || 'Failed to skip task')
+        if (!result.success) {
+          setError(result.error || 'Failed to skip task')
           return
         }
         await fetchInstance()

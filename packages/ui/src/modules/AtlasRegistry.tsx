@@ -9,7 +9,7 @@ import {
   type WireDefinition, type AutomationEntry, type AutomationHealth, type AtlasSource, type AtlasTool,
 } from '@tomachina/core'
 import { WireDiagram } from '../components/WireDiagram'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -410,18 +410,17 @@ function ImportSection() {
     setAnalyzing(true)
     setAnalyzeError(null)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/atlas/introspect`, {
+      const apiRes = await fetchValidated(`${API_BASE}/atlas/introspect`, {
         method: 'POST',
         body: JSON.stringify({
           headers: parsedHeaders,
           sample_rows: parsedRows.slice(0, 20),
           target_category: category,
         }),
-      })
-      const json = await res.json() as { success: boolean; data?: Record<string, unknown>; error?: string }
-      if (json.success && json.data) {
+      }) as { success: boolean; data?: Record<string, unknown>; error?: string }
+      if (apiRes.success && apiRes.data) {
         // API returns column_mappings; normalize to mappings for UI
-        const raw = json.data
+        const raw = apiRes.data
         const result: IntrospectResult = {
           match_method: String(raw.match_method || 'unknown'),
           overall_confidence: Number(raw.overall_confidence || 0),
@@ -435,7 +434,7 @@ function ImportSection() {
         setEditedMappings(result.mappings.map(m => ({ ...m })))
         setStep(2)
       } else {
-        setAnalyzeError(json.error || 'Analysis failed')
+        setAnalyzeError(apiRes.error || 'Analysis failed')
       }
     } catch (err) {
       setAnalyzeError(err instanceof Error ? err.message : 'Network error')
@@ -453,7 +452,7 @@ function ImportSection() {
 
     // Try to confirm mappings via API (saves to format library) — non-blocking
     try {
-      const res = await fetchWithAuth(`${API_BASE}/atlas/introspect/confirm`, {
+      const confirmResult = await fetchValidated(`${API_BASE}/atlas/introspect/confirm`, {
         method: 'POST',
         body: JSON.stringify({
           format_id: introspectResult?.format_id,
@@ -461,10 +460,9 @@ function ImportSection() {
           save_to_library: saveToLibrary,
           target_category: category,
         }),
-      })
-      const json = await res.json() as { success: boolean; error?: string }
-      if (!json.success) {
-        warnings.push(`Mapping confirmation: ${json.error || 'Server error'} — proceeding with local mappings`)
+      }) as { success: boolean; error?: string }
+      if (!confirmResult.success) {
+        warnings.push(`Mapping confirmation: ${confirmResult.error || 'Server error'} — proceeding with local mappings`)
       }
     } catch (err) {
       warnings.push(`Could not save mapping to library: ${err instanceof Error ? err.message : 'Network error'} — proceeding with local mappings`)
@@ -486,20 +484,19 @@ function ImportSection() {
 
     // Validate via API + fetch match candidates (non-blocking)
     try {
-      const valRes = await fetchWithAuth(`${API_BASE}/import/validate-full`, {
+      const valResult = await fetchValidated(`${API_BASE}/import/validate-full`, {
         method: 'POST',
         body: JSON.stringify({
           records: normalizedRows,
           import_type: category,
           dry_run: true,
         }),
-      })
-      const valJson = await valRes.json() as { success: boolean; errors?: string[]; warnings?: string[]; data?: { match_candidates?: RecordMatchCandidate[] } }
-      setValidationErrors([...warnings, ...(valJson.errors || valJson.warnings || [])])
+      }) as { success: boolean; errors?: string[]; warnings?: string[]; data?: { match_candidates?: RecordMatchCandidate[] } }
+      setValidationErrors([...warnings, ...(valResult.errors || valResult.warnings || [])])
 
       // If the API returns match candidates, populate for review
-      if (valJson.data?.match_candidates && valJson.data.match_candidates.length > 0) {
-        setRecordMatches(valJson.data.match_candidates.map(mc => ({ ...mc, status: 'unresolved' as const })))
+      if (valResult.data?.match_candidates && valResult.data.match_candidates.length > 0) {
+        setRecordMatches(valResult.data.match_candidates.map(mc => ({ ...mc, status: 'unresolved' as const })))
         setShowMatchReview(true)
       } else {
         setRecordMatches([])
@@ -531,25 +528,24 @@ function ImportSection() {
         })
         return normalized
       })
-      const res = await fetchWithAuth(`${API_BASE}/import/batch`, {
+      const importRes = await fetchValidated(`${API_BASE}/import/batch`, {
         method: 'POST',
         body: JSON.stringify({
           records: allNormalized,
           import_type: category,
           format_id: introspectResult?.format_id,
         }),
-      })
-      const json = await res.json() as { success: boolean; data?: ImportResult; error?: string }
-      if (json.success && json.data) {
-        setImportResult(json.data)
+      }) as { success: boolean; data?: ImportResult; error?: string }
+      if (importRes.success && importRes.data) {
+        setImportResult(importRes.data)
         setStep(4)
       } else {
         // Show error on Step 3 but also build a partial result so Step 4 is reachable
-        const errorMsg = json.error || 'Import failed'
+        const errorMsg = importRes.error || 'Import failed'
         setImportError(errorMsg)
         // If the server returned partial data, show it in Step 4
-        if (json.data) {
-          setImportResult(json.data)
+        if (importRes.data) {
+          setImportResult(importRes.data)
           setStep(4)
         }
       }

@@ -25,10 +25,9 @@ export type { ApiResult } from './api-client'
 export * from './api-types'
 
 // Response Validation Schemas (Valibot)
-
-// Response Validation Schemas (Valibot)
 export * from './schemas'
 
 // Guardian — Data Protection Engine
 export * from './types/guardian'
 export * from './guardian/lifecycle'
+export * from './validation/collection-schemas'
