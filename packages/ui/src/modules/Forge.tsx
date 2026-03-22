@@ -1151,6 +1151,19 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             <Icon name="compare_arrows" size={18} />
           </button>
         </div>
+        {/* Confirm Walkthrough link */}
+        <a
+          href="/modules/forge/confirm"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '6px 14px', borderRadius: 6, border: 'none',
+            background: 'rgba(224,124,62,0.15)', color: '#e07c3e', fontSize: 12,
+            fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+          }}
+        >
+          <Icon name="verified" size={15} color="#e07c3e" />
+          Confirm Walkthrough
+        </a>
         <div style={{ flex: 1 }} />
         {selectedIds.size > 0 && (
           <>

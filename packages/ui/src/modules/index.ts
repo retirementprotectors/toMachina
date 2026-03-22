@@ -20,6 +20,7 @@ export { PipelineInstance } from './PipelineInstance'
 export { PipelineAdmin } from './PipelineAdmin'
 export { Forge } from './Forge'
 export { ForgeAudit } from './ForgeAudit'
+export { ForgeConfirmWalkthrough } from './ForgeConfirmWalkthrough'
 export { ProZone, TerritoryBuilder, SpecialistConfigEditor } from './ProZone'
 
 export { QueRegistry } from './QueRegistry'
