@@ -6,7 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { QueSessionDetailData, QueSessionCreateResult } from '@tomachina/core'
+import type { QueSessionListDTO, QueSessionDetailData, QueSessionCreateResult, QueQuoteCreateResult, QueSessionUpdateResult, QueRecommendationCreateResult, QueGenerateOutputData, QueSessionCompleteResult } from '@tomachina/core'
 
 export const queRoutes = Router()
 
@@ -28,7 +28,7 @@ queRoutes.get('/', async (req: Request, res: Response) => {
     }
     const snap = await query.get()
     const sessions = snap.docs.map(d => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse<unknown>(sessions, { pagination: { count: sessions.length, total: sessions.length } }))
+    res.json(successResponse<QueSessionListDTO>(sessions as unknown as QueSessionListDTO, { pagination: { count: sessions.length, total: sessions.length } }))
   } catch (err) {
     console.error('GET /api/que error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -51,7 +51,7 @@ queRoutes.post('/', async (req: Request, res: Response) => {
       _created_by: userEmail, created_at: now, updated_at: now,
     }
     await db.collection(SESSIONS).doc(session_id).set(data)
-    res.status(201).json(successResponse<unknown>({ session_id }))
+    res.status(201).json(successResponse<QueSessionCreateResult>({ session_id } as unknown as QueSessionCreateResult))
   } catch (err) {
     console.error('POST /api/que error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -82,7 +82,7 @@ queRoutes.get('/:sessionId', async (req: Request, res: Response) => {
       const recDoc = await db.collection(RECOMMENDATIONS).doc(recId).get()
       if (recDoc.exists) recommendation = stripInternalFields({ id: recDoc.id, ...recDoc.data() } as Record<string, unknown>)
     }
-    res.json(successResponse<unknown>({ ...session, quotes, recommendation }))
+    res.json(successResponse<QueSessionDetailData>({ ...session, quotes, recommendation } as unknown as QueSessionDetailData))
   } catch (err) {
     console.error('GET /api/que/:sessionId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -117,7 +117,7 @@ queRoutes.post('/:sessionId/quote', async (req: Request, res: Response) => {
       quote_ids: FieldValue.arrayUnion(quote_id), status: sessionStatus,
       updated_at: now, _updated_by: userEmail,
     })
-    res.status(201).json(successResponse<unknown>({ quote_id }))
+    res.status(201).json(successResponse<QueQuoteCreateResult>({ quote_id } as unknown as QueQuoteCreateResult))
   } catch (err) {
     console.error('POST /api/que/:sessionId/quote error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -137,7 +137,7 @@ queRoutes.patch('/:sessionId', async (req: Request, res: Response) => {
     delete updates.session_id; delete updates.created_at; delete updates._created_by
     updates.updated_at = now; updates._updated_by = userEmail
     await db.collection(SESSIONS).doc(sessionId).update(updates)
-    res.json(successResponse<unknown>({ session_id: sessionId, updated: Object.keys(req.body as Record<string, unknown>) }))
+    res.json(successResponse<QueSessionUpdateResult>({ session_id: sessionId, updated: Object.keys(req.body as Record<string, unknown>) } as unknown as QueSessionUpdateResult))
   } catch (err) {
     console.error('PATCH /api/que/:sessionId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -169,7 +169,7 @@ queRoutes.post('/:sessionId/recommendation', async (req: Request, res: Response)
     await db.collection(SESSIONS).doc(sessionId).update({
       recommendation_id, status: 'recommending', updated_at: now, _updated_by: userEmail,
     })
-    res.status(201).json(successResponse<unknown>({ recommendation_id }))
+    res.status(201).json(successResponse<QueRecommendationCreateResult>({ recommendation_id } as unknown as QueRecommendationCreateResult))
   } catch (err) {
     console.error('POST /api/que/:sessionId/recommendation error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -190,7 +190,7 @@ queRoutes.post('/:sessionId/generate-output', async (req: Request, res: Response
       { key: 'illustration_request', status: 'pending' as const, drive_url: null },
       { key: 'meeting_prep', status: 'pending' as const, drive_url: null },
     ]
-    res.json(successResponse<unknown>({ outputs }))
+    res.json(successResponse<QueGenerateOutputData>({ outputs } as unknown as QueGenerateOutputData))
   } catch (err) {
     console.error('POST /api/que/:sessionId/generate-output error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -209,7 +209,7 @@ queRoutes.post('/:sessionId/complete', async (req: Request, res: Response) => {
     await db.collection(SESSIONS).doc(sessionId).update({
       status: 'complete', finalized_at: now, updated_at: now, _updated_by: userEmail,
     })
-    res.json(successResponse<unknown>({ session_id: sessionId, status: 'complete' }))
+    res.json(successResponse<QueSessionCompleteResult>({ session_id: sessionId, status: 'complete' } as unknown as QueSessionCompleteResult))
   } catch (err) {
     console.error('POST /api/que/:sessionId/complete error:', err)
     res.status(500).json(errorResponse(String(err)))

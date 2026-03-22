@@ -10,7 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { AgentDTO } from '@tomachina/core'
+import type { AgentDTO, AgentCreateDTO, AgentUpdateDTO } from '@tomachina/core'
 
 export const agentRoutes = Router()
 const COLLECTION = 'agents'
@@ -51,7 +51,7 @@ agentRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Agent not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<AgentDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as AgentDTO))
   } catch (err) {
     console.error('GET /api/agents/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -71,7 +71,7 @@ agentRoutes.post('/', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(COLLECTION, 'insert', agentId, data)
     if (!bridgeResult.success) await db.collection(COLLECTION).doc(agentId).set(data)
 
-    res.status(201).json(successResponse<unknown>({ id: agentId, ...data }))
+    res.status(201).json(successResponse<AgentCreateDTO>({ id: agentId, ...data } as unknown as AgentCreateDTO))
   } catch (err) {
     console.error('POST /api/agents error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -93,7 +93,7 @@ agentRoutes.patch('/:id', async (req: Request, res: Response) => {
     if (!bridgeResult.success) await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<AgentUpdateDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as AgentUpdateDTO))
   } catch (err) {
     console.error('PATCH /api/agents/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

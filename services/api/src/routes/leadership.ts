@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
-import type { LeadershipDashboardData } from '@tomachina/core'
+import type { LeadershipMeetingListDTO, LeadershipMeetingDTO, LeadershipActionListDTO, LeadershipMeetingCreateResult, LeadershipActionUpdateResult, LeadershipRoadmapListDTO, LeadershipRoadmapDTO, LeadershipRoadmapCreateResult, LeadershipRoadmapUpdateResult, LeadershipMilestoneCreateResult, LeadershipDashboardData, LeadershipDivisionsData } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const leadershipRoutes = Router()
@@ -26,7 +26,7 @@ leadershipRoutes.get('/meetings', async (req: Request, res: Response) => {
     const snap = await q.limit(limit).get()
 
     const meetings = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(meetings))
+    res.json(successResponse<LeadershipMeetingListDTO>(meetings as unknown as LeadershipMeetingListDTO))
   } catch (err) {
     console.error('GET /api/leadership/meetings error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -70,7 +70,7 @@ leadershipRoutes.get('/meetings/actions', async (req: Request, res: Response) =>
       ? actions.filter(a => String(a.owner || '').toLowerCase().includes(owner))
       : actions
 
-    res.json(successResponse<unknown>(filtered))
+    res.json(successResponse<LeadershipActionListDTO>(filtered as unknown as LeadershipActionListDTO))
   } catch (err) {
     console.error('GET /api/leadership/meetings/actions error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -84,7 +84,7 @@ leadershipRoutes.get('/meetings/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(MEETINGS_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Meeting not found')); return }
-    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<LeadershipMeetingDTO>({ id: doc.id, ...doc.data() } as unknown as LeadershipMeetingDTO))
   } catch (err) {
     console.error('GET /api/leadership/meetings/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -131,7 +131,7 @@ leadershipRoutes.post('/meetings', async (req: Request, res: Response) => {
     }
 
     await db.collection(MEETINGS_COLLECTION).doc(meetingId).set(meeting)
-    res.status(201).json(successResponse<unknown>({ meeting_id: meetingId }))
+    res.status(201).json(successResponse<LeadershipMeetingCreateResult>({ meeting_id: meetingId } as unknown as LeadershipMeetingCreateResult))
   } catch (err) {
     console.error('POST /api/leadership/meetings error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -163,7 +163,7 @@ leadershipRoutes.patch('/meetings/actions/:id', async (req: Request, res: Respon
     if (status === 'completed') items[idx].completed_at = new Date().toISOString()
 
     await docRef.update({ action_items: items, updated_at: new Date().toISOString() })
-    res.json(successResponse<unknown>({ action_id: actionId, status }))
+    res.json(successResponse<LeadershipActionUpdateResult>({ action_id: actionId, status } as unknown as LeadershipActionUpdateResult))
   } catch (err) {
     console.error('PATCH /api/leadership/meetings/actions/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -180,7 +180,7 @@ leadershipRoutes.get('/roadmaps', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(ROADMAPS_COLLECTION).orderBy('owner_name').get()
     const roadmaps = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(roadmaps))
+    res.json(successResponse<LeadershipRoadmapListDTO>(roadmaps as unknown as LeadershipRoadmapListDTO))
   } catch (err) {
     console.error('GET /api/leadership/roadmaps error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -194,7 +194,7 @@ leadershipRoutes.get('/roadmaps/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(ROADMAPS_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Roadmap not found')); return }
-    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<LeadershipRoadmapDTO>({ id: doc.id, ...doc.data() } as unknown as LeadershipRoadmapDTO))
   } catch (err) {
     console.error('GET /api/leadership/roadmaps/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -229,7 +229,7 @@ leadershipRoutes.post('/roadmaps', async (req: Request, res: Response) => {
     }
 
     await db.collection(ROADMAPS_COLLECTION).doc(roadmapId).set(roadmap)
-    res.status(201).json(successResponse<unknown>({ roadmap_id: roadmapId }))
+    res.status(201).json(successResponse<LeadershipRoadmapCreateResult>({ roadmap_id: roadmapId } as unknown as LeadershipRoadmapCreateResult))
   } catch (err) {
     console.error('POST /api/leadership/roadmaps error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -246,7 +246,7 @@ leadershipRoutes.patch('/roadmaps/:id', async (req: Request, res: Response) => {
     delete updates.created_at
 
     await db.collection(ROADMAPS_COLLECTION).doc(id).update(updates)
-    res.json(successResponse<unknown>({ roadmap_id: id }))
+    res.json(successResponse<LeadershipRoadmapUpdateResult>({ roadmap_id: id } as unknown as LeadershipRoadmapUpdateResult))
   } catch (err) {
     console.error('PATCH /api/leadership/roadmaps/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -273,7 +273,7 @@ leadershipRoutes.post('/roadmaps/:id/milestone', async (req: Request, res: Respo
       last_updated: new Date().toISOString(),
     })
 
-    res.status(201).json(successResponse<unknown>({ milestone_id: milestone.id }))
+    res.status(201).json(successResponse<LeadershipMilestoneCreateResult>({ milestone_id: milestone.id } as unknown as LeadershipMilestoneCreateResult))
   } catch (err) {
     console.error('POST /api/leadership/roadmaps/:id/milestone error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -320,7 +320,7 @@ leadershipRoutes.get('/dashboard', async (_req: Request, res: Response) => {
       roadmapStatuses[status] = (roadmapStatuses[status] || 0) + 1
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<LeadershipDashboardData>({
       meetings_this_week: meetingsSnap.size,
       open_action_items: totalActions,
       overdue_action_items: overdueActions,
@@ -328,7 +328,7 @@ leadershipRoutes.get('/dashboard', async (_req: Request, res: Response) => {
       total_roadmaps: roadmapsSnap.size,
       open_tasks: tasksSnap.size,
       active_team_members: usersSnap.size,
-    }))
+    } as unknown as LeadershipDashboardData))
   } catch (err) {
     console.error('GET /api/leadership/dashboard error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -373,7 +373,7 @@ leadershipRoutes.get('/divisions', async (_req: Request, res: Response) => {
       if (divisions[div]) divisions[div].roadmap_status = doc.data().status || 'on_track'
     }
 
-    res.json(successResponse<unknown>(divisions))
+    res.json(successResponse<LeadershipDivisionsData>(divisions as unknown as LeadershipDivisionsData))
   } catch (err) {
     console.error('GET /api/leadership/divisions error:', err)
     res.status(500).json(errorResponse(String(err)))

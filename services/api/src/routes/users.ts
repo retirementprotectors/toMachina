@@ -6,7 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { UserDTO } from '@tomachina/core'
+import type { UserListDTO, UserDTO } from '@tomachina/core'
 import { requireLevel, invalidateProfileCache } from '../middleware/rbac.js'
 
 export const userRoutes = Router()
@@ -17,7 +17,7 @@ userRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).get()
     const users = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse<unknown>(users, { pagination: { count: users.length, total: users.length } }))
+    res.json(successResponse<UserListDTO>(users as unknown as UserListDTO, { pagination: { count: users.length, total: users.length } }))
   } catch (err) {
     console.error('GET /api/users error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -32,10 +32,10 @@ userRoutes.get('/me', async (req: Request, res: Response) => {
 
     const doc = await db.collection(COLLECTION).doc(email).get()
     if (!doc.exists) {
-      res.json(successResponse<unknown>({ id: email, email, role: 'USER', level: 3, status: 'active', _note: 'Profile not found in users collection' }))
+      res.json(successResponse<UserDTO>({ id: email, email, role: 'USER', level: 3, status: 'active', _note: 'Profile not found in users collection' } as unknown as UserDTO))
       return
     }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<UserDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as UserDTO))
   } catch (err) {
     console.error('GET /api/users/me error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -48,7 +48,7 @@ userRoutes.get('/:email', async (req: Request, res: Response) => {
     const email = param(req.params.email)
     const doc = await db.collection(COLLECTION).doc(email).get()
     if (!doc.exists) { res.status(404).json(errorResponse('User not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<UserDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as UserDTO))
   } catch (err) {
     console.error('GET /api/users/:email error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -72,7 +72,7 @@ userRoutes.patch('/:email', requireLevel('EXECUTIVE'), async (req: Request, res:
     invalidateProfileCache(email)
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<UserDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as UserDTO))
   } catch (err) {
     console.error('PATCH /api/users/:email error:', err)
     res.status(500).json(errorResponse(String(err)))

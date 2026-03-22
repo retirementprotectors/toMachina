@@ -6,7 +6,19 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
-import type { DocumentClientLinksData } from '@tomachina/core'
+import type {
+  DocumentClientLinksData,
+  DocumentAccountLinksData,
+  DocumentLinkConfigListDTO,
+  DocumentLinkConfigResult,
+  DocumentLinkConfigUpdateResult,
+  DocumentLinkConfigDeleteResult,
+  DocumentScanResult,
+  DocumentScanAllResult,
+  DocumentDedupData,
+  DocumentDedupReportData,
+  DocumentTaxonomyListDTO,
+} from '@tomachina/core'
 
 type FsDoc = Record<string, unknown>
 
@@ -57,7 +69,7 @@ documentIndexRoutes.get('/client/:clientId', async (req: Request, res: Response)
     // Sort by priority
     linked.sort((a, b) => (((a as FsDoc).priority as number) || 0) - (((b as FsDoc).priority as number) || 0))
 
-    res.json(successResponse<unknown>(linked))
+    res.json(successResponse<DocumentClientLinksData>(linked as unknown as DocumentClientLinksData))
   } catch (err) {
     console.error('GET /api/document-index/client error:', err)
     res.status(500).json(errorResponse('Failed to get client documents'))
@@ -122,7 +134,7 @@ documentIndexRoutes.get('/account/:accountId', async (req: Request, res: Respons
 
     linked.sort((a, b) => (((a as FsDoc).priority as number) || 0) - (((b as FsDoc).priority as number) || 0))
 
-    res.json(successResponse<unknown>(linked))
+    res.json(successResponse<DocumentAccountLinksData>(linked as unknown as DocumentAccountLinksData))
   } catch (err) {
     console.error('GET /api/document-index/account error:', err)
     res.status(500).json(errorResponse('Failed to get account documents'))
@@ -135,7 +147,7 @@ documentIndexRoutes.get('/config', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection('document_link_config').orderBy('priority', 'asc').get()
     const configs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(configs))
+    res.json(successResponse<DocumentLinkConfigListDTO>(configs as unknown as DocumentLinkConfigListDTO))
   } catch (err) {
     console.error('GET /api/document-index/config error:', err)
     res.status(500).json(errorResponse('Failed to get document link config'))
@@ -157,7 +169,7 @@ documentIndexRoutes.post('/config', async (req: Request, res: Response) => {
       { document_type, ...rest, updated_at: new Date().toISOString() },
       { merge: true }
     )
-    res.json(successResponse<unknown>({ id: docId, document_type }))
+    res.json(successResponse<DocumentLinkConfigResult>({ id: docId, document_type } as unknown as DocumentLinkConfigResult))
   } catch (err) {
     console.error('POST /api/document-index/config error:', err)
     res.status(500).json(errorResponse('Failed to save document link config'))
@@ -175,7 +187,7 @@ documentIndexRoutes.put('/config/:configId', async (req: Request, res: Response)
       ...updates,
       updated_at: new Date().toISOString(),
     })
-    res.json(successResponse<unknown>({ id: configId, updated: true }))
+    res.json(successResponse<DocumentLinkConfigUpdateResult>({ id: configId, updated: true } as unknown as DocumentLinkConfigUpdateResult))
   } catch (err) {
     console.error('PUT /api/document-index/config error:', err)
     res.status(500).json(errorResponse('Failed to update document link config'))
@@ -188,7 +200,7 @@ documentIndexRoutes.delete('/config/:configId', async (req: Request, res: Respon
     const db = getFirestore()
     const configId = param(req.params.configId)
     await db.collection('document_link_config').doc(configId).delete()
-    res.json(successResponse<unknown>({ id: configId, deleted: true }))
+    res.json(successResponse<DocumentLinkConfigDeleteResult>({ id: configId, deleted: true } as unknown as DocumentLinkConfigDeleteResult))
   } catch (err) {
     console.error('DELETE /api/document-index/config error:', err)
     res.status(500).json(errorResponse('Failed to delete document link config'))
@@ -210,7 +222,7 @@ documentIndexRoutes.post('/scan/:clientId', async (req: Request, res: Response) 
     const clientData = clientDoc.data()!
     const folderId = clientData.acf_folder_id as string
     if (!folderId) {
-      res.json(successResponse<unknown>({ indexed: 0, message: 'No ACF folder linked' }))
+      res.json(successResponse<DocumentScanResult>({ indexed: 0, message: 'No ACF folder linked' } as unknown as DocumentScanResult))
       return
     }
 
@@ -277,7 +289,7 @@ documentIndexRoutes.post('/scan/:clientId', async (req: Request, res: Response) 
       // Drive access failed — return partial results
     }
 
-    res.json(successResponse<unknown>({ indexed, client_id: clientId }))
+    res.json(successResponse<DocumentScanResult>({ indexed, client_id: clientId } as unknown as DocumentScanResult))
   } catch (err) {
     console.error('POST /api/document-index/scan error:', err)
     res.status(500).json(errorResponse('Failed to scan client documents'))
@@ -398,7 +410,7 @@ documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
     // Save scan timestamp for next incremental run
     await metaRef.set({ last_scan_at: now, total_indexed: totalIndexed, mode: forceFull ? 'full' : 'incremental' })
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<DocumentScanAllResult>({
       mode: forceFull ? 'full' : 'incremental',
       since: lastScanTime || 'never (first run)',
       clients_scanned: clientsScanned,
@@ -406,7 +418,7 @@ documentIndexRoutes.post('/scan-all', async (req: Request, res: Response) => {
       clients_failed: clientsFailed,
       total_indexed: totalIndexed,
       scanned_at: now,
-    }))
+    } as unknown as DocumentScanAllResult))
   } catch (err) {
     console.error('POST /api/document-index/scan-all error:', err)
     res.status(500).json(errorResponse('Failed to run proactive scan'))
@@ -427,7 +439,7 @@ documentIndexRoutes.get('/dedup/:clientId', async (req: Request, res: Response) 
     const clientData = clientDoc.data()!
     const folderId = clientData.acf_folder_id as string
     if (!folderId) {
-      res.json(successResponse<unknown>({ duplicates: [], total_files: 0 }))
+      res.json(successResponse<DocumentDedupData>({ duplicates: [], total_files: 0, duplicate_groups: 0 } as unknown as DocumentDedupData))
       return
     }
 
@@ -473,7 +485,7 @@ documentIndexRoutes.get('/dedup/:clientId', async (req: Request, res: Response) 
       }))
       .sort((a, b) => b.count - a.count)
 
-    res.json(successResponse<unknown>({ duplicates, total_files: allFiles.length, duplicate_groups: duplicates.length }))
+    res.json(successResponse<DocumentDedupData>({ duplicates, total_files: allFiles.length, duplicate_groups: duplicates.length } as unknown as DocumentDedupData))
   } catch (err) {
     console.error('GET /api/document-index/dedup error:', err)
     res.status(500).json(errorResponse('Failed to scan for duplicates'))
@@ -537,11 +549,11 @@ documentIndexRoutes.get('/dedup-report', async (_req: Request, res: Response) =>
 
     report.sort((a, b) => b.total_duplicates - a.total_duplicates)
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<DocumentDedupReportData>({
       clients_with_duplicates: report.length,
       total_duplicate_groups: report.reduce((s, r) => s + r.duplicate_groups, 0),
       report,
-    }))
+    } as unknown as DocumentDedupReportData))
   } catch (err) {
     console.error('GET /api/document-index/dedup-report error:', err)
     res.status(500).json(errorResponse('Failed to generate dedup report'))
@@ -554,7 +566,7 @@ documentIndexRoutes.get('/taxonomy', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection('document_taxonomy').get()
     const entries: FsDoc[] = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(entries))
+    res.json(successResponse<DocumentTaxonomyListDTO>(entries as unknown as DocumentTaxonomyListDTO))
   } catch (err) {
     console.error('GET /api/document-index/taxonomy error:', err)
     res.status(500).json(errorResponse('Failed to get document taxonomy'))

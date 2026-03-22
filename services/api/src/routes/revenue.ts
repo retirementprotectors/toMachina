@@ -11,7 +11,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { RevenueDTO } from '@tomachina/core'
+import type { RevenueDTO, RevenueByAgentSummaryDTO, RevenueCreateDTO, RevenueUpdateDTO, RevenueBulkImportResult } from '@tomachina/core'
 
 export const revenueRoutes = Router()
 const COLLECTION = 'revenue'
@@ -55,7 +55,7 @@ revenueRoutes.get('/summary/by-agent', async (req: Request, res: Response) => {
     })
 
     const summary = Object.values(byAgent).sort((a, b) => b.total - a.total)
-    res.json(successResponse<unknown>(summary, { pagination: { count: summary.length, total: summary.length } }))
+    res.json(successResponse<RevenueByAgentSummaryDTO>(summary as unknown as RevenueByAgentSummaryDTO, { pagination: { count: summary.length, total: summary.length } }))
   } catch (err) {
     console.error('GET /api/revenue/summary/by-agent error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -68,7 +68,7 @@ revenueRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Revenue record not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<RevenueDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as RevenueDTO))
   } catch (err) {
     console.error('GET /api/revenue/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -88,7 +88,7 @@ revenueRoutes.post('/', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(COLLECTION, 'insert', revenueId, data)
     if (!bridgeResult.success) await db.collection(COLLECTION).doc(revenueId).set(data)
 
-    res.status(201).json(successResponse<unknown>({ id: revenueId, ...data }))
+    res.status(201).json(successResponse<RevenueCreateDTO>({ id: revenueId, ...data } as unknown as RevenueCreateDTO))
   } catch (err) {
     console.error('POST /api/revenue error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -111,7 +111,7 @@ revenueRoutes.patch('/:id', async (req: Request, res: Response) => {
     if (!bridgeResult.success) await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<RevenueUpdateDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as RevenueUpdateDTO))
   } catch (err) {
     console.error('PATCH /api/revenue/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -288,7 +288,7 @@ revenueRoutes.post('/bulk', async (req: Request, res: Response) => {
       summary.errors = summary.errors.slice(0, 50)
     }
 
-    res.json(successResponse<unknown>(summary))
+    res.json(successResponse<RevenueBulkImportResult>(summary as unknown as RevenueBulkImportResult))
   } catch (err) {
     console.error('POST /api/revenue/bulk error:', err)
     res.status(500).json(errorResponse(String(err)))

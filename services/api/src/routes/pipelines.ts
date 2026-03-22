@@ -37,7 +37,7 @@ pipelineRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Pipeline not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<LegacyPipelineDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as LegacyPipelineDTO))
   } catch (err) {
     console.error('GET /api/pipelines/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

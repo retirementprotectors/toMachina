@@ -6,7 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { OrgUnitDTO } from '@tomachina/core'
+import type { OrgUnitListDTO, OrgUnitDTO, OrgUnitMembersDTO } from '@tomachina/core'
 
 export const orgRoutes = Router()
 const COLLECTION = 'org'
@@ -16,7 +16,7 @@ orgRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).get()
     const units = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse<unknown>(units, { pagination: { count: units.length, total: units.length } }))
+    res.json(successResponse<OrgUnitListDTO>(units as unknown as OrgUnitListDTO, { pagination: { count: units.length, total: units.length } }))
   } catch (err) {
     console.error('GET /api/org error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -29,7 +29,7 @@ orgRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Org unit not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<OrgUnitDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as OrgUnitDTO))
   } catch (err) {
     console.error('GET /api/org/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -48,7 +48,7 @@ orgRoutes.get('/:id/members', async (req: Request, res: Response) => {
 
     const snap = await db.collection('users').where('unit', '==', unitName).get()
     const members = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse<unknown>(members, { pagination: { count: members.length, total: members.length } }))
+    res.json(successResponse<OrgUnitMembersDTO>(members as unknown as OrgUnitMembersDTO, { pagination: { count: members.length, total: members.length } }))
   } catch (err) {
     console.error('GET /api/org/:id/members error:', err)
     res.status(500).json(errorResponse(String(err)))

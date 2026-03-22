@@ -9,7 +9,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { AccountDTO, AccountWithClientDTO } from '@tomachina/core'
+import type { AccountDTO, AccountWithClientDTO, AccountCreateDTO, AccountUpdateDTO } from '@tomachina/core'
 
 export const accountRoutes = Router()
 
@@ -85,7 +85,7 @@ accountRoutes.get('/:clientId/:accountId', async (req: Request, res: Response) =
       return
     }
 
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<AccountDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as AccountDTO))
   } catch (err) {
     console.error('GET /api/accounts/:clientId/:accountId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -129,7 +129,7 @@ accountRoutes.post('/:clientId', async (req: Request, res: Response) => {
       await db.collection('clients').doc(clientId).collection('accounts').doc(accountId).set(accountData)
     }
 
-    res.status(201).json(successResponse<unknown>({ id: accountId, ...accountData }))
+    res.status(201).json(successResponse<AccountCreateDTO>({ id: accountId, ...accountData } as unknown as AccountCreateDTO))
   } catch (err) {
     console.error('POST /api/accounts/:clientId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -168,7 +168,7 @@ accountRoutes.patch('/:clientId/:accountId', async (req: Request, res: Response)
     }
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<AccountUpdateDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as AccountUpdateDTO))
   } catch (err) {
     console.error('PATCH /api/accounts error:', err)
     res.status(500).json(errorResponse(String(err)))

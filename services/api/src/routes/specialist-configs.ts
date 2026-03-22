@@ -46,7 +46,7 @@ specialistConfigRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Specialist config not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<SpecialistConfigDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as SpecialistConfigDTO))
   } catch (err) {
     console.error('GET /api/specialist-configs/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -83,7 +83,7 @@ specialistConfigRoutes.post('/', async (req: Request, res: Response) => {
 
     await db.collection(COLLECTION).doc(configId).set(configData)
 
-    res.status(201).json(successResponse<unknown>(stripInternalFields({ id: configId, ...configData })))
+    res.status(201).json(successResponse<SpecialistConfigDTO>(stripInternalFields({ id: configId, ...configData }) as unknown as SpecialistConfigDTO))
   } catch (err) {
     console.error('POST /api/specialist-configs error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -110,7 +110,7 @@ specialistConfigRoutes.patch('/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<SpecialistConfigDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as SpecialistConfigDTO))
   } catch (err) {
     console.error('PATCH /api/specialist-configs/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

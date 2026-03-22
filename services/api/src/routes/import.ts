@@ -14,6 +14,37 @@ import { inferAccountType, parseOwnerName } from '../lib/account-type-inference.
 import { parseSignalRecords, isSignalFormat, type SignalRawRecord } from '../lib/signal-parser.js'
 import { buildColumnResolution, parseCommissionRow } from '../lib/commission-parser.js'
 import { calculateFYC, calculateRenewal } from '@tomachina/core'
+import type {
+  ImportClientResult,
+  ImportAccountResult,
+  ImportBatchClientsResult,
+  ImportBatchAccountsResult,
+  ImportBatchAtlasWizardResult,
+  ImportBatchLegacyResult,
+  ImportValidateResult,
+  ImportValidateFullResult,
+  ImportApprovalCreateResult,
+  ImportFinalizeResult,
+  ImportAgentCreatedResult,
+  ImportAgentSkippedNpnResult,
+  ImportAgentSkippedEmailResult,
+  ImportBatchAgentsResult,
+  ImportRevenueCreatedResult,
+  ImportRevenueSkippedResult,
+  ImportBatchRevenuesResult,
+  ImportCaseTaskResult,
+  ImportBobResult,
+  ImportSignalRevenueResult,
+  ImportCommissionBulkResult,
+  ImportCommissionReconcileResult,
+  CarrierDetectFoundResult,
+  CarrierDetectNotFoundResult,
+  ImportCarrierAccountsResult,
+  ImportLifeAccountsResult,
+  ImportInvestmentAccountsResult,
+  ImportBackfillClientsResult,
+  ImportQueueStatusData,
+} from '@tomachina/core/api-types/atlas'
 import { startImportRun, completeImportRun } from '../lib/import-tracker.js'
 
 // Status constants for normalization
@@ -114,10 +145,10 @@ importRoutes.post('/client', clientImportValidation, async (req: Request, res: R
       await db.collection('clients').doc(clientId).set(clientData)
     }
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<ImportClientResult>({
       client_id: clientId,
       action: 'created',
-    }))
+    } as unknown as ImportClientResult))
   } catch (err) {
     console.error('POST /api/import/client error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -175,7 +206,7 @@ importRoutes.post('/clients', async (req: Request, res: Response) => {
 
     await batch.commit()
 
-    res.json(successResponse<unknown>(results))
+    res.json(successResponse<ImportBatchClientsResult>(results as unknown as ImportBatchClientsResult))
   } catch (err) {
     console.error('POST /api/import/clients error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -230,11 +261,11 @@ importRoutes.post('/account', async (req: Request, res: Response) => {
       await db.collection('clients').doc(accountData.client_id).collection('accounts').doc(accountId).set(accountData)
     }
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<ImportAccountResult>({
       account_id: accountId,
       action: 'created',
       collection,
-    }))
+    } as unknown as ImportAccountResult))
   } catch (err) {
     console.error('POST /api/import/account error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -310,7 +341,7 @@ importRoutes.post('/accounts', async (req: Request, res: Response) => {
       error_details: results.errors,
     })
 
-    res.json(successResponse<unknown>({ ...results, import_run_id: importRunId }))
+    res.json(successResponse<ImportBatchAccountsResult>({ ...results, import_run_id: importRunId } as unknown as ImportBatchAccountsResult))
   } catch (err) {
     console.error('POST /api/import/accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -417,7 +448,7 @@ importRoutes.post('/batch', async (req: Request, res: Response) => {
           error_details: errors,
         })
 
-        res.json(successResponse<unknown>({
+        res.json(successResponse<ImportBatchAtlasWizardResult>({
           total_received: atlasRecords.length,
           auto_matched: 0,
           new_created: imported,
@@ -428,7 +459,7 @@ importRoutes.post('/batch', async (req: Request, res: Response) => {
           errors: errors.length,
           run_id: importRunId,
           details: errors.length > 0 ? { errors } : undefined,
-        }))
+        } as unknown as ImportBatchAtlasWizardResult))
         return
       }
     }
@@ -676,7 +707,7 @@ importRoutes.post('/batch', async (req: Request, res: Response) => {
 
     await batch2.commit()
 
-    res.json(successResponse<unknown>(results))
+    res.json(successResponse<ImportBatchLegacyResult>(results as unknown as ImportBatchLegacyResult))
   } catch (err) {
     console.error('POST /api/import/batch error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -715,7 +746,7 @@ importRoutes.post('/validate', async (req: Request, res: Response) => {
     }
 
     const valid = errors.length === 0
-    res.json(successResponse<unknown>({ valid, errors, warnings }))
+    res.json(successResponse<ImportValidateResult>({ valid, errors, warnings } as unknown as ImportValidateResult))
   } catch (err) {
     console.error('POST /api/import/validate error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -757,10 +788,10 @@ importRoutes.post('/approval/create', async (req: Request, res: Response) => {
     await db.collection('approval_queue').doc(batchId).set(approvalData)
     await writeThroughBridge('approval_queue', 'insert', batchId, approvalData)
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<ImportApprovalCreateResult>({
       batch_id: batchId,
       status: 'pending',
-    }))
+    } as unknown as ImportApprovalCreateResult))
   } catch (err) {
     console.error('POST /api/import/approval/create error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -800,10 +831,10 @@ importRoutes.post('/finalize', async (req: Request, res: Response) => {
       await db.collection('clients').doc(clientId).update(updates)
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ImportFinalizeResult>({
       client_id: clientId,
       status: 'finalized',
-    }))
+    } as unknown as ImportFinalizeResult))
   } catch (err) {
     console.error('POST /api/import/finalize error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -850,12 +881,12 @@ importRoutes.post('/agent', async (req: Request, res: Response) => {
 
     if (!existingByNpn.empty && !options.force) {
       const existing = existingByNpn.docs[0]
-      res.json(successResponse<unknown>({
+      res.json(successResponse<ImportAgentSkippedNpnResult>({
         action: 'skipped',
         reason: 'duplicate_npn',
         existing_agent_id: existing.id,
         existing_data: { npn: existing.data().npn, first_name: existing.data().first_name, last_name: existing.data().last_name },
-      }))
+      } as unknown as ImportAgentSkippedNpnResult))
       return
     }
 
@@ -868,11 +899,11 @@ importRoutes.post('/agent', async (req: Request, res: Response) => {
 
       if (!existingByEmail.empty && !options.force) {
         const existing = existingByEmail.docs[0]
-        res.json(successResponse<unknown>({
+        res.json(successResponse<ImportAgentSkippedEmailResult>({
           action: 'skipped',
           reason: 'duplicate_email',
           existing_agent_id: existing.id,
-        }))
+        } as unknown as ImportAgentSkippedEmailResult))
         return
       }
     }
@@ -891,10 +922,10 @@ importRoutes.post('/agent', async (req: Request, res: Response) => {
       await db.collection('agents').doc(agentId).set(agentData)
     }
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<ImportAgentCreatedResult>({
       agent_id: agentId,
       action: 'created',
-    }))
+    } as unknown as ImportAgentCreatedResult))
   } catch (err) {
     console.error('POST /api/import/agent error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -985,7 +1016,7 @@ importRoutes.post('/agents', async (req: Request, res: Response) => {
       error_details: results.errors,
     })
 
-    res.json(successResponse<unknown>({ ...results, import_run_id: importRunId }))
+    res.json(successResponse<ImportBatchAgentsResult>({ ...results, import_run_id: importRunId } as unknown as ImportBatchAgentsResult))
   } catch (err) {
     console.error('POST /api/import/agents error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1070,11 +1101,11 @@ importRoutes.post('/revenue', async (req: Request, res: Response) => {
         .limit(1)
         .get()
       if (!existingSnap.empty && !options.force) {
-        res.json(successResponse<unknown>({
+        res.json(successResponse<ImportRevenueSkippedResult>({
           action: 'skipped',
           reason: 'duplicate_stateable_id',
           existing_revenue_id: existingSnap.docs[0].id,
-        }))
+        } as unknown as ImportRevenueSkippedResult))
         return
       }
     }
@@ -1092,12 +1123,12 @@ importRoutes.post('/revenue', async (req: Request, res: Response) => {
       await db.collection('revenue').doc(revenueId).set(revenueData)
     }
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<ImportRevenueCreatedResult>({
       revenue_id: revenueId,
       action: 'created',
       linked_agent: revenueData.agent_id || null,
       linked_account: revenueData.account_id || null,
-    }))
+    } as unknown as ImportRevenueCreatedResult))
   } catch (err) {
     console.error('POST /api/import/revenue error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1171,7 +1202,7 @@ importRoutes.post('/revenues', async (req: Request, res: Response) => {
       error_details: results.errors,
     })
 
-    res.json(successResponse<unknown>({ ...results, import_run_id: importRunId }))
+    res.json(successResponse<ImportBatchRevenuesResult>({ ...results, import_run_id: importRunId } as unknown as ImportBatchRevenuesResult))
   } catch (err) {
     console.error('POST /api/import/revenues error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1222,11 +1253,11 @@ importRoutes.post('/case-task', async (req: Request, res: Response) => {
       await db.collection('case_tasks').doc(taskId).set(taskData)
     }
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<ImportCaseTaskResult>({
       task_id: taskId,
       action: 'created',
       status: taskData.status,
-    }))
+    } as unknown as ImportCaseTaskResult))
   } catch (err) {
     console.error('POST /api/import/case-task error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1314,7 +1345,7 @@ importRoutes.post('/validate-full', async (req: Request, res: Response) => {
     }
 
     const valid = errors.length === 0
-    res.json(successResponse<unknown>({ valid, errors, warnings, normalized_data: valid ? normalized : undefined }))
+    res.json(successResponse<ImportValidateFullResult>({ valid, errors, warnings, normalized_data: valid ? normalized : undefined } as unknown as ImportValidateFullResult))
   } catch (err) {
     console.error('POST /api/import/validate-full error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1483,7 +1514,7 @@ importRoutes.post('/bob', async (req: Request, res: Response) => {
       error_details: summary.error_details,
     })
 
-    res.json(successResponse<unknown>({ ...summary, import_run_id: importRunId }))
+    res.json(successResponse<ImportBobResult>({ ...summary, import_run_id: importRunId } as unknown as ImportBobResult))
   } catch (err) {
     console.error('POST /api/import/bob error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1531,12 +1562,12 @@ importRoutes.post('/signal-revenue', async (req: Request, res: Response) => {
     const { parsed, errors: parseErrors } = parseSignalRecords(records)
 
     if (parsed.length === 0) {
-      res.json(successResponse<unknown>({
+      res.json(successResponse<ImportSignalRevenueResult>({
         imported: 0,
         skipped: 0,
         parse_errors: parseErrors.length,
         error_details: parseErrors.slice(0, 50),
-      }))
+      } as unknown as ImportSignalRevenueResult))
       return
     }
 
@@ -1642,7 +1673,7 @@ importRoutes.post('/signal-revenue', async (req: Request, res: Response) => {
       error_details: summary.errors,
     })
 
-    res.json(successResponse<unknown>({ ...summary, import_run_id: importRunId }))
+    res.json(successResponse<ImportSignalRevenueResult>({ ...summary, import_run_id: importRunId } as unknown as ImportSignalRevenueResult))
   } catch (err) {
     console.error('POST /api/import/signal-revenue error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1810,7 +1841,7 @@ importRoutes.post('/commission-bulk', async (req: Request, res: Response) => {
       error_details: summary.errors,
     })
 
-    res.json(successResponse<unknown>({ ...summary, import_run_id: importRunId }))
+    res.json(successResponse<ImportCommissionBulkResult>({ ...summary, import_run_id: importRunId } as unknown as ImportCommissionBulkResult))
   } catch (err) {
     console.error('POST /api/import/commission-bulk error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1919,13 +1950,13 @@ importRoutes.post('/commission-reconcile', async (req: Request, res: Response) =
       await flagBatch.commit()
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<ImportCommissionReconcileResult>({
       records_checked: recordsChecked,
       records_matched: recordsMatched,
       discrepancies_found: discrepancies.length,
       discrepancies: discrepancies.slice(0, 50),
       tolerance_percent: tolerancePercent * 100,
-    }))
+    } as unknown as ImportCommissionReconcileResult))
   } catch (err) {
     console.error('POST /api/import/commission-reconcile error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1952,7 +1983,7 @@ importRoutes.post('/carrier-detect', async (req: Request, res: Response) => {
     const format = detectCarrierFormat(headers)
 
     if (!format) {
-      res.json(successResponse<unknown>({
+      res.json(successResponse<CarrierDetectNotFoundResult>({
         detected: false,
         message: 'No carrier format matched (minimum 60% header signature required)',
         available_formats: CARRIER_FORMATS.map(f => ({
@@ -1960,7 +1991,7 @@ importRoutes.post('/carrier-detect', async (req: Request, res: Response) => {
           carrier_name: f.carrier_name,
           signatures: f.header_signatures,
         })),
-      }))
+      } as unknown as CarrierDetectNotFoundResult))
       return
     }
 
@@ -1980,7 +2011,7 @@ importRoutes.post('/carrier-detect', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<CarrierDetectFoundResult>({
       detected: true,
       carrier_id: format.carrier_id,
       carrier_name: format.carrier_name,
@@ -1988,7 +2019,7 @@ importRoutes.post('/carrier-detect', async (req: Request, res: Response) => {
       dedup_keys: format.dedup_keys,
       mapped_headers: mappedHeaders,
       unmapped_headers: unmappedHeaders,
-    }))
+    } as unknown as CarrierDetectFoundResult))
   } catch (err) {
     console.error('POST /api/import/carrier-detect error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -2195,7 +2226,7 @@ importRoutes.post('/carrier-accounts', async (req: Request, res: Response) => {
       })
     }
 
-    res.json(successResponse<unknown>({ ...summary, category_breakdown: categoryBreakdown, dry_run: dryRun, import_run_id: dryRun ? undefined : importRunId }))
+    res.json(successResponse<ImportCarrierAccountsResult>({ ...summary, category_breakdown: categoryBreakdown, dry_run: dryRun, import_run_id: dryRun ? undefined : importRunId } as unknown as ImportCarrierAccountsResult))
   } catch (err) {
     console.error('POST /api/import/carrier-accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -2347,7 +2378,7 @@ importRoutes.post('/life-accounts', async (req: Request, res: Response) => {
       })
     }
 
-    res.json(successResponse<unknown>({ ...summary, warnings, dry_run: dryRun, import_run_id: dryRun ? undefined : importRunId }))
+    res.json(successResponse<ImportLifeAccountsResult>({ ...summary, warnings, dry_run: dryRun, import_run_id: dryRun ? undefined : importRunId } as unknown as ImportLifeAccountsResult))
   } catch (err) {
     console.error('POST /api/import/life-accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -2500,7 +2531,7 @@ importRoutes.post(['/investment-accounts', '/bdria-accounts'], async (req: Reque
       })
     }
 
-    res.json(successResponse<unknown>({ ...summary, warnings, dry_run: dryRun, import_run_id: dryRun ? undefined : importRunId }))
+    res.json(successResponse<ImportInvestmentAccountsResult>({ ...summary, warnings, dry_run: dryRun, import_run_id: dryRun ? undefined : importRunId } as unknown as ImportInvestmentAccountsResult))
   } catch (err) {
     console.error('POST /api/import/investment-accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -2685,7 +2716,7 @@ importRoutes.post('/backfill-clients', async (req: Request, res: Response) => {
       error_details: summary.error_details.map((e, i) => ({ index: i, error: `${e.client_id}: ${e.error}` })),
     })
 
-    res.json(successResponse<unknown>({ ...summary, import_run_id: importRunId }))
+    res.json(successResponse<ImportBackfillClientsResult>({ ...summary, import_run_id: importRunId } as unknown as ImportBackfillClientsResult))
   } catch (err) {
     console.error('POST /api/import/backfill-clients error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -2714,7 +2745,7 @@ importRoutes.get('/queue/status', async (_req: Request, res: Response) => {
       bySource[d.source] = (bySource[d.source] || 0) + 1
     }
 
-    res.json(successResponse<unknown>({ by_status: byStatus, by_source: bySource, total: snap.size }))
+    res.json(successResponse<ImportQueueStatusData>({ by_status: byStatus, by_source: bySource, total: snap.size } as unknown as ImportQueueStatusData))
   } catch (err) {
     console.error('GET /api/import/queue/status error:', err)
     res.status(500).json(errorResponse(String(err)))

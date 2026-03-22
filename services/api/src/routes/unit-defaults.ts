@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
-import type { UnitDefaultDTO } from '@tomachina/core'
+import type { UnitDefaultDTO, UnitDefaultListDTO } from '@tomachina/core'
 import { requireLevel } from '../middleware/rbac.js'
 
 export const unitDefaultRoutes = Router()
@@ -16,7 +16,7 @@ unitDefaultRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(COLLECTION).get()
     const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(items, { pagination: { count: items.length, total: items.length } }))
+    res.json(successResponse<UnitDefaultListDTO>(items as unknown as UnitDefaultListDTO, { pagination: { count: items.length, total: items.length } }))
   } catch (err) {
     console.error('GET /api/unit-defaults error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -68,7 +68,7 @@ unitDefaultRoutes.put('/:unitKey', requireLevel('OWNER'), async (req: Request, r
     }
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ id: updated.id, ...updated.data() }))
+    res.json(successResponse<UnitDefaultDTO>({ id: updated.id, ...updated.data() } as unknown as UnitDefaultDTO))
   } catch (err) {
     console.error('PUT /api/unit-defaults/:unitKey error:', err)
     res.status(500).json(errorResponse(String(err)))
