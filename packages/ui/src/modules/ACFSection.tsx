@@ -66,6 +66,16 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   const [uploadQueue, setUploadQueue] = useState<UploadQueueItem[]>([])
   const [previewFile, setPreviewFile] = useState<{ id: string; name: string; mimeType: string } | null>(null)
   const [movingFile, setMovingFile] = useState<{ id: string; name: string; fromSubfolder: string } | null>(null)
+  const [deleteFile, setDeleteFile] = useState<{ id: string; name: string } | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'tree' | 'grid'>(() => {
+    if (typeof window !== 'undefined') return (localStorage.getItem('acf-view-mode') as 'tree' | 'grid') || 'tree'
+    return 'tree'
+  })
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [gridSort, setGridSort] = useState<{ col: string; dir: 'asc' | 'desc' }>({ col: 'name', dir: 'asc' })
+  const [docConfigs, setDocConfigs] = useState<Array<{ id: string; display_name: string; file_patterns: string[]; required?: boolean }>>([])
   const sectionRef = useRef<HTMLDivElement>(null)
   const dragCounterRef = useRef(0)
 
@@ -84,6 +94,11 @@ export function ACFSection({ clientId }: ACFSectionProps) {
 
   useEffect(() => {
     loadDetail()
+    // Load document configs for completeness bar (TRK-579)
+    fetchWithAuth('/api/document-index/config')
+      .then(r => r.json())
+      .then(json => { if (json.success) setDocConfigs((json.data || []).filter((c: Record<string, unknown>) => c.required && c.visible !== false)) })
+      .catch(() => {})
   }, [loadDetail])
 
   const handleCreate = async () => {
@@ -304,6 +319,36 @@ export function ACFSection({ clientId }: ACFSectionProps) {
     link.click()
   }, [])
 
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteFile) return
+    setDeleting(true)
+    try {
+      const res = await fetchWithAuth(`/api/acf/file/${deleteFile.id}`, { method: 'DELETE' })
+      const json = await res.json()
+      if (json.success) {
+        // Remove file from local state optimistically
+        setDetail(prev => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            subfolders: prev.subfolders.map(sf => ({
+              ...sf,
+              files: sf.files.filter(f => f.id !== deleteFile.id),
+              file_count: sf.files.filter(f => f.id !== deleteFile.id).length,
+            })),
+            root_files: prev.root_files?.filter(f => f.id !== deleteFile.id),
+          }
+        })
+        if (previewFile?.id === deleteFile.id) setPreviewFile(null)
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setDeleting(false)
+      setDeleteFile(null)
+    }
+  }, [deleteFile, previewFile])
+
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
@@ -371,7 +416,66 @@ export function ACFSection({ clientId }: ACFSectionProps) {
 
   // Full ACF detail
   const totalFiles = detail.subfolders.reduce((sum, sf) => sum + sf.file_count, 0) + (detail.root_files?.length || 0)
-  const isComplete = detail.subfolders.length >= 5 && (detail.root_files || []).some(f => f.mimeType.includes('spreadsheet') && f.name.toLowerCase().includes('ai3'))
+  const isComplete = detail.subfolders.length >= 5 && totalFiles > 0
+
+  // Subfolder badge colors (TRK-576)
+  const subfolderColors: Record<string, string> = {
+    Client: '#3b82f6',
+    Cases: '#a78bfa',
+    NewBiz: '#22c55e',
+    Account: '#f59e0b',
+    Reactive: '#ef4444',
+  }
+
+  // Search filtering (TRK-572)
+  const sq = searchQuery.toLowerCase()
+  const filteredSubfolders = detail.subfolders.map(sf => ({
+    ...sf,
+    files: sq ? sf.files.filter(f => f.name.toLowerCase().includes(sq)) : sf.files,
+  }))
+  const filteredRootFiles = sq
+    ? (detail.root_files || []).filter(f => f.name.toLowerCase().includes(sq))
+    : (detail.root_files || [])
+  const matchingSubfolderIds = sq
+    ? new Set(filteredSubfolders.filter(sf => sf.files.length > 0).map(sf => sf.id))
+    : null
+
+  // Grid view: flat file list from all subfolders + root (TRK-578)
+  const allFiles = [
+    ...(detail.root_files || []).map(f => ({ ...f, subfolder: '(root)' })),
+    ...detail.subfolders.flatMap(sf => sf.files.map(f => ({ ...f, subfolder: sf.name }))),
+  ]
+  const filteredAllFiles = sq
+    ? allFiles.filter(f => f.name.toLowerCase().includes(sq))
+    : allFiles
+  const sortedAllFiles = [...filteredAllFiles].sort((a, b) => {
+    const dir = gridSort.dir === 'asc' ? 1 : -1
+    switch (gridSort.col) {
+      case 'name': return a.name.localeCompare(b.name) * dir
+      case 'subfolder': return a.subfolder.localeCompare(b.subfolder) * dir
+      case 'date': return (new Date(a.modifiedTime).getTime() - new Date(b.modifiedTime).getTime()) * dir
+      case 'size': return (a.size - b.size) * dir
+      default: return 0
+    }
+  })
+
+  const toggleSort = (col: string) => {
+    setGridSort(prev => prev.col === col ? { col, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { col, dir: 'asc' })
+  }
+
+  // Completeness bar (TRK-579) — compare required doc configs against actual files
+  const allFileNames = allFiles.map(f => f.name.toLowerCase())
+  const completenessData = docConfigs.length > 0 ? docConfigs.map(cfg => {
+    const found = cfg.file_patterns.some(p => {
+      const pattern = p.replace(/\*/g, '').toLowerCase()
+      return allFileNames.some(n => n.includes(pattern))
+    })
+    return { ...cfg, found }
+  }) : null
+  const foundCount = completenessData?.filter(d => d.found).length ?? 0
+  const totalRequired = completenessData?.length ?? 0
+  const completePct = totalRequired > 0 ? Math.round((foundCount / totalRequired) * 100) : 0
+  const barColor = completePct < 34 ? '#ef4444' : completePct < 67 ? '#f59e0b' : '#22c55e'
 
   return (
     <div
@@ -436,42 +540,97 @@ export function ACFSection({ clientId }: ACFSectionProps) {
             </p>
           </div>
         </div>
-        {detail.folder_url && (
-          <a
-            href={detail.folder_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)]"
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>open_in_new</span>
-            Open in Drive
-          </a>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Search */}
+          <div className="relative">
+            <span className="material-icons-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" style={{ fontSize: '14px' }}>search</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search files..."
+              className="w-40 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1.5 pl-7 pr-7 text-xs text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
+              </button>
+            )}
+          </div>
+          {/* View toggle */}
+          <div className="flex items-center rounded-md border border-[var(--border-subtle)] overflow-hidden">
+            <button
+              onClick={() => { setViewMode('tree'); localStorage.setItem('acf-view-mode', 'tree') }}
+              className={`p-1.5 transition-colors ${viewMode === 'tree' ? 'bg-[var(--portal)] text-white' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+              title="Tree view"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>folder_open</span>
+            </button>
+            <button
+              onClick={() => { setViewMode('grid'); localStorage.setItem('acf-view-mode', 'grid') }}
+              className={`p-1.5 transition-colors ${viewMode === 'grid' ? 'bg-[var(--portal)] text-white' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)]'}`}
+              title="Grid view"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>view_list</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Root files (Ai3, etc.) */}
+      {/* Completeness bar (TRK-579) */}
+      {completenessData && totalRequired > 0 && (
+        <div className="mb-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-[var(--text-primary)]">
+              {foundCount} / {totalRequired} required documents
+            </span>
+            <span className="text-xs font-bold" style={{ color: barColor }}>{completePct}%</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-[var(--bg-base)] overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${completePct}%`, background: barColor }} />
+          </div>
+          {completenessData.filter(d => !d.found).length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {completenessData.filter(d => !d.found).map(d => (
+                <span key={d.id} className="inline-flex items-center gap-1 rounded-md border border-dashed border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
+                  <span className="material-icons-outlined" style={{ fontSize: '10px' }}>radio_button_unchecked</span>
+                  {d.display_name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Root files (Ai3, etc.) — click opens preview */}
       {detail.root_files && detail.root_files.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-2">
           {detail.root_files.map((f) => (
-            <a
+            <button
               key={f.id}
-              href={`https://drive.google.com/file/d/${f.id}/view`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:border-[var(--portal)] transition-colors"
+              onClick={() => setPreviewFile({ id: f.id, name: f.name, mimeType: f.mimeType })}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)] transition-colors"
             >
               <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
                 {mimeIcon(f.mimeType)}
               </span>
               {f.name}
-            </a>
+            </button>
           ))}
         </div>
       )}
 
-      {/* Subfolder accordion */}
+      {/* Subfolder accordion (Tree view) */}
+      {viewMode === 'tree' && (
       <div className="space-y-1">
-        {detail.subfolders.map((sf) => (
+        {filteredSubfolders.map((sf) => {
+          const sfColor = subfolderColors[sf.name] || 'var(--portal)'
+          const isExpanded = expandedFolder === sf.id || (matchingSubfolderIds?.has(sf.id) ?? false)
+          const isEmpty = sf.files.length === 0
+          return (
           <div
             key={sf.id}
             data-subfolder={sf.name}
@@ -491,10 +650,18 @@ export function ACFSection({ clientId }: ACFSectionProps) {
             >
               <div className="flex items-center gap-2">
                 <span className={`material-icons-outlined ${dragOver === sf.name ? 'text-[var(--portal)]' : 'text-[var(--text-muted)]'}`} style={{ fontSize: '16px' }}>
-                  {dragOver === sf.name ? 'drive_file_move' : expandedFolder === sf.id ? 'folder_open' : 'folder'}
+                  {dragOver === sf.name ? 'drive_file_move' : isExpanded ? 'folder_open' : 'folder'}
                 </span>
-                <span className={`text-sm font-medium ${dragOver === sf.name ? 'text-[var(--portal)]' : 'text-[var(--text-primary)]'}`}>
-                  {dragOver === sf.name ? `Drop files into ${sf.name}` : sf.name}
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                  style={{
+                    background: `${sfColor}15`,
+                    color: sfColor,
+                    opacity: sf.file_count === 0 ? 0.5 : 1,
+                  }}
+                >
+                  {dragOver === sf.name ? `Drop into ${sf.name}` : sf.name}
+                  <span className="text-[10px] font-normal">({sf.file_count})</span>
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -504,22 +671,19 @@ export function ACFSection({ clientId }: ACFSectionProps) {
                     handleUpload(sf.name)
                   }}
                   disabled={uploading}
-                  className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)] disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-md bg-[var(--portal)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50"
                   title={`Upload file to ${sf.name}`}
                 >
-                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>
-                    {uploading && uploadTarget === sf.name ? 'hourglass_empty' : 'upload_file'}
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
+                    {uploading && uploadTarget === sf.name ? 'hourglass_empty' : 'cloud_upload'}
                   </span>
                   {uploading && uploadTarget === sf.name ? 'Uploading...' : 'Upload'}
                 </button>
-                <span className="text-xs text-[var(--text-muted)]">
-                  {sf.file_count} {sf.file_count === 1 ? 'file' : 'files'}
-                </span>
                 <span
                   className="material-icons-outlined text-[var(--text-muted)] transition-transform"
                   style={{
                     fontSize: '16px',
-                    transform: expandedFolder === sf.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                   }}
                 >
                   expand_more
@@ -528,7 +692,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
             </button>
 
             {/* Expanded file list */}
-            {expandedFolder === sf.id && sf.files.length > 0 && (
+            {isExpanded && sf.files.length > 0 && (
               <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-base)]">
                 {sf.files.map((f) => (
                   <div
@@ -572,28 +736,130 @@ export function ACFSection({ clientId }: ACFSectionProps) {
                       >
                         <span className="material-icons-outlined" style={{ fontSize: '14px' }}>drive_file_move</span>
                       </button>
+                      <button
+                        onClick={() => setDeleteFile({ id: f.id, name: f.name })}
+                        className="rounded p-1 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400"
+                        title="Delete file"
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>delete</span>
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             )}
 
-            {expandedFolder === sf.id && sf.files.length === 0 && (
+            {isExpanded && isEmpty && (
               <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-base)] px-4 py-3 text-xs text-[var(--text-muted)] italic">
                 No files in this subfolder
               </div>
             )}
           </div>
-        ))}
+          )
+        })}
       </div>
+      )}
 
-      {/* ── Preview Panel (slide-up overlay) ──────────────────────── */}
+      {/* Grid view (TRK-578) */}
+      {viewMode === 'grid' && (
+        <div className="rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-[var(--bg-surface)] text-[var(--text-muted)]">
+                {[
+                  { key: 'name', label: 'Name' },
+                  { key: 'subfolder', label: 'Subfolder' },
+                  { key: 'date', label: 'Modified' },
+                  { key: 'size', label: 'Size' },
+                ].map(col => (
+                  <th
+                    key={col.key}
+                    onClick={() => toggleSort(col.key)}
+                    className="px-3 py-2 text-left font-medium cursor-pointer hover:text-[var(--text-primary)] transition-colors select-none"
+                  >
+                    {col.label}
+                    {gridSort.col === col.key && (
+                      <span className="material-icons-outlined ml-0.5 align-middle" style={{ fontSize: '12px' }}>
+                        {gridSort.dir === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+                      </span>
+                    )}
+                  </th>
+                ))}
+                <th className="px-3 py-2 w-20" />
+              </tr>
+            </thead>
+            <tbody>
+              {sortedAllFiles.map(f => {
+                const sfColor = subfolderColors[f.subfolder] || 'var(--text-muted)'
+                return (
+                  <tr key={f.id} className="border-t border-[var(--border-subtle)] hover:bg-[var(--bg-surface)] transition-colors group">
+                    <td className="px-3 py-2">
+                      <button
+                        onClick={() => setPreviewFile({ id: f.id, name: f.name, mimeType: f.mimeType })}
+                        className="flex items-center gap-2 hover:text-[var(--portal)] transition-colors text-left"
+                      >
+                        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                          {mimeIcon(f.mimeType)}
+                        </span>
+                        <span className="truncate max-w-[200px]">{f.name}</span>
+                      </button>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ background: `${sfColor}15`, color: sfColor }}>
+                        {f.subfolder}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-[var(--text-muted)]">{new Date(f.modifiedTime).toLocaleDateString()}</td>
+                    <td className="px-3 py-2 text-[var(--text-muted)]">{formatSize(f.size)}</td>
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleDownload(f.id, f.name)} className="rounded p-1 hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--portal)]" title="Download">
+                          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>download</span>
+                        </button>
+                        <button onClick={() => setDeleteFile({ id: f.id, name: f.name })} className="rounded p-1 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400" title="Delete">
+                          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>delete</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+              {sortedAllFiles.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-3 py-6 text-center text-[var(--text-muted)] italic">
+                    {searchQuery ? 'No files match your search' : 'No files in ACF'}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Search no-results message (tree view) */}
+      {viewMode === 'tree' && searchQuery && filteredSubfolders.every(sf => sf.files.length === 0) && filteredRootFiles.length === 0 && (
+        <div className="rounded-lg border border-[var(--border-subtle)] px-4 py-6 text-center text-xs text-[var(--text-muted)] italic">
+          No files match &ldquo;{searchQuery}&rdquo;
+        </div>
+      )}
+
+      {/* ── Preview Panel (fullscreen-capable overlay) ─────────────── */}
       {previewFile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setPreviewFile(null)}
+          onClick={() => { if (isFullscreen) { setIsFullscreen(false) } else { setPreviewFile(null) } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') { if (isFullscreen) { setIsFullscreen(false) } else { setPreviewFile(null) } }
+            if (e.key === 'f' || e.key === 'F') { setIsFullscreen(p => !p) }
+          }}
+          tabIndex={0}
+          ref={(el) => el?.focus()}
         >
           <div
-            className="relative w-full max-w-4xl h-[80vh] rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl overflow-hidden flex flex-col"
+            className={`relative overflow-hidden flex flex-col transition-all duration-200 ${
+              isFullscreen
+                ? 'w-screen h-screen'
+                : 'w-[95vw] max-w-6xl h-[90vh] rounded-xl border border-[var(--border-subtle)] shadow-2xl'
+            } bg-[var(--bg-card)]`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Preview header */}
@@ -606,6 +872,13 @@ export function ACFSection({ clientId }: ACFSectionProps) {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button
+                  onClick={() => setDeleteFile({ id: previewFile.id, name: previewFile.name })}
+                  className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>delete</span>
+                  Delete
+                </button>
+                <button
                   onClick={() => handleDownload(previewFile.id, previewFile.name)}
                   className="flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-card)] transition-colors"
                 >
@@ -613,7 +886,16 @@ export function ACFSection({ clientId }: ACFSectionProps) {
                   Download
                 </button>
                 <button
-                  onClick={() => setPreviewFile(null)}
+                  onClick={() => setIsFullscreen(p => !p)}
+                  className="rounded-lg p-1.5 hover:bg-[var(--bg-card)] text-[var(--text-muted)] transition-colors"
+                  title={isFullscreen ? 'Exit fullscreen (F)' : 'Fullscreen (F)'}
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
+                    {isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => { setIsFullscreen(false); setPreviewFile(null) }}
                   className="rounded-lg p-1.5 hover:bg-[var(--bg-card)] text-[var(--text-muted)] transition-colors"
                 >
                   <span className="material-icons-outlined" style={{ fontSize: '20px' }}>close</span>
@@ -673,6 +955,45 @@ export function ACFSection({ clientId }: ACFSectionProps) {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Confirmation Modal ──────────────────────────────── */}
+      {deleteFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => !deleting && setDeleteFile(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-icons-outlined text-red-400" style={{ fontSize: '20px' }}>delete</span>
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Delete File</h3>
+                <p className="text-xs text-[var(--text-muted)] truncate max-w-[280px]">{deleteFile.name}</p>
+              </div>
+            </div>
+            <p className="text-xs text-[var(--text-muted)] mb-4">
+              This moves the file to trash. It can be recovered from Google Drive trash within 30 days.
+            </p>
+            <div className="flex items-center gap-3 justify-end">
+              <button
+                onClick={() => setDeleteFile(null)}
+                disabled={deleting}
+                className="rounded-lg border border-[var(--border-subtle)] px-4 py-2 text-xs font-medium text-[var(--text-muted)] hover:bg-[var(--bg-surface)] transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deleting}
+                className="rounded-lg bg-red-500 px-4 py-2 text-xs font-medium text-white hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}
