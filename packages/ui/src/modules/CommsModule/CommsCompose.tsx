@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { ActiveCallScreen } from './ActiveCallScreen'
 import type { ActiveCallData } from './ActiveCallScreen'
 
@@ -368,11 +368,10 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     searchTimerRef.current = setTimeout(async () => {
       setSearchLoading(true)
       try {
-        const res = await fetchWithAuth(`/api/clients?q=${encodeURIComponent(toSearch)}&limit=10`)
-        if (res.ok) {
-          const json = await res.json() as { success: boolean; data?: Array<Record<string, unknown>> }
-          if (json.success && json.data) {
-            setClientResults((Array.isArray(json.data) ? json.data : []).map((c) => ({
+        const res = await fetchValidated(`/api/clients?q=${encodeURIComponent(toSearch)}&limit=10`)
+        if (res.success) {
+              if (res.success && res.data) {
+            setClientResults((Array.isArray(res.data) ? res.data : []).map((c) => ({
               id: String(c.id || c.client_id || ''),
               name: `${c.first_name || ''} ${c.last_name || ''}`.trim(),
               phone: String(c.phone || c.mobile_phone || ''),
@@ -450,7 +449,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     setSmsSendState('sending')
     setSendError(null)
     try {
-      const res = await fetchWithAuth('/api/comms/send-sms', {
+      const res = await fetchValidated('/api/comms/send-sms', {
         method: 'POST',
         body: JSON.stringify({
           to: selectedClient.phone.replace(/[^0-9+]/g, ''),
@@ -458,8 +457,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
           client_id: selectedClient.id,
         }),
       })
-      const json = await res.json() as { success: boolean; error?: string }
-      if (!res.ok || !json.success) throw new Error(json.error || 'SMS send failed')
+      if (!res.success) throw new Error(res.error || 'SMS send failed')
       setSmsSendState('sent')
       setTimeout(() => { setSmsSendState('idle'); setMessage('') }, 2000)
     } catch (err) {
@@ -474,7 +472,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     setEmailSendState('sending')
     setSendError(null)
     try {
-      const res = await fetchWithAuth('/api/comms/send-email', {
+      const res = await fetchValidated('/api/comms/send-email', {
         method: 'POST',
         body: JSON.stringify({
           to: selectedClient.email,
@@ -483,8 +481,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
           client_id: selectedClient.id,
         }),
       })
-      const json = await res.json() as { success: boolean; error?: string }
-      if (!res.ok || !json.success) throw new Error(json.error || 'Email send failed')
+      if (!res.success) throw new Error(res.error || 'Email send failed')
       setEmailSendState('sent')
       setTimeout(() => { setEmailSendState('idle'); setMessage(''); setSubject('') }, 2000)
     } catch (err) {
@@ -500,7 +497,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     setSendError(null)
     try {
       const to = dialerNumber.replace(/[^0-9+]/g, '')
-      const res = await fetchWithAuth('/api/comms/send-voice', {
+      const res = await fetchValidated('/api/comms/send-voice', {
         method: 'POST',
         body: JSON.stringify({
           to: to.startsWith('+') ? to : `+1${to}`,
@@ -508,11 +505,10 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
           twiml: '<Response><Say>Connecting you now.</Say></Response>',
         }),
       })
-      const json = await res.json() as { success: boolean; data?: { callSid?: string }; error?: string }
-      if (!res.ok || !json.success) throw new Error(json.error || 'Call initiation failed')
+      if (!res.success) throw new Error(res.error || 'Call initiation failed')
       setCallState('active')
       setActiveCall({
-        callId: json.data?.callSid || `call-${Date.now()}`,
+        callId: (res.data as Record<string, unknown>)?.callSid as string || `call-${Date.now()}`,
         callerName: selectedClient?.name ?? 'Unknown',
         callerPhone: dialerNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3'),
         callerLabel: selectedClient?.book,
@@ -535,7 +531,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
     setLogCallState('sending')
     setSendError(null)
     try {
-      const res = await fetchWithAuth('/api/comms/log-call', {
+      const res = await fetchValidated('/api/comms/log-call', {
         method: 'POST',
         body: JSON.stringify({
           client_id: selectedClient.id,
@@ -546,8 +542,7 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
           recipient: selectedClient.phone?.replace(/[^0-9+]/g, '') || null,
         }),
       })
-      const json = await res.json() as { success: boolean; error?: string }
-      if (!res.ok || !json.success) throw new Error(json.error || 'Call log failed')
+      if (!res.success) throw new Error(res.error || 'Call log failed')
       setLogCallState('sent')
       setTimeout(() => {
         setLogCallState('idle')

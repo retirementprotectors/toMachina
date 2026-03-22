@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import type { ScorecardData } from './types'
 
 // ============================================================================
@@ -145,10 +145,9 @@ export default function ProZoneScorecard({
         if (isPipelineFilter && teamFilter !== 'ALL_PIPELINE') {
           params.set('pipeline', teamFilter)
         }
-        const res = await fetchWithAuth(`/api/prozone/scorecard?${params.toString()}`)
-        const json = await res.json() as { success: boolean; data?: ScorecardData; error?: string }
-        if (!cancelled && json.success && json.data) {
-          setData(json.data)
+        const result = await fetchValidated<ScorecardData>(`/api/prozone/scorecard?${params.toString()}`)
+        if (!cancelled && result.success && result.data) {
+          setData(result.data)
         }
       } catch {
         // Silently fail — metrics are supplementary

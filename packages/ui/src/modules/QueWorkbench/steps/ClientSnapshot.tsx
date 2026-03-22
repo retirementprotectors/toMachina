@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../../fetchWithAuth'
+import { fetchValidated } from '../../fetchValidated'
 import type { QueProductLine } from '../types'
 
 interface ClientSnapshotProps {
@@ -71,24 +71,18 @@ export function ClientSnapshot({ sessionId, productLine, onNext, onSessionCreate
     setLoading(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que/${sessionId}`)
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to load session' }))
-        setError((body as { error?: string }).error ?? 'Failed to load session')
+      const result = await fetchValidated<{ client_snapshot: SessionSnapshot; household_name: string }>(`/api/que/${sessionId}`)
+      if (!result.success) {
+        setError(result.error ?? 'Failed to load session')
         return
       }
-      const body = await res.json() as {
-        success: boolean
-        data?: { client_snapshot: SessionSnapshot; household_name: string }
-        error?: string
-      }
-      if (body.success && body.data) {
+      if (result.data) {
         setSnapshot({
-          ...body.data.client_snapshot,
-          household_name: body.data.household_name,
+          ...result.data.client_snapshot,
+          household_name: result.data.household_name,
         })
       } else {
-        setError(body.error ?? 'Unexpected response')
+        setError('Unexpected response')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
@@ -106,20 +100,18 @@ export function ClientSnapshot({ sessionId, productLine, onNext, onSessionCreate
     try {
       if (!sessionId) {
         // Create a new session
-        const res = await fetchWithAuth('/api/que', {
+        const result = await fetchValidated<{ session_id: string }>('/api/que', {
           method: 'POST',
           body: JSON.stringify({ product_line: productLine }),
         })
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({ error: 'Failed to create session' }))
-          setError((body as { error?: string }).error ?? 'Failed to create session')
+        if (!result.success) {
+          setError(result.error ?? 'Failed to create session')
           return
         }
-        const body = await res.json() as { success: boolean; data?: { session_id: string }; error?: string }
-        if (body.success && body.data) {
-          onSessionCreated(body.data.session_id)
+        if (result.data) {
+          onSessionCreated(result.data.session_id)
         } else {
-          setError(body.error ?? 'Failed to create session')
+          setError('Failed to create session')
           return
         }
       }

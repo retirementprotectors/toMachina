@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useState, useEffect, useMemo } from 'react'
 import type { FlowStageDef } from '@tomachina/core'
 import { TaskTemplateEditor } from './TaskTemplateEditor'
@@ -14,11 +14,6 @@ export interface StageEditorProps {
   apiBase?: string
 }
 
-interface StagesResponse {
-  success: boolean
-  data?: FlowStageDef[]
-  error?: string
-}
 
 /* ─── Stage Row ─── */
 
@@ -142,17 +137,16 @@ export function StageEditor({ pipelineKey, apiBase = '/api' }: StageEditorProps)
       try {
         setLoading(true)
         setError(null)
-        const res = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
-        const json: StagesResponse = await res.json()
+        const result = await fetchValidated<FlowStageDef[]>(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
 
         if (cancelled) return
 
-        if (!json.success || !json.data) {
-          setError(json.error || 'Failed to load stages')
+        if (!result.success || !result.data) {
+          setError(result.error || 'Failed to load stages')
           return
         }
 
-        setStages(Array.isArray(json.data) ? json.data : [])
+        setStages(Array.isArray(result.data) ? result.data : [])
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Network error')

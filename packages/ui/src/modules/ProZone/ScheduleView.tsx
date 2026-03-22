@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import type { ScheduleSlot, WeekSchedule } from './types'
 
 // ============================================================================
@@ -85,14 +85,15 @@ export default function ScheduleView({ specialistId, appointments = [] }: Schedu
         setLoading(true)
         setError(null)
         const weekKey = formatWeekKey(year, week)
-        const res = await fetchWithAuth(`/api/prozone/schedule/${specialistId}/${weekKey}`)
         interface ApiDay { date: string; day: string; type: string; slots: Array<{ time: string; duration_minutes: number; tier?: string; zones?: string[]; status: string; departure_time?: string; return_time?: string }> }
-        const json = await res.json() as { success: boolean; data?: { schedule: ApiDay[]; week: string; week_start: string; week_end: string }; error?: string }
+        const result = await fetchValidated<{ schedule: ApiDay[]; week: string; week_start: string; week_end: string }>(
+          `/api/prozone/schedule/${specialistId}/${weekKey}`
+        )
         if (!cancelled) {
-          if (json.success && json.data?.schedule) {
+          if (result.success && result.data?.schedule) {
             // Transform API day-grouped response into WeekSchedule
             const dayAbbrev: Record<string, ScheduleSlot['day']> = { Monday: 'mon', Tuesday: 'tue', Wednesday: 'wed', Thursday: 'thu', Friday: 'fri' }
-            const flatSlots: ScheduleSlot[] = (Array.isArray(json.data.schedule) ? json.data.schedule : []).flatMap((dayObj) =>
+            const flatSlots: ScheduleSlot[] = (Array.isArray(result.data.schedule) ? result.data.schedule : []).flatMap((dayObj) =>
               (dayObj.slots || []).map((s, idx) => ({
                 slot_id: `${dayObj.date}-${idx}`,
                 day: dayAbbrev[dayObj.day] || 'mon' as ScheduleSlot['day'],

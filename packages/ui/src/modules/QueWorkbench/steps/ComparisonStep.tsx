@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../../fetchWithAuth'
+import { fetchValidated } from '../../fetchValidated'
 import { QuoteCard } from '../shared/QuoteCard'
 
 interface ComparisonStepProps {
@@ -38,24 +38,14 @@ export function ComparisonStep({ sessionId, onNext, onBack }: ComparisonStepProp
     setLoading(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que/${sessionId}`)
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to load quotes' }))
-        setError((body as { error?: string }).error ?? 'Failed to load quotes')
+      const result = await fetchValidated<{ quotes: QuoteData[]; selected_quote_ids?: string[] }>(`/api/que/${sessionId}`)
+      if (!result.success) {
+        setError(result.error ?? 'Failed to load quotes')
         return
       }
-      const body = await res.json() as {
-        success: boolean
-        data?: { quotes: QuoteData[]; selected_quote_ids?: string[] }
-        error?: string
-      }
-      if (body.success && body.data) {
-        setQuotes(body.data.quotes ?? [])
-        if (body.data.selected_quote_ids?.length) {
-          setSelectedIds(new Set(body.data.selected_quote_ids))
-        }
-      } else {
-        setError(body.error ?? 'Unexpected response')
+      setQuotes(result.data?.quotes ?? [])
+      if (result.data?.selected_quote_ids?.length) {
+        setSelectedIds(new Set(result.data.selected_quote_ids))
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
@@ -85,13 +75,12 @@ export function ComparisonStep({ sessionId, onNext, onBack }: ComparisonStepProp
     setSaving(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que/${sessionId}`, {
+      const result = await fetchValidated(`/api/que/${sessionId}`, {
         method: 'PATCH',
         body: JSON.stringify({ selected_quote_ids: Array.from(selectedIds) }),
       })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to save selection' }))
-        setError((body as { error?: string }).error ?? 'Failed to save selection')
+      if (!result.success) {
+        setError(result.error ?? 'Failed to save selection')
         return
       }
       onNext()

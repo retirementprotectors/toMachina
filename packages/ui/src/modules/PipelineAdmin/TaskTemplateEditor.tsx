@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useState, useEffect, useMemo } from 'react'
 import type { FlowTaskTemplateDef } from '@tomachina/core'
 
@@ -14,11 +14,6 @@ export interface TaskTemplateEditorProps {
   apiBase?: string
 }
 
-interface TaskTemplatesResponse {
-  success: boolean
-  data?: FlowTaskTemplateDef[]
-  error?: string
-}
 
 /* ─── Helpers ─── */
 
@@ -147,19 +142,18 @@ export function TaskTemplateEditor({
       try {
         setLoading(true)
         setError(null)
-        const res = await fetchWithAuth(
+        const result = await fetchValidated<FlowTaskTemplateDef[]>(
           `${apiBase}/flow/pipelines/${pipelineKey}/stages/${stageId}/tasks`
         )
-        const json: TaskTemplatesResponse = await res.json()
 
         if (cancelled) return
 
-        if (!json.success || !json.data) {
-          setError(json.error || 'Failed to load task templates')
+        if (!result.success || !result.data) {
+          setError(result.error || 'Failed to load task templates')
           return
         }
 
-        setTemplates(Array.isArray(json.data) ? json.data : [])
+        setTemplates(Array.isArray(result.data) ? result.data : [])
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Network error')

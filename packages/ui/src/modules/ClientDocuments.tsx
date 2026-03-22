@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /**
  * Client Documents Checklist — shows expected documents on the Client Detail page.
@@ -36,9 +36,8 @@ export function ClientDocuments({ clientId }: ClientDocumentsProps) {
   const loadDocs = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth(`/api/document-index/client/${clientId}`)
-      const json = await res.json()
-      if (json.success) setDocs(json.data || [])
+      const res = await fetchValidated<LinkedDoc[]>(`/api/document-index/client/${clientId}`)
+      if (res.success) setDocs(res.data || [])
     } catch {
       // Silently fail
     } finally {
