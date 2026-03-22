@@ -23,6 +23,7 @@ import {
   renameFile,
   searchFoldersByName,
   uploadFileToDrive,
+  trashFile,
 } from '../lib/drive-client.js'
 import type {
   ACFConfig,
@@ -994,5 +995,25 @@ acfRoutes.post('/:clientId/move', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('POST /api/acf/:clientId/move error:', err)
     res.status(500).json(errorResponse('Failed to move file'))
+  }
+})
+
+// ---------------------------------------------------------------------------
+// DELETE /file/:fileId — Soft-delete (trash) a file
+// ---------------------------------------------------------------------------
+acfRoutes.delete('/file/:fileId', async (req: Request, res: Response) => {
+  try {
+    const fileId = param(req.params.fileId)
+    if (!fileId) {
+      res.status(400).json(errorResponse('fileId is required'))
+      return
+    }
+
+    await trashFile(fileId)
+
+    res.json(successResponse({ trashed: true, file_id: fileId }))
+  } catch (err) {
+    console.error('DELETE /api/acf/file/:fileId error:', err)
+    res.status(500).json(errorResponse('Failed to delete file'))
   }
 })

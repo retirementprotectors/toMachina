@@ -86,16 +86,32 @@ export function ClientDocuments({ clientId }: ClientDocumentsProps) {
           </button>
         ))}
         {missing.map((doc) => (
-          <span
+          <button
             key={doc.id}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--text-muted)]"
-            title={`No ${doc.display_name} on file — upload to Client subfolder in ACF`}
+            onClick={() => {
+              // Trigger file upload scoped to Client subfolder
+              const input = document.createElement('input')
+              input.type = 'file'
+              input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.txt'
+              input.onchange = () => {
+                // Upload will be handled by parent ACFSection — dispatch custom event
+                const file = input.files?.[0]
+                if (file) {
+                  window.dispatchEvent(new CustomEvent('acf-upload-request', {
+                    detail: { file, subfolder: 'Client', docType: doc.display_name },
+                  }))
+                }
+              }
+              input.click()
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--text-muted)] hover:border-[var(--portal)] hover:text-[var(--portal)] transition-colors cursor-pointer"
+            title={`Upload ${doc.display_name} to Client subfolder`}
           >
             <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-              radio_button_unchecked
+              add_circle_outline
             </span>
             <span>{doc.display_name}</span>
-          </span>
+          </button>
         ))}
       </div>
 

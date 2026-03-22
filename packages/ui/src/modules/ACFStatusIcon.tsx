@@ -62,16 +62,12 @@ export function ACFStatusIcon({ clientId, gdriveFolderUrl }: ACFStatusIconProps)
   // Loading
   if (loading || !status) {
     return (
-      <a
-        href={gdriveFolderUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        className="inline-flex items-center justify-center text-[var(--portal)] hover:brightness-110 transition-colors"
-        title="Open Active Client File"
+      <span
+        className="inline-flex items-center justify-center text-[var(--portal)]"
+        title="Loading ACF status..."
       >
         <span className="material-icons-outlined text-[18px]">folder_open</span>
-      </a>
+      </span>
     )
   }
 
@@ -96,18 +92,14 @@ export function ACFStatusIcon({ clientId, gdriveFolderUrl }: ACFStatusIconProps)
 
   return (
     <div className="relative inline-flex">
-      <a
-        href={gdriveFolderUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
+      <span
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
-        className={`inline-flex items-center justify-center ${color} hover:brightness-110 transition-colors`}
+        className={`inline-flex items-center justify-center ${color}`}
         title={label}
       >
         <span className="material-icons-outlined text-[18px]">{icon}</span>
-      </a>
+      </span>
 
       {/* Tooltip */}
       {showTooltip && status.exists && (
