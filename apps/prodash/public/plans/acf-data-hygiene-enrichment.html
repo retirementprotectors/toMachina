@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACF Data Hygiene &amp; Enrichment | FORGE Discovery</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; max-width: 960px; margin: 0 auto; padding: 40px 20px; line-height: 1.7; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 16px; padding: 32px; margin-bottom: 32px; border: 1px solid #30363d; }
+  .header .brand { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+  .header h1 { font-size: 28px; margin: 8px 0; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { color: #8b949e; margin: 4px 0; font-size: 14px; }
+  .header .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #a78bfa22; color: #a78bfa; border: 1px solid #a78bfa44; margin-top: 12px; }
+
+  /* Section Headers */
+  h2 { font-size: 20px; margin-top: 48px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #21262d; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  h3 { color: #58a6ff; font-size: 16px; margin-top: 28px; margin-bottom: 12px; }
+  h4 { color: #7ee787; font-size: 14px; margin-top: 20px; margin-bottom: 8px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th, td { padding: 10px 12px; border: 1px solid #21262d; text-align: left; }
+  th { background: #161b22; font-weight: 600; background: linear-gradient(90deg, #4a7ab522, #a78bfa11); color: #58a6ff; }
+  tr:nth-child(even) td { background: #161b2266; }
+  tr:nth-child(odd) td { background: #0d111799; }
+
+  /* Code */
+  code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #d2a8ff; }
+  pre { background: #161b22; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-size: 13px; border: 1px solid #21262d; line-height: 1.5; color: #c9d1d9; }
+
+  /* Cards / Phases */
+  .phase { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 20px 24px; margin: 16px 0; }
+
+  /* Stats */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat-card { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-card .number { font-size: 28px; font-weight: 700; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-card .label { font-size: 12px; color: #8b949e; margin-top: 4px; }
+
+  /* Status colors */
+  .grade-a { color: #7ee787; font-weight: 600; }
+  .grade-d { color: #f0883e; font-weight: 600; }
+  .status-good { color: #7ee787; }
+  .status-warn { color: #d29922; }
+  .status-bad { color: #f85149; }
+  .status-info { color: #58a6ff; }
+  .not-needed { color: #8b949e; font-style: italic; }
+
+  /* Lists */
+  ul { padding-left: 20px; margin: 8px 0; }
+  ul li { margin-bottom: 6px; font-size: 14px; }
+  li strong { color: #d2a8ff; }
+
+  /* Blockquote */
+  blockquote { border-left: 3px solid #a78bfa; padding-left: 16px; color: #8b949e; font-style: italic; margin: 16px 0; }
+
+  /* Tags */
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .tag-tool { background: #a78bfa22; color: #a78bfa; }
+  .tag-wire { background: #58a6ff22; color: #58a6ff; }
+  .tag-script { background: #7ee78722; color: #7ee787; }
+
+  /* Risk levels */
+  .risk-low { color: #7ee787; }
+  .risk-med { color: #d29922; }
+  .risk-high { color: #f85149; }
+
+  /* Arrows */
+  .arrow-right { color: #484f58; }
+  .arrow-down { color: #484f58; }
+
+  /* Dependency graph */
+  .dep-graph { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; margin: 16px 0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.8; color: #c9d1d9; overflow-x: auto; white-space: pre; }
+  .dep-graph .ticket { color: #d2a8ff; font-weight: 600; }
+  .dep-graph .title { color: #58a6ff; }
+  .dep-graph .converge { color: #7ee787; font-weight: 600; }
+
+  /* Success criteria */
+  .criteria-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; margin: 16px 0; }
+  .criteria-cell { padding: 10px 14px; font-size: 13px; }
+  .criteria-header { background: #161b22; color: #58a6ff; font-weight: 600; }
+  .criteria-before { background: #f8514922; color: #f85149; text-align: center; }
+  .criteria-after { background: #7ee78722; color: #7ee787; text-align: center; font-weight: 600; }
+  .criteria-label { background: #161b22; color: #c9d1d9; }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid #21262d; margin: 40px 0; }
+
+  /* Footer */
+  .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #21262d; text-align: center; color: #484f58; font-size: 12px; }
+
+  /* Print */
+  @media print {
+    body { background: #fff; color: #1a1a1a; padding: 20px; }
+    .header { background: #f6f8fa; border-color: #d0d7de; }
+    .header .brand, .header h1 { -webkit-text-fill-color: #4a7ab5; }
+    .header p { color: #57606a; }
+    .header .badge { background: #f6f8fa; color: #6639ba; border-color: #d0d7de; }
+    h2 { -webkit-text-fill-color: #4a7ab5; border-color: #d0d7de; }
+    h3 { color: #0550ae; }
+    h4 { color: #1a7f37; }
+    th { background: #f6f8fa; color: #24292f; }
+    th, td { border-color: #d0d7de; }
+    tr:nth-child(even) td { background: #f6f8fa; }
+    tr:nth-child(odd) td { background: #fff; }
+    code { background: #f6f8fa; color: #6639ba; }
+    pre { background: #f6f8fa; border-color: #d0d7de; color: #24292f; }
+    .phase { background: #f6f8fa; border-color: #d0d7de; }
+    .stat-card { background: #f6f8fa; border-color: #d0d7de; }
+    .stat-card .number { -webkit-text-fill-color: #4a7ab5; }
+    .dep-graph { background: #f6f8fa; border-color: #d0d7de; color: #24292f; }
+    .footer { color: #8b949e; }
+    .status-good { color: #1a7f37; }
+    .status-bad { color: #cf222e; }
+    .status-warn { color: #9a6700; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- HEADER                                                        -->
+<!-- ============================================================ -->
+<div class="header">
+  <div class="brand">toMachina &mdash; FORGE</div>
+  <h1>ACF Data Hygiene &amp; Enrichment</h1>
+  <p>Sprint Discovery Document &mdash; 7 tickets &mdash; TRK-ACF-001 &rarr; TRK-ACF-007</p>
+  <p>Date: March 22, 2026 &mdash; Author: Claude Code GA</p>
+  <span class="badge">DISCOVERY</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. EXECUTIVE SUMMARY                                          -->
+<!-- ============================================================ -->
+<h2>1. Executive Summary</h2>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="number">277</div>
+    <div class="label">ACF Folders Audited</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">5,078</div>
+    <div class="label">Clients Scanned</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">19,322</div>
+    <div class="label">Accounts Scanned</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">1,943</div>
+    <div class="label">Total Data Issues</div>
+  </div>
+</div>
+
+<div class="phase">
+  <table>
+    <tr><th style="width:35%">Metric</th><th style="width:20%">Count</th><th>Assessment</th></tr>
+    <tr><td>Client duplicates</td><td class="status-bad">149</td><td>matchClient scoring: SSN+name, email, phone+lastname, name+DOB, fuzzy</td></tr>
+    <tr><td>Account duplicates</td><td class="status-bad">500</td><td>matchAccount: policy_number + carrier across 4 subcollections</td></tr>
+    <tr><td>Orphan accounts</td><td class="status-bad">1,294</td><td>No valid client_id link &mdash; largest issue category</td></tr>
+    <tr><td>Drive duplicate file sets</td><td class="status-good">2 sets (2.6 MB)</td><td>Drive health is clean</td></tr>
+    <tr><td>File naming</td><td class="grade-d">Grade D (1,807+ original names)</td><td><strong>NOT being fixed</strong> &mdash; SUPER_EXTRACT makes filenames irrelevant</td></tr>
+    <tr><td>Household folder restructure</td><td class="not-needed">NOT needed</td><td>Firestore household model provides aggregation at the data layer</td></tr>
+    <tr><td>Folder stragglers</td><td class="status-warn">3 folders</td><td>Kay Cline (2 duplicate folders), GARY ROSENTRETER (mixed caps), Malone (trailing comma)</td></tr>
+  </table>
+</div>
+
+<blockquote>1,943 data issues across 5,078 clients and 19,322 accounts. The infrastructure to fix all of them already exists in ATLAS. This sprint wires the tools together, runs them, and gets to zero.</blockquote>
+
+<!-- ============================================================ -->
+<!-- 2. CURRENT STATE ASSESSMENT                                   -->
+<!-- ============================================================ -->
+<h2>2. Current State Assessment</h2>
+
+<h3>Data Layer (Firestore)</h3>
+
+<div class="phase">
+  <p><strong>Last reconciliation:</strong> March 16, 2026</p>
+  <table>
+    <tr><th>Issue Type</th><th>Count</th><th>Detection Method</th></tr>
+    <tr>
+      <td>Client duplicates</td>
+      <td class="status-bad">149</td>
+      <td>matchClient scoring &mdash; 5 priority tiers: SSN+name, email, phone+lastname, name+DOB, fuzzy name</td>
+    </tr>
+    <tr>
+      <td>Account duplicates</td>
+      <td class="status-bad">500</td>
+      <td>matchAccount &mdash; policy_number + carrier match across 4 subcollections (investments, life, annuity, medicare)</td>
+    </tr>
+    <tr>
+      <td>Orphan accounts</td>
+      <td class="status-bad">1,294</td>
+      <td>Accounts with no valid client_id link in parent collection</td>
+    </tr>
+  </table>
+</div>
+
+<h3>File Layer (Google Drive)</h3>
+
+<div class="phase">
+  <table>
+    <tr><th>Aspect</th><th>Grade</th><th>Detail</th></tr>
+    <tr>
+      <td>Folder structure</td>
+      <td class="grade-a">A+</td>
+      <td>277 ACF folders with 5-subfolder lifecycle (Client, Cases, NewBiz, Account, Reactive)</td>
+    </tr>
+    <tr>
+      <td>Folder naming</td>
+      <td class="grade-a">A+</td>
+      <td>99% standardized to <code>ACF - FirstName LastName</code> format</td>
+    </tr>
+    <tr>
+      <td>File naming</td>
+      <td class="grade-d">D</td>
+      <td>1,807+ files with original names (DL.jpg, voided check.jpg, etc.) &mdash; NOT a blocker for SUPER_EXTRACT</td>
+    </tr>
+    <tr>
+      <td>Drive dedup</td>
+      <td class="grade-a">Clean</td>
+      <td>2 duplicate sets, 2.6 MB wasted &mdash; negligible</td>
+    </tr>
+    <tr>
+      <td>Template files</td>
+      <td class="status-warn">Purge target</td>
+      <td>Dickson Ai3 templates scattered in client folders</td>
+    </tr>
+  </table>
+</div>
+
+<h3>ATLAS Infrastructure (Available &amp; Functional)</h3>
+
+<h4>Super Tools <span class="tag tag-tool">packages/core/src/atlas/super-tools/</span></h4>
+
+<div class="phase">
+  <table>
+    <tr><th>Tool</th><th>File</th><th>What It Does</th></tr>
+    <tr><td><strong>SUPER_EXTRACT</strong></td><td>extract.ts</td><td>CSV + Vision mode, proven prompts from watcher.js</td></tr>
+    <tr><td><strong>SUPER_VALIDATE</strong></td><td>validate.ts</td><td>Record qualification gate</td></tr>
+    <tr><td><strong>SUPER_NORMALIZE</strong></td><td>normalize.ts</td><td>90+ field normalizers, 16 types</td></tr>
+    <tr><td><strong>SUPER_MATCH</strong></td><td>match.ts</td><td>Dedup against existing records</td></tr>
+    <tr><td><strong>SUPER_WRITE</strong></td><td>write.ts</td><td>Batch write to Firestore</td></tr>
+  </table>
+</div>
+
+<h4>Matching Library <span class="tag tag-tool">packages/core/src/matching/dedup.ts</span></h4>
+
+<div class="phase">
+  <table>
+    <tr><th>Function</th><th>Purpose</th></tr>
+    <tr><td><code>matchClient()</code></td><td>5 priority tiers: SSN+name &rarr; email &rarr; phone+lastname &rarr; name+DOB &rarr; fuzzy</td></tr>
+    <tr><td><code>matchAccount()</code></td><td>Searches 4 subcollections: investments, life, annuity, medicare</td></tr>
+    <tr><td><code>matchAgent()</code></td><td>NPN &rarr; email &rarr; fuzzy name</td></tr>
+    <tr><td><code>findDuplicates()</code></td><td>O(n&sup2;) comparison with configurable threshold</td></tr>
+    <tr><td><code>batchMatch()</code></td><td>Bulk matching with structured results</td></tr>
+    <tr><td><code>calculateNameScore()</code></td><td>60% last + 40% first weighted</td></tr>
+    <tr><td><code>calculateMatchScore()</code></td><td>Average across specified fields</td></tr>
+  </table>
+</div>
+
+<h4>Wires <span class="tag tag-wire">16 defined in services/api/src/routes/atlas.ts</span></h4>
+
+<div class="phase">
+  <table>
+    <tr><th>Wire</th><th>Purpose</th></tr>
+    <tr><td><code>WIRE_CLIENT_ENRICHMENT</code></td><td>WhitePages + normalization</td></tr>
+    <tr><td><code>WIRE_VALIDATION_PIPELINE</code></td><td>Phone/email quality scoring</td></tr>
+    <tr><td><code>WIRE_MAPD_ENROLLMENT</code></td><td>Medicare enrollment processing</td></tr>
+    <tr><td><code>WIRE_COMMISSION_SYNC</code></td><td>Commission data synchronization</td></tr>
+    <tr><td colspan="2" style="color: #8b949e; font-style: italic;">+ 12 additional wires</td></tr>
+  </table>
+
+  <h4 style="margin-top: 16px;">Wire Execution API</h4>
+  <ul>
+    <li><code>POST /api/wire/execute</code> &mdash; dry_run default</li>
+    <li><code>GET /api/wire/status/:id</code> &mdash; check wire progress</li>
+    <li><code>POST /api/wire/resume/:id</code> &mdash; resume paused wire</li>
+  </ul>
+</div>
+
+<h4>Scripts <span class="tag tag-script">Standalone executables</span></h4>
+
+<div class="phase">
+  <table>
+    <tr><th>Script</th><th>Purpose</th></tr>
+    <tr><td><code>atlas-import-run.ts</code></td><td>Full 5-stage pipeline: EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</td></tr>
+    <tr><td><code>dickson-dedup.ts</code></td><td>ACF template file cleanup (dry run default)</td></tr>
+    <tr><td><code>atlas-introspect-dryrun.ts</code></td><td>Column mapping analysis (read-only)</td></tr>
+  </table>
+</div>
+
+<h4>ATLAS Registered but NOT Implemented (Gap)</h4>
+
+<div class="phase">
+  <table>
+    <tr><th>Registered Name</th><th>Use Instead</th></tr>
+    <tr><td><code>getDuplicateClusters</code></td><td><code>reconcileClients()</code> flow</td></tr>
+    <tr><td><code>scoreDuplicateMatch</code></td><td><code>calculateMatchScore()</code></td></tr>
+    <tr><td><code>previewMerge</code></td><td><code>mergeRecords(dryRun: true)</code></td></tr>
+  </table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3. WHAT WE'RE NOT BUILDING                                    -->
+<!-- ============================================================ -->
+<h2>3. What We're NOT Building (and Why)</h2>
+
+<div class="phase">
+  <table>
+    <tr><th style="width:30%">Rejected Scope</th><th>Reason</th></tr>
+    <tr>
+      <td><strong>File rename tool</strong></td>
+      <td>SUPER_EXTRACT reads content, not filenames. Metadata lives in Firestore, not Drive file names. Renaming 1,807 files creates risk with zero upside.</td>
+    </tr>
+    <tr>
+      <td><strong>Household folder restructure</strong></td>
+      <td>Firestore household model aggregates across household members at the data layer. Physical Drive reorganization by household is unnecessary and risky.</td>
+    </tr>
+    <tr>
+      <td><strong>Any GAS/RAPID/MATRIX tools</strong></td>
+      <td>toMachina stack only. Zero GAS dependencies. All tools in <code>packages/core/</code> and <code>services/api/</code>.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 4. TARGET ARCHITECTURE                                        -->
+<!-- ============================================================ -->
+<h2>4. Target Architecture</h2>
+
+<blockquote>After this sprint, the ACF data layer is clean, complete, and enriched. Every client record that has documents in Drive has those documents extracted into structured Firestore fields.</blockquote>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="number">0</div>
+    <div class="label">Client Duplicates (from 149)</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">0</div>
+    <div class="label">Account Duplicates (from 500)</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">0</div>
+    <div class="label">Orphan Accounts (from 1,294)</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">0</div>
+    <div class="label">Total Issues (from 1,943)</div>
+  </div>
+</div>
+
+<div class="phase">
+  <h4>End-State Capabilities</h4>
+  <ul>
+    <li>Every ACF document extracted with full metadata in Firestore</li>
+    <li>Client records enriched with <strong>DOB, SSN4, address, phone, email, Medicare #, spouse</strong> from their own documents</li>
+    <li>WhitePages fill for remaining gaps after document extraction</li>
+    <li>All records normalized via SUPER_NORMALIZE (90+ normalizers, 16 types)</li>
+    <li>Post-sprint reconciliation confirms zero issues</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 5. SPRINT DELIVERABLES                                        -->
+<!-- ============================================================ -->
+<h2>5. Sprint Deliverables (7 Tickets)</h2>
+
+<table>
+  <tr>
+    <th style="width:5%">#</th>
+    <th style="width:14%">Ticket</th>
+    <th style="width:25%">Title</th>
+    <th style="width:28%">Dependencies</th>
+    <th style="width:28%">Tools / Wires</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td><code>TRK-ACF-001</code></td>
+    <td>ACF Template Purge</td>
+    <td>None</td>
+    <td><span class="tag tag-script">dickson-dedup.ts</span></td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><code>TRK-ACF-002</code></td>
+    <td>Client Dedup (149)</td>
+    <td>After #1</td>
+    <td><span class="tag tag-tool">findDuplicates</span> <span class="tag tag-tool">matchClient</span> <span class="tag tag-tool">SUPER_MATCH</span></td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><code>TRK-ACF-003</code></td>
+    <td>Account Dedup (500)</td>
+    <td>After #2</td>
+    <td><span class="tag tag-tool">matchAccount</span> policy+carrier matching</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><code>TRK-ACF-004</code></td>
+    <td>Orphan Resolution (1,294)</td>
+    <td>After #2</td>
+    <td><span class="tag tag-tool">matchClient (5-tier)</span> <span class="tag tag-tool">batchMatch</span></td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><code>TRK-ACF-005</code></td>
+    <td>SUPER_EXTRACT Run</td>
+    <td>After #1</td>
+    <td><span class="tag tag-tool">SUPER_EXTRACT (vision)</span> <span class="tag tag-script">atlas-import-run.ts</span></td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td><code>TRK-ACF-006</code></td>
+    <td>Client Enrichment</td>
+    <td>After #4 + #5</td>
+    <td><span class="tag tag-wire">WIRE_CLIENT_ENRICHMENT</span> WhitePages <span class="tag tag-tool">SUPER_NORMALIZE</span></td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td><code>TRK-ACF-007</code></td>
+    <td>Post-Run Reconciliation</td>
+    <td>After #6</td>
+    <td><span class="tag tag-tool">findDuplicates</span> reconciliation, health report</td>
+  </tr>
+</table>
+
+<div class="phase">
+  <p><strong>Key sequencing note:</strong> #2/#3/#4 are sequential (dedup before orphan linking). #5 can run in <strong>PARALLEL</strong> with #2/#3/#4 (extraction does not depend on dedup). #6 depends on BOTH chains completing.</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- 6. PARALLELIZATION OPPORTUNITIES                              -->
+<!-- ============================================================ -->
+<h2>6. Parallelization Opportunities</h2>
+
+<div class="dep-graph"><span class="ticket">TRK-ACF-001</span> <span class="title">(Template Purge)</span>
+    |
+    +-----------------------------------------------+
+    |                                               |
+    v                                               v
+<span class="ticket">TRK-ACF-002</span> <span class="title">(Client Dedup)</span>                  <span class="ticket">TRK-ACF-005</span> <span class="title">(SUPER_EXTRACT)</span>
+    |                                               |
+    v                                               |
+<span class="ticket">TRK-ACF-003</span> <span class="title">(Account Dedup)</span>                 |
+    |                                               |
+    v                                               |
+<span class="ticket">TRK-ACF-004</span> <span class="title">(Orphan Resolution)</span>             |
+    |                                               |
+    +-----------------------------------------------+
+                        |
+                        v
+            <span class="converge">TRK-ACF-006</span> <span class="title">(Client Enrichment)</span>
+                        |
+                        v
+            <span class="converge">TRK-ACF-007</span> <span class="title">(Post-Run Reconciliation)</span></div>
+
+<div class="phase">
+  <h4>Two Parallel Tracks After Template Purge</h4>
+  <table>
+    <tr><th>Track</th><th>Tickets</th><th>Estimated Time</th></tr>
+    <tr>
+      <td><strong>Dedup Chain</strong></td>
+      <td>#2 &rarr; #3 &rarr; #4</td>
+      <td>Client dedup, then account dedup, then orphan linking. Sequential because merges change client_ids that downstream operations reference.</td>
+    </tr>
+    <tr>
+      <td><strong>Extraction</strong></td>
+      <td>#5</td>
+      <td>SUPER_EXTRACT runs on 1,807 files via Vision mode. Independent of dedup &mdash; reads documents, doesn't modify client records.</td>
+    </tr>
+    <tr>
+      <td><strong>Convergence</strong></td>
+      <td>#6 &rarr; #7</td>
+      <td>Enrichment starts only when BOTH tracks complete. Final reconciliation verifies zero issues.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 7. RISK ASSESSMENT                                            -->
+<!-- ============================================================ -->
+<h2>7. Risk Assessment</h2>
+
+<table>
+  <tr><th style="width:20%">Risk Area</th><th style="width:10%">Level</th><th>Mitigation</th></tr>
+  <tr>
+    <td>Client merge</td>
+    <td class="risk-med">Medium</td>
+    <td><strong>Dry run first</strong> &mdash; JDM reviews all proposed merges before live execution. Every merge logged to audit trail. Reversible.</td>
+  </tr>
+  <tr>
+    <td>Account merge</td>
+    <td class="risk-med">Medium</td>
+    <td><strong>Dry run first</strong> &mdash; preview all merges with full before/after comparison. Policy number + carrier must be exact match.</td>
+  </tr>
+  <tr>
+    <td>Orphan linking</td>
+    <td class="risk-med">Medium</td>
+    <td>Confidence threshold <strong>85+</strong> for auto-link. Below-threshold flagged for manual review. No silent assignments.</td>
+  </tr>
+  <tr>
+    <td>SUPER_EXTRACT cost</td>
+    <td class="risk-low">Low</td>
+    <td>$0.01&ndash;$0.03/page, ~1,807 files. <strong>Estimated cost: $18&ndash;$54</strong>. Well within budget.</td>
+  </tr>
+  <tr>
+    <td>WhitePages quota</td>
+    <td class="risk-low">Low</td>
+    <td>Check usage quota before bulk enrichment. Stage requests to stay within rate limits.</td>
+  </tr>
+  <tr>
+    <td>Data loss</td>
+    <td class="risk-low">Low</td>
+    <td>All operations are reversible via audit trail. dry_run is the default for every wire execution.</td>
+  </tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- 8. SUCCESS CRITERIA                                           -->
+<!-- ============================================================ -->
+<h2>8. Success Criteria</h2>
+
+<table>
+  <tr>
+    <th style="width:45%">Metric</th>
+    <th style="width:25%; text-align:center">Before</th>
+    <th style="width:25%; text-align:center">Target</th>
+  </tr>
+  <tr>
+    <td>Total data issues</td>
+    <td style="text-align:center" class="status-bad">1,943</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Client duplicates</td>
+    <td style="text-align:center" class="status-bad">149</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Account duplicates</td>
+    <td style="text-align:center" class="status-bad">500</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Orphan accounts</td>
+    <td style="text-align:center" class="status-bad">1,294</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with DOB</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Measure after</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with phone</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Measure after</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with email</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Measure after</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with address</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Measure after</strong></td>
+  </tr>
+</table>
+
+<div class="phase">
+  <p><strong>Verification method:</strong> TRK-ACF-007 runs a full <code>findDuplicates()</code> + orphan scan + field coverage report. The sprint is not complete until the reconciliation report shows zero issues across all categories.</p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- FOOTER                                                        -->
+<!-- ============================================================ -->
+<div class="footer">
+  <p>Generated by Claude Code &mdash; FORGE Sprint Discovery Document</p>
+  <p>toMachina &bull; Retirement Protectors, Inc. &bull; March 2026</p>
+</div>
+
+</body>
+</html>

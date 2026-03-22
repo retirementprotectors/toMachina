@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACF Data Hygiene &amp; Enrichment | FORGE Implementation Plan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; max-width: 960px; margin: 0 auto; padding: 40px 20px; line-height: 1.7; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 16px; padding: 32px; margin-bottom: 32px; border: 1px solid #30363d; }
+  .header .brand { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+  .header h1 { font-size: 28px; margin: 8px 0; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { color: #8b949e; margin: 4px 0; font-size: 14px; }
+  .header .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #58a6ff22; color: #58a6ff; border: 1px solid #58a6ff44; margin-top: 12px; }
+
+  /* Section Headers */
+  h2 { font-size: 20px; margin-top: 48px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #21262d; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  h3 { color: #58a6ff; font-size: 16px; margin-top: 28px; margin-bottom: 12px; }
+  h4 { color: #7ee787; font-size: 14px; margin-top: 20px; margin-bottom: 8px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th, td { padding: 10px 12px; border: 1px solid #21262d; text-align: left; }
+  th { background: #161b22; font-weight: 600; background: linear-gradient(90deg, #4a7ab522, #a78bfa11); color: #58a6ff; }
+  tr:nth-child(even) td { background: #161b2266; }
+  tr:nth-child(odd) td { background: #0d111799; }
+
+  /* Code */
+  code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #d2a8ff; }
+  pre { background: #161b22; padding: 16px 20px; border-radius: 8px; overflow-x: auto; font-size: 13px; border: 1px solid #21262d; line-height: 1.5; color: #c9d1d9; }
+
+  /* Cards / Phases */
+  .phase { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 20px 24px; margin: 16px 0; }
+
+  /* Stats */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat-card { background: #161b22; border: 1px solid #21262d; border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-card .number { font-size: 28px; font-weight: 700; background: linear-gradient(90deg, #4a7ab5, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-card .label { font-size: 12px; color: #8b949e; margin-top: 4px; }
+
+  /* Status colors */
+  .grade-a { color: #7ee787; font-weight: 600; }
+  .grade-d { color: #f0883e; font-weight: 600; }
+  .status-good { color: #7ee787; }
+  .status-warn { color: #d29922; }
+  .status-bad { color: #f85149; }
+  .status-info { color: #58a6ff; }
+  .not-needed { color: #8b949e; font-style: italic; }
+
+  /* Lists */
+  ul, ol { padding-left: 20px; margin: 8px 0; }
+  ul li, ol li { margin-bottom: 6px; font-size: 14px; }
+  li strong { color: #d2a8ff; }
+
+  /* Blockquote */
+  blockquote { border-left: 3px solid #a78bfa; padding-left: 16px; color: #8b949e; font-style: italic; margin: 16px 0; }
+
+  /* Tags */
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .tag-tool { background: #a78bfa22; color: #a78bfa; }
+  .tag-wire { background: #58a6ff22; color: #58a6ff; }
+  .tag-script { background: #7ee78722; color: #7ee787; }
+  .tag-new { background: #f0883e22; color: #f0883e; }
+  .tag-existing { background: #8b949e22; color: #8b949e; }
+
+  /* Risk levels */
+  .risk-low { color: #7ee787; }
+  .risk-med { color: #d29922; }
+  .risk-high { color: #f85149; }
+
+  /* Dependency graph */
+  .dep-graph { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; margin: 16px 0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.8; color: #c9d1d9; overflow-x: auto; white-space: pre; }
+  .dep-graph .ticket { color: #d2a8ff; font-weight: 600; }
+  .dep-graph .title { color: #58a6ff; }
+  .dep-graph .converge { color: #7ee787; font-weight: 600; }
+  .dep-graph .phase-label { color: #f0883e; font-weight: 600; }
+  .dep-graph .parallel { color: #d29922; }
+
+  /* Step list */
+  .step-list { counter-reset: step; list-style: none; padding-left: 0; }
+  .step-list li { counter-increment: step; padding: 8px 0 8px 36px; position: relative; font-size: 14px; }
+  .step-list li::before { content: counter(step); position: absolute; left: 0; width: 24px; height: 24px; border-radius: 50%; background: #21262d; color: #58a6ff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; top: 9px; text-align: center; line-height: 24px; }
+
+  /* Ticket header */
+  .ticket-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ticket-id { background: #a78bfa22; color: #a78bfa; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .ticket-title { color: #e6edf3; font-size: 16px; font-weight: 600; }
+  .ticket-script { background: #7ee78722; color: #7ee787; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid #21262d; margin: 40px 0; }
+
+  /* Footer */
+  .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #21262d; text-align: center; color: #484f58; font-size: 12px; }
+
+  /* Print */
+  @media print {
+    body { background: #fff; color: #1a1a1a; padding: 20px; }
+    .header { background: #f6f8fa; border-color: #d0d7de; }
+    .header .brand, .header h1 { -webkit-text-fill-color: #4a7ab5; }
+    .header p { color: #57606a; }
+    .header .badge { background: #f6f8fa; color: #0550ae; border-color: #d0d7de; }
+    h2 { -webkit-text-fill-color: #4a7ab5; border-color: #d0d7de; }
+    h3 { color: #0550ae; }
+    h4 { color: #1a7f37; }
+    th { background: #f6f8fa; color: #24292f; }
+    th, td { border-color: #d0d7de; }
+    tr:nth-child(even) td { background: #f6f8fa; }
+    tr:nth-child(odd) td { background: #fff; }
+    code { background: #f6f8fa; color: #6639ba; }
+    pre { background: #f6f8fa; border-color: #d0d7de; color: #24292f; }
+    .phase { background: #f6f8fa; border-color: #d0d7de; }
+    .stat-card { background: #f6f8fa; border-color: #d0d7de; }
+    .stat-card .number { -webkit-text-fill-color: #4a7ab5; }
+    .dep-graph { background: #f6f8fa; border-color: #d0d7de; color: #24292f; }
+    .footer { color: #8b949e; }
+    .status-good { color: #1a7f37; }
+    .status-bad { color: #cf222e; }
+    .status-warn { color: #9a6700; }
+    .tag { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- HEADER                                                        -->
+<!-- ============================================================ -->
+<div class="header">
+  <div class="brand">toMachina &mdash; FORGE</div>
+  <h1>ACF Data Hygiene &amp; Enrichment &mdash; Implementation Plan</h1>
+  <p>7 tickets &mdash; TRK-13601 &rarr; TRK-13607 &mdash; 7 new scripts</p>
+  <p>Date: March 22, 2026</p>
+  <span class="badge">PLAN</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- 1. EXECUTION OVERVIEW                                         -->
+<!-- ============================================================ -->
+<h2>1. Execution Overview</h2>
+
+<blockquote>Five phases, two parallel tracks. Every script defaults to dry run. Every merge requires JDM review. Every operation is audited.</blockquote>
+
+<div class="dep-graph"><span class="phase-label">Phase 0:</span> Baseline capture (field coverage snapshot)
+    |
+    v
+<span class="phase-label">Phase 1:</span> <span class="ticket">TRK-13601</span> <span class="title">&mdash; Template purge + straggler fixes</span>
+    |
+    +-----------------------------------------------+
+    |                                               |
+    v                                               v
+<span class="phase-label">Phase 2A:</span> <span class="ticket">TRK-13602</span> &rarr; <span class="ticket">TRK-13603</span> &rarr; <span class="ticket">TRK-13604</span>    <span class="phase-label">Phase 2B:</span> <span class="ticket">TRK-13605</span>
+    <span class="title">(Dedup chain &mdash; sequential)</span>              <span class="parallel">[PARALLEL &mdash; SUPER_EXTRACT]</span>
+    |                                               |
+    +-----------------------------------------------+
+                        |
+                        v
+<span class="phase-label">Phase 3:</span> <span class="converge">TRK-13606</span> <span class="title">&mdash; Enrichment (convergence point)</span>
+                        |
+                        v
+<span class="phase-label">Phase 4:</span> <span class="converge">TRK-13607</span> <span class="title">&mdash; Verification</span></div>
+
+<div class="phase">
+  <h4>Phase Summary</h4>
+  <table>
+    <tr><th style="width:15%">Phase</th><th style="width:20%">Ticket(s)</th><th>What Happens</th></tr>
+    <tr>
+      <td><strong>Phase 0</strong></td>
+      <td>&mdash;</td>
+      <td>Capture baseline field coverage snapshot (DOB, phone, email, address counts). This is the "before" measurement.</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 1</strong></td>
+      <td>TRK-13601</td>
+      <td>Purge Dickson Ai3 template files + fix 3 folder stragglers (Kay Cline, GARY ROSENTRETER, Malone).</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 2A</strong></td>
+      <td>TRK-13602 &rarr; 13603 &rarr; 13604</td>
+      <td>Dedup chain: client dedup (149) &rarr; account dedup (500) &rarr; orphan resolution (1,294). Sequential &mdash; merges change client_ids downstream.</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 2B</strong></td>
+      <td>TRK-13605</td>
+      <td>SUPER_EXTRACT batch run on ~1,807 ACF documents. Runs in <strong>parallel</strong> with Phase 2A.</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 3</strong></td>
+      <td>TRK-13606</td>
+      <td>Convergence: backfill from extractions &rarr; WhitePages enrichment &rarr; SUPER_NORMALIZE. Requires both 2A and 2B complete.</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 4</strong></td>
+      <td>TRK-13607</td>
+      <td>Final reconciliation. Run all scans, confirm zero issues, generate before/after field coverage report, clean ATLAS registry.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 2. NEW SCRIPTS                                                -->
+<!-- ============================================================ -->
+<h2>2. New Scripts (7 Files)</h2>
+
+<div class="phase">
+  <p><strong>Location:</strong> <code>services/api/src/scripts/</code></p>
+  <p><strong>Imports:</strong> <code>@tomachina/core</code> (matching, normalizers, ATLAS tools)</p>
+  <p><strong>Runtime:</strong> <code>firebase-admin</code> Firestore, <code>npx tsx</code> execution</p>
+  <p><strong>Safety:</strong> <code>--commit</code> flag required for live execution. All scripts default to dry run.</p>
+  <p><strong>Audit:</strong> Every operation logged to <code>atlas_audit</code> collection in Firestore.</p>
+</div>
+
+<table>
+  <tr>
+    <th style="width:22%">Script</th>
+    <th style="width:12%">Ticket</th>
+    <th style="width:46%">Purpose</th>
+    <th style="width:20%">Dry Run Default</th>
+  </tr>
+  <tr>
+    <td><code>acf-fix-stragglers.ts</code></td>
+    <td>TRK-13601</td>
+    <td>Fix 3 folder naming issues via Drive API</td>
+    <td class="status-good">Yes</td>
+  </tr>
+  <tr>
+    <td><code>acf-client-dedup.ts</code></td>
+    <td>TRK-13602</td>
+    <td>Client duplicate detection + merge (<code>findDuplicates</code>, <code>matchClient</code>)</td>
+    <td class="status-good">Yes</td>
+  </tr>
+  <tr>
+    <td><code>acf-account-dedup.ts</code></td>
+    <td>TRK-13603</td>
+    <td>Account dedup across 4 subcollections (policy + carrier match)</td>
+    <td class="status-good">Yes</td>
+  </tr>
+  <tr>
+    <td><code>acf-orphan-resolve.ts</code></td>
+    <td>TRK-13604</td>
+    <td>Orphan account &rarr; client matching (5-tier, 85+ auto-link threshold)</td>
+    <td class="status-good">Yes</td>
+  </tr>
+  <tr>
+    <td><code>acf-extract-batch.ts</code></td>
+    <td>TRK-13605</td>
+    <td>Batch SUPER_EXTRACT vision mode on all ACF docs (~1,807 files, $18&ndash;54)</td>
+    <td class="status-good">Yes</td>
+  </tr>
+  <tr>
+    <td><code>acf-enrich-clients.ts</code></td>
+    <td>TRK-13606</td>
+    <td>3 phases: backfill from extractions &rarr; WhitePages &rarr; SUPER_NORMALIZE</td>
+    <td class="status-good">Yes</td>
+  </tr>
+  <tr>
+    <td><code>acf-verify-final.ts</code></td>
+    <td>TRK-13607</td>
+    <td>Final reconciliation + field coverage report + ATLAS registry cleanup</td>
+    <td class="status-good">Yes</td>
+  </tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- 3. TRK-13601: ACF Template Purge                              -->
+<!-- ============================================================ -->
+<h2>3. TRK-13601: ACF Template Purge</h2>
+
+<div class="ticket-header">
+  <span class="ticket-id">TRK-13601</span>
+  <span class="ticket-title">ACF Template Purge + Straggler Fixes</span>
+  <span class="ticket-script">acf-fix-stragglers.ts</span>
+  <span class="tag tag-existing">+ dickson-dedup.ts (existing)</span>
+</div>
+
+<div class="phase">
+  <h4>What</h4>
+  <p>Run the existing <code>dickson-dedup.ts</code> script to purge Dickson Ai3 template files from ACF folders, then run the new <code>acf-fix-stragglers.ts</code> to fix 3 folder naming issues via Drive API.</p>
+
+  <h4>Steps</h4>
+  <ol class="step-list">
+    <li><code>npx tsx services/api/src/scripts/dickson-dedup.ts</code> (dry run &mdash; review output)</li>
+    <li>Review dry run output: confirm template files identified, no false positives</li>
+    <li><code>npx tsx services/api/src/scripts/dickson-dedup.ts --execute</code> (live purge)</li>
+    <li>Post-purge verification: re-scan confirms 0 template files remain</li>
+    <li><code>npx tsx services/api/src/scripts/acf-fix-stragglers.ts</code> (dry run)</li>
+    <li>Review: confirm 3 fixes identified correctly</li>
+    <li><code>npx tsx services/api/src/scripts/acf-fix-stragglers.ts --commit</code> (live fix)</li>
+  </ol>
+
+  <h4>Straggler Fixes (3 folders)</h4>
+  <table>
+    <tr><th>Folder</th><th>Issue</th><th>Fix</th></tr>
+    <tr><td>Kay Cline</td><td>2 duplicate ACF folders</td><td>Merge contents into single folder</td></tr>
+    <tr><td>GARY ROSENTRETER</td><td>Mixed caps (inconsistent)</td><td>Rename to <code>ACF - Gary Rosentreter</code></td></tr>
+    <tr><td>Malone</td><td>Trailing comma in folder name</td><td>Remove trailing comma</td></tr>
+  </table>
+
+  <h4>Verification</h4>
+  <ul>
+    <li>Re-scan shows <strong>0 template files</strong> remaining</li>
+    <li>All 3 straggler folders resolved and properly named</li>
+    <li>Audit entries logged to <code>atlas_audit</code></li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 4. TRK-13602: Client Dedup                                    -->
+<!-- ============================================================ -->
+<h2>4. TRK-13602: Client Dedup &mdash; 149 Clusters</h2>
+
+<div class="ticket-header">
+  <span class="ticket-id">TRK-13602</span>
+  <span class="ticket-title">Client Duplicate Detection + Merge</span>
+  <span class="ticket-script">acf-client-dedup.ts</span>
+</div>
+
+<div class="phase">
+  <h4>What</h4>
+  <p>New script <code>acf-client-dedup.ts</code> detects and merges 149 client duplicate clusters using the existing matching library.</p>
+
+  <h4>How It Works</h4>
+  <ol class="step-list">
+    <li>Read all clients from Firestore <code>clients</code> collection</li>
+    <li>Run <code>findDuplicates(threshold=85)</code> to identify duplicate clusters</li>
+    <li>For each cluster, run <code>matchClient</code> for detailed tier scoring</li>
+    <li>Output dry run report: all proposed merges with scores, field comparisons</li>
+    <li><strong>JDM reviews dry run report</strong> (review gate)</li>
+    <li>On approval: <code>npx tsx acf-client-dedup.ts --commit</code> executes merges</li>
+  </ol>
+
+  <h4>Merge Strategy</h4>
+  <table>
+    <tr><th style="width:30%">Action</th><th>Detail</th></tr>
+    <tr><td>Primary selection</td><td>Keep the richer record (more populated fields)</td></tr>
+    <tr><td>Field backfill</td><td>Fill blank fields on primary from secondary (never overwrite existing data)</td></tr>
+    <tr><td>Account references</td><td>Update all <code>clients/{id}/accounts</code> subcollection references to point to primary</td></tr>
+    <tr><td>ACF folder references</td><td>Update ACF folder mappings to primary client_id</td></tr>
+    <tr><td>Secondary cleanup</td><td>Soft-delete secondary record (mark merged, retain for audit trail)</td></tr>
+  </table>
+
+  <h4>JDM Review Gate</h4>
+  <div style="background: #f8514911; border: 1px solid #f8514944; border-radius: 8px; padding: 12px 16px; margin: 8px 0;">
+    <strong style="color: #f85149;">MANDATORY:</strong> Dry run output must be reviewed by JDM before <code>--commit</code> execution. No auto-merge on client records without human approval.
+  </div>
+
+  <h4>Verification</h4>
+  <ul>
+    <li><code>findDuplicates()</code> returns <strong>0 pairs</strong></li>
+    <li>All account subcollections reference valid, non-merged client_ids</li>
+    <li>Audit trail captures every merge operation</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 5. TRK-13603: Account Dedup                                   -->
+<!-- ============================================================ -->
+<h2>5. TRK-13603: Account Dedup &mdash; 500 Accounts</h2>
+
+<div class="ticket-header">
+  <span class="ticket-id">TRK-13603</span>
+  <span class="ticket-title">Account Duplicate Detection + Merge</span>
+  <span class="ticket-script">acf-account-dedup.ts</span>
+</div>
+
+<div class="phase">
+  <h4>What</h4>
+  <p>New script <code>acf-account-dedup.ts</code> scans all accounts across 4 subcollection categories and merges duplicates.</p>
+
+  <h4>How It Works</h4>
+  <ol class="step-list">
+    <li>Read all accounts across <code>clients/{id}/accounts</code> (4 categories: investments, life, annuity, medicare)</li>
+    <li>Group by normalized <code>policy_number</code> + <code>carrier_name</code></li>
+    <li>Same-client duplicates: auto-merge (keep richer record, backfill blanks)</li>
+    <li>Cross-client duplicates: flag for review (may indicate client dedup miss)</li>
+    <li>Output dry run report with all proposed actions</li>
+    <li><code>npx tsx acf-account-dedup.ts --commit</code> for live execution</li>
+  </ol>
+
+  <h4>Match Criteria</h4>
+  <table>
+    <tr><th>Field</th><th>Match Type</th></tr>
+    <tr><td><code>policy_number</code></td><td>Exact match (normalized: stripped whitespace, uppercase)</td></tr>
+    <tr><td><code>carrier_name</code></td><td>Exact match (normalized: trimmed, title-cased)</td></tr>
+    <tr><td>Same client</td><td>Auto-merge eligible</td></tr>
+    <tr><td>Cross client</td><td>Flagged for manual review</td></tr>
+  </table>
+
+  <h4>Dependencies</h4>
+  <div style="background: #d2992211; border: 1px solid #d2992244; border-radius: 8px; padding: 12px 16px; margin: 8px 0;">
+    <strong style="color: #d29922;">Requires:</strong> TRK-13602 (Client Dedup) must complete first. Client merges change client_ids that account dedup references.
+  </div>
+
+  <h4>Verification</h4>
+  <ul>
+    <li>Account dedup scan returns <strong>0 duplicates</strong></li>
+    <li>No cross-client anomalies remaining</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 6. TRK-13604: Orphan Resolution                               -->
+<!-- ============================================================ -->
+<h2>6. TRK-13604: Orphan Resolution &mdash; 1,294</h2>
+
+<div class="ticket-header">
+  <span class="ticket-id">TRK-13604</span>
+  <span class="ticket-title">Orphan Account &rarr; Client Matching</span>
+  <span class="ticket-script">acf-orphan-resolve.ts</span>
+</div>
+
+<div class="phase">
+  <h4>What</h4>
+  <p>New script <code>acf-orphan-resolve.ts</code> finds accounts where the parent client doesn&rsquo;t exist and matches them to valid clients using 5-tier scoring.</p>
+
+  <h4>How It Works</h4>
+  <ol class="step-list">
+    <li>Scan all accounts &mdash; identify those where parent client_id doesn&rsquo;t exist</li>
+    <li>For each orphan, run <code>matchClient</code> 5-tier matching against all clients</li>
+    <li>Score &ge; 85: auto-link to matched client</li>
+    <li>Score 50&ndash;84: flag for manual review by JDM</li>
+    <li>Score &lt; 50: mark as unresolvable (logged, no action)</li>
+    <li>Output dry run report: all proposed links with confidence scores</li>
+    <li><code>npx tsx acf-orphan-resolve.ts --commit</code> for live execution</li>
+  </ol>
+
+  <h4>5-Tier Matching</h4>
+  <table>
+    <tr><th>Tier</th><th>Match Criteria</th><th>Score Weight</th></tr>
+    <tr><td>1</td><td>SSN + Name match</td><td>Highest confidence</td></tr>
+    <tr><td>2</td><td>Email match</td><td>High confidence</td></tr>
+    <tr><td>3</td><td>Phone + Last Name match</td><td>Medium-high confidence</td></tr>
+    <tr><td>4</td><td>Name + DOB match</td><td>Medium confidence</td></tr>
+    <tr><td>5</td><td>Fuzzy name match</td><td>Low confidence &mdash; manual review</td></tr>
+  </table>
+
+  <h4>Threshold Behavior</h4>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="number">&ge;85</div>
+      <div class="label">Auto-link</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">50&ndash;84</div>
+      <div class="label">Manual Review</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">&lt;50</div>
+      <div class="label">Unresolvable</div>
+    </div>
+  </div>
+
+  <h4>Dependencies</h4>
+  <div style="background: #d2992211; border: 1px solid #d2992244; border-radius: 8px; padding: 12px 16px; margin: 8px 0;">
+    <strong style="color: #d29922;">Requires:</strong> TRK-13602 (Client Dedup) must complete first. Merged clients change the target pool for orphan matching.
+  </div>
+
+  <h4>Verification</h4>
+  <ul>
+    <li>Orphan count = <strong>0</strong> (or only manual-review items with documented justification)</li>
+    <li>All auto-linked accounts reference valid, existing clients</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 7. TRK-13605: SUPER_EXTRACT Run                               -->
+<!-- ============================================================ -->
+<h2>7. TRK-13605: SUPER_EXTRACT Batch Run</h2>
+
+<div class="ticket-header">
+  <span class="ticket-id">TRK-13605</span>
+  <span class="ticket-title">Batch SUPER_EXTRACT Vision Mode</span>
+  <span class="ticket-script">acf-extract-batch.ts</span>
+  <span class="tag tag-new">PARALLEL with dedup chain</span>
+</div>
+
+<div class="phase">
+  <h4>What</h4>
+  <p>New script <code>acf-extract-batch.ts</code> runs SUPER_EXTRACT in vision mode on all ~1,807 ACF documents, extracting structured data into Firestore.</p>
+
+  <h4>How It Works</h4>
+  <ol class="step-list">
+    <li>Inventory all files in 277 ACF folders via Drive API</li>
+    <li>Filter out non-extractable files (folders, zero-byte, already-extracted)</li>
+    <li>Download + convert PDFs to images for vision processing</li>
+    <li>Run SUPER_EXTRACT vision mode on each document</li>
+    <li>Store extraction results in Firestore <code>extractions</code> collection</li>
+    <li>Progress checkpoint after each chunk for resumability</li>
+  </ol>
+
+  <h4>Extraction Fields</h4>
+  <table>
+    <tr><th style="width:30%">Category</th><th>Fields Extracted</th></tr>
+    <tr><td>Client profile</td><td>Full name, DOB, SSN (last 4), address, phone, email, Medicare #, spouse</td></tr>
+    <tr><td>Account types</td><td>Policy numbers, carriers, account types across all 4 categories</td></tr>
+    <tr><td>Document classification</td><td>Document type, issuing entity, date</td></tr>
+    <tr><td>Confidence</td><td>Per-field extraction confidence scores</td></tr>
+  </table>
+
+  <h4>Cost &amp; Performance</h4>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="number">~1,807</div>
+      <div class="label">Files to Process</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">$18&ndash;54</div>
+      <div class="label">Estimated Cost</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">10&ndash;20</div>
+      <div class="label">Files per Chunk</div>
+    </div>
+  </div>
+
+  <h4>Batch Processing</h4>
+  <ul>
+    <li><strong>Chunked:</strong> Process 10&ndash;20 files per batch to manage memory and API rate limits</li>
+    <li><strong>Resumable:</strong> Checkpoint saved after each chunk &mdash; can resume from last successful chunk on failure</li>
+    <li><strong>Cost control:</strong> ~$0.01&ndash;0.03 per page via vision API</li>
+    <li><strong>Dry run:</strong> Lists all files that would be processed, shows estimated cost, processes nothing</li>
+  </ul>
+
+  <h4>Dependencies</h4>
+  <div style="background: #7ee78711; border: 1px solid #7ee78744; border-radius: 8px; padding: 12px 16px; margin: 8px 0;">
+    <strong style="color: #7ee787;">Only requires:</strong> TRK-13601 (Template Purge). Don&rsquo;t extract junk template files. Runs in <strong>parallel</strong> with the dedup chain (2A).
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 8. TRK-13606: Client Enrichment                               -->
+<!-- ============================================================ -->
+<h2>8. TRK-13606: Client Enrichment</h2>
+
+<div class="ticket-header">
+  <span class="ticket-id">TRK-13606</span>
+  <span class="ticket-title">3-Phase Client Enrichment Pipeline</span>
+  <span class="ticket-script">acf-enrich-clients.ts</span>
+</div>
+
+<div class="phase">
+  <h4>What</h4>
+  <p>New script <code>acf-enrich-clients.ts</code> runs a 3-phase enrichment pipeline to fill data gaps on client records.</p>
+
+  <h4>Phase 1: Backfill from Extractions</h4>
+  <div style="background: #161b22; border-left: 3px solid #58a6ff; padding: 12px 16px; margin: 8px 0; border-radius: 0 8px 8px 0;">
+    <p><strong>Source:</strong> Firestore <code>extractions</code> collection (from TRK-13605)</p>
+    <p><strong>Strategy:</strong> Fill blanks only &mdash; <strong>never overwrite existing data</strong></p>
+    <p><strong>Fields:</strong> DOB, SSN4, address, phone, email, Medicare #, spouse</p>
+  </div>
+
+  <h4>Phase 2: WhitePages Enrichment</h4>
+  <div style="background: #161b22; border-left: 3px solid #d29922; padding: 12px 16px; margin: 8px 0; border-radius: 0 8px 8px 0;">
+    <p><strong>Pre-flight:</strong> Run <code>check_whitepages_usage()</code> to verify quota before bulk requests</p>
+    <p><strong>Targets:</strong> Only clients still missing phone, email, or address after Phase 1</p>
+    <p><strong>Strategy:</strong> Fill blanks only &mdash; never overwrite</p>
+  </div>
+
+  <h4>Phase 3: SUPER_NORMALIZE</h4>
+  <div style="background: #161b22; border-left: 3px solid #7ee787; padding: 12px 16px; margin: 8px 0; border-radius: 0 8px 8px 0;">
+    <p><strong>Scope:</strong> All client records touched in Phase 1 or Phase 2</p>
+    <p><strong>Engine:</strong> 90+ normalizers, 16 types (names, phones, addresses, dates, SSN, etc.)</p>
+    <p><strong>Ensures:</strong> Consistent formatting across all enriched data</p>
+  </div>
+
+  <h4>Dependencies</h4>
+  <div style="background: #f8514911; border: 1px solid #f8514944; border-radius: 8px; padding: 12px 16px; margin: 8px 0;">
+    <strong style="color: #f85149;">Convergence point:</strong> Both TRK-13604 (Orphan Resolution) AND TRK-13605 (SUPER_EXTRACT) must complete before enrichment begins.
+  </div>
+
+  <h4>Verification</h4>
+  <ul>
+    <li>Field coverage report: before/after comparison for DOB, phone, email, address</li>
+    <li>All enriched records pass SUPER_NORMALIZE validation</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<!-- 9. TRK-13607: Post-Run Reconciliation                         -->
+<!-- ============================================================ -->
+<h2>9. TRK-13607: Post-Run Reconciliation</h2>
+
+<div class="ticket-header">
+  <span class="ticket-id">TRK-13607</span>
+  <span class="ticket-title">Final Verification &amp; ATLAS Cleanup</span>
+  <span class="ticket-script">acf-verify-final.ts</span>
+</div>
+
+<div class="phase">
+  <h4>What</h4>
+  <p>New script <code>acf-verify-final.ts</code> runs all scans to confirm zero data issues, generates a comprehensive before/after field coverage report, and cleans up 3 phantom ATLAS tool_registry entries.</p>
+
+  <h4>The Script IS the Verification</h4>
+  <ol class="step-list">
+    <li>Run <code>findDuplicates()</code> &mdash; must return <strong>0 pairs</strong></li>
+    <li>Run account dedup scan &mdash; must return <strong>0 duplicates</strong></li>
+    <li>Run orphan scan &mdash; must return <strong>0 orphans</strong> (or only documented manual-review items)</li>
+    <li>Generate field coverage report: DOB, phone, email, address counts before vs. after</li>
+    <li>Clean up 3 phantom ATLAS <code>tool_registry</code> entries: <code>getDuplicateClusters</code>, <code>scoreDuplicateMatch</code>, <code>previewMerge</code></li>
+    <li>Output final HTML report with all metrics</li>
+  </ol>
+
+  <h4>ATLAS Registry Cleanup</h4>
+  <table>
+    <tr><th>Phantom Entry</th><th>Action</th><th>Replacement</th></tr>
+    <tr><td><code>getDuplicateClusters</code></td><td>Remove from tool_registry</td><td><code>reconcileClients()</code> flow</td></tr>
+    <tr><td><code>scoreDuplicateMatch</code></td><td>Remove from tool_registry</td><td><code>calculateMatchScore()</code></td></tr>
+    <tr><td><code>previewMerge</code></td><td>Remove from tool_registry</td><td><code>mergeRecords(dryRun: true)</code></td></tr>
+  </table>
+
+  <h4>Dependencies</h4>
+  <div style="background: #d2992211; border: 1px solid #d2992244; border-radius: 8px; padding: 12px 16px; margin: 8px 0;">
+    <strong style="color: #d29922;">Requires:</strong> TRK-13606 (Client Enrichment) must complete. This is the final step.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 10. BUILD PHASE PARALLELIZATION                               -->
+<!-- ============================================================ -->
+<h2>10. Build Phase Parallelization</h2>
+
+<blockquote>During BUILD, 3 parallel sub-agents work simultaneously. Shared types are coordinated at kickoff.</blockquote>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="number">A</div>
+    <div class="label">Dedup Chain Agent</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">B</div>
+    <div class="label">Extraction Agent</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">C</div>
+    <div class="label">Enrichment Agent</div>
+  </div>
+</div>
+
+<div class="phase">
+  <table>
+    <tr>
+      <th style="width:12%">Agent</th>
+      <th style="width:35%">Scripts</th>
+      <th>Rationale</th>
+    </tr>
+    <tr>
+      <td><strong style="color: #58a6ff;">Agent A</strong></td>
+      <td>
+        <code>acf-fix-stragglers.ts</code><br>
+        <code>acf-client-dedup.ts</code><br>
+        <code>acf-account-dedup.ts</code><br>
+        <code>acf-orphan-resolve.ts</code>
+      </td>
+      <td>Dedup chain &mdash; shared types and patterns. <code>matchClient</code>, <code>findDuplicates</code>, <code>matchAccount</code> are all used across these scripts. Same Firestore collection patterns.</td>
+    </tr>
+    <tr>
+      <td><strong style="color: #d29922;">Agent B</strong></td>
+      <td>
+        <code>acf-extract-batch.ts</code>
+      </td>
+      <td>Extraction &mdash; independent domain. Drive API + vision processing + <code>extractions</code> collection. Different dependencies (SUPER_EXTRACT, Drive SDK). No overlap with dedup scripts.</td>
+    </tr>
+    <tr>
+      <td><strong style="color: #7ee787;">Agent C</strong></td>
+      <td>
+        <code>acf-enrich-clients.ts</code><br>
+        <code>acf-verify-final.ts</code>
+      </td>
+      <td>Enrichment + verification &mdash; shared field coverage logic. Both scripts measure field completeness. Enrichment writes it, verification reads it. Same reporting patterns.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 11. SAFETY GUARANTEES                                         -->
+<!-- ============================================================ -->
+<h2>11. Safety Guarantees</h2>
+
+<table>
+  <tr>
+    <th style="width:30%">Guarantee</th>
+    <th>How</th>
+  </tr>
+  <tr>
+    <td><strong>Every script defaults to dry run</strong></td>
+    <td><code>--commit</code> flag required for live execution. Without it, scripts output what <em>would</em> happen and exit.</td>
+  </tr>
+  <tr>
+    <td><strong>JDM review gate on client merges</strong></td>
+    <td>Dry run report must be reviewed by JDM before <code>--commit</code> on TRK-13602. No auto-merge on client records.</td>
+  </tr>
+  <tr>
+    <td><strong>Orphan auto-link threshold</strong></td>
+    <td>Score &ge; 85 only for auto-link. Scores 50&ndash;84 flagged for manual review. Below 50 marked unresolvable.</td>
+  </tr>
+  <tr>
+    <td><strong>WhitePages quota check</strong></td>
+    <td>Pre-flight <code>check_whitepages_usage()</code> runs before any bulk enrichment requests.</td>
+  </tr>
+  <tr>
+    <td><strong>SUPER_EXTRACT cost control</strong></td>
+    <td>Chunked processing (10&ndash;20 files/batch). Checkpoint resumability. Dry run shows cost estimate before processing.</td>
+  </tr>
+  <tr>
+    <td><strong>Full audit trail</strong></td>
+    <td>Every operation logged to <code>atlas_audit</code> collection with timestamp, action, before/after, operator.</td>
+  </tr>
+  <tr>
+    <td><strong>Baseline comparison</strong></td>
+    <td>Field coverage captured in Phase 0 before any changes. TRK-13607 generates before/after comparison.</td>
+  </tr>
+  <tr>
+    <td><strong>All operations reversible</strong></td>
+    <td>Audit trail stores before-state for every record modified. Undo is possible for any operation.</td>
+  </tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- 12. SUCCESS CRITERIA                                          -->
+<!-- ============================================================ -->
+<h2>12. Success Criteria</h2>
+
+<table>
+  <tr>
+    <th style="width:45%">Metric</th>
+    <th style="width:25%; text-align:center">Before</th>
+    <th style="width:25%; text-align:center">Target</th>
+  </tr>
+  <tr>
+    <td>Total data issues</td>
+    <td style="text-align:center" class="status-bad">1,943</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Client duplicates</td>
+    <td style="text-align:center" class="status-bad">149</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Account duplicates</td>
+    <td style="text-align:center" class="status-bad">500</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Orphan accounts</td>
+    <td style="text-align:center" class="status-bad">1,294</td>
+    <td style="text-align:center" class="status-good"><strong>0</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with DOB</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Increased</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with phone</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Increased</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with email</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Increased</strong></td>
+  </tr>
+  <tr>
+    <td>Client records with address</td>
+    <td style="text-align:center; color: #8b949e;">Measure before</td>
+    <td style="text-align:center" class="status-good"><strong>Increased</strong></td>
+  </tr>
+</table>
+
+<div class="phase">
+  <p><strong>Verification method:</strong> TRK-13607 (<code>acf-verify-final.ts</code>) runs a full <code>findDuplicates()</code> + account dedup scan + orphan scan + field coverage report. The sprint is not complete until the reconciliation report shows zero issues across all categories and field coverage has measurably improved.</p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- FOOTER                                                        -->
+<!-- ============================================================ -->
+<div class="footer">
+  <p>Generated by Claude Code &mdash; FORGE Sprint Implementation Plan</p>
+  <p>toMachina &bull; Retirement Protectors, Inc. &bull; March 2026</p>
+</div>
+
+</body>
+</html>
