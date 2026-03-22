@@ -5,7 +5,7 @@ import { query, where, type Query, type DocumentData } from 'firebase/firestore'
 import { useCollection } from '@tomachina/db'
 import { collections, getDb } from '@tomachina/db/src/firestore'
 import { useAuth } from '@tomachina/auth'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 import { useToast } from '../components/Toast'
 import { collection as firestoreCollection } from 'firebase/firestore'
 
@@ -303,7 +303,7 @@ function ChannelsTab() {
     if (!channelsLoading && channelDocs.length === 0 && !seeded.current) {
       seeded.current = true
       // Trigger seed by calling GET /api/connect/channels
-      fetchWithAuth('/api/connect/channels').catch(() => {/* seed fire-and-forget */})
+      fetchValidated('/api/connect/channels').catch(() => {/* seed fire-and-forget */})
     }
   }, [channelsLoading, channelDocs.length])
 
@@ -340,7 +340,7 @@ function ChannelsTab() {
     if (localChannels.some((c) => c.name === trimmed)) return
     setCreating(true)
     try {
-      await fetchWithAuth('/api/connect/channels', {
+      await fetchValidated('/api/connect/channels', {
         method: 'POST',
         body: JSON.stringify({ name: trimmed }),
       })
@@ -527,9 +527,9 @@ function PeopleTab({ open }: { open: boolean }) {
   useEffect(() => {
     if (!open || !user?.email) return
     // Fire immediately
-    fetchWithAuth('/api/connect/presence', { method: 'POST' }).catch(() => {})
+    fetchValidated('/api/connect/presence', { method: 'POST' }).catch(() => {})
     const interval = setInterval(() => {
-      fetchWithAuth('/api/connect/presence', { method: 'POST' }).catch(() => {})
+      fetchValidated('/api/connect/presence', { method: 'POST' }).catch(() => {})
     }, 60000)
     return () => clearInterval(interval)
   }, [open, user?.email])
@@ -625,12 +625,10 @@ function MeetTab() {
     let cancelled = false
     async function load() {
       try {
-        const res = await fetchWithAuth('/api/connect/calendar')
-        if (!res.ok) throw new Error('Failed to load calendar')
-        const json = await res.json()
-        if (!cancelled && json.success) {
-          setMeetings(json.data?.meetings || [])
-          setRecordings(json.data?.recordings || [])
+        const result = await fetchValidated<{ meetings: MeetingData[]; recordings: RecordingData[] }>('/api/connect/calendar')
+        if (!cancelled && result.success && result.data) {
+          setMeetings(result.data.meetings || [])
+          setRecordings(result.data.recordings || [])
         }
       } catch {
         // Silent fail — empty state is fine

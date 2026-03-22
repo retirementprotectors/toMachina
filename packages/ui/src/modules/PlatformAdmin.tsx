@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /* ═══ Types ═══ */
 
@@ -115,9 +115,8 @@ export function PlatformAdmin({ portal }: PlatformAdminProps) {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth('/api/firestore-config/platform-status')
-      const json = await res.json()
-      if (json.success) setData(json.data)
+      const res = await fetchValidated<PlatformStatus>('/api/firestore-config/platform-status')
+      if (res.success) setData(res.data ?? null)
     } catch { /* silent */ }
     finally { setLoading(false) }
   }, [])

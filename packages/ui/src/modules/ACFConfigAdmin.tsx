@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /**
  * ACF Config Admin — Admin tab for managing ACF configuration.
@@ -61,9 +61,8 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
   const loadConfig = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth('/api/acf/config')
-      const json = await res.json()
-      if (json.success) setConfig(json.data)
+      const res = await fetchValidated<ACFConfigData>('/api/acf/config')
+      if (res.success) setConfig(res.data ?? null)
     } catch {
       // Silently fail
     } finally {
@@ -80,14 +79,13 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
     setSaving(true)
     setSaved(false)
     try {
-      const res = await fetchWithAuth('/api/acf/config', {
+      const res = await fetchValidated<ACFConfigData>('/api/acf/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
       })
-      const json = await res.json()
-      if (json.success) {
-        setConfig(json.data)
+            if (res.success) {
+        setConfig(res.data ?? null)
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
       }

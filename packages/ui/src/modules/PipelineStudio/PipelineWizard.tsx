@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 
 // ============================================================================
 // PipelineWizard — Create new pipeline dialog
@@ -29,11 +29,6 @@ const PORTALS = [
   'SENTINEL',
 ] as const
 
-interface CreateResponse {
-  success: boolean
-  data?: { pipeline_key: string }
-  error?: string
-}
 
 /* --- Key generator --- */
 
@@ -96,7 +91,7 @@ export default function PipelineWizard({
       setSaving(true)
       setError(null)
 
-      const res = await fetchWithAuth(`${apiBase}/flow/admin/pipelines`, {
+      const result = await fetchValidated<{ pipeline_key: string }>(`${apiBase}/flow/admin/pipelines`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -109,14 +104,12 @@ export default function PipelineWizard({
         }),
       })
 
-      const json: CreateResponse = await res.json()
-
-      if (!json.success) {
-        setError(json.error || 'Failed to create pipeline')
+      if (!result.success) {
+        setError(result.error || 'Failed to create pipeline')
         return
       }
 
-      onCreate(json.data?.pipeline_key || key.trim())
+      onCreate(result.data?.pipeline_key || key.trim())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {

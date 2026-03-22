@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import type { QueProductLine, SessionListItem } from './types'
 
 interface QueSessionListProps {
@@ -41,18 +41,12 @@ export function QueSessionList({ productLine, onSelectSession, onNewSession }: Q
     setLoading(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que?product_line=${productLine}`)
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to load sessions' }))
-        setError((body as { error?: string }).error ?? 'Failed to load sessions')
+      const result = await fetchValidated<SessionListItem[]>(`/api/que?product_line=${productLine}`)
+      if (!result.success) {
+        setError(result.error ?? 'Failed to load sessions')
         return
       }
-      const body = await res.json() as { success: boolean; data?: SessionListItem[]; error?: string }
-      if (body.success && body.data) {
-        setSessions(body.data)
-      } else {
-        setError(body.error ?? 'Unexpected response')
-      }
+      setSessions(result.data ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {

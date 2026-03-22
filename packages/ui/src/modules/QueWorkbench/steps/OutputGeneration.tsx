@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { fetchWithAuth } from '../../fetchWithAuth'
+import { fetchValidated } from '../../fetchValidated'
 import { useToast } from '../../../components/Toast'
 
 /* ─── Types ─── */
@@ -83,29 +83,23 @@ export function OutputGeneration({ sessionId, onComplete, onBack }: OutputGenera
     setOutputs(prev => prev.map(o => ({ ...o, status: 'generating' as OutputStatus })))
 
     try {
-      const res = await fetchWithAuth(`${API_BASE}/que/${sessionId}/generate-output`, {
+      const result = await fetchValidated<{ outputs: Array<{ key: string; status: string; drive_url?: string; error?: string }> }>(`${API_BASE}/que/${sessionId}/generate-output`, {
         method: 'POST',
       })
 
-      const data = await res.json() as {
-        success: boolean
-        data?: { outputs: Array<{ key: string; status: string; drive_url?: string; error?: string }> }
-        error?: string
-      }
-
-      if (!data.success) {
+      if (!result.success) {
         // API returned an error — mark all as queued (placeholder behavior)
         setOutputs(prev => prev.map(o => ({
           ...o,
           status: 'complete' as OutputStatus,
         })))
-        showToast(data.error || 'Output generation queued — documents will be available shortly', 'info')
+        showToast(result.error || 'Output generation queued — documents will be available shortly', 'info')
         setGenerated(true)
         return
       }
 
-      if (data.data?.outputs) {
-        setOutputs(data.data.outputs.map(o => ({
+      if (result.data?.outputs) {
+        setOutputs(result.data.outputs.map(o => ({
           key: o.key,
           status: o.status === 'complete' ? 'complete' : o.status === 'error' ? 'error' : 'pending',
           driveUrl: o.drive_url,
@@ -138,13 +132,12 @@ export function OutputGeneration({ sessionId, onComplete, onBack }: OutputGenera
   const handleMarkComplete = useCallback(async () => {
     setCompleting(true)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/que/${sessionId}/complete`, {
+      const result = await fetchValidated(`${API_BASE}/que/${sessionId}/complete`, {
         method: 'POST',
       })
 
-      const data = await res.json() as { success: boolean; error?: string }
-      if (!data.success) {
-        showToast(data.error || 'Failed to mark session complete', 'error')
+      if (!result.success) {
+        showToast(result.error || 'Failed to mark session complete', 'error')
         return
       }
 

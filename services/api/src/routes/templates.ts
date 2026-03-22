@@ -10,6 +10,7 @@ import {
   param,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { TemplateDTO } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const templateRoutes = Router()
@@ -37,7 +38,7 @@ templateRoutes.get('/', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<TemplateDTO[]>(data as unknown as TemplateDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/templates error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -81,7 +82,7 @@ templateRoutes.get('/:id', async (req: Request, res: Response) => {
       template._resolved_blocks = blockNames
     }
 
-    res.json(successResponse(stripInternalFields(template)))
+    res.json(successResponse<unknown>(stripInternalFields(template)))
   } catch (err) {
     console.error('GET /api/templates/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -121,7 +122,7 @@ templateRoutes.post('/', createValidation, async (req: Request, res: Response) =
     await db.collection(COLLECTION).doc(templateId).set(data)
     await writeThroughBridge(COLLECTION, 'insert', templateId, data)
 
-    res.status(201).json(successResponse({ id: templateId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: templateId, ...data }))
   } catch (err) {
     console.error('POST /api/templates error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -144,7 +145,7 @@ templateRoutes.patch('/:id', async (req: Request, res: Response) => {
     await docRef.update(updates)
     await writeThroughBridge(COLLECTION, 'update', id, updates)
 
-    res.json(successResponse({ id, updated: Object.keys(updates) }))
+    res.json(successResponse<unknown>({ id, updated: Object.keys(updates) }))
   } catch (err) {
     console.error('PATCH /api/templates/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -167,7 +168,7 @@ templateRoutes.delete('/:id', async (req: Request, res: Response) => {
     await docRef.update(updates)
     await writeThroughBridge(COLLECTION, 'update', id, updates)
 
-    res.json(successResponse({ id, deleted: true }))
+    res.json(successResponse<unknown>({ id, deleted: true }))
   } catch (err) {
     console.error('DELETE /api/templates/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import TerritoryBuilder from './TerritoryBuilder'
 import type { SpecialistConfig } from './types'
 
@@ -37,15 +37,13 @@ export default function MarketTab({ portal, territoryId }: MarketTabProps) {
     async function load() {
       try {
         setLoading(true)
-        const [cRes, tRes] = await Promise.all([
-          fetchWithAuth('/api/specialist-configs'),
-          fetchWithAuth('/api/territories'),
+        const [cResult, tResult] = await Promise.all([
+          fetchValidated<SpecialistConfig[]>('/api/specialist-configs'),
+          fetchValidated<TerritoryOverview[]>('/api/territories'),
         ])
-        const cJson = await cRes.json() as { success: boolean; data?: SpecialistConfig[] }
-        const tJson = await tRes.json() as { success: boolean; data?: TerritoryOverview[] }
         if (!cancelled) {
-          if (cJson.success && cJson.data) setConfigs(cJson.data)
-          if (tJson.success && tJson.data) setTerritories(tJson.data)
+          if (cResult.success && cResult.data) setConfigs(cResult.data)
+          if (tResult.success && tResult.data) setTerritories(tResult.data)
         }
       } catch {
         // Non-blocking — assignment view is supplementary

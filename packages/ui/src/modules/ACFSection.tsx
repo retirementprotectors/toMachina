@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { ACFSubfolderDetail, ACFDriveFile } from '@tomachina/core'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /**
  * ACF Section — rendered on Contact detail page.
@@ -82,9 +82,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   const loadDetail = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth(`/api/acf/${clientId}`)
-      const json = await res.json()
-      if (json.success) setDetail(json.data)
+      const result = await fetchValidated<ACFDetailData>(`/api/acf/${clientId}`)
+      if (result.success) setDetail(result.data ?? null)
     } catch {
       // Silently fail
     } finally {
@@ -104,9 +103,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   const handleCreate = async () => {
     setCreating(true)
     try {
-      const res = await fetchWithAuth(`/api/acf/${clientId}/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-      const json = await res.json()
-      if (json.success) {
+      const result = await fetchValidated(`/api/acf/${clientId}/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+      if (result.success) {
         await loadDetail()
       }
     } catch {
@@ -141,7 +139,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
           reader.readAsDataURL(file)
         })
 
-        const res = await fetchWithAuth(`/api/acf/${clientId}/upload`, {
+        const result = await fetchValidated(`/api/acf/${clientId}/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -151,8 +149,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
             target_subfolder: subfolder,
           }),
         })
-        const json = await res.json()
-        if (json.success) {
+        if (result.success) {
           await loadDetail()
         }
       } catch {
@@ -179,7 +176,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
       reader.readAsDataURL(file)
     })
 
-    const res = await fetchWithAuth(`/api/acf/${clientId}/upload`, {
+    const result = await fetchValidated(`/api/acf/${clientId}/upload`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -189,8 +186,7 @@ export function ACFSection({ clientId }: ACFSectionProps) {
         target_subfolder: subfolder,
       }),
     })
-    const json = await res.json()
-    return json.success === true
+    return result.success === true
   }, [clientId])
 
   const handleDropFiles = useCallback(async (files: File[], targetSubfolder?: string) => {
@@ -295,13 +291,12 @@ export function ACFSection({ clientId }: ACFSectionProps) {
   // ── Move file between subfolders ─────────────────────────────────
   const handleMove = useCallback(async (fileId: string, fromSubfolder: string, toSubfolder: string) => {
     try {
-      const res = await fetchWithAuth(`/api/acf/${clientId}/move`, {
+      const result = await fetchValidated(`/api/acf/${clientId}/move`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file_id: fileId, from_subfolder: fromSubfolder, to_subfolder: toSubfolder }),
       })
-      const json = await res.json()
-      if (json.success) {
+      if (result.success) {
         setMovingFile(null)
         await loadDetail()
       }

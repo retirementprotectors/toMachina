@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useToast } from '../../components/Toast'
 
 /* ─── Types ─── */
@@ -116,12 +116,10 @@ export function HealthOverview() {
   const fetchHealth = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetchWithAuth('/api/guardian/health')
-      if (!res.ok) throw new Error('Failed to fetch health data')
-      const json = await res.json() as { success: boolean; data?: Record<string, unknown> }
-      if (json.success && json.data) {
+      const result = await fetchValidated<Record<string, unknown>>('/api/guardian/health')
+      if (result.success && result.data) {
         // Structural report (from guardian-structural.ts)
-        const rawData = json.data as Record<string, unknown>
+        const rawData = result.data as Record<string, unknown>
         if (rawData.structural) {
           setStructural(rawData.structural as unknown as StructuralReport)
         }

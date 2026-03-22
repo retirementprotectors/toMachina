@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 
 // ============================================================================
 // TerritoryBuilder — Admin CRUD for territory definitions + county-zone mapping
@@ -102,12 +102,11 @@ export default function TerritoryBuilder({ portal, initialTerritoryId }: Territo
     try {
       setLoading(true)
       setError(null)
-      const res = await fetchWithAuth('/api/territories')
-      const json = (await res.json()) as TerritoryListResponse
-      if (json.success && json.data) {
-        setTerritories(json.data || [])
+      const result = await fetchValidated<TerritoryRecord[]>('/api/territories')
+      if (result.success && result.data) {
+        setTerritories(result.data || [])
       } else {
-        setError(json.error || 'Failed to load territories')
+        setError(result.error || 'Failed to load territories')
       }
     } catch {
       setError('Network error loading territories')
@@ -341,11 +340,10 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
       try {
         setLoading(true)
         setError(null)
-        const res = await fetchWithAuth(`/api/territories/${territoryId}`)
-        const json = (await res.json()) as TerritorySingleResponse
+        const result = await fetchValidated<TerritoryRecord>(`/api/territories/${territoryId}`)
         if (cancelled) return
-        if (json.success && json.data) {
-          const t = json.data
+        if (result.success && result.data) {
+          const t = result.data
           setTerritoryName(t.territory_name)
           setState(t.state)
           setStatus(t.status)
@@ -366,7 +364,7 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
             setExpandedZone(draftZones[0].zone_id)
           }
         } else {
-          setError(json.error || 'Failed to load territory')
+          setError(result.error || 'Failed to load territory')
         }
       } catch {
         if (!cancelled) setError('Network error loading territory')
@@ -535,20 +533,19 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
       const url = isNew ? '/api/territories' : `/api/territories/${territoryId}`
       const method = isNew ? 'POST' : 'PATCH'
 
-      const res = await fetchWithAuth(url, {
+      const result = await fetchValidated(url, {
         method,
         body: JSON.stringify(payload),
       })
-      const json = (await res.json()) as { success: boolean; error?: string }
 
-      if (json.success) {
+      if (result.success) {
         setSaveMessage(isNew ? 'Territory created successfully' : 'Territory updated successfully')
         if (isNew) {
           // Go back to list after creating
           setTimeout(() => onBack(), 1200)
         }
       } else {
-        setError(json.error || 'Failed to save territory')
+        setError(result.error || 'Failed to save territory')
       }
     } catch {
       setError('Network error saving territory')
@@ -566,16 +563,15 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
     try {
       setSaving(true)
       setError(null)
-      const res = await fetchWithAuth(`/api/territories/${territoryId}`, {
+      const result = await fetchValidated(`/api/territories/${territoryId}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: newStatus }),
       })
-      const json = (await res.json()) as { success: boolean; error?: string }
-      if (json.success) {
+      if (result.success) {
         setStatus(newStatus)
         setSaveMessage(`Territory ${newStatus === 'Active' ? 'activated' : 'deactivated'}`)
       } else {
-        setError(json.error || 'Failed to update status')
+        setError(result.error || 'Failed to update status')
       }
     } catch {
       setError('Network error updating status')

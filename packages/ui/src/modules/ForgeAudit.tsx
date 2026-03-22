@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /* ─── Types ─── */
 interface Attachment {
@@ -176,18 +176,12 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const [sprintRes, itemRes] = await Promise.all([
-        fetchWithAuth(`${API_BASE}/sprints`),
-        fetchWithAuth(`${API_BASE}/tracker?limit=500`),
+      const [sprintResult, itemResult] = await Promise.all([
+        fetchValidated<Sprint[]>(`${API_BASE}/sprints`),
+        fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?limit=500`),
       ])
-      if (sprintRes.ok) {
-        const json = await sprintRes.json()
-        if (json.success) setSprints(json.data || [])
-      }
-      if (itemRes.ok) {
-        const json = await itemRes.json()
-        if (json.success) setAllItems(json.data || [])
-      }
+      if (sprintResult.success) setSprints(sprintResult.data || [])
+      if (itemResult.success) setAllItems(itemResult.data || [])
     } catch { /* silent */ }
     setLoading(false)
   }, [])
@@ -206,11 +200,8 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
   const loadRoundInfo = useCallback(async (sprintId: string) => {
     if (!sprintId) { setRoundInfo(null); return }
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit-round`)
-      if (res.ok) {
-        const json = await res.json()
-        if (json.success) setRoundInfo(json.data)
-      }
+      const result = await fetchValidated<AuditRoundInfo>(`${API_BASE}/sprints/${sprintId}/audit-round`)
+      if (result.success && result.data) setRoundInfo(result.data)
     } catch { /* silent */ }
   }, [])
 
@@ -430,7 +421,7 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
     setFoundSubmitting(true)
 
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker`, {
+      const createResult = await fetchValidated<TrackerItem>(`${API_BASE}/tracker`, {
         method: 'POST',
         body: JSON.stringify({
           title: foundTitle.trim(),
@@ -448,15 +439,14 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
         }),
       })
 
-      if (res.ok) {
-        const json = await res.json()
-        const newItem = json.data
+      if (createResult.success && createResult.data) {
+        const newItem = createResult.data
         const itemId = newItem?.id || newItem?.item_id
 
         // Upload screenshot attachment if captured
         if (itemId && foundScreenshot) {
           const base64 = foundScreenshot.split(',')[1]
-          await fetchWithAuth(`${API_BASE}/tracker/${itemId}/attachments`, {
+          await fetchValidated(`${API_BASE}/tracker/${itemId}/attachments`, {
             method: 'POST',
             body: JSON.stringify({
               name: `found-screenshot-${Date.now()}.png`,
@@ -486,7 +476,7 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
             audit_round: newItem.audit_round || currentRound,
             audit_status: newItem.audit_status || 'pending',
             audit_notes: newItem.audit_notes || '',
-            created_by: newItem.created_by || newItem._created_by || '',
+            created_by: newItem.created_by || (newItem as unknown as Record<string, unknown>)._created_by as string || '',
             created_at: newItem.created_at || new Date().toISOString(),
             updated_at: newItem.updated_at || new Date().toISOString(),
           }
@@ -516,7 +506,7 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
       const passItems = auditableItems.filter(i => auditEntries[i.id]?.verdict === 'pass')
       await Promise.all(passItems.map(async (item) => {
         const entry = auditEntries[item.id]
-        const res = await fetchWithAuth(`${API_BASE}/tracker/${item.id}`, {
+        const patchResult = await fetchValidated(`${API_BASE}/tracker/${item.id}`, {
           method: 'PATCH',
           body: JSON.stringify({
             status: 'confirmed',
@@ -525,7 +515,7 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
             audit_notes: entry?.findings || '',
           }),
         })
-        if (res.ok) confirmedCount++
+        if (patchResult.success) confirmedCount++
       }))
 
       // 2. FAIL items → audit_status='failed', keep current status, store notes
@@ -540,7 +530,7 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
         ].filter(Boolean).join(' | ')
 
         // Mark the item as failed in the current round
-        await fetchWithAuth(`${API_BASE}/tracker/${item.id}`, {
+        await fetchValidated(`${API_BASE}/tracker/${item.id}`, {
           method: 'PATCH',
           body: JSON.stringify({
             audit_status: 'failed',
@@ -577,7 +567,7 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
               continue
             }
 
-            await fetchWithAuth(`${API_BASE}/tracker/${item.id}/attachments`, {
+            await fetchValidated(`${API_BASE}/tracker/${item.id}/attachments`, {
               method: 'POST',
               body: JSON.stringify({
                 name: fileName,
@@ -622,10 +612,10 @@ export function ForgeAudit({ portal }: ForgeAuditProps) {
     setCreatingRound(true)
 
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/${selectedSprintId}/audit-rounds`, {
+      const roundResult = await fetchValidated(`${API_BASE}/sprints/${selectedSprintId}/audit-rounds`, {
         method: 'POST',
       })
-      if (res.ok) {
+      if (roundResult.success) {
         // Reload data and round info, then reset to audit view
         await loadData()
         await loadRoundInfo(selectedSprintId)

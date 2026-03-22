@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { Ai3ClientData, Ai3HouseholdData } from '@tomachina/core'
 
 export const ai3Routes = Router()
 
@@ -127,7 +128,7 @@ ai3Routes.get('/household/:householdId', async (req: Request, res: Response) => 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userEmail = (req as any).user?.email || 'unknown'
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       household,
       members: memberData,
       combined_totals: {
@@ -212,7 +213,7 @@ ai3Routes.get('/:clientId', async (req: Request, res: Response) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userEmail = (req as any).user?.email || 'unknown'
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       client: clientData,
       accounts,
       connected_contacts: connectedContacts,

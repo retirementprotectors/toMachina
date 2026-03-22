@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useToast } from '../../components/Toast'
 
 /* ─── Phase Definitions (inline to avoid cross-package import issues) ─── */
@@ -71,22 +71,16 @@ export function AuditWorkflow({ auditId, currentPhase, onPhaseAdvanced }: AuditW
     try {
       setAdvancing(true)
       setBlockedReason(null)
-      const res = await fetchWithAuth(`/api/guardian/audits/${auditId}/phase`, {
+      const result = await fetchValidated<{ phase: string; blocked_reason?: string }>(`/api/guardian/audits/${auditId}/phase`, {
         method: 'POST',
         body: JSON.stringify({ action: 'advance' }),
       })
-      const json = await res.json() as {
-        success: boolean
-        data?: { phase: string }
-        error?: string
-        blocked_reason?: string
-      }
-      if (json.success && json.data) {
-        setPhase(json.data.phase)
-        showToast(`Advanced to ${PHASE_LABELS[json.data.phase] ?? json.data.phase}`, 'success')
-        onPhaseAdvanced?.(json.data.phase)
+      if (result.success && result.data) {
+        setPhase(result.data.phase)
+        showToast(`Advanced to ${PHASE_LABELS[result.data.phase] ?? result.data.phase}`, 'success')
+        onPhaseAdvanced?.(result.data.phase)
       } else {
-        const reason = json.blocked_reason ?? json.error ?? 'Transition blocked'
+        const reason = (result.data as { blocked_reason?: string } | undefined)?.blocked_reason ?? result.error ?? 'Transition blocked'
         setBlockedReason(reason)
         showToast('Phase transition blocked', 'warning')
       }

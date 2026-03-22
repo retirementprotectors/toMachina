@@ -5,6 +5,7 @@ import {
   errorResponse,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { ComplianceAuditData } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const complianceRoutes = Router()
@@ -106,7 +107,7 @@ complianceRoutes.post('/audit', async (req: Request, res: Response) => {
     await db.collection('compliance_audits').doc(auditId).set(auditReport)
     await writeThroughBridge('compliance_audits', 'insert', auditId, auditReport)
 
-    res.json(successResponse(auditReport))
+    res.json(successResponse<unknown>(auditReport))
   } catch (err) {
     console.error('POST /api/compliance/audit error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -133,7 +134,7 @@ complianceRoutes.get('/audits', async (req: Request, res: Response) => {
       .get()
 
     const audits = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(audits, { pagination: { count: audits.length, total: audits.length } }))
+    res.json(successResponse<unknown>(audits, { pagination: { count: audits.length, total: audits.length } }))
   } catch (err) {
     console.error('GET /api/compliance/audits error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -155,7 +156,7 @@ complianceRoutes.get('/audits/:id', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
   } catch (err) {
     console.error('GET /api/compliance/audits/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -195,7 +196,7 @@ complianceRoutes.post('/stale-users', async (req: Request, res: Response) => {
 
     stale.sort((a, b) => b.days_inactive - a.days_inactive)
 
-    res.json(successResponse(stale, { pagination: { count: stale.length, total: stale.length } }))
+    res.json(successResponse<unknown>(stale, { pagination: { count: stale.length, total: stale.length } }))
   } catch (err) {
     console.error('POST /api/compliance/stale-users error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -230,7 +231,7 @@ complianceRoutes.post('/new-users', async (req: Request, res: Response) => {
       }
     })
 
-    res.json(successResponse(newUsers, { pagination: { count: newUsers.length, total: newUsers.length } }))
+    res.json(successResponse<unknown>(newUsers, { pagination: { count: newUsers.length, total: newUsers.length } }))
   } catch (err) {
     console.error('POST /api/compliance/new-users error:', err)
     res.status(500).json(errorResponse(String(err)))

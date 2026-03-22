@@ -11,6 +11,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { TrackerItemDTO } from '@tomachina/core'
 
 export const trackerRoutes = Router()
 const COLLECTION = 'tracker_items'
@@ -47,7 +48,7 @@ trackerRoutes.get('/', async (req: Request, res: Response) => {
     const total = data.length
     data = data.slice(0, limit)
 
-    res.json(successResponse(data, { pagination: { count: data.length, total, hasMore: total > limit } }))
+    res.json(successResponse<TrackerItemDTO[]>(data as unknown as TrackerItemDTO[], { pagination: { count: data.length, total, hasMore: total > limit } }))
   } catch (err) {
     console.error('GET /api/tracker error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -85,7 +86,7 @@ trackerRoutes.patch('/bulk', async (req: Request, res: Response) => {
     }
     await batch.commit()
 
-    res.json(successResponse({ updated: ids.length }))
+    res.json(successResponse<unknown>({ updated: ids.length }))
   } catch (err) {
     console.error('PATCH /api/tracker/bulk error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -228,7 +229,7 @@ trackerRoutes.get('/dedup', async (_req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse({ groups, total_groups: groups.length }))
+    res.json(successResponse<unknown>({ groups, total_groups: groups.length }))
   } catch (err) {
     console.error('GET /api/tracker/dedup error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -312,7 +313,7 @@ trackerRoutes.post('/dedup/merge', async (req: Request, res: Response) => {
 
     // Return updated winner
     const updatedDoc = await winnerRef.get()
-    res.json(successResponse(stripInternalFields({ id: updatedDoc.id, ...updatedDoc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updatedDoc.id, ...updatedDoc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('POST /api/tracker/dedup/merge error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -326,7 +327,7 @@ trackerRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Tracker item not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/tracker/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -362,7 +363,7 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     await db.collection(COLLECTION).doc(itemId).set(data)
     // TODO: Notifications Module — notify assigned user / portal admins on new tracker items (Sprint 10+)
 
-    res.status(201).json(successResponse({ id: itemId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: itemId, ...data }))
   } catch (err) {
     console.error('POST /api/tracker error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -389,7 +390,7 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('PATCH /api/tracker/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -413,7 +414,7 @@ trackerRoutes.delete('/:id', async (req: Request, res: Response) => {
     }
 
     await docRef.delete()
-    res.json(successResponse({ deleted: id }))
+    res.json(successResponse<unknown>({ deleted: id }))
   } catch (err) {
     console.error('DELETE /api/tracker/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -469,7 +470,7 @@ trackerRoutes.post('/:id/attachments', async (req: Request, res: Response) => {
       updated_at: new Date().toISOString(),
     })
 
-    res.status(201).json(successResponse(attachment))
+    res.status(201).json(successResponse<unknown>(attachment))
   } catch (err) {
     console.error('POST /api/tracker/:id/attachments error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -502,7 +503,7 @@ trackerRoutes.delete('/:id/attachments/:name', async (req: Request, res: Respons
       updated_at: new Date().toISOString(),
     })
 
-    res.json(successResponse({ deleted: attachName }))
+    res.json(successResponse<unknown>({ deleted: attachName }))
   } catch (err) {
     console.error('DELETE /api/tracker/:id/attachments error:', err)
     res.status(500).json(errorResponse(String(err)))

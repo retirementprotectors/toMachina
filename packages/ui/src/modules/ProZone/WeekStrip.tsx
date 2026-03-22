@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import type { ScheduleDay } from './types'
 
 // ============================================================================
@@ -80,14 +80,11 @@ export default function WeekStrip({
       try {
         setLoading(true)
         const weekKey = formatWeekKey(year, week)
-        const res = await fetchWithAuth(`/api/prozone/schedule/${specialistId}/${weekKey}`)
-        const json = await res.json() as {
-          success: boolean
-          data?: { schedule: ScheduleDay[] }
-          error?: string
-        }
+        const result = await fetchValidated<{ schedule: ScheduleDay[] }>(
+          `/api/prozone/schedule/${specialistId}/${weekKey}`
+        )
         if (!cancelled) {
-          const days = json.success && json.data?.schedule ? json.data.schedule : []
+          const days = result.success && result.data?.schedule ? result.data.schedule : []
           setSchedule(days)
           onScheduleLoaded?.(days)
         }

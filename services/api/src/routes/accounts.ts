@@ -9,6 +9,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { AccountDTO, AccountWithClientDTO } from '@tomachina/core'
 
 export const accountRoutes = Router()
 
@@ -62,7 +63,7 @@ accountRoutes.get('/', async (req: Request, res: Response) => {
       ? `${(data[data.length - 1] as Record<string, unknown>)._client_id}__${docs[docs.length - 1].id}`
       : null
 
-    res.json(successResponse(data, { pagination: { count: data.length, hasMore, nextCursor } }))
+    res.json(successResponse<AccountDTO[]>(data as unknown as AccountDTO[], { pagination: { count: data.length, hasMore, nextCursor } }))
   } catch (err) {
     console.error('GET /api/accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -84,7 +85,7 @@ accountRoutes.get('/:clientId/:accountId', async (req: Request, res: Response) =
       return
     }
 
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/accounts/:clientId/:accountId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -128,7 +129,7 @@ accountRoutes.post('/:clientId', async (req: Request, res: Response) => {
       await db.collection('clients').doc(clientId).collection('accounts').doc(accountId).set(accountData)
     }
 
-    res.status(201).json(successResponse({ id: accountId, ...accountData }))
+    res.status(201).json(successResponse<unknown>({ id: accountId, ...accountData }))
   } catch (err) {
     console.error('POST /api/accounts/:clientId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -167,7 +168,7 @@ accountRoutes.patch('/:clientId/:accountId', async (req: Request, res: Response)
     }
 
     const updated = await docRef.get()
-    res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('PATCH /api/accounts error:', err)
     res.status(500).json(errorResponse(String(err)))

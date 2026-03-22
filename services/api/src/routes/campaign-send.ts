@@ -8,6 +8,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { CampaignEnrollResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const campaignSendRoutes = Router()
@@ -135,7 +136,7 @@ campaignSendRoutes.post('/enroll', enrollValidation, async (req: Request, res: R
       queuedSendCount,
     })
 
-    res.json(successResponse({ enrollmentCount, queuedSendCount, skippedDuplicates }))
+    res.json(successResponse<unknown>({ enrollmentCount, queuedSendCount, skippedDuplicates }))
   } catch (err) {
     console.error('POST /api/campaign-send/enroll error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -185,7 +186,7 @@ campaignSendRoutes.post('/manual', manualSendValidation, async (req: Request, re
         status: 'skipped',
         error_message: 'DND_ALL',
       })
-      res.json(successResponse(sendLog))
+      res.json(successResponse<unknown>(sendLog))
       return
     }
 
@@ -194,7 +195,7 @@ campaignSendRoutes.post('/manual', manualSendValidation, async (req: Request, re
         campaign_id, contact_id, channel: ch,
         status: 'skipped', error_message: 'DND_EMAIL',
       })
-      res.json(successResponse(sendLog))
+      res.json(successResponse<unknown>(sendLog))
       return
     }
 
@@ -203,7 +204,7 @@ campaignSendRoutes.post('/manual', manualSendValidation, async (req: Request, re
         campaign_id, contact_id, channel: ch,
         status: 'skipped', error_message: 'DND_SMS',
       })
-      res.json(successResponse(sendLog))
+      res.json(successResponse<unknown>(sendLog))
       return
     }
 
@@ -221,7 +222,7 @@ campaignSendRoutes.post('/manual', manualSendValidation, async (req: Request, re
 
     await writeThroughBridge('campaign_send_log', 'insert', sendLog.send_id as string, sendLog)
 
-    res.json(successResponse(sendLog))
+    res.json(successResponse<unknown>(sendLog))
   } catch (err) {
     console.error('POST /api/campaign-send/manual error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -250,7 +251,7 @@ campaignSendRoutes.get('/history', async (req: Request, res: Response) => {
     const snap = await query.orderBy('created_at', 'desc').limit(200).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/history error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -276,7 +277,7 @@ campaignSendRoutes.get('/enrollments', async (req: Request, res: Response) => {
     const snap = await query.orderBy('created_at', 'desc').limit(500).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/enrollments error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -333,7 +334,7 @@ campaignSendRoutes.post('/targets', async (req: Request, res: Response) => {
     }
 
     const data = matches.map((m) => stripInternalFields(m))
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('POST /api/campaign-send/targets error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -363,7 +364,7 @@ campaignSendRoutes.post('/execute', async (_req: Request, res: Response) => {
       .get()
 
     if (snap.empty) {
-      res.json(successResponse({ processed: 0, message: 'No sends due' }))
+      res.json(successResponse<unknown>({ processed: 0, message: 'No sends due' }))
       return
     }
 
@@ -428,7 +429,7 @@ campaignSendRoutes.post('/execute', async (_req: Request, res: Response) => {
 
     await batch.commit()
 
-    res.json(successResponse({ processed, skipped, total_found: snap.size }))
+    res.json(successResponse<unknown>({ processed, skipped, total_found: snap.size }))
   } catch (err) {
     console.error('POST /api/campaign-send/execute error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -462,7 +463,7 @@ campaignSendRoutes.get('/queue', async (req: Request, res: Response) => {
     const snap = await query.orderBy('scheduled_for', 'asc').limit(200).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/queue error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -498,7 +499,7 @@ campaignSendRoutes.post('/cancel/:id', async (req: Request, res: Response) => {
       updated_at: new Date().toISOString(),
     })
 
-    res.json(successResponse({ id, cancelled: true }))
+    res.json(successResponse<unknown>({ id, cancelled: true }))
   } catch (err) {
     console.error('POST /api/campaign-send/cancel/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -575,7 +576,7 @@ campaignSendRoutes.post('/schedule', scheduleValidation, async (req: Request, re
 
     await db.collection('campaign_schedules').doc(scheduleId).set(scheduleData)
 
-    res.status(201).json(successResponse(scheduleData))
+    res.status(201).json(successResponse<unknown>(scheduleData))
   } catch (err) {
     console.error('POST /api/campaign-send/schedule error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -606,7 +607,7 @@ campaignSendRoutes.get('/scheduled', async (req: Request, res: Response) => {
     const snap = await query.orderBy('scheduled_for', 'asc').limit(100).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/scheduled error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -648,7 +649,7 @@ campaignSendRoutes.patch('/scheduled/:id', async (req: Request, res: Response) =
 
     await docRef.update(updates)
 
-    res.json(successResponse({ id, updated: Object.keys(updates) }))
+    res.json(successResponse<unknown>({ id, updated: Object.keys(updates) }))
   } catch (err) {
     console.error('PATCH /api/campaign-send/scheduled/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -678,7 +679,7 @@ campaignSendRoutes.post('/execute-due', async (_req: Request, res: Response) => 
       .get()
 
     if (snap.empty) {
-      res.json(successResponse({ processed: 0, message: 'No schedules due' }))
+      res.json(successResponse<unknown>({ processed: 0, message: 'No schedules due' }))
       return
     }
 
@@ -756,7 +757,7 @@ campaignSendRoutes.post('/execute-due', async (_req: Request, res: Response) => 
       processed++
     }
 
-    res.json(successResponse({ processed, results }))
+    res.json(successResponse<unknown>({ processed, results }))
   } catch (err) {
     console.error('POST /api/campaign-send/execute-due error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -814,7 +815,7 @@ campaignSendRoutes.post('/drip/create', async (req: Request, res: Response) => {
 
     await db.collection('drip_sequences').doc(dripId).set(dripData)
 
-    res.status(201).json(successResponse(dripData))
+    res.status(201).json(successResponse<unknown>(dripData))
   } catch (err) {
     console.error('POST /api/campaign-send/drip/create error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -840,7 +841,7 @@ campaignSendRoutes.get('/drip', async (req: Request, res: Response) => {
     const snap = await q.orderBy('created_at', 'desc').limit(100).get()
     const data = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/campaign-send/drip error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -880,7 +881,7 @@ campaignSendRoutes.get('/drip/:id', async (req: Request, res: Response) => {
       paused: enrollments.filter((e) => e.status === 'paused').length,
     }
 
-    res.json(successResponse({ ...stripInternalFields(dripData), enrollment_stats: stats }))
+    res.json(successResponse<unknown>({ ...stripInternalFields(dripData), enrollment_stats: stats }))
   } catch (err) {
     console.error('GET /api/campaign-send/drip/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1002,7 +1003,7 @@ campaignSendRoutes.post('/drip/:id/enroll', async (req: Request, res: Response) 
 
     await batch.commit()
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       drip_id: dripId,
       enrollmentCount,
       queuedCount,
@@ -1041,7 +1042,7 @@ campaignSendRoutes.post('/drip/advance', async (_req: Request, res: Response) =>
       .get()
 
     if (enrollSnap.empty) {
-      res.json(successResponse({ processed: 0, advanced: 0, skipped: 0, stopped: 0, failed: 0 }))
+      res.json(successResponse<unknown>({ processed: 0, advanced: 0, skipped: 0, stopped: 0, failed: 0 }))
       return
     }
 
@@ -1052,7 +1053,7 @@ campaignSendRoutes.post('/drip/advance', async (_req: Request, res: Response) =>
     })
 
     if (dripEnrollments.length === 0) {
-      res.json(successResponse({ processed: 0, advanced: 0, skipped: 0, stopped: 0, failed: 0 }))
+      res.json(successResponse<unknown>({ processed: 0, advanced: 0, skipped: 0, stopped: 0, failed: 0 }))
       return
     }
 
@@ -1268,7 +1269,7 @@ campaignSendRoutes.post('/drip/advance', async (_req: Request, res: Response) =>
       }
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       processed: dripEnrollments.length,
       advanced,
       skipped,

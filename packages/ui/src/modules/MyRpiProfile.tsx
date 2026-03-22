@@ -8,7 +8,7 @@ import { useAuth, buildEntitlementContext } from '@tomachina/auth'
 import { useCollection } from '@tomachina/db'
 import { collections, getDb } from '@tomachina/db/src/firestore'
 import type { User } from '@tomachina/core'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /* ─── Types ─── */
 
@@ -479,7 +479,7 @@ function AudioRecorder() {
     const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
     const file_name = `recording_${Date.now()}.webm`
     try {
-      await fetchWithAuth('/api/dropzone', {
+      await fetchValidated('/api/dropzone', {
         method: 'POST',
         body: JSON.stringify({
           source: 'MYRPI_AUDIO',
@@ -667,7 +667,7 @@ function DocumentCamera() {
   const handleUpload = useCallback(async () => {
     const file_name = `document_${Date.now()}.jpg`
     try {
-      await fetchWithAuth('/api/dropzone', {
+      await fetchValidated('/api/dropzone', {
         method: 'POST',
         body: JSON.stringify({
           source: 'MYRPI_DOCUMENT',

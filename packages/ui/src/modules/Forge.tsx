@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
+import { fetchWithAuth } from './fetchWithAuth' // roadmap endpoint returns HTML, not JSON
 import { KanbanBoard, type KanbanColumn, type KanbanCard } from '../components/KanbanBoard'
 import { useToast } from '../components/Toast'
 
@@ -288,40 +289,28 @@ function ForgeInner({ portal }: ForgeProps) {
       if (filters.type) params.set('type', filters.type)
       if (search) params.set('search', search)
       params.set('limit', '1000')
-      const res = await fetchWithAuth(`${API_BASE}/tracker?${params}`)
-      if (res.ok) {
-        const json = await res.json()
-        if (json.success) setItems(json.data || [])
-      }
+      const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?${params}`)
+      if (result.success) setItems(result.data || [])
     } catch { /* silent */ }
     setLoading(false)
     // Also refresh unfiltered items for sprint cards
     try {
-      const allRes = await fetchWithAuth(`${API_BASE}/tracker?limit=1000`)
-      if (allRes.ok) {
-        const allJson = await allRes.json()
-        if (allJson.success) setAllItems(allJson.data || [])
-      }
+      const allResult = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?limit=1000`)
+      if (allResult.success) setAllItems(allResult.data || [])
     } catch { /* silent */ }
   }, [filters, search])
 
   const loadAllItems = useCallback(async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker?limit=1000`)
-      if (res.ok) {
-        const json = await res.json()
-        if (json.success) setAllItems(json.data || [])
-      }
+      const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?limit=1000`)
+      if (result.success) setAllItems(result.data || [])
     } catch { /* silent */ }
   }, [])
 
   const loadSprints = useCallback(async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints`)
-      if (res.ok) {
-        const json = await res.json()
-        if (json.success) setSprints(json.data || [])
-      }
+      const result = await fetchValidated<Sprint[]>(`${API_BASE}/sprints`)
+      if (result.success) setSprints(result.data || [])
     } catch { /* silent */ }
   }, [])
 
@@ -471,11 +460,11 @@ function ForgeInner({ portal }: ForgeProps) {
   const saveEdit = async () => {
     if (!editItem) return
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}`, {
+      const result = await fetchValidated(`${API_BASE}/tracker/${editItem.id}`, {
         method: 'PATCH',
         body: JSON.stringify(editForm),
       })
-      if (res.ok) {
+      if (result.success) {
         closeEdit()
         await loadItems()
       }
@@ -485,7 +474,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const confirmItem = async () => {
     if (!editItem) return
     try {
-      await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}`, {
+      await fetchValidated(`${API_BASE}/tracker/${editItem.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: 'confirmed' }),
       })
@@ -497,8 +486,8 @@ function ForgeInner({ portal }: ForgeProps) {
   const deleteItem = async () => {
     if (!editItem) return
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}`, { method: 'DELETE' })
-      if (res.ok) {
+      const result = await fetchValidated(`${API_BASE}/tracker/${editItem.id}`, { method: 'DELETE' })
+      if (result.success) {
         closeEdit()
         await loadItems()
       }
@@ -507,7 +496,7 @@ function ForgeInner({ portal }: ForgeProps) {
 
   const createSprint = async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints`, {
+      const result = await fetchValidated(`${API_BASE}/sprints`, {
         method: 'POST',
         body: JSON.stringify({
           name: sprintForm.name,
@@ -516,7 +505,7 @@ function ForgeInner({ portal }: ForgeProps) {
           item_ids: Array.from(selectedIds),
         }),
       })
-      if (res.ok) {
+      if (result.success) {
         setShowCreateSprint(false)
         setSprintForm({ name: '', description: '', discovery_url: '' })
         setSelectedIds(new Set())
@@ -531,10 +520,9 @@ function ForgeInner({ portal }: ForgeProps) {
     if (!sid) return
     const phaseParam = phase || 'discovery'
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/${sid}/prompt?phase=${phaseParam}`)
-      if (res.ok) {
-        const json = await res.json()
-        setPromptText(json.data?.prompt || json.prompt || '')
+      const promptResult = await fetchValidated<{ prompt: string }>(`${API_BASE}/sprints/${sid}/prompt?phase=${phaseParam}`)
+      if (promptResult.success) {
+        setPromptText(promptResult.data?.prompt || '')
         setPromptSprintId(sid)
         setShowPrompt(true)
         // Move items forward based on phase (use allItems, not filtered items)
@@ -542,7 +530,7 @@ function ForgeInner({ portal }: ForgeProps) {
         const fromStatuses = phaseParam === 'discovery' ? ['disc_audited', 'in_sprint'] : phaseParam === 'building' ? ['plan_audited', 'planned'] : []
         const sprintItems = targetStatus ? allItems.filter(i => i.sprint_id === sid && fromStatuses.includes(i.status)) : []
         if (sprintItems.length > 0) {
-          await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+          await fetchValidated(`${API_BASE}/tracker/bulk`, {
             method: 'PATCH',
             body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: targetStatus } }),
           })
@@ -557,7 +545,7 @@ function ForgeInner({ portal }: ForgeProps) {
     try {
       await Promise.all(
         Array.from(selectedIds).map(id =>
-          fetchWithAuth(`${API_BASE}/tracker/${id}`, {
+          fetchValidated(`${API_BASE}/tracker/${id}`, {
             method: 'PATCH',
             body: JSON.stringify({ status: bulkStatus }),
           })
@@ -572,7 +560,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const savePromptToSprint = async () => {
     if (!promptSprintId || !promptText) return
     try {
-      await fetchWithAuth(`${API_BASE}/sprints/${promptSprintId}`, {
+      await fetchValidated(`${API_BASE}/sprints/${promptSprintId}`, {
         method: 'PATCH',
         body: JSON.stringify({ prompt_text: promptText }),
       })
@@ -609,7 +597,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
   const handleCardMove = async (cardId: string, _fromCol: string, toCol: string) => {
     try {
-      await fetchWithAuth(`${API_BASE}/tracker/${cardId}`, {
+      await fetchValidated(`${API_BASE}/tracker/${cardId}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: toCol }),
       })
@@ -700,10 +688,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
   const generatePhaseAudit = async (sprintId: string, auditType: 'discovery' | 'plan') => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit-${auditType}`)
-      if (res.ok) {
-        const json = await res.json()
-        setPromptText(json.data?.prompt || json.prompt || '')
+      const res = await fetchValidated<{ prompt: string }>(`${API_BASE}/sprints/${sprintId}/audit-${auditType}`)
+      if (res.success) {
+        setPromptText(res.data?.prompt || '')
         setPromptSprintId(sprintId)
         setShowPrompt(true)
         // Advance items: discovery audit (in_sprint → disc_audited), plan audit (planned → plan_audited)
@@ -711,7 +698,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         const fromStatuses = auditType === 'discovery' ? ['in_sprint'] : ['planned']
         const sprintItems = allItems.filter(i => i.sprint_id === sprintId && fromStatuses.includes(i.status))
         if (sprintItems.length > 0) {
-          await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+          await fetchValidated(`${API_BASE}/tracker/bulk`, {
             method: 'PATCH',
             body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: targetStatus } }),
           })
@@ -723,16 +710,15 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
   const generateAuditPrompt = async (sprintId: string) => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit`)
-      if (res.ok) {
-        const json = await res.json()
-        setPromptText(json.data?.prompt || json.prompt || '')
+      const res = await fetchValidated<{ prompt: string }>(`${API_BASE}/sprints/${sprintId}/audit`)
+      if (res.success) {
+        setPromptText(res.data?.prompt || '')
         setPromptSprintId(sprintId)
         setShowPrompt(true)
         // Advance items: build audit (built → audited)
         const sprintItems = allItems.filter(i => i.sprint_id === sprintId && i.status === 'built')
         if (sprintItems.length > 0) {
-          await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+          await fetchValidated(`${API_BASE}/tracker/bulk`, {
             method: 'PATCH',
             body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: 'audited' } }),
           })
@@ -746,7 +732,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     const sprintItems = allItems.filter(i => i.sprint_id === sprintId && i.status !== 'confirmed' && i.status !== 'deferred' && i.status !== 'wont_fix')
     if (sprintItems.length === 0) return
     try {
-      await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+      await fetchValidated(`${API_BASE}/tracker/bulk`, {
         method: 'PATCH',
         body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: 'confirmed' } }),
       })
@@ -756,7 +742,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
   const closeSprint = async (sprintId: string) => {
     try {
-      await fetchWithAuth(`${API_BASE}/sprints/${sprintId}`, {
+      await fetchValidated(`${API_BASE}/sprints/${sprintId}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: 'complete' }),
       })
@@ -767,14 +753,13 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   const reopenSprint = async (sprintId: string) => {
     setReopeningSprintId(sprintId)
     try {
-      const r = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/reopen`, { method: 'POST' })
-      if (r.ok) {
+      const r = await fetchValidated(`${API_BASE}/sprints/${sprintId}/reopen`, { method: 'POST' })
+      if (r.success) {
         showToast('Sprint reopened — items moved back to Audit', 'success')
         await loadItems()
         await loadSprints()
       } else {
-        const body = await r.json().catch(() => ({}))
-        showToast(`Reopen failed: ${(body as Record<string, string>).error || r.statusText}`, 'error')
+        showToast(`Reopen failed: ${r.error || 'Unknown error'}`, 'error')
       }
     } catch (err) {
       showToast(`Reopen error: ${String(err)}`, 'error')
@@ -785,11 +770,11 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
   const saveSprint = async (sprintId: string, updates: Record<string, unknown>) => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}`, {
+      const res = await fetchValidated(`${API_BASE}/sprints/${sprintId}`, {
         method: 'PATCH',
         body: JSON.stringify(updates),
       })
-      if (res.ok) {
+      if (res.success) {
         await loadSprints()
         showToast('Sprint updated', 'success')
       }
@@ -798,11 +783,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
   const loadAuditRound = async (sprintId: string) => {
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/${sprintId}/audit-round`)
-      if (res.ok) {
-        const json = await res.json()
-        if (json.success) setAuditRound(json.data)
-        else setAuditRound(null)
+      const res = await fetchValidated<{ current_round: number; passed_count: number; failed_count: number; pending_count: number; total_items: number }>(`${API_BASE}/sprints/${sprintId}/audit-round`)
+      if (res.success) {
+        setAuditRound(res.data ?? null)
       } else {
         setAuditRound(null)
       }
@@ -837,7 +820,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   const unconfirmItem = async () => {
     if (!editItem) return
     try {
-      await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}`, {
+      await fetchValidated(`${API_BASE}/tracker/${editItem.id}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: 'audited' }),
       })
@@ -849,10 +832,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   const loadDedup = useCallback(async () => {
     setDedupLoading(true)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker/dedup`)
-      if (res.ok) {
-        const json = await res.json()
-        setDedupGroups(json.data?.groups || [])
+      const res = await fetchValidated<{ groups: Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }> }>(`${API_BASE}/tracker/dedup`)
+      if (res.success) {
+        setDedupGroups(res.data?.groups || [])
       }
     } catch { /* silent */ }
     setDedupLoading(false)
@@ -873,18 +855,18 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
     try {
       // First merge (combines attachments, notes, deletes losers)
-      const res = await fetchWithAuth(`${API_BASE}/tracker/dedup/merge`, {
+      const res = await fetchValidated(`${API_BASE}/tracker/dedup/merge`, {
         method: 'POST',
         body: JSON.stringify({ winner_id: winnerId, loser_ids: loserIds }),
       })
       // Then apply field overrides from selections
-      if (res.ok && Object.keys(overrides).length > 0) {
-        await fetchWithAuth(`${API_BASE}/tracker/${winnerId}`, {
+      if (res.success && Object.keys(overrides).length > 0) {
+        await fetchValidated(`${API_BASE}/tracker/${winnerId}`, {
           method: 'PATCH',
           body: JSON.stringify(overrides),
         })
       }
-      if (res.ok) {
+      if (res.success) {
         setDedupSelections(prev => { const next = { ...prev }; delete next[groupIndex]; return next })
         await loadDedup()
         await loadItems()
@@ -916,12 +898,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       // Update all items in this sprint to the target status (use allItems, not filtered items)
       const sprintItems = allItems.filter(i => i.sprint_id === data.sprintId && !['deferred', 'wont_fix'].includes(i.status))
       // Always save phase to sprint doc (supports empty sprints)
-      await fetchWithAuth(`${API_BASE}/sprints/${data.sprintId}`, {
+      await fetchValidated(`${API_BASE}/sprints/${data.sprintId}`, {
         method: 'PATCH',
         body: JSON.stringify({ phase: toPhase }),
       })
       if (sprintItems.length > 0) {
-        await fetchWithAuth(`${API_BASE}/tracker/bulk`, {
+        await fetchValidated(`${API_BASE}/tracker/bulk`, {
           method: 'PATCH',
           body: JSON.stringify({ ids: sprintItems.map(i => i.id), updates: { status: targetStatus } }),
         })
@@ -940,8 +922,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         if (win) { win.document.write(html); win.document.close() }
         else showToast('Pop-up blocked — allow pop-ups for this site', 'warning')
       } else {
-        const body = await res.json().catch(() => ({}))
-        showToast(`Roadmap failed: ${(body as Record<string, string>).error || res.statusText}`, 'error')
+        showToast('Roadmap generation failed', 'error')
       }
     } catch (err) {
       showToast(`Roadmap error: ${String(err)}`, 'error')
@@ -966,7 +947,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     setDiscoveryPreviewing(true)
     setDiscoveryPreview(null)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/import-discovery`, {
+      const res = await fetchValidated(`${API_BASE}/sprints/import-discovery`, {
         method: 'POST',
         body: JSON.stringify({
           content: discoveryContent,
@@ -974,9 +955,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           dry_run: true,
         }),
       })
-      const json = await res.json() as { success: boolean; data?: Record<string, unknown>; error?: string }
-      if (json.success && json.data) {
-        setDiscoveryPreview(json.data)
+      if (res.success && res.data) {
+        setDiscoveryPreview(res.data as Record<string, unknown>)
       }
     } catch { /* silent */ }
     setDiscoveryPreviewing(false)
@@ -986,15 +966,14 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
     if (!discoveryContent.trim()) return
     setDiscoveryImporting(true)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/sprints/import-discovery`, {
+      const res = await fetchValidated(`${API_BASE}/sprints/import-discovery`, {
         method: 'POST',
         body: JSON.stringify({
           content: discoveryContent,
           discovery_url: sprintForm.discovery_url || undefined,
         }),
       })
-      const json = await res.json() as { success: boolean; data?: Record<string, unknown>; error?: string }
-      if (json.success) {
+      if (res.success) {
         setShowCreateSprint(false)
         setShowDiscoveryImport(false)
         setDiscoveryContent('')
@@ -1019,18 +998,15 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         }
         reader.readAsDataURL(file)
       })
-      const res = await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}/attachments`, {
+      const res = await fetchValidated(`${API_BASE}/tracker/${editItem.id}/attachments`, {
         method: 'POST',
         body: JSON.stringify({ name: file.name, data: base64, content_type: file.type }),
       })
-      if (res.ok) {
+      if (res.success) {
         await loadItems()
         // Refresh the edit item with new attachments
-        const itemRes = await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}`)
-        if (itemRes.ok) {
-          const json = await itemRes.json()
-          if (json.success) { setEditItem(json.data); setEditForm(json.data) }
-        }
+        const itemResult = await fetchValidated<TrackerItem>(`${API_BASE}/tracker/${editItem.id}`)
+        if (itemResult.success && itemResult.data) { setEditItem(itemResult.data); setEditForm(itemResult.data) }
       }
     } catch { /* silent */ }
     setUploading(false)
@@ -1039,16 +1015,13 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   const deleteAttachment = async (attachName: string) => {
     if (!editItem) return
     try {
-      const res = await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}/attachments/${encodeURIComponent(attachName)}`, {
+      const res = await fetchValidated(`${API_BASE}/tracker/${editItem.id}/attachments/${encodeURIComponent(attachName)}`, {
         method: 'DELETE',
       })
-      if (res.ok) {
+      if (res.success) {
         await loadItems()
-        const itemRes = await fetchWithAuth(`${API_BASE}/tracker/${editItem.id}`)
-        if (itemRes.ok) {
-          const json = await itemRes.json()
-          if (json.success) { setEditItem(json.data); setEditForm(json.data) }
-        }
+        const itemResult = await fetchValidated<TrackerItem>(`${API_BASE}/tracker/${editItem.id}`)
+        if (itemResult.success && itemResult.data) { setEditItem(itemResult.data); setEditForm(itemResult.data) }
       }
     } catch { /* silent */ }
   }
@@ -1605,8 +1578,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                     else if (sp.phase === 'built') generateAuditPrompt(sp.id)
                     else if (sp.phase === 'audited') {
                       try {
-                        const r = await fetchWithAuth(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
-                        if (r.ok) { await loadItems(); await loadSprints() }
+                        const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
+                        if (r.success) { await loadItems(); await loadSprints() }
                       } catch { /* silent */ }
                     }
                     else if (sp.phase === 'confirmed') reopenSprint(sp.id)
@@ -1872,8 +1845,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                                 else if (phase === 'built') generateAuditPrompt(sp.id)
                                 else if (phase === 'audited') {
                                   try {
-                                    const r = await fetchWithAuth(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
-                                    if (r.ok) { await loadItems(); await loadSprints() }
+                                    const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
+                                    if (r.success) { await loadItems(); await loadSprints() }
                                   } catch { /* silent */ }
                                 }
                                 else if (phase === 'confirmed') reopenSprint(sp.id)

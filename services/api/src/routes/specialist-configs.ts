@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { SpecialistConfigDTO } from '@tomachina/core'
 
 export const specialistConfigRoutes = Router()
 const COLLECTION = 'specialist_configs'
@@ -31,7 +32,7 @@ specialistConfigRoutes.get('/', async (req: Request, res: Response) => {
     const total = data.length
     data = data.slice(0, limit)
 
-    res.json(successResponse(data, { pagination: { count: data.length, total, hasMore: total > limit } }))
+    res.json(successResponse<SpecialistConfigDTO[]>(data as unknown as SpecialistConfigDTO[], { pagination: { count: data.length, total, hasMore: total > limit } }))
   } catch (err) {
     console.error('GET /api/specialist-configs error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -45,7 +46,7 @@ specialistConfigRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Specialist config not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/specialist-configs/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -82,7 +83,7 @@ specialistConfigRoutes.post('/', async (req: Request, res: Response) => {
 
     await db.collection(COLLECTION).doc(configId).set(configData)
 
-    res.status(201).json(successResponse(stripInternalFields({ id: configId, ...configData })))
+    res.status(201).json(successResponse<unknown>(stripInternalFields({ id: configId, ...configData })))
   } catch (err) {
     console.error('POST /api/specialist-configs error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -109,7 +110,7 @@ specialistConfigRoutes.patch('/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('PATCH /api/specialist-configs/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

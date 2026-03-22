@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 
 // ============================================================================
 // SpecialistConfigEditor — Admin form for specialist configuration CRUD
@@ -350,12 +350,11 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
     try {
       setListLoading(true)
       setListError(null)
-      const res = await fetchWithAuth('/api/specialist-configs')
-      const json = (await res.json()) as { success: boolean; data?: ConfigSummary[]; error?: string }
-      if (json.success && json.data) {
-        setConfigs(Array.isArray(json.data) ? json.data : [])
+      const result = await fetchValidated('/api/specialist-configs') as { success: boolean; data?: ConfigSummary[]; error?: string }
+      if (result.success && result.data) {
+        setConfigs(Array.isArray(result.data) ? result.data : [])
       } else {
-        setListError(json.error || 'Failed to load configs')
+        setListError(result.error || 'Failed to load configs')
       }
     } catch {
       setListError('Network error loading configs')
@@ -376,10 +375,9 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
   // ---------------------------------------------------------------------------
   const loadTerritories = useCallback(async () => {
     try {
-      const res = await fetchWithAuth('/api/territories')
-      const json = (await res.json()) as { success: boolean; data?: TerritoryOption[]; error?: string }
-      if (json.success && json.data) {
-        setTerritories(Array.isArray(json.data) ? json.data : [])
+      const result = await fetchValidated('/api/territories') as { success: boolean; data?: TerritoryOption[]; error?: string }
+      if (result.success && result.data) {
+        setTerritories(Array.isArray(result.data) ? result.data : [])
       }
     } catch {
       // silent — territory list is supplementary
@@ -395,14 +393,13 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
       return
     }
     try {
-      const res = await fetchWithAuth(`/api/territories/${territoryId}`)
-      const json = (await res.json()) as {
+      const result = await fetchValidated(`/api/territories/${territoryId}`) as {
         success: boolean
         data?: { zones?: Array<{ zone_id: string; zone_name: string }> }
         error?: string
       }
-      if (json.success && json.data?.zones) {
-        setTerritoryZones(Array.isArray(json.data.zones) ? json.data.zones : [])
+      if (result.success && result.data?.zones) {
+        setTerritoryZones(Array.isArray(result.data.zones) ? result.data.zones : [])
       } else {
         setTerritoryZones([])
       }
@@ -435,10 +432,9 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
     await loadTerritories()
 
     try {
-      const res = await fetchWithAuth(`/api/specialist-configs/${configId}`)
-      const json = (await res.json()) as { success: boolean; data?: FullSpecialistConfig; error?: string }
-      if (json.success && json.data) {
-        const d = json.data
+      const result = await fetchValidated(`/api/specialist-configs/${configId}`) as { success: boolean; data?: FullSpecialistConfig; error?: string }
+      if (result.success && result.data) {
+        const d = result.data
         setForm({
           user_id: d.user_id || '',
           specialist_name: d.specialist_name || '',
@@ -458,7 +454,7 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
           await loadTerritoryZones(d.territory_id)
         }
       } else {
-        setFormError(json.error || 'Failed to load config')
+        setFormError(result.error || 'Failed to load config')
       }
     } catch {
       setFormError('Network error loading config')
@@ -507,19 +503,18 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
     try {
       const url = mode === 'create' ? '/api/specialist-configs' : `/api/specialist-configs/${editingId}`
       const method = mode === 'create' ? 'POST' : 'PATCH'
-      const res = await fetchWithAuth(url, {
+      const result = await fetchValidated(url, {
         method,
         body: JSON.stringify(form),
-      })
-      const json = (await res.json()) as { success: boolean; error?: string }
-      if (json.success) {
+      }) as { success: boolean; error?: string }
+      if (result.success) {
         showToast(
           mode === 'create' ? 'Specialist config created' : 'Specialist config updated',
           'success',
         )
         handleBack()
       } else {
-        setFormError(json.error || 'Save failed')
+        setFormError(result.error || 'Save failed')
       }
     } catch {
       setFormError('Network error saving config')

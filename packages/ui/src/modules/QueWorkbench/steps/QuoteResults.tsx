@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../../fetchWithAuth'
+import { fetchValidated } from '../../fetchValidated'
 import { QuoteCard } from '../shared/QuoteCard'
 import type { QueProductLine } from '../types'
 
@@ -67,18 +67,12 @@ export function QuoteResults({ sessionId, productLine, onNext, onBack }: QuoteRe
     setLoading(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que/${sessionId}`)
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to load quotes' }))
-        setError((body as { error?: string }).error ?? 'Failed to load quotes')
+      const result = await fetchValidated<{ quotes: QuoteData[] }>(`/api/que/${sessionId}`)
+      if (!result.success) {
+        setError(result.error ?? 'Failed to load quotes')
         return
       }
-      const body = await res.json() as { success: boolean; data?: { quotes: QuoteData[] }; error?: string }
-      if (body.success && body.data) {
-        setQuotes(body.data.quotes ?? [])
-      } else {
-        setError(body.error ?? 'Unexpected response')
-      }
+      setQuotes(result.data?.quotes ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {
@@ -101,7 +95,7 @@ export function QuoteResults({ sessionId, productLine, onNext, onBack }: QuoteRe
         if (v.trim()) details[k] = v
       }
 
-      const res = await fetchWithAuth(`/api/que/${sessionId}/quote`, {
+      const result = await fetchValidated(`/api/que/${sessionId}/quote`, {
         method: 'POST',
         body: JSON.stringify({
           source_id: 'manual',
@@ -113,9 +107,8 @@ export function QuoteResults({ sessionId, productLine, onNext, onBack }: QuoteRe
         }),
       })
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to add quote' }))
-        setError((body as { error?: string }).error ?? 'Failed to add quote')
+      if (!result.success) {
+        setError(result.error ?? 'Failed to add quote')
         return
       }
 

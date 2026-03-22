@@ -10,6 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { OpportunityDTO } from '@tomachina/core'
 
 export const opportunityRoutes = Router()
 const COLLECTION = 'opportunities'
@@ -28,7 +29,7 @@ opportunityRoutes.get('/', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<OpportunityDTO[]>(data as unknown as OpportunityDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/opportunities error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -41,7 +42,7 @@ opportunityRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Opportunity not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/opportunities/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -61,7 +62,7 @@ opportunityRoutes.post('/', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(COLLECTION, 'insert', oppId, data)
     if (!bridgeResult.success) await db.collection(COLLECTION).doc(oppId).set(data)
 
-    res.status(201).json(successResponse({ id: oppId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: oppId, ...data }))
   } catch (err) {
     console.error('POST /api/opportunities error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -84,7 +85,7 @@ opportunityRoutes.patch('/:id', async (req: Request, res: Response) => {
     if (!bridgeResult.success) await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('PATCH /api/opportunities/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -103,7 +104,7 @@ opportunityRoutes.delete('/:id', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(COLLECTION, 'update', id, updates)
     if (!bridgeResult.success) await docRef.update(updates)
 
-    res.json(successResponse({ id, stage: 'closed_lost' }))
+    res.json(successResponse<unknown>({ id, stage: 'closed_lost' }))
   } catch (err) {
     console.error('DELETE /api/opportunities/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import ZoneAccordion from './ZoneAccordion'
 import { InventoryBadge, ProductPill } from './InventoryBadge'
 import type {
@@ -130,25 +130,18 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
       try {
         setLoading(true)
         setError(null)
-        const res = await fetchWithAuth(
-          `/api/prozone/prospects/${specialistId}`
-        )
-        const json = (await res.json()) as {
-          success: boolean
-          data?: {
-            zones: ZoneWithProspects[]
-            total_prospects: number
-            total_flagged: number
-          }
-          error?: string
-        }
+        const result = await fetchValidated<{
+          zones: ZoneWithProspects[]
+          total_prospects: number
+          total_flagged: number
+        }>(`/api/prozone/prospects/${specialistId}`)
         if (!cancelled) {
-          if (json.success && json.data) {
-            setZones(json.data.zones || [])
-            setTotalProspects(json.data.total_prospects)
-            setTotalFlagged(json.data.total_flagged)
+          if (result.success && result.data) {
+            setZones(result.data.zones || [])
+            setTotalProspects(result.data.total_prospects)
+            setTotalFlagged(result.data.total_flagged)
           } else {
-            setError(json.error || 'Failed to load prospects')
+            setError(result.error || 'Failed to load prospects')
           }
         }
       } catch {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useToast } from '../../components/Toast'
 
 /* ─── Types ─── */
@@ -101,11 +101,9 @@ export function WriteGateConsole() {
       if (statusFilter) params.set('status', statusFilter)
       if (timeRange) params.set('range', timeRange)
       const url = `/api/guardian/writes${params.toString() ? '?' + params.toString() : ''}`
-      const res = await fetchWithAuth(url)
-      if (!res.ok) throw new Error('Failed to fetch writes')
-      const json = await res.json() as { success: boolean; data?: WriteEntry[] }
-      if (json.success && json.data) {
-        setEntries(Array.isArray(json.data) ? json.data : [])
+      const result = await fetchValidated<WriteEntry[]>(url)
+      if (result.success && result.data) {
+        setEntries(Array.isArray(result.data) ? result.data : [])
       }
     } catch {
       showToast('Failed to load write log', 'error')

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import ProZoneScorecard from './ProZoneScorecard'
 import CallPanel from './CallPanel'
 import type { CallDisposition } from './CallPanel'
@@ -54,17 +54,16 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
       try {
         setLoading(true)
         setError(null)
-        const res = await fetchWithAuth('/api/specialist-configs')
-        const json = await res.json() as { success: boolean; data?: SpecialistConfig[]; error?: string }
+        const result = await fetchValidated<SpecialistConfig[]>('/api/specialist-configs')
         if (!cancelled) {
-          if (json.success && json.data) {
-            const specs = Array.isArray(json.data) ? json.data : []
+          if (result.success && result.data) {
+            const specs = Array.isArray(result.data) ? result.data : []
             setSpecialists(specs)
             if (specs.length === 1) {
               setSelectedId(specs[0].config_id)
             }
           } else {
-            setError(json.error || 'Failed to load specialist configs')
+            setError(result.error || 'Failed to load specialist configs')
           }
         }
       } catch {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /**
  * ACF Status Icon — shows in Contact grid ACF column.
@@ -32,10 +32,9 @@ export function ACFStatusIcon({ clientId, gdriveFolderUrl }: ACFStatusIconProps)
     let cancelled = false
     setLoading(true)
 
-    fetchWithAuth(`/api/acf/status/${clientId}`)
-      .then((r) => r.json())
-      .then((res) => {
-        if (!cancelled && res.success) setStatus(res.data)
+    fetchValidated<StatusData>(`/api/acf/status/${clientId}`)
+      .then((result) => {
+        if (!cancelled && result.success) setStatus(result.data ?? null)
       })
       .catch(() => {})
       .finally(() => {
