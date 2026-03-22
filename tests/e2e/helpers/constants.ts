@@ -30,6 +30,8 @@ export const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || ''
 export const GCP_PROJECT_ID = 'claude-mcp-484718'
 
 // ── API ──
+// Backend E2E tests require Cloud Run (SUPER_PREPARE needs Drive download context).
+// Locally: not runnable. CI: runs after deploy-api with TEST_API_URL from Cloud Run.
 export const TEST_API_URL = process.env.TEST_API_URL || 'http://localhost:8080'
 
 // ── Test Run Marker ──
