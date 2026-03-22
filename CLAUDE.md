@@ -94,6 +94,12 @@ npx turbo run build --filter=@tomachina/core
 - **Dependabot** — monitors `package-lock.json` weekly (Mondays), auto-opens PRs for vulnerable deps, groups minor/patch updates
 - **CodeQL** — static analysis on every PR + weekly (Sundays), catches security bugs (injection, XSS, etc.) in TypeScript/JavaScript
 
+**E2E tests (automated):**
+- **e2e-ui** (Playwright) — 10 UI module visual tests, runs on every PR + push to main (pre-deploy gate)
+- **e2e-intake** (Vitest) — 4 intake pipeline wire tests, runs after deploy-api on push to main (post-deploy verification)
+- Run locally: `npm run test:e2e:local` (backend) / `npm run test:e2e:ui` (UI)
+- Test data uses `e2e-test-` prefix, cleaned up automatically. Test client: "E2E Test Client LLC"
+
 **Deploy pipeline**: Branch protection ON. Push to branch → open PR with `gh pr merge --auto --squash --delete-branch` → CI passes → auto-merges to main → deploy-api (Docker build + Artifact Registry + Cloud Run for tm-api + tm-bridge) → Firebase App Hosting auto-deploys portals. Direct push to main is blocked. No manual merge step — `--auto` queues merge for when CI passes. No Cloud Build — Docker runs directly on the GitHub Actions runner.
 
 ## Code Standards
