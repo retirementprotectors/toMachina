@@ -46,7 +46,7 @@ dropzoneRoutes.post('/', upload.single('file'), async (req: Request, res: Respon
       await db.collection('intake_queue').doc(queue_id).set({
         queue_id, source, file_name, file_type,
         file_size: file_size ?? null, file_id: null,
-        status: 'pending', created_by: getUserEmail(req),
+        status: 'pending', _created_by: getUserEmail(req),
         created_at: now, updated_at: now,
       })
       res.json(successResponse({ queue_id, file_id: null }))
@@ -64,7 +64,7 @@ dropzoneRoutes.post('/', upload.single('file'), async (req: Request, res: Respon
     // Create intake_queue entry with real file_id
     const db = getFirestore()
     const queue_id = randomUUID()
-    const created_by = getUserEmail(req)
+    const _created_by = getUserEmail(req)
     const now = new Date().toISOString()
 
     const entry = {
@@ -76,7 +76,7 @@ dropzoneRoutes.post('/', upload.single('file'), async (req: Request, res: Respon
       file_id: driveResult.id,
       file_url: driveResult.url,
       status: 'pending',
-      created_by,
+      _created_by,
       created_at: now,
       updated_at: now,
     }

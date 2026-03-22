@@ -189,7 +189,7 @@ rulesRoutes.post('/', async (req: Request, res: Response) => {
       status: 'active',
       fire_count: 0,
       last_fired_at: null,
-      created_by: (req as any).user?.email || 'api',
+      _created_by: (req as any).user?.email || 'api',
       created_at: now,
       updated_at: now,
     }

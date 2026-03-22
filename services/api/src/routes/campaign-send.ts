@@ -568,7 +568,7 @@ campaignSendRoutes.post('/schedule', scheduleValidation, async (req: Request, re
       channel,
       audience_filter: audience_filter || null,
       status: 'scheduled',
-      created_by: userEmail,
+      _created_by: userEmail,
       created_at: now,
       updated_at: now,
     }
@@ -807,7 +807,7 @@ campaignSendRoutes.post('/drip/create', async (req: Request, res: Response) => {
       fallback_channel: fallback_channel || 'email',
       max_steps: max_steps || normalizedSteps.length,
       status: 'active',
-      created_by: userEmail,
+      _created_by: userEmail,
       created_at: now,
       updated_at: now,
     }

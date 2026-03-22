@@ -83,7 +83,7 @@ dexPipelineRoutes.post('/packages', async (req: Request, res: Response) => {
       pdf_storage_ref: null,
       notes: String(body.notes || ''),
       draft_state: body.draft_state || null,
-      created_by: userEmail,
+      _created_by: userEmail,
     }
 
     const bridgeResult = await writeThroughBridge(PACKAGES, 'insert', packageId, data)

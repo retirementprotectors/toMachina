@@ -749,7 +749,7 @@ importRoutes.post('/approval/create', async (req: Request, res: Response) => {
       extracted_data: extractedData,
       context: context || {},
       status: 'pending',
-      created_by: userEmail,
+      _created_by: userEmail,
       created_at: now,
       updated_at: now,
     }
@@ -1212,7 +1212,7 @@ importRoutes.post('/case-task', async (req: Request, res: Response) => {
     taskData.status = taskData.status || 'open'
     taskData.created_at = taskData.created_at || now
     taskData.updated_at = now
-    taskData.created_by = (req as unknown as { user?: { email?: string } }).user?.email || 'api'
+    taskData._created_by = (req as unknown as { user?: { email?: string } }).user?.email || 'api'
 
     const taskId = taskData.task_id || randomUUID()
     taskData.task_id = taskId

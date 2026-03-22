@@ -213,7 +213,7 @@ flowRoutes.post('/instances', async (req: Request, res: Response) => {
       stage_status: 'in_progress',
       workflow_progress: '{}',
       custom_fields: body.custom_fields ? JSON.stringify(body.custom_fields) : '{}',
-      created_by: String(userEmail),
+      _created_by: String(userEmail),
       created_at: now,
       updated_at: now,
     }

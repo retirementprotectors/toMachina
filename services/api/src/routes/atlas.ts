@@ -1262,7 +1262,7 @@ atlasRoutes.post('/introspect/confirm', async (req: Request, res: Response) => {
         default_category: runData.target_category || 'medicare',
         times_used: 1,
         last_used_at: now,
-        created_by: 'api',
+        _created_by: 'api',
         created_at: now,
         updated_at: now,
       }
