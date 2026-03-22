@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORGE Discovery — E2E Expansion: Front-End Visual Coverage</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+    }
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .header {
+      border-bottom: 2px solid #f97316;
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .header .forge-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    .header h1 {
+      color: #f0f6fc;
+      font-size: 2rem;
+      margin-top: 0.5rem;
+    }
+    .header .subtitle {
+      color: #8b949e;
+      font-size: 1rem;
+      margin-top: 0.25rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .stat-card .number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f97316;
+    }
+    .stat-card .label {
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin-top: 0.25rem;
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+    .section h2 {
+      color: #f0f6fc;
+      font-size: 1.4rem;
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .section h3 {
+      color: #c9d1d9;
+      font-size: 1.1rem;
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    th {
+      background: #161b22;
+      color: #f0f6fc;
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+      border-bottom: 2px solid #30363d;
+    }
+    td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #21262d;
+      font-size: 0.9rem;
+    }
+    tr:hover { background: #161b22; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-critical { background: #da3633; color: #fff; }
+    .badge-high { background: #f97316; color: #fff; }
+    .badge-medium { background: #3fb950; color: #fff; }
+    .badge-low { background: #388bfd; color: #fff; }
+    .badge-existing { background: #30363d; color: #8b949e; }
+    .badge-new { background: #1f6feb; color: #fff; }
+
+    .spec-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .spec-card .title {
+      color: #f0f6fc;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .spec-card .route {
+      color: #f97316;
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    .spec-card .desc {
+      color: #8b949e;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    .spec-card .meta {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .coverage-bar {
+      background: #21262d;
+      border-radius: 6px;
+      height: 24px;
+      overflow: hidden;
+      position: relative;
+      margin: 0.5rem 0;
+    }
+    .coverage-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .fill-before { background: #388bfd; }
+    .fill-after { background: #3fb950; }
+
+    .existing-table tr td:first-child {
+      font-family: monospace;
+      color: #8b949e;
+    }
+
+    .component-group {
+      margin-bottom: 2rem;
+    }
+
+    .footer {
+      border-top: 1px solid #21262d;
+      padding-top: 1rem;
+      margin-top: 3rem;
+      color: #484f58;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <div class="forge-badge">FORGE Discovery</div>
+    <h1>E2E Expansion — Front-End Visual Coverage</h1>
+    <div class="subtitle">Sprint setup for expanding Playwright test suite from 9 to 30 spec files</div>
+  </div>
+
+  <!-- ═══ SUMMARY STATS ═══ -->
+  <div class="summary-grid">
+    <div class="stat-card">
+      <div class="number">350</div>
+      <div class="label">Audited Items</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">~180</div>
+      <div class="label">Front-End Testable</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">21</div>
+      <div class="label">New Specs Needed</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">30</div>
+      <div class="label">Total Specs After</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">36</div>
+      <div class="label">Pages Covered</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">~51%</div>
+      <div class="label">Audited Auto-Verified</div>
+    </div>
+  </div>
+
+  <!-- ═══ COVERAGE VISUALIZATION ═══ -->
+  <div class="section">
+    <h2>Coverage Projection</h2>
+    <p style="margin-bottom: 0.5rem; color: #8b949e;">Page/Surface Coverage</p>
+    <div class="coverage-bar">
+      <div class="coverage-fill fill-before" style="width: 28%;">28% (before)</div>
+    </div>
+    <div class="coverage-bar">
+      <div class="coverage-fill fill-after" style="width: 100%;">100% (after)</div>
+    </div>
+
+    <p style="margin-top: 1rem; margin-bottom: 0.5rem; color: #8b949e;">Audited Item Verification</p>
+    <div class="coverage-bar">
+      <div class="coverage-fill fill-before" style="width: 11%;">11%</div>
+    </div>
+    <div class="coverage-bar">
+      <div class="coverage-fill fill-after" style="width: 51%;">51%</div>
+    </div>
+    <p style="color: #484f58; font-size: 0.8rem; margin-top: 0.25rem;">Remaining 49% are backend/data items with no UI surface — require API/integration tests</p>
+  </div>
+
+  <!-- ═══ EXISTING SPECS ═══ -->
+  <div class="section">
+    <h2>Existing Specs (9 files, 10 modules)</h2>
+    <table class="existing-table">
+      <thead>
+        <tr><th>Spec File</th><th>Route / Surface</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>accounts.spec.ts</td><td>/accounts</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>admin.spec.ts</td><td>/admin</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>communications.spec.ts</td><td>Comms slide-out</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>connect.spec.ts</td><td>RPI Connect slide-out</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>contacts.spec.ts</td><td>/contacts</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>forge.spec.ts</td><td>/modules/forge</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>myrpi.spec.ts</td><td>/myrpi</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>navigation.spec.ts</td><td>Sidebar + Header</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>pipeline-studio.spec.ts</td><td>/modules/pipeline-studio</td><td><span class="badge badge-existing">Passing</span></td></tr>
+        <tr><td>quick-intake.spec.ts</td><td>IntakeFAB</td><td><span class="badge" style="background:#da3633;color:#fff;">Skipped</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ NEW SPECS: WORKSPACES ═══ -->
+  <div class="section component-group">
+    <h2>Group 1: Workspaces (3 new specs)</h2>
+
+    <div class="spec-card">
+      <div class="title">contact-detail.spec.ts</div>
+      <div class="route">/contacts/[id]</div>
+      <div class="desc">CLIENT360 header (name, status, avatar), all 8+ tabs present and clickable, tab content loads. Most important page in ProDashX.</div>
+      <div class="meta">
+        <span class="badge badge-critical">CRITICAL</span>
+        <span class="badge badge-new">~16 items covered</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">households.spec.ts</div>
+      <div class="route">/households &amp; /households/[id]</div>
+      <div class="desc">Household grid with member count, detail page with members list and settings.</div>
+      <div class="meta">
+        <span class="badge badge-medium">Medium</span>
+        <span class="badge badge-new">~8 items covered</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">account-detail.spec.ts</div>
+      <div class="route">/accounts/[clientId]/[accountId]</div>
+      <div class="desc">Account detail form with carrier, product, status fields and linked client reference.</div>
+      <div class="meta">
+        <span class="badge badge-medium">Medium</span>
+        <span class="badge badge-new">~2 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW SPECS: SERVICE CENTERS ═══ -->
+  <div class="section component-group">
+    <h2>Group 2: Service Centers (3 new specs)</h2>
+
+    <div class="spec-card">
+      <div class="title">rmd-center.spec.ts</div>
+      <div class="route">/service-centers/rmd</div>
+      <div class="desc">Grid/card view toggle, status filters (All/Pending/Completed/Overdue), inline edit fields, RMD calculation display.</div>
+      <div class="meta">
+        <span class="badge badge-high">HIGH</span>
+        <span class="badge badge-new">QUE Calc visible</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">beni-center.spec.ts</div>
+      <div class="route">/service-centers/beni</div>
+      <div class="desc">Benefits tracking page, status indicators, enrollment data.</div>
+      <div class="meta">
+        <span class="badge badge-low">Low-Med</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">access-center.spec.ts</div>
+      <div class="route">/service-centers/access</div>
+      <div class="desc">PortalAccessTable + ApiAccessTable, AccessStatusBadge indicators, CredentialsModal trigger.</div>
+      <div class="meta">
+        <span class="badge badge-high">HIGH</span>
+        <span class="badge badge-new">~3 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW SPECS: ADMIN ═══ -->
+  <div class="section component-group">
+    <h2>Group 3: Admin (2 new specs)</h2>
+
+    <div class="spec-card">
+      <div class="title">intake-queue.spec.ts</div>
+      <div class="route">/admin/intake-queue</div>
+      <div class="desc">Document list, upload area, processing status indicators, file management controls.</div>
+      <div class="meta">
+        <span class="badge badge-medium">Medium</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">guardian.spec.ts</div>
+      <div class="route">/admin/guardian</div>
+      <div class="desc">User management table, entitlement assignment UI, role editor.</div>
+      <div class="meta">
+        <span class="badge badge-high">HIGH</span>
+        <span class="badge badge-new">~7 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW SPECS: PIPELINES ═══ -->
+  <div class="section component-group">
+    <h2>Group 4: Pipelines (1 new spec)</h2>
+
+    <div class="spec-card">
+      <div class="title">pipelines.spec.ts</div>
+      <div class="route">/pipelines &amp; /pipelines/[key] &amp; /pipelines/[key]/[instanceId]</div>
+      <div class="desc">Pipeline cards (icon, name, stage count), overview page (metadata, stages, instances), instance stage progress + task list.</div>
+      <div class="meta">
+        <span class="badge badge-critical">CRITICAL</span>
+        <span class="badge badge-new">~3 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW SPECS: APPS ═══ -->
+  <div class="section component-group">
+    <h2>Group 5: Apps (7 new specs)</h2>
+
+    <div class="spec-card">
+      <div class="title">atlas.spec.ts</div>
+      <div class="route">/modules/atlas</div>
+      <div class="desc">ATLAS app shell with own branding, key UI elements.</div>
+      <div class="meta">
+        <span class="badge badge-medium">Medium</span>
+        <span class="badge badge-new">~17 items (UI subset)</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">cam.spec.ts</div>
+      <div class="route">/modules/cam</div>
+      <div class="desc">CAM app shell, client account monitoring displays.</div>
+      <div class="meta"><span class="badge badge-medium">Medium</span></div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">dex.spec.ts</div>
+      <div class="route">/modules/dex</div>
+      <div class="desc">DEX app shell, document extraction workflow UI.</div>
+      <div class="meta">
+        <span class="badge badge-medium">Medium</span>
+        <span class="badge badge-new">~3 items covered</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">c3.spec.ts</div>
+      <div class="route">/modules/c3</div>
+      <div class="desc">C3 app shell with campaign engine branding, content management UI.</div>
+      <div class="meta"><span class="badge badge-medium">Medium</span></div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">command-center.spec.ts</div>
+      <div class="route">/modules/command-center</div>
+      <div class="desc">Command Center app shell, operations dashboard elements.</div>
+      <div class="meta"><span class="badge badge-medium">Medium</span></div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">prozone.spec.ts</div>
+      <div class="route">/modules/prozone</div>
+      <div class="desc">ProZone app shell, tabbed layout (TEAM/MARKET/TARGET/FLOW/INVENTORY).</div>
+      <div class="meta">
+        <span class="badge badge-high">HIGH</span>
+        <span class="badge badge-new">~30 items covered</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">forge-subroutes.spec.ts</div>
+      <div class="route">/modules/forge/audit &amp; /modules/forge/confirm</div>
+      <div class="desc">Audit history table, change confirmation UI.</div>
+      <div class="meta">
+        <span class="badge badge-low">Low</span>
+        <span class="badge badge-new">~4 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW SPECS: PANELS ═══ -->
+  <div class="section component-group">
+    <h2>Group 6: Slide-out Panels (1 new spec)</h2>
+
+    <div class="spec-card">
+      <div class="title">notifications.spec.ts</div>
+      <div class="route">Sidebar toggle &rarr; slide-out</div>
+      <div class="desc">Notifications panel renders on toggle, tabs/components present, notification list.</div>
+      <div class="meta">
+        <span class="badge badge-medium">Medium</span>
+        <span class="badge badge-new">~15 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW SPECS: NAVIGATION ═══ -->
+  <div class="section component-group">
+    <h2>Group 7: Extended Navigation (1 new spec)</h2>
+
+    <div class="spec-card">
+      <div class="title">sidebar-extended.spec.ts</div>
+      <div class="route">Sidebar sections, apps zone, collapse</div>
+      <div class="desc">All sections expand/collapse, all 9 app icons render, narrow mode, platform switcher.</div>
+      <div class="meta">
+        <span class="badge badge-medium">Medium</span>
+        <span class="badge badge-new">~5 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ NEW SPECS: SECONDARY ═══ -->
+  <div class="section component-group">
+    <h2>Group 8: Secondary Pages (3 new specs)</h2>
+
+    <div class="spec-card">
+      <div class="title">dedup.spec.ts</div>
+      <div class="route">/ddup</div>
+      <div class="desc">Duplicate detection UI, ID parsing, account/contact rows.</div>
+      <div class="meta">
+        <span class="badge badge-low">Low-Med</span>
+        <span class="badge badge-new">~4 items covered</span>
+      </div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">casework.spec.ts</div>
+      <div class="route">/casework</div>
+      <div class="desc">Case/task list, task status indicators, management controls.</div>
+      <div class="meta"><span class="badge badge-medium">Medium</span></div>
+    </div>
+
+    <div class="spec-card">
+      <div class="title">sales-centers.spec.ts</div>
+      <div class="route">Sales section &rarr; dynamic QUE modules</div>
+      <div class="desc">Sales section in sidebar, QUE Workbench UI (6-step workflow, household picker).</div>
+      <div class="meta">
+        <span class="badge badge-high">HIGH</span>
+        <span class="badge badge-new">~17 items covered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ AUDITED ITEMS BY COMPONENT ═══ -->
+  <div class="section">
+    <h2>Audited Items — Top 30 Components (350 total)</h2>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Component</th><th>Count</th><th>Portal</th><th>Covered By Spec</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>QUE Calc Tools</td><td>25</td><td>SHARED</td><td>rmd-center (partial UI)</td></tr>
+        <tr><td>2</td><td>ACF</td><td>21</td><td>SHARED</td><td>contact-detail (ACF tab)</td></tr>
+        <tr><td>3</td><td>ProZone</td><td>19</td><td>PRODASHX</td><td>prozone.spec.ts</td></tr>
+        <tr><td>4</td><td>firestore-config</td><td>18</td><td>undefined</td><td>Backend — no UI spec</td></tr>
+        <tr><td>5</td><td>ATLAS</td><td>17</td><td>SHARED</td><td>atlas.spec.ts</td></tr>
+        <tr><td>6</td><td>HTML Templates</td><td>16</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>7</td><td>UI (Notifications)</td><td>15</td><td>SHARED</td><td>notifications.spec.ts</td></tr>
+        <tr><td>8</td><td>PROZONE</td><td>11</td><td>SHARED</td><td>prozone.spec.ts</td></tr>
+        <tr><td>9</td><td>QUE Super Tools</td><td>10</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>10</td><td>QUE Wiring</td><td>10</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>11</td><td>QUE Workbench</td><td>9</td><td>PRODASHX</td><td>sales-centers.spec.ts</td></tr>
+        <tr><td>12</td><td>Household UI</td><td>8</td><td>PRODASHX</td><td>contact-detail + households</td></tr>
+        <tr><td>13</td><td>QUE Lookup Tools</td><td>8</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>14</td><td>GUARDIAN</td><td>7</td><td>SHARED</td><td>guardian.spec.ts</td></tr>
+        <tr><td>15</td><td>RPI Connect</td><td>6</td><td>SHARED</td><td>Existing: connect.spec.ts</td></tr>
+        <tr><td>16</td><td>ATLAS Super Tools</td><td>6</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>17</td><td>Process Docs</td><td>6</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>18</td><td>QUE Generators</td><td>5</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>19</td><td>QUE Types</td><td>5</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>20</td><td>Sidebar</td><td>5</td><td>SHARED</td><td>sidebar-extended.spec.ts</td></tr>
+        <tr><td>21</td><td>Communications</td><td>4</td><td>SHARED</td><td>Existing: comms.spec.ts</td></tr>
+        <tr><td>22</td><td>FORGE Reporter</td><td>4</td><td>SHARED</td><td>forge-subroutes.spec.ts</td></tr>
+        <tr><td>23</td><td>ATLAS Tools</td><td>4</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>24</td><td>Migration</td><td>4</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>25</td><td>Reference Data</td><td>4</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>26</td><td>QUE Adapters UI</td><td>4</td><td>PRODASHX</td><td>sales-centers.spec.ts</td></tr>
+        <tr><td>27</td><td>Sales Centers</td><td>4</td><td>PRODASHX</td><td>sales-centers.spec.ts</td></tr>
+        <tr><td>28</td><td>DeDup</td><td>4</td><td>PRODASHX</td><td>dedup.spec.ts</td></tr>
+        <tr><td>29</td><td>ACF / Drive</td><td>3</td><td>SHARED</td><td>Backend — no UI spec</td></tr>
+        <tr><td>30</td><td>Pipeline / Flow</td><td>3</td><td>SHARED</td><td>pipelines.spec.ts</td></tr>
+      </tbody>
+    </table>
+    <p style="color: #484f58; font-size: 0.85rem; margin-top: 0.5rem;">+ 46 more components with 1-3 items each</p>
+  </div>
+
+  <!-- ═══ TEST PATTERNS ═══ -->
+  <div class="section">
+    <h2>Required Test Patterns</h2>
+    <table>
+      <thead>
+        <tr><th>Pattern</th><th>Rule</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>page.goto()</code></td><td>Always use <code>{ waitUntil: 'commit' }</code> for redirect handling</td></tr>
+        <tr><td>Overlay dismiss</td><td><code>page.keyboard.press('Escape')</code> + <code>waitForTimeout(500)</code> at test start</td></tr>
+        <tr><td><code>getByText()</code></td><td>Always use <code>.first()</code> — Material Icons render as text spans that collide</td></tr>
+        <tr><td>Loading states</td><td>Use flexible regex matchers: <code>/loading|data|content/i</code></td></tr>
+        <tr><td>Selectors</td><td>MUST be verified against real component source code — never guess</td></tr>
+        <tr><td>Timeouts</td><td>15s navigation, 10s secondary, 20s data fetches</td></tr>
+        <tr><td>Test structure</td><td>Flat assertions, no page objects, <code>test.describe</code> + <code>test</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer">
+    FORGE Discovery &mdash; Generated 2026-03-22 &mdash; toMachina Platform
+  </div>
+
+</body>
+</html>
