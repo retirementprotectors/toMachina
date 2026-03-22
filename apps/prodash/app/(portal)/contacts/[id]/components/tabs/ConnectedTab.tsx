@@ -7,6 +7,7 @@ import { getAuth } from 'firebase/auth'
 import type { Client } from '@tomachina/core'
 import { formatPhone, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
+import { SuggestedConnections as SuggestedConnectionsUI, type SuggestionItem } from '@tomachina/ui/src/modules/SuggestedConnections'
 
 interface ConnectedTabProps {
   client: Client
@@ -509,6 +510,9 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
 
   return (
     <div className="space-y-4">
+      {/* TRK-582: Household Section */}
+      <HouseholdSection client={client} clientId={clientId} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[var(--text-primary)]">
@@ -760,17 +764,17 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
         </div>
       )}
 
-      {/* TRK-027: Suggested Connections — real Firestore queries */}
-      <SuggestedConnections client={client} clientId={clientId} onLink={handleLink} />
+      {/* TRK-027 + TRK-585: Suggested Connections — shared component */}
+      <SuggestedConnectionsWrapper client={client} clientId={clientId} onLink={handleLink} />
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// TRK-027: Suggested Connections — live Firestore matching
+// TRK-027 + TRK-585: Suggested Connections — data fetcher + shared UI
 // ---------------------------------------------------------------------------
 
-function SuggestedConnections({
+function SuggestedConnectionsWrapper({
   client,
   clientId,
   onLink,
@@ -878,42 +882,274 @@ function SuggestedConnections({
   if (loading) return null
   if (suggestions.length === 0) return null
 
+  // Map PotentialMatch to SuggestionItem for shared component
+  const items: SuggestionItem[] = suggestions.map((m) => ({
+    id: m.id,
+    name: m.name,
+    reason: m.reason,
+    confidence: m.confidence,
+    phone: m.phone,
+    email: m.email,
+  }))
+
   return (
-    <div className="mt-6 space-y-3">
-      <div className="flex items-center gap-2">
-        <span className="material-icons-outlined text-[18px] text-amber-400">lightbulb</span>
-        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-          Suggested ({suggestions.length})
-        </h3>
+    <div className="mt-6">
+      <SuggestedConnectionsUI
+        suggestions={items}
+        onAction={(item) => onLink(item.id, item.name, item.phone, item.email)}
+        actionLabel="Connect"
+        actionIcon="link"
+      />
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// TRK-582 + TRK-583: Household Section
+// ---------------------------------------------------------------------------
+
+interface HouseholdMember {
+  client_id: string
+  client_name: string
+  role?: string
+  relationship?: string
+}
+
+function HouseholdSection({ client, clientId }: { client: Client; clientId: string }) {
+  const householdId = str(client.household_id)
+  const [household, setHousehold] = useState<Record<string, unknown> | null>(null)
+  const [loading, setLoading] = useState(!!householdId)
+  const [showCreate, setShowCreate] = useState(false)
+  const [showSearch, setShowSearch] = useState(false)
+  const [createName, setCreateName] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Array<Record<string, unknown>>>([])
+  const [searching, setSearching] = useState(false)
+  const [actionLoading, setActionLoading] = useState(false)
+
+  // Load household if client has one
+  useEffect(() => {
+    if (!householdId) return
+    setLoading(true)
+    const auth = getAuth()
+    auth.currentUser?.getIdToken().then((token) => {
+      fetch(`/api/households/${householdId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+        .then((r) => r.json())
+        .then((res) => { if (res.success) setHousehold(res.data) })
+        .catch(() => {})
+        .finally(() => setLoading(false))
+    })
+  }, [householdId])
+
+  // TRK-583: Create Household
+  const handleCreate = useCallback(async () => {
+    if (!createName.trim()) return
+    setActionLoading(true)
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      const clientName = [str(client.first_name), str(client.last_name)].filter(Boolean).join(' ')
+      const res = await fetch('/api/households', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          household_name: createName.trim(),
+          primary_contact_id: clientId,
+          primary_contact_name: clientName,
+          address: str(client.address),
+          city: str(client.city),
+          state: str(client.state),
+          zip: str(client.zip),
+          assigned_user_id: str(client.assigned_user_id),
+          members: [{ client_id: clientId, client_name: clientName, role: 'primary', relationship: 'self', added_at: new Date().toISOString() }],
+        }),
+      })
+      const json = await res.json()
+      if (json.success) window.location.reload()
+    } catch { /* handled */ }
+    setActionLoading(false)
+  }, [createName, client, clientId])
+
+  // TRK-583: Search existing households
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) { setSearchResults([]); return }
+    const timer = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const auth = getAuth()
+        const token = await auth.currentUser?.getIdToken()
+        const res = await fetch(`/api/households?search=${encodeURIComponent(searchQuery)}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        const json = await res.json()
+        if (json.success) setSearchResults(json.data || [])
+      } catch { /* handled */ }
+      setSearching(false)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  // TRK-583: Add to existing household
+  const handleAddToHousehold = useCallback(async (hhId: string) => {
+    setActionLoading(true)
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      const clientName = [str(client.first_name), str(client.last_name)].filter(Boolean).join(' ')
+      await fetch(`/api/households/${hhId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ client_id: clientId, client_name: clientName }),
+      })
+      window.location.reload()
+    } catch { /* handled */ }
+    setActionLoading(false)
+  }, [client, clientId])
+
+  if (loading) {
+    return (
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+          <span className="text-sm text-[var(--text-muted)]">Loading household...</span>
+        </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {suggestions.map((match) => (
-          <div
-            key={match.id}
-            className="flex flex-col gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4"
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--portal-glow)] text-xs font-bold text-[var(--portal)]">
-                {match.name.split(' ').map((w) => w.charAt(0)).join('').slice(0, 2).toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-[var(--text-primary)]">{match.name}</p>
-                <p className="text-[10px] text-amber-400 font-medium">{match.reason}</p>
-              </div>
-            </div>
-            {match.phone && (
-              <p className="text-xs text-[var(--text-muted)]">{match.phone}</p>
-            )}
-            <button
-              onClick={() => onLink(match.id, match.name, match.phone, match.email)}
-              className="mt-auto inline-flex items-center justify-center gap-1 rounded-md border border-[var(--portal)] h-[30px] px-3 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--portal)] hover:text-white"
+    )
+  }
+
+  // Has household — show membership
+  if (household) {
+    const members = (household.members || []) as HouseholdMember[]
+    return (
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '18px' }}>home</span>
+            <a
+              href={`/households/${household.household_id || household.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-[var(--portal)] hover:underline"
             >
-              <span className="material-icons-outlined text-[12px]">link</span>
-              Connect
-            </button>
+              {String(household.household_name || 'Household')}
+            </a>
+            <span className="text-xs text-[var(--text-muted)]">({members.length} member{members.length !== 1 ? 's' : ''})</span>
           </div>
-        ))}
+        </div>
+        {members.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {members.map((m) => (
+              <a
+                key={m.client_id}
+                href={`/contacts/${m.client_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-colors hover:bg-[var(--bg-hover)] ${
+                  m.client_id === clientId
+                    ? 'border-[var(--portal)]/30 bg-[var(--portal)]/10 text-[var(--portal)]'
+                    : 'border-[var(--border)] text-[var(--text-secondary)]'
+                }`}
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>person</span>
+                {m.client_name || m.client_id}
+                {m.relationship && m.relationship !== 'self' && (
+                  <span className="text-[var(--text-muted)]">({m.relationship})</span>
+                )}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
+    )
+  }
+
+  // No household — show action buttons
+  return (
+    <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--bg-card)] p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '18px' }}>home</span>
+        <span className="text-sm text-[var(--text-muted)]">Not in a household</span>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => { setShowCreate(true); setShowSearch(false); setCreateName(`${str(client.last_name)} Household`) }}
+          className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium bg-[var(--portal)] text-white transition-colors hover:brightness-110"
+        >
+          <span className="material-icons-outlined text-[14px]">add</span>
+          Create Household
+        </button>
+        <button
+          onClick={() => { setShowSearch(true); setShowCreate(false) }}
+          className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+        >
+          <span className="material-icons-outlined text-[14px]">search</span>
+          Add to Existing
+        </button>
+      </div>
+
+      {/* Create Household Modal */}
+      {showCreate && (
+        <div className="mt-3 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] p-3 space-y-2">
+          <label className="text-xs uppercase tracking-wide text-[var(--text-muted)]">Household Name</label>
+          <input
+            type="text"
+            value={createName}
+            onChange={(e) => setCreateName(e.target.value)}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+          />
+          <div className="flex gap-2 pt-1">
+            <button
+              onClick={handleCreate}
+              disabled={actionLoading || !createName.trim()}
+              className="rounded-md h-[34px] px-4 text-xs font-medium bg-[var(--portal)] text-white transition-colors hover:brightness-110 disabled:opacity-40"
+            >
+              {actionLoading ? 'Creating...' : 'Create'}
+            </button>
+            <button onClick={() => setShowCreate(false)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Search Existing Households */}
+      {showSearch && (
+        <div className="mt-3 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] p-3 space-y-2">
+          <label className="text-xs uppercase tracking-wide text-[var(--text-muted)]">Search Households</label>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Type household name..."
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+            autoFocus
+          />
+          {searching && <p className="text-xs text-[var(--text-muted)]">Searching...</p>}
+          {searchResults.length > 0 && (
+            <div className="space-y-1 max-h-40 overflow-y-auto">
+              {searchResults.map((hh) => (
+                <button
+                  key={String(hh.id || hh.household_id)}
+                  onClick={() => handleAddToHousehold(String(hh.id || hh.household_id))}
+                  disabled={actionLoading}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-left text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-hover)]"
+                >
+                  <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '16px' }}>home</span>
+                  {String(hh.household_name)}
+                  <span className="ml-auto text-xs text-[var(--text-muted)]">
+                    {((hh.members as HouseholdMember[]) || []).length} members
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {searchQuery.length >= 2 && !searching && searchResults.length === 0 && (
+            <p className="text-xs text-[var(--text-muted)]">No households found.</p>
+          )}
+          <button onClick={() => setShowSearch(false)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">Cancel</button>
+        </div>
+      )}
     </div>
   )
 }
