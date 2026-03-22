@@ -254,6 +254,16 @@ export async function downloadFile(
   }
 }
 
+/** Soft-delete a file by moving it to trash (never permanently deletes) */
+export async function trashFile(fileId: string): Promise<void> {
+  const drive = getDriveClient()
+  await drive.files.update({
+    fileId,
+    requestBody: { trashed: true },
+    supportsAllDrives: true,
+  })
+}
+
 /** Get an embeddable preview URL for a file */
 export function getPreviewUrl(fileId: string, mimeType: string): string {
   // Google-native files use the embedded viewer

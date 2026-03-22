@@ -91,18 +91,35 @@ export function AccountDocuments({ accountId }: AccountDocumentsProps) {
             )}
           </button>
         ))}
-        {missing.map((doc) => (
-          <span
-            key={doc.id}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--text-muted)]"
-            title={`No ${doc.display_name} on file — upload to ${doc.id.includes('statement') || doc.id.includes('policy') ? 'Account' : 'NewBiz'} subfolder in ACF`}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-              radio_button_unchecked
-            </span>
-            <span>{doc.display_name}</span>
-          </span>
-        ))}
+        {missing.map((doc) => {
+          const targetSubfolder = doc.id.includes('statement') || doc.id.includes('policy') ? 'Account' : 'NewBiz'
+          return (
+            <button
+              key={doc.id}
+              onClick={() => {
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.txt'
+                input.onchange = () => {
+                  const file = input.files?.[0]
+                  if (file) {
+                    window.dispatchEvent(new CustomEvent('acf-upload-request', {
+                      detail: { file, subfolder: targetSubfolder, docType: doc.display_name },
+                    }))
+                  }
+                }
+                input.click()
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--text-muted)] hover:border-[var(--portal)] hover:text-[var(--portal)] transition-colors cursor-pointer"
+              title={`Upload ${doc.display_name} to ${targetSubfolder} subfolder`}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
+                add_circle_outline
+              </span>
+              <span>{doc.display_name}</span>
+            </button>
+          )
+        })}
       </div>
 
       {/* Preview Panel */}
