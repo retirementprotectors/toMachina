@@ -4,24 +4,22 @@ test.describe('RPI Connect Module', () => {
   test('opens slide-out panel with tabs', async ({ page }) => {
     await page.goto('/')
 
-    // Wait for sidebar to load
+    // Wait for sidebar to load (PortalSidebar renders as <aside>)
     await expect(page.locator('aside')).toBeVisible({ timeout: 15000 })
 
-    // Click the Connect button in the sidebar action bar
+    // Click the Connect button in the sidebar action bar (title="RPI Connect")
     const connectButton = page.locator('button[title="RPI Connect"]')
     await expect(connectButton).toBeVisible({ timeout: 10000 })
     await connectButton.click()
 
-    // Slide-out panel should appear
-    const panel = page.locator('div.fixed.right-0, [class*="fixed"][class*="right-0"]').first()
-    await expect(panel).toBeVisible({ timeout: 10000 })
+    // Slide-out panel should appear — ConnectPanel renders as a fixed right-0 div
+    // ConnectPanel has NO "RPI Connect" header — it goes straight to tab buttons
+    // Tab structure: Channels, People, Meet (rendered as buttons inside the panel)
+    const panel = page.locator('.fixed.right-0')
+    await expect(panel.first()).toBeVisible({ timeout: 10000 })
 
-    // "RPI Connect" or "Connect" header text
-    await expect(page.getByText(/RPI Connect|Connect/)).toBeVisible()
-
-    // Tab structure: Channels, People, Meet
-    await expect(page.getByText('Channels')).toBeVisible()
-    await expect(page.getByText('People')).toBeVisible()
-    await expect(page.getByText('Meet')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Channels/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /People/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Meet/i })).toBeVisible()
   })
 })
