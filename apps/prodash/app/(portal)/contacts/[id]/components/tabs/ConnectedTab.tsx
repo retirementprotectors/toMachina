@@ -760,36 +760,159 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
         </div>
       )}
 
-      {/* TRK-027: Suggested Connections (concept only) */}
-      <div className="mt-6 space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="material-icons-outlined text-[18px] text-amber-400">lightbulb</span>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Suggested</h3>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            { title: 'Same household', desc: 'Shared address', icon: 'home' },
-            { title: 'Same last name', desc: `Other "${client.last_name || ''}" contacts`, icon: 'badge' },
-            { title: 'Shared carrier accounts', desc: 'Same carrier or policy', icon: 'account_balance' },
-          ].map((suggestion) => (
-            <div
-              key={suggestion.title}
-              className="flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-center"
-            >
-              <span className="material-icons-outlined text-[24px] text-[var(--text-muted)]">
-                {suggestion.icon}
-              </span>
-              <p className="text-sm font-medium text-[var(--text-primary)]">{suggestion.title}</p>
-              <p className="text-xs text-[var(--text-muted)]">{suggestion.desc}</p>
-              <button
-                className="mt-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1 text-xs font-medium text-[var(--text-muted)] cursor-default opacity-60"
-                disabled
-              >
-                Connect
-              </button>
+      {/* TRK-027: Suggested Connections — real Firestore queries */}
+      <SuggestedConnections client={client} clientId={clientId} onLink={handleLink} />
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// TRK-027: Suggested Connections — live Firestore matching
+// ---------------------------------------------------------------------------
+
+function SuggestedConnections({
+  client,
+  clientId,
+  onLink,
+}: {
+  client: Client
+  clientId: string
+  onLink: (personId: string, personName: string, phone?: string, email?: string) => void
+}) {
+  const [suggestions, setSuggestions] = useState<PotentialMatch[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function findSuggestions() {
+      setLoading(true)
+      const db = getDb()
+      const matches = new Map<string, PotentialMatch>()
+
+      // Get existing connection IDs to exclude
+      const existingIds = new Set<string>()
+      existingIds.add(clientId)
+      const raw = client.connected_contacts as Array<{ id: string }> | undefined
+      if (Array.isArray(raw)) {
+        for (const c of raw) {
+          if (c.id) existingIds.add(c.id)
+        }
+      }
+
+      try {
+        // Query 1: Same last name
+        const lastName = str(client.last_name).trim()
+        if (lastName) {
+          const titleCase = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()
+          const snap = await getDocs(query(
+            collection(db, 'clients'),
+            where('last_name', '==', titleCase),
+            limit(20)
+          ))
+          for (const d of snap.docs) {
+            if (existingIds.has(d.id)) continue
+            const data = d.data()
+            const name = `${str(data.first_name)} ${str(data.last_name)}`.trim()
+            if (!matches.has(d.id)) {
+              matches.set(d.id, {
+                id: d.id,
+                name,
+                reason: 'Same last name',
+                confidence: 0.7,
+                phone: str(data.phone),
+                email: str(data.email),
+              })
+            }
+          }
+        }
+
+        // Query 2: Same address (city + state match)
+        const city = str(client.city).trim()
+        const state = str(client.state).trim()
+        const street = str(client.address || client.street_address).trim().toLowerCase()
+        if (city && state && street) {
+          const snap = await getDocs(query(
+            collection(db, 'clients'),
+            where('city', '==', city),
+            where('state', '==', state),
+            limit(50)
+          ))
+          for (const d of snap.docs) {
+            if (existingIds.has(d.id)) continue
+            const data = d.data()
+            const addr = str(data.address || data.street_address).trim().toLowerCase()
+            if (addr && addr === street) {
+              const name = `${str(data.first_name)} ${str(data.last_name)}`.trim()
+              const existing = matches.get(d.id)
+              if (existing) {
+                existing.reason += ' + Same address'
+                existing.confidence = Math.min(existing.confidence + 0.2, 1.0)
+              } else {
+                matches.set(d.id, {
+                  id: d.id,
+                  name,
+                  reason: 'Same address',
+                  confidence: 0.85,
+                  phone: str(data.phone),
+                  email: str(data.email),
+                })
+              }
+            }
+          }
+        }
+      } catch {
+        // Non-critical — suggestions are best-effort
+      }
+
+      if (!cancelled) {
+        setSuggestions(Array.from(matches.values()).sort((a, b) => b.confidence - a.confidence).slice(0, 6))
+        setLoading(false)
+      }
+    }
+
+    findSuggestions()
+    return () => { cancelled = true }
+  }, [client, clientId])
+
+  if (loading) return null
+  if (suggestions.length === 0) return null
+
+  return (
+    <div className="mt-6 space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[18px] text-amber-400">lightbulb</span>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+          Suggested ({suggestions.length})
+        </h3>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {suggestions.map((match) => (
+          <div
+            key={match.id}
+            className="flex flex-col gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4"
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--portal-glow)] text-xs font-bold text-[var(--portal)]">
+                {match.name.split(' ').map((w) => w.charAt(0)).join('').slice(0, 2).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-[var(--text-primary)]">{match.name}</p>
+                <p className="text-[10px] text-amber-400 font-medium">{match.reason}</p>
+              </div>
             </div>
-          ))}
-        </div>
+            {match.phone && (
+              <p className="text-xs text-[var(--text-muted)]">{match.phone}</p>
+            )}
+            <button
+              onClick={() => onLink(match.id, match.name, match.phone, match.email)}
+              className="mt-auto inline-flex items-center justify-center gap-1 rounded-md border border-[var(--portal)] h-[30px] px-3 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--portal)] hover:text-white"
+            >
+              <span className="material-icons-outlined text-[12px]">link</span>
+              Connect
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   )
