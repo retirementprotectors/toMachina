@@ -10,7 +10,24 @@ import { getFirestore } from 'firebase-admin/firestore'
 import {
   successResponse, errorResponse, validateRequired, param,
 } from '../lib/helpers.js'
-import { FLOW_COLLECTIONS } from '@tomachina/core'
+import {
+  FLOW_COLLECTIONS,
+  type FlowAdminPipelineData,
+  type FlowAdminPipelineArchiveResult,
+  type FlowAdminPipelinePublishResult,
+  type FlowAdminPipelineUnpublishResult,
+  type FlowAdminStageCreateData,
+  type FlowAdminStageUpdateData,
+  type FlowAdminStageDeleteResult,
+  type FlowAdminStageReorderResult,
+  type FlowAdminStepData,
+  type FlowAdminStepDeleteResult,
+  type FlowAdminTaskTemplateData,
+  type FlowAdminTaskTemplateDeleteResult,
+  type FlowAdminWorkflowData,
+  type FlowAdminWorkflowDeleteResult,
+  type FlowStageDTO,
+} from '@tomachina/core'
 
 export const flowAdminRoutes = Router()
 
@@ -104,7 +121,7 @@ flowAdminRoutes.post('/pipelines', async (req: Request, res: Response) => {
     }
 
     await db.collection(PIPELINES).doc(pipelineKey).set(pipeline)
-    res.status(201).json(successResponse<unknown>({ pipeline: { id: pipelineKey, ...pipeline } }))
+    res.status(201).json(successResponse<FlowAdminPipelineData>({ pipeline: { id: pipelineKey, ...pipeline } } as unknown as FlowAdminPipelineData))
   } catch (err) {
     console.error('POST /api/flow/admin/pipelines error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -137,7 +154,7 @@ flowAdminRoutes.put('/pipelines/:key', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ pipeline: { id: updated.id, ...updated.data() } }))
+    res.json(successResponse<FlowAdminPipelineData>({ pipeline: { id: updated.id, ...updated.data() } } as unknown as FlowAdminPipelineData))
   } catch (err) {
     console.error('PUT /api/flow/admin/pipelines/:key error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -178,7 +195,7 @@ flowAdminRoutes.delete('/pipelines/:key', async (req: Request, res: Response) =>
     }
 
     await docRef.update({ status: 'archived', updated_at: new Date().toISOString() })
-    res.json(successResponse<unknown>({ archived: true }))
+    res.json(successResponse<FlowAdminPipelineArchiveResult>({ archived: true } as unknown as FlowAdminPipelineArchiveResult))
   } catch (err) {
     console.error('DELETE /api/flow/admin/pipelines/:key error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -201,7 +218,7 @@ flowAdminRoutes.post('/pipelines/:key/publish', async (req: Request, res: Respon
     }
 
     await docRef.update({ status: 'active', updated_at: new Date().toISOString() })
-    res.json(successResponse<unknown>({ published: true }))
+    res.json(successResponse<FlowAdminPipelinePublishResult>({ published: true } as unknown as FlowAdminPipelinePublishResult))
   } catch (err) {
     console.error('POST /api/flow/admin/pipelines/:key/publish error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -224,7 +241,7 @@ flowAdminRoutes.post('/pipelines/:key/unpublish', async (req: Request, res: Resp
     }
 
     await docRef.update({ status: 'draft', updated_at: new Date().toISOString() })
-    res.json(successResponse<unknown>({ unpublished: true }))
+    res.json(successResponse<FlowAdminPipelineUnpublishResult>({ unpublished: true } as unknown as FlowAdminPipelineUnpublishResult))
   } catch (err) {
     console.error('POST /api/flow/admin/pipelines/:key/unpublish error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -249,7 +266,7 @@ flowAdminRoutes.get('/pipelines/:key/stages', async (req: Request, res: Response
       .get()
 
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(data))
+    res.json(successResponse<FlowStageDTO[]>(data as unknown as FlowStageDTO[]))
   } catch (err) {
     console.error('GET /api/flow/admin/pipelines/:key/stages error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -310,10 +327,10 @@ flowAdminRoutes.post('/stages', async (req: Request, res: Response) => {
     }
     await db.collection(WORKFLOWS).doc(workflowId).set(workflow)
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<FlowAdminStageCreateData>({
       stage: { id: docId, ...stage },
       workflow: { id: workflowId, ...workflow },
-    }))
+    } as unknown as FlowAdminStageCreateData))
   } catch (err) {
     console.error('POST /api/flow/admin/stages error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -346,7 +363,7 @@ flowAdminRoutes.put('/stages/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ stage: { id: updated.id, ...updated.data() } }))
+    res.json(successResponse<FlowAdminStageUpdateData>({ stage: { id: updated.id, ...updated.data() } } as unknown as FlowAdminStageUpdateData))
   } catch (err) {
     console.error('PUT /api/flow/admin/stages/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -419,14 +436,14 @@ flowAdminRoutes.delete('/stages/:id', async (req: Request, res: Response) => {
       await batch.commit()
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<FlowAdminStageDeleteResult>({
       deleted: true,
       cascaded: {
         workflows: workflowsSnap.size,
         steps: stepsSnap.size,
         tasks: tasksSnap.size,
       },
-    }))
+    } as unknown as FlowAdminStageDeleteResult))
   } catch (err) {
     console.error('DELETE /api/flow/admin/stages/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -461,7 +478,7 @@ flowAdminRoutes.post('/stages/reorder', async (req: Request, res: Response) => {
     }
 
     await batch.commit()
-    res.json(successResponse<unknown>({ reordered: order.length }))
+    res.json(successResponse<FlowAdminStageReorderResult>({ reordered: order.length } as unknown as FlowAdminStageReorderResult))
   } catch (err) {
     console.error('POST /api/flow/admin/stages/reorder error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -493,7 +510,7 @@ flowAdminRoutes.get('/stages/:stageId/steps', async (req: Request, res: Response
       .get()
 
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(data))
+    res.json(successResponse<FlowAdminStepData[]>(data as unknown as FlowAdminStepData[]))
   } catch (err) {
     console.error('GET /api/flow/admin/stages/:stageId/steps error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -532,7 +549,7 @@ flowAdminRoutes.post('/steps', async (req: Request, res: Response) => {
     }
 
     await db.collection(STEPS).doc(docId).set(step)
-    res.status(201).json(successResponse<unknown>({ step: { id: docId, ...step } }))
+    res.status(201).json(successResponse<FlowAdminStepData>({ step: { id: docId, ...step } } as unknown as FlowAdminStepData))
   } catch (err) {
     console.error('POST /api/flow/admin/steps error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -565,7 +582,7 @@ flowAdminRoutes.put('/steps/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ step: { id: updated.id, ...updated.data() } }))
+    res.json(successResponse<FlowAdminStepData>({ step: { id: updated.id, ...updated.data() } } as unknown as FlowAdminStepData))
   } catch (err) {
     console.error('PUT /api/flow/admin/steps/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -606,10 +623,10 @@ flowAdminRoutes.delete('/steps/:id', async (req: Request, res: Response) => {
     }
     await batch.commit()
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<FlowAdminStepDeleteResult>({
       deleted: true,
       cascaded: { tasks: tasksSnap.size },
-    }))
+    } as unknown as FlowAdminStepDeleteResult))
   } catch (err) {
     console.error('DELETE /api/flow/admin/steps/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -643,7 +660,7 @@ flowAdminRoutes.get('/steps/:stepId/tasks', async (req: Request, res: Response) 
       .get()
 
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(data))
+    res.json(successResponse<FlowAdminTaskTemplateData[]>(data as unknown as FlowAdminTaskTemplateData[]))
   } catch (err) {
     console.error('GET /api/flow/admin/steps/:stepId/tasks error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -688,7 +705,7 @@ flowAdminRoutes.post('/tasks', async (req: Request, res: Response) => {
     }
 
     await db.collection(TASK_TEMPLATES).doc(docId).set(task)
-    res.status(201).json(successResponse<unknown>({ task: { id: docId, ...task } }))
+    res.status(201).json(successResponse<FlowAdminTaskTemplateData>({ task: { id: docId, ...task } } as unknown as FlowAdminTaskTemplateData))
   } catch (err) {
     console.error('POST /api/flow/admin/tasks error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -724,7 +741,7 @@ flowAdminRoutes.put('/tasks/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ task: { id: updated.id, ...updated.data() } }))
+    res.json(successResponse<FlowAdminTaskTemplateData>({ task: { id: updated.id, ...updated.data() } } as unknown as FlowAdminTaskTemplateData))
   } catch (err) {
     console.error('PUT /api/flow/admin/tasks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -747,7 +764,7 @@ flowAdminRoutes.delete('/tasks/:id', async (req: Request, res: Response) => {
     }
 
     await docRef.delete()
-    res.json(successResponse<unknown>({ deleted: true }))
+    res.json(successResponse<FlowAdminTaskTemplateDeleteResult>({ deleted: true } as unknown as FlowAdminTaskTemplateDeleteResult))
   } catch (err) {
     console.error('DELETE /api/flow/admin/tasks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -786,7 +803,7 @@ flowAdminRoutes.post('/workflows', async (req: Request, res: Response) => {
     }
 
     await db.collection(WORKFLOWS).doc(docId).set(workflow)
-    res.status(201).json(successResponse<unknown>({ workflow: { id: docId, ...workflow } }))
+    res.status(201).json(successResponse<FlowAdminWorkflowData>({ workflow: { id: docId, ...workflow } } as unknown as FlowAdminWorkflowData))
   } catch (err) {
     console.error('POST /api/flow/admin/workflows error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -819,7 +836,7 @@ flowAdminRoutes.put('/workflows/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ workflow: { id: updated.id, ...updated.data() } }))
+    res.json(successResponse<FlowAdminWorkflowData>({ workflow: { id: updated.id, ...updated.data() } } as unknown as FlowAdminWorkflowData))
   } catch (err) {
     console.error('PUT /api/flow/admin/workflows/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -842,7 +859,7 @@ flowAdminRoutes.delete('/workflows/:id', async (req: Request, res: Response) => 
     }
 
     await docRef.delete()
-    res.json(successResponse<unknown>({ deleted: true }))
+    res.json(successResponse<FlowAdminWorkflowDeleteResult>({ deleted: true } as unknown as FlowAdminWorkflowDeleteResult))
   } catch (err) {
     console.error('DELETE /api/flow/admin/workflows/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

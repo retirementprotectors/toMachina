@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
-import type { AccessItemDTO, AccessAutoGenerateResult } from '@tomachina/core'
+import type { AccessItemDTO, AccessItemListDTO, AccessItemCreateDTO, AccessItemUpdateDTO, AccessItemDeleteResult, AccessAutoGenerateResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const accessRoutes = Router()
@@ -32,7 +32,7 @@ accessRoutes.get('/:clientId', async (req: Request, res: Response) => {
 
     const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse<unknown>(items, { pagination: { count: items.length, total: items.length } }))
+    res.json(successResponse<AccessItemListDTO>(items as unknown as AccessItemListDTO, { pagination: { count: items.length, total: items.length } }))
   } catch (err) {
     console.error('GET /api/access/:clientId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -61,7 +61,7 @@ accessRoutes.get('/:clientId/:accessId', async (req: Request, res: Response) => 
       return
     }
 
-    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<AccessItemDTO>({ id: doc.id, ...doc.data() } as unknown as AccessItemDTO))
   } catch (err) {
     console.error('GET /api/access/:clientId/:accessId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -115,7 +115,7 @@ accessRoutes.post('/:clientId', async (req: Request, res: Response) => {
       .doc(accessId)
       .set(item)
 
-    res.status(201).json(successResponse<unknown>(item))
+    res.status(201).json(successResponse<AccessItemCreateDTO>(item as unknown as AccessItemCreateDTO))
   } catch (err) {
     console.error('POST /api/access/:clientId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -157,7 +157,7 @@ accessRoutes.put('/:clientId/:accessId', async (req: Request, res: Response) => 
     await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ id: updated.id, ...updated.data() }))
+    res.json(successResponse<AccessItemUpdateDTO>({ id: updated.id, ...updated.data() } as unknown as AccessItemUpdateDTO))
   } catch (err) {
     console.error('PUT /api/access/:clientId/:accessId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -187,7 +187,7 @@ accessRoutes.delete('/:clientId/:accessId', async (req: Request, res: Response) 
     }
 
     await docRef.delete()
-    res.json(successResponse<unknown>({ id: accessId, status: 'deleted' }))
+    res.json(successResponse<AccessItemDeleteResult>({ id: accessId, status: 'deleted' } as unknown as AccessItemDeleteResult))
   } catch (err) {
     console.error('DELETE /api/access/:clientId/:accessId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -372,7 +372,7 @@ accessRoutes.post('/:clientId/auto-generate', async (req: Request, res: Response
       await batch.commit()
     }
 
-    res.json(successResponse<unknown>({ created: createdCount }))
+    res.json(successResponse<AccessAutoGenerateResult>({ created: createdCount } as unknown as AccessAutoGenerateResult))
   } catch (err) {
     console.error('POST /api/access/:clientId/auto-generate error:', err)
     res.status(500).json(errorResponse(String(err)))

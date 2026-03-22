@@ -10,7 +10,15 @@ import {
   param,
   writeThroughBridge,
 } from '../lib/helpers.js'
-import type { CampaignDTO, CampaignDuplicateResult } from '@tomachina/core'
+import type {
+  CampaignDTO,
+  CampaignDuplicateResult,
+  CampaignTemplateListDTO,
+  AssembledContentData,
+  CampaignAssembleAllData,
+  CampaignPreviewData,
+  CampaignScheduleJobResult,
+} from '@tomachina/core'
 import { assembleCampaign, assembleCampaignFull, type MergeContext } from '../lib/campaign-assembler.js'
 import { randomUUID } from 'crypto'
 
@@ -42,7 +50,7 @@ campaignRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Campaign not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<CampaignDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as CampaignDTO))
   } catch (err) {
     console.error('GET /api/campaigns/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -55,7 +63,7 @@ campaignRoutes.get('/:id/templates', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const snap = await db.collection('templates').where('campaign_id', '==', id).get()
     const templates = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse<unknown>(templates, { pagination: { count: templates.length, total: templates.length } }))
+    res.json(successResponse<CampaignTemplateListDTO>(templates as unknown as CampaignTemplateListDTO, { pagination: { count: templates.length, total: templates.length } }))
   } catch (err) {
     console.error('GET /api/campaigns/:id/templates error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -80,10 +88,10 @@ campaignRoutes.post('/:id/assemble', async (req: Request, res: Response) => {
 
     if (template_id) {
       const result = await assembleCampaign(id, template_id, ctx)
-      res.json(successResponse<unknown>(result))
+      res.json(successResponse<AssembledContentData>(result as unknown as AssembledContentData))
     } else {
       const results = await assembleCampaignFull(id, ctx)
-      res.json(successResponse<unknown>(results, { pagination: { count: results.length, total: results.length } }))
+      res.json(successResponse<CampaignAssembleAllData>(results as unknown as CampaignAssembleAllData, { pagination: { count: results.length, total: results.length } }))
     }
   } catch (err) {
     console.error('POST /api/campaigns/:id/assemble error:', err)
@@ -103,7 +111,7 @@ campaignRoutes.get('/:id/preview', async (req: Request, res: Response) => {
   try {
     const id = param(req.params.id)
     const results = await assembleCampaignFull(id)
-    res.json(successResponse<unknown>(results, { pagination: { count: results.length, total: results.length }, note: 'Merge fields left unresolved' }))
+    res.json(successResponse<CampaignPreviewData>(results as unknown as CampaignPreviewData, { pagination: { count: results.length, total: results.length }, note: 'Merge fields left unresolved' }))
   } catch (err) {
     console.error('GET /api/campaigns/:id/preview error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -149,7 +157,7 @@ campaignRoutes.post('/:id/schedule', scheduleValidation, async (req: Request, re
 
     await db.collection('campaign_jobs').doc(jobId).set(jobData)
 
-    res.status(201).json(successResponse<unknown>(jobData))
+    res.status(201).json(successResponse<CampaignScheduleJobResult>(jobData as unknown as CampaignScheduleJobResult))
   } catch (err) {
     console.error('POST /api/campaigns/:id/schedule error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -218,11 +226,11 @@ campaignRoutes.post('/:id/duplicate', async (req: Request, res: Response) => {
 
     await writeThroughBridge(COLLECTION, 'insert', newCampaignId, newCampaign)
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<CampaignDuplicateResult>({
       campaign_id: newCampaignId,
       name: newName,
       cloned_templates: clonedTemplates,
-    }))
+    } as unknown as CampaignDuplicateResult))
   } catch (err) {
     console.error('POST /api/campaigns/:id/duplicate error:', err)
     res.status(500).json(errorResponse(String(err)))

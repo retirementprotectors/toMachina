@@ -17,6 +17,22 @@ import {
   COLLECTION_SCHEMAS,
   type FindingSeverity,
 } from '@tomachina/core'
+import type {
+  GuardianAuditReportData,
+  GuardianAuditDTO,
+  GuardianAuditListDTO,
+  GuardianAuditDetailDTO,
+  GuardianAuditUpdateDTO,
+  GuardianFindingDTO,
+  GuardianFindingListDTO,
+  GuardianFindingUpdateDTO,
+  GuardianPhaseTransitionResult,
+  GuardianHealthData,
+  GuardianWriteListDTO,
+  GuardianAlertListDTO,
+  GuardianBaselineListDTO,
+  GuardianBaselineDTO,
+} from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const guardianRoutes = Router()
@@ -101,7 +117,7 @@ guardianRoutes.get('/audit-report', async (_req: Request, res: Response) => {
       },
     }
 
-    res.json(successResponse<unknown>(report))
+    res.json(successResponse<GuardianAuditReportData>(report as unknown as GuardianAuditReportData))
   } catch (err) {
     console.error('[GUARDIAN] audit-report error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to generate audit report'))
@@ -138,7 +154,7 @@ guardianRoutes.post('/audits', async (req: Request, res: Response) => {
     }
 
     const ref = await db.collection('guardian_audits').add(audit)
-    res.status(201).json(successResponse<unknown>({ id: ref.id, ...audit }))
+    res.status(201).json(successResponse<GuardianAuditDTO>({ id: ref.id, ...audit } as unknown as GuardianAuditDTO))
   } catch (err) {
     console.error('[GUARDIAN] create audit error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to create audit'))
@@ -156,7 +172,7 @@ guardianRoutes.get('/audits', async (req: Request, res: Response) => {
       'guardian_audits',
       params
     )
-    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
+    res.json(successResponse<GuardianAuditListDTO>(result.data as unknown as GuardianAuditListDTO, { pagination: result.pagination }))
   } catch (err) {
     console.error('[GUARDIAN] list audits error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list audits'))
@@ -184,11 +200,11 @@ guardianRoutes.get('/audits/:id', async (req: Request, res: Response) => {
     const findings = findingsSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
     res.json(
-      successResponse<unknown>({
+      successResponse<GuardianAuditDetailDTO>({
         id: doc.id,
         ...doc.data(),
         findings,
-      })
+      } as unknown as GuardianAuditDetailDTO)
     )
   } catch (err) {
     console.error('[GUARDIAN] get audit error:', (err as Error).message)
@@ -219,7 +235,7 @@ guardianRoutes.patch('/audits/:id', async (req: Request, res: Response) => {
 
     await docRef.update(body)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ id: updated.id, ...updated.data() }))
+    res.json(successResponse<GuardianAuditUpdateDTO>({ id: updated.id, ...updated.data() } as unknown as GuardianAuditUpdateDTO))
   } catch (err) {
     console.error('[GUARDIAN] update audit error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to update audit'))
@@ -275,7 +291,7 @@ guardianRoutes.post('/audits/:id/findings', async (req: Request, res: Response) 
       updated_at: now,
     })
 
-    res.status(201).json(successResponse<unknown>({ id: ref.id, ...finding }))
+    res.status(201).json(successResponse<GuardianFindingDTO>({ id: ref.id, ...finding } as unknown as GuardianFindingDTO))
   } catch (err) {
     console.error('[GUARDIAN] create finding error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to create finding'))
@@ -295,7 +311,7 @@ guardianRoutes.get('/audits/:id/findings', async (req: Request, res: Response) =
       .get()
 
     const findings = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(findings))
+    res.json(successResponse<GuardianFindingListDTO>(findings as unknown as GuardianFindingListDTO))
   } catch (err) {
     console.error('[GUARDIAN] list findings error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list findings'))
@@ -326,7 +342,7 @@ guardianRoutes.patch('/findings/:id', async (req: Request, res: Response) => {
 
     await docRef.update(body)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>({ id: updated.id, ...updated.data() }))
+    res.json(successResponse<GuardianFindingUpdateDTO>({ id: updated.id, ...updated.data() } as unknown as GuardianFindingUpdateDTO))
   } catch (err) {
     console.error('[GUARDIAN] update finding error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to update finding'))
@@ -383,13 +399,13 @@ guardianRoutes.post('/audits/:id/phase', async (req: Request, res: Response) => 
     })
 
     res.json(
-      successResponse<unknown>({
+      successResponse<GuardianPhaseTransitionResult>({
         from: audit.phase,
         to: nextPhase,
         audit_id: auditId,
         transitioned_at: now,
         transitioned_by: getUserEmail(req),
-      })
+      } as unknown as GuardianPhaseTransitionResult)
     )
   } catch (err) {
     console.error('[GUARDIAN] phase transition error:', (err as Error).message)
@@ -463,7 +479,7 @@ guardianRoutes.get('/health', async (_req: Request, res: Response) => {
       }
     } catch { /* non-fatal */ }
 
-    res.json(successResponse<unknown>({ collections: healthCards, structural }))
+    res.json(successResponse<GuardianHealthData>({ collections: healthCards, structural } as unknown as GuardianHealthData))
   } catch (err) {
     console.error('[GUARDIAN] health error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to generate health cards'))
@@ -482,7 +498,7 @@ guardianRoutes.get('/writes', async (req: Request, res: Response) => {
       'guardian_writes',
       params
     )
-    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
+    res.json(successResponse<GuardianWriteListDTO>(result.data as unknown as GuardianWriteListDTO, { pagination: result.pagination }))
   } catch (err) {
     console.error('[GUARDIAN] writes error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list writes'))
@@ -500,7 +516,7 @@ guardianRoutes.get('/alerts', async (_req: Request, res: Response) => {
       .get()
 
     const alerts = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse<unknown>(alerts))
+    res.json(successResponse<GuardianAlertListDTO>(alerts as unknown as GuardianAlertListDTO))
   } catch (err) {
     console.error('[GUARDIAN] alerts error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list alerts'))
@@ -519,7 +535,7 @@ guardianRoutes.get('/baselines', async (req: Request, res: Response) => {
       'data_snapshots',
       params
     )
-    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
+    res.json(successResponse<GuardianBaselineListDTO>(result.data as unknown as GuardianBaselineListDTO, { pagination: result.pagination }))
   } catch (err) {
     console.error('[GUARDIAN] baselines error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list baselines'))
@@ -543,7 +559,7 @@ guardianRoutes.post('/baselines', async (req: Request, res: Response) => {
     }
 
     const ref = await db.collection('data_snapshots').add(snapshot)
-    res.status(201).json(successResponse<unknown>({ id: ref.id, ...snapshot }))
+    res.status(201).json(successResponse<GuardianBaselineDTO>({ id: ref.id, ...snapshot } as unknown as GuardianBaselineDTO))
   } catch (err) {
     console.error('[GUARDIAN] create baseline error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to create baseline'))

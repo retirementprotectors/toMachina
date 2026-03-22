@@ -10,7 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { ClientDTO, ClientListDTO } from '@tomachina/core'
+import type { ClientDTO, ClientListDTO, ClientDeleteResult, AccountDTO, ActivityDTO, RelationshipDTO } from '@tomachina/core'
 
 export const clientRoutes = Router()
 const COLLECTION = 'clients'
@@ -83,7 +83,7 @@ clientRoutes.get('/:id', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<ClientDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as ClientDTO))
   } catch (err) {
     console.error(`GET /api/clients error:`, err)
     res.status(500).json(errorResponse(String(err)))
@@ -108,7 +108,7 @@ clientRoutes.get('/:id/accounts', async (req: Request, res: Response) => {
     const snap = await query.get()
     const accounts = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse<unknown>(accounts, { pagination: { count: accounts.length, total: accounts.length } }))
+    res.json(successResponse<AccountDTO[]>(accounts as unknown as AccountDTO[], { pagination: { count: accounts.length, total: accounts.length } }))
   } catch (err) {
     console.error('GET /api/clients/:id/accounts error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -134,7 +134,7 @@ clientRoutes.get('/:id/activities', async (req: Request, res: Response) => {
 
     const activities = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse<unknown>(activities, { pagination: { count: activities.length, total: activities.length } }))
+    res.json(successResponse<ActivityDTO[]>(activities as unknown as ActivityDTO[], { pagination: { count: activities.length, total: activities.length } }))
   } catch (err) {
     console.error('GET /api/clients/:id/activities error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -156,7 +156,7 @@ clientRoutes.get('/:id/relationships', async (req: Request, res: Response) => {
 
     const relationships = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
 
-    res.json(successResponse<unknown>(relationships, { pagination: { count: relationships.length, total: relationships.length } }))
+    res.json(successResponse<RelationshipDTO[]>(relationships as unknown as RelationshipDTO[], { pagination: { count: relationships.length, total: relationships.length } }))
   } catch (err) {
     console.error('GET /api/clients/:id/relationships error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -186,7 +186,7 @@ clientRoutes.post('/', clientValidation, async (req: Request, res: Response) => 
       await db.collection(COLLECTION).doc(clientId).set(clientData)
     }
 
-    res.status(201).json(successResponse<unknown>({ id: clientId, ...clientData }))
+    res.status(201).json(successResponse<ClientDTO>({ id: clientId, ...clientData } as unknown as ClientDTO))
   } catch (err) {
     console.error('POST /api/clients error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -223,7 +223,7 @@ clientRoutes.patch('/:id', clientValidation, async (req: Request, res: Response)
     }
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<ClientDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as ClientDTO))
   } catch (err) {
     console.error('PATCH /api/clients error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -256,7 +256,7 @@ clientRoutes.delete('/:id', async (req: Request, res: Response) => {
       await docRef.update(updates)
     }
 
-    res.json(successResponse<unknown>({ id, status: 'deleted' }))
+    res.json(successResponse<ClientDeleteResult>({ id, status: 'deleted' } as unknown as ClientDeleteResult))
   } catch (err) {
     console.error('DELETE /api/clients error:', err)
     res.status(500).json(errorResponse(String(err)))

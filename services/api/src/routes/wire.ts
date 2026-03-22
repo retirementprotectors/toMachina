@@ -17,7 +17,7 @@ import {
   validateRequired,
   param,
 } from '../lib/helpers.js'
-import type { WireExecutionResult, WireStatusData } from '@tomachina/core'
+import type { WireExecutionResult, WireStatusData, WireResumeData } from '@tomachina/core'
 
 export const wireRoutes = Router()
 
@@ -88,7 +88,7 @@ wireRoutes.post('/execute', async (req: Request, res: Response) => {
 
     const result = await executeWire(wire_id, input, context)
 
-    res.json(successResponse<unknown>(result))
+    res.json(successResponse<WireExecutionResult>(result as unknown as WireExecutionResult))
   } catch (err) {
     console.error('POST /api/wire/execute error:', err)
     const msg = err instanceof Error ? err.message : 'Failed to execute wire'
@@ -110,7 +110,7 @@ wireRoutes.get('/status/:executionId', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse<unknown>({ execution_id: doc.id, ...doc.data() }))
+    res.json(successResponse<WireStatusData>({ execution_id: doc.id, ...doc.data() } as unknown as WireStatusData))
   } catch (err) {
     console.error('GET /api/wire/status/:executionId error:', err)
     res.status(500).json(errorResponse('Failed to get wire execution status'))
@@ -133,7 +133,7 @@ wireRoutes.post('/resume/:executionId', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse<unknown>(result))
+    res.json(successResponse<WireResumeData>(result as unknown as WireResumeData))
   } catch (err) {
     console.error('POST /api/wire/resume/:executionId error:', err)
     const msg = err instanceof Error ? err.message : 'Failed to resume wire'

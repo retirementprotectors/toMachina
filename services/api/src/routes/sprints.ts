@@ -7,7 +7,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { SprintDTO, SprintDeleteResult, DiscoveryImportPreviewData, DiscoveryImportResult, SprintPromptData, AuditRoundData, AuditRoundCreateResult, SendItResult, ReopenResult } from '@tomachina/core'
+import type { SprintDTO, SprintAutoCreateDTO, SprintDeleteResult, DiscoveryImportPreviewData, DiscoveryImportResult, SprintPromptData, AuditRoundData, AuditRoundCreateResult, SendItResult, ReopenResult } from '@tomachina/core'
 
 export const sprintRoutes = Router()
 const SPRINT_COLLECTION = 'sprints'
@@ -19,7 +19,7 @@ sprintRoutes.get('/', async (_req: Request, res: Response) => {
     const db = getFirestore()
     const snap = await db.collection(SPRINT_COLLECTION).orderBy('created_at', 'desc').get()
     const data = snap.docs.map(doc => stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>))
-    res.json(successResponse<unknown>(data))
+    res.json(successResponse<SprintDTO[]>(data as unknown as SprintDTO[]))
   } catch (err) {
     console.error('GET /api/sprints error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -67,7 +67,7 @@ sprintRoutes.post('/', async (req: Request, res: Response) => {
       await batch.commit()
     }
 
-    res.status(201).json(successResponse<unknown>({ id: sprintRef.id, ...sprintData }))
+    res.status(201).json(successResponse<SprintDTO>({ id: sprintRef.id, ...sprintData } as unknown as SprintDTO))
   } catch (err) {
     console.error('POST /api/sprints error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -150,11 +150,11 @@ sprintRoutes.post('/auto', async (req: Request, res: Response) => {
     }
     await batch.commit()
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<SprintAutoCreateDTO>({
       id: sprintRef.id,
       ...sprintData,
       item_count: selected.length,
-    }))
+    } as unknown as SprintAutoCreateDTO))
   } catch (err) {
     console.error('POST /api/sprints/auto error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -538,13 +538,13 @@ sprintRoutes.post('/import-discovery', async (req: Request, res: Response) => {
 
     // --- Dry run: return preview ---
     if (dry_run) {
-      res.json(successResponse<unknown>({
+      res.json(successResponse<DiscoveryImportPreviewData>({
         sprint: { name: sprintName, description: sprintDesc, discovery_url: discovery_url || null },
         sprint_name: sprintName,
         items,
         item_count: items.length,
         items_created: items.length,
-      }))
+      } as unknown as DiscoveryImportPreviewData))
       return
     }
 
@@ -599,13 +599,13 @@ sprintRoutes.post('/import-discovery', async (req: Request, res: Response) => {
 
     await batch.commit()
 
-    res.status(201).json(successResponse<unknown>({
+    res.status(201).json(successResponse<DiscoveryImportResult>({
       sprint_id: sprintRef.id,
       sprint_name: sprintName,
       discovery_url: discovery_url || null,
       items_created: itemIds.length,
       item_ids: itemIds,
-    }))
+    } as unknown as DiscoveryImportResult))
   } catch (err) {
     console.error('POST /api/sprints/import-discovery error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -840,7 +840,7 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       md += `\n**Read the plan. Execute the plan. Report results. Go.**\n`
     }
 
-    res.json(successResponse<unknown>({ prompt: md }))
+    res.json(successResponse<SprintPromptData>({ prompt: md } as unknown as SprintPromptData))
   } catch (err) {
     console.error('GET /api/sprints/:id/prompt error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -869,7 +869,7 @@ sprintRoutes.get('/:id/audit-round', async (req: Request, res: Response) => {
     // Round heuristic: if any items are confirmed, we are at least round 1
     const round = passed.length > 0 ? 1 : 0
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<AuditRoundData>({
       current_round: Math.max(round, 1),
       total_items: sprintItems.length,
       pending,
@@ -878,7 +878,7 @@ sprintRoutes.get('/:id/audit-round', async (req: Request, res: Response) => {
       passed_count: passed.length,
       failed,
       failed_count: failed.length,
-    }))
+    } as unknown as AuditRoundData))
   } catch (err) {
     console.error('GET /api/sprints/:id/audit-round error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -939,11 +939,11 @@ sprintRoutes.post('/:id/sendit', async (req: Request, res: Response) => {
       gitResult = { committed: false, message: `Git not available: ${e instanceof Error ? e.message : String(e)}` }
     }
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<SendItResult>({
       confirmed,
       sprint_closed: true,
       git: gitResult,
-    }))
+    } as unknown as SendItResult))
   } catch (err) {
     console.error('POST /api/sprints/:id/sendit error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -983,7 +983,7 @@ sprintRoutes.post('/:id/reopen', async (req: Request, res: Response) => {
     batch.update(sprintDoc.ref, { status: 'active', updated_at: now, _updated_by: userEmail })
     await batch.commit()
 
-    res.json(successResponse<unknown>({ reverted, sprint_reopened: true }))
+    res.json(successResponse<ReopenResult>({ reverted, sprint_reopened: true } as unknown as ReopenResult))
   } catch (err) {
     console.error('POST /api/sprints/:id/reopen error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1053,7 +1053,7 @@ sprintRoutes.get('/:id/audit-discovery', async (req: Request, res: Response) => 
     md += `\n---\n`
     md += `\n#LetsAuditTheDiscovery\n`
 
-    res.json(successResponse<unknown>({ prompt: md }))
+    res.json(successResponse<SprintPromptData>({ prompt: md } as unknown as SprintPromptData))
   } catch (err) {
     console.error('GET /api/sprints/:id/audit-discovery error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1136,7 +1136,7 @@ sprintRoutes.get('/:id/audit-plan', async (req: Request, res: Response) => {
     md += `\n---\n`
     md += `\n#LetsAuditThePlan\n`
 
-    res.json(successResponse<unknown>({ prompt: md }))
+    res.json(successResponse<SprintPromptData>({ prompt: md } as unknown as SprintPromptData))
   } catch (err) {
     console.error('GET /api/sprints/:id/audit-plan error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1185,7 +1185,7 @@ sprintRoutes.get('/:id/audit', async (req: Request, res: Response) => {
     md += `\n---\n`
     md += `\n#LetsAuditTheBuild\n`
 
-    res.json(successResponse<unknown>({ prompt: md }))
+    res.json(successResponse<SprintPromptData>({ prompt: md } as unknown as SprintPromptData))
   } catch (err) {
     console.error('GET /api/sprints/:id/audit error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1242,12 +1242,12 @@ sprintRoutes.post('/:id/audit-rounds', async (req: Request, res: Response) => {
       })
     )
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<AuditRoundCreateResult>({
       new_round: newRound,
       previous_round: currentRound,
       items: updatedItems,
       item_count: updatedItems.length,
-    }))
+    } as unknown as AuditRoundCreateResult))
   } catch (err) {
     console.error('POST /api/sprints/:id/audit-rounds error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1261,7 +1261,7 @@ sprintRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(SPRINT_COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Sprint not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<SprintDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as SprintDTO))
   } catch (err) {
     console.error('GET /api/sprints/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1287,7 +1287,7 @@ sprintRoutes.patch('/:id', async (req: Request, res: Response) => {
 
     await docRef.update(updates)
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<SprintDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as SprintDTO))
   } catch (err) {
     console.error('PATCH /api/sprints/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -1323,7 +1323,7 @@ sprintRoutes.delete('/:id', async (req: Request, res: Response) => {
     }
 
     await docRef.delete()
-    res.json(successResponse<unknown>({ deleted: id, unassigned_items: itemsSnap.size }))
+    res.json(successResponse<SprintDeleteResult>({ deleted: id, unassigned_items: itemsSnap.size } as unknown as SprintDeleteResult))
   } catch (err) {
     console.error('DELETE /api/sprints/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

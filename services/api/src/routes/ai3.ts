@@ -128,7 +128,7 @@ ai3Routes.get('/household/:householdId', async (req: Request, res: Response) => 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userEmail = (req as any).user?.email || 'unknown'
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<Ai3HouseholdData>({
       household,
       members: memberData,
       combined_totals: {
@@ -144,7 +144,7 @@ ai3Routes.get('/household/:householdId', async (req: Request, res: Response) => 
       },
       generated_at: new Date().toISOString(),
       generated_by: userEmail,
-    }))
+    } as unknown as Ai3HouseholdData))
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : String(err)
     const errBody = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
@@ -213,7 +213,7 @@ ai3Routes.get('/:clientId', async (req: Request, res: Response) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userEmail = (req as any).user?.email || 'unknown'
 
-    res.json(successResponse<unknown>({
+    res.json(successResponse<Ai3ClientData>({
       client: clientData,
       accounts,
       connected_contacts: connectedContacts,
@@ -221,7 +221,7 @@ ai3Routes.get('/:clientId', async (req: Request, res: Response) => {
       recent_activities: recentActivities,
       generated_at: new Date().toISOString(),
       generated_by: userEmail,
-    }))
+    } as unknown as Ai3ClientData))
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : String(err)
     const errBody = (err as { response?: { data?: { error?: string } } })?.response?.data?.error

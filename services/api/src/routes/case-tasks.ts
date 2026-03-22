@@ -10,7 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { CaseTaskDTO } from '@tomachina/core'
+import type { CaseTaskDTO, CaseTaskCreateDTO, CaseTaskUpdateDTO } from '@tomachina/core'
 
 export const caseTaskRoutes = Router()
 const COLLECTION = 'case_tasks'
@@ -41,7 +41,7 @@ caseTaskRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Case task not found')); return }
-    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<CaseTaskDTO>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>) as unknown as CaseTaskDTO))
   } catch (err) {
     console.error('GET /api/case-tasks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -61,7 +61,7 @@ caseTaskRoutes.post('/', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(COLLECTION, 'insert', taskId, data)
     if (!bridgeResult.success) await db.collection(COLLECTION).doc(taskId).set(data)
 
-    res.status(201).json(successResponse<unknown>({ id: taskId, ...data }))
+    res.status(201).json(successResponse<CaseTaskCreateDTO>({ id: taskId, ...data } as unknown as CaseTaskCreateDTO))
   } catch (err) {
     console.error('POST /api/case-tasks error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -83,7 +83,7 @@ caseTaskRoutes.patch('/:id', async (req: Request, res: Response) => {
     if (!bridgeResult.success) await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<CaseTaskUpdateDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as CaseTaskUpdateDTO))
   } catch (err) {
     console.error('PATCH /api/case-tasks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -6,7 +6,15 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { CampaignAnalyticsData } from '@tomachina/core'
+import type {
+  CampaignAnalyticsData,
+  CampaignTimelineData,
+  CampaignRecipientListDTO,
+  CampaignDripProgressData,
+  WebhookSendGridResult,
+  WebhookTwilioResult,
+  WebhookTwilioSkipResult,
+} from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const campaignAnalyticsRoutes = Router()
@@ -84,7 +92,7 @@ campaignAnalyticsRoutes.get('/:campaignId', async (req: Request, res: Response) 
       schedules,
     }
 
-    res.json(successResponse<unknown>(metrics))
+    res.json(successResponse<CampaignAnalyticsData>(metrics as unknown as CampaignAnalyticsData))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -145,7 +153,7 @@ campaignAnalyticsRoutes.get('/:campaignId/timeline', async (req: Request, res: R
       .map(([date, counts]) => ({ date, ...counts }))
       .sort((a, b) => a.date.localeCompare(b.date))
 
-    res.json(successResponse<unknown>(timeline, { pagination: { count: timeline.length, total: timeline.length } }))
+    res.json(successResponse<CampaignTimelineData>(timeline as unknown as CampaignTimelineData, { pagination: { count: timeline.length, total: timeline.length } }))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/timeline error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -183,7 +191,7 @@ campaignAnalyticsRoutes.get('/:campaignId/recipients', async (req: Request, res:
       }
     })
 
-    res.json(successResponse<unknown>(recipients, { pagination: { count: recipients.length, total: recipients.length } }))
+    res.json(successResponse<CampaignRecipientListDTO>(recipients as unknown as CampaignRecipientListDTO, { pagination: { count: recipients.length, total: recipients.length } }))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/recipients error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -210,7 +218,7 @@ campaignAnalyticsRoutes.get('/:campaignId/drip-progress', async (req: Request, r
       .get()
 
     if (dripSnap.empty) {
-      res.json(successResponse<unknown>({ sequences: [], message: 'No drip sequences for this campaign' }))
+      res.json(successResponse<CampaignDripProgressData>({ sequences: [], message: 'No drip sequences for this campaign' } as unknown as CampaignDripProgressData))
       return
     }
 
@@ -286,7 +294,7 @@ campaignAnalyticsRoutes.get('/:campaignId/drip-progress', async (req: Request, r
       })
     }
 
-    res.json(successResponse<unknown>({ sequences }))
+    res.json(successResponse<CampaignDripProgressData>({ sequences } as unknown as CampaignDripProgressData))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/drip-progress error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -389,7 +397,7 @@ campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Resp
 
     if (processed > 0) await batch.commit()
 
-    res.json(successResponse<unknown>({ processed, unmatched }))
+    res.json(successResponse<WebhookSendGridResult>({ processed, unmatched } as unknown as WebhookSendGridResult))
   } catch (err) {
     console.error('POST /api/campaign-analytics/webhook/sendgrid error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -415,7 +423,7 @@ campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Respon
     const { MessageSid, MessageStatus, To, ErrorCode } = req.body
 
     if (!MessageStatus) {
-      res.json(successResponse<unknown>({ skipped: true, reason: 'no_status' }))
+      res.json(successResponse<WebhookTwilioSkipResult>({ skipped: true, reason: 'no_status' } as unknown as WebhookTwilioSkipResult))
       return
     }
 
@@ -424,7 +432,7 @@ campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Respon
     if (MessageStatus === 'delivered') eventType = 'delivered'
     else if (MessageStatus === 'sent') eventType = 'sent'
     else if (MessageStatus === 'failed' || MessageStatus === 'undelivered') eventType = 'bounced'
-    else return void res.json(successResponse<unknown>({ skipped: true, reason: `unmapped_status_${MessageStatus}` }))
+    else return void res.json(successResponse<WebhookTwilioSkipResult>({ skipped: true, reason: `unmapped_status_${MessageStatus}` } as unknown as WebhookTwilioSkipResult))
 
     // FIXED: Look up campaign_send_log by MessageSid to resolve campaign context
     let resolvedCampaignId = ''
@@ -470,7 +478,7 @@ campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Respon
       timestamp: now,
     })
 
-    res.json(successResponse<unknown>({ processed: true, event_type: eventType }))
+    res.json(successResponse<WebhookTwilioResult>({ processed: true, event_type: eventType } as unknown as WebhookTwilioResult))
   } catch (err) {
     console.error('POST /api/campaign-analytics/webhook/twilio error:', err)
     res.status(500).json(errorResponse(String(err)))
