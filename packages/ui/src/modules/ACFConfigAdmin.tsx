@@ -43,6 +43,37 @@ function driveUrl(id: string, type: 'folder' | 'file'): string {
     : `https://docs.google.com/spreadsheets/d/${id}/edit`
 }
 
+/** Collapsible section header with chevron */
+function SectionHeader({ title, subtitle, open, onToggle, count, trailing }: {
+  title: string
+  subtitle?: string
+  open: boolean
+  onToggle: () => void
+  count?: number
+  trailing?: React.ReactNode
+}) {
+  return (
+    <div
+      className="flex items-center justify-between cursor-pointer select-none"
+      onClick={onToggle}
+    >
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[var(--text-muted)] transition-transform duration-200" style={{ fontSize: '20px', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+          expand_more
+        </span>
+        <div>
+          <h4 className="text-sm font-medium text-[var(--text-secondary)]">{title}</h4>
+          {subtitle && <p className="text-xs text-[var(--text-muted)]">{subtitle}</p>}
+        </div>
+        {count !== undefined && (
+          <span className="text-xs text-[var(--text-muted)]">({count})</span>
+        )}
+      </div>
+      {trailing && <div onClick={(e) => e.stopPropagation()}>{trailing}</div>}
+    </div>
+  )
+}
+
 export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
   const [config, setConfig] = useState<ACFConfigData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -57,6 +88,22 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [ruleFilter, setRuleFilter] = useState({ subfolder: '', pipeline: '', status: '' })
   const [showAddRule, setShowAddRule] = useState(false)
+
+  // Collapsible section state — all closed by default
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    template: false,
+    automation: false,
+    subfolders: false,
+    routing: false,
+    doctypes: false,
+  })
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  // Suppress unused variable warning — portal is used by parent for theming context
+  void portal
 
   const loadConfig = useCallback(async () => {
     setLoading(true)
@@ -202,227 +249,241 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
         </button>
       </div>
 
-      {/* Template IDs — with hyperlinks */}
+      {/* ── 1. Template Settings (collapsible) ── */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-3">
-        <h4 className="text-sm font-medium text-[var(--text-secondary)]">Template Settings</h4>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] mb-1">
-              Template Folder ID
-              {config.template_folder_id && (
-                <a
-                  href={driveUrl(config.template_folder_id, 'folder')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-0.5 text-[var(--portal)] hover:brightness-110"
-                  title="Open in Google Drive"
-                >
-                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
-                  Open
-                </a>
-              )}
-            </label>
-            <input
-              type="text"
-              value={config.template_folder_id}
-              onChange={(e) => setConfig({ ...config, template_folder_id: e.target.value })}
-              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-            />
+        <SectionHeader title="Template Settings" open={openSections.template} onToggle={() => toggleSection('template')} />
+        {openSections.template && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] mb-1">
+                  Template Folder ID
+                  {config.template_folder_id && (
+                    <a
+                      href={driveUrl(config.template_folder_id, 'folder')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-[var(--portal)] hover:brightness-110"
+                      title="Open in Google Drive"
+                    >
+                      <span className="material-icons-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
+                      Open
+                    </a>
+                  )}
+                </label>
+                <input
+                  type="text"
+                  value={config.template_folder_id}
+                  onChange={(e) => setConfig({ ...config, template_folder_id: e.target.value })}
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] mb-1">
+                  Ai3 Template ID
+                  {config.ai3_template_id && (
+                    <a
+                      href={driveUrl(config.ai3_template_id, 'file')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-[var(--portal)] hover:brightness-110"
+                      title="Open Ai3 Template"
+                    >
+                      <span className="material-icons-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
+                      Open
+                    </a>
+                  )}
+                </label>
+                <input
+                  type="text"
+                  value={config.ai3_template_id}
+                  onChange={(e) => setConfig({ ...config, ai3_template_id: e.target.value })}
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Share Domain</label>
+                <input
+                  type="text"
+                  value={config.share_domain}
+                  onChange={(e) => setConfig({ ...config, share_domain: e.target.value })}
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
+                  Naming Pattern
+                  {patternPreview && (
+                    <span className="ml-2 font-normal text-[var(--text-muted)]">Preview: {patternPreview}</span>
+                  )}
+                </label>
+                <input
+                  type="text"
+                  value={config.naming_pattern}
+                  onChange={(e) => setConfig({ ...config, naming_pattern: e.target.value })}
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                  placeholder="ACF - {first_name} {last_name}"
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] mb-1">
-              Ai3 Template ID
-              {config.ai3_template_id && (
-                <a
-                  href={driveUrl(config.ai3_template_id, 'file')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-0.5 text-[var(--portal)] hover:brightness-110"
-                  title="Open Ai3 Template"
-                >
-                  <span className="material-icons-outlined" style={{ fontSize: '12px' }}>open_in_new</span>
-                  Open
-                </a>
-              )}
-            </label>
-            <input
-              type="text"
-              value={config.ai3_template_id}
-              onChange={(e) => setConfig({ ...config, ai3_template_id: e.target.value })}
-              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Share Domain</label>
-            <input
-              type="text"
-              value={config.share_domain}
-              onChange={(e) => setConfig({ ...config, share_domain: e.target.value })}
-              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">
-              Naming Pattern
-              {patternPreview && (
-                <span className="ml-2 font-normal text-[var(--text-muted)]">Preview: {patternPreview}</span>
-              )}
-            </label>
-            <input
-              type="text"
-              value={config.naming_pattern}
-              onChange={(e) => setConfig({ ...config, naming_pattern: e.target.value })}
-              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-              placeholder="ACF - {first_name} {last_name}"
-            />
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Subfolder List */}
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium text-[var(--text-secondary)]">Subfolders</h4>
-          <span className="text-xs text-[var(--text-muted)]">{config.subfolders.length} configured</span>
-        </div>
-        <div className="space-y-1.5">
-          {config.subfolders.map((sf, i) => (
-            <div
-              key={sf}
-              className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2"
-            >
-              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>folder</span>
-              <span className="flex-1 text-sm text-[var(--text-primary)]">{sf}</span>
-              {config.default_subfolder === sf && (
-                <span className="rounded-full px-2 py-0.5 text-[10px] font-medium text-white" style={{ background: 'var(--portal)' }}>
-                  default
-                </span>
-              )}
+      {/* ── 2. Automation (collapsible, moved up) ── */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-4">
+        <SectionHeader title="Automation" open={openSections.automation} onToggle={() => toggleSection('automation')} />
+        {openSections.automation && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <span className="text-sm text-[var(--text-primary)]">Auto-create on import</span>
+                <p className="text-xs text-[var(--text-muted)]">Automatically create ACF when a new client is imported</p>
+              </div>
               <button
-                onClick={() => moveSubfolder(i, 'up')}
-                disabled={i === 0}
-                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
+                type="button"
+                role="switch"
+                aria-checked={config.auto_create_on_import}
+                onClick={() => setConfig({ ...config, auto_create_on_import: !config.auto_create_on_import })}
+                className="shrink-0 flex items-center rounded-full p-0.5 transition-colors"
+                style={{
+                  width: '44px',
+                  height: '24px',
+                  background: config.auto_create_on_import ? 'var(--portal)' : '#4b5563',
+                }}
               >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_upward</span>
-              </button>
-              <button
-                onClick={() => moveSubfolder(i, 'down')}
-                disabled={i === config.subfolders.length - 1}
-                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_downward</span>
-              </button>
-              <button
-                onClick={() => removeSubfolder(sf)}
-                className="text-red-400 hover:text-red-300"
-              >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
+                <span
+                  className="rounded-full bg-white shadow-sm transition-all duration-200"
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    marginLeft: config.auto_create_on_import ? '20px' : '0px',
+                  }}
+                />
               </button>
             </div>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newSubfolder}
-            onChange={(e) => setNewSubfolder(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addSubfolder()}
-            placeholder="New subfolder name..."
-            className="flex-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-          />
-          <button
-            onClick={addSubfolder}
-            disabled={!newSubfolder.trim()}
-            className="rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50"
-            style={{ background: 'var(--portal)' }}
-          >
-            Add
-          </button>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Default Subfolder</label>
-          <select
-            value={config.default_subfolder}
-            onChange={(e) => setConfig({ ...config, default_subfolder: e.target.value })}
-            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-          >
-            {config.subfolders.map((sf) => (
-              <option key={sf} value={sf}>{sf}</option>
-            ))}
-          </select>
-        </div>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <span className="text-sm text-[var(--text-primary)]">Auto-route correspondence</span>
+                <p className="text-xs text-[var(--text-muted)]">Automatically route new documents to ACF subfolders based on routing rules below</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={config.auto_route_correspondence}
+                onClick={() => setConfig({ ...config, auto_route_correspondence: !config.auto_route_correspondence })}
+                className="shrink-0 flex items-center rounded-full p-0.5 transition-colors"
+                style={{
+                  width: '44px',
+                  height: '24px',
+                  background: config.auto_route_correspondence ? 'var(--portal)' : '#4b5563',
+                }}
+              >
+                <span
+                  className="rounded-full bg-white shadow-sm transition-all duration-200"
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    marginLeft: config.auto_route_correspondence ? '20px' : '0px',
+                  }}
+                />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Automation Toggles */}
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-4">
-        <h4 className="text-sm font-medium text-[var(--text-secondary)]">Automation</h4>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <span className="text-sm text-[var(--text-primary)]">Auto-create on import</span>
-            <p className="text-xs text-[var(--text-muted)]">Automatically create ACF when a new client is imported</p>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={config.auto_create_on_import}
-            onClick={() => setConfig({ ...config, auto_create_on_import: !config.auto_create_on_import })}
-            className="shrink-0 flex items-center rounded-full p-0.5 transition-colors"
-            style={{
-              width: '44px',
-              height: '24px',
-              background: config.auto_create_on_import ? 'var(--portal)' : '#4b5563',
-            }}
-          >
-            <span
-              className="rounded-full bg-white shadow-sm transition-all duration-200"
-              style={{
-                width: '20px',
-                height: '20px',
-                marginLeft: config.auto_create_on_import ? '20px' : '0px',
-              }}
-            />
-          </button>
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <span className="text-sm text-[var(--text-primary)]">Auto-route correspondence</span>
-            <p className="text-xs text-[var(--text-muted)]">Automatically route new documents to ACF subfolders based on routing rules below</p>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={config.auto_route_correspondence}
-            onClick={() => setConfig({ ...config, auto_route_correspondence: !config.auto_route_correspondence })}
-            className="shrink-0 flex items-center rounded-full p-0.5 transition-colors"
-            style={{
-              width: '44px',
-              height: '24px',
-              background: config.auto_route_correspondence ? 'var(--portal)' : '#4b5563',
-            }}
-          >
-            <span
-              className="rounded-full bg-white shadow-sm transition-all duration-200"
-              style={{
-                width: '20px',
-                height: '20px',
-                marginLeft: config.auto_route_correspondence ? '20px' : '0px',
-              }}
-            />
-          </button>
-        </div>
-      </div>
-
-      {/* Routing Rules */}
+      {/* ── 3. Subfolders (collapsible) ── */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="text-sm font-medium text-[var(--text-secondary)]">Document Routing Rules</h4>
-            <p className="text-xs text-[var(--text-muted)]">When auto-route is on, incoming documents matching these patterns get filed automatically</p>
+        <SectionHeader
+          title="Subfolders"
+          open={openSections.subfolders}
+          onToggle={() => toggleSection('subfolders')}
+          count={config.subfolders.length}
+        />
+        {openSections.subfolders && (
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              {config.subfolders.map((sf, i) => (
+                <div
+                  key={sf}
+                  className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2"
+                >
+                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>folder</span>
+                  <span className="flex-1 text-sm text-[var(--text-primary)]">{sf}</span>
+                  {config.default_subfolder === sf && (
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-medium text-white" style={{ background: 'var(--portal)' }}>
+                      default
+                    </span>
+                  )}
+                  <button
+                    onClick={() => moveSubfolder(i, 'up')}
+                    disabled={i === 0}
+                    className="text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_upward</span>
+                  </button>
+                  <button
+                    onClick={() => moveSubfolder(i, 'down')}
+                    disabled={i === config.subfolders.length - 1}
+                    className="text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_downward</span>
+                  </button>
+                  <button
+                    onClick={() => removeSubfolder(sf)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newSubfolder}
+                onChange={(e) => setNewSubfolder(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addSubfolder()}
+                placeholder="New subfolder name..."
+                className="flex-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+              />
+              <button
+                onClick={addSubfolder}
+                disabled={!newSubfolder.trim()}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50"
+                style={{ background: 'var(--portal)' }}
+              >
+                Add
+              </button>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[var(--text-muted)] mb-1">Default Subfolder</label>
+              <select
+                value={config.default_subfolder}
+                onChange={(e) => setConfig({ ...config, default_subfolder: e.target.value })}
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+              >
+                {config.subfolders.map((sf) => (
+                  <option key={sf} value={sf}>{sf}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--text-muted)]">{(config.routing_rules || []).length} rules</span>
+        )}
+      </div>
+
+      {/* ── 4. Document Routing Rules (collapsible) ── */}
+      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4 space-y-3">
+        <SectionHeader
+          title="Document Routing Rules"
+          subtitle="When auto-route is on, incoming documents matching these patterns get filed automatically"
+          open={openSections.routing}
+          onToggle={() => toggleSection('routing')}
+          count={(config.routing_rules || []).length}
+          trailing={
             <button
               onClick={() => setShowAddRule(!showAddRule)}
               className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110"
@@ -431,197 +492,203 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
               <span className="material-icons-outlined" style={{ fontSize: '14px' }}>{showAddRule ? 'close' : 'add'}</span>
               {showAddRule ? 'Cancel' : 'Add Rule'}
             </button>
-          </div>
-        </div>
+          }
+        />
+        {openSections.routing && (
+          <div className="space-y-3">
+            {/* Add new rule — TOP position */}
+            {showAddRule && (
+              <div className="rounded-lg border-2 border-dashed p-3 space-y-2" style={{ borderColor: 'var(--portal)' }}>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
+                    <input type="text" value={newRuleType} onChange={(e) => setNewRuleType(e.target.value)} placeholder="e.g., 1035 Exchange, Correspondence..."
+                      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" autoFocus />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Target Subfolder</label>
+                    <select value={newRuleSubfolder} onChange={(e) => setNewRuleSubfolder(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                      <option value="">Select subfolder...</option>
+                      {config.subfolders.map((sf) => <option key={sf} value={sf}>{sf}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-separated)</label>
+                  <input type="text" value={newRulePatterns} onChange={(e) => setNewRulePatterns(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addRoutingRule()} placeholder="e.g., 1035*, exchange*, transfer*"
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Pipeline</label>
+                    <select value={newRulePipeline} onChange={(e) => setNewRulePipeline(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                      <option value="">None</option>
+                      {PIPELINES.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Owner Role</label>
+                    <select value={newRuleOwner} onChange={(e) => setNewRuleOwner(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                      <option value="">None</option>
+                      {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex items-end pb-0.5">
+                    <button onClick={() => { addRoutingRule(); setShowAddRule(false) }}
+                      disabled={!newRuleType.trim() || !newRuleSubfolder || !newRulePatterns.trim()}
+                      className="w-full rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50"
+                      style={{ background: 'var(--portal)' }}>
+                      Add Rule
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-        {/* Add new rule — TOP position */}
-        {showAddRule && (
-          <div className="rounded-lg border-2 border-dashed p-3 space-y-2" style={{ borderColor: 'var(--portal)' }}>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
-                <input type="text" value={newRuleType} onChange={(e) => setNewRuleType(e.target.value)} placeholder="e.g., 1035 Exchange, Correspondence..."
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" autoFocus />
-              </div>
-              <div>
-                <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Target Subfolder</label>
-                <select value={newRuleSubfolder} onChange={(e) => setNewRuleSubfolder(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                  <option value="">Select subfolder...</option>
-                  {config.subfolders.map((sf) => <option key={sf} value={sf}>{sf}</option>)}
+            {/* Smart Filters */}
+            {(config.routing_rules || []).length > 3 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Filter:</span>
+                <select value={ruleFilter.subfolder} onChange={(e) => setRuleFilter(f => ({ ...f, subfolder: e.target.value }))}
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] focus:border-[var(--portal)] focus:outline-none">
+                  <option value="">All Subfolders</option>
+                  {config.subfolders.map(sf => <option key={sf} value={sf}>{sf}</option>)}
                 </select>
-              </div>
-            </div>
-            <div>
-              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-separated)</label>
-              <input type="text" value={newRulePatterns} onChange={(e) => setNewRulePatterns(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addRoutingRule()} placeholder="e.g., 1035*, exchange*, transfer*"
-                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Pipeline</label>
-                <select value={newRulePipeline} onChange={(e) => setNewRulePipeline(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                  <option value="">None</option>
+                <select value={ruleFilter.pipeline} onChange={(e) => setRuleFilter(f => ({ ...f, pipeline: e.target.value }))}
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] focus:border-[var(--portal)] focus:outline-none">
+                  <option value="">All Pipelines</option>
                   {PIPELINES.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
-              </div>
-              <div>
-                <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Owner Role</label>
-                <select value={newRuleOwner} onChange={(e) => setNewRuleOwner(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                  <option value="">None</option>
-                  {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                <select value={ruleFilter.status} onChange={(e) => setRuleFilter(f => ({ ...f, status: e.target.value }))}
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] focus:border-[var(--portal)] focus:outline-none">
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="disabled">Disabled</option>
                 </select>
-              </div>
-              <div className="flex items-end pb-0.5">
-                <button onClick={() => { addRoutingRule(); setShowAddRule(false) }}
-                  disabled={!newRuleType.trim() || !newRuleSubfolder || !newRulePatterns.trim()}
-                  className="w-full rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50"
-                  style={{ background: 'var(--portal)' }}>
-                  Add Rule
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Smart Filters */}
-        {(config.routing_rules || []).length > 3 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide font-medium">Filter:</span>
-            <select value={ruleFilter.subfolder} onChange={(e) => setRuleFilter(f => ({ ...f, subfolder: e.target.value }))}
-              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] focus:border-[var(--portal)] focus:outline-none">
-              <option value="">All Subfolders</option>
-              {config.subfolders.map(sf => <option key={sf} value={sf}>{sf}</option>)}
-            </select>
-            <select value={ruleFilter.pipeline} onChange={(e) => setRuleFilter(f => ({ ...f, pipeline: e.target.value }))}
-              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] focus:border-[var(--portal)] focus:outline-none">
-              <option value="">All Pipelines</option>
-              {PIPELINES.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-            <select value={ruleFilter.status} onChange={(e) => setRuleFilter(f => ({ ...f, status: e.target.value }))}
-              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] focus:border-[var(--portal)] focus:outline-none">
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="disabled">Disabled</option>
-            </select>
-            {(ruleFilter.subfolder || ruleFilter.pipeline || ruleFilter.status) && (
-              <button onClick={() => setRuleFilter({ subfolder: '', pipeline: '', status: '' })} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--portal)] transition-colors">Clear</button>
-            )}
-          </div>
-        )}
-
-        {/* Rules list */}
-        {(config.routing_rules || []).length > 0 && (
-          <div className="space-y-1.5">
-            {(config.routing_rules || []).map((rule, i) => {
-              // Apply filters
-              if (ruleFilter.subfolder && rule.target_subfolder !== ruleFilter.subfolder) return null
-              if (ruleFilter.pipeline && (rule.pipeline || '') !== ruleFilter.pipeline) return null
-              if (ruleFilter.status === 'active' && rule.active === false) return null
-              if (ruleFilter.status === 'disabled' && rule.active !== false) return null
-              return (
-              <div
-                key={i}
-                className={`rounded-lg border bg-[var(--bg-surface)] transition-colors ${
-                  editingIndex === i ? 'border-[var(--portal)]' : 'border-[var(--border-subtle)]'
-                }`}
-              >
-                {/* Summary row */}
-                <div className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-[var(--bg-card)] transition-colors" onClick={() => startEditing(i)}>
-                  <span className={`material-icons-outlined ${rule.active === false ? 'text-red-400' : 'text-emerald-500'}`} style={{ fontSize: '14px' }}>
-                    {rule.active === false ? 'radio_button_unchecked' : 'check_circle'}
-                  </span>
-                  <span className="text-sm font-medium text-[var(--text-primary)] min-w-[140px]">{rule.document_type}</span>
-                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>arrow_forward</span>
-                  <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${
-                    rule.target_subfolder === 'Client' ? 'bg-blue-500/10 text-blue-400' :
-                    rule.target_subfolder === 'Cases' ? 'bg-purple-500/10 text-purple-400' :
-                    rule.target_subfolder === 'NewBiz' ? 'bg-emerald-500/10 text-emerald-400' :
-                    rule.target_subfolder === 'Account' ? 'bg-amber-500/10 text-amber-400' :
-                    'bg-red-500/10 text-red-400'
-                  }`}>{rule.target_subfolder}</span>
-                  {(rule.patterns || []).length > 0 && (
-                    <span className="text-[10px] text-[var(--text-muted)] font-mono hidden md:inline">{(rule.patterns || []).slice(0, 2).join(', ')}{(rule.patterns || []).length > 2 ? ` +${(rule.patterns || []).length - 2}` : ''}</span>
-                  )}
-                  <div className="flex items-center gap-2 ml-auto">
-                    {rule.pipeline && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-muted)]">{rule.pipeline}</span>}
-                    {rule.owner_role && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-muted)]">{rule.owner_role}</span>}
-                  </div>
-                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
-                    {editingIndex === i ? 'expand_less' : 'expand_more'}
-                  </span>
-                </div>
-
-                {/* Inline edit panel */}
-                {editingIndex === i && (
-                  <div className="border-t border-[var(--border-subtle)] px-3 py-3 space-y-2 bg-[var(--bg-base)]">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
-                        <input type="text" value={rule.document_type} onChange={(e) => updateRoutingRule(i, 'document_type', e.target.value)}
-                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Target Subfolder</label>
-                        <select value={rule.target_subfolder} onChange={(e) => updateRoutingRule(i, 'target_subfolder', e.target.value)}
-                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                          {config.subfolders.map((sf) => <option key={sf} value={sf}>{sf}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-separated)</label>
-                      <input type="text" value={(rule.patterns || []).join(', ')} onChange={(e) => updateRoutingRule(i, 'patterns', e.target.value.split(',').map(p => p.trim()).filter(Boolean))}
-                        className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Pipeline</label>
-                        <select value={rule.pipeline || ''} onChange={(e) => updateRoutingRule(i, 'pipeline', e.target.value)}
-                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                          <option value="">None</option>
-                          {PIPELINES.map(p => <option key={p} value={p}>{p}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Owner Role</label>
-                        <select value={rule.owner_role || ''} onChange={(e) => updateRoutingRule(i, 'owner_role', e.target.value)}
-                          className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                          <option value="">None</option>
-                          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                        </select>
-                      </div>
-                      <div className="flex items-end gap-2 pb-1">
-                        <button onClick={() => updateRoutingRule(i, 'active', rule.active === false ? true : false)}
-                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${rule.active === false ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'}`}>
-                          {rule.active === false ? 'Disabled' : 'Active'}
-                        </button>
-                        <button onClick={() => { removeRoutingRule(i); setEditingIndex(null) }}
-                          className="rounded-lg px-3 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                {(ruleFilter.subfolder || ruleFilter.pipeline || ruleFilter.status) && (
+                  <button onClick={() => setRuleFilter({ subfolder: '', pipeline: '', status: '' })} className="text-[10px] text-[var(--text-muted)] hover:text-[var(--portal)] transition-colors">Clear</button>
                 )}
               </div>
-              )
-            })}
-          </div>
-        )}
+            )}
 
-        {(config.routing_rules || []).length === 0 && (
-          <div className="text-center py-8 text-sm text-[var(--text-muted)]">
-            <span className="material-icons-outlined block mb-2" style={{ fontSize: '32px' }}>route</span>
-            No routing rules configured. Click Add Rule to create your first one.
+            {/* Rules list */}
+            {(config.routing_rules || []).length > 0 && (
+              <div className="space-y-1.5">
+                {(config.routing_rules || []).map((rule, i) => {
+                  // Apply filters
+                  if (ruleFilter.subfolder && rule.target_subfolder !== ruleFilter.subfolder) return null
+                  if (ruleFilter.pipeline && (rule.pipeline || '') !== ruleFilter.pipeline) return null
+                  if (ruleFilter.status === 'active' && rule.active === false) return null
+                  if (ruleFilter.status === 'disabled' && rule.active !== false) return null
+                  return (
+                  <div
+                    key={i}
+                    className={`rounded-lg border bg-[var(--bg-surface)] transition-colors ${
+                      editingIndex === i ? 'border-[var(--portal)]' : 'border-[var(--border-subtle)]'
+                    }`}
+                  >
+                    {/* Summary row */}
+                    <div className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-[var(--bg-card)] transition-colors" onClick={() => startEditing(i)}>
+                      <span className={`material-icons-outlined ${rule.active === false ? 'text-red-400' : 'text-emerald-500'}`} style={{ fontSize: '14px' }}>
+                        {rule.active === false ? 'radio_button_unchecked' : 'check_circle'}
+                      </span>
+                      <span className="text-sm font-medium text-[var(--text-primary)] min-w-[140px]">{rule.document_type}</span>
+                      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>arrow_forward</span>
+                      <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+                        rule.target_subfolder === 'Client' ? 'bg-blue-500/10 text-blue-400' :
+                        rule.target_subfolder === 'Cases' ? 'bg-purple-500/10 text-purple-400' :
+                        rule.target_subfolder === 'NewBiz' ? 'bg-emerald-500/10 text-emerald-400' :
+                        rule.target_subfolder === 'Account' ? 'bg-amber-500/10 text-amber-400' :
+                        'bg-red-500/10 text-red-400'
+                      }`}>{rule.target_subfolder}</span>
+                      {(rule.patterns || []).length > 0 && (
+                        <span className="text-[10px] text-[var(--text-muted)] font-mono hidden md:inline">{(rule.patterns || []).slice(0, 2).join(', ')}{(rule.patterns || []).length > 2 ? ` +${(rule.patterns || []).length - 2}` : ''}</span>
+                      )}
+                      <div className="flex items-center gap-2 ml-auto">
+                        {rule.pipeline && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-muted)]">{rule.pipeline}</span>}
+                        {rule.owner_role && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--bg-card)] text-[var(--text-muted)]">{rule.owner_role}</span>}
+                      </div>
+                      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                        {editingIndex === i ? 'expand_less' : 'expand_more'}
+                      </span>
+                    </div>
+
+                    {/* Inline edit panel */}
+                    {editingIndex === i && (
+                      <div className="border-t border-[var(--border-subtle)] px-3 py-3 space-y-2 bg-[var(--bg-base)]">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
+                            <input type="text" value={rule.document_type} onChange={(e) => updateRoutingRule(i, 'document_type', e.target.value)}
+                              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Target Subfolder</label>
+                            <select value={rule.target_subfolder} onChange={(e) => updateRoutingRule(i, 'target_subfolder', e.target.value)}
+                              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                              {config.subfolders.map((sf) => <option key={sf} value={sf}>{sf}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-separated)</label>
+                          <input type="text" value={(rule.patterns || []).join(', ')} onChange={(e) => updateRoutingRule(i, 'patterns', e.target.value.split(',').map(p => p.trim()).filter(Boolean))}
+                            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Pipeline</label>
+                            <select value={rule.pipeline || ''} onChange={(e) => updateRoutingRule(i, 'pipeline', e.target.value)}
+                              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                              <option value="">None</option>
+                              {PIPELINES.map(p => <option key={p} value={p}>{p}</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Owner Role</label>
+                            <select value={rule.owner_role || ''} onChange={(e) => updateRoutingRule(i, 'owner_role', e.target.value)}
+                              className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                              <option value="">None</option>
+                              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                            </select>
+                          </div>
+                          <div className="flex items-end gap-2 pb-1">
+                            <button onClick={() => updateRoutingRule(i, 'active', rule.active === false ? true : false)}
+                              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${rule.active === false ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'}`}>
+                              {rule.active === false ? 'Disabled' : 'Active'}
+                            </button>
+                            <button onClick={() => { removeRoutingRule(i); setEditingIndex(null) }}
+                              className="rounded-lg px-3 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {(config.routing_rules || []).length === 0 && (
+              <div className="text-center py-8 text-sm text-[var(--text-muted)]">
+                <span className="material-icons-outlined block mb-2" style={{ fontSize: '32px' }}>route</span>
+                No routing rules configured. Click Add Rule to create your first one.
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* ── Document Types (TRK-575) ────────────────────────────────── */}
-      <DocumentTypesAdmin />
+      {/* ── 5. Document Types (collapsible) ── */}
+      <DocumentTypesAdmin
+        open={openSections.doctypes}
+        onToggle={() => toggleSection('doctypes')}
+      />
     </div>
   )
 }
@@ -641,11 +708,13 @@ interface DocTypeConfig {
   product_types?: string[]
 }
 
-function DocumentTypesAdmin() {
+function DocumentTypesAdmin({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   const [configs, setConfigs] = useState<DocTypeConfig[]>([])
   const [loading, setLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
+  const [targetUiFilter, setTargetUiFilter] = useState<string>('all')
   const [form, setForm] = useState({
     document_type: '', display_name: '', target_ui: 'client_detail',
     file_patterns: '', priority: 50, subfolder: 'Client', required: false,
@@ -660,6 +729,16 @@ function DocumentTypesAdmin() {
   }, [])
 
   useEffect(() => { loadConfigs() }, [loadConfigs])
+
+  // Filter configs: exclude archived by default, apply target_ui filter
+  const filteredConfigs = configs.filter((c) => {
+    if (!showArchived && c.visible === false) return false
+    if (targetUiFilter !== 'all' && c.target_ui !== targetUiFilter) return false
+    return true
+  })
+
+  const visibleCount = configs.filter((c) => c.visible !== false).length
+  const archivedCount = configs.filter((c) => c.visible === false).length
 
   const handleSave = async () => {
     const body = {
@@ -694,6 +773,14 @@ function DocumentTypesAdmin() {
     await loadConfigs()
   }
 
+  const handleRestore = async (id: string) => {
+    await fetchValidated(`/api/document-index/config/${id}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visible: true }),
+    })
+    await loadConfigs()
+  }
+
   const startEdit = (c: DocTypeConfig) => {
     setEditingId(c.id)
     setAdding(true)
@@ -709,110 +796,161 @@ function DocumentTypesAdmin() {
   }
 
   return (
-    <div className="mt-6 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>description</span>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Document Types</h3>
-          <span className="text-xs text-[var(--text-muted)]">({configs.length})</span>
-        </div>
-        <button
-          onClick={() => { setAdding(!adding); setEditingId(null); setForm({ document_type: '', display_name: '', target_ui: 'client_detail', file_patterns: '', priority: 50, subfolder: 'Client', required: false }) }}
-          className="flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-3 py-1.5 text-xs font-medium text-white hover:brightness-110 transition-colors"
-        >
-          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
-          Add Type
-        </button>
-      </div>
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+      <SectionHeader
+        title="Document Types"
+        open={open}
+        onToggle={onToggle}
+        count={visibleCount}
+        trailing={
+          <button
+            onClick={() => { setAdding(!adding); setEditingId(null); setForm({ document_type: '', display_name: '', target_ui: 'client_detail', file_patterns: '', priority: 50, subfolder: 'Client', required: false }) }}
+            className="flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-3 py-1.5 text-xs font-medium text-white hover:brightness-110 transition-colors"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
+            Add Type
+          </button>
+        }
+      />
 
-      {/* Add/Edit form */}
-      {adding && (
-        <div className="mb-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
-              <input value={form.document_type} onChange={e => setForm(p => ({ ...p, document_type: e.target.value }))}
-                disabled={!!editingId}
-                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none disabled:opacity-50"
-                placeholder="e.g. drivers_license" />
-            </div>
-            <div>
-              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Display Name</label>
-              <input value={form.display_name} onChange={e => setForm(p => ({ ...p, display_name: e.target.value }))}
-                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-                placeholder="e.g. Driver's License" />
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-sep)</label>
-              <input value={form.file_patterns} onChange={e => setForm(p => ({ ...p, file_patterns: e.target.value }))}
-                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
-                placeholder="*driver*, *DL*, *license*" />
-            </div>
-            <div>
-              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Subfolder</label>
-              <select value={form.subfolder} onChange={e => setForm(p => ({ ...p, subfolder: e.target.value }))}
-                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                {['Client', 'Cases', 'NewBiz', 'Account', 'Reactive'].map(s => <option key={s}>{s}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Priority</label>
-              <input type="number" value={form.priority} onChange={e => setForm(p => ({ ...p, priority: parseInt(e.target.value) || 0 }))}
-                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-              <input type="checkbox" checked={form.required} onChange={e => setForm(p => ({ ...p, required: e.target.checked }))} />
-              Required document
-            </label>
-            <select value={form.target_ui} onChange={e => setForm(p => ({ ...p, target_ui: e.target.value }))}
-              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+      {open && (
+        <div className="mt-4 space-y-4">
+          {/* Filter bar */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <select
+              value={targetUiFilter}
+              onChange={(e) => setTargetUiFilter(e.target.value)}
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] focus:border-[var(--portal)] focus:outline-none"
+            >
+              <option value="all">All Types</option>
               <option value="client_detail">Client Detail</option>
               <option value="account_detail">Account Detail</option>
             </select>
-          </div>
-          <div className="flex gap-2 justify-end">
-            <button onClick={() => { setAdding(false); setEditingId(null) }}
-              className="rounded-lg border border-[var(--border-subtle)] px-4 py-1.5 text-xs text-[var(--text-muted)] hover:bg-[var(--bg-base)]">Cancel</button>
-            <button onClick={handleSave} disabled={!form.document_type}
-              className="rounded-lg bg-[var(--portal)] px-4 py-1.5 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50">{editingId ? 'Update' : 'Create'}</button>
-          </div>
-        </div>
-      )}
-
-      {/* Config list */}
-      {loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-10 rounded bg-[var(--bg-surface)] animate-pulse" />)}
-        </div>
-      ) : configs.length === 0 ? (
-        <div className="text-center py-6 text-sm text-[var(--text-muted)]">
-          <span className="material-icons-outlined block mb-2" style={{ fontSize: '28px' }}>description</span>
-          No document types configured yet.
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {configs.map(c => (
-            <div key={c.id} className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] px-4 py-2.5 hover:bg-[var(--bg-surface)] transition-colors">
-              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
-                {c.required ? 'star' : 'description'}
+            <button
+              onClick={() => setShowArchived(!showArchived)}
+              className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors border ${
+                showArchived
+                  ? 'border-[var(--portal)] text-[var(--portal)] bg-[var(--portal)]/5'
+                  : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '13px' }}>
+                {showArchived ? 'visibility' : 'visibility_off'}
               </span>
-              <div className="flex-1 min-w-0">
-                <span className="text-sm font-medium text-[var(--text-primary)]">{c.display_name || c.document_type}</span>
-                <span className="text-xs text-[var(--text-muted)] ml-2">{c.target_ui} · {(c.file_patterns || []).join(', ')}</span>
+              {showArchived ? `Showing archived (${archivedCount})` : `Show archived (${archivedCount})`}
+            </button>
+          </div>
+
+          {/* Add/Edit form */}
+          {adding && (
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
+                  <input value={form.document_type} onChange={e => setForm(p => ({ ...p, document_type: e.target.value }))}
+                    disabled={!!editingId}
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none disabled:opacity-50"
+                    placeholder="e.g. drivers_license" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Display Name</label>
+                  <input value={form.display_name} onChange={e => setForm(p => ({ ...p, display_name: e.target.value }))}
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                    placeholder="e.g. Driver's License" />
+                </div>
               </div>
-              <span className="text-[10px] text-[var(--text-muted)]">P{c.priority}</span>
-              <button onClick={() => startEdit(c)} className="rounded p-1 hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--portal)]">
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>edit</span>
-              </button>
-              <button onClick={() => handleArchive(c.id)} className="rounded p-1 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400">
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>archive</span>
-              </button>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-sep)</label>
+                  <input value={form.file_patterns} onChange={e => setForm(p => ({ ...p, file_patterns: e.target.value }))}
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                    placeholder="*driver*, *DL*, *license*" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Subfolder</label>
+                  <select value={form.subfolder} onChange={e => setForm(p => ({ ...p, subfolder: e.target.value }))}
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                    {['Client', 'Cases', 'NewBiz', 'Account', 'Reactive'].map(s => <option key={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Priority</label>
+                  <input type="number" value={form.priority} onChange={e => setForm(p => ({ ...p, priority: parseInt(e.target.value) || 0 }))}
+                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                  <input type="checkbox" checked={form.required} onChange={e => setForm(p => ({ ...p, required: e.target.checked }))} />
+                  Required document
+                </label>
+                <select value={form.target_ui} onChange={e => setForm(p => ({ ...p, target_ui: e.target.value }))}
+                  className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                  <option value="client_detail">Client Detail</option>
+                  <option value="account_detail">Account Detail</option>
+                </select>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => { setAdding(false); setEditingId(null) }}
+                  className="rounded-lg border border-[var(--border-subtle)] px-4 py-1.5 text-xs text-[var(--text-muted)] hover:bg-[var(--bg-base)]">Cancel</button>
+                <button onClick={handleSave} disabled={!form.document_type}
+                  className="rounded-lg bg-[var(--portal)] px-4 py-1.5 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50">{editingId ? 'Update' : 'Create'}</button>
+              </div>
             </div>
-          ))}
+          )}
+
+          {/* Config list */}
+          {loading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-10 rounded bg-[var(--bg-surface)] animate-pulse" />)}
+            </div>
+          ) : filteredConfigs.length === 0 ? (
+            <div className="text-center py-6 text-sm text-[var(--text-muted)]">
+              <span className="material-icons-outlined block mb-2" style={{ fontSize: '28px' }}>description</span>
+              {configs.length === 0 ? 'No document types configured yet.' : 'No document types match current filters.'}
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {filteredConfigs.map(c => (
+                <div
+                  key={c.id}
+                  className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 transition-colors ${
+                    c.visible === false
+                      ? 'border-[var(--border-subtle)] bg-[var(--bg-surface)] opacity-60'
+                      : 'border-[var(--border-subtle)] hover:bg-[var(--bg-surface)]'
+                  }`}
+                >
+                  <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
+                    {c.required ? 'star' : 'description'}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <span className={`text-sm font-medium text-[var(--text-primary)] ${c.visible === false ? 'line-through' : ''}`}>
+                      {c.display_name || c.document_type}
+                    </span>
+                    <span className="text-xs text-[var(--text-muted)] ml-2">{c.target_ui} · {(c.file_patterns || []).join(', ')}</span>
+                    {c.visible === false && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-medium text-red-400">
+                        Archived
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-[var(--text-muted)]">P{c.priority}</span>
+                  <button onClick={() => startEdit(c)} className="rounded p-1 hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--portal)]">
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>edit</span>
+                  </button>
+                  {c.visible === false ? (
+                    <button onClick={() => handleRestore(c.id)} className="rounded p-1 hover:bg-emerald-500/10 text-[var(--text-muted)] hover:text-emerald-400" title="Restore">
+                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>unarchive</span>
+                    </button>
+                  ) : (
+                    <button onClick={() => handleArchive(c.id)} className="rounded p-1 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400">
+                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>archive</span>
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
