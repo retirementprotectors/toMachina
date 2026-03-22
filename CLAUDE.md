@@ -90,6 +90,10 @@ npx turbo run build --filter=@tomachina/core
 
 **CI requirement**: `npm run type-check` (13/13) AND `npm run build` (11/11) must both pass before pushing. Type-check catches type errors fast (~10s). Build catches webpack/bundler issues that type-check misses (~1-4min). Both run in CI — if either fails, deploy is blocked. The API tsconfig excludes `src/scripts/` (seed scripts import from core source, outside rootDir).
 
+**Security scanning (automated, free):**
+- **Dependabot** — monitors `package-lock.json` weekly (Mondays), auto-opens PRs for vulnerable deps, groups minor/patch updates
+- **CodeQL** — static analysis on every PR + weekly (Sundays), catches security bugs (injection, XSS, etc.) in TypeScript/JavaScript
+
 **Deploy pipeline**: Branch protection ON. Push to branch → open PR with `gh pr merge --auto --squash --delete-branch` → CI passes → auto-merges to main → deploy-api (Docker build + Artifact Registry + Cloud Run for tm-api + tm-bridge) → Firebase App Hosting auto-deploys portals. Direct push to main is blocked. No manual merge step — `--auto` queues merge for when CI passes. No Cloud Build — Docker runs directly on the GitHub Actions runner.
 
 ## Code Standards
