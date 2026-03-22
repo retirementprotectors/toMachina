@@ -98,7 +98,7 @@ flowAdminRoutes.post('/pipelines', async (req: Request, res: Response) => {
       default_view: String(body.default_view || 'board'),
       icon: String(body.icon || ''),
       status: 'draft',
-      created_by: getUserEmail(req),
+      _created_by: getUserEmail(req),
       created_at: now,
       updated_at: now,
     }

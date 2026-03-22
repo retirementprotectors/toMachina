@@ -141,7 +141,7 @@ campaignRoutes.post('/:id/schedule', scheduleValidation, async (req: Request, re
       scheduled_for: req.body.scheduled_for,
       target_criteria: req.body.target_criteria || null,
       status: 'scheduled',
-      created_by: userEmail,
+      _created_by: userEmail,
       created_at: now,
       updated_at: now,
     }

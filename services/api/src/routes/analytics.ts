@@ -157,7 +157,7 @@ analyticsRoutes.get('/summary', async (req: Request, res: Response) => {
       },
       machines: machineBreakdown,
       daily: trendArray,
-      last_updated: rows.length > 0 ? rows[rows.length - 1].created_at : null,
+      updated_at: rows.length > 0 ? rows[rows.length - 1].created_at : null,
     }))
   } catch (err) {
     console.error('GET /api/analytics/summary error:', err)

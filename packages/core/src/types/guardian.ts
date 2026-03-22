@@ -25,7 +25,7 @@ export interface GuardianAudit {
   snapshot_id: string | null
   finding_ids: string[]
   triggered_by: 'manual' | 'scheduled' | 'anomaly'
-  created_by: string
+  _created_by: string
   created_at: string
   updated_at: string
 }
@@ -81,7 +81,7 @@ export interface DataSnapshot {
   triggered_by: 'manual' | 'scheduled' | 'pre-migration'
   collections: Record<string, CollectionSnapshot>
   stored_at: string
-  created_by: string
+  _created_by: string
 }
 
 // ── Write Lineage ────────────────────────────────────────────────────────────
