@@ -395,50 +395,64 @@ function StatCard({ label, value, className, icon }: { label: string; value: num
 }
 
 // ---------------------------------------------------------------------------
-// OAuth Integrations (TRK-056 — stub for Sprint 10)
+// External Data Integrations (TRK-056 — honest UI, no fake OAuth)
 // ---------------------------------------------------------------------------
 
-const OAUTH_SERVICES = [
+interface ExternalService {
+  name: string
+  fullName: string
+  description: string
+  icon: string
+  type: 'external_link' | 'enterprise' | 'oauth_future'
+  url?: string
+  statusLabel: string
+  statusColor: string
+  buttonLabel: string
+  buttonIcon: string
+}
+
+const EXTERNAL_SERVICES: ExternalService[] = [
   {
     name: 'SSA',
     fullName: 'Social Security Administration',
-    description: 'Access client benefit statements, earnings records, and SSA correspondence.',
+    description: 'Client benefit statements, earnings records, and SSA correspondence. Clients access directly via my.ssa.gov — no API integration available.',
     icon: 'account_balance',
-    status: 'not_connected' as const,
+    type: 'external_link',
+    url: 'https://www.ssa.gov/myaccount/',
+    statusLabel: 'External Portal',
+    statusColor: 'text-blue-400',
+    buttonLabel: 'Open SSA Portal',
+    buttonIcon: 'open_in_new',
   },
   {
     name: 'CMS Medicare',
     fullName: 'Centers for Medicare & Medicaid Services',
-    description: 'Pull enrollment data, plan details, and coverage history from CMS.',
+    description: 'Enrollment data, plan details, and coverage history. Blue Button 2.0 OAuth available for future integration.',
     icon: 'health_and_safety',
-    status: 'not_connected' as const,
+    type: 'oauth_future',
+    url: 'https://www.medicare.gov/',
+    statusLabel: 'Portal Link',
+    statusColor: 'text-amber-400',
+    buttonLabel: 'Open Medicare.gov',
+    buttonIcon: 'open_in_new',
   },
   {
     name: 'DST Vision',
     fullName: 'DST Vision Data Aggregator',
-    description: 'Aggregate directly held mutual fund and variable annuity account data.',
+    description: 'Directly held mutual fund and variable annuity account data. Enterprise-level integration — requires administrative setup.',
     icon: 'insights',
-    status: 'not_connected' as const,
+    type: 'enterprise',
+    statusLabel: 'Enterprise',
+    statusColor: 'text-[var(--text-muted)]',
+    buttonLabel: 'Contact Admin',
+    buttonIcon: 'admin_panel_settings',
   },
 ]
 
 function OAuthIntegrations() {
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
-
-  const handleConnect = (serviceName: string) => {
-    setToastMessage(`OAuth integration for ${serviceName} coming soon`)
-    setTimeout(() => setToastMessage(null), 3000)
-  }
-
   return (
     <div className="space-y-3">
-      {toastMessage && (
-        <div className="flex items-center gap-2 rounded-lg border border-[var(--portal)] bg-[var(--portal)]/10 px-4 py-3 text-sm text-[var(--portal)]">
-          <span className="material-icons-outlined text-[18px]">info</span>
-          {toastMessage}
-        </div>
-      )}
-      {OAUTH_SERVICES.map((service) => (
+      {EXTERNAL_SERVICES.map((service) => (
         <div
           key={service.name}
           className="flex items-center justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] px-5 py-4"
@@ -452,22 +466,43 @@ function OAuthIntegrations() {
               </span>
             </span>
             <div>
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">{service.name}</h4>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-[var(--text-primary)]">{service.name}</h4>
+                {service.type === 'oauth_future' && (
+                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold text-amber-400">OAUTH PLANNED</span>
+                )}
+              </div>
               <p className="text-xs text-[var(--text-muted)]">{service.description}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-surface)] px-2.5 py-1 text-[10px] font-medium text-[var(--text-muted)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--text-muted)]" />
-              Not Connected
+            <span className={`inline-flex items-center gap-1 rounded-full bg-[var(--bg-surface)] px-2.5 py-1 text-[10px] font-medium ${service.statusColor}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${
+                service.type === 'external_link' ? 'bg-blue-400'
+                : service.type === 'oauth_future' ? 'bg-amber-400'
+                : 'bg-[var(--text-muted)]'
+              }`} />
+              {service.statusLabel}
             </span>
-            <button
-              onClick={() => handleConnect(service.name)}
-              className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-all hover:border-[var(--portal)] hover:text-[var(--portal)]"
-            >
-              <span className="material-icons-outlined text-[14px]">link</span>
-              Connect
-            </button>
+            {service.url ? (
+              <a
+                href={service.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-all hover:border-[var(--portal)] hover:text-[var(--portal)]"
+              >
+                <span className="material-icons-outlined text-[14px]">{service.buttonIcon}</span>
+                {service.buttonLabel}
+              </a>
+            ) : (
+              <button
+                className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-4 text-sm font-medium border border-[var(--border)] text-[var(--text-muted)] cursor-default"
+                disabled
+              >
+                <span className="material-icons-outlined text-[14px]">{service.buttonIcon}</span>
+                {service.buttonLabel}
+              </button>
+            )}
           </div>
         </div>
       ))}
