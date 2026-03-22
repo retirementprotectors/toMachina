@@ -5,10 +5,22 @@
   "main": "./dist/index.js",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./atlas/*": "./dist/atlas/*.js",
-    "./types/*": "./dist/types/*.js",
-    "./validation/*": "./dist/validation/*.js"
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./atlas/*": {
+      "types": "./src/atlas/*.ts",
+      "default": "./dist/atlas/*.js"
+    },
+    "./types/*": {
+      "types": "./src/types/*.ts",
+      "default": "./dist/types/*.js"
+    },
+    "./validation/*": {
+      "types": "./src/validation/*.ts",
+      "default": "./dist/validation/*.js"
+    }
   },
   "scripts": {
     "build": "tsc",
