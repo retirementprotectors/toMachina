@@ -621,6 +621,203 @@ export function ACFConfigAdmin({ portal }: ACFConfigAdminProps) {
           </div>
         )}
       </div>
+
+      {/* ── Document Types (TRK-575) ────────────────────────────────── */}
+      <DocumentTypesAdmin />
+    </div>
+  )
+}
+
+// ── Document Types CRUD (reads from document_link_config via document-index routes) ──
+
+interface DocTypeConfig {
+  id: string
+  document_type: string
+  display_name: string
+  target_ui: string
+  file_patterns: string[]
+  priority: number
+  visible: boolean
+  subfolder?: string
+  required?: boolean
+  product_types?: string[]
+}
+
+function DocumentTypesAdmin() {
+  const [configs, setConfigs] = useState<DocTypeConfig[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState({
+    document_type: '', display_name: '', target_ui: 'client_detail',
+    file_patterns: '', priority: 50, subfolder: 'Client', required: false,
+  })
+
+  const loadConfigs = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetchWithAuth('/api/document-index/config')
+      const json = await res.json()
+      if (json.success) setConfigs(json.data || [])
+    } catch { /* */ } finally { setLoading(false) }
+  }, [])
+
+  useEffect(() => { loadConfigs() }, [loadConfigs])
+
+  const handleSave = async () => {
+    const body = {
+      document_type: form.document_type,
+      display_name: form.display_name || form.document_type,
+      target_ui: form.target_ui,
+      file_patterns: form.file_patterns.split(',').map(s => s.trim()).filter(Boolean),
+      priority: form.priority,
+      subfolder: form.subfolder,
+      required: form.required,
+      visible: true,
+    }
+    if (editingId) {
+      await fetchWithAuth(`/api/document-index/config/${editingId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      })
+    } else {
+      await fetchWithAuth('/api/document-index/config', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      })
+    }
+    setAdding(false); setEditingId(null)
+    setForm({ document_type: '', display_name: '', target_ui: 'client_detail', file_patterns: '', priority: 50, subfolder: 'Client', required: false })
+    await loadConfigs()
+  }
+
+  const handleArchive = async (id: string) => {
+    await fetchWithAuth(`/api/document-index/config/${id}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visible: false }),
+    })
+    await loadConfigs()
+  }
+
+  const startEdit = (c: DocTypeConfig) => {
+    setEditingId(c.id)
+    setAdding(true)
+    setForm({
+      document_type: c.document_type,
+      display_name: c.display_name || '',
+      target_ui: c.target_ui || 'client_detail',
+      file_patterns: (c.file_patterns || []).join(', '),
+      priority: c.priority || 50,
+      subfolder: c.subfolder || 'Client',
+      required: c.required || false,
+    })
+  }
+
+  return (
+    <div className="mt-6 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>description</span>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Document Types</h3>
+          <span className="text-xs text-[var(--text-muted)]">({configs.length})</span>
+        </div>
+        <button
+          onClick={() => { setAdding(!adding); setEditingId(null); setForm({ document_type: '', display_name: '', target_ui: 'client_detail', file_patterns: '', priority: 50, subfolder: 'Client', required: false }) }}
+          className="flex items-center gap-1.5 rounded-lg bg-[var(--portal)] px-3 py-1.5 text-xs font-medium text-white hover:brightness-110 transition-colors"
+        >
+          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
+          Add Type
+        </button>
+      </div>
+
+      {/* Add/Edit form */}
+      {adding && (
+        <div className="mb-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Document Type</label>
+              <input value={form.document_type} onChange={e => setForm(p => ({ ...p, document_type: e.target.value }))}
+                disabled={!!editingId}
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none disabled:opacity-50"
+                placeholder="e.g. drivers_license" />
+            </div>
+            <div>
+              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Display Name</label>
+              <input value={form.display_name} onChange={e => setForm(p => ({ ...p, display_name: e.target.value }))}
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                placeholder="e.g. Driver's License" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">File Patterns (comma-sep)</label>
+              <input value={form.file_patterns} onChange={e => setForm(p => ({ ...p, file_patterns: e.target.value }))}
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none"
+                placeholder="*driver*, *DL*, *license*" />
+            </div>
+            <div>
+              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Subfolder</label>
+              <select value={form.subfolder} onChange={e => setForm(p => ({ ...p, subfolder: e.target.value }))}
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                {['Client', 'Cases', 'NewBiz', 'Account', 'Reactive'].map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide">Priority</label>
+              <input type="number" value={form.priority} onChange={e => setForm(p => ({ ...p, priority: parseInt(e.target.value) || 0 }))}
+                className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <input type="checkbox" checked={form.required} onChange={e => setForm(p => ({ ...p, required: e.target.checked }))} />
+              Required document
+            </label>
+            <select value={form.target_ui} onChange={e => setForm(p => ({ ...p, target_ui: e.target.value }))}
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-base)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+              <option value="client_detail">Client Detail</option>
+              <option value="account_detail">Account Detail</option>
+            </select>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <button onClick={() => { setAdding(false); setEditingId(null) }}
+              className="rounded-lg border border-[var(--border-subtle)] px-4 py-1.5 text-xs text-[var(--text-muted)] hover:bg-[var(--bg-base)]">Cancel</button>
+            <button onClick={handleSave} disabled={!form.document_type}
+              className="rounded-lg bg-[var(--portal)] px-4 py-1.5 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50">{editingId ? 'Update' : 'Create'}</button>
+          </div>
+        </div>
+      )}
+
+      {/* Config list */}
+      {loading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-10 rounded bg-[var(--bg-surface)] animate-pulse" />)}
+        </div>
+      ) : configs.length === 0 ? (
+        <div className="text-center py-6 text-sm text-[var(--text-muted)]">
+          <span className="material-icons-outlined block mb-2" style={{ fontSize: '28px' }}>description</span>
+          No document types configured yet.
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {configs.map(c => (
+            <div key={c.id} className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] px-4 py-2.5 hover:bg-[var(--bg-surface)] transition-colors">
+              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '16px' }}>
+                {c.required ? 'star' : 'description'}
+              </span>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-medium text-[var(--text-primary)]">{c.display_name || c.document_type}</span>
+                <span className="text-xs text-[var(--text-muted)] ml-2">{c.target_ui} · {(c.file_patterns || []).join(', ')}</span>
+              </div>
+              <span className="text-[10px] text-[var(--text-muted)]">P{c.priority}</span>
+              <button onClick={() => startEdit(c)} className="rounded p-1 hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--portal)]">
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>edit</span>
+              </button>
+              <button onClick={() => handleArchive(c.id)} className="rounded p-1 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-400">
+                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>archive</span>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
