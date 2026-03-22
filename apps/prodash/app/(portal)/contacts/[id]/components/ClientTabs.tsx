@@ -26,7 +26,7 @@ const TABS: Tab[] = [
   { key: 'estate', label: 'Estate', icon: 'gavel' },
   { key: 'accounts', label: 'Accounts', icon: 'account_balance_wallet' },
   { key: 'acf', label: 'ACF', icon: 'folder_special' },
-  { key: 'connected', label: 'Connections', icon: 'people' },
+  { key: 'connected', label: 'Relationships', icon: 'people' },
   { key: 'access', label: 'Access', icon: 'security' },
   { key: 'activity', label: 'Activity', icon: 'history' },
 ]
