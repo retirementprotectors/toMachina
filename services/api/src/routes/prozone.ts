@@ -112,7 +112,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
 
       for (const doc of snap.docs) {
         const data = doc.data()
-        const status = (data.client_status as string) || ''
+        const status = (data.status as string) || (data.client_status as string) || ''
         if (status === 'Active' || status === 'Active - Internal') {
           allClients.push({ id: doc.id, ...data })
         }
@@ -202,7 +202,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
         zip: client.zip,
         phone: client.phone || client.phone_primary || '',
         age,
-        client_status: client.client_status,
+        client_status: client.status || client.client_status,
         source: client.source || '',
         inventory,
         flags,
@@ -224,7 +224,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
           const cd = csDoc.data()
           if (seenClientIds.has(csDoc.id)) continue
           seenClientIds.add(csDoc.id)
-          const cStatus = (cd.client_status as string) || ''
+          const cStatus = (cd.status as string) || (cd.status as string) || (d.client_status as string) || ''
           if (cStatus !== 'Active' && cStatus !== 'Active - Internal') continue
           const cCounty = ((cd.county as string) || '').toLowerCase()
           const cZip = ((cd.zip as string) || '').trim()
@@ -237,7 +237,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
             client_id: csDoc.id, first_name: cd.first_name, last_name: cd.last_name,
             county: cd.county, city: cd.city, zip: cd.zip,
             phone: cd.phone || cd.phone_primary || '', age: cAge,
-            client_status: cd.client_status, source: cd.source || '',
+            client_status: cd.status || cd.client_status, source: cd.source || '',
             inventory: {
               has_medicare: !!(cd.has_medicare) || cAcct.includes('medicare'),
               has_life: !!(cd.has_life) || cAcct.includes('life'),
@@ -573,7 +573,7 @@ prozoneRoutes.get('/zone-leads/:specialist_id/:zone_id', async (req: Request, re
 
       for (const doc of snap.docs) {
         const data = doc.data()
-        const status = (data.client_status as string) || ''
+        const status = (data.status as string) || (data.client_status as string) || ''
         if (status === 'Active' || status === 'Active - Internal') {
           allClients.push({ id: doc.id, ...data })
         }
@@ -796,7 +796,7 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
         .get()
       for (const doc of snap.docs) {
         const d = doc.data()
-        const st = (d.client_status as string) || ''
+        const st = (d.status as string) || (d.client_status as string) || ''
         if (st === 'Active' || st === 'Active - Internal') {
           clientDocs.push({
             id: doc.id,

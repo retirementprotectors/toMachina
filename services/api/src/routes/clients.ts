@@ -47,7 +47,7 @@ clientRoutes.get('/', async (req: Request, res: Response) => {
     let query: Query<DocumentData> = db.collection(COLLECTION)
 
     if (statusFilter) {
-      query = query.where('client_status', '==', statusFilter)
+      query = query.where('status', '==', statusFilter)
     }
 
     if (search) {
@@ -245,7 +245,7 @@ clientRoutes.delete('/:id', async (req: Request, res: Response) => {
     }
 
     const updates = {
-      client_status: 'deleted',
+      status: 'deleted',
       updated_at: new Date().toISOString(),
       _deleted_by: (req as any).user?.email || 'api',
     }

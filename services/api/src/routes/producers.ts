@@ -25,7 +25,7 @@ producerRoutes.get('/', async (req: Request, res: Response) => {
     if (!req.query.orderDir) params.orderDir = 'asc'
 
     let query: Query<DocumentData> = db.collection(COLLECTION)
-    if (statusFilter) query = query.where('producer_status', '==', statusFilter)
+    if (statusFilter) query = query.where('status', '==', statusFilter)
 
     if (search) {
       const upper = search.charAt(0).toUpperCase() + search.slice(1).toLowerCase()

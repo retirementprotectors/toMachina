@@ -24,7 +24,7 @@ specialistConfigRoutes.get('/', async (req: Request, res: Response) => {
       data = data.filter(d => d.territory_id === req.query.territory_id)
     }
     if (req.query.status) {
-      data = data.filter(d => d.config_status === req.query.status)
+      data = data.filter(d => d.status === req.query.status)
     }
 
     const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 200, 1), 500)
@@ -67,7 +67,7 @@ specialistConfigRoutes.post('/', async (req: Request, res: Response) => {
     const configData: Record<string, unknown> = {
       ...req.body,
       config_id: configId,
-      config_status: (req.body as Record<string, unknown>).config_status || 'Active',
+      status: (req.body as Record<string, unknown>).status || (req.body as Record<string, unknown>).config_status || 'Active',
       tier_map: (req.body as Record<string, unknown>).tier_map || [],
       office_days: (req.body as Record<string, unknown>).office_days || [],
       field_days: (req.body as Record<string, unknown>).field_days || [],
