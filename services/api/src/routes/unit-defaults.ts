@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { UnitDefaultDTO } from '@tomachina/core'
 import { requireLevel } from '../middleware/rbac.js'
 
 export const unitDefaultRoutes = Router()

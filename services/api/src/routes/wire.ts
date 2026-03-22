@@ -17,6 +17,7 @@ import {
   validateRequired,
   param,
 } from '../lib/helpers.js'
+import type { WireExecutionResult, WireStatusData } from '@tomachina/core'
 
 export const wireRoutes = Router()
 

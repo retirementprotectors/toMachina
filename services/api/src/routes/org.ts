@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { OrgUnitDTO } from '@tomachina/core'
 
 export const orgRoutes = Router()
 const COLLECTION = 'org'

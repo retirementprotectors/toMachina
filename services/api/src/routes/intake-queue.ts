@@ -5,6 +5,7 @@ import {
   errorResponse,
   param,
 } from '../lib/helpers.js'
+import type { IntakeQueueListDTO, IntakeQueueUpdateResult } from '@tomachina/core'
 
 export const intakeQueueRoutes = Router()
 const COLLECTION = 'intake_queue'

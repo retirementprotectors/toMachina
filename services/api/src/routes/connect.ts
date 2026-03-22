@@ -6,6 +6,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { ConnectCalendarData, ConnectMeetResult, ConnectChannelDTO } from '@tomachina/core'
 import { getUserCalendarEvents, createQuickMeet } from '../lib/calendar-client.js'
 
 export const connectRoutes = Router()

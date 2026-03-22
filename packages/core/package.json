@@ -20,6 +20,14 @@
     "./validation/*": {
       "types": "./src/validation/*.ts",
       "default": "./dist/validation/*.js"
+    },
+    "./api-types/*": {
+      "types": "./src/api-types/*.ts",
+      "default": "./dist/api-types/*.js"
+    },
+    "./schemas/*": {
+      "types": "./src/schemas/*.ts",
+      "default": "./dist/schemas/*.js"
     }
   },
   "scripts": {
@@ -29,5 +37,8 @@
   },
   "devDependencies": {
     "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "valibot": "^1.0.0"
   }
 }

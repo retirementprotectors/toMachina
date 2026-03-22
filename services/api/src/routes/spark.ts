@@ -5,6 +5,7 @@ import {
   errorResponse,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { SparkHealthData, SparkStatusData, SparkWebhookResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const sparkRoutes = Router()

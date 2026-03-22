@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { CarrierDTO } from '@tomachina/core'
 
 export const carrierRoutes = Router()
 const COLLECTION = 'carriers'

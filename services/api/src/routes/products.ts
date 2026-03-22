@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { ProductDTO } from '@tomachina/core'
 
 export const productRoutes = Router()
 const COLLECTION = 'products'

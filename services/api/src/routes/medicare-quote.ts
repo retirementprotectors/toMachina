@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express'
 import { successResponse, errorResponse } from '../lib/helpers.js'
+import type { MedicareQuoteData } from '@tomachina/core'
 
 export const medicareQuoteRoutes = Router()
 

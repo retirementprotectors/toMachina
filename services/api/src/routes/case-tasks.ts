@@ -10,6 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { CaseTaskDTO } from '@tomachina/core'
 
 export const caseTaskRoutes = Router()
 const COLLECTION = 'case_tasks'

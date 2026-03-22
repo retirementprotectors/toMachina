@@ -7,6 +7,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { FirestoreConfigCollectionsData, PlatformStatusData, FirestoreHealthData } from '@tomachina/core'
 
 export const firestoreConfigRoutes = Router()
 

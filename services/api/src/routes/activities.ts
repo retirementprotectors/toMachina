@@ -7,6 +7,7 @@ import {
   paginatedQuery,
   param,
 } from '../lib/helpers.js'
+import type { ActivityDTO, HouseholdActivityDTO } from '@tomachina/core'
 
 export const activityRoutes = Router()
 

@@ -9,6 +9,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { AccountDTO, AccountWithClientDTO } from '@tomachina/core'
 
 export const accountRoutes = Router()
 

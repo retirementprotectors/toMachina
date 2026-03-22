@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { HouseholdDTO } from '@tomachina/core'
 
 export const householdRoutes = Router()
 const COLLECTION = 'households'

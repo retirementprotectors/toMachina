@@ -5,6 +5,7 @@ import {
   errorResponse,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { AutomationRuleDTO, RulesEvaluateResult } from '@tomachina/core'
 
 export const rulesRoutes = Router()
 const COLLECTION = 'automation_rules'

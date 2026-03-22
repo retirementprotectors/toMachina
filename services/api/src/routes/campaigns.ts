@@ -10,6 +10,7 @@ import {
   param,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { CampaignDTO, CampaignDuplicateResult } from '@tomachina/core'
 import { assembleCampaign, assembleCampaignFull, type MergeContext } from '../lib/campaign-assembler.js'
 import { randomUUID } from 'crypto'
 

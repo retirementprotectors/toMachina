@@ -8,6 +8,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { CampaignEnrollResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const campaignSendRoutes = Router()

@@ -10,6 +10,7 @@ import {
   param,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { ContentBlockDTO } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const contentBlockRoutes = Router()

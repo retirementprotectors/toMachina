@@ -10,6 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { OpportunityDTO } from '@tomachina/core'
 
 export const opportunityRoutes = Router()
 const COLLECTION = 'opportunities'

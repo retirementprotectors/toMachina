@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { Ai3ClientData, Ai3HouseholdData } from '@tomachina/core'
 
 export const ai3Routes = Router()
 

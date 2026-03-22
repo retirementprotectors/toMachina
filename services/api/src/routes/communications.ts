@@ -8,6 +8,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { CommunicationDTO } from '@tomachina/core'
 
 export const communicationRoutes = Router()
 const COLLECTION = 'communications'

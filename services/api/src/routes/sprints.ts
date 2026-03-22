@@ -7,6 +7,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { SprintDTO, SprintDeleteResult, DiscoveryImportPreviewData, DiscoveryImportResult, SprintPromptData, AuditRoundData, AuditRoundCreateResult, SendItResult, ReopenResult } from '@tomachina/core'
 
 export const sprintRoutes = Router()
 const SPRINT_COLLECTION = 'sprints'

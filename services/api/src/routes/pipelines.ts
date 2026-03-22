@@ -8,6 +8,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { LegacyPipelineDTO } from '@tomachina/core'
 
 export const pipelineRoutes = Router()
 const COLLECTION = 'pipelines'

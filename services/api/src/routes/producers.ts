@@ -10,6 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { ProducerDTO } from '@tomachina/core'
 
 export const producerRoutes = Router()
 const COLLECTION = 'producers'

@@ -7,6 +7,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { IntakeWireResult } from '@tomachina/core'
 import { resumeWireAfterApproval } from './wire.js'
 
 export const intakeRoutes = Router()

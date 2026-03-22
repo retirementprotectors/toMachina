@@ -7,6 +7,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, validateRequired, param } from '../lib/helpers.js'
+import type { CommsSendSmsResult } from '@tomachina/core'
 
 export const commsRoutes = Router()
 

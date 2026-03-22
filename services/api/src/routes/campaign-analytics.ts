@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { CampaignAnalyticsData } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const campaignAnalyticsRoutes = Router()

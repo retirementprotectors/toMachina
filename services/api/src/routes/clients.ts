@@ -10,6 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { ClientDTO, ClientListDTO } from '@tomachina/core'
 
 export const clientRoutes = Router()
 const COLLECTION = 'clients'

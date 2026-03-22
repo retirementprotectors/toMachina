@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { UserDTO } from '@tomachina/core'
 import { requireLevel, invalidateProfileCache } from '../middleware/rbac.js'
 
 export const userRoutes = Router()

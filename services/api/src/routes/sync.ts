@@ -4,6 +4,7 @@ import {
   successResponse,
   errorResponse,
 } from '../lib/helpers.js'
+import type { SyncAgentData, SyncClientData, SyncAccountData } from '@tomachina/core'
 
 export const syncRoutes = Router()
 

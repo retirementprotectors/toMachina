@@ -7,6 +7,7 @@ import {
   writeThroughBridge,
   param,
 } from '../lib/helpers.js'
+import type { BookingConfigData, BookingBusyData, BookingCreateResult, BookingClientSearchDTO } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const bookingRoutes = Router()

@@ -13,6 +13,7 @@ import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   validateRequired, param, writeThroughBridge,
 } from '../lib/helpers.js'
+import type { DexPackageCreateData, DexPackageListDTO } from '@tomachina/core'
 
 export const dexPipelineRoutes = Router()
 

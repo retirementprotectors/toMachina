@@ -9,6 +9,7 @@ import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   stripInternalFields, validateRequired, param, writeThroughBridge,
 } from '../lib/helpers.js'
+import type { FlowPipelineDTO, FlowInstanceDTO, FlowInstanceDetailData, FlowInstanceCreateResult } from '@tomachina/core'
 
 export const flowRoutes = Router()
 

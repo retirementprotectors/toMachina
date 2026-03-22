@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse } from '../lib/helpers.js'
+import type { DropzoneUploadResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 import multer from 'multer'
 import { uploadFileToDrive } from '../lib/drive-client.js'

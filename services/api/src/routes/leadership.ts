@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { LeadershipDashboardData } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const leadershipRoutes = Router()

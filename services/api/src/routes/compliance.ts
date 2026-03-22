@@ -5,6 +5,7 @@ import {
   errorResponse,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { ComplianceAuditData } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const complianceRoutes = Router()

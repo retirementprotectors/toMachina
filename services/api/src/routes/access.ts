@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { AccessItemDTO, AccessAutoGenerateResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const accessRoutes = Router()

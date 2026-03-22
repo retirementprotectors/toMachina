@@ -4,6 +4,7 @@ import {
   successResponse,
   errorResponse,
 } from '../lib/helpers.js'
+import type { AnalyticsListDTO, AnalyticsSummaryData, AnalyticsPushResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const analyticsRoutes = Router()

@@ -11,6 +11,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { RevenueDTO } from '@tomachina/core'
 
 export const revenueRoutes = Router()
 const COLLECTION = 'revenue'

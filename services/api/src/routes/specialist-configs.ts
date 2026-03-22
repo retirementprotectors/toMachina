@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { SpecialistConfigDTO } from '@tomachina/core'
 
 export const specialistConfigRoutes = Router()
 const COLLECTION = 'specialist_configs'

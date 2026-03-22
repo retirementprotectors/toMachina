@@ -4,6 +4,7 @@ import {
   successResponse,
   errorResponse,
 } from '../lib/helpers.js'
+import type { WebhookSendgridResult, WebhookDocusignResult } from '@tomachina/core'
 
 export const webhookRoutes = Router()
 

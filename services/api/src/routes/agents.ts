@@ -10,6 +10,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { AgentDTO } from '@tomachina/core'
 
 export const agentRoutes = Router()
 const COLLECTION = 'agents'

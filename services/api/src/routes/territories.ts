@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { TerritoryDTO } from '@tomachina/core'
 
 export const territoryRoutes = Router()
 const COLLECTION = 'territories'
