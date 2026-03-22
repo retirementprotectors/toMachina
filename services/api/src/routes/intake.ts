@@ -126,7 +126,7 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
       created_at: now,
     })
 
-    res.json(successResponse(result))
+    res.json(successResponse<unknown>(result))
   } catch (err) {
     console.error('POST /api/intake/execute-wire error:', err)
     res.status(500).json(errorResponse('Wire execution failed'))
@@ -173,7 +173,7 @@ intakeRoutes.post('/:executionId/approve', async (req: Request, res: Response) =
       })
     }
 
-    res.json(successResponse(result))
+    res.json(successResponse<unknown>(result))
   } catch (err) {
     console.error('POST /api/intake/:executionId/approve error:', err)
     res.status(500).json(errorResponse('Approval failed'))
@@ -207,7 +207,7 @@ intakeRoutes.post('/:executionId/reject', async (req: Request, res: Response) =>
       })
     }
 
-    res.json(successResponse({ rejected: true, execution_id: executionId }))
+    res.json(successResponse<unknown>({ rejected: true, execution_id: executionId }))
   } catch (err) {
     console.error('POST /api/intake/:executionId/reject error:', err)
     res.status(500).json(errorResponse('Rejection failed'))

@@ -32,7 +32,7 @@ activityRoutes.get('/', async (req: Request, res: Response) => {
     }
 
     const result = await paginatedQuery(query, 'activities', params)
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<ActivityDTO[]>(result.data as unknown as ActivityDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/activities error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -56,7 +56,7 @@ activityRoutes.get('/client/:clientId', async (req: Request, res: Response) => {
     const query = db.collection('clients').doc(clientId).collection('activities') as FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
 
     const result = await paginatedQuery(query, collectionPath, params)
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<ActivityDTO[]>(result.data as unknown as ActivityDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/activities/client/:clientId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -109,7 +109,7 @@ activityRoutes.post('/', async (req: Request, res: Response) => {
       })
     }
 
-    res.status(201).json(successResponse(activity))
+    res.status(201).json(successResponse<unknown>(activity))
   } catch (err) {
     console.error('POST /api/activities error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -136,7 +136,7 @@ activityRoutes.get('/household/:householdId', async (req: Request, res: Response
     const members = (hhData.members || []) as Array<{ client_id: string; client_name?: string }>
 
     if (members.length === 0) {
-      res.json(successResponse([]))
+      res.json(successResponse<unknown>([]))
       return
     }
 
@@ -173,7 +173,7 @@ activityRoutes.get('/household/:householdId', async (req: Request, res: Response
       String(b.created_at || '').localeCompare(String(a.created_at || ''))
     )
 
-    res.json(successResponse(allActivities.slice(0, 100)))
+    res.json(successResponse<unknown>(allActivities.slice(0, 100)))
   } catch (err) {
     console.error('GET /api/activities/household/:householdId error:', err)
     res.status(500).json(errorResponse(String(err)))

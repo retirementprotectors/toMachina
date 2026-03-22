@@ -54,7 +54,7 @@ contentBlockRoutes.get('/', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<ContentBlockDTO[]>(data as unknown as ContentBlockDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/content-blocks error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -71,7 +71,7 @@ contentBlockRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Content block not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/content-blocks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -117,7 +117,7 @@ contentBlockRoutes.post('/', createValidation, async (req: Request, res: Respons
     await db.collection(COLLECTION).doc(blockId).set(data)
     await writeThroughBridge(COLLECTION, 'insert', blockId, data)
 
-    res.status(201).json(successResponse({ id: blockId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: blockId, ...data }))
   } catch (err) {
     console.error('POST /api/content-blocks error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -149,7 +149,7 @@ contentBlockRoutes.patch('/:id', async (req: Request, res: Response) => {
     await docRef.update(updates)
     await writeThroughBridge(COLLECTION, 'update', id, updates)
 
-    res.json(successResponse({ id, updated: Object.keys(updates) }))
+    res.json(successResponse<unknown>({ id, updated: Object.keys(updates) }))
   } catch (err) {
     console.error('PATCH /api/content-blocks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -172,7 +172,7 @@ contentBlockRoutes.delete('/:id', async (req: Request, res: Response) => {
     await docRef.update(updates)
     await writeThroughBridge(COLLECTION, 'update', id, updates)
 
-    res.json(successResponse({ id, deleted: true }))
+    res.json(successResponse<unknown>({ id, deleted: true }))
   } catch (err) {
     console.error('DELETE /api/content-blocks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

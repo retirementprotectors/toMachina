@@ -26,7 +26,7 @@ communicationRoutes.get('/', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<CommunicationDTO[]>(data as unknown as CommunicationDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/communications error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -39,7 +39,7 @@ communicationRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Communication record not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/communications/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

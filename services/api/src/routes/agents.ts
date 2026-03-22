@@ -38,7 +38,7 @@ agentRoutes.get('/', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<AgentDTO[]>(data as unknown as AgentDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/agents error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -51,7 +51,7 @@ agentRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Agent not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/agents/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -71,7 +71,7 @@ agentRoutes.post('/', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(COLLECTION, 'insert', agentId, data)
     if (!bridgeResult.success) await db.collection(COLLECTION).doc(agentId).set(data)
 
-    res.status(201).json(successResponse({ id: agentId, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: agentId, ...data }))
   } catch (err) {
     console.error('POST /api/agents error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -93,7 +93,7 @@ agentRoutes.patch('/:id', async (req: Request, res: Response) => {
     if (!bridgeResult.success) await docRef.update(updates)
 
     const updated = await docRef.get()
-    res.json(successResponse(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('PATCH /api/agents/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

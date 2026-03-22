@@ -65,7 +65,7 @@ webhookRoutes.post('/sendgrid', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse({ processed, errors, total: events.length }))
+    res.json(successResponse<unknown>({ processed, errors, total: events.length }))
   } catch (err) {
     console.error('POST /api/webhooks/sendgrid error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -217,7 +217,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
     }
 
     if (!envelopeId) {
-      res.status(200).json(successResponse({ processed: false, reason: 'No envelope ID found' }))
+      res.status(200).json(successResponse<unknown>({ processed: false, reason: 'No envelope ID found' }))
       return
     }
 
@@ -234,7 +234,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
     const newStatus = statusMap[dsStatus]
     if (!newStatus) {
       // Unknown status — log but don't fail
-      res.status(200).json(successResponse({ processed: false, reason: `Unmapped status: ${dsStatus}` }))
+      res.status(200).json(successResponse<unknown>({ processed: false, reason: `Unmapped status: ${dsStatus}` }))
       return
     }
 
@@ -247,7 +247,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
 
     if (pkgSnap.empty) {
       // No matching package — could be from an envelope created outside our system
-      res.status(200).json(successResponse({ processed: false, reason: 'No matching package' }))
+      res.status(200).json(successResponse<unknown>({ processed: false, reason: 'No matching package' }))
       return
     }
 
@@ -288,7 +288,7 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
       timestamp: now,
     })
 
-    res.status(200).json(successResponse({
+    res.status(200).json(successResponse<unknown>({
       processed: true,
       package_id: pkgDoc.id,
       old_status: oldStatus,

@@ -19,7 +19,7 @@ export const sparkRoutes = Router()
  * Health check for SPARK webhook URL verification
  */
 sparkRoutes.get('/test', (_req: Request, res: Response) => {
-  res.json(successResponse({
+  res.json(successResponse<unknown>({
     message: 'SPARK webhook handler active',
     timestamp: new Date().toISOString(),
     version: '2.0.0',
@@ -40,7 +40,7 @@ sparkRoutes.get('/status', async (_req: Request, res: Response) => {
     const configDoc = await db.collection('spark_config').doc('status').get()
     const config = configDoc.exists ? configDoc.data() : {}
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       last_events: config?.last_events || [],
       stats: config?.stats || { total: 0, contacts: 0, policies: 0, soas: 0 },
       webhook_active: true,
@@ -98,7 +98,7 @@ sparkRoutes.post('/webhook', async (req: Request, res: Response) => {
         result = { action: 'ignored', event_type: eventType }
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       event_type: eventType,
       spark_contact_id: sparkContactId,
       result,
@@ -142,7 +142,7 @@ sparkRoutes.post('/', async (req: Request, res: Response) => {
         result = { action: 'ignored', event_type: eventType }
     }
 
-    res.json(successResponse({ event_type: eventType, spark_contact_id: sparkContactId, result }))
+    res.json(successResponse<unknown>({ event_type: eventType, spark_contact_id: sparkContactId, result }))
   } catch (err) {
     console.error('POST /api/spark error:', err)
     res.status(500).json(errorResponse(String(err)))

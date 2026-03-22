@@ -167,7 +167,7 @@ medicareQuoteRoutes.post('/quotes', async (req: Request, res: Response) => {
       }
     }).sort((a, b) => a.monthly_premium - b.monthly_premium)
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       quotes: normalized,
       count: normalized.length,
       input: { zip, age, gender, tobacco, plan_letter, effective_date },
@@ -182,7 +182,7 @@ medicareQuoteRoutes.post('/quotes', async (req: Request, res: Response) => {
 medicareQuoteRoutes.get('/companies', async (_req: Request, res: Response) => {
   try {
     const companies = await getCompanies()
-    res.json(successResponse({ companies, count: companies.length }))
+    res.json(successResponse<unknown>({ companies, count: companies.length }))
   } catch (err) {
     console.error('GET /api/medicare-quote/companies error:', err)
     res.status(500).json(errorResponse(String(err instanceof Error ? err.message : err)))
@@ -191,7 +191,7 @@ medicareQuoteRoutes.get('/companies', async (_req: Request, res: Response) => {
 
 // GET /api/medicare-quote/plan-letters — Available plan letters
 medicareQuoteRoutes.get('/plan-letters', (_req: Request, res: Response) => {
-  res.json(successResponse({
+  res.json(successResponse<unknown>({
     plan_letters: [
       { key: 'A', label: 'Plan A', description: 'Basic benefits' },
       { key: 'B', label: 'Plan B', description: 'Basic + Part A deductible' },
@@ -210,5 +210,5 @@ medicareQuoteRoutes.get('/plan-letters', (_req: Request, res: Response) => {
 // GET /api/medicare-quote/status — Check if CSG API is configured
 medicareQuoteRoutes.get('/status', (_req: Request, res: Response) => {
   const configured = !!process.env.CSG_API_KEY
-  res.json(successResponse({ configured, provider: 'CSG Actuarial' }))
+  res.json(successResponse<unknown>({ configured, provider: 'CSG Actuarial' }))
 })

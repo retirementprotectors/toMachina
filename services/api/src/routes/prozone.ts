@@ -93,7 +93,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
     const state = territory.state as string
 
     if (countyNames.length === 0) {
-      res.json(successResponse({ zones: [], total_prospects: 0 }))
+      res.json(successResponse<unknown>({ zones: [], total_prospects: 0 }))
       return
     }
 
@@ -362,7 +362,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
         }))
       )
       const paginated = allProspects.slice(offset, offset + limit)
-      res.json(successResponse({
+      res.json(successResponse<unknown>({
         specialist: config.specialist_name,
         territory: territory.territory_name,
         prospects: paginated,
@@ -375,7 +375,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
     }
 
     // ─── Default: zone-grouped response with meta ───
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       specialist: config.specialist_name,
       territory: territory.territory_name,
       zones: zoneResults,
@@ -509,7 +509,7 @@ prozoneRoutes.get('/schedule/:specialist_id/:week', async (req: Request, res: Re
       current.setDate(current.getDate() + 1)
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       specialist: config.specialist_name,
       week: weekStr,
       week_start: weekDates.start.toISOString().split('T')[0],
@@ -549,7 +549,7 @@ prozoneRoutes.get('/zone-leads/:specialist_id/:zone_id', async (req: Request, re
     const state = territory.state as string
 
     if (zoneCounties.length === 0) {
-      res.json(successResponse({ zone_id: zoneId, leads: [], total: 0 }))
+      res.json(successResponse<unknown>({ zone_id: zoneId, leads: [], total: 0 }))
       return
     }
 
@@ -635,7 +635,7 @@ prozoneRoutes.get('/zone-leads/:specialist_id/:zone_id', async (req: Request, re
       return ageB - ageA
     })
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       zone_id: zoneId,
       specialist: config.specialist_name,
       territory: territory.territory_name,
@@ -731,7 +731,7 @@ prozoneRoutes.get('/scorecard', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       attempts,
       connected,
       booked,
@@ -779,7 +779,7 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
     const countyNames = counties.map(c => c.county)
     const state = territory.state as string
     if (countyNames.length === 0) {
-      res.json(successResponse({ enrolled: 0 }))
+      res.json(successResponse<unknown>({ enrolled: 0 }))
       return
     }
 
@@ -864,7 +864,7 @@ prozoneRoutes.post('/enroll', async (req: Request, res: Response) => {
       await batch.commit()
     }
 
-    res.json(successResponse({ enrolled, already_enrolled: alreadyEnrolled, total: clientDocs.length }))
+    res.json(successResponse<unknown>({ enrolled, already_enrolled: alreadyEnrolled, total: clientDocs.length }))
   } catch (err) {
     res.status(500).json(errorResponse(String(err)))
   }

@@ -26,7 +26,7 @@ searchRoutes.get('/', async (req: Request, res: Response) => {
 
     // Short queries return empty
     if (q.length < 2) {
-      res.json(successResponse({ clients: [], accounts: [] }))
+      res.json(successResponse<unknown>({ clients: [], accounts: [] }))
       return
     }
 
@@ -191,7 +191,7 @@ searchRoutes.get('/', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse({ clients, accounts }))
+    res.json(successResponse<unknown>({ clients, accounts }))
   } catch (err) {
     console.error('GET /api/search error:', err)
     res.status(500).json(errorResponse(String(err)))

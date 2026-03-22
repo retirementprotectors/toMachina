@@ -84,7 +84,7 @@ campaignAnalyticsRoutes.get('/:campaignId', async (req: Request, res: Response) 
       schedules,
     }
 
-    res.json(successResponse(metrics))
+    res.json(successResponse<unknown>(metrics))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -145,7 +145,7 @@ campaignAnalyticsRoutes.get('/:campaignId/timeline', async (req: Request, res: R
       .map(([date, counts]) => ({ date, ...counts }))
       .sort((a, b) => a.date.localeCompare(b.date))
 
-    res.json(successResponse(timeline, { pagination: { count: timeline.length, total: timeline.length } }))
+    res.json(successResponse<unknown>(timeline, { pagination: { count: timeline.length, total: timeline.length } }))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/timeline error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -183,7 +183,7 @@ campaignAnalyticsRoutes.get('/:campaignId/recipients', async (req: Request, res:
       }
     })
 
-    res.json(successResponse(recipients, { pagination: { count: recipients.length, total: recipients.length } }))
+    res.json(successResponse<unknown>(recipients, { pagination: { count: recipients.length, total: recipients.length } }))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/recipients error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -210,7 +210,7 @@ campaignAnalyticsRoutes.get('/:campaignId/drip-progress', async (req: Request, r
       .get()
 
     if (dripSnap.empty) {
-      res.json(successResponse({ sequences: [], message: 'No drip sequences for this campaign' }))
+      res.json(successResponse<unknown>({ sequences: [], message: 'No drip sequences for this campaign' }))
       return
     }
 
@@ -286,7 +286,7 @@ campaignAnalyticsRoutes.get('/:campaignId/drip-progress', async (req: Request, r
       })
     }
 
-    res.json(successResponse({ sequences }))
+    res.json(successResponse<unknown>({ sequences }))
   } catch (err) {
     console.error('GET /api/campaign-analytics/:campaignId/drip-progress error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -389,7 +389,7 @@ campaignAnalyticsRoutes.post('/webhook/sendgrid', async (req: Request, res: Resp
 
     if (processed > 0) await batch.commit()
 
-    res.json(successResponse({ processed, unmatched }))
+    res.json(successResponse<unknown>({ processed, unmatched }))
   } catch (err) {
     console.error('POST /api/campaign-analytics/webhook/sendgrid error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -415,7 +415,7 @@ campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Respon
     const { MessageSid, MessageStatus, To, ErrorCode } = req.body
 
     if (!MessageStatus) {
-      res.json(successResponse({ skipped: true, reason: 'no_status' }))
+      res.json(successResponse<unknown>({ skipped: true, reason: 'no_status' }))
       return
     }
 
@@ -424,7 +424,7 @@ campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Respon
     if (MessageStatus === 'delivered') eventType = 'delivered'
     else if (MessageStatus === 'sent') eventType = 'sent'
     else if (MessageStatus === 'failed' || MessageStatus === 'undelivered') eventType = 'bounced'
-    else return void res.json(successResponse({ skipped: true, reason: `unmapped_status_${MessageStatus}` }))
+    else return void res.json(successResponse<unknown>({ skipped: true, reason: `unmapped_status_${MessageStatus}` }))
 
     // FIXED: Look up campaign_send_log by MessageSid to resolve campaign context
     let resolvedCampaignId = ''
@@ -470,7 +470,7 @@ campaignAnalyticsRoutes.post('/webhook/twilio', async (req: Request, res: Respon
       timestamp: now,
     })
 
-    res.json(successResponse({ processed: true, event_type: eventType }))
+    res.json(successResponse<unknown>({ processed: true, event_type: eventType }))
   } catch (err) {
     console.error('POST /api/campaign-analytics/webhook/twilio error:', err)
     res.status(500).json(errorResponse(String(err)))

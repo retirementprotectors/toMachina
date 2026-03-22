@@ -29,7 +29,7 @@ campaignRoutes.get('/', async (req: Request, res: Response) => {
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))
-    res.json(successResponse(data, { pagination: result.pagination }))
+    res.json(successResponse<CampaignDTO[]>(data as unknown as CampaignDTO[], { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/campaigns error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -42,7 +42,7 @@ campaignRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Campaign not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/campaigns/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -55,7 +55,7 @@ campaignRoutes.get('/:id/templates', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const snap = await db.collection('templates').where('campaign_id', '==', id).get()
     const templates = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(templates, { pagination: { count: templates.length, total: templates.length } }))
+    res.json(successResponse<unknown>(templates, { pagination: { count: templates.length, total: templates.length } }))
   } catch (err) {
     console.error('GET /api/campaigns/:id/templates error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -80,10 +80,10 @@ campaignRoutes.post('/:id/assemble', async (req: Request, res: Response) => {
 
     if (template_id) {
       const result = await assembleCampaign(id, template_id, ctx)
-      res.json(successResponse(result))
+      res.json(successResponse<unknown>(result))
     } else {
       const results = await assembleCampaignFull(id, ctx)
-      res.json(successResponse(results, { pagination: { count: results.length, total: results.length } }))
+      res.json(successResponse<unknown>(results, { pagination: { count: results.length, total: results.length } }))
     }
   } catch (err) {
     console.error('POST /api/campaigns/:id/assemble error:', err)
@@ -103,7 +103,7 @@ campaignRoutes.get('/:id/preview', async (req: Request, res: Response) => {
   try {
     const id = param(req.params.id)
     const results = await assembleCampaignFull(id)
-    res.json(successResponse(results, { pagination: { count: results.length, total: results.length }, note: 'Merge fields left unresolved' }))
+    res.json(successResponse<unknown>(results, { pagination: { count: results.length, total: results.length }, note: 'Merge fields left unresolved' }))
   } catch (err) {
     console.error('GET /api/campaigns/:id/preview error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -149,7 +149,7 @@ campaignRoutes.post('/:id/schedule', scheduleValidation, async (req: Request, re
 
     await db.collection('campaign_jobs').doc(jobId).set(jobData)
 
-    res.status(201).json(successResponse(jobData))
+    res.status(201).json(successResponse<unknown>(jobData))
   } catch (err) {
     console.error('POST /api/campaigns/:id/schedule error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -218,7 +218,7 @@ campaignRoutes.post('/:id/duplicate', async (req: Request, res: Response) => {
 
     await writeThroughBridge(COLLECTION, 'insert', newCampaignId, newCampaign)
 
-    res.status(201).json(successResponse({
+    res.status(201).json(successResponse<unknown>({
       campaign_id: newCampaignId,
       name: newName,
       cloned_templates: clonedTemplates,
