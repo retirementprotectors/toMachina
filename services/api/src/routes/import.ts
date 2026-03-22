@@ -881,7 +881,7 @@ importRoutes.post('/agent', async (req: Request, res: Response) => {
     agentData.import_source = options.source || 'API_IMPORT'
     agentData.created_at = agentData.created_at || now
     agentData.updated_at = now
-    agentData.agent_status = agentData.agent_status || agentData.status || 'active'
+    agentData.status = agentData.status || agentData.agent_status || 'active'
 
     const agentId = agentData.agent_id || randomUUID()
     agentData.agent_id = agentId
@@ -962,7 +962,7 @@ importRoutes.post('/agents', async (req: Request, res: Response) => {
         agent.import_source = options.source || 'API_IMPORT'
         agent.created_at = agent.created_at || now
         agent.updated_at = now
-        agent.agent_status = agent.agent_status || agent.status || 'active'
+        agent.status = agent.status || agent.agent_status || 'active'
 
         const agentId = agent.agent_id || randomUUID()
         agent.agent_id = agentId
@@ -1421,7 +1421,7 @@ importRoutes.post('/bob', async (req: Request, res: Response) => {
             zip: record.zip ? String(record.zip).replace(/\D/g, '').padStart(5, '0').slice(0, 5) : undefined,
             address: record.address || undefined,
             city: record.city || undefined,
-            client_status: record.status || 'Active',
+            status: record.status || 'Active',
             import_source: `BOB_${carrierSource}`,
             carrier_source: carrierSource,
             created_at: record.created_at || now,

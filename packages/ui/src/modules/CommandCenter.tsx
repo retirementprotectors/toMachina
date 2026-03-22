@@ -15,7 +15,7 @@ interface CommandCenterProps {
 
 interface ClientRecord {
   _id: string
-  client_status?: string
+  status?: string
   created_at?: string
 }
 
@@ -59,7 +59,7 @@ interface UserRecord {
 
 interface AgentRecord {
   _id: string
-  agent_status?: string
+  status?: string
 }
 
 // ============================================================================

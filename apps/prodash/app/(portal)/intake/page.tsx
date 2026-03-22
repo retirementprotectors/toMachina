@@ -163,7 +163,7 @@ export default function QuickIntakePage() {
       const clientData: Record<string, unknown> = {
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
-        client_status: 'Prospect',
+        status: 'Prospect',
         created_at: now,
         updated_at: now,
         import_source: 'quick_intake',

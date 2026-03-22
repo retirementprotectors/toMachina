@@ -40,7 +40,7 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
       try {
         // Helper: skip merged/deleted/terminated clients
         const isExcluded = (d: Record<string, unknown>) => {
-          const cs = String(d.client_status || '').toLowerCase()
+          const cs = String(d.status || d.client_status || '').toLowerCase()
           const st = String(d.status || '').toLowerCase()
           return ['merged', 'deleted', 'terminated'].includes(cs) ||
                  ['merged', 'deleted', 'terminated'].includes(st) ||

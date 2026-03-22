@@ -18,7 +18,7 @@ interface TerritoryOverview {
   territory_id: string
   territory_name: string
   state: string
-  territory_status: string
+  status: string
   counties?: Array<{ county: string }>
   zones?: Array<{ zone_id: string }>
 }

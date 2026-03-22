@@ -39,7 +39,7 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
   const cleanPref = rawPref ? stripQuotes(rawPref) : ''
   const cleanFirst = client.first_name ? stripQuotes(String(client.first_name)) : ''
   const displayName = cleanPref || cleanFirst || fullName
-  const status = (client.client_status as string) || 'Unknown'
+  const status = (client.status as string) || (client.client_status as string) || 'Unknown'
   const initials = getInitials(fullName)
   const avatarColor = hashColor(fullName)
   const facebookUrl = client.facebook_url as string | undefined

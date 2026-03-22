@@ -17,7 +17,6 @@ interface AgentRecord {
   phone?: string
   npn?: string
   status?: string
-  agent_status?: string
   state?: string
   city?: string
   carrier_appointments?: string[]
@@ -53,7 +52,7 @@ export default function ProducersPage() {
   const statuses = useMemo(() => {
     const set = new Set<string>()
     agents.forEach((a) => {
-      const s = a.status || a.agent_status
+      const s = a.status
       if (s) set.add(s)
     })
     return ['All', ...Array.from(set).sort()]
@@ -72,7 +71,7 @@ export default function ProducersPage() {
       )
     }
     if (statusFilter !== 'All') {
-      result = result.filter((a) => (a.status || a.agent_status) === statusFilter)
+      result = result.filter((a) => (a.status) === statusFilter)
     }
     return result
   }, [agents, search, statusFilter])
@@ -162,7 +161,7 @@ export default function ProducersPage() {
                     <p className="text-xs text-[var(--text-muted)]">{agent.agent_type}</p>
                   )}
                 </div>
-                <StatusBadge status={agent.status || agent.agent_status} />
+                <StatusBadge status={agent.status} />
               </div>
 
               {/* Details */}

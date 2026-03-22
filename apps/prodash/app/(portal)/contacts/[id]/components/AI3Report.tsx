@@ -333,7 +333,7 @@ export const AI3Report = forwardRef<HTMLDivElement, AI3ReportProps>(
             </div>
             <div style={styles.infoRow}>
               <span style={styles.infoLabel}>Status:</span>
-              <span style={styles.infoValue}>{safeStr(client.client_status)}</span>
+              <span style={styles.infoValue}>{safeStr(client.status || client.client_status)}</span>
             </div>
           </div>
         </div>

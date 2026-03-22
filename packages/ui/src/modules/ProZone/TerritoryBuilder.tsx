@@ -41,7 +41,7 @@ interface TerritoryRecord {
   territory_id: string
   territory_name: string
   state: string
-  territory_status: 'Active' | 'Inactive'
+  status: 'Active' | 'Inactive'
   counties: Array<{ county: string; zone_id: string }>
   zones: TerritoryZone[]
   created_at: string
@@ -242,7 +242,7 @@ function TerritoryList({ territories, loading, error, onEdit, onCreate }: Territ
           {territories.map((territory) => {
             const countyCount = territory.counties?.length ?? 0
             const zoneCount = territory.zones?.length ?? 0
-            const isActive = territory.territory_status === 'Active'
+            const isActive = territory.status === 'Active'
 
             return (
               <button
@@ -279,7 +279,7 @@ function TerritoryList({ territories, loading, error, onEdit, onCreate }: Territ
                         : 'bg-red-500/10 text-red-400'
                     }`}
                   >
-                    {territory.territory_status}
+                    {territory.status}
                   </span>
                 </div>
 
@@ -348,7 +348,7 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
           const t = json.data
           setTerritoryName(t.territory_name)
           setState(t.state)
-          setStatus(t.territory_status)
+          setStatus(t.status)
 
           // Rebuild draft zones from API data
           const draftZones: DraftZone[] = (t.zones || []).map((z) => {
@@ -527,7 +527,7 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
       const payload = {
         territory_name: territoryName.trim(),
         state: state.trim(),
-        territory_status: status,
+        status: status,
         counties,
         zones: zonesPayload,
       }
@@ -568,7 +568,7 @@ function TerritoryEditor({ territoryId, onBack }: TerritoryEditorProps) {
       setError(null)
       const res = await fetchWithAuth(`/api/territories/${territoryId}`, {
         method: 'PATCH',
-        body: JSON.stringify({ territory_status: newStatus }),
+        body: JSON.stringify({ status: newStatus }),
       })
       const json = (await res.json()) as { success: boolean; error?: string }
       if (json.success) {

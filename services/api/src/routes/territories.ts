@@ -25,7 +25,7 @@ territoryRoutes.get('/', async (req: Request, res: Response) => {
       data = data.filter(d => (d.state as string || '').toUpperCase() === stateUpper)
     }
     if (req.query.status) {
-      data = data.filter(d => d.territory_status === req.query.status)
+      data = data.filter(d => d.status === req.query.status)
     }
 
     const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 200, 1), 500)
@@ -68,7 +68,7 @@ territoryRoutes.post('/', async (req: Request, res: Response) => {
     const territoryData: Record<string, unknown> = {
       ...req.body,
       territory_id: territoryId,
-      territory_status: (req.body as Record<string, unknown>).territory_status || 'Active',
+      status: (req.body as Record<string, unknown>).status || (req.body as Record<string, unknown>).territory_status || 'Active',
       counties: (req.body as Record<string, unknown>).counties || [],
       zones: (req.body as Record<string, unknown>).zones || [],
       created_at: now,
