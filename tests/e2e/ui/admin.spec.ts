@@ -10,7 +10,7 @@ test.describe('Admin Module', () => {
 
     // AdminPanel has NO h1 — it renders tab buttons directly
     // Default tab is "Team Config". Wait for tab buttons to appear.
-    await expect(page.getByText('Team Config')).toBeVisible({ timeout: 15000 })
+    await expect(page.getByText('Team Config').first()).toBeVisible({ timeout: 15000 })
 
     // Other tabs should be visible too
     await expect(page.getByText('Permissions Audit')).toBeVisible({ timeout: 10000 })
