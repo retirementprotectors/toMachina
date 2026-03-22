@@ -62,7 +62,8 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
     if (showInactive) return accounts
     return accounts.filter((a) => {
       const s = str(a.status).toLowerCase()
-      return s !== 'inactive' && s !== 'terminated' && s !== 'lapsed' && s !== 'cancelled'
+      return s !== 'inactive' && s !== 'terminated' && s !== 'lapsed' && s !== 'cancelled' && s !== 'merged' && s !== 'deleted'
+        && !(a as Record<string, unknown>)._merged_into
     })
   }, [accounts, showInactive])
 
