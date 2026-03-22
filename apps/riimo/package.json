@@ -11,7 +11,7 @@
     "clean": "rm -rf .next .turbo"
   },
   "dependencies": {
-    "google-auth-library": "^9.0.0",
+    "google-auth-library": "^10.6.2",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
