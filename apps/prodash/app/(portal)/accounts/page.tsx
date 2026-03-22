@@ -657,10 +657,10 @@ export default function AccountsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Filters — consolidated into 2 rows */}
-      <div className="space-y-3">
-        {/* Row 1: Search + New */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Filters — single compact row */}
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Search */}
           <div className="relative">
             <span className="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-[var(--text-muted)]">search</span>
             <input
@@ -668,21 +668,9 @@ export default function AccountsPage() {
               placeholder="Search accounts..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-[34px] w-72 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-10 pr-4 text-sm font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
+              className="h-[34px] w-56 rounded-md border border-[var(--border)] bg-[var(--bg-surface)] pl-10 pr-4 text-sm font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
             />
           </div>
-          <button
-            onClick={() => setShowNewModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
-            title="New Account"
-          >
-            <span className="material-icons-outlined text-[18px]">add</span>
-            New
-          </button>
-        </div>
-
-        {/* Row 2: Type pills + Status + Carrier + Columns + Ddup (consolidated) */}
-        <div className="flex flex-wrap items-center gap-2">
           {FILTER_TABS.map((f) => (
             <button
               key={f.key}
@@ -746,13 +734,23 @@ export default function AccountsPage() {
             </button>
           )}
 
-          {/* Count pill — pushed to the right */}
-          <span
-            className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-3 text-sm font-medium ml-auto"
-            style={{ color: 'var(--portal)' }}
-          >
-            {filtered.length.toLocaleString()}
-          </span>
+          {/* Count pill + New — pushed to the right */}
+          <div className="ml-auto flex items-center gap-2">
+            <span
+              className="inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--bg-surface)] h-[34px] px-3 text-sm font-medium"
+              style={{ color: 'var(--portal)' }}
+            >
+              {filtered.length.toLocaleString()}
+            </span>
+            <button
+              onClick={() => setShowNewModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--portal)] bg-[var(--portal)] h-[34px] px-3 text-sm font-medium text-white transition-colors hover:opacity-90"
+              title="New Account"
+            >
+              <span className="material-icons-outlined text-[18px]">add</span>
+              New
+            </button>
+          </div>
         </div>
 
         {/* Column picker panel */}

@@ -10,6 +10,7 @@ import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
 import { ColumnSelector, getDefaultVisibleColumns } from './components/ColumnSelector'
+import { ACFStatusIcon } from '@tomachina/ui/src/modules/ACFStatusIcon'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -60,11 +61,12 @@ interface ClientRow extends Client {
   agent_name?: string
   gdrive_folder_url?: string
   acf_folder_id?: string
-  acf_link?: string
-  acf_url?: string
   household_id?: string
   household_name?: string
 }
+
+/** Statuses that are always excluded from the grid (not toggleable via status dropdown) */
+const HARD_EXCLUDED_STATUSES = ['merged']
 
 const PAGE_SIZE = 25
 
@@ -152,7 +154,7 @@ export default function ClientsPage() {
   // Filter logic
   const filtered = useMemo(() => {
     // Exclude merged records — they've been absorbed into another record
-    let result = clients.filter((c) => (c.client_status || '').toLowerCase() !== 'merged')
+    let result = clients.filter((c) => !HARD_EXCLUDED_STATUSES.includes((c.client_status || '').toLowerCase()))
 
     // Search filter
     if (search) {
@@ -260,7 +262,7 @@ export default function ClientsPage() {
   const visibleColCount = useMemo(() => {
     // 1 for checkbox + 1 for name (always visible) + each toggled column
     let count = 2
-    const toggleable = ['location', 'phone', 'email', 'agent', 'status', 'household', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
+    const toggleable = ['location', 'phone', 'email', 'agent', 'status', 'acf', 'household', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
     for (const k of toggleable) {
       if (visibleColumns.has(k)) count++
     }
@@ -373,7 +375,7 @@ export default function ClientsPage() {
   return (
     <div className="flex flex-col gap-5">
       {/* Filters */}
-      <div className="space-y-3">
+      <div className="space-y-2">
       <ClientFilters
         search={search}
         onSearchChange={handleSearchChange}
@@ -387,26 +389,25 @@ export default function ClientsPage() {
         books={books}
         agents={agents}
         columnSelector={
-          <ColumnSelector
-            visibleColumns={visibleColumns}
-            onChange={setVisibleColumns}
-          />
+          <>
+            <ColumnSelector
+              visibleColumns={visibleColumns}
+              onChange={setVisibleColumns}
+            />
+            <button
+              onClick={() => setGroupByHousehold(g => !g)}
+              className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-colors ${
+                groupByHousehold
+                  ? 'border-[var(--portal)] bg-[var(--portal)] text-white'
+                  : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
+              }`}
+            >
+              <span className="material-icons-outlined text-[16px]">home</span>
+              Household
+            </button>
+          </>
         }
       />
-
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => setGroupByHousehold(g => !g)}
-          className={`inline-flex items-center gap-1.5 rounded-md border h-[34px] px-3 text-sm font-medium transition-colors ${
-            groupByHousehold
-              ? 'border-[var(--portal)] bg-[var(--portal)] text-white'
-              : 'border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--portal)] hover:text-[var(--portal)]'
-          }`}
-        >
-          <span className="material-icons-outlined text-[16px]">home</span>
-          Group by Household
-        </button>
-      </div>
 
       {/* DeDup button — shown when 2+ clients selected */}
       {selectedIds.size >= 2 && (
@@ -471,6 +472,7 @@ export default function ClientsPage() {
                   {col('email') && renderStaticHeader('Email')}
                   {col('agent') && renderSortHeader('Agent', 'agent_name')}
                   {col('status') && renderSortHeader('Status', 'client_status')}
+                  {col('acf') && renderStaticHeader('ACF')}
                   {col('household') && renderSortHeader('Household', 'household')}
                   {col('age') && renderStaticHeader('Age')}
                   {col('dob') && renderStaticHeader('DOB')}
@@ -534,6 +536,7 @@ export default function ClientsPage() {
                             {col('email') && (<td className="px-3 py-3">{client.email ? <a href={`mailto:${client.email}`} onClick={(e) => e.stopPropagation()} className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block">{client.email}</a> : dash}</td>)}
                             {col('agent') && (<td className="px-3 py-3">{client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash}</td>)}
                             {col('status') && (<td className="px-3 py-3"><StatusBadge status={client.client_status} /></td>)}
+                            {col('acf') && (<td className="px-3 py-3"><ACFStatusIcon clientId={client._id || client.client_id} gdriveFolderUrl={client.gdrive_folder_url} /></td>)}
                             {col('household') && (<td className="px-3 py-3">{client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash}</td>)}
                             {col('age') && (<td className="px-3 py-3">{age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash}</td>)}
                             {col('dob') && (<td className="px-3 py-3">{client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash}</td>)}
@@ -638,6 +641,13 @@ export default function ClientsPage() {
                       {col('status') && (
                         <td className="px-3 py-3">
                           <StatusBadge status={client.client_status} />
+                        </td>
+                      )}
+
+                      {/* ACF */}
+                      {col('acf') && (
+                        <td className="px-3 py-3">
+                          <ACFStatusIcon clientId={client._id || client.client_id} gdriveFolderUrl={client.gdrive_folder_url} />
                         </td>
                       )}
 

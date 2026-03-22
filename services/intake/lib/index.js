@@ -53,7 +53,7 @@ export const meetIntakeScheduled = onSchedule({ schedule: 'every 5 minutes', reg
  */
 export const mailIntake = onRequest({ region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' }, async (_req, res) => {
     const result = await scanMailIntake();
-    console.log(`Mail Intake: ${result.new_files} new, ${result.moved_to_processed} processed`);
+    console.log(`Mail Intake: ${result.new_files} new, ${result.skipped_duplicates} skipped`);
     res.json({ success: result.success, data: result });
 });
 export const mailIntakeScheduled = onSchedule({ schedule: 'every 5 minutes', region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' }, async () => {

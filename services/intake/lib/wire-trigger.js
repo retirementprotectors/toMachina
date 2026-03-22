@@ -1,9 +1,8 @@
 /**
  * Cloud Function trigger for wire execution.
  * Fires on Firestore `intake_queue` document creation.
- * Determines wire based on source field and delegates to wire executor.
- *
- * DEPENDENCY: executeWire() from @tomachina/core (built by BUILDER_03)
+ * Determines wire based on source field and dispatches to Cloud Run API
+ * (tm-api) via HTTP POST for actual wire execution.
  *
  * NOTE: Uses separated collection/doc calls and `store` variable naming
  * to satisfy block-direct-firestore-write hookify rule. This file IS in an
@@ -19,6 +18,8 @@ if (getApps().length === 0) {
 const SOURCE_TO_WIRE = {
     MAIL: 'WIRE_INCOMING_CORRESPONDENCE',
     SPC_INTAKE: 'WIRE_INCOMING_CORRESPONDENCE',
+    ACF_UPLOAD: 'WIRE_INCOMING_CORRESPONDENCE',
+    ACF_SCAN: 'WIRE_INCOMING_CORRESPONDENCE',
 };
 /* ─── Firestore helpers (avoid hookify regex triggers) ─── */
 function intakeQueueCol() {
@@ -26,18 +27,38 @@ function intakeQueueCol() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return store['collection']('intake_queue');
 }
+/** Cloud Run API base URL */
+const API_BASE_URL = process.env.API_BASE_URL || 'https://tm-api-caras2xr5a-uc.a.run.app';
 /**
- * Load executeWire from the wire-executor module directly.
- * Not exported from @tomachina/core barrel (pulls .js imports into webpack).
+ * Normalize queue entry data into a consistent WireInput shape
+ * regardless of which intake channel created the queue entry.
  */
-async function loadExecuteWire() {
-    const mod = await import('@tomachina/core/src/atlas/wire-executor.js');
-    return mod.executeWire;
+function normalizeWireInput(data) {
+    const wireId = SOURCE_TO_WIRE[data.source];
+    return {
+        wire_id: wireId,
+        input: {
+            file_id: data.file_id,
+            file_ids: data.file_ids || (data.file_id ? [data.file_id] : []),
+            mode: (data.mode || 'document'),
+            _meta: {
+                file_name: data.file_name || null,
+                client_id: data.client_id || null,
+                source: data.source,
+                mime_type: data.mime_type || null,
+                specialist_name: data.specialist_name || null,
+                source_folder_id: data.source_folder_id || null,
+                processed_folder_id: data.processed_folder_id || null,
+                errors_folder_id: data.errors_folder_id || null,
+            },
+        },
+        queue_id: '', // Will be set by caller
+    };
 }
 /**
  * Firestore onCreate trigger on intake_queue collection.
  * When a new queue entry appears with status QUEUED, determines which wire to run
- * based on the source field and delegates to the wire executor.
+ * based on the source field and dispatches to Cloud Run API for execution.
  */
 export const onIntakeQueueCreated = onDocumentCreated({
     document: 'intake_queue/{queueId}',
@@ -76,33 +97,35 @@ export const onIntakeQueueCreated = onDocumentCreated({
         updated_at: new Date().toISOString(),
     });
     try {
-        const executeWire = await loadExecuteWire();
-        const input = {
-            file_id: data.file_id,
-            file_ids: data.file_ids || (data.file_id ? [data.file_id] : []),
-            mode: (data.mode || 'document'),
-        };
-        const context = {
-            wire_id: wireId,
-            user_email: data.user_email || 'system@retireprotected.com',
-            source_file_ids: data.file_ids || (data.file_id ? [data.file_id] : []),
-            dry_run: false,
-            approval_required: true,
-        };
-        const result = await executeWire(wireId, input, context);
-        await queueRef.update({
-            status: result.success ? 'COMPLETE' : 'ERROR',
-            wire_result: {
-                success: result.success,
-                stages: result.stages?.length || 0,
-                created_records: result.created_records?.length || 0,
-                execution_time_ms: result.execution_time_ms,
-                approval_batch_id: result.approval_batch_id || null,
+        // Get OIDC identity token for Cloud Run auth
+        const { GoogleAuth } = await import('google-auth-library');
+        const auth = new GoogleAuth();
+        const client = await auth.getIdTokenClient(API_BASE_URL);
+        const reqHeaders = await client.getRequestHeaders(API_BASE_URL);
+        const authHeader = reqHeaders['Authorization'] || '';
+        // Normalize input and set queue ID
+        const normalized = normalizeWireInput(data);
+        normalized.queue_id = queueId;
+        // Dispatch to Cloud Run API
+        const response = await fetch(`${API_BASE_URL}/api/intake/execute-wire`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': authHeader,
             },
-            completed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
+            body: JSON.stringify(normalized),
         });
-        console.log(`[wire-trigger] Wire ${wireId} completed for queue ${queueId}: success=${result.success}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API returned ${response.status}: ${errorText}`);
+        }
+        const apiResult = await response.json();
+        if (!apiResult.success || !apiResult.data) {
+            throw new Error(apiResult.error || 'Wire execution returned unsuccessful result');
+        }
+        // The execute-wire endpoint updates intake_queue directly,
+        // but log the result for observability
+        console.log(`[wire-trigger] Wire ${wireId} dispatched for queue ${queueId}: success=${apiResult.data.success}`);
     }
     catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);

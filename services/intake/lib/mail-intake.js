@@ -1,9 +1,10 @@
 /**
  * MAIL — Physical mail scan intake.
  * Scans MAIL_INTAKE/Incoming folder for scanned documents.
- * After queuing, moves files to Processed; on error, moves to Errors.
+ * Files stay in Incoming until ACF_FINALIZE moves them after successful wire.
+ * On scanner error (before queuing), files move to Errors.
  */
-import { listFolderFiles, listSubfolders, moveFile } from './lib/drive-scanner.js';
+import { listFolderFiles, listSubfolders } from './lib/drive-scanner.js';
 import { processFile, generateContentPreview } from './lib/file-processor.js';
 import { createQueueEntry, isFileQueued, setLastScanTime } from './queue.js';
 const MAIL_INTAKE_FOLDER_ID = '1LV32r7w1k98B0S_zfJoavzpLQgsAB1Dg';
@@ -17,15 +18,15 @@ async function findSubfolderId(parentId, name) {
 }
 /**
  * Scan MAIL_INTAKE/Incoming for new scanned documents.
- * Moves processed files to Processed subfolder, errored to Errors.
+ * Files remain in Incoming — ACF_FINALIZE handles post-wire routing.
+ * Only scanner-level errors move files to the Errors folder.
  */
 export async function scanMailIntake() {
     const result = {
         success: true,
         new_files: 0,
-        moved_to_processed: 0,
-        moved_to_errors: 0,
         skipped_duplicates: 0,
+        moved_to_errors: 0,
         errors: [],
     };
     try {
@@ -44,11 +45,6 @@ export async function scanMailIntake() {
                 const alreadyQueued = await isFileQueued(file.id);
                 if (alreadyQueued) {
                     result.skipped_duplicates++;
-                    // Still move to processed
-                    if (processedId) {
-                        await moveFile(file.id, incomingId, processedId);
-                        result.moved_to_processed++;
-                    }
                     continue;
                 }
                 const meta = processFile(file.id, file.name, file.mimeType, file.size);
@@ -59,20 +55,19 @@ export async function scanMailIntake() {
                     file_size: file.size,
                     document_type: meta.document_category,
                     content_preview: generateContentPreview(file.name, meta.document_category),
+                    source_folder_id: incomingId,
+                    processed_folder_id: processedId ?? undefined,
+                    errors_folder_id: errorsId ?? undefined,
                 });
                 result.new_files++;
-                // Move to Processed
-                if (processedId) {
-                    await moveFile(file.id, incomingId, processedId);
-                    result.moved_to_processed++;
-                }
             }
             catch (err) {
                 const errMsg = err instanceof Error ? err.message : String(err);
                 result.errors.push(`File "${file.name}": ${errMsg}`);
-                // Move to Errors folder
+                // Move to Errors folder on scanner-level failure only
                 if (errorsId) {
                     try {
+                        const { moveFile } = await import('./lib/drive-scanner.js');
                         await moveFile(file.id, incomingId, errorsId);
                         result.moved_to_errors++;
                     }

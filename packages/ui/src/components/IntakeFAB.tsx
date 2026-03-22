@@ -150,6 +150,7 @@ export function IntakeFAB() {
   const [pasteModalOpen, setPasteModalOpen] = useState(false)
   const [pasteText, setPasteText] = useState('')
   const [pasteProcessing, setPasteProcessing] = useState(false)
+  const [pasteError, setPasteError] = useState<string | null>(null)
   const fabRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -205,18 +206,33 @@ export function IntakeFAB() {
     if (input?.files?.length) {
       const file = input.files[0]
       const size = formatFileSize(file.size)
+
+      if (file.size > 25 * 1024 * 1024) {
+        showToast('File too large. Maximum size is 25 MB.', 'error')
+        input.value = ''
+        return
+      }
+
+      showToast(`Uploading ${file.name} (${size})...`, 'info')
+
       try {
-        const res = await fetchWithAuth('/api/dropzone', {
+        // Send actual file bytes via FormData (not just metadata)
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('source', 'INTAKE_UPLOAD')
+
+        const { getAuth } = await import('firebase/auth')
+        const auth = getAuth()
+        const token = await auth.currentUser?.getIdToken()
+
+        const res = await fetch('/api/dropzone', {
           method: 'POST',
-          body: JSON.stringify({
-            source: 'INTAKE_UPLOAD',
-            file_name: file.name,
-            file_type: file.type,
-            file_size: file.size,
-          }),
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          body: formData,
         })
+
         if (res.ok) {
-          showToast(`Document queued: ${file.name} (${size})`, 'success')
+          showToast(`Document uploaded: ${file.name} (${size})`, 'success')
         } else {
           const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
           showToast(`Upload failed: ${(body as Record<string, string>).error || res.status}`, 'error')
@@ -232,13 +248,14 @@ export function IntakeFAB() {
   const handlePasteProcess = useCallback(async () => {
     if (!pasteText.trim()) return
     setPasteProcessing(true)
+    setPasteError(null)
 
     try {
       const parsed = parsePastedText(pasteText)
       const fieldCount = Object.keys(parsed).length
 
       if (fieldCount === 0) {
-        showToast('Could not detect any fields in the pasted text. Try key-value, tab-delimited, or CSV format.', 'warning')
+        setPasteError('Could not detect any fields. Try key-value (e.g. "First Name: John"), tab-delimited, or CSV format.')
         setPasteProcessing(false)
         return
       }
@@ -246,14 +263,16 @@ export function IntakeFAB() {
       // Encode parsed fields as JSON query param for the intake page
       const prefill = encodeURIComponent(JSON.stringify(parsed))
       const fieldNames = Object.keys(parsed).map((k) => k.replace(/_/g, ' ')).join(', ')
-      showToast(`Detected ${fieldCount} field${fieldCount > 1 ? 's' : ''}: ${fieldNames}`, 'success')
 
+      // Close modal first, then navigate (avoids toast being unmounted by router.push)
       setPasteProcessing(false)
       setPasteModalOpen(false)
       setPasteText('')
+      setPasteError(null)
+      showToast(`Detected ${fieldCount} field${fieldCount > 1 ? 's' : ''}: ${fieldNames}`, 'success')
       router.push(`/intake?prefill=${prefill}`)
     } catch {
-      showToast('Failed to parse pasted data. Please check the format.', 'error')
+      setPasteError('Failed to parse pasted data. Please check the format and try again.')
       setPasteProcessing(false)
     }
   }, [pasteText, router, showToast])
@@ -337,6 +356,7 @@ export function IntakeFAB() {
             onClick={() => {
               setPasteModalOpen(false)
               setPasteText('')
+              setPasteError(null)
             }}
           />
 
@@ -370,11 +390,19 @@ export function IntakeFAB() {
               autoFocus
             />
 
+            {pasteError && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg border border-[var(--error)] bg-[var(--error)]/10 px-3 py-2.5">
+                <span className="material-icons-outlined mt-0.5 shrink-0 text-[var(--error)]" style={{ fontSize: '16px' }}>warning</span>
+                <p className="text-sm text-[var(--error)]">{pasteError}</p>
+              </div>
+            )}
+
             <div className="mt-4 flex items-center justify-end gap-3">
               <button
                 onClick={() => {
                   setPasteModalOpen(false)
                   setPasteText('')
+                  setPasteError(null)
                 }}
                 className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
               >

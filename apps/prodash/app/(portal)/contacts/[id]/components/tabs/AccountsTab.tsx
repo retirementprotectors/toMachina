@@ -502,7 +502,7 @@ function findDdupGroups(accounts: Account[]): Map<string, string[]> {
   for (const acct of accounts) {
     // Only consider active accounts for ddup detection
     const s = str(acct.status).toLowerCase()
-    if (s === 'inactive' || s === 'terminated' || s === 'lapsed' || s === 'cancelled') continue
+    if (s === 'inactive' || s === 'terminated' || s === 'lapsed' || s === 'cancelled' || s === 'deleted' || s === 'merged') continue
 
     const carrier = (str(acct.carrier_name) || str(acct.carrier)).toLowerCase().trim()
     if (!carrier || carrier === 'unknown carrier') continue
