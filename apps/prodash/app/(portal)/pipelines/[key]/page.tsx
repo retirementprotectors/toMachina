@@ -122,7 +122,7 @@ export default function PipelineKanbanPage() {
     clientDebounceRef.current = setTimeout(async () => {
       setClientSearching(true)
       try {
-        const res = await fetchWithAuth(`${API_BASE}/clients?search=${encodeURIComponent(value)}&limit=8`)
+        const res = await fetchWithAuth(`${API_BASE}/clients?q=${encodeURIComponent(value)}&limit=8`)
         const json = await res.json() as { success: boolean; data?: ClientOption[] }
         if (json.success && json.data) {
           setClientResults(Array.isArray(json.data) ? json.data : [])
