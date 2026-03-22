@@ -13,7 +13,7 @@
     "express": "^5.2.1",
     "cors": "^2.8.5",
     "firebase-admin": "^13.7.0",
-    "googleapis": "^144.0.0",
+    "googleapis": "^171.4.0",
     "@tomachina/core": "*"
   },
   "devDependencies": {
