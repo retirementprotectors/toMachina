@@ -25,15 +25,17 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 
-# Copy node_modules (includes symlink to packages/core)
+# Preserve full monorepo node_modules tree (hoisted deps + workspace symlinks)
 COPY --from=builder /app/node_modules ./node_modules
-# Copy packages/core so the workspace symlink resolves
+# Copy packages/core (dist + package.json) so workspace symlink resolves
 COPY --from=builder /app/packages/core ./packages/core
-# Copy api dist
-COPY --from=builder /app/services/api/dist ./dist
-COPY --from=builder /app/services/api/package.json ./
+# Copy api service with its own node_modules (catches non-hoisted deps)
+COPY --from=builder /app/services/api/dist ./services/api/dist
+COPY --from=builder /app/services/api/package.json ./services/api/
+COPY --from=builder /app/services/api/node_modules ./services/api/node_modules
 # Copy root package.json (needed for workspace resolution)
 COPY --from=builder /app/package.json ./
 
 EXPOSE 8080
+WORKDIR /app/services/api
 CMD ["node", "dist/server.js"]
