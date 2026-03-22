@@ -12,11 +12,11 @@ test.describe('Navigation — Sidebar + Header', () => {
     await expect(page.locator('img[src*="prodashx"]')).toBeVisible({ timeout: 15000 })
 
     // Section labels (uppercase in sidebar)
-    await expect(page.getByText('WORKSPACES')).toBeVisible()
+    await expect(page.getByText('WORKSPACES').first()).toBeVisible()
     await expect(page.getByText('SERVICE')).toBeVisible()
 
     // APPS section
-    await expect(page.getByText('APPS')).toBeVisible()
+    await expect(page.getByText('APPS').first()).toBeVisible()
 
     // Bottom action bar labels
     await expect(page.getByText('Comms', { exact: true })).toBeVisible()

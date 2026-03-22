@@ -48,7 +48,8 @@ setup('authenticate', async ({ page }) => {
   const { idToken, refreshToken, localId } = await res.json()
 
   // Step 2: Navigate to ProDash (loads Firebase SDK + shows login page)
-  await page.goto('/')
+  // Use waitUntil: 'commit' to handle redirect chains without ERR_ABORTED
+  await page.goto('/', { waitUntil: 'commit' })
   await page.waitForLoadState('domcontentloaded')
 
   // Step 3: Inject auth state into IndexedDB (where Firebase SDK v9+ reads from)
