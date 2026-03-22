@@ -4,6 +4,10 @@ test.describe('Admin Module', () => {
   test('renders admin panel with config tabs', async ({ page }) => {
     await page.goto('/admin')
 
+    // Dismiss any overlay/splash screen that may appear on navigation
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+
     // AdminPanel has NO h1 — it renders tab buttons directly
     // Default tab is "Team Config". Wait for tab buttons to appear.
     await expect(page.getByText('Team Config')).toBeVisible({ timeout: 15000 })
@@ -13,8 +17,10 @@ test.describe('Admin Module', () => {
     await expect(page.getByText('ACF Config')).toBeVisible({ timeout: 10000 })
     await expect(page.getByText('Firestore Config')).toBeVisible({ timeout: 10000 })
 
-    // Admin description text should be present (for leaders: "Team permissions and module access audit")
-    const description = page.getByText(/permissions|module access/i)
-    await expect(description.first()).toBeVisible({ timeout: 10000 })
+    // Platform Intel tab (new addition)
+    await expect(page.getByText('Platform Intel')).toBeVisible({ timeout: 10000 })
+
+    // Role groups visible under Team Config
+    await expect(page.getByText('Owner')).toBeVisible({ timeout: 10000 })
   })
 })

@@ -4,13 +4,15 @@ test.describe('Communications Module', () => {
   test('opens slide-out panel with tabs', async ({ page }) => {
     await page.goto('/')
 
-    // Wait for sidebar to load (PortalSidebar renders as <aside>)
-    await expect(page.locator('aside')).toBeVisible({ timeout: 15000 })
+    // Dismiss any overlay/splash
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+
+    // Wait for sidebar to load
+    await expect(page.getByText('WORKSPACES')).toBeVisible({ timeout: 15000 })
 
     // Click the Comms button in the sidebar action bar (title="Communications")
-    const commsButton = page.locator('button[title="Communications"]')
-    await expect(commsButton).toBeVisible({ timeout: 10000 })
-    await commsButton.click()
+    await page.getByText('Comms', { exact: true }).click()
 
     // Slide-out panel should appear — CommsModule renders as a fixed right-0 div
     // The panel has a h2 with "Communications" text
