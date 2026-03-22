@@ -361,7 +361,32 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     }
 
     await db.collection(COLLECTION).doc(itemId).set(data)
-    // TODO: Notifications Module — notify assigned user / portal admins on new tracker items (Sprint 10+)
+
+    // TRK-13563: Create notification for new FORGE reports
+    const reporterEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+    const reporterName = (req.body.reported_by as string) || reporterEmail
+    const itemType = (req.body.type as string) || 'report'
+    const itemTitle = (req.body.title as string) || 'Untitled'
+    const itemPortal = (req.body.portal as string) || 'all'
+
+    await db.collection('notifications').add({
+      type: 'forge_report',
+      source_type: 'system',
+      title: `New FORGE Report: ${itemTitle}`,
+      body: `${reporterName} submitted a ${itemType} report: ${itemTitle}`,
+      metadata: {
+        tracker_item_id: itemId,
+        item_id: itemId,
+        type: itemType,
+        portal: itemPortal,
+        sprint_id: (req.body.sprint_id as string) || null,
+      },
+      read: false,
+      portal: 'all',
+      target_user: 'josh@retireprotected.com',
+      created_at: now,
+      created_by: reporterEmail,
+    })
 
     res.status(201).json(successResponse<unknown>({ id: itemId, ...data }))
   } catch (err) {
