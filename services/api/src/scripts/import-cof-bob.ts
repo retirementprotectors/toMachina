@@ -186,7 +186,9 @@ function lobToProductType(lob: string): string {
 function loadAndNormalize(): NormalizedClient[] {
   console.log('\n[STEP 1] Loading and normalizing XLSX...')
   const wb = XLSX.readFile('/tmp/parmenter_agency.xlsx')
-  const rows: RawRow[] = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: null })
+  // CRITICAL: raw: false forces all cells to text. Without this, phone numbers
+  // get read as floats and lose last 1-3 digits due to precision. (TRK-441)
+  const rows: RawRow[] = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { raw: false, defval: null })
   console.log(`  Loaded ${rows.length} rows from XLSX`)
 
   // Group by unique owner (first + last + DOB = client key)
