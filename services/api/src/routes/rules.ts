@@ -5,6 +5,7 @@ import {
   errorResponse,
   writeThroughBridge,
 } from '../lib/helpers.js'
+import type { AutomationRuleDTO, RulesEvaluateResult } from '@tomachina/core'
 
 export const rulesRoutes = Router()
 const COLLECTION = 'automation_rules'
@@ -33,7 +34,7 @@ rulesRoutes.get('/', async (req: Request, res: Response) => {
     const snap = await query.get()
     const rules = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse(rules, { pagination: { count: rules.length, total: rules.length } }))
+    res.json(successResponse<unknown>(rules, { pagination: { count: rules.length, total: rules.length } }))
   } catch (err) {
     console.error('GET /api/rules error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -59,7 +60,7 @@ rulesRoutes.get('/:id', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
   } catch (err) {
     console.error('GET /api/rules/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -146,7 +147,7 @@ rulesRoutes.post('/evaluate', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       evaluated: rulesSnap.size,
       fired,
       skipped,
@@ -197,7 +198,7 @@ rulesRoutes.post('/', async (req: Request, res: Response) => {
     await db.collection(COLLECTION).doc(ruleId).set(ruleData)
     await writeThroughBridge(COLLECTION, 'insert', ruleId, ruleData)
 
-    res.status(201).json(successResponse(ruleData))
+    res.status(201).json(successResponse<unknown>(ruleData))
   } catch (err) {
     console.error('POST /api/rules error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -231,7 +232,7 @@ rulesRoutes.patch('/:id', async (req: Request, res: Response) => {
     await writeThroughBridge(COLLECTION, 'update', id, updates)
 
     const updated = await docRef.get()
-    res.json(successResponse({ id: updated.id, ...updated.data() }))
+    res.json(successResponse<unknown>({ id: updated.id, ...updated.data() }))
   } catch (err) {
     console.error('PATCH /api/rules/:id error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -4,6 +4,7 @@ import {
   successResponse,
   errorResponse,
 } from '../lib/helpers.js'
+import type { SyncAgentData, SyncClientData, SyncAccountData } from '@tomachina/core'
 
 export const syncRoutes = Router()
 
@@ -61,7 +62,7 @@ syncRoutes.post('/agent', async (req: Request, res: Response) => {
       accountCount += accountSnap.size
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       agent,
       stats: {
         clients: clients.length,
@@ -145,7 +146,7 @@ syncRoutes.post('/client', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       client,
       agent,
       stats: {
@@ -244,7 +245,7 @@ syncRoutes.post('/account', async (req: Request, res: Response) => {
     const revenue = revenueSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Record<string, unknown>))
     const totalRevenue = revenue.reduce((sum, r) => sum + (parseFloat(String(r.amount)) || 0), 0)
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       account,
       client,
       agent,

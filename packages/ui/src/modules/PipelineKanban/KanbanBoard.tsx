@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useAuth } from '@tomachina/auth'
 import type { FlowInstanceData, FlowStageDef, GateResult } from '@tomachina/core'
 import { buildKanbanBoard } from '@tomachina/core'
@@ -26,17 +26,15 @@ interface StageWithGate extends FlowStageDef {
 /* ─── API Helpers ─── */
 
 async function fetchStages(apiBase: string, pipelineKey: string): Promise<StageWithGate[]> {
-  const res = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
-  if (!res.ok) throw new Error(`Failed to fetch stages: ${res.status}`)
-  const json = await res.json() as { data?: StageWithGate[] }
-  return json.data || []
+  const result = await fetchValidated<StageWithGate[]>(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
+  if (!result.success) throw new Error(result.error || 'Failed to fetch stages')
+  return result.data || []
 }
 
 async function fetchInstances(apiBase: string, pipelineKey: string): Promise<FlowInstanceData[]> {
-  const res = await fetchWithAuth(`${apiBase}/flow/instances?pipeline_key=${pipelineKey}`)
-  if (!res.ok) throw new Error(`Failed to fetch instances: ${res.status}`)
-  const json = await res.json() as { data?: FlowInstanceData[] }
-  return json.data || []
+  const result = await fetchValidated<FlowInstanceData[]>(`${apiBase}/flow/instances?pipeline_key=${pipelineKey}`)
+  if (!result.success) throw new Error(result.error || 'Failed to fetch instances')
+  return result.data || []
 }
 
 async function moveInstance(
@@ -45,7 +43,7 @@ async function moveInstance(
   targetStage: string,
   performedBy: string
 ): Promise<{ success: boolean; gate_result?: GateResult }> {
-  const res = await fetchWithAuth(`${apiBase}/flow/instances/${instanceId}`, {
+  const result = await fetchValidated<{ gate_result?: GateResult }>(`${apiBase}/flow/instances/${instanceId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -54,8 +52,7 @@ async function moveInstance(
       performed_by: performedBy,
     }),
   })
-  const json = await res.json() as { success: boolean; gate_result?: GateResult; error?: string }
-  return json
+  return { success: result.success, gate_result: result.data?.gate_result }
 }
 
 /* ─── Filter Logic ─── */

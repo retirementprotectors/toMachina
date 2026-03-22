@@ -7,6 +7,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { FirestoreConfigCollectionsData, PlatformStatusData, FirestoreHealthData } from '@tomachina/core'
 
 export const firestoreConfigRoutes = Router()
 
@@ -99,7 +100,7 @@ firestoreConfigRoutes.get('/collections', async (_req: Request, res: Response) =
       }
     })
 
-    res.json(successResponse(results))
+    res.json(successResponse<unknown>(results))
   } catch (err) {
     console.error('GET /api/firestore-config/collections error:', err)
     res.status(500).json(errorResponse('Failed to load config collections'))
@@ -109,7 +110,7 @@ firestoreConfigRoutes.get('/collections', async (_req: Request, res: Response) =
 // ─── Platform Status — all 5 asset types from build-time scan ───
 firestoreConfigRoutes.get('/platform-status', async (_req: Request, res: Response) => {
   try {
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       api_routes: PLATFORM_STATUS.api_routes || {},
       cloud_functions: PLATFORM_STATUS.cloud_functions || [],
       env_vars: PLATFORM_STATUS.env_vars || [],
@@ -150,7 +151,7 @@ firestoreConfigRoutes.get('/health', async (_req: Request, res: Response) => {
     const queues: Record<string, number> = {}
     for (const q of queueResults) queues[q.name] = q.count
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       collections: { active_clients: activeClients, households, users, active_accounts: activeAccounts },
       queues,
       dataGaps: { missing_agent: missingAgent, missing_household: missingHousehold, no_accounts: noAccounts },
@@ -202,7 +203,7 @@ firestoreConfigRoutes.put('/:collection/:docId', async (req: Request, res: Respo
 
     const updated = await docRef.get()
     const isWhitelisted = CONFIG_COLLECTIONS.includes(collectionName as typeof CONFIG_COLLECTIONS[number])
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       id: updated.id,
       ...updated.data(),
       _meta: { wired: isWhitelisted, collection: collectionName },
@@ -234,7 +235,7 @@ firestoreConfigRoutes.delete('/:collection/:docId', async (req: Request, res: Re
     }
 
     await docRef.delete()
-    res.json(successResponse({ deleted: { collection: collectionName, docId } }))
+    res.json(successResponse<unknown>({ deleted: { collection: collectionName, docId } }))
   } catch (err) {
     console.error('DELETE /api/firestore-config/:collection/:docId error:', err)
     res.status(500).json(errorResponse('Failed to delete document'))
@@ -261,7 +262,7 @@ firestoreConfigRoutes.delete('/:collection', async (req: Request, res: Response)
     const snap = await db.collection(collectionName).get()
 
     if (snap.empty) {
-      res.json(successResponse({ deleted: { collection: collectionName, count: 0 } }))
+      res.json(successResponse<unknown>({ deleted: { collection: collectionName, count: 0 } }))
       return
     }
 
@@ -283,7 +284,7 @@ firestoreConfigRoutes.delete('/:collection', async (req: Request, res: Response)
     }
 
     await Promise.all(batches.map(b => b.commit()))
-    res.json(successResponse({ deleted: { collection: collectionName, count: deleted } }))
+    res.json(successResponse<unknown>({ deleted: { collection: collectionName, count: deleted } }))
   } catch (err) {
     console.error('DELETE /api/firestore-config/:collection error:', err)
     res.status(500).json(errorResponse('Failed to delete collection'))

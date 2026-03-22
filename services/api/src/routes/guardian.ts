@@ -101,7 +101,7 @@ guardianRoutes.get('/audit-report', async (_req: Request, res: Response) => {
       },
     }
 
-    res.json(successResponse(report))
+    res.json(successResponse<unknown>(report))
   } catch (err) {
     console.error('[GUARDIAN] audit-report error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to generate audit report'))
@@ -138,7 +138,7 @@ guardianRoutes.post('/audits', async (req: Request, res: Response) => {
     }
 
     const ref = await db.collection('guardian_audits').add(audit)
-    res.status(201).json(successResponse({ id: ref.id, ...audit }))
+    res.status(201).json(successResponse<unknown>({ id: ref.id, ...audit }))
   } catch (err) {
     console.error('[GUARDIAN] create audit error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to create audit'))
@@ -156,7 +156,7 @@ guardianRoutes.get('/audits', async (req: Request, res: Response) => {
       'guardian_audits',
       params
     )
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
   } catch (err) {
     console.error('[GUARDIAN] list audits error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list audits'))
@@ -184,7 +184,7 @@ guardianRoutes.get('/audits/:id', async (req: Request, res: Response) => {
     const findings = findingsSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
     res.json(
-      successResponse({
+      successResponse<unknown>({
         id: doc.id,
         ...doc.data(),
         findings,
@@ -219,7 +219,7 @@ guardianRoutes.patch('/audits/:id', async (req: Request, res: Response) => {
 
     await docRef.update(body)
     const updated = await docRef.get()
-    res.json(successResponse({ id: updated.id, ...updated.data() }))
+    res.json(successResponse<unknown>({ id: updated.id, ...updated.data() }))
   } catch (err) {
     console.error('[GUARDIAN] update audit error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to update audit'))
@@ -275,7 +275,7 @@ guardianRoutes.post('/audits/:id/findings', async (req: Request, res: Response) 
       updated_at: now,
     })
 
-    res.status(201).json(successResponse({ id: ref.id, ...finding }))
+    res.status(201).json(successResponse<unknown>({ id: ref.id, ...finding }))
   } catch (err) {
     console.error('[GUARDIAN] create finding error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to create finding'))
@@ -295,7 +295,7 @@ guardianRoutes.get('/audits/:id/findings', async (req: Request, res: Response) =
       .get()
 
     const findings = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(findings))
+    res.json(successResponse<unknown>(findings))
   } catch (err) {
     console.error('[GUARDIAN] list findings error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list findings'))
@@ -326,7 +326,7 @@ guardianRoutes.patch('/findings/:id', async (req: Request, res: Response) => {
 
     await docRef.update(body)
     const updated = await docRef.get()
-    res.json(successResponse({ id: updated.id, ...updated.data() }))
+    res.json(successResponse<unknown>({ id: updated.id, ...updated.data() }))
   } catch (err) {
     console.error('[GUARDIAN] update finding error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to update finding'))
@@ -383,7 +383,7 @@ guardianRoutes.post('/audits/:id/phase', async (req: Request, res: Response) => 
     })
 
     res.json(
-      successResponse({
+      successResponse<unknown>({
         from: audit.phase,
         to: nextPhase,
         audit_id: auditId,
@@ -463,7 +463,7 @@ guardianRoutes.get('/health', async (_req: Request, res: Response) => {
       }
     } catch { /* non-fatal */ }
 
-    res.json(successResponse({ collections: healthCards, structural }))
+    res.json(successResponse<unknown>({ collections: healthCards, structural }))
   } catch (err) {
     console.error('[GUARDIAN] health error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to generate health cards'))
@@ -482,7 +482,7 @@ guardianRoutes.get('/writes', async (req: Request, res: Response) => {
       'guardian_writes',
       params
     )
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
   } catch (err) {
     console.error('[GUARDIAN] writes error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list writes'))
@@ -500,7 +500,7 @@ guardianRoutes.get('/alerts', async (_req: Request, res: Response) => {
       .get()
 
     const alerts = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(alerts))
+    res.json(successResponse<unknown>(alerts))
   } catch (err) {
     console.error('[GUARDIAN] alerts error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list alerts'))
@@ -519,7 +519,7 @@ guardianRoutes.get('/baselines', async (req: Request, res: Response) => {
       'data_snapshots',
       params
     )
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
   } catch (err) {
     console.error('[GUARDIAN] baselines error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to list baselines'))
@@ -543,7 +543,7 @@ guardianRoutes.post('/baselines', async (req: Request, res: Response) => {
     }
 
     const ref = await db.collection('data_snapshots').add(snapshot)
-    res.status(201).json(successResponse({ id: ref.id, ...snapshot }))
+    res.status(201).json(successResponse<unknown>({ id: ref.id, ...snapshot }))
   } catch (err) {
     console.error('[GUARDIAN] create baseline error:', (err as Error).message)
     res.status(500).json(errorResponse('Failed to create baseline'))

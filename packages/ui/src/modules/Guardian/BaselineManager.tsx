@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useToast } from '../../components/Toast'
 
 /* ─── Types ─── */
@@ -74,11 +74,9 @@ export function BaselineManager() {
   const fetchBaselines = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetchWithAuth('/api/guardian/baselines')
-      if (!res.ok) throw new Error('Failed to fetch baselines')
-      const json = await res.json() as { success: boolean; data?: Baseline[] }
-      if (json.success && json.data) {
-        setBaselines(Array.isArray(json.data) ? json.data : [])
+      const result = await fetchValidated<Baseline[]>('/api/guardian/baselines')
+      if (result.success && result.data) {
+        setBaselines(Array.isArray(result.data) ? result.data : [])
       }
     } catch {
       showToast('Failed to load baselines', 'error')
@@ -92,11 +90,11 @@ export function BaselineManager() {
   const handleCreate = useCallback(async () => {
     try {
       setCreating(true)
-      const res = await fetchWithAuth('/api/guardian/baselines', {
+      const result = await fetchValidated('/api/guardian/baselines', {
         method: 'POST',
         body: JSON.stringify({}),
       })
-      if (!res.ok) throw new Error('Failed to create baseline')
+      if (!result.success) throw new Error(result.error ?? 'Failed to create baseline')
       showToast('Baseline snapshot created', 'success')
       await fetchBaselines()
     } catch {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 /**
  * Account Documents Checklist — product-type-aware document checklist.
@@ -37,9 +37,8 @@ export function AccountDocuments({ accountId }: AccountDocumentsProps) {
   const loadDocs = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetchWithAuth(`/api/document-index/account/${accountId}`)
-      const json = await res.json()
-      if (json.success) setDocs(json.data || [])
+      const res = await fetchValidated<LinkedDoc[]>(`/api/document-index/account/${accountId}`)
+      if (res.success) setDocs(res.data || [])
     } catch {
       // Silently fail
     } finally {

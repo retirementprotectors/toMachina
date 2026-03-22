@@ -35,9 +35,7 @@ export function SendEmailDialog({ open, onClose, client, onSent }: SendEmailDial
     if (!selectedEmail || !body.trim()) return
     setSending(true)
     try {
-      // TODO: Remove ?dryRun=true once SendGrid env vars are deployed to Cloud Run
-      const dryRun = true // JDM deploys env vars manually
-      const endpoint = `/api/comms/send-email${dryRun ? '?dryRun=true' : ''}`
+      const endpoint = '/api/comms/send-email'
       const result = await apiPost(endpoint, {
         to: selectedEmail,
         subject: subject.trim() || 'No Subject',

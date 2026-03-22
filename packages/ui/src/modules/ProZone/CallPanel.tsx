@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 
 // ============================================================================
 // CallPanel — Slide-over panel for prospect calling + disposition
@@ -88,7 +88,7 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
 
     // Fire and forget — initiate the call via Twilio
     try {
-      await fetchWithAuth('/api/comms/send-voice', {
+      await fetchValidated('/api/comms/send-voice', {
         method: 'POST',
         body: JSON.stringify({
           to: prospect.phone,
@@ -115,7 +115,7 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
     setSaving(true)
 
     try {
-      await fetchWithAuth('/api/comms/log-call', {
+      await fetchValidated('/api/comms/log-call', {
         method: 'POST',
         body: JSON.stringify({
           client_id: prospect.client_id,
@@ -132,21 +132,17 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
     // TRK-13539: Disposition → pipeline stage advancement + activity logging
     try {
       // Look up active flow_instance for this client
-      const fiRes = await fetchWithAuth(
+      const fiResult = await fetchValidated<Array<{ id: string; stage_status: string; pipeline_key: string }>>(
         `/api/flow/instances?entity_id=${prospect.client_id}&entity_type=CLIENT`
       )
-      const fiJson = await fiRes.json() as {
-        success: boolean
-        data?: Array<{ id: string; stage_status: string; pipeline_key: string }>
-      }
-      if (fiJson.success && fiJson.data) {
-        const activeInstance = fiJson.data.find(
+      if (fiResult.success && fiResult.data) {
+        const activeInstance = fiResult.data.find(
           (i) => i.stage_status === 'pending' || i.stage_status === 'in_progress'
         )
         if (activeInstance) {
           // Log flow activity for ALL outcomes
           try {
-            await fetchWithAuth('/api/flow/activity', {
+            await fetchValidated('/api/flow/activity', {
               method: 'POST',
               body: JSON.stringify({
                 instance_id: activeInstance.id,
@@ -163,7 +159,7 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
           // Stage advancement for booked / not_interested
           if (outcome === 'booked' || outcome === 'not_interested') {
             const targetStage = outcome === 'booked' ? 'booked' : 'closed'
-            await fetchWithAuth(`/api/flow/instances/${activeInstance.id}`, {
+            await fetchValidated(`/api/flow/instances/${activeInstance.id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 action: 'move',

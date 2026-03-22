@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -259,12 +259,11 @@ function RegistryTab() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`${API_BASE}/que/admin/sources`)
-      const json = await res.json() as { success: boolean; data?: QueSource[]; error?: string }
-      if (json.success && json.data) {
-        setSources(Array.isArray(json.data) ? json.data : [])
+      const res = await fetchValidated<QueSource[]>(`${API_BASE}/que/admin/sources`)
+      if (res.success && res.data) {
+        setSources(Array.isArray(res.data) ? res.data : [])
       } else {
-        setError(json.error || 'Failed to load sources')
+        setError(res.error || 'Failed to load sources')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
@@ -501,14 +500,12 @@ function OpsTab() {
     setError(null)
     try {
       const [sessRes, srcRes] = await Promise.all([
-        fetchWithAuth(`${API_BASE}/que/sessions`),
-        fetchWithAuth(`${API_BASE}/que/admin/sources`),
+        fetchValidated(`${API_BASE}/que/sessions`),
+        fetchValidated(`${API_BASE}/que/admin/sources`),
       ])
-      const sessJson = await sessRes.json() as { success: boolean; data?: QueSession[]; error?: string }
-      const srcJson = await srcRes.json() as { success: boolean; data?: QueSource[]; error?: string }
-      if (sessJson.success && sessJson.data) setSessions(sessJson.data)
-      if (srcJson.success && srcJson.data) setSources(srcJson.data)
-      if (!sessJson.success && !srcJson.success) setError('Failed to load data')
+      if (sessRes.success && sessRes.data) setSessions(sessRes.data as QueSession[])
+      if (srcRes.success && srcRes.data) setSources(srcRes.data as QueSource[])
+      if (!sessRes.success && !srcRes.success) setError('Failed to load data')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {

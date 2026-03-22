@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from './fetchWithAuth'
+import { fetchValidated } from './fetchValidated'
 
 // ---------------------------------------------------------------------------
 // IntakeQueue — Admin view of the intake_queue Firestore collection
@@ -60,10 +60,9 @@ export function IntakeQueue() {
   // Fetch items from API on mount + 15s polling
   const fetchItems = useCallback(async () => {
     try {
-      const res = await fetchWithAuth('/api/intake-queue')
-      if (res.ok) {
-        const json = await res.json()
-        setItems(json.data || [])
+      const res = await fetchValidated<QueueItem[]>('/api/intake-queue')
+      if (res.success) {
+                setItems(res.data || [])
       }
     } catch {
       // Silently fail — items remain stale
@@ -87,11 +86,11 @@ export function IntakeQueue() {
   async function handleStatusUpdate(item: QueueItem, newStatus: 'APPROVED' | 'REJECTED') {
     setUpdating(true)
     try {
-      const res = await fetchWithAuth(`/api/intake-queue/${item.id || item.queue_id}`, {
+      const res = await fetchValidated(`/api/intake-queue/${item.id || item.queue_id}`, {
         method: 'PATCH',
         body: JSON.stringify({ status: newStatus }),
       })
-      if (res.ok) {
+      if (res.success) {
         setSelectedItem(null)
         await fetchItems()
       }

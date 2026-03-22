@@ -4,6 +4,7 @@ import {
   successResponse,
   errorResponse,
 } from '../lib/helpers.js'
+import type { AnalyticsListDTO, AnalyticsSummaryData, AnalyticsPushResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
 
 export const analyticsRoutes = Router()
@@ -45,7 +46,7 @@ analyticsRoutes.get('/', async (req: Request, res: Response) => {
     const snap = await query.orderBy('date', 'desc').limit(500).get()
     const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/analytics error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -148,7 +149,7 @@ analyticsRoutes.get('/summary', async (req: Request, res: Response) => {
       ...dailyTrend[d],
     }))
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       totals: {
         ...totals,
         days: dates.size,
@@ -180,7 +181,7 @@ analyticsRoutes.get('/:id', async (req: Request, res: Response) => {
       return
     }
 
-    res.json(successResponse({ id: doc.id, ...doc.data() }))
+    res.json(successResponse<unknown>({ id: doc.id, ...doc.data() }))
   } catch (err) {
     console.error('GET /api/analytics/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -223,7 +224,7 @@ analyticsRoutes.post('/', async (req: Request, res: Response) => {
         date: dateStr,
         updated_at: new Date().toISOString(),
       })
-      res.json(successResponse(data, { message: `Analytics updated for ${dateStr}` }))
+      res.json(successResponse<unknown>(data, { message: `Analytics updated for ${dateStr}` }))
       return
     }
 
@@ -233,7 +234,7 @@ analyticsRoutes.post('/', async (req: Request, res: Response) => {
     data.created_at = data.created_at || new Date().toISOString()
 
     await db.collection(COLLECTION).doc(data.analytics_id).set(data)
-    res.status(201).json(successResponse(data, { message: `Analytics pushed for ${dateStr}` }))
+    res.status(201).json(successResponse<unknown>(data, { message: `Analytics pushed for ${dateStr}` }))
   } catch (err) {
     console.error('POST /api/analytics error:', err)
     res.status(500).json(errorResponse(String(err)))

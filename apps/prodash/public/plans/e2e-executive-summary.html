@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automated Quality Assurance — What It Means For Our Team</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e2e8f0; max-width: 960px; margin: 0 auto; padding: 40px 20px; line-height: 1.7; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 16px; padding: 40px; margin-bottom: 40px; border: 1px solid #333; text-align: center; }
+  .header h1 { color: #a78bfa; font-size: 30px; margin: 0 0 8px 0; letter-spacing: -0.02em; }
+  .header .subtitle { color: #60a5fa; font-size: 16px; margin: 4px 0 0 0; font-weight: 500; }
+  .header .org { color: #64748b; font-size: 13px; margin-top: 16px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .header .badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin: 12px 4px 0; }
+  .badge-live { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
+  .badge-date { background: #3b82f622; color: #60a5fa; border: 1px solid #3b82f644; }
+
+  h2 { color: #60a5fa; font-size: 22px; margin-top: 48px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
+  h3 { color: #34d399; font-size: 17px; margin-top: 28px; }
+  p { font-size: 15px; color: #cbd5e1; }
+  strong { color: #e2e8f0; }
+
+  .problem-card { background: #dc262610; border: 1px solid #dc262633; border-radius: 12px; padding: 28px; margin: 24px 0; }
+  .problem-card h2 { color: #f87171; margin-top: 0; border: none; padding: 0; font-size: 20px; }
+  .problem-card ul { padding-left: 20px; }
+  .problem-card li { margin-bottom: 10px; color: #e2e8f0; font-size: 15px; }
+  .problem-card li strong { color: #fbbf24; }
+
+  .solution-card { background: #4ade8010; border: 1px solid #4ade8033; border-radius: 12px; padding: 28px; margin: 24px 0; }
+  .solution-card h2 { color: #4ade80; margin-top: 0; border: none; padding: 0; font-size: 20px; }
+  .solution-card ul { padding-left: 20px; }
+  .solution-card li { margin-bottom: 10px; color: #e2e8f0; font-size: 15px; }
+
+  .results-card { background: #a78bfa10; border: 1px solid #a78bfa33; border-radius: 12px; padding: 28px; margin: 24px 0; }
+  .results-card h2 { color: #a78bfa; margin-top: 0; border: none; padding: 0; font-size: 20px; }
+  .results-card .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+  .stat-box { background: #1e1e2e; border: 1px solid #333; border-radius: 10px; padding: 20px; text-align: center; }
+  .stat-box .number { font-size: 32px; font-weight: 700; color: #a78bfa; display: block; }
+  .stat-box .label { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+
+  .team-section { margin-top: 32px; }
+  .team-card { background: #1e1e2e; border: 1px solid #333; border-radius: 10px; padding: 20px; margin: 12px 0; }
+  .team-card .team-name { color: #60a5fa; font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+  .team-card p { margin: 0; font-size: 14px; color: #cbd5e1; }
+
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th, td { padding: 12px 16px; border: 1px solid #1e293b; text-align: left; font-size: 14px; }
+  th { background: #1e1e2e; color: #a78bfa; font-weight: 600; }
+  td { color: #cbd5e1; }
+  .before { color: #f87171; font-weight: 600; }
+  .after { color: #4ade80; font-weight: 600; }
+
+  .highlight { background: #fbbf2415; border: 1px solid #fbbf2433; border-radius: 8px; padding: 12px 16px; margin: 12px 0; font-size: 14px; color: #fbbf24; }
+
+  .footer { margin-top: 60px; text-align: center; padding: 32px; border-top: 1px solid #1e293b; }
+  .footer .quote { font-size: 18px; color: #a78bfa; font-style: italic; font-weight: 500; }
+  .footer .hashtag { color: #60a5fa; font-size: 14px; margin-top: 12px; letter-spacing: 0.05em; }
+  .footer .brand { color: #64748b; font-size: 12px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="org">Retirement Protectors, Inc.</div>
+  <h1>Automated Quality Assurance</h1>
+  <p class="subtitle">What It Means For Our Team</p>
+  <div>
+    <span class="badge badge-live">Live in Production</span>
+    <span class="badge badge-date">March 2026</span>
+  </div>
+</div>
+
+<!-- THE PROBLEM -->
+<div class="problem-card">
+  <h2>The Problem We Were Facing</h2>
+  <ul>
+    <li>Every time we shipped an update to ProDashX, RIIMO, or SENTINEL, there was <strong>no automated way to verify it actually worked</strong>. Someone had to go click through everything manually.</li>
+    <li>We shipped <strong>674 features across 9 sprints</strong> with zero automated verification &mdash; every one of those was a leap of faith.</li>
+    <li>After every release, the CEO had to <strong>manually click through 470+ items</strong> to make sure nothing broke. That is not a sustainable or scalable process.</li>
+    <li>Bad data could slip in completely undetected. Real example: <strong>619 client phone numbers from the CoF import were silently corrupted</strong> &mdash; the last 1-3 digits were wrong on every single one. Nobody caught it until Vinnie noticed on a live call with a client. That is unacceptable.</li>
+    <li>A single typo in code could <strong>break the entire platform</strong> and we would not know until someone complained.</li>
+  </ul>
+</div>
+
+<!-- THE SOLUTION -->
+<div class="solution-card">
+  <h2>What We Built</h2>
+  <p style="color: #e2e8f0; font-size: 15px; margin-top: 0;">The platform now <strong>tests itself</strong> before every code change goes live. Here is what that looks like:</p>
+  <ul>
+    <li><strong>12 visual checks</strong> run automatically: the system opens a real browser, logs in to ProDash, navigates to every module &mdash; Contacts, Accounts, Admin, FORGE, Pipeline Studio, Communications, RPI Connect, MyRPI, the Sidebar, and the Header &mdash; and verifies everything renders correctly. If a page is blank or broken, it catches it.</li>
+    <li><strong>4 pipeline tests</strong> verify that document processing works end-to-end: mail intake, specialist uploads, and ACF filing. These are the workflows the Service team depends on every day.</li>
+    <li><strong>Security scanning</strong> (Dependabot + CodeQL) runs continuously, monitoring our code and every software dependency for known vulnerabilities. If a security issue is found, we are alerted immediately.</li>
+  </ul>
+  <div class="highlight">
+    If ANY of these checks fail, the code cannot be deployed to production. Period. The gate is automatic and cannot be overridden.
+  </div>
+</div>
+
+<!-- THE RESULTS -->
+<div class="results-card">
+  <h2>The Results So Far</h2>
+  <div class="stat-grid">
+    <div class="stat-box">
+      <span class="number">6</span>
+      <span class="label">Code changes verified by the new pipeline</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">22</span>
+      <span class="label">Tickets shipped with full automated verification</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">1,328</span>
+      <span class="label">Lines of new code &mdash; all verified before production</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">619</span>
+      <span class="label">Corrupted phone numbers found and fixed in one batch</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">108</span>
+      <span class="label">Backend items verified programmatically by AI agents</span>
+    </div>
+    <div class="stat-box">
+      <span class="number">1</span>
+      <span class="label">New permanent rule preventing that data corruption forever</span>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT THIS MEANS FOR YOU -->
+<h2>What This Means For You</h2>
+
+<div class="team-section">
+  <div class="team-card">
+    <div class="team-name">Service Team (Nikki)</div>
+    <p>When you report a bug, it gets fixed AND a test is written so that exact bug can never come back. The platform gets smarter with every fix. Over time, that means fewer bugs reaching you in the first place.</p>
+  </div>
+  <div class="team-card">
+    <div class="team-name">Sales Team (Vinnie)</div>
+    <p>The data you rely on is verified automatically. If an import corrupts phone numbers, the system catches it before you waste time calling wrong numbers. You can trust the data in ProDash.</p>
+  </div>
+  <div class="team-card">
+    <div class="team-name">Leadership (John &amp; Shane)</div>
+    <p>Code changes are now gated by automated quality checks. Nothing reaches production without passing. This is enterprise-grade quality assurance &mdash; the same approach used by companies like Google and Amazon.</p>
+  </div>
+  <div class="team-card">
+    <div class="team-name">Everyone</div>
+    <p>Less downtime. Fewer bugs that come back. Faster fixes. And confidence that ProDashX, RIIMO, and SENTINEL work correctly every time you open them.</p>
+  </div>
+</div>
+
+<!-- THE NUMBERS -->
+<h2>By The Numbers</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Before</th>
+      <th>After</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Automated tests</td>
+      <td class="before">0</td>
+      <td class="after">16 (12 UI + 4 pipeline)</td>
+    </tr>
+    <tr>
+      <td>Code verification before deploy</td>
+      <td class="before">Type-check only</td>
+      <td class="after">Type-check + Build + E2E tests + Security scan</td>
+    </tr>
+    <tr>
+      <td>Time to verify a release</td>
+      <td class="before">~2 hours (manual)</td>
+      <td class="after">~1 minute (automated)</td>
+    </tr>
+    <tr>
+      <td>Can bad code reach production?</td>
+      <td class="before">Yes</td>
+      <td class="after">No &mdash; blocked by CI gates</td>
+    </tr>
+    <tr>
+      <td>Data import quality checks</td>
+      <td class="before">None</td>
+      <td class="after">Permanent rule blocks corrupted imports</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="quote">"The Machine doesn't just run. It watches itself run."</div>
+  <div class="hashtag">#RunningOurOwnRACE</div>
+  <div class="brand">toMachina &mdash; Retirement Protectors, Inc. &mdash; March 2026</div>
+</div>
+
+</body>
+</html>

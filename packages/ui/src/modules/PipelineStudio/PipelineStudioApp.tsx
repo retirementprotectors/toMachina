@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { FlowPipelineDef } from '@tomachina/core'
 import PipelineEditor from './PipelineEditor'
 import PipelineWizard from './PipelineWizard'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 
 // ============================================================================
 // PipelineStudioApp — Full-screen pipeline builder app shell
@@ -18,11 +18,6 @@ export interface PipelineStudioProps {
 
 type StatusFilter = 'all' | 'active' | 'draft' | 'archived'
 
-interface PipelinesResponse {
-  success: boolean
-  data?: FlowPipelineDef[]
-  error?: string
-}
 
 /* --- Status styles --- */
 
@@ -216,15 +211,14 @@ export default function PipelineStudioApp({
     try {
       setLoading(true)
       setError(null)
-      const res = await fetchWithAuth(`${apiBase}/flow/pipelines?portal=${portal.toUpperCase()}`)
-      const json: PipelinesResponse = await res.json()
+      const result = await fetchValidated<FlowPipelineDef[]>(`${apiBase}/flow/pipelines?portal=${portal.toUpperCase()}`)
 
-      if (!json.success || !json.data) {
-        setError(json.error || 'Failed to load pipelines')
+      if (!result.success || !result.data) {
+        setError(result.error || 'Failed to load pipelines')
         return
       }
 
-      setPipelines(Array.isArray(json.data) ? json.data : [])
+      setPipelines(Array.isArray(result.data) ? result.data : [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {
@@ -252,7 +246,7 @@ export default function PipelineStudioApp({
   /* --- Section assignment handler --- */
   const handleSectionChange = useCallback(async (pipelineKey: string, section: string) => {
     try {
-      await fetchWithAuth(`${apiBase}/flow/admin/pipelines/${pipelineKey}`, {
+      await fetchValidated(`${apiBase}/flow/admin/pipelines/${pipelineKey}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ assigned_section: section || null }),

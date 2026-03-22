@@ -6,6 +6,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
+import type { ConnectCalendarData, ConnectMeetResult, ConnectChannelDTO } from '@tomachina/core'
 import { getUserCalendarEvents, createQuickMeet } from '../lib/calendar-client.js'
 
 export const connectRoutes = Router()
@@ -35,7 +36,7 @@ connectRoutes.get('/calendar', async (req: Request, res: Response) => {
     }
 
     const meetings = await getUserCalendarEvents(email)
-    res.json(successResponse({ meetings, recordings: [] }))
+    res.json(successResponse<unknown>({ meetings, recordings: [] }))
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : String(err)
     // Handle Google auth expiry gracefully
@@ -66,7 +67,7 @@ connectRoutes.post('/meet', async (req: Request, res: Response) => {
     const title = body.title ? String(body.title).trim() : undefined
 
     const result = await createQuickMeet(email, title)
-    res.json(successResponse(result))
+    res.json(successResponse<unknown>(result))
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : String(err)
     if (errMsg.includes('invalid_grant') || errMsg.includes('Token has been expired')) {
@@ -102,7 +103,7 @@ connectRoutes.get('/channels', async (_req: Request, res: Response) => {
     }
 
     const channels = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-    res.json(successResponse(channels))
+    res.json(successResponse<unknown>(channels))
   } catch (err) {
     console.error('GET /api/connect/channels error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -150,7 +151,7 @@ connectRoutes.post('/channels', async (req: Request, res: Response) => {
     }
     await ref.set(data)
 
-    res.status(201).json(successResponse({ id: ref.id, ...data }))
+    res.status(201).json(successResponse<unknown>({ id: ref.id, ...data }))
   } catch (err) {
     console.error('POST /api/connect/channels error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -186,7 +187,7 @@ connectRoutes.patch('/channels/:id', async (req: Request, res: Response) => {
     }
 
     await ref.update(updates)
-    res.json(successResponse({ id, ...updates }))
+    res.json(successResponse<unknown>({ id, ...updates }))
   } catch (err) {
     console.error('PATCH /api/connect/channels/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -213,7 +214,7 @@ connectRoutes.post('/presence', async (req: Request, res: Response) => {
       last_active: FieldValue.serverTimestamp(),
     })
 
-    res.json(successResponse({ email, updated: true }))
+    res.json(successResponse<unknown>({ email, updated: true }))
   } catch (err) {
     console.error('POST /api/connect/presence error:', err)
     res.status(500).json(errorResponse(String(err)))

@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useState, useEffect } from 'react'
 import type { FlowPipelineDef } from '@tomachina/core'
 
@@ -14,11 +14,6 @@ export interface PipelineListProps {
   onSelectPipeline?: (pipelineKey: string) => void
 }
 
-interface PipelinesResponse {
-  success: boolean
-  data?: FlowPipelineDef[]
-  error?: string
-}
 
 /* ─── Status config ─── */
 
@@ -128,17 +123,16 @@ export default function PipelineList({
       try {
         setLoading(true)
         setError(null)
-        const res = await fetchWithAuth(`${apiBase}/flow/pipelines?portal=${portal}`)
-        const json: PipelinesResponse = await res.json()
+        const result = await fetchValidated<FlowPipelineDef[]>(`${apiBase}/flow/pipelines?portal=${portal}`)
 
         if (cancelled) return
 
-        if (!json.success || !json.data) {
-          setError(json.error || 'Failed to load pipelines')
+        if (!result.success || !result.data) {
+          setError(result.error || 'Failed to load pipelines')
           return
         }
 
-        setPipelines(Array.isArray(json.data) ? json.data : [])
+        setPipelines(Array.isArray(result.data) ? result.data : [])
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : 'Network error')

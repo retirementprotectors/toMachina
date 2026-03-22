@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { PipelineKanban } from '../PipelineKanban'
 
 // ============================================================================
@@ -39,12 +39,11 @@ export default function FlowTab({ portal, specialistId }: FlowTabProps) {
 
       const promises = DOMAINS.map(async (domain) => {
         try {
-          const res = await fetchWithAuth(
+          const result = await fetchValidated<Array<Record<string, unknown>>>(
             `/api/flow/instances?pipeline_key=${domain.key}&specialist_id=${specialistId}`
           )
-          const json = await res.json() as { success: boolean; data?: Array<Record<string, unknown>> }
-          if (json.success && json.data) {
-            newCounts[domain.key] = (Array.isArray(json.data) ? json.data : []).filter(
+          if (result.success && result.data) {
+            newCounts[domain.key] = (Array.isArray(result.data) ? result.data : []).filter(
               (i) => i.stage_status === 'pending' || i.stage_status === 'in_progress'
             ).length
           } else {
@@ -74,17 +73,16 @@ export default function FlowTab({ portal, specialistId }: FlowTabProps) {
 
     try {
       const domain = selectedDomain || undefined
-      const res = await fetchWithAuth('/api/prozone/enroll', {
+      const result = await fetchValidated<{ enrolled: number }>('/api/prozone/enroll', {
         method: 'POST',
         body: JSON.stringify({ specialist_id: specialistId, domain }),
       })
-      const json = await res.json() as { success: boolean; data?: { enrolled: number }; error?: string }
-      if (json.success && json.data) {
-        setEnrollResult(`${json.data.enrolled} prospects enrolled`)
+      if (result.success && result.data) {
+        setEnrollResult(`${result.data.enrolled} prospects enrolled`)
         // Refresh counts
         setTimeout(() => setEnrollResult(null), 3000)
       } else {
-        setEnrollResult(json.error || 'Enrollment failed')
+        setEnrollResult(result.error || 'Enrollment failed')
       }
     } catch {
       setEnrollResult('Network error during enrollment')

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../../fetchWithAuth'
+import { fetchValidated } from '../../fetchValidated'
 import { SolutionCategoryPicker } from '../shared/SolutionCategoryPicker'
 import type { QueProductLine } from '../types'
 
@@ -31,34 +31,31 @@ export function RecommendationStep({ sessionId, productLine, onNext, onBack }: R
     setLoading(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que/${sessionId}`)
-      if (!res.ok) {
+      const result = await fetchValidated<{
+        recommendation?: {
+          solution_category?: string
+          selected_products?: SelectedProduct[]
+          advisor_notes?: string
+        }
+        selected_quote_ids?: string[]
+        quotes?: { quote_id: string; carrier_name: string; product_name: string }[]
+      }>(`/api/que/${sessionId}`)
+      if (!result.success) {
         setLoading(false)
         return
       }
-      const body = await res.json() as {
-        success: boolean
-        data?: {
-          recommendation?: {
-            solution_category?: string
-            selected_products?: SelectedProduct[]
-            advisor_notes?: string
-          }
-          selected_quote_ids?: string[]
-          quotes?: { quote_id: string; carrier_name: string; product_name: string }[]
-        }
-      }
-      if (body.success && body.data) {
-        const rec = body.data.recommendation
+      if (result.data) {
+        const rec = result.data.recommendation
         if (rec) {
           setSolutionCategory(rec.solution_category ?? null)
           setSelectedProducts(rec.selected_products ?? [])
           setAdvisorNotes(rec.advisor_notes ?? '')
-        } else if (body.data.selected_quote_ids && body.data.quotes) {
+        } else if (result.data.selected_quote_ids && result.data.quotes) {
           // Pre-populate from selected quotes
-          const products: SelectedProduct[] = body.data.selected_quote_ids
+          const quotes = result.data.quotes
+          const products: SelectedProduct[] = result.data.selected_quote_ids
             .map((qid) => {
-              const q = body.data?.quotes?.find((x) => x.quote_id === qid)
+              const q = quotes.find((x) => x.quote_id === qid)
               return q
                 ? { quote_id: q.quote_id, carrier_name: q.carrier_name, product_name: q.product_name, rationale: '' }
                 : null
@@ -89,7 +86,7 @@ export function RecommendationStep({ sessionId, productLine, onNext, onBack }: R
     setSaving(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que/${sessionId}/recommendation`, {
+      const result = await fetchValidated(`/api/que/${sessionId}/recommendation`, {
         method: 'POST',
         body: JSON.stringify({
           solution_category: solutionCategory,
@@ -98,9 +95,8 @@ export function RecommendationStep({ sessionId, productLine, onNext, onBack }: R
           product_line: productLine,
         }),
       })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to save recommendation' }))
-        setError((body as { error?: string }).error ?? 'Failed to save recommendation')
+      if (!result.success) {
+        setError(result.error ?? 'Failed to save recommendation')
         return
       }
       onNext()

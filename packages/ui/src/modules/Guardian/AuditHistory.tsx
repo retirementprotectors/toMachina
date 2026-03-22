@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 import { useToast } from '../../components/Toast'
 
 /* ─── Types ─── */
@@ -86,11 +86,9 @@ export function AuditHistory() {
   const fetchAudits = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetchWithAuth('/api/guardian/audits')
-      if (!res.ok) throw new Error('Failed to fetch audits')
-      const json = await res.json() as { success: boolean; data?: AuditRecord[] }
-      if (json.success && json.data) {
-        setAudits(Array.isArray(json.data) ? json.data : [])
+      const result = await fetchValidated<AuditRecord[]>('/api/guardian/audits')
+      if (result.success && result.data) {
+        setAudits(Array.isArray(result.data) ? result.data : [])
       }
     } catch {
       showToast('Failed to load audit history', 'error')

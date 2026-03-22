@@ -10,7 +10,7 @@ import type {
 import StageList from './StageList'
 import DetailEditor from './DetailEditor'
 import FlowPreview from './FlowPreview'
-import { fetchWithAuth } from '../fetchWithAuth'
+import { fetchValidated } from '../fetchValidated'
 
 // ============================================================================
 // PipelineEditor — Three-panel pipeline editor
@@ -90,18 +90,16 @@ export default function PipelineEditor({
       setError(null)
 
       // Fetch pipeline metadata
-      const pipeRes = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}`)
-      const pipeJson: ApiResponse<FlowPipelineDef> = await pipeRes.json()
-      if (!pipeJson.success || !pipeJson.data) {
-        setError(pipeJson.error || 'Failed to load pipeline')
+      const pipeResult = await fetchValidated<FlowPipelineDef>(`${apiBase}/flow/pipelines/${pipelineKey}`)
+      if (!pipeResult.success || !pipeResult.data) {
+        setError(pipeResult.error || 'Failed to load pipeline')
         return
       }
-      setPipeline(pipeJson.data)
+      setPipeline(pipeResult.data)
 
       // Fetch stages
-      const stagesRes = await fetchWithAuth(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
-      const stagesJson: ApiResponse<FlowStageDef[]> = await stagesRes.json()
-      const fetchedStages = stagesJson.data || []
+      const stagesResult = await fetchValidated<FlowStageDef[]>(`${apiBase}/flow/pipelines/${pipelineKey}/stages`)
+      const fetchedStages = stagesResult.data || []
       setStages(fetchedStages)
 
       // Fetch steps and tasks for each stage
@@ -111,18 +109,16 @@ export default function PipelineEditor({
       await Promise.all(
         fetchedStages.map(async (stage) => {
           try {
-            const stepsRes = await fetchWithAuth(`${apiBase}/flow/admin/stages/${stage.stage_id}/steps?pipeline_key=${pipelineKey}`)
-            const stepsJson: ApiResponse<FlowStepDef[]> = await stepsRes.json()
-            const fetchedSteps = stepsJson.data || []
+            const stepsResult = await fetchValidated<FlowStepDef[]>(`${apiBase}/flow/admin/stages/${stage.stage_id}/steps?pipeline_key=${pipelineKey}`)
+            const fetchedSteps = stepsResult.data || []
             stepsMap[stage.stage_id] = fetchedSteps
 
             // Fetch tasks for each step
             await Promise.all(
               fetchedSteps.map(async (step) => {
                 try {
-                  const tasksRes = await fetchWithAuth(`${apiBase}/flow/admin/steps/${step.step_id}/tasks?pipeline_key=${pipelineKey}&stage_id=${stage.stage_id}`)
-                  const tasksJson: ApiResponse<FlowTaskTemplateDef[]> = await tasksRes.json()
-                  tasksMap[step.step_id] = tasksJson.data || []
+                  const tasksResult = await fetchValidated<FlowTaskTemplateDef[]>(`${apiBase}/flow/admin/steps/${step.step_id}/tasks?pipeline_key=${pipelineKey}&stage_id=${stage.stage_id}`)
+                  tasksMap[step.step_id] = tasksResult.data || []
                 } catch {
                   tasksMap[step.step_id] = []
                 }
@@ -437,20 +433,19 @@ export default function PipelineEditor({
           : { ...pipeline, updated_at: new Date().toISOString() }
 
         // Save pipeline metadata
-        const pipeRes = await fetchWithAuth(`${apiBase}/flow/admin/pipelines/${pipelineKey}`, {
+        const saveResult = await fetchValidated(`${apiBase}/flow/admin/pipelines/${pipelineKey}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(pipelineData),
         })
-        const pipeJson: ApiResponse<unknown> = await pipeRes.json()
-        if (!pipeJson.success) {
-          setSaveError(pipeJson.error || 'Failed to save pipeline')
+        if (!saveResult.success) {
+          setSaveError(saveResult.error || 'Failed to save pipeline')
           return
         }
 
         // Save stages (reorder + upsert)
         for (const stage of stages) {
-          await fetchWithAuth(`${apiBase}/flow/admin/stages/${stage.stage_id}`, {
+          await fetchValidated(`${apiBase}/flow/admin/stages/${stage.stage_id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(stage),
@@ -460,7 +455,7 @@ export default function PipelineEditor({
         // Save steps
         for (const [, stageSteps] of Object.entries(steps)) {
           for (const step of stageSteps) {
-            await fetchWithAuth(`${apiBase}/flow/admin/steps/${step.step_id}`, {
+            await fetchValidated(`${apiBase}/flow/admin/steps/${step.step_id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(step),
@@ -471,7 +466,7 @@ export default function PipelineEditor({
         // Save tasks
         for (const [, stepTasks] of Object.entries(tasks)) {
           for (const task of stepTasks) {
-            await fetchWithAuth(`${apiBase}/flow/admin/tasks/${task.task_id}`, {
+            await fetchValidated(`${apiBase}/flow/admin/tasks/${task.task_id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(task),

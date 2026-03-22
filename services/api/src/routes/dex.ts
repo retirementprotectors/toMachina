@@ -26,7 +26,7 @@ dexRoutes.post('/packages', async (req: Request, res: Response) => {
       return
     }
     // Placeholder — will wire to actual PDF generation + Drive filing in Sprint C enhancement
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       message: 'QUE output generation queued',
       session_id,
       output_types: output_types || ['summary', 'comparison', 'factfinder'],
@@ -62,7 +62,7 @@ dexRoutes.get('/forms', async (req: Request, res: Response) => {
     if (req.query.status) query = query.where('status', '==', req.query.status)
 
     const result = await paginatedQuery(query, FORMS, params)
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/dex/forms error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -83,7 +83,7 @@ dexRoutes.get('/forms/:id', async (req: Request, res: Response) => {
       .get()
     const mappings = mappingsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       form: { id: doc.id, ...doc.data() },
       mappings,
       mapping_count: mappings.length,
@@ -120,7 +120,7 @@ dexRoutes.post('/forms', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(FORMS, 'insert', id, data)
     if (!bridgeResult.success) await db.collection(FORMS).doc(id).set(data)
 
-    res.status(201).json(successResponse({ form_id: id }))
+    res.status(201).json(successResponse<unknown>({ form_id: id }))
   } catch (err) {
     console.error('POST /api/dex/forms error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -142,7 +142,7 @@ dexRoutes.patch('/forms/:id', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(FORMS, 'update', id, updates)
     if (!bridgeResult.success) await db.collection(FORMS).doc(id).update(updates)
 
-    res.json(successResponse({ form_id: id, updated: true }))
+    res.json(successResponse<unknown>({ form_id: id, updated: true }))
   } catch (err) {
     console.error('PATCH /api/dex/forms/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -171,9 +171,9 @@ dexRoutes.get('/mappings', async (req: Request, res: Response) => {
         const uxConfig = dex.buildUxConfig(mapping)
         return { ...m, _ux: uxConfig }
       })
-      res.json(successResponse(enhanced, { pagination: { count: enhanced.length, total: enhanced.length } }))
+      res.json(successResponse<unknown>(enhanced, { pagination: { count: enhanced.length, total: enhanced.length } }))
     } else {
-      res.json(successResponse(raw, { pagination: { count: raw.length, total: raw.length } }))
+      res.json(successResponse<unknown>(raw, { pagination: { count: raw.length, total: raw.length } }))
     }
   } catch (err) {
     console.error('GET /api/dex/mappings error:', err)
@@ -193,7 +193,7 @@ dexRoutes.post('/mappings', async (req: Request, res: Response) => {
     const data = { ...body, mapping_id: id, status: 'ACTIVE', created_at: now, updated_at: now }
 
     await db.collection(MAPPINGS).doc(id).set(data)
-    res.status(201).json(successResponse({ mapping_id: id }))
+    res.status(201).json(successResponse<unknown>({ mapping_id: id }))
   } catch (err) {
     console.error('POST /api/dex/mappings error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -206,7 +206,7 @@ dexRoutes.post('/mappings', async (req: Request, res: Response) => {
 
 dexRoutes.get('/mappings/presets', async (_req: Request, res: Response) => {
   try {
-    res.json(successResponse(dex.OPTION_PRESETS))
+    res.json(successResponse<unknown>(dex.OPTION_PRESETS))
   } catch (err) {
     console.error('GET /api/dex/mappings/presets error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -243,7 +243,7 @@ dexRoutes.get('/taxonomy/:type', async (req: Request, res: Response) => {
       items = dex.filterByDomain(items as Array<{ domain?: string;[key: string]: unknown }>, domain) as typeof items
     }
 
-    res.json(successResponse(items, { pagination: { count: items.length, total: items.length }, type: taxonomyType }))
+    res.json(successResponse<unknown>(items, { pagination: { count: items.length, total: items.length }, type: taxonomyType }))
   } catch (err) {
     console.error('GET /api/dex/taxonomy/:type error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -264,7 +264,7 @@ dexRoutes.get('/rules', async (req: Request, res: Response) => {
 
     const snap = await query.get()
     const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    res.json(successResponse(data, { pagination: { count: data.length, total: data.length } }))
+    res.json(successResponse<unknown>(data, { pagination: { count: data.length, total: data.length } }))
   } catch (err) {
     console.error('GET /api/dex/rules error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -283,7 +283,7 @@ dexRoutes.post('/rules', async (req: Request, res: Response) => {
     const data = { ...body, rule_id: id, status: 'ACTIVE', created_at: now, updated_at: now }
 
     await db.collection(RULES).doc(id).set(data)
-    res.status(201).json(successResponse({ rule_id: id }))
+    res.status(201).json(successResponse<unknown>({ rule_id: id }))
   } catch (err) {
     console.error('POST /api/dex/rules error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -397,7 +397,7 @@ dexRoutes.post('/kits/build', async (req: Request, res: Response) => {
     const bridgeResult = await writeThroughBridge(KITS, 'insert', kitId, kitRecord)
     if (!bridgeResult.success) await db.collection(KITS).doc(kitId).set(kitRecord)
 
-    res.status(201).json(successResponse({
+    res.status(201).json(successResponse<unknown>({
       kit_id: kitId,
       client_id: clientId,
       form_count: allForms.length,
@@ -421,7 +421,7 @@ dexRoutes.get('/kits', async (req: Request, res: Response) => {
     if (req.query.status) query = query.where('status', '==', req.query.status)
 
     const result = await paginatedQuery(query, KITS, params)
-    res.json(successResponse(result.data, { pagination: result.pagination }))
+    res.json(successResponse<unknown>(result.data, { pagination: result.pagination }))
   } catch (err) {
     console.error('GET /api/dex/kits error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -448,7 +448,7 @@ dexRoutes.get('/kits/:id', async (req: Request, res: Response) => {
       }
     }
 
-    res.json(successResponse({ kit: { id: doc.id, ...kit }, forms }))
+    res.json(successResponse<unknown>({ kit: { id: doc.id, ...kit }, forms }))
   } catch (err) {
     console.error('GET /api/dex/kits/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -512,7 +512,7 @@ dexRoutes.post('/kits/:id/fill', async (req: Request, res: Response) => {
       updated_at: new Date().toISOString(),
     })
 
-    res.json(successResponse({
+    res.json(successResponse<unknown>({
       kit_id: id,
       filled_count: filledFields.length,
       missing_count: missingFields.length,

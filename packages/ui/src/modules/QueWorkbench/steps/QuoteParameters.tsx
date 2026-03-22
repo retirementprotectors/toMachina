@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { fetchWithAuth } from '../../fetchWithAuth'
+import { fetchValidated } from '../../fetchValidated'
 import type { QueProductLine } from '../types'
 import { MedicareQuoteForm } from '../adapters/MedicareQuoteForm'
 import { LifeQuoteForm } from '../adapters/LifeQuoteForm'
@@ -23,20 +23,14 @@ export function QuoteParameters({ sessionId, productLine, onNext, onBack }: Quot
     setLoading(true)
     setError(null)
     try {
-      const res = await fetchWithAuth(`/api/que/${sessionId}/quote`, {
+      const result = await fetchValidated(`/api/que/${sessionId}/quote`, {
         method: 'POST',
         body: JSON.stringify({ parameters: params, product_line: productLine }),
       })
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: 'Failed to submit parameters' }))
-        setError((body as { error?: string }).error ?? 'Failed to submit parameters')
-        return
-      }
-      const body = await res.json() as { success: boolean; error?: string }
-      if (body.success) {
+      if (result.success) {
         onNext()
       } else {
-        setError(body.error ?? 'Unexpected error')
+        setError(result.error ?? 'Failed to submit parameters')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')

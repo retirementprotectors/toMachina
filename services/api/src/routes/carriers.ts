@@ -6,6 +6,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import type { CarrierDTO } from '@tomachina/core'
 
 export const carrierRoutes = Router()
 const COLLECTION = 'carriers'
@@ -24,7 +25,7 @@ carrierRoutes.get('/', async (req: Request, res: Response) => {
 
     const snap = await query.limit(200).get()
     const carriers = snap.docs.map((d) => stripInternalFields({ id: d.id, ...d.data() } as Record<string, unknown>))
-    res.json(successResponse(carriers, { pagination: { count: carriers.length, total: carriers.length } }))
+    res.json(successResponse<unknown>(carriers, { pagination: { count: carriers.length, total: carriers.length } }))
   } catch (err) {
     console.error('GET /api/carriers error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -37,7 +38,7 @@ carrierRoutes.get('/:id', async (req: Request, res: Response) => {
     const id = param(req.params.id)
     const doc = await db.collection(COLLECTION).doc(id).get()
     if (!doc.exists) { res.status(404).json(errorResponse('Carrier not found')); return }
-    res.json(successResponse(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
+    res.json(successResponse<unknown>(stripInternalFields({ id: doc.id, ...doc.data() } as Record<string, unknown>)))
   } catch (err) {
     console.error('GET /api/carriers/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
