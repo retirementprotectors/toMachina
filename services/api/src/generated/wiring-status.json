@@ -1,3030 +1,4655 @@
 {
-  "_": {
-    "status": "full_stack",
-    "backend": "accounts.ts",
-    "frontend": "ACFAuditAdmin.tsx",
-    "backend_endpoints": 10,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "accounts.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [
-      {
-        "file": "ACFAuditAdmin.tsx",
-        "api_calls": [
-          "/api/acf/audit",
-          "/api/acf/rebuild"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ACFConfigAdmin.tsx",
-        "api_calls": [
-          "/api/acf/config"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ACFSection.tsx",
-        "api_calls": [
-          "/api/acf/*",
-          "/api/acf/*/create",
-          "/api/acf/*/upload",
-          "/api/acf/*/move"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ACFStatusIcon.tsx",
-        "api_calls": [
-          "/api/acf/status/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "AccountDocuments.tsx",
-        "api_calls": [
-          "/api/document-index/account/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ClientDocuments.tsx",
-        "api_calls": [
-          "/api/document-index/client/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "CommsCompose.tsx",
-        "api_calls": [
-          "/api/clients?q=*&limit=10",
-          "/api/comms/send-sms",
-          "/api/comms/send-email",
-          "/api/comms/send-voice",
-          "/api/comms/log-call"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ConnectPanel.tsx",
-        "api_calls": [
-          "/api/connect/channels",
-          "/api/connect/presence",
-          "/api/connect/calendar"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "DocumentTaxonomyAdmin.tsx",
-        "api_calls": [
-          "/api/document-index/taxonomy"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "AlertFeed.tsx",
-        "api_calls": [
-          "/api/guardian/alerts",
-          "/api/guardian/alerts/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "AuditHistory.tsx",
-        "api_calls": [
-          "/api/guardian/audits"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "AuditWorkflow.tsx",
-        "api_calls": [
-          "/api/guardian/audits/*/phase"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "BaselineManager.tsx",
-        "api_calls": [
-          "/api/guardian/baselines"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "HealthOverview.tsx",
-        "api_calls": [
-          "/api/guardian/health"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "IntakeQueue.tsx",
-        "api_calls": [
-          "/api/intake-queue",
-          "/api/intake-queue/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "MyRpiProfile.tsx",
-        "api_calls": [
-          "/api/dropzone"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ApprovalDetail.tsx",
-        "api_calls": [
-          "/api/approval/batches/*/execute"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "CallPanel.tsx",
-        "api_calls": [
-          "/api/comms/send-voice",
-          "/api/comms/log-call",
-          "/api/flow/instances?entity_id=*&entity_type=CLIENT",
-          "/api/flow/activity",
-          "/api/flow/instances/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "FlowTab.tsx",
-        "api_calls": [
-          "/api/flow/instances?pipeline_key=*&specialist_id=*",
-          "/api/prozone/enroll"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "MarketTab.tsx",
-        "api_calls": [
-          "/api/specialist-configs",
-          "/api/territories"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ProZoneApp.tsx",
-        "api_calls": [
-          "/api/specialist-configs"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ProZoneScorecard.tsx",
-        "api_calls": [
-          "/api/prozone/scorecard?*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ScheduleView.tsx",
-        "api_calls": [
-          "/api/prozone/schedule/*/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "SpecialistConfigEditor.tsx",
-        "api_calls": [
-          "/api/specialist-configs",
-          "/api/territories",
-          "/api/territories/*",
-          "/api/specialist-configs/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "TargetTab.tsx",
-        "api_calls": [
-          "/api/prozone/prospects/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "TerritoryBuilder.tsx",
-        "api_calls": [
-          "/api/territories",
-          "/api/territories/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "WeekStrip.tsx",
-        "api_calls": [
-          "/api/prozone/schedule/*/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "QueSessionList.tsx",
-        "api_calls": [
-          "/api/que?product_line=*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ClientSnapshot.tsx",
-        "api_calls": [
-          "/api/que/*",
-          "/api/que"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ComparisonStep.tsx",
-        "api_calls": [
-          "/api/que/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "QuoteParameters.tsx",
-        "api_calls": [
-          "/api/que/*/quote"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "QuoteResults.tsx",
-        "api_calls": [
-          "/api/que/*",
-          "/api/que/*/quote"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "RecommendationStep.tsx",
-        "api_calls": [
-          "/api/que/*",
-          "/api/que/*/recommendation"
-        ],
-        "direct_firestore": false
-      }
-    ],
-    "portals": [
-      "prodash",
-      "riimo",
-      "sentinel"
-    ],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": [
-      "ACFAuditAdmin.tsx → accounts.ts → _",
-      "ACFConfigAdmin.tsx → accounts.ts → _",
-      "ACFSection.tsx → accounts.ts → _",
-      "ACFStatusIcon.tsx → accounts.ts → _",
-      "AccountDocuments.tsx → accounts.ts → _",
-      "ClientDocuments.tsx → accounts.ts → _",
-      "CommsCompose.tsx → accounts.ts → _",
-      "ConnectPanel.tsx → accounts.ts → _",
-      "DocumentTaxonomyAdmin.tsx → accounts.ts → _",
-      "AlertFeed.tsx → accounts.ts → _",
-      "AuditHistory.tsx → accounts.ts → _",
-      "AuditWorkflow.tsx → accounts.ts → _",
-      "BaselineManager.tsx → accounts.ts → _",
-      "HealthOverview.tsx → accounts.ts → _",
-      "IntakeQueue.tsx → accounts.ts → _",
-      "MyRpiProfile.tsx → accounts.ts → _",
-      "ApprovalDetail.tsx → accounts.ts → _",
-      "CallPanel.tsx → accounts.ts → _",
-      "FlowTab.tsx → accounts.ts → _",
-      "MarketTab.tsx → accounts.ts → _",
-      "ProZoneApp.tsx → accounts.ts → _",
-      "ProZoneScorecard.tsx → accounts.ts → _",
-      "ScheduleView.tsx → accounts.ts → _",
-      "SpecialistConfigEditor.tsx → accounts.ts → _",
-      "TargetTab.tsx → accounts.ts → _",
-      "TerritoryBuilder.tsx → accounts.ts → _",
-      "WeekStrip.tsx → accounts.ts → _",
-      "QueSessionList.tsx → accounts.ts → _",
-      "ClientSnapshot.tsx → accounts.ts → _",
-      "ComparisonStep.tsx → accounts.ts → _",
-      "QuoteParameters.tsx → accounts.ts → _",
-      "QuoteResults.tsx → accounts.ts → _",
-      "RecommendationStep.tsx → accounts.ts → _"
-    ]
+  "collections": {
+    "_": {
+      "status": "full_stack",
+      "backend": "accounts.ts",
+      "frontend": "ACFAuditAdmin.tsx",
+      "backend_endpoints": 10,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "accounts.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [
+        {
+          "file": "ACFAuditAdmin.tsx",
+          "api_calls": [
+            "/api/acf/audit",
+            "/api/acf/rebuild"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ACFConfigAdmin.tsx",
+          "api_calls": [
+            "/api/acf/config"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ACFSection.tsx",
+          "api_calls": [
+            "/api/acf/*",
+            "/api/acf/*/create",
+            "/api/acf/*/upload",
+            "/api/acf/*/move"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ACFStatusIcon.tsx",
+          "api_calls": [
+            "/api/acf/status/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "AccountDocuments.tsx",
+          "api_calls": [
+            "/api/document-index/account/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ClientDocuments.tsx",
+          "api_calls": [
+            "/api/document-index/client/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "CommsCompose.tsx",
+          "api_calls": [
+            "/api/clients?q=*&limit=10",
+            "/api/comms/send-sms",
+            "/api/comms/send-email",
+            "/api/comms/send-voice",
+            "/api/comms/log-call"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ConnectPanel.tsx",
+          "api_calls": [
+            "/api/connect/channels",
+            "/api/connect/presence",
+            "/api/connect/calendar"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "DocumentTaxonomyAdmin.tsx",
+          "api_calls": [
+            "/api/document-index/taxonomy"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "AlertFeed.tsx",
+          "api_calls": [
+            "/api/guardian/alerts",
+            "/api/guardian/alerts/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "AuditHistory.tsx",
+          "api_calls": [
+            "/api/guardian/audits"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "AuditWorkflow.tsx",
+          "api_calls": [
+            "/api/guardian/audits/*/phase"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "BaselineManager.tsx",
+          "api_calls": [
+            "/api/guardian/baselines"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "HealthOverview.tsx",
+          "api_calls": [
+            "/api/guardian/health"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "IntakeQueue.tsx",
+          "api_calls": [
+            "/api/intake-queue",
+            "/api/intake-queue/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "MyRpiProfile.tsx",
+          "api_calls": [
+            "/api/dropzone"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ApprovalDetail.tsx",
+          "api_calls": [
+            "/api/approval/batches/*/execute"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "PlatformAdmin.tsx",
+          "api_calls": [
+            "/api/firestore-config/platform-status"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "CallPanel.tsx",
+          "api_calls": [
+            "/api/comms/send-voice",
+            "/api/comms/log-call",
+            "/api/flow/instances?entity_id=*&entity_type=CLIENT",
+            "/api/flow/activity",
+            "/api/flow/instances/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "FlowTab.tsx",
+          "api_calls": [
+            "/api/flow/instances?pipeline_key=*&specialist_id=*",
+            "/api/prozone/enroll"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "MarketTab.tsx",
+          "api_calls": [
+            "/api/specialist-configs",
+            "/api/territories"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ProZoneApp.tsx",
+          "api_calls": [
+            "/api/specialist-configs"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ProZoneScorecard.tsx",
+          "api_calls": [
+            "/api/prozone/scorecard?*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ScheduleView.tsx",
+          "api_calls": [
+            "/api/prozone/schedule/*/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "SpecialistConfigEditor.tsx",
+          "api_calls": [
+            "/api/specialist-configs",
+            "/api/territories",
+            "/api/territories/*",
+            "/api/specialist-configs/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "TargetTab.tsx",
+          "api_calls": [
+            "/api/prozone/prospects/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "TerritoryBuilder.tsx",
+          "api_calls": [
+            "/api/territories",
+            "/api/territories/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "WeekStrip.tsx",
+          "api_calls": [
+            "/api/prozone/schedule/*/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "QueSessionList.tsx",
+          "api_calls": [
+            "/api/que?product_line=*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ClientSnapshot.tsx",
+          "api_calls": [
+            "/api/que/*",
+            "/api/que"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ComparisonStep.tsx",
+          "api_calls": [
+            "/api/que/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "QuoteParameters.tsx",
+          "api_calls": [
+            "/api/que/*/quote"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "QuoteResults.tsx",
+          "api_calls": [
+            "/api/que/*",
+            "/api/que/*/quote"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "RecommendationStep.tsx",
+          "api_calls": [
+            "/api/que/*",
+            "/api/que/*/recommendation"
+          ],
+          "direct_firestore": false
+        }
+      ],
+      "portals": [
+        "prodash",
+        "riimo",
+        "sentinel"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": [
+        "ACFAuditAdmin.tsx → accounts.ts → _",
+        "ACFConfigAdmin.tsx → accounts.ts → _",
+        "ACFSection.tsx → accounts.ts → _",
+        "ACFStatusIcon.tsx → accounts.ts → _",
+        "AccountDocuments.tsx → accounts.ts → _",
+        "ClientDocuments.tsx → accounts.ts → _",
+        "CommsCompose.tsx → accounts.ts → _",
+        "ConnectPanel.tsx → accounts.ts → _",
+        "DocumentTaxonomyAdmin.tsx → accounts.ts → _",
+        "AlertFeed.tsx → accounts.ts → _",
+        "AuditHistory.tsx → accounts.ts → _",
+        "AuditWorkflow.tsx → accounts.ts → _",
+        "BaselineManager.tsx → accounts.ts → _",
+        "HealthOverview.tsx → accounts.ts → _",
+        "IntakeQueue.tsx → accounts.ts → _",
+        "MyRpiProfile.tsx → accounts.ts → _",
+        "ApprovalDetail.tsx → accounts.ts → _",
+        "PlatformAdmin.tsx → accounts.ts → _",
+        "CallPanel.tsx → accounts.ts → _",
+        "FlowTab.tsx → accounts.ts → _",
+        "MarketTab.tsx → accounts.ts → _",
+        "ProZoneApp.tsx → accounts.ts → _",
+        "ProZoneScorecard.tsx → accounts.ts → _",
+        "ScheduleView.tsx → accounts.ts → _",
+        "SpecialistConfigEditor.tsx → accounts.ts → _",
+        "TargetTab.tsx → accounts.ts → _",
+        "TerritoryBuilder.tsx → accounts.ts → _",
+        "WeekStrip.tsx → accounts.ts → _",
+        "QueSessionList.tsx → accounts.ts → _",
+        "ClientSnapshot.tsx → accounts.ts → _",
+        "ComparisonStep.tsx → accounts.ts → _",
+        "QuoteParameters.tsx → accounts.ts → _",
+        "QuoteResults.tsx → accounts.ts → _",
+        "RecommendationStep.tsx → accounts.ts → _"
+      ]
+    },
+    "access_items": {
+      "status": "backend_only",
+      "backend": "ai3.ts",
+      "frontend": "",
+      "backend_endpoints": 11,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "ai3.ts",
+          "endpoints": 11,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "accounts": {
+      "status": "backend_only",
+      "backend": "access.ts",
+      "frontend": "",
+      "backend_endpoints": 233,
+      "hardcoded": false,
+      "sub_collection": true,
+      "backend_routes": [
+        {
+          "file": "access.ts",
+          "endpoints": 14,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "accounts.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "ai3.ts",
+          "endpoints": 11,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
+          "file": "approval.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "clients.ts",
+          "endpoints": 15,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "document-index.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "households.ts",
+          "endpoints": 28,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "revenue.ts",
+          "endpoints": 14,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "search.ts",
+          "endpoints": 8,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
+          "file": "spark.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "sync.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [
+        "agents",
+        "clients",
+        "commission_discrepancies",
+        "comp_grid_history",
+        "comp_grids",
+        "pipelines",
+        "revenue"
+      ],
+      "flow_paths": []
+    },
+    "accounts_investments": {
+      "status": "backend_only",
+      "backend": "import.ts",
+      "frontend": "",
+      "backend_endpoints": 61,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "accounts_life": {
+      "status": "backend_only",
+      "backend": "import.ts",
+      "frontend": "",
+      "backend_endpoints": 61,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "acf_config": {
+      "status": "full_stack",
+      "backend": "acf.ts",
+      "frontend": "ACFAuditAdmin.tsx",
+      "backend_endpoints": 24,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "acf.ts",
+          "endpoints": 24,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [
+        {
+          "file": "ACFAuditAdmin.tsx",
+          "api_calls": [
+            "/api/acf/audit",
+            "/api/acf/rebuild"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ACFConfigAdmin.tsx",
+          "api_calls": [
+            "/api/acf/config"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ACFSection.tsx",
+          "api_calls": [
+            "/api/acf/*",
+            "/api/acf/*/create",
+            "/api/acf/*/upload",
+            "/api/acf/*/move"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ACFStatusIcon.tsx",
+          "api_calls": [
+            "/api/acf/status/*"
+          ],
+          "direct_firestore": false
+        }
+      ],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": [
+        "ACFAuditAdmin.tsx → acf.ts → acf_config",
+        "ACFConfigAdmin.tsx → acf.ts → acf_config",
+        "ACFSection.tsx → acf.ts → acf_config",
+        "ACFStatusIcon.tsx → acf.ts → acf_config"
+      ]
+    },
+    "action_items": {
+      "status": "backend_only",
+      "backend": "rules.ts",
+      "frontend": "",
+      "backend_endpoints": 10,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "rules.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "activities": {
+      "status": "backend_only",
+      "backend": "acf.ts",
+      "frontend": "",
+      "backend_endpoints": 74,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "acf.ts",
+          "endpoints": 24,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "activities.ts",
+          "endpoints": 6,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "ai3.ts",
+          "endpoints": 11,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
+          "file": "approval.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "clients.ts",
+          "endpoints": 15,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "agents": {
+      "status": "backend_only",
+      "backend": "approval.ts",
+      "frontend": "",
+      "backend_endpoints": 156,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "approval.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "cam.ts",
+          "endpoints": 46,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "revenue.ts",
+          "endpoints": 14,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "sync.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "sentinel"
+      ],
+      "fk_to": [
+        "accounts",
+        "clients"
+      ],
+      "fk_from": [
+        "accounts",
+        "accounts_investments",
+        "accounts_life",
+        "approval_queue",
+        "case_tasks",
+        "clients",
+        "commission_discrepancies",
+        "comp_grid_history",
+        "comp_grids",
+        "households",
+        "intake_queue",
+        "pipelines",
+        "revenue",
+        "users"
+      ],
+      "flow_paths": []
+    },
+    "anomaly_alerts": {
+      "status": "backend_only",
+      "backend": "guardian.ts",
+      "frontend": "",
+      "backend_endpoints": 30,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "guardian.ts",
+          "endpoints": 30,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "appointments": {
+      "status": "backend_only",
+      "backend": "households.ts",
+      "frontend": "",
+      "backend_endpoints": 28,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "households.ts",
+          "endpoints": 28,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "approval_queue": {
+      "status": "backend_only",
+      "backend": "import.ts",
+      "frontend": "",
+      "backend_endpoints": 61,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "artifacts": {
+      "status": "backend_only",
+      "backend": "dex-pipeline.ts",
+      "frontend": "",
+      "backend_endpoints": 18,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "dex-pipeline.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "atlas": {
+      "status": "backend_only",
+      "backend": "atlas.ts",
+      "frontend": "",
+      "backend_endpoints": 44,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "atlas.ts",
+          "endpoints": 44,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash",
+        "riimo",
+        "sentinel"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "booking_log": {
+      "status": "backend_only",
+      "backend": "booking.ts",
+      "frontend": "",
+      "backend_endpoints": 7,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "booking.ts",
+          "endpoints": 7,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "calendar_busy": {
+      "status": "backend_only",
+      "backend": "booking.ts",
+      "frontend": "",
+      "backend_endpoints": 7,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "booking.ts",
+          "endpoints": 7,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "campaign_delivery_events": {
+      "status": "backend_only",
+      "backend": "campaign-send.ts",
+      "frontend": "",
+      "backend_endpoints": 42,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns",
+        "drip_sequences"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "campaign_enrollments": {
+      "status": "backend_only",
+      "backend": "campaign-analytics.ts",
+      "frontend": "",
+      "backend_endpoints": 59,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-analytics.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns",
+        "drip_sequences"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "campaign_jobs": {
+      "status": "backend_only",
+      "backend": "campaigns.ts",
+      "frontend": "",
+      "backend_endpoints": 12,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaigns.ts",
+          "endpoints": 12,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "campaign_schedules": {
+      "status": "backend_only",
+      "backend": "campaign-analytics.ts",
+      "frontend": "",
+      "backend_endpoints": 59,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-analytics.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns",
+        "drip_sequences"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "campaign_send_log": {
+      "status": "backend_only",
+      "backend": "campaign-send.ts",
+      "frontend": "",
+      "backend_endpoints": 50,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "webhooks.ts",
+          "endpoints": 8,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns",
+        "drip_sequences"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "campaigns": {
+      "status": "backend_only",
+      "backend": "campaign-send.ts",
+      "frontend": "",
+      "backend_endpoints": 42,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "drip_sequences"
+      ],
+      "fk_from": [
+        "campaign_delivery_events",
+        "campaign_enrollments",
+        "campaign_jobs",
+        "campaign_schedules",
+        "campaign_send_log",
+        "clients",
+        "content_blocks",
+        "drip_sequences",
+        "queued_sends",
+        "templates"
+      ],
+      "flow_paths": []
+    },
+    "case_tasks": {
+      "status": "backend_only",
+      "backend": "atlas.ts",
+      "frontend": "",
+      "backend_endpoints": 130,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "atlas.ts",
+          "endpoints": 44,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "leadership.ts",
+          "endpoints": 25,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "clients": {
+      "status": "full_stack",
+      "backend": "accounts.ts",
+      "frontend": "CommsCompose.tsx",
+      "backend_endpoints": 346,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "accounts.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "acf.ts",
+          "endpoints": 24,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "activities.ts",
+          "endpoints": 6,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "ai3.ts",
+          "endpoints": 11,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
+          "file": "approval.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "booking.ts",
+          "endpoints": 7,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "dex-pipeline.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "dex.ts",
+          "endpoints": 30,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "document-index.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "health.ts",
+          "endpoints": 2,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
+          "file": "households.ts",
+          "endpoints": 28,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "prozone.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "search.ts",
+          "endpoints": 8,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
+          "file": "spark.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "sync.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [
+        {
+          "file": "CommsCompose.tsx",
+          "api_calls": [
+            "/api/clients?q=*&limit=10",
+            "/api/clients?q=*&limit=10",
+            "/api/clients?q=*&limit=10",
+            "/api/clients?q=*&limit=10"
+          ],
+          "direct_firestore": false
+        }
+      ],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [
+        "accounts",
+        "agents",
+        "campaigns",
+        "drip_sequences"
+      ],
+      "fk_from": [
+        "accounts",
+        "accounts_investments",
+        "accounts_life",
+        "agents",
+        "approval_queue",
+        "artifacts",
+        "case_tasks",
+        "commission_discrepancies",
+        "comp_grids",
+        "document_index",
+        "document_link_config",
+        "document_taxonomy",
+        "households",
+        "intake_queue",
+        "revenue",
+        "system_meta",
+        "users"
+      ],
+      "flow_paths": [
+        "CommsCompose.tsx → accounts.ts, acf.ts, activities.ts, ai3.ts, approval.ts, booking.ts, campaign-send.ts, dex-pipeline.ts, dex.ts, document-index.ts, health.ts, households.ts, import.ts, prozone.ts, search.ts, spark.ts, sync.ts → clients"
+      ]
+    },
+    "commission_discrepancies": {
+      "status": "backend_only",
+      "backend": "cam.ts",
+      "frontend": "",
+      "backend_endpoints": 107,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "cam.ts",
+          "endpoints": 46,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "accounts",
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "communication_log": {
+      "status": "backend_only",
+      "backend": "webhooks.ts",
+      "frontend": "",
+      "backend_endpoints": 8,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "webhooks.ts",
+          "endpoints": 8,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "communications": {
+      "status": "backend_only",
+      "backend": "prozone.ts",
+      "frontend": "",
+      "backend_endpoints": 27,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "prozone.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "comp_grid_history": {
+      "status": "backend_only",
+      "backend": "cam.ts",
+      "frontend": "",
+      "backend_endpoints": 46,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "cam.ts",
+          "endpoints": 46,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "accounts",
+        "agents"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "comp_grids": {
+      "status": "backend_only",
+      "backend": "cam.ts",
+      "frontend": "",
+      "backend_endpoints": 107,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "cam.ts",
+          "endpoints": 46,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "accounts",
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "compliance_audits": {
+      "status": "backend_only",
+      "backend": "compliance.ts",
+      "frontend": "",
+      "backend_endpoints": 10,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "compliance.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "content_blocks": {
+      "status": "backend_only",
+      "backend": "templates.ts",
+      "frontend": "",
+      "backend_endpoints": 9,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "templates.ts",
+          "endpoints": 9,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "data_snapshots": {
+      "status": "backend_only",
+      "backend": "guardian.ts",
+      "frontend": "",
+      "backend_endpoints": 30,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "guardian.ts",
+          "endpoints": 30,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "dex_package_events": {
+      "status": "backend_only",
+      "backend": "webhooks.ts",
+      "frontend": "",
+      "backend_endpoints": 8,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "webhooks.ts",
+          "endpoints": 8,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "dex_packages": {
+      "status": "backend_only",
+      "backend": "webhooks.ts",
+      "frontend": "",
+      "backend_endpoints": 8,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "webhooks.ts",
+          "endpoints": 8,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "document_index": {
+      "status": "full_stack",
+      "backend": "document-index.ts",
+      "frontend": "AccountDocuments.tsx",
+      "backend_endpoints": 27,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "document-index.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [
+        {
+          "file": "AccountDocuments.tsx",
+          "api_calls": [
+            "/api/document-index/account/*",
+            "/api/document-index/account/*",
+            "/api/document-index/account/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ClientDocuments.tsx",
+          "api_calls": [
+            "/api/document-index/client/*",
+            "/api/document-index/client/*",
+            "/api/document-index/client/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "DocumentTaxonomyAdmin.tsx",
+          "api_calls": [
+            "/api/document-index/taxonomy",
+            "/api/document-index/taxonomy",
+            "/api/document-index/taxonomy"
+          ],
+          "direct_firestore": false
+        }
+      ],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": [
+        "AccountDocuments.tsx → document-index.ts → document_index",
+        "ClientDocuments.tsx → document-index.ts → document_index",
+        "DocumentTaxonomyAdmin.tsx → document-index.ts → document_index"
+      ]
+    },
+    "document_link_config": {
+      "status": "backend_only",
+      "backend": "document-index.ts",
+      "frontend": "",
+      "backend_endpoints": 27,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "document-index.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "document_taxonomy": {
+      "status": "backend_only",
+      "backend": "acf.ts",
+      "frontend": "",
+      "backend_endpoints": 51,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "acf.ts",
+          "endpoints": 24,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "document-index.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "drip_sequences": {
+      "status": "backend_only",
+      "backend": "campaign-analytics.ts",
+      "frontend": "",
+      "backend_endpoints": 59,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-analytics.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns"
+      ],
+      "fk_from": [
+        "campaign_delivery_events",
+        "campaign_enrollments",
+        "campaign_schedules",
+        "campaign_send_log",
+        "campaigns",
+        "clients",
+        "queued_sends",
+        "templates"
+      ],
+      "flow_paths": []
+    },
+    "flow_instances": {
+      "status": "backend_only",
+      "backend": "prozone.ts",
+      "frontend": "",
+      "backend_endpoints": 27,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "prozone.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "guardian_audits": {
+      "status": "backend_only",
+      "backend": "guardian.ts",
+      "frontend": "",
+      "backend_endpoints": 30,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "guardian.ts",
+          "endpoints": 30,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "guardian_findings": {
+      "status": "backend_only",
+      "backend": "guardian.ts",
+      "frontend": "",
+      "backend_endpoints": 30,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "guardian.ts",
+          "endpoints": 30,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "guardian_structural_reports": {
+      "status": "backend_only",
+      "backend": "guardian.ts",
+      "frontend": "",
+      "backend_endpoints": 30,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "guardian.ts",
+          "endpoints": 30,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "guardian_writes": {
+      "status": "backend_only",
+      "backend": "guardian.ts",
+      "frontend": "",
+      "backend_endpoints": 30,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "guardian.ts",
+          "endpoints": 30,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "households": {
+      "status": "backend_only",
+      "backend": "acf.ts",
+      "frontend": "",
+      "backend_endpoints": 102,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "acf.ts",
+          "endpoints": 24,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "activities.ts",
+          "endpoints": 6,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "ai3.ts",
+          "endpoints": 11,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "intake_queue": {
+      "status": "full_stack",
+      "backend": "acf.ts",
+      "frontend": "IntakeQueue.tsx",
+      "backend_endpoints": 118,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "acf.ts",
+          "endpoints": 24,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "document-index.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "dropzone.ts",
+          "endpoints": 1,
+          "reads": false,
+          "writes": true,
+          "operations": [
+            "create"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "intake.ts",
+          "endpoints": 5,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [
+        {
+          "file": "IntakeQueue.tsx",
+          "api_calls": [
+            "/api/intake-queue",
+            "/api/intake-queue",
+            "/api/intake-queue",
+            "/api/intake-queue/*",
+            "/api/intake-queue/*",
+            "/api/intake-queue/*"
+          ],
+          "direct_firestore": false
+        }
+      ],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": [
+        "IntakeQueue.tsx → acf.ts, document-index.ts, dropzone.ts, import.ts, intake.ts → intake_queue"
+      ]
+    },
+    "items": {
+      "status": "backend_only",
+      "backend": "atlas.ts",
+      "frontend": "",
+      "backend_endpoints": 44,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "atlas.ts",
+          "endpoints": 44,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [
+        "tracker_items"
+      ],
+      "flow_paths": []
+    },
+    "learning_library": {
+      "status": "backend_only",
+      "backend": "approval.ts",
+      "frontend": "",
+      "backend_endpoints": 18,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "approval.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "notifications": {
+      "status": "backend_only",
+      "backend": "intake.ts",
+      "frontend": "",
+      "backend_endpoints": 5,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "intake.ts",
+          "endpoints": 5,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "org": {
+      "status": "backend_only",
+      "backend": "approval.ts",
+      "frontend": "",
+      "backend_endpoints": 18,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "approval.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "pipelines": {
+      "status": "backend_only",
+      "backend": "cam.ts",
+      "frontend": "",
+      "backend_endpoints": 46,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "cam.ts",
+          "endpoints": 46,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash",
+        "riimo",
+        "sentinel"
+      ],
+      "fk_to": [
+        "accounts",
+        "agents"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "queued_sends": {
+      "status": "backend_only",
+      "backend": "campaign-send.ts",
+      "frontend": "",
+      "backend_endpoints": 42,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns",
+        "drip_sequences"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "relationships": {
+      "status": "backend_only",
+      "backend": "clients.ts",
+      "frontend": "",
+      "backend_endpoints": 15,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "clients.ts",
+          "endpoints": 15,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "revenue": {
+      "status": "backend_only",
+      "backend": "approval.ts",
+      "frontend": "",
+      "backend_endpoints": 142,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "approval.ts",
+          "endpoints": 18,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "cam.ts",
+          "endpoints": 46,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "sync.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "accounts",
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "rule_notifications": {
+      "status": "backend_only",
+      "backend": "rules.ts",
+      "frontend": "",
+      "backend_endpoints": 10,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "rules.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "spark_config": {
+      "status": "backend_only",
+      "backend": "spark.ts",
+      "frontend": "",
+      "backend_endpoints": 10,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "spark.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "specialist_configs": {
+      "status": "full_stack",
+      "backend": "prozone.ts",
+      "frontend": "MarketTab.tsx",
+      "backend_endpoints": 27,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "prozone.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [
+        {
+          "file": "MarketTab.tsx",
+          "api_calls": [
+            "/api/specialist-configs",
+            "/api/specialist-configs",
+            "/api/specialist-configs"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "ProZoneApp.tsx",
+          "api_calls": [
+            "/api/specialist-configs",
+            "/api/specialist-configs",
+            "/api/specialist-configs"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "SpecialistConfigEditor.tsx",
+          "api_calls": [
+            "/api/specialist-configs",
+            "/api/specialist-configs",
+            "/api/specialist-configs",
+            "/api/specialist-configs/*",
+            "/api/specialist-configs/*",
+            "/api/specialist-configs/*"
+          ],
+          "direct_firestore": false
+        }
+      ],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": [
+        "MarketTab.tsx → prozone.ts → specialist_configs",
+        "ProZoneApp.tsx → prozone.ts → specialist_configs",
+        "SpecialistConfigEditor.tsx → prozone.ts → specialist_configs"
+      ]
+    },
+    "system_meta": {
+      "status": "backend_only",
+      "backend": "document-index.ts",
+      "frontend": "",
+      "backend_endpoints": 27,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "document-index.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "templates": {
+      "status": "backend_only",
+      "backend": "campaign-send.ts",
+      "frontend": "",
+      "backend_endpoints": 54,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "campaign-send.ts",
+          "endpoints": 42,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "campaigns.ts",
+          "endpoints": 12,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "campaigns",
+        "drip_sequences"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "territories": {
+      "status": "full_stack",
+      "backend": "prozone.ts",
+      "frontend": "MarketTab.tsx",
+      "backend_endpoints": 27,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "prozone.ts",
+          "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [
+        {
+          "file": "MarketTab.tsx",
+          "api_calls": [
+            "/api/territories",
+            "/api/territories",
+            "/api/territories",
+            "/api/territories"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "SpecialistConfigEditor.tsx",
+          "api_calls": [
+            "/api/territories",
+            "/api/territories",
+            "/api/territories",
+            "/api/territories",
+            "/api/territories/*",
+            "/api/territories/*",
+            "/api/territories/*",
+            "/api/territories/*"
+          ],
+          "direct_firestore": false
+        },
+        {
+          "file": "TerritoryBuilder.tsx",
+          "api_calls": [
+            "/api/territories",
+            "/api/territories",
+            "/api/territories",
+            "/api/territories",
+            "/api/territories/*",
+            "/api/territories/*",
+            "/api/territories/*",
+            "/api/territories/*"
+          ],
+          "direct_firestore": false
+        }
+      ],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": [
+        "MarketTab.tsx → prozone.ts → territories",
+        "SpecialistConfigEditor.tsx → prozone.ts → territories",
+        "TerritoryBuilder.tsx → prozone.ts → territories"
+      ]
+    },
+    "tracker_items": {
+      "status": "backend_only",
+      "backend": "sprints.ts",
+      "frontend": "",
+      "backend_endpoints": 44,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "sprints.ts",
+          "endpoints": 44,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "items"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "users": {
+      "status": "backend_only",
+      "backend": "booking.ts",
+      "frontend": "",
+      "backend_endpoints": 164,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "booking.ts",
+          "endpoints": 7,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "connect.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "flow-admin.ts",
+          "endpoints": 54,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        {
+          "file": "import.ts",
+          "endpoints": 61,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "leadership.ts",
+          "endpoints": 25,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "org.ts",
+          "endpoints": 7,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [
+        "agents",
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "wire_executions": {
+      "status": "backend_only",
+      "backend": "intake.ts",
+      "frontend": "",
+      "backend_endpoints": 5,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "intake.ts",
+          "endpoints": 5,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "workspace_users": {
+      "status": "backend_only",
+      "backend": "compliance.ts",
+      "frontend": "",
+      "backend_endpoints": 10,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "compliance.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    }
   },
-  "access_items": {
-    "status": "backend_only",
-    "backend": "ai3.ts",
-    "frontend": "",
-    "backend_endpoints": 11,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "ai3.ts",
-        "endpoints": 11,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
+  "api_routes": {
+    "access.ts": {
+      "file": "access.ts",
+      "endpoints": 14,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "accounts"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "accounts.ts": {
+      "file": "accounts.ts",
+      "endpoints": 10,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "accounts",
+        "clients",
+        "_"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "acf.ts": {
+      "file": "acf.ts",
+      "endpoints": 24,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "acf_config",
+        "clients",
+        "households",
+        "activities",
+        "document_taxonomy",
+        "intake_queue"
+      ],
+      "frontend_consumers": [
+        "ACFAuditAdmin.tsx",
+        "ACFConfigAdmin.tsx",
+        "ACFSection.tsx",
+        "ACFStatusIcon.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "activities.ts": {
+      "file": "activities.ts",
+      "endpoints": 6,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "activities",
+        "clients",
+        "households"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "agents.ts": {
+      "file": "agents.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "ai3.ts": {
+      "file": "ai3.ts",
+      "endpoints": 11,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "households",
+        "clients",
+        "accounts",
+        "access_items",
+        "activities"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "analytics.ts": {
+      "file": "analytics.ts",
+      "endpoints": 8,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "approval.ts": {
+      "file": "approval.ts",
+      "endpoints": 18,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "org",
+        "learning_library",
+        "clients",
+        "accounts",
+        "agents",
+        "revenue",
+        "activities"
+      ],
+      "frontend_consumers": [
+        "ApprovalDetail.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "atlas.ts": {
+      "file": "atlas.ts",
+      "endpoints": 44,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "case_tasks",
+        "atlas",
+        "items"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "booking.ts": {
+      "file": "booking.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "users",
+        "calendar_busy",
+        "booking_log",
+        "clients"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "cam.ts": {
+      "file": "cam.ts",
+      "endpoints": 46,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "revenue",
+        "comp_grids",
+        "pipelines",
+        "commission_discrepancies",
+        "comp_grid_history",
+        "agents"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "campaign-analytics.ts": {
+      "file": "campaign-analytics.ts",
+      "endpoints": 17,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "campaign_schedules",
+        "drip_sequences",
+        "campaign_enrollments"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "campaign-send.ts": {
+      "file": "campaign-send.ts",
+      "endpoints": 42,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "templates",
+        "campaign_enrollments",
+        "queued_sends",
+        "clients",
+        "campaign_send_log",
+        "campaigns",
+        "campaign_schedules",
+        "drip_sequences",
+        "campaign_delivery_events"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "campaigns.ts": {
+      "file": "campaigns.ts",
+      "endpoints": 12,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "templates",
+        "campaign_jobs"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "carriers.ts": {
+      "file": "carriers.ts",
+      "endpoints": 4,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "case-tasks.ts": {
+      "file": "case-tasks.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "clients.ts": {
+      "file": "clients.ts",
+      "endpoints": 15,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "accounts",
+        "activities",
+        "relationships"
+      ],
+      "frontend_consumers": [
+        "CommsCompose.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "comms.ts": {
+      "file": "comms.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [
+        "CommsCompose.tsx",
+        "CallPanel.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "communications.ts": {
+      "file": "communications.ts",
+      "endpoints": 3,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "compliance.ts": {
+      "file": "compliance.ts",
+      "endpoints": 10,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "workspace_users",
+        "compliance_audits"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "connect.ts": {
+      "file": "connect.ts",
+      "endpoints": 10,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "users"
+      ],
+      "frontend_consumers": [
+        "ConnectPanel.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "content-blocks.ts": {
+      "file": "content-blocks.ts",
+      "endpoints": 8,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "dex-pipeline.ts": {
+      "file": "dex-pipeline.ts",
+      "endpoints": 18,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "clients",
+        "artifacts"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "dex.ts": {
+      "file": "dex.ts",
+      "endpoints": 30,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "clients"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "document-index.ts": {
+      "file": "document-index.ts",
+      "endpoints": 27,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "document_link_config",
+        "document_index",
+        "accounts",
+        "clients",
+        "system_meta",
+        "intake_queue",
+        "document_taxonomy"
+      ],
+      "frontend_consumers": [
+        "AccountDocuments.tsx",
+        "ClientDocuments.tsx",
+        "DocumentTaxonomyAdmin.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "dropzone.ts": {
+      "file": "dropzone.ts",
+      "endpoints": 1,
+      "operations": [
+        "create"
+      ],
+      "collections": [
+        "intake_queue"
+      ],
+      "frontend_consumers": [
+        "MyRpiProfile.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "flow-admin.ts": {
+      "file": "flow-admin.ts",
+      "endpoints": 54,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "users"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "flow.ts": {
+      "file": "flow.ts",
+      "endpoints": 26,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [
+        "CallPanel.tsx",
+        "FlowTab.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "guardian.ts": {
+      "file": "guardian.ts",
+      "endpoints": 30,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "guardian_findings",
+        "anomaly_alerts",
+        "guardian_writes",
+        "guardian_audits",
+        "guardian_structural_reports",
+        "data_snapshots"
+      ],
+      "frontend_consumers": [
+        "AlertFeed.tsx",
+        "AuditHistory.tsx",
+        "AuditWorkflow.tsx",
+        "BaselineManager.tsx",
+        "HealthOverview.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "health.ts": {
+      "file": "health.ts",
+      "endpoints": 2,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "clients"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "households.ts": {
+      "file": "households.ts",
+      "endpoints": 28,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "clients",
+        "accounts",
+        "appointments"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "import.ts": {
+      "file": "import.ts",
+      "endpoints": 61,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "clients",
+        "accounts",
+        "households",
+        "approval_queue",
+        "agents",
+        "revenue",
+        "users",
+        "case_tasks",
+        "comp_grids",
+        "commission_discrepancies",
+        "accounts_life",
+        "accounts_investments",
+        "intake_queue"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "intake-queue.ts": {
+      "file": "intake-queue.ts",
+      "endpoints": 4,
+      "operations": [
+        "list",
+        "get",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [
+        "IntakeQueue.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "intake.ts": {
+      "file": "intake.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "wire_executions",
+        "intake_queue",
+        "notifications"
+      ],
+      "frontend_consumers": [
+        "IntakeQueue.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "leadership.ts": {
+      "file": "leadership.ts",
+      "endpoints": 25,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "case_tasks",
+        "users"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "medicare-quote.ts": {
+      "file": "medicare-quote.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "opportunities.ts": {
+      "file": "opportunities.ts",
+      "endpoints": 9,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "org.ts": {
+      "file": "org.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "users"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "pipelines.ts": {
+      "file": "pipelines.ts",
+      "endpoints": 3,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "producers.ts": {
+      "file": "producers.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "products.ts": {
+      "file": "products.ts",
+      "endpoints": 4,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "prozone.ts": {
+      "file": "prozone.ts",
+      "endpoints": 27,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "specialist_configs",
+        "territories",
+        "clients",
+        "flow_instances",
+        "communications"
+      ],
+      "frontend_consumers": [
+        "FlowTab.tsx",
+        "ProZoneScorecard.tsx",
+        "ScheduleView.tsx",
+        "TargetTab.tsx",
+        "WeekStrip.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "revenue.ts": {
+      "file": "revenue.ts",
+      "endpoints": 14,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "agents",
+        "accounts"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "rules.ts": {
+      "file": "rules.ts",
+      "endpoints": 10,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [
+        "rule_notifications",
+        "action_items"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "search.ts": {
+      "file": "search.ts",
+      "endpoints": 8,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "clients",
+        "accounts"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "spark.ts": {
+      "file": "spark.ts",
+      "endpoints": 10,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "spark_config",
+        "clients",
+        "accounts"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "specialist-configs.ts": {
+      "file": "specialist-configs.ts",
+      "endpoints": 8,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [
+        "MarketTab.tsx",
+        "ProZoneApp.tsx",
+        "SpecialistConfigEditor.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "sprints.ts": {
+      "file": "sprints.ts",
+      "endpoints": 44,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "tracker_items"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "sync.ts": {
+      "file": "sync.ts",
+      "endpoints": 17,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "agents",
+        "clients",
+        "revenue",
+        "accounts"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "templates.ts": {
+      "file": "templates.ts",
+      "endpoints": 9,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [
+        "content_blocks"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "territories.ts": {
+      "file": "territories.ts",
+      "endpoints": 8,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [
+        "MarketTab.tsx",
+        "SpecialistConfigEditor.tsx",
+        "TerritoryBuilder.tsx"
+      ],
+      "status": "full_stack"
+    },
+    "tracker.ts": {
+      "file": "tracker.ts",
+      "endpoints": 26,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update",
+        "delete"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "unit-defaults.ts": {
+      "file": "unit-defaults.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "users.ts": {
+      "file": "users.ts",
+      "endpoints": 9,
+      "operations": [
+        "list",
+        "get",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "webhooks.ts": {
+      "file": "webhooks.ts",
+      "endpoints": 8,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "dex_packages",
+        "dex_package_events",
+        "campaign_send_log",
+        "communication_log"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "wire.ts": {
+      "file": "wire.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    }
   },
-  "accounts": {
-    "status": "backend_only",
-    "backend": "access.ts",
-    "frontend": "",
-    "backend_endpoints": 233,
-    "hardcoded": false,
-    "sub_collection": true,
-    "backend_routes": [
-      {
-        "file": "access.ts",
-        "endpoints": 14,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "accounts.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "ai3.ts",
-        "endpoints": 11,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get"
-        ]
-      },
-      {
-        "file": "approval.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "clients.ts",
-        "endpoints": 15,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "document-index.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "households.ts",
-        "endpoints": 28,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "revenue.ts",
-        "endpoints": 14,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "search.ts",
-        "endpoints": 8,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get"
-        ]
-      },
-      {
-        "file": "spark.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "sync.ts",
-        "endpoints": 17,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [
-      "agents",
-      "clients",
-      "commission_discrepancies",
-      "comp_grid_history",
-      "comp_grids",
-      "pipelines",
-      "revenue"
-    ],
-    "flow_paths": []
-  },
-  "accounts_investments": {
-    "status": "backend_only",
-    "backend": "import.ts",
-    "frontend": "",
-    "backend_endpoints": 61,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "accounts_life": {
-    "status": "backend_only",
-    "backend": "import.ts",
-    "frontend": "",
-    "backend_endpoints": 61,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "acf_config": {
-    "status": "full_stack",
-    "backend": "acf.ts",
-    "frontend": "ACFAuditAdmin.tsx",
-    "backend_endpoints": 24,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "acf.ts",
-        "endpoints": 24,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [
-      {
-        "file": "ACFAuditAdmin.tsx",
-        "api_calls": [
-          "/api/acf/audit",
-          "/api/acf/rebuild"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ACFConfigAdmin.tsx",
-        "api_calls": [
-          "/api/acf/config"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ACFSection.tsx",
-        "api_calls": [
-          "/api/acf/*",
-          "/api/acf/*/create",
-          "/api/acf/*/upload",
-          "/api/acf/*/move"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ACFStatusIcon.tsx",
-        "api_calls": [
-          "/api/acf/status/*"
-        ],
-        "direct_firestore": false
-      }
-    ],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": [
-      "ACFAuditAdmin.tsx → acf.ts → acf_config",
-      "ACFConfigAdmin.tsx → acf.ts → acf_config",
-      "ACFSection.tsx → acf.ts → acf_config",
-      "ACFStatusIcon.tsx → acf.ts → acf_config"
-    ]
-  },
-  "action_items": {
-    "status": "backend_only",
-    "backend": "rules.ts",
-    "frontend": "",
-    "backend_endpoints": 10,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "rules.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "activities": {
-    "status": "backend_only",
-    "backend": "acf.ts",
-    "frontend": "",
-    "backend_endpoints": 74,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "acf.ts",
-        "endpoints": 24,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "activities.ts",
-        "endpoints": 6,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "ai3.ts",
-        "endpoints": 11,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get"
-        ]
-      },
-      {
-        "file": "approval.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "clients.ts",
-        "endpoints": 15,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "agents": {
-    "status": "backend_only",
-    "backend": "approval.ts",
-    "frontend": "",
-    "backend_endpoints": 156,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "approval.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "cam.ts",
-        "endpoints": 46,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "revenue.ts",
-        "endpoints": 14,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "sync.ts",
-        "endpoints": 17,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "sentinel"
-    ],
-    "fk_to": [
-      "accounts",
-      "clients"
-    ],
-    "fk_from": [
-      "accounts",
-      "accounts_investments",
-      "accounts_life",
-      "approval_queue",
-      "case_tasks",
-      "clients",
-      "commission_discrepancies",
-      "comp_grid_history",
-      "comp_grids",
-      "households",
-      "intake_queue",
-      "pipelines",
-      "revenue",
-      "users"
-    ],
-    "flow_paths": []
-  },
-  "anomaly_alerts": {
-    "status": "backend_only",
-    "backend": "guardian.ts",
-    "frontend": "",
-    "backend_endpoints": 30,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "guardian.ts",
-        "endpoints": 30,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "appointments": {
-    "status": "backend_only",
-    "backend": "households.ts",
-    "frontend": "",
-    "backend_endpoints": 28,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "households.ts",
-        "endpoints": 28,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "approval_queue": {
-    "status": "backend_only",
-    "backend": "import.ts",
-    "frontend": "",
-    "backend_endpoints": 61,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "artifacts": {
-    "status": "backend_only",
-    "backend": "dex-pipeline.ts",
-    "frontend": "",
-    "backend_endpoints": 18,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "dex-pipeline.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "atlas": {
-    "status": "backend_only",
-    "backend": "atlas.ts",
-    "frontend": "",
-    "backend_endpoints": 44,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "atlas.ts",
-        "endpoints": 44,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash",
-      "riimo",
-      "sentinel"
-    ],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "booking_log": {
-    "status": "backend_only",
-    "backend": "booking.ts",
-    "frontend": "",
-    "backend_endpoints": 7,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "booking.ts",
-        "endpoints": 7,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "calendar_busy": {
-    "status": "backend_only",
-    "backend": "booking.ts",
-    "frontend": "",
-    "backend_endpoints": 7,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "booking.ts",
-        "endpoints": 7,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "campaign_delivery_events": {
-    "status": "backend_only",
-    "backend": "campaign-send.ts",
-    "frontend": "",
-    "backend_endpoints": 42,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns",
-      "drip_sequences"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "campaign_enrollments": {
-    "status": "backend_only",
-    "backend": "campaign-analytics.ts",
-    "frontend": "",
-    "backend_endpoints": 59,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-analytics.ts",
-        "endpoints": 17,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns",
-      "drip_sequences"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "campaign_jobs": {
-    "status": "backend_only",
-    "backend": "campaigns.ts",
-    "frontend": "",
-    "backend_endpoints": 12,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaigns.ts",
-        "endpoints": 12,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "campaign_schedules": {
-    "status": "backend_only",
-    "backend": "campaign-analytics.ts",
-    "frontend": "",
-    "backend_endpoints": 59,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-analytics.ts",
-        "endpoints": 17,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns",
-      "drip_sequences"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "campaign_send_log": {
-    "status": "backend_only",
-    "backend": "campaign-send.ts",
-    "frontend": "",
-    "backend_endpoints": 50,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "webhooks.ts",
-        "endpoints": 8,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns",
-      "drip_sequences"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "campaigns": {
-    "status": "backend_only",
-    "backend": "campaign-send.ts",
-    "frontend": "",
-    "backend_endpoints": 42,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "drip_sequences"
-    ],
-    "fk_from": [
-      "campaign_delivery_events",
-      "campaign_enrollments",
-      "campaign_jobs",
-      "campaign_schedules",
-      "campaign_send_log",
-      "clients",
-      "content_blocks",
-      "drip_sequences",
-      "queued_sends",
-      "templates"
-    ],
-    "flow_paths": []
-  },
-  "case_tasks": {
-    "status": "backend_only",
-    "backend": "atlas.ts",
-    "frontend": "",
-    "backend_endpoints": 130,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "atlas.ts",
-        "endpoints": 44,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "leadership.ts",
-        "endpoints": 25,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "clients": {
-    "status": "full_stack",
-    "backend": "accounts.ts",
-    "frontend": "CommsCompose.tsx",
-    "backend_endpoints": 346,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "accounts.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "acf.ts",
-        "endpoints": 24,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "activities.ts",
-        "endpoints": 6,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "ai3.ts",
-        "endpoints": 11,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get"
-        ]
-      },
-      {
-        "file": "approval.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "booking.ts",
-        "endpoints": 7,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "dex-pipeline.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "dex.ts",
-        "endpoints": 30,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "document-index.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "health.ts",
-        "endpoints": 2,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get"
-        ]
-      },
-      {
-        "file": "households.ts",
-        "endpoints": 28,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "prozone.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "search.ts",
-        "endpoints": 8,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get"
-        ]
-      },
-      {
-        "file": "spark.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "sync.ts",
-        "endpoints": 17,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [
-      {
-        "file": "CommsCompose.tsx",
-        "api_calls": [
-          "/api/clients?q=*&limit=10",
-          "/api/clients?q=*&limit=10",
-          "/api/clients?q=*&limit=10",
-          "/api/clients?q=*&limit=10"
-        ],
-        "direct_firestore": false
-      }
-    ],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [
-      "accounts",
-      "agents",
-      "campaigns",
-      "drip_sequences"
-    ],
-    "fk_from": [
-      "accounts",
-      "accounts_investments",
-      "accounts_life",
-      "agents",
-      "approval_queue",
-      "artifacts",
-      "case_tasks",
-      "commission_discrepancies",
-      "comp_grids",
-      "document_index",
-      "document_link_config",
-      "document_taxonomy",
-      "households",
-      "intake_queue",
-      "revenue",
-      "system_meta",
-      "users"
-    ],
-    "flow_paths": [
-      "CommsCompose.tsx → accounts.ts, acf.ts, activities.ts, ai3.ts, approval.ts, booking.ts, campaign-send.ts, dex-pipeline.ts, dex.ts, document-index.ts, health.ts, households.ts, import.ts, prozone.ts, search.ts, spark.ts, sync.ts → clients"
-    ]
-  },
-  "commission_discrepancies": {
-    "status": "backend_only",
-    "backend": "cam.ts",
-    "frontend": "",
-    "backend_endpoints": 107,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "cam.ts",
-        "endpoints": 46,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "accounts",
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "communication_log": {
-    "status": "backend_only",
-    "backend": "webhooks.ts",
-    "frontend": "",
-    "backend_endpoints": 8,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "webhooks.ts",
-        "endpoints": 8,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "communications": {
-    "status": "backend_only",
-    "backend": "prozone.ts",
-    "frontend": "",
-    "backend_endpoints": 27,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "prozone.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "comp_grid_history": {
-    "status": "backend_only",
-    "backend": "cam.ts",
-    "frontend": "",
-    "backend_endpoints": 46,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "cam.ts",
-        "endpoints": 46,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "accounts",
-      "agents"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "comp_grids": {
-    "status": "backend_only",
-    "backend": "cam.ts",
-    "frontend": "",
-    "backend_endpoints": 107,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "cam.ts",
-        "endpoints": 46,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "accounts",
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "compliance_audits": {
-    "status": "backend_only",
-    "backend": "compliance.ts",
-    "frontend": "",
-    "backend_endpoints": 10,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "compliance.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "content_blocks": {
-    "status": "backend_only",
-    "backend": "templates.ts",
-    "frontend": "",
-    "backend_endpoints": 9,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "templates.ts",
-        "endpoints": 9,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "data_snapshots": {
-    "status": "backend_only",
-    "backend": "guardian.ts",
-    "frontend": "",
-    "backend_endpoints": 30,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "guardian.ts",
-        "endpoints": 30,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "dex_package_events": {
-    "status": "backend_only",
-    "backend": "webhooks.ts",
-    "frontend": "",
-    "backend_endpoints": 8,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "webhooks.ts",
-        "endpoints": 8,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "dex_packages": {
-    "status": "backend_only",
-    "backend": "webhooks.ts",
-    "frontend": "",
-    "backend_endpoints": 8,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "webhooks.ts",
-        "endpoints": 8,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "document_index": {
-    "status": "full_stack",
-    "backend": "document-index.ts",
-    "frontend": "AccountDocuments.tsx",
-    "backend_endpoints": 27,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "document-index.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [
-      {
-        "file": "AccountDocuments.tsx",
-        "api_calls": [
-          "/api/document-index/account/*",
-          "/api/document-index/account/*",
-          "/api/document-index/account/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ClientDocuments.tsx",
-        "api_calls": [
-          "/api/document-index/client/*",
-          "/api/document-index/client/*",
-          "/api/document-index/client/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "DocumentTaxonomyAdmin.tsx",
-        "api_calls": [
-          "/api/document-index/taxonomy",
-          "/api/document-index/taxonomy",
-          "/api/document-index/taxonomy"
-        ],
-        "direct_firestore": false
-      }
-    ],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": [
-      "AccountDocuments.tsx → document-index.ts → document_index",
-      "ClientDocuments.tsx → document-index.ts → document_index",
-      "DocumentTaxonomyAdmin.tsx → document-index.ts → document_index"
-    ]
-  },
-  "document_link_config": {
-    "status": "backend_only",
-    "backend": "document-index.ts",
-    "frontend": "",
-    "backend_endpoints": 27,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "document-index.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "document_taxonomy": {
-    "status": "backend_only",
-    "backend": "acf.ts",
-    "frontend": "",
-    "backend_endpoints": 51,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "acf.ts",
-        "endpoints": 24,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "document-index.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "drip_sequences": {
-    "status": "backend_only",
-    "backend": "campaign-analytics.ts",
-    "frontend": "",
-    "backend_endpoints": 59,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-analytics.ts",
-        "endpoints": 17,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns"
-    ],
-    "fk_from": [
-      "campaign_delivery_events",
-      "campaign_enrollments",
-      "campaign_schedules",
-      "campaign_send_log",
-      "campaigns",
-      "clients",
-      "queued_sends",
-      "templates"
-    ],
-    "flow_paths": []
-  },
-  "flow_instances": {
-    "status": "backend_only",
-    "backend": "prozone.ts",
-    "frontend": "",
-    "backend_endpoints": 27,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "prozone.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "guardian_audits": {
-    "status": "backend_only",
-    "backend": "guardian.ts",
-    "frontend": "",
-    "backend_endpoints": 30,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "guardian.ts",
-        "endpoints": 30,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "guardian_findings": {
-    "status": "backend_only",
-    "backend": "guardian.ts",
-    "frontend": "",
-    "backend_endpoints": 30,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "guardian.ts",
-        "endpoints": 30,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "guardian_structural_reports": {
-    "status": "backend_only",
-    "backend": "guardian.ts",
-    "frontend": "",
-    "backend_endpoints": 30,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "guardian.ts",
-        "endpoints": 30,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "guardian_writes": {
-    "status": "backend_only",
-    "backend": "guardian.ts",
-    "frontend": "",
-    "backend_endpoints": 30,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "guardian.ts",
-        "endpoints": 30,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "households": {
-    "status": "backend_only",
-    "backend": "acf.ts",
-    "frontend": "",
-    "backend_endpoints": 102,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "acf.ts",
-        "endpoints": 24,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "activities.ts",
-        "endpoints": 6,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "ai3.ts",
-        "endpoints": 11,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "intake_queue": {
-    "status": "full_stack",
-    "backend": "acf.ts",
-    "frontend": "IntakeQueue.tsx",
-    "backend_endpoints": 118,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "acf.ts",
-        "endpoints": 24,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "document-index.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "dropzone.ts",
-        "endpoints": 1,
-        "reads": false,
-        "writes": true,
-        "operations": [
-          "create"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "intake.ts",
-        "endpoints": 5,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [
-      {
-        "file": "IntakeQueue.tsx",
-        "api_calls": [
-          "/api/intake-queue",
-          "/api/intake-queue",
-          "/api/intake-queue",
-          "/api/intake-queue/*",
-          "/api/intake-queue/*",
-          "/api/intake-queue/*"
-        ],
-        "direct_firestore": false
-      }
-    ],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": [
-      "IntakeQueue.tsx → acf.ts, document-index.ts, dropzone.ts, import.ts, intake.ts → intake_queue"
-    ]
-  },
-  "items": {
-    "status": "backend_only",
-    "backend": "atlas.ts",
-    "frontend": "",
-    "backend_endpoints": 44,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "atlas.ts",
-        "endpoints": 44,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [
-      "tracker_items"
-    ],
-    "flow_paths": []
-  },
-  "learning_library": {
-    "status": "backend_only",
-    "backend": "approval.ts",
-    "frontend": "",
-    "backend_endpoints": 18,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "approval.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "notifications": {
-    "status": "backend_only",
-    "backend": "intake.ts",
-    "frontend": "",
-    "backend_endpoints": 5,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "intake.ts",
-        "endpoints": 5,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "org": {
-    "status": "backend_only",
-    "backend": "approval.ts",
-    "frontend": "",
-    "backend_endpoints": 18,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "approval.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "pipelines": {
-    "status": "backend_only",
-    "backend": "cam.ts",
-    "frontend": "",
-    "backend_endpoints": 46,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "cam.ts",
-        "endpoints": 46,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash",
-      "riimo",
-      "sentinel"
-    ],
-    "fk_to": [
-      "accounts",
-      "agents"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "queued_sends": {
-    "status": "backend_only",
-    "backend": "campaign-send.ts",
-    "frontend": "",
-    "backend_endpoints": 42,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns",
-      "drip_sequences"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "relationships": {
-    "status": "backend_only",
-    "backend": "clients.ts",
-    "frontend": "",
-    "backend_endpoints": 15,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "clients.ts",
-        "endpoints": 15,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "revenue": {
-    "status": "backend_only",
-    "backend": "approval.ts",
-    "frontend": "",
-    "backend_endpoints": 142,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "approval.ts",
-        "endpoints": 18,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "cam.ts",
-        "endpoints": 46,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "sync.ts",
-        "endpoints": 17,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "accounts",
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "rule_notifications": {
-    "status": "backend_only",
-    "backend": "rules.ts",
-    "frontend": "",
-    "backend_endpoints": 10,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "rules.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "spark_config": {
-    "status": "backend_only",
-    "backend": "spark.ts",
-    "frontend": "",
-    "backend_endpoints": 10,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "spark.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "specialist_configs": {
-    "status": "full_stack",
-    "backend": "prozone.ts",
-    "frontend": "MarketTab.tsx",
-    "backend_endpoints": 27,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "prozone.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [
-      {
-        "file": "MarketTab.tsx",
-        "api_calls": [
-          "/api/specialist-configs",
-          "/api/specialist-configs",
-          "/api/specialist-configs"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "ProZoneApp.tsx",
-        "api_calls": [
-          "/api/specialist-configs",
-          "/api/specialist-configs",
-          "/api/specialist-configs"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "SpecialistConfigEditor.tsx",
-        "api_calls": [
-          "/api/specialist-configs",
-          "/api/specialist-configs",
-          "/api/specialist-configs",
-          "/api/specialist-configs/*",
-          "/api/specialist-configs/*",
-          "/api/specialist-configs/*"
-        ],
-        "direct_firestore": false
-      }
-    ],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": [
-      "MarketTab.tsx → prozone.ts → specialist_configs",
-      "ProZoneApp.tsx → prozone.ts → specialist_configs",
-      "SpecialistConfigEditor.tsx → prozone.ts → specialist_configs"
-    ]
-  },
-  "system_meta": {
-    "status": "backend_only",
-    "backend": "document-index.ts",
-    "frontend": "",
-    "backend_endpoints": 27,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "document-index.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "templates": {
-    "status": "backend_only",
-    "backend": "campaign-send.ts",
-    "frontend": "",
-    "backend_endpoints": 54,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "campaign-send.ts",
-        "endpoints": 42,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "campaigns.ts",
-        "endpoints": 12,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "campaigns",
-      "drip_sequences"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "territories": {
-    "status": "full_stack",
-    "backend": "prozone.ts",
-    "frontend": "MarketTab.tsx",
-    "backend_endpoints": 27,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "prozone.ts",
-        "endpoints": 27,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [
-      {
-        "file": "MarketTab.tsx",
-        "api_calls": [
-          "/api/territories",
-          "/api/territories",
-          "/api/territories",
-          "/api/territories"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "SpecialistConfigEditor.tsx",
-        "api_calls": [
-          "/api/territories",
-          "/api/territories",
-          "/api/territories",
-          "/api/territories",
-          "/api/territories/*",
-          "/api/territories/*",
-          "/api/territories/*",
-          "/api/territories/*"
-        ],
-        "direct_firestore": false
-      },
-      {
-        "file": "TerritoryBuilder.tsx",
-        "api_calls": [
-          "/api/territories",
-          "/api/territories",
-          "/api/territories",
-          "/api/territories",
-          "/api/territories/*",
-          "/api/territories/*",
-          "/api/territories/*",
-          "/api/territories/*"
-        ],
-        "direct_firestore": false
-      }
-    ],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": [
-      "MarketTab.tsx → prozone.ts → territories",
-      "SpecialistConfigEditor.tsx → prozone.ts → territories",
-      "TerritoryBuilder.tsx → prozone.ts → territories"
-    ]
-  },
-  "tracker_items": {
-    "status": "backend_only",
-    "backend": "sprints.ts",
-    "frontend": "",
-    "backend_endpoints": 44,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "sprints.ts",
-        "endpoints": 44,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [
-      "items"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "users": {
-    "status": "backend_only",
-    "backend": "booking.ts",
-    "frontend": "",
-    "backend_endpoints": 164,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "booking.ts",
-        "endpoints": 7,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "connect.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "flow-admin.ts",
-        "endpoints": 54,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update",
-          "delete"
-        ]
-      },
-      {
-        "file": "import.ts",
-        "endpoints": 61,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      },
-      {
-        "file": "leadership.ts",
-        "endpoints": 25,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create",
-          "update"
-        ]
-      },
-      {
-        "file": "org.ts",
-        "endpoints": 7,
-        "reads": true,
-        "writes": false,
-        "operations": [
-          "list",
-          "get"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [
-      "prodash"
-    ],
-    "fk_to": [
-      "agents",
-      "clients"
-    ],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "wire_executions": {
-    "status": "backend_only",
-    "backend": "intake.ts",
-    "frontend": "",
-    "backend_endpoints": 5,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "intake.ts",
-        "endpoints": 5,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
-  },
-  "workspace_users": {
-    "status": "backend_only",
-    "backend": "compliance.ts",
-    "frontend": "",
-    "backend_endpoints": 10,
-    "hardcoded": false,
-    "sub_collection": false,
-    "backend_routes": [
-      {
-        "file": "compliance.ts",
-        "endpoints": 10,
-        "reads": true,
-        "writes": true,
-        "operations": [
-          "list",
-          "get",
-          "create"
-        ]
-      }
-    ],
-    "frontend_components": [],
-    "portals": [],
-    "fk_to": [],
-    "fk_from": [],
-    "flow_paths": []
+  "cloud_functions": [
+    {
+      "name": "spcIntake",
+      "type": "http",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "meetIntake",
+      "type": "http",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "mailIntake",
+      "type": "http",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "emailIntake",
+      "type": "http",
+      "region": "us-central1",
+      "memory": "512MiB",
+      "timeout": 180,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "commissionIntake",
+      "type": "http",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "queueStatus",
+      "type": "http",
+      "region": "us-central1",
+      "memory": "128MiB",
+      "timeout": 30,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "spcIntakeScheduled",
+      "type": "scheduled",
+      "schedule": "every 5 minutes",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "meetIntakeScheduled",
+      "type": "scheduled",
+      "schedule": "every 5 minutes",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "mailIntakeScheduled",
+      "type": "scheduled",
+      "schedule": "every 5 minutes",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "emailIntakeScheduled",
+      "type": "scheduled",
+      "schedule": "every 5 minutes",
+      "region": "us-central1",
+      "memory": "512MiB",
+      "timeout": 180,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "commissionIntakeScheduled",
+      "type": "scheduled",
+      "schedule": "every 5 minutes",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 120,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
+      "name": "onClientWrite",
+      "type": "firestore_trigger",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 60,
+      "source_file": "notification-triggers.ts",
+      "description": "Creates notification on client write"
+    },
+    {
+      "name": "onAccountWrite",
+      "type": "firestore_trigger",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 60,
+      "source_file": "notification-triggers.ts",
+      "description": "Creates notification on account write"
+    },
+    {
+      "name": "onIntakeQueueCreated",
+      "type": "firestore_trigger",
+      "region": "us-central1",
+      "memory": "256MiB",
+      "timeout": 60,
+      "source_file": "wire-trigger.ts",
+      "description": "Processes intake_queue entries through wire executor"
+    }
+  ],
+  "env_vars": [
+    {
+      "name": "CSG_API_KEY",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "DOCUSIGN_ACCOUNT_ID",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "DOCUSIGN_BASE_URI",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "DOCUSIGN_INTEGRATION_KEY",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "DOCUSIGN_PRIVATE_KEY",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "DOCUSIGN_USER_ID",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "GODADDY_API_KEY",
+      "services": [
+        "root"
+      ],
+      "has_value": false,
+      "source": "env_example",
+      "sensitive": true
+    },
+    {
+      "name": "GODADDY_API_SECRET",
+      "services": [
+        "root"
+      ],
+      "has_value": false,
+      "source": "env_example",
+      "sensitive": true
+    },
+    {
+      "name": "GODADDY_DOMAIN",
+      "services": [
+        "root"
+      ],
+      "has_value": true,
+      "source": "env_example",
+      "sensitive": false
+    },
+    {
+      "name": "HOSTNAME",
+      "services": [
+        "prodash",
+        "riimo",
+        "sentinel"
+      ],
+      "has_value": false,
+      "source": "dockerfile",
+      "sensitive": false
+    },
+    {
+      "name": "NEXT_PUBLIC_FIREBASE_API_KEY",
+      "services": [
+        "root",
+        "prodash"
+      ],
+      "has_value": false,
+      "source": "env_example",
+      "sensitive": true
+    },
+    {
+      "name": "NEXT_PUBLIC_FIREBASE_APP_ID",
+      "services": [
+        "root",
+        "prodash"
+      ],
+      "has_value": false,
+      "source": "env_example",
+      "sensitive": false
+    },
+    {
+      "name": "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+      "services": [
+        "root",
+        "prodash"
+      ],
+      "has_value": true,
+      "source": "env_example",
+      "sensitive": false
+    },
+    {
+      "name": "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+      "services": [
+        "root",
+        "prodash"
+      ],
+      "has_value": true,
+      "source": "env_example",
+      "sensitive": false
+    },
+    {
+      "name": "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+      "services": [
+        "root",
+        "prodash"
+      ],
+      "has_value": true,
+      "source": "env_example",
+      "sensitive": false
+    },
+    {
+      "name": "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+      "services": [
+        "root",
+        "prodash"
+      ],
+      "has_value": true,
+      "source": "env_example",
+      "sensitive": false
+    },
+    {
+      "name": "NODE_ENV",
+      "services": [
+        "api",
+        "bridge",
+        "prodash",
+        "riimo",
+        "sentinel"
+      ],
+      "has_value": false,
+      "source": "dockerfile",
+      "sensitive": false
+    },
+    {
+      "name": "PDF_SERVICE_URL",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "PORT",
+      "services": [
+        "api",
+        "bridge",
+        "prodash",
+        "riimo",
+        "sentinel"
+      ],
+      "has_value": false,
+      "source": "dockerfile",
+      "sensitive": false
+    },
+    {
+      "name": "PRODASH_URL",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "REPO_DIR",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "SENDGRID_API_KEY",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "SENDGRID_FROM_EMAIL",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "SENDGRID_FROM_NAME",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "SLACK_BOT_TOKEN",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "TWILIO_ACCOUNT_SID",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "TWILIO_AUTH_TOKEN",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "TWILIO_PHONE_NUMBER",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "TWILIO_SMS_NUMBER",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    }
+  ],
+  "hookify_rules": [
+    {
+      "name": "warn-date-return-no-serialize",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Returning Date Object"
+    },
+    {
+      "name": "warn-inline-pii-data",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Inline PII Data Detected"
+    },
+    {
+      "name": "warn-missing-structured-response",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Missing Structured Response"
+    },
+    {
+      "name": "warn-modal-no-flexbox",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Modal Without Flexbox"
+    },
+    {
+      "name": "warn-phi-in-error-message",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Error Message May Expose PHI"
+    },
+    {
+      "name": "warn-plain-person-select",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Plain Dropdown for Person Selection"
+    },
+    {
+      "name": "warn-untyped-api-response",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: API Response Without Shared Type Contract"
+    },
+    {
+      "name": "intent-atlas-consult",
+      "enabled": true,
+      "event": "prompt",
+      "action": "block",
+      "tier": "intent",
+      "description": "ATLAS is the Data Operating System. It has two sections:"
+    },
+    {
+      "name": "intent-execute-plan",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "PLAN EXECUTION TRIGGERED (#LetsRockIt)"
+    },
+    {
+      "name": "intent-immune-system-check",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "When this intent fires, read these data sources and deliver a structured briefing:"
+    },
+    {
+      "name": "intent-plan-mode",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "THINKING LEVEL: SWITCH TO HIGH"
+    },
+    {
+      "name": "intent-sendit",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "DEPLOY PROTOCOL TRIGGERED (#SendIt)"
+    },
+    {
+      "name": "intent-session-start",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "SESSION START PROTOCOL TRIGGERED"
+    },
+    {
+      "name": "quality-gate-audit-verify",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "AUDIT PROTOCOL ACTIVATED (Phase IV)"
+    },
+    {
+      "name": "quality-gate-build-verify",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "BUILD GATE: type-check is insufficient"
+    },
+    {
+      "name": "quality-gate-commit-remind",
+      "enabled": true,
+      "event": "bash",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "COMMIT GATE: Did you verify the build?"
+    },
+    {
+      "name": "quality-gate-deploy-verify",
+      "enabled": true,
+      "event": "bash",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "DEPLOY GATE: Verify before pushing"
+    },
+    {
+      "name": "quality-gate-done-without-evidence",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "EVIDENCE GATE: Cannot report completion without verification"
+    },
+    {
+      "name": "quality-gate-phase-complete",
+      "enabled": true,
+      "event": "prompt",
+      "action": "block",
+      "tier": "quality_gate",
+      "description": "BLOCKED: Cannot report phase complete without evidence"
+    },
+    {
+      "name": "quality-gate-plan-format",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "quality_gate",
+      "description": "BLOCKED: Plan file missing required pipeline columns"
+    },
+    {
+      "name": "block-alert-confirm-prompt",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Browser Dialog API Detected"
+    },
+    {
+      "name": "block-anyone-anonymous-access",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Public Access Detected"
+    },
+    {
+      "name": "block-bulk-import-without-atlas",
+      "enabled": true,
+      "event": "prompt",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Data Import/Migration Without ATLAS Consultation"
+    },
+    {
+      "name": "block-credentials-in-config",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Plaintext Credential Detected"
+    },
+    {
+      "name": "block-direct-firestore-write",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Direct Firestore Write Outside API"
+    },
+    {
+      "name": "block-direct-matrix-write",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Direct MATRIX Write"
+    },
+    {
+      "name": "block-drive-url-external",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Drive URL in External Fetch"
+    },
+    {
+      "name": "block-forui-no-json-serialize",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "WARNING: ForUI function detected"
+    },
+    {
+      "name": "block-generated-logos",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "You are attempting to write SVG markup with paths, circles, rects, or shapes. This looks like you ar"
+    },
+    {
+      "name": "block-hardcoded-colors",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Hardcoded Color Detected"
+    },
+    {
+      "name": "block-hardcoded-matrix-ids",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Hardcoded MATRIX Spreadsheet ID"
+    },
+    {
+      "name": "block-hardcoded-secrets",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Hardcoded Secret Detected"
+    },
+    {
+      "name": "block-let-module-caching",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: let/const for Module Cache Variable"
+    },
+    {
+      "name": "block-phi-in-logs",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: PHI Detected in Log Statement"
+    },
+    {
+      "name": "block-seed-without-snapshot",
+      "enabled": true,
+      "event": "bash",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Seed/Migration Script Without Safety Flag"
+    }
+  ],
+  "scan_stats": {
+    "route_files": 56,
+    "ui_files": 120,
+    "portal_pages": 159,
+    "collections_found": 63,
+    "api_routes_found": 56,
+    "cloud_functions_found": 14,
+    "env_vars_found": 29,
+    "hookify_rules_found": 35,
+    "scanned_at": "2026-03-22T05:08:23.402Z"
   }
 }

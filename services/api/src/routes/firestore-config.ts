@@ -32,10 +32,14 @@ const CONFIG_COLLECTIONS = [
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let PLATFORM_STATUS: any = {}
 let WIRING_STATUS: Record<string, { status: string; backend: string; frontend: string; backend_endpoints?: number }> = {}
 try {
   const wiringPath = resolve(__dirname, '..', 'generated', 'wiring-status.json')
-  WIRING_STATUS = JSON.parse(readFileSync(wiringPath, 'utf-8'))
+  PLATFORM_STATUS = JSON.parse(readFileSync(wiringPath, 'utf-8'))
+  // Support both old format (root = collections) and new format (root.collections)
+  WIRING_STATUS = PLATFORM_STATUS.collections || PLATFORM_STATUS
 } catch {
   console.warn('[firestore-config] wiring-status.json not found — run detect-wiring.ts')
 }
@@ -99,6 +103,22 @@ firestoreConfigRoutes.get('/collections', async (_req: Request, res: Response) =
   } catch (err) {
     console.error('GET /api/firestore-config/collections error:', err)
     res.status(500).json(errorResponse('Failed to load config collections'))
+  }
+})
+
+// ─── Platform Status — all 5 asset types from build-time scan ───
+firestoreConfigRoutes.get('/platform-status', async (_req: Request, res: Response) => {
+  try {
+    res.json(successResponse({
+      api_routes: PLATFORM_STATUS.api_routes || {},
+      cloud_functions: PLATFORM_STATUS.cloud_functions || [],
+      env_vars: PLATFORM_STATUS.env_vars || [],
+      hookify_rules: PLATFORM_STATUS.hookify_rules || [],
+      scan_stats: PLATFORM_STATUS.scan_stats || {},
+    }))
+  } catch (err) {
+    console.error('GET /api/firestore-config/platform-status error:', err)
+    res.status(500).json(errorResponse('Failed to load platform status'))
   }
 })
 

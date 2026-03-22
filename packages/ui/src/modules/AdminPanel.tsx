@@ -15,6 +15,7 @@ import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
 import { ACFConfigAdmin } from './ACFConfigAdmin'
 import { FirestoreConfig } from './FirestoreConfig'
+import { PlatformAdmin } from './PlatformAdmin'
 
 /* ─── Types ─── */
 
@@ -70,7 +71,7 @@ interface FlowPipelineRecord {
   assigned_section?: 'sales' | 'service' | 'both' | null
 }
 
-type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'firestore-config'
+type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'firestore-config' | 'platform'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -1400,6 +1401,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           { key: 'module-config' as AdminTab, label: 'Permissions Audit', icon: 'grid_view' },
           { key: 'acf-config' as AdminTab, label: 'ACF Config', icon: 'folder_special' },
           { key: 'firestore-config' as AdminTab, label: 'Firestore Config', icon: 'local_fire_department' },
+          { key: 'platform' as AdminTab, label: 'Platform Intel', icon: 'radar' },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -1501,6 +1503,11 @@ export function AdminPanel({ portal }: AdminPanelProps) {
       {/* Firestore Config Tab */}
       {activeTab === 'firestore-config' && (
         <FirestoreConfig portal={portal} />
+      )}
+
+      {/* Platform Intel Tab */}
+      {activeTab === 'platform' && (
+        <PlatformAdmin portal={portal} />
       )}
 
     </div>

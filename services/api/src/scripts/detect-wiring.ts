@@ -383,9 +383,266 @@ function main() {
     wiring.fk_from = [...new Set(wiring.fk_from)].sort()
   }
 
-  // ── Output ──
+  // ══════════════════════════════════════════════════════════════
+  // ASSET 2: API Routes Inventory
+  // ══════════════════════════════════════════════════════════════
+  console.log('\n─── Scanning API Routes ───\n')
+
+  interface ApiRouteInfo {
+    file: string
+    endpoints: number
+    operations: string[]
+    collections: string[]
+    frontend_consumers: string[]
+    status: 'full_stack' | 'backend_only'
+  }
+
+  const apiRoutes: Record<string, ApiRouteInfo> = {}
+
+  for (const [filePath, content] of routeFiles) {
+    const fileName = path.basename(filePath)
+    const refs = findAllCollections(content).map(r => r.name)
+    const ops = classifyOperations(content, '')
+
+    // Find frontend consumers — any UI file that calls /api/{route-name-prefix}
+    const routePrefix = fileName.replace(/\.ts$/, '').replace(/-/g, '')
+    const consumers: string[] = []
+    for (const [uiPath, uiContent] of uiFiles) {
+      const uiName = path.basename(uiPath)
+      if (uiName === 'FirestoreConfig.tsx' || uiName === 'fetchWithAuth.ts') continue
+      const apiCalls = extractApiCalls(uiContent)
+      // Match route file to API path: cam.ts → /api/cam, campaign-send.ts → /api/campaign-send
+      const routeSlug = fileName.replace(/\.ts$/, '')
+      if (apiCalls.some(c => c.includes(`/api/${routeSlug}`) || c.includes(`/api/${routeSlug}/`))) {
+        consumers.push(uiName)
+      }
+    }
+
+    apiRoutes[fileName] = {
+      file: fileName,
+      endpoints: ops.endpoints,
+      operations: ops.operations,
+      collections: [...new Set(refs)],
+      frontend_consumers: [...new Set(consumers)],
+      status: consumers.length > 0 ? 'full_stack' : 'backend_only',
+    }
+
+    const icon = consumers.length > 0 ? 'WIRED' : 'ORPHN'
+    console.log(`  ${icon.padEnd(6)} ${fileName.padEnd(28)} ${ops.endpoints} endpoints | ${consumers.length > 0 ? consumers.join(', ') : '(no UI)'}`)
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // ASSET 3: Cloud Functions Inventory
+  // ══════════════════════════════════════════════════════════════
+  console.log('\n─── Scanning Cloud Functions ───\n')
+
+  interface CloudFunctionInfo {
+    name: string
+    type: 'http' | 'scheduled' | 'firestore_trigger' | 'unknown'
+    schedule?: string
+    region: string
+    memory: string
+    timeout: number
+    source_file: string
+    description: string
+  }
+
+  const cloudFunctions: CloudFunctionInfo[] = []
+  const intakeIndex = path.join(ROOT, 'services', 'intake', 'src', 'index.ts')
+  if (fs.existsSync(intakeIndex)) {
+    const intakeContent = fs.readFileSync(intakeIndex, 'utf-8')
+
+    // Scan onRequest exports
+    const httpRe = /export\s+const\s+(\w+)\s*=\s*onRequest\s*\(\s*\{([^}]+)\}/g
+    let hm
+    while ((hm = httpRe.exec(intakeContent)) !== null) {
+      const name = hm[1]
+      const opts = hm[2]
+      const region = opts.match(/region:\s*'([^']+)'/)?.[1] || 'us-central1'
+      const memory = opts.match(/memory:\s*'([^']+)'/)?.[1] || '256MiB'
+      const timeout = parseInt(opts.match(/timeoutSeconds:\s*(\d+)/)?.[1] || '60')
+      cloudFunctions.push({ name, type: 'http', region, memory, timeout, source_file: 'index.ts', description: '' })
+    }
+
+    // Scan onSchedule exports
+    const schedRe = /export\s+const\s+(\w+)\s*=\s*onSchedule\s*\(\s*\{([^}]+)\}/g
+    let sm
+    while ((sm = schedRe.exec(intakeContent)) !== null) {
+      const name = sm[1]
+      const opts = sm[2]
+      const schedule = opts.match(/schedule:\s*'([^']+)'/)?.[1] || ''
+      const region = opts.match(/region:\s*'([^']+)'/)?.[1] || 'us-central1'
+      const memory = opts.match(/memory:\s*'([^']+)'/)?.[1] || '256MiB'
+      const timeout = parseInt(opts.match(/timeoutSeconds:\s*(\d+)/)?.[1] || '60')
+      cloudFunctions.push({ name, type: 'scheduled', schedule, region, memory, timeout, source_file: 'index.ts', description: '' })
+    }
+
+    // Scan re-exported Firestore triggers
+    if (intakeContent.includes('onClientWrite')) {
+      cloudFunctions.push({ name: 'onClientWrite', type: 'firestore_trigger', region: 'us-central1', memory: '256MiB', timeout: 60, source_file: 'notification-triggers.ts', description: 'Creates notification on client write' })
+    }
+    if (intakeContent.includes('onAccountWrite')) {
+      cloudFunctions.push({ name: 'onAccountWrite', type: 'firestore_trigger', region: 'us-central1', memory: '256MiB', timeout: 60, source_file: 'notification-triggers.ts', description: 'Creates notification on account write' })
+    }
+    if (intakeContent.includes('onIntakeQueueCreated')) {
+      cloudFunctions.push({ name: 'onIntakeQueueCreated', type: 'firestore_trigger', region: 'us-central1', memory: '256MiB', timeout: 60, source_file: 'wire-trigger.ts', description: 'Processes intake_queue entries through wire executor' })
+    }
+  }
+
+  for (const fn of cloudFunctions) {
+    const icon = fn.type === 'scheduled' ? 'SCHED' : fn.type === 'http' ? 'HTTP ' : 'TRIGG'
+    console.log(`  ${icon} ${fn.name.padEnd(30)} ${fn.schedule || fn.type.padEnd(15)} ${fn.memory} ${fn.timeout}s`)
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // ASSET 4: Environment Variables Inventory
+  // ══════════════════════════════════════════════════════════════
+  console.log('\n─── Scanning Environment Variables ───\n')
+
+  interface EnvVarInfo {
+    name: string
+    services: string[]
+    has_value: boolean
+    source: string // 'env_example' | 'dockerfile' | 'code_reference'
+    sensitive: boolean
+  }
+
+  const envVars: Record<string, EnvVarInfo> = {}
+
+  // Scan .env.example for declared vars
+  const envExample = path.join(ROOT, '.env.example')
+  if (fs.existsSync(envExample)) {
+    const lines = fs.readFileSync(envExample, 'utf-8').split('\n')
+    for (const line of lines) {
+      const match = line.match(/^([A-Z_][A-Z0-9_]*)=/)
+      if (match) {
+        const name = match[1]
+        const sensitive = /KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL/i.test(name)
+        envVars[name] = { name, services: ['root'], has_value: line.includes('=') && line.split('=')[1]?.trim() !== '', source: 'env_example', sensitive }
+      }
+    }
+  }
+
+  // Scan Dockerfiles for ENV and ARG
+  const dockerfiles = [
+    { file: path.join(ROOT, 'services', 'api', 'Dockerfile'), service: 'api' },
+    { file: path.join(ROOT, 'services', 'bridge', 'Dockerfile'), service: 'bridge' },
+    { file: path.join(ROOT, 'apps', 'prodash', 'Dockerfile'), service: 'prodash' },
+    { file: path.join(ROOT, 'apps', 'riimo', 'Dockerfile'), service: 'riimo' },
+    { file: path.join(ROOT, 'apps', 'sentinel', 'Dockerfile'), service: 'sentinel' },
+  ]
+  for (const { file, service } of dockerfiles) {
+    if (!fs.existsSync(file)) continue
+    const content = fs.readFileSync(file, 'utf-8')
+    const envRe = /^(?:ENV|ARG)\s+([A-Z_][A-Z0-9_]*)/gm
+    let em
+    while ((em = envRe.exec(content)) !== null) {
+      const name = em[1]
+      if (envVars[name]) {
+        if (!envVars[name].services.includes(service)) envVars[name].services.push(service)
+      } else {
+        envVars[name] = { name, services: [service], has_value: false, source: 'dockerfile', sensitive: /KEY|SECRET|TOKEN|PASSWORD/i.test(name) }
+      }
+    }
+  }
+
+  // Scan code for process.env references
+  for (const [filePath, content] of routeFiles) {
+    const envRefs = content.matchAll(/process\.env\.([A-Z_][A-Z0-9_]*)/g)
+    for (const ref of envRefs) {
+      const name = ref[1]
+      const service = filePath.includes('/api/') ? 'api' : filePath.includes('/bridge/') ? 'bridge' : 'unknown'
+      if (envVars[name]) {
+        if (!envVars[name].services.includes(service)) envVars[name].services.push(service)
+      } else {
+        envVars[name] = { name, services: [service], has_value: false, source: 'code_reference', sensitive: /KEY|SECRET|TOKEN|PASSWORD/i.test(name) }
+      }
+    }
+  }
+
+  const envList = Object.values(envVars).sort((a, b) => a.name.localeCompare(b.name))
+  for (const ev of envList) {
+    const icon = ev.sensitive ? 'SECRET' : ev.has_value ? 'SET   ' : 'EMPTY '
+    console.log(`  ${icon} ${ev.name.padEnd(42)} ${ev.services.join(', ')}`)
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // ASSET 5: Hookify Rules Inventory
+  // ══════════════════════════════════════════════════════════════
+  console.log('\n─── Scanning Hookify Rules ───\n')
+
+  interface HookifyRuleInfo {
+    name: string
+    enabled: boolean
+    event: string
+    action: string
+    tier: 'block' | 'warn' | 'intent' | 'quality_gate' | 'unknown'
+    description: string
+  }
+
+  const hookifyRules: HookifyRuleInfo[] = []
+  const hookifyDir = path.join(ROOT, '.claude')
+  if (fs.existsSync(hookifyDir)) {
+    const ruleFiles2 = fs.readdirSync(hookifyDir).filter(f => f.startsWith('hookify.') && f.endsWith('.local.md'))
+    for (const ruleFile of ruleFiles2) {
+      const content = fs.readFileSync(path.join(hookifyDir, ruleFile), 'utf-8')
+      const frontmatter = content.match(/^---\n([\s\S]*?)\n---/)?.[1] || ''
+      const name = frontmatter.match(/name:\s*(.+)/)?.[1]?.trim() || ruleFile
+      const enabled = frontmatter.match(/enabled:\s*(.+)/)?.[1]?.trim() !== 'false'
+      const event = frontmatter.match(/event:\s*(.+)/)?.[1]?.trim() || 'unknown'
+      const action = frontmatter.match(/action:\s*(.+)/)?.[1]?.trim() || 'unknown'
+
+      // Determine tier from name
+      let tier: HookifyRuleInfo['tier'] = 'unknown'
+      if (name.startsWith('block-')) tier = 'block'
+      else if (name.startsWith('warn-')) tier = 'warn'
+      else if (name.startsWith('intent-')) tier = 'intent'
+      else if (name.startsWith('quality-gate-')) tier = 'quality_gate'
+
+      // Get first line of body as description
+      const body = content.split('---').slice(2).join('---').trim()
+      const firstLine = body.split('\n').find(l => l.trim() && !l.startsWith('#'))?.replace(/\*\*/g, '').trim() || ''
+
+      hookifyRules.push({ name, enabled, event, action, tier, description: firstLine.slice(0, 100) })
+    }
+  }
+
+  hookifyRules.sort((a, b) => {
+    const tierOrder: Record<string, number> = { block: 0, warn: 1, intent: 2, quality_gate: 3, unknown: 4 }
+    return (tierOrder[a.tier] || 4) - (tierOrder[b.tier] || 4) || a.name.localeCompare(b.name)
+  })
+
+  for (const rule of hookifyRules) {
+    const icon = rule.tier === 'block' ? 'BLOCK' : rule.tier === 'warn' ? 'WARN ' : rule.tier === 'intent' ? 'INTNT' : rule.tier === 'quality_gate' ? 'GATE ' : '?????'
+    const status = rule.enabled ? 'ON ' : 'OFF'
+    console.log(`  ${icon} ${status} ${rule.name.padEnd(40)} ${rule.event}/${rule.action}`)
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // COMBINED OUTPUT
+  // ══════════════════════════════════════════════════════════════
+
+  const fullOutput = {
+    collections: result,
+    api_routes: apiRoutes,
+    cloud_functions: cloudFunctions,
+    env_vars: envList,
+    hookify_rules: hookifyRules,
+    scan_stats: {
+      route_files: routeFiles.size,
+      ui_files: uiFiles.size,
+      portal_pages: portalFiles.size,
+      collections_found: Object.keys(result).length,
+      api_routes_found: Object.keys(apiRoutes).length,
+      cloud_functions_found: cloudFunctions.length,
+      env_vars_found: envList.length,
+      hookify_rules_found: hookifyRules.length,
+      scanned_at: new Date().toISOString(),
+    },
+  }
+
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true })
-  fs.writeFileSync(OUTPUT, JSON.stringify(result, null, 2))
+  fs.writeFileSync(OUTPUT, JSON.stringify(fullOutput, null, 2))
 
   // Console summary
   const statuses = Object.values(result).reduce(
@@ -393,32 +650,18 @@ function main() {
     {} as Record<string, number>,
   )
 
-  console.log('─── Collection Wiring Summary ───\n')
+  const routeStatuses = Object.values(apiRoutes).reduce(
+    (acc, r) => { acc[r.status] = (acc[r.status] || 0) + 1; return acc },
+    {} as Record<string, number>,
+  )
 
-  for (const [collName, w] of Object.entries(result)) {
-    const icon = w.status === 'full_stack' ? 'FULL'
-      : w.status === 'backend_only' ? 'BACK'
-      : w.status === 'frontend_only' ? 'FRNT'
-      : 'NONE'
-    const flags = [
-      w.hardcoded ? 'hardcoded' : '',
-      w.sub_collection ? 'sub-collection' : '',
-      w.portals.length > 0 ? `portals: ${w.portals.join(',')}` : '',
-      w.fk_to.length > 0 ? `FK→ ${w.fk_to.join(',')}` : '',
-    ].filter(Boolean).join(' | ')
-
-    const be = w.backend_routes.map(r => `${r.file}(${r.operations.join('/')})`).join(', ') || '—'
-    const fe = w.frontend_components.map(r => r.file).join(', ') || '—'
-
-    console.log(`  ${icon.padEnd(5)} ${collName}`)
-    console.log(`        BE: ${be}`)
-    console.log(`        FE: ${fe}`)
-    if (flags) console.log(`        ${flags}`)
-    console.log()
-  }
-
-  console.log(`\nTotals: ${Object.keys(result).length} collections | ${statuses.full_stack || 0} full-stack | ${statuses.backend_only || 0} backend-only | ${statuses.frontend_only || 0} frontend-only | ${statuses.none || 0} not wired`)
-  console.log(`Wrote ${OUTPUT}`)
+  console.log('\n═══ Platform Scan Summary ═══')
+  console.log(`  Collections: ${Object.keys(result).length} (${statuses.full_stack || 0} full-stack, ${statuses.backend_only || 0} backend-only, ${statuses.none || 0} unwired)`)
+  console.log(`  API Routes:  ${Object.keys(apiRoutes).length} (${routeStatuses.full_stack || 0} with UI, ${routeStatuses.backend_only || 0} orphaned)`)
+  console.log(`  Functions:   ${cloudFunctions.length} (${cloudFunctions.filter(f => f.type === 'scheduled').length} scheduled, ${cloudFunctions.filter(f => f.type === 'http').length} HTTP, ${cloudFunctions.filter(f => f.type === 'firestore_trigger').length} triggers)`)
+  console.log(`  Env Vars:    ${envList.length} (${envList.filter(e => e.sensitive).length} secrets, ${envList.filter(e => !e.has_value).length} empty)`)
+  console.log(`  Hookify:     ${hookifyRules.length} (${hookifyRules.filter(r => r.tier === 'block').length} block, ${hookifyRules.filter(r => r.tier === 'warn').length} warn, ${hookifyRules.filter(r => r.tier === 'intent').length} intent, ${hookifyRules.filter(r => r.tier === 'quality_gate').length} gates)`)
+  console.log(`\nWrote ${OUTPUT}`)
 }
 
 main()
