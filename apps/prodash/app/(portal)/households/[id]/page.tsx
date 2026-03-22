@@ -7,6 +7,7 @@ import { doc, getDoc, updateDoc, getFirestore } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import { getAuth } from 'firebase/auth'
 import type { Household, HouseholdMember } from '@tomachina/core'
+import { SuggestedConnections, type SuggestionItem } from '@tomachina/ui/src/modules/SuggestedConnections'
 
 // ---------------------------------------------------------------------------
 // HOUSEHOLD DETAIL — The household-level view
@@ -112,12 +113,47 @@ export default function HouseholdDetailPage({
 // Header
 // ---------------------------------------------------------------------------
 
-function HouseholdHeader({ household, householdId: _householdId }: { household: Household; householdId: string }) {
+function HouseholdHeader({ household, householdId }: { household: Household; householdId: string }) {
   const name = household.household_name || 'Unknown Household'
   const status = household.household_status || 'Unknown'
   const location = [household.city, household.state].filter(Boolean).join(', ')
   const memberCount = (household.members || []).length
-  const acfUrl = household.acf_folder_url as string | undefined
+  const [editing, setEditing] = useState(false)
+  const [editName, setEditName] = useState(name)
+  const [saving, setSaving] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleSave = useCallback(async () => {
+    if (!editName.trim()) return
+    setSaving(true)
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      await fetch(`/api/households/${householdId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ household_name: editName.trim() }),
+      })
+      window.location.reload()
+    } catch { /* handled */ }
+    setSaving(false)
+  }, [editName, householdId])
+
+  const handleDelete = useCallback(async () => {
+    setDeleting(true)
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      await fetch(`/api/households/${householdId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      window.location.href = '/households'
+    } catch { /* handled */ }
+    setDeleting(false)
+  }, [householdId])
+
   const initials = name
     .split(' ')
     .map(w => w[0])
@@ -146,23 +182,21 @@ function HouseholdHeader({ household, householdId: _householdId }: { household: 
           </div>
         </div>
 
-        {/* Action buttons */}
+        {/* Action buttons — TRK-584 */}
         <div className="flex items-center gap-2">
-          {/* ACF Button */}
           <button
-            onClick={() => {
-              if (acfUrl) window.open(acfUrl, '_blank', 'noopener,noreferrer')
-            }}
-            disabled={!acfUrl}
-            className={`inline-flex items-center gap-1.5 rounded px-4 py-1.5 text-sm font-medium transition-all ${
-              acfUrl
-                ? 'bg-[var(--portal)]/15 text-[var(--portal)] hover:bg-[var(--portal)]/25 border border-[var(--portal)]/30'
-                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] cursor-not-allowed opacity-50 border border-[var(--border)]'
-            }`}
-            title={acfUrl ? 'Open Household ACF in Google Drive' : 'No ACF link on file'}
+            onClick={() => { setEditing(true); setEditName(name) }}
+            className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium border border-[var(--border)] text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
           >
-            <span className="material-icons-outlined text-[18px]">folder_open</span>
-            ACF
+            <span className="material-icons-outlined text-[16px]">edit</span>
+            Edit
+          </button>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="inline-flex items-center gap-1.5 rounded-md h-[34px] px-3 text-xs font-medium border border-red-400/30 text-red-400 transition-colors hover:bg-red-400/10"
+          >
+            <span className="material-icons-outlined text-[16px]">delete</span>
+            Delete
           </button>
         </div>
       </div>
@@ -172,6 +206,51 @@ function HouseholdHeader({ household, householdId: _householdId }: { household: 
         {location && <MetaChip icon="location_on" label={location} />}
         <MetaChip icon="group" label={`${memberCount} member${memberCount !== 1 ? 's' : ''}`} />
       </div>
+
+      {/* TRK-584: Edit inline */}
+      {editing && (
+        <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-4 space-y-3">
+          <label className="text-xs uppercase tracking-wide text-[var(--text-muted)]">Household Name</label>
+          <input
+            type="text"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+          />
+          <div className="flex gap-2">
+            <button onClick={handleSave} disabled={saving || !editName.trim()} className="rounded-md h-[34px] px-4 text-xs font-medium bg-[var(--portal)] text-white hover:brightness-110 disabled:opacity-40">
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+            <button onClick={() => setEditing(false)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* TRK-584: Delete confirmation modal (NOT confirm()) */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-400/10">
+                <span className="material-icons-outlined text-red-400" style={{ fontSize: '20px' }}>warning</span>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Delete Household</h3>
+                <p className="text-xs text-[var(--text-muted)]">This cannot be undone.</p>
+              </div>
+            </div>
+            <p className="text-sm text-[var(--text-secondary)] mb-4">
+              Are you sure you want to delete <strong>{name}</strong>?
+            </p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowDeleteConfirm(false)} className="rounded-md h-[34px] px-4 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)]">Cancel</button>
+              <button onClick={handleDelete} disabled={deleting} className="rounded-md h-[34px] px-4 text-xs font-medium bg-red-500 text-white hover:bg-red-600 disabled:opacity-40">
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -452,8 +531,81 @@ function MembersTab({ household, householdId }: { household: Household; househol
             Add Member
           </button>
         )}
+
+        {/* TRK-585: Suggested members from shared component */}
+        <HouseholdSuggestions
+          household={household}
+          householdId={householdId}
+          existingMemberIds={members.map(m => m.client_id)}
+        />
       </div>
     </SectionCard>
+  )
+}
+
+/** TRK-585: Household member suggestions using shared SuggestedConnections */
+function HouseholdSuggestions({ household, householdId, existingMemberIds }: {
+  household: Household; householdId: string; existingMemberIds: string[]
+}) {
+  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (loaded) return
+    async function findSuggestions() {
+      const { getDocs, collection, query: fsQuery, where, limit: fsLimit } = await import('firebase/firestore')
+      const db = getDb()
+      const matches = new Map<string, SuggestionItem>()
+      const excluded = new Set(existingMemberIds)
+
+      // Get household name for last-name matching
+      const hhName = String(household.household_name || '')
+      const lastName = hhName.replace(/\s+household$/i, '').trim()
+
+      if (lastName) {
+        const titleCase = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase()
+        try {
+          const snap = await getDocs(fsQuery(collection(db, 'clients'), where('last_name', '==', titleCase), fsLimit(20)))
+          for (const d of snap.docs) {
+            if (excluded.has(d.id)) continue
+            const data = d.data()
+            const name = `${data.first_name || ''} ${data.last_name || ''}`.trim()
+            matches.set(d.id, { id: d.id, name, reason: 'Same last name', confidence: 0.7, phone: String(data.phone || ''), email: String(data.email || '') })
+          }
+        } catch { /* best effort */ }
+      }
+
+      setSuggestions(Array.from(matches.values()).slice(0, 6))
+      setLoaded(true)
+    }
+    findSuggestions()
+  }, [loaded, household, existingMemberIds])
+
+  const handleAddToHousehold = useCallback(async (item: SuggestionItem) => {
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      await fetch(`/api/households/${householdId}/members`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ client_id: item.id, client_name: item.name, role: 'other', relationship: 'Other' }),
+      })
+      window.location.reload()
+    } catch { /* handled */ }
+  }, [householdId])
+
+  if (!loaded || suggestions.length === 0) return null
+
+  return (
+    <div className="mt-4">
+      <SuggestedConnections
+        suggestions={suggestions}
+        onAction={handleAddToHousehold}
+        actionLabel="Add to Household"
+        actionIcon="group_add"
+        title={`Suggested Members (${suggestions.length})`}
+      />
+    </div>
   )
 }
 
@@ -557,7 +709,13 @@ function AccountsTab({ household }: { household: Household }) {
         }
       }
 
-      setAccounts(allAccounts)
+      // TRK-580: Filter out merged/deleted/terminated accounts
+      const EXCLUDED = ['merged', 'deleted', 'terminated']
+      const filtered = allAccounts.filter((a) => {
+        const s = String(a.status || '').toLowerCase()
+        return !EXCLUDED.includes(s) && !a._merged_into
+      })
+      setAccounts(filtered)
       setLoading(false)
     }
     loadAccounts()
