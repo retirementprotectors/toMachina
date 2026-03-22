@@ -67,7 +67,7 @@ export function PortalSwitcher({ currentPortal }: PortalSwitcherProps) {
         <img
           src="/tomachina-transparent.png"
           alt="toMachina"
-          className="h-[22px] w-auto"
+          className="h-[22px] max-h-7 max-w-[120px] w-auto object-contain"
         />
         <span
           className="material-icons-outlined transition-transform duration-150"
