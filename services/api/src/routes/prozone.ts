@@ -224,7 +224,7 @@ prozoneRoutes.get('/prospects/:specialist_id', async (req: Request, res: Respons
           const cd = csDoc.data()
           if (seenClientIds.has(csDoc.id)) continue
           seenClientIds.add(csDoc.id)
-          const cStatus = (cd.status as string) || (cd.status as string) || (d.client_status as string) || ''
+          const cStatus = (cd.status as string) || (cd.client_status as string) || ''
           if (cStatus !== 'Active' && cStatus !== 'Active - Internal') continue
           const cCounty = ((cd.county as string) || '').toLowerCase()
           const cZip = ((cd.zip as string) || '').trim()
