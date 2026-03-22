@@ -4,23 +4,17 @@ test.describe('MyRPI Module', () => {
   test('renders profile page with user info', async ({ page }) => {
     await page.goto('/myrpi')
 
-    // Wait for profile section to load
-    await expect(page.locator('h1')).toContainText(/my.*rpi|profile/i, { timeout: 15000 })
+    // MyRpiProfile has NO h1 — it renders user info cards directly
+    // Wait for the profile to load by looking for user name or section headers
+    // The test user is "E2E Test User" (injected in auth.setup.ts)
+    // MyRpiProfile renders the user's display name prominently
+    const profileContent = page.locator('main')
+    await expect(profileContent).toBeVisible({ timeout: 15000 })
 
-    // User name should be displayed somewhere on the page
-    // MyRpiProfile loads the user record and displays name, role, etc.
-    const profileSection = page.locator('main')
-    await expect(profileSection).toBeVisible({ timeout: 15000 })
+    // "Communication Preferences" section is always rendered
+    await expect(page.getByText('Communication Preferences')).toBeVisible({ timeout: 15000 })
 
-    // QR code or user details section should render (MyRpiProfile uses QRCodeSVG)
-    // Look for SVG (QR code) or user detail cards
-    const contentArea = page.locator('main [class*="card"], main [class*="grid"], main svg')
-    await expect(contentArea.first()).toBeVisible({ timeout: 15000 })
-
-    // MyDropZone section (employee drive folder integration)
-    // Look for "DropZone" or "Drive" or file-related content
-    await expect(
-      page.getByText(/drop.*zone|drive|my.*files/i).or(page.locator('[class*="dropzone"]'))
-    ).toBeVisible({ timeout: 10000 })
+    // "My Drop Zone" section should be visible
+    await expect(page.getByText('My Drop Zone')).toBeVisible({ timeout: 10000 })
   })
 })
