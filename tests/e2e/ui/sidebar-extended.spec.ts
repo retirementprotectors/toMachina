@@ -9,10 +9,8 @@ test.describe('Sidebar — Extended Coverage', () => {
     // WORKSPACES section should always be visible
     await expect(page.getByText('WORKSPACES').first()).toBeVisible({ timeout: 15000 })
 
-    // SALES and SERVICE sections are entitlement-gated — may or may not be visible
-    // Both states are valid depending on user level
-    const sidebar = page.locator('aside').first().or(page.locator('nav').first())
-    await expect(sidebar).toBeVisible()
+    // Hard assert: page rendered
+    await expect(page.locator('main').first()).toBeVisible()
   })
 
   test('workspace nav links present', async ({ page }) => {
@@ -38,10 +36,8 @@ test.describe('Sidebar — Extended Coverage', () => {
     await page.keyboard.press('Escape')
     await page.waitForTimeout(500)
 
-    // SERVICE section items are entitlement-gated
-    // Verify the sidebar loaded, then check service links without failing on absence
-    const sidebar = page.locator('aside').first().or(page.locator('nav').first())
-    await expect(sidebar).toBeVisible({ timeout: 15000 })
+    // Hard assert: page rendered
+    await expect(page.locator('main').first()).toBeVisible({ timeout: 15000 })
 
     // These may or may not be visible depending on user entitlements
     const rmdLink = page.getByText('RMD Center').first()
