@@ -105,7 +105,7 @@ function clearDraft() {
 /* ─── Component ─── */
 const clientsQuery: Query<DocumentData> = query(
   collections.clients(),
-  where('client_status', 'in', ['Active', 'Active - Internal', 'Active - External', 'Pending']),
+  where('status', 'in', ['Active', 'Active - Internal', 'Active - External', 'Pending']),
   orderBy('last_name')
 )
 

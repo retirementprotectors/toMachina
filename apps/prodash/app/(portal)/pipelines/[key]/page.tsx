@@ -30,7 +30,7 @@ interface ClientOption {
   last_name: string
   city?: string
   state?: string
-  client_status?: string
+  status?: string
 }
 
 interface NewCaseForm {

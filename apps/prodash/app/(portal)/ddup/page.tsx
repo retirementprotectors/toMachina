@@ -289,7 +289,7 @@ function DdupContent() {
           if (snap.exists()) {
             const data = snap.data() as Record<string, unknown>
             // TRK-042: Skip records that are merged, deleted, terminated, or marked _merged_into
-            const clientStatus = str(data.client_status).toLowerCase()
+            const clientStatus = str(data.status || data.client_status).toLowerCase()
             const status = str(data.status).toLowerCase()
             const excludeStatuses = ['merged', 'deleted', 'terminated']
             if (excludeStatuses.includes(clientStatus) || excludeStatuses.includes(status) || data._merged_into) {
@@ -352,7 +352,7 @@ function DdupContent() {
       date_of_birth: 30, dob: 31, gender: 32, ssn: 33, ssn_last4: 34,
       medicare_id: 40, medicare_part_a_date: 41, medicare_part_b_date: 42,
       dl_number: 50, dl_state: 51, dl_issue_date: 52, dl_expiration: 53,
-      agent: 60, book_of_business: 61, source: 62, client_status: 63, classification: 64,
+      agent: 60, book_of_business: 61, source: 62, status: 63, classification: 64,
       client_id: 90, account_id: 91, policy_number: 92, account_number: 93,
     }
     const fields = new Set<string>()
@@ -445,7 +445,7 @@ function DdupContent() {
       for (let i = 1; i < records.length; i++) {
         const loser = records[i]
         const loserId = loser.id
-        const statusField = type === 'client' ? 'client_status' : 'status'
+        const statusField = 'status'
 
         await updateDoc(doc(db, loser.path), {
           [statusField]: 'merged',
