@@ -47,7 +47,7 @@ interface ClientSearchResult {
   id: string
   first_name: string
   last_name: string
-  client_status: string
+  status: string
   city?: string
   state?: string
   email?: string
@@ -212,7 +212,7 @@ function ClientSearch({ onSelect }: { onSelect: (clientId: string, name: string)
                 <div>
                   <p className="text-sm font-medium text-[var(--text-primary)]">{c.first_name} {c.last_name}</p>
                   <p className="text-xs text-[var(--text-muted)]">
-                    {c.client_status}{c.city ? ` \u2022 ${c.city}, ${c.state}` : ''}
+                    {c.status}{c.city ? ` \u2022 ${c.city}, ${c.state}` : ''}
                     {c.email ? ` \u2022 ${c.email}` : ''}
                   </p>
                 </div>

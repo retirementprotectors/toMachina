@@ -46,7 +46,7 @@ const clientsQuery: Query<DocumentData> = query(collections.clients(), orderBy('
 const usersQuery: Query<DocumentData> = query(collections.users())
 const householdsQuery: Query<DocumentData> = query(collections.households())
 
-type SortKey = 'name' | 'location' | 'agent_name' | 'client_status' | 'household' | null
+type SortKey = 'name' | 'location' | 'agent_name' | 'status' | 'household' | null
 
 interface UserDoc extends User {
   _id: string
@@ -154,7 +154,7 @@ export default function ClientsPage() {
   // Filter logic
   const filtered = useMemo(() => {
     // Exclude merged records — they've been absorbed into another record
-    let result = clients.filter((c) => !HARD_EXCLUDED_STATUSES.includes((c.client_status || '').toLowerCase()))
+    let result = clients.filter((c) => !HARD_EXCLUDED_STATUSES.includes((c.status || '').toLowerCase()))
 
     // Search filter
     if (search) {
@@ -176,7 +176,7 @@ export default function ClientsPage() {
     // Status filter
     if (statusFilter !== 'All') {
       result = result.filter(
-        (c) => (c.client_status || '').toLowerCase() === statusFilter.toLowerCase()
+        (c) => (c.status || '').toLowerCase() === statusFilter.toLowerCase()
       )
     }
 
@@ -218,9 +218,9 @@ export default function ClientsPage() {
           av = (a.agent_name || '').toLowerCase()
           bv = (b.agent_name || '').toLowerCase()
           break
-        case 'client_status':
-          av = (a.client_status || '').toLowerCase()
-          bv = (b.client_status || '').toLowerCase()
+        case 'status':
+          av = (a.status || '').toLowerCase()
+          bv = (b.status || '').toLowerCase()
           break
         case 'household':
           av = (a.household_name || '').toLowerCase()
@@ -471,7 +471,7 @@ export default function ClientsPage() {
                   {col('phone') && renderStaticHeader('Phone')}
                   {col('email') && renderStaticHeader('Email')}
                   {col('agent') && renderSortHeader('Agent', 'agent_name')}
-                  {col('status') && renderSortHeader('Status', 'client_status')}
+                  {col('status') && renderSortHeader('Status', 'status')}
                   {col('acf') && renderStaticHeader('ACF')}
                   {col('household') && renderSortHeader('Household', 'household')}
                   {col('age') && renderStaticHeader('Age')}
@@ -535,7 +535,7 @@ export default function ClientsPage() {
                             {col('phone') && (<td className="px-3 py-3">{client.phone ? <span className="text-[var(--text-secondary)] whitespace-nowrap">{formatPhone(client.phone)}</span> : dash}</td>)}
                             {col('email') && (<td className="px-3 py-3">{client.email ? <a href={`mailto:${client.email}`} onClick={(e) => e.stopPropagation()} className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block">{client.email}</a> : dash}</td>)}
                             {col('agent') && (<td className="px-3 py-3">{client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash}</td>)}
-                            {col('status') && (<td className="px-3 py-3"><StatusBadge status={client.client_status} /></td>)}
+                            {col('status') && (<td className="px-3 py-3"><StatusBadge status={client.status} /></td>)}
                             {col('acf') && (<td className="px-3 py-3"><ACFStatusIcon clientId={client._id || client.client_id} gdriveFolderUrl={client.gdrive_folder_url} /></td>)}
                             {col('household') && (<td className="px-3 py-3">{client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash}</td>)}
                             {col('age') && (<td className="px-3 py-3">{age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash}</td>)}
@@ -640,7 +640,7 @@ export default function ClientsPage() {
                       {/* Status */}
                       {col('status') && (
                         <td className="px-3 py-3">
-                          <StatusBadge status={client.client_status} />
+                          <StatusBadge status={client.status} />
                         </td>
                       )}
 

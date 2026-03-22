@@ -299,7 +299,7 @@ campaignSendRoutes.post('/targets', async (req: Request, res: Response) => {
     let query: Query<DocumentData> = db.collection('clients')
 
     if (triggers.trigger_client_status) {
-      query = query.where('client_status', '==', triggers.trigger_client_status)
+      query = query.where('status', '==', triggers.trigger_client_status)
     }
     if (triggers.trigger_state) {
       query = query.where('state', '==', triggers.trigger_state)
@@ -709,7 +709,7 @@ campaignSendRoutes.post('/execute-due', async (_req: Request, res: Response) => 
 
       // Build audience from clients (simplified — full audience builder in @tomachina/core)
       const channel = (sched.channel as string) || 'email'
-      const clientSnap = await db.collection('clients').where('client_status', '==', 'Active').limit(1000).get()
+      const clientSnap = await db.collection('clients').where('status', '==', 'Active').limit(1000).get()
       let clients = clientSnap.docs.map((d) => ({ id: d.id, ...d.data() }) as Record<string, unknown>)
 
       // DND filtering

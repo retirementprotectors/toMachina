@@ -16,7 +16,7 @@ export interface Client {
   zip: string
   dob: string
   ssn_last4?: string
-  client_status: string
+  status: string
   client_classification: string
   source: string
   /** UUID of the assigned user (from users collection, user_id field). Replaces legacy agent_id. */
@@ -41,7 +41,7 @@ export interface Agent {
   last_name: string
   email: string
   npn: string
-  agent_status: string
+  status: string
   created_at: string
   updated_at: string
   [key: string]: unknown
@@ -53,7 +53,7 @@ export interface Producer {
   last_name: string
   email: string
   npn: string
-  producer_status: string
+  status: string
   created_at: string
   updated_at: string
   [key: string]: unknown
@@ -533,7 +533,7 @@ export interface Territory {
   region?: string
   counties: TerritoryCounty[]
   zones: Zone[]
-  territory_status: 'Active' | 'Inactive'
+  status: 'Active' | 'Inactive'
   created_at: string
   updated_at: string
 }
@@ -572,7 +572,7 @@ export interface SpecialistConfig {
   zone_lead_criteria: ZoneLeadCriteria
   calendar_booking_url?: string
   team: TeamMember[]
-  config_status: 'Active' | 'Inactive'
+  status: 'Active' | 'Inactive'
   created_at: string
   updated_at: string
 }

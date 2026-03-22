@@ -34,7 +34,7 @@ async function firestoreFallbackSearch(searchQuery: string, maxResults: number):
     seenIds.add(docId)
     const firstName = String(data.first_name || '')
     const lastName = String(data.last_name || '')
-    const status = String(data.client_status || 'Unknown')
+    const status = String(data.status || data.client_status || 'Unknown')
     const city = String(data.city || '')
     const state = String(data.state || '')
     const location = [city, state].filter(Boolean).join(', ')

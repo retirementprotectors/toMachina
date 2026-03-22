@@ -64,7 +64,7 @@ interface FullSpecialistConfig {
   zone_lead_criteria: ZoneLeadCriteria
   calendar_booking_url?: string
   team: TeamMember[]
-  config_status: 'Active' | 'Inactive'
+  status: 'Active' | 'Inactive'
   created_at: string
   updated_at: string
 }
@@ -84,7 +84,7 @@ interface ConfigSummary {
   origin_zip: string
   office_days?: DayOfWeek[]
   field_days?: DayOfWeek[]
-  config_status: 'Active' | 'Inactive'
+  status: 'Active' | 'Inactive'
   tier_map?: TierMapEntry[]
 }
 
@@ -139,7 +139,7 @@ function blankConfig(): Omit<FullSpecialistConfig, 'config_id' | 'created_at' | 
     zone_lead_criteria: structuredClone(EMPTY_ZONE_LEAD_CRITERIA),
     calendar_booking_url: '',
     team: [],
-    config_status: 'Active',
+    status: 'Active',
   }
 }
 
@@ -452,7 +452,7 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
           zone_lead_criteria: d.zone_lead_criteria || structuredClone(EMPTY_ZONE_LEAD_CRITERIA),
           calendar_booking_url: d.calendar_booking_url || '',
           team: d.team || [],
-          config_status: d.config_status || 'Active',
+          status: d.status || 'Active',
         })
         if (d.territory_id) {
           await loadTerritoryZones(d.territory_id)
@@ -696,9 +696,9 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
                     </div>
                   </div>
                   <span
-                    className={cfg.config_status === 'Active' ? 'badge-active' : 'badge-inactive'}
+                    className={cfg.status === 'Active' ? 'badge-active' : 'badge-inactive'}
                   >
-                    {cfg.config_status}
+                    {cfg.status}
                   </span>
                 </div>
 
@@ -905,25 +905,25 @@ export default function SpecialistConfigEditor({ portal, configId, readOnly }: S
                   <button
                     type="button"
                     onClick={() => {
-                      if (!readOnly) updateField('config_status', form.config_status === 'Active' ? 'Inactive' : 'Active')
+                      if (!readOnly) updateField('status', form.status === 'Active' ? 'Inactive' : 'Active')
                     }}
                     disabled={readOnly}
                     className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-                      form.config_status === 'Active' ? '' : 'bg-[var(--bg-surface)]'
+                      form.status === 'Active' ? '' : 'bg-[var(--bg-surface)]'
                     } ${readOnly ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                     style={
-                      form.config_status === 'Active'
+                      form.status === 'Active'
                         ? { backgroundColor: 'var(--app-prozone, #0ea5e9)' }
                         : undefined
                     }
                   >
                     <span
                       className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
-                        form.config_status === 'Active' ? 'translate-x-5' : 'translate-x-0'
+                        form.status === 'Active' ? 'translate-x-5' : 'translate-x-0'
                       }`}
                     />
                   </button>
-                  <span className="text-sm text-[var(--text-primary)]">{form.config_status}</span>
+                  <span className="text-sm text-[var(--text-primary)]">{form.status}</span>
                 </div>
               </div>
             </div>
