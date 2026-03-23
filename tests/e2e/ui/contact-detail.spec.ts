@@ -16,7 +16,7 @@ test.describe('Contact Detail — CLIENT360', () => {
     await expect(page.getByRole('button', { name: /Estate/ }).first()).toBeVisible()
     await expect(page.getByRole('button', { name: /Accounts/ }).first()).toBeVisible()
     await expect(page.getByText('ACF').first()).toBeVisible()
-    await expect(page.getByRole('button', { name: /Connections/ }).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: /Relationships/ }).first()).toBeVisible()
     await expect(page.getByRole('button', { name: /Access/ }).first()).toBeVisible()
     await expect(page.getByRole('button', { name: /Activity/ }).first()).toBeVisible()
 
