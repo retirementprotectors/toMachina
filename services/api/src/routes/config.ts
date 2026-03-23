@@ -108,6 +108,24 @@ configRoutes.put('/:key', async (req: Request, res: Response) => {
       }
     }
 
+    if (configType === 'stages' && body.stages) {
+      if (!Array.isArray(body.stages)) {
+        res.status(400).json(errorResponse('stages must be an array'))
+        return
+      }
+      for (const stage of body.stages as Record<string, unknown>[]) {
+        if (!stage.key || !stage.label) {
+          res.status(400).json(errorResponse('Each stage must have key and label fields'))
+          return
+        }
+      }
+      const stageKeys = (body.stages as Array<{ key: string }>).map(s => s.key)
+      if (new Set(stageKeys).size !== stageKeys.length) {
+        res.status(400).json(errorResponse('Duplicate stage keys found'))
+        return
+      }
+    }
+
     if (configType === 'checklist' && body.statuses) {
       if (!Array.isArray(body.statuses)) {
         res.status(400).json(errorResponse('statuses must be an array'))
