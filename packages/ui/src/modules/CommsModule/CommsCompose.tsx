@@ -13,11 +13,13 @@ interface CommsComposeProps {
   onBack: () => void
   /** When set, locks the channel to this value (from tab navigation) */
   presetChannel?: ComposeChannel
+  /** When set, pre-fills the To field with this contact */
+  presetContact?: ClientResult | null
 }
 
 /* ─── Client Search Result ─── */
 
-interface ClientResult {
+export interface ClientResult {
   id: string
   name: string
   phone: string
@@ -320,17 +322,18 @@ function TemplateManager({
 
 /* ─── Component ─── */
 
-export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
+export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComposeProps) {
   const [channel, setChannel] = useState<ComposeChannel>(presetChannel ?? 'sms')
-  const [toSearch, setToSearch] = useState('')
-  const [selectedClient, setSelectedClient] = useState<ClientResult | null>(null)
+  const presetDetail = presetChannel === 'email' ? presetContact?.email : presetContact?.phone
+  const [toSearch, setToSearch] = useState(presetContact ? (presetDetail ? `${presetContact.name} — ${presetDetail}` : presetContact.name) : '')
+  const [selectedClient, setSelectedClient] = useState<ClientResult | null>(presetContact ?? null)
   const [clientResults, setClientResults] = useState<ClientResult[]>([])
   const [showResults, setShowResults] = useState(false)
   const [searchLoading, setSearchLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [subject, setSubject] = useState('')
   const [template, setTemplate] = useState('none')
-  const [dialerNumber, setDialerNumber] = useState('')
+  const [dialerNumber, setDialerNumber] = useState(presetContact?.phone?.replace(/[^0-9]/g, '') ?? '')
   const [showTemplateManager, setShowTemplateManager] = useState(false)
   const [templates, setTemplates] = useState<CommsTemplate[]>(DEFAULT_TEMPLATES)
   const dialerInputRef = useRef<HTMLInputElement | null>(null)
@@ -357,6 +360,21 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
       setChannel(presetChannel)
     }
   }, [presetChannel])
+
+  // Sync presetContact when active client changes (navigated to different client)
+  useEffect(() => {
+    if (presetContact) {
+      setSelectedClient(presetContact)
+      // Show name + phone/email in the To field so user sees who they're contacting
+      const detail = presetChannel === 'email' ? presetContact.email : presetContact.phone
+      setToSearch(detail ? `${presetContact.name} — ${detail}` : presetContact.name)
+      setShowResults(false)
+      // Pre-fill the dialer number for Call tab
+      if (presetContact.phone) {
+        setDialerNumber(presetContact.phone.replace(/[^0-9]/g, ''))
+      }
+    }
+  }, [presetContact?.id, presetChannel])
 
   // Debounced client search via API
   useEffect(() => {
@@ -502,7 +520,8 @@ export function CommsCompose({ onBack, presetChannel }: CommsComposeProps) {
         body: JSON.stringify({
           to: to.startsWith('+') ? to : `+1${to}`,
           client_id: selectedClient?.id || null,
-          twiml: '<Response><Say>Connecting you now.</Say></Response>',
+          twiml: '<Response><Say voice="alice">Please hold while we connect you to your Retirement Protectors representative.</Say><Pause length="120"/></Response>',
+          record: true,
         }),
       })
       if (!res.success) throw new Error(res.error || 'Call initiation failed')

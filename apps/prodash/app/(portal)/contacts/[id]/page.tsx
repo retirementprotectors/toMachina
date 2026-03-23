@@ -116,7 +116,31 @@ export default function Client360Page({
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <BackLink />
-      <ClientHeader client={client} clientId={id} />
+      <ClientHeader
+        client={client}
+        clientId={id}
+        onCommsAction={(channel) => {
+          // Pick the best phone number: cell_phone > primary phone (if cell type) > alt_phone
+          const cellPhone = (client.cell_phone as string) || ''
+          const primaryPhone = (client.phone as string) || ''
+          const altPhone = (client.alt_phone as string) || ''
+          const phoneType = ((client.phone_type as string) || '').toLowerCase()
+          const bestPhone = cellPhone || (phoneType === 'cell' || phoneType === 'mobile' ? primaryPhone : '') || primaryPhone || altPhone
+
+          window.dispatchEvent(new CustomEvent('comms-action', {
+            detail: {
+              channel,
+              contact: {
+                id: client.client_id || id,
+                name: [client.first_name, client.last_name].filter(Boolean).join(' '),
+                phone: bestPhone,
+                email: (client.email as string) || '',
+                book: (client.book as string) || '',
+              },
+            },
+          }))
+        }}
+      />
       <PossibleDuplicates client={client} clientId={id} />
       <ClientDocuments clientId={id} />
       <ClientTabs activeTab={activeTab} onTabChange={setActiveTab} />

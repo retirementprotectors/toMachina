@@ -1,14 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CommsFeed } from './CommsFeed'
 import { CommsCompose } from './CommsCompose'
+import type { ClientResult } from './CommsCompose'
 
 /* ─── Types ─── */
+
+export type { ClientResult }
 
 interface CommsModuleProps {
   open: boolean
   onClose: () => void
+  /** Active client from contact detail page — auto-fills To field */
+  activeContact?: ClientResult | null
+  /** When set, opens directly on this tab instead of Log */
+  initialTab?: 'sms' | 'email' | 'call' | null
 }
 
 type CommsTab = 'log' | 'text' | 'email' | 'call'
@@ -31,8 +38,17 @@ const PANEL_RESPONSIVE_CLASSES = [
 
 /* ─── Main Component ─── */
 
-export function CommsModule({ open, onClose }: CommsModuleProps) {
+export function CommsModule({ open, onClose, activeContact, initialTab }: CommsModuleProps) {
   const [activeTab, setActiveTab] = useState<CommsTab>('log')
+
+  // Jump to requested tab when opened via client detail buttons
+  useEffect(() => {
+    if (open && initialTab) {
+      // Map channel names to tab keys (sms → text)
+      const tabMap: Record<string, CommsTab> = { sms: 'text', email: 'email', call: 'call' }
+      setActiveTab(tabMap[initialTab] || 'log')
+    }
+  }, [open, initialTab])
 
   if (!open) return null
 
@@ -89,9 +105,9 @@ export function CommsModule({ open, onClose }: CommsModuleProps) {
         {/* Content */}
         <div className="flex-1 overflow-hidden">
           {activeTab === 'log' && <CommsFeed />}
-          {activeTab === 'text' && <CommsCompose presetChannel="sms" onBack={() => setActiveTab('log')} />}
-          {activeTab === 'email' && <CommsCompose presetChannel="email" onBack={() => setActiveTab('log')} />}
-          {activeTab === 'call' && <CommsCompose presetChannel="call" onBack={() => setActiveTab('log')} />}
+          {activeTab === 'text' && <CommsCompose presetChannel="sms" presetContact={activeContact} onBack={() => setActiveTab('log')} />}
+          {activeTab === 'email' && <CommsCompose presetChannel="email" presetContact={activeContact} onBack={() => setActiveTab('log')} />}
+          {activeTab === 'call' && <CommsCompose presetChannel="call" presetContact={activeContact} onBack={() => setActiveTab('log')} />}
         </div>
       </div>
     </>

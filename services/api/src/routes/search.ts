@@ -24,6 +24,9 @@ searchRoutes.get('/', async (req: Request, res: Response) => {
     const q = ((req.query.q as string) || '').trim()
     const maxResults = Math.min(Math.max(parseInt(req.query.limit as string) || 10, 1), 25)
 
+    // Split multi-word queries: "Josh Millang" → search first_name=Josh + last_name=Millang
+    const parts = q.split(/\s+/).filter(Boolean)
+
     // Short queries return empty
     if (q.length < 2) {
       res.json(successResponse<SearchResultsData>({ clients: [], accounts: [] } as unknown as SearchResultsData))
@@ -35,6 +38,30 @@ searchRoutes.get('/', async (req: Request, res: Response) => {
     // ========================================================================
 
     const clientSearches: Promise<FirebaseFirestore.QuerySnapshot>[] = []
+
+    // Multi-word search: "Josh Millang" -> first_name prefix + client-side last_name filter
+    if (parts.length >= 2) {
+      const fn = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase()
+      const fnEnd = fn.slice(0, -1) + String.fromCharCode(fn.charCodeAt(fn.length - 1) + 1)
+      const ln = parts[parts.length - 1].charAt(0).toUpperCase() + parts[parts.length - 1].slice(1).toLowerCase()
+      const lnEnd = ln.slice(0, -1) + String.fromCharCode(ln.charCodeAt(ln.length - 1) + 1)
+
+      clientSearches.push(
+        db.collection('clients')
+          .where('first_name', '>=', fn)
+          .where('first_name', '<', fnEnd)
+          .limit(maxResults * 3)
+          .get()
+          .then((snap) => {
+            const filtered = snap.docs.filter((doc) => {
+              const last = String(doc.data().last_name || '')
+              return last >= ln && last < lnEnd
+            })
+            return { docs: filtered.slice(0, maxResults), empty: filtered.length === 0, size: filtered.length } as unknown as FirebaseFirestore.QuerySnapshot
+          })
+      )
+    }
+
 
     // 1. last_name prefix match
     const lastUpper = q.charAt(0).toUpperCase() + q.slice(1).toLowerCase()
