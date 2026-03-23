@@ -121,10 +121,10 @@ configRoutes.put('/:key', async (req: Request, res: Response) => {
       }
     }
 
-    // Merge updates with metadata — strip 'key' so it doesn't get stored as a field
-    const { key: _key, ...rest } = body
+    // Merge updates with metadata — strip the key field (doc ID, not a data field)
+    const { key: _stripKey, ...bodyWithoutKey } = body
     const updates = {
-      ...rest,
+      ...bodyWithoutKey,
       updated_at: now,
       _updated_by: userEmail,
     }

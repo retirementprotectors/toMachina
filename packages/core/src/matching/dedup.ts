@@ -9,6 +9,32 @@
 import { fuzzyMatch } from './fuzzy'
 
 // ============================================================================
+// CONFIGURABLE THRESHOLDS (TRK-CFG-003)
+// ============================================================================
+
+export interface DedupThresholds {
+  /** Weight for last name in name scoring (0-100). Default: 60 */
+  name_weight_last: number
+  /** Weight for first name in name scoring (0-100). Default: 40 */
+  name_weight_first: number
+  /** Minimum fuzzy match score to consider a name match. Default: 75 */
+  fuzzy_min: number
+  /** Score threshold to flag as duplicate. Default: 85 */
+  duplicate_threshold: number
+  /** Score assigned for exact email match. Default: 100 */
+  email_exact_score: number
+}
+
+/** Hardcoded defaults — used as fallback when Firestore config is unavailable. */
+export const DEFAULT_DEDUP_THRESHOLDS: DedupThresholds = {
+  name_weight_last: 60,
+  name_weight_first: 40,
+  fuzzy_min: 75,
+  duplicate_threshold: 85,
+  email_exact_score: 100,
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -52,10 +78,11 @@ interface NameFields {
 
 /**
  * Calculate name similarity score.
- * Weighted: 60% last name, 40% first name.
+ * Weighted: configurable (default 60% last name, 40% first name).
  * Ported from CORE_Match.gs calculateNameScore().
  */
-export function calculateNameScore(a: NameFields, b: NameFields): number {
+export function calculateNameScore(a: NameFields, b: NameFields, thresholds?: DedupThresholds): number {
+  const t = thresholds || DEFAULT_DEDUP_THRESHOLDS
   const firstName1 = (a.firstName || a.first_name || '').toLowerCase()
   const lastName1 = (a.lastName || a.last_name || '').toLowerCase()
   const firstName2 = (b.first_name || b.firstName || '').toLowerCase()
@@ -64,8 +91,7 @@ export function calculateNameScore(a: NameFields, b: NameFields): number {
   const lastNameScore = fuzzyMatch(lastName1, lastName2)
   const firstNameScore = fuzzyMatch(firstName1, firstName2)
 
-  // Weighted: 60% last name, 40% first name
-  return Math.round(lastNameScore * 0.6 + firstNameScore * 0.4)
+  return Math.round(lastNameScore * (t.name_weight_last / 100) + firstNameScore * (t.name_weight_first / 100))
 }
 
 /**
@@ -146,8 +172,10 @@ export function matchClient(
     normalizeDate?: (s: string | Date | unknown) => string
     phoneDigits?: (s: string) => string
     normalizeEmail?: (s: string) => string
-  }
+  },
+  thresholds?: DedupThresholds,
 ): MatchResult<ClientRecord> {
+  const t = thresholds || DEFAULT_DEDUP_THRESHOLDS
   const norm = normalizers || {}
   const normName = norm.normalizeName || ((s: string) => s?.toLowerCase().trim() || '')
   const normDate = norm.normalizeDate || ((s: string | Date | unknown) => String(s || '').trim())
@@ -174,7 +202,8 @@ export function matchClient(
     if (normalized.ssn_last4 && client.ssn_last4 === normalized.ssn_last4) {
       const nameScore = calculateNameScore(
         { firstName: normalized.firstName, lastName: normalized.lastName },
-        client
+        client,
+        t,
       )
       if (nameScore > 70) {
         return { match: client, score: 100, method: 'ssn_last4' }
@@ -183,7 +212,7 @@ export function matchClient(
 
     // Email exact match
     if (normalized.email && client.email === normalized.email) {
-      return { match: client, score: 95, method: 'email' }
+      return { match: client, score: t.email_exact_score, method: 'email' }
     }
 
     // Phone + Last Name + First Name match
@@ -204,7 +233,8 @@ export function matchClient(
     if (normalized.dob && normalized.dob === normDate(client.dob || '')) {
       const nameScore = calculateNameScore(
         { firstName: normalized.firstName, lastName: normalized.lastName },
-        client
+        client,
+        t,
       )
       if (nameScore > 80) {
         return { match: client, score: 85, method: 'name_dob' }
@@ -214,7 +244,8 @@ export function matchClient(
     // Fuzzy name match
     const nameScore = calculateNameScore(
       { firstName: normalized.firstName, lastName: normalized.lastName },
-      client
+      client,
+      t,
     )
     if (nameScore > bestScore) {
       bestScore = nameScore
@@ -222,8 +253,8 @@ export function matchClient(
     }
   }
 
-  // Return best fuzzy match if above threshold
-  if (bestScore >= 75) {
+  // Return best fuzzy match if above configurable threshold
+  if (bestScore >= t.fuzzy_min) {
     return { match: bestMatch, score: bestScore, method: matchMethod }
   }
 
@@ -407,7 +438,7 @@ export function matchAgent(
 export function findDuplicates<T extends Record<string, unknown>>(
   records: T[],
   matchFields: string[],
-  threshold = 85
+  threshold = DEFAULT_DEDUP_THRESHOLDS.duplicate_threshold,
 ): DuplicatePair<T>[] {
   const duplicates: DuplicatePair<T>[] = []
 

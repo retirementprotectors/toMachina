@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { fetchValidated } from './fetchValidated'
 import { useToast } from '../components/Toast'
+import { ConfigDataQuality } from './ConfigDataQuality'
+import { ConfigOperations } from './ConfigOperations'
 
 /* ═══ Types ═══ */
 
@@ -354,8 +356,22 @@ export function ConfigRegistry({ portal }: ConfigRegistryProps) {
                 )}
               </div>
 
-              {/* Section-specific editor — Builders 2/3/4 will replace SectionPlaceholder with real components */}
-              <SectionPlaceholder category={activeCategory} />
+              {/* Section-specific editors */}
+              {activeCategory === 'data_quality' ? (
+                <ConfigDataQuality
+                  configKey={selectedKey}
+                  configData={configData}
+                  onUpdate={d => { setConfigData(d); setDirty(true) }}
+                />
+              ) : activeCategory === 'operations' ? (
+                <ConfigOperations
+                  selectedKey={selectedKey}
+                  configData={configData}
+                  onUpdate={d => { setConfigData(d as ConfigData); setDirty(true) }}
+                />
+              ) : (
+                <SectionPlaceholder category={activeCategory} />
+              )}
             </div>
           )}
         </div>

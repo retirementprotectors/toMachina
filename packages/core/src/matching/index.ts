@@ -7,8 +7,10 @@ export {
   matchAgent,
   findDuplicates,
   batchMatch,
+  DEFAULT_DEDUP_THRESHOLDS,
 } from './dedup'
 export type {
+  DedupThresholds,
   MatchResult,
   AccountMatchResult,
   DuplicatePair,

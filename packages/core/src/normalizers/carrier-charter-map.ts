@@ -254,17 +254,21 @@ export const SINGLE_CHARTER_PARENTS: Record<string, CarrierIdentity> = {
 /**
  * Resolve a raw carrier name to a full two-layer identity.
  *
- * 1. Check CHARTER_IDENTITY_MAP for direct charter match
+ * 1. Check provided map (or default CHARTER_IDENTITY_MAP) for direct charter match
  * 2. If not found, return null (caller should use CARRIER_ALIASES for parent)
+ *
+ * @param raw - Raw carrier name string
+ * @param overrideMap - Optional Firestore-sourced map to use instead of hardcoded default
  */
-export function resolveCharterIdentity(raw: string): CarrierIdentity | null {
+export function resolveCharterIdentity(raw: string, overrideMap?: Record<string, CarrierIdentity>): CarrierIdentity | null {
   if (!raw) return null
   const cleaned = String(raw).trim().toLowerCase()
     .replace(/_/g, ' ')
     .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, ' ')
 
-  return CHARTER_IDENTITY_MAP[cleaned] ?? null
+  const map = overrideMap || CHARTER_IDENTITY_MAP
+  return map[cleaned] ?? null
 }
 
 /**
