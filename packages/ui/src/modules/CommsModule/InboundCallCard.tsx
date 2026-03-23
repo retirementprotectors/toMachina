@@ -23,11 +23,14 @@ interface InboundCallCardProps {
 /* ─── Component ─── */
 
 export function InboundCallCard({ call, onAnswer, onDecline, onRoute }: InboundCallCardProps) {
-  const [showCard, setShowCard] = useState(false)
+  // Auto-expand the card when a new call arrives
+  const [showCard, setShowCard] = useState(true)
   const [pulse, setPulse] = useState(true)
 
   useEffect(() => {
     if (!call) return
+    // Auto-show when a new call arrives
+    setShowCard(true)
     const interval = setInterval(() => {
       setPulse((v) => !v)
     }, 1000)

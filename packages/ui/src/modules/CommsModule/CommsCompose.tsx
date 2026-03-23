@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchValidated } from '../fetchValidated'
 import { ActiveCallScreen } from './ActiveCallScreen'
 import type { ActiveCallData } from './ActiveCallScreen'
+import { useTwilioDevice } from './TwilioDeviceProvider'
 
 /* ─── Types ─── */
 
@@ -323,6 +324,7 @@ function TemplateManager({
 /* ─── Component ─── */
 
 export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComposeProps) {
+  const { makeCall, isReady: deviceReady, isMuted, toggleMute, hangup: deviceHangup, sendDigits } = useTwilioDevice()
   const [channel, setChannel] = useState<ComposeChannel>(presetChannel ?? 'sms')
   const presetDetail = presetChannel === 'email' ? presetContact?.email : presetContact?.phone
   const [toSearch, setToSearch] = useState(presetContact ? (presetDetail ? `${presetContact.name} — ${presetDetail}` : presetContact.name) : '')
@@ -508,41 +510,58 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
     }
   }, [selectedClient, message, subject])
 
-  /* TRK-13570: Initiate voice call via Twilio API */
+  /* TRK-13663: Initiate voice call via Twilio Device SDK (replaces REST send-voice) */
   const handleStartCall = useCallback(async () => {
     if (callState !== 'idle' || dialerNumber.length < 3) return
+    if (!deviceReady) {
+      setSendError('Voice not ready — please wait a moment and try again')
+      return
+    }
     setCallState('connecting')
     setSendError(null)
     try {
       const to = dialerNumber.replace(/[^0-9+]/g, '')
-      const res = await fetchValidated('/api/comms/send-voice', {
-        method: 'POST',
-        body: JSON.stringify({
-          to: to.startsWith('+') ? to : `+1${to}`,
-          client_id: selectedClient?.id || null,
-          twiml: '<Response><Say voice="alice">Please hold while we connect you to your Retirement Protectors representative.</Say><Pause length="120"/></Response>',
-          record: true,
-        }),
+      const toE164 = to.startsWith('+') ? to : `+1${to}`
+
+      const call = await makeCall(toE164)
+      if (!call) throw new Error('Call initiation failed')
+
+      // 'accept' fires when Twilio connects the call
+      call.on('accept', () => {
+        setCallState('active')
+        setActiveCall({
+          callId: call.parameters?.CallSid || `call-${Date.now()}`,
+          callerName: selectedClient?.name ?? 'Unknown',
+          callerPhone: dialerNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3'),
+          callerLabel: selectedClient?.book,
+        })
       })
-      if (!res.success) throw new Error(res.error || 'Call initiation failed')
-      setCallState('active')
-      setActiveCall({
-        callId: (res.data as Record<string, unknown>)?.callSid as string || `call-${Date.now()}`,
-        callerName: selectedClient?.name ?? 'Unknown',
-        callerPhone: dialerNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3'),
-        callerLabel: selectedClient?.book,
+
+      // 'disconnect' fires when call ends (either side)
+      call.on('disconnect', () => {
+        setCallState('idle')
+        setActiveCall(null)
+      })
+
+      // 'error' fires if the call fails to connect
+      call.on('error', (err: unknown) => {
+        const msg = err instanceof Error ? err.message : 'Call error'
+        setSendError(msg)
+        setCallState('idle')
+        setActiveCall(null)
       })
     } catch (err) {
       setSendError(err instanceof Error ? err.message : 'Call failed')
       setCallState('idle')
     }
-  }, [callState, dialerNumber, selectedClient])
+  }, [callState, dialerNumber, selectedClient, deviceReady, makeCall])
 
   const handleEndCall = useCallback(() => {
+    deviceHangup()
     setActiveCall(null)
     setCallState('idle')
     setDialerNumber('')
-  }, [])
+  }, [deviceHangup])
 
   /* TRK-13571: Manual call log */
   const handleLogCall = useCallback(async () => {
@@ -976,7 +995,13 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
 
       {/* TRK-13570: Active Call Screen overlay */}
       {activeCall && (
-        <ActiveCallScreen call={activeCall} onEndCall={handleEndCall} />
+        <ActiveCallScreen
+          call={activeCall}
+          isMuted={isMuted}
+          onToggleMute={toggleMute}
+          onEndCall={handleEndCall}
+          onSendDigits={sendDigits}
+        />
       )}
     </div>
   )

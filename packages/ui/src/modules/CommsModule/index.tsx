@@ -1,8 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CommsFeed } from './CommsFeed'
 import { CommsCompose } from './CommsCompose'
+import { InboundCallCard } from './InboundCallCard'
+import { ActiveCallScreen } from './ActiveCallScreen'
+import type { ActiveCallData } from './ActiveCallScreen'
+import { useIncomingCall } from './useIncomingCall'
 import type { ClientResult } from './CommsCompose'
 
 /* ─── Types ─── */
@@ -40,8 +44,12 @@ const PANEL_RESPONSIVE_CLASSES = [
 
 export function CommsModule({ open, onClose, activeContact, initialTab }: CommsModuleProps) {
   const [activeTab, setActiveTab] = useState<CommsTab>('log')
+  const [activeCall, setActiveCall] = useState<ActiveCallData | null>(null)
 
-  // Jump to requested tab when opened via client detail buttons
+  /* TRK-13667: Inbound call handling */
+  const { incomingCall, answerCall, declineCall } = useIncomingCall()
+
+  /* Jump to requested tab when opened via client detail buttons */
   useEffect(() => {
     if (open && initialTab) {
       // Map channel names to tab keys (sms → text)
@@ -50,15 +58,75 @@ export function CommsModule({ open, onClose, activeContact, initialTab }: CommsM
     }
   }, [open, initialTab])
 
-  if (!open) return null
-
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setActiveTab('log')
     onClose()
+  }, [onClose])
+
+  /* Answer: accept Twilio call → transition to ActiveCallScreen */
+  const handleAnswer = useCallback(() => {
+    if (!incomingCall) return
+    answerCall()
+    setActiveCall({
+      callId: incomingCall.id,
+      callerName: incomingCall.callerName,
+      callerPhone: incomingCall.callerPhone,
+      callerLabel: incomingCall.book ? `Book: ${incomingCall.book}` : undefined,
+    })
+  }, [incomingCall, answerCall])
+
+  /* Decline: reject + log to Firestore */
+  const handleDecline = useCallback(() => {
+    declineCall()
+  }, [declineCall])
+
+  /* End active call */
+  const handleEndCall = useCallback(() => {
+    const call = window.__activeTwilioCall as { disconnect?: () => void } | undefined
+    if (call?.disconnect) call.disconnect()
+    setActiveCall(null)
+    window.__activeTwilioCall = undefined
+  }, [])
+
+  /* Active call overlay — rendered outside the panel so it covers the full screen */
+  if (activeCall) {
+    return (
+      <ActiveCallScreen
+        call={activeCall}
+        onEndCall={handleEndCall}
+        isMuted={false}
+        onToggleMute={() => {
+          const call = window.__activeTwilioCall as { mute?: (m: boolean) => void; isMuted?: () => boolean } | undefined
+          if (call?.mute) call.mute(!call.isMuted?.())
+        }}
+        onSendDigits={(digits: string) => {
+          const call = window.__activeTwilioCall as { sendDigits?: (d: string) => void } | undefined
+          if (call?.sendDigits) call.sendDigits(digits)
+        }}
+      />
+    )
+  }
+
+  /* Inbound ringing — always rendered (even when panel is closed) so agent sees the ring */
+  const inboundOverlay = incomingCall ? (
+    <div className="fixed right-4 top-4 z-[60]">
+      <InboundCallCard
+        call={incomingCall}
+        onAnswer={handleAnswer}
+        onDecline={handleDecline}
+      />
+    </div>
+  ) : null
+
+  if (!open) {
+    return <>{inboundOverlay}</>
   }
 
   return (
     <>
+      {/* Inbound call overlay — floats above the panel */}
+      {inboundOverlay}
+
       {/* Backdrop — click to close */}
       <div
         className="fixed inset-0 z-40 bg-black/20"

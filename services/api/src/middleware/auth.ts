@@ -2,6 +2,11 @@ import { type Request, type Response, type NextFunction } from 'express'
 import { getAuth } from 'firebase-admin/auth'
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
+  // Twilio webhook routes call our API directly — no Firebase token available
+  if (req.path.startsWith('/comms/webhook/')) {
+    return next()
+  }
+
   const authHeader = (req.headers['x-forwarded-authorization'] as string | undefined) || req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ success: false, error: 'Missing auth token' })

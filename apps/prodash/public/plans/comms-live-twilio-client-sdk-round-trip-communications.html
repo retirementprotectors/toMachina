@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMMS-LIVE — Twilio Client SDK + Round-Trip Communications</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --dim: #484f58;
+    --blue: #4a7ab5; --blue-bright: #6b9fd4; --blue-glow: rgba(74,122,181,0.12); --blue-border: rgba(74,122,181,0.28);
+    --green: #3fb950; --red: #f85149; --orange: #d29922; --amber: #e3b341;
+    --purple: #bc8cff; --teal: #39d4b0; --cyan: #58a6ff;
+    --amber-bg: rgba(227,179,65,0.06); --amber-border: rgba(227,179,65,0.22);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+
+  /* HEADER */
+  .header { padding: 56px 40px 36px; text-align: center; position: relative; border-bottom: 1px solid var(--border); overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%; background: linear-gradient(135deg, var(--blue) 0%, #1a1a2e 100%); opacity: 0.15; }
+  .header::after { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(circle, rgba(74,122,181,0.12) 0%, transparent 70%); pointer-events: none; }
+  .header .sprint-badge { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--blue-glow); border: 1px solid var(--blue-border); color: var(--blue-bright); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; position: relative; z-index: 1; }
+  .header h1 { font-size: 38px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--blue-bright), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; z-index: 1; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+  .header .meta { display: flex; gap: 24px; justify-content: center; margin-top: 20px; position: relative; z-index: 1; }
+  .header .meta-item { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .header .meta-item strong { color: var(--muted); font-weight: 600; }
+
+  /* CONTAINER */
+  .container { max-width: 920px; margin: 0 auto; padding: 40px; }
+
+  /* HEADINGS */
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 52px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--blue-bright); }
+  h3 { font-size: 16px; font-weight: 700; margin: 28px 0 8px; color: var(--blue-bright); }
+  h4 { font-size: 14px; font-weight: 700; margin: 16px 0 6px; color: var(--text); }
+
+  /* TEXT */
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--blue-bright); }
+  pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 12px 0; overflow-x: auto; }
+  pre code { padding: 0; background: none; font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .card-header h4 { margin: 0; }
+
+  /* BADGES */
+  .ticket { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; background: var(--blue-glow); color: var(--blue-bright); border: 1px solid var(--blue-border); margin-right: 6px; margin-bottom: 4px; }
+  .phase-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 13px; font-weight: 800; color: var(--bg); flex-shrink: 0; }
+  .phase-badge.p1 { background: var(--green); }
+  .phase-badge.p2 { background: var(--purple); }
+  .phase-badge.p3 { background: var(--orange); }
+  .builder-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .builder-badge.api { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .builder-badge.ux { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .builder-badge.sdk { background: rgba(88,166,255,0.10); color: var(--cyan); border: 1px solid rgba(88,166,255,0.25); }
+  .builder-badge.deploy { background: rgba(210,153,34,0.10); color: var(--orange); border: 1px solid rgba(210,153,34,0.25); }
+
+  /* STRATEGY BAR */
+  .strategy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+  .stat-card .num { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
+  .stat-card .num.green { color: var(--green); }
+  .stat-card .num.purple { color: var(--purple); }
+  .stat-card .num.orange { color: var(--orange); }
+  .stat-card .label { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+  /* ROUTE TABLE */
+  .route-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .route-table th { text-align: left; font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .route-table td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); vertical-align: top; }
+  .route-table td code { font-size: 11px; }
+  .route-table td strong { color: var(--text); font-weight: 600; }
+
+  /* PARALLELIZATION MAP */
+  .para-map { margin: 24px 0; }
+  .wave { margin-bottom: 20px; }
+  .wave-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .wave-label { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 4px; }
+  .wave-label.w1 { background: rgba(63,185,80,0.12); color: var(--green); border: 1px solid rgba(63,185,80,0.25); }
+  .wave-label.w2 { background: rgba(188,140,255,0.12); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .wave-label.w3 { background: rgba(210,153,34,0.12); color: var(--orange); border: 1px solid rgba(210,153,34,0.25); }
+  .wave-tag { font-size: 11px; color: var(--dim); font-weight: 500; }
+  .wave-boxes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .wave-box { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .wave-box .box-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .wave-box .box-tickets { font-size: 11px; color: var(--dim); }
+  .wave-connector { display: flex; justify-content: center; padding: 6px 0; }
+  .wave-arrow { color: var(--dim); font-size: 20px; }
+
+  /* AMBER ENV SECTION */
+  .env-section { background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .env-section h3 { color: var(--amber); margin-top: 0; }
+  .env-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  .env-table th { text-align: left; font-size: 10px; font-weight: 700; color: var(--amber); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; border-bottom: 1px solid var(--amber-border); }
+  .env-table td { padding: 8px 12px; border-bottom: 1px solid rgba(227,179,65,0.1); color: var(--muted); }
+  .env-table td code { color: var(--amber); }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; padding: 0; margin: 16px 0; }
+  .checklist li { padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 14px; color: var(--muted); display: flex; align-items: flex-start; gap: 10px; }
+  .checklist li .check { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+  .checklist li .idx { font-weight: 800; color: var(--blue-bright); min-width: 18px; }
+
+  /* TWIML BLOCK */
+  .twiml { background: #0f161e; border-left: 3px solid var(--teal); border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 10px 0; }
+  .twiml code { color: var(--teal); font-size: 11px; }
+
+  /* PRINT */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .header { border-bottom-color: #ddd; }
+    .header::before, .header::after { display: none; }
+    .header h1 { -webkit-text-fill-color: #2a5a8f; }
+    .card, .stat-card, .wave-box, .env-section { border-color: #ddd; background: #f9f9f9; }
+    .ticket { background: #eef3fa; color: #2a5a8f; border-color: #c0d4ec; }
+    code { background: #f0f0f0; color: #2a5a8f; }
+    pre { background: #f5f5f5; border-color: #ddd; }
+    pre code { color: #333; }
+    .twiml { background: #f5f9f5; border-left-color: #2a8a5a; }
+    .twiml code { color: #2a8a5a; }
+    .checklist li { background: #f9f9f9; border-color: #ddd; }
+    .route-table th, .env-table th { color: #666; border-bottom-color: #ddd; }
+    .route-table td, .env-table td { border-bottom-color: #eee; }
+    p, li, .route-table td, .env-table td { color: #444; }
+    .wave-label { border-color: #ccc; }
+    .stat-card .num.green { color: #2a8a4a; }
+    .stat-card .num.purple { color: #7a5abf; }
+    .stat-card .num.orange { color: #b5801a; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="sprint-badge">FORGE Sprint &middot; COMMS-LIVE</div>
+  <h1>Twilio Client SDK + Round-Trip Communications</h1>
+  <div class="sub">Browser-native calling, inbound voice/SMS webhooks, real-time Firestore feed, and recording playback. Full round-trip comms through the 888 toll-free.</div>
+  <div class="meta">
+    <div class="meta-item"><strong>Date:</strong> 2026-03-23</div>
+    <div class="meta-item"><strong>Builders:</strong> 6</div>
+    <div class="meta-item"><strong>Tickets:</strong> 17</div>
+    <div class="meta-item"><strong>Phases:</strong> 3</div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- EXECUTION STRATEGY -->
+<h2>Execution <span class="accent">Strategy</span></h2>
+<div class="strategy">
+  <div class="stat-card">
+    <div class="num green">3</div>
+    <div class="label">Phase 1 &mdash; Parallel</div>
+  </div>
+  <div class="stat-card">
+    <div class="num purple">2</div>
+    <div class="label">Phase 2 &mdash; Parallel</div>
+  </div>
+  <div class="stat-card">
+    <div class="num orange">1</div>
+    <div class="label">Phase 3 &mdash; Sequential</div>
+  </div>
+</div>
+<p>Phase 1 builders have <strong>zero dependencies</strong> between them (API + UX). Phase 2 depends on Phase 1 API routes. Phase 3 depends on everything.</p>
+
+<!-- PHASE 1 -->
+<h2><span class="phase-badge p1">1</span>&nbsp; API Foundation + UX <span class="accent">Polish</span></h2>
+
+<!-- BUILDER 01 -->
+<div class="card">
+  <div class="card-header">
+    <span class="builder-badge api">API</span>
+    <h4>BUILDER 01 &mdash; Token + Outbound Webhook</h4>
+  </div>
+  <div><span class="ticket">TRK-13651</span><span class="ticket">TRK-13653</span></div>
+  <p style="margin-top:12px"><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code>, <code>services/api/package.json</code></p>
+
+  <h4>TRK-13651: Access Token Endpoint</h4>
+  <table class="route-table">
+    <tr><td><code>POST /api/comms/token</code></td><td>Generate Twilio Access Token with VoiceGrant. Identity = authenticated user email. TTL 3600s. Returns <code>{ success, data: { token, identity } }</code></td></tr>
+  </table>
+
+  <h4>TRK-13653: Outbound Voice Webhook</h4>
+  <table class="route-table">
+    <tr><td><code>POST /api/comms/webhook/voice</code></td><td>TwiML App callback. Reads <code>To</code> + <code>From</code> params, returns <code>&lt;Dial&gt;</code> TwiML with 888 caller ID + recording. Logs outbound call to Firestore.</td></tr>
+  </table>
+  <div class="twiml"><code>&lt;Response&gt;<br>&nbsp;&nbsp;&lt;Dial callerId="+18886208587" record="record-from-answer-dual"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;Number statusCallbackEvent="initiated ringing answered completed"<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;statusCallback="/api/comms/webhook/call-status"&gt;{To}&lt;/Number&gt;<br>&nbsp;&nbsp;&lt;/Dial&gt;<br>&lt;/Response&gt;</code></div>
+  <p style="margin-top:8px"><strong>Auth bypass required:</strong> Webhook routes (<code>/api/comms/webhook/*</code>) must skip Firebase auth middleware &mdash; Twilio calls them directly.</p>
+</div>
+
+<!-- BUILDER 02 -->
+<div class="card">
+  <div class="card-header">
+    <span class="builder-badge api">API</span>
+    <h4>BUILDER 02 &mdash; Inbound Webhooks + Recording</h4>
+  </div>
+  <div><span class="ticket">TRK-13655</span><span class="ticket">TRK-13665</span><span class="ticket">TRK-13650</span></div>
+  <p style="margin-top:12px"><strong>Files:</strong> <code>services/api/src/routes/comms.ts</code> (4 new routes)</p>
+
+  <h4>TRK-13655: Inbound Voice Webhook</h4>
+  <table class="route-table">
+    <tr><td><code>POST /api/comms/webhook/voice-incoming</code></td><td>888 incoming calls. Phase 1: route to <code>josh@retireprotected.com</code>. Returns <code>&lt;Dial&gt;&lt;Client&gt;</code> TwiML with fallback voicemail. Logs to Firestore.</td></tr>
+  </table>
+  <div class="twiml"><code>&lt;Response&gt;<br>&nbsp;&nbsp;&lt;Dial record="record-from-answer-dual"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;Client&gt;josh@retireprotected.com&lt;/Client&gt;<br>&nbsp;&nbsp;&lt;/Dial&gt;<br>&nbsp;&nbsp;&lt;Say&gt;We're sorry, no one is available. Please leave a message.&lt;/Say&gt;<br>&nbsp;&nbsp;&lt;Record maxLength="120" action="/api/comms/webhook/voicemail" /&gt;<br>&lt;/Response&gt;</code></div>
+
+  <h4>TRK-13665: Inbound SMS Webhook</h4>
+  <table class="route-table">
+    <tr><td><code>POST /api/comms/webhook/sms-incoming</code></td><td>888 incoming texts. Extracts <code>From</code>, <code>Body</code>, <code>MessageSid</code>, media. Looks up client by phone. Logs to Firestore <code>communications</code>. Returns empty TwiML (no auto-reply).</td></tr>
+  </table>
+
+  <h4>TRK-13650: Recording + Call Status</h4>
+  <table class="route-table">
+    <tr><td><code>POST /api/comms/webhook/recording-status</code></td><td>Recording complete callback. Updates Firestore doc with <code>recording_url</code>, duration, SID.</td></tr>
+    <tr><td><code>POST /api/comms/webhook/call-status</code></td><td>Call state changes (initiated &rarr; ringing &rarr; answered &rarr; completed). Updates status + duration in Firestore.</td></tr>
+  </table>
+</div>
+
+<!-- BUILDER 03 -->
+<div class="card">
+  <div class="card-header">
+    <span class="builder-badge ux">UX</span>
+    <h4>BUILDER 03 &mdash; Tab Reorder + Channel Layout + Pipeline Fix</h4>
+  </div>
+  <div><span class="ticket">TRK-13662</span><span class="ticket">TRK-13666</span><span class="ticket">TRK-13661</span><span class="ticket">TRK-13664</span></div>
+  <p style="margin-top:12px"><strong>Files:</strong> <code>packages/ui/src/modules/CommsModule/</code> (index, CommsCompose), pipeline pages</p>
+
+  <h4>TRK-13662: Tab Reorder + Call Tab</h4>
+  <ul>
+    <li>Tabs: <strong>Log &rarr; Call &rarr; Text &rarr; Email</strong> (was Log, Text, Email, Call)</li>
+    <li>Context-aware: client detail = show name + phone header; standalone = show To search</li>
+    <li>Multi-phone selector, dialer keypad, prominent "Start Call" button</li>
+  </ul>
+
+  <h4>TRK-13666 + TRK-13661: Text + Email Tabs</h4>
+  <ul>
+    <li>Consistent layout: client header or To search, From number/address, template selector above message, send button</li>
+    <li>Text: character counter, 888 toll-free as From, "Send via Twilio"</li>
+    <li>Email: subject field, <code>noreply@retireprotected.com</code> as From, "Send via SendGrid"</li>
+  </ul>
+
+  <h4>TRK-13664: Pipeline New Case Fix</h4>
+  <ul>
+    <li>Trace New Case button &rarr; modal &rarr; API call &rarr; Firestore doc creation</li>
+    <li>Fix form fields / API contract mismatch so card appears on Kanban</li>
+  </ul>
+</div>
+
+<!-- PHASE 2 -->
+<h2><span class="phase-badge p2">2</span>&nbsp; Frontend Twilio Client <span class="accent">SDK</span></h2>
+
+<!-- BUILDER 04 -->
+<div class="card">
+  <div class="card-header">
+    <span class="builder-badge sdk">SDK</span>
+    <h4>BUILDER 04 &mdash; SDK Setup + Outbound Calling + Call Controls</h4>
+  </div>
+  <div><span class="ticket">TRK-13658</span><span class="ticket">TRK-13663</span><span class="ticket">TRK-13654</span></div>
+  <p style="margin-top:12px"><strong>Files:</strong> <code>packages/ui/</code> (new TwilioDeviceProvider, CommsCompose, ActiveCallScreen)</p>
+
+  <h4>TRK-13658: TwilioDeviceProvider</h4>
+  <ul>
+    <li>React context managing Twilio Device lifecycle</li>
+    <li>Fetch token from <code>/api/comms/token</code> &rarr; create Device &rarr; <code>Device.register()</code></li>
+    <li>Handle <code>incoming</code>, <code>tokenWillExpire</code> (auto-refresh), cleanup on unmount</li>
+    <li>Exposes: <code>device</code>, <code>makeCall(to)</code>, <code>answerCall()</code>, <code>rejectCall()</code>, <code>hangup()</code></li>
+  </ul>
+
+  <h4>TRK-13663: Outbound via Device.connect()</h4>
+  <ul>
+    <li>Replace REST <code>fetch('/api/comms/send-voice')</code> with <code>device.connect({ params: { To } })</code></li>
+    <li>Events: <code>accept</code> &rarr; ActiveCallScreen, <code>disconnect</code> &rarr; log + reset, <code>error</code> &rarr; toast</li>
+    <li>Caller ID auto-shows +18886208587 (set in TwiML webhook)</li>
+  </ul>
+
+  <h4>TRK-13654: Active Call Controls</h4>
+  <ul>
+    <li><strong>Mute:</strong> <code>call.mute(true/false)</code></li>
+    <li><strong>DTMF:</strong> <code>call.sendDigits('123')</code> (IVR navigation)</li>
+    <li><strong>Hangup:</strong> <code>call.disconnect()</code></li>
+    <li><strong>Duration:</strong> timer on accept, stop on disconnect</li>
+    <li><strong>Quality:</strong> <code>call.on('warning')</code> / <code>warning-cleared</code></li>
+  </ul>
+</div>
+
+<!-- BUILDER 05 -->
+<div class="card">
+  <div class="card-header">
+    <span class="builder-badge sdk">SDK</span>
+    <h4>BUILDER 05 &mdash; Inbound Handling + Real-Time Feed + Recordings</h4>
+  </div>
+  <div><span class="ticket">TRK-13667</span><span class="ticket">TRK-13649</span><span class="ticket">TRK-13659</span></div>
+  <p style="margin-top:12px"><strong>Files:</strong> <code>packages/ui/src/modules/CommsModule/</code> (TwilioDeviceProvider, InboundCallCard, CommsFeed, new RecordingPlayer)</p>
+
+  <h4>TRK-13667: Inbound Call Handling</h4>
+  <ul>
+    <li><code>device.on('incoming')</code> &rarr; show InboundCallCard overlay</li>
+    <li>Caller lookup by phone in Firestore <code>clients</code></li>
+    <li>Accept (<code>call.accept()</code>) &rarr; ActiveCallScreen / Reject (<code>call.reject()</code>) &rarr; log</li>
+    <li>Ringtone audio on incoming</li>
+  </ul>
+
+  <h4>TRK-13649: Real-Time CommsFeed</h4>
+  <ul>
+    <li>Replace <code>fetch('/api/comms')</code> polling with Firestore <code>onSnapshot</code></li>
+    <li>Query: <code>communications</code>, ordered by <code>created_at desc</code>, limit 50</li>
+    <li>Inbound SMS/calls appear instantly &mdash; no refresh needed</li>
+    <li>Delivery status updates in real-time (queued &rarr; sent &rarr; delivered)</li>
+  </ul>
+
+  <h4>TRK-13659: Recording Playback</h4>
+  <ul>
+    <li>New <code>RecordingPlayer.tsx</code>: inline audio player (play/pause, duration, scrub)</li>
+    <li>Source: <code>recording_url</code> from Firestore doc (Twilio-hosted .mp3)</li>
+    <li>Voice entries with recording show player; without show "No recording"</li>
+  </ul>
+</div>
+
+<!-- PHASE 3 -->
+<h2><span class="phase-badge p3">3</span>&nbsp; Deploy + Configure + <span class="accent">Test</span></h2>
+
+<!-- BUILDER 06 -->
+<div class="card">
+  <div class="card-header">
+    <span class="builder-badge deploy">Deploy</span>
+    <h4>BUILDER 06 &mdash; Deploy + Twilio Console + E2E</h4>
+  </div>
+  <div><span class="ticket">TRK-13652</span><span class="ticket">TRK-13656</span></div>
+
+  <h4>TRK-13652: Deploy + Configure</h4>
+  <ul>
+    <li>Add 3 new env vars to Cloud Run <code>tm-api</code></li>
+    <li>Create Twilio API Key + TwiML App in Twilio Console</li>
+    <li>Configure 888 number webhooks (voice-incoming + sms-incoming)</li>
+    <li>Push &rarr; PR &rarr; CI &rarr; auto-merge &rarr; deploy-api &rarr; Firebase App Hosting</li>
+    <li>Verify webhook endpoints are reachable</li>
+  </ul>
+
+  <h4>TRK-13656: E2E Testing</h4>
+  <table class="route-table">
+    <thead><tr><th>Test</th><th>Steps</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Outbound Call</strong></td><td>Click Call on profile &rarr; phone rings &rarr; answer &rarr; talk &rarr; hangup &rarr; verify Firestore log + recording</td></tr>
+      <tr><td><strong>Inbound Call</strong></td><td>Call 888-620-8587 &rarr; browser rings &rarr; accept &rarr; talk &rarr; hangup &rarr; verify log</td></tr>
+      <tr><td><strong>Outbound SMS</strong></td><td>Send text from ProDashX &rarr; verify delivery</td></tr>
+      <tr><td><strong>Inbound SMS</strong></td><td>Text 888 from phone &rarr; appears in CommsFeed real-time</td></tr>
+      <tr><td><strong>Recording</strong></td><td>Find call in CommsFeed &rarr; click play &rarr; audio plays</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PARALLELIZATION MAP -->
+<h2>Parallelization <span class="accent">Map</span></h2>
+<div class="para-map">
+  <!-- WAVE 1 -->
+  <div class="wave">
+    <div class="wave-header">
+      <span class="wave-label w1">Wave 1</span>
+      <span class="wave-tag">Parallel &mdash; no dependencies</span>
+    </div>
+    <div class="wave-boxes">
+      <div class="wave-box">
+        <div class="box-title">BUILDER 01 <span class="builder-badge api" style="font-size:9px;margin-left:4px">API</span></div>
+        <div class="box-tickets">TRK-13651 + TRK-13653</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Token + Outbound Webhook</div>
+      </div>
+      <div class="wave-box">
+        <div class="box-title">BUILDER 02 <span class="builder-badge api" style="font-size:9px;margin-left:4px">API</span></div>
+        <div class="box-tickets">TRK-13655 + TRK-13665 + TRK-13650</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Inbound + Recording</div>
+      </div>
+      <div class="wave-box">
+        <div class="box-title">BUILDER 03 <span class="builder-badge ux" style="font-size:9px;margin-left:4px">UX</span></div>
+        <div class="box-tickets">TRK-13662 + TRK-13666 + TRK-13661 + TRK-13664</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Tabs + Layouts + Pipeline</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wave-connector"><span class="wave-arrow">&#9660; &#9660; &#9660;</span></div>
+
+  <!-- WAVE 2 -->
+  <div class="wave">
+    <div class="wave-header">
+      <span class="wave-label w2">Wave 2</span>
+      <span class="wave-tag">Parallel &mdash; depends on Wave 1 API</span>
+    </div>
+    <div class="wave-boxes">
+      <div class="wave-box">
+        <div class="box-title">BUILDER 04 <span class="builder-badge sdk" style="font-size:9px;margin-left:4px">SDK</span></div>
+        <div class="box-tickets">TRK-13658 + TRK-13663 + TRK-13654</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">SDK + Outbound + Controls</div>
+      </div>
+      <div class="wave-box">
+        <div class="box-title">BUILDER 05 <span class="builder-badge sdk" style="font-size:9px;margin-left:4px">SDK</span></div>
+        <div class="box-tickets">TRK-13667 + TRK-13649 + TRK-13659</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Inbound + Feed + Recordings</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wave-connector"><span class="wave-arrow">&#9660; &#9660; &#9660;</span></div>
+
+  <!-- WAVE 3 -->
+  <div class="wave">
+    <div class="wave-header">
+      <span class="wave-label w3">Wave 3</span>
+      <span class="wave-tag">Sequential &mdash; depends on everything</span>
+    </div>
+    <div class="wave-boxes">
+      <div class="wave-box" style="max-width:340px">
+        <div class="box-title">BUILDER 06 <span class="builder-badge deploy" style="font-size:9px;margin-left:4px">Deploy</span></div>
+        <div class="box-tickets">TRK-13652 + TRK-13656</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Deploy + Twilio Console + E2E</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENV VARS -->
+<h2>New Environment <span class="accent">Variables</span></h2>
+<div class="env-section">
+  <h3>Twilio Console Setup &mdash; JDM Action Required</h3>
+  <p style="margin-bottom:12px">These 3 credentials must be created <strong>before builders run</strong>. Can be done via Playwright walkthrough if logged into Twilio Console.</p>
+  <table class="env-table">
+    <thead><tr><th>Variable</th><th>Source</th><th>Destination</th></tr></thead>
+    <tbody>
+      <tr><td><code>TWILIO_API_KEY_SID</code></td><td>Twilio Console &rarr; Account &rarr; API Keys &rarr; Create new</td><td>Cloud Run env + local .env</td></tr>
+      <tr><td><code>TWILIO_API_KEY_SECRET</code></td><td>Generated with above</td><td>Cloud Run env + local .env</td></tr>
+      <tr><td><code>TWILIO_TWIML_APP_SID</code></td><td>Twilio Console &rarr; Voice &rarr; TwiML Apps &rarr; Create new (set voice URL after deploy)</td><td>Cloud Run env + local .env</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- API ROUTES SUMMARY -->
+<h2>API Routes <span class="accent">Summary</span></h2>
+<table class="route-table">
+  <thead><tr><th>Method</th><th>Route</th><th>Auth</th><th>Builder</th></tr></thead>
+  <tbody>
+    <tr><td><code>POST</code></td><td><code>/api/comms/token</code></td><td>Firebase</td><td>01</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/comms/webhook/voice</code></td><td>None (Twilio)</td><td>01</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/comms/webhook/voice-incoming</code></td><td>None (Twilio)</td><td>02</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/comms/webhook/sms-incoming</code></td><td>None (Twilio)</td><td>02</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/comms/webhook/recording-status</code></td><td>None (Twilio)</td><td>02</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/comms/webhook/call-status</code></td><td>None (Twilio)</td><td>02</td></tr>
+  </tbody>
+</table>
+
+<!-- SUCCESS CRITERIA -->
+<h2>Success <span class="accent">Criteria</span></h2>
+<ul class="checklist">
+  <li><span class="idx">1</span><span class="check"></span>Agent clicks Call &rarr; client's phone rings &rarr; agent talks through browser</li>
+  <li><span class="idx">2</span><span class="check"></span>Client calls 888 &rarr; agent's browser rings &rarr; agent answers from ProDashX</li>
+  <li><span class="idx">3</span><span class="check"></span>Client texts 888 &rarr; message appears in Comms Log in real-time</li>
+  <li><span class="idx">4</span><span class="check"></span>All calls recorded automatically &rarr; playback available in Comms Log</li>
+  <li><span class="idx">5</span><span class="check"></span>All communications logged to Firestore with full metadata</li>
+  <li><span class="idx">6</span><span class="check"></span>Tab order: Log, Call, Text, Email</li>
+  <li><span class="idx">7</span><span class="check"></span>Call / Text / Email tabs have consistent, clean UX</li>
+  <li><span class="idx">8</span><span class="check"></span>Pipeline New Case creation works end-to-end</li>
+</ul>
+
+</div>
+</body>
+</html>
