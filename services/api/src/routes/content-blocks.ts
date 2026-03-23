@@ -12,12 +12,13 @@ import {
 } from '../lib/helpers.js'
 import type { ContentBlockDTO, ContentBlockCreateDTO, ContentBlockUpdateResult, ContentBlockDeleteResult } from '@tomachina/core'
 import { randomUUID } from 'crypto'
+import { getConfig } from '../lib/config-helper.js'
 
 export const contentBlockRoutes = Router()
 const COLLECTION = 'content_blocks'
 
-// Block type prefixes for auto-ID generation (from C3 GAS)
-const TYPE_PREFIX: Record<string, string> = {
+// Default block type prefixes — fallback when config_registry/content_block_types unavailable
+const DEFAULT_TYPE_PREFIX: Record<string, string> = {
   SubjectLine: 'SUBJ',
   Greeting: 'GRT',
   Introduction: 'INT',
@@ -29,6 +30,16 @@ const TYPE_PREFIX: Record<string, string> = {
   TextTemplate: 'TXT',
   VMScript: 'VM',
   EmailBody: 'EM',
+}
+
+/** Resolve type prefix from config registry, falling back to hardcoded defaults */
+async function getTypePrefix(blockType: string): Promise<string> {
+  const config = await getConfig<{ types: Array<{ name: string; prefix: string }> }>(
+    'content_block_types',
+    { types: Object.entries(DEFAULT_TYPE_PREFIX).map(([name, prefix]) => ({ name, prefix, description: '' })) }
+  )
+  const match = config.types?.find(t => t.name === blockType)
+  return match?.prefix || DEFAULT_TYPE_PREFIX[blockType] || 'BLK'
 }
 
 // ============================================================================
@@ -100,7 +111,7 @@ contentBlockRoutes.post('/', createValidation, async (req: Request, res: Respons
     const db = getFirestore()
     const now = new Date().toISOString()
     const blockType = String(req.body.block_type || req.body.type || 'TXT')
-    const prefix = TYPE_PREFIX[blockType] || 'BLK'
+    const prefix = await getTypePrefix(blockType)
     const blockId = `${prefix}_${randomUUID().slice(0, 8)}`
 
     const data: Record<string, unknown> = {

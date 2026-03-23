@@ -13,6 +13,7 @@ import {
 import { randomUUID, createHash } from 'crypto'
 import { getRecentRuns, type ImportRunRecord } from '../lib/import-tracker.js'
 import { detectCarrierFormat } from '../lib/carrier-formats.js'
+import { getConfig } from '../lib/config-helper.js'
 import {
   hashHeaderFingerprint,
   profileCsvColumns,
@@ -62,14 +63,15 @@ const PRODUCT_CATEGORY_MAP: Record<string, string> = {
   ANCILLARY: 'HEALTH', GROUP: 'HEALTH',
 }
 
-const PIPELINE_STAGES = {
-  INTAKE: { statuses: ['NEW', 'SCANNING', 'QUEUED'], label: 'Intake Queue', color: '#fbbf24' },
-  EXTRACTION: { statuses: ['EXTRACTING', 'CLASSIFYING'], label: 'Extraction', color: '#7c5cff' },
-  APPROVAL: { statuses: ['PENDING_REVIEW', 'REVIEW', 'NEEDS_INFO'], label: 'Review Queue', color: '#60a5fa' },
-  MATRIX: { statuses: ['APPROVED', 'IMPORTING', 'WRITING'], label: 'MATRIX Write', color: '#34d399' },
-  COMPLETED: { statuses: ['COMPLETE', 'IMPORTED'] },
-  ERROR: { statuses: ['ERROR', 'FAILED', 'REJECTED'] },
-} as const
+// Default pipeline stages — used as fallback when config_registry/atlas_stages unavailable
+const DEFAULT_PIPELINE_STAGES = [
+  { key: 'INTAKE', label: 'Intake Queue', color: '#fbbf24', order: 1, statuses: ['NEW', 'SCANNING', 'QUEUED'] },
+  { key: 'EXTRACTION', label: 'Extraction', color: '#7c5cff', order: 2, statuses: ['EXTRACTING', 'CLASSIFYING'] },
+  { key: 'APPROVAL', label: 'Review Queue', color: '#60a5fa', order: 3, statuses: ['PENDING_REVIEW', 'REVIEW', 'NEEDS_INFO'] },
+  { key: 'MATRIX', label: 'MATRIX Write', color: '#34d399', order: 4, statuses: ['APPROVED', 'IMPORTING', 'WRITING'] },
+  { key: 'COMPLETED', label: 'Completed', color: '#10b981', order: 5, statuses: ['COMPLETE', 'IMPORTED'] },
+  { key: 'ERROR', label: 'Error', color: '#ef4444', order: 6, statuses: ['ERROR', 'FAILED', 'REJECTED'] },
+]
 
 // 16 wire definitions — config constants (not stored in Firestore)
 const WIRE_DEFINITIONS = [
@@ -671,6 +673,21 @@ atlasRoutes.get('/pipeline', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
 
+    // Read dynamic pipeline stages from config registry (hardcoded fallback)
+    const stagesConfig = await getConfig<{ stages: typeof DEFAULT_PIPELINE_STAGES }>('atlas_stages', { stages: DEFAULT_PIPELINE_STAGES })
+    const allStages = stagesConfig.stages || DEFAULT_PIPELINE_STAGES
+
+    // Build keyed lookup for status matching
+    const stagesByKey: Record<string, { statuses: string[]; label: string; color: string }> = {}
+    for (const st of allStages) {
+      stagesByKey[st.key] = { statuses: st.statuses || [], label: st.label, color: st.color }
+    }
+
+    // Active stages = everything except COMPLETED and ERROR
+    const activeKeys = allStages
+      .filter(st => st.key !== 'COMPLETED' && st.key !== 'ERROR')
+      .map(st => st.key)
+
     // Count active sources for SOURCE stage
     const sourceSnap = await db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE').get()
     const sourceCount = sourceSnap.size
@@ -679,32 +696,34 @@ atlasRoutes.get('/pipeline', async (req: Request, res: Response) => {
     const taskSnap = await db.collection('case_tasks').get()
     const tasks = taskSnap.docs.map((d) => d.data() as Record<string, unknown>)
 
-    const stageMap: Record<string, { pending: number; processing: number }> = {
-      INTAKE: { pending: 0, processing: 0 },
-      EXTRACTION: { pending: 0, processing: 0 },
-      APPROVAL: { pending: 0, processing: 0 },
-      MATRIX: { pending: 0, processing: 0 },
+    const stageMap: Record<string, { pending: number; processing: number }> = {}
+    for (const key of activeKeys) {
+      stageMap[key] = { pending: 0, processing: 0 }
     }
 
     tasks.forEach((t) => {
-      const s = String(t.status || '').toUpperCase()
-      for (const [stageName, config] of Object.entries(PIPELINE_STAGES)) {
-        if (stageName === 'COMPLETED' || stageName === 'ERROR') continue
-        if (config.statuses.includes(s as never)) {
-          const idx = config.statuses.indexOf(s as never)
-          if (idx === 0) stageMap[stageName].pending++
-          else stageMap[stageName].processing++
+      const taskStatus = String(t.status || '').toUpperCase()
+      for (const key of activeKeys) {
+        const cfg = stagesByKey[key]
+        if (cfg?.statuses.includes(taskStatus)) {
+          const idx = cfg.statuses.indexOf(taskStatus)
+          if (idx === 0) stageMap[key].pending++
+          else stageMap[key].processing++
           break
         }
       }
     })
 
     const stages = [
-      { stage: 'SOURCE', label: 'Sources', count: sourceCount, pending: sourceCount, processing: 0, color: '#a855f7' },
-      { stage: 'INTAKE', label: PIPELINE_STAGES.INTAKE.label, count: stageMap.INTAKE.pending + stageMap.INTAKE.processing, ...stageMap.INTAKE, color: PIPELINE_STAGES.INTAKE.color },
-      { stage: 'EXTRACTION', label: PIPELINE_STAGES.EXTRACTION.label, count: stageMap.EXTRACTION.pending + stageMap.EXTRACTION.processing, ...stageMap.EXTRACTION, color: PIPELINE_STAGES.EXTRACTION.color },
-      { stage: 'APPROVAL', label: PIPELINE_STAGES.APPROVAL.label, count: stageMap.APPROVAL.pending + stageMap.APPROVAL.processing, ...stageMap.APPROVAL, color: PIPELINE_STAGES.APPROVAL.color },
-      { stage: 'MATRIX', label: PIPELINE_STAGES.MATRIX.label, count: stageMap.MATRIX.pending + stageMap.MATRIX.processing, ...stageMap.MATRIX, color: PIPELINE_STAGES.MATRIX.color },
+      { stage: 'SOURCE', label: 'Sources', count: sourceCount, pending: sourceCount, processing: 0, color: stagesByKey.SOURCE?.color || '#a855f7' },
+      ...activeKeys.map(key => ({
+        stage: key,
+        label: stagesByKey[key].label,
+        count: (stageMap[key]?.pending || 0) + (stageMap[key]?.processing || 0),
+        pending: stageMap[key]?.pending || 0,
+        processing: stageMap[key]?.processing || 0,
+        color: stagesByKey[key].color,
+      })),
       { stage: 'FRONTEND', label: 'Frontend', count: 3, pending: 3, processing: 0, color: '#f472b6' },
     ]
 
