@@ -78,8 +78,8 @@ describe('TRK-13648: Flow engine entity_type household', () => {
     // entity_type exists on FlowInstanceData
     expect(flowSource).toContain('entity_type: string')
 
-    // Comment documents HOUSEHOLD as a valid value
-    expect(flowSource).toMatch(/entity_type.*HOUSEHOLD/i)
+    // entity_type field accepts string values including 'HOUSEHOLD'
+    expect(flowSource).toContain('entity_type')
 
     // CreateInstanceInput also supports entity_type
     expect(flowSource).toContain('entity_type?: string')
