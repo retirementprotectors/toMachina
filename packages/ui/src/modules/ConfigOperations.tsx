@@ -7,7 +7,8 @@ import { TableEditor, ChecklistEditor, NumericEditor } from './ConfigRegistry'
 
 interface ConfigOperationsProps {
   configData: Record<string, unknown>
-  selectedKey: string
+  configKey: string
+  selectedKey?: string // backward compat alias
   onUpdate: (data: Record<string, unknown>) => void
 }
 
@@ -128,7 +129,8 @@ export function StageEditor({ stages, onChange }: {
 
 /* ═══ Main Component ═══ */
 
-export function ConfigOperations({ configData, selectedKey, onUpdate }: ConfigOperationsProps) {
+export function ConfigOperations({ configData, configKey, selectedKey, onUpdate }: ConfigOperationsProps) {
+  const activeKey = configKey || selectedKey || ''
   const updateField = (field: string, value: unknown) => {
     onUpdate({ ...configData, [field]: value })
   }

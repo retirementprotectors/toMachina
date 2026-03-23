@@ -157,7 +157,7 @@ function TaxBracketsEditor({ configData, onUpdate }: Omit<ConfigFinancialProps, 
           columns={[
             { key: 'min', label: 'Min ($)' },
             { key: 'max', label: 'Max ($)' },
-            { key: 'rate', label: 'Rate (decimal)' },
+            { key: 'rate', label: 'Rate %' },
           ]}
           onUpdate={(index, field, value) => {
             const updated = [...brackets]
@@ -210,12 +210,14 @@ function TaxBracketsEditor({ configData, onUpdate }: Omit<ConfigFinancialProps, 
               columns={[
                 { key: 'code', label: 'State', editable: false },
                 { key: 'name', label: 'Name' },
-                { key: 'rate', label: 'Rate (decimal)' },
+                { key: 'rate', label: 'Rate %' },
                 { key: 'retirementExempt', label: 'Ret. Exempt' },
               ]}
               onUpdate={updateStateRate}
-              onAdd={() => { /* States are fixed — no add */ }}
-              onDelete={() => { /* States are fixed — no delete */ }}
+              onAdd={() => {}}
+              onDelete={() => {}}
+              hideAdd
+              hideDelete
             />
           </div>
         )}
@@ -308,7 +310,7 @@ function CarrierProductsEditor({ configData, onUpdate }: Omit<ConfigFinancialPro
         { key: 'product', label: 'Product Name' },
         { key: 'type', label: 'Type' },
         { key: 'surrenderYears', label: 'Surrender Yrs' },
-        { key: 'bonus', label: 'Bonus (decimal)' },
+        { key: 'bonus', label: 'Bonus %' },
         { key: 'features', label: 'Features (comma-separated)' },
       ]}
       onUpdate={(index, field, value) => {

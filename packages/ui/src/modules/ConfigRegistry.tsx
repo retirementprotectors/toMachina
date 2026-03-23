@@ -68,12 +68,14 @@ export function SliderEditor({ label, value, min, max, onChange }: {
 }
 
 /** Searchable two-column table editor */
-export function TableEditor({ entries, columns, onUpdate, onAdd, onDelete }: {
+export function TableEditor({ entries, columns, onUpdate, onAdd, onDelete, hideAdd, hideDelete }: {
   entries: Record<string, unknown>[]
   columns: Array<{ key: string; label: string; editable?: boolean }>
   onUpdate: (index: number, field: string, value: string) => void
   onAdd: () => void
   onDelete: (index: number) => void
+  hideAdd?: boolean
+  hideDelete?: boolean
 }) {
   const [search, setSearch] = useState('')
   const filtered = search
@@ -89,9 +91,9 @@ export function TableEditor({ entries, columns, onUpdate, onAdd, onDelete }: {
             className="w-full rounded-lg border pl-8 pr-3 py-1.5 text-sm focus:outline-none"
             style={{ borderColor: s.border, background: s.surface, color: s.text }} />
         </div>
-        <button onClick={onAdd} className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white" style={{ background: s.portal }}>
+        {!hideAdd && <button onClick={onAdd} className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-white" style={{ background: s.portal }}>
           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>Add
-        </button>
+        </button>}
       </div>
       <div className="rounded-lg border overflow-hidden" style={{ borderColor: s.border }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -100,7 +102,7 @@ export function TableEditor({ entries, columns, onUpdate, onAdd, onDelete }: {
               {columns.map(col => (
                 <th key={col.key} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: s.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{col.label}</th>
               ))}
-              <th style={{ width: 40 }} />
+              {!hideDelete && <th style={{ width: 40 }} />}
             </tr>
           </thead>
           <tbody>
@@ -111,20 +113,22 @@ export function TableEditor({ entries, columns, onUpdate, onAdd, onDelete }: {
                   {columns.map(col => (
                     <td key={col.key} style={{ padding: '4px 12px' }}>
                       {col.editable !== false ? (
-                        <input type="text" value={String(entry[col.key] || '')}
+                        <input type="text"
+                          value={entry[col.key] === null || entry[col.key] === undefined ? '' : String(entry[col.key])}
+                          placeholder={entry[col.key] === null ? '∞' : ''}
                           onChange={e => onUpdate(realIndex, col.key, e.target.value)}
                           className="w-full rounded border px-2 py-1 text-sm focus:outline-none"
                           style={{ borderColor: s.border, background: s.bg, color: s.text }} />
                       ) : (
-                        <span style={{ color: s.textSecondary, fontSize: 12 }}>{String(entry[col.key] || '')}</span>
+                        <span style={{ color: s.textSecondary, fontSize: 12 }}>{entry[col.key] === null ? '∞' : String(entry[col.key] || '')}</span>
                       )}
                     </td>
                   ))}
-                  <td style={{ padding: '4px 8px' }}>
+                  {!hideDelete && <td style={{ padding: '4px 8px' }}>
                     <button onClick={() => onDelete(realIndex)} className="text-red-400 hover:text-red-300">
                       <span className="material-icons-outlined" style={{ fontSize: '16px' }}>close</span>
                     </button>
-                  </td>
+                  </td>}
                 </tr>
               )
             })}
@@ -146,15 +150,25 @@ export function ChecklistEditor({ items, onChange, onAdd }: {
   items: string[]; onChange: (items: string[]) => void; onAdd: (item: string) => void
 }) {
   const [newItem, setNewItem] = useState('')
+  const [dupeWarning, setDupeWarning] = useState(false)
+  const tryAdd = (val: string) => {
+    const trimmed = val.trim().toLowerCase()
+    if (!trimmed) return
+    if (items.some(i => i.toLowerCase() === trimmed)) { setDupeWarning(true); setTimeout(() => setDupeWarning(false), 2000); return }
+    onAdd(val.trim()); setNewItem(''); setDupeWarning(false)
+  }
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <input type="text" placeholder="Add status..." value={newItem}
-          onChange={e => setNewItem(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter' && newItem.trim()) { onAdd(newItem.trim()); setNewItem('') } }}
-          className="flex-1 rounded-lg border px-3 py-1.5 text-sm focus:outline-none"
-          style={{ borderColor: s.border, background: s.surface, color: s.text }} />
-        <button onClick={() => { if (newItem.trim()) { onAdd(newItem.trim()); setNewItem('') } }}
+        <div className="flex-1 relative">
+          <input type="text" placeholder="Add status..." value={newItem}
+            onChange={e => { setNewItem(e.target.value); setDupeWarning(false) }}
+            onKeyDown={e => { if (e.key === 'Enter') tryAdd(newItem) }}
+            className="w-full rounded-lg border px-3 py-1.5 text-sm focus:outline-none"
+            style={{ borderColor: dupeWarning ? 'rgb(239,68,68)' : s.border, background: s.surface, color: s.text }} />
+          {dupeWarning && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-red-400">Already exists</span>}
+        </div>
+        <button onClick={() => tryAdd(newItem)}
           className="rounded-lg px-3 py-1.5 text-xs font-medium text-white" style={{ background: s.portal }}>Add</button>
       </div>
       <div className="space-y-1">
@@ -372,7 +386,7 @@ export function ConfigRegistry({ portal }: ConfigRegistryProps) {
                 />
               ) : activeCategory === 'operations' ? (
                 <ConfigOperations
-                  selectedKey={selectedKey}
+                  configKey={selectedKey}
                   configData={configData}
                   onUpdate={d => { setConfigData(d as ConfigData); setDirty(true) }}
                 />
