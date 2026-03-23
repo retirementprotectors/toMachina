@@ -16,6 +16,7 @@ import { getDb } from '@tomachina/db/src/firestore'
 import { ACFConfigAdmin } from './ACFConfigAdmin'
 import { FirestoreConfig } from './FirestoreConfig'
 import { PlatformAdmin } from './PlatformAdmin'
+import { ConfigRegistry } from './ConfigRegistry'
 
 /* ─── Types ─── */
 
@@ -71,7 +72,7 @@ interface FlowPipelineRecord {
   assigned_section?: 'sales' | 'service' | 'both' | null
 }
 
-type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'firestore-config' | 'platform'
+type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'firestore-config' | 'platform' | 'config-registry'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -1402,6 +1403,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           { key: 'acf-config' as AdminTab, label: 'ACF Config', icon: 'folder_special' },
           { key: 'firestore-config' as AdminTab, label: 'Firestore Config', icon: 'local_fire_department' },
           { key: 'platform' as AdminTab, label: 'Platform Intel', icon: 'radar' },
+          { key: 'config-registry' as AdminTab, label: 'Config Registry', icon: 'tune' },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -1508,6 +1510,11 @@ export function AdminPanel({ portal }: AdminPanelProps) {
       {/* Platform Intel Tab */}
       {activeTab === 'platform' && (
         <PlatformAdmin portal={portal} />
+      )}
+
+      {/* Config Registry Tab */}
+      {activeTab === 'config-registry' && (
+        <ConfigRegistry portal={portal} />
       )}
 
     </div>
