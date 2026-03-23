@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useCollection, getDb } from '@tomachina/db'
 import { useAuth } from '@tomachina/auth'
 import { collection, query, orderBy, limit } from 'firebase/firestore'
+import { RecordingPlayer } from './RecordingPlayer'
 
 /* ─── Types ─── */
 
@@ -21,6 +22,10 @@ export interface CommEntry {
   book: string
   accountType: string
   status: 'delivered' | 'read' | 'failed' | 'missed' | 'answered' | 'voicemail'
+  /** Twilio recording URL (voice entries only) */
+  recordingUrl?: string
+  /** Recording duration in seconds */
+  recordingDuration?: number
 }
 
 /** Raw Firestore communication document */
@@ -30,6 +35,8 @@ interface CommDoc {
   channel?: string
   direction?: string
   recipient?: string
+  /** Inbound SMS: the From number (caller/sender) */
+  sender?: string
   body?: string
   subject?: string
   status?: string
@@ -38,6 +45,10 @@ interface CommDoc {
   created_at?: string
   call_type?: string
   duration?: number
+  /** Twilio recording .mp3 URL (set by recording-status webhook) */
+  recording_url?: string
+  /** Recording duration in seconds */
+  recording_duration?: number
 }
 
 type ChannelFilter = 'all' | 'sms' | 'email' | 'voice'
@@ -63,12 +74,18 @@ function mapStatus(status: string | undefined): CommEntry['status'] {
 }
 
 function docToEntry(doc: CommDoc): CommEntry {
+  // For inbound messages, the contact is the sender (From number or name)
+  const isInbound = doc.direction === 'inbound'
+  const contactIdentifier = isInbound
+    ? (doc.sender || doc.recipient || 'Unknown')
+    : (doc.recipient || 'Unknown')
+
   return {
     id: doc._id || doc.comm_id || '',
     type: mapChannelToType(doc.channel),
-    direction: (doc.direction === 'inbound' ? 'inbound' : 'outbound'),
-    contactName: doc.recipient || 'Unknown',
-    contactDetail: doc.recipient || '',
+    direction: isInbound ? 'inbound' : 'outbound',
+    contactName: contactIdentifier,
+    contactDetail: contactIdentifier,
     agentName: doc.sent_by || '',
     sentBy: doc.sent_by || '',
     preview: doc.body || (doc.channel === 'voice' && doc.duration ? `Duration: ${Math.floor(doc.duration / 60)}:${String(doc.duration % 60).padStart(2, '0')}` : ''),
@@ -77,6 +94,8 @@ function docToEntry(doc: CommDoc): CommEntry {
     book: '',
     accountType: '',
     status: mapStatus(doc.status),
+    recordingUrl: doc.recording_url,
+    recordingDuration: doc.recording_duration,
   }
 }
 
@@ -316,6 +335,20 @@ export function CommsFeed() {
                             <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                               <span className="material-icons-outlined" style={{ fontSize: '14px' }}>person</span>
                               {entry.status === 'answered' ? `Handled by ${entry.agentName}` : entry.status === 'missed' ? 'Missed call' : 'Went to voicemail'}
+                            </div>
+                            {/* Recording playback — TRK-13659 */}
+                            <div className="pt-1">
+                              {entry.recordingUrl ? (
+                                <RecordingPlayer
+                                  recordingUrl={entry.recordingUrl}
+                                  duration={entry.recordingDuration}
+                                />
+                              ) : (
+                                <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+                                  <span className="material-icons-outlined" style={{ fontSize: '14px' }}>mic_off</span>
+                                  No recording
+                                </div>
+                              )}
                             </div>
                           </div>
                         ) : (

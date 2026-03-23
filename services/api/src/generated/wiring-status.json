@@ -1,9 +1,9 @@
 {
   "collections": {
     "_": {
-      "status": "full_stack",
+      "status": "backend_only",
       "backend": "accounts.ts",
-      "frontend": "ACFAuditAdmin.tsx",
+      "frontend": "",
       "backend_endpoints": 10,
       "hardcoded": false,
       "sub_collection": false,
@@ -21,271 +21,7 @@
           ]
         }
       ],
-      "frontend_components": [
-        {
-          "file": "ACFAuditAdmin.tsx",
-          "api_calls": [
-            "/api/acf/audit",
-            "/api/acf/rebuild"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ACFConfigAdmin.tsx",
-          "api_calls": [
-            "/api/acf/config"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ACFSection.tsx",
-          "api_calls": [
-            "/api/acf/*",
-            "/api/acf/*/create",
-            "/api/acf/*/upload",
-            "/api/acf/*/move"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ACFStatusIcon.tsx",
-          "api_calls": [
-            "/api/acf/status/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "AccountDocuments.tsx",
-          "api_calls": [
-            "/api/document-index/account/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ClientDocuments.tsx",
-          "api_calls": [
-            "/api/document-index/client/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "CommsCompose.tsx",
-          "api_calls": [
-            "/api/clients?q=*&limit=10",
-            "/api/comms/send-sms",
-            "/api/comms/send-email",
-            "/api/comms/send-voice",
-            "/api/comms/log-call"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ConnectPanel.tsx",
-          "api_calls": [
-            "/api/connect/channels",
-            "/api/connect/presence",
-            "/api/connect/calendar"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "DocumentTaxonomyAdmin.tsx",
-          "api_calls": [
-            "/api/document-index/taxonomy"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "AlertFeed.tsx",
-          "api_calls": [
-            "/api/guardian/alerts",
-            "/api/guardian/alerts/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "AuditHistory.tsx",
-          "api_calls": [
-            "/api/guardian/audits"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "AuditWorkflow.tsx",
-          "api_calls": [
-            "/api/guardian/audits/*/phase"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "BaselineManager.tsx",
-          "api_calls": [
-            "/api/guardian/baselines"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "HealthOverview.tsx",
-          "api_calls": [
-            "/api/guardian/health"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "IntakeQueue.tsx",
-          "api_calls": [
-            "/api/intake-queue",
-            "/api/intake-queue/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "MyRpiProfile.tsx",
-          "api_calls": [
-            "/api/dropzone"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ApprovalDetail.tsx",
-          "api_calls": [
-            "/api/approval/batches/*/execute"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "PlatformAdmin.tsx",
-          "api_calls": [
-            "/api/firestore-config/platform-status"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "CallPanel.tsx",
-          "api_calls": [
-            "/api/comms/send-voice",
-            "/api/comms/log-call",
-            "/api/flow/instances?entity_id=*&entity_type=CLIENT",
-            "/api/flow/activity",
-            "/api/flow/instances/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "FlowTab.tsx",
-          "api_calls": [
-            "/api/flow/instances?pipeline_key=*&specialist_id=*",
-            "/api/prozone/enroll"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "MarketTab.tsx",
-          "api_calls": [
-            "/api/specialist-configs",
-            "/api/territories"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ProZoneApp.tsx",
-          "api_calls": [
-            "/api/specialist-configs"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ProZoneScorecard.tsx",
-          "api_calls": [
-            "/api/prozone/scorecard?*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ScheduleView.tsx",
-          "api_calls": [
-            "/api/prozone/schedule/*/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "SpecialistConfigEditor.tsx",
-          "api_calls": [
-            "/api/specialist-configs",
-            "/api/territories",
-            "/api/territories/*",
-            "/api/specialist-configs/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "TargetTab.tsx",
-          "api_calls": [
-            "/api/prozone/prospects/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "TerritoryBuilder.tsx",
-          "api_calls": [
-            "/api/territories",
-            "/api/territories/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "WeekStrip.tsx",
-          "api_calls": [
-            "/api/prozone/schedule/*/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "QueSessionList.tsx",
-          "api_calls": [
-            "/api/que?product_line=*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ClientSnapshot.tsx",
-          "api_calls": [
-            "/api/que/*",
-            "/api/que"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ComparisonStep.tsx",
-          "api_calls": [
-            "/api/que/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "QuoteParameters.tsx",
-          "api_calls": [
-            "/api/que/*/quote"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "QuoteResults.tsx",
-          "api_calls": [
-            "/api/que/*",
-            "/api/que/*/quote"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "RecommendationStep.tsx",
-          "api_calls": [
-            "/api/que/*",
-            "/api/que/*/recommendation"
-          ],
-          "direct_firestore": false
-        }
-      ],
+      "frontend_components": [],
       "portals": [
         "prodash",
         "riimo",
@@ -293,42 +29,7 @@
       ],
       "fk_to": [],
       "fk_from": [],
-      "flow_paths": [
-        "ACFAuditAdmin.tsx → accounts.ts → _",
-        "ACFConfigAdmin.tsx → accounts.ts → _",
-        "ACFSection.tsx → accounts.ts → _",
-        "ACFStatusIcon.tsx → accounts.ts → _",
-        "AccountDocuments.tsx → accounts.ts → _",
-        "ClientDocuments.tsx → accounts.ts → _",
-        "CommsCompose.tsx → accounts.ts → _",
-        "ConnectPanel.tsx → accounts.ts → _",
-        "DocumentTaxonomyAdmin.tsx → accounts.ts → _",
-        "AlertFeed.tsx → accounts.ts → _",
-        "AuditHistory.tsx → accounts.ts → _",
-        "AuditWorkflow.tsx → accounts.ts → _",
-        "BaselineManager.tsx → accounts.ts → _",
-        "HealthOverview.tsx → accounts.ts → _",
-        "IntakeQueue.tsx → accounts.ts → _",
-        "MyRpiProfile.tsx → accounts.ts → _",
-        "ApprovalDetail.tsx → accounts.ts → _",
-        "PlatformAdmin.tsx → accounts.ts → _",
-        "CallPanel.tsx → accounts.ts → _",
-        "FlowTab.tsx → accounts.ts → _",
-        "MarketTab.tsx → accounts.ts → _",
-        "ProZoneApp.tsx → accounts.ts → _",
-        "ProZoneScorecard.tsx → accounts.ts → _",
-        "ScheduleView.tsx → accounts.ts → _",
-        "SpecialistConfigEditor.tsx → accounts.ts → _",
-        "TargetTab.tsx → accounts.ts → _",
-        "TerritoryBuilder.tsx → accounts.ts → _",
-        "WeekStrip.tsx → accounts.ts → _",
-        "QueSessionList.tsx → accounts.ts → _",
-        "ClientSnapshot.tsx → accounts.ts → _",
-        "ComparisonStep.tsx → accounts.ts → _",
-        "QuoteParameters.tsx → accounts.ts → _",
-        "QuoteResults.tsx → accounts.ts → _",
-        "RecommendationStep.tsx → accounts.ts → _"
-      ]
+      "flow_paths": []
     },
     "access_items": {
       "status": "backend_only",
@@ -361,7 +62,7 @@
       "status": "backend_only",
       "backend": "access.ts",
       "frontend": "",
-      "backend_endpoints": 233,
+      "backend_endpoints": 234,
       "hardcoded": false,
       "sub_collection": true,
       "backend_routes": [
@@ -476,7 +177,7 @@
         },
         {
           "file": "search.ts",
-          "endpoints": 8,
+          "endpoints": 9,
           "reads": true,
           "writes": true,
           "operations": [
@@ -585,71 +286,32 @@
       "flow_paths": []
     },
     "acf_config": {
-      "status": "full_stack",
+      "status": "backend_only",
       "backend": "acf.ts",
-      "frontend": "ACFAuditAdmin.tsx",
-      "backend_endpoints": 24,
+      "frontend": "",
+      "backend_endpoints": 25,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 24,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         }
       ],
-      "frontend_components": [
-        {
-          "file": "ACFAuditAdmin.tsx",
-          "api_calls": [
-            "/api/acf/audit",
-            "/api/acf/rebuild"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ACFConfigAdmin.tsx",
-          "api_calls": [
-            "/api/acf/config"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ACFSection.tsx",
-          "api_calls": [
-            "/api/acf/*",
-            "/api/acf/*/create",
-            "/api/acf/*/upload",
-            "/api/acf/*/move"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ACFStatusIcon.tsx",
-          "api_calls": [
-            "/api/acf/status/*"
-          ],
-          "direct_firestore": false
-        }
-      ],
-      "portals": [
-        "prodash"
-      ],
+      "frontend_components": [],
+      "portals": [],
       "fk_to": [],
       "fk_from": [],
-      "flow_paths": [
-        "ACFAuditAdmin.tsx → acf.ts → acf_config",
-        "ACFConfigAdmin.tsx → acf.ts → acf_config",
-        "ACFSection.tsx → acf.ts → acf_config",
-        "ACFStatusIcon.tsx → acf.ts → acf_config"
-      ]
+      "flow_paths": []
     },
     "action_items": {
       "status": "backend_only",
@@ -682,20 +344,21 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 74,
+      "backend_endpoints": 75,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 24,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         {
@@ -1321,10 +984,10 @@
       "flow_paths": []
     },
     "clients": {
-      "status": "full_stack",
+      "status": "backend_only",
       "backend": "accounts.ts",
-      "frontend": "CommsCompose.tsx",
-      "backend_endpoints": 346,
+      "frontend": "",
+      "backend_endpoints": 365,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1342,14 +1005,15 @@
         },
         {
           "file": "acf.ts",
-          "endpoints": 24,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         {
@@ -1406,6 +1070,17 @@
             "get",
             "create",
             "update"
+          ]
+        },
+        {
+          "file": "comms.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
           ]
         },
         {
@@ -1492,7 +1167,7 @@
         },
         {
           "file": "search.ts",
-          "endpoints": 8,
+          "endpoints": 9,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1523,18 +1198,7 @@
           ]
         }
       ],
-      "frontend_components": [
-        {
-          "file": "CommsCompose.tsx",
-          "api_calls": [
-            "/api/clients?q=*&limit=10",
-            "/api/clients?q=*&limit=10",
-            "/api/clients?q=*&limit=10",
-            "/api/clients?q=*&limit=10"
-          ],
-          "direct_firestore": false
-        }
-      ],
+      "frontend_components": [],
       "portals": [
         "prodash"
       ],
@@ -1553,6 +1217,7 @@
         "artifacts",
         "case_tasks",
         "commission_discrepancies",
+        "communications",
         "comp_grids",
         "document_index",
         "document_link_config",
@@ -1563,9 +1228,7 @@
         "system_meta",
         "users"
       ],
-      "flow_paths": [
-        "CommsCompose.tsx → accounts.ts, acf.ts, activities.ts, ai3.ts, approval.ts, booking.ts, campaign-send.ts, dex-pipeline.ts, dex.ts, document-index.ts, health.ts, households.ts, import.ts, prozone.ts, search.ts, spark.ts, sync.ts → clients"
-      ]
+      "flow_paths": []
     },
     "commission_discrepancies": {
       "status": "backend_only",
@@ -1637,12 +1300,23 @@
     },
     "communications": {
       "status": "backend_only",
-      "backend": "prozone.ts",
+      "backend": "comms.ts",
       "frontend": "",
-      "backend_endpoints": 27,
+      "backend_endpoints": 44,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
+        {
+          "file": "comms.ts",
+          "endpoints": 17,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
         {
           "file": "prozone.ts",
           "endpoints": 27,
@@ -1659,7 +1333,9 @@
       "portals": [
         "prodash"
       ],
-      "fk_to": [],
+      "fk_to": [
+        "clients"
+      ],
       "fk_from": [],
       "flow_paths": []
     },
@@ -1871,9 +1547,9 @@
       "flow_paths": []
     },
     "document_index": {
-      "status": "full_stack",
+      "status": "backend_only",
       "backend": "document-index.ts",
-      "frontend": "AccountDocuments.tsx",
+      "frontend": "",
       "backend_endpoints": 27,
       "hardcoded": false,
       "sub_collection": false,
@@ -1892,47 +1568,13 @@
           ]
         }
       ],
-      "frontend_components": [
-        {
-          "file": "AccountDocuments.tsx",
-          "api_calls": [
-            "/api/document-index/account/*",
-            "/api/document-index/account/*",
-            "/api/document-index/account/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ClientDocuments.tsx",
-          "api_calls": [
-            "/api/document-index/client/*",
-            "/api/document-index/client/*",
-            "/api/document-index/client/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "DocumentTaxonomyAdmin.tsx",
-          "api_calls": [
-            "/api/document-index/taxonomy",
-            "/api/document-index/taxonomy",
-            "/api/document-index/taxonomy"
-          ],
-          "direct_firestore": false
-        }
-      ],
-      "portals": [
-        "prodash"
-      ],
+      "frontend_components": [],
+      "portals": [],
       "fk_to": [
         "clients"
       ],
       "fk_from": [],
-      "flow_paths": [
-        "AccountDocuments.tsx → document-index.ts → document_index",
-        "ClientDocuments.tsx → document-index.ts → document_index",
-        "DocumentTaxonomyAdmin.tsx → document-index.ts → document_index"
-      ]
+      "flow_paths": []
     },
     "document_link_config": {
       "status": "backend_only",
@@ -1968,20 +1610,21 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 51,
+      "backend_endpoints": 52,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 24,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         {
@@ -2193,20 +1836,21 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 102,
+      "backend_endpoints": 103,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 24,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         {
@@ -2254,23 +1898,24 @@
       "flow_paths": []
     },
     "intake_queue": {
-      "status": "full_stack",
+      "status": "backend_only",
       "backend": "acf.ts",
-      "frontend": "IntakeQueue.tsx",
-      "backend_endpoints": 118,
+      "frontend": "",
+      "backend_endpoints": 119,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 24,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         {
@@ -2318,31 +1963,14 @@
           ]
         }
       ],
-      "frontend_components": [
-        {
-          "file": "IntakeQueue.tsx",
-          "api_calls": [
-            "/api/intake-queue",
-            "/api/intake-queue",
-            "/api/intake-queue",
-            "/api/intake-queue/*",
-            "/api/intake-queue/*",
-            "/api/intake-queue/*"
-          ],
-          "direct_firestore": false
-        }
-      ],
-      "portals": [
-        "prodash"
-      ],
+      "frontend_components": [],
+      "portals": [],
       "fk_to": [
         "agents",
         "clients"
       ],
       "fk_from": [],
-      "flow_paths": [
-        "IntakeQueue.tsx → acf.ts, document-index.ts, dropzone.ts, import.ts, intake.ts → intake_queue"
-      ]
+      "flow_paths": []
     },
     "items": {
       "status": "backend_only",
@@ -2370,6 +1998,7 @@
       "portals": [],
       "fk_to": [],
       "fk_from": [
+        "notifications",
         "tracker_items"
       ],
       "flow_paths": []
@@ -2405,7 +2034,7 @@
       "status": "backend_only",
       "backend": "intake.ts",
       "frontend": "",
-      "backend_endpoints": 5,
+      "backend_endpoints": 31,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2419,11 +2048,26 @@
             "get",
             "create"
           ]
+        },
+        {
+          "file": "tracker.ts",
+          "endpoints": 26,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
         }
       ],
       "frontend_components": [],
       "portals": [],
-      "fk_to": [],
+      "fk_to": [
+        "items"
+      ],
       "fk_from": [],
       "flow_paths": []
     },
@@ -2665,9 +2309,9 @@
       "flow_paths": []
     },
     "specialist_configs": {
-      "status": "full_stack",
+      "status": "backend_only",
       "backend": "prozone.ts",
-      "frontend": "MarketTab.tsx",
+      "frontend": "",
       "backend_endpoints": 27,
       "hardcoded": false,
       "sub_collection": false,
@@ -2684,46 +2328,11 @@
           ]
         }
       ],
-      "frontend_components": [
-        {
-          "file": "MarketTab.tsx",
-          "api_calls": [
-            "/api/specialist-configs",
-            "/api/specialist-configs",
-            "/api/specialist-configs"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "ProZoneApp.tsx",
-          "api_calls": [
-            "/api/specialist-configs",
-            "/api/specialist-configs",
-            "/api/specialist-configs"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "SpecialistConfigEditor.tsx",
-          "api_calls": [
-            "/api/specialist-configs",
-            "/api/specialist-configs",
-            "/api/specialist-configs",
-            "/api/specialist-configs/*",
-            "/api/specialist-configs/*",
-            "/api/specialist-configs/*"
-          ],
-          "direct_firestore": false
-        }
-      ],
+      "frontend_components": [],
       "portals": [],
       "fk_to": [],
       "fk_from": [],
-      "flow_paths": [
-        "MarketTab.tsx → prozone.ts → specialist_configs",
-        "ProZoneApp.tsx → prozone.ts → specialist_configs",
-        "SpecialistConfigEditor.tsx → prozone.ts → specialist_configs"
-      ]
+      "flow_paths": []
     },
     "system_meta": {
       "status": "backend_only",
@@ -2797,9 +2406,9 @@
       "flow_paths": []
     },
     "territories": {
-      "status": "full_stack",
+      "status": "backend_only",
       "backend": "prozone.ts",
-      "frontend": "MarketTab.tsx",
+      "frontend": "",
       "backend_endpoints": 27,
       "hardcoded": false,
       "sub_collection": false,
@@ -2816,54 +2425,11 @@
           ]
         }
       ],
-      "frontend_components": [
-        {
-          "file": "MarketTab.tsx",
-          "api_calls": [
-            "/api/territories",
-            "/api/territories",
-            "/api/territories",
-            "/api/territories"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "SpecialistConfigEditor.tsx",
-          "api_calls": [
-            "/api/territories",
-            "/api/territories",
-            "/api/territories",
-            "/api/territories",
-            "/api/territories/*",
-            "/api/territories/*",
-            "/api/territories/*",
-            "/api/territories/*"
-          ],
-          "direct_firestore": false
-        },
-        {
-          "file": "TerritoryBuilder.tsx",
-          "api_calls": [
-            "/api/territories",
-            "/api/territories",
-            "/api/territories",
-            "/api/territories",
-            "/api/territories/*",
-            "/api/territories/*",
-            "/api/territories/*",
-            "/api/territories/*"
-          ],
-          "direct_firestore": false
-        }
-      ],
+      "frontend_components": [],
       "portals": [],
       "fk_to": [],
       "fk_from": [],
-      "flow_paths": [
-        "MarketTab.tsx → prozone.ts → territories",
-        "SpecialistConfigEditor.tsx → prozone.ts → territories",
-        "TerritoryBuilder.tsx → prozone.ts → territories"
-      ]
+      "flow_paths": []
     },
     "tracker_items": {
       "status": "backend_only",
@@ -3073,12 +2639,13 @@
     },
     "acf.ts": {
       "file": "acf.ts",
-      "endpoints": 24,
+      "endpoints": 25,
       "operations": [
         "list",
         "get",
         "create",
-        "update"
+        "update",
+        "delete"
       ],
       "collections": [
         "acf_config",
@@ -3088,13 +2655,8 @@
         "document_taxonomy",
         "intake_queue"
       ],
-      "frontend_consumers": [
-        "ACFAuditAdmin.tsx",
-        "ACFConfigAdmin.tsx",
-        "ACFSection.tsx",
-        "ACFStatusIcon.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "activities.ts": {
       "file": "activities.ts",
@@ -3172,10 +2734,8 @@
         "revenue",
         "activities"
       ],
-      "frontend_consumers": [
-        "ApprovalDetail.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "atlas.ts": {
       "file": "atlas.ts",
@@ -3325,25 +2885,23 @@
         "activities",
         "relationships"
       ],
-      "frontend_consumers": [
-        "CommsCompose.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "comms.ts": {
       "file": "comms.ts",
-      "endpoints": 7,
+      "endpoints": 17,
       "operations": [
         "list",
         "get",
         "create"
       ],
-      "collections": [],
-      "frontend_consumers": [
-        "CommsCompose.tsx",
-        "CallPanel.tsx"
+      "collections": [
+        "clients",
+        "communications"
       ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "communications.ts": {
       "file": "communications.ts",
@@ -3371,6 +2929,18 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "config.ts": {
+      "file": "config.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "connect.ts": {
       "file": "connect.ts",
       "endpoints": 10,
@@ -3383,10 +2953,8 @@
       "collections": [
         "users"
       ],
-      "frontend_consumers": [
-        "ConnectPanel.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "content-blocks.ts": {
       "file": "content-blocks.ts",
@@ -3452,12 +3020,8 @@
         "intake_queue",
         "document_taxonomy"
       ],
-      "frontend_consumers": [
-        "AccountDocuments.tsx",
-        "ClientDocuments.tsx",
-        "DocumentTaxonomyAdmin.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "dropzone.ts": {
       "file": "dropzone.ts",
@@ -3468,10 +3032,8 @@
       "collections": [
         "intake_queue"
       ],
-      "frontend_consumers": [
-        "MyRpiProfile.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "flow-admin.ts": {
       "file": "flow-admin.ts",
@@ -3499,11 +3061,8 @@
         "update"
       ],
       "collections": [],
-      "frontend_consumers": [
-        "CallPanel.tsx",
-        "FlowTab.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "guardian.ts": {
       "file": "guardian.ts",
@@ -3522,14 +3081,8 @@
         "guardian_structural_reports",
         "data_snapshots"
       ],
-      "frontend_consumers": [
-        "AlertFeed.tsx",
-        "AuditHistory.tsx",
-        "AuditWorkflow.tsx",
-        "BaselineManager.tsx",
-        "HealthOverview.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "health.ts": {
       "file": "health.ts",
@@ -3597,10 +3150,8 @@
         "update"
       ],
       "collections": [],
-      "frontend_consumers": [
-        "IntakeQueue.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "intake.ts": {
       "file": "intake.ts",
@@ -3615,10 +3166,8 @@
         "intake_queue",
         "notifications"
       ],
-      "frontend_consumers": [
-        "IntakeQueue.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "leadership.ts": {
       "file": "leadership.ts",
@@ -3725,14 +3274,8 @@
         "flow_instances",
         "communications"
       ],
-      "frontend_consumers": [
-        "FlowTab.tsx",
-        "ProZoneScorecard.tsx",
-        "ScheduleView.tsx",
-        "TargetTab.tsx",
-        "WeekStrip.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "que.ts": {
       "file": "que.ts",
@@ -3744,15 +3287,8 @@
         "update"
       ],
       "collections": [],
-      "frontend_consumers": [
-        "QueSessionList.tsx",
-        "ClientSnapshot.tsx",
-        "ComparisonStep.tsx",
-        "QuoteParameters.tsx",
-        "QuoteResults.tsx",
-        "RecommendationStep.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "revenue.ts": {
       "file": "revenue.ts",
@@ -3788,7 +3324,7 @@
     },
     "search.ts": {
       "file": "search.ts",
-      "endpoints": 8,
+      "endpoints": 9,
       "operations": [
         "list",
         "get"
@@ -3826,12 +3362,8 @@
         "update"
       ],
       "collections": [],
-      "frontend_consumers": [
-        "MarketTab.tsx",
-        "ProZoneApp.tsx",
-        "SpecialistConfigEditor.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "sprints.ts": {
       "file": "sprints.ts",
@@ -3892,12 +3424,8 @@
         "update"
       ],
       "collections": [],
-      "frontend_consumers": [
-        "MarketTab.tsx",
-        "SpecialistConfigEditor.tsx",
-        "TerritoryBuilder.tsx"
-      ],
-      "status": "full_stack"
+      "frontend_consumers": [],
+      "status": "backend_only"
     },
     "tracker.ts": {
       "file": "tracker.ts",
@@ -3909,7 +3437,9 @@
         "update",
         "delete"
       ],
-      "collections": [],
+      "collections": [
+        "notifications"
+      ],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -4361,6 +3891,24 @@
       "sensitive": false
     },
     {
+      "name": "TWILIO_API_KEY_SECRET",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "TWILIO_API_KEY_SID",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
       "name": "TWILIO_AUTH_TOKEN",
       "services": [
         "api"
@@ -4368,6 +3916,15 @@
       "has_value": false,
       "source": "code_reference",
       "sensitive": true
+    },
+    {
+      "name": "TWILIO_DEFAULT_IDENTITY",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
     },
     {
       "name": "TWILIO_PHONE_NUMBER",
@@ -4380,6 +3937,15 @@
     },
     {
       "name": "TWILIO_SMS_NUMBER",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "TWILIO_TWIML_APP_SID",
       "services": [
         "api"
       ],
@@ -4444,6 +4010,14 @@
       "action": "warn",
       "tier": "warn",
       "description": "WARNING: API Response Without Shared Type Contract"
+    },
+    {
+      "name": "warn-unvalidated-fetch",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Raw fetchWithAuth — use fetchValidated instead"
     },
     {
       "name": "intent-atlas-consult",
@@ -4671,14 +4245,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 57,
-    "ui_files": 120,
-    "portal_pages": 159,
+    "route_files": 58,
+    "ui_files": 129,
+    "portal_pages": 150,
     "collections_found": 63,
-    "api_routes_found": 57,
+    "api_routes_found": 58,
     "cloud_functions_found": 14,
-    "env_vars_found": 30,
-    "hookify_rules_found": 35,
-    "scanned_at": "2026-03-22T15:37:41.785Z"
+    "env_vars_found": 34,
+    "hookify_rules_found": 36,
+    "scanned_at": "2026-03-23T23:17:21.842Z"
   }
 }

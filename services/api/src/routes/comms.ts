@@ -6,6 +6,7 @@
 
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
+import AccessToken from 'twilio/lib/jwt/AccessToken.js'
 import { successResponse, errorResponse, validateRequired, param } from '../lib/helpers.js'
 import type {
   CommsSendEmailResult,
@@ -311,6 +312,287 @@ commsRoutes.post('/send-voice', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('POST /api/comms/send-voice error:', err)
     res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/comms/token
+ * Generate a Twilio Access Token with VoiceGrant for the Twilio Client SDK.
+ * Identity = authenticated user's email from Firebase auth middleware.
+ */
+commsRoutes.post('/token', async (req: Request, res: Response) => {
+  try {
+    const VoiceGrant = AccessToken.VoiceGrant
+
+    const accountSid = process.env.TWILIO_ACCOUNT_SID || ''
+    const apiKeySid = process.env.TWILIO_API_KEY_SID || ''
+    const apiKeySecret = process.env.TWILIO_API_KEY_SECRET || ''
+    const twimlAppSid = process.env.TWILIO_TWIML_APP_SID || ''
+
+    if (!accountSid || !apiKeySid || !apiKeySecret) {
+      res.status(500).json(errorResponse('Twilio API key credentials not configured'))
+      return
+    }
+
+    const identity = (req as unknown as { user?: { email?: string } }).user?.email || 'anonymous'
+
+    const voiceGrant = new VoiceGrant({
+      outgoingApplicationSid: twimlAppSid,
+      incomingAllow: true,
+    })
+
+    const token = new AccessToken(accountSid, apiKeySid, apiKeySecret, {
+      identity,
+      ttl: 3600,
+    })
+    token.addGrant(voiceGrant)
+
+    res.json(successResponse({ token: token.toJwt(), identity }))
+  } catch (err) {
+    console.error('POST /api/comms/token error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/comms/webhook/voice
+ * TwiML webhook — called by Twilio when Device.connect() is invoked from the browser.
+ * Reads the To param and returns TwiML to dial the client's phone number.
+ * Auth bypass: Twilio calls this directly, no Firebase token.
+ */
+commsRoutes.post('/webhook/voice', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, string>
+    const to = body.To || ''
+    const from = body.From || body.Caller || ''
+
+    if (!to) {
+      res.set('Content-Type', 'text/xml')
+      res.send('<Response><Say>No destination number provided.</Say></Response>')
+      return
+    }
+
+    const statusCallbackUrl =
+      'https://tm-api-365181509090.us-central1.run.app/api/comms/webhook/call-status'
+
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Dial callerId="+18886208587" record="record-from-answer-dual">
+    <Number statusCallbackEvent="initiated ringing answered completed" statusCallback="${statusCallbackUrl}">${to}</Number>
+  </Dial>
+</Response>`
+
+    // Log outbound call to Firestore (fire-and-forget — don't block TwiML response)
+    logCommunication({
+      channel: 'voice',
+      direction: 'outbound',
+      recipient: to,
+      sender: from,
+      status: 'initiated',
+      call_type: 'browser_sdk',
+      caller_id: '+18886208587',
+    }).catch((err: unknown) => console.error('comms/webhook/voice log error:', err))
+
+    res.set('Content-Type', 'text/xml')
+    res.send(twiml)
+  } catch (err) {
+    console.error('POST /api/comms/webhook/voice error:', err)
+    res.set('Content-Type', 'text/xml')
+    res.send('<Response><Say>An error occurred. Please try again.</Say></Response>')
+  }
+})
+
+// ============================================================================
+// Twilio Webhook Routes (no Firebase auth — Twilio calls these directly)
+// ============================================================================
+
+/**
+ * POST /api/comms/webhook/voice-incoming
+ * TRK-13655: Inbound voice call to the 888 toll-free number.
+ * Routes the call to the browser client via Twilio Client. Logs to Firestore.
+ */
+commsRoutes.post('/webhook/voice-incoming', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, string>
+    const from = body.From || ''
+    const to = body.To || ''
+    const callSid = body.CallSid || ''
+
+    // Default identity to route to — Phase 2 will add smart routing
+    const defaultIdentity = process.env.TWILIO_DEFAULT_IDENTITY || 'josh@retireprotected.com'
+
+    // Log inbound call to Firestore (fire-and-forget — don't block TwiML response)
+    logCommunication({
+      channel: 'voice',
+      direction: 'inbound',
+      sender: from,
+      recipient: to,
+      call_sid: callSid,
+      status: 'ringing',
+      routed_to: defaultIdentity,
+      call_type: 'inbound_phone',
+    }).catch((err: unknown) => {
+      console.error('webhook/voice-incoming Firestore log error:', err)
+    })
+
+    const twiml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<Response>',
+      `  <Dial record="record-from-answer-dual">`,
+      `    <Client>${defaultIdentity}</Client>`,
+      '  </Dial>',
+      '  <Say>We\'re sorry, no one is available to take your call. Please leave a message.</Say>',
+      '  <Record maxLength="120" action="/api/comms/webhook/voicemail" />',
+      '</Response>',
+    ].join('\n')
+
+    res.set('Content-Type', 'text/xml')
+    res.send(twiml)
+  } catch (err) {
+    console.error('POST /api/comms/webhook/voice-incoming error:', err)
+    // Return valid empty TwiML on error so Twilio doesn't retry infinitely
+    res.set('Content-Type', 'text/xml')
+    res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+  }
+})
+
+/**
+ * POST /api/comms/webhook/sms-incoming
+ * TRK-13665: Inbound SMS to the 888 toll-free number.
+ * Looks up client by phone number. Logs to Firestore. Returns empty TwiML (no auto-reply).
+ */
+commsRoutes.post('/webhook/sms-incoming', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, string>
+    const from = body.From || ''
+    const msgBody = body.Body || ''
+    const messageSid = body.MessageSid || ''
+    const numMedia = Number(body.NumMedia || '0')
+
+    // Collect any media URLs
+    const mediaUrls: string[] = []
+    for (let i = 0; i < numMedia; i++) {
+      const url = body[`MediaUrl${i}`]
+      if (url) mediaUrls.push(url)
+    }
+
+    // Look up client by phone number (strip +1 and non-digits for matching)
+    let clientId: string | null = null
+    try {
+      const db = getFirestore()
+      const digits = from.replace(/\D/g, '').replace(/^1/, '')
+      // Try cell_phone first, then phone — both fields are stored as plain digits
+      const [cellSnap, phoneSnap] = await Promise.all([
+        db.collection('clients').where('cell_phone', '==', digits).limit(1).get(),
+        db.collection('clients').where('phone', '==', digits).limit(1).get(),
+      ])
+      const match = cellSnap.docs[0] || phoneSnap.docs[0]
+      if (match) clientId = match.id
+    } catch (lookupErr: unknown) {
+      console.error('webhook/sms-incoming client lookup error:', lookupErr)
+    }
+
+    await logCommunication({
+      channel: 'sms',
+      direction: 'inbound',
+      sender: from,
+      body: msgBody,
+      message_sid: messageSid,
+      media_urls: mediaUrls,
+      status: 'received',
+      client_id: clientId,
+    })
+
+    // Empty TwiML — no auto-reply
+    res.set('Content-Type', 'text/xml')
+    res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+  } catch (err) {
+    console.error('POST /api/comms/webhook/sms-incoming error:', err)
+    res.set('Content-Type', 'text/xml')
+    res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+  }
+})
+
+/**
+ * POST /api/comms/webhook/recording-status
+ * TRK-13650: Recording callback — updates Firestore comm doc with recording URL + duration.
+ * Twilio POSTs when a recording is complete.
+ */
+commsRoutes.post('/webhook/recording-status', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, string>
+    const callSid = body.CallSid || ''
+    const recordingSid = body.RecordingSid || ''
+    const recordingUrl = body.RecordingUrl || ''
+    const recordingDuration = body.RecordingDuration ? Number(body.RecordingDuration) : null
+
+    if (callSid && recordingUrl) {
+      const db = getFirestore()
+      const snap = await db
+        .collection('communications')
+        .where('call_sid', '==', callSid)
+        .limit(1)
+        .get()
+
+      if (!snap.empty) {
+        await snap.docs[0].ref.update({
+          recording_url: `${recordingUrl}.mp3`,
+          recording_sid: recordingSid,
+          recording_duration: recordingDuration,
+          updated_at: new Date().toISOString(),
+        })
+      } else {
+        console.error(`webhook/recording-status: no comm doc found for CallSid ${callSid}`)
+      }
+    }
+
+    res.status(204).send()
+  } catch (err) {
+    console.error('POST /api/comms/webhook/recording-status error:', err)
+    res.status(204).send()
+  }
+})
+
+/**
+ * POST /api/comms/webhook/call-status
+ * TRK-13650: Call status callback — updates Firestore comm doc on state changes.
+ * Twilio POSTs on transitions: initiated → ringing → answered → completed.
+ */
+commsRoutes.post('/webhook/call-status', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, string>
+    const callSid = body.CallSid || ''
+    const callStatus = body.CallStatus || ''
+    const callDuration = body.CallDuration ? Number(body.CallDuration) : null
+    const direction = body.Direction || ''
+
+    if (callSid && callStatus) {
+      const db = getFirestore()
+      const snap = await db
+        .collection('communications')
+        .where('call_sid', '==', callSid)
+        .limit(1)
+        .get()
+
+      if (!snap.empty) {
+        const update: Record<string, unknown> = {
+          status: callStatus,
+          updated_at: new Date().toISOString(),
+        }
+        if (callDuration !== null) update.duration = callDuration
+        if (direction) update.direction = direction
+        if (callStatus === 'completed') update.completed_at = new Date().toISOString()
+
+        await snap.docs[0].ref.update(update)
+      } else {
+        console.error(`webhook/call-status: no comm doc found for CallSid ${callSid}`)
+      }
+    }
+
+    res.status(204).send()
+  } catch (err) {
+    console.error('POST /api/comms/webhook/call-status error:', err)
+    res.status(204).send()
   }
 })
 

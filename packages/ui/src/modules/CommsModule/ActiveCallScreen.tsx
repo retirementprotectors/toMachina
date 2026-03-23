@@ -3,15 +3,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 /**
- * ActiveCallScreen — TRK-085
+ * ActiveCallScreen — TRK-13654
  *
- * In-call concept UI showing caller info, live duration timer,
- * Mute / Hold / Transfer / End Call buttons, and a notes textarea.
- *
- * STUB: Concept UI only. Sprint 10 will wire Twilio Client JS SDK
- * for real call control (mute, hold, transfer, hangup).
- *
- * Export only — not mounted anywhere yet.
+ * In-call UI showing caller info, live duration timer, and real call controls:
+ * - Mute: call.mute(true/false) via onToggleMute callback
+ * - DTMF keypad: call.sendDigits('...') via onSendDigits callback
+ * - End call: call.disconnect() via onEndCall callback
+ * - Duration: starts on 'accept', stops on 'disconnect'
+ * - Quality warnings via onWarning/onWarningCleared callbacks
  */
 
 /* ─── Types ─── */
@@ -25,7 +24,14 @@ export interface ActiveCallData {
 
 interface ActiveCallScreenProps {
   call: ActiveCallData
+  /** Whether the call microphone is currently muted (from TwilioDeviceProvider) */
+  isMuted: boolean
+  /** Toggle mic mute */
+  onToggleMute: () => void
+  /** End the active call */
   onEndCall: (callId: string) => void
+  /** Send DTMF digits */
+  onSendDigits: (digits: string) => void
 }
 
 /* ─── Duration Timer Hook ─── */
@@ -46,20 +52,46 @@ function useCallTimer() {
   return formatted
 }
 
+/* ─── DTMF Keypad ─── */
+
+function DtmfKeypad({ onSendDigits, onClose }: { onSendDigits: (d: string) => void; onClose: () => void }) {
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#']
+  return (
+    <div className="mt-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <p className="text-xs font-medium text-[var(--text-secondary)]">Keypad</p>
+        <button
+          onClick={onClose}
+          className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+        >
+          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
+        </button>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5">
+        {keys.map((key) => (
+          <button
+            key={key}
+            onClick={() => onSendDigits(key)}
+            className="flex h-10 items-center justify-center rounded-md bg-[var(--bg-hover)] text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--border-subtle)]"
+          >
+            {key}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Component ─── */
 
-export function ActiveCallScreen({ call, onEndCall }: ActiveCallScreenProps) {
+export function ActiveCallScreen({ call, isMuted, onToggleMute, onEndCall, onSendDigits }: ActiveCallScreenProps) {
   const duration = useCallTimer()
-  const [muted, setMuted] = useState(false)
-  const [held, setHeld] = useState(false)
+  const [showKeypad, setShowKeypad] = useState(false)
   const [notes, setNotes] = useState('')
-  const [showTransfer, setShowTransfer] = useState(false)
 
   const handleEndCall = useCallback(() => {
     onEndCall(call.callId)
   }, [call.callId, onEndCall])
-
-  /* Sprint 10: Real Twilio mute/hold/transfer via Client JS SDK */
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70">
@@ -70,9 +102,9 @@ export function ActiveCallScreen({ call, onEndCall }: ActiveCallScreenProps) {
         {/* Status bar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: held ? 'var(--warning, #f59e0b)' : 'var(--success, #10b981)' }} />
-            <span className="text-xs font-medium" style={{ color: held ? 'var(--warning, #f59e0b)' : 'var(--success, #10b981)' }}>
-              {held ? 'On Hold' : 'Connected'}
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: 'var(--success, #10b981)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--success, #10b981)' }}>
+              Connected
             </span>
           </div>
           <span className="font-mono text-sm font-semibold text-[var(--text-primary)]">{duration}</span>
@@ -97,48 +129,37 @@ export function ActiveCallScreen({ call, onEndCall }: ActiveCallScreenProps) {
 
         {/* Control buttons */}
         <div className="mt-6 flex items-center justify-center gap-3">
+          {/* Mute — wired to call.mute() via onToggleMute */}
           <button
-            onClick={() => setMuted((v) => !v)}
+            onClick={onToggleMute}
             className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors ${
-              muted
+              isMuted
                 ? 'border-[var(--portal)] bg-[var(--portal-glow)]'
                 : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)]'
             }`}
-            title={muted ? 'Unmute' : 'Mute'}
+            title={isMuted ? 'Unmute' : 'Mute'}
           >
-            <span className="material-icons-outlined" style={{ fontSize: '20px', color: muted ? 'var(--portal)' : 'var(--text-secondary)' }}>
-              {muted ? 'mic_off' : 'mic'}
+            <span className="material-icons-outlined" style={{ fontSize: '20px', color: isMuted ? 'var(--portal)' : 'var(--text-secondary)' }}>
+              {isMuted ? 'mic_off' : 'mic'}
             </span>
           </button>
 
+          {/* Keypad — calls call.sendDigits() for IVR navigation */}
           <button
-            onClick={() => setHeld((v) => !v)}
+            onClick={() => setShowKeypad((v) => !v)}
             className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors ${
-              held
-                ? 'border-[var(--warning,#f59e0b)] bg-amber-500/10'
-                : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)]'
-            }`}
-            title={held ? 'Resume' : 'Hold'}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '20px', color: held ? 'var(--warning, #f59e0b)' : 'var(--text-secondary)' }}>
-              {held ? 'play_arrow' : 'pause'}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setShowTransfer((v) => !v)}
-            className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors ${
-              showTransfer
+              showKeypad
                 ? 'border-[var(--portal)] bg-[var(--portal-glow)]'
                 : 'border-[var(--border-subtle)] bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)]'
             }`}
-            title="Transfer call"
+            title="Keypad (DTMF)"
           >
-            <span className="material-icons-outlined" style={{ fontSize: '20px', color: showTransfer ? 'var(--portal)' : 'var(--text-secondary)' }}>
-              phone_forwarded
+            <span className="material-icons-outlined" style={{ fontSize: '20px', color: showKeypad ? 'var(--portal)' : 'var(--text-secondary)' }}>
+              dialpad
             </span>
           </button>
 
+          {/* End call — wired to call.disconnect() via onEndCall */}
           <button
             onClick={handleEndCall}
             className="flex h-12 w-12 items-center justify-center rounded-full text-white transition-transform hover:scale-110"
@@ -149,14 +170,12 @@ export function ActiveCallScreen({ call, onEndCall }: ActiveCallScreenProps) {
           </button>
         </div>
 
-        {/* Transfer panel (stub) */}
-        {showTransfer && (
-          <div className="mt-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
-            <p className="text-xs font-medium text-[var(--text-secondary)]">Transfer to:</p>
-            <p className="mt-1 text-[10px] text-[var(--text-muted)]">
-              Agent selection coming in Sprint 10 with Twilio warm/cold transfer support.
-            </p>
-          </div>
+        {/* DTMF Keypad — expanded inline */}
+        {showKeypad && (
+          <DtmfKeypad
+            onSendDigits={onSendDigits}
+            onClose={() => setShowKeypad(false)}
+          />
         )}
 
         {/* In-call notes */}
