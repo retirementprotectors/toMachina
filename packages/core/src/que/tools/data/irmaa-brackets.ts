@@ -8,6 +8,17 @@
 
 import type { IrmaaBracket, FilingStatus } from '../types'
 
+/**
+ * Config Registry key: 'irmaa_brackets'
+ * Firestore collection: config_registry
+ * Type: year_table | Category: financial
+ *
+ * Server-side usage:
+ *   import { getConfig } from '../lib/config-helper.js'
+ *   const config = await getConfig('irmaa_brackets', DEFAULT_IRMAA_BRACKETS_CONFIG)
+ */
+export const CONFIG_KEY_IRMAA_BRACKETS = 'irmaa_brackets'
+
 // ---------------------------------------------------------------------------
 // 2024 IRMAA Brackets (based on 2022 MAGI)
 // ---------------------------------------------------------------------------
@@ -102,4 +113,32 @@ export const IRMAA_BRACKETS_2025: Record<FilingStatus, IrmaaBracket[]> = {
 export function getIrmaaBrackets(taxYear: number, filingStatus: FilingStatus): IrmaaBracket[] {
   const brackets = taxYear >= 2025 ? IRMAA_BRACKETS_2025 : IRMAA_BRACKETS_2024
   return brackets[filingStatus] || brackets.mfj
+}
+
+// ---------------------------------------------------------------------------
+// Default config_registry doc shape (for getConfig fallback + seed script)
+// ---------------------------------------------------------------------------
+
+/** Converts bracket magiMax Infinity → null for Firestore/JSON storage. */
+function firestoreIrmaaBrackets(brackets: IrmaaBracket[]) {
+  return brackets.map(b => ({ ...b, magiMax: b.magiMax === Infinity ? null : b.magiMax }))
+}
+
+function firestoreIrmaaByStatus(byStatus: Record<FilingStatus, IrmaaBracket[]>) {
+  return Object.fromEntries(
+    Object.entries(byStatus).map(([status, brackets]) => [status, firestoreIrmaaBrackets(brackets)]),
+  )
+}
+
+/**
+ * Default Firestore doc shape for `config_registry/irmaa_brackets`.
+ * Use as the `fallback` param for `getConfig('irmaa_brackets', DEFAULT_IRMAA_BRACKETS_CONFIG)`.
+ */
+export const DEFAULT_IRMAA_BRACKETS_CONFIG = {
+  years: {
+    '2024': { brackets: firestoreIrmaaByStatus(IRMAA_BRACKETS_2024) },
+    '2025': { brackets: firestoreIrmaaByStatus(IRMAA_BRACKETS_2025) },
+  },
+  type: 'year_table' as const,
+  category: 'financial' as const,
 }

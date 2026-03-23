@@ -7,6 +7,17 @@
 
 import type { CarrierProduct } from '../types'
 
+/**
+ * Config Registry key: 'carrier_products'
+ * Firestore collection: config_registry
+ * Type: table | Category: financial
+ *
+ * Server-side usage:
+ *   import { getConfig } from '../lib/config-helper.js'
+ *   const config = await getConfig('carrier_products', DEFAULT_CARRIER_PRODUCTS_CONFIG)
+ */
+export const CONFIG_KEY_CARRIER_PRODUCTS = 'carrier_products'
+
 export const CARRIER_PRODUCTS: CarrierProduct[] = [
   // --- Ameritas ---
   {
@@ -105,4 +116,18 @@ export function findCarrierProducts(query: { carrier?: string; product?: string 
     if (query.product && !p.product.toLowerCase().includes(query.product.toLowerCase())) return false
     return true
   })
+}
+
+// ---------------------------------------------------------------------------
+// Default config_registry doc shape (for getConfig fallback + seed script)
+// ---------------------------------------------------------------------------
+
+/**
+ * Default Firestore doc shape for `config_registry/carrier_products`.
+ * Use as the `fallback` param for `getConfig('carrier_products', DEFAULT_CARRIER_PRODUCTS_CONFIG)`.
+ */
+export const DEFAULT_CARRIER_PRODUCTS_CONFIG = {
+  products: CARRIER_PRODUCTS,
+  type: 'table' as const,
+  category: 'financial' as const,
 }

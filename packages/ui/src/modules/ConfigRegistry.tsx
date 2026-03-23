@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { fetchValidated } from './fetchValidated'
 import { useToast } from '../components/Toast'
 import { ConfigDataQuality } from './ConfigDataQuality'
+import { ConfigFinancial } from './ConfigFinancial'
 import { ConfigOperations } from './ConfigOperations'
 
 /* ═══ Types ═══ */
@@ -359,6 +360,12 @@ export function ConfigRegistry({ portal }: ConfigRegistryProps) {
               {/* Section-specific editors */}
               {activeCategory === 'data_quality' ? (
                 <ConfigDataQuality
+                  configKey={selectedKey}
+                  configData={configData}
+                  onUpdate={d => { setConfigData(d); setDirty(true) }}
+                />
+              ) : activeCategory === 'financial' ? (
+                <ConfigFinancial
                   configKey={selectedKey}
                   configData={configData}
                   onUpdate={d => { setConfigData(d); setDirty(true) }}

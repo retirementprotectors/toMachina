@@ -8,6 +8,17 @@
 
 import type { TaxBracket, FilingStatus } from '../types'
 
+/**
+ * Config Registry key: 'tax_brackets'
+ * Firestore collection: config_registry
+ * Type: year_table | Category: financial
+ *
+ * Server-side usage:
+ *   import { getConfig } from '../lib/config-helper.js'
+ *   const config = await getConfig('tax_brackets', DEFAULT_TAX_BRACKETS_CONFIG)
+ */
+export const CONFIG_KEY_TAX_BRACKETS = 'tax_brackets'
+
 // ---------------------------------------------------------------------------
 // 2025 Standard Deductions
 // ---------------------------------------------------------------------------
@@ -139,4 +150,35 @@ export const STATE_TAX_RATES: Record<string, { rate: number; retirementExempt: b
   WI: { rate: 0.0530, retirementExempt: false, name: 'Wisconsin' },
   WY: { rate: 0.000, retirementExempt: false, name: 'Wyoming' },
   DC: { rate: 0.085, retirementExempt: false, name: 'District of Columbia' },
+}
+
+// ---------------------------------------------------------------------------
+// Default config_registry doc shape (for getConfig fallback + seed script)
+// ---------------------------------------------------------------------------
+
+/** Converts bracket max Infinity → null for Firestore/JSON storage. */
+function firestoreBrackets(brackets: TaxBracket[]): Array<{ min: number; max: number | null; rate: number }> {
+  return brackets.map(b => ({ min: b.min, max: b.max === Infinity ? null : b.max, rate: b.rate }))
+}
+
+function firestoreBracketsByStatus(byStatus: Record<FilingStatus, TaxBracket[]>) {
+  return Object.fromEntries(
+    Object.entries(byStatus).map(([status, brackets]) => [status, firestoreBrackets(brackets)]),
+  )
+}
+
+/**
+ * Default Firestore doc shape for `config_registry/tax_brackets`.
+ * Use as the `fallback` param for `getConfig('tax_brackets', DEFAULT_TAX_BRACKETS_CONFIG)`.
+ */
+export const DEFAULT_TAX_BRACKETS_CONFIG = {
+  years: {
+    '2025': {
+      brackets: firestoreBracketsByStatus(FEDERAL_BRACKETS_2025),
+      standard_deduction: STANDARD_DEDUCTIONS_2025,
+    },
+  },
+  state_tax_rates: STATE_TAX_RATES,
+  type: 'year_table' as const,
+  category: 'financial' as const,
 }
