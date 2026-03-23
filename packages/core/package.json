@@ -28,6 +28,26 @@
     "./schemas/*": {
       "types": "./src/schemas/*.ts",
       "default": "./dist/schemas/*.js"
+    },
+    "./que/*": {
+      "types": "./src/que/*.ts",
+      "default": "./dist/que/*.js"
+    },
+    "./que/super-tools/*": {
+      "types": "./src/que/super-tools/*.ts",
+      "default": "./dist/que/super-tools/*.js"
+    },
+    "./que/wires/*": {
+      "types": "./src/que/wires/*.ts",
+      "default": "./dist/que/wires/*.js"
+    },
+    "./flow/*": {
+      "types": "./src/flow/*.ts",
+      "default": "./dist/flow/*.js"
+    },
+    "./notifications/*": {
+      "types": "./src/notifications/*.ts",
+      "default": "./dist/notifications/*.js"
     }
   },
   "scripts": {

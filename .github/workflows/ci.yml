@@ -19,6 +19,18 @@ jobs:
       - run: npx turbo run type-check
       - run: npx turbo run build
 
+  e2e-pure:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:e2e:pure
+
   e2e-ui:
     runs-on: ubuntu-latest
     env:

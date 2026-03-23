@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORGE — Pipeline Verification Sprint Discovery</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d29922;
+    --accent-red: #f85149;
+    --accent-purple: #bc8cff;
+    --accent-teal: #2dd4bf;
+    --forge: #f97316;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  h1 .forge-badge {
+    background: var(--forge);
+    color: #000;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+  .meta-row {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .meta-item { display: flex; flex-direction: column; }
+  .meta-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .meta-value { font-size: 1.1rem; font-weight: 600; }
+  .meta-value.phase { color: var(--accent-orange); }
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .summary h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--accent); }
+  .summary p { color: var(--text-muted); }
+  .cluster {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .cluster-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .cluster-header:hover { background: #21262d; }
+  .cluster-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .cluster-badges { display: flex; gap: 0.5rem; align-items: center; }
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+  }
+  .badge-count { background: var(--accent); color: #000; }
+  .badge-p1 { background: var(--accent-red); color: #fff; }
+  .badge-p2 { background: var(--accent-orange); color: #000; }
+  .badge-p3 { background: var(--accent-green); color: #000; }
+  .cluster-body { padding: 1.5rem; display: block; }
+  .cluster-body.collapsed { display: none; }
+  .item-list { list-style: none; }
+  .item-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .item-list li:last-child { border-bottom: none; }
+  .item-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-purple);
+    white-space: nowrap;
+    min-width: 100px;
+  }
+  .item-title { font-weight: 500; }
+  .item-desc { font-size: 0.85rem; color: var(--text-muted); }
+  .section-label {
+    font-size: 0.8rem;
+    color: var(--accent-teal);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 1rem 0 0.5rem;
+    font-weight: 600;
+  }
+  .gap-text { color: var(--accent-orange); font-style: italic; }
+  .state-text { color: var(--accent-green); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  th { color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+  .risk-table td:first-child { color: var(--accent-red); font-weight: 500; }
+  .totals-table td:last-child { font-weight: 700; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: var(--surface-2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    color: var(--accent-purple);
+  }
+</style>
+</head>
+<body>
+
+<h1>Pipeline Verification Sprint <span class="forge-badge">FORGE</span></h1>
+<p class="subtitle">E2E Data Flow Coverage — Discovery Document</p>
+
+<div class="meta-row">
+  <div class="meta-item"><span class="meta-label">Phase</span><span class="meta-value phase">Discovery</span></div>
+  <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-03-22</span></div>
+  <div class="meta-item"><span class="meta-label">Source Items</span><span class="meta-value">55</span></div>
+  <div class="meta-item"><span class="meta-label">Clusters</span><span class="meta-value">8</span></div>
+  <div class="meta-item"><span class="meta-label">Tickets Created</span><span class="meta-value">48</span></div>
+</div>
+
+<div class="summary">
+  <h2>Executive Summary</h2>
+  <p>55 pipeline-type tracker items span 8 logical clusters covering the full data flow lifecycle &mdash; from document intake through QUE analysis to notifications and output assembly. The codebase has substantial infrastructure already built (wire executor with 8 super tools, 4 wire definitions, 4 E2E intake tests, bridge service for dual-write). The gap is <strong>wiring</strong>: connecting existing components into verified end-to-end flows.</p>
+</div>
+
+<!-- CLUSTER 1 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 1: QUE Wiring</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">12 items</span>
+      <span class="badge badge-p1">P1</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>Connecting ANALYZE_* super tools and output generators into QUE comparison/output steps.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">TRK-13479</span><span class="item-title">Wire ANALYZE_INCOME_NOW into QUE</span></li>
+      <li><span class="item-id">TRK-13480</span><span class="item-title">Wire ANALYZE_INCOME_LATER into QUE</span></li>
+      <li><span class="item-id">TRK-13481</span><span class="item-title">Wire ANALYZE_ESTATE into QUE</span></li>
+      <li><span class="item-id">TRK-13482</span><span class="item-title">Wire ANALYZE_GROWTH into QUE</span></li>
+      <li><span class="item-id">TRK-13483</span><span class="item-title">Wire ANALYZE_LTC into QUE</span></li>
+      <li><span class="item-id">TRK-13484</span><span class="item-title">Wire ANALYZE_ROTH into QUE</span></li>
+      <li><span class="item-id">TRK-13485</span><span class="item-title">Wire ANALYZE_TAX_HARVEST into QUE</span></li>
+      <li><span class="item-id">TRK-13486</span><span class="item-title">Wire ANALYZE_MGE into QUE</span></li>
+      <li><span class="item-id">TRK-13487</span><span class="item-title">Wire GENERATE_CASEWORK into QUE output step</span></li>
+      <li><span class="item-id">TRK-13488</span><span class="item-title">Wire ASSEMBLE_OUTPUT into QUE output step</span></li>
+      <li><span class="item-id">TRK-13472</span><span class="item-title">QUE_SESSION_COMPLETE gate condition</span></li>
+      <li><span class="item-id">TRK-13474</span><span class="item-title">Pipeline Studio &mdash; QUE source selection per step</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">All 8 ANALYZE_* super tools built. 10 QUE wires defined. QUE registry + Pipeline Studio config exist.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">Wires exist as definitions but are not wired into QUE session execution flow. No E2E test proves data flows from QUE session through analysis to output.</p>
+    <div class="section-label">Tests Needed: 12</div>
+  </div>
+</div>
+
+<!-- CLUSTER 2 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 2: Intake Pipeline</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">14 items</span>
+      <span class="badge badge-p1">P1</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>Document intake from 4 sources (MAIL, SPC_INTAKE, ACF_UPLOAD, ACF_SCAN) through WIRE_INCOMING_CORRESPONDENCE.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">TRK-487</span><span class="item-title">Register SUPER_PREPARE in wire executor</span></li>
+      <li><span class="item-id">TRK-490</span><span class="item-title">Build ACF_FINALIZE super tool</span></li>
+      <li><span class="item-id">TRK-491</span><span class="item-title">Register ACF_FINALIZE in wire executor + wire definition</span></li>
+      <li><span class="item-id">TRK-492</span><span class="item-title">MAIL source: move Incoming to Processed AFTER wire</span></li>
+      <li><span class="item-id">TRK-493</span><span class="item-title">SPC_INTAKE: add Processed folder + post-wire cleanup</span></li>
+      <li><span class="item-id">TRK-494</span><span class="item-title">Wire trigger becomes thin HTTP dispatcher + input normalizer</span></li>
+      <li><span class="item-id">TRK-495</span><span class="item-title">ACF_UPLOAD: pass client_id through to wire context</span></li>
+      <li><span class="item-id">TRK-496</span><span class="item-title">ACF_SCAN: pass client_id through to wire context</span></li>
+      <li><span class="item-id">TRK-502</span><span class="item-title">Build resume/reject wire API endpoints</span></li>
+      <li><span class="item-id">TRK-503</span><span class="item-title">Update document_index after successful wire</span></li>
+      <li><span class="item-id">TRK-527</span><span class="item-title">SUPER_PREPARE: handle Google-native files</span></li>
+      <li><span class="item-id">TRK-304</span><span class="item-title">Phase A-E Testing &mdash; 5-phase test plan</span></li>
+      <li><span class="item-id">pWGr...</span><span class="item-title">Wire IntakeFAB Document Upload action</span></li>
+      <li><span class="item-id">xXhh...</span><span class="item-title">Move IntakeFAB to shared packages/ui</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">Wire executor built with 8 super tools in SUPER_TOOL_MAP. 4 E2E tests running. ACF_FINALIZE implemented. Cloud Function wire trigger dispatches to Cloud Run.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">Most intake components are built (ACF_FINALIZE handles file movement, client_id passthrough exists for ACF_UPLOAD/ACF_SCAN, resume/reject endpoints exist, Google-native handling works, IntakeFAB has real upload). Gap is <strong>E2E test coverage</strong> proving these work together. SPC_INTAKE post-wire cleanup logic is partial.</p>
+    <div class="section-label">Tests Needed: 8</div>
+  </div>
+</div>
+
+<!-- CLUSTER 3 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 3: ATLAS Architecture</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">8 items</span>
+      <span class="badge badge-p2">P2</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>ATLAS Super Tool + Wire architecture, tool registration, and wire lifecycle management.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">TRK-13296</span><span class="item-title">ATLAS Super Tool + Wire Architecture</span></li>
+      <li><span class="item-id">TRK-13326</span><span class="item-title">WRITE super tool</span></li>
+      <li><span class="item-id">TRK-13332</span><span class="item-title">Retire old wire definitions</span></li>
+      <li><span class="item-id">TRK-13429</span><span class="item-title">QUE tool registry &mdash; Phase 2+3 registration</span></li>
+      <li><span class="item-id">TRK-13432</span><span class="item-title">DEX tools &mdash; document operations</span></li>
+      <li><span class="item-id">TRK-13452</span><span class="item-title">ATLAS registration &mdash; QUE sources + tools + wires</span></li>
+      <li><span class="item-id">TRK-13475</span><span class="item-title">DEX &mdash; Output generation from QUE session</span></li>
+      <li><span class="item-id">rYlS...</span><span class="item-title">SUPER_EXTRACT &mdash; Vision Extraction on ACF Documents</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">WIRE_DATA_IMPORT defined. SUPER_WRITE implemented. 4 wire definitions total. ATLAS routes + seed scripts exist.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">QUE registry has 59 entries (Phase 2+3 tools registered). DEX tools migrated to API routes (acf.ts), not discrete tools. Gap is <strong>E2E verification</strong> that old wires are unreachable, ATLAS registration is complete, and SUPER_EXTRACT vision mode works end-to-end.</p>
+    <div class="section-label">Tests Needed: 6</div>
+  </div>
+</div>
+
+<!-- CLUSTER 4 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 4: Data Sync & Migration</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">7 items</span>
+      <span class="badge badge-p2">P2</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>Dual-write Firestore/Sheets, household data model, backfill scripts, and enrichment.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">TRK-13308</span><span class="item-title">ACF &mdash; Household-level Drive folder creation</span></li>
+      <li><span class="item-id">TRK-13310</span><span class="item-title">Flow Engine &mdash; entity_type household on flow instances</span></li>
+      <li><span class="item-id">TRK-13316</span><span class="item-title">Import pipeline &mdash; Auto-detect and create households</span></li>
+      <li><span class="item-id">TRK-13337</span><span class="item-title">Backfill script &mdash; normalizer resolution</span></li>
+      <li><span class="item-id">TRK-13338</span><span class="item-title">Backfill script &mdash; raw BoB file cross-reference</span></li>
+      <li><span class="item-id">TRK-13341</span><span class="item-title">NAIC population script</span></li>
+      <li><span class="item-id">kajR...</span><span class="item-title">Wire Write Gate into server.ts + Firestore rules</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">Bridge service active. Household routes + UI tests exist. Guardian routes + WriteGate UI built.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">Most Data Sync components are built: household-aware ACF creation exists (acf.ts:158-176), flow engine supports entity_type household (prospect-household.ts), import auto-detects households (import.ts:507), Write Gate middleware exists (write-gate.ts), 11 backfill scripts exist. Gap is <strong>E2E test coverage</strong> proving each works correctly under real conditions (dry-run verification for backfills).</p>
+    <div class="section-label">Tests Needed: 7</div>
+  </div>
+</div>
+
+<!-- CLUSTER 5 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 5: Notifications Pipeline</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">3 items</span>
+      <span class="badge badge-p2">P2</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>createNotification() utility, Slack notification tools, and notification routing.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">TRK-280</span><span class="item-title">Notifications &mdash; createNotification() utility + wire hook</span></li>
+      <li><span class="item-id">TRK-301</span><span class="item-title">Slack notification tools &mdash; 3 utility tools from watcher</span></li>
+      <li><span class="item-id">TRK-13505</span><span class="item-title">GAP: Click-to-call + disposition + booking workflow</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">Slack notification tools defined (3 functions). ProZone routes + UI fully built.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">createNotification() not wired into wire executor, Slack tools not called from wire stages, click-to-call is read-only.</p>
+    <div class="section-label">Tests Needed: 4</div>
+  </div>
+</div>
+
+<!-- CLUSTER 6 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 6: Communications Wiring</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">3 items</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>Wire Comms Module UI to real Twilio/SendGrid API endpoints.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">6cNi...</span><span class="item-title">Wire Comms Call initiate to real API</span></li>
+      <li><span class="item-id">VMnD...</span><span class="item-title">Wire Comms SMS Compose to real API</span></li>
+      <li><span class="item-id">w2E8...</span><span class="item-title">Wire Comms Email Compose to real API</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">Comms API fully implemented with dryRun support. UI components exist.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">Comms UI IS wired to real /api/comms/* endpoints (SendEmailDialog, SendSmsDialog, CommsCompose all make real API calls). Gap is <strong>E2E dryRun verification</strong> proving Twilio/SendGrid integrations work without actually sending.</p>
+    <div class="section-label">Tests Needed: 3</div>
+  </div>
+</div>
+
+<!-- CLUSTER 7 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 7: DTO & Type Safety</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">5 items</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>Type-safe API contracts using DTOs across API routes and frontend consumers.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">TRK-DTO-005</span><span class="item-title">Group 3: Flow/Pipeline/Approval DTOs (5 routes)</span></li>
+      <li><span class="item-id">TRK-DTO-012</span><span class="item-title">Wire API routes to import DTOs</span></li>
+      <li><span class="item-id">TRK-DTO-013</span><span class="item-title">Wire frontend consumers to import DTOs</span></li>
+      <li><span class="item-id">TRK-DTO-017</span><span class="item-title">Add generic constraint to successResponse&lt;T&gt;()</span></li>
+      <li><span class="item-id">TRK-13403</span><span class="item-title">Pipeline Studio &mdash; Yellow Stage config</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">successResponse&lt;T&gt;() already generic. Guardian routes already use DTOs. Pipeline Studio has E2E test.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">Most API routes still use Record&lt;string, unknown&gt;. Frontend consumers not importing DTOs. Yellow Stage config not built.</p>
+    <div class="section-label">Tests Needed: 5</div>
+  </div>
+</div>
+
+<!-- CLUSTER 8 -->
+<div class="cluster">
+  <div class="cluster-header" onclick="this.nextElementSibling.classList.toggle('collapsed')">
+    <span class="cluster-title">Cluster 8: ACF Lifecycle</span>
+    <div class="cluster-badges">
+      <span class="badge badge-count">3 items</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+  </div>
+  <div class="cluster-body">
+    <p>ACF configuration, routing rules, and household-aware operations.</p>
+    <div class="section-label">Source Items</div>
+    <ul class="item-list">
+      <li><span class="item-id">TRK-277</span><span class="item-title">ACF Household-aware creation + audit</span></li>
+      <li><span class="item-id">TRK-451</span><span class="item-title">P3 &mdash; Update ACF Config with new 5-folder structure</span></li>
+      <li><span class="item-id">TRK-464</span><span class="item-title">P6 &mdash; Seed ACF Config routing_rules from _DOCUMENT_TAXONOMY</span></li>
+    </ul>
+    <div class="section-label">Current State</div>
+    <p class="state-text">ACF routes exist. ACF_FINALIZE maps document types to 5 subfolders.</p>
+    <div class="section-label">Gap</div>
+    <p class="gap-text">Firestore acf_config not updated with 5-folder structure. Routing rules not seeded from taxonomy. Household-aware creation not implemented.</p>
+    <div class="section-label">Tests Needed: 3</div>
+  </div>
+</div>
+
+<!-- TOTALS TABLE -->
+<div class="summary" style="margin-top: 2rem;">
+  <h2>Ticket Breakdown</h2>
+  <table class="totals-table">
+    <thead><tr><th>Cluster</th><th>Source Items</th><th>New Tickets</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td>QUE Wiring</td><td>12</td><td>12</td><td><span class="badge badge-p1">P1</span></td></tr>
+      <tr><td>Intake Pipeline</td><td>14</td><td>8</td><td><span class="badge badge-p1">P1</span></td></tr>
+      <tr><td>ATLAS Architecture</td><td>8</td><td>6</td><td><span class="badge badge-p2">P2</span></td></tr>
+      <tr><td>Data Sync & Migration</td><td>7</td><td>7</td><td><span class="badge badge-p2">P2</span></td></tr>
+      <tr><td>Notifications Pipeline</td><td>3</td><td>4</td><td><span class="badge badge-p2">P2</span></td></tr>
+      <tr><td>Communications Wiring</td><td>3</td><td>3</td><td><span class="badge badge-p3">P3</span></td></tr>
+      <tr><td>DTO & Type Safety</td><td>5</td><td>5</td><td><span class="badge badge-p3">P3</span></td></tr>
+      <tr><td>ACF Lifecycle</td><td>3</td><td>3</td><td><span class="badge badge-p3">P3</span></td></tr>
+      <tr style="border-top: 2px solid var(--accent);"><td><strong>TOTAL</strong></td><td><strong>55</strong></td><td><strong>48</strong></td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- RISK TABLE -->
+<div class="summary">
+  <h2>Risk Register</h2>
+  <table class="risk-table">
+    <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>QUE wires are definitions only</td><td>Blocks all casework output</td><td>Wire executor integration is P1</td></tr>
+      <tr><td>Post-wire file movement built but untested</td><td>Intake folders may grow if ACF_FINALIZE fails silently</td><td>E2E tests TRK-13602/13638 verify movement</td></tr>
+      <tr><td>Comms UI wired but untested with real providers</td><td>Silent send failures in production</td><td>dryRun E2E tests TRK-13610/13612/13626</td></tr>
+      <tr><td>Write Gate not in middleware</td><td>Guardian cannot enforce</td><td>Single middleware addition</td></tr>
+      <tr><td>Backfill scripts untested</td><td>Data quality risk</td><td>Dry-run mode on all scripts</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p style="color: var(--text-muted); text-align: center; margin-top: 2rem; font-size: 0.8rem;">
+  Generated 2026-03-22 &mdash; Pipeline Verification Sprint Discovery &mdash; FORGE
+</p>
+
+</body>
+</html>

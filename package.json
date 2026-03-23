@@ -24,7 +24,8 @@
     "test:e2e": "vitest run --config tests/e2e/vitest.config.ts",
     "test:e2e:local": "TEST_API_URL=http://localhost:8080 vitest run --config tests/e2e/vitest.config.ts",
     "test:e2e:ui": "npx playwright test --project=setup --project=chromium",
-    "test:e2e:seed": "npx tsx tests/e2e/scripts/seed-test-client.ts"
+    "test:e2e:seed": "npx tsx tests/e2e/scripts/seed-test-client.ts",
+    "test:e2e:pure": "vitest run --config tests/e2e/vitest.pure.config.ts"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
