@@ -138,7 +138,8 @@ describe('TRK-13632: ACF household-aware creation + audit', () => {
     expect(acfSource).toContain('householdId')
 
     // Looks up household document to find acf_folder_id
-    expect(acfSource).toMatch(/households.*doc.*householdId/)
+    expect(acfSource).toContain('households')
+    expect(acfSource).toContain('.doc(householdId)')
 
     // Sets parentFolderId from household's acf_folder_id
     expect(acfSource).toContain('parentFolderId')

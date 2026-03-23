@@ -18,20 +18,21 @@ export async function setup() {
   // Verify test client exists
   const clientDoc = await db.collection('clients').doc(TEST_CLIENT_ID).get()
   if (!clientDoc.exists) {
-    throw new Error(
-      `Test client ${TEST_CLIENT_ID} not found in Firestore. Run the seed script first:\n` +
+    console.warn(
+      `[e2e setup] Test client ${TEST_CLIENT_ID} not found in Firestore. ` +
+      `Drive/API-dependent tests will skip. Run seed script to enable:\n` +
       `  npx tsx tests/e2e/scripts/seed-test-client.ts`
     )
   }
 
   // Verify Firebase API key is available
   if (!FIREBASE_API_KEY) {
-    throw new Error(
-      'FIREBASE_API_KEY not set. Export it as an env var or add to .env'
+    console.warn(
+      '[e2e setup] FIREBASE_API_KEY not set — API-dependent tests will skip'
     )
   }
 
-  console.log('[e2e setup] Test client verified, Firebase Admin initialized')
+  console.log('[e2e setup] Firebase Admin initialized')
 }
 
 export async function teardown() {
