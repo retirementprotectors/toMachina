@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@tomachina/auth'
 import { PortalSidebar } from './components/PortalSidebar'
 import { TopBar } from './components/TopBar'
 import { SignInScreen } from './components/SignInScreen'
 import { LoadingScreen } from './components/LoadingScreen'
 import { CommsModule } from '@tomachina/ui/src/modules/CommsModule'
+import type { ClientResult } from '@tomachina/ui/src/modules/CommsModule'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
 import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
 import { ReportButton } from '@tomachina/ui'
@@ -17,9 +19,40 @@ export default function PortalLayout({
   children: React.ReactNode
 }) {
   const { user, loading, signIn } = useAuth()
+  const pathname = usePathname()
   const [commsOpen, setCommsOpen] = useState(false)
   const [connectOpen, setConnectOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [activeContact, setActiveContact] = useState<ClientResult | null>(null)
+
+  // Clear active contact when navigating away from a contact detail page
+  useEffect(() => {
+    const isContactDetail = pathname?.match(/^\/contacts\/([a-zA-Z0-9-]+)$/)
+    if (!isContactDetail) {
+      setActiveContact(null)
+    }
+  }, [pathname])
+
+  const [commsInitialTab, setCommsInitialTab] = useState<'sms' | 'email' | 'call' | null>(null)
+
+  // Listen for comms-action events from client detail buttons
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      const channel = detail?.channel as 'sms' | 'email' | 'call'
+      if (channel) {
+        if (detail.contact) {
+          setActiveContact(detail.contact as ClientResult)
+        }
+        setCommsInitialTab(channel)
+        setCommsOpen(true)
+        setConnectOpen(false)
+        setNotificationsOpen(false)
+      }
+    }
+    window.addEventListener('comms-action', handler)
+    return () => window.removeEventListener('comms-action', handler)
+  }, [])
 
   const panelOpen = commsOpen || connectOpen || notificationsOpen
 
@@ -74,8 +107,8 @@ export default function PortalLayout({
         </main>
       </div>
 
-      {/* Communications Module — slide-out panel */}
-      <CommsModule open={commsOpen} onClose={closeComms} />
+      {/* Communications Module — slide-out panel (auto-fills To from active client) */}
+      <CommsModule open={commsOpen} onClose={closeComms} activeContact={activeContact} initialTab={commsInitialTab} />
 
       {/* RPI Connect — slide-out panel */}
       <ConnectPanel portal="prodash" open={connectOpen} onClose={closeConnect} />

@@ -48,7 +48,46 @@ async function firestoreFallbackSearch(searchQuery: string, maxResults: number):
     })
   }
 
-  // 1. last_name prefix match
+  // Helper: prefix range for Firestore string queries
+  const prefixRange = (val: string) => ({
+    start: val,
+    end: val.slice(0, -1) + String.fromCharCode(val.charCodeAt(val.length - 1) + 1),
+  })
+
+  // Split query to support "First Last" multi-word search
+  const parts = searchQuery.split(/\s+/).filter(Boolean)
+
+  // Multi-word: "Josh Millang" -> first_name=Josh + client-side last_name filter
+  if (parts.length >= 2) {
+    const fn = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase()
+    const fnRange = prefixRange(fn)
+    const ln = parts[parts.length - 1].charAt(0).toUpperCase() + parts[parts.length - 1].slice(1).toLowerCase()
+    const lnRange = prefixRange(ln)
+
+    try {
+      const snap = await getDocs(
+        query(
+          collection(db, 'clients'),
+          where('first_name', '>=', fnRange.start),
+          where('first_name', '<', fnRange.end),
+          firestoreLimit(maxResults * 3)
+        )
+      )
+      snap.forEach((doc) => {
+        const data = doc.data() as Record<string, unknown>
+        const last = String(data.last_name || '')
+        if (last >= lnRange.start && last < lnRange.end) {
+          addClient(doc.id, data)
+        }
+      })
+    } catch {
+      // Silently continue
+    }
+
+    return { clients, accounts: [] }
+  }
+
+  // 1. last_name prefix match (single word)
   const lastUpper = searchQuery.charAt(0).toUpperCase() + searchQuery.slice(1).toLowerCase()
   const lastEnd = lastUpper.slice(0, -1) + String.fromCharCode(lastUpper.charCodeAt(lastUpper.length - 1) + 1)
 
@@ -66,7 +105,7 @@ async function firestoreFallbackSearch(searchQuery: string, maxResults: number):
     // Silently continue — index may not exist
   }
 
-  // 2. first_name prefix match
+  // 2. first_name prefix match (single word)
   const firstUpper = searchQuery.charAt(0).toUpperCase() + searchQuery.slice(1).toLowerCase()
   const firstEnd = firstUpper.slice(0, -1) + String.fromCharCode(firstUpper.charCodeAt(firstUpper.length - 1) + 1)
 

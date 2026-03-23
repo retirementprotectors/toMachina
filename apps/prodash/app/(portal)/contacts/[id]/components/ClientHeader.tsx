@@ -25,13 +25,15 @@ interface AI3Data {
 interface ClientHeaderProps {
   client: Client
   clientId: string
+  /** Open Comms panel with a specific channel pre-selected */
+  onCommsAction?: (channel: 'sms' | 'email' | 'call') => void
 }
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps) {
+export function ClientHeader({ client, clientId: _clientId, onCommsAction }: ClientHeaderProps) {
   const fullName = [client.first_name, client.last_name].filter(Boolean).join(' ') || 'Unknown'
   // Strip all quote characters from preferred_name and first_name
   const stripQuotes = (s: string) => s.replace(/["']/g, '').replace(/\s+/g, ' ').trim()
@@ -200,6 +202,75 @@ export function ClientHeader({ client, clientId: _clientId }: ClientHeaderProps)
           <MetaChip icon="schedule" label={String(timezone)} />
         )}
       </div>
+
+      {/* Row 3: Comms Quick Actions — own row, data-aware */}
+      {onCommsAction && (() => {
+        const cellPhone = (client.cell_phone as string) || ''
+        const primaryPhone = (client.phone as string) || ''
+        const altPhone = (client.alt_phone as string) || ''
+        const phoneType = ((client.phone_type as string) || '').toLowerCase()
+        const altPhoneType = ((client.alt_phone_type as string) || '').toLowerCase()
+        const email = (client.email as string) || ''
+
+        const isValidPhone = (p: string) => p.replace(/[^0-9]/g, '').length >= 10
+        const isCellType = (t: string) => t === 'cell' || t === 'mobile'
+
+        // Can we CALL? Any phone number present
+        const hasAnyPhone = isValidPhone(cellPhone) || isValidPhone(primaryPhone) || isValidPhone(altPhone)
+        const bestCallNumber = isValidPhone(cellPhone) ? cellPhone : isValidPhone(primaryPhone) ? primaryPhone : altPhone
+
+        // Can we TEXT? Cell phone field always works. Primary/Alt work only if type is Cell/Mobile
+        const canText = isValidPhone(cellPhone)
+          || (isValidPhone(primaryPhone) && isCellType(phoneType))
+          || (isValidPhone(altPhone) && isCellType(altPhoneType))
+        const bestTextNumber = isValidPhone(cellPhone) ? cellPhone
+          : (isValidPhone(primaryPhone) && isCellType(phoneType)) ? primaryPhone
+          : altPhone
+
+        // Can we EMAIL?
+        const hasEmail = email.includes('@')
+
+        // Build tooltip with the actual number/email that will be used
+        const callTip = hasAnyPhone ? `Call ${bestCallNumber}` : 'No phone number on file'
+        const textTip = canText ? `Text ${bestTextNumber}` : 'No mobile number on file'
+        const emailTip = hasEmail ? `Email ${email}` : 'No email on file'
+
+        const btnBase = 'inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium transition-all'
+        const btnActive = (color: string) => `border-${color}-500/30 bg-${color}-500/10 text-${color}-400 hover:bg-${color}-500/20 cursor-pointer`
+        const btnDisabled = 'border-[var(--border-subtle)] bg-transparent text-[var(--text-muted)] opacity-30 cursor-not-allowed'
+
+        return (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => hasAnyPhone ? onCommsAction('call') : undefined}
+              disabled={!hasAnyPhone}
+              className={`${btnBase} ${hasAnyPhone ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : btnDisabled}`}
+              title={callTip}
+            >
+              <span className="material-icons-outlined text-[16px]">call</span>
+              Call
+            </button>
+            <button
+              onClick={() => canText ? onCommsAction('sms') : undefined}
+              disabled={!canText}
+              className={`${btnBase} ${canText ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : btnDisabled}`}
+              title={textTip}
+            >
+              <span className="material-icons-outlined text-[16px]">sms</span>
+              Text
+            </button>
+            <button
+              onClick={() => hasEmail ? onCommsAction('email') : undefined}
+              disabled={!hasEmail}
+              className={`${btnBase} ${hasEmail ? 'border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20' : btnDisabled}`}
+              title={emailTip}
+            >
+              <span className="material-icons-outlined text-[16px]">email</span>
+              Email
+            </button>
+          </div>
+        )
+      })()}
 
       {/* Hidden AI3 Report — rendered off-screen for PDF capture */}
       {ai3Data && (
