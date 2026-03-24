@@ -68,6 +68,7 @@ import { configRoutes } from './routes/config.js'
 import { dashboardRoutes } from './routes/dashboard.js'
 import { mdjRoutes } from './routes/mdj.js'
 import { notificationRoutes } from './routes/notifications.js'
+import { validationRoutes } from './routes/validation.js'
 import { auditMiddleware } from './middleware/audit.js'
 import { registerCheckHandler } from '@tomachina/core'
 import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
@@ -165,6 +166,7 @@ app.use('/api/config', normalizeBody, configRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/mdj', normalizeBody, mdjRoutes)
 app.use('/api/notifications', notificationRoutes)
+app.use('/api/validation', validationRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

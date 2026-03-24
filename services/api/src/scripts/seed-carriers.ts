@@ -1288,10 +1288,17 @@ async function seedFirestoreCarriers(
   console.log('TASK 1: Seeding Firestore carriers collection')
   console.log('='.repeat(60))
 
-  const writes: Array<{ docId: string; data: CarrierDoc }> = []
+  const writes: Array<{ docId: string; data: Record<string, unknown> }> = []
 
   for (const carrier of CARRIER_DATA) {
-    writes.push({ docId: carrier.carrier_id, data: carrier })
+    // Write alias fields so all consumers work regardless of which field name they read:
+    // - display_name: original seed field
+    // - name: core Carrier interface + accounts page
+    // - carrier_name: pipeline page + API search
+    writes.push({
+      docId: carrier.carrier_id,
+      data: { ...carrier, name: carrier.display_name, carrier_name: carrier.display_name },
+    })
   }
 
   console.log(`  Prepared ${writes.length} carrier documents`)

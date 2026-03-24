@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useCollection, getDb } from '@tomachina/db'
 import { useAuth } from '@tomachina/auth'
-import { collection, query, orderBy, limit } from 'firebase/firestore'
+import { collection, query, orderBy, limit, where } from 'firebase/firestore'
 import { RecordingPlayer } from './RecordingPlayer'
 
 /* ─── Types ─── */
@@ -135,6 +135,8 @@ const STATUS_CONFIG: Record<string, { icon: string; color: string; label: string
 /* ─── Props ─── */
 
 interface CommsFeedProps {
+  /** When set, filter communications to this specific client */
+  clientId?: string
   /** Callback when Reply/Call Back is clicked on a log entry */
   onReply?: (entry: CommEntry) => void
   /** Callback when View Client is clicked on a log entry */
@@ -143,7 +145,7 @@ interface CommsFeedProps {
 
 /* ─── Component ─── */
 
-export function CommsFeed({ onReply, onViewClient }: CommsFeedProps) {
+export function CommsFeed({ clientId, onReply, onViewClient }: CommsFeedProps) {
   const [search, setSearch] = useState('')
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all')
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>('all')
@@ -155,14 +157,18 @@ export function CommsFeed({ onReply, onViewClient }: CommsFeedProps) {
   const CURRENT_USER = user?.email || ''
 
   // Live Firestore query — communications ordered by created_at desc, limit 50
+  // When clientId is provided, filter to that client's communications only
   const commsQuery = useMemo(() => {
     try {
       const db = getDb()
-      return query(collection(db, 'communications'), orderBy('created_at', 'desc'), limit(50))
+      const constraints = clientId
+        ? [where('client_id', '==', clientId), orderBy('created_at', 'desc'), limit(50)]
+        : [orderBy('created_at', 'desc'), limit(50)]
+      return query(collection(db, 'communications'), ...constraints)
     } catch {
       return null
     }
-  }, [])
+  }, [clientId])
 
   const { data: rawDocs, loading: commsLoading } = useCollection<CommDoc>(commsQuery, 'comms-feed')
 

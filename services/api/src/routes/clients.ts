@@ -11,6 +11,7 @@ import {
   param,
 } from '../lib/helpers.js'
 import type { ClientDTO, ClientListDTO, ClientDeleteResult, AccountDTO, ActivityDTO, RelationshipDTO } from '@tomachina/core'
+import { quickContactScore } from '@tomachina/core'
 
 export const clientRoutes = Router()
 const COLLECTION = 'clients'
@@ -338,6 +339,48 @@ clientRoutes.post('/:id/dismiss-duplicate', async (req: Request, res: Response) 
     res.json(successResponse<{ dismissed: true }>({ dismissed: true }))
   } catch (err) {
     console.error('POST /api/clients/:id/dismiss-duplicate error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/clients/:id/quality-score
+ * Quick quality score from stored contact data (no external API calls).
+ * For full validated scoring, use POST /api/validation/score.
+ */
+clientRoutes.get('/:id/quality-score', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const doc = await db.collection(COLLECTION).doc(id).get()
+
+    if (!doc.exists) {
+      res.status(404).json(errorResponse('Client not found'))
+      return
+    }
+
+    const data = doc.data() as Record<string, unknown>
+
+    // Build address from client fields
+    const address = data.address_1 || data.street_address
+      ? {
+          streetAddress: String(data.address_1 || data.street_address || ''),
+          secondaryAddress: String(data.address_2 || ''),
+          city: String(data.city || ''),
+          state: String(data.state || ''),
+          ZIPCode: String(data.zip || data.zip_code || ''),
+        }
+      : undefined
+
+    const score = quickContactScore({
+      phone: data.phone ? String(data.phone) : undefined,
+      email: data.email ? String(data.email) : undefined,
+      address,
+    })
+
+    res.json(successResponse(score))
+  } catch (err) {
+    console.error('GET /api/clients/:id/quality-score error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

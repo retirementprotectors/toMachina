@@ -32,8 +32,14 @@ export const ALL_COLUMNS: ColumnDef[] = [
 /** The 'name' column is always visible and cannot be toggled */
 const LOCKED_COLUMN = 'name'
 
+const DEFAULT_ORDER = ALL_COLUMNS.map((c) => c.key)
+
 export function getDefaultVisibleColumns(): Set<string> {
   return new Set(ALL_COLUMNS.filter((c) => c.defaultVisible).map((c) => c.key))
+}
+
+export function getDefaultColumnOrder(): string[] {
+  return [...DEFAULT_ORDER]
 }
 
 // ---------------------------------------------------------------------------
@@ -43,11 +49,23 @@ export function getDefaultVisibleColumns(): Set<string> {
 interface ColumnSelectorProps {
   visibleColumns: Set<string>
   onChange: (columns: Set<string>) => void
+  /** Ordered column keys — enables drag-to-reorder when provided */
+  columnOrder?: string[]
+  onOrderChange?: (order: string[]) => void
+  /** localStorage key prefix for persisting order */
+  storageKey?: string
 }
 
-export function ColumnSelector({ visibleColumns, onChange }: ColumnSelectorProps) {
+export function ColumnSelector({ visibleColumns, onChange, columnOrder, onOrderChange, storageKey = 'default' }: ColumnSelectorProps) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [dragIdx, setDragIdx] = useState<number | null>(null)
+  const [overIdx, setOverIdx] = useState<number | null>(null)
+
+  const orderedKeys = columnOrder || DEFAULT_ORDER
+  const orderedColumns = orderedKeys
+    .map((key) => ALL_COLUMNS.find((c) => c.key === key))
+    .filter((c): c is ColumnDef => !!c)
 
   // Close on outside click
   useEffect(() => {
@@ -87,11 +105,32 @@ export function ColumnSelector({ visibleColumns, onChange }: ColumnSelectorProps
 
   const handleReset = useCallback(() => {
     onChange(getDefaultVisibleColumns())
-  }, [onChange])
+    if (onOrderChange) {
+      onOrderChange(getDefaultColumnOrder())
+      try { localStorage.setItem(`rpi-col-order-${storageKey}`, JSON.stringify(getDefaultColumnOrder())) } catch { /* */ }
+    }
+  }, [onChange, onOrderChange, storageKey])
 
   const isDefault =
     visibleColumns.size === getDefaultVisibleColumns().size &&
-    [...visibleColumns].every((k) => getDefaultVisibleColumns().has(k))
+    [...visibleColumns].every((k) => getDefaultVisibleColumns().has(k)) &&
+    (!columnOrder || columnOrder.join(',') === DEFAULT_ORDER.join(','))
+
+  const canReorder = !!onOrderChange
+
+  // Drag handlers
+  const handleDragStart = useCallback((idx: number) => setDragIdx(idx), [])
+  const handleDragOver = useCallback((e: React.DragEvent, idx: number) => { e.preventDefault(); setOverIdx(idx) }, [])
+  const handleDrop = useCallback((targetIdx: number) => {
+    if (dragIdx == null || dragIdx === targetIdx || !onOrderChange) { setDragIdx(null); setOverIdx(null); return }
+    const newOrder = [...orderedKeys]
+    const [moved] = newOrder.splice(dragIdx, 1)
+    newOrder.splice(targetIdx, 0, moved)
+    onOrderChange(newOrder)
+    try { localStorage.setItem(`rpi-col-order-${storageKey}`, JSON.stringify(newOrder)) } catch { /* */ }
+    setDragIdx(null); setOverIdx(null)
+  }, [dragIdx, orderedKeys, onOrderChange, storageKey])
+  const handleDragEnd = useCallback(() => { setDragIdx(null); setOverIdx(null) }, [])
 
   const activeCount = visibleColumns.size
 
@@ -132,43 +171,44 @@ export function ColumnSelector({ visibleColumns, onChange }: ColumnSelectorProps
             </p>
           </div>
 
-          {/* Column checkboxes */}
+          {/* Column checkboxes with optional drag handles */}
           <div className="max-h-64 overflow-y-auto py-1">
-            {ALL_COLUMNS.map((col) => {
+            {orderedColumns.map((col, idx) => {
               const isLocked = col.key === LOCKED_COLUMN
               const isChecked = visibleColumns.has(col.key)
+              const isDragging = dragIdx === idx
+              const isOver = overIdx === idx && dragIdx !== idx
 
               return (
-                <label
+                <div
                   key={col.key}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 text-sm transition-colors ${
-                    isLocked
-                      ? 'cursor-not-allowed opacity-50'
-                      : 'cursor-pointer hover:bg-[var(--bg-hover)]'
-                  }`}
+                  draggable={canReorder && !isLocked}
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDrop={() => handleDrop(idx)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 text-sm transition-colors ${
+                    isLocked ? 'cursor-not-allowed opacity-50'
+                    : canReorder ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+                  } ${isDragging ? 'opacity-40' : ''} ${isOver ? 'border-t-2 border-[var(--portal)]' : ''} ${!isLocked && !isDragging ? 'hover:bg-[var(--bg-hover)]' : ''}`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    disabled={isLocked}
-                    onChange={() => handleToggle(col.key)}
-                    className="h-3.5 w-3.5 rounded border-[var(--border)] accent-[var(--portal)]"
-                  />
-                  <span
-                    className={
-                      isChecked
-                        ? 'text-[var(--text-primary)]'
-                        : 'text-[var(--text-muted)]'
-                    }
-                  >
-                    {col.label}
-                  </span>
-                  {isLocked && (
-                    <span className="material-icons-outlined ml-auto text-[14px] text-[var(--text-muted)]">
-                      lock
-                    </span>
+                  {canReorder && (
+                    <span className={`material-icons-outlined text-[14px] ${isLocked ? 'invisible' : 'text-[var(--text-muted)]'}`}>drag_indicator</span>
                   )}
-                </label>
+                  <label className={`flex flex-1 items-center gap-2 ${isLocked ? '' : 'cursor-pointer'}`}>
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      disabled={isLocked}
+                      onChange={() => handleToggle(col.key)}
+                      className="h-3.5 w-3.5 rounded border-[var(--border)] accent-[var(--portal)]"
+                    />
+                    <span className={isChecked ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}>{col.label}</span>
+                  </label>
+                  {isLocked && (
+                    <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">lock</span>
+                  )}
+                </div>
               )
             })}
           </div>

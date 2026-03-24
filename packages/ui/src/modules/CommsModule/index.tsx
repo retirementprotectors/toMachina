@@ -213,7 +213,7 @@ export function CommsModule({ open, onClose, activeContact, initialTab }: CommsM
 
         {/* Content */}
         <div className="flex-1 overflow-hidden">
-          {activeTab === 'log' && <CommsFeed onReply={handleReply} onViewClient={handleViewClient} />}
+          {activeTab === 'log' && <CommsFeed clientId={activeContact?.id} onReply={handleReply} onViewClient={handleViewClient} />}
           {activeTab === 'text' && <CommsCompose presetChannel="sms" presetContact={composeContact} onBack={clearReply} />}
           {activeTab === 'email' && <CommsCompose presetChannel="email" presetContact={composeContact} replySubject={replySubject} onBack={clearReply} />}
           {activeTab === 'call' && <CommsCompose presetChannel="call" presetContact={composeContact} onBack={clearReply} />}

@@ -141,7 +141,7 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
     (async () => {
       try {
         const db = getDb()
-        const snap = await getDocs(query(collection(db, 'carriers'), orderBy('name', 'asc')))
+        const snap = await getDocs(query(collection(db, 'carriers'), orderBy('display_name', 'asc')))
         const typeSet = new Set<string>()
         const carrierList: CarrierOption[] = snap.docs.map((d) => {
           const data = d.data()
@@ -152,7 +152,7 @@ function NewAccountModal({ onClose, onCreated }: NewAccountModalProps) {
             try { types = JSON.parse(data.product_types) } catch { types = [] }
           }
           types.forEach((t) => typeSet.add(t))
-          return { id: d.id, name: data.name || d.id, product_types: types }
+          return { id: d.id, name: data.display_name || data.name || d.id, product_types: types }
         })
         setCarriers(carrierList)
         setAllProductTypes(Array.from(typeSet).sort())
@@ -448,6 +448,8 @@ export default function AccountsPage() {
   const [visibleColumns, setVisibleColumns] = useState<string[]>(DEFAULT_COLUMNS['all'])
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showColumnPicker, setShowColumnPicker] = useState(false)
+  const [dragColIdx, setDragColIdx] = useState<number | null>(null)
+  const [overColIdx, setOverColIdx] = useState<number | null>(null)
   const [sortKey, setSortKey] = useState<string | null>('carrier_name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
@@ -753,38 +755,47 @@ export default function AccountsPage() {
           </div>
         </div>
 
-        {/* Column picker panel */}
+        {/* Column picker panel — toggle visibility + drag to reorder */}
         {showColumnPicker && (
           <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium text-[var(--text-primary)]">Visible Columns ({visibleColumns.length}/10)</p>
-              <button
-                onClick={() => setVisibleColumns(DEFAULT_COLUMNS[filter])}
-                className="text-xs text-[var(--portal)] hover:underline"
-              >
-                Reset to Default
-              </button>
+              <p className="text-sm font-medium text-[var(--text-primary)]">Columns ({visibleColumns.length}/10) — drag to reorder</p>
+              <button onClick={() => setVisibleColumns(DEFAULT_COLUMNS[filter])} className="text-xs text-[var(--portal)] hover:underline">Reset</button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {Object.keys(COLUMN_LABELS).map((col) => (
-                <label
-                  key={col}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium cursor-pointer transition-all ${
-                    visibleColumns.includes(col)
-                      ? 'bg-[var(--portal)]/15 text-[var(--portal)]'
-                      : 'bg-[var(--bg-surface)] text-[var(--text-muted)]'
-                  }`}
+            <div className="flex flex-col gap-1">
+              {visibleColumns.map((colKey, idx) => (
+                <div
+                  key={colKey}
+                  draggable
+                  onDragStart={() => setDragColIdx(idx)}
+                  onDragOver={(e) => { e.preventDefault(); setOverColIdx(idx) }}
+                  onDrop={() => {
+                    if (dragColIdx != null && dragColIdx !== idx) {
+                      setVisibleColumns((prev) => { const next = [...prev]; const [m] = next.splice(dragColIdx, 1); next.splice(idx, 0, m); return next })
+                    }
+                    setDragColIdx(null); setOverColIdx(null)
+                  }}
+                  onDragEnd={() => { setDragColIdx(null); setOverColIdx(null) }}
+                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 cursor-grab active:cursor-grabbing transition-colors hover:bg-[var(--bg-hover)] ${dragColIdx === idx ? 'opacity-40' : ''} ${overColIdx === idx && dragColIdx !== idx ? 'border-t-2 border-[var(--portal)]' : ''}`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={visibleColumns.includes(col)}
-                    onChange={() => toggleColumn(col)}
-                    className="sr-only"
-                  />
-                  {COLUMN_LABELS[col]}
-                </label>
+                  <span className="material-icons-outlined text-[14px] text-[var(--text-muted)]">drag_indicator</span>
+                  <span className="flex-1 text-sm text-[var(--text-primary)]">{COLUMN_LABELS[colKey] || colKey}</span>
+                  <button onClick={() => toggleColumn(colKey)} className="text-[var(--text-muted)] hover:text-[var(--error)] transition-colors" title="Remove"><span className="material-icons-outlined text-[14px]">close</span></button>
+                </div>
               ))}
             </div>
+            {Object.keys(COLUMN_LABELS).filter((c) => !visibleColumns.includes(c)).length > 0 && (
+              <div className="mt-3 border-t border-[var(--border)] pt-3">
+                <p className="mb-2 text-xs font-medium text-[var(--text-muted)]">Add columns</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.keys(COLUMN_LABELS).filter((c) => !visibleColumns.includes(c)).map((colKey) => (
+                    <button key={colKey} onClick={() => toggleColumn(colKey)} disabled={visibleColumns.length >= 10}
+                      className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-surface)] px-2.5 py-1 text-xs text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    ><span className="material-icons-outlined text-[12px]">add</span>{COLUMN_LABELS[colKey]}</button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
