@@ -18,9 +18,9 @@ interface MDJPanelProps {
 
 const PANEL_RESPONSIVE_CLASSES = [
   'fixed right-0 top-0 z-50 flex h-full flex-col overflow-hidden bg-[var(--bg-card)] shadow-2xl',
-  'w-screen',
-  'lg:w-[360px]',
+  'w-[360px]',
   'min-[1400px]:w-[460px]',
+  'max-sm:w-screen',
 ].join(' ')
 
 /* ─── Extract page context from pathname ─── */
