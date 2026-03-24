@@ -51,6 +51,9 @@ export const collections = {
   specialistConfigs: () => collection(getDb(), 'specialist_configs'),
   notifications: () => collection(getDb(), 'notifications'),
   approvalBatches: () => collection(getDb(), 'approval_queue'),
+  mdjConversations: () => collection(getDb(), 'mdj_conversations'),
+  mdjClientInsights: () => collection(getDb(), 'mdj_client_insights'),
+  mdjSpecialistConfigs: () => collection(getDb(), 'mdj_specialist_configs'),
 } as const
 
 export type Collections = typeof collections
