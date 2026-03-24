@@ -70,6 +70,53 @@ clientRoutes.get('/', async (req: Request, res: Response) => {
 })
 
 /**
+ * GET /api/clients/search?q=<query>
+ * Lightweight search returning id, name, email, phone, status, account_count.
+ * Used by MDJ Mobile client search screen.
+ */
+clientRoutes.get('/search', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const search = ((req.query.q as string) || '').trim()
+    if (!search) {
+      res.json(successResponse<ClientDTO[]>([] as unknown as ClientDTO[]))
+      return
+    }
+
+    const upper = search.charAt(0).toUpperCase() + search.slice(1).toLowerCase()
+    const end = upper.slice(0, -1) + String.fromCharCode(upper.charCodeAt(upper.length - 1) + 1)
+
+    const snap = await db.collection(COLLECTION)
+      .where('last_name', '>=', upper)
+      .where('last_name', '<', end)
+      .limit(25)
+      .get()
+
+    const results = await Promise.all(
+      snap.docs.map(async (doc) => {
+        const d = doc.data()
+        // Count accounts subcollection
+        const accountsSnap = await db.collection(COLLECTION).doc(doc.id).collection('accounts').count().get()
+        return {
+          id: doc.id,
+          first_name: d.first_name || '',
+          last_name: d.last_name || '',
+          email: d.email || undefined,
+          phone: d.phone || undefined,
+          status: d.status || 'active',
+          account_count: accountsSnap.data().count,
+        }
+      })
+    )
+
+    res.json(successResponse(results))
+  } catch (err) {
+    console.error('GET /api/clients/search error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
  * GET /api/clients/:id
  */
 clientRoutes.get('/:id', async (req: Request, res: Response) => {

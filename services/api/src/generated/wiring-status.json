@@ -62,7 +62,7 @@
       "status": "backend_only",
       "backend": "access.ts",
       "frontend": "",
-      "backend_endpoints": 234,
+      "backend_endpoints": 237,
       "hardcoded": false,
       "sub_collection": true,
       "backend_routes": [
@@ -115,7 +115,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 15,
+          "endpoints": 18,
           "reads": true,
           "writes": true,
           "operations": [
@@ -344,7 +344,7 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 75,
+      "backend_endpoints": 78,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -396,7 +396,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 15,
+          "endpoints": 18,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1700,12 +1700,22 @@
     },
     "flow_instances": {
       "status": "backend_only",
-      "backend": "prozone.ts",
+      "backend": "dashboard.ts",
       "frontend": "",
-      "backend_endpoints": 27,
+      "backend_endpoints": 29,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
+        {
+          "file": "dashboard.ts",
+          "endpoints": 2,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
         {
           "file": "prozone.ts",
           "endpoints": 27,
@@ -2166,13 +2176,13 @@
       "status": "backend_only",
       "backend": "clients.ts",
       "frontend": "",
-      "backend_endpoints": 15,
+      "backend_endpoints": 18,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "clients.ts",
-          "endpoints": 15,
+          "endpoints": 18,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2872,7 +2882,7 @@
     },
     "clients.ts": {
       "file": "clients.ts",
-      "endpoints": 15,
+      "endpoints": 18,
       "operations": [
         "list",
         "get",
@@ -2970,6 +2980,19 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "dashboard.ts": {
+      "file": "dashboard.ts",
+      "endpoints": 2,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "flow_instances"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "dex-pipeline.ts": {
       "file": "dex-pipeline.ts",
       "endpoints": 18,
@@ -3053,7 +3076,7 @@
     },
     "flow.ts": {
       "file": "flow.ts",
-      "endpoints": 26,
+      "endpoints": 34,
       "operations": [
         "list",
         "get",
@@ -3182,6 +3205,16 @@
         "case_tasks",
         "users"
       ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "mdj.ts": {
+      "file": "mdj.ts",
+      "endpoints": 1,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -3956,14 +3989,14 @@
   ],
   "hookify_rules": [],
   "scan_stats": {
-    "route_files": 58,
+    "route_files": 60,
     "ui_files": 129,
     "portal_pages": 150,
     "collections_found": 63,
-    "api_routes_found": 58,
+    "api_routes_found": 60,
     "cloud_functions_found": 14,
     "env_vars_found": 34,
     "hookify_rules_found": 0,
-    "scanned_at": "2026-03-24T00:50:03.297Z"
+    "scanned_at": "2026-03-24T01:11:27.606Z"
   }
 }
