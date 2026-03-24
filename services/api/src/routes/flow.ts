@@ -640,6 +640,9 @@ flowRoutes.patch('/tasks/:id', async (req: Request, res: Response) => {
 
 /**
  * Generate tasks for a stage from templates.
+ * For steps with execution_type: 'dex_output', system check tasks are
+ * automatically configured with DEX_KIT_GENERATE if no check_type is set,
+ * and are pre-linked with step-level DEX config (product_type, registration_type, action).
  */
 async function generateStageTasks(
   db: FirebaseFirestore.Firestore,
@@ -657,6 +660,20 @@ async function generateStageTasks(
 
   if (templatesSnap.empty) return 0
 
+  // Fetch step definitions for this stage to detect dex_output execution type
+  const stepsSnap = await db.collection('flow_steps')
+    .where('pipeline_key', '==', pipelineKey)
+    .where('stage_id', '==', stageId)
+    .get()
+
+  const dexOutputSteps = new Map<string, Record<string, unknown>>()
+  for (const stepDoc of stepsSnap.docs) {
+    const stepData = stepDoc.data()
+    if (stepData.execution_type === 'dex_output') {
+      dexOutputSteps.set(String(stepData.step_id), stepData)
+    }
+  }
+
   const now = new Date().toISOString()
   const batch = db.batch()
   let count = 0
@@ -668,12 +685,33 @@ async function generateStageTasks(
       : (tmpl.default_owner && tmpl.default_owner !== 'ADVISOR') ? tmpl.default_owner
       : assignedTo
 
+    let checkType = tmpl.check_type || ''
+    let checkConfig = tmpl.check_config || ''
+
+    // For dex_output steps: auto-configure system check tasks with DEX_KIT_GENERATE
+    const stepId = String(tmpl.step_id || '')
+    const dexStep = dexOutputSteps.get(stepId)
+    if (dexStep && tmpl.is_system_check && !checkType) {
+      checkType = 'DEX_KIT_GENERATE'
+      // Merge step-level DEX config into the check config
+      const existingConfig = typeof checkConfig === 'string' && checkConfig
+        ? safeJsonParse(checkConfig)
+        : {}
+      const dexConfig = {
+        ...existingConfig,
+        product_type: dexStep.product_type || existingConfig.product_type || '',
+        registration_type: dexStep.registration_type || existingConfig.registration_type || '',
+        action: dexStep.action || existingConfig.action || '',
+      }
+      checkConfig = JSON.stringify(dexConfig)
+    }
+
     batch.set(db.collection(TASKS).doc(taskInstanceId), {
       task_instance_id: taskInstanceId,
       instance_id: instanceId,
       pipeline_key: pipelineKey,
       stage_id: stageId,
-      step_id: tmpl.step_id || '',
+      step_id: stepId,
       task_id: tmpl.task_id || '',
       task_name: tmpl.task_name || '',
       task_order: tmpl.task_order || 0,
@@ -681,8 +719,8 @@ async function generateStageTasks(
       status: 'pending',
       is_required: tmpl.is_required ?? true,
       is_system_check: tmpl.is_system_check ?? false,
-      check_type: tmpl.check_type || '',
-      check_config: tmpl.check_config || '',
+      check_type: checkType,
+      check_config: checkConfig,
       created_at: now,
       updated_at: now,
     })
@@ -691,4 +729,9 @@ async function generateStageTasks(
 
   await batch.commit()
   return count
+}
+
+/** Safely parse a JSON string into an object, returning empty object on failure. */
+function safeJsonParse(str: string): Record<string, unknown> {
+  try { return JSON.parse(str) } catch { return {} }
 }
