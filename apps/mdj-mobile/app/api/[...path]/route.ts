@@ -2,7 +2,7 @@ import { GoogleAuth } from 'google-auth-library'
 
 const auth = new GoogleAuth()
 const TM_API = 'https://tm-api-365181509090.us-central1.run.app'
-const MDJ1 = process.env.MDJ1_URL || 'http://100.99.181.57:4200'
+const MDJ1 = process.env.MDJ1_URL || 'https://tail7845ea.ts.net'
 
 async function handler(
   request: Request,
