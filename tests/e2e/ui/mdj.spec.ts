@@ -25,12 +25,12 @@ test.describe('MDJ Panel', () => {
     await expect(response).toBeVisible({ timeout: 15000 })
   })
 
-  test('mutual exclusion — opening Comms closes MDJ', async ({ page }) => {
+  test('close button dismisses MDJ panel', async ({ page }) => {
     await page.goto('/')
     await page.click('button[title="MyDigitalJosh"]')
     await expect(page.locator('textarea[placeholder="Ask MDJ anything..."]')).toBeVisible()
-    await page.click('button[title="Communications"]')
-    // MDJ panel should be gone
+    // Click close button inside the panel
+    await page.click('button[title="Close"]')
     await expect(page.locator('textarea[placeholder="Ask MDJ anything..."]')).not.toBeVisible()
   })
 
