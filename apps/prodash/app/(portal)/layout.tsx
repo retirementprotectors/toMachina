@@ -12,6 +12,7 @@ import type { ClientResult } from '@tomachina/ui/src/modules/CommsModule'
 import { TwilioDeviceProvider } from '@tomachina/ui/src/modules/CommsModule/TwilioDeviceProvider'
 import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
 import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
+import { MDJPanel } from '@tomachina/ui/src/modules/MDJPanel'
 import { ReportButton } from '@tomachina/ui'
 
 export default function PortalLayout({
@@ -24,6 +25,7 @@ export default function PortalLayout({
   const [commsOpen, setCommsOpen] = useState(false)
   const [connectOpen, setConnectOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [mdjOpen, setMdjOpen] = useState(false)
   const [activeContact, setActiveContact] = useState<ClientResult | null>(null)
 
   // Clear active contact when navigating away from a contact detail page
@@ -49,18 +51,20 @@ export default function PortalLayout({
         setCommsOpen(true)
         setConnectOpen(false)
         setNotificationsOpen(false)
+        setMdjOpen(false)
       }
     }
     window.addEventListener('comms-action', handler)
     return () => window.removeEventListener('comms-action', handler)
   }, [])
 
-  const panelOpen = commsOpen || connectOpen || notificationsOpen
+  const panelOpen = commsOpen || connectOpen || notificationsOpen || mdjOpen
 
   const toggleComms = useCallback(() => {
     setCommsOpen((v) => !v)
     setConnectOpen(false)
     setNotificationsOpen(false)
+    setMdjOpen(false)
   }, [])
 
   const closeComms = useCallback(() => {
@@ -71,6 +75,7 @@ export default function PortalLayout({
     setConnectOpen((v) => !v)
     setCommsOpen(false)
     setNotificationsOpen(false)
+    setMdjOpen(false)
   }, [])
 
   const closeConnect = useCallback(() => {
@@ -81,6 +86,18 @@ export default function PortalLayout({
     setNotificationsOpen((v) => !v)
     setCommsOpen(false)
     setConnectOpen(false)
+    setMdjOpen(false)
+  }, [])
+
+  const toggleMdj = useCallback(() => {
+    setMdjOpen((v) => !v)
+    setCommsOpen(false)
+    setConnectOpen(false)
+    setNotificationsOpen(false)
+  }, [])
+
+  const closeMdj = useCallback(() => {
+    setMdjOpen(false)
   }, [])
 
   const closeNotifications = useCallback(() => {
@@ -106,6 +123,8 @@ export default function PortalLayout({
         connectOpen={connectOpen}
         onNotificationsToggle={toggleNotifications}
         notificationsOpen={notificationsOpen}
+        onMdjToggle={toggleMdj}
+        mdjOpen={mdjOpen}
         panelOpen={panelOpen}
       />
       <div
@@ -126,6 +145,9 @@ export default function PortalLayout({
 
       {/* Notifications Module — slide-out panel */}
       <NotificationsModule portal="prodash" open={notificationsOpen} onClose={closeNotifications} />
+
+      {/* MDJ — AI Assistant slide-out panel */}
+      <MDJPanel portal="prodash" open={mdjOpen} onClose={closeMdj} />
 
       {/* FORGE Report — screenshot + auto-fill issue tracker */}
       <ReportButton portal="prodashx" />

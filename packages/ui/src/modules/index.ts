@@ -30,5 +30,7 @@ export { IntakeQueue } from './IntakeQueue'
 
 export { NotificationsModule, UnreadBadge } from './Notifications'
 
+export { MDJPanel } from './MDJPanel'
+
 export { ClientDocuments } from './ClientDocuments'
 export { AccountDocuments } from './AccountDocuments'
