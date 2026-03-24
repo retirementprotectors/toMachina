@@ -21,4 +21,4 @@ env:
   - variable: API_PROXY_URL
     value: https://tm-api-365181509090.us-central1.run.app
   - variable: MDJ1_URL
-    value: http://100.99.181.57:4200
+    value: https://tail7845ea.ts.net
