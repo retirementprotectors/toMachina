@@ -7,6 +7,7 @@ import { getAuth } from 'firebase/auth'
 import type { Client } from '@tomachina/core'
 import { formatPhone, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
+import { fetchValidated } from '@tomachina/ui/src/modules/fetchValidated'
 import { SuggestedConnections as SuggestedConnectionsUI, type SuggestionItem } from '@tomachina/ui/src/modules/SuggestedConnections'
 
 interface ConnectedTabProps {
@@ -457,6 +458,44 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
     }
   }, [client, clientId])
 
+
+  // TRK-13683: Add to Household
+  const handleAddToHH = useCallback(async (personId: string, personName: string) => {
+    const hhId = str(client.household_id)
+    if (!hhId) {
+      const msgEl = document.createElement('div')
+      msgEl.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999;padding:12px 20px;border-radius:8px;background:#1a2235;border:1px solid #f59e0b;color:#fbbf24;font-size:13px;font-weight:500'
+      msgEl.textContent = 'Create a household first from the Households page'
+      document.body.appendChild(msgEl)
+      setTimeout(() => msgEl.remove(), 3000)
+      return
+    }
+    try {
+      await fetchValidated(`/api/households/${hhId}/members`, {
+        method: 'POST',
+        body: JSON.stringify({
+          client_id: personId,
+          client_name: personName,
+          role: 'Member',
+          relationship: selectedRelationship,
+        }),
+      })
+      const msgEl = document.createElement('div')
+      msgEl.style.cssText = 'position:fixed;top:16px;right:16px;z-index:9999;padding:12px 20px;border-radius:8px;background:#1a2235;border:1px solid #10b981;color:#34d399;font-size:13px;font-weight:500'
+      msgEl.textContent = `${personName} added to household`
+      document.body.appendChild(msgEl)
+      setTimeout(() => msgEl.remove(), 3000)
+    } catch (err) {
+      console.error('Failed to add to household:', err)
+    }
+  }, [client.household_id, selectedRelationship])
+
+  // TRK-13683: Both — Connect + Add to HH
+  const handleBoth = useCallback(async (personId: string, personName: string, phone?: string, email?: string) => {
+    await handleLink(personId, personName, phone, email)
+    await handleAddToHH(personId, personName)
+  }, [handleLink, handleAddToHH])
+
   // FIX-23: Filter connections by review status
   const filteredConnections = useMemo(() => {
     if (filterMode === 'all') return connections
@@ -612,12 +651,29 @@ export function ConnectedTab({ client, clientId }: ConnectedTabProps) {
                       )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleLink(r.id, r.name, r.phone, r.email)}
-                    className="ml-3 shrink-0 rounded-md bg-[var(--portal)] px-3 py-1.5 text-xs font-medium text-white hover:brightness-110"
-                  >
-                    Link as {selectedRelationship}
-                  </button>
+                  <div className="ml-3 flex shrink-0 items-center gap-1.5">
+                    <button
+                      onClick={() => handleLink(r.id, r.name, r.phone, r.email)}
+                      className="rounded-md bg-[var(--portal)] px-2.5 py-1.5 text-[11px] font-medium text-white hover:brightness-110"
+                      title="Add as connection"
+                    >
+                      Connect
+                    </button>
+                    <button
+                      onClick={() => handleAddToHH(r.id, r.name)}
+                      className="rounded-md border border-[var(--portal)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--portal)] hover:bg-[var(--portal)]/10"
+                      title="Add to household"
+                    >
+                      + HH
+                    </button>
+                    <button
+                      onClick={() => handleBoth(r.id, r.name, r.phone, r.email)}
+                      className="rounded-md bg-[var(--portal)]/20 px-2.5 py-1.5 text-[11px] font-medium text-[var(--portal)] hover:bg-[var(--portal)]/30"
+                      title="Connect and add to household"
+                    >
+                      Both
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -878,6 +934,7 @@ function SuggestedConnectionsWrapper({
     findSuggestions()
     return () => { cancelled = true }
   }, [client, clientId])
+
 
   if (loading) return null
   if (suggestions.length === 0) return null

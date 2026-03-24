@@ -108,9 +108,17 @@ export function DraggableFAB({ fabId, defaultPosition, children }: DraggableFABP
     setPos({ left: newLeft, top: newTop })
   }, [])
 
-  const handlePointerUp = useCallback(() => {
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
     if (dragging.current && hasMoved.current && pos) {
       debouncedSave(fabId, pos)
+      // Block the click event that follows drag — prevents child buttons from firing
+      const blocker = (ev: MouseEvent) => {
+        ev.stopPropagation()
+        ev.preventDefault()
+      }
+      document.addEventListener('click', blocker, { capture: true, once: true })
+      // Safety: remove blocker after 100ms if no click arrives
+      setTimeout(() => document.removeEventListener('click', blocker, { capture: true } as EventListenerOptions), 100)
     }
     dragging.current = false
     hasMoved.current = false

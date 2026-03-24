@@ -16,6 +16,8 @@ interface CommsComposeProps {
   presetChannel?: ComposeChannel
   /** When set, pre-fills the To field with this contact */
   presetContact?: ClientResult | null
+  /** Pre-filled subject for email replies */
+  replySubject?: string
 }
 
 /* ─── Client Search Result ─── */

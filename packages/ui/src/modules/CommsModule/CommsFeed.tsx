@@ -26,6 +26,8 @@ export interface CommEntry {
   recordingUrl?: string
   /** Recording duration in seconds */
   recordingDuration?: number
+  /** Firestore client doc ID (for reply/view client) */
+  clientId?: string
 }
 
 /** Raw Firestore communication document */
@@ -96,6 +98,7 @@ function docToEntry(doc: CommDoc): CommEntry {
     status: mapStatus(doc.status),
     recordingUrl: doc.recording_url,
     recordingDuration: doc.recording_duration,
+    clientId: doc.client_id,
   }
 }
 
@@ -131,7 +134,12 @@ const STATUS_CONFIG: Record<string, { icon: string; color: string; label: string
 
 /* ─── Component ─── */
 
-export function CommsFeed() {
+interface CommsFeedProps {
+  onReply?: (entry: CommEntry) => void
+  onViewClient?: (entry: CommEntry) => void
+}
+
+export function CommsFeed({ onReply, onViewClient }: CommsFeedProps = {}) {
   const [search, setSearch] = useState('')
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all')
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>('all')

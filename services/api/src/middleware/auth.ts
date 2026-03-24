@@ -7,6 +7,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return next()
   }
 
+  // SendGrid inbound parse webhook — no Firebase token available
+  if (req.path.startsWith('/webhooks/sendgrid-inbound')) {
+    return next()
+  }
+
   const authHeader = (req.headers['x-forwarded-authorization'] as string | undefined) || req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ success: false, error: 'Missing auth token' })

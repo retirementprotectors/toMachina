@@ -52,17 +52,33 @@ sprintRoutes.post('/', async (req: Request, res: Response) => {
     await sprintRef.set(sprintData)
 
     // Batch-update tracker items to assign sprint_id and set status to in_sprint
+    // Resolves both Firestore doc UUIDs and TRK-XXXXX item_id values
     const itemIds = req.body.item_ids as string[] | undefined
     if (itemIds && itemIds.length > 0) {
       const batch = db.batch()
       for (const itemId of itemIds) {
-        const ref = db.collection(TRACKER_COLLECTION).doc(itemId)
-        batch.update(ref, {
-          sprint_id: sprintRef.id,
-          status: 'in_sprint',
-          updated_at: now,
-          _updated_by: userEmail,
-        })
+        const directRef = db.collection(TRACKER_COLLECTION).doc(itemId)
+        const directSnap = await directRef.get()
+        if (directSnap.exists) {
+          batch.update(directRef, {
+            sprint_id: sprintRef.id,
+            status: 'in_sprint',
+            updated_at: now,
+            _updated_by: userEmail,
+          })
+        } else {
+          // Resolve TRK-XXXXX item_id to actual doc ref
+          const querySnap = await db.collection(TRACKER_COLLECTION)
+            .where('item_id', '==', itemId).limit(1).get()
+          if (!querySnap.empty) {
+            batch.update(querySnap.docs[0].ref, {
+              sprint_id: sprintRef.id,
+              status: 'in_sprint',
+              updated_at: now,
+              _updated_by: userEmail,
+            })
+          }
+        }
       }
       await batch.commit()
     }
