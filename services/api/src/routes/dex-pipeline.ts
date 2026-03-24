@@ -9,6 +9,7 @@
 
 import { Router, type Request, type Response } from 'express'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
+import { GoogleAuth } from 'google-auth-library'
 import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   validateRequired, param, writeThroughBridge,
@@ -351,7 +352,7 @@ dexPipelineRoutes.post('/packages/:id/generate-pdf', async (req: Request, res: R
       return
     }
 
-    const pdfResponse = await fetch(`${pdfServiceUrl.replace(/\/+$/, '')}/fill-and-merge`, {
+    const pdfResponse = await authenticatedFetch(`${pdfServiceUrl.replace(/\/+$/, '')}/fill-and-merge`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -466,7 +467,7 @@ dexPipelineRoutes.post('/packages/:id/send-docusign', async (req: Request, res: 
     }
 
     // Step 1: Get DocuSign access token via PDF_SERVICE
-    const tokenResponse = await fetch(`${pdfServiceUrl.replace(/\/+$/, '')}/docusign/token`, {
+    const tokenResponse = await authenticatedFetch(`${pdfServiceUrl.replace(/\/+$/, '')}/docusign/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -589,6 +590,28 @@ dexPipelineRoutes.post('/packages/:id/send-docusign', async (req: Request, res: 
 // ============================================================================
 // Helpers
 // ============================================================================
+
+/**
+ * Fetch with Google Cloud identity token for Cloud Run-to-Cloud Run calls.
+ * Falls back to plain fetch in local dev (no metadata server).
+ */
+/**
+ * Fetch with Google Cloud identity token for Cloud Run-to-Cloud Run calls.
+ * Falls back to plain fetch in local dev (no metadata server).
+ */
+async function authenticatedFetch(url: string, init: RequestInit): Promise<globalThis.Response> {
+  try {
+    const auth = new GoogleAuth()
+    const client = await auth.getIdTokenClient(new URL(url).origin)
+    const hdrs = await client.getRequestHeaders()
+    return fetch(url, {
+      ...init,
+      headers: { ...(init.headers as Record<string, string>), ...hdrs },
+    })
+  } catch {
+    return fetch(url, init)
+  }
+}
 
 function chunkArray<T>(arr: T[], size: number): T[][] {
   const chunks: T[][] = []
