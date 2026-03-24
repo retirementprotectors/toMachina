@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORGE Runner — Sprint-000 Discovery Document</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  /* Tabs */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-hover);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* Diagram boxes */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  /* Flow steps */
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .flow-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .flow-body h4 { color: var(--text); font-size: 0.95rem; margin-bottom: 4px; }
+  .flow-body p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+  /* Spec / feature grid */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .spec-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.pink { border-top-color: var(--pink); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+  /* Level bars */
+  .level-bar {
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+  }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--accent); background: rgba(59,130,246,0.08); }
+  .level-bar.red { border-left-color: var(--red); background: rgba(239,68,68,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+  /* Phase headers */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 12px;
+    padding: 12px 16px;
+    background: var(--accent-glow);
+    border-radius: 8px;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+  .phase-header .phase-num {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: white;
+    border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+  }
+  .phase-header h3 { color: var(--accent); margin: 0; font-size: 1rem; }
+
+  /* Code blocks */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+  pre {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+    margin: 12px 0;
+  }
+  pre .kw { color: #c792ea; }
+  pre .fn { color: #82aaff; }
+  pre .str { color: #c3e88d; }
+  pre .cm { color: #546e7a; font-style: italic; }
+  pre .ty { color: #ffcb6b; }
+  pre .num { color: #f78c6c; }
+
+  /* Pill badges */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill.new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.mod { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .pill.gate { background: rgba(245,158,11,0.2); color: var(--orange); }
+  .pill.opus { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.sonnet { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .pill.haiku { background: rgba(34,197,94,0.15); color: var(--green); }
+
+  /* State machine */
+  .state-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin: 16px 0;
+    padding: 20px;
+    background: #0d1117;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .state-box {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .state-box.gate {
+    background: rgba(245,158,11,0.15);
+    border-color: rgba(245,158,11,0.4);
+    color: var(--orange);
+  }
+  .state-box.start {
+    background: rgba(34,197,94,0.15);
+    border-color: rgba(34,197,94,0.4);
+    color: var(--green);
+  }
+  .state-box.done {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.4);
+    color: var(--accent);
+  }
+  .state-arrow {
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  /* Ticket cards */
+  .ticket-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .ticket {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--accent);
+  }
+  .ticket .ticket-id {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .ticket h4 { font-size: 0.95rem; margin-bottom: 6px; }
+  .ticket p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
+
+  /* Gate callouts */
+  .gate-callout {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-left: 4px solid var(--orange);
+  }
+  .gate-callout h4 { color: var(--orange); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .content { padding: 16px; }
+    .card { padding: 16px; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .ticket-grid { grid-template-columns: 1fr; }
+    .state-flow { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>FORGE Runner</h1>
+  <div class="subtitle">
+    Discovery Document &mdash; The autonomous QA orchestrator that drives the entire 11-step FORGE sprint lifecycle on MDJ1.
+    JDM gives a vision. The Machine builds it, tests it, audits it, deploys it.
+  </div>
+  <div class="badge">Sprint-000: FORGE Runner</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="vision">Vision</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="sdk">Agent SDK</div>
+    <div class="tab" data-tab="state">State Machine</div>
+    <div class="tab" data-tab="routing">Model Routing</div>
+    <div class="tab" data-tab="gates">Human Gates</div>
+    <div class="tab" data-tab="files">File Structure</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ==================== VISION ==================== -->
+  <div class="tab-panel active" id="vision">
+    <div class="card">
+      <h2>The Problem</h2>
+      <p>JDM is manually firing FORGE prompts at every gate. He is the QA agent, the Jr QA, the conductor, and the relay between builders &mdash; simultaneously. At 181 agencies and 90,000 clients, the platform can't scale if the CEO is the one pushing every sprint through its gates.</p>
+      <p>Every phase transition requires JDM to copy a prompt, wait, review, copy another prompt, wait again. The FORGE lifecycle is solid &mdash; but it runs at human speed because a human is running it.</p>
+    </div>
+    <div class="card">
+      <h2>The Solution</h2>
+      <p><strong>FORGE Runner</strong> &mdash; an autonomous orchestrator running on MDJ1 that receives a Discovery Document and drives the entire 11-step FORGE lifecycle without JDM in the loop. It creates sprints, fires audits, distributes work to builder subagents, verifies results, and deploys code. JDM approves at key gates &mdash; everything else is automated.</p>
+      <div class="spec-grid">
+        <div class="spec-card green">
+          <h4>Creates the Sprint</h4>
+          <p>POSTs to /api/sprints, generates Discovery HTML, creates Tracker items for all tickets. No manual setup.</p>
+        </div>
+        <div class="spec-card">
+          <h4>Drives the Lifecycle</h4>
+          <p>Advances through all 11 FORGE phases automatically. Audits pass → next phase. Audits fail → auto-fix and re-audit.</p>
+        </div>
+        <div class="spec-card orange">
+          <h4>Routes to Builders</h4>
+          <p>Spawns parallel Sonnet subagents per ticket. Each builder follows the BUILDER_PROMPT format. Results flow back to the runner.</p>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Deploys Code</h4>
+          <p>Runs the full #SendIt sequence. If CI is red, diagnoses and fixes. If CI is green, auto-merges. Reports #LandedIt.</p>
+        </div>
+        <div class="spec-card purple">
+          <h4>Survives Restarts</h4>
+          <p>All state stored in Firestore. If MDJ1 reboots mid-sprint, the runner resumes from exactly where it left off.</p>
+        </div>
+        <div class="spec-card pink">
+          <h4>Pauses for JDM</h4>
+          <p>Three human gates with ProDashX notifications. JDM clicks approve in RIIMO or via API. One tap to resume.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>The Outcome</h2>
+      <p>JDM gives a vision &mdash; a sentence, a doc, a Slack message. The Machine builds it, tests it, audits it, deploys it. JDM reviews at three key gates. Development scales without JDM being the bottleneck.</p>
+      <table>
+        <tr><th>Today (Manual)</th><th>After FORGE Runner</th></tr>
+        <tr><td>JDM fires discovery prompt</td><td>Runner generates discovery from brief</td></tr>
+        <tr><td>JDM fires audit prompt, reads output</td><td>Runner audits + fixes + re-audits autonomously</td></tr>
+        <tr><td>JDM fires plan prompt</td><td>Runner generates plan with Opus</td></tr>
+        <tr><td>JDM reviews plan, approves manually</td><td><span class="pill gate">Gate</span> JDM taps Approve in RIIMO</td></tr>
+        <tr><td>JDM distributes tickets to builders</td><td>Runner spawns parallel Sonnet builders</td></tr>
+        <tr><td>JDM reviews build, approves manually</td><td><span class="pill gate">Gate</span> JDM taps Approve in RIIMO</td></tr>
+        <tr><td>JDM runs #SendIt, babysits CI</td><td>Runner runs #SendIt, fixes CI failures, auto-merges</td></tr>
+        <tr><td>JDM announces #LandedIt</td><td>Runner sends #LandedIt notification</td></tr>
+        <tr><td>~$250/day in Claude costs</td><td>~$20–40 per sprint</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>The One-Liner</h2>
+      <p style="font-size:1.2rem; color:var(--text); font-weight:600; text-align:center; padding:16px 0;">
+        "The Machine builds itself."
+      </p>
+    </div>
+  </div>
+
+  <!-- ==================== ARCHITECTURE ==================== -->
+  <div class="tab-panel" id="architecture">
+    <div class="card">
+      <h2>FORGE Runner — Full Lifecycle Diagram</h2>
+      <div class="diagram">JDM: "Here's what I want built" (Discovery Doc)
+        |
+        v
+FORGE Runner (MDJ1, ~/mdj-agent/src/forge/)
+        |
+        |-- Step 1:  Create Sprint         (POST /api/sprints)
+        |-- Step 2:  Generate Discovery    (query() with discovery prompt, model: sonnet)
+        |-- Step 3:  Link to Sprint        (PATCH /api/sprints/:id)
+        |-- Step 4:  Create Tracker Items  (POST /api/tracker bulk)
+        |-- Step 5:  Audit Discovery       (query() with audit prompt, model: haiku)
+        |     |-- PASS → advance
+        |     |-- FAIL → fix and re-audit
+        |
+        |-- Step 6:  Generate Plan         (query() with plan prompt, model: opus)
+        |-- Step 7:  Audit Plan            (query() with audit prompt, model: haiku)
+        |     |-- PASS → advance
+        |     |     └── [GATE: JDM approves] ← notification sent to ProDashX
+        |     |-- FAIL → fix and re-audit
+        |
+        |-- Step 8:  Build                 (query() per ticket, model: sonnet)
+        |     |-- Parallel builders via subagents
+        |     |-- Each builder follows BUILDER_PROMPT format
+        |     |-- Results merged back to runner
+        |
+        |-- Step 9:  Audit Build           (query() comparing code to plan, model: sonnet)
+        |     |-- PASS → advance
+        |     |     └── [GATE: JDM approves] ← notification sent to ProDashX
+        |     |-- FAIL → route fixes back to specific builders
+        |
+        |-- Step 10: #SendIt               (git branch, commit, push, PR, CI loop)
+        |     |-- CI RED → diagnose, fix, re-push
+        |     |-- CI GREEN → auto-merge → Firebase deploys
+        |
+        |-- Step 11: #LandedIt!!!          (status update, Slack notification, RIIMO update)
+</div>
+    </div>
+    <div class="card">
+      <h2>Where It Lives</h2>
+      <div class="spec-grid">
+        <div class="spec-card">
+          <h4>MDJ1 Server</h4>
+          <p><code>~/mdj-agent/src/forge/</code> — FORGE Runner runs as a persistent Express service on the MDJ1 PowerEdge server. Always on, survives reboots.</p>
+        </div>
+        <div class="spec-card green">
+          <h4>Firestore State</h4>
+          <p><code>mdj_forge_runs</code> collection stores all run state. If MDJ1 reboots mid-sprint, the runner reads Firestore and resumes the correct phase.</p>
+        </div>
+        <div class="spec-card orange">
+          <h4>toMachina API</h4>
+          <p>Runner calls <code>/api/sprints</code> and <code>/api/tracker</code> to create and manage FORGE artifacts. Same routes the RIIMO portal uses.</p>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Agent SDK</h4>
+          <p><code>@anthropic-ai/claude-agent-sdk</code> — every Claude invocation goes through the SDK wrapper, with per-phase model routing and budget caps.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Parallel Builder Pattern</h2>
+      <p>Step 8 (Build) is the only phase that fans out. The runner spawns one Sonnet subagent per ticket. All tickets in a phase run in parallel. Results are merged and fed into the Audit Build phase.</p>
+      <div class="diagram">Runner (Step 8 — Build)
+    |
+    |-- subagent: FORGE-001 (sonnet) ─┐
+    |-- subagent: FORGE-002 (sonnet)  |
+    |-- subagent: FORGE-003 (sonnet)  ├─→ results merged → Step 9 Audit
+    |-- subagent: FORGE-004 (sonnet)  |
+    |-- subagent: FORGE-005 (sonnet) ─┘
+    ...all run simultaneously
+</div>
+    </div>
+  </div>
+
+  <!-- ==================== AGENT SDK ==================== -->
+  <div class="tab-panel" id="sdk">
+    <div class="card">
+      <h2>@anthropic-ai/claude-agent-sdk (TypeScript)</h2>
+      <p>The FORGE Runner uses the official Claude Agent SDK for all Claude invocations. Every phase is a <code>query()</code> call with phase-specific options. No raw API calls &mdash; the SDK handles streaming, tool use, session continuity, and subagent spawning.</p>
+    </div>
+
+    <div class="card">
+      <h2>Core: <code>query()</code></h2>
+      <p>Async iterator. Streams output tokens as they arrive. Used for every phase from discovery through deployment.</p>
+<pre><span class="kw">import</span> { query } <span class="kw">from</span> <span class="str">'@anthropic-ai/claude-agent-sdk'</span>;
+
+<span class="cm">// Run a phase with full options</span>
+<span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">collectOutput</span>(<span class="fn">query</span>({
+  prompt: planPrompt,
+  options: {
+    model: <span class="str">'claude-opus-4-5'</span>,           <span class="cm">// Opus for planning</span>
+    allowedTools: [<span class="str">'Read'</span>, <span class="str">'Glob'</span>, <span class="str">'Grep'</span>], <span class="cm">// Read-only in planning</span>
+    permissionMode: <span class="str">'acceptEdits'</span>,           <span class="cm">// Auto-approve file changes</span>
+    maxBudgetUsd: <span class="num">5.00</span>,                    <span class="cm">// Cap spend this phase</span>
+  }
+}));</pre>
+    </div>
+
+    <div class="card">
+      <h2>Model Routing via <code>options.model</code></h2>
+      <p>Each phase specifies its own model. The runner never defaults &mdash; every invocation is explicit.</p>
+<pre><span class="cm">// Planning — Opus</span>
+options: { model: <span class="str">'claude-opus-4-5'</span>, maxBudgetUsd: <span class="num">5.00</span> }
+
+<span class="cm">// Building — Sonnet</span>
+options: { model: <span class="str">'claude-sonnet-4-5'</span>, maxBudgetUsd: <span class="num">3.00</span> }
+
+<span class="cm">// Audits — Haiku</span>
+options: { model: <span class="str">'claude-haiku-4-5'</span>, maxBudgetUsd: <span class="num">1.00</span> }</pre>
+    </div>
+
+    <div class="card">
+      <h2>Parallel Builders via <code>options.agents</code></h2>
+      <p>The build phase spawns one subagent per ticket. All run concurrently. Results are collected and merged.</p>
+<pre><span class="kw">const</span> builderResults = <span class="kw">await</span> Promise.<span class="fn">all</span>(
+  tickets.<span class="fn">map</span>(ticket =>
+    <span class="fn">collectOutput</span>(<span class="fn">query</span>({
+      prompt: <span class="fn">buildPrompt</span>(ticket),
+      options: {
+        model: <span class="str">'claude-sonnet-4-5'</span>,
+        allowedTools: [<span class="str">'Read'</span>, <span class="str">'Write'</span>, <span class="str">'Edit'</span>, <span class="str">'Bash'</span>],
+        permissionMode: <span class="str">'acceptEdits'</span>,
+        maxBudgetUsd: <span class="num">3.00</span>,
+      }
+    }))
+  )
+);</pre>
+    </div>
+
+    <div class="card">
+      <h2>File Change Hooks via <code>options.hooks</code></h2>
+      <p>Every file write during the build phase triggers a hook that logs the change to the ForgeRun audit trail in Firestore.</p>
+<pre>options: {
+  hooks: {
+    onFileWrite: <span class="kw">async</span> (filePath, content) => {
+      <span class="kw">await</span> <span class="fn">logAuditEvent</span>(runId, {
+        type: <span class="str">'file_write'</span>,
+        path: filePath,
+        timestamp: <span class="kw">new</span> <span class="ty">Date</span>().<span class="fn">toISOString</span>(),
+      });
+    }
+  }
+}</pre>
+    </div>
+
+    <div class="card">
+      <h2>MCP Injection via <code>createSdkMcpServer()</code></h2>
+      <p>The FORGE Runner injects custom MCP tools so the Claude session can query sprint state, look up tracker items, and check gate status without leaving the SDK context.</p>
+<pre><span class="kw">import</span> { createSdkMcpServer } <span class="kw">from</span> <span class="str">'@anthropic-ai/claude-agent-sdk'</span>;
+
+<span class="kw">const</span> forgeMcp = <span class="fn">createSdkMcpServer</span>({
+  tools: {
+    get_sprint: <span class="kw">async</span> ({ sprintId }) => <span class="fn">forgeApi</span>.<span class="fn">getSprint</span>(sprintId),
+    get_tracker_items: <span class="kw">async</span> ({ sprintId }) => <span class="fn">forgeApi</span>.<span class="fn">getItems</span>(sprintId),
+    get_run_state: <span class="kw">async</span> ({ runId }) => <span class="fn">getForgeRunState</span>(runId),
+  }
+});
+
+options: { mcpServers: [forgeMcp] }</pre>
+    </div>
+
+    <div class="card">
+      <h2>Session Continuity via <code>options.resume</code></h2>
+      <p>If MDJ1 reboots mid-phase, the runner reads the last session ID from Firestore and resumes without losing context.</p>
+<pre><span class="kw">const</span> state = <span class="kw">await</span> <span class="fn">getForgeRunState</span>(runId);
+
+<span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">collectOutput</span>(<span class="fn">query</span>({
+  prompt: <span class="str">'Resume and continue from where you left off.'</span>,
+  options: {
+    resume: state.lastSessionId,  <span class="cm">// Full context restored</span>
+    model: state.currentPhaseModel,
+  }
+}));</pre>
+    </div>
+
+    <div class="card">
+      <h2>Session Management</h2>
+      <p>The runner tracks every session ID per phase, enabling full audit trails and resumption.</p>
+<pre><span class="kw">import</span> { listSessions, getSessionMessages } <span class="kw">from</span> <span class="str">'@anthropic-ai/claude-agent-sdk'</span>;
+
+<span class="cm">// List all sessions for this run</span>
+<span class="kw">const</span> sessions = <span class="kw">await</span> <span class="fn">listSessions</span>({ runId });
+
+<span class="cm">// Get full message history for a phase</span>
+<span class="kw">const</span> messages = <span class="kw">await</span> <span class="fn">getSessionMessages</span>(sessions[<span class="num">0</span>].id);</pre>
+    </div>
+  </div>
+
+  <!-- ==================== STATE MACHINE ==================== -->
+  <div class="tab-panel" id="state">
+    <div class="card">
+      <h2>FORGE Run State Machine</h2>
+      <p>Every FORGE run progresses through these states in order. State is persisted to Firestore after every transition. A restarted runner reads state and resumes from the correct phase automatically.</p>
+      <div class="state-flow">
+        <div class="state-box start">idle</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">creating_sprint</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">running_discovery</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">auditing_discovery</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">running_plan</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">auditing_plan</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box gate">awaiting_plan_approval</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">building</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">auditing_build</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box gate">awaiting_build_approval</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">deploying</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">ci_loop</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box">confirming</div>
+        <div class="state-arrow">→</div>
+        <div class="state-box done">complete</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ForgeRunState Interface</h2>
+      <p>Stored in Firestore collection <code>mdj_forge_runs</code>. Every field is updated atomically on state transitions.</p>
+<pre><span class="kw">interface</span> <span class="ty">ForgeRunState</span> {
+  <span class="cm">// Identity</span>
+  id: <span class="ty">string</span>;                         <span class="cm">// UUID, also the Firestore doc ID</span>
+  sprintId: <span class="ty">string</span>;                   <span class="cm">// /api/sprints record ID</span>
+  sprintName: <span class="ty">string</span>;
+  createdAt: <span class="ty">string</span>;                  <span class="cm">// ISO 8601</span>
+  createdBy: <span class="ty">string</span>;                  <span class="cm">// uid of initiator (JDM)</span>
+
+  <span class="cm">// Phase tracking</span>
+  phase: <span class="ty">ForgePhase</span>;                  <span class="cm">// Current state (enum)</span>
+  phaseStartedAt: <span class="ty">string</span>;
+  phaseAttempts: <span class="ty">number</span>;              <span class="cm">// Retry counter for audits</span>
+  phaseLog: <span class="ty">ForgePhaseLogEntry</span>[];     <span class="cm">// Full history of all phases</span>
+
+  <span class="cm">// Session continuity</span>
+  lastSessionId: <span class="ty">string</span> | <span class="ty">null</span>;      <span class="cm">// For SDK resume</span>
+  sessionsByPhase: <span class="ty">Record</span>&lt;<span class="ty">string</span>, <span class="ty">string</span>&gt;; <span class="cm">// phase → sessionId</span>
+
+  <span class="cm">// Artifacts</span>
+  discoveryHtml: <span class="ty">string</span> | <span class="ty">null</span>;
+  planMarkdown: <span class="ty">string</span> | <span class="ty">null</span>;
+  tickets: <span class="ty">ForgeTicket</span>[];
+  buildResults: <span class="ty">ForgeBuildResult</span>[];
+
+  <span class="cm">// Gate state</span>
+  gatesPending: <span class="ty">ForgeGate</span>[];
+  gatesApproved: <span class="ty">ForgeGate</span>[];
+  gateNotificationSentAt: <span class="ty">string</span> | <span class="ty">null</span>;
+
+  <span class="cm">// CI loop</span>
+  ciAttempts: <span class="ty">number</span>;
+  ciStatus: <span class="str">'pending'</span> | <span class="str">'green'</span> | <span class="str">'red'</span> | <span class="ty">null</span>;
+  prUrl: <span class="ty">string</span> | <span class="ty">null</span>;
+  mergedAt: <span class="ty">string</span> | <span class="ty">null</span>;
+
+  <span class="cm">// Cost tracking</span>
+  totalCostUsd: <span class="ty">number</span>;
+  costByPhase: <span class="ty">Record</span>&lt;<span class="ty">string</span>, <span class="ty">number</span>&gt;;
+
+  <span class="cm">// Terminal state</span>
+  completedAt: <span class="ty">string</span> | <span class="ty">null</span>;
+  failedAt: <span class="ty">string</span> | <span class="ty">null</span>;
+  failureReason: <span class="ty">string</span> | <span class="ty">null</span>;
+}
+
+<span class="kw">type</span> <span class="ty">ForgePhase</span> =
+  | <span class="str">'idle'</span>
+  | <span class="str">'creating_sprint'</span>
+  | <span class="str">'running_discovery'</span>
+  | <span class="str">'auditing_discovery'</span>
+  | <span class="str">'running_plan'</span>
+  | <span class="str">'auditing_plan'</span>
+  | <span class="str">'awaiting_plan_approval'</span>
+  | <span class="str">'building'</span>
+  | <span class="str">'auditing_build'</span>
+  | <span class="str">'awaiting_build_approval'</span>
+  | <span class="str">'deploying'</span>
+  | <span class="str">'ci_loop'</span>
+  | <span class="str">'confirming'</span>
+  | <span class="str">'complete'</span>;</pre>
+    </div>
+
+    <div class="card">
+      <h2>Firestore Collection</h2>
+      <table>
+        <tr><th>Collection</th><th>Document ID</th><th>Purpose</th></tr>
+        <tr><td><code>mdj_forge_runs</code></td><td>run UUID</td><td>Full ForgeRunState, updated on every transition</td></tr>
+        <tr><td><code>mdj_forge_audit</code></td><td>auto-ID</td><td>File change events, phase transitions, cost records</td></tr>
+      </table>
+      <p style="margin-top:12px;">Both collections are gated behind <code>isRPIUser()</code> Firestore rules. Only @retireprotected.com users can read or write.</p>
+    </div>
+  </div>
+
+  <!-- ==================== MODEL ROUTING ==================== -->
+  <div class="tab-panel" id="routing">
+    <div class="card">
+      <h2>Model Routing by Phase</h2>
+      <p>Every phase has an explicit model assignment. The runner never defaults. Budget caps per phase prevent runaway spend. Haiku for cheap work. Sonnet for code. Opus only where architecture decisions are being made.</p>
+      <table>
+        <tr><th>Phase</th><th>Model</th><th>Budget</th><th>Why</th></tr>
+        <tr><td>Create Sprint</td><td><span class="pill haiku">Haiku</span></td><td>$0.50</td><td>Simple CRUD — create sprint record, tracker items. No reasoning needed.</td></tr>
+        <tr><td>Discovery</td><td><span class="pill sonnet">Sonnet</span></td><td>$3.00</td><td>Deep codebase research + HTML generation. Needs intelligence but not Opus.</td></tr>
+        <tr><td>Audit Discovery</td><td><span class="pill haiku">Haiku</span></td><td>$1.00</td><td>Checklist comparison against a template. Structured, deterministic.</td></tr>
+        <tr><td>Plan</td><td><span class="pill opus">Opus</span></td><td>$5.00</td><td>Architecture decisions. This is where expensive thinking pays for itself.</td></tr>
+        <tr><td>Audit Plan</td><td><span class="pill haiku">Haiku</span></td><td>$1.00</td><td>Gap detection against discovery. Structured checklist comparison.</td></tr>
+        <tr><td>Build (per ticket)</td><td><span class="pill sonnet">Sonnet</span></td><td>$3.00</td><td>Code execution from an approved plan. Sonnet is the best ROI here.</td></tr>
+        <tr><td>Audit Build</td><td><span class="pill sonnet">Sonnet</span></td><td>$2.00</td><td>Code review against the plan. Needs enough intelligence to catch real gaps.</td></tr>
+        <tr><td>Deploy (#SendIt)</td><td><span class="pill haiku">Haiku</span></td><td>$0.50</td><td>Git commands. Branch, commit, push, PR. Deterministic scripting.</td></tr>
+        <tr><td>CI Fix Loop</td><td><span class="pill sonnet">Sonnet</span></td><td>$2.00</td><td>Diagnose TypeScript errors, fix them, re-push. Needs code reasoning.</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Cost Comparison</h2>
+      <div class="spec-grid">
+        <div class="spec-card red">
+          <h4>Today (Manual)</h4>
+          <p>~$250/day in Claude costs. 98% Opus. JDM fires every prompt. No parallelism. No budget tracking.</p>
+        </div>
+        <div class="spec-card green">
+          <h4>After FORGE Runner</h4>
+          <p>~$20–40 per full sprint end-to-end. Haiku and Sonnet do 80% of the work. Opus only where it matters.</p>
+        </div>
+        <div class="spec-card orange">
+          <h4>Monthly Savings</h4>
+          <p>At current pace (~3 sprints/week): saves ~$4,000/month. Runner pays for itself in the first sprint.</p>
+        </div>
+      </div>
+      <p style="margin-top:8px;"><strong>Cost is tracked in real-time.</strong> Every <code>query()</code> call reports actual spend. <code>totalCostUsd</code> and <code>costByPhase</code> in ForgeRunState are updated after every phase. JDM sees cost in the RIIMO run status view.</p>
+    </div>
+  </div>
+
+  <!-- ==================== HUMAN GATES ==================== -->
+  <div class="tab-panel" id="gates">
+    <div class="card">
+      <h2>Three Human Gates</h2>
+      <p>FORGE Runner is autonomous except at three gates where JDM's judgment is required. The runner pauses, notifies, and waits. JDM taps Approve &mdash; the runner resumes from exactly where it stopped.</p>
+    </div>
+
+    <div class="gate-callout">
+      <h4>Gate 1 — After Plan Audit</h4>
+      <p>"Is this the right plan?" &mdash; Triggered after Opus generates the plan and Haiku audits it for gaps. JDM reviews the plan document and approves before any code is written. This is the last point to catch direction errors before builder spend starts.</p>
+    </div>
+    <div class="gate-callout">
+      <h4>Gate 2 — After Build Audit</h4>
+      <p>"Does this look right?" &mdash; Triggered after all builders complete and Sonnet audits the code against the plan. JDM reviews the diff summary and audit report before any deployment starts.</p>
+    </div>
+    <div class="gate-callout">
+      <h4>Gate 3 — CI Failure Escalation</h4>
+      <p>"I can't fix this" &mdash; Triggered if CI fails 3 consecutive times and the runner cannot self-diagnose. Runner pauses, sends a full diagnostic report to JDM, and waits for instruction. This is the safety valve for genuinely broken environments.</p>
+    </div>
+
+    <div class="card">
+      <h2>Gate Mechanism</h2>
+
+      <div class="phase-header">
+        <div class="phase-num">1</div>
+        <h3>Runner pauses + saves state</h3>
+      </div>
+      <p class="card" style="padding:12px 16px; margin-bottom:12px;">Phase transitions to <code>awaiting_plan_approval</code> or <code>awaiting_build_approval</code>. All state flushed to Firestore. Runner enters a polling loop — checks every 30 seconds for approval.</p>
+
+      <div class="phase-header">
+        <div class="phase-num">2</div>
+        <h3>ProDashX notification sent</h3>
+      </div>
+      <p class="card" style="padding:12px 16px; margin-bottom:12px;">Runner posts a notification to the in-app notification system. JDM sees it in ProDashX, RIIMO, and optionally Slack. Notification links directly to the FORGE run status page with the relevant doc attached.</p>
+
+      <div class="phase-header">
+        <div class="phase-num">3</div>
+        <h3>JDM approves</h3>
+      </div>
+      <p class="card" style="padding:12px 16px; margin-bottom:12px;">JDM clicks Approve in RIIMO admin, or hits <code>POST /forge/approve/:id</code> directly. Can also reject with a note, which triggers a revision cycle.</p>
+
+      <div class="phase-header">
+        <div class="phase-num">4</div>
+        <h3>Runner resumes</h3>
+      </div>
+      <p class="card" style="padding:12px 16px; margin-bottom:12px;">Firestore gate status flips to <code>approved</code>. Runner's polling loop detects the change and advances to the next phase. No restart required.</p>
+
+      <div class="card">
+        <h2>Gate API</h2>
+        <table>
+          <tr><th>Method</th><th>Path</th><th>Effect</th></tr>
+          <tr><td><code>POST</code></td><td><code>/forge/approve/:id</code></td><td>Approves the current pending gate, runner advances</td></tr>
+          <tr><td><code>POST</code></td><td><code>/forge/reject/:id</code></td><td>Rejects with optional note, triggers revision</td></tr>
+          <tr><td><code>GET</code></td><td><code>/forge/status/:id</code></td><td>Returns current phase, gate status, cost so far</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FILE STRUCTURE ==================== -->
+  <div class="tab-panel" id="files">
+    <div class="card">
+      <h2>Directory Layout</h2>
+      <div class="diagram">~/mdj-agent/src/forge/
+  runner.ts          — Core state machine. Reads state from Firestore, advances phases,
+                       writes state back. The orchestrator. Everything else is called by runner.ts.
+  phases.ts          — Phase executor functions. One export per phase:
+                       runDiscovery(), auditDiscovery(), runPlan(), auditPlan(),
+                       runBuild(), auditBuild(), runSendIt(), confirmLanded()
+  claude-invoke.ts   — Agent SDK wrapper. Handles query(), model routing, budget caps,
+                       session ID tracking, cost extraction from streaming output.
+  forge-api.ts       — HTTP client for /api/sprints and /api/tracker.
+                       createSprint(), linkDiscovery(), createTrackerItems(), updateItem()
+  templates.ts       — Prompt templates for all 11 phases. Each template is a function
+                       that takes run state and returns a formatted prompt string.
+  routes.ts          — Express router mounted at /forge/*
+  types.ts           — ForgeRunState, ForgePhase, ForgeTicket, ForgeBuildResult, ForgeGate</div>
+    </div>
+
+    <div class="card">
+      <h2>Express Routes</h2>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Description</th></tr>
+        <tr><td><code>POST</code></td><td><code>/forge/sprint</code></td><td>Create sprint + kick off full lifecycle. Body: <code>{ brief: string, tickets: string[] }</code></td></tr>
+        <tr><td><code>POST</code></td><td><code>/forge/run/:id</code></td><td>Manually advance to next phase (admin / debug use)</td></tr>
+        <tr><td><code>POST</code></td><td><code>/forge/approve/:id</code></td><td>JDM approves current gate. Runner resumes automatically.</td></tr>
+        <tr><td><code>POST</code></td><td><code>/forge/reject/:id</code></td><td>JDM rejects with note. Triggers revision cycle.</td></tr>
+        <tr><td><code>GET</code></td><td><code>/forge/status/:id</code></td><td>Current phase, gate status, cost, phase log</td></tr>
+        <tr><td><code>GET</code></td><td><code>/forge/runs</code></td><td>List all FORGE runs with summary stats</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Key Module Responsibilities</h2>
+      <div class="spec-grid">
+        <div class="spec-card">
+          <h4>runner.ts</h4>
+          <p>The orchestrator. Reads Firestore state, calls the correct phase executor, writes state back. Never contains Claude logic directly — delegates to phases.ts.</p>
+        </div>
+        <div class="spec-card green">
+          <h4>phases.ts</h4>
+          <p>One function per phase. Each function calls claude-invoke.ts, handles PASS/FAIL branching, and returns results to runner.ts. Self-contained, independently testable.</p>
+        </div>
+        <div class="spec-card orange">
+          <h4>claude-invoke.ts</h4>
+          <p>The only file that imports from the Agent SDK. Wraps query() with model routing, budget caps, session tracking, and cost extraction. Everything else is SDK-agnostic.</p>
+        </div>
+        <div class="spec-card cyan">
+          <h4>templates.ts</h4>
+          <p>All prompts live here. Changing a prompt never requires touching runner or phase logic. Templates are functions: (state: ForgeRunState) => string.</p>
+        </div>
+        <div class="spec-card purple">
+          <h4>forge-api.ts</h4>
+          <p>All HTTP calls to /api/sprints and /api/tracker. Handles auth headers, retries, and error mapping. Never makes direct Firestore calls.</p>
+        </div>
+        <div class="spec-card pink">
+          <h4>types.ts</h4>
+          <p>Single source of truth for all FORGE types. No duplication across files. Imported everywhere. ForgeRunState is defined here and nowhere else.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SPRINT PLAN ==================== -->
+  <div class="tab-panel" id="sprint">
+    <div class="card">
+      <h2>Sprint-000: FORGE Runner</h2>
+      <p>10 tickets. Fully sequential — each ticket depends on the previous. Estimated 2-3 days of builder time. This is the sprint that makes all future sprints faster.</p>
+    </div>
+
+    <div class="ticket-grid">
+      <div class="ticket">
+        <div class="ticket-id">FORGE-001</div>
+        <h4>Install @anthropic-ai/claude-agent-sdk on MDJ1</h4>
+        <p>Add the SDK to ~/mdj-agent package.json. Verify it installs cleanly. Confirm the query() export is available. Run a hello-world invocation against Haiku to confirm auth and streaming work end-to-end.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-002</div>
+        <h4>ForgeRunState types + Firestore collection</h4>
+        <p>Write types.ts with the full ForgeRunState interface and all supporting types. Create the mdj_forge_runs Firestore collection. Write helper functions: getForgeRunState(), updateForgeRunState(), createForgeRun(). Add Firestore rules for the collection.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-003</div>
+        <h4>claude-invoke.ts — Agent SDK wrapper</h4>
+        <p>Wrap query() with model routing, budget caps, session ID tracking, and cost extraction. Export invokePhase(phase, prompt, state) — takes the current phase, looks up the correct model and budget, runs the query, returns { output, sessionId, costUsd }.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-004</div>
+        <h4>forge-api.ts — Sprint + Tracker HTTP client</h4>
+        <p>Write typed HTTP client for /api/sprints and /api/tracker. Functions: createSprint(), patchSprint(), createTrackerItems(), updateTrackerItem(). Handle auth (Firebase ID token from MDJ1 service account), retries, error mapping.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-005</div>
+        <h4>templates.ts — Prompt templates for all 11 phases</h4>
+        <p>Write the prompt template function for every phase. Each is a pure function: (state: ForgeRunState) => string. Templates include the audit rubric for audit phases. This is where the FORGE prompts that JDM has been firing manually get codified.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-006</div>
+        <h4>runner.ts — Core state machine</h4>
+        <p>The orchestrator. Reads ForgeRunState from Firestore, determines which phase to execute, delegates to phases.ts, writes updated state back. Handles restart recovery (if phase is mid-execution, re-run from current phase start). Manages the gate polling loop.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-007</div>
+        <h4>phases.ts — Phase executors (all 11 steps)</h4>
+        <p>One exported async function per phase. Each calls invokePhase(), processes the result, updates the run state, and returns control to runner.ts. Build phase fans out to parallel subagents. Audit phases evaluate PASS/FAIL and set retry counter.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-008</div>
+        <h4>routes.ts — Express endpoints</h4>
+        <p>Mount FORGE routes on the MDJ1 Express server. POST /forge/sprint kicks off a new run. GET /forge/status/:id returns current state. POST /forge/approve/:id flips gate status and runner detects it in the polling loop. GET /forge/runs returns list with summary stats.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-009</div>
+        <h4>Human gate mechanism — Firestore + ProDashX notifications</h4>
+        <p>When runner reaches a gate state, it writes a notification to Firestore notifications collection (same collection the portal reads). The ProDashX notification includes the gate name, a link to the run status page, and the artifact to review (plan doc or build diff). Gate polling loop in runner.ts checks gateStatus every 30s.</p>
+      </div>
+      <div class="ticket">
+        <div class="ticket-id">FORGE-010</div>
+        <h4>E2E test — full lifecycle from brief to #LandedIt</h4>
+        <p>Write a Vitest integration test that starts a FORGE run with a minimal brief ("add a health endpoint at GET /health"), runs through all phases with mock gate approvals, and asserts: sprint created, tracker items created, PR merged, run state is complete. Runs as part of e2e-intake test suite.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Sequencing</h2>
+      <div class="level-bar blue">
+        <h4>Foundation (FORGE-001 → FORGE-004)</h4>
+        <p>SDK installed, types defined, invocation wrapper built, API client ready. These four tickets must land before any phase logic is written. No parallelism here — strict dependency chain.</p>
+      </div>
+      <div class="level-bar orange">
+        <h4>Logic (FORGE-005 → FORGE-007)</h4>
+        <p>Templates, state machine, phase executors. Can be worked in parallel once foundation is done. Templates and runner can be built simultaneously since they share the same types.</p>
+      </div>
+      <div class="level-bar green">
+        <h4>Integration (FORGE-008 → FORGE-009)</h4>
+        <p>Express routes and gate mechanism. Wires the runner to the outside world. Depends on runner.ts being complete.</p>
+      </div>
+      <div class="level-bar purple">
+        <h4>Verification (FORGE-010)</h4>
+        <p>E2E test. Runs last. Validates the entire stack works end-to-end. This test becomes the regression guard for every future sprint.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Definition of Done</h2>
+      <table>
+        <tr><th>Criterion</th><th>Verification</th></tr>
+        <tr><td>Runner starts from a brief and reaches complete</td><td>FORGE-010 E2E test passes</td></tr>
+        <tr><td>State survives MDJ1 restart</td><td>Kill process mid-run, restart, confirm it resumes</td></tr>
+        <tr><td>All three gates pause and resume correctly</td><td>Manual approval test in FORGE-010</td></tr>
+        <tr><td>Cost tracked per phase</td><td>ForgeRunState.costByPhase populated after run</td></tr>
+        <tr><td>CI failure triggers fix loop</td><td>Inject a type error, verify runner fixes and re-pushes</td></tr>
+        <tr><td>Sprint + tracker items created in RIIMO</td><td>Check RIIMO sprint view after test run</td></tr>
+        <tr><td>npm run build passes</td><td>CI green on PR for this sprint</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  FORGE Runner &mdash; Sprint-000 &mdash; The Machine Builds Itself &mdash; 2026-03-24
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
