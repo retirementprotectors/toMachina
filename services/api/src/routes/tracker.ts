@@ -344,13 +344,37 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     const db = getFirestore()
     const now = new Date().toISOString()
 
-    // Auto-generate item_id as TRK-NNN
-    const snap = await db.collection(COLLECTION).orderBy('item_id', 'desc').limit(1).get()
-    let nextNum = 1
-    if (!snap.empty) {
-      const lastId = (snap.docs[0].data().item_id || 'TRK-000') as string
-      nextNum = parseInt(lastId.replace('TRK-', ''), 10) + 1
+    // Auto-generate item_id as TRK-NNN (scan all docs to find true max, skip NaN poison)
+    const allSnap = await db.collection(COLLECTION).get()
+    let maxNum = 0
+    const nanDocs: FirebaseFirestore.QueryDocumentSnapshot[] = []
+    for (const doc of allSnap.docs) {
+      const id = (doc.data().item_id || '') as string
+      if (id === 'TRK-NaN' || id.includes('NaN')) {
+        nanDocs.push(doc)
+        continue
+      }
+      const num = parseInt(id.replace('TRK-', ''), 10)
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num
+      }
     }
+
+    // Reassign TRK-NaN docs with proper sequential IDs
+    if (nanDocs.length > 0) {
+      const nanBatch = db.batch()
+      for (const nanDoc of nanDocs) {
+        maxNum++
+        const fixedId = `TRK-${String(maxNum).padStart(3, '0')}`
+        const nanData = nanDoc.data()
+        const fixedRef = db.collection(COLLECTION).doc(fixedId)
+        nanBatch.set(fixedRef, { ...nanData, item_id: fixedId, updated_at: now })
+        nanBatch.delete(nanDoc.ref)
+      }
+      await nanBatch.commit()
+    }
+
+    const nextNum = maxNum + 1
     const itemId = `TRK-${String(nextNum).padStart(3, '0')}`
 
     const data = {
