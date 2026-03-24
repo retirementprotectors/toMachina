@@ -476,5 +476,24 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isRPIUser();
     }
+
+    // ----------------------------------------------------------------
+    // MDJ — MyDigitalJosh AI assistant collections
+    // ----------------------------------------------------------------
+    match /mdj_conversations/{convId} {
+      allow read: if isRPIUser() && resource.data.user_email == request.auth.token.email;
+      allow create: if isRPIUser();
+      allow update: if isRPIUser() && resource.data.user_email == request.auth.token.email;
+    }
+    match /mdj_conversations/{convId}/messages/{msgId} {
+      allow read, write: if isRPIUser();
+    }
+    match /mdj_client_insights/{clientId} {
+      allow read, write: if isRPIUser();
+    }
+    match /mdj_specialist_configs/{configId} {
+      allow read: if isRPIUser();
+      allow write: if request.auth.token.email in ['josh@retireprotected.com', 'john@retireprotected.com'];
+    }
   }
 }
