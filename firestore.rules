@@ -330,14 +330,52 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
-    // DEX — document package pipeline
+    // DEX — Document Efficiency Xelerator
     // ----------------------------------------------------------------
-    match /dex_packages/{docId} {
-      allow read: if isLeaderOrAbove();
+    match /dex_forms/{docId} {
+      allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
+    match /dex_field_mappings/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /dex_rules/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /dex_kits/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
+    }
+    match /dex_packages/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
+      match /artifacts/{artifactId} {
+        allow read: if isRPIUser();
+        allow write: if isRPIUser();
+      }
+    }
     match /dex_package_events/{docId} {
-      allow read: if isLeaderOrAbove();
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
+    }
+
+    // DEX Taxonomy — carriers, products, account types, transactions
+    match /taxonomy_carriers/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /taxonomy_products/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /taxonomy_account_types/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /taxonomy_transactions/{docId} {
+      allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
 

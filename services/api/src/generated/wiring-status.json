@@ -1791,6 +1791,33 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "flow_steps": {
+      "status": "backend_only",
+      "backend": "flow.ts",
+      "frontend": "",
+      "backend_endpoints": 37,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "flow.ts",
+          "endpoints": 37,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "guardian_audits": {
       "status": "backend_only",
       "backend": "guardian.ts",
@@ -3251,14 +3278,16 @@
     },
     "flow.ts": {
       "file": "flow.ts",
-      "endpoints": 35,
+      "endpoints": 37,
       "operations": [
         "list",
         "get",
         "create",
         "update"
       ],
-      "collections": [],
+      "collections": [
+        "flow_steps"
+      ],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -3310,6 +3339,26 @@
         "accounts",
         "appointments"
       ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "import-accounts.ts": {
+      "file": "import-accounts.ts",
+      "endpoints": 3,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "import-agents.ts": {
+      "file": "import-agents.ts",
+      "endpoints": 5,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -4506,14 +4555,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 63,
+    "route_files": 65,
     "ui_files": 135,
     "portal_pages": 150,
-    "collections_found": 67,
-    "api_routes_found": 63,
+    "collections_found": 68,
+    "api_routes_found": 65,
     "cloud_functions_found": 14,
     "env_vars_found": 36,
     "hookify_rules_found": 36,
-    "scanned_at": "2026-03-24T17:53:56.262Z"
+    "scanned_at": "2026-03-24T19:14:48.002Z"
   }
 }

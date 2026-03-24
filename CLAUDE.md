@@ -147,11 +147,9 @@ Collections gated behind `isRPIUser()` (@retireprotected.com domain check):
 
 ## GAS Bridge
 
-Only 3 GAS engines remain: RAPID_IMPORT, DEX, RAPID_CORE. The rest (RAPID_COMMS, RAPID_FLOW, RAPID_API, C3, ATLAS, CAM) were migrated to Cloud Run API routes and archived in Sprint 4-5.
+**Zero GAS engines remain.** All 9 engines (RAPID_COMMS, RAPID_FLOW, RAPID_API, C3, ATLAS, CAM, DEX, RAPID_IMPORT, RAPID_CORE) have been migrated to Cloud Run and archived. DEX-LIVE + IMPORT-KILL sprints completed 2026-03-24.
 
-Bridge Sheets writes can be disabled via `SHEETS_WRITE_ENABLED=false` env var on the Bridge Cloud Run service. Firestore is the primary data store.
-
-**GAS reads Sheets. toMachina reads Firestore. Bridge keeps them in sync (when enabled).**
+Bridge Sheets writes can be disabled via `SHEETS_WRITE_ENABLED=false` env var on the Bridge Cloud Run service. Firestore is the primary data store. The Bridge is transitional — retained for any remaining Sheets consumers but no longer required.
 
 ## Sprint Status
 
