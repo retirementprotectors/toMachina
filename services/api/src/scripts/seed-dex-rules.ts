@@ -114,9 +114,9 @@ const TAF_MAP: Record<string, string | null> = {
 
 interface DexRuleDoc {
   rule_id: string
-  platform: string
+  product_type: string
   registration_type: string
-  account_action: string
+  action: string
   firm_client: string[]
   firm_account: string[]
   product_forms: string[]
@@ -289,9 +289,9 @@ function buildRule(platform: string, registrationType: string, accountAction: st
 
   return {
     rule_id: ruleId,
-    platform,
+    product_type: platform,
     registration_type: registrationType,
-    account_action: accountAction,
+    action: accountAction,
     firm_client: firmClient,
     firm_account: firmAccount,
     product_forms: productForms,
