@@ -47,6 +47,11 @@ export function useMDJStream({ portal }: UseMDJStreamOptions) {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' }
         if (authToken) headers['Authorization'] = `Bearer ${authToken}`
 
+        // Build conversation history from existing messages (excluding the current user msg + placeholder)
+        const history = messages
+          .filter(m => m.id !== userMsg.id && m.id !== assistantId)
+          .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content }))
+
         const res = await fetch('/api/mdj/chat', {
           method: 'POST',
           headers,
@@ -55,6 +60,7 @@ export function useMDJStream({ portal }: UseMDJStreamOptions) {
             portal,
             conversation_id: conversationId,
             context,
+            conversation_history: history,
           }),
           signal: controller.signal,
         })

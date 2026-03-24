@@ -83,7 +83,7 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
         body: JSON.stringify({
           message,
           user_context: userContext,
-          conversation_history: [],
+          conversation_history: (body.conversation_history as Array<Record<string, unknown>>) || [],
           conversation_id: conversationId,
           context,
         }),
