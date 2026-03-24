@@ -1,0 +1,40 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./app/*",
+        "./src/*"
+      ],
+      "@tomachina/ui": [
+        "../../packages/ui/src"
+      ],
+      "@tomachina/core": [
+        "../../packages/core/src"
+      ],
+      "@tomachina/auth": [
+        "../../packages/auth/src"
+      ],
+      "@tomachina/db": [
+        "../../packages/db/src"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
