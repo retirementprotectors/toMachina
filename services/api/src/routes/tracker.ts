@@ -12,6 +12,7 @@ import {
   param,
 } from '../lib/helpers.js'
 import type { TrackerItemDTO, TrackerBulkUpdateResult, DedupScanData, DedupMergeResult, TrackerDeleteResult, TrackerAttachmentDTO, AttachmentDeleteResult } from '@tomachina/core'
+import { createNotification } from './notifications.js'
 
 export const trackerRoutes = Router()
 const COLLECTION = 'tracker_items'
@@ -414,6 +415,21 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
     delete updates.created_at
 
     await docRef.update(updates)
+
+    // TRK-13685: Create notification on status change
+    const oldData = doc.data() as Record<string, unknown>
+    if (req.body.status && req.body.status !== oldData.status) {
+      createNotification({
+        type: 'info',
+        category: 'data',
+        title: `${oldData.item_id || id} status changed to ${req.body.status}`,
+        body: (oldData.title as string) || '',
+        link: '/modules/forge',
+        portal: 'all',
+        _created_by: (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api',
+      }).catch(() => {/* fire-and-forget */})
+    }
+
     const updated = await docRef.get()
     res.json(successResponse<TrackerItemDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as TrackerItemDTO))
   } catch (err) {

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BETA Launch Guide — DeDup + Relationships + AI3</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--bg2:#111827;--card:#1a2235;--card-hover:#1e2a40;--border:#2a3548;--text:#e8ecf4;--text2:#8899b0;--muted:#5a6a80;--blue:#4a7ab5;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--teal:#14b8a6;--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);border-bottom:2px solid var(--blue);padding:48px 0 40px}
+.hero-inner{max-width:900px;margin:0 auto;padding:0 32px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(74,122,181,0.2);border:1px solid rgba(74,122,181,0.3);border-radius:20px;font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.hero h1{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.hero h1 span{color:var(--blue)}
+.hero p{font-size:15px;color:var(--text2);max-width:600px;margin:0 auto}
+.hero-meta{display:flex;justify-content:center;gap:24px;margin-top:20px;font-size:12px;color:var(--muted)}
+.hero-meta span{display:flex;align-items:center;gap:4px}
+.hero-meta .material-icons-round{font-size:14px}
+.container{max-width:900px;margin:0 auto;padding:32px}
+.section{margin-bottom:48px}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--accent);color:white;border-radius:50%;font-size:13px;font-weight:700;margin-right:10px}
+.section h2{display:flex;align-items:center;font-size:22px;font-weight:700;margin-bottom:16px;letter-spacing:-0.5px}
+.section h3{font-size:16px;font-weight:600;margin:20px 0 10px;color:var(--text)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card.highlight{border-left:3px solid var(--accent)}
+.card.warn{border-left:3px solid var(--yellow)}
+.card.success{border-left:3px solid var(--green)}
+.step{display:flex;gap:14px;margin-bottom:16px}
+.step-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.step-icon.blue{background:rgba(59,130,246,0.15);color:var(--accent)}
+.step-icon.green{background:rgba(16,185,129,0.15);color:var(--green)}
+.step-icon.yellow{background:rgba(245,158,11,0.15);color:var(--yellow)}
+.step-icon.red{background:rgba(239,68,68,0.15);color:var(--red)}
+.step-icon.purple{background:rgba(139,92,246,0.15);color:var(--purple)}
+.step-icon.teal{background:rgba(20,184,166,0.15);color:var(--teal)}
+.step-body h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.step-body p{font-size:13px;color:var(--text2)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.tag-yellow{background:rgba(245,158,11,0.15);color:var(--yellow)}
+.tag-green{background:rgba(16,185,129,0.15);color:var(--green)}
+.tag-blue{background:rgba(59,130,246,0.15);color:var(--accent)}
+.tag-red{background:rgba(239,68,68,0.15);color:var(--red)}
+@media print{body{background:#fff;color:#111}.hero{background:#f8fafc;border-color:#ddd}.card{border-color:#ddd;background:#fff}.hero h1 span{color:#2563eb}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<div class="hero-inner">
+<div class="hero-badge"><span class="material-icons-round" style="font-size:14px">school</span> Training Guide</div>
+<h1>BETA Launch — <span>DeDup + Relationships + AI3</span></h1>
+<p>How to manage duplicate contacts, build relationships, and generate household reports</p>
+<div class="hero-meta">
+<span><span class="material-icons-round">calendar_today</span> March 2026</span>
+<span><span class="material-icons-round">timer</span> 10 min read</span>
+<span><span class="material-icons-round">groups</span> All team members</span>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<!-- SECTION 1: DeDup -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--yellow)">1</span>DeDup — Managing Duplicates</h2>
+<p style="color:var(--text2);margin-bottom:20px">The system automatically detects potential duplicate contacts. Here's how to handle them.</p>
+
+<h3>Spotting Duplicates</h3>
+<div class="card highlight">
+<div class="step">
+<div class="step-icon yellow"><span class="material-icons-round">warning</span></div>
+<div class="step-body">
+<h4>Orange "Dupe" Badge on Contact Grid</h4>
+<p>When browsing the Contacts list, some contacts will have an orange <span class="tag tag-yellow">Dupe</span> badge next to their name. This means the system found another contact with the same email, phone, or last name + date of birth.</p>
+</div>
+</div>
+</div>
+
+<div class="card highlight">
+<div class="step">
+<div class="step-icon blue"><span class="material-icons-round">expand_more</span></div>
+<div class="step-body">
+<h4>"Possible Duplicates" Banner on Contact Detail</h4>
+<p>When you open a contact that has potential duplicates, you'll see a collapsible orange banner below the header. Click it to expand and see the matches with their confidence scores.</p>
+</div>
+</div>
+</div>
+
+<h3>Understanding Match Scores</h3>
+<div class="card">
+<div class="step">
+<div class="step-icon red"><span class="material-icons-round">priority_high</span></div>
+<div class="step-body">
+<h4>95% — Same Email</h4>
+<p>Two contacts share the exact same email address. Almost certainly a duplicate.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-icon yellow"><span class="material-icons-round">report</span></div>
+<div class="step-body">
+<h4>90% — Same Phone</h4>
+<p>Two contacts share the same phone number. Very likely a duplicate or household member.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-icon blue"><span class="material-icons-round">info</span></div>
+<div class="step-body">
+<h4>85% — Same Last Name + DOB</h4>
+<p>Matching last name and date of birth. Could be a duplicate or a family member. Review carefully.</p>
+</div>
+</div>
+</div>
+
+<h3>Taking Action</h3>
+<div class="card success">
+<div class="step">
+<div class="step-icon green"><span class="material-icons-round">block</span></div>
+<div class="step-body">
+<h4>Dismiss — It's Not a Duplicate</h4>
+<p>Click <strong>Dismiss</strong> on any match that isn't actually a duplicate. The match will disappear and won't show up again. Dismissal is saved permanently.</p>
+</div>
+</div>
+</div>
+
+<div class="card warn">
+<div class="step">
+<div class="step-icon yellow"><span class="material-icons-round">merge_type</span></div>
+<div class="step-body">
+<h4>Merge — Confirmed Duplicate</h4>
+<p>Select the duplicate(s) with the checkboxes and click <strong>"DeDup Selected"</strong>. This opens the merge tool where you can compare field-by-field and choose which data to keep.</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 2: Relationships -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--purple)">2</span>Relationships — Connecting People</h2>
+<p style="color:var(--text2);margin-bottom:20px">Build connections between contacts and organize them into households.</p>
+
+<h3>Adding Connections</h3>
+<div class="card highlight">
+<div class="step">
+<div class="step-icon purple"><span class="material-icons-round">person_add</span></div>
+<div class="step-body">
+<h4>Step 1: Go to the Relationships Tab</h4>
+<p>Open a contact's detail page and click the <strong>Relationships</strong> tab. You'll see existing connections and options to add new ones.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-icon purple"><span class="material-icons-round">search</span></div>
+<div class="step-body">
+<h4>Step 2: Search for a Person</h4>
+<p>Click <strong>"Add Connection"</strong>, select a relationship type (Spouse, Child, Parent, etc.), and search by name. The system searches all contacts in the database.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-icon purple"><span class="material-icons-round">link</span></div>
+<div class="step-body">
+<h4>Step 3: Choose Your Action</h4>
+<p>Each search result shows three buttons:</p>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="step">
+<div class="step-icon blue"><span class="material-icons-round">link</span></div>
+<div class="step-body">
+<h4>Connect</h4>
+<p>Creates a bidirectional connection between the two contacts. Both records are updated. Use this when the people know each other but don't live together.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-icon green"><span class="material-icons-round">home</span></div>
+<div class="step-body">
+<h4>+ HH (Add to Household)</h4>
+<p>Adds the person to the current contact's household. Use this for people who live together or share finances. <em>Note: The current contact must already be in a household.</em></p>
+</div>
+</div>
+<div class="step">
+<div class="step-icon teal"><span class="material-icons-round">done_all</span></div>
+<div class="step-body">
+<h4>Both</h4>
+<p>Creates the connection AND adds to household in one click. Use this for family members who live together — it's the most common action for spouses and children.</p>
+</div>
+</div>
+</div>
+
+<h3>Recommended Matches</h3>
+<div class="card">
+<div class="step">
+<div class="step-icon yellow"><span class="material-icons-round">auto_awesome</span></div>
+<div class="step-body">
+<h4>System Suggestions</h4>
+<p>The system automatically suggests connections based on shared email addresses, phone numbers, or similar names. Review these suggestions at the bottom of the Relationships tab. The same three action buttons (Connect, + HH, Both) are available on each suggestion.</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- SECTION 3: Household AI3 -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--teal)">3</span>Household AI3 Reports</h2>
+<p style="color:var(--text2);margin-bottom:20px">Generate comprehensive household-level intelligence reports.</p>
+
+<div class="card highlight">
+<div class="step">
+<div class="step-icon teal"><span class="material-icons-round">psychology</span></div>
+<div class="step-body">
+<h4>What is AI3?</h4>
+<p>AI3 (Automated Integrated Intelligence & Insights) generates a comprehensive report that pulls together data from ALL members of a household — accounts, financials, opportunities, and action items.</p>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="step">
+<div class="step-icon blue"><span class="material-icons-round">touch_app</span></div>
+<div class="step-body">
+<h4>How to Generate</h4>
+<p>Navigate to a <strong>Household</strong> detail page and click the <strong>"AI3 Report"</strong> button in the header. The report generates in a few seconds and opens in a modal.</p>
+</div>
+</div>
+</div>
+
+<div class="card success">
+<div class="step">
+<div class="step-icon green"><span class="material-icons-round">summarize</span></div>
+<div class="step-body">
+<h4>Understanding the Report</h4>
+<p>The report includes:</p>
+<ul style="margin-top:8px;padding-left:20px;color:var(--text2);font-size:13px">
+<li><strong>Member Inventory</strong> — All household members with their roles and account counts</li>
+<li><strong>Aggregate Financials</strong> — Combined income, net worth, and investable assets</li>
+<li><strong>Cross-Member Opportunities</strong> — Insurance gaps, consolidation possibilities, planning needs</li>
+<li><strong>Action Items</strong> — Specific tasks for each member, prioritized by impact</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</body>
+</html>

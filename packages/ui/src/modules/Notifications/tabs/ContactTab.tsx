@@ -17,6 +17,15 @@ export function ContactTab({ notifications, loading, onNavigate, onMarkRead }: C
     [notifications]
   )
 
+  if (!loading && filtered.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>person_off</span>
+        <p className="mt-2 text-xs text-[var(--text-muted)]">No contact notifications</p>
+      </div>
+    )
+  }
+
   return (
     <AllTab
       notifications={filtered}

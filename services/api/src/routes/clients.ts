@@ -309,3 +309,36 @@ clientRoutes.delete('/:id', async (req: Request, res: Response) => {
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+// POST /:id/dismiss-duplicate — dismiss a duplicate match (TRK-13681)
+clientRoutes.post('/:id/dismiss-duplicate', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const clientId = param(req.params.id)
+    const { match_id } = req.body
+    if (!match_id) { res.status(400).json(errorResponse('match_id required')); return }
+    const userEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+    const now = new Date().toISOString()
+
+    const batch = db.batch()
+    // Add to both client docs (bidirectional dismiss)
+    const { FieldValue } = require('firebase-admin/firestore')
+    batch.update(db.collection(COLLECTION).doc(clientId), {
+      dismissed_duplicates: FieldValue.arrayUnion(match_id),
+      updated_at: now,
+      _updated_by: userEmail,
+    })
+    batch.update(db.collection(COLLECTION).doc(match_id), {
+      dismissed_duplicates: FieldValue.arrayUnion(clientId),
+      updated_at: now,
+      _updated_by: userEmail,
+    })
+    await batch.commit()
+
+    res.json(successResponse<{ dismissed: true }>({ dismissed: true }))
+  } catch (err) {
+    console.error('POST /api/clients/:id/dismiss-duplicate error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+

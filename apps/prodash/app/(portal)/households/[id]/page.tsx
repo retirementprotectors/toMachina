@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useMemo, useCallback, useEffect } from 'react'
+import React, { use, useState, useMemo, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { useDocument } from '@tomachina/db'
 import { doc, getDoc, updateDoc, getFirestore } from 'firebase/firestore'
@@ -32,6 +32,29 @@ export default function HouseholdDetailPage({
   const { id } = use(params)
   const { data: household, loading, error } = useDocument<Household>('households', id)
   const [activeTab, setActiveTab] = useState<TabKey>('overview')
+  const [ai3Loading, setAi3Loading] = useState(false)
+  const [ai3Data, setAi3Data] = useState<Record<string, unknown> | null>(null)
+  const [showAi3, setShowAi3] = useState(false)
+
+  const handleAi3 = useCallback(async () => {
+    setAi3Loading(true)
+    try {
+      const auth = getAuth()
+      const token = await auth.currentUser?.getIdToken()
+      const res = await fetch(`/api/ai3/household/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setAi3Data(data.data || data)
+        setShowAi3(true)
+      }
+    } catch (err) {
+      console.error('AI3 error:', err)
+    } finally {
+      setAi3Loading(false)
+    }
+  }, [id])
 
   // --- Loading skeleton ---
   if (loading) {
@@ -105,6 +128,91 @@ export default function HouseholdDetailPage({
         {activeTab === 'activity' && <ActivityTab householdId={id} />}
         {activeTab === 'pipelines' && <PipelinesTab household={household} householdId={id} />}
       </div>
+
+      {/* AI3 Report Modal — TRK-13678 */}
+      {showAi3 && ai3Data && (() => { const _d = ai3Data as Record<string, unknown>; const _members = Array.isArray(_d.members) ? _d.members as Record<string, unknown>[] : []; const _opps = Array.isArray(_d.opportunities) ? _d.opportunities as Record<string, unknown>[] : []; const _acts = Array.isArray(_d.action_items) ? _d.action_items as Record<string, unknown>[] : []; return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowAi3(false)} />
+          <div className="relative z-10 mx-4 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--portal)]/15">
+                  <span className="material-icons-outlined text-[var(--portal)]" style={{fontSize: 22}}>psychology</span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">AI3 Household Report</h2>
+                  <p className="text-xs text-[var(--text-muted)]">{household?.household_name || 'Household'}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowAi3(false)} className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]">
+                <span className="material-icons-outlined" style={{fontSize: 20}}>close</span>
+              </button>
+            </div>
+            {/* Members */}
+            {_members.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Member Inventory</h3>
+                <div className="overflow-x-auto rounded-lg border border-[var(--border-subtle)]">
+                  <table className="w-full text-sm">
+                    <thead><tr className="bg-[var(--bg-surface)]">
+                      <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Name</th>
+                      <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Role</th>
+                      <th className="px-4 py-2 text-left text-xs font-semibold text-[var(--text-muted)]">Accounts</th>
+                    </tr></thead>
+                    <tbody>
+                      {_members.map((m: Record<string, unknown>, i: number) => (
+                        <tr key={i} className="border-t border-[var(--border-subtle)]">
+                          <td className="px-4 py-2 text-[var(--text-primary)]">{String(m.name || m.client_name || '')}</td>
+                          <td className="px-4 py-2 text-[var(--text-secondary)]">{String(m.role || '')}</td>
+                          <td className="px-4 py-2 text-[var(--text-secondary)]">{String(m.account_count || m.accounts || 0)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            {/* Opportunities */}
+            {_opps.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Opportunities</h3>
+                <div className="space-y-2">
+                  {_opps.map((opp: Record<string, unknown>, i: number) => (
+                    <div key={i} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+                      <p className="text-sm font-medium text-[var(--text-primary)]">{String(opp.title || opp.description || '')}</p>
+                      {opp.member ? <p className="text-xs text-[var(--text-muted)] mt-1">For: {String(opp.member)}</p> : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Action Items */}
+            {_acts.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Action Items</h3>
+                <div className="space-y-2">
+                  {_acts.map((item: Record<string, unknown>, i: number) => (
+                    <div key={i} className="flex items-start gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+                      <span className="material-icons-outlined text-[var(--portal)] mt-0.5" style={{fontSize: 16}}>task_alt</span>
+                      <div>
+                        <p className="text-sm text-[var(--text-primary)]">{String(item.title || item.description || '')}</p>
+                        {item.member ? <p className="text-xs text-[var(--text-muted)] mt-0.5">Assigned to: {String(item.member)}</p> : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Summary / raw data fallback */}
+            {typeof _d.summary === "string" && (
+              <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Summary</h3>
+                <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">{String(_d.summary)}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      ); })()}
     </div>
   )
 }
@@ -331,6 +439,9 @@ function OverviewTab({ household }: { household: Household }) {
         )}
       </SectionCard>
     </div>
+
+
+
   )
 }
 
@@ -1032,6 +1143,8 @@ function FinCard({ label, value, icon, plain }: { label: string; value?: number;
       <p className="mt-2 text-xl font-bold text-[var(--text-primary)]">
         {value != null ? (plain ? value.toLocaleString() : `$${value.toLocaleString()}`) : '—'}
       </p>
+    
+
     </div>
   )
 }

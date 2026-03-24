@@ -8,6 +8,8 @@ import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import AccessToken from 'twilio/lib/jwt/AccessToken.js'
 import { successResponse, errorResponse, validateRequired, param } from '../lib/helpers.js'
+import { createNotification } from './notifications.js'
+import { resolveCallRouting, getVoicemailConfig } from './comms-routing.js'
 import type {
   CommsSendEmailResult,
   CommsSendEmailDryRunResult,
@@ -202,6 +204,18 @@ commsRoutes.post('/send-email', async (req: Request, res: Response) => {
       sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
     })
+    // TRK-13685: Create notification on successful email send
+    const clientId = body.client_id ? String(body.client_id) : null
+    createNotification({
+      type: 'success',
+      category: 'contact',
+      title: `Email sent to ${to}`,
+      body: String(body.subject || '[template]'),
+      link: clientId ? `/contacts/${clientId}` : '',
+      portal: 'all',
+      _created_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
+    }).catch(() => {/* fire-and-forget */})
+
     res.status(201).json(successResponse<CommsSendEmailResult>({ statusCode: result.statusCode, messageId: result.messageId, to, from, commId } as unknown as CommsSendEmailResult))
   } catch (err) {
     console.error('POST /api/comms/send-email error:', err)
@@ -418,8 +432,11 @@ commsRoutes.post('/webhook/voice-incoming', async (req: Request, res: Response) 
     const to = body.To || ''
     const callSid = body.CallSid || ''
 
-    // Default identity to route to — Phase 2 will add smart routing
-    const defaultIdentity = process.env.TWILIO_DEFAULT_IDENTITY || 'josh@retireprotected.com'
+    // CP07: Smart routing — resolve identity based on client's assigned agent
+    const routedIdentity = await resolveCallRouting(from)
+
+    // CP08: Get voicemail config for greeting + settings
+    const vmConfig = await getVoicemailConfig()
 
     // Log inbound call to Firestore (fire-and-forget — don't block TwiML response)
     logCommunication({
@@ -429,20 +446,24 @@ commsRoutes.post('/webhook/voice-incoming', async (req: Request, res: Response) 
       recipient: to,
       call_sid: callSid,
       status: 'ringing',
-      routed_to: defaultIdentity,
+      routed_to: routedIdentity,
       call_type: 'inbound_phone',
     }).catch((err: unknown) => {
       console.error('webhook/voice-incoming Firestore log error:', err)
     })
 
+    // Escape XML special characters in greeting text
+    const safeGreeting = vmConfig.greeting.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const transcribeAttr = vmConfig.transcribe ? ' transcribe="true" transcribeCallback="/api/comms/webhook/voicemail"' : ''
+
     const twiml = [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<Response>',
       `  <Dial record="record-from-answer-dual">`,
-      `    <Client>${defaultIdentity}</Client>`,
+      `    <Client>${routedIdentity}</Client>`,
       '  </Dial>',
-      '  <Say>We\'re sorry, no one is available to take your call. Please leave a message.</Say>',
-      '  <Record maxLength="120" action="/api/comms/webhook/voicemail" />',
+      `  <Say voice="alice">${safeGreeting}</Say>`,
+      `  <Record maxLength="${vmConfig.maxLength}" action="/api/comms/webhook/voicemail"${transcribeAttr} />`,
       '</Response>',
     ].join('\n')
 
@@ -451,6 +472,64 @@ commsRoutes.post('/webhook/voice-incoming', async (req: Request, res: Response) 
   } catch (err) {
     console.error('POST /api/comms/webhook/voice-incoming error:', err)
     // Return valid empty TwiML on error so Twilio doesn't retry infinitely
+    res.set('Content-Type', 'text/xml')
+    res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+  }
+})
+
+
+/**
+ * POST /api/comms/webhook/voicemail
+ * CP08: Voicemail recording handler — receives recording after caller leaves message.
+ * Updates existing comm doc with voicemail status + recording URL.
+ */
+commsRoutes.post('/webhook/voicemail', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, string>
+    const callSid = body.CallSid || ''
+    const recordingUrl = body.RecordingUrl || ''
+    const recordingDuration = body.RecordingDuration ? Number(body.RecordingDuration) : 0
+    const transcriptionText = body.TranscriptionText || ''
+    const from = body.From || ''
+    const to = body.To || ''
+
+    const db = getFirestore()
+
+    // Try to find existing comm doc by call_sid (created during voice-incoming)
+    const snap = await db.collection('communications').where('call_sid', '==', callSid).limit(1).get()
+
+    const vmData: Record<string, unknown> = {
+      status: 'voicemail',
+      recording_url: recordingUrl ? recordingUrl + '.mp3' : null,
+      recording_duration: recordingDuration,
+      updated_at: new Date().toISOString(),
+    }
+    if (transcriptionText) {
+      vmData.transcription = transcriptionText
+    }
+
+    if (!snap.empty) {
+      await snap.docs[0].ref.update(vmData)
+    } else {
+      // Create new doc if somehow missing
+      await db.collection('communications').add({
+        ...vmData,
+        comm_id: 'vm-' + callSid,
+        channel: 'voice',
+        direction: 'inbound',
+        sender: from,
+        recipient: to,
+        call_sid: callSid,
+        call_type: 'inbound_phone',
+        created_at: new Date().toISOString(),
+      })
+    }
+
+    // Return empty TwiML — recording is complete
+    res.set('Content-Type', 'text/xml')
+    res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+  } catch (err) {
+    console.error('POST /api/comms/webhook/voicemail error:', err)
     res.set('Content-Type', 'text/xml')
     res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
   }
