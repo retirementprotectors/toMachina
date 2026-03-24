@@ -10,6 +10,7 @@ export interface MDJMessage {
 }
 
 export interface ToolCall {
+  call_id?: string
   tool_name: string
   tool_input: Record<string, unknown>
   tool_result?: Record<string, unknown>
