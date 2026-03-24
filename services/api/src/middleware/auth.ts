@@ -9,6 +9,19 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return next()
   }
 
+  // MDJ Agent service auth — shared secret for server-to-server calls from MDJ1
+  const mdjAuth = req.headers['x-mdj-auth'] as string | undefined
+  const mdjSecret = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
+  if (mdjAuth && mdjAuth === mdjSecret) {
+    // Set a synthetic user context for MDJ agent calls
+    ;(req as any).user = {
+      email: 'mdj-agent@retireprotected.com',
+      name: 'MDJ Agent',
+      uid: 'mdj-agent-service',
+    }
+    return next()
+  }
+
   const authHeader = (req.headers['x-forwarded-authorization'] as string | undefined) || req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ success: false, error: 'Missing auth token' })
