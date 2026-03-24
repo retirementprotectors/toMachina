@@ -1,85 +1,118 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { getDb } from '@tomachina/db'
+import { useToast } from '../../components/Toast'
 
 /**
- * CallRoutingConfig — TRK-083
- *
- * Admin stub for call routing rules and business hours configuration.
- * Displays a route rules table with mock data and business hours inputs.
- *
- * STUB: All UI, no backend. Sprint 10 wires Twilio Studio flows.
+ * CallRoutingConfig — CP07
+ * Admin UI for call routing rules and business hours configuration.
+ * Wired to Firestore config/call_routing document.
  */
 
 /* ─── Types ─── */
 
-interface RouteRule {
-  id: string
-  name: string
-  condition: string
-  destination: string
-  priority: number
+interface RoutingConfig {
+  default_agent: string
+  business_hours_start: string
+  business_hours_end: string
+  after_hours_action: 'voicemail' | 'ring_default'
 }
 
-interface BusinessHours {
-  start: string
-  end: string
+const DEFAULTS: RoutingConfig = {
+  default_agent: 'josh@retireprotected.com',
+  business_hours_start: '08:00',
+  business_hours_end: '17:00',
+  after_hours_action: 'voicemail',
 }
-
-/* ─── Mock Data ─── */
-
-const INITIAL_RULES: RouteRule[] = [
-  {
-    id: 'rule-1',
-    name: 'Service Clients',
-    condition: 'Caller is assigned to Service Division',
-    destination: 'Nikki Gray',
-    priority: 1,
-  },
-  {
-    id: 'rule-2',
-    name: 'Sales Inquiries',
-    condition: 'Caller is new lead or Sales Division client',
-    destination: 'Vince Vazquez',
-    priority: 2,
-  },
-  {
-    id: 'rule-3',
-    name: 'Fallback',
-    condition: 'No other rule matches',
-    destination: 'Main Office Queue',
-    priority: 3,
-  },
-]
 
 /* ─── Component ─── */
 
 export function CallRoutingConfig() {
-  const [rules] = useState<RouteRule[]>(INITIAL_RULES)
-  const [hours, setHours] = useState<BusinessHours>({ start: '08:00', end: '17:00' })
+  const [config, setConfig] = useState<RoutingConfig>(DEFAULTS)
+  const [saving, setSaving] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const { showToast } = useToast()
+
+  // Load config from Firestore on mount
+  useEffect(() => {
+    async function load() {
+      try {
+        const db = getDb()
+        const snap = await getDoc(doc(db, 'config', 'call_routing'))
+        if (snap.exists()) {
+          const data = snap.data() as Partial<RoutingConfig>
+          setConfig({ ...DEFAULTS, ...data })
+        }
+      } catch {
+        // Use defaults on error
+      }
+      setLoaded(true)
+    }
+    void load()
+  }, [])
+
+  const handleSave = useCallback(async () => {
+    setSaving(true)
+    try {
+      const db = getDb()
+      await setDoc(doc(db, 'config', 'call_routing'), {
+        ...config,
+        updated_at: new Date().toISOString(),
+      }, { merge: true })
+      showToast('Call routing configuration saved', 'success')
+    } catch {
+      showToast('Failed to save configuration', 'error')
+    }
+    setSaving(false)
+  }, [config, showToast])
+
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <span className="material-icons-outlined animate-spin text-2xl text-[var(--text-muted)]">sync</span>
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-[var(--text-primary)]">Call Routing Configuration</h2>
         <p className="mt-1 text-sm text-[var(--text-muted)]">
-          Configure how incoming calls are routed to team members. Twilio Studio integration in Sprint 10.
+          Configure how incoming calls are routed to team members.
         </p>
       </div>
 
+      {/* Default Agent */}
+      <div className="mb-6 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">Default Agent</h3>
+        <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+          Calls from unassigned clients or unknown numbers route here.
+        </p>
+        <input
+          type="email"
+          value={config.default_agent}
+          onChange={(e) => setConfig((c) => ({ ...c, default_agent: e.target.value }))}
+          placeholder="email@retireprotected.com"
+          className="mt-3 w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+        />
+      </div>
+
       {/* Business Hours */}
-      <div className="mb-8 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+      <div className="mb-6 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
         <h3 className="text-sm font-semibold text-[var(--text-primary)]">Business Hours</h3>
         <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-          Calls outside business hours go to voicemail.
+          Calls outside business hours follow the after-hours action below.
         </p>
         <div className="mt-4 flex items-center gap-4">
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">Start Time</label>
             <input
               type="time"
-              value={hours.start}
-              onChange={(e) => setHours((h) => ({ ...h, start: e.target.value }))}
+              value={config.business_hours_start}
+              onChange={(e) => setConfig((c) => ({ ...c, business_hours_start: e.target.value }))}
               className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
             />
           </div>
@@ -88,53 +121,53 @@ export function CallRoutingConfig() {
             <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">End Time</label>
             <input
               type="time"
-              value={hours.end}
-              onChange={(e) => setHours((h) => ({ ...h, end: e.target.value }))}
+              value={config.business_hours_end}
+              onChange={(e) => setConfig((c) => ({ ...c, business_hours_end: e.target.value }))}
               className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
             />
           </div>
         </div>
       </div>
 
-      {/* Route Rules Table */}
-      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)]">
-        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-3">
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Routing Rules</h3>
-          <button
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90"
-            style={{ background: 'var(--portal)' }}
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>add</span>
-            Add Rule
-          </button>
+      {/* After-Hours Action */}
+      <div className="mb-8 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-5">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">After-Hours Action</h3>
+        <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+          What happens when calls come in outside business hours.
+        </p>
+        <div className="mt-3 flex gap-2">
+          {(['voicemail', 'ring_default'] as const).map((action) => (
+            <button
+              key={action}
+              onClick={() => setConfig((c) => ({ ...c, after_hours_action: action }))}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg h-[40px] text-xs font-semibold transition-colors ${
+                config.after_hours_action === action
+                  ? 'text-white'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+              }`}
+              style={config.after_hours_action === action ? { background: 'var(--portal)' } : undefined}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '16px' }}>
+                {action === 'voicemail' ? 'voicemail' : 'phone_forwarded'}
+              </span>
+              {action === 'voicemail' ? 'Go to Voicemail' : 'Ring Default Agent'}
+            </button>
+          ))}
         </div>
-
-        {/* Table header */}
-        <div className="grid grid-cols-[40px_1fr_1.5fr_1fr] gap-3 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-5 py-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">#</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Rule Name</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Condition</span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Destination</span>
-        </div>
-
-        {/* Rule rows */}
-        {rules.map((rule) => (
-          <div
-            key={rule.id}
-            className="grid grid-cols-[40px_1fr_1.5fr_1fr] gap-3 border-b border-[var(--border-subtle)] px-5 py-3 last:border-b-0 hover:bg-[var(--bg-hover)]"
-          >
-            <span className="text-xs font-semibold text-[var(--text-muted)]">{rule.priority}</span>
-            <span className="text-sm font-medium text-[var(--text-primary)]">{rule.name}</span>
-            <span className="text-sm text-[var(--text-secondary)]">{rule.condition}</span>
-            <span className="text-sm text-[var(--text-secondary)]">{rule.destination}</span>
-          </div>
-        ))}
       </div>
 
-      {/* Footer note */}
-      <p className="mt-4 text-center text-xs text-[var(--text-muted)]">
-        Rules are evaluated top-to-bottom. First matching rule wins. Backend wiring in Sprint 10.
-      </p>
+      {/* Save Button */}
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="flex w-full items-center justify-center gap-2 rounded-lg h-[40px] text-sm font-semibold text-white transition-colors hover:brightness-110 disabled:opacity-50"
+        style={{ background: 'var(--portal)' }}
+      >
+        <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
+          {saving ? 'hourglass_top' : 'save'}
+        </span>
+        {saving ? 'Saving...' : 'Save Configuration'}
+      </button>
     </div>
   )
 }

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLATFORM-POLISH — Implementation Plan</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--bg2:#111827;--card:#1a2235;--card-hover:#1e2a40;--border:#2a3548;--text:#e8ecf4;--text2:#8899b0;--muted:#5a6a80;--blue:#4a7ab5;--accent:#3b82f6;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--teal:#14b8a6;--orange:#f97316;--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);border-bottom:2px solid var(--blue);padding:48px 0 40px}
+.hero-inner{max-width:960px;margin:0 auto;padding:0 32px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(74,122,181,0.2);border:1px solid rgba(74,122,181,0.3);border-radius:20px;font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.hero h1{font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.hero h1 span{color:var(--blue)}
+.hero p{font-size:14px;color:var(--text2);max-width:700px;margin:0 auto}
+.hero-meta{display:flex;justify-content:center;gap:24px;margin-top:20px;font-size:12px;color:var(--muted)}
+.hero-meta span{display:flex;align-items:center;gap:4px}
+.hero-meta .material-icons-round{font-size:14px}
+.container{max-width:960px;margin:0 auto;padding:32px}
+.section{margin-bottom:48px}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:700;margin-right:10px;color:#fff}
+.section h2{display:flex;align-items:center;font-size:20px;font-weight:700;margin-bottom:16px;letter-spacing:-0.5px}
+.section h3{font-size:15px;font-weight:600;margin:20px 0 10px;color:var(--text)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card.highlight{border-left:3px solid var(--accent)}
+.card.warn{border-left:3px solid var(--yellow)}
+.card.danger{border-left:3px solid var(--red)}
+.card.success{border-left:3px solid var(--green)}
+.card.done{border-left:3px solid var(--green);opacity:0.7}
+.ticket-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ticket-id{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase}
+.ticket-id.broken{background:rgba(239,68,68,0.15);color:var(--red)}
+.ticket-id.improve{background:rgba(245,158,11,0.15);color:var(--yellow)}
+.ticket-id.feat{background:rgba(139,92,246,0.15);color:var(--purple)}
+.ticket-title{font-size:14px;font-weight:600}
+.ticket-desc{font-size:13px;color:var(--text2);margin-bottom:8px}
+.file-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;background:rgba(59,130,246,0.1);color:var(--accent);margin:2px}
+.builder-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(20,184,166,0.15);border:1px solid rgba(20,184,166,0.3);border-radius:8px;font-size:12px;font-weight:600;color:var(--teal);margin-bottom:12px}
+.dep-arrow{color:var(--muted);font-size:12px;padding:4px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+th{text-align:left;padding:10px 12px;background:var(--bg2);color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.status-done{color:var(--green);font-weight:600}
+.status-todo{color:var(--text2)}
+@media print{body{background:#fff;color:#111}.hero{background:#f8fafc;border-color:#ddd}.card{border-color:#ddd;background:#fff}.hero h1 span{color:#2563eb}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<div class="hero-inner">
+<div class="hero-badge"><span class="material-icons-round" style="font-size:14px">construction</span> FORGE Sprint Plan</div>
+<h1>PLATFORM-<span>POLISH</span></h1>
+<p>Connect + Notifications + DeDup + Relationships + FORGE</p>
+<div class="hero-meta">
+<span><span class="material-icons-round">calendar_today</span> 2026-03-24</span>
+<span><span class="material-icons-round">confirmation_number</span> 13 tickets</span>
+<span><span class="material-icons-round">group</span> 3 builders</span>
+<span><span class="material-icons-round">flag</span> 8 work areas</span>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<!-- Builder Assignments -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--teal)">0</span>Builder Assignments</h2>
+
+<div class="card">
+<div class="builder-badge"><span class="material-icons-round" style="font-size:14px">person</span> Builder 1 — Panels + Layout</div>
+<table>
+<tr><th>Ticket</th><th>Title</th><th>Type</th></tr>
+<tr><td>TRK-13677</td><td>Push-not-overlay layout (ALL panels)</td><td><span class="ticket-id improve">improve</span></td></tr>
+<tr><td>TRK-13676</td><td>RPI Connect Chat + Meet restore</td><td><span class="ticket-id broken">broken</span></td></tr>
+<tr><td>TRK-13684</td><td>Notifications UI overhaul</td><td><span class="ticket-id improve">improve</span></td></tr>
+<tr><td>TRK-13685</td><td>Notifications backend wiring</td><td><span class="ticket-id broken">broken</span></td></tr>
+<tr><td>TRK-13691</td><td>SendGrid Inbound Parse</td><td><span class="ticket-id feat">feat</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<div class="builder-badge"><span class="material-icons-round" style="font-size:14px">person</span> Builder 2 — Data Features</div>
+<table>
+<tr><th>Ticket</th><th>Title</th><th>Type</th></tr>
+<tr><td>TRK-13679</td><td>DeDup on grids + detail</td><td><span class="ticket-id improve">improve</span></td></tr>
+<tr><td>TRK-13681</td><td>Dismiss duplicates</td><td><span class="ticket-id feat">feat</span></td></tr>
+<tr><td>TRK-13683</td><td>Relationships Add to HH / Both</td><td><span class="ticket-id feat">feat</span></td></tr>
+<tr><td>TRK-13678</td><td>Household AI3 button</td><td><span class="ticket-id feat">feat</span></td></tr>
+<tr><td>TRK-13682</td><td>Training HTML guide</td><td><span class="ticket-id improve">improve</span></td></tr>
+</table>
+</div>
+
+<div class="card done">
+<div class="builder-badge"><span class="material-icons-round" style="font-size:14px">person</span> Builder 3 — FORGE Fixes (DONE)</div>
+<table>
+<tr><th>Ticket</th><th>Title</th><th>Status</th></tr>
+<tr><td>TRK-13687</td><td>Report button drag fix</td><td class="status-done">DONE</td></tr>
+<tr><td>TRK-13695</td><td>sprint_id resolution fix</td><td class="status-done">DONE</td></tr>
+</table>
+</div>
+</div>
+
+<!-- Work Area 1: RPI Connect -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--accent)">1</span>RPI Connect</h2>
+
+<div class="card highlight">
+<div class="ticket-header">
+<span class="ticket-id broken">TRK-13676</span>
+<span class="ticket-title">Chat + Meet — verify/restore</span>
+</div>
+<p class="ticket-desc">People tab Chat links → verify google.com opens. Meet button → wire to <code>POST /api/connect/meet</code> for proper link generation. Do NOT touch Channels tab.</p>
+<div><span class="file-tag">ConnectPanel.tsx</span><span class="file-tag">connect.ts</span></div>
+</div>
+
+<div class="card highlight">
+<div class="ticket-header">
+<span class="ticket-id improve">TRK-13677</span>
+<span class="ticket-title">Push-not-overlay — ALL 3 panels</span>
+</div>
+<p class="ticket-desc">Single layout.tsx change: main content gets <code>margin-right: 360px</code> (460px at >=1400px) when any panel is open. Mobile stays full-width overlay. Remove backdrop div. Applies to Comms + Connect + Notifications.</p>
+<div><span class="file-tag">layout.tsx (x3 portals)</span></div>
+</div>
+</div>
+
+<!-- Work Area 2: Notifications -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--yellow)">2</span>Notifications</h2>
+
+<div class="card warn">
+<div class="ticket-header">
+<span class="ticket-id improve">TRK-13684</span>
+<span class="ticket-title">UI overhaul — match CommsModule pattern</span>
+</div>
+<p class="ticket-desc">Push-not-overlay handled by TRK-13677. Polish: portal-branded header icon, consistent tab styling, empty states per tab.</p>
+<div><span class="file-tag">NotificationsModule.tsx</span></div>
+</div>
+
+<div class="card warn">
+<div class="ticket-header">
+<span class="ticket-id broken">TRK-13685</span>
+<span class="ticket-title">Wire to backend — currently shows nothing</span>
+</div>
+<p class="ticket-desc">New <code>notifications.ts</code> API route. Schema: <code>{type, title, body, link, portal, read, category}</code>. Categories: contact, account, myrpi, data, approval (maps to 6 tabs). Creation triggers in comms.ts, tracker.ts, webhooks.ts.</p>
+<div><span class="file-tag">NEW notifications.ts</span><span class="file-tag">comms.ts</span><span class="file-tag">tracker.ts</span><span class="file-tag">webhooks.ts</span></div>
+</div>
+</div>
+
+<!-- Work Area 3: DeDup -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--orange)">3</span>DeDup</h2>
+
+<div class="card">
+<div class="ticket-header">
+<span class="ticket-id improve">TRK-13679</span>
+<span class="ticket-title">DeDup on grids + detail</span>
+</div>
+<p class="ticket-desc">Contact grid: "Possible Dupe" badge. Contact detail: DeDup tab with matches + scores. Account grid: same. Uses existing <code>dedup.ts</code> matching engine.</p>
+<div><span class="file-tag">contacts/page.tsx</span><span class="file-tag">contacts/[id]/</span><span class="file-tag">dedup.ts</span></div>
+</div>
+
+<div class="card">
+<div class="ticket-header">
+<span class="ticket-id feat">TRK-13681</span>
+<span class="ticket-title">Dismiss duplicate matches</span>
+</div>
+<p class="ticket-desc">Dismiss button per match. Stores in <code>dismissed_duplicates[]</code> on client doc. Persists across reloads. New endpoint: <code>POST /api/clients/:id/dismiss-duplicate</code>.</p>
+<div><span class="file-tag">AccountsTab.tsx</span><span class="file-tag">clients.ts</span></div>
+</div>
+</div>
+
+<!-- Work Area 4: Relationships -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--purple)">4</span>Relationships</h2>
+
+<div class="card">
+<div class="ticket-header">
+<span class="ticket-id feat">TRK-13683</span>
+<span class="ticket-title">Add Connection / Add to HH / Both</span>
+</div>
+<p class="ticket-desc">3 action buttons on each Recommended match AND Search result: Connect (existing), Add to HH (new), Both (new). HH picker if no household_id. Both calls connect + add-member sequentially.</p>
+<div><span class="file-tag">ConnectedTab.tsx</span></div>
+</div>
+
+<div class="card">
+<div class="ticket-header">
+<span class="ticket-id improve">TRK-13680</span>
+<span class="ticket-title">HH + Connection features in training HTML</span>
+</div>
+<p class="ticket-desc">Covered by TRK-13682 training guide creation.</p>
+</div>
+</div>
+
+<!-- Work Area 5: Households -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--green)">5</span>Households</h2>
+
+<div class="card success">
+<div class="ticket-header">
+<span class="ticket-id feat">TRK-13678</span>
+<span class="ticket-title">AI3 button on Household level</span>
+</div>
+<p class="ticket-desc">API exists: <code>GET /api/ai3/household/:id</code>. Add button to HH detail header. Display in modal using AI3Report pattern. Shows member inventory + aggregate financials + cross-member opportunities.</p>
+<div><span class="file-tag">households/[id]/page.tsx</span><span class="file-tag">AI3Report.tsx (ref)</span><span class="file-tag">ai3.ts (exists)</span></div>
+</div>
+</div>
+
+<!-- Work Area 6: Training -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--teal)">6</span>Training</h2>
+
+<div class="card">
+<div class="ticket-header">
+<span class="ticket-id improve">TRK-13682</span>
+<span class="ticket-title">BETA Launch training HTML</span>
+</div>
+<p class="ticket-desc">New <code>beta-launch-dedup-relationships.html</code>. Dark theme, Material Icons, Inter font. Sections: DeDup (review, dismiss, merge), Relationships (connect, HH, both), HH AI3.</p>
+<div><span class="file-tag">NEW guides/beta-launch-dedup-relationships.html</span><span class="file-tag">nbx-securities-guide.html (ref)</span></div>
+</div>
+</div>
+
+<!-- Work Area 7: Inbound Email -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--red)">7</span>Inbound Email</h2>
+
+<div class="card danger">
+<div class="ticket-header">
+<span class="ticket-id feat">TRK-13691</span>
+<span class="ticket-title">SendGrid Inbound Parse</span>
+</div>
+<p class="ticket-desc">New webhook: <code>POST /api/webhooks/sendgrid-inbound</code>. Multer for multipart. Parse from/to/subject/body/attachments. Create communications doc (direction: inbound). Match sender to client by email. Create notification. <strong>Prereq:</strong> JDM configures MX record + SendGrid Inbound Parse dashboard.</p>
+<div><span class="file-tag">webhooks.ts</span><span class="file-tag">comms.ts (ref)</span></div>
+</div>
+</div>
+
+<!-- Work Area 8: FORGE -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--orange)">8</span>FORGE Fixes <span style="color:var(--green);font-size:12px;margin-left:8px">DONE</span></h2>
+
+<div class="card done">
+<div class="ticket-header">
+<span class="ticket-id broken">TRK-13687</span>
+<span class="ticket-title">Report button drag fix</span>
+</div>
+<p class="ticket-desc">DraggableFAB handlePointerUp blocks click event after drag via one-shot capture listener. <span class="status-done">APPLIED</span></p>
+</div>
+
+<div class="card done">
+<div class="ticket-header">
+<span class="ticket-id broken">TRK-13695</span>
+<span class="ticket-title">sprint_id resolution fix</span>
+</div>
+<p class="ticket-desc">POST /sprints resolves both doc UUIDs and TRK-XXXXX item_ids. Tries doc ID first, falls back to item_id query. <span class="status-done">APPLIED</span></p>
+</div>
+</div>
+
+<!-- Dependencies -->
+<div class="section">
+<h2><span class="section-num" style="background:var(--muted)">9</span>Dependencies</h2>
+<div class="card">
+<table>
+<tr><th>Ticket</th><th>Depends On</th><th>Reason</th></tr>
+<tr><td>TRK-13676</td><td>TRK-13677</td><td>Layout push must be in place first</td></tr>
+<tr><td>TRK-13684</td><td>TRK-13677</td><td>Same layout change</td></tr>
+<tr><td>TRK-13691</td><td>TRK-13685</td><td>Inbound email creates notifications</td></tr>
+<tr><td>TRK-13681</td><td>TRK-13679</td><td>Dismiss adds to DeDup UI</td></tr>
+<tr><td>TRK-13682</td><td>TRK-13683, TRK-13678</td><td>Training documents the features</td></tr>
+</table>
+</div>
+</div>
+
+</div>
+
+</body>
+</html>

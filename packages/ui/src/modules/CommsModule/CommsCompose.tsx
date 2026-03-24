@@ -16,6 +16,8 @@ interface CommsComposeProps {
   presetChannel?: ComposeChannel
   /** When set, pre-fills the To field with this contact */
   presetContact?: ClientResult | null
+  /** When set, pre-fills the email subject (e.g. "Re: ...") */
+  replySubject?: string
 }
 
 /* ─── Client Search Result ─── */
@@ -129,11 +131,8 @@ function DialerPad({ number, onDigit, inputRef, onStartCall, callState }: {
         </button>
       </div>
 
-      {/* TRK-096: Powered by Twilio badge */}
-      <div className="flex items-center justify-center gap-1.5 pt-1">
-        <span className="text-[10px] text-[var(--text-muted)]">Powered by</span>
-        <span className="text-[10px] font-semibold text-[#f22f46]">Twilio</span>
-      </div>
+      {/* Spacer after dialer */}
+      <div className="pt-1" />
     </div>
   )
 }
@@ -323,17 +322,19 @@ function TemplateManager({
 
 /* ─── Component ─── */
 
-export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComposeProps) {
+export function CommsCompose({ onBack, presetChannel, presetContact, replySubject }: CommsComposeProps) {
   const { makeCall, isReady: deviceReady, isMuted, toggleMute, hangup: deviceHangup, sendDigits } = useTwilioDevice()
   const [channel, setChannel] = useState<ComposeChannel>(presetChannel ?? 'sms')
+  /* CP11: When presetContact is provided, show client name (not raw phone/email) */
   const presetDetail = presetChannel === 'email' ? presetContact?.email : presetContact?.phone
-  const [toSearch, setToSearch] = useState(presetContact ? (presetDetail ? `${presetContact.name} — ${presetDetail}` : presetContact.name) : '')
+  const isPreset = !!presetContact
+  const [toSearch, setToSearch] = useState(presetContact ? presetContact.name : '')
   const [selectedClient, setSelectedClient] = useState<ClientResult | null>(presetContact ?? null)
   const [clientResults, setClientResults] = useState<ClientResult[]>([])
   const [showResults, setShowResults] = useState(false)
   const [searchLoading, setSearchLoading] = useState(false)
   const [message, setMessage] = useState('')
-  const [subject, setSubject] = useState('')
+  const [subject, setSubject] = useState(replySubject || '')
   const [template, setTemplate] = useState('none')
   const [dialerNumber, setDialerNumber] = useState(presetContact?.phone?.replace(/[^0-9]/g, '') ?? '')
   const [showTemplateManager, setShowTemplateManager] = useState(false)
@@ -725,13 +726,9 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
             <div>
               <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">From</label>
               <div className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] h-[38px] px-3">
-                <span className="material-icons-outlined text-[#f22f46]" style={{ fontSize: '14px' }}>phone</span>
+                <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>phone</span>
                 <span className="text-sm font-medium text-[var(--text-primary)]">{TWILIO_888_NUMBER}</span>
                 <span className="ml-auto rounded bg-[var(--bg-hover)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">{TWILIO_888_LABEL}</span>
-              </div>
-              <div className="mt-1.5 flex items-center gap-1">
-                <span className="text-[10px] text-[var(--text-muted)]">Powered by</span>
-                <span className="text-[10px] font-semibold text-[#f22f46]">Twilio</span>
               </div>
             </div>
           </>
@@ -768,8 +765,7 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
                 <span className="ml-auto rounded bg-[var(--bg-hover)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--text-muted)]">Workspace</span>
               </div>
               <div className="mt-1.5 flex items-center gap-1">
-                <span className="text-[10px] text-[var(--text-muted)]">Send via</span>
-                <span className="text-[10px] font-semibold text-[var(--text-secondary)]">Gmail API</span>
+                <span className="text-[10px] text-[var(--text-muted)]">RPI Email</span>
               </div>
             </div>
           </>
@@ -878,7 +874,7 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
                 <button
                   onClick={handleLogCall}
                   disabled={logCallState !== 'idle' || !selectedClient?.id}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg h-[40px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{
                     background: logCallState === 'sent'
                       ? 'var(--success, #10b981)'
@@ -957,7 +953,7 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
             <button
               onClick={handleSmsSend}
               disabled={smsSendState !== 'idle' || !selectedClient?.phone || !message.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg h-[40px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 background: smsSendState === 'sent'
                   ? 'var(--success, #10b981)'
@@ -969,13 +965,13 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
               <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
                 {smsSendState === 'sent' ? 'check_circle' : smsSendState === 'sending' ? 'hourglass_top' : 'send'}
               </span>
-              {smsSendState === 'sent' ? 'Sent via Twilio' : smsSendState === 'sending' ? 'Sending...' : 'Send via Twilio'}
+              {smsSendState === 'sent' ? 'Sent' : smsSendState === 'sending' ? 'Sending...' : 'Send'}
             </button>
           ) : (
             <button
               onClick={handleEmailSend}
               disabled={emailSendState !== 'idle' || !selectedClient?.email || !message.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-lg h-[42px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg h-[40px] text-sm font-medium text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 background: emailSendState === 'sent'
                   ? 'var(--success, #10b981)'
@@ -987,7 +983,7 @@ export function CommsCompose({ onBack, presetChannel, presetContact }: CommsComp
               <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
                 {emailSendState === 'sent' ? 'check_circle' : emailSendState === 'sending' ? 'hourglass_top' : 'send'}
               </span>
-              {emailSendState === 'sent' ? 'Sent via SendGrid' : emailSendState === 'sending' ? 'Sending...' : 'Send via SendGrid'}
+              {emailSendState === 'sent' ? 'Sent' : emailSendState === 'sending' ? 'Sending...' : 'Send'}
             </button>
           )}
         </div>

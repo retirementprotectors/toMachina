@@ -268,6 +268,34 @@ export default function ClientsPage() {
     return count
   }, [visibleColumns])
 
+  // DeDup: detect potential duplicates in current loaded set (TRK-13679)
+  const dupeIds = useMemo(() => {
+    const ids = new Set<string>()
+    const emailMap = new Map<string, string[]>()
+    const nameMap = new Map<string, string[]>()
+    for (const c of clients) {
+      const cid = c._id || c.client_id
+      if (c.email) {
+        const e = c.email.toLowerCase()
+        if (!emailMap.has(e)) emailMap.set(e, [])
+        emailMap.get(e)!.push(cid)
+      }
+      const ln = (c.last_name || '').toLowerCase().trim()
+      if (ln && c.dob) {
+        const key = ln + '|' + String(c.dob)
+        if (!nameMap.has(key)) nameMap.set(key, [])
+        nameMap.get(key)!.push(cid)
+      }
+    }
+    for (const group of emailMap.values()) {
+      if (group.length > 1) group.forEach(id => ids.add(id))
+    }
+    for (const group of nameMap.values()) {
+      if (group.length > 1) group.forEach(id => ids.add(id))
+    }
+    return ids
+  }, [clients])
+
   // Handlers — reset page on filter change
   const resetPage = useCallback(() => setPage(0), [])
   const handleSearchChange = useCallback((v: string) => { setSearch(v); resetPage() }, [resetPage])
@@ -526,6 +554,7 @@ export default function ClientsPage() {
                                 <div className="min-w-0">
                                   <p className="truncate font-medium text-[var(--text-primary)]">{cleanName(String(client.preferred_name || client.first_name || ''))}{' '}{cleanName(String(client.last_name || ''))}</p>
                                   {age != null && <p className="text-xs text-[var(--text-muted)]">Age {age}</p>}
+                                  {dupeIds.has(client._id || client.client_id) && <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400"><span className="material-icons-outlined" style={{fontSize: 11}}>warning</span>Dupe</span>}
                                 </div>
                               </div>
                             </td>

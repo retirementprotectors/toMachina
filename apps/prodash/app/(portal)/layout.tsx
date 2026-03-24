@@ -92,6 +92,12 @@ export default function PortalLayout({
 
   return (
     <TwilioDeviceProvider authenticated={!!user}>
+    {/* TRK-13677: Push-not-overlay — set panel push width via CSS custom property */}
+    <style>{`
+      :root { --panel-push-width: 0px; }
+      @media (min-width: 1024px) { :root { --panel-push-width: 360px; } }
+      @media (min-width: 1400px) { :root { --panel-push-width: 460px; } }
+    `}</style>
     <div className="flex h-screen bg-[var(--bg-primary)]">
       <PortalSidebar
         onCommsToggle={toggleComms}
@@ -102,7 +108,10 @@ export default function PortalLayout({
         notificationsOpen={notificationsOpen}
         panelOpen={panelOpen}
       />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div
+        className="flex flex-1 flex-col overflow-hidden transition-[margin-right] duration-200 ease-in-out"
+        style={panelOpen ? { marginRight: 'var(--panel-push-width, 0px)' } : undefined}
+      >
         <TopBar user={user} />
         <main className="flex-1 overflow-y-auto p-6">
           {children}

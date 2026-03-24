@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { query, where, getDocs, collection, limit } from 'firebase/firestore'
 import { getDb } from '@tomachina/db'
 import type { Client } from '@tomachina/core'
+import { fetchValidated } from '@tomachina/ui/src/modules/fetchValidated'
 
 interface PossibleDuplicatesProps {
   client: Client
@@ -27,6 +28,17 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set())
+
+  const handleDismiss = async (matchId: string) => {
+    try {
+      await fetchValidated(`/api/clients/${clientId}/dismiss-duplicate`, {
+        method: 'POST',
+        body: JSON.stringify({ match_id: matchId }),
+      })
+      setDismissedIds(prev => new Set([...prev, matchId]))
+    } catch { /* silent */ }
+  }
 
   // Find potential duplicates based on email, phone, last name + DOB
   useEffect(() => {
@@ -137,7 +149,8 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
   }, [client.email, client.phone, client.last_name, client.dob, clientId])
 
   // Don't render if no matches or still loading with none found
-  if (loading || matches.length === 0) return null
+  const visibleMatches = matches.filter(m => !dismissedIds.has(m.id) && !(Array.isArray((client as Record<string, unknown>).dismissed_duplicates) && ((client as Record<string, unknown>).dismissed_duplicates as string[]).includes(m.id)))
+  if (loading || visibleMatches.length === 0) return null
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -163,7 +176,7 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
         <div className="flex items-center gap-2">
           <span className="material-icons-outlined text-[18px] text-amber-400">warning</span>
           <span className="text-sm font-medium text-amber-400">
-            Possible Duplicates ({matches.length})
+            Possible Duplicates ({visibleMatches.length})
           </span>
         </div>
         <span
@@ -179,7 +192,7 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
       {expanded && (
         <div className="border-t border-amber-500/20 px-5 pb-4 pt-3">
           <div className="space-y-2">
-            {matches.map((match) => (
+            {visibleMatches.map((match) => (
               <div
                 key={match.id}
                 className="flex items-center gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3"
@@ -205,6 +218,13 @@ export function PossibleDuplicates({ client, clientId }: PossibleDuplicatesProps
                 >
                   {match.confidence}%
                 </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDismiss(match.id) }}
+                  className="text-xs text-[var(--text-muted)] hover:text-amber-400 transition-colors"
+                  title="Dismiss this match"
+                >
+                  Dismiss
+                </button>
                 <a
                   href={`/contacts/${match.id}`}
                   target="_blank"

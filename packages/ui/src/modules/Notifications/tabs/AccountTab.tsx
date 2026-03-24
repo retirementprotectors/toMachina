@@ -17,6 +17,15 @@ export function AccountTab({ notifications, loading, onNavigate, onMarkRead }: A
     [notifications]
   )
 
+  if (!loading && filtered.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>account_balance_wallet</span>
+        <p className="mt-2 text-xs text-[var(--text-muted)]">No account notifications</p>
+      </div>
+    )
+  }
+
   return (
     <AllTab
       notifications={filtered}
