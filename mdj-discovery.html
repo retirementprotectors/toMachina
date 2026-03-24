@@ -851,15 +851,17 @@ System prompt swapped, tool list filtered, SpecialistBadge shown</div>
   status: "active" | "disabled"
 }</div>
 
-      <h3>mdj_user_preferences</h3>
+      <h3>users/{email}.mdj_preferences (on existing users collection)</h3>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:8px">NOT a separate collection. MDJ preferences live on the existing <code>users/{email}</code> document as an <code>mdj_preferences</code> object — same pattern as <code>employee_profile</code> and <code>module_permissions</code>. Managed via Admin/Config tabs in ProDashX.</p>
       <div class="diagram">{
-  id: string                    // = user email
-  auto_approve_tools: string[]  // tools user pre-approves (skip review gate)
-  show_tool_details: boolean    // toggle tool execution cards in chat
-  default_specialist: string    // preferred specialist (e.g. "mdj-medicare")
-  conversation_retention_days: number  // auto-archive after N days
-  created_at: timestamp
-  updated_at: timestamp
+  // On users/{email} document:
+  mdj_preferences: {
+    auto_approve_tools: string[]  // tools user pre-approves (skip review gate)
+    show_tool_details: boolean    // toggle tool execution cards in chat
+    default_specialist: string    // preferred specialist (e.g. "mdj-medicare")
+    conversation_retention_days: number  // auto-archive after N days
+  }
+  // Managed via: ProDashX > Admin > Team Config + Permissions Audit
 }</div>
     </div>
   </div>
