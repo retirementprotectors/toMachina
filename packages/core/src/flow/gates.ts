@@ -97,6 +97,16 @@ export function evaluateStageGate(
         check_result: task.check_result,
         reason: `Required task "${task.task_name}" is ${task.status}`,
       })
+    } else if (task.is_system_check && task.status === 'completed' && task.check_result && task.check_result !== 'PASS') {
+      // System check tasks must have PASS result even if status is completed
+      blockers.push({
+        step_id: task.step_id,
+        task_id: task.task_id,
+        task_name: task.task_name,
+        status: task.status,
+        check_result: task.check_result,
+        reason: `System check "${task.task_name}" returned ${task.check_result}`,
+      })
     }
   }
 
@@ -127,6 +137,16 @@ export function evaluateStepGate(
         status: task.status,
         check_result: task.check_result,
         reason: `Required task "${task.task_name}" is ${task.status}`,
+      })
+    } else if (task.is_system_check && task.status === 'completed' && task.check_result && task.check_result !== 'PASS') {
+      // System check tasks must have PASS result even if status is completed
+      blockers.push({
+        step_id: task.step_id,
+        task_id: task.task_id,
+        task_name: task.task_name,
+        status: task.status,
+        check_result: task.check_result,
+        reason: `System check "${task.task_name}" returned ${task.check_result}`,
       })
     }
   }
