@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEX-LIVE — Automated Form Kit Generation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --dim: #484f58;
+    --blue: #4a7ab5; --blue-bright: #6b9fd4; --blue-glow: rgba(74,122,181,0.12); --blue-border: rgba(74,122,181,0.28);
+    --green: #3fb950; --red: #f85149; --orange: #d29922; --amber: #e3b341;
+    --purple: #bc8cff; --teal: #39d4b0; --cyan: #58a6ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .header { padding: 56px 40px 36px; text-align: center; position: relative; border-bottom: 1px solid var(--border); overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%; background: linear-gradient(135deg, var(--teal) 0%, #1a1a2e 100%); opacity: 0.15; }
+  .header::after { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(circle, rgba(57,212,176,0.12) 0%, transparent 70%); pointer-events: none; }
+  .header .sprint-badge { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: rgba(57,212,176,0.08); border: 1px solid rgba(57,212,176,0.28); color: var(--teal); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; position: relative; z-index: 1; }
+  .header h1 { font-size: 38px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--teal), #6bdcc0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; z-index: 1; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+  .header .meta { display: flex; gap: 24px; justify-content: center; margin-top: 20px; position: relative; z-index: 1; }
+  .header .meta-item { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .header .meta-item strong { color: var(--muted); font-weight: 600; }
+  .container { max-width: 920px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 52px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--teal); }
+  h3 { font-size: 16px; font-weight: 700; margin: 28px 0 8px; color: var(--teal); }
+  h4 { font-size: 14px; font-weight: 700; margin: 16px 0 6px; color: var(--text); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--teal); }
+  pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 12px 0; overflow-x: auto; }
+  pre code { padding: 0; background: none; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .ticket { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; background: rgba(57,212,176,0.08); color: var(--teal); border: 1px solid rgba(57,212,176,0.28); margin-right: 6px; margin-bottom: 4px; }
+  .ticket.bug { background: rgba(248,81,73,0.08); color: var(--red); border-color: rgba(248,81,73,0.28); }
+  .phase-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 13px; font-weight: 800; color: var(--bg); flex-shrink: 0; }
+  .phase-badge.p1 { background: var(--green); }
+  .phase-badge.p2 { background: var(--purple); }
+  .phase-badge.p3 { background: var(--orange); }
+  .builder-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .builder-badge.seed { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .builder-badge.flow { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .builder-badge.ui { background: rgba(88,166,255,0.10); color: var(--cyan); border: 1px solid rgba(88,166,255,0.25); }
+  .builder-badge.verify { background: rgba(210,153,34,0.10); color: var(--orange); border: 1px solid rgba(210,153,34,0.25); }
+  .builder-badge.integrate { background: rgba(248,81,73,0.10); color: var(--red); border: 1px solid rgba(248,81,73,0.25); }
+  .strategy { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 20px 0; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-card .num { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
+  .stat-card .num.teal { color: var(--teal); }
+  .stat-card .num.purple { color: var(--purple); }
+  .stat-card .num.cyan { color: var(--cyan); }
+  .stat-card .num.orange { color: var(--orange); }
+  .stat-card .num.red { color: var(--red); }
+  .stat-card .label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .route-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .route-table th { text-align: left; font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .route-table td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); vertical-align: top; }
+  .route-table td code { font-size: 11px; }
+  .route-table td strong { color: var(--text); font-weight: 600; }
+  .dep-arrow { color: var(--dim); font-size: 20px; text-align: center; margin: 8px 0; }
+  @media print { body { background: #fff; color: #111; } .header { background: #f8f9fa; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-badge">FORGE Sprint</div>
+  <h1>DEX-LIVE</h1>
+  <p class="sub">Seed DEX data. Wire flow engine handlers. Build portal UI. Light up automated form kit generation. Process 60 outstanding NBX Investment pipeline cases.</p>
+  <div class="meta">
+    <span class="meta-item"><strong>22</strong> tickets</span>
+    <span class="meta-item"><strong>5</strong> builders</span>
+    <span class="meta-item"><strong>3</strong> phases</span>
+    <span class="meta-item"><strong>March 2026</strong></span>
+  </div>
+</div>
+
+<div class="container">
+
+<h2><span class="accent">Strategy</span> at a Glance</h2>
+
+<div class="strategy">
+  <div class="stat-card"><div class="num teal">6</div><div class="label">Data Seeding</div></div>
+  <div class="stat-card"><div class="num purple">5</div><div class="label">Flow Engine</div></div>
+  <div class="stat-card"><div class="num cyan">3</div><div class="label">Portal UI</div></div>
+  <div class="stat-card"><div class="num orange">4</div><div class="label">Verification</div></div>
+  <div class="stat-card"><div class="num red">4</div><div class="label">Integration</div></div>
+</div>
+
+<div class="card">
+  <p><strong>The code is built. The data is empty.</strong> DEX API routes, type system, 5-layer rule engine, kit builder, package lifecycle, PDF generation, and DocuSign integration are all deployed on Cloud Run. All 9 Firestore collections have zero documents. This sprint fills them, wires the flow engine, builds the UI, and ships.</p>
+</div>
+
+<h2><span class="accent">Phase 1</span> — Parallel Builders (No Dependencies)</h2>
+<p>Three builders launch simultaneously in worktree isolation. No cross-dependencies.</p>
+
+<!-- BUILDER 1 -->
+<h3><span class="phase-badge p1">1</span> &nbsp; Builder 1 — Data Seeding <span class="builder-badge seed">Stream A</span></h3>
+<div class="card">
+  <p>Export GAS data &rarr; seed 9 empty Firestore collections. This is the foundation everything else depends on.</p>
+  <table class="route-table">
+    <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
+    <tr><td>A1</td><td><span class="ticket">TRK-DTO-008</span></td><td><strong>Verify DEX DTO completeness</strong></td><td>S</td></tr>
+    <tr><td>A2</td><td><span class="ticket">TRK-108</span></td><td><strong>Seed dex_forms</strong> &mdash; 66 forms from GAS _FORM_LIBRARY</td><td>M</td></tr>
+    <tr><td>A3</td><td><span class="ticket">TRK-13698</span></td><td><strong>Seed dex_field_mappings</strong> &mdash; 300+ GAS mappings</td><td>L</td></tr>
+    <tr><td>A4</td><td><span class="ticket">TRK-13707</span></td><td><strong>Integrate PDF field discovery</strong> &mdash; 1,038 fields from 8 forms</td><td>M</td></tr>
+    <tr><td>A5</td><td><span class="ticket">TRK-13702</span></td><td><strong>Seed dex_rules</strong> &mdash; 5-layer engine data</td><td>M</td></tr>
+    <tr><td>A6</td><td><span class="ticket">TRK-13709</span></td><td><strong>Seed taxonomy</strong> &mdash; carriers, products, types, transactions (~95 docs)</td><td>M</td></tr>
+  </table>
+  <h4>Key Files</h4>
+  <ul>
+    <li>GAS source: <code>~/Projects/gas/DEX/DEX_FieldMappings.gs</code> (24.8K lines)</li>
+    <li>GAS source: <code>~/Projects/gas/DEX/DEX_Rules.gs</code> (11K lines)</li>
+    <li>GAS source: <code>~/Projects/gas/DEX/DEX_Taxonomy.gs</code> (11.6K lines)</li>
+    <li>PDF discovery: <code>/tmp/nbx-kits/discovery/*.pdf</code> + <code>/tmp/nbx-kits/field-map.js</code></li>
+    <li>Seed scripts target: <code>services/api/src/scripts/seed-dex-*.ts</code></li>
+  </ul>
+  <h4>Verification</h4>
+  <ul>
+    <li><code>GET /api/dex/forms</code> &rarr; 66 forms</li>
+    <li><code>GET /api/dex/mappings</code> &rarr; 300+ mappings</li>
+    <li><code>GET /api/dex/rules</code> &rarr; 30+ rules</li>
+    <li><code>GET /api/dex/taxonomy/carriers</code> &rarr; carrier list</li>
+  </ul>
+</div>
+
+<!-- BUILDER 2 -->
+<h3><span class="phase-badge p1">2</span> &nbsp; Builder 2 — Flow Engine Wiring <span class="builder-badge flow">Stream B</span></h3>
+<div class="card">
+  <p>Register DEX check handlers. Fix gate enforcement bug. Implement <code>dex_output</code> step type. Link flow instances to DEX packages.</p>
+  <table class="route-table">
+    <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
+    <tr><td>B1</td><td><span class="ticket bug">TRK-13700</span></td><td><strong>BUG: Fix gate check_result validation</strong></td><td>S</td></tr>
+    <tr><td>B2</td><td><span class="ticket">TRK-13699</span></td><td><strong>Link flow_instances &harr; dex_packages</strong></td><td>S</td></tr>
+    <tr><td>B3</td><td><span class="ticket">TRK-13706</span></td><td><strong>Register DEX_KIT_GENERATE handler</strong></td><td>M</td></tr>
+    <tr><td>B4</td><td><span class="ticket">TRK-13701</span></td><td><strong>Register DEX_DOCUSIGN handler</strong></td><td>M</td></tr>
+    <tr><td>B5</td><td><span class="ticket">TRK-13705</span></td><td><strong>Implement dex_output step execution type</strong></td><td>M</td></tr>
+  </table>
+  <h4>New File</h4>
+  <pre><code>services/api/src/lib/dex-handlers.ts  (~200 lines)
+  &bull; handleDexKitGenerate(config, instanceData) &rarr; PASS/FAIL
+  &bull; handleDexDocuSign(config, instanceData) &rarr; PASS/PENDING/FAIL</code></pre>
+  <h4>Modified Files</h4>
+  <ul>
+    <li><code>packages/core/src/flow/gates.ts</code> &mdash; validate check_result for system checks</li>
+    <li><code>packages/core/src/flow/types.ts</code> &mdash; add <code>dex_package_id?</code> to FlowTaskInstanceData</li>
+    <li><code>packages/core/src/flow/engine.ts</code> &mdash; dex_output step handler</li>
+    <li><code>services/api/src/index.ts</code> &mdash; registerCheckHandler() calls at startup</li>
+  </ul>
+</div>
+
+<!-- BUILDER 3 -->
+<h3><span class="phase-badge p1">3</span> &nbsp; Builder 3 — Portal UI <span class="builder-badge ui">Stream C</span></h3>
+<div class="card">
+  <p>Build the DEX module for all 3 portals. Kit builder, package manager, form viewer, DocuSign send. Pipeline "Build Kit" button. Contact Detail shortcut.</p>
+  <table class="route-table">
+    <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
+    <tr><td>C1</td><td><span class="ticket">TRK-13708</span></td><td><strong>Build DEX portal UI module</strong> &mdash; Kit Builder + Package Manager</td><td>L</td></tr>
+    <tr><td>C2</td><td><span class="ticket">TRK-13696</span></td><td><strong>NBX pipeline Build Kit action</strong></td><td>M</td></tr>
+    <tr><td>C3</td><td><span class="ticket">TRK-13703</span></td><td><strong>Contact Detail Generate Kit button</strong></td><td>S</td></tr>
+  </table>
+  <h4>Components</h4>
+  <ul>
+    <li><strong>KitBuilder</strong> &mdash; Client &rarr; product/custodian &rarr; build &rarr; layered form preview</li>
+    <li><strong>PackageManager</strong> &mdash; Lifecycle tracking (Draft &rarr; Complete)</li>
+    <li><strong>FormViewer</strong> &mdash; Inline PDF preview</li>
+    <li><strong>DocuSignButton</strong> &mdash; One-click send</li>
+    <li><strong>BuildKitAction</strong> &mdash; Pipeline task button for DEX system checks</li>
+  </ul>
+</div>
+
+<h2><span class="accent">Phase 2</span> — Service Verification (After Builder 1)</h2>
+
+<!-- BUILDER 4 -->
+<h3><span class="phase-badge p2">4</span> &nbsp; Builder 4 — Service Verification <span class="builder-badge verify">Stream D</span></h3>
+<div class="card">
+  <p>Verify PDF_SERVICE and DocuSign work end-to-end with real seeded data. Barbara Budd as test case.</p>
+  <table class="route-table">
+    <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
+    <tr><td>D1</td><td><span class="ticket">TRK-105</span></td><td><strong>Verify PDF_SERVICE /fill-and-merge</strong></td><td>M</td></tr>
+    <tr><td>D2</td><td><span class="ticket">TRK-13704</span></td><td><strong>End-to-end test with Budd data</strong></td><td>M</td></tr>
+    <tr><td>D3</td><td><span class="ticket">TRK-107</span></td><td><strong>Verify DocuSign JWT + envelope</strong></td><td>M</td></tr>
+    <tr><td>D4</td><td><span class="ticket">TRK-109</span></td><td><strong>Verify kit builder with seeded rules</strong></td><td>S</td></tr>
+  </table>
+  <h4>Smoke Test: Barbara Budd</h4>
+  <ul>
+    <li>Accts: 84302657 ($53,114) + 85119527 ($44,352) &mdash; IRA, GI/Schwab</li>
+    <li>Blend: Mod Conservative (ETF-B + DD 20%)</li>
+    <li><code>POST /api/dex/kits/build</code> &rarr; GI/Schwab kit (CAF + COMRA + IAA + TAF x2 + IP + LPOA + disclosures)</li>
+    <li><code>POST /api/dex/kits/:id/fill</code> &rarr; all fields resolved from Firestore client data</li>
+    <li><code>POST /api/dex-pipeline/packages/:id/generate-pdf</code> &rarr; filled PDF matches NIGO packet</li>
+  </ul>
+</div>
+
+<h2><span class="accent">Phase 3</span> — Integration + Completion (After All)</h2>
+
+<!-- BUILDER 5 -->
+<h3><span class="phase-badge p3">5</span> &nbsp; Builder 5 — Integration <span class="builder-badge integrate">Stream E</span></h3>
+<div class="card">
+  <p>Wire Drive filing. Register ATLAS tools. Batch-generate 60 NBX kits. Archive GAS DEX.</p>
+  <table class="route-table">
+    <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
+    <tr><td>E1</td><td><span class="ticket">TRK-106</span></td><td><strong>Wire Drive filing from API</strong></td><td>M</td></tr>
+    <tr><td>E2</td><td><span class="ticket">TRK-13432</span></td><td><strong>Register DEX tools in ATLAS</strong></td><td>S</td></tr>
+    <tr><td>E3</td><td><span class="ticket">TRK-13697</span></td><td><strong>Batch generate 60 NBX kits</strong> &mdash; $10.5M AUM, 48 households</td><td>L</td></tr>
+    <tr><td>E4</td><td><span class="ticket">TRK-110</span></td><td><strong>Archive GAS DEX engine</strong></td><td>S</td></tr>
+  </table>
+</div>
+
+<h2><span class="accent">Pipeline</span> Consumption Map</h2>
+<div class="card">
+  <p>DEX is the document backbone for every pipeline across all 3 portals:</p>
+  <table class="route-table">
+    <tr><th>Pipeline</th><th>Portal</th><th>DEX Integration</th><th>Forms</th></tr>
+    <tr><td><strong>NBX_INVESTMENTS</strong></td><td>ProDashX</td><td>DEX_KIT_GENERATE + DEX_DOCUSIGN at Ready to Submit (GATED)</td><td>CAF, COMRA, IAA, TAF, IP, LPOA, ACAT, disclosures</td></tr>
+    <tr><td><strong>SALES_RETIREMENT</strong></td><td>ProDashX</td><td>8 form validation tasks at Data Foundation (GATED)</td><td>AI3, COMRA, Life Auth, Wealth Auth, HIPAA, SS Intake, Expenses, Fin Data Req</td></tr>
+    <tr><td><strong>REACTIVE_RETIREMENT</strong></td><td>ProDashX</td><td>Dynamic kit generation + client signature</td><td>Runtime form selection per service request</td></tr>
+    <tr><td><strong>NBX_LIFE</strong></td><td>ProDashX</td><td>APS forms, replacement disclosures, HIPAA</td><td>Application, medical reqs, suitability</td></tr>
+    <tr><td><strong>NBX_ANNUITY</strong></td><td>ProDashX</td><td>1035 exchange, compliance docs, NIGO resubmission</td><td>Exchange forms, CAF, suitability</td></tr>
+    <tr><td><strong>SALES_LEGACY</strong></td><td>ProDashX</td><td>Estate document collection + execution</td><td>Wills, trusts, POA, beneficiary</td></tr>
+    <tr><td><em>On-Boarding</em></td><td>RIIMO</td><td><em>Future: employee paperwork kits</em></td><td>HR forms, compliance, licensing</td></tr>
+    <tr><td><em>M&amp;A Deals</em></td><td>SENTINEL</td><td><em>Future: NDAs, LOIs, due diligence</em></td><td>Legal agreements, data room docs</td></tr>
+  </table>
+</div>
+
+<h2><span class="accent">Success</span> Criteria</h2>
+<div class="card">
+  <ol>
+    <li><code>GET /api/dex/forms</code> &rarr; 66 forms</li>
+    <li><code>GET /api/dex/mappings</code> &rarr; 300+ mappings</li>
+    <li><code>POST /api/dex/kits/build</code> &rarr; correct form sets per custodian</li>
+    <li><code>POST /api/dex/kits/:id/fill</code> &rarr; all fields resolved from Firestore</li>
+    <li>PDF_SERVICE generates filled PDFs matching NIGO packets</li>
+    <li>DocuSign sends envelopes successfully</li>
+    <li>Flow engine DEX handlers return PASS/FAIL correctly</li>
+    <li>Gate enforcement validates check_result (bug fixed)</li>
+    <li>ProDashX shows working DEX module</li>
+    <li>NBX pipeline has "Build Kit" button</li>
+    <li>60 NBX kits batch-generated</li>
+    <li>GAS DEX archived</li>
+  </ol>
+</div>
+
+<div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--dim); font-size: 11px;">
+  <p>Retirement Protectors, Inc. &mdash; INTERNAL USE ONLY &mdash; CONFIDENTIAL</p>
+  <p>FORGE Sprint: DEX-LIVE &bull; Sprint ID: o0QmjgBeG4ZfWypVYfDk &bull; Generated March 24, 2026</p>
+</div>
+
+</div>
+</body>
+</html>

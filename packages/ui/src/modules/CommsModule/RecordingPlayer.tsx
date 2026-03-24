@@ -18,33 +18,37 @@ function formatDuration(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-/* ─── Component ─── */
+/* ─── Component (CP09: loading state + error handling) ─── */
 
 export function RecordingPlayer({ recordingUrl, duration }: RecordingPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(0)
   const [totalDuration, setTotalDuration] = useState(duration ?? 0)
   const [error, setError] = useState(false)
 
-  /* Sync total duration from audio element once metadata loads */
   useEffect(() => {
     const el = audioRef.current
     if (!el) return
 
     const onMetadata = () => {
       if (isFinite(el.duration)) setTotalDuration(el.duration)
+      setLoading(false)
     }
+    const onCanPlay = () => setLoading(false)
     const onTimeUpdate = () => setCurrentTime(el.currentTime)
     const onEnded = () => { setPlaying(false); setCurrentTime(0) }
-    const onError = () => { setError(true); setPlaying(false) }
+    const onError = () => { setError(true); setPlaying(false); setLoading(false) }
 
     el.addEventListener('loadedmetadata', onMetadata)
+    el.addEventListener('canplay', onCanPlay)
     el.addEventListener('timeupdate', onTimeUpdate)
     el.addEventListener('ended', onEnded)
     el.addEventListener('error', onError)
     return () => {
       el.removeEventListener('loadedmetadata', onMetadata)
+      el.removeEventListener('canplay', onCanPlay)
       el.removeEventListener('timeupdate', onTimeUpdate)
       el.removeEventListener('ended', onEnded)
       el.removeEventListener('error', onError)
@@ -87,17 +91,23 @@ export function RecordingPlayer({ recordingUrl, duration }: RecordingPlayerProps
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio ref={audioRef} src={recordingUrl} preload="metadata" />
 
-      {/* Play/Pause button */}
-      <button
-        onClick={togglePlay}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white transition-transform hover:scale-105"
-        style={{ background: 'var(--portal)' }}
-        title={playing ? 'Pause' : 'Play recording'}
-      >
-        <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
-          {playing ? 'pause' : 'play_arrow'}
-        </span>
-      </button>
+      {/* Play/Pause button (or loading spinner) */}
+      {loading ? (
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center">
+          <span className="material-icons-outlined animate-spin text-[var(--text-muted)]" style={{ fontSize: '14px' }}>sync</span>
+        </div>
+      ) : (
+        <button
+          onClick={togglePlay}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white transition-transform hover:scale-105"
+          style={{ background: 'var(--portal)' }}
+          title={playing ? 'Pause' : 'Play recording'}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
+            {playing ? 'pause' : 'play_arrow'}
+          </span>
+        </button>
+      )}
 
       {/* Progress bar */}
       <div className="relative flex-1">
@@ -108,6 +118,7 @@ export function RecordingPlayer({ recordingUrl, duration }: RecordingPlayerProps
           step={0.1}
           value={currentTime}
           onChange={handleSeek}
+          disabled={loading}
           className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[var(--border-subtle)] accent-[var(--portal)]"
           style={{
             background: `linear-gradient(to right, var(--portal) ${progress}%, var(--border-subtle) ${progress}%)`,

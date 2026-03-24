@@ -62,7 +62,7 @@
       "status": "backend_only",
       "backend": "access.ts",
       "frontend": "",
-      "backend_endpoints": 237,
+      "backend_endpoints": 238,
       "hardcoded": false,
       "sub_collection": true,
       "backend_routes": [
@@ -115,7 +115,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 18,
+          "endpoints": 19,
           "reads": true,
           "writes": true,
           "operations": [
@@ -344,7 +344,7 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 78,
+      "backend_endpoints": 79,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -396,7 +396,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 18,
+          "endpoints": 19,
           "reads": true,
           "writes": true,
           "operations": [
@@ -850,7 +850,7 @@
       "status": "backend_only",
       "backend": "campaign-send.ts",
       "frontend": "",
-      "backend_endpoints": 50,
+      "backend_endpoints": 52,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -868,7 +868,7 @@
         },
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -987,7 +987,7 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 365,
+      "backend_endpoints": 381,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1073,8 +1073,18 @@
           ]
         },
         {
+          "file": "comms-routing.ts",
+          "endpoints": 4,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
           "file": "comms.ts",
-          "endpoints": 17,
+          "endpoints": 19,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1196,6 +1206,17 @@
             "get",
             "create"
           ]
+        },
+        {
+          "file": "webhooks.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
         }
       ],
       "frontend_components": [],
@@ -1276,13 +1297,13 @@
       "status": "backend_only",
       "backend": "webhooks.ts",
       "frontend": "",
-      "backend_endpoints": 8,
+      "backend_endpoints": 10,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1302,13 +1323,13 @@
       "status": "backend_only",
       "backend": "comms.ts",
       "frontend": "",
-      "backend_endpoints": 44,
+      "backend_endpoints": 56,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "comms.ts",
-          "endpoints": 17,
+          "endpoints": 19,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1320,6 +1341,17 @@
         {
           "file": "prozone.ts",
           "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "webhooks.ts",
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1437,6 +1469,31 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "config": {
+      "status": "backend_only",
+      "backend": "comms-routing.ts",
+      "frontend": "",
+      "backend_endpoints": 4,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "comms-routing.ts",
+          "endpoints": 4,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "content_blocks": {
       "status": "backend_only",
       "backend": "templates.ts",
@@ -1498,13 +1555,13 @@
       "status": "backend_only",
       "backend": "webhooks.ts",
       "frontend": "",
-      "backend_endpoints": 8,
+      "backend_endpoints": 10,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1524,13 +1581,13 @@
       "status": "backend_only",
       "backend": "webhooks.ts",
       "frontend": "",
-      "backend_endpoints": 8,
+      "backend_endpoints": 10,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2176,13 +2233,13 @@
       "status": "backend_only",
       "backend": "clients.ts",
       "frontend": "",
-      "backend_endpoints": 18,
+      "backend_endpoints": 19,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "clients.ts",
-          "endpoints": 18,
+          "endpoints": 19,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2445,13 +2502,13 @@
       "status": "backend_only",
       "backend": "sprints.ts",
       "frontend": "",
-      "backend_endpoints": 44,
+      "backend_endpoints": 46,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "sprints.ts",
-          "endpoints": 44,
+          "endpoints": 46,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2475,7 +2532,7 @@
       "status": "backend_only",
       "backend": "booking.ts",
       "frontend": "",
-      "backend_endpoints": 164,
+      "backend_endpoints": 168,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2488,6 +2545,16 @@
             "list",
             "get",
             "create"
+          ]
+        },
+        {
+          "file": "comms-routing.ts",
+          "endpoints": 4,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
           ]
         },
         {
@@ -2882,7 +2949,7 @@
     },
     "clients.ts": {
       "file": "clients.ts",
-      "endpoints": 18,
+      "endpoints": 19,
       "operations": [
         "list",
         "get",
@@ -2898,17 +2965,32 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "comms-routing.ts": {
+      "file": "comms-routing.ts",
+      "endpoints": 4,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "clients",
+        "users",
+        "config"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "comms.ts": {
       "file": "comms.ts",
-      "endpoints": 17,
+      "endpoints": 19,
       "operations": [
         "list",
         "get",
         "create"
       ],
       "collections": [
-        "clients",
-        "communications"
+        "communications",
+        "clients"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -3230,6 +3312,19 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "notifications.ts": {
+      "file": "notifications.ts",
+      "endpoints": 6,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "opportunities.ts": {
       "file": "opportunities.ts",
       "endpoints": 9,
@@ -3400,7 +3495,7 @@
     },
     "sprints.ts": {
       "file": "sprints.ts",
-      "endpoints": 44,
+      "endpoints": 46,
       "operations": [
         "list",
         "get",
@@ -3502,7 +3597,7 @@
     },
     "webhooks.ts": {
       "file": "webhooks.ts",
-      "endpoints": 8,
+      "endpoints": 10,
       "operations": [
         "list",
         "get",
@@ -3511,6 +3606,8 @@
       "collections": [
         "dex_packages",
         "dex_package_events",
+        "clients",
+        "communications",
         "campaign_send_log",
         "communication_log"
       ],
@@ -3987,16 +4084,305 @@
       "sensitive": false
     }
   ],
-  "hookify_rules": [],
+  "hookify_rules": [
+    {
+      "name": "warn-date-return-no-serialize",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Returning Date Object"
+    },
+    {
+      "name": "warn-inline-pii-data",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Inline PII Data Detected"
+    },
+    {
+      "name": "warn-missing-structured-response",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Missing Structured Response"
+    },
+    {
+      "name": "warn-modal-no-flexbox",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Modal Without Flexbox"
+    },
+    {
+      "name": "warn-phi-in-error-message",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Error Message May Expose PHI"
+    },
+    {
+      "name": "warn-plain-person-select",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Plain Dropdown for Person Selection"
+    },
+    {
+      "name": "warn-untyped-api-response",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: API Response Without Shared Type Contract"
+    },
+    {
+      "name": "warn-unvalidated-fetch",
+      "enabled": true,
+      "event": "file",
+      "action": "warn",
+      "tier": "warn",
+      "description": "WARNING: Raw fetchWithAuth — use fetchValidated instead"
+    },
+    {
+      "name": "intent-atlas-consult",
+      "enabled": true,
+      "event": "prompt",
+      "action": "block",
+      "tier": "intent",
+      "description": "ATLAS is the Data Operating System. It has two sections:"
+    },
+    {
+      "name": "intent-execute-plan",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "PLAN EXECUTION TRIGGERED (#LetsRockIt)"
+    },
+    {
+      "name": "intent-immune-system-check",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "When this intent fires, read these data sources and deliver a structured briefing:"
+    },
+    {
+      "name": "intent-plan-mode",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "THINKING LEVEL: SWITCH TO HIGH"
+    },
+    {
+      "name": "intent-sendit",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "DEPLOY PROTOCOL TRIGGERED (#SendIt)"
+    },
+    {
+      "name": "intent-session-start",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "intent",
+      "description": "SESSION START PROTOCOL TRIGGERED"
+    },
+    {
+      "name": "quality-gate-audit-verify",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "AUDIT PROTOCOL ACTIVATED (Phase IV)"
+    },
+    {
+      "name": "quality-gate-build-verify",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "BUILD GATE: type-check is insufficient"
+    },
+    {
+      "name": "quality-gate-commit-remind",
+      "enabled": true,
+      "event": "bash",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "COMMIT GATE: Did you verify the build?"
+    },
+    {
+      "name": "quality-gate-deploy-verify",
+      "enabled": true,
+      "event": "bash",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "DEPLOY GATE: Verify before pushing"
+    },
+    {
+      "name": "quality-gate-done-without-evidence",
+      "enabled": true,
+      "event": "prompt",
+      "action": "warn",
+      "tier": "quality_gate",
+      "description": "EVIDENCE GATE: Cannot report completion without verification"
+    },
+    {
+      "name": "quality-gate-phase-complete",
+      "enabled": true,
+      "event": "prompt",
+      "action": "block",
+      "tier": "quality_gate",
+      "description": "BLOCKED: Cannot report phase complete without evidence"
+    },
+    {
+      "name": "quality-gate-plan-format",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "quality_gate",
+      "description": "BLOCKED: Plan file missing required pipeline columns"
+    },
+    {
+      "name": "block-alert-confirm-prompt",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Browser Dialog API Detected"
+    },
+    {
+      "name": "block-anyone-anonymous-access",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Public Access Detected"
+    },
+    {
+      "name": "block-bulk-import-without-atlas",
+      "enabled": true,
+      "event": "prompt",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Data Import/Migration Without ATLAS Consultation"
+    },
+    {
+      "name": "block-credentials-in-config",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Plaintext Credential Detected"
+    },
+    {
+      "name": "block-direct-firestore-write",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Direct Firestore Write Outside API"
+    },
+    {
+      "name": "block-direct-matrix-write",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Direct MATRIX Write"
+    },
+    {
+      "name": "block-drive-url-external",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Drive URL in External Fetch"
+    },
+    {
+      "name": "block-forui-no-json-serialize",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "WARNING: ForUI function detected"
+    },
+    {
+      "name": "block-generated-logos",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "You are attempting to write SVG markup with paths, circles, rects, or shapes. This looks like you ar"
+    },
+    {
+      "name": "block-hardcoded-colors",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Hardcoded Color Detected"
+    },
+    {
+      "name": "block-hardcoded-matrix-ids",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Hardcoded MATRIX Spreadsheet ID"
+    },
+    {
+      "name": "block-hardcoded-secrets",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Hardcoded Secret Detected"
+    },
+    {
+      "name": "block-let-module-caching",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: let/const for Module Cache Variable"
+    },
+    {
+      "name": "block-phi-in-logs",
+      "enabled": true,
+      "event": "file",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: PHI Detected in Log Statement"
+    },
+    {
+      "name": "block-seed-without-snapshot",
+      "enabled": true,
+      "event": "bash",
+      "action": "block",
+      "tier": "block",
+      "description": "BLOCKED: Seed/Migration Script Without Safety Flag"
+    }
+  ],
   "scan_stats": {
-    "route_files": 60,
+    "route_files": 62,
     "ui_files": 129,
     "portal_pages": 150,
-    "collections_found": 63,
-    "api_routes_found": 60,
+    "collections_found": 64,
+    "api_routes_found": 62,
     "cloud_functions_found": 14,
     "env_vars_found": 34,
-    "hookify_rules_found": 0,
-    "scanned_at": "2026-03-24T06:25:14.202Z"
+    "hookify_rules_found": 36,
+    "scanned_at": "2026-03-24T06:31:44.873Z"
   }
 }

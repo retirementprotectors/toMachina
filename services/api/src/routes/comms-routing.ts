@@ -1,81 +1,78 @@
 /**
- * Call routing + voicemail config helpers.
- * CP07: Smart routing — looks up client's assigned_agent to route inbound calls.
- * CP08: Voicemail config — reads greeting + settings from Firestore config/ docs.
+ * CP07: Smart Call Routing
+ * CP08: Voicemail Config
+ *
+ * Resolves which Twilio Client identity to route inbound calls to,
+ * based on the caller's phone number and client assignment in Firestore.
  */
 
 import { getFirestore } from 'firebase-admin/firestore'
 
-const DEFAULT_IDENTITY = process.env.TWILIO_DEFAULT_IDENTITY || 'josh@retireprotected.com'
-
 /**
- * Resolve the Twilio Client identity to ring for an inbound call.
- * Looks up the caller's phone number → client doc → assigned_agent email.
- * Falls back to DEFAULT_IDENTITY if no match found.
+ * Look up client by phone number, find their assigned agent,
+ * and return that agent's email as the Twilio Client identity.
+ * Falls back to TWILIO_DEFAULT_IDENTITY env var.
  */
-export async function resolveCallRouting(fromPhone: string): Promise<string> {
-  if (!fromPhone) return DEFAULT_IDENTITY
-
+export async function resolveCallRouting(fromNumber: string): Promise<string> {
+  const envDefault = process.env.TWILIO_DEFAULT_IDENTITY
+  const fallbackId = envDefault || 'josh@retireprotected.com'
   try {
     const db = getFirestore()
-    // Normalize phone — strip everything except digits, keep last 10
-    const digits = fromPhone.replace(/\D/g, '').slice(-10)
-    if (digits.length < 10) return DEFAULT_IDENTITY
+    const digits = fromNumber.replace(/\D/g, '').replace(/^1/, '')
+    if (!digits) return fallbackId
 
-    // Try matching by phone field
-    const snap = await db
-      .collection('clients')
-      .where('phone', '>=', digits.slice(-10))
-      .where('phone', '<=', digits.slice(-10) + '\uf8ff')
+    const [cellSnap, phoneSnap] = await Promise.all([
+      db.collection('clients').where('cell_phone', '==', digits).limit(1).get(),
+      db.collection('clients').where('phone', '==', digits).limit(1).get(),
+    ])
+    const clientDoc = cellSnap.docs[0] || phoneSnap.docs[0]
+    if (!clientDoc) return fallbackId
+
+    const client = clientDoc.data()
+    const agent = client.assigned_agent || client.agent_name || ''
+    if (!agent) return fallbackId
+
+    const agentSnap = await db
+      .collection('users')
+      .where('display_name', '==', agent)
       .limit(1)
       .get()
-
-    if (!snap.empty) {
-      const clientData = snap.docs[0].data()
-      const agentEmail = clientData.assigned_agent || clientData.agent_email
-      if (agentEmail && typeof agentEmail === 'string') {
-        return agentEmail
-      }
+    if (!agentSnap.empty) {
+      const email = agentSnap.docs[0].data().email
+      if (email) return email
     }
 
-    return DEFAULT_IDENTITY
-  } catch (err) {
-    console.error('resolveCallRouting error:', err)
-    return DEFAULT_IDENTITY
+    return fallbackId
+  } catch {
+    return fallbackId
   }
 }
 
-interface VoicemailConfig {
+/**
+ * CP08: Read voicemail configuration from Firestore config/voicemail doc.
+ */
+export async function getVoicemailConfig(): Promise<{
   greeting: string
   maxLength: number
   transcribe: boolean
-}
-
-const DEFAULT_VM_CONFIG: VoicemailConfig = {
-  greeting: "We're sorry, no one is available to take your call. Please leave a message after the tone.",
-  maxLength: 120,
-  transcribe: false,
-}
-
-/**
- * Load voicemail configuration from Firestore config/voicemail doc.
- * Falls back to defaults if doc doesn't exist.
- */
-export async function getVoicemailConfig(): Promise<VoicemailConfig> {
+}> {
+  const defaults = {
+    greeting:
+      "Thank you for calling Retirement Protectors. We're unable to take your call right now. Please leave a message and we'll get back to you as soon as possible.",
+    maxLength: 120,
+    transcribe: true,
+  }
   try {
     const db = getFirestore()
     const doc = await db.collection('config').doc('voicemail').get()
-
-    if (!doc.exists) return DEFAULT_VM_CONFIG
-
-    const data = doc.data() as Record<string, unknown>
+    if (!doc.exists) return defaults
+    const data = doc.data() || {}
     return {
-      greeting: typeof data.greeting === 'string' ? data.greeting : DEFAULT_VM_CONFIG.greeting,
-      maxLength: typeof data.maxLength === 'number' ? data.maxLength : DEFAULT_VM_CONFIG.maxLength,
-      transcribe: typeof data.transcribe === 'boolean' ? data.transcribe : DEFAULT_VM_CONFIG.transcribe,
+      greeting: data.greeting_text || defaults.greeting,
+      maxLength: data.max_length || defaults.maxLength,
+      transcribe: data.transcription_enabled !== false,
     }
-  } catch (err) {
-    console.error('getVoicemailConfig error:', err)
-    return DEFAULT_VM_CONFIG
+  } catch {
+    return defaults
   }
 }
