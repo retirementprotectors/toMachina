@@ -36,6 +36,81 @@ const STAGES = 'flow_stages'
 const TASK_TEMPLATES = 'flow_task_templates'
 
 // ============================================================================
+// Mobile views
+// ============================================================================
+
+/**
+ * GET /api/flow?view=my-active
+ * Returns active pipeline instances for the authenticated user, enriched with
+ * pipeline + stage metadata. Used by MDJ Mobile Sales Dashboard.
+ */
+flowRoutes.get('/', async (req: Request, res: Response) => {
+  try {
+    const view = req.query.view as string | undefined
+    if (view !== 'my-active') {
+      res.status(400).json(errorResponse('Supported views: my-active'))
+      return
+    }
+
+    const db = getFirestore()
+    const userEmail = String((req as unknown as Record<string, unknown>).user
+      ? ((req as unknown as Record<string, unknown>).user as Record<string, string>).email
+      : '')
+
+    // Fetch active instances assigned to this user
+    const snap = await db.collection(INSTANCES)
+      .where('assigned_to', '==', userEmail)
+      .where('stage_status', '==', 'in_progress')
+      .get()
+
+    if (snap.empty) {
+      res.json(successResponse([]))
+      return
+    }
+
+    // Gather unique pipeline keys to batch-fetch pipeline + stage metadata
+    const pipelineKeys = [...new Set(snap.docs.map(d => String(d.data().pipeline_key)))]
+
+    const [pipelinesSnap, stagesSnap] = await Promise.all([
+      db.collection(PIPELINES).where('__name__', 'in', pipelineKeys.slice(0, 10)).get(),
+      db.collection(STAGES).where('pipeline_key', 'in', pipelineKeys.slice(0, 10)).get(),
+    ])
+
+    const pipelineMap = new Map<string, string>()
+    pipelinesSnap.docs.forEach(d => pipelineMap.set(d.id, String(d.data().name || d.id)))
+
+    const stageMap = new Map<string, { name: string; order: number }>()
+    const stageCounts = new Map<string, number>()
+    stagesSnap.docs.forEach(d => {
+      const data = d.data()
+      stageMap.set(String(data.stage_id), { name: String(data.name || data.stage_id), order: Number(data.stage_order || 0) })
+      const pk = String(data.pipeline_key)
+      stageCounts.set(pk, (stageCounts.get(pk) || 0) + 1)
+    })
+
+    const items = snap.docs.map(d => {
+      const data = d.data()
+      const stageInfo = stageMap.get(String(data.current_stage))
+      return {
+        id: d.id,
+        client_name: String(data.entity_name || ''),
+        pipeline_name: pipelineMap.get(String(data.pipeline_key)) || String(data.pipeline_key),
+        stage_name: stageInfo?.name || String(data.current_stage),
+        stage_index: stageInfo?.order || 0,
+        total_stages: stageCounts.get(String(data.pipeline_key)) || 1,
+        updated_at: String(data.updated_at || ''),
+        value: data.deal_value ? Number(data.deal_value) : undefined,
+      }
+    }).sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+
+    res.json(successResponse(items))
+  } catch (err) {
+    console.error('GET /api/flow?view=my-active error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
 // Pipeline config reads
 // ============================================================================
 

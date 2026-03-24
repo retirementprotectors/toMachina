@@ -65,6 +65,8 @@ import { documentIndexRoutes } from './routes/document-index.js'
 import { firestoreConfigRoutes } from './routes/firestore-config.js'
 import { queRoutes } from './routes/que.js'
 import { configRoutes } from './routes/config.js'
+import { dashboardRoutes } from './routes/dashboard.js'
+import { mdjRoutes } from './routes/mdj.js'
 import { auditMiddleware } from './middleware/audit.js'
 
 // Initialize Firebase Admin
@@ -153,6 +155,8 @@ app.use('/api/document-index', documentIndexRoutes)
 app.use('/api/firestore-config', firestoreConfigRoutes)
 app.use('/api/que', normalizeBody, queRoutes)
 app.use('/api/config', normalizeBody, configRoutes)
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/mdj', normalizeBody, mdjRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
