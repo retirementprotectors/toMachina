@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyDigitalJosh (MDJ) — Discovery Document</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  /* Tabs */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-hover);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* Diagram boxes */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  /* Flow steps */
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .flow-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .flow-body h4 { color: var(--text); font-size: 0.95rem; margin-bottom: 4px; }
+  .flow-body p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+  /* Specialist cards */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .spec-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .spec-card.medicare { border-top-color: var(--green); }
+  .spec-card.securities { border-top-color: var(--orange); }
+  .spec-card.service { border-top-color: var(--cyan); }
+  .spec-card.david { border-top-color: var(--purple); }
+  .spec-card.ops { border-top-color: var(--red); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card .keywords { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+  .spec-card .keywords span {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    margin: 2px;
+  }
+
+  /* Level bars */
+  .level-bar {
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+  }
+  .level-bar.l0 { border-left-color: var(--red); background: rgba(239,68,68,0.08); }
+  .level-bar.l1 { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.l2 { border-left-color: var(--accent); background: rgba(59,130,246,0.08); }
+  .level-bar.l3 { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+  /* Memory tiers */
+  .memory-tier {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background: var(--bg-hover);
+    border-left: 4px solid var(--accent);
+  }
+  .memory-tier.short { border-left-color: var(--cyan); }
+  .memory-tier.medium { border-left-color: var(--orange); }
+  .memory-tier.long { border-left-color: var(--purple); }
+  .memory-tier.platform { border-left-color: var(--green); }
+
+  /* Phase headers */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 12px;
+    padding: 12px 16px;
+    background: var(--accent-glow);
+    border-radius: 8px;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+  .phase-header .phase-num {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: white;
+    border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+  }
+  .phase-header h3 { color: var(--accent); margin: 0; font-size: 1rem; }
+
+  /* Code blocks */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* Pill badges */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill.new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.mod { background: rgba(59,130,246,0.15); color: var(--accent); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .content { padding: 16px; }
+    .card { padding: 16px; }
+    .spec-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MyDigitalJosh (MDJ)</h1>
+  <div class="subtitle">
+    Discovery Document &mdash; AI-powered conversational assistant wired into the entire toMachina platform.
+    Gives every team member Josh-level capability, 24/7, simultaneously.
+  </div>
+  <div class="badge">FORGE Sprint: MDJ-ALPHA</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="vision">Vision</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="flow">Request Flow</div>
+    <div class="tab" data-tab="specialists">Specialists</div>
+    <div class="tab" data-tab="permissions">Permissions</div>
+    <div class="tab" data-tab="memory">Memory</div>
+    <div class="tab" data-tab="widget">Widget</div>
+    <div class="tab" data-tab="deployment">Deployment</div>
+    <div class="tab" data-tab="data">Data Model</div>
+    <div class="tab" data-tab="api">API</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ==================== VISION ==================== -->
+  <div class="tab-panel active" id="vision">
+    <div class="card">
+      <h2>The Problem</h2>
+      <p>Josh Millang is the single point of capability at RPI. He can answer any question, execute any action, access any system &mdash; in 5 seconds. But there's only one Josh. When he's on a call, everyone waits. When he's asleep, everything waits.</p>
+    </div>
+    <div class="card">
+      <h2>The Solution</h2>
+      <p><strong>MyDigitalJosh (MDJ)</strong> &mdash; an AI assistant wired into the ENTIRE toMachina platform that gives every team member Josh-level capability, 24/7, simultaneously. Not a chatbot. Not a search tool. A digital clone of Josh's <strong>ACCESS</strong> and <strong>CAPABILITY</strong>, scoped by role.</p>
+    </div>
+    <div class="card">
+      <h2>The Outcome</h2>
+      <p>Any RPI team member can ask MDJ anything about any client, any account, any process &mdash; and get an answer or action in seconds. New hires are instantly dangerous. The CEO bottleneck disappears.</p>
+      <table>
+        <tr><th>What JDM Can Do</th><th>What The Bot Does</th></tr>
+        <tr><td>Pull up any client in 5 seconds</td><td>Firestore query &mdash; instant</td></tr>
+        <tr><td>Send an email on someone's behalf</td><td>Gmail MCP &mdash; instant</td></tr>
+        <tr><td>Check an account value</td><td>tm-api route &mdash; instant</td></tr>
+        <tr><td>Run a Medicare quote</td><td>QUE wires &mdash; instant</td></tr>
+        <tr><td>Look up carrier coverage policy</td><td>CMS / NPI MCP &mdash; instant</td></tr>
+        <tr><td>Tell Nikki where a case stands</td><td>Pipeline query &mdash; instant</td></tr>
+        <tr><td>Tell Vince his commission number</td><td>Commission tools &mdash; instant</td></tr>
+        <tr><td>Schedule a follow-up</td><td>Calendar MCP &mdash; instant</td></tr>
+        <tr><td>Know the context of WHY something matters</td><td>Conversation history + client insights</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>The One-Liner</h2>
+      <p style="font-size:1.2rem; color:var(--text); font-weight:600; text-align:center; padding:16px 0;">
+        "What if everyone at RPI had a Josh sitting next to them, 24/7?"
+      </p>
+    </div>
+  </div>
+
+  <!-- ==================== ARCHITECTURE ==================== -->
+  <div class="tab-panel" id="architecture">
+    <div class="card">
+      <h2>System Architecture (Top to Bottom)</h2>
+      <div class="diagram">                    +-----------------------------------------+
+                    |          TEAM MEMBERS                    |
+                    |  Nikki / Vince / Matt / Aprille / JDM    |
+                    +-------------------+---------------------+
+                                        |
+                                        | Browser (any device, anywhere)
+                                        v
+                    +-----------------------------------------+
+                    |     PORTAL WIDGET (MDJPanel)             |
+                    |  ProDashX  |  RIIMO  |  SENTINEL         |
+                    |  Slide-out panel, chat UI, streaming      |
+                    |  Page context awareness (client/acct)     |
+                    +-------------------+---------------------+
+                                        |
+                                        | HTTPS + Firebase Auth Token
+                                        | POST /api/mdj/chat (SSE stream)
+                                        v
+                    +-----------------------------------------+
+                    |     CLOUD RUN API (tm-api)               |
+                    |  Auth verification (requireAuth)         |
+                    |  User profile + entitlements loaded       |
+                    |  Permission context built                 |
+                    |  SSE proxy to MDJ1                        |
+                    +-------------------+---------------------+
+                                        |
+                                        | HTTPS (Cloudflare Tunnel)
+                                        | User context + message forwarded
+                                        v
+                    +-----------------------------------------+
+                    |     MDJ AGENT SERVICE (MDJ1 Server)      |
+                    |  Dell PowerEdge T440, 16 cores            |
+                    |  Port 4200, systemd managed               |
+                    |                                           |
+                    |  +------------------------------------+  |
+                    |  |  CLAUDE API (Anthropic SDK)         |  |
+                    |  |  Opus 4.6 / Sonnet for routing      |  |
+                    |  |  Tool-use with 250+ tools           |  |
+                    |  |  Streaming responses (SSE)          |  |
+                    |  +------------------+-----------------+  |
+                    |                     |                     |
+                    |  +------------------v-----------------+  |
+                    |  |  SPECIALIST ROUTER                  |  |
+                    |  |  General / Medicare / Securities     |  |
+                    |  |  Service / DAVID / Ops               |  |
+                    |  +------------------+-----------------+  |
+                    |                     |                     |
+                    |  +------------------v-----------------+  |
+                    |  |  TOOL EXECUTOR                      |  |
+                    |  |  Permission filtering                |  |
+                    |  |  Review gates (approve/reject)       |  |
+                    |  +------------------+-----------------+  |
+                    |                     |                     |
+                    |  +------------------v-----------------+  |
+                    |  |  MEMORY SYSTEM                      |  |
+                    |  |  Short / Medium / Long-term          |  |
+                    |  +------------------------------------+  |
+                    +-------------------+---------------------+
+                                        |
+                    +-------------------v---------------------+
+                    |     TOOL LAYER (250+ capabilities)       |
+                    |                                           |
+                    |  +-------------+  +-------------------+  |
+                    |  | TM-API      |  | MCP SERVERS        |  |
+                    |  | 57 routes   |  | 198 tools          |  |
+                    |  | clients     |  | rpi-workspace (73) |  |
+                    |  | accounts    |  | rpi-business  (28) |  |
+                    |  | pipelines   |  | rpi-healthcare(79) |  |
+                    |  | comms       |  | rpi-comms     (18) |  |
+                    |  | que/quotes  |  | gdrive, gmail      |  |
+                    |  | atlas/wires |  | calendar, slack    |  |
+                    |  +-------------+  +-------------------+  |
+                    |                                           |
+                    |  +-------------------------------------+ |
+                    |  | COMPOSITE TOOLS (high-level)         | |
+                    |  | prepare_client_review                 | |
+                    |  | run_medicare_quote                    | |
+                    |  | send_client_communication             | |
+                    |  | process_meeting_recording             | |
+                    |  +-------------------------------------+ |
+                    +-------------------+---------------------+
+                                        |
+                    +-------------------v---------------------+
+                    |     DATA LAYER                            |
+                    |  Firestore | Google Drive | BigQuery      |
+                    |  (clients, accounts, pipelines, users,    |
+                    |   comms, ACF docs, recordings, analytics) |
+                    +-----------------------------------------+</div>
+    </div>
+    <div class="card">
+      <h2>Why This Topology</h2>
+      <table>
+        <tr><th>Layer</th><th>Why It Exists</th></tr>
+        <tr><td><strong>Portal Widget</strong></td><td>Users never leave the portal. Same slide-out pattern as Comms, Connect, Notifications.</td></tr>
+        <tr><td><strong>Cloud Run API</strong></td><td>Auth gateway. Verifies Firebase token, loads entitlements, forwards to MDJ1. No new infra needed.</td></tr>
+        <tr><td><strong>MDJ Agent (MDJ1)</strong></td><td>Runs Claude SDK + MCP tools locally on the Dell. No latency to cloud MCP servers. 16 cores, always on.</td></tr>
+        <tr><td><strong>Cloudflare Tunnel</strong></td><td>Cloud Run can't reach Tailscale directly. Tunnel exposes MDJ1 securely with auth header verification.</td></tr>
+        <tr><td><strong>Tool Layer</strong></td><td>57 API routes + 198 MCP tools = 250+ capabilities. Every action Josh can do, the bot can do.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== REQUEST FLOW ==================== -->
+  <div class="tab-panel" id="flow">
+    <div class="card">
+      <h2>Example: "What's the status of Mrs. Johnson's 1035 exchange?"</h2>
+      <p style="color:var(--text-muted);margin-bottom:20px;">Nikki is on Mrs. Johnson's client detail page in ProDashX. She opens the MDJ panel and asks:</p>
+
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Widget Captures Context</h4>
+          <p>MDJPanel detects she's on <code>/contacts/abc123</code> and automatically includes <code>client_id: "abc123"</code> with her message.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>API Authenticates</h4>
+          <p>Cloud Run verifies Nikki's Firebase token. Loads her profile: Level 2 (LEADER), Service division. Builds permission context.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Agent Loads Context</h4>
+          <p>MDJ1 loads conversation history + Mrs. Johnson's client insights from Firestore. Specialist router: "1035 exchange" &rarr; stays with General MDJ.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <h4>Claude Decides What Tools to Call</h4>
+          <p><code>tm_get_client { id: "abc123" }</code> and <code>tm_get_client_pipelines { client_id: "abc123" }</code> &mdash; both allowed for Level 2, no approval needed.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-body">
+          <h4>Tools Execute</h4>
+          <p>Calls tm-api: GET /api/clients/abc123 and GET /api/flow?client_id=abc123&pipeline=nbx. Results returned to Claude.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-body">
+          <h4>Streamed Response</h4>
+          <p>"Mrs. Johnson's 1035 exchange is in the New Business pipeline, stage 3 of 5 (Carrier Review). Submitted to Athene on March 18th. Transfer amount: $247,000 from Jackson National FIA. Expected completion: 5-7 business days."</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">7</div>
+        <div class="flow-body">
+          <h4>Nikki Has Her Answer</h4>
+          <p>3 seconds. No clicking. No navigation. No waiting for Josh.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SPECIALISTS ==================== -->
+  <div class="tab-panel" id="specialists">
+    <div class="card">
+      <h2>Specialist System</h2>
+      <p>One brain, different loadouts. Each specialist has a custom system prompt, scoped tool list, and domain knowledge base. The router decides which specialist handles each request.</p>
+
+      <div class="spec-grid">
+        <div class="spec-card">
+          <h4>General MDJ</h4>
+          <p style="font-size:0.85rem;color:var(--text-muted)">Knows a bit about everything. Default handler. Routes to specialists when depth is needed.</p>
+          <div class="keywords"><span>default</span> <span>any topic</span></div>
+          <p style="font-size:0.75rem;color:var(--text-muted)">Tools: All user-permitted &bull; Min Level: USER</p>
+        </div>
+        <div class="spec-card medicare">
+          <h4>MDJ-Medicare</h4>
+          <p style="font-size:0.85rem;color:var(--text-muted)">Every carrier, every plan, every county rate, AEP rules, enrollment workflows. Black belt Medicare.</p>
+          <div class="keywords"><span>medicare</span> <span>mapd</span> <span>pdp</span> <span>aep</span> <span>enrollment</span> <span>formulary</span></div>
+          <p style="font-size:0.75rem;color:var(--text-muted)">Tools: Healthcare MCP + QUE + clients &bull; Min Level: USER</p>
+        </div>
+        <div class="spec-card securities">
+          <h4>MDJ-Securities</h4>
+          <p style="font-size:0.85rem;color:var(--text-muted)">Gradient, Schwab, RBC, FINRA, advisory accounts, securities compliance. Everything BD/RIA.</p>
+          <div class="keywords"><span>ria</span> <span>bd</span> <span>schwab</span> <span>rbc</span> <span>gradient</span> <span>advisory</span> <span>securities</span></div>
+          <p style="font-size:0.75rem;color:var(--text-muted)">Tools: Financial + compliance &bull; Min Level: LEADER</p>
+        </div>
+        <div class="spec-card service">
+          <h4>MDJ-Service</h4>
+          <p style="font-size:0.85rem;color:var(--text-muted)">RMDs, 1035 exchanges, beneficiary changes, access requests, annual reviews. Every service workflow.</p>
+          <div class="keywords"><span>rmd</span> <span>beni</span> <span>access</span> <span>service center</span> <span>policy change</span></div>
+          <p style="font-size:0.75rem;color:var(--text-muted)">Tools: Service routes + clients + comms &bull; Min Level: USER</p>
+        </div>
+        <div class="spec-card david">
+          <h4>MDJ-DAVID</h4>
+          <p style="font-size:0.85rem;color:var(--text-muted)">M&A playbooks, book of business analysis, partnership structures, prospect management.</p>
+          <div class="keywords"><span>m&a</span> <span>acquisition</span> <span>partnership</span> <span>book of business</span></div>
+          <p style="font-size:0.75rem;color:var(--text-muted)">Tools: SENTINEL + DAVID + analytics &bull; Min Level: LEADER</p>
+        </div>
+        <div class="spec-card ops">
+          <h4>MDJ-Ops</h4>
+          <p style="font-size:0.85rem;color:var(--text-muted)">ATLAS wires, data imports, intake pipelines, carrier feeds, migration operations.</p>
+          <div class="keywords"><span>import</span> <span>atlas</span> <span>intake</span> <span>wire</span> <span>data</span> <span>migration</span></div>
+          <p style="font-size:0.75rem;color:var(--text-muted)">Tools: ATLAS + intake + import &bull; Min Level: EXECUTIVE</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Routing Logic</h2>
+      <div class="diagram">User message arrives
+        |
+        v
++-------------------+
+| KEYWORD MATCH     |  "1035 exchange" --> MDJ-Service
+| Fast, rule-based  |  "mapd rates"    --> MDJ-Medicare
++--------+----------+  "gradient"      --> MDJ-Securities
+         |
+         | No strong match?
+         v
++-------------------+
+| AI CLASSIFICATION |  Claude evaluates topic, recommends specialist
+| Sonnet (fast/cheap)|  Returns: { specialist: "mdj-service", reason: "..." }
++--------+----------+
+         |
+         v
+System prompt swapped, tool list filtered, SpecialistBadge shown</div>
+    </div>
+  </div>
+
+  <!-- ==================== PERMISSIONS ==================== -->
+  <div class="tab-panel" id="permissions">
+    <div class="card">
+      <h2>Permission Model</h2>
+      <p>MDJ respects the same entitlement system that gates portal access. The bot can only see and do what the user is allowed to see and do.</p>
+
+      <div class="level-bar l0">
+        <h4>Level 0: OWNER (Josh + John)</h4>
+        <p>Everything. All tools. All data. Deploy. Configure. No review gates. Full trust.</p>
+      </div>
+      <div class="level-bar l1">
+        <h4>Level 1: EXECUTIVE</h4>
+        <p>All data read/write. Can trigger imports, wires. Can access MDJ-Ops specialist. Review gate on: deploy, config changes.</p>
+      </div>
+      <div class="level-bar l2">
+        <h4>Level 2: LEADER (Division Heads)</h4>
+        <p>Division-scoped data. Can send comms. Can access MDJ-Securities, MDJ-DAVID. Review gate on: external emails, bulk operations.</p>
+      </div>
+      <div class="level-bar l3">
+        <h4>Level 3: USER (Sales/Service Team)</h4>
+        <p>Read client/account data. Run quotes. Send comms WITH REVIEW GATE. Cannot access financial data or run imports.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Review Gates</h2>
+      <p>Some actions require the user to approve before executing. The bot shows the proposed action and waits for confirmation.</p>
+      <table>
+        <tr><th>Level</th><th>Actions Requiring Approval</th></tr>
+        <tr><td>Level 3 (USER)</td><td>send_email, send_sms, submit_case, update_pipeline</td></tr>
+        <tr><td>Level 2 (LEADER)</td><td>send_email (external only), bulk operations</td></tr>
+        <tr><td>Level 1 (EXECUTIVE)</td><td>deploy, config changes</td></tr>
+        <tr><td>Level 0 (OWNER)</td><td>None &mdash; full trust</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== MEMORY ==================== -->
+  <div class="tab-panel" id="memory">
+    <div class="card">
+      <h2>Memory System &mdash; The Bot Never Forgets</h2>
+      <p>Four tiers of memory ensure MDJ always has the right context.</p>
+
+      <div class="memory-tier short">
+        <h4>Short-Term: Conversation History</h4>
+        <p style="color:var(--text-muted);font-size:0.85rem">Last N messages in current chat. Loaded into Claude context on every request. Survives browser refresh (Firestore-backed). Budget: ~80K tokens.</p>
+      </div>
+      <div class="memory-tier medium">
+        <h4>Medium-Term: Conversation Summaries</h4>
+        <p style="color:var(--text-muted);font-size:0.85rem">AI-generated summary when conversation exceeds 20 messages. Last 3 summaries loaded into new conversations. "Last time you discussed Mrs. Johnson, you talked about her 1035 exchange status..."</p>
+      </div>
+      <div class="memory-tier long">
+        <h4>Long-Term: Client Insights</h4>
+        <p style="color:var(--text-muted);font-size:0.85rem">Extracted automatically from every conversation that references a client. "Mrs. Johnson prefers morning calls." "Husband handles finances when she travels." "Anxious about market volatility." Shared across all team members. Gets smarter with every interaction.</p>
+      </div>
+      <div class="memory-tier platform">
+        <h4>Platform: Live Data (Always Current)</h4>
+        <p style="color:var(--text-muted);font-size:0.85rem">The bot doesn't "remember" account values &mdash; it QUERIES Firestore in real time. Always accurate. Clients, accounts, pipelines, comms, documents. The platform IS the memory.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== WIDGET ==================== -->
+  <div class="tab-panel" id="widget">
+    <div class="card">
+      <h2>Portal Widget Design</h2>
+      <p>MDJ follows the EXACT same slide-out panel pattern as CommsModule, ConnectPanel, and NotificationsModule. Triggered from the sidebar action bar.</p>
+      <div class="diagram">+----------------------------------------------+
+| Portal Layout                                 |
+|                                               |
+| +-----+ +-------------------------------+    |
+| |     | | Page Content                   |    |
+| | S   | |                                |    |
+| | i   | |                                |    |
+| | d   | |                         +------+    |
+| | e   | |                         | MDJ  |    |
+| | b   | |                         |Panel |    |
+| | a   | |                         |      |    |
+| | r   | |                         | Chat |    |
+| |     | |                         |Thread|    |
+| | [M] | |                         |      |    |
+| | [C] | |                         | Tool |    |
+| | [N] | |                         |Cards |    |
+| |*[J]*| |                         |      |    |
+| | [A] | |                         |[    ]|    |
+| +-----+ +-------------------------+------+    |
++----------------------------------------------+
+
+  [M] = Comms    [C] = Connect   [N] = Notifications
+ *[J]* = MDJ (NEW)               [A] = Admin</div>
+    </div>
+    <div class="card">
+      <h2>Component Structure</h2>
+      <table>
+        <tr><th>File</th><th>Purpose</th></tr>
+        <tr><td><code>MDJPanel/index.tsx</code></td><td>Main slide-out panel (responsive widths, backdrop, close)</td></tr>
+        <tr><td><code>ChatThread.tsx</code></td><td>Message list with auto-scroll and streaming text</td></tr>
+        <tr><td><code>ChatInput.tsx</code></td><td>Text input + submit + page context indicator</td></tr>
+        <tr><td><code>MessageBubble.tsx</code></td><td>User/assistant message rendering with markdown</td></tr>
+        <tr><td><code>ToolCallCard.tsx</code></td><td>Inline card showing tool execution + approve/reject buttons</td></tr>
+        <tr><td><code>SpecialistBadge.tsx</code></td><td>Shows which specialist is active in header</td></tr>
+        <tr><td><code>ConversationList.tsx</code></td><td>History drawer &mdash; list of past conversations</td></tr>
+        <tr><td><code>useMDJStream.ts</code></td><td>Custom hook: SSE connection + message state management</td></tr>
+        <tr><td><code>types.ts</code></td><td>TypeScript types for messages, conversations, tools</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Portal Integration</h2>
+      <table>
+        <tr><th>File</th><th>Change</th></tr>
+        <tr><td><code>apps/prodash/app/(portal)/layout.tsx</code></td><td>Mount MDJPanel, add mutual-exclusion state</td></tr>
+        <tr><td><code>apps/riimo/app/(portal)/layout.tsx</code></td><td>Same</td></tr>
+        <tr><td><code>apps/sentinel/app/(portal)/layout.tsx</code></td><td>Same</td></tr>
+        <tr><td><code>apps/*/components/PortalSidebar.tsx</code></td><td>Add MDJ button to action bar (smart_toy icon)</td></tr>
+        <tr><td><code>packages/core/src/users/modules.ts</code></td><td>Add MDJ module key for entitlements</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== DEPLOYMENT ==================== -->
+  <div class="tab-panel" id="deployment">
+    <div class="card">
+      <h2>Deployment Architecture</h2>
+      <div class="diagram">+-------------------------------------------------+
+| MDJ1 SERVER (Dell PowerEdge T440)                |
+| Ubuntu 24.04 | 16 cores | 16GB (32GB soon) RAM  |
+| Tailscale: 100.99.181.57                         |
+|                                                   |
+| +---------------------------------------------+  |
+| | mdj-agent (systemd service, port 4200)      |  |
+| |   Express server                             |  |
+| |   Claude API (Anthropic SDK ^0.80.0)         |  |
+| |   Specialist Router                          |  |
+| |   Tool Executor                              |  |
+| |   Memory System                              |  |
+| +----------------------+----------------------+  |
+|                        |                          |
+| +----------------------v----------------------+  |
+| | MCP SERVERS (8 servers, always running)      |  |
+| |   rpi-workspace | rpi-business | rpi-health  |  |
+| |   rpi-comms | slack | gdrive | gcal | gmail  |  |
+| +---------------------------------------------+  |
+|                                                   |
+| +---------------------------------------------+  |
+| | Cloudflare Tunnel                            |  |
+| |   Exposes mdj-agent to Cloud Run securely    |  |
+| |   Auth header verification                   |  |
+| +---------------------------------------------+  |
++-------------------------------------------------+
+         ^
+         | HTTPS (Cloudflare Tunnel)
+         |
++--------+----------------------------------------+
+| CLOUD RUN (tm-api)                               |
+|   /api/mdj/* routes                              |
+|   Auth gateway ---> forwards to MDJ1             |
+|   SSE proxy (streams response back to portal)    |
++-------------------------------------------------+</div>
+    </div>
+    <div class="card">
+      <h2>MDJ1 Current State</h2>
+      <table>
+        <tr><th>Component</th><th>Status</th></tr>
+        <tr><td>Ubuntu 24.04 LTS</td><td style="color:var(--green)">Running</td></tr>
+        <tr><td>Docker 29.3.0</td><td style="color:var(--green)">Installed</td></tr>
+        <tr><td>Node.js 22.22.1</td><td style="color:var(--green)">Installed</td></tr>
+        <tr><td>SSH + Key Auth</td><td style="color:var(--green)">Active</td></tr>
+        <tr><td>Tailscale</td><td style="color:var(--green)">Connected (100.99.181.57)</td></tr>
+        <tr><td>GitHub SSH</td><td style="color:var(--green)">Authenticated</td></tr>
+        <tr><td>toMachina repo</td><td style="color:var(--green)">Cloned + built (80s)</td></tr>
+        <tr><td>Claude Code 2.1.81</td><td style="color:var(--green)">Installed + authed</td></tr>
+        <tr><td>MCP Servers (8)</td><td style="color:var(--green)">Configured</td></tr>
+        <tr><td>tmux</td><td style="color:var(--green)">Installed</td></tr>
+        <tr><td>mdj-agent service</td><td style="color:var(--orange)">Not yet built</td></tr>
+        <tr><td>Cloudflare Tunnel</td><td style="color:var(--orange)">Not yet configured</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== DATA MODEL ==================== -->
+  <div class="tab-panel" id="data">
+    <div class="card">
+      <h2>New Firestore Collections</h2>
+
+      <h3>mdj_conversations</h3>
+      <div class="diagram">{
+  id: string                    // auto-generated
+  user_email: string            // creator's email
+  portal: "prodash" | "riimo" | "sentinel"
+  title: string                 // auto-generated from first message
+  active_specialist?: string    // e.g. "mdj-medicare"
+  status: "active" | "archived"
+  message_count: number
+  last_message_at: timestamp
+  created_at: timestamp
+  context?: {
+    client_id?: string
+    account_id?: string
+    pipeline_key?: string
+    page_path?: string
+  }
+  summary?: string              // AI-generated when archived
+}</div>
+
+      <h3>mdj_conversations/{id}/messages (subcollection)</h3>
+      <div class="diagram">{
+  id: string
+  role: "user" | "assistant" | "tool_result"
+  content: string
+  specialist?: string
+  tool_calls?: [{
+    tool_name: string
+    tool_input: object
+    tool_result?: object
+    status: "pending" | "running" | "completed" | "failed"
+    requires_approval?: boolean
+    approved?: boolean
+    approved_by?: string
+  }]
+  tokens_used?: number
+  created_at: timestamp
+}</div>
+
+      <h3>mdj_client_insights</h3>
+      <div class="diagram">{
+  id: string                    // = client_id
+  insights: [{
+    key: string                 // "prefers_morning_calls"
+    value: string               // "Mrs. Johnson prefers calls before 10am"
+    source_conversation_id: string
+    extracted_at: timestamp
+    confidence: number          // 0-1
+  }]
+  summary: string               // AI-generated client paragraph
+  updated_at: timestamp
+}</div>
+
+      <h3>mdj_specialist_configs</h3>
+      <div class="diagram">{
+  id: string                    // "mdj-medicare"
+  specialist_name: string
+  display_name: string
+  icon: string                  // Material icon name
+  system_prompt: string         // The specialist's full prompt
+  available_tools: string[]     // Tool IDs this specialist can use
+  routing_keywords: string[]    // Keywords that trigger routing
+  required_level: number        // Min user level (0-3)
+  status: "active" | "disabled"
+}</div>
+    </div>
+  </div>
+
+  <!-- ==================== API ==================== -->
+  <div class="tab-panel" id="api">
+    <div class="card">
+      <h2>New API Routes</h2>
+      <p>Added to <code>services/api/src/routes/mdj.ts</code>, mounted in <code>server.ts</code></p>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Description</th></tr>
+        <tr><td>POST</td><td><code>/api/mdj/chat</code></td><td>Send message, returns SSE stream</td></tr>
+        <tr><td>GET</td><td><code>/api/mdj/conversations</code></td><td>List user's conversations</td></tr>
+        <tr><td>GET</td><td><code>/api/mdj/conversations/:id</code></td><td>Get conversation + messages</td></tr>
+        <tr><td>DELETE</td><td><code>/api/mdj/conversations/:id</code></td><td>Archive conversation</td></tr>
+        <tr><td>POST</td><td><code>/api/mdj/conversations/:id/approve</code></td><td>Approve pending tool call</td></tr>
+        <tr><td>POST</td><td><code>/api/mdj/conversations/:id/reject</code></td><td>Reject pending tool call</td></tr>
+        <tr><td>GET</td><td><code>/api/mdj/specialists</code></td><td>List available specialists</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>SSE Event Types</h2>
+      <table>
+        <tr><th>Event</th><th>Data</th><th>When</th></tr>
+        <tr><td><code>token</code></td><td>{ text: "partial" }</td><td>Each token of AI response</td></tr>
+        <tr><td><code>tool_call</code></td><td>{ tool, input, requires_approval }</td><td>Bot decides to call a tool</td></tr>
+        <tr><td><code>tool_result</code></td><td>{ tool, result }</td><td>Tool execution completed</td></tr>
+        <tr><td><code>approval_required</code></td><td>{ tool, input, call_id }</td><td>Review gate triggered</td></tr>
+        <tr><td><code>specialist_switch</code></td><td>{ from, to, reason }</td><td>Specialist changed</td></tr>
+        <tr><td><code>done</code></td><td>{ conversation_id, tokens_used }</td><td>Response complete</td></tr>
+        <tr><td><code>error</code></td><td>{ error: "message" }</td><td>Something broke</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Tool Layer: 250+ Capabilities</h2>
+      <table>
+        <tr><th>Source</th><th>Count</th><th>Examples</th></tr>
+        <tr><td>TM-API Routes</td><td>57 routes</td><td>clients, accounts, pipelines, comms, que, atlas, sprints, flow, revenue, search</td></tr>
+        <tr><td>rpi-workspace MCP</td><td>73 tools</td><td>GAS, Chat, People, WordPress, Canva, Admin, Video, Meet</td></tr>
+        <tr><td>rpi-business MCP</td><td>28 tools</td><td>Commissions, meetings, Whitepages, agent rates</td></tr>
+        <tr><td>rpi-healthcare MCP</td><td>79 tools</td><td>NPI, ICD-10, CMS, Blue Button, formulary, pharmacy, quoting, Humana, Aetna</td></tr>
+        <tr><td>rpi-comms MCP</td><td>18 tools</td><td>Twilio SMS/Voice, SendGrid email, campaign execution</td></tr>
+        <tr><td>gdrive MCP</td><td>40+ tools</td><td>Drive, Docs, Sheets, Slides CRUD + formatting</td></tr>
+        <tr><td>gmail, calendar, slack</td><td>~20 tools</td><td>Email, events, messages</td></tr>
+        <tr><td><strong>Total</strong></td><td><strong>250+</strong></td><td></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== SPRINT PLAN ==================== -->
+  <div class="tab-panel" id="sprint">
+    <div class="card">
+      <h2>FORGE Sprint: MDJ-ALPHA &mdash; "MyDigitalJosh v1.0"</h2>
+      <p>20 tickets across 4 phases. Each phase has parallel tracks for maximum speed.</p>
+    </div>
+
+    <div class="phase-header"><div class="phase-num">1</div><h3>Foundation (MDJ-001 &rarr; MDJ-005)</h3></div>
+    <div class="card">
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px"><strong>Parallel tracks:</strong> Agent A (backend: 001+002) | Agent B (frontend: 004+005) | Agent C (middleware: 003)</p>
+      <table>
+        <tr><th>Ticket</th><th>Title</th><th>Scope</th></tr>
+        <tr><td>MDJ-001</td><td>Firestore collections + rules</td><td>Create mdj_conversations, mdj_client_insights, mdj_specialist_configs. Firestore rules. Seed specialist configs.</td></tr>
+        <tr><td>MDJ-002</td><td>MDJ Agent Service scaffold</td><td>Node.js Express on MDJ1. Port 4200. Health endpoint. Anthropic SDK streaming. systemd service.</td></tr>
+        <tr><td>MDJ-003</td><td>Cloud Run /api/mdj/* routes</td><td>mdj.ts route file. SSE proxy to MDJ1. Conversation CRUD. Mount in server.ts.</td></tr>
+        <tr><td>MDJ-004</td><td>MDJPanel widget component</td><td>packages/ui/src/modules/MDJPanel/. Chat UI: input, messages, streaming. Match existing panel pattern.</td></tr>
+        <tr><td>MDJ-005</td><td>Portal layout integration</td><td>MDJ button on all 3 sidebars. MDJPanel in all 3 layouts. Mutual-exclusion state.</td></tr>
+      </table>
+    </div>
+
+    <div class="phase-header"><div class="phase-num">2</div><h3>Tools + Permissions (MDJ-006 &rarr; MDJ-010)</h3></div>
+    <div class="card">
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px"><strong>Parallel tracks:</strong> Agent A (tool registry: 006) | Agent B (MCP bridge: 007) | Agent C (permissions: 008+009) after A+B</p>
+      <table>
+        <tr><th>Ticket</th><th>Title</th><th>Scope</th></tr>
+        <tr><td>MDJ-006</td><td>TM API tool registry</td><td>Tool definitions for all 57 API routes. Method, path, schema, required level.</td></tr>
+        <tr><td>MDJ-007</td><td>MCP bridge</td><td>Connect mdj-agent to 8 MCP servers. Wrap as Claude tools.</td></tr>
+        <tr><td>MDJ-008</td><td>Permission-scoped tool filtering</td><td>Filter tools by user level + module_permissions per request.</td></tr>
+        <tr><td>MDJ-009</td><td>Review gates</td><td>requires_approval flow. SSE approval_required event. Approve/reject UI.</td></tr>
+        <tr><td>MDJ-010</td><td>Tool execution display</td><td>ToolCallCard component. Shows tool name, input, result, status inline.</td></tr>
+      </table>
+    </div>
+
+    <div class="phase-header"><div class="phase-num">3</div><h3>Specialists + Memory (MDJ-011 &rarr; MDJ-015)</h3></div>
+    <div class="card">
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px"><strong>Parallel tracks:</strong> Agent A (specialists: 011+012) | Agent B (memory: 013+014) | Agent C (context: 015)</p>
+      <table>
+        <tr><th>Ticket</th><th>Title</th><th>Scope</th></tr>
+        <tr><td>MDJ-011</td><td>Specialist routing engine</td><td>Keyword match + Claude classification. System prompt swap. SpecialistBadge UI.</td></tr>
+        <tr><td>MDJ-012</td><td>Seed specialist prompts</td><td>System prompts for all 6 specialists. Domain knowledge, procedures, PHI rules.</td></tr>
+        <tr><td>MDJ-013</td><td>Conversation persistence</td><td>Firestore subcollection save/load. ConversationList history drawer.</td></tr>
+        <tr><td>MDJ-014</td><td>Memory extraction pipeline</td><td>Post-conversation client insight extraction. Store + load into context.</td></tr>
+        <tr><td>MDJ-015</td><td>Page context awareness</td><td>Capture client_id/pipeline_key/page_path. Send with messages.</td></tr>
+      </table>
+    </div>
+
+    <div class="phase-header"><div class="phase-num">4</div><h3>Production (MDJ-016 &rarr; MDJ-020)</h3></div>
+    <div class="card">
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px"><strong>Parallel tracks:</strong> Agent A (infra: 016) | Agent B (features: 017+018) | Agent C (testing: 019+020)</p>
+      <table>
+        <tr><th>Ticket</th><th>Title</th><th>Scope</th></tr>
+        <tr><td>MDJ-016</td><td>MDJ1 production hardening</td><td>Cloudflare Tunnel. Health monitoring. Auto-restart. Rate limiting.</td></tr>
+        <tr><td>MDJ-017</td><td>Long context management</td><td>Conversation summarization. Include recent summaries in new conversations.</td></tr>
+        <tr><td>MDJ-018</td><td>User preferences</td><td>Settings in MDJ panel: auto-approve, tool details, default specialist.</td></tr>
+        <tr><td>MDJ-019</td><td>E2E testing</td><td>Playwright: panel open/close/send. Vitest: mdj.ts API routes.</td></tr>
+        <tr><td>MDJ-020</td><td>Admin dashboard</td><td>RIIMO admin view: conversation analytics, tool usage, specialist stats.</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  MyDigitalJosh (MDJ) &mdash; Discovery Document &mdash; FORGE Sprint MDJ-ALPHA<br>
+  toMachina Platform &bull; Retirement Protectors, Inc. &bull; 2026-03-23<br>
+  <em>"What if everyone at RPI had a Josh sitting next to them, 24/7?"</em>
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
