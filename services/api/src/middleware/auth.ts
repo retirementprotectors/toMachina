@@ -2,13 +2,10 @@ import { type Request, type Response, type NextFunction } from 'express'
 import { getAuth } from 'firebase-admin/auth'
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  // Twilio webhook routes call our API directly — no Firebase token available
-  if (req.path.startsWith('/comms/webhook/')) {
-    return next()
-  }
-
-  // SendGrid inbound parse webhook — no Firebase token available
-  if (req.path.startsWith('/webhooks/sendgrid-inbound')) {
+  // External webhook routes — called by third-party services (Twilio, SendGrid,
+  // DocuSign) without Firebase tokens. All routes under /webhooks/ and
+  // /comms/webhook/ are public webhook endpoints.
+  if (req.path.startsWith('/webhooks/') || req.path.startsWith('/comms/webhook/')) {
     return next()
   }
 
