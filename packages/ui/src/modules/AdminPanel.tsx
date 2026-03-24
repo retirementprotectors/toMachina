@@ -131,6 +131,7 @@ const MODULE_SECTIONS: SectionDef[] = [
       { key: 'pipeline-studio', label: 'Pipeline Studio', icon: 'view_kanban', moduleKey: 'PIPELINE_STUDIO' },
       { key: 'forge', label: 'FORGE', icon: 'construction', moduleKey: 'FORGE' },
       { key: 'guardian', label: 'GUARDIAN', icon: 'shield', moduleKey: 'GUARDIAN' },
+      { key: 'mdj', label: 'MDJ', icon: 'smart_toy', moduleKey: 'MDJ' },
       { key: 'prozone', label: 'ProZONE', icon: 'explore', moduleKey: 'PROZONE' },
     ],
   },
@@ -755,6 +756,104 @@ function AgentDesignation({
   )
 }
 
+/* ─── MDJ Preferences (AI assistant config per user) ─── */
+
+const MDJ_SPECIALISTS = [
+  { value: '', label: 'No default (General MDJ)' },
+  { value: 'mdj-medicare', label: 'MDJ-Medicare' },
+  { value: 'mdj-securities', label: 'MDJ-Securities' },
+  { value: 'mdj-service', label: 'MDJ-Service' },
+  { value: 'mdj-david', label: 'MDJ-DAVID' },
+  { value: 'mdj-ops', label: 'MDJ-Ops' },
+]
+
+function MDJPreferences({
+  member,
+  editable,
+}: {
+  member: UserRecord
+  editable: boolean
+}) {
+  const prefs = (member as unknown as Record<string, unknown>).mdj_preferences as Record<string, unknown> | undefined
+  const [showToolDetails, setShowToolDetails] = useState(Boolean(prefs?.show_tool_details ?? true))
+  const [defaultSpecialist, setDefaultSpecialist] = useState(String(prefs?.default_specialist || ''))
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    const p = (member as unknown as Record<string, unknown>).mdj_preferences as Record<string, unknown> | undefined
+    setShowToolDetails(Boolean(p?.show_tool_details ?? true))
+    setDefaultSpecialist(String(p?.default_specialist || ''))
+  }, [member])
+
+  const savePrefs = async (updates: Record<string, unknown>) => {
+    if (!editable) return
+    setSaving(true)
+    try {
+      const ref = doc(getDb(), 'users', member._id)
+      await updateDoc(ref, {
+        'mdj_preferences': { ...prefs, ...updates },
+        updated_at: new Date().toISOString(),
+      })
+    } catch {
+      // revert on failure
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 space-y-3">
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>
+          smart_toy
+        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          MDJ Configuration
+        </span>
+        {saving && (
+          <span className="h-3 w-3 animate-spin rounded-full border border-[var(--portal)] border-t-transparent" />
+        )}
+      </div>
+
+      {/* Show tool details toggle */}
+      <div className="flex items-center gap-3">
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={showToolDetails}
+            onChange={() => {
+              const newVal = !showToolDetails
+              setShowToolDetails(newVal)
+              savePrefs({ show_tool_details: newVal })
+            }}
+            disabled={!editable || saving}
+            className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)] disabled:opacity-40"
+          />
+          <span className="text-xs text-[var(--text-primary)]">Show tool execution details in chat</span>
+        </label>
+      </div>
+
+      {/* Default specialist */}
+      <div>
+        <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Default Specialist</label>
+        <select
+          value={defaultSpecialist}
+          onChange={(e) => {
+            setDefaultSpecialist(e.target.value)
+            savePrefs({ default_specialist: e.target.value })
+          }}
+          disabled={!editable || saving}
+          className="w-56 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1.5 text-xs text-[var(--text-primary)] disabled:opacity-50"
+        >
+          {MDJ_SPECIALISTS.map((s) => (
+            <option key={s.value} value={s.value}>{s.label}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Member row — extracted to a proper component so hooks are valid ─── */
 
 /** Unified item type used by section-based rendering in TeamMemberRow */
@@ -1024,6 +1123,11 @@ function TeamMemberRow({
           {/* Agent Designation — is_agent toggle + NPN */}
           {canEdit && (
             <AgentDesignation member={member} isLeader={canEdit} isSelf={false} />
+          )}
+
+          {/* MDJ Configuration — AI assistant preferences */}
+          {canEdit && (
+            <MDJPreferences member={member} editable={canEdit} />
           )}
 
           {isFullyLocked && (

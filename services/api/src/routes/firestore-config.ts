@@ -16,6 +16,7 @@ const CONFIG_COLLECTIONS = [
   'acf_config',
   'spark_config',
   'specialist_configs',
+  'mdj_specialist_configs',
   'territories',
   'comp_grids',
   'comp_grid_history',
