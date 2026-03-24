@@ -50,6 +50,7 @@
   },
   "packageManager": "npm@10.9.2",
   "dependencies": {
+    "@twilio/voice-sdk": "^2.18.1",
     "qrcode.react": "^4.2.0"
   }
 }

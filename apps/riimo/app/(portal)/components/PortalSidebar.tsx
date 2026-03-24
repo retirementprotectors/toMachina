@@ -155,10 +155,12 @@ interface PortalSidebarProps {
   connectOpen?: boolean
   onNotificationsToggle?: () => void
   notificationsOpen?: boolean
+  onMdjToggle?: () => void
+  mdjOpen?: boolean
   panelOpen?: boolean
 }
 
-export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen, onNotificationsToggle, notificationsOpen, panelOpen }: PortalSidebarProps) {
+export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, connectOpen, onNotificationsToggle, notificationsOpen, onMdjToggle, mdjOpen, panelOpen }: PortalSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuth()
@@ -512,6 +514,30 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
             {!collapsed && (
               <span className="text-[9px] mt-0.5" style={{ color: notificationsOpen ? 'var(--portal)' : 'var(--text-muted)' }}>
                 Alerts
+              </span>
+            )}
+          </button>
+
+          {/* MDJ */}
+          <button
+            onClick={onMdjToggle}
+            title="MyDigitalJosh"
+            className={`flex flex-col items-center justify-center rounded-lg transition-all duration-150 ${
+              collapsed ? 'h-9 w-9' : 'h-9 w-9'
+            }`}
+            style={{
+              background: mdjOpen ? 'rgba(167,139,250,0.15)' : 'transparent',
+            }}
+          >
+            <span
+              className="material-icons-outlined"
+              style={{ fontSize: '20px', color: mdjOpen ? 'var(--portal)' : 'var(--text-muted)' }}
+            >
+              smart_toy
+            </span>
+            {!collapsed && (
+              <span className="text-[9px] mt-0.5" style={{ color: mdjOpen ? 'var(--portal)' : 'var(--text-muted)' }}>
+                MDJ
               </span>
             )}
           </button>

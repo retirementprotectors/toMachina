@@ -118,12 +118,12 @@ export const TOOL_SUITES: Record<SuiteKey, ToolSuiteDef> = {
     name: 'Admin',
     description: 'Organization & Permissions Management',
     matrix: 'RAPID',
-    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN'],
+    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN', 'MDJ'],
   },
 }
 
 // ============================================================================
-// 46 MODULE DEFINITIONS
+// 47 MODULE DEFINITIONS
 // ============================================================================
 
 export const MODULES: Record<string, ModuleDef> = {
@@ -447,6 +447,14 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'OWNER',
+  },
+  MDJ: {
+    name: 'MDJ',
+    fullName: 'MyDigitalJosh AI Assistant',
+    description: 'AI-powered conversational assistant wired into the entire toMachina platform',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
+    minUserLevel: 'USER',
   },
   PROZONE: {
     name: 'ProZONE',
