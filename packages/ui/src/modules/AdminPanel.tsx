@@ -131,7 +131,6 @@ const MODULE_SECTIONS: SectionDef[] = [
       { key: 'pipeline-studio', label: 'Pipeline Studio', icon: 'view_kanban', moduleKey: 'PIPELINE_STUDIO' },
       { key: 'forge', label: 'FORGE', icon: 'construction', moduleKey: 'FORGE' },
       { key: 'guardian', label: 'GUARDIAN', icon: 'shield', moduleKey: 'GUARDIAN' },
-      { key: 'mdj', label: 'MDJ', icon: 'smart_toy', moduleKey: 'MDJ' },
       { key: 'prozone', label: 'ProZONE', icon: 'explore', moduleKey: 'PROZONE' },
     ],
   },
@@ -756,105 +755,132 @@ function AgentDesignation({
   )
 }
 
-/* ─── MDJ Preferences (AI assistant config per user) ─── */
+/* ─── Member row — extracted to a proper component so hooks are valid ─── */
 
-const MDJ_SPECIALISTS = [
-  { value: '', label: 'No default (General MDJ)' },
-  { value: 'mdj-medicare', label: 'MDJ-Medicare' },
-  { value: 'mdj-securities', label: 'MDJ-Securities' },
-  { value: 'mdj-service', label: 'MDJ-Service' },
-  { value: 'mdj-david', label: 'MDJ-DAVID' },
-  { value: 'mdj-ops', label: 'MDJ-Ops' },
-]
+/* ─── MDJ Preferences Section (TRK-018) ─── */
 
-function MDJPreferences({
-  member,
-  editable,
-}: {
-  member: UserRecord
-  editable: boolean
-}) {
-  const prefs = (member as unknown as Record<string, unknown>).mdj_preferences as Record<string, unknown> | undefined
-  const [showToolDetails, setShowToolDetails] = useState(Boolean(prefs?.show_tool_details ?? true))
-  const [defaultSpecialist, setDefaultSpecialist] = useState(String(prefs?.default_specialist || ''))
-  const [saving, setSaving] = useState(false)
+function MDJPreferencesSection({ memberId, memberEmail }: { memberId: string; memberEmail: string }) {
+  const [showToolDetails, setShowToolDetails] = useState(true)
+  const [defaultSpecialist, setDefaultSpecialist] = useState('')
+  const [autoApproveTools, setAutoApproveTools] = useState('')
+  const [retention, setRetention] = useState<'standard' | 'minimal' | 'none'>('standard')
+  const [loaded, setLoaded] = useState(false)
 
+  // Load existing MDJ preferences from users/{email}.mdj_preferences
   useEffect(() => {
-    const p = (member as unknown as Record<string, unknown>).mdj_preferences as Record<string, unknown> | undefined
-    setShowToolDetails(Boolean(p?.show_tool_details ?? true))
-    setDefaultSpecialist(String(p?.default_specialist || ''))
-  }, [member])
+    if (!memberEmail) return
+    const loadPrefs = async () => {
+      try {
+        const ref = doc(getDb(), 'users', memberId)
+        const { getDoc: getDocFn } = await import('firebase/firestore')
+        const snap = await getDocFn(ref)
+        const prefs = snap.data()?.mdj_preferences
+        if (prefs) {
+          setShowToolDetails(prefs.show_tool_details ?? true)
+          setDefaultSpecialist(prefs.default_specialist || '')
+          setAutoApproveTools(prefs.auto_approve_tools || '')
+          setRetention(prefs.retention || 'standard')
+        }
+      } catch { /* ignore load errors */ }
+      setLoaded(true)
+    }
+    loadPrefs()
+  }, [memberId, memberEmail])
 
-  const savePrefs = async (updates: Record<string, unknown>) => {
-    if (!editable) return
-    setSaving(true)
+  const savePrefs = useCallback(async (updates: Record<string, unknown>) => {
     try {
-      const ref = doc(getDb(), 'users', member._id)
+      const ref = doc(getDb(), 'users', memberId)
       await updateDoc(ref, {
-        'mdj_preferences': { ...prefs, ...updates },
+        'mdj_preferences': {
+          show_tool_details: showToolDetails,
+          default_specialist: defaultSpecialist || null,
+          auto_approve_tools: autoApproveTools || '',
+          retention,
+          ...updates,
+        },
         updated_at: new Date().toISOString(),
       })
-    } catch {
-      // revert on failure
-    } finally {
-      setSaving(false)
-    }
-  }
+    } catch { /* ignore save errors */ }
+  }, [memberId, showToolDetails, defaultSpecialist, autoApproveTools, retention])
+
+  if (!loaded) return null
 
   return (
-    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-3 space-y-3">
-      <div className="flex items-center gap-1.5 mb-1">
-        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>
-          smart_toy
-        </span>
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-          MDJ Configuration
-        </span>
-        {saving && (
-          <span className="h-3 w-3 animate-spin rounded-full border border-[var(--portal)] border-t-transparent" />
-        )}
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-2.5 space-y-2.5">
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '16px' }}>smart_toy</span>
+        <span className="text-xs font-semibold text-[var(--text-primary)]">MDJ Preferences</span>
       </div>
 
-      {/* Show tool details toggle */}
-      <div className="flex items-center gap-3">
-        <label className="flex items-center gap-2 cursor-pointer select-none">
+      <div className="grid grid-cols-2 gap-3">
+        {/* Show Tool Details */}
+        <label className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
           <input
             type="checkbox"
             checked={showToolDetails}
-            onChange={() => {
-              const newVal = !showToolDetails
-              setShowToolDetails(newVal)
-              savePrefs({ show_tool_details: newVal })
+            onChange={(e) => {
+              setShowToolDetails(e.target.checked)
+              savePrefs({ show_tool_details: e.target.checked })
             }}
-            disabled={!editable || saving}
-            className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)] disabled:opacity-40"
+            className="rounded"
           />
-          <span className="text-xs text-[var(--text-primary)]">Show tool execution details in chat</span>
+          Show tool details
         </label>
-      </div>
 
-      {/* Default specialist */}
-      <div>
-        <label className="block text-[10px] text-[var(--text-muted)] mb-0.5">Default Specialist</label>
-        <select
-          value={defaultSpecialist}
-          onChange={(e) => {
-            setDefaultSpecialist(e.target.value)
-            savePrefs({ default_specialist: e.target.value })
-          }}
-          disabled={!editable || saving}
-          className="w-56 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1.5 text-xs text-[var(--text-primary)] disabled:opacity-50"
-        >
-          {MDJ_SPECIALISTS.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
-          ))}
-        </select>
+        {/* Default Specialist */}
+        <div>
+          <label className="text-[10px] text-[var(--text-muted)] block mb-0.5">Default Specialist</label>
+          <select
+            value={defaultSpecialist}
+            onChange={(e) => {
+              setDefaultSpecialist(e.target.value)
+              savePrefs({ default_specialist: e.target.value || null })
+            }}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)]"
+          >
+            <option value="">General (default)</option>
+            <option value="mdj-medicare">Medicare</option>
+            <option value="mdj-securities">Securities</option>
+            <option value="mdj-service">Service</option>
+            <option value="mdj-david">DAVID</option>
+            <option value="mdj-ops">Operations</option>
+          </select>
+        </div>
+
+        {/* Auto-Approve Tools */}
+        <div>
+          <label className="text-[10px] text-[var(--text-muted)] block mb-0.5">Auto-Approve Tools (comma-separated)</label>
+          <input
+            type="text"
+            value={autoApproveTools}
+            onChange={(e) => setAutoApproveTools(e.target.value)}
+            onBlur={() => savePrefs({ auto_approve_tools: autoApproveTools })}
+            placeholder="e.g. search_clients, lookup_npi"
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)]"
+          />
+        </div>
+
+        {/* Retention */}
+        <div>
+          <label className="text-[10px] text-[var(--text-muted)] block mb-0.5">Conversation Retention</label>
+          <select
+            value={retention}
+            onChange={(e) => {
+              const val = e.target.value as 'standard' | 'minimal' | 'none'
+              setRetention(val)
+              savePrefs({ retention: val })
+            }}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)]"
+          >
+            <option value="standard">Standard (keep all)</option>
+            <option value="minimal">Minimal (summaries only)</option>
+            <option value="none">None (no persistence)</option>
+          </select>
+        </div>
       </div>
     </div>
   )
 }
-
-/* ─── Member row — extracted to a proper component so hooks are valid ─── */
 
 /** Unified item type used by section-based rendering in TeamMemberRow */
 interface UnifiedItem {
@@ -1125,9 +1151,9 @@ function TeamMemberRow({
             <AgentDesignation member={member} isLeader={canEdit} isSelf={false} />
           )}
 
-          {/* MDJ Configuration — AI assistant preferences */}
+          {/* MDJ Preferences — TRK-018 */}
           {canEdit && (
-            <MDJPreferences member={member} editable={canEdit} />
+            <MDJPreferencesSection memberId={member._id} memberEmail={member.email || ''} />
           )}
 
           {isFullyLocked && (
