@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import type { FlowTaskInstanceData, CheckResult } from '@tomachina/core'
 
 // ============================================================================
 // TaskChecklist — grouped task list with completion, skip, system check badges
+// Supports DEX-specific check_types: DEX_KIT_GENERATE, DEX_DOCUSIGN
 // ============================================================================
 
 export interface TaskChecklistProps {
@@ -51,6 +52,95 @@ interface StepGroup {
 
 /* ─── Task Row ─── */
 
+/* ─── DEX Action Button ─── */
+
+function DexActionButton({
+  task,
+  onComplete,
+}: {
+  task: FlowTaskInstanceData
+  onComplete: () => void
+}) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  const isDexKit = task.check_type === 'DEX_KIT_GENERATE'
+  const isDexDocuSign = task.check_type === 'DEX_DOCUSIGN'
+
+  // Parse check_config for package/kit context
+  const config = useMemo(() => {
+    if (!task.check_config) return {}
+    try { return typeof task.check_config === 'string' ? JSON.parse(task.check_config) : task.check_config }
+    catch { return {} }
+  }, [task.check_config])
+
+  const handleDexAction = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      if (isDexKit) {
+        // Trigger kit build or just complete the task (the kit is built via DEX UI)
+        // Complete the flow task to mark it done
+        onComplete()
+        setSuccess(true)
+      } else if (isDexDocuSign) {
+        // If we have a package_id in config, trigger DocuSign send
+        const packageId = (config as Record<string, unknown>).package_id
+        if (packageId) {
+          const res = await fetch(`/api/dex-pipeline/packages/${String(packageId)}/send-docusign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          })
+          const data = await res.json()
+          if (!data.success) {
+            setError(data.error || 'DocuSign send failed')
+            setLoading(false)
+            return
+          }
+        }
+        // Complete the flow task
+        onComplete()
+        setSuccess(true)
+      }
+    } catch {
+      setError('Action failed — try again')
+    } finally {
+      setLoading(false)
+    }
+  }, [isDexKit, isDexDocuSign, config, onComplete])
+
+  if (success) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+        <span className="material-icons-outlined" style={{ fontSize: '12px' }}>check_circle</span>
+        Done
+      </span>
+    )
+  }
+
+  return (
+    <div className="inline-flex flex-col items-start gap-1">
+      <button
+        onClick={handleDexAction}
+        disabled={loading}
+        className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-medium text-white transition-colors disabled:opacity-50"
+        style={{ backgroundColor: 'var(--portal)' }}
+      >
+        {loading ? (
+          <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+        ) : (
+          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
+            {isDexKit ? 'inventory_2' : 'send'}
+          </span>
+        )}
+        {isDexKit ? 'Build Kit' : 'Send for Signature'}
+      </button>
+      {error && <span className="text-[9px] text-red-400">{error}</span>}
+    </div>
+  )
+}
+
 function TaskRow({
   task,
   onComplete,
@@ -69,6 +159,8 @@ function TaskRow({
   const isBlocked = task.status === 'blocked'
   const isDone = isCompleted || isSkipped
 
+  const isDexAction = task.check_type === 'DEX_KIT_GENERATE' || task.check_type === 'DEX_DOCUSIGN'
+
   const statusStyle = STATUS_STYLES[task.status] || STATUS_STYLES.pending
 
   const handleSkip = () => {
@@ -82,28 +174,41 @@ function TaskRow({
   return (
     <div className="rounded-lg bg-[var(--bg-card)] px-3 py-2.5">
       <div className="flex items-center gap-3">
-        {/* Checkbox */}
-        <button
-          onClick={onComplete}
-          disabled={isDone || isBlocked}
-          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
-            isCompleted
-              ? 'border-transparent'
-              : 'border-[var(--border-subtle)] hover:border-[var(--portal)]'
-          } ${isDone || isBlocked ? 'cursor-default' : 'cursor-pointer'}`}
-          style={isCompleted ? { backgroundColor: 'var(--success)' } : undefined}
-        >
-          {isCompleted && (
-            <span className="material-icons-outlined text-white" style={{ fontSize: '14px' }}>
-              check
-            </span>
-          )}
-          {isSkipped && (
-            <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
-              remove
-            </span>
-          )}
-        </button>
+        {/* Checkbox — hidden for DEX action tasks (they use action buttons instead) */}
+        {!isDexAction ? (
+          <button
+            onClick={onComplete}
+            disabled={isDone || isBlocked}
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
+              isCompleted
+                ? 'border-transparent'
+                : 'border-[var(--border-subtle)] hover:border-[var(--portal)]'
+            } ${isDone || isBlocked ? 'cursor-default' : 'cursor-pointer'}`}
+            style={isCompleted ? { backgroundColor: 'var(--success)' } : undefined}
+          >
+            {isCompleted && (
+              <span className="material-icons-outlined text-white" style={{ fontSize: '14px' }}>
+                check
+              </span>
+            )}
+            {isSkipped && (
+              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>
+                remove
+              </span>
+            )}
+          </button>
+        ) : (
+          /* DEX icon placeholder for alignment */
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+            {isCompleted ? (
+              <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--success)' }}>check_circle</span>
+            ) : (
+              <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>
+                {task.check_type === 'DEX_KIT_GENERATE' ? 'inventory_2' : 'send'}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Task name */}
         <div className="flex flex-1 items-center gap-2 overflow-hidden">
@@ -141,6 +246,11 @@ function TaskRow({
           )}
         </div>
 
+        {/* DEX action button — replaces checkbox for DEX tasks */}
+        {isDexAction && !isDone && !isBlocked && (
+          <DexActionButton task={task} onComplete={onComplete} />
+        )}
+
         {/* Status pill */}
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${statusStyle.bg} ${statusStyle.text}`}
@@ -148,8 +258,8 @@ function TaskRow({
           {task.status}
         </span>
 
-        {/* Skip button (non-required only, not done) */}
-        {!task.is_required && !isDone && !isBlocked && (
+        {/* Skip button (non-required only, not done, not DEX actions) */}
+        {!task.is_required && !isDone && !isBlocked && !isDexAction && (
           <button
             onClick={() => setShowSkip((v) => !v)}
             className="shrink-0 text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
