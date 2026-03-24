@@ -162,14 +162,14 @@ mdjRoutes.get('/conversations', async (req: Request, res: Response) => {
  */
 mdjRoutes.get('/conversations/:id', async (req: Request, res: Response) => {
   try {
-    const convDoc = await db.collection('mdj_conversations').doc(req.params.id).get()
+    const convDoc = await db.collection('mdj_conversations').doc(String(req.params.id)).get()
     if (!convDoc.exists) {
       res.status(404).json(errorResponse('Conversation not found'))
       return
     }
 
     const messagesSnap = await db.collection('mdj_conversations')
-      .doc(req.params.id)
+      .doc(String(req.params.id))
       .collection('messages')
       .orderBy('created_at', 'asc')
       .get()
@@ -192,7 +192,7 @@ mdjRoutes.get('/conversations/:id', async (req: Request, res: Response) => {
  */
 mdjRoutes.delete('/conversations/:id', async (req: Request, res: Response) => {
   try {
-    await db.collection('mdj_conversations').doc(req.params.id).update({
+    await db.collection('mdj_conversations').doc(String(req.params.id)).update({
       status: 'archived',
       updated_at: new Date().toISOString(),
     })
@@ -219,7 +219,7 @@ mdjRoutes.post('/conversations/:id/approve', async (req: Request, res: Response)
         'X-MDJ-Auth': MDJ_AUTH_SECRET,
       },
       body: JSON.stringify({
-        conversation_id: req.params.id,
+        conversation_id: String(req.params.id),
         call_id,
         approved_by: user?.email,
       }),
@@ -248,7 +248,7 @@ mdjRoutes.post('/conversations/:id/reject', async (req: Request, res: Response) 
         'X-MDJ-Auth': MDJ_AUTH_SECRET,
       },
       body: JSON.stringify({
-        conversation_id: req.params.id,
+        conversation_id: String(req.params.id),
         call_id,
         rejected_by: user?.email,
         reason,
