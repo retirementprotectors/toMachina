@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MDJ × Career Path — Scaling RPI to 181 Agencies</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  /* Tabs */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-hover);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* Diagram boxes */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  /* Flow steps */
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .flow-step.green { border-left-color: var(--green); }
+  .flow-step.orange { border-left-color: var(--orange); }
+  .flow-step.purple { border-left-color: var(--purple); }
+  .flow-step.cyan { border-left-color: var(--cyan); }
+  .flow-step.pink { border-left-color: var(--pink); }
+  .flow-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .flow-num.green { background: var(--green); }
+  .flow-num.orange { background: var(--orange); }
+  .flow-num.purple { background: var(--purple); }
+  .flow-num.cyan { background: var(--cyan); }
+  .flow-num.pink { background: var(--pink); }
+  .flow-body h4 { color: var(--text); font-size: 0.95rem; margin-bottom: 4px; }
+  .flow-body p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+  /* Spec grid */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .spec-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .spec-card.medicare { border-top-color: var(--green); }
+  .spec-card.retirement { border-top-color: var(--orange); }
+  .spec-card.david { border-top-color: var(--purple); }
+  .spec-card.coach { border-top-color: var(--pink); }
+  .spec-card.service { border-top-color: var(--cyan); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card .keywords { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+  .spec-card .keywords span {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    margin: 2px;
+  }
+
+  /* Level bars */
+  .level-bar {
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+  }
+  .level-bar.owner  { border-left-color: var(--red);    background: rgba(239,68,68,0.08); }
+  .level-bar.exec   { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.leader { border-left-color: var(--accent); background: rgba(59,130,246,0.08); }
+  .level-bar.user   { border-left-color: var(--green);  background: rgba(34,197,94,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+  /* Phase headers */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 12px;
+    padding: 12px 16px;
+    background: var(--accent-glow);
+    border-radius: 8px;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+  .phase-header.green { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.2); }
+  .phase-header.orange { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); }
+  .phase-header.purple { background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.2); }
+  .phase-header .phase-num {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: white;
+    border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+  }
+  .phase-header.green .phase-num { background: var(--green); }
+  .phase-header.orange .phase-num { background: var(--orange); }
+  .phase-header.purple .phase-num { background: var(--purple); }
+  .phase-header h3 { color: var(--accent); margin: 0; font-size: 1rem; }
+  .phase-header.green h3 { color: var(--green); }
+  .phase-header.orange h3 { color: var(--orange); }
+  .phase-header.purple h3 { color: var(--purple); }
+
+  /* Code blocks */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* Pill badges */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill.new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.mod { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .pill.hot { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.key { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+  /* Valuation block */
+  .val-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .val-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .val-card .year { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .val-card .val { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+  .val-card .sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+  .val-card.y2025 { border-top: 3px solid var(--cyan); }
+  .val-card.y2026 { border-top: 3px solid var(--green); }
+  .val-card.y2027 { border-top: 3px solid var(--orange); }
+  .val-card.y2028 { border-top: 3px solid var(--purple); }
+
+  /* Day timeline */
+  .day-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding: 14px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+  }
+  .day-badge {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+    min-width: 60px;
+    text-align: center;
+  }
+  .day-badge.green { background: rgba(34,197,94,0.1); color: var(--green); border-color: rgba(34,197,94,0.3); }
+  .day-body h4 { color: var(--text); font-size: 0.9rem; margin-bottom: 2px; }
+  .day-body p { color: var(--text-muted); font-size: 0.82rem; margin: 0; }
+
+  /* Priority list */
+  .priority-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    border-left: 3px solid var(--border);
+  }
+  .priority-item.p1 { border-left-color: var(--red); }
+  .priority-item.p2 { border-left-color: var(--orange); }
+  .priority-item.p3 { border-left-color: var(--accent); }
+  .priority-item.p4 { border-left-color: var(--green); }
+  .priority-item.p5 { border-left-color: var(--purple); }
+  .pnum {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: white;
+  }
+  .p1 .pnum { background: var(--red); }
+  .p2 .pnum { background: var(--orange); }
+  .p3 .pnum { background: var(--accent); }
+  .p4 .pnum { background: var(--green); }
+  .p5 .pnum { background: var(--purple); }
+  .priority-item h4 { color: var(--text); font-size: 0.95rem; margin-bottom: 4px; }
+  .priority-item p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+  /* Insight callout */
+  .insight {
+    padding: 16px 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--orange);
+    background: rgba(245,158,11,0.08);
+    margin: 16px 0;
+  }
+  .insight.blue { border-left-color: var(--accent); background: rgba(59,130,246,0.08); }
+  .insight.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .insight.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .insight p { color: var(--text); font-size: 0.9rem; margin: 0; font-style: italic; }
+  .insight .label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--orange); margin-bottom: 6px; }
+  .insight.blue .label { color: var(--accent); }
+  .insight.purple .label { color: var(--purple); }
+  .insight.green .label { color: var(--green); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .content { padding: 16px; }
+    .card { padding: 16px; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .val-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MDJ &times; Career Path</h1>
+  <div class="subtitle">
+    Scaling RPI to 181 Agencies &mdash; How MyDigitalJosh transforms every level of the org and makes the growth targets achievable.
+  </div>
+  <div class="badge">Discovery Document &mdash; 2026</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="blueprint">The Blueprint</div>
+    <div class="tab" data-tab="ladder">Career Ladder &times; MDJ</div>
+    <div class="tab" data-tab="coach">MDJ-Coach</div>
+    <div class="tab" data-tab="divisions">Divisions</div>
+    <div class="tab" data-tab="acquisition">Acquisition Engine</div>
+    <div class="tab" data-tab="comp">Comp &amp; Production</div>
+    <div class="tab" data-tab="esop">The ESOP Play</div>
+    <div class="tab" data-tab="next">What To Build Next</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ==================== TAB 1: THE BLUEPRINT ==================== -->
+  <div class="tab-panel active" id="blueprint">
+
+    <div class="card">
+      <h2>The Growth Problem</h2>
+      <p>RPI's targets are aggressive. Not impossible — but they require a kind of scalability that doesn't exist in traditional agency models. You can't hire 181 Joshes. You can't train fast enough, onboard fast enough, or hold enough institutional knowledge in human heads to run 181 agencies at once.</p>
+      <p>MDJ is not a feature. MDJ is the <strong>scaling strategy itself.</strong></p>
+    </div>
+
+    <div class="card">
+      <h2>The Targets</h2>
+      <div class="val-grid">
+        <div class="val-card y2025">
+          <div class="year">2025</div>
+          <div class="val">$25MM</div>
+          <div class="sub">7 Agencies &bull; 6K Clients &bull; $5MM NOI</div>
+        </div>
+        <div class="val-card y2026">
+          <div class="year">2026</div>
+          <div class="val">$133MM</div>
+          <div class="sub">31 Agencies &bull; 15K Clients &bull; $20MM NOI</div>
+        </div>
+        <div class="val-card y2027">
+          <div class="year">2027</div>
+          <div class="val">$1.2BB</div>
+          <div class="sub">181 Agencies &bull; 90K Clients &bull; $120MM NOI</div>
+        </div>
+        <div class="val-card y2028">
+          <div class="year">2028+</div>
+          <div class="val">$3BB&rarr;$16BB</div>
+          <div class="sub">ESOP Launch &bull; MDJ as IP multiplier</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Three Divisions</h2>
+      <table>
+        <tr>
+          <th>Division</th>
+          <th>Brand</th>
+          <th>Channel</th>
+          <th>MDJ Role</th>
+        </tr>
+        <tr>
+          <td><strong>Medicare</strong></td>
+          <td>Spark</td>
+          <td>B2C</td>
+          <td>Quoting, plan comparison, AEP workflows, enrollment status</td>
+        </tr>
+        <tr>
+          <td><strong>Retirement</strong></td>
+          <td>Signal &rarr; Gradient</td>
+          <td>B2C</td>
+          <td>Advisory accounts, 1035 exchanges, RMDs, Schwab/RBC ops</td>
+        </tr>
+        <tr>
+          <td><strong>B2BEI</strong></td>
+          <td>DAVID</td>
+          <td>B2B</td>
+          <td>Prospect analysis, BoB valuation, deal pipeline, acquisition onboarding</td>
+        </tr>
+      </table>
+      <div class="insight blue">
+        <div class="label">Key Insight</div>
+        <p>Each division gets its own MDJ specialist configuration — same platform, different domain expertise, different tool access, different compliance surface. One codebase. Three personalities.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Core Thesis</h2>
+      <p>Going from 7 to 181 agencies in 3 years means adding roughly 58 agencies per year, or more than one per week in 2027. Each acquisition brings agents who don't know RPI's systems, clients who need to be migrated, and compliance that needs to be maintained.</p>
+      <p>Without MDJ, each acquisition takes 3–6 months to fully integrate. With MDJ, that drops to 7 days. At 144 acquisitions in 2027 alone, that difference is the gap between growth and chaos.</p>
+      <div class="insight">
+        <div class="label">The Bottleneck</div>
+        <p>"You can't hire 181 Joshes. MDJ IS the scaling strategy."</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== TAB 2: CAREER LADDER × MDJ ==================== -->
+  <div class="tab-panel" id="ladder">
+
+    <div class="card">
+      <h2>The Elevation Principle</h2>
+      <p>MDJ doesn't replace people at any level. It <strong>elevates</strong> them. A Coordinator with MDJ performs like a Specialist. A Specialist with MDJ performs like a Director. Every level gets a multiplier — and that multiplier is what makes 181-agency scale possible with a real human team.</p>
+      <div class="insight green">
+        <div class="label">The Rule</div>
+        <p>Every person at RPI should be operating one level above their title because MDJ closes the gap.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Career Tier &times; MDJ Level &times; Capability</h2>
+      <table>
+        <tr>
+          <th>Career Tier</th>
+          <th>Comp Range</th>
+          <th>MDJ Level</th>
+          <th>What MDJ Does For Them</th>
+          <th>Effective Level</th>
+        </tr>
+        <tr>
+          <td><strong>Coordinator</strong></td>
+          <td>$15–21/hr</td>
+          <td><span class="pill new">USER (3)</span></td>
+          <td>Automates admin tasks, answers process questions, routes work, prepares documents</td>
+          <td>Performs like Specialist</td>
+        </tr>
+        <tr>
+          <td><strong>Associate</strong></td>
+          <td>$42–54K</td>
+          <td><span class="pill new">USER (3)</span></td>
+          <td>Case support, document prep, carrier status checks, enrollment verification</td>
+          <td>Performs like Specialist</td>
+        </tr>
+        <tr>
+          <td><strong>Specialist</strong></td>
+          <td>$54K–100K+</td>
+          <td><span class="pill new">USER (3)</span></td>
+          <td>Review meeting prep, client analysis, proactive outreach triggers, suitability checks</td>
+          <td>Performs like Director</td>
+        </tr>
+        <tr>
+          <td><strong>Director / Manager / Leader</strong></td>
+          <td>$54K–200K+</td>
+          <td><span class="pill mod">LEADER (2)</span></td>
+          <td>Team performance dashboards, recruiting support, training delivery, pipeline monitoring</td>
+          <td>Performs like VP</td>
+        </tr>
+        <tr>
+          <td><strong>VP / SVP / EVP</strong></td>
+          <td>VP+</td>
+          <td><span class="pill mod">EXECUTIVE (1)</span></td>
+          <td>Division analytics, strategic planning support, cross-team coordination, board prep</td>
+          <td>Performs like C-Suite</td>
+        </tr>
+        <tr>
+          <td><strong>C-Suite</strong></td>
+          <td>Executive</td>
+          <td><span class="pill hot">OWNER (0)</span></td>
+          <td>Everything — board reports, full platform access, deployment authority, all data</td>
+          <td>Multiplied Josh</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>MDJ Access Levels (Expanded)</h2>
+
+      <div class="level-bar owner">
+        <h4>OWNER (Level 0) &mdash; Josh + John Behn</h4>
+        <p>Full platform. All data. Deploy authority. Board reporting. No restrictions. This is the "digital clone" — MDJ acts as Josh would act, with full context and full access.</p>
+      </div>
+
+      <div class="level-bar exec">
+        <h4>EXECUTIVE (Level 1) &mdash; VP / SVP / EVP</h4>
+        <p>Division-scoped analytics. Strategic planning context. Cross-team visibility. Can trigger team actions. Cannot access other divisions' sensitive data or deploy platform changes.</p>
+      </div>
+
+      <div class="level-bar leader">
+        <h4>LEADER (Level 2) &mdash; Director / Manager</h4>
+        <p>Team-scoped dashboards. Can see team production, pipeline status, and client assignments. Recruiting and training support. Cannot see team members' personal comp details.</p>
+      </div>
+
+      <div class="level-bar user">
+        <h4>USER (Level 3) &mdash; Coordinator / Associate / Specialist</h4>
+        <p>Client lookups, case status, document prep, process guidance. Scoped to their assigned clients and cases. MDJ-Coach available for development guidance at all times.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Hiring Implication</h2>
+      <p>With MDJ, RPI can hire Coordinators and Associates into roles that previously required Specialists or Directors. MDJ closes the experience gap on day one. This directly compresses the cost of growth — instead of paying $80K for an experienced specialist, you hire a smart $50K associate and MDJ handles the knowledge gap.</p>
+      <div class="insight purple">
+        <div class="label">Strategic Advantage</div>
+        <p>At 181-agency scale, if MDJ reduces average hiring level by even half a step, the salary savings fund the platform development itself.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== TAB 3: MDJ-COACH ==================== -->
+  <div class="tab-panel" id="coach">
+
+    <div class="card">
+      <h2>The Concept</h2>
+      <p>MDJ-Coach is a training-focused specialist that knows every team member's position on the career path, tracks their activity and production metrics in real time, and proactively guides them toward the next level. It replaces the LMS, the onboarding coordinator, and the manager's weekly 1:1 check-in &mdash; simultaneously, for every employee, at every agency.</p>
+      <div class="insight">
+        <div class="label">The Big Idea</div>
+        <p>This could be the #1 retention and development tool at scale. If MDJ-Coach makes every employee feel like they have a dedicated career coach on call 24/7, churn drops and performance climbs.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>MDJ-Coach Capabilities</h2>
+
+      <div class="phase-header">
+        <div class="phase-num">1</div>
+        <h3>Career Path Intelligence</h3>
+      </div>
+      <p style="color:var(--text-muted); margin-bottom:12px;">Knows the exact requirements for each level — production metrics, certifications, competencies, time-in-role. Can answer "what do I need to do to reach Specialist?" with a specific, personalized action plan based on the user's actual current state.</p>
+
+      <div class="phase-header">
+        <div class="phase-num">2</div>
+        <h3>Gap Identification</h3>
+      </div>
+      <p style="color:var(--text-muted); margin-bottom:12px;">Pulls live data from Firestore / CAM and tells the team member exactly where they're underperforming. <em>"You're closing 80% of service cases but review meeting conversion is 40%. That's the only gap between you and Specialist."</em> Specific. Actionable. Not vague feedback.</p>
+
+      <div class="phase-header">
+        <div class="phase-num">3</div>
+        <h3>Proactive Suggestions</h3>
+      </div>
+      <p style="color:var(--text-muted); margin-bottom:12px;">Doesn't wait to be asked. Surfaces opportunities based on what the data shows. <em>"Here are 3 clients due for annual review this month who haven't been contacted. Reaching out to all three would significantly improve your review meeting metric."</em></p>
+
+      <div class="phase-header">
+        <div class="phase-num">4</div>
+        <h3>Onboarding Guidance</h3>
+      </div>
+      <p style="color:var(--text-muted); margin-bottom:12px;"><em>"Welcome to RPI. Here's your first week checklist. I know your background is Medicare sales — here's what's different about how we process enrollments. Ask me anything."</em> For acquired agency agents, this means instant context on RPI's systems without a dedicated trainer.</p>
+
+      <div class="phase-header">
+        <div class="phase-num">5</div>
+        <h3>Advancement Tracking</h3>
+      </div>
+      <p style="color:var(--text-muted); margin-bottom:12px;"><em>"To reach Specialist, you need X, Y, and Z. You've completed X and Y. Here's what closing Z looks like, and here's the timeline if you maintain current pace."</em> Makes advancement feel concrete, not ambiguous.</p>
+    </div>
+
+    <div class="card">
+      <h2>Sample MDJ-Coach Interactions</h2>
+      <table>
+        <tr><th>Team Member Asks</th><th>MDJ-Coach Responds</th></tr>
+        <tr>
+          <td>"What do I need to reach the next level?"</td>
+          <td>Pulls career path requirements, compares to current metrics, returns personalized gap list with specific actions</td>
+        </tr>
+        <tr>
+          <td>"How am I doing this month?"</td>
+          <td>Pulls CAM data: cases closed, review meetings completed, service scores, production — with trend vs. last month</td>
+        </tr>
+        <tr>
+          <td>"How does RPI handle a 1035 exchange?"</td>
+          <td>Walks through the exact process, pulls up the relevant workflow in Pipeline Studio, offers to create a task</td>
+        </tr>
+        <tr>
+          <td>"I'm new. Where do I start?"</td>
+          <td>Role-specific onboarding checklist, first 30-day plan, links to carrier training, who to contact for what</td>
+        </tr>
+        <tr>
+          <td>"I need help preparing for a review meeting"</td>
+          <td>Pulls client history, account balances, RMD status, beneficiary info, open tasks — formatted as a meeting brief</td>
+        </tr>
+        <tr>
+          <td>"Am I on track for MDRT?"</td>
+          <td>Calculates FYC to date, shows gap, lists highest-probability prospects by projected premium</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Why This Is The #1 Retention Tool</h2>
+      <p>The #1 reason people leave agencies is lack of visibility into their own progress and lack of a clear path forward. MDJ-Coach solves both. Every team member always knows where they stand, what they need to do next, and that the system is tracking their success — not waiting to catch them failing.</p>
+      <p>At 181-agency scale, if MDJ-Coach reduces voluntary churn by even 10%, that's hundreds of agents per year who don't need to be replaced, retrained, and re-integrated.</p>
+    </div>
+
+  </div>
+
+  <!-- ==================== TAB 4: DIVISIONS ==================== -->
+  <div class="tab-panel" id="divisions">
+
+    <div class="phase-header green">
+      <div class="phase-num green">A</div>
+      <h3>Medicare Division (Spark)</h3>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card medicare">
+        <h4>MDJ-Medicare <span class="pill new">Sales Team</span></h4>
+        <div class="keywords">
+          <span>MAPD quoting</span><span>plan comparison</span><span>AEP workflows</span><span>T65 pipeline</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Runs live QUE quotes on demand. Compares plans side-by-side. Knows AEP blackout rules. Surfaces upcoming T65 birthdays automatically. Compliance-aware — won't suggest off-formulary drugs.</p>
+      </div>
+      <div class="spec-card service">
+        <h4>MDJ-Service <span class="pill mod">Support Team</span></h4>
+        <div class="keywords">
+          <span>enrollment status</span><span>carrier follow-ups</span><span>appeals</span><span>PDP changes</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Checks enrollment status across carriers. Drafts carrier follow-up communications. Tracks appeal timelines. Knows COB rules. Surfaces clients with upcoming plan terminations.</p>
+      </div>
+      <div class="spec-card coach">
+        <h4>MDJ-Coach <span class="pill new">New Agents</span></h4>
+        <div class="keywords">
+          <span>Medicare 101</span><span>carrier training</span><span>compliance</span><span>scope of appt</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Teaches Medicare basics, carrier-specific plan structures, scope of appointment rules. Walks new agents through their first enrollment. Compliance-trained — knows what you can and cannot say.</p>
+      </div>
+    </div>
+
+    <div class="phase-header orange">
+      <div class="phase-num orange">B</div>
+      <h3>Retirement Division (Signal &rarr; Gradient)</h3>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card retirement">
+        <h4>MDJ-Securities <span class="pill new">Sales Team</span></h4>
+        <div class="keywords">
+          <span>advisory accounts</span><span>Schwab/RBC</span><span>FIA</span><span>MYGA</span><span>suitability</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Knows Gradient's product shelf. Pulls Schwab and RBC account data. Runs annuity rate comparisons. Surfaces suitability flags before they become compliance issues. Tracks RMD requirements per client.</p>
+      </div>
+      <div class="spec-card service">
+        <h4>MDJ-Service <span class="pill mod">Support Team</span></h4>
+        <div class="keywords">
+          <span>1035 exchanges</span><span>RMDs</span><span>beneficiaries</span><span>DTCC feeds</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Manages 1035 exchange workflows end-to-end. Calculates RMDs. Updates beneficiary records. Monitors DTCC data feeds for account changes. Drafts carrier correspondence for transfers.</p>
+      </div>
+      <div class="spec-card coach">
+        <h4>MDJ-Coach <span class="pill new">New Agents</span></h4>
+        <div class="keywords">
+          <span>securities basics</span><span>compliance req</span><span>Gradient products</span><span>BD rules</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Securities licensing roadmap. Gradient product training. RIA vs. BD distinctions. Supervision and compliance requirements. Series 65/66 exam prep context for agents pursuing advisory licensing.</p>
+      </div>
+    </div>
+
+    <div class="phase-header purple">
+      <div class="phase-num purple">C</div>
+      <h3>B2BEI Division (DAVID)</h3>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card david">
+        <h4>MDJ-DAVID <span class="pill new">Sales Team</span></h4>
+        <div class="keywords">
+          <span>prospect analysis</span><span>BoB valuation</span><span>deal pipeline</span><span>NPI lookup</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Analyzes prospective agency books of business. Runs BoB valuation models. Manages deal pipeline in SENTINEL. NPI and carrier relationship lookups for agency discovery. Generates LOI and term sheet drafts.</p>
+      </div>
+      <div class="spec-card service">
+        <h4>MDJ-Integration <span class="pill mod">Support Team</span></h4>
+        <div class="keywords">
+          <span>data migration</span><span>ATLAS wires</span><span>carrier setup</span><span>Firestore sync</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Manages the acquisition integration pipeline. Knows ATLAS wire definitions. Monitors data ingestion status. Flags normalization errors. Confirms when clients are live in ProDashX and agents have full access.</p>
+      </div>
+      <div class="spec-card coach">
+        <h4>MDJ-Coach <span class="pill new">Acquired Agents</span></h4>
+        <div class="keywords">
+          <span>RPI onboarding</span><span>system access</span><span>process training</span><span>culture</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem;"><em>"Welcome to RPI. Here's how we handle [your top 5 most-used workflows]. Here's who to call for what. Here's how our comp structure works. Ask me anything."</em> Instant cultural and operational onboarding for every acquired agent.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== TAB 5: ACQUISITION ENGINE ==================== -->
+  <div class="tab-panel" id="acquisition">
+
+    <div class="card">
+      <h2>The Problem MDJ Solves</h2>
+      <p>Traditional agency integration after an acquisition takes 3–6 months. You need to manually migrate client data, retrain agents on new systems, re-paper accounts with carriers, and rebuild operational muscle memory. At 24 acquisitions in 2026 and 144 in 2027, that timeline makes 181-agency scale functionally impossible.</p>
+      <div class="insight">
+        <div class="label">The Math</div>
+        <p>At 3 months per integration, 144 acquisitions in 2027 would require 432 person-months of integration work — simultaneously. MDJ-powered integration cuts this to 7 days.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The 7-Day Integration Playbook</h2>
+
+      <div class="day-row">
+        <div class="day-badge">Day 0</div>
+        <div class="day-body">
+          <h4>Deal Closes</h4>
+          <p>DAVID closes the acquisition. SENTINEL pipeline moves to "Closed/Won." MDJ-DAVID automatically creates the integration project and triggers the onboarding sequence.</p>
+        </div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-badge">Day 1</div>
+        <div class="day-body">
+          <h4>BoB Intake Pipeline Created</h4>
+          <p>MDJ-DAVID creates the ATLAS intake pipeline for the book of business. Carrier data export requested. RAPID_IMPORT wire definitions mapped to the acquired agency's data format.</p>
+        </div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-badge">Day 2</div>
+        <div class="day-body">
+          <h4>ATLAS Wires Ingest the BoB</h4>
+          <p>Clients, accounts, carriers, and commissions flow through ATLAS normalization. Data is validated against RAPID_CORE schemas. MDJ-Integration monitors for errors and flags exceptions in real time.</p>
+        </div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-badge">Day 3</div>
+        <div class="day-body">
+          <h4>Data Normalized &amp; Matched</h4>
+          <p>DTCC feeds pulled. Client records matched to existing RPI data where possible (avoiding duplicates). Commission structures mapped to RPI comp table. All records written to Firestore.</p>
+        </div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-badge green">Day 4</div>
+        <div class="day-body">
+          <h4>Every Client Visible in ProDashX</h4>
+          <p>100% of acquired clients are live in ProDashX. Service team can immediately see full client history, accounts, and action items. Zero data is lost. RPI is now actively servicing the acquired BoB.</p>
+        </div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-badge green">Day 5</div>
+        <div class="day-body">
+          <h4>Acquired Agents Get MDJ Access</h4>
+          <p>Firebase accounts provisioned. Agents see their entire book of business immediately. MDJ-Coach welcomes them with a personalized onboarding plan based on their role and production history.</p>
+        </div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-badge green">Day 7</div>
+        <div class="day-body">
+          <h4>Operational — Full RPI Service Delivery</h4>
+          <p>MDJ-Coach has walked every acquired agent through RPI workflows. First client outreach queue is populated. Compliance requirements confirmed. Integration complete. Agents are productive on Day 7.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Acquisition Volume Comparison</h2>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Traditional Integration</th>
+          <th>MDJ-Powered Integration</th>
+        </tr>
+        <tr><td>Time to full client visibility</td><td>3–6 weeks</td><td>4 days</td></tr>
+        <tr><td>Time to agent productivity</td><td>3–6 months</td><td>7 days</td></tr>
+        <tr><td>Manual data entry required</td><td>High</td><td>Near zero (ATLAS automated)</td></tr>
+        <tr><td>Dedicated integration staff needed</td><td>2–4 per acquisition</td><td>1 MDJ-Integration monitor</td></tr>
+        <tr><td>2027 capacity (144 acquisitions)</td><td>Operationally impossible</td><td>Fully manageable</td></tr>
+        <tr><td>Cost per integration</td><td>$50K–200K (staff time)</td><td>Platform fixed cost</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Why This Is The DAVID Superweapon</h2>
+      <p>Every agency DAVID approaches knows that integrations are painful, slow, and disruptive. The standard pitch from acquirers is: <em>"We'll minimize disruption."</em> RPI's pitch is: <em>"Your agents will be more capable on Day 7 than they were before we acquired you."</em></p>
+      <p>That's not a claim most acquirers can make. MDJ makes it true.</p>
+      <div class="insight purple">
+        <div class="label">Deal Differentiator</div>
+        <p>Agencies will accept lower valuations to sell to RPI specifically because the integration experience is better. That's acquisition cost compression plus a higher close rate — a double win for DAVID.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== TAB 6: COMP + PRODUCTION ==================== -->
+  <div class="tab-panel" id="comp">
+
+    <div class="card">
+      <h2>Every Agent Knows Their Number, All The Time</h2>
+      <p>One of the biggest productivity killers in insurance agencies is agents who don't know where they stand. They don't know their FYC total. They don't know if they're on track for MDRT. They don't know their draw balance. They're flying blind — and blind agents don't push as hard.</p>
+      <p>MDJ changes this. Every agent can ask their number at any moment and get an instant, accurate answer sourced from live Firestore data.</p>
+    </div>
+
+    <div class="card">
+      <h2>What MDJ Shows at Each Level</h2>
+
+      <div class="level-bar user">
+        <h4>Coordinator / Associate / Specialist (USER)</h4>
+        <p>Cases closed, service scores, review meeting conversion rate, production metrics relevant to their role. MDJ-Coach shows their gap to next level. No comp data for peers — only their own.</p>
+      </div>
+
+      <div class="level-bar user">
+        <h4>Agent / Producer (USER)</h4>
+        <p>FYC YTD, FYC splits by carrier, MDRT progress, draw balance, commission pending, highest-probability prospects by projected premium. Actionable, personal, real-time.</p>
+      </div>
+
+      <div class="level-bar leader">
+        <h4>Director / Manager / Leader (LEADER)</h4>
+        <p>Team FYC totals, individual production ranking (anonymized for sensitive data), pipeline health, open cases, at-risk clients. MDJ surfaces team issues before the manager has to ask.</p>
+      </div>
+
+      <div class="level-bar exec">
+        <h4>VP / SVP / EVP (EXECUTIVE)</h4>
+        <p>Division NOI, headcount productivity, agency-level rollups, FYC by division, top performers, compliance flags. Everything needed for a quarterly business review — generated by MDJ on demand.</p>
+      </div>
+
+      <div class="level-bar owner">
+        <h4>C-Suite (OWNER)</h4>
+        <p>Full platform. All three divisions. Agency-by-agency performance. ESOP readiness metrics. Board-level reporting. MDJ generates the quarterly board packet on command.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>MDRT Tracking — The Motivator</h2>
+      <p>MDRT (Million Dollar Round Table) is the most motivating external benchmark in the industry. Agents who know they're close to MDRT work harder to close the gap. MDJ makes MDRT tracking ambient — always visible, always current.</p>
+      <table>
+        <tr><th>MDJ Interaction</th><th>What It Returns</th></tr>
+        <tr>
+          <td>"Am I on track for MDRT?"</td>
+          <td>FYC to date, MDRT threshold, gap in dollars, time remaining in production year</td>
+        </tr>
+        <tr>
+          <td>"What would get me to MDRT by year-end?"</td>
+          <td>Number of policies needed by product type at current average premium; specific prospect list ranked by likelihood to close</td>
+        </tr>
+        <tr>
+          <td>"Show me my top 5 prospects by premium potential"</td>
+          <td>Ranked client list from Firestore with estimated annual premium, last contact date, and recommended action</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Comp Elements MDJ Tracks</h2>
+      <table>
+        <tr><th>Comp Element</th><th>MDJ Access</th><th>Who Sees It</th></tr>
+        <tr>
+          <td>Base Salary</td>
+          <td>View (own only)</td>
+          <td>Individual + Leaders</td>
+        </tr>
+        <tr>
+          <td>Goals Achieved %</td>
+          <td>Real-time calculation</td>
+          <td>Individual + Leaders + Execs</td>
+        </tr>
+        <tr>
+          <td>FYC Splits by Carrier</td>
+          <td>Full detail (own) / Aggregate (leaders)</td>
+          <td>Individual + Leaders</td>
+        </tr>
+        <tr>
+          <td>Draw Balance</td>
+          <td>Real-time balance</td>
+          <td>Individual + Owner</td>
+        </tr>
+        <tr>
+          <td>MDRT Progress</td>
+          <td>FYC vs. threshold</td>
+          <td>Individual + Leaders</td>
+        </tr>
+        <tr>
+          <td>Team NOI</td>
+          <td>Division rollup</td>
+          <td>VP+ and Owner</td>
+        </tr>
+        <tr>
+          <td>Agency NOI</td>
+          <td>Per-agency and total</td>
+          <td>Owner only</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ==================== TAB 7: THE ESOP PLAY ==================== -->
+  <div class="tab-panel" id="esop">
+
+    <div class="card">
+      <h2>MDJ as Valuation IP</h2>
+      <p>By the time the ESOP launches in 2028, MDJ won't just be an internal tool — it will be the core of RPI's valuation narrative. The story isn't "we acquired 181 agencies." The story is: "We built the AI-powered operating platform that makes 181-agency management feasible for a single team, and we're launching an ESOP so our people can own a piece of it."</p>
+      <div class="insight purple">
+        <div class="label">The Valuation Argument</div>
+        <p>MDJ transforms RPI from an insurance aggregator (valued on revenue multiples) to a technology-enabled financial services platform (valued on technology multiples). That's the difference between G-3x/E-6x and G-6x/E-12x.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Multiple Expansion Story</h2>
+      <table>
+        <tr><th>Category</th><th>Standard Multiple</th><th>Tech-Enabled Multiple</th><th>MDJ's Contribution</th></tr>
+        <tr>
+          <td>Gross Revenue</td>
+          <td>3x (G-3x)</td>
+          <td>6x+ (G-6x+)</td>
+          <td>Consistent service quality at scale → predictable revenue → higher multiple</td>
+        </tr>
+        <tr>
+          <td>EBITDA</td>
+          <td>6x (E-6x)</td>
+          <td>12x+ (E-12x+)</td>
+          <td>Compressed integration costs + lower churn + automation → margin expansion</td>
+        </tr>
+        <tr>
+          <td>Platform IP</td>
+          <td>N/A</td>
+          <td>Strategic premium</td>
+          <td>MDJ as proprietary AI platform — defensible moat, licensing potential</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>What MDJ Tells the Story For</h2>
+
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Replicable Model</h4>
+          <p>Every acquired agency runs on the same tech stack, the same processes, the same MDJ specialists. That replicability is what makes the model franchisable — and franchisable models command premium multiples.</p>
+        </div>
+      </div>
+
+      <div class="flow-step green">
+        <div class="flow-num green">2</div>
+        <div class="flow-body">
+          <h4>Consistent Service Quality</h4>
+          <p>Client experience doesn't degrade as you add agencies. MDJ enforces the same service standards at Agency 181 as at Agency 1. Consistent quality = lower churn = higher LTV = better multiple.</p>
+        </div>
+      </div>
+
+      <div class="flow-step orange">
+        <div class="flow-num orange">3</div>
+        <div class="flow-body">
+          <h4>IP in the Balance Sheet</h4>
+          <p>MDJ is proprietary technology. It can't be replicated by competitors quickly — it's deeply integrated with RPI's carrier relationships, Firestore data model, ATLAS wires, and institutional knowledge. That's a moat worth money on the cap table.</p>
+        </div>
+      </div>
+
+      <div class="flow-step purple">
+        <div class="flow-num purple">4</div>
+        <div class="flow-body">
+          <h4>ESOP Narrative</h4>
+          <p>"You're not just employees. You helped build The Machine. The Machine is worth over a billion dollars. Here's your piece." MDJ-Coach tracking career development means every team member has documented evidence of their contribution to that value creation.</p>
+        </div>
+      </div>
+
+      <div class="flow-step cyan">
+        <div class="flow-num cyan">5</div>
+        <div class="flow-body">
+          <h4>The Licensing Optionality</h4>
+          <p>At 181-agency scale, other IMOs and aggregators will want what RPI has. MDJ as a licensed SaaS product is a $3BB+ opportunity in its own right — separate from the insurance book. The ESOP gives team members upside in both.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Career Path + MDJ + The Machine = The Formula</h2>
+      <p>These three elements together create something that neither traditional aggregators nor technology companies can replicate:</p>
+      <div class="diagram">  Career Path (who we develop)
+       +
+  MDJ (what we give them to work with)
+       +
+  The Machine (the platform they operate on)
+       =
+  A replicable, scalable, quality-consistent financial services operation
+  that can integrate 144 agencies in a year and make them all operate
+  like the original 7 did in Year 1.
+
+  That is the moat. That is the multiple. That is the ESOP story.</div>
+    </div>
+
+  </div>
+
+  <!-- ==================== TAB 8: WHAT TO BUILD NEXT ==================== -->
+  <div class="tab-panel" id="next">
+
+    <div class="card">
+      <h2>Priority Order for MDJ Enhancements</h2>
+      <p>These are ranked by their impact on the career path and scaling strategy — not by technical difficulty. Biggest leverage items first.</p>
+    </div>
+
+    <div class="priority-item p1">
+      <div class="pnum">1</div>
+      <div>
+        <h4>MDJ-Coach Specialist <span class="pill hot">Highest Leverage</span></h4>
+        <p>Onboarding + career development in a single specialist. Knows every career tier's requirements. Tracks live metrics per user. Proactively surfaces gaps and actions. Replaces the LMS, the onboarding coordinator, and the manager's weekly check-in. At 181 agencies, this is what makes human management of that many people feasible.</p>
+      </div>
+    </div>
+
+    <div class="priority-item p2">
+      <div class="pnum">2</div>
+      <div>
+        <h4>Production Dashboard Integration <span class="pill mod">CAM &rarr; MDJ &rarr; Real-Time</span></h4>
+        <p>Wire CAM production data into MDJ so every query about metrics returns live numbers, not stale reports. FYC, MDRT, draw balance, conversion rates — all sourced directly from Firestore in real time. Enables MDJ-Coach's gap identification and MDRT tracking features fully.</p>
+      </div>
+    </div>
+
+    <div class="priority-item p3">
+      <div class="pnum">3</div>
+      <div>
+        <h4>Agency Onboarding Automation <span class="pill mod">DAVID Acquisition Pipeline</span></h4>
+        <p>The 7-day integration playbook automated end-to-end. MDJ-DAVID triggers the sequence on deal close. MDJ-Integration monitors ATLAS ingestion. MDJ-Coach provisions acquired agents. The full pipeline runs with minimal human coordination. This is what makes 144 acquisitions in 2027 operationally possible.</p>
+      </div>
+    </div>
+
+    <div class="priority-item p4">
+      <div class="pnum">4</div>
+      <div>
+        <h4>Board Reporting Module <span class="pill new">ESOP Readiness</span></h4>
+        <p>MDJ generates quarterly board packets on command. Agency-by-agency performance, NOI by division, headcount and productivity, valuation narrative metrics. Owner-level access only. This directly supports the ESOP preparation and investor communications as RPI approaches $1.2BB target.</p>
+      </div>
+    </div>
+
+    <div class="priority-item p5">
+      <div class="pnum">5</div>
+      <div>
+        <h4>Self-Service Training Portal <span class="pill key">MDJ-Coach as LMS</span></h4>
+        <p>MDJ-Coach becomes the full LMS replacement. Carrier training, compliance courses, product certifications — all delivered conversationally. Track completion. Surface remaining requirements for licensing. Tie directly to career path advancement criteria. Eliminates the need for a dedicated L&amp;D function at scale.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 24px;">
+      <h2>Decision Framework</h2>
+      <p>When deciding what to build next in MDJ, ask three questions:</p>
+      <table>
+        <tr><th>Question</th><th>Why It Matters</th></tr>
+        <tr>
+          <td>Does this close a gap in the 7-day acquisition integration?</td>
+          <td>144 acquisitions in 2027 is the critical path. Anything that accelerates or de-risks that pipeline is Priority 1.</td>
+        </tr>
+        <tr>
+          <td>Does this make a team member one level better?</td>
+          <td>Elevation is the core value prop. If a feature doesn't help someone perform above their title, it's probably not the right investment.</td>
+        </tr>
+        <tr>
+          <td>Does this add to the valuation narrative?</td>
+          <td>By 2028, MDJ needs to be demonstrably IP. Every capability added is a line in the tech audit that supports the multiple expansion story.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>The One-Liner For Investors</h2>
+      <p style="font-size:1.2rem; color:var(--text); font-weight:600; text-align:center; padding:16px 0;">
+        "Every RPI agent has a Josh sitting next to them, 24/7.<br>
+        That's why 181 agencies runs like 7."
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footer">
+  Retirement Protectors, Inc. &mdash; The Machine Scales The People &mdash; 2026
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
