@@ -71,9 +71,8 @@ test.describe('DEX — Document Exchange', () => {
     await clientInput.fill('te')
     await page.waitForTimeout(500)
 
-    // The step indicator bar (5 dots) should be visible
-    const stepBars = page.locator('.rounded-full.bg-\\[var\\(--portal\\)\\]')
-    await expect(stepBars.first()).toBeVisible()
+    // Step 1 heading should be visible (step indicator only shows after client selection)
+    await expect(page.getByText('Step 1').first()).toBeVisible()
   })
 
   test('Tracker tab shows status filter', async ({ page }) => {
