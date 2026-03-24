@@ -69,6 +69,8 @@ import { dashboardRoutes } from './routes/dashboard.js'
 import { mdjRoutes } from './routes/mdj.js'
 import { notificationRoutes } from './routes/notifications.js'
 import { auditMiddleware } from './middleware/audit.js'
+import { registerCheckHandler } from '@tomachina/core'
+import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -77,6 +79,10 @@ if (getApps().length === 0) {
     storageBucket: process.env.STORAGE_BUCKET || 'claude-mcp-484718.firebasestorage.app',
   })
 }
+
+// Register flow engine check handlers
+registerCheckHandler('DEX_KIT_GENERATE', handleDexKitGenerate)
+registerCheckHandler('DEX_DOCUSIGN', handleDexDocuSign)
 
 export const db = getFirestore()
 const app = express()

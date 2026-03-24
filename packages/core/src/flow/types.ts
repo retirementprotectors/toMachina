@@ -167,6 +167,8 @@ export interface FlowTaskInstanceData {
   check_config?: string
   check_result?: CheckResult
   check_detail?: string
+  /** DEX package ID linked to this task (set by DEX handlers) */
+  dex_package_id?: string
   completed_by?: string
   completed_at?: string
   notes?: string
