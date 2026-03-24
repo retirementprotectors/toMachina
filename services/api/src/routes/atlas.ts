@@ -188,8 +188,8 @@ const WIRE_DEFINITIONS = [
     product_line: 'ALL', data_domain: 'DEMOGRAPHICS',
     stages: [
       { type: 'EXTERNAL', name: 'Gradient Portal', detail: 'Agent appointment data' },
-      { type: 'GAS_FUNCTION', name: 'processAgentImport', project: 'RAPID_IMPORT' },
-      { type: 'MATRIX_TAB', name: '_AGENT_MASTER', platform: 'RAPID' },
+      { type: 'API_ENDPOINT', name: 'POST /api/import-agents/agent', detail: 'Cloud Run (tm-api) — ported from GAS processAgentImport' },
+      { type: 'MATRIX_TAB', name: 'Firestore agents', platform: 'ALL' },
       { type: 'FRONTEND', name: 'Producer Grid', view: 'producers', platform: 'SENTINEL' },
     ],
   },
@@ -235,8 +235,9 @@ const WIRE_DEFINITIONS = [
     product_line: 'ALL', data_domain: 'DEMOGRAPHICS',
     stages: [
       { type: 'EXTERNAL', name: 'NAIC Database', detail: 'Carrier data export' },
-      { type: 'GAS_FUNCTION', name: 'processCarrierSeed', project: 'RAPID_IMPORT' },
-      { type: 'MATRIX_TAB', name: '_CARRIER_MASTER', platform: 'RAPID' },
+      { type: 'API_ENDPOINT', name: 'POST /api/import-agents/carriers', detail: 'Cloud Run (tm-api) — ported from GAS processCarrierSeed' },
+      { type: 'API_ENDPOINT', name: 'POST /api/import-agents/naic', detail: 'NAIC backfill on accounts' },
+      { type: 'MATRIX_TAB', name: 'Firestore carriers', platform: 'ALL' },
       { type: 'FRONTEND', name: 'Carrier Grid', view: 'carriers', platform: 'ALL' },
     ],
   },
