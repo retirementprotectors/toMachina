@@ -62,7 +62,7 @@
       "status": "backend_only",
       "backend": "access.ts",
       "frontend": "",
-      "backend_endpoints": 238,
+      "backend_endpoints": 240,
       "hardcoded": false,
       "sub_collection": true,
       "backend_routes": [
@@ -115,7 +115,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 19,
+          "endpoints": 21,
           "reads": true,
           "writes": true,
           "operations": [
@@ -344,7 +344,7 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 79,
+      "backend_endpoints": 81,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -396,7 +396,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 19,
+          "endpoints": 21,
           "reads": true,
           "writes": true,
           "operations": [
@@ -987,7 +987,7 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 379,
+      "backend_endpoints": 381,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1074,7 +1074,7 @@
         },
         {
           "file": "comms-routing.ts",
-          "endpoints": 2,
+          "endpoints": 4,
           "reads": true,
           "writes": false,
           "operations": [
@@ -1473,13 +1473,13 @@
       "status": "backend_only",
       "backend": "comms-routing.ts",
       "frontend": "",
-      "backend_endpoints": 2,
+      "backend_endpoints": 4,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "comms-routing.ts",
-          "endpoints": 2,
+          "endpoints": 4,
           "reads": true,
           "writes": false,
           "operations": [
@@ -2097,11 +2097,92 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "mdj_conversations": {
+      "status": "backend_only",
+      "backend": "mdj.ts",
+      "frontend": "",
+      "backend_endpoints": 12,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "mdj.ts",
+          "endpoints": 12,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "mdj_specialist_configs": {
+      "status": "backend_only",
+      "backend": "mdj.ts",
+      "frontend": "",
+      "backend_endpoints": 12,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "mdj.ts",
+          "endpoints": 12,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "messages": {
+      "status": "backend_only",
+      "backend": "mdj.ts",
+      "frontend": "",
+      "backend_endpoints": 12,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "mdj.ts",
+          "endpoints": 12,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "notifications": {
       "status": "backend_only",
       "backend": "intake.ts",
       "frontend": "",
-      "backend_endpoints": 31,
+      "backend_endpoints": 32,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2118,7 +2199,7 @@
         },
         {
           "file": "tracker.ts",
-          "endpoints": 26,
+          "endpoints": 27,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2233,13 +2314,13 @@
       "status": "backend_only",
       "backend": "clients.ts",
       "frontend": "",
-      "backend_endpoints": 19,
+      "backend_endpoints": 21,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "clients.ts",
-          "endpoints": 19,
+          "endpoints": 21,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2532,7 +2613,7 @@
       "status": "backend_only",
       "backend": "booking.ts",
       "frontend": "",
-      "backend_endpoints": 164,
+      "backend_endpoints": 180,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2545,6 +2626,16 @@
             "list",
             "get",
             "create"
+          ]
+        },
+        {
+          "file": "comms-routing.ts",
+          "endpoints": 4,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
           ]
         },
         {
@@ -2593,6 +2684,18 @@
             "get",
             "create",
             "update"
+          ]
+        },
+        {
+          "file": "mdj.ts",
+          "endpoints": 12,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
           ]
         },
         {
@@ -2939,7 +3042,7 @@
     },
     "clients.ts": {
       "file": "clients.ts",
-      "endpoints": 19,
+      "endpoints": 21,
       "operations": [
         "list",
         "get",
@@ -2957,13 +3060,14 @@
     },
     "comms-routing.ts": {
       "file": "comms-routing.ts",
-      "endpoints": 2,
+      "endpoints": 4,
       "operations": [
         "list",
         "get"
       ],
       "collections": [
         "clients",
+        "users",
         "config"
       ],
       "frontend_consumers": [],
@@ -3281,11 +3385,19 @@
     },
     "mdj.ts": {
       "file": "mdj.ts",
-      "endpoints": 1,
+      "endpoints": 12,
       "operations": [
-        "create"
+        "list",
+        "get",
+        "create",
+        "delete"
       ],
-      "collections": [],
+      "collections": [
+        "users",
+        "mdj_conversations",
+        "messages",
+        "mdj_specialist_configs"
+      ],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -3546,7 +3658,7 @@
     },
     "tracker.ts": {
       "file": "tracker.ts",
-      "endpoints": 26,
+      "endpoints": 27,
       "operations": [
         "list",
         "get",
@@ -3579,6 +3691,18 @@
         "list",
         "get",
         "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "validation.ts": {
+      "file": "validation.ts",
+      "endpoints": 6,
+      "operations": [
+        "list",
+        "get",
+        "create"
       ],
       "collections": [],
       "frontend_consumers": [],
@@ -3844,6 +3968,24 @@
     },
     {
       "name": "INTAKE_UPLOAD_FOLDER_ID",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "MDJ_AUTH_SECRET",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "MDJ1_URL",
       "services": [
         "api"
       ],
@@ -4364,14 +4506,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 62,
-    "ui_files": 129,
+    "route_files": 63,
+    "ui_files": 135,
     "portal_pages": 150,
-    "collections_found": 64,
-    "api_routes_found": 62,
+    "collections_found": 67,
+    "api_routes_found": 63,
     "cloud_functions_found": 14,
-    "env_vars_found": 34,
+    "env_vars_found": 36,
     "hookify_rules_found": 36,
-    "scanned_at": "2026-03-24T07:12:16.298Z"
+    "scanned_at": "2026-03-24T17:53:56.262Z"
   }
 }

@@ -946,6 +946,20 @@ export function CommsCompose({ onBack, presetChannel, presetContact, replySubjec
         </div>
       )}
 
+      {/* Hint: why send is disabled (no contact info on file) */}
+      {channel === 'email' && selectedClient && !selectedClient.email && (
+        <div className="flex items-center gap-1.5 px-4 py-2 text-xs text-[var(--text-muted)]">
+          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>info</span>
+          No email on file for {selectedClient.name}. Add their email in the contact record first.
+        </div>
+      )}
+      {channel === 'sms' && selectedClient && !selectedClient.phone && (
+        <div className="flex items-center gap-1.5 px-4 py-2 text-xs text-[var(--text-muted)]">
+          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>info</span>
+          No phone number on file for {selectedClient.name}.
+        </div>
+      )}
+
       {/* Send button — TRK-13568/13569: Twilio SMS / SendGrid Email */}
       {channel !== 'call' && (
         <div className="border-t border-[var(--border-subtle)] px-4 py-3">
