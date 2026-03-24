@@ -1,3 +1,4 @@
+// MDJ Mobile API routes now live — trigger deploy
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse } from '../lib/helpers.js'
