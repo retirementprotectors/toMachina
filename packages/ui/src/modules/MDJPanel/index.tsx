@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { getAuth } from 'firebase/auth'
 import { ChatThread } from './ChatThread'
 import { ChatInput } from './ChatInput'
 import { useMDJStream } from './useMDJStream'
@@ -11,7 +12,6 @@ interface MDJPanelProps {
   portal: string
   open: boolean
   onClose: () => void
-  authToken?: string
 }
 
 /* ─── Responsive panel width classes (matches CommsModule/ConnectPanel/NotificationsModule) ─── */
@@ -42,15 +42,34 @@ function usePageContext(): MDJPageContext {
 
 /* ─── Main Component ─── */
 
-export function MDJPanel({ portal, open, onClose, authToken }: MDJPanelProps) {
+export function MDJPanel({ portal, open, onClose }: MDJPanelProps) {
   const { messages, isStreaming, error, sendMessage, clearMessages } = useMDJStream({ portal })
   const pageContext = usePageContext()
+  const [authToken, setAuthToken] = useState<string | undefined>()
+
+  // Get Firebase auth token on mount and refresh it
+  useEffect(() => {
+    const auth = getAuth()
+    const user = auth.currentUser
+    if (user) {
+      user.getIdToken().then(setAuthToken).catch(() => {})
+    }
+  }, [open])
 
   const handleSend = useCallback(
     (text: string) => {
-      sendMessage(text, pageContext, authToken)
+      // Refresh token before each send to avoid expiry
+      const auth = getAuth()
+      const user = auth.currentUser
+      if (user) {
+        user.getIdToken().then((token) => {
+          sendMessage(text, pageContext, token)
+        })
+      } else {
+        sendMessage(text, pageContext)
+      }
     },
-    [sendMessage, pageContext, authToken],
+    [sendMessage, pageContext],
   )
 
   const handleNewChat = useCallback(() => {
