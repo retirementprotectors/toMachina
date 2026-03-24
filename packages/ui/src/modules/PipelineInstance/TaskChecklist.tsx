@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import type { FlowTaskInstanceData, CheckResult } from '@tomachina/core'
+import { fetchValidated } from '../fetchValidated'
 
 // ============================================================================
 // TaskChecklist — grouped task list with completion, skip, system check badges
@@ -80,21 +81,18 @@ function DexActionButton({
     setError(null)
     try {
       if (isDexKit) {
-        // Trigger kit build or just complete the task (the kit is built via DEX UI)
-        // Complete the flow task to mark it done
+        // Complete the flow task to mark it done (kit is built via DEX UI)
         onComplete()
         setSuccess(true)
       } else if (isDexDocuSign) {
         // If we have a package_id in config, trigger DocuSign send
-        const packageId = (config as Record<string, unknown>).package_id
-        if (packageId) {
-          const res = await fetch(`/api/dex-pipeline/packages/${String(packageId)}/send-docusign`, {
+        const pkgId = (config as Record<string, unknown>).package_id
+        if (pkgId) {
+          const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${String(pkgId)}/send-docusign`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
           })
-          const data = await res.json()
-          if (!data.success) {
-            setError(data.error || 'DocuSign send failed')
+          if (!result.success) {
+            setError(result.error || 'DocuSign send failed')
             setLoading(false)
             return
           }
