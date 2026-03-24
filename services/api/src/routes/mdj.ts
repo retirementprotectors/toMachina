@@ -11,7 +11,12 @@ import { successResponse, errorResponse } from '../lib/helpers.js'
 
 export const mdjRoutes = Router()
 
-const db = getFirestore()
+// Lazy init — Firebase must be initialized before getFirestore() is called
+let _db: ReturnType<typeof getFirestore> | null = null
+function db() {
+  if (!_db) _db = getFirestore()
+  return _db
+}
 
 // MDJ1 agent service URL via Tailscale
 const MDJ1_URL = process.env.MDJ1_URL || 'https://tail7845ea.ts.net'
@@ -47,7 +52,7 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
     // Try to load user level from Firestore
     if (user?.email) {
       try {
-        const userDoc = await db.collection('users').doc(String(user.email)).get()
+        const userDoc = await db().collection('users').doc(String(user.email)).get()
         if (userDoc.exists) {
           const userData = userDoc.data()
           userContext.level = typeof userData?.level === 'number' ? userData.level : 3
@@ -142,7 +147,7 @@ mdjRoutes.get('/conversations', async (req: Request, res: Response) => {
       return
     }
 
-    const snap = await db.collection('mdj_conversations')
+    const snap = await db().collection('mdj_conversations')
       .where('user_email', '==', email)
       .where('status', '==', 'active')
       .orderBy('last_message_at', 'desc')
@@ -162,13 +167,13 @@ mdjRoutes.get('/conversations', async (req: Request, res: Response) => {
  */
 mdjRoutes.get('/conversations/:id', async (req: Request, res: Response) => {
   try {
-    const convDoc = await db.collection('mdj_conversations').doc(String(req.params.id)).get()
+    const convDoc = await db().collection('mdj_conversations').doc(String(req.params.id)).get()
     if (!convDoc.exists) {
       res.status(404).json(errorResponse('Conversation not found'))
       return
     }
 
-    const messagesSnap = await db.collection('mdj_conversations')
+    const messagesSnap = await db().collection('mdj_conversations')
       .doc(String(req.params.id))
       .collection('messages')
       .orderBy('created_at', 'asc')
@@ -192,7 +197,7 @@ mdjRoutes.get('/conversations/:id', async (req: Request, res: Response) => {
  */
 mdjRoutes.delete('/conversations/:id', async (req: Request, res: Response) => {
   try {
-    await db.collection('mdj_conversations').doc(String(req.params.id)).update({
+    await db().collection('mdj_conversations').doc(String(req.params.id)).update({
       status: 'archived',
       updated_at: new Date().toISOString(),
     })
@@ -268,7 +273,7 @@ mdjRoutes.post('/conversations/:id/reject', async (req: Request, res: Response) 
  */
 mdjRoutes.get('/specialists', async (_req: Request, res: Response) => {
   try {
-    const snap = await db.collection('mdj_specialist_configs')
+    const snap = await db().collection('mdj_specialist_configs')
       .where('status', '==', 'active')
       .get()
 
