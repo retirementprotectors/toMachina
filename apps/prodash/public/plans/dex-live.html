@@ -88,8 +88,8 @@
 <div class="strategy">
   <div class="stat-card"><div class="num teal">6</div><div class="label">Data Seeding</div></div>
   <div class="stat-card"><div class="num purple">5</div><div class="label">Flow Engine</div></div>
-  <div class="stat-card"><div class="num cyan">3</div><div class="label">Portal UI</div></div>
-  <div class="stat-card"><div class="num orange">4</div><div class="label">Verification</div></div>
+  <div class="stat-card"><div class="num cyan">4</div><div class="label">Portal UI</div></div>
+  <div class="stat-card"><div class="num orange">3</div><div class="label">Verification</div></div>
   <div class="stat-card"><div class="num red">4</div><div class="label">Integration</div></div>
 </div>
 
@@ -103,7 +103,7 @@
 <!-- BUILDER 1 -->
 <h3><span class="phase-badge p1">1</span> &nbsp; Builder 1 — Data Seeding <span class="builder-badge seed">Stream A</span></h3>
 <div class="card">
-  <p>Export GAS data &rarr; seed 9 empty Firestore collections. This is the foundation everything else depends on.</p>
+  <p>Verify and run existing seed scripts &rarr; populate 9 empty Firestore collections. Seed scripts already exist at <code>services/api/src/scripts/seed-dex-*.ts</code> &mdash; do NOT create new files. The <code>seed-dex-rules.ts</code> merge conflict was resolved on 2026-03-24; file is clean.</p>
   <table class="route-table">
     <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
     <tr><td>A1</td><td><span class="ticket">TRK-DTO-008</span></td><td><strong>Verify DEX DTO completeness</strong></td><td>S</td></tr>
@@ -133,7 +133,7 @@
 <!-- BUILDER 2 -->
 <h3><span class="phase-badge p1">2</span> &nbsp; Builder 2 — Flow Engine Wiring <span class="builder-badge flow">Stream B</span></h3>
 <div class="card">
-  <p>Register DEX check handlers. Fix gate enforcement bug. Implement <code>dex_output</code> step type. Link flow instances to DEX packages.</p>
+  <p>Register DEX check handlers. Fix gate enforcement bug (verify <code>gates.ts</code> first &mdash; may already validate <code>check_result</code>; if so, close TRK-13700). Implement <code>dex_output</code> step type. Link flow instances to DEX packages.</p>
   <table class="route-table">
     <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
     <tr><td>B1</td><td><span class="ticket bug">TRK-13700</span></td><td><strong>BUG: Fix gate check_result validation</strong></td><td>S</td></tr>
@@ -158,20 +158,22 @@
 <!-- BUILDER 3 -->
 <h3><span class="phase-badge p1">3</span> &nbsp; Builder 3 — Portal UI <span class="builder-badge ui">Stream C</span></h3>
 <div class="card">
-  <p>Build the DEX module for all 3 portals. Kit builder, package manager, form viewer, DocuSign send. Pipeline "Build Kit" button. Contact Detail shortcut.</p>
+  <p><strong>IMPORTANT:</strong> <code>DexDocCenter.tsx</code> already exists at <code>packages/ui/src/modules/DexDocCenter.tsx</code> with 4 working tabs (Pipeline, Form Library, Kit Builder, Tracker), client search, and step-by-step kit builder flow. <strong>EXPAND</strong> the existing module &mdash; do NOT create <code>DexModule.tsx</code> or rebuild from scratch. Kit Builder platform dropdown MUST use all 13 values from <code>PLATFORMS</code> constant in <code>packages/core/src/dex/config.ts</code> (currently hardcodes only 8).</p>
   <table class="route-table">
     <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
-    <tr><td>C1</td><td><span class="ticket">TRK-13708</span></td><td><strong>Build DEX portal UI module</strong> &mdash; Kit Builder + Package Manager</td><td>L</td></tr>
+    <tr><td>C1</td><td><span class="ticket">TRK-13708</span></td><td><strong>Expand DEX portal UI</strong> &mdash; Wire Kit Builder, Form Library, Pipeline, Tracker to live APIs</td><td>L</td></tr>
     <tr><td>C2</td><td><span class="ticket">TRK-13696</span></td><td><strong>NBX pipeline Build Kit action</strong></td><td>M</td></tr>
     <tr><td>C3</td><td><span class="ticket">TRK-13703</span></td><td><strong>Contact Detail Generate Kit button</strong></td><td>S</td></tr>
+    <tr><td>C4</td><td><span class="ticket">TRK-NaN</span></td><td><strong>Expand DEX E2E tests</strong> &mdash; client search, form filter, pipeline, tracker</td><td>M</td></tr>
   </table>
-  <h4>Components</h4>
+  <h4>Existing Module (expand, don't rebuild)</h4>
   <ul>
-    <li><strong>KitBuilder</strong> &mdash; Client &rarr; product/custodian &rarr; build &rarr; layered form preview</li>
-    <li><strong>PackageManager</strong> &mdash; Lifecycle tracking (Draft &rarr; Complete)</li>
-    <li><strong>FormViewer</strong> &mdash; Inline PDF preview</li>
-    <li><strong>DocuSignButton</strong> &mdash; One-click send</li>
-    <li><strong>BuildKitAction</strong> &mdash; Pipeline task button for DEX system checks</li>
+    <li><strong>Kit Builder tab</strong> &mdash; Wire to <code>POST /api/dex/kits/build</code>. Use all 13 PLATFORMS from config. Add PDF preview + DocuSign send.</li>
+    <li><strong>Form Library tab</strong> &mdash; Wire to <code>dex_forms</code> collection (currently shows 0).</li>
+    <li><strong>Pipeline tab</strong> &mdash; Wire to <code>dex_packages</code> (currently shows 0).</li>
+    <li><strong>Tracker tab</strong> &mdash; Wire to live package status updates.</li>
+    <li><strong>BuildKitAction</strong> &mdash; Pipeline task button for DEX system checks (C2).</li>
+    <li><strong>E2E Tests</strong> &mdash; Expand <code>tests/e2e/ui/dex.spec.ts</code> with interaction tests (C4).</li>
   </ul>
 </div>
 
@@ -180,13 +182,12 @@
 <!-- BUILDER 4 -->
 <h3><span class="phase-badge p2">4</span> &nbsp; Builder 4 — Service Verification <span class="builder-badge verify">Stream D</span></h3>
 <div class="card">
-  <p>Verify PDF_SERVICE and DocuSign work end-to-end with real seeded data. Barbara Budd as test case.</p>
+  <p>Verify PDF_SERVICE and DocuSign work end-to-end with real seeded data. Barbara Budd as test case. <em>(TRK-105 closed as duplicate of TRK-13704 during discovery audit.)</em></p>
   <table class="route-table">
     <tr><th>Order</th><th>Ticket</th><th>Title</th><th>Effort</th></tr>
-    <tr><td>D1</td><td><span class="ticket">TRK-105</span></td><td><strong>Verify PDF_SERVICE /fill-and-merge</strong></td><td>M</td></tr>
-    <tr><td>D2</td><td><span class="ticket">TRK-13704</span></td><td><strong>End-to-end test with Budd data</strong></td><td>M</td></tr>
-    <tr><td>D3</td><td><span class="ticket">TRK-107</span></td><td><strong>Verify DocuSign JWT + envelope</strong></td><td>M</td></tr>
-    <tr><td>D4</td><td><span class="ticket">TRK-109</span></td><td><strong>Verify kit builder with seeded rules</strong></td><td>S</td></tr>
+    <tr><td>D1</td><td><span class="ticket">TRK-13704</span></td><td><strong>End-to-end PDF test with Budd data</strong></td><td>M</td></tr>
+    <tr><td>D2</td><td><span class="ticket">TRK-107</span></td><td><strong>Verify DocuSign JWT + envelope</strong></td><td>M</td></tr>
+    <tr><td>D3</td><td><span class="ticket">TRK-109</span></td><td><strong>Verify kit builder with seeded rules</strong></td><td>S</td></tr>
   </table>
   <h4>Smoke Test: Barbara Budd</h4>
   <ul>
@@ -240,7 +241,7 @@
     <li>DocuSign sends envelopes successfully</li>
     <li>Flow engine DEX handlers return PASS/FAIL correctly</li>
     <li>Gate enforcement validates check_result (bug fixed)</li>
-    <li>ProDashX shows working DEX module</li>
+    <li>ProDashX shows working DEX module (all 13 platforms in Kit Builder dropdown)</li>
     <li>NBX pipeline has "Build Kit" button</li>
     <li>60 NBX kits batch-generated</li>
     <li>GAS DEX archived</li>
@@ -249,7 +250,7 @@
 
 <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--dim); font-size: 11px;">
   <p>Retirement Protectors, Inc. &mdash; INTERNAL USE ONLY &mdash; CONFIDENTIAL</p>
-  <p>FORGE Sprint: DEX-LIVE &bull; Sprint ID: o0QmjgBeG4ZfWypVYfDk &bull; Generated March 24, 2026</p>
+  <p>FORGE Sprint: DEX-LIVE &bull; Sprint ID: o0QmjgBeG4ZfWypVYfDk &bull; Generated March 24, 2026 &bull; Plan Audit: March 24, 2026</p>
 </div>
 
 </div>
