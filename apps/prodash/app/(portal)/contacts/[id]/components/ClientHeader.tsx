@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import type { Client } from '@tomachina/core'
+import { dex } from '@tomachina/core'
 import { getAge, getInitials, hashColor } from '../lib/formatters'
 import { AI3Report } from './AI3Report'
 import { getAuth } from 'firebase/auth'
@@ -33,10 +34,10 @@ interface ClientHeaderProps {
 // Component
 // ---------------------------------------------------------------------------
 
-// Kit Builder constants (mirrored from DexDocCenter)
-const KIT_PLATFORMS = ['GWM (Schwab)', 'RBC Brokerage', 'VA (Direct)', 'FIA (Direct)', 'VUL (Direct)', 'MF (Direct)', '401k', 'Financial Planning'] as const
-const KIT_REG_TYPES = ['Traditional IRA', 'Roth IRA', 'Individual (NQ)', 'Joint WROS', 'Trust', '401k/ERISA'] as const
-const KIT_ACTIONS = ['New Account', 'LPOA/Transfer', 'ACAT Transfer', 'Add Money ($10K+)'] as const
+// Pull all 13 platforms, 7 reg types, 4 actions from core config (single source of truth)
+const KIT_PLATFORMS = dex.PLATFORMS
+const KIT_REG_TYPES = dex.REGISTRATION_TYPES
+const KIT_ACTIONS = dex.ACCOUNT_ACTIONS
 
 interface KitBuildResult {
   kit_id: string

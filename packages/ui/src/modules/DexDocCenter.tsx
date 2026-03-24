@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback } from 'react'
 import { query, collection, where, type Query, type DocumentData } from 'firebase/firestore'
 import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
+import { dex } from '@tomachina/core'
+import { fetchValidated } from './fetchValidated'
 
 // ============================================================================
 // Types
@@ -101,9 +103,10 @@ type Tab = 'pipeline' | 'forms' | 'kits' | 'tracker'
 
 const FORM_CATEGORIES = ['All', 'Firm:Client', 'Firm:Account', 'Product:GI', 'Product:Schwab', 'Product:RBC', 'Product:Carrier', 'Disclosure', 'Supporting'] as const
 const FORM_STATUSES = ['All', 'ACTIVE', 'TBD', 'N/A'] as const
-const KIT_PLATFORMS = ['GWM (Schwab)', 'RBC Brokerage', 'VA (Direct)', 'FIA (Direct)', 'VUL (Direct)', 'MF (Direct)', '401k', 'Financial Planning'] as const
-const KIT_REG_TYPES = ['Traditional IRA', 'Roth IRA', 'Individual (NQ)', 'Joint WROS', 'Trust', '401k/ERISA'] as const
-const KIT_ACTIONS = ['New Account', 'LPOA/Transfer', 'ACAT Transfer', 'Add Money ($10K+)'] as const
+// Pull all 13 platforms, 7 reg types, 4 actions from core config (single source of truth)
+const KIT_PLATFORMS = dex.PLATFORMS
+const KIT_REG_TYPES = dex.REGISTRATION_TYPES
+const KIT_ACTIONS = dex.ACCOUNT_ACTIONS
 
 const PIPELINE_STAGES_V2 = [
   { key: 'DRAFT', label: 'Draft', icon: 'edit_note', description: 'Kit assembled, not yet filled' },
@@ -551,17 +554,15 @@ function FillKitButton({ kitId, clientId, onFilled }: { kitId: string; clientId:
     setFilling(true)
     setFillError(null)
     try {
-      const res = await fetch(`/api/dex/kits/${kitId}/fill`, {
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex/kits/${kitId}/fill`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client_id: clientId }),
       })
-      const data = await res.json()
-      if (data.success) {
-        setFillResult({ filled: Number(data.data?.filled_count || 0), total: Number(data.data?.total_fields || 0) })
+      if (result.success && result.data) {
+        setFillResult({ filled: Number(result.data.filled_count || 0), total: Number(result.data.total_fields || 0) })
         onFilled()
       } else {
-        setFillError(data.error || 'Auto-fill failed')
+        setFillError(result.error || 'Auto-fill failed')
       }
     } catch {
       setFillError('Network error during auto-fill')
@@ -638,13 +639,12 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
     setBuilding(true)
     setStepError(null)
     try {
-      const res = await fetch('/api/dex/kits/build', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const result = await fetchValidated<Record<string, unknown>>('/api/dex/kits/build', {
+        method: 'POST',
         body: JSON.stringify({ client_id: selectedClient._id, product_type: platform, registration_type: regType, action }),
       })
-      const data = await res.json()
-      if (data.success) { setBuildResult(data.data as Record<string, unknown>); setStep(4) }
-      else { setStepError(data.error || 'Build failed') }
+      if (result.success && result.data) { setBuildResult(result.data); setStep(4) }
+      else { setStepError(result.error || 'Build failed') }
     } catch {
       setBuildResult({ preview: true, client_name: `${selectedClient.first_name} ${selectedClient.last_name}`, platform, regType, action })
       setStep(4)
@@ -660,8 +660,8 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
     setStepError(null)
     try {
       // Step A: Create package from kit
-      const pkgRes = await fetch('/api/dex-pipeline/packages', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const pkgResult = await fetchValidated<Record<string, unknown>>('/api/dex-pipeline/packages', {
+        method: 'POST',
         body: JSON.stringify({
           kit_id: buildResult.kit_id,
           client_id: selectedClient._id,
@@ -673,23 +673,21 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
           delivery_method: deliveryMethod,
         }),
       })
-      const pkgData = await pkgRes.json()
-      if (!pkgData.success) { setStepError(pkgData.error || 'Failed to create package'); setGenerating(false); return }
+      if (!pkgResult.success || !pkgResult.data) { setStepError(pkgResult.error || 'Failed to create package'); setGenerating(false); return }
 
-      const newPackageId = pkgData.data.package_id
+      const newPackageId = String((pkgResult.data as Record<string, unknown>).package_id)
       setPackageId(newPackageId)
 
       // Step B: Generate PDF
-      const pdfRes = await fetch(`/api/dex-pipeline/packages/${newPackageId}/generate-pdf`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const pdfResult = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${newPackageId}/generate-pdf`, {
+        method: 'POST',
         body: JSON.stringify({ input: {} }),
       })
-      const pdfData = await pdfRes.json()
-      if (!pdfData.success) { setStepError(pdfData.error || 'PDF generation failed'); setGenerating(false); return }
+      if (!pdfResult.success || !pdfResult.data) { setStepError(pdfResult.error || 'PDF generation failed'); setGenerating(false); return }
 
-      setPdfResult(pdfData.data as Record<string, unknown>)
+      setPdfResult(pdfResult.data)
       setPdfGenerated(true)
-    } catch (err) {
+    } catch {
       setStepError('Network error during PDF generation')
     } finally {
       setGenerating(false)
@@ -702,13 +700,12 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
     setSending(true)
     setStepError(null)
     try {
-      const res = await fetch(`/api/dex-pipeline/packages/${packageId}/send-docusign`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${packageId}/send-docusign`, {
+        method: 'POST',
       })
-      const data = await res.json()
-      if (!data.success) { setStepError(data.error || 'DocuSign send failed'); setSending(false); return }
+      if (!result.success || !result.data) { setStepError(result.error || 'DocuSign send failed'); setSending(false); return }
 
-      setDocusignResult(data.data as Record<string, unknown>)
+      setDocusignResult(result.data)
       setSent(true)
     } catch {
       setStepError('Network error sending to DocuSign')
@@ -959,20 +956,19 @@ function TrackerTab({ packages }: { packages: DexPackage[] }) {
     return result
   }, [packages, statusFilter])
 
-  const handleGeneratePdf = useCallback(async (packageId: string) => {
+  const handleGeneratePdf = useCallback(async (pkgId: string) => {
     setActionLoading('pdf')
     setActionError(null)
     setActionSuccess(null)
     try {
-      const res = await fetch(`/api/dex-pipeline/packages/${packageId}/generate-pdf`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${pkgId}/generate-pdf`, {
+        method: 'POST',
         body: JSON.stringify({ input: {} }),
       })
-      const data = await res.json()
-      if (data.success) {
-        setActionSuccess(`PDF generated — ${String(data.data?.pdf_page_count || '?')} pages, ${String(data.data?.filled_count || '?')} fields filled`)
+      if (result.success && result.data) {
+        setActionSuccess(`PDF generated — ${String(result.data.pdf_page_count || '?')} pages, ${String(result.data.filled_count || '?')} fields filled`)
       } else {
-        setActionError(data.error || 'PDF generation failed')
+        setActionError(result.error || 'PDF generation failed')
       }
     } catch {
       setActionError('Network error during PDF generation')
@@ -981,19 +977,18 @@ function TrackerTab({ packages }: { packages: DexPackage[] }) {
     }
   }, [])
 
-  const handleSendDocuSign = useCallback(async (packageId: string) => {
+  const handleSendDocuSign = useCallback(async (pkgId: string) => {
     setActionLoading('docusign')
     setActionError(null)
     setActionSuccess(null)
     try {
-      const res = await fetch(`/api/dex-pipeline/packages/${packageId}/send-docusign`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${pkgId}/send-docusign`, {
+        method: 'POST',
       })
-      const data = await res.json()
-      if (data.success) {
-        setActionSuccess(`Sent to DocuSign — Envelope: ${String(data.data?.envelope_id || 'created')}`)
+      if (result.success && result.data) {
+        setActionSuccess(`Sent to DocuSign — Envelope: ${String(result.data.envelope_id || 'created')}`)
       } else {
-        setActionError(data.error || 'DocuSign send failed')
+        setActionError(result.error || 'DocuSign send failed')
       }
     } catch {
       setActionError('Network error sending to DocuSign')
@@ -1002,20 +997,19 @@ function TrackerTab({ packages }: { packages: DexPackage[] }) {
     }
   }, [])
 
-  const handleStatusUpdate = useCallback(async (packageId: string, newStatus: string) => {
+  const handleStatusUpdate = useCallback(async (pkgId: string, newStatus: string) => {
     setActionLoading('status')
     setActionError(null)
     setActionSuccess(null)
     try {
-      const res = await fetch(`/api/dex-pipeline/packages/${packageId}/status`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${pkgId}/status`, {
+        method: 'PATCH',
         body: JSON.stringify({ status: newStatus }),
       })
-      const data = await res.json()
-      if (data.success) {
+      if (result.success) {
         setActionSuccess(`Status updated to ${newStatus}`)
       } else {
-        setActionError(data.error || 'Status update failed')
+        setActionError(result.error || 'Status update failed')
       }
     } catch {
       setActionError('Network error updating status')
