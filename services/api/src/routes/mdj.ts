@@ -19,7 +19,7 @@ function db() {
 }
 
 // MDJ1 agent service URL via Tailscale
-const MDJ1_URL = process.env.MDJ1_URL || 'https://tail7845ea.ts.net'
+const MDJ1_URL = process.env.MDJ1_URL || 'https://mdjserver.tail7845ea.ts.net'
 const MDJ_AUTH_SECRET = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
 
 /**
