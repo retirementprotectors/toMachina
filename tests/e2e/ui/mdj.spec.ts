@@ -10,7 +10,7 @@ test.describe('MDJ Panel', () => {
   test('click MDJ button opens panel', async ({ page }) => {
     await page.goto('/')
     await page.click('button[title="MyDigitalJosh"]')
-    const panel = page.locator('text=MyDigitalJosh')
+    const panel = page.locator('textarea[placeholder="Ask MDJ anything..."]')
     await expect(panel).toBeVisible()
   })
 
@@ -28,7 +28,7 @@ test.describe('MDJ Panel', () => {
   test('mutual exclusion — opening Comms closes MDJ', async ({ page }) => {
     await page.goto('/')
     await page.click('button[title="MyDigitalJosh"]')
-    await expect(page.locator('text=MyDigitalJosh')).toBeVisible()
+    await expect(page.locator('textarea[placeholder="Ask MDJ anything..."]')).toBeVisible()
     await page.click('button[title="Communications"]')
     // MDJ panel should be gone
     await expect(page.locator('textarea[placeholder="Ask MDJ anything..."]')).not.toBeVisible()
