@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentX.AI — The Numbers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080c;
+    --bg-card: #0f0f16;
+    --bg-hover: #141420;
+    --bg-accent: #1a1a2a;
+    --border: #1a1a28;
+    --border-accent: #252536;
+    --text: #e8e8f2;
+    --text-muted: #8a8aa2;
+    --gold: #d4a44c;
+    --gold-bright: #f0c060;
+    --gold-dark: #a07830;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+    --gold-glow-strong: rgba(212, 164, 76, 0.2);
+    --green: #4ade80;
+    --green-glow: rgba(74, 222, 128, 0.12);
+    --blue: #60a5fa;
+    --blue-glow: rgba(96, 165, 250, 0.12);
+    --purple: #c084fc;
+    --purple-glow: rgba(192, 132, 252, 0.12);
+    --orange: #f97316;
+    --orange-glow: rgba(249, 115, 22, 0.12);
+    --red: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* ===================== HEADER ===================== */
+  .header {
+    background: linear-gradient(180deg, #0d0d1a 0%, #08080c 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 56px 32px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 300px;
+    background: radial-gradient(ellipse, rgba(212,164,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+
+  .header h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .header h1 .brand-agent {
+    background: linear-gradient(135deg, #e8e8f2 0%, #c8c8e0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header h1 .brand-x {
+    background: linear-gradient(135deg, #f0c060 0%, #d4a44c 50%, #a07830 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header h1 .brand-ai {
+    background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header .subtitle {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    max-width: 520px;
+    margin: 0 auto 20px;
+  }
+
+  .header-badges {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .header-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .badge-gold {
+    background: var(--gold-glow);
+    color: var(--gold);
+    border: 1px solid rgba(212,164,76,0.25);
+  }
+
+  .badge-blue {
+    background: var(--blue-glow);
+    color: var(--blue);
+    border: 1px solid rgba(96,165,250,0.25);
+  }
+
+  .badge-green {
+    background: var(--green-glow);
+    color: var(--green);
+    border: 1px solid rgba(74,222,128,0.25);
+  }
+
+  /* ===================== TABS ===================== */
+  .tab-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8, 8, 12, 0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tabs {
+    display: flex;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab {
+    padding: 16px 24px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .tab:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+
+  .tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    background: rgba(212,164,76,0.05);
+  }
+
+  /* ===================== CONTENT PANELS ===================== */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ===================== SECTION HEADERS ===================== */
+  .section-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .section-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    max-width: 600px;
+  }
+
+  /* ===================== METRIC CARDS ===================== */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .metric-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 20px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--card-accent-start, #d4a44c), var(--card-accent-end, #a07830));
+    opacity: 0.7;
+  }
+
+  .metric-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+  }
+
+  .metric-card.gold { --card-accent-start: #f0c060; --card-accent-end: #d4a44c; }
+  .metric-card.blue { --card-accent-start: #60a5fa; --card-accent-end: #818cf8; }
+  .metric-card.green { --card-accent-start: #4ade80; --card-accent-end: #22c55e; }
+  .metric-card.purple { --card-accent-start: #c084fc; --card-accent-end: #a855f7; }
+  .metric-card.orange { --card-accent-start: #f97316; --card-accent-end: #ef4444; }
+
+  .metric-icon {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .metric-card.gold .metric-value {
+    background: linear-gradient(135deg, #f0c060, #d4a44c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .metric-card.blue .metric-value { color: var(--blue); }
+  .metric-card.green .metric-value { color: var(--green); }
+  .metric-card.purple .metric-value { color: var(--purple); }
+  .metric-card.orange .metric-value { color: var(--orange); }
+
+  .metric-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .metric-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ===================== GROWTH TABLE ===================== */
+  .growth-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+
+  .growth-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .growth-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .growth-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .growth-table thead tr {
+    background: var(--bg-accent);
+  }
+
+  .growth-table th {
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .growth-table th:not(:first-child) { text-align: right; }
+
+  .growth-table td {
+    padding: 14px 20px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(26,26,40,0.6);
+    color: var(--text-muted);
+  }
+
+  .growth-table td:first-child {
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .growth-table td:not(:first-child) { text-align: right; }
+
+  .growth-table tr:last-child td { border-bottom: none; }
+
+  .growth-table tr:hover td { background: var(--bg-hover); }
+
+  .growth-val-gold {
+    background: linear-gradient(135deg, #f0c060, #d4a44c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+  }
+
+  .growth-val-green { color: var(--green); font-weight: 700; }
+  .growth-val-blue { color: var(--blue); font-weight: 700; }
+  .growth-val-purple { color: var(--purple); font-weight: 700; }
+  .growth-val-orange { color: var(--orange); font-weight: 700; }
+
+  /* ESOP bar */
+  .esop-bar {
+    background: linear-gradient(135deg, rgba(212,164,76,0.08), rgba(192,132,252,0.06));
+    border-top: 1px solid var(--border);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .esop-bar .esop-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .esop-bar .esop-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .esop-bar .esop-range {
+    font-size: 1.2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f0c060, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  /* ===================== DIVIDER ===================== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
+    margin: 40px 0;
+  }
+
+  /* ===================== TAB 2: COMPARISON TABLES ===================== */
+  .comparison-section {
+    margin-bottom: 40px;
+  }
+
+  .comp-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    background: var(--bg-accent);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .comp-section-header h2 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.3px;
+  }
+
+  .comp-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+
+  .comp-table thead tr { background: var(--bg-accent); }
+
+  .comp-table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .comp-table th:first-child { width: 20%; color: var(--text-muted); }
+  .comp-table th.th-rpi { color: var(--green); background: rgba(74,222,128,0.05); }
+  .comp-table th.th-them { color: var(--text-muted); }
+
+  .comp-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(26,26,40,0.6);
+    vertical-align: top;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .comp-table td:first-child {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.78rem;
+  }
+
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: var(--bg-hover); }
+
+  .comp-table td.td-yes {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .comp-table td.td-no {
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  .comp-table td.td-partial {
+    color: var(--orange);
+    font-weight: 600;
+  }
+
+  /* Cost cards */
+  .cost-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .cost-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cost-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .cost-card.rpi::before { background: linear-gradient(90deg, #4ade80, #22c55e); }
+  .cost-card.them::before { background: linear-gradient(90deg, #f87171, #ef4444); }
+  .cost-card.rpi { border-color: rgba(74,222,128,0.2); }
+  .cost-card.them { border-color: rgba(248,113,113,0.15); }
+
+  .cost-card h3 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+  }
+
+  .cost-card.rpi h3 { color: var(--green); }
+  .cost-card.them h3 { color: var(--text-muted); }
+
+  .cost-price {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .cost-card.rpi .cost-price { color: var(--green); }
+  .cost-card.them .cost-price { color: var(--red); }
+
+  .cost-per {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .cost-detail {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Scorecard highlight row */
+  .scorecard-final td:first-child {
+    font-weight: 800;
+    color: var(--gold);
+    font-size: 0.82rem;
+  }
+
+  /* ===================== TAB 3: PRICING ===================== */
+  .pricing-tier {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .tier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tier-left {}
+
+  .tier-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .tier-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .tier-price {
+    font-size: 1.2rem;
+    font-weight: 800;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .t1 .tier-name, .t1 .tier-price { color: var(--blue); }
+  .t1 { border-top: 2px solid var(--blue); }
+  .t2 .tier-name, .t2 .tier-price { color: var(--purple); }
+  .t2 { border-top: 2px solid var(--purple); }
+  .t3 .tier-name, .t3 .tier-price { color: var(--orange); }
+  .t3 { border-top: 2px solid var(--orange); }
+  .t4 .tier-name, .t4 .tier-price { color: var(--green); }
+  .t4 { border-top: 2px solid var(--green); }
+  .t5 .tier-name, .t5 .tier-price { color: var(--gold); }
+  .t5 { border-top: 2px solid var(--gold); }
+
+  .tier-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    padding: 18px 22px;
+  }
+
+  .tier-item {
+    background: var(--bg-hover);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .t1 .tier-item { border-left: 2px solid rgba(96,165,250,0.4); }
+  .t2 .tier-item { border-left: 2px solid rgba(192,132,252,0.4); }
+  .t3 .tier-item { border-left: 2px solid rgba(249,115,22,0.4); }
+  .t4 .tier-item { border-left: 2px solid rgba(74,222,128,0.4); }
+  .t5 .tier-item { border-left: 2px solid rgba(212,164,76,0.4); }
+
+  .tier-item h4 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .tier-item p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    line-height: 1.4;
+  }
+
+  .tier-item-price {
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .t1 .tier-item-price { color: var(--blue); }
+  .t2 .tier-item-price { color: var(--purple); }
+  .t3 .tier-item-price { color: var(--orange); }
+  .t4 .tier-item-price { color: var(--green); }
+  .t5 .tier-item-price { color: var(--gold); }
+
+  /* Scenario cards */
+  .scenario-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-accent);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .scenario-card.sc-a { border-color: rgba(96,165,250,0.3); }
+  .scenario-card.sc-b { border-color: rgba(212,164,76,0.3); }
+  .scenario-card.sc-c { border-color: rgba(192,132,252,0.3); }
+
+  .scenario-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .scenario-header h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .sc-a .scenario-header h3 { color: var(--blue); }
+  .sc-b .scenario-header h3 { color: var(--gold); }
+  .sc-c .scenario-header h3 { color: var(--purple); }
+
+  .scenario-total {
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+
+  .sc-a .scenario-total { color: var(--blue); }
+  .sc-b .scenario-total { color: var(--gold-bright); }
+  .sc-c .scenario-total { color: var(--purple); }
+
+  .scenario-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+
+  .scenario-table th {
+    padding: 8px 16px;
+    text-align: left;
+    background: var(--bg-accent);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .scenario-table th:last-child { text-align: right; }
+
+  .scenario-table td {
+    padding: 9px 16px;
+    border-bottom: 1px solid rgba(26,26,40,0.6);
+    color: var(--text-muted);
+  }
+
+  .scenario-table tr:last-child td { border-bottom: none; }
+  .scenario-table td:last-child { text-align: right; color: var(--green); font-weight: 600; }
+
+  .scenario-table tr.row-total td {
+    font-weight: 800;
+    font-size: 0.9rem;
+    border-top: 2px solid var(--border-accent);
+    color: var(--text);
+  }
+
+  .sc-a .scenario-table tr.row-total td:last-child { color: var(--blue); }
+  .sc-b .scenario-table tr.row-total td:last-child { color: var(--gold-bright); }
+  .sc-c .scenario-table tr.row-total td:last-child { color: var(--purple); }
+
+  .scenario-table tr.row-per td { color: var(--text-muted); font-size: 0.75rem; }
+  .scenario-table tr.row-per td:last-child { color: var(--text-muted); }
+
+  /* ARR Cards */
+  .arr-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .arr-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arr-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .arr-card.arr-1::before { background: linear-gradient(90deg, #4ade80, #22c55e); }
+  .arr-card.arr-2::before { background: linear-gradient(90deg, #60a5fa, #818cf8); }
+  .arr-card.arr-3::before { background: linear-gradient(90deg, #c084fc, #ec4899); }
+
+  .arr-card h4 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .arr-val {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+
+  .arr-card.arr-1 .arr-val { color: var(--green); }
+  .arr-card.arr-2 .arr-val { color: var(--blue); }
+  .arr-card.arr-3 .arr-val { color: var(--purple); }
+
+  .arr-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+  /* Revenue + Valuation tables */
+  .data-table-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .data-table-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table-header h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .data-table th {
+    padding: 9px 16px;
+    text-align: left;
+    background: var(--bg-accent);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table th:last-child { text-align: right; }
+
+  .data-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(26,26,40,0.6);
+    color: var(--text-muted);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--bg-hover); }
+  .data-table td:last-child { text-align: right; font-weight: 600; color: var(--green); }
+
+  .data-table tr.row-total td {
+    font-weight: 800;
+    border-top: 2px solid var(--border-accent);
+    color: var(--text);
+    font-size: 0.875rem;
+  }
+
+  .data-table tr.row-total td:last-child {
+    background: linear-gradient(135deg, #f0c060, #d4a44c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1rem;
+  }
+
+  /* Valuation highlight */
+  .val-highlight {
+    background: linear-gradient(135deg, rgba(212,164,76,0.08), rgba(192,132,252,0.05));
+    border: 1px solid rgba(212,164,76,0.2);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .val-highlight p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-style: italic;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .val-highlight p strong {
+    font-style: normal;
+    background: linear-gradient(135deg, #f0c060, #d4a44c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ===================== FOOTER ===================== */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-top: 16px;
+    letter-spacing: 0.3px;
+  }
+
+  .footer strong {
+    background: linear-gradient(135deg, #f0c060, #d4a44c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ===================== RESPONSIVE ===================== */
+  @media (max-width: 768px) {
+    .header h1 { font-size: 2.2rem; }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .cost-row { grid-template-columns: 1fr; }
+    .arr-row { grid-template-columns: 1fr; }
+    .comp-table { font-size: 0.7rem; }
+    .content { padding: 24px 16px 60px; }
+    .tab { padding: 12px 16px; font-size: 0.8rem; }
+    .growth-table th, .growth-table td { padding: 10px 12px; }
+  }
+
+  @media (max-width: 500px) {
+    .metrics-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<div class="header">
+  <div class="header-eyebrow">The Machine — Analytical Companion</div>
+  <h1>
+    <span class="brand-agent">Agent</span><span class="brand-x">X</span><span class="brand-ai">.AI</span>
+  </h1>
+  <div class="subtitle">The Numbers Behind The Machine</div>
+  <div class="header-badges">
+    <span class="header-badge badge-gold">Live in Production</span>
+    <span class="header-badge badge-blue">3 SaaS Portals</span>
+    <span class="header-badge badge-green">Confidential — 2026</span>
+  </div>
+</div>
+
+<!-- ===================== TABS ===================== -->
+<div class="tab-bar">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">The Numbers</div>
+    <div class="tab" onclick="switchTab(1)">RPI vs Enterprise AI</div>
+    <div class="tab" onclick="switchTab(2)">SaaS Pricing Model</div>
+  </div>
+</div>
+
+<!-- ===================== TAB 1: THE NUMBERS ===================== -->
+<div class="panel active" id="panel-0">
+  <div class="content">
+
+    <div class="section-label">Platform Metrics</div>
+    <div class="section-title">What's Live Today</div>
+    <div class="section-desc">Every number below is production data — not projections, not demos. The Machine is running.</div>
+
+    <!-- ROW 1: Portals + Core Business Data -->
+    <div class="metrics-grid">
+
+      <div class="metric-card gold">
+        <span class="metric-icon">🏛️</span>
+        <div class="metric-value">3</div>
+        <div class="metric-label">SaaS Portals Live</div>
+        <div class="metric-sub">ProDashX (B2C) · RIIMO (B2E) · SENTINEL (B2B)</div>
+      </div>
+
+      <div class="metric-card green">
+        <span class="metric-icon">👥</span>
+        <div class="metric-value">5,199</div>
+        <div class="metric-label">Active Clients</div>
+        <div class="metric-sub">Across all portals, normalized in Firestore</div>
+      </div>
+
+      <div class="metric-card blue">
+        <span class="metric-icon">📋</span>
+        <div class="metric-value">12,144</div>
+        <div class="metric-label">Active Accounts</div>
+        <div class="metric-sub">Annuity, Life, Medicare, Advisory, Investment</div>
+      </div>
+
+      <div class="metric-card gold">
+        <span class="metric-icon">💰</span>
+        <div class="metric-value">$4.44M</div>
+        <div class="metric-label">Revenue Tracked</div>
+        <div class="metric-sub">$4,444,840 — real-time in platform</div>
+      </div>
+
+      <div class="metric-card orange">
+        <span class="metric-icon">🎯</span>
+        <div class="metric-value">615</div>
+        <div class="metric-label">Open Opportunities</div>
+        <div class="metric-sub">Across 6 pipeline stages</div>
+      </div>
+
+      <div class="metric-card purple">
+        <span class="metric-icon">📣</span>
+        <div class="metric-value">53</div>
+        <div class="metric-label">Active Campaigns</div>
+        <div class="metric-sub">60 total campaigns, 661 templates in C3</div>
+      </div>
+
+    </div>
+
+    <!-- ROW 2: Tech Infrastructure -->
+    <div class="section-label">Infrastructure</div>
+    <div class="section-title">The Stack Behind It</div>
+    <div class="section-desc">Cloud-native, owned, and portable. Not locked to any vendor.</div>
+
+    <div class="metrics-grid">
+
+      <div class="metric-card blue">
+        <span class="metric-icon">⚡</span>
+        <div class="metric-value">57</div>
+        <div class="metric-label">API Routes</div>
+        <div class="metric-sub">Cloud Run · TypeScript · Express</div>
+      </div>
+
+      <div class="metric-card purple">
+        <span class="metric-icon">🛠️</span>
+        <div class="metric-value">250+</div>
+        <div class="metric-label">AI Tools</div>
+        <div class="metric-sub">Across 8 MCP hubs — wired and active</div>
+      </div>
+
+      <div class="metric-card gold">
+        <span class="metric-icon">🤖</span>
+        <div class="metric-value">82</div>
+        <div class="metric-label">MDJ Tools Wired</div>
+        <div class="metric-sub">MyDigitalJosh — the AI agent layer</div>
+      </div>
+
+      <div class="metric-card orange">
+        <span class="metric-icon">🧠</span>
+        <div class="metric-value">6</div>
+        <div class="metric-label">AI Specialists</div>
+        <div class="metric-sub">Medicare · Securities · Service · DAVID · Ops · Coach</div>
+      </div>
+
+      <div class="metric-card green">
+        <span class="metric-icon">🛡️</span>
+        <div class="metric-value">37</div>
+        <div class="metric-label">Compliance Rules</div>
+        <div class="metric-sub">Automated hookify enforcement — zero manual policing</div>
+      </div>
+
+      <div class="metric-card blue">
+        <span class="metric-icon">🗄️</span>
+        <div class="metric-value">29K+</div>
+        <div class="metric-label">Firestore Documents</div>
+        <div class="metric-sub">Normalized, typed, real-time synced</div>
+      </div>
+
+      <div class="metric-card purple">
+        <span class="metric-icon">🔌</span>
+        <div class="metric-value">4</div>
+        <div class="metric-label">ATLAS Data Wires</div>
+        <div class="metric-sub">Live carrier feed processing pipelines</div>
+      </div>
+
+      <div class="metric-card gold">
+        <span class="metric-icon">🖥️</span>
+        <div class="metric-value">16-Core</div>
+        <div class="metric-label">Dedicated AI Server</div>
+        <div class="metric-sub">MDJ_SERVER — Dell PowerEdge, 24/7 runtime</div>
+      </div>
+
+      <div class="metric-card green">
+        <span class="metric-icon">🧪</span>
+        <div class="metric-value">46</div>
+        <div class="metric-label">Automated Tests</div>
+        <div class="metric-sub">38 Playwright E2E + 8 Vitest clusters — full coverage</div>
+      </div>
+
+      <div class="metric-card orange">
+        <span class="metric-icon">📦</span>
+        <div class="metric-value">50</div>
+        <div class="metric-label">GitHub Repos</div>
+        <div class="metric-sub">Monorepo + services + archived engines</div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Growth Targets -->
+    <div class="section-label">Growth Trajectory</div>
+    <div class="section-title">The Roadmap to $16B</div>
+    <div class="section-desc">Conservative projections built on a platform that already exists.</div>
+
+    <div class="growth-section">
+      <div class="growth-header">
+        <span style="font-size:1.1rem">📈</span>
+        <h3>Agency Growth + Financial Targets by Year</h3>
+      </div>
+      <table class="growth-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Agencies</th>
+            <th>Active Clients</th>
+            <th>NOI</th>
+            <th>Valuation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="growth-val-blue">2025</span></td>
+            <td>7</td>
+            <td>6,000</td>
+            <td class="growth-val-green">$5MM</td>
+            <td class="growth-val-blue">$25MM</td>
+          </tr>
+          <tr>
+            <td><span class="growth-val-blue">2026</span></td>
+            <td>31</td>
+            <td>15,000</td>
+            <td class="growth-val-green">$20MM</td>
+            <td class="growth-val-gold">$133MM</td>
+          </tr>
+          <tr>
+            <td><span class="growth-val-blue">2027</span></td>
+            <td>181</td>
+            <td>90,000</td>
+            <td class="growth-val-green">$120MM</td>
+            <td class="growth-val-purple">$1.2BB</td>
+          </tr>
+          <tr>
+            <td><span class="growth-val-gold">2028+</span></td>
+            <td>ESOP Launch</td>
+            <td>National Scale</td>
+            <td class="growth-val-orange">TBD</td>
+            <td class="growth-val-orange">$3BB → $16BB</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="esop-bar">
+        <span class="esop-label">ESOP Exit</span>
+        <span class="esop-text">Employee ownership transition — The Machine becomes theirs. Built to be sold to the people who built it.</span>
+        <span class="esop-range">$3B → $16B</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== TAB 2: RPI VS ENTERPRISE AI ===================== -->
+<div class="panel" id="panel-1">
+  <div class="content">
+
+    <div class="section-label">Competitive Intelligence</div>
+    <div class="section-title">RPI vs Enterprise AI</div>
+    <div class="section-desc">What $50k/month buys you vs what a Dell in a closet delivers. Side-by-side, no spin.</div>
+
+    <!-- Cloud / Infrastructure -->
+    <div class="comparison-section">
+      <div class="comp-section-header">
+        <span style="color:var(--gold)">☁️</span>
+        <h2>Cloud / Infrastructure</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Salesforce Einstein</th>
+              <th class="th-them">Microsoft Copilot</th>
+              <th class="th-them">Custom Enterprise Bot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Migrate to any cloud</td>
+              <td class="td-yes">Yes — Ubuntu + Node.js. Move anytime.</td>
+              <td class="td-no">Locked to Salesforce Cloud</td>
+              <td class="td-no">Locked to Azure</td>
+              <td class="td-partial">Depends on vendor</td>
+            </tr>
+            <tr>
+              <td>Own your hardware</td>
+              <td class="td-yes">Dell PowerEdge in your closet</td>
+              <td class="td-no">Their servers</td>
+              <td class="td-no">Their servers</td>
+              <td class="td-partial">Usually their servers</td>
+            </tr>
+            <tr>
+              <td>Data sovereignty</td>
+              <td class="td-yes">YOUR Firestore, YOUR Drive, YOUR server</td>
+              <td class="td-no">On Salesforce servers</td>
+              <td class="td-no">On Microsoft servers</td>
+              <td class="td-partial">Varies</td>
+            </tr>
+            <tr>
+              <td>Scale up resources</td>
+              <td class="td-yes">Add RAM / move to AWS in a day</td>
+              <td class="td-yes">Auto-scales (at their price)</td>
+              <td class="td-yes">Auto-scales (at their price)</td>
+              <td class="td-partial">Depends</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Multiple UI Formats -->
+    <div class="comparison-section">
+      <div class="comp-section-header">
+        <span style="color:var(--blue)">📱</span>
+        <h2>Multiple UI Formats</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>UI Format</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Salesforce Einstein</th>
+              <th class="th-them">Microsoft Copilot</th>
+              <th class="th-them">Custom Enterprise Bot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Web Portal Chat</td>
+              <td class="td-yes">ProDashX panel (built-in)</td>
+              <td class="td-yes">Salesforce sidebar</td>
+              <td class="td-yes">Teams/Office sidebar</td>
+              <td class="td-partial">Usually one UI only</td>
+            </tr>
+            <tr>
+              <td>Mobile App</td>
+              <td class="td-yes">MDJ Mobile PWA</td>
+              <td class="td-partial">Salesforce mobile (limited AI)</td>
+              <td class="td-partial">Teams mobile</td>
+              <td class="td-no">Rarely</td>
+            </tr>
+            <tr>
+              <td>CLI / Developer Access</td>
+              <td class="td-yes">Claude Code on MDJ_SERVER via tmux</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>API for Custom UIs</td>
+              <td class="td-yes">SSE streaming endpoint — build anything</td>
+              <td class="td-partial">Limited API</td>
+              <td class="td-partial">Graph API</td>
+              <td class="td-partial">Varies</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Market Portals -->
+    <div class="comparison-section">
+      <div class="comp-section-header">
+        <span style="color:var(--purple)">🏢</span>
+        <h2>Multiple Market Portals</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Portal / Market</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Salesforce Einstein</th>
+              <th class="th-them">Microsoft Copilot</th>
+              <th class="th-them">Custom Enterprise Bot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>B2C Client Portal</td>
+              <td class="td-yes">ProDashX — prodash.tomachina.com</td>
+              <td class="td-partial">Customer Community (extra $)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">Usually one portal</td>
+            </tr>
+            <tr>
+              <td>B2E Internal Portal</td>
+              <td class="td-yes">RIIMO — riimo.tomachina.com</td>
+              <td class="td-partial">Employee app (extra $)</td>
+              <td class="td-partial">SharePoint</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>B2B Partner Portal</td>
+              <td class="td-yes">SENTINEL — sentinel.tomachina.com</td>
+              <td class="td-partial">Partner Community (extra $)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>AI in ALL portals</td>
+              <td class="td-yes">Same bot, 3 portals, scoped by role</td>
+              <td class="td-no">Separate AI per cloud</td>
+              <td class="td-no">One Copilot instance</td>
+              <td class="td-no">Single deployment</td>
+            </tr>
+            <tr>
+              <td>Portal-specific theming</td>
+              <td class="td-yes">RPI Blue / RIIMO Purple / SENTINEL Green</td>
+              <td class="td-no">Salesforce blue only</td>
+              <td class="td-no">Microsoft purple only</td>
+              <td class="td-partial">Rarely</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cross-Platform Communications -->
+    <div class="comparison-section">
+      <div class="comp-section-header">
+        <span style="color:var(--green)">💬</span>
+        <h2>Cross-Platform Communication Tools</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Salesforce Einstein</th>
+              <th class="th-them">Microsoft Copilot</th>
+              <th class="th-them">Custom Enterprise Bot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Admin / Team Config</td>
+              <td class="td-yes">Full admin — roles, permissions, Mission Control</td>
+              <td class="td-partial">Salesforce Admin (separate product)</td>
+              <td class="td-partial">Azure AD (separate product)</td>
+              <td class="td-no">Rarely built-in</td>
+            </tr>
+            <tr>
+              <td>User Profile (MyRPI)</td>
+              <td class="td-yes">Profile, Drop Zone, documents, team info</td>
+              <td class="td-partial">Basic profile</td>
+              <td class="td-partial">O365 profile</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Notifications / Alerts</td>
+              <td class="td-yes">Portal-branded, real-time, approval queues</td>
+              <td class="td-partial">Salesforce notifications</td>
+              <td class="td-partial">Teams notifications</td>
+              <td class="td-partial">Basic webhooks</td>
+            </tr>
+            <tr>
+              <td>Internal Messaging</td>
+              <td class="td-yes">Built-in channels, people, Meet integration</td>
+              <td class="td-no">Use Slack/Teams separately</td>
+              <td class="td-yes">Teams (separate from CRM)</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Call/Text/Email</td>
+              <td class="td-yes">Twilio + SendGrid, integrated, AI can send</td>
+              <td class="td-partial">Extra $ per integration</td>
+              <td class="td-partial">Outlook only</td>
+              <td class="td-no">Rarely</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Standalone Apps -->
+    <div class="comparison-section">
+      <div class="comp-section-header">
+        <span style="color:var(--orange)">🧩</span>
+        <h2>Standalone Apps / Modules</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>App</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Salesforce Einstein</th>
+              <th class="th-them">Microsoft Copilot</th>
+              <th class="th-them">Custom Enterprise Bot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Campaign Engine (C3)</td>
+              <td class="td-yes">60 campaigns, 661 templates, AEP blackout</td>
+              <td class="td-partial">Marketing Cloud ($$$)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Pipeline Builder</td>
+              <td class="td-yes">Visual pipeline builder + Flow Engine</td>
+              <td class="td-partial">Flow Builder (limited)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Commission Tracking (CAM)</td>
+              <td class="td-yes">Full commission accounting + splits</td>
+              <td class="td-no">No (need 3rd party)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Data Intelligence (ATLAS)</td>
+              <td class="td-yes">Source registry, wires, super tools, learning library</td>
+              <td class="td-no">Nothing comparable</td>
+              <td class="td-no">Nothing comparable</td>
+              <td class="td-no">Nothing comparable</td>
+            </tr>
+            <tr>
+              <td>Document Assembly (DEX)</td>
+              <td class="td-yes">Carrier forms, DocuSign, PDF generation</td>
+              <td class="td-partial">Document gen (extra $)</td>
+              <td class="td-partial">Word templates</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Data Protection (GUARDIAN)</td>
+              <td class="td-yes">Write gates, schema validation, anomaly detection</td>
+              <td class="td-partial">Shield ($$$)</td>
+              <td class="td-partial">Purview ($$$)</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Build Tracker (FORGE)</td>
+              <td class="td-yes">Full sprint lifecycle, audit rounds, auto-deploy</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Quoting Engine (QUE)</td>
+              <td class="td-yes">Medicare, Life, Annuity, Advisory quoting</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Territory Management (ProZONE)</td>
+              <td class="td-yes">Zone scheduling, lead surfacing, scorecards</td>
+              <td class="td-partial">Territory Management ($$$)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MCP Tool Hubs -->
+    <div class="comparison-section">
+      <div class="comp-section-header">
+        <span style="color:var(--purple)">🔗</span>
+        <h2>Integrated MCP / Tool Hubs</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Integration Hub</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Salesforce Einstein</th>
+              <th class="th-them">Microsoft Copilot</th>
+              <th class="th-them">Custom Enterprise Bot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Healthcare APIs</td>
+              <td class="td-yes">rpi-healthcare-mcp — 79 tools (NPI, ICD-10, CMS, formulary)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Communications</td>
+              <td class="td-yes">rpi-comms-mcp — 18 tools (Twilio, SendGrid, campaigns)</td>
+              <td class="td-partial">Extra integrations needed</td>
+              <td class="td-partial">Outlook only</td>
+              <td class="td-partial">Usually 1-2 tools</td>
+            </tr>
+            <tr>
+              <td>Business Intelligence</td>
+              <td class="td-yes">rpi-business-mcp — 28 tools (commissions, meetings, agents)</td>
+              <td class="td-partial">Reports (limited AI)</td>
+              <td class="td-partial">Power BI</td>
+              <td class="td-no">No</td>
+            </tr>
+            <tr>
+              <td>Google Workspace</td>
+              <td class="td-yes">rpi-workspace-mcp — 73 tools (GAS, Chat, Admin, Drive, Calendar)</td>
+              <td class="td-no">Salesforce ecosystem only</td>
+              <td class="td-partial">Microsoft ecosystem only</td>
+              <td class="td-partial">1-2 integrations</td>
+            </tr>
+            <tr>
+              <td>Google Drive</td>
+              <td class="td-yes">gdrive MCP — 40+ tools (Docs, Sheets, Slides)</td>
+              <td class="td-no">No</td>
+              <td class="td-partial">OneDrive/SharePoint</td>
+              <td class="td-no">Rarely</td>
+            </tr>
+            <tr>
+              <td>Gmail + Calendar</td>
+              <td class="td-yes">gmail MCP + google-calendar MCP</td>
+              <td class="td-no">No (use their email)</td>
+              <td class="td-yes">Outlook + Calendar</td>
+              <td class="td-partial">Maybe email</td>
+            </tr>
+            <tr>
+              <td>Slack</td>
+              <td class="td-yes">slack MCP — messages, search, channels</td>
+              <td class="td-partial">Slack integration ($)</td>
+              <td class="td-partial">Teams instead</td>
+              <td class="td-partial">Maybe</td>
+            </tr>
+            <tr>
+              <td><strong>Total tool count</strong></td>
+              <td class="td-yes"><strong>250+ tools across 8 hubs</strong></td>
+              <td class="td-partial">~50 with add-ons ($$$)</td>
+              <td class="td-partial">~30 within Microsoft</td>
+              <td class="td-partial">~10-20 typically</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI Capabilities -->
+    <div class="comparison-section">
+      <div class="comp-section-header">
+        <span style="color:var(--gold)">🤖</span>
+        <h2>AI-Specific Capabilities</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Salesforce Einstein</th>
+              <th class="th-them">Microsoft Copilot</th>
+              <th class="th-them">Custom Enterprise Bot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Domain Specialists</td>
+              <td class="td-yes">6 specialists (Medicare, Securities, Service, DAVID, Ops, Coach)</td>
+              <td class="td-no">One generic assistant</td>
+              <td class="td-no">One generic Copilot</td>
+              <td class="td-partial">Maybe 1-2 modes</td>
+            </tr>
+            <tr>
+              <td>Multi-step tool chaining</td>
+              <td class="td-yes">15 rounds, compound task resolution</td>
+              <td class="td-partial">Limited</td>
+              <td class="td-partial">Limited</td>
+              <td class="td-partial">Usually single-step</td>
+            </tr>
+            <tr>
+              <td>Client memory / insights</td>
+              <td class="td-yes">Auto-extracted from conversations, persistent</td>
+              <td class="td-partial">CRM fields only</td>
+              <td class="td-no">No</td>
+              <td class="td-no">Rarely</td>
+            </tr>
+            <tr>
+              <td>Anti-hallucination enforcement</td>
+              <td class="td-yes">Golden Rule + 37 automated hookify rules</td>
+              <td class="td-partial">Basic guardrails</td>
+              <td class="td-partial">Basic guardrails</td>
+              <td class="td-no">Rare</td>
+            </tr>
+            <tr>
+              <td>Review gates / approval flows</td>
+              <td class="td-yes">Per-tool, per-user-level approval</td>
+              <td class="td-partial">Approval processes (separate)</td>
+              <td class="td-no">No</td>
+              <td class="td-no">Rarely</td>
+            </tr>
+            <tr>
+              <td>Permission-scoped by level</td>
+              <td class="td-yes">4 levels, 47 modules, per-tool filtering</td>
+              <td class="td-partial">Profile-based</td>
+              <td class="td-partial">AAD roles</td>
+              <td class="td-partial">Basic roles</td>
+            </tr>
+            <tr>
+              <td>Industry-specific (Fin Svcs)</td>
+              <td class="td-yes">Built for Medicare / Life / Annuity / Advisory</td>
+              <td class="td-no">Generic across all industries</td>
+              <td class="td-no">Generic across all industries</td>
+              <td class="td-no">Generic</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cost Comparison -->
+    <div class="section-label">Cost Reality</div>
+    <div class="section-title">500 Users / 181 Agencies</div>
+    <div class="section-desc">Every competitor is paying $50k/month for a dumber version of what's running in your closet.</div>
+
+    <div class="cost-row">
+      <div class="cost-card rpi">
+        <h3>RPI / MyDigitalJosh</h3>
+        <div class="cost-price">$600 – $2,100</div>
+        <div class="cost-per">per month, total</div>
+        <div class="cost-detail">
+          API: $500–2,000 &nbsp;|&nbsp; Server: $0 (owned) &nbsp;|&nbsp; Tailscale: $18 &nbsp;|&nbsp; GCP: ~$100
+        </div>
+      </div>
+      <div class="cost-card them">
+        <h3>Enterprise AI (average)</h3>
+        <div class="cost-price">$25,000 – $50,000</div>
+        <div class="cost-per">per month, minimum</div>
+        <div class="cost-detail">
+          Per-seat: $50–100 × 500 users &nbsp;|&nbsp; Setup: $100k–500k &nbsp;|&nbsp; Integrations: extra
+        </div>
+      </div>
+    </div>
+
+    <!-- Scorecard -->
+    <div class="comparison-section" style="margin-top:8px;">
+      <div class="comp-section-header">
+        <span style="color:var(--gold)">🏆</span>
+        <h2>The Scorecard</h2>
+      </div>
+      <div class="comp-table-wrap">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th class="th-rpi">RPI / MDJ</th>
+              <th class="th-them">Best Enterprise Alternative</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Multiple UI Formats</td>
+              <td class="td-yes">3 formats (Web / Mobile / CLI)</td>
+              <td class="td-partial">1-2 formats</td>
+            </tr>
+            <tr>
+              <td>Multiple Market Portals</td>
+              <td class="td-yes">3 portals (B2C / B2E / B2B)</td>
+              <td class="td-no">1 portal</td>
+            </tr>
+            <tr>
+              <td>Cross-Platform Comms</td>
+              <td class="td-yes">5 tools (Admin / MyRPI / Alerts / Connect / Comms)</td>
+              <td class="td-partial">1-2 tools</td>
+            </tr>
+            <tr>
+              <td>Standalone Apps</td>
+              <td class="td-yes">9 apps (ATLAS / C3 / DEX / CAM / QUE / etc.)</td>
+              <td class="td-partial">2-3 with add-ons ($$$)</td>
+            </tr>
+            <tr>
+              <td>Integrated MCP Hubs</td>
+              <td class="td-yes">8 hubs, 250+ tools</td>
+              <td class="td-partial">1-2 hubs, 30-50 tools</td>
+            </tr>
+            <tr>
+              <td>Industry-Specific (Fin Svcs)</td>
+              <td class="td-yes">Built for Medicare / Life / Annuity / Advisory</td>
+              <td class="td-no">Generic across all industries</td>
+            </tr>
+            <tr>
+              <td>Data Ownership</td>
+              <td class="td-yes">100% owned — on your hardware</td>
+              <td class="td-no">On their servers</td>
+            </tr>
+            <tr>
+              <td>Portability</td>
+              <td class="td-yes">Move to any cloud anytime</td>
+              <td class="td-no">Vendor locked</td>
+            </tr>
+            <tr class="scorecard-final">
+              <td>TOTAL COST</td>
+              <td class="td-yes" style="font-size:1rem; font-weight:900;">$600 – $2,100 / mo</td>
+              <td class="td-no" style="font-size:0.9rem; font-weight:700;">$25,000 – $50,000 / mo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== TAB 3: SAAS PRICING ===================== -->
+<div class="panel" id="panel-2">
+  <div class="content">
+
+    <div class="section-label">Revenue Architecture</div>
+    <div class="section-title">SaaS Pricing Model</div>
+    <div class="section-desc">Salesforce-style pricing: Platform + AI + Markets + Add-Ons + Integrations. Five revenue streams, 85%+ gross margin.</div>
+
+    <!-- TIER 1 -->
+    <div class="pricing-tier t1">
+      <div class="tier-header">
+        <div class="tier-left">
+          <div class="tier-name">TIER 1 — Platform (Base)</div>
+          <div class="tier-desc">The foundation. Portal access + core workspace. Every customer starts here.</div>
+        </div>
+        <div class="tier-price">$49 – $99 / user / mo</div>
+      </div>
+      <div class="tier-items">
+        <div class="tier-item"><h4>Portal Access</h4><p>ProDashX (B2C), RIIMO (B2E), or SENTINEL (B2B)</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Contacts / Households</h4><p>Client management, detail views, search</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Accounts</h4><p>Policy, annuity, investment, Medicare tracking</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Pipelines</h4><p>Basic flow engine + pipeline views</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Notifications</h4><p>Alerts, approvals, system updates</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>MyRPI</h4><p>Profile, documents, team info, drop zone</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Admin</h4><p>Team config, permissions, Firestore config</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Global Search</h4><p>Cross-entity search across clients + accounts</p><div class="tier-item-price">Included</div></div>
+      </div>
+    </div>
+
+    <!-- TIER 2 -->
+    <div class="pricing-tier t2">
+      <div class="tier-header">
+        <div class="tier-left">
+          <div class="tier-name">TIER 2 — MyDigitalJosh (AI Layer)</div>
+          <div class="tier-desc">The AI assistant. Add conversational intelligence to any portal. Like Salesforce Einstein.</div>
+        </div>
+        <div class="tier-price">$29 – $59 / user / mo</div>
+      </div>
+      <div class="tier-items">
+        <div class="tier-item"><h4>MDJ Chat Panel</h4><p>Conversational AI in every portal</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>MDJ Mobile</h4><p>Phone app for field agents</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Tool Access (82+)</h4><p>Search, lookup, pipeline, comms via chat</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Conversation Memory</h4><p>Persistent context, client insights</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>General Specialist</h4><p>MDJ-General assistant baseline</p><div class="tier-item-price">Included</div></div>
+        <div class="tier-item"><h4>Additional Specialists</h4><p>Medicare, Securities, Service, DAVID, Ops</p><div class="tier-item-price">$9 / specialist / mo</div></div>
+        <div class="tier-item"><h4>MDJ-Coach</h4><p>Career development + onboarding AI</p><div class="tier-item-price">$19 / user / mo</div></div>
+        <div class="tier-item"><h4>Custom Specialists</h4><p>Build your own domain expert</p><div class="tier-item-price">$499 setup + $9/mo</div></div>
+      </div>
+    </div>
+
+    <!-- TIER 3 -->
+    <div class="pricing-tier t3">
+      <div class="tier-header">
+        <div class="tier-left">
+          <div class="tier-name">TIER 3 — Market Modules</div>
+          <div class="tier-desc">Industry verticals. Buy what you sell. Like Salesforce Health Cloud vs Sales Cloud.</div>
+        </div>
+        <div class="tier-price">$19 – $39 / module / user / mo</div>
+      </div>
+      <div class="tier-items">
+        <div class="tier-item"><h4>Medicare / Health</h4><p>QUE-Medicare quoting, MAPD/PDP/MedSupp, AEP workflows, Spark integration, NPI/CMS lookups</p><div class="tier-item-price">$39 / user / mo</div></div>
+        <div class="tier-item"><h4>Life Insurance</h4><p>QUE-Life quoting, illustrations, carrier submissions, underwriting workflows</p><div class="tier-item-price">$29 / user / mo</div></div>
+        <div class="tier-item"><h4>Annuity / Retirement</h4><p>QUE-Annuity quoting, FIA/MYGA/RILA, 1035 exchanges, RMD center, income planning</p><div class="tier-item-price">$29 / user / mo</div></div>
+        <div class="tier-item"><h4>Advisory / Securities</h4><p>RIA/BD operations, Schwab/RBC, Gradient, fee-based accounts, compliance</p><div class="tier-item-price">$39 / user / mo</div></div>
+        <div class="tier-item"><h4>M&A / Partnerships</h4><p>SENTINEL portal, DAVID HUB, BoB analysis, deal pipeline, agency onboarding</p><div class="tier-item-price">$39 / user / mo</div></div>
+        <div class="tier-item"><h4>Legacy / Estate</h4><p>Estate planning, beneficiary management, trust coordination, CoF integration</p><div class="tier-item-price">$19 / user / mo</div></div>
+      </div>
+    </div>
+
+    <!-- TIER 4 -->
+    <div class="pricing-tier t4">
+      <div class="tier-header">
+        <div class="tier-left">
+          <div class="tier-name">TIER 4 — Add-On Apps</div>
+          <div class="tier-desc">Power tools. Each one solves a specific problem. Like Salesforce AppExchange.</div>
+        </div>
+        <div class="tier-price">$9 – $99 / app / mo or per-seat</div>
+      </div>
+      <div class="tier-items">
+        <div class="tier-item"><h4>ATLAS</h4><p>Data intelligence — sources, wires, health monitoring, gap analysis</p><div class="tier-item-price">$49/mo (org-wide)</div></div>
+        <div class="tier-item"><h4>C3 Campaign Engine</h4><p>60 campaigns, 661 templates, automated outreach</p><div class="tier-item-price">$29/mo + $0.01/send</div></div>
+        <div class="tier-item"><h4>DEX Document Center</h4><p>Carrier forms, DocuSign, PDF generation, kit builder</p><div class="tier-item-price">$19/user/mo</div></div>
+        <div class="tier-item"><h4>CAM Commissions</h4><p>Commission tracking, splits, agent rates, revenue reporting</p><div class="tier-item-price">$29/mo (org-wide)</div></div>
+        <div class="tier-item"><h4>Pipeline Studio</h4><p>Visual pipeline builder, flow engine admin, custom workflows</p><div class="tier-item-price">$19/mo (org-wide)</div></div>
+        <div class="tier-item"><h4>GUARDIAN</h4><p>Data protection — write gates, schema validation, anomaly detection</p><div class="tier-item-price">$29/mo (org-wide)</div></div>
+        <div class="tier-item"><h4>FORGE</h4><p>Sprint management, build tracker, autonomous development</p><div class="tier-item-price">$19/mo (org-wide)</div></div>
+        <div class="tier-item"><h4>ProZONE</h4><p>Territory management, zone scheduling, prospecting scorecards</p><div class="tier-item-price">$19/user/mo</div></div>
+        <div class="tier-item"><h4>Command Center</h4><p>Meeting management, action items, weekly digests, roadmaps</p><div class="tier-item-price">$9/user/mo</div></div>
+        <div class="tier-item"><h4>CaseWork Generator</h4><p>Interactive client presentations with sliders</p><div class="tier-item-price">$29/user/mo</div></div>
+      </div>
+    </div>
+
+    <!-- TIER 5 -->
+    <div class="pricing-tier t5">
+      <div class="tier-header">
+        <div class="tier-left">
+          <div class="tier-name">TIER 5 — Integrations / Carrier Connections</div>
+          <div class="tier-desc">Wire into carrier systems, custodians, and external platforms. The MCP Hub.</div>
+        </div>
+        <div class="tier-price">$19 – $99 / integration / mo</div>
+      </div>
+      <div class="tier-items">
+        <div class="tier-item"><h4>Carrier Data Feeds</h4><p>Auto-ingest policy data from carriers (per carrier)</p><div class="tier-item-price">$29/carrier/mo</div></div>
+        <div class="tier-item"><h4>Schwab/RBC Custodian</h4><p>Advisory account sync, performance reporting</p><div class="tier-item-price">$49/mo</div></div>
+        <div class="tier-item"><h4>Gradient/Signal IMO</h4><p>Contracting, commissions, licensing sync</p><div class="tier-item-price">$49/mo</div></div>
+        <div class="tier-item"><h4>Twilio Communications</h4><p>SMS, voice, call recording, IVR</p><div class="tier-item-price">$19/mo + usage</div></div>
+        <div class="tier-item"><h4>SendGrid Email</h4><p>Transactional + marketing email delivery</p><div class="tier-item-price">$19/mo + usage</div></div>
+        <div class="tier-item"><h4>Google Workspace</h4><p>Drive, Gmail, Calendar, Meet, Chat integration</p><div class="tier-item-price">$19/mo</div></div>
+        <div class="tier-item"><h4>CMS / Medicare.gov</h4><p>Plan data, formulary, provider network lookups</p><div class="tier-item-price">$29/mo</div></div>
+        <div class="tier-item"><h4>DocuSign</h4><p>E-signature workflows for carrier submissions</p><div class="tier-item-price">$19/mo + usage</div></div>
+        <div class="tier-item"><h4>Carrier Portal Automation</h4><p>Playwright browser automation per carrier portal</p><div class="tier-item-price">$49/carrier/mo</div></div>
+        <div class="tier-item"><h4>Custom API Integration</h4><p>Build a custom MCP connector to any system</p><div class="tier-item-price">$2,500 setup + $29/mo</div></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Scenarios -->
+    <div class="section-label">Revenue Scenarios</div>
+    <div class="section-title">What This Looks Like in Practice</div>
+    <div class="section-desc">Three real-world configurations — small, mid-size, and enterprise. These are floor estimates.</div>
+
+    <!-- Scenario A -->
+    <div class="scenario-card sc-a">
+      <div class="scenario-header">
+        <h3>Scenario A — Small Agency (10 agents · Medicare + Life)</h3>
+        <div class="scenario-total">$1,804 / mo</div>
+      </div>
+      <table class="scenario-table">
+        <thead>
+          <tr><th>Item</th><th>Qty</th><th>Monthly</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Platform Base</td><td>10 users × $49</td><td>$490</td></tr>
+          <tr><td>MDJ AI Layer</td><td>10 users × $29</td><td>$290</td></tr>
+          <tr><td>Medicare Market Module</td><td>10 users × $39</td><td>$390</td></tr>
+          <tr><td>Life Market Module</td><td>10 users × $29</td><td>$290</td></tr>
+          <tr><td>DEX Document Center</td><td>10 users × $19</td><td>$190</td></tr>
+          <tr><td>C3 Campaigns</td><td>Org-wide</td><td>$29</td></tr>
+          <tr><td>3 Carrier Data Feeds</td><td>3 × $29</td><td>$87</td></tr>
+          <tr><td>Twilio + SendGrid</td><td>2 integrations</td><td>$38</td></tr>
+          <tr class="row-total"><td colspan="2">TOTAL (10 agents)</td><td>$1,804 / mo</td></tr>
+          <tr class="row-per"><td colspan="2">Per agent</td><td>$180 / agent / mo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Scenario B -->
+    <div class="scenario-card sc-b">
+      <div class="scenario-header">
+        <h3>Scenario B — Mid-Size Agency (50 agents · Full Suite)</h3>
+        <div class="scenario-total">$14,816 / mo</div>
+      </div>
+      <table class="scenario-table">
+        <thead>
+          <tr><th>Item</th><th>Qty</th><th>Monthly</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Platform Base</td><td>50 users × $69</td><td>$3,450</td></tr>
+          <tr><td>MDJ AI Layer + 3 Specialists</td><td>50 users × ($39 + $27)</td><td>$3,300</td></tr>
+          <tr><td>MDJ-Coach</td><td>50 users × $19</td><td>$950</td></tr>
+          <tr><td>Medicare + Life + Annuity Modules</td><td>50 users × $97</td><td>$4,850</td></tr>
+          <tr><td>All Add-On Apps (8)</td><td>Mix org-wide + per-seat</td><td>$1,800</td></tr>
+          <tr><td>10 Carrier Feeds + Integrations</td><td>10 × $29–49</td><td>$390</td></tr>
+          <tr><td>Twilio + SendGrid + Google + DocuSign</td><td>4 integrations</td><td>$76</td></tr>
+          <tr class="row-total"><td colspan="2">TOTAL (50 agents)</td><td>$14,816 / mo</td></tr>
+          <tr class="row-per"><td colspan="2">Per agent</td><td>$296 / agent / mo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Scenario C -->
+    <div class="scenario-card sc-c">
+      <div class="scenario-header">
+        <h3>Scenario C — Enterprise (181 Agencies · 500 Agents · Everything)</h3>
+        <div class="scenario-total">$112,225 / mo</div>
+      </div>
+      <table class="scenario-table">
+        <thead>
+          <tr><th>Item</th><th>Qty</th><th>Monthly</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Platform Base (volume discount)</td><td>500 users × $49</td><td>$24,500</td></tr>
+          <tr><td>MDJ Full AI Suite (all specialists + Coach)</td><td>500 users × $59</td><td>$29,500</td></tr>
+          <tr><td>All 6 Market Modules</td><td>500 users × $99 (bundle)</td><td>$49,500</td></tr>
+          <tr><td>All Add-On Apps (10)</td><td>Enterprise license</td><td>$5,000</td></tr>
+          <tr><td>25 Carrier Feeds</td><td>25 × $29</td><td>$725</td></tr>
+          <tr><td>Full Integration Suite</td><td>All connectors</td><td>$500</td></tr>
+          <tr><td>Priority Support + SLA</td><td>Enterprise</td><td>$2,500</td></tr>
+          <tr class="row-total"><td colspan="2">TOTAL (500 agents)</td><td>$112,225 / mo</td></tr>
+          <tr class="row-per"><td colspan="2">Per agent</td><td>$224 / agent / mo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ARR Projections -->
+    <div class="section-label">ARR Projections</div>
+    <div class="section-title">The Ramp</div>
+
+    <div class="arr-row">
+      <div class="arr-card arr-1">
+        <h4>10 Agencies — Year 1</h4>
+        <div class="arr-val">$216K</div>
+        <div class="arr-sub">ARR @ $1,800/mo avg</div>
+      </div>
+      <div class="arr-card arr-2">
+        <h4>50 Agencies — Year 2</h4>
+        <div class="arr-val">$1.8M</div>
+        <div class="arr-sub">ARR @ $14.8K/mo avg</div>
+      </div>
+      <div class="arr-card arr-3">
+        <h4>181 Agencies — Year 3</h4>
+        <div class="arr-val">$13.5M</div>
+        <div class="arr-sub">ARR @ $112K/mo enterprise</div>
+      </div>
+    </div>
+
+    <!-- Revenue Streams -->
+    <div class="data-table-wrap">
+      <div class="data-table-header">
+        <h3>Revenue Stream Breakdown</h3>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Stream</th><th>Type</th><th>% of Revenue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Platform Base (Tier 1)</td><td>Per-seat, recurring</td><td>22%</td></tr>
+          <tr><td>MDJ AI Layer (Tier 2)</td><td>Per-seat, recurring</td><td>26%</td></tr>
+          <tr><td>Market Modules (Tier 3)</td><td>Per-seat per-module, recurring</td><td>30%</td></tr>
+          <tr><td>Add-On Apps (Tier 4)</td><td>Org-wide + per-seat, recurring</td><td>12%</td></tr>
+          <tr><td>Integrations (Tier 5)</td><td>Per-connection, recurring + usage</td><td>5%</td></tr>
+          <tr><td>Professional Services</td><td>Setup, custom integrations, training</td><td>5%</td></tr>
+          <tr class="row-total"><td colspan="2">SaaS Gross Margin</td><td>85%+</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Valuation Impact -->
+    <div class="data-table-wrap">
+      <div class="data-table-header">
+        <h3>Valuation Impact — Insurance Only vs Insurance + SaaS</h3>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Metric</th><th>Insurance Only</th><th>Insurance + SaaS</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Revenue Multiple</td><td style="color:var(--text-muted)">3–6x (insurance)</td><td>8–15x (SaaS blend)</td></tr>
+          <tr><td>Year 3 Revenue</td><td style="color:var(--text-muted)">$120M (NOI)</td><td>$120M + $13.5M SaaS</td></tr>
+          <tr><td>Valuation</td><td style="color:var(--text-muted)">$720M (6x)</td><td>$720M + $135M (10x SaaS) = <strong>$855M+</strong></td></tr>
+          <tr><td>With ESOP narrative</td><td style="color:var(--text-muted)">$1.2B</td><td><strong>$1.5B – $2B+</strong> (tech + insurance)</td></tr>
+          <tr class="row-total"><td colspan="3">SaaS revenue DOUBLES the valuation multiple on the tech component</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="val-highlight">
+      <p>"An AI Enterprise Platform with 3 SaaS Portals, dozens of Add-Ons, built for Retail Financial Services." <br><strong>The insurance business funds the build. The SaaS multiplies the exit.</strong></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<div class="footer">
+  <strong>AgentX.AI</strong> &nbsp;—&nbsp; Confidential &nbsp;—&nbsp; 2026 &nbsp;&nbsp;|&nbsp;&nbsp; Retirement Protectors, Inc. &nbsp;|&nbsp; tomachina.ai
+</div>
+
+<script>
+  function switchTab(index) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.panel').forEach((p, i) => {
+      p.classList.toggle('active', i === index);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
