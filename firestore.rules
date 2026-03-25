@@ -330,8 +330,28 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
-    // DEX — document package pipeline
+    // DEX — document package pipeline + form library
     // ----------------------------------------------------------------
+    match /dex_forms/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /dex_kits/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /dex_rules/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /dex_field_mappings/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /dex_taxonomy/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
     match /dex_packages/{docId} {
       allow read: if isLeaderOrAbove();
       allow write: if isLeaderOrAbove();
