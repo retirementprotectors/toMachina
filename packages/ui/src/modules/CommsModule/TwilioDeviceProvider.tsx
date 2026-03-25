@@ -134,6 +134,14 @@ export function TwilioDeviceProvider({ authenticated, children }: TwilioDevicePr
       device.on('incoming', (call: TwilioCall) => {
         setIncomingCall(call)
 
+        // Bridge to useIncomingCall hook via CustomEvent — this triggers the
+        // InboundCallCard overlay, ring tone, and browser notification
+        const callerPhone = call.parameters?.From || call.parameters?.CallerId || ''
+        window.__activeTwilioCall = call
+        window.dispatchEvent(new CustomEvent('twilio-incoming-call', {
+          detail: { twilioCall: call, callerPhone },
+        }))
+
         // If the incoming call is rejected or cancelled without answering, clear it
         call.on('cancel', () => setIncomingCall(null))
         call.on('reject', () => setIncomingCall(null))
