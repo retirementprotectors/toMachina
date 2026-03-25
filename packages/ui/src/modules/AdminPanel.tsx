@@ -1398,19 +1398,22 @@ function MissionControl() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('/api/mdj/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: '__health_check__', portal: 'admin' }),
-      })
-      // Try the health endpoint directly via a simple proxy
-      // For now, show status based on whether the endpoint responds
+      const res = await fetch('/api/mdj/health')
       if (res.ok) {
-        setHealth({ status: 'ok', connected: true })
+        const json = await res.json()
+        const d = json.data || json
+        setHealth({
+          status: d.status || 'ok',
+          connected: true,
+          uptime_seconds: d.uptime_seconds,
+          memory_mb: d.memory_mb,
+          active_conversations: d.active_conversations,
+          version: d.version,
+        })
       } else {
         setHealth({ status: 'degraded', connected: true, http_status: res.status })
       }
-    } catch (err) {
+    } catch {
       setError('Cannot reach MDJ_SERVER')
       setHealth({ status: 'offline', connected: false })
     } finally {
@@ -1488,20 +1491,31 @@ function MissionControl() {
           <h3 className="text-sm font-semibold text-[var(--text-primary)]">MDJ Agent Service</h3>
           <StatusDot ok={isOnline} />
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-lg bg-[var(--bg-surface)] p-3">
-            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Port</div>
-            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">4200</div>
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Uptime</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">
+              {health?.uptime_seconds != null
+                ? `${Math.floor(Number(health.uptime_seconds) / 3600)}h ${Math.floor((Number(health.uptime_seconds) % 3600) / 60)}m`
+                : '—'}
+            </div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Memory</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">
+              {health?.memory_mb != null ? `${health.memory_mb} MB` : '—'}
+            </div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Active Chats</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">
+              {health?.active_conversations != null ? String(health.active_conversations) : '—'}
+            </div>
           </div>
           <div className="rounded-lg bg-[var(--bg-surface)] p-3">
             <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Tools</div>
             <div className="text-sm font-medium text-[var(--text-primary)] mt-1">82</div>
             <div className="text-[10px] text-[var(--text-muted)]">57 API + 25 MCP</div>
-          </div>
-          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
-            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Specialists</div>
-            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">6</div>
-            <div className="text-[10px] text-[var(--text-muted)]">General, Medicare, Securities, Service, DAVID, Ops</div>
           </div>
         </div>
       </div>
@@ -1541,7 +1555,7 @@ function MissionControl() {
           <h3 className="text-sm font-semibold text-[var(--text-primary)]">Quick Access</h3>
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <a href="https://mdjserver.tail7845ea.ts.net:8443" target="_blank" rel="noopener noreferrer"
+          <a href="https://mdjserver.tail7845ea.ts.net/code/" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors">
             <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>code</span>
             <div>
