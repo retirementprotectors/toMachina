@@ -308,7 +308,7 @@ function AccountSummaryCard({
   const documents = ((account as Record<string, unknown>).documents as AccountDocument[] | undefined) ?? []
 
   const handleCardClick = useCallback(() => {
-    window.open(`/accounts/${clientId}/${acctId}`, '_blank', 'noopener,noreferrer')
+    window.location.href = `/accounts/${clientId}/${acctId}`
   }, [clientId, acctId])
 
   const handleCheckboxClick = useCallback((e: React.MouseEvent<HTMLInputElement>) => {

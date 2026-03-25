@@ -859,7 +859,7 @@ export default function AccountsPage() {
                   return (
                     <tr
                       key={rowKey}
-                      onClick={() => window.open(`/accounts/${acct._clientId}/${acct._id}`, '_blank')}
+                      onClick={() => { window.location.href = `/accounts/${acct._clientId}/${acct._id}` }}
                       className={`cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)] ${isSelected ? 'bg-[var(--portal)]/5' : ''}`}
                     >
                       <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
