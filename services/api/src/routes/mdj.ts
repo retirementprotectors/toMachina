@@ -23,6 +23,31 @@ const MDJ1_URL = process.env.MDJ1_URL || 'https://mdjserver.tail7845ea.ts.net'
 const MDJ_AUTH_SECRET = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
 
 /**
+ * GET /api/mdj/health
+ * Lightweight health check — proxies directly to MDJ1's /health endpoint.
+ * Used by Mission Control. No token burn, no chat pipeline.
+ */
+mdjRoutes.get('/health', async (_req: Request, res: Response) => {
+  try {
+    const agentRes = await fetch(`${MDJ1_URL}/health`, {
+      method: 'GET',
+      headers: { 'X-MDJ-Auth': MDJ_AUTH_SECRET },
+      signal: AbortSignal.timeout(5000),
+    })
+
+    if (!agentRes.ok) {
+      res.status(agentRes.status).json(errorResponse(`MDJ1 returned ${agentRes.status}`))
+      return
+    }
+
+    const data = await agentRes.json()
+    res.json(successResponse(data))
+  } catch (err) {
+    res.status(503).json(errorResponse('MDJ1 unreachable'))
+  }
+})
+
+/**
  * POST /api/mdj/chat
  * SSE streaming endpoint — proxies to MDJ1 agent service.
  * Forwards user context (email, level, permissions) from Firebase auth.
