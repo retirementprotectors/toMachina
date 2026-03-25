@@ -106,7 +106,7 @@ test.describe('DEX — Document Exchange', () => {
     await page.waitForTimeout(500)
 
     // Wait for loading to complete
-    await expect(page.getByText('DEX — Document Center').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.getByText('DEX — Document Efficiency Xelerator').first()).toBeVisible({ timeout: 15000 })
 
     // All 4 stat card labels should be visible
     await expect(page.getByText('Forms').first()).toBeVisible()

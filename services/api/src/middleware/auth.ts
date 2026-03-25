@@ -9,6 +9,12 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return next()
   }
 
+  // Cloud Scheduler routes — protected by Cloud Run IAM (OIDC), no Firebase token.
+  if (req.path.startsWith('/document-index/scan')) {
+    ;(req as any).user = { email: 'cron@retireprotected.com', name: 'Cloud Scheduler', uid: 'cron-service' }
+    return next()
+  }
+
   // MDJ Agent service auth — shared secret for server-to-server calls from MDJ1
   const mdjAuth = req.headers['x-mdj-auth'] as string | undefined
   const mdjSecret = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'

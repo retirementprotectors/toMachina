@@ -348,7 +348,19 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
-    match /dex_taxonomy/{docId} {
+    match /taxonomy_carriers/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /taxonomy_products/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /taxonomy_account_types/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
+    match /taxonomy_transactions/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
