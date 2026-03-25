@@ -585,7 +585,7 @@ interface NewAccountModalProps {
   clientId: string
   clientName: string
   onClose: () => void
-  showToast: (msg: string, type: string) => void
+  showToast: (msg: string, type?: 'success' | 'error' | 'warning' | 'info') => void
 }
 
 interface CarrierOption { id: string; name: string; product_types: string[] }
