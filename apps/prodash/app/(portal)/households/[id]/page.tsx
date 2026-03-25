@@ -870,7 +870,7 @@ function AccountsTab({ household }: { household: Household }) {
             {accounts.map((acct) => (
               <tr
                 key={String(acct.id)}
-                onClick={() => window.open(`/contacts/${acct._owner_client_id}`, '_blank')}
+                onClick={() => { window.location.href = `/contacts/${acct._owner_client_id}` }}
                 className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-hover)]"
               >
                 <td className="px-3 py-2 text-xs text-[var(--portal)] font-medium">{String(acct._owner_name)}</td>
