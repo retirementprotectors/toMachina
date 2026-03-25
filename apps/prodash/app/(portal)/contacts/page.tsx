@@ -335,7 +335,7 @@ export default function ClientsPage() {
 
   const handleRowClick = useCallback(
     (client: ClientRow) => {
-      window.open(`/contacts/${client._id || client.client_id}`, '_blank')
+      window.location.href = `/contacts/${client._id || client.client_id}`
     },
     []
   )

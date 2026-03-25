@@ -8,6 +8,8 @@ import {
   signInWithPopup,
   signOut as fbSignOut,
   GoogleAuthProvider,
+  setPersistence,
+  browserLocalPersistence,
   type User,
 } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
@@ -20,6 +22,18 @@ import { firebaseConfig } from './config'
 function getFirebaseAuth() {
   const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
   return getAuth(app)
+}
+
+// Ensure LOCAL persistence is explicitly set (survives page refresh + browser close)
+// Called once at module level so it runs before onAuthStateChanged is attached
+let persistenceSet = false
+function ensurePersistence() {
+  if (persistenceSet || typeof window === 'undefined') return
+  persistenceSet = true
+  const auth = getFirebaseAuth()
+  setPersistence(auth, browserLocalPersistence).catch(() => {
+    // Non-fatal — fallback to default (which is also LOCAL in browser environments)
+  })
 }
 
 function getGoogleProvider() {
@@ -58,6 +72,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Explicitly set LOCAL persistence before attaching the auth listener.
+    // This ensures the session survives page refreshes.
+    ensurePersistence()
+
     const auth = getFirebaseAuth()
     const unsubscribe = onAuthStateChanged(auth, (fbUser: User | null) => {
       if (fbUser && fbUser.email?.endsWith('@retireprotected.com')) {
