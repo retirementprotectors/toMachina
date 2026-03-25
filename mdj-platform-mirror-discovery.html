@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MDJ Platform Mirror — Discovery Document</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  /* Tabs */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-hover);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* Diagram boxes */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  /* Flow steps */
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .flow-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .flow-body h4 { color: var(--text); font-size: 0.95rem; margin-bottom: 4px; }
+  .flow-body p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+  /* Spec grid */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .spec-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .spec-card.medicare { border-top-color: var(--green); }
+  .spec-card.securities { border-top-color: var(--orange); }
+  .spec-card.service { border-top-color: var(--cyan); }
+  .spec-card.david { border-top-color: var(--purple); }
+  .spec-card.ops { border-top-color: var(--red); }
+  .spec-card.coach { border-top-color: var(--pink); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card .keywords { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+  .spec-card .keywords span {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    margin: 2px;
+  }
+
+  /* Level bars */
+  .level-bar {
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+  }
+  .level-bar.l1 { border-left-color: var(--text-muted); background: rgba(148,163,184,0.06); }
+  .level-bar.l2 { border-left-color: var(--cyan); background: rgba(6,182,212,0.06); }
+  .level-bar.l3 { border-left-color: var(--accent); background: rgba(59,130,246,0.08); }
+  .level-bar.l4 { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.l5 { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.l6 { border-left-color: var(--pink); background: rgba(236,72,153,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+  /* Layer stack */
+  .layer-stack { display: flex; flex-direction: column; gap: 4px; margin: 16px 0; }
+  .layer {
+    padding: 20px 24px;
+    border-radius: 8px;
+    border-left: 5px solid var(--accent);
+    background: var(--bg-hover);
+    position: relative;
+  }
+  .layer.l1 { border-left-color: #475569; background: rgba(71,85,105,0.15); }
+  .layer.l2 { border-left-color: var(--accent); background: rgba(59,130,246,0.08); }
+  .layer.l3 { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .layer.l4 { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .layer.l5 { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .layer.l6 { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .layer .layer-num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .layer h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .layer .layer-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .layer .layer-items span {
+    padding: 3px 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+  .layer .layer-caption {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--text-muted);
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  /* Phase headers */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 12px;
+    padding: 12px 16px;
+    background: var(--accent-glow);
+    border-radius: 8px;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+  .phase-header .phase-num {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: white;
+    border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+  }
+  .phase-header h3 { color: var(--accent); margin: 0; font-size: 1rem; }
+
+  /* Code blocks */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* Pill badges */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill.new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.mod { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .pill.warn { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.api { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.pw { background: rgba(6,182,212,0.15); color: var(--cyan); }
+
+  /* Highlight box */
+  .highlight-box {
+    background: var(--accent-glow);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  .highlight-box.green {
+    background: rgba(34,197,94,0.08);
+    border-color: rgba(34,197,94,0.25);
+  }
+  .highlight-box.orange {
+    background: rgba(245,158,11,0.08);
+    border-color: rgba(245,158,11,0.25);
+  }
+  .highlight-box.purple {
+    background: rgba(168,85,247,0.08);
+    border-color: rgba(168,85,247,0.25);
+  }
+  .highlight-box p { margin: 0; font-size: 1.05rem; color: var(--text); }
+
+  /* Sprint cards */
+  .sprint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .sprint-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .sprint-card .sprint-num {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .sprint-card h4 { font-size: 0.95rem; margin-bottom: 8px; color: var(--text); }
+  .sprint-card p { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+
+  /* Super tool cards */
+  .supertool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .supertool-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 3px solid var(--orange);
+  }
+  .supertool-card.wire { border-left-color: var(--purple); }
+  .supertool-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; color: var(--orange); font-family: 'SF Mono', monospace; }
+  .supertool-card.wire h4 { color: var(--purple); }
+  .supertool-card p { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .content { padding: 16px; }
+    .card { padding: 16px; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .sprint-grid { grid-template-columns: 1fr; }
+    .supertool-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>MDJ Platform Mirror</h1>
+  <div class="subtitle">
+    Every capability of ProDashX, operated by conversation, scoped by role, synced automatically.
+  </div>
+  <div class="badge">The Portal Without The Screen</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="vision">Vision</div>
+    <div class="tab" data-tab="stack">6-Layer Stack</div>
+    <div class="tab" data-tab="registry">Auto-Registry</div>
+    <div class="tab" data-tab="webgap">Web UI Gap</div>
+    <div class="tab" data-tab="auth">Auth Architecture</div>
+    <div class="tab" data-tab="credentials">Credential Mgmt</div>
+    <div class="tab" data-tab="slack">Slack DM Access</div>
+    <div class="tab" data-tab="portals">Client/Partner Access</div>
+    <div class="tab" data-tab="menu">Menu System</div>
+    <div class="tab" data-tab="sprint">Sprint Roadmap</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ==================== VISION ==================== -->
+  <div class="tab-panel active" id="vision">
+    <div class="card">
+      <h2>The Problem</h2>
+      <p>MDJ currently runs 82 hand-coded tools. Every tool was written manually, reflecting a snapshot of the platform at the moment it was built. When a developer adds a field, updates a route, or ships a new module — MDJ is blind to it until someone writes another tool by hand.</p>
+      <p>The portal has hundreds of capabilities. MDJ knows maybe 30% of them. The gap grows every sprint.</p>
+      <div class="highlight-box orange">
+        <p>At 181 agencies, MDJ will be the primary interface for hundreds of people. A 70% capability gap is not a backlog item. It is a structural failure.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Solution</h2>
+      <p>MDJ becomes a <strong>MIRROR</strong> of ProDashX — same navigation tree, same data paths, same capabilities, auto-synced. Not a replacement. Not a parallel system. A mirror.</p>
+      <p>MDJ doesn't REPLACE the portal. MDJ <strong>IS</strong> the portal, operated by conversation.</p>
+      <div class="highlight-box">
+        <p style="font-size:1.15rem; font-weight:700; text-align:center;">"The portal is the dashboard. MDJ is the steering wheel."</p>
+      </div>
+      <p>The UI becomes visual verification. MDJ becomes the primary interface. At 181 agencies, most interactions will happen through MDJ — not by clicking through menus, but by talking to the machine.</p>
+    </div>
+
+    <div class="card">
+      <h2>The Key Insight</h2>
+      <table>
+        <tr><th>Today</th><th>Platform Mirror</th></tr>
+        <tr><td>82 tools, hand-written, go stale</td><td>Tool registry auto-generated from portal code</td></tr>
+        <tr><td>Developer adds field — MDJ is blind</td><td>Next deploy — MDJ knows about it</td></tr>
+        <tr><td>MDJ knows ~30% of platform capabilities</td><td>MDJ mirrors 100% of platform capabilities</td></tr>
+        <tr><td>New hires take months to ramp</td><td>MDJ gives day-one capability at every level</td></tr>
+        <tr><td>One portal, one audience</td><td>Internal, client, partner, acquiree — all scoped by entitlement</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>At Scale</h2>
+      <p>The entitlement model is already built. The mirror just respects it:</p>
+      <table>
+        <tr><th>Audience</th><th>MDJ Persona</th><th>Scope</th></tr>
+        <tr><td>Internal Team (Coordinator → VP)</td><td>MDJ (full platform)</td><td>Role-scoped layers 1-6</td></tr>
+        <tr><td>Clients (future client portal)</td><td>MDJ-Client</td><td>Their household only</td></tr>
+        <tr><td>Partners / M&amp;A (SENTINEL)</td><td>MDJ-DAVID</td><td>Deal pipeline + BoB valuation</td></tr>
+        <tr><td>Acquired agencies (onboarding)</td><td>MDJ-Onboard</td><td>Process guides + carrier forms</td></tr>
+      </table>
+      <p style="margin-top:12px;">Same platform. Same data. Same machine. Different door.</p>
+    </div>
+  </div>
+
+  <!-- ==================== 6-LAYER STACK ==================== -->
+  <div class="tab-panel" id="stack">
+    <div class="card">
+      <h2>The 6-Layer Stack</h2>
+      <p>Each layer builds on the one below. Entitlement level determines how deep MDJ can go. The stack is additive — every layer inherits everything beneath it.</p>
+    </div>
+
+    <div class="layer-stack">
+      <div class="layer l1">
+        <div class="layer-num">Layer 1 — Foundation</div>
+        <h4>Local Tools</h4>
+        <div class="layer-items">
+          <span>Firestore</span><span>Google Drive</span><span>Gmail</span><span>Slack</span><span>Calendar</span>
+          <span>MCP Servers (8)</span><span>GAS Execution</span><span>Healthcare APIs</span>
+          <span>File System</span><span>Git</span><span>CLI Tools</span>
+        </div>
+        <p class="layer-caption">The raw capabilities. Infrastructure-level access to every connected system.</p>
+      </div>
+
+      <div class="layer l2">
+        <div class="layer-num">Layer 2 — Platform Mirror</div>
+        <h4>ProDashX Core</h4>
+        <div class="layer-items">
+          <span>Contacts</span><span>Households</span><span>Accounts</span>
+          <span>Search</span><span>Filters</span><span>Detail Views</span>
+          <span>ACF Folders (Google Drive)</span><span>Document Access</span>
+          <span>Activity Logs</span><span>Communication History</span>
+        </div>
+        <p class="layer-caption">Everything in the main workspace. The core data universe of the platform.</p>
+      </div>
+
+      <div class="layer l3">
+        <div class="layer-num">Layer 3 — Platform Modules</div>
+        <h4>Always-On Features</h4>
+        <div class="layer-items">
+          <span>Admin (Team Config, Permissions, Firestore Config)</span>
+          <span>MyRPI (Profile, Drop Zone, Settings)</span>
+          <span>Communications (Call, Text, Email, Log)</span>
+          <span>RPI Connect (Channels, People, Meet)</span>
+          <span>Notifications (Alerts, Approvals, Updates)</span>
+        </div>
+        <p class="layer-caption">The panels and system features. Available across all contexts regardless of what section you're in.</p>
+      </div>
+
+      <div class="layer l4">
+        <div class="layer-num">Layer 4 — Portal Modules</div>
+        <h4>Section Features</h4>
+        <div class="layer-items">
+          <span>Medicare Sales Center (QUE)</span><span>Life Sales Center (QUE)</span>
+          <span>Annuity Sales Center (QUE)</span><span>Advisory Sales Center (QUE)</span>
+          <span>RMD Service Center</span><span>Beni Service Center</span><span>Access Service Center</span>
+          <span>Pipelines (Flow Instances, Stages, Tasks)</span>
+        </div>
+        <p class="layer-caption">The domain-specific workspaces. Sales Centers, Service Centers, and pipeline management.</p>
+      </div>
+
+      <div class="layer l5">
+        <div class="layer-num">Layer 5 — Apps</div>
+        <h4>Cross-Portal Intelligence</h4>
+        <div class="layer-items">
+          <span>ATLAS</span><span>C3</span><span>DEX</span><span>CAM</span>
+          <span>Pipeline Studio</span><span>ProZONE</span><span>Guardian</span>
+          <span>FORGE</span><span>Command Center</span>
+        </div>
+        <p class="layer-caption">The power tools. Each App is a standalone capability surfaced inside the portal but with its own identity and logic.</p>
+      </div>
+
+      <div class="layer l6">
+        <div class="layer-num">Layer 6 — MDJ Specialists</div>
+        <h4>Domain Expertise</h4>
+        <div class="layer-items">
+          <span>MDJ-Medicare</span><span>MDJ-Securities</span><span>MDJ-Service</span>
+          <span>MDJ-DAVID</span><span>MDJ-Ops</span><span>MDJ-Coach</span>
+        </div>
+        <p class="layer-caption">The deep knowledge layer. Specialists with domain-level expertise layered on top of full platform access.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+      <h2>Entitlement by Role</h2>
+      <p>Layers are unlocked by entitlement level. Each level inherits all layers below it.</p>
+      <div class="level-bar l1">
+        <h4>Coordinator — Layers 1–3</h4>
+        <p>Foundation + core platform workspace + always-on modules. Can search clients, access documents, communicate.</p>
+      </div>
+      <div class="level-bar l2">
+        <h4>Specialist — Layers 1–4</h4>
+        <p>Everything above + Sales Centers, Service Centers, Pipeline access. Can run quotes, process service requests.</p>
+      </div>
+      <div class="level-bar l3">
+        <h4>Director — Layers 1–5</h4>
+        <p>Everything above + all Apps (ATLAS, DEX, FORGE, etc.). Can manage campaigns, pull analytics, run audits.</p>
+      </div>
+      <div class="level-bar l4">
+        <h4>VP+ — Layers 1–6</h4>
+        <p>Full stack. All Specialists active. Deep domain expertise on any topic across the entire platform.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AUTO-REGISTRY ==================== -->
+  <div class="tab-panel" id="registry">
+    <div class="card">
+      <h2>Auto-Registry: How MDJ Stays in Sync</h2>
+      <p>The current 82-tool registry was hand-written. Every tool is a maintenance burden. Every deploy potentially orphans a tool. The Platform Mirror replaces this with a generated registry — the tool list is an output of the codebase, not a separate document.</p>
+    </div>
+
+    <div class="card">
+      <h2>The Introspection Pipeline</h2>
+      <div class="diagram">Portal Routes (apps/prodash/app/**/page.tsx)
+  └─ Parse route tree
+  └─ Extract page metadata (title, params, data dependencies)
+  └─ → Tool definitions: navigate_to_*, get_*_detail
+
+API Routes (services/api/src/routes/*.ts)
+  └─ Parse route handlers + middleware
+  └─ Extract: method, path, params, response shape
+  └─ → CRUD tools: create_*, update_*, delete_*, list_*
+
+Firestore Schema (packages/db/src/collections/*.ts)
+  └─ Parse collection types + subcollections
+  └─ Extract: fields, types, query patterns
+  └─ → Data access tools: query_*, search_*
+
+MCP Servers (claude mcp list → enumerate tools)
+  └─ Already structured as tool definitions
+  └─ → Pass through as-is, filter by user level
+
+                         ↓
+
+         ┌─────────────────────────────┐
+         │     MERGED TOOL REGISTRY    │
+         │  (generated at deploy time) │
+         └─────────────┬───────────────┘
+                        │
+                        ↓
+         ┌─────────────────────────────┐
+         │  Filter by user entitlement │
+         │  (Coordinator / Director /  │
+         │   Specialist / VP+)         │
+         └─────────────┬───────────────┘
+                        │
+                        ↓
+         ┌─────────────────────────────┐
+         │  Passed to Claude as tools  │
+         │  in the MDJ system prompt   │
+         └─────────────────────────────┘</div>
+    </div>
+
+    <div class="card">
+      <h2>Same Pattern as ATLAS Introspection</h2>
+      <p>ATLAS already does this for data sources — it reads the codebase to understand what data flows through the platform. The Auto-Registry is the same concept applied to UI capabilities.</p>
+      <table>
+        <tr><th>ATLAS Does For Data</th><th>Auto-Registry Does For Capabilities</th></tr>
+        <tr><td>Tracks every data source</td><td>Tracks every portal capability</td></tr>
+        <tr><td>Knows when a feed goes stale</td><td>Knows when a route is deprecated</td></tr>
+        <tr><td>Updated by RAPID_IMPORT introspection</td><td>Updated on every CI deploy</td></tr>
+        <tr><td>Prevents unknown data gaps</td><td>Prevents unknown capability gaps</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>When Someone Adds a Field</h2>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Developer adds <code>risk_score</code> to Contact Detail in ProDashX</h4>
+          <p>New field wired to Firestore, displayed in the UI.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>Developer pushes branch, CI passes, merges to main</h4>
+          <p>Normal deploy flow — no extra steps required.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Post-deploy hook runs registry generator</h4>
+          <p>Reads updated Firestore schema types, sees <code>risk_score: number</code> on client docs.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <h4>Registry emits updated tool definition</h4>
+          <p><code>get_client_detail</code> now includes <code>risk_score</code> in its response schema. MDJ knows about it.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-body">
+          <h4>Next conversation — MDJ can read and surface risk_score</h4>
+          <p>Zero manual tool updates. Zero developer involvement. The mirror just works.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== WEB UI GAP ==================== -->
+  <div class="tab-panel" id="webgap">
+    <div class="card">
+      <h2>The Web UI vs. API Gap</h2>
+      <p>Not everything has an API. A significant portion of the carrier ecosystem — illustrations, enrollment systems, portal status checks — exists only as a web UI. No API. No integration available. No workaround through standard MCP tools.</p>
+      <p>This is where MDJ hits a wall without Playwright. The conversation starts strong, then hits "I'd need you to go to the carrier portal and..." — and the human is back in the loop.</p>
+      <div class="highlight-box orange">
+        <p>Playwright browser automation on MDJ1 closes this gap permanently. MDJ launches a headless browser, navigates to the carrier portal, fills the form, runs the illustration, captures the result, and returns it to the conversation. The human never leaves the chat.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Carrier Systems: API vs. Playwright</h2>
+      <table>
+        <tr>
+          <th>Carrier / System</th>
+          <th>Access Method</th>
+          <th>Status</th>
+          <th>Priority</th>
+        </tr>
+        <tr>
+          <td>Medicare.gov / CMS Enrollment</td>
+          <td><span class="pill api">API</span> CMS Coverage MCP</td>
+          <td>Live</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>SSA.gov (Social Security)</td>
+          <td><span class="pill api">API</span> tm-api route</td>
+          <td>Live</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>NPI Registry</td>
+          <td><span class="pill api">API</span> NPI MCP</td>
+          <td>Live</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>North American Life (illustrations)</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <td>Athene (annuity illustrations)</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <td>Allianz Life (FIA illustrations)</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <td>Nationwide (annuity portal)</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <td>Lincoln Financial (illustrations)</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>High</td>
+        </tr>
+        <tr>
+          <td>Catholic Order of Foresters (CoF)</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>Gradient IMO Portal</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>Schwab RIA Portal</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>RBC BD Custodian Portal</td>
+          <td><span class="pill pw">Playwright</span> Web UI only</td>
+          <td>Not started</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>DTCC / DST Vision (account data)</td>
+          <td><span class="pill api">API</span> Integration planned</td>
+          <td>Planned</td>
+          <td>Low</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>How the Playwright Bridge Works</h2>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>User asks MDJ to run an Athene illustration</h4>
+          <p>"Run a 7-year MYGA illustration for Robert Chen, $200k, 67 years old."</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>MDJ calls <code>RUN_ILLUSTRATION</code> Super Tool</h4>
+          <p>Identifies carrier = Athene, product type = MYGA. Retrieves Athene credentials from vault.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Playwright launches headless browser on MDJ1</h4>
+          <p>Navigates to Athene illustration portal, logs in with vault credentials, fills form fields.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <h4>Playwright captures the result</h4>
+          <p>Extracts rate, surrender schedule, projections. Takes PDF screenshot. Returns structured data.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-body">
+          <h4>MDJ returns result to the conversation</h4>
+          <p>"Athene 7-year MYGA at $200k: 5.40% guaranteed rate, $14,242 interest year 1. PDF saved to Robert's ACF folder."</p>
+        </div>
+      </div>
+      <p style="color:var(--text-muted); margin-top:12px;">The Playwright MCP is already configured on MDJ1. Sprint 3 writes the carrier-specific automation scripts.</p>
+    </div>
+  </div>
+
+  <!-- ==================== AUTH ARCHITECTURE ==================== -->
+  <div class="tab-panel" id="auth">
+    <div class="card">
+      <h2>Authentication Architecture</h2>
+      <p>MDJ operates across multiple authentication domains simultaneously. Each system has different auth requirements, token lifetimes, and refresh mechanics. Managing this at conversation time creates failure points. The solution is a centralized credential vault that MDJ accesses as needed — no auth friction in the conversation itself.</p>
+    </div>
+
+    <div class="card">
+      <h2>Auth Layers by System</h2>
+      <table>
+        <tr>
+          <th>System</th>
+          <th>Auth Method</th>
+          <th>Status</th>
+          <th>Refresh Strategy</th>
+        </tr>
+        <tr>
+          <td>GCP / Firebase</td>
+          <td>Service account key (JSON)</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Never expires</td>
+        </tr>
+        <tr>
+          <td>Cloud Run IAM (tm-api)</td>
+          <td>JWT identity token</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Short-lived, auto-refreshed</td>
+        </tr>
+        <tr>
+          <td>Google Drive (gdrive MCP)</td>
+          <td>OAuth 2.0 refresh token</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Auto-refresh via reauth script</td>
+        </tr>
+        <tr>
+          <td>Gmail MCP</td>
+          <td>OAuth 2.0 refresh token</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Auto-refresh via reauth script</td>
+        </tr>
+        <tr>
+          <td>Google Calendar MCP</td>
+          <td>OAuth 2.0 refresh token</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Auto-refresh via reauth script</td>
+        </tr>
+        <tr>
+          <td>Slack Bot</td>
+          <td>Bot token (long-lived)</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Manual rotation on revoke</td>
+        </tr>
+        <tr>
+          <td>Twilio (SMS)</td>
+          <td>API key + secret</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Manual rotation annually</td>
+        </tr>
+        <tr>
+          <td>SendGrid (email delivery)</td>
+          <td>API key</td>
+          <td><span class="pill new">Solved</span></td>
+          <td>Manual rotation annually</td>
+        </tr>
+        <tr>
+          <td>Carrier portals (illustrations)</td>
+          <td>Username + password</td>
+          <td><span class="pill warn">Sprint 3</span></td>
+          <td>Vault-managed, Playwright login</td>
+        </tr>
+        <tr>
+          <td>Gradient IMO portal</td>
+          <td>Username + password</td>
+          <td><span class="pill warn">Sprint 3</span></td>
+          <td>Vault-managed</td>
+        </tr>
+        <tr>
+          <td>Schwab / RBC portals</td>
+          <td>Username + password + MFA</td>
+          <td><span class="pill warn">Sprint 3</span></td>
+          <td>Vault-managed, MFA via TOTP</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Centralized Credential Vault on MDJ1</h2>
+      <p>All credentials — API keys, OAuth tokens, carrier passwords — live in one encrypted location on MDJ1. MDJ accesses them as needed. Nothing in code. Nothing in env files. Nothing in chat.</p>
+
+      <div class="spec-grid">
+        <div class="spec-card">
+          <h4>Storage</h4>
+          <p class="keywords"><span>AES-256 encryption</span><span>Key in GCP Secret Manager</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">Vault file encrypted at rest. Decryption key stored in GCP Secret Manager — never on disk alongside the vault.</p>
+        </div>
+        <div class="spec-card">
+          <h4>Access Control</h4>
+          <p class="keywords"><span>Permission-gated</span><span>Audit logged</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">Every credential access is logged: who requested it, which credential, what time. Accessible from ProDashX Admin for review.</p>
+        </div>
+        <div class="spec-card">
+          <h4>Rotation Alerts</h4>
+          <p class="keywords"><span>Expiry tracking</span><span>Slack notifications</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">Vault tracks expiry dates. JDM gets Slack DM 30 days before any credential expires. No surprise auth failures.</p>
+        </div>
+        <div class="spec-card">
+          <h4>Admin UI</h4>
+          <p class="keywords"><span>ProDashX Admin</span><span>Super Admin only</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">Josh + John Behn can add, update, and rotate credentials through a dedicated UI in ProDashX Admin. No terminal required.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CREDENTIAL MANAGEMENT ==================== -->
+  <div class="tab-panel" id="credentials">
+    <div class="card">
+      <h2>Team Credential Management</h2>
+      <p>The vault solves MDJ's auth problem. It also solves the team's password problem. Currently, carrier portal credentials are scattered — sticky notes, personal password managers, shared docs. No central management. No rotation policy. No access logging. No compliance trail.</p>
+      <div class="highlight-box orange">
+        <p>This is a FINRA compliance gap. Shared credentials with no access logging are an exam finding waiting to happen.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>MDJ as the Credential Interface</h2>
+      <p>Team members request credentials through MDJ. MDJ checks their permission level, logs the access, and returns the credential — or explains why they don't have access.</p>
+
+      <div class="highlight-box">
+        <p>"Hey MDJ, what's the login for the North American portal?"</p>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>MDJ checks user's permission level</h4>
+          <p>Is this user credentialed for North American carrier access? What's their role?</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>If authorized: MDJ retrieves and returns the credential</h4>
+          <p>"Here's the North American portal login: [username]. I've sent the password to your Gmail. Access logged."</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>If not authorized: MDJ explains and escalates</h4>
+          <p>"You don't have access to North American credentials yet. Want me to send a request to John Behn?"</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <h4>All access logged to compliance audit trail</h4>
+          <p>Who accessed what, when. Searchable from ProDashX Admin. FINRA-ready.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Password Rotation on Schedule</h2>
+      <table>
+        <tr><th>Credential Type</th><th>Rotation Policy</th><th>Managed By</th></tr>
+        <tr><td>Carrier portal passwords</td><td>90 days</td><td>Vault auto-alert + MDJ-assisted reset</td></tr>
+        <tr><td>API keys (Twilio, SendGrid)</td><td>Annual</td><td>Vault expiry tracking + Slack alert</td></tr>
+        <tr><td>OAuth refresh tokens</td><td>On revoke / annual review</td><td>reauth-scopes.js + Slack alert</td></tr>
+        <tr><td>GCP service accounts</td><td>Annual security audit</td><td>Manual + documented in POSTURE.md</td></tr>
+        <tr><td>Internal team passwords</td><td>Google Workspace policy (90 days)</td><td>Admin SDK enforcement</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Integration with Google Workspace</h2>
+      <p>For internal team passwords (Google accounts, internal tools), MDJ integrates with the Workspace Admin SDK already wired into <code>rpi-workspace</code> MCP:</p>
+      <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+        <li style="padding:10px 14px; background:var(--bg-hover); border-radius:6px; color:var(--text-muted); font-size:0.85rem;">Force password reset for a team member via conversation</li>
+        <li style="padding:10px 14px; background:var(--bg-hover); border-radius:6px; color:var(--text-muted); font-size:0.85rem;">Check last password change date for compliance review</li>
+        <li style="padding:10px 14px; background:var(--bg-hover); border-radius:6px; color:var(--text-muted); font-size:0.85rem;">Audit which team members have MFA enabled</li>
+        <li style="padding:10px 14px; background:var(--bg-hover); border-radius:6px; color:var(--text-muted); font-size:0.85rem;">Generate backup codes for locked-out users</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ==================== SLACK DM ACCESS ==================== -->
+  <div class="tab-panel" id="slack">
+    <div class="card">
+      <h2>Slack DM + Private Channel Access</h2>
+      <p>Current gap: MDJ can search public Slack channels but cannot read DMs, group DMs, or private channels. This means MDJ is blind to the majority of where decisions actually get made at RPI — the direct conversations.</p>
+    </div>
+
+    <div class="card">
+      <h2>The Fix: Two Paths, Both Available Now</h2>
+
+      <div class="phase-header">
+        <div class="phase-num">1</div>
+        <h3>claude.ai Slack MCP — DM Reading via User ID</h3>
+      </div>
+      <p style="color:var(--text-muted); margin-bottom:16px;">The <code>slack_read_channel</code> tool in the <code>claude.ai Slack</code> MCP accepts a user ID as the <code>channel_id</code> parameter. This reads the DM thread between the bot and that user. JDM's user ID is <code>U09BBHTN8F2</code>.</p>
+
+      <div class="phase-header">
+        <div class="phase-num">2</div>
+        <h3>Local Slack MCP (shouting-mcp-slack) — Broader Permissions</h3>
+      </div>
+      <p style="color:var(--text-muted); margin-bottom:16px;">The local <code>slack</code> MCP has broader token permissions than the cloud version. It can access channels the bot has been invited to, including private channels. The gap is that the bot must be <em>in</em> the channel — MDJ cannot read a private channel it hasn't been added to.</p>
+    </div>
+
+    <div class="card">
+      <h2>What MDJ Should Be Able To Do</h2>
+      <table>
+        <tr><th>Capability</th><th>Method</th><th>Status</th></tr>
+        <tr><td>Read JDM's DM thread with any team member</td><td>claude.ai Slack MCP, user_id as channel_id</td><td><span class="pill mod">Wire now</span></td></tr>
+        <tr><td>Read group DMs MDJ is part of</td><td>Local slack MCP</td><td><span class="pill mod">Wire now</span></td></tr>
+        <tr><td>Search across all public channels</td><td>claude.ai <code>slack_search_public</code></td><td><span class="pill new">Live</span></td></tr>
+        <tr><td>Search public + private channels</td><td>claude.ai <code>slack_search_public_and_private</code></td><td><span class="pill mod">Wire now</span></td></tr>
+        <tr><td>Post to any channel bot has access to</td><td>Local slack MCP <code>slack_post_message</code></td><td><span class="pill new">Live</span></td></tr>
+        <tr><td>Read private channel MDJ is invited to</td><td>Invite bot to channel, then local slack MCP</td><td><span class="pill warn">Requires invite</span></td></tr>
+        <tr><td>Read DMs MDJ is not part of (e.g., Nikki ↔ Vince)</td><td>Not possible — Slack API restriction</td><td>Not available</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Recommended Setup</h2>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Invite MDJ bot to all key private channels</h4>
+          <p>#leadership, #sales-ops, #service-ops, #compliance — any channel where decisions get made.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>Use user IDs for DM reading (not channel names)</h4>
+          <p>JDM: <code>U09BBHTN8F2</code>. Get others via <code>slack_get_users</code>. Pass user_id as channel_id to <code>slack_read_channel</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Default to <code>slack_search_public_and_private</code> for searches</h4>
+          <p>Covers more ground than public-only search. Already available via claude.ai Slack MCP.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== CLIENT/PARTNER PORTAL ACCESS ==================== -->
+  <div class="tab-panel" id="portals">
+    <div class="card">
+      <h2>Client, Partner, and M&amp;A Portal Access</h2>
+      <p>MDJ today serves internal RPI team members. That's the right starting point. But the architecture scales to every audience that will eventually interact with the platform — clients, partners, acquired agencies, and M&amp;A targets.</p>
+      <p>Same platform. Same data. Different door. Different scope.</p>
+    </div>
+
+    <div class="card">
+      <h2>The Four Audiences</h2>
+
+      <div class="spec-grid">
+        <div class="spec-card">
+          <h4>Internal Team (ProDashX)</h4>
+          <p class="keywords"><span>Coordinator</span><span>Specialist</span><span>Director</span><span>VP+</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">Full platform access, scoped by role. Layers 1-6 unlocked progressively. MDJ knows everything about RPI's clients, processes, and business.</p>
+        </div>
+        <div class="spec-card medicare">
+          <h4>Clients (Future Client Portal)</h4>
+          <p class="keywords"><span>Self-service</span><span>Read-only</span><span>Own household only</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">"What's my account balance?" "When's my next appointment?" "Can you pull my Medicare summary?" Scoped to their household. Zero access to other clients or internal data.</p>
+        </div>
+        <div class="spec-card david">
+          <h4>Partners / M&amp;A (SENTINEL)</h4>
+          <p class="keywords"><span>DAVID channel</span><span>Deal pipeline</span><span>BoB valuation</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">"Show me the deal pipeline." "What's the BoB valuation for the Midwest portfolio?" "What's the status on the Henderson acquisition?" Scoped to their deal + shared public data.</p>
+        </div>
+        <div class="spec-card ops">
+          <h4>Acquired Agencies (Onboarding)</h4>
+          <p class="keywords"><span>Day 1</span><span>Process guides</span><span>Carrier forms</span></p>
+          <p style="font-size:0.82rem; color:var(--text-muted);">"How do I process a 1035 at RPI?" "Where do I find the North American appointment forms?" "What's the new business submission process?" MDJ-Onboard replaces the onboarding manual.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Scoping Architecture</h2>
+      <p>Each persona is the same MDJ engine with different system prompt context and tool filters:</p>
+      <div class="diagram">MDJ Engine (Claude + tools + memory)
+        │
+        ├── System Prompt Context
+        │     • Internal:  "You are MDJ, serving [user] at RPI. Full platform access by role."
+        │     • Client:    "You are MDJ, serving client [name]. Access limited to household [id]."
+        │     • Partner:   "You are MDJ-DAVID, serving [firm]. Access limited to deal [id]."
+        │     • Onboarding:"You are MDJ-Onboard, serving new agency [name]. Read-only guides + forms."
+        │
+        ├── Tool Filter (by audience)
+        │     • Internal:  All registered tools, filtered by user role (Coordinator/Specialist/etc.)
+        │     • Client:    get_household, get_accounts, get_appointments, get_documents (own only)
+        │     • Partner:   get_deal_pipeline, get_bob_valuation, get_acquisition_status
+        │     • Onboarding:get_process_guide, get_carrier_form, get_checklist
+        │
+        └── Data Scope (Firestore rules match)
+              • Internal:  @retireprotected.com domain → role-gated collections
+              • Client:    Client JWT → household-scoped Firestore rules
+              • Partner:   Partner JWT → deal-scoped Firestore rules
+              • Onboarding:Agency JWT → read-only guide collections</div>
+    </div>
+
+    <div class="card">
+      <h2>Build Order</h2>
+      <p>Sprint 8 builds the client portal persona. Sprint 9 builds the partner/M&amp;A persona. The internal MDJ (current) is the foundation both inherit from.</p>
+      <table>
+        <tr><th>Persona</th><th>Sprint</th><th>Prerequisite</th></tr>
+        <tr><td>Internal Team (current MDJ)</td><td>Now</td><td>—</td></tr>
+        <tr><td>Client Portal MDJ</td><td>Sprint 8</td><td>Client portal auth + Firestore rules for household scope</td></tr>
+        <tr><td>Partner / M&amp;A MDJ (MDJ-DAVID)</td><td>Sprint 9</td><td>SENTINEL deal data in Firestore + partner JWT auth</td></tr>
+        <tr><td>Acquired Agency Onboarding MDJ</td><td>Sprint 9</td><td>Process documentation in Firestore + onboarding collections</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ==================== MENU SYSTEM ==================== -->
+  <div class="tab-panel" id="menu">
+    <div class="card">
+      <h2>The Menu System: Tools → Super Tools → Wires</h2>
+      <p>Same architecture as ATLAS Tools → Super Tools → Wires. Three levels of capability, each building on the one below. Atomic tools are the bricks. Super Tools are the rooms. Wires are the buildings.</p>
+    </div>
+
+    <div class="card">
+      <h2>MDJ TOOLS (Atomic)</h2>
+      <p>Single-action, single-data-source operations. Generated from the registry. Fast, discrete, composable.</p>
+      <table>
+        <tr><th>Tool</th><th>What It Does</th><th>Source</th></tr>
+        <tr><td><code>search_client</code></td><td>Find client by name, DOB, or ID</td><td>Firestore</td></tr>
+        <tr><td><code>get_client_detail</code></td><td>Full client profile, accounts, history</td><td>tm-api</td></tr>
+        <tr><td><code>get_household</code></td><td>All members in a household</td><td>Firestore</td></tr>
+        <tr><td><code>get_accounts</code></td><td>All financial accounts for a client</td><td>tm-api</td></tr>
+        <tr><td><code>get_pipeline</code></td><td>Active pipeline instances for a client</td><td>Firestore</td></tr>
+        <tr><td><code>send_email</code></td><td>Send email via Gmail MCP</td><td>Gmail MCP</td></tr>
+        <tr><td><code>send_sms</code></td><td>Send text via Twilio</td><td>Twilio</td></tr>
+        <tr><td><code>log_activity</code></td><td>Log a note or call to client record</td><td>tm-api</td></tr>
+        <tr><td><code>get_documents</code></td><td>List client ACF folder contents</td><td>Drive MCP</td></tr>
+        <tr><td><code>get_document</code></td><td>Retrieve a specific document</td><td>Drive MCP</td></tr>
+        <tr><td><code>schedule_event</code></td><td>Create calendar appointment</td><td>Calendar MCP</td></tr>
+        <tr><td><code>get_commission</code></td><td>Commission calculation for a case</td><td>rpi-business MCP</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>MDJ SUPER TOOLS (Compound)</h2>
+      <p>Multi-step sequences that combine multiple atomic tools into a single named capability. These are what make MDJ feel like a skilled advisor, not a query engine.</p>
+      <div class="supertool-grid">
+        <div class="supertool-card">
+          <h4>REVIEW_PREP</h4>
+          <p>Full client analysis before a meeting. Pulls profile, all accounts, pipeline status, recent activity, open items, and drafts a meeting agenda. What MDJ did for the Aswegans review.</p>
+        </div>
+        <div class="supertool-card">
+          <h4>PULL_DOCUMENTS</h4>
+          <p>List and retrieve files from a client's ACF Drive folder. Filter by type (policy, statement, form). Return download links or summarize content.</p>
+        </div>
+        <div class="supertool-card">
+          <h4>DRAFT_COMMUNICATION</h4>
+          <p>Draft a client-facing email or text with full context — name, policy detail, tone, RPI branding. Holds for approval before sending.</p>
+        </div>
+        <div class="supertool-card">
+          <h4>RMD_ANALYSIS</h4>
+          <p>Calculate required minimum distributions. Pull IRA/annuity balances, apply IRS tables, project deadlines. Flag clients approaching or past RMD age.</p>
+        </div>
+        <div class="supertool-card">
+          <h4>COVERAGE_GAP</h4>
+          <p>Analyze a client's life, health, and annuity coverage. Identify gaps relative to household income, debt, and dependents. Surface cross-sell opportunities.</p>
+        </div>
+        <div class="supertool-card">
+          <h4>MEETING_PREP</h4>
+          <p>Full pre-meeting package: REVIEW_PREP + agenda draft + key talking points + follow-up task template. Ready to go 30 minutes before any client meeting.</p>
+        </div>
+        <div class="supertool-card">
+          <h4>RUN_ILLUSTRATION</h4>
+          <p>Playwright automation on carrier portals. Takes carrier + product + client params. Runs the illustration headlessly, captures results, saves PDF to ACF folder.</p>
+        </div>
+        <div class="supertool-card">
+          <h4>SUBMIT_CASE</h4>
+          <p>DEX document assembly + carrier submission workflow. Pulls required forms, prefills from client record, packages for submission, logs to pipeline.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>MDJ WIRES (Full Workflows)</h2>
+      <p>End-to-end business processes. A Wire coordinates multiple Super Tools and atomic tools across time, with decision points, approvals, and notifications built in.</p>
+      <div class="supertool-grid">
+        <div class="supertool-card wire">
+          <h4>ONBOARD_AGENCY</h4>
+          <p>Complete M&amp;A intake pipeline. 7-day sequence: data import → agent setup → carrier appointments → system access → training protocol → go-live sign-off.</p>
+        </div>
+        <div class="supertool-card wire">
+          <h4>ANNUAL_REVIEW</h4>
+          <p>Full household review cycle. MEETING_PREP → conduct review → log outcomes → update accounts → schedule follow-up → trigger any product changes.</p>
+        </div>
+        <div class="supertool-card wire">
+          <h4>AEP_ENROLLMENT</h4>
+          <p>Medicare Annual Enrollment Period workflow. Eligibility check → plan comparison (QUE) → client recommendation → enrollment submission → confirmation logging. AEP blackout Oct-Dec enforced.</p>
+        </div>
+        <div class="supertool-card wire">
+          <h4>NEW_BUSINESS</h4>
+          <p>Full new business pipeline. Client intake → needs analysis → illustration → application → underwriting status → issue → policy delivery → pipeline close.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SPRINT ROADMAP ==================== -->
+  <div class="tab-panel" id="sprint">
+    <div class="card">
+      <h2>Sprint Roadmap: Building the Platform Mirror</h2>
+      <p>Ten sprints to go from 82 hand-coded tools to a fully mirrored, auto-synced, multi-audience conversational interface for the entire platform. Each sprint delivers a discrete, shippable capability.</p>
+    </div>
+
+    <div class="sprint-grid">
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 1</div>
+        <h4>Auto-Registry</h4>
+        <p>Build the registry generator. Parse portal routes, API routes, and Firestore schema. Emit tool definitions on every deploy. Replace the 82 hand-coded tools with generated output. This is the unlock for everything else.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 2</div>
+        <h4>ACF / Drive Integration</h4>
+        <p>Full document access for every client. PULL_DOCUMENTS and GET_DOCUMENT Super Tools. List folder contents, retrieve files, summarize documents, save to conversation context. MDJ can see everything in the client's digital file cabinet.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 3</div>
+        <h4>Playwright Carrier Automation</h4>
+        <p>RUN_ILLUSTRATION Super Tool wired to top-5 carrier portals. North American, Athene, Allianz, Nationwide, Lincoln. Headless browser on MDJ1. Credentials via vault. Results returned to conversation and saved to ACF folder.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 4</div>
+        <h4>Credential Vault + Team Password Management</h4>
+        <p>Centralized encrypted vault on MDJ1. Admin UI in ProDashX. Rotation alerts via Slack. Team credential access via MDJ conversation with permission check + audit log. FINRA-ready access trail.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 5</div>
+        <h4>Slack DM + Private Channel Access</h4>
+        <p>Wire DM reading via user_id as channel_id. Invite MDJ bot to key private channels. Default search to public_and_private. MDJ can now see the full conversation context of the business.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 6</div>
+        <h4>Super Tools</h4>
+        <p>Build REVIEW_PREP, PULL_DOCUMENTS, DRAFT_COMMUNICATION, RMD_ANALYSIS, COVERAGE_GAP, MEETING_PREP as named compound capabilities. Each one a tested, documented, reliable workflow that MDJ can invoke by name.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 7</div>
+        <h4>Wires (Full Workflows)</h4>
+        <p>ONBOARD_AGENCY, ANNUAL_REVIEW, AEP_ENROLLMENT, NEW_BUSINESS. End-to-end pipelines with decision points, approvals, notifications. The machine runs entire business processes on request.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 8</div>
+        <h4>Client Portal MDJ Persona</h4>
+        <p>Client-facing MDJ scoped to household data only. "What's my balance?" "When's my next appointment?" "Can you show me my Medicare coverage?" Auth via client JWT + Firestore household-scope rules.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 9</div>
+        <h4>Partner / M&amp;A MDJ Persona</h4>
+        <p>MDJ-DAVID for SENTINEL audience. Deal pipeline, BoB valuation, acquisition status. Plus MDJ-Onboard for acquired agencies — process guides, carrier forms, go-live checklists. Both scoped and auth-gated.</p>
+      </div>
+      <div class="sprint-card">
+        <div class="sprint-num">Sprint 10</div>
+        <h4>MDJ-Coach (Career Development)</h4>
+        <p>The sixth specialist. Team member career development, licensing guidance, CE tracking, performance coaching. "What do I need to get my Series 65?" "What's my commission trajectory?" "What's next in my career path at RPI?"</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:8px;">
+      <h2>The Dependency Chain</h2>
+      <div class="diagram">Sprint 1: Auto-Registry
+  └─ Everything depends on this. The registry is the foundation.
+
+Sprint 2: ACF / Drive Integration
+  └─ Depends on: Sprint 1 (registry generates document access tools)
+
+Sprint 3: Playwright Carrier Automation
+  └─ Depends on: Sprint 4 (vault needed for carrier credentials)
+  NOTE: Sprint 3 and 4 can be co-developed. Vault is lightweight.
+
+Sprint 4: Credential Vault
+  └─ No hard dependencies. Can start in parallel with Sprint 2.
+
+Sprint 5: Slack DM Access
+  └─ No hard dependencies. Quick win — wire now, don't wait.
+
+Sprint 6: Super Tools
+  └─ Depends on: Sprints 1-4 (needs registry, docs, illustrations, vault)
+
+Sprint 7: Wires
+  └─ Depends on: Sprint 6 (Wires compose Super Tools)
+
+Sprint 8: Client Portal MDJ
+  └─ Depends on: Client portal auth (separate project, not MDJ-gated)
+
+Sprint 9: Partner / M&A MDJ
+  └─ Depends on: SENTINEL deal data in Firestore
+
+Sprint 10: MDJ-Coach
+  └─ Depends on: HR/performance data in Firestore (new collection)</div>
+    </div>
+
+    <div class="card">
+      <h2>When This Is Done</h2>
+      <div class="highlight-box green">
+        <p style="font-size:1.1rem; line-height:1.8;">
+          MDJ knows about every field in every record. It can run every workflow the portal supports. It serves internal team, clients, partners, and acquired agencies — each scoped to what they're allowed to see. It stays in sync automatically on every deploy. It runs illustrations on carrier portals humans can't API into. It manages credentials without anyone touching env files. It reads the full Slack conversation history of the business. It is, in every meaningful sense, the primary interface for the entire platform.
+        </p>
+      </div>
+      <p style="margin-top:16px; font-size:1.05rem; color:var(--text); font-weight:600; text-align:center;">The portal is the dashboard. MDJ is the steering wheel. At 181 agencies, the steering wheel is how most people drive.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  MyDigitalJosh &mdash; The Machine's Primary Interface &mdash; 2026
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
