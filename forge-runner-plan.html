@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPRINT-000 — FORGE Runner Implementation Plan</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  /* Tabs */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); padding-left: 20px; margin-bottom: 12px; }
+  .card ul li { margin-bottom: 6px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-hover);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* Code */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+  pre {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+    margin: 12px 0;
+  }
+
+  /* Diagram */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  /* Phase headers */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 16px;
+    padding: 14px 20px;
+    background: var(--accent-glow);
+    border-radius: 8px;
+    border: 1px solid rgba(59,130,246,0.25);
+  }
+  .phase-header .phase-num {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent); color: white;
+    border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .phase-header h3 { color: var(--accent); margin: 0; font-size: 1.05rem; font-weight: 700; }
+  .phase-header .phase-sub { color: var(--text-muted); font-size: 0.85rem; margin-left: auto; }
+
+  /* Ticket cards */
+  .ticket {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--accent);
+  }
+  .ticket.opus { border-left-color: var(--purple); }
+  .ticket-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .ticket-id {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(59,130,246,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.25);
+  }
+  .ticket-title { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+  .ticket-meta { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; }
+  .ticket p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 10px; }
+  .ticket ul { color: var(--text-muted); font-size: 0.875rem; padding-left: 18px; margin-bottom: 10px; }
+  .ticket ul li { margin-bottom: 4px; }
+  .ticket .file-tree {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: pre;
+    overflow-x: auto;
+    margin: 10px 0;
+  }
+
+  /* Pill badges */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill.new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.mod { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .pill.gate { background: rgba(245,158,11,0.2); color: var(--orange); }
+  .pill.opus { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.sonnet { background: rgba(59,130,246,0.15); color: var(--accent); }
+
+  /* State machine flow */
+  .state-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: 16px 0;
+    padding: 20px;
+    background: #0d1117;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .state-box {
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .state-box.gate {
+    background: rgba(245,158,11,0.15);
+    border-color: rgba(245,158,11,0.4);
+    color: var(--orange);
+  }
+  .state-box.start {
+    background: rgba(34,197,94,0.15);
+    border-color: rgba(34,197,94,0.4);
+    color: var(--green);
+  }
+  .state-box.done {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.4);
+    color: var(--accent);
+  }
+  .state-arrow { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* Gate callout */
+  .gate-callout {
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-left: 4px solid var(--orange);
+  }
+  .gate-callout h4 { color: var(--orange); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+  /* Spec grid */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .spec-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.pink { border-top-color: var(--pink); }
+  .spec-card h4 { font-size: 0.95rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
+
+  /* Summary stats */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .stat-box {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-box .stat-num {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .stat-box .stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Checklist */
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .check-box {
+    width: 18px; height: 18px; min-width: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    margin-top: 2px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .content { padding: 16px; }
+    .card { padding: 16px; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .state-flow { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SPRINT-000 &mdash; FORGE Runner</h1>
+  <div class="subtitle">
+    Implementation Plan &mdash; The autonomous orchestrator that drives the entire FORGE sprint lifecycle on MDJ1.
+    10 tickets. 5 phases. The Machine builds itself.
+  </div>
+  <div class="badge">Sprint ID: opF4KmVNfxqnoz3Lopxc</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="phase1">Phase 1: Foundation</div>
+    <div class="tab" data-tab="phase2">Phase 2: Core Logic</div>
+    <div class="tab" data-tab="phase3">Phase 3: Orchestration</div>
+    <div class="tab" data-tab="phase4">Phase 4: Integration</div>
+    <div class="tab" data-tab="phase5">Phase 5: Verification</div>
+    <div class="tab" data-tab="verify">Verification</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ==================== OVERVIEW ==================== -->
+  <div class="tab-panel active" id="overview">
+
+    <div class="card">
+      <h2>What We're Building</h2>
+      <p>FORGE Runner is an autonomous orchestrator running on MDJ1. Give it a Discovery Document and it drives the entire 11-step FORGE lifecycle without JDM in the loop. Creates the sprint, fires audits, distributes work to parallel Sonnet builders, fixes CI failures, and deploys. JDM taps Approve at two gates. Everything else is automated.</p>
+      <div class="spec-grid">
+        <div class="spec-card green">
+          <h4>Creates the Sprint</h4>
+          <p>POSTs to /api/sprints, generates Discovery HTML, creates Tracker items for all tickets. No manual setup.</p>
+        </div>
+        <div class="spec-card">
+          <h4>Drives the Lifecycle</h4>
+          <p>Advances through all 13 phases automatically. Audits pass &rarr; next phase. Audits fail &rarr; auto-fix and re-audit.</p>
+        </div>
+        <div class="spec-card orange">
+          <h4>Routes to Builders</h4>
+          <p>Spawns parallel Sonnet subagents per ticket (max 3 concurrent). Results flow back to the runner.</p>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Deploys Code</h4>
+          <p>Runs the full #SendIt sequence. If CI is red, diagnoses and fixes (max 5 retries). Auto-merges when green.</p>
+        </div>
+        <div class="spec-card purple">
+          <h4>Survives Restarts</h4>
+          <p>All state stored in Firestore mdj_forge_runs. If MDJ1 reboots mid-sprint, the runner resumes from exactly where it left off.</p>
+        </div>
+        <div class="spec-card pink">
+          <h4>Pauses for JDM</h4>
+          <p>Two human gates with ProDashX notifications. JDM taps Approve in RIIMO or via POST /forge/approve/:id.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Sprint Stats</h2>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num">10</div><div class="stat-label">Tickets</div></div>
+        <div class="stat-box"><div class="stat-num">5</div><div class="stat-label">Phases</div></div>
+        <div class="stat-box"><div class="stat-num">2</div><div class="stat-label">Human Gates</div></div>
+        <div class="stat-box"><div class="stat-num">13</div><div class="stat-label">FSM States</div></div>
+        <div class="stat-box"><div class="stat-num">MDJ1</div><div class="stat-label">Machine</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Map</h2>
+      <table>
+        <tr>
+          <th>Ticket</th>
+          <th>Name</th>
+          <th>Phase</th>
+          <th>Model</th>
+          <th>Depends On</th>
+          <th>File</th>
+        </tr>
+        <tr>
+          <td><code>TRK-001</code></td>
+          <td>Install SDK</td>
+          <td>1 &mdash; Foundation</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>&mdash;</td>
+          <td><code>~/mdj-agent/</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-002</code></td>
+          <td>Types + Firestore</td>
+          <td>1 &mdash; Foundation</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>TRK-001</td>
+          <td><code>types.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-003</code></td>
+          <td>claude-invoke.ts</td>
+          <td>1 &mdash; Foundation</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>TRK-001</td>
+          <td><code>claude-invoke.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-004</code></td>
+          <td>forge-api.ts</td>
+          <td>2 &mdash; Core Logic</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>TRK-002</td>
+          <td><code>forge-api.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-005</code></td>
+          <td>templates.ts</td>
+          <td>2 &mdash; Core Logic</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>TRK-002</td>
+          <td><code>templates.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-006</code></td>
+          <td>runner.ts</td>
+          <td>3 &mdash; Orchestration</td>
+          <td><span class="pill opus">Opus</span></td>
+          <td>TRK-003, 004, 005</td>
+          <td><code>runner.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-007</code></td>
+          <td>phases.ts</td>
+          <td>3 &mdash; Orchestration</td>
+          <td><span class="pill opus">Opus</span></td>
+          <td>TRK-006 interfaces</td>
+          <td><code>phases.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-008</code></td>
+          <td>Express Routes</td>
+          <td>4 &mdash; Integration</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>TRK-006, 007</td>
+          <td><code>routes.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-009</code></td>
+          <td>Human Gate Mechanism</td>
+          <td>4 &mdash; Integration</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>TRK-008</td>
+          <td><code>gates.ts</code></td>
+        </tr>
+        <tr>
+          <td><code>TRK-010</code></td>
+          <td>E2E Test</td>
+          <td>5 &mdash; Verification</td>
+          <td><span class="pill sonnet">Sonnet</span></td>
+          <td>All</td>
+          <td><code>tests/e2e.test.ts</code></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>State Machine</h2>
+      <div class="state-flow">
+        <div class="state-box start">idle</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">creating_sprint</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">running_discovery</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">auditing_discovery</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">running_plan</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">auditing_plan</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box gate">blocked (Gate 1)</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">building</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">auditing_build</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box gate">blocked (Gate 2)</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">deploying</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">ci_loop</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box">confirming</div>
+        <div class="state-arrow">&rarr;</div>
+        <div class="state-box done">complete</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Parallelization Map</h2>
+      <div class="diagram">TRK-001 (SDK install) — runs first
+    |
+    +-------+-------+
+    |               |
+TRK-002         TRK-003       ← parallel after 001
+(Types)        (invoke)
+    |               |
+    +-------+-------+
+            |
+    +-------+-------+
+    |               |
+TRK-004         TRK-005       ← parallel after 002+003
+(forge-api)    (templates)
+    |               |
+    +-------+-------+
+            |
+        TRK-006               ← sequential (orchestration)
+        (runner)
+            |
+        TRK-007               ← sequential (depends on 006 interfaces)
+        (phases)
+            |
+    +-------+-------+
+    |               |
+TRK-008         TRK-009       ← parallel after 006+007
+(routes)        (gates)
+    |               |
+    +-------+-------+
+            |
+        TRK-010               ← after all others
+        (E2E test)</div>
+    </div>
+
+  </div>
+
+  <!-- ==================== PHASE 1 ==================== -->
+  <div class="tab-panel" id="phase1">
+
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <h3>Foundation</h3>
+      <div class="phase-sub">TRK-001 &rarr; TRK-003 &mdash; SDK, Types, Invoke Wrapper</div>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-001</div>
+        <div class="ticket-title">Install SDK</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Depends: nothing</div>
+      </div>
+      <p>Install and verify the Anthropic Claude Agent SDK in <code>~/mdj-agent/</code>. This ticket is the gate for all others — nothing else starts until the SDK is confirmed working.</p>
+      <ul>
+        <li>Run <code>npm install @anthropic-ai/claude-agent-sdk</code> in <code>~/mdj-agent/</code></li>
+        <li>Test: <code>node -e "const { query } = require('@anthropic-ai/claude-agent-sdk'); console.log('SDK loaded')"</code></li>
+        <li>Test headless: <code>claude -p "Hello" --model haiku --output-format json</code></li>
+        <li>Verify <code>--model</code> flag routes correctly (haiku vs sonnet vs opus)</li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> SDK loads without error. Headless invocation returns JSON output with content field populated.</p>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-002</div>
+        <div class="ticket-title">Types + Firestore</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Parallel with TRK-003 after TRK-001</div>
+      </div>
+      <p>Create <code>~/mdj-agent/src/forge/types.ts</code> — the single source of truth for all FORGE Runner interfaces.</p>
+      <ul>
+        <li><strong>ForgePhase enum:</strong> <code>idle | creating_sprint | running_discovery | auditing_discovery | running_plan | auditing_plan | building | auditing_build | deploying | ci_loop | confirming | complete | blocked</code></li>
+        <li><strong>ForgeRunState:</strong> sprint_id, sprint_name, phase, started_at, phase_started_at, artifacts (Record&lt;string, string&gt;), log (LogEntry[]), error?</li>
+        <li><strong>LogEntry:</strong> timestamp, phase, message, level ('info' | 'warn' | 'error')</li>
+        <li><strong>ForgePhaseResult:</strong> success, result?, error?</li>
+        <li><strong>InvokeOptions:</strong> model, maxBudgetUsd, timeoutMs, cwd, allowedTools, permissionMode, resume, hooks</li>
+        <li><strong>Firestore collection:</strong> <code>mdj_forge_runs</code></li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> TypeScript strict mode. No <code>any</code> types. All interfaces exported. Collection name constant exported.</p>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-003</div>
+        <div class="ticket-title">claude-invoke.ts</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Parallel with TRK-002 after TRK-001</div>
+      </div>
+      <p>SDK wrapper. Every phase executor calls this. It handles model routing, budget enforcement, timeouts, and session resumption.</p>
+      <ul>
+        <li>Import <code>{ query }</code> from <code>@anthropic-ai/claude-agent-sdk</code></li>
+        <li>Signature: <code>claudeInvoke(prompt: string, opts?: InvokeOptions): Promise&lt;string&gt;</code></li>
+        <li>Default model: <code>sonnet</code></li>
+        <li>Default maxBudgetUsd: <code>3.00</code></li>
+        <li>Default timeoutMs: <code>300_000</code> (5 min)</li>
+        <li>Default cwd: <code>~/Projects/toMachina</code></li>
+        <li>Default permissionMode: <code>'acceptEdits'</code></li>
+        <li>Concatenate all streamed output chunks into a single string return value</li>
+        <li>Wrap with AbortController for timeout enforcement</li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> Returns string. Timeout fires after timeoutMs. Model param passed to SDK. Resume works when session ID provided.</p>
+    </div>
+
+  </div>
+
+  <!-- ==================== PHASE 2 ==================== -->
+  <div class="tab-panel" id="phase2">
+
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <h3>Core Logic</h3>
+      <div class="phase-sub">TRK-004 + TRK-005 &mdash; API Client + Prompt Templates</div>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-004</div>
+        <div class="ticket-title">forge-api.ts</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Parallel with TRK-005</div>
+      </div>
+      <p>HTTP client for the toMachina API. Reuses <code>getApiHeaders</code> from <code>api-auth.ts</code> for JWT service account key auth. All methods return structured responses.</p>
+      <ul>
+        <li><code>createSprint(name, description, discoveryUrl)</code> &rarr; sprint ID</li>
+        <li><code>updateSprint(id, updates)</code> &rarr; success</li>
+        <li><code>createTrackerItems(items[], sprintId)</code> &rarr; item IDs</li>
+        <li><code>bulkUpdateStatus(itemIds[], status)</code> &rarr; success</li>
+        <li><code>getSprintPrompt(sprintId, phase)</code> &rarr; prompt text</li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> All methods return <code>{ success, data?, error? }</code>. Auth headers on every call. No credentials hardcoded — reads from env vars.</p>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-005</div>
+        <div class="ticket-title">templates.ts</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Parallel with TRK-004</div>
+      </div>
+      <p>Prompt template functions. Pure functions — no side effects. Each takes sprint data + context, returns a prompt string following FORGE_STANDARDS.md format.</p>
+      <ul>
+        <li><code>buildDiscoveryPrompt(sprintData)</code></li>
+        <li><code>buildAuditDiscoveryPrompt(sprintData, discoveryUrl, ticketList)</code></li>
+        <li><code>buildPlanPrompt(sprintData, discoveryUrl, ticketList)</code></li>
+        <li><code>buildAuditPlanPrompt(sprintData, discoveryUrl, planUrl, ticketList)</code></li>
+        <li><code>buildBuilderPrompt(sprintData, ticketList, phase)</code></li>
+        <li><code>buildAuditBuildPrompt(sprintData, planUrl, ticketList)</code></li>
+        <li><code>buildSendItPrompt(sprintData)</code></li>
+        <li><code>buildLandedItPrompt(sprintData)</code></li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> Each function is pure. Returns non-empty string. Follows FORGE_STANDARDS.md structure. No external calls.</p>
+    </div>
+
+  </div>
+
+  <!-- ==================== PHASE 3 ==================== -->
+  <div class="tab-panel" id="phase3">
+
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <h3>Orchestration</h3>
+      <div class="phase-sub">TRK-006 + TRK-007 &mdash; Runner State Machine + Phase Executors</div>
+    </div>
+
+    <div class="gate-callout">
+      <h4>Opus Required</h4>
+      <p>TRK-006 and TRK-007 are the two most complex tickets in this sprint. The state machine must handle parallel execution, error recovery, Firestore persistence, CI retry loops, and human gate pausing. Use Opus for both. Do not substitute Sonnet.</p>
+    </div>
+
+    <div class="ticket opus">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-006</div>
+        <div class="ticket-title">runner.ts &mdash; The Orchestrator</div>
+        <div class="ticket-meta"><span class="pill opus">Opus</span> &nbsp; Depends: TRK-003, 004, 005</div>
+      </div>
+      <p>The main <code>ForgeRunner</code> class. This is the state machine that drives the entire FORGE lifecycle. Every other module is called from here.</p>
+      <ul>
+        <li><strong>run(discoveryDoc, opts)</strong> &mdash; starts the full lifecycle from idle</li>
+        <li><strong>approve(runId)</strong> &mdash; resumes from a blocked state</li>
+        <li><strong>State machine:</strong> each phase: update Firestore &rarr; execute &rarr; check result &rarr; advance or block</li>
+        <li><strong>Human gates:</strong> after <code>auditing_plan</code> and <code>auditing_build</code>, set phase to <code>'blocked'</code>, fire notification, await <code>approve()</code></li>
+        <li><strong>Parallel builders:</strong> during <code>'building'</code>, spawn concurrent <code>claudeInvoke</code> sessions per ticket, max 3 concurrent (Promise.allSettled with concurrency limiter)</li>
+        <li><strong>CI loop:</strong> during <code>'deploying'</code>, poll CI every 60s; if red &rarr; diagnose &rarr; fix &rarr; retry (max 5 attempts); if 5 failures &rarr; gate JDM</li>
+        <li><strong>Restart-safe:</strong> on startup, check Firestore for existing run &mdash; if phase is not idle/complete, resume from current phase</li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> All 13 states reachable. Blocked states persist across process restarts. Parallel builder concurrency enforced. CI retry max 5. All state writes to Firestore before execution (write-ahead).</p>
+    </div>
+
+    <div class="ticket opus">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-007</div>
+        <div class="ticket-title">phases.ts &mdash; Phase Executors</div>
+        <div class="ticket-meta"><span class="pill opus">Opus</span> &nbsp; Depends: TRK-006 interfaces</div>
+      </div>
+      <p>Executor functions for each phase. Each is an async function returning <code>ForgePhaseResult</code>. The runner calls these; phases do not call each other.</p>
+      <ul>
+        <li><strong>runCreateSprint()</strong> &mdash; forge-api: create sprint + tracker items in bulk</li>
+        <li><strong>runDiscovery()</strong> &mdash; claudeInvoke(discoveryPrompt, { model: 'sonnet' }), save HTML to artifacts</li>
+        <li><strong>runAuditDiscovery()</strong> &mdash; claudeInvoke(auditPrompt), parse GAPS/PASS from output, return pass/fail</li>
+        <li><strong>runPlan()</strong> &mdash; claudeInvoke(planPrompt, { model: 'opus' }), save HTML to artifacts</li>
+        <li><strong>runAuditPlan()</strong> &mdash; claudeInvoke(auditPrompt), parse result &rarr; PASS (advance) or FAIL (gate)</li>
+        <li><strong>runBuild()</strong> &mdash; per ticket, claudeInvoke with builder prompt (model: sonnet), parallel where no deps, sequential where deps exist</li>
+        <li><strong>runAuditBuild()</strong> &mdash; claudeInvoke with audit prompt per phase, aggregate results</li>
+        <li><strong>runSendIt()</strong> &mdash; git checkout -b &rarr; git add &rarr; git commit &rarr; git push &rarr; gh pr create --auto --squash --delete-branch</li>
+        <li><strong>runCILoop()</strong> &mdash; polls <code>gh run list</code> every 60s, handles failure with diagnose+fix cycle</li>
+        <li><strong>runLandedIt()</strong> &mdash; bulkUpdateStatus('confirmed'), create ProDashX #LandedIt notification</li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> Each function returns <code>{ success, result?, error? }</code>. Phase outputs stored as named artifacts in Firestore. No phase calls another phase directly.</p>
+    </div>
+
+  </div>
+
+  <!-- ==================== PHASE 4 ==================== -->
+  <div class="tab-panel" id="phase4">
+
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <h3>Integration</h3>
+      <div class="phase-sub">TRK-008 + TRK-009 &mdash; Express Routes + Human Gate Mechanism</div>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-008</div>
+        <div class="ticket-title">Express Routes</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Parallel with TRK-009</div>
+      </div>
+      <p>Mount FORGE routes on the existing mdj-agent Express server. All routes are authenticated.</p>
+      <table>
+        <tr><th>Method</th><th>Path</th><th>Body / Params</th><th>Returns</th></tr>
+        <tr>
+          <td><code>POST</code></td>
+          <td><code>/forge/sprint</code></td>
+          <td><code>{ discovery_doc, name, opts }</code></td>
+          <td><code>202 { run_id }</code> — kicks off async</td>
+        </tr>
+        <tr>
+          <td><code>POST</code></td>
+          <td><code>/forge/run/:id</code></td>
+          <td>run ID in path</td>
+          <td><code>200 { phase }</code> — advance to next phase</td>
+        </tr>
+        <tr>
+          <td><code>POST</code></td>
+          <td><code>/forge/approve/:id</code></td>
+          <td>run ID in path</td>
+          <td><code>200 { phase }</code> — approve current gate</td>
+        </tr>
+        <tr>
+          <td><code>GET</code></td>
+          <td><code>/forge/status/:id</code></td>
+          <td>run ID in path</td>
+          <td><code>200 ForgeRunState</code></td>
+        </tr>
+        <tr>
+          <td><code>GET</code></td>
+          <td><code>/forge/runs</code></td>
+          <td>&mdash;</td>
+          <td><code>200 ForgeRunState[]</code></td>
+        </tr>
+      </table>
+      <p><strong style="color:var(--green)">Acceptance:</strong> 202 returned immediately on sprint start (async kick-off). Status always reflects Firestore state, not in-memory state. All routes return <code>{ success, data?, error? }</code>.</p>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-009</div>
+        <div class="ticket-title">Human Gate Mechanism</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Parallel with TRK-008</div>
+      </div>
+      <p>The pause/resume cycle that keeps JDM in control at key decision points without requiring him to babysit the runner.</p>
+
+      <div class="gate-callout" style="margin: 12px 0;">
+        <h4>Gate Trigger (Runner calls this)</h4>
+        <p>1. Write to <code>mdj_forge_runs</code>: <code>{ phase: 'blocked', gate_reason, blocked_at }</code><br>
+        2. Create Firestore notification: <code>{ type: 'forge_gate', target: 'josh@retireprotected.com', title, body, metadata: { run_id, sprint_id, phase } }</code><br>
+        3. Notification surfaces in ProDashX Notifications module immediately.</p>
+      </div>
+
+      <div class="gate-callout" style="margin: 12px 0; border-left-color: var(--green); background: rgba(34,197,94,0.06);">
+        <h4 style="color:var(--green)">Approve (JDM triggers via UI or API)</h4>
+        <p><code>POST /forge/approve/:id</code> &rarr; reads blocked state &rarr; clears <code>blocked_at</code> &rarr; runner resumes from current phase. Idempotent — double-approve is a no-op.</p>
+      </div>
+
+      <ul>
+        <li><strong>24hr re-notify:</strong> scheduled check; if run is still blocked after 24hr, re-create notification (idempotent)</li>
+        <li><strong>Gate 1:</strong> after <code>auditing_plan</code> — JDM reviews Discovery Doc + Plan HTML</li>
+        <li><strong>Gate 2:</strong> after <code>auditing_build</code> — JDM reviews build audit results per phase</li>
+      </ul>
+      <p><strong style="color:var(--green)">Acceptance:</strong> Gate write persists across process restarts. Notification appears in ProDashX within 5 seconds of gate trigger. Approve resumes runner within 5 seconds. 24hr re-notify fires on schedule.</p>
+    </div>
+
+  </div>
+
+  <!-- ==================== PHASE 5 ==================== -->
+  <div class="tab-panel" id="phase5">
+
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <h3>Verification</h3>
+      <div class="phase-sub">TRK-010 &mdash; Full Lifecycle E2E Test</div>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">TRK-010</div>
+        <div class="ticket-title">E2E Test</div>
+        <div class="ticket-meta"><span class="pill sonnet">Sonnet</span> &nbsp; Depends: all previous</div>
+      </div>
+      <p>Run the complete FORGE Runner lifecycle programmatically against a minimal 2-ticket test sprint. Every phase transition is asserted. Cleans up after itself.</p>
+      <ul>
+        <li>Create test sprint with 2 trivial tickets (e.g., add a comment to an existing utility file)</li>
+        <li>Invoke <code>runner.run(testDiscoveryDoc, { testMode: true })</code></li>
+        <li>Test mode: auto-approves gates (skips notification delivery, uses programmatic approve)</li>
+        <li>Test mode: <code>--dry-run</code> on all git ops (branch/commit/push do not execute)</li>
+        <li>Assert every phase transition recorded in <code>mdj_forge_runs</code> with correct timestamps</li>
+        <li>Assert notifications created at Gate 1 and Gate 2</li>
+        <li>Assert all artifacts stored (discoveryUrl, planUrl, buildResults)</li>
+        <li>Assert final phase is <code>'complete'</code></li>
+        <li>Cleanup: delete test run doc, test sprint, test notifications from Firestore</li>
+      </ul>
+      <div class="file-tree">Run:  npx ts-node src/forge/tests/e2e.test.ts
+File: ~/mdj-agent/src/forge/tests/e2e.test.ts</div>
+      <p><strong style="color:var(--green)">Acceptance:</strong> All assertions pass. Zero orphaned Firestore docs after run. CI not triggered. Run completes in under 10 minutes (test mode).</p>
+    </div>
+
+  </div>
+
+  <!-- ==================== VERIFICATION ==================== -->
+  <div class="tab-panel" id="verify">
+
+    <div class="card">
+      <h2>File Structure</h2>
+      <div class="diagram">~/mdj-agent/src/forge/
+├── types.ts              ← TRK-002: ForgePhase enum, ForgeRunState, InvokeOptions, etc.
+├── claude-invoke.ts      ← TRK-003: SDK wrapper, model routing, timeout, budget
+├── forge-api.ts          ← TRK-004: toMachina API client (createSprint, updateSprint, etc.)
+├── templates.ts          ← TRK-005: pure prompt template functions (8 templates)
+├── runner.ts             ← TRK-006: ForgeRunner class, state machine, parallel builders
+├── phases.ts             ← TRK-007: phase executor functions (runDiscovery, runBuild, etc.)
+├── routes.ts             ← TRK-008: Express routes mounted on mdj-agent server
+├── gates.ts              ← TRK-009: human gate trigger, notification, approve, re-notify
+└── tests/
+    └── e2e.test.ts       ← TRK-010: full lifecycle test with assertions + cleanup</div>
+    </div>
+
+    <div class="card">
+      <h2>Human Gates Summary</h2>
+      <table>
+        <tr><th>Gate</th><th>After Phase</th><th>What JDM Reviews</th><th>Where to Approve</th><th>Timeout</th></tr>
+        <tr>
+          <td><span class="pill gate">Gate 1</span></td>
+          <td><code>auditing_plan</code></td>
+          <td>Discovery Doc HTML + Plan HTML</td>
+          <td>ProDashX notification &rarr; RIIMO, or POST /forge/approve/:id</td>
+          <td>24hr re-notify</td>
+        </tr>
+        <tr>
+          <td><span class="pill gate">Gate 2</span></td>
+          <td><code>auditing_build</code></td>
+          <td>Build audit results per phase</td>
+          <td>ProDashX notification &rarr; RIIMO, or POST /forge/approve/:id</td>
+          <td>24hr re-notify</td>
+        </tr>
+        <tr>
+          <td>&mdash;</td>
+          <td><code>ci_loop</code> pass</td>
+          <td>Automatic — no JDM action needed</td>
+          <td>N/A</td>
+          <td>N/A</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Model Routing</h2>
+      <table>
+        <tr><th>Ticket</th><th>Model</th><th>Reason</th></tr>
+        <tr><td><code>TRK-001</code></td><td><span class="pill sonnet">Sonnet</span></td><td>npm install + smoke test</td></tr>
+        <tr><td><code>TRK-002</code></td><td><span class="pill sonnet">Sonnet</span></td><td>Type definitions — follow the spec, no complex reasoning</td></tr>
+        <tr><td><code>TRK-003</code></td><td><span class="pill sonnet">Sonnet</span></td><td>SDK wrapper — follow the SDK docs</td></tr>
+        <tr><td><code>TRK-004</code></td><td><span class="pill sonnet">Sonnet</span></td><td>HTTP client — standard fetch + auth pattern</td></tr>
+        <tr><td><code>TRK-005</code></td><td><span class="pill sonnet">Sonnet</span></td><td>Pure string template functions — no logic</td></tr>
+        <tr><td><code>TRK-006</code></td><td><span class="pill opus">Opus</span></td><td>Complex state machine, parallel orchestration, CI retry, error recovery</td></tr>
+        <tr><td><code>TRK-007</code></td><td><span class="pill opus">Opus</span></td><td>Phase executors must handle edge cases + retry logic correctly</td></tr>
+        <tr><td><code>TRK-008</code></td><td><span class="pill sonnet">Sonnet</span></td><td>Express route boilerplate</td></tr>
+        <tr><td><code>TRK-009</code></td><td><span class="pill sonnet">Sonnet</span></td><td>Gate write/read/notify — straightforward Firestore ops</td></tr>
+        <tr><td><code>TRK-010</code></td><td><span class="pill sonnet">Sonnet</span></td><td>Test harness — follows existing e2e test patterns</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Pre-Ship Checklist</h2>
+      <ul class="checklist">
+        <li><div class="check-box"></div>TRK-001: SDK installs cleanly, headless invocation returns JSON output</li>
+        <li><div class="check-box"></div>TRK-002: All types in strict mode, no <code>any</code>, ForgePhase enum has 13 states</li>
+        <li><div class="check-box"></div>TRK-003: claudeInvoke returns string, timeout fires at timeoutMs, model param respected</li>
+        <li><div class="check-box"></div>TRK-004: All forge-api methods return <code>{ success, data?, error? }</code>, auth headers present</li>
+        <li><div class="check-box"></div>TRK-005: All 8 template functions are pure, return non-empty strings, follow FORGE_STANDARDS.md</li>
+        <li><div class="check-box"></div>TRK-006: All 13 FSM states reachable via run() or approve()</li>
+        <li><div class="check-box"></div>TRK-006: Parallel builder concurrency capped at 3</li>
+        <li><div class="check-box"></div>TRK-006: CI retry max 5 enforced, then gates JDM</li>
+        <li><div class="check-box"></div>TRK-006: All Firestore writes happen before phase execution (write-ahead)</li>
+        <li><div class="check-box"></div>TRK-007: Each phase function returns ForgePhaseResult, no direct inter-phase calls</li>
+        <li><div class="check-box"></div>TRK-008: POST /forge/sprint returns 202 immediately (async kick-off)</li>
+        <li><div class="check-box"></div>TRK-008: GET /forge/status reads from Firestore, not in-memory state</li>
+        <li><div class="check-box"></div>TRK-009: Gate notification appears in ProDashX within 5s of trigger</li>
+        <li><div class="check-box"></div>TRK-009: Approve resumes runner within 5s of POST /forge/approve/:id</li>
+        <li><div class="check-box"></div>TRK-009: 24hr re-notify fires if gate not approved</li>
+        <li><div class="check-box"></div>TRK-010: All phase transitions asserted in Firestore</li>
+        <li><div class="check-box"></div>TRK-010: Notifications created at Gate 1 and Gate 2</li>
+        <li><div class="check-box"></div>TRK-010: Final status is 'complete'</li>
+        <li><div class="check-box"></div>TRK-010: Zero orphaned Firestore docs after cleanup</li>
+        <li><div class="check-box"></div>TRK-010: E2E run completes in under 10 minutes (test mode)</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footer">
+  SPRINT-000 &mdash; FORGE Runner Implementation Plan &bull; Sprint ID: opF4KmVNfxqnoz3Lopxc<br>
+  The Machine Builds Itself &mdash; 2026
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
