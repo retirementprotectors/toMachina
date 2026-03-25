@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MDJ Action Engine — Discovery Document</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header .badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+
+  /* Tabs */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* Content */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-hover);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* Diagram boxes */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  /* Flow steps */
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+  .flow-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .flow-body h4 { color: var(--text); font-size: 0.95rem; margin-bottom: 4px; }
+  .flow-body p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+  /* Code blocks */
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* Pill badges */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill.new { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.stub { background: rgba(245,158,11,0.15); color: var(--orange); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>MDJ Action Engine</h1>
+  <p class="subtitle">Tools × Super Tools × Wires</p>
+  <p class="subtitle" style="font-size: 0.95rem; margin-top: 12px;">The conversational trigger layer for The Machine's capabilities</p>
+  <span class="badge">DISCOVERY STUB</span>
+</div>
+
+<!-- Tabs -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(event, 'vision')">Vision</div>
+    <div class="tab" onclick="switchTab(event, 'systems')">Relationship to Existing Systems</div>
+    <div class="tab" onclick="switchTab(event, 'roadmap')">Build Order</div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- Tab 1: Vision -->
+  <div id="vision" class="tab-panel active">
+    <div class="card">
+      <h2>The Problem We're Solving</h2>
+      <p>The Machine has 82 tools today, growing to 200+. Each tool does one thing well. But connecting them into workflows requires conversations. Right now:</p>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li>Workflows are hardcoded chains (REVIEW_PREP → PULL_DOCUMENTS → BUILD_CASEWORK)</li>
+        <li>Outputs are static (templates, pre-rendered PDFs)</li>
+        <li>User input is clicking buttons, not conversing</li>
+        <li>There's no "registry" of what MDJ can do</li>
+      </ul>
+      <p style="margin-top: 12px;"><strong>MDJ Action Engine fixes this.</strong> It makes conversational workflow triggering the default instead of the exception.</p>
+    </div>
+
+    <div class="card">
+      <h2>Architecture Pattern: Tools × Super Tools × Wires</h2>
+      <p style="margin-bottom: 16px;">Same architecture pattern as ATLAS — three tiers of increasing complexity:</p>
+
+      <h3>Tier 1: MDJ Tools (Atomic)</h3>
+      <p>Single, well-defined actions. No decision-making, no sub-steps. Examples:</p>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li><code>search_client</code> — Find a client by name, ID, or phone</li>
+        <li><code>get_accounts</code> — List all accounts for a client</li>
+        <li><code>send_email</code> — Compose and send email to a client</li>
+        <li><code>check_pipeline</code> — Get status of an opportunity in RAPID_CORE</li>
+        <li><code>get_client_docs</code> — List Google Drive files tagged for a client</li>
+        <li><code>pull_rmd_calcs</code> — Fetch RMD calculations from QUE for given year/age</li>
+      </ul>
+
+      <h3 style="margin-top: 20px;">Tier 2: MDJ Super Tools (Compound)</h3>
+      <p>Orchestrates MDJ Tools with decision gates and output transformation. Examples:</p>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li><code>REVIEW_PREP</code> — search_client → get_accounts → get_client_docs → compile summary</li>
+        <li><code>PULL_DOCUMENTS</code> — get_client_docs → organize by type → validate currency</li>
+        <li><code>BUILD_CASEWORK</code> — get_accounts → get_rmd_calcs → analyze gaps → draft recommendations</li>
+        <li><code>DRAFT_COMMUNICATION</code> — pull review/casework → consult templates → generate first draft</li>
+        <li><code>RMD_ANALYSIS</code> — get_accounts + pull_rmd_calcs → calculate shortfalls → generate report</li>
+        <li><code>COVERAGE_GAP</code> — get_accounts → compare to portfolio model → identify missing products</li>
+      </ul>
+
+      <h3 style="margin-top: 20px;">Tier 3: MDJ Wires (Full Workflows)</h3>
+      <p>Complete business processes. Each wire has defined inputs, gates, outputs, and post-execution delivery. Examples:</p>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li><code>ONBOARD_AGENCY</code> — New agency kicks off. search_client → send_welcome_package → schedule kickoff → create case ticket</li>
+        <li><code>ANNUAL_REVIEW</code> — Review cycle. REVIEW_PREP → BUILD_CASEWORK → DRAFT_COMMUNICATION → email draft + schedule meeting</li>
+        <li><code>AEP_ENROLLMENT</code> — Medicare enrollment window. pull_docs → run_comparison → draft_communication → create opportunity</li>
+        <li><code>NEW_BUSINESS</code> — New client inquiry. qualify → build_casework → send_proposal → assign to sales</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>How It Works Conversationally</h2>
+      <p style="margin-bottom: 12px;"><strong>User says:</strong> "Hey MDJ, run a review prep for the Aswegans"</p>
+      <p style="margin-bottom: 12px;">MDJ Action Engine:</p>
+      <ol style="margin-left: 20px; color: var(--text-muted);">
+        <li>Parses intent: REVIEW_PREP wire, client = Aswegans</li>
+        <li>Validates input exists (searches Firestore, ATLAS registry)</li>
+        <li>Triggers the REVIEW_PREP Super Tool</li>
+        <li>Each MDJ Tool (search_client, get_accounts, etc.) runs in sequence with gates</li>
+        <li>Output is compiled (client summary, account list, document list, recommendations)</li>
+        <li>Returns structured output: JSON or human-readable markdown</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>Outputs = Contextual, Not Static</h2>
+      <p>Current system: "Here's a PDF template you fill in manually."</p>
+      <p style="margin-top: 12px;">MDJ Action Engine: Outputs are aware of context.</p>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li><strong>CaseWork Output:</strong> Generated from BUILD_CASEWORK Super Tool. Not a static template. Contains account data, recommendations, calculations — all real data.</li>
+        <li><strong>Review Letter:</strong> Generated from DRAFT_COMMUNICATION. Pulls actual client name, account values, RMD calcs, product gaps. Not a template.</li>
+        <li><strong>Mineart Presentation:</strong> Generated from a WIRE output. Pulls 5-year performance data, recommendation summary, RMD analysis. Uses actual data.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tab 2: Relationship to Existing Systems -->
+  <div id="systems" class="tab-panel">
+    <div class="card">
+      <h2>The Ecosystem</h2>
+      <p>MDJ Action Engine is the glue. It uses, but does not replace, existing systems:</p>
+
+      <h3>QUE (Medicare Intelligence)</h3>
+      <p>Already has <strong>wires</strong> (wireIncomeNow, wireGrowthMax, wireAssembleB4, etc.). MDJ Action Engine CALLS these wires as Super Tools. MDJ doesn't rebuild quoting logic — it orchestrates QUE quoting.</p>
+
+      <h3 style="margin-top: 16px;">ATLAS (Data Registry)</h3>
+      <p>Already has the registry pattern (sources, tools, wires all registered + introspectable). <strong>MDJ Action Engine adopts this pattern for actions.</strong> MDJ Tools register in a MDJ Action Registry (mirrors ATLAS structure). Introspection API tells you "what can MDJ do?" Same as "what data does ATLAS know about?"</p>
+
+      <h3 style="margin-top: 16px;">Firestore (Primary Database)</h3>
+      <p>MDJ Tools read from Firestore (clients, accounts, opportunities). MDJ Super Tools write to Firestore (case tasks, next steps). Full audit trail in Firestore activity logs.</p>
+
+      <h3 style="margin-top: 16px;">Google Drive (Document Store)</h3>
+      <p>MDJ Tools pull documents from Drive (via tag-based lookup, not folder search). Super Tools organize output as Drive folders. Wires create shareable links.</p>
+
+      <h3 style="margin-top: 16px;">RAPID_CORE + GAS Sheets (Legacy, Read-Only)</h3>
+      <p>MDJ Tools read pipeline status, client master, producer data from Sheets for now. Bridge writes to Sheets in dual-write mode. After migration: MDJ reads Firestore only.</p>
+
+      <h3 style="margin-top: 16px;">NBX (Next Business Experience)</h3>
+      <p>MDJ Action Engine is <strong>NOT</strong> NBX. NBX is client-facing portal. MDJ is internal tool orchestration. NBX may eventually CALL MDJ Wires (like an NBX client triggers "run a review prep for me"), but today they're separate.</p>
+    </div>
+
+    <div class="card">
+      <h2>Data Flow</h2>
+      <div class="diagram">MDJ Action Engine
+  ├─ Parses user intent
+  ├─ Looks up in MDJ Action Registry
+  ├─ Routes to appropriate Super Tool
+  │  ├─ Calls MDJ Tools in sequence
+  │  │  ├─ Tool queries Firestore/Sheets/Drive
+  │  │  ├─ Returns { success, data }
+  │  │  └─ Next tool uses output as input
+  │  ├─ Applies decision gates
+  │  └─ Compiles output
+  └─ Returns structured result
+     ├─ JSON for API consumers
+     ├─ Markdown for chat UI
+     └─ Creates Drive folder + Firestore task record</div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Build Order -->
+  <div id="roadmap" class="tab-panel">
+    <div class="card">
+      <h2>Phase 1: Platform Vision <span class="pill stub">STUB PHASE</span></h2>
+      <p style="margin-bottom: 12px;">Define scope: What CAN MDJ do? Start with 15 wires covering 80% of annual workflow volume.</p>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Inventory Annual Workflows</h4>
+          <p>Vince (sales) + Nikki (service) + Aprille (legacy): "What do you do every year? Every quarter? Every month?"</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>Identify Core Wires (15 MVP)</h4>
+          <p>ANNUAL_REVIEW, AEP_ENROLLMENT, NEW_BUSINESS, RENEWAL_LETTER, RMD_ALERT, COVERAGE_GAP_ANALYSIS, etc.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Design Wire Inputs & Outputs</h4>
+          <p>Each wire: what's required to start? What's the final deliverable? Who sees it?</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-body">
+          <h4>Define Decision Gates</h4>
+          <p>When does a wire pause for human approval? When does it self-correct? When does it escalate?</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Phase 2: Tool Inventory</h2>
+      <p style="margin-bottom: 12px;">Catalog 82 existing tools + identify 20 new ones needed.</p>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Audit Existing Tools</h4>
+          <p>What already exists? (search_client, send_email, get_accounts, pull_rmd_calcs, etc.) What's partially working?</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>Define New Tools</h4>
+          <p>Gaps: send_sms, schedule_meeting, create_proposal, check_compliance_status, pull_performance_data, etc.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Standardize Tool Signatures</h4>
+          <p>Every tool: inputs (JSON schema), outputs ({ success, data, error }), error modes, permissions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Phase 3: Super Tools & Wires</h2>
+      <p style="margin-bottom: 12px;">Build orchestration layer.</p>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-body">
+          <h4>Define Super Tool Specs</h4>
+          <p>REVIEW_PREP, BUILD_CASEWORK, DRAFT_COMMUNICATION, etc. Each: tools used, order, gates, output format.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-body">
+          <h4>Implement Orchestration Engine</h4>
+          <p>Sequence execution, handle failures, apply gates, compile output. TypeScript module in @tomachina/core.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-body">
+          <h4>Wire-Level Integration</h4>
+          <p>ANNUAL_REVIEW wire = REVIEW_PREP → BUILD_CASEWORK → DRAFT_COMMUNICATION → create Firestore task → send email.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Phase 4: MDJ Action Registry</h2>
+      <p style="margin-bottom: 12px;">Make MDJ self-aware.</p>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li>Firestore collection: <code>mdj_registry</code> with tools, super_tools, wires</li>
+        <li>Schema mirrors ATLAS: name, description, inputs, outputs, gates, permissions</li>
+        <li>API endpoint: <code>GET /api/mdj/registry</code> — "what can MDJ do?"</li>
+        <li>Introspection: tools can be queried, wires can be listed, capabilities can be filtered by role</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Phase 5: FORGE Runner Integration</h2>
+      <p style="margin-bottom: 12px;">MDJ Action Engine becomes the execution engine for FORGE. FORGE tickets become wires.</p>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li>FORGE Sprint Ticket: "Build ANNUAL_REVIEW wire"</li>
+        <li>SPC runs ticket using FORGE protocol</li>
+        <li>Output: MDJ Super Tool registered + tested + wired into ANNUAL_REVIEW workflow</li>
+        <li>Result: New capability available to users immediately post-deployment</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Out of Scope (Today)</h2>
+      <ul style="margin-left: 20px; color: var(--text-muted);">
+        <li>NBX integration (future phase: NBX clients trigger MDJ wires)</li>
+        <li>Multi-step approval workflows (future: gates can fork to human review)</li>
+        <li>Real-time notifications (future: webhooks on wire completion)</li>
+        <li>AI-assisted recommendations (future: Claude integration for "what should we do next?")</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>MDJ Action Engine Discovery Document</p>
+  <p style="margin-top: 8px; font-size: 0.75rem;">Status: STUB (seats reserved in FORGE flow)</p>
+  <p style="margin-top: 8px; font-size: 0.75rem;">Related: ATLAS (data registry), QUE (Medicare intelligence), FORGE (sprint execution)</p>
+</div>
+
+<script>
+function switchTab(event, tabId) {
+  // Hide all panels
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  // Show selected panel
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
