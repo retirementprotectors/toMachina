@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import type { Client } from '@tomachina/core'
 import { dex } from '@tomachina/core'
@@ -8,6 +8,8 @@ import { getAge, getInitials, hashColor } from '../lib/formatters'
 import { AI3Report } from './AI3Report'
 import { getAuth } from 'firebase/auth'
 import { useToast } from '@tomachina/ui'
+import { addDoc, collection, getDocs, query, orderBy } from 'firebase/firestore'
+import { getDb } from '@tomachina/db'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -67,6 +69,9 @@ export function ClientHeader({ client, clientId: _clientId, onCommsAction }: Cli
   const [ai3Data, setAi3Data] = useState<AI3Data | null>(null)
   const ai3Ref = useRef<HTMLDivElement>(null)
   const { showToast } = useToast()
+
+  // New Account modal state
+  const [showNewAccount, setShowNewAccount] = useState(false)
 
   // Generate Kit state
   const [showKitDialog, setShowKitDialog] = useState(false)
@@ -297,8 +302,28 @@ export function ClientHeader({ client, clientId: _clientId, onCommsAction }: Cli
             )}
             AI3
           </button>
+
+          {/* + New Account Button */}
+          <button
+            onClick={() => setShowNewAccount(true)}
+            className="inline-flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition-all hover:bg-emerald-500"
+            title="Add a new account for this client"
+          >
+            <span className="material-icons-outlined text-[18px]">add</span>
+            New Account
+          </button>
         </div>
       </div>
+
+      {/* New Account Modal */}
+      {showNewAccount && (
+        <NewAccountModal
+          clientId={String(client.client_id || _clientId)}
+          clientName={fullName}
+          onClose={() => setShowNewAccount(false)}
+          showToast={showToast}
+        />
+      )}
 
       {/* Row 2: Meta chips */}
       <div className="mt-4 flex flex-wrap gap-2">
@@ -548,6 +573,134 @@ export function ClientHeader({ client, clientId: _clientId, onCommsAction }: Cli
           <AI3Report ref={ai3Ref} data={ai3Data} />
         </div>
       )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// New Account Modal
+// ---------------------------------------------------------------------------
+
+interface NewAccountModalProps {
+  clientId: string
+  clientName: string
+  onClose: () => void
+  showToast: (msg: string, type: string) => void
+}
+
+interface CarrierOption { id: string; name: string; product_types: string[] }
+
+function NewAccountModal({ clientId, clientName, onClose, showToast }: NewAccountModalProps) {
+  const [carriers, setCarriers] = useState<CarrierOption[]>([])
+  const [productType, setProductType] = useState('')
+  const [carrierName, setCarrierName] = useState('')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [status, setStatus] = useState('Active')
+  const [effectiveDate, setEffectiveDate] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    getDocs(query(collection(getDb(), 'carriers'), orderBy('name')))
+      .then(snap => setCarriers(snap.docs.map(d => ({ id: d.id, ...d.data() }) as CarrierOption)))
+      .catch(() => {})
+  }, [])
+
+  const allProductTypes = useMemo(() => {
+    const types = new Set<string>()
+    carriers.forEach(c => (c.product_types || []).forEach(t => types.add(t)))
+    return Array.from(types).sort()
+  }, [carriers])
+
+  const filteredCarriers = useMemo(() =>
+    productType ? carriers.filter(c => (c.product_types || []).includes(productType)) : carriers,
+    [carriers, productType]
+  )
+
+  const handleSubmit = useCallback(async () => {
+    if (!productType || !carrierName) { setError('Product type and carrier are required'); return }
+    setSubmitting(true)
+    setError('')
+    try {
+      await addDoc(collection(getDb(), 'clients', clientId, 'accounts'), {
+        client_id: clientId,
+        carrier_name: carrierName,
+        product_type: productType,
+        account_number: accountNumber.trim() || null,
+        status,
+        effective_date: effectiveDate || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      showToast('Account added', 'success')
+      onClose()
+    } catch {
+      setError('Failed to save — please try again')
+      setSubmitting(false)
+    }
+  }, [clientId, productType, carrierName, accountNumber, status, effectiveDate, showToast, onClose])
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">New Account — {clientName}</h3>
+          <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+            <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
+          </button>
+        </div>
+        <div className="space-y-4 px-5 py-4">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Product Type *</label>
+            <select value={productType} onChange={e => { setProductType(e.target.value); setCarrierName('') }}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+              <option value="">Select...</option>
+              {allProductTypes.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Carrier *</label>
+            <select value={carrierName} onChange={e => setCarrierName(e.target.value)} disabled={!productType}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none disabled:opacity-50">
+              <option value="">Select...</option>
+              {filteredCarriers.map(c => <option key={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Status</label>
+              <select value={status} onChange={e => setStatus(e.target.value)}
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                {['Active', 'Pending', 'Inactive'].map(s => <option key={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Account #</label>
+              <input type="text" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Optional"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--text-muted)]">Effective Date</label>
+            <input type="date" value={effectiveDate} onChange={e => setEffectiveDate(e.target.value)}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+          </div>
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg bg-red-500/10 px-3 py-2">
+              <span className="material-icons-outlined text-red-400" style={{ fontSize: '14px' }}>error</span>
+              <span className="text-xs text-red-400">{error}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 border-t border-[var(--border-subtle)] px-5 py-4">
+          <button onClick={onClose} className="rounded-lg px-4 py-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)]">Cancel</button>
+          <button onClick={handleSubmit} disabled={submitting || !productType || !carrierName}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50">
+            {submitting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : null}
+            {submitting ? 'Saving...' : 'Add Account'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
