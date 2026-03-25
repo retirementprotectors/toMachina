@@ -196,8 +196,8 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Center</h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">Document efficiency — forms, kits, and compliance</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Efficiency Xelerator</h1>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">Automated form kits, compliance tracking, and document workflows</p>
         <div className="mt-8 flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
         </div>
@@ -208,8 +208,8 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Center</h1>
-        <p className="mt-1 text-sm text-[var(--text-secondary)]">Document efficiency — forms, kits, and compliance</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Efficiency Xelerator</h1>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">Automated form kits, compliance tracking, and document workflows</p>
       </div>
 
       {/* Stats */}

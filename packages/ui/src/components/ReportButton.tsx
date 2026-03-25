@@ -318,6 +318,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
       }
 
       const itemId = result.data?.id || result.data?.item_id
+      let attachmentFailed = false
       if (itemId && screenshot) {
         const base64 = screenshot.split(',')[1]
         const attachResult = await fetchValidated(`/api/tracker/${itemId}/attachments`, {
@@ -330,6 +331,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
         })
         if (!attachResult.success) {
           setSubmitError(`Ticket created (${itemId}) but screenshot failed: ${attachResult.error || 'Unknown error'}`)
+          attachmentFailed = true
         }
       }
       if (itemId && recordingChunks.length > 0) {
@@ -349,18 +351,21 @@ export function ReportButton({ portal }: ReportButtonProps) {
         })
         if (!recResult.success) {
           setSubmitError(`Ticket created (${itemId}) but recording failed: ${recResult.error || 'Unknown error'}`)
+          attachmentFailed = true
         }
       }
 
-      setSubmitted(true)
-      setTimeout(() => {
-        setOpen(false)
-        setScreenshot(null)
-        setTitle('')
-        setDescription('')
-        setSubmitted(false)
-        setSubmitError('')
-      }, 1500)
+      if (!attachmentFailed) {
+        setSubmitted(true)
+        setTimeout(() => {
+          setOpen(false)
+          setScreenshot(null)
+          setTitle('')
+          setDescription('')
+          setSubmitted(false)
+          setSubmitError('')
+        }, 1500)
+      }
     } catch (err) {
       setSubmitError(`Network error: ${err instanceof Error ? err.message : 'Could not reach server'}`)
     }
