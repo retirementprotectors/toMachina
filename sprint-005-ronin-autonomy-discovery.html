@@ -229,98 +229,92 @@
     <p><strong>The fix:</strong> A new <code>seeding_discovery</code> phase that runs immediately after sprint creation. RONIN reads the Discovery Doc, extracts the Sprint Plan ticket table using Haiku (cheap), and creates the tickets in Firestore. From that point forward, every phase fetches tickets from Firestore — no human ticket input required.</p>
   </div>
 
-  <h3>10-Stage Lifecycle</h3>
+  <h3>The 9-Stage FORGE Lifecycle — Finalized</h3>
+  <p style="color:var(--green);font-weight:600;margin-bottom:16px">ONE human gate. Everything else fully autonomous.</p>
 
   <div class="step">
-    <div class="step-num">0</div>
+    <div class="step-num">000</div>
     <div class="step-body">
-      <strong>JDM Hands Discovery Doc URL</strong><br>
-      <span class="lc">POST /forge/sprint { name, discovery_doc: "https://...", testMode: false }</span>
+      <strong>Discovery (Write)</strong> <span class="tag tag-ga">JDM</span><br>
+      <span class="lc">JDM + Shinobi write the Discovery Doc. POST /forge/sprint { name, discovery_doc: "https://..." }. This is the contract RONIN executes against.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">1</div>
     <div class="step-body">
-      <strong>#LetsSeedTheDiscovery</strong> <span class="tag tag-haiku">Haiku</span><br>
-      <span class="lc">RONIN reads Discovery Doc URL from state.artifacts. Haiku extracts Sprint Plan ticket table → JSON array. createTrackerItems() in Firestore. Also extracts cwd if present.</span>
+      <strong>Discovery (Seed)</strong> — <code>#LetsSeedTheDiscovery</code> <span class="tag tag-sonnet">Sonnet</span><br>
+      <span class="lc">RONIN reads Discovery Doc. Extracts Sprint Plan ticket table. createTrackerItems() in Firestore. Extracts cwd. Advances tickets: in_sprint → seeded.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">2</div>
     <div class="step-body">
-      <strong>#LetsAuditTheDiscovery</strong> <span class="tag tag-haiku">Haiku</span><br>
-      <span class="lc">Verifies Discovery Doc ↔ tickets align. Checks for gaps, scope creep, missing acceptance criteria.</span>
+      <strong>Discovery (Audit)</strong> — <code>#LetsAuditTheDiscovery</code> <span class="tag tag-haiku">Haiku</span><br>
+      <span class="lc">Discovery Doc ↔ seeded tickets aligned? Gaps, scope creep, missing acceptance criteria → AUDIT PASSED or AUDIT FAILED. Advances: seeded → disc_audited.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">3</div>
     <div class="step-body">
-      <strong>#LetsPlanIt</strong> <span class="tag tag-opus">Opus</span><br>
-      <span class="lc">Reads Discovery Doc + tickets. Writes implementation plan with execution order, parallel tracks, file-level specs, acceptance criteria per ticket.</span>
+      <strong>Plan (Write)</strong> — <code>#LetsPlanIt</code> <span class="tag tag-opus">Opus</span><br>
+      <span class="lc">Reads Discovery Doc + tickets. Writes PLAN.html: execution order, parallel tracks, file-level specs, acceptance criteria per ticket. Advances: disc_audited → planned.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">4</div>
     <div class="step-body">
-      <strong>#LetsAuditThePlan</strong> <span class="tag tag-haiku">Haiku</span><br>
-      <span class="lc">Plan ↔ Tickets alignment check. Every ticket has a plan entry. Every plan entry maps to a ticket. Dependencies ordered correctly.</span>
+      <strong>Plan (Audit)</strong> — <code>#LetsAuditThePlan</code> <span class="tag tag-haiku">Haiku</span><br>
+      <span class="lc">Plan ↔ Tickets. Every ticket has a plan entry. Every plan entry maps to a ticket. Dependencies ordered. → AUDIT PASSED or AUDIT FAILED. Advances: planned → plan_audited.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">5</div>
     <div class="step-body">
-      <strong>Gate 1 — JDM Approves Plan</strong> <span class="tag tag-ga">Human Gate</span><br>
-      <span class="lc">RONIN pauses at awaiting_plan_approval. Slack notification sent. JDM calls POST /forge/approve/:id to proceed.</span>
+      <strong>Build (Code)</strong> — <code>#LetsBuildIt</code> <span class="tag tag-sonnet">Sonnet</span> <em>(parallel, up to 3)</em><br>
+      <span class="lc">One Sonnet sub-agent per ticket. cwd from state.artifacts. Ticket title + description + acceptance criteria = build spec. Updates ticket status → built on completion.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">6</div>
     <div class="step-body">
-      <strong>#LetsBuildIt</strong> <span class="tag tag-sonnet">Sonnet</span> <span class="lc">(parallel, up to 3)</span><br>
-      <span class="lc">One Sonnet sub-agent per ticket. cwd = state.artifacts['cwd']. Each builder gets: ticket title + description + acceptance criteria from plan. Max $10 each.</span>
+      <strong>Build (Audit)</strong> — <code>#LetsAuditTheBuild</code> <span class="tag tag-haiku">Haiku</span><br>
+      <span class="lc">Build ↔ Plan. Per-ticket PASS/FAIL. tsc passes, no scope creep, acceptance criteria met. → AUDIT PASSED or AUDIT FAILED. Advances: built → audited.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">7</div>
     <div class="step-body">
-      <strong>#LetsAuditTheBuild</strong> <span class="tag tag-sonnet">Sonnet</span><br>
-      <span class="lc">Build ↔ Plan alignment. Per-ticket PASS/FAIL. Checks: tsc passes, no scope creep, acceptance criteria met.</span>
+      <strong>Confirm (Deploy)</strong> — <code>#SendIt</code> <span class="tag tag-sonnet">Sonnet</span><br>
+      <span class="lc">git checkout -b → commit → push → gh pr create --auto --squash. CI loop. PR URL saved to sprint. Advances: audited → confirming.</span>
     </div>
   </div>
-  <div class="step">
-    <div class="step-num">8</div>
+  <div class="step" style="border:1px solid var(--green);border-radius:8px;background:rgba(34,197,94,0.05)">
+    <div class="step-num" style="background:var(--green);color:#000">8</div>
     <div class="step-body">
-      <strong>Gate 2 — JDM Approves Build</strong> <span class="tag tag-ga">Human Gate</span><br>
-      <span class="lc">RONIN pauses at awaiting_build_approval. Slack notification sent. JDM calls POST /forge/approve/:id to proceed.</span>
+      <strong>Confirm (UX Audit)</strong> — <code>#LetsAuditTheUX</code> <span class="tag tag-ga">⭐ THE ONLY REAL GATE</span><br>
+      <span class="lc">JDM or team member uses the Audit Walkthrough UI. Ticket-by-ticket UX verification with pass/fail + screenshots. Systematized so any team member can execute. When complete → confirmed.</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">9</div>
     <div class="step-body">
-      <strong>#SendIt</strong> <span class="tag tag-sonnet">Sonnet</span><br>
-      <span class="lc">git checkout -b → git add → git commit → git push → gh pr create --auto --squash. PR URL saved to sprint.</span>
-    </div>
-  </div>
-  <div class="step">
-    <div class="step-num">10</div>
-    <div class="step-body">
-      <strong>#LandedIt!!!</strong> <span class="tag tag-sonnet">Sonnet</span><br>
-      <span class="lc">Verifies PR merged, CI green, deploy complete. Marks sprint complete in Firestore. All tickets → confirmed.</span>
+      <strong>Complete</strong> — <code>#LandedIt!!!</code><br>
+      <span class="lc">PR merged, CI green, deploy confirmed, UX approved. All tickets → confirmed. Sprint status → complete. Slack announcement sent.</span>
     </div>
   </div>
 
   <hr class="divider">
-  <h3>Model Routing Summary</h3>
+  <h3>Model Routing — Every Stage Explicit</h3>
   <table>
-    <tr><th>Stage</th><th>Model</th><th>Why</th><th>Max Budget</th></tr>
-    <tr><td>Seeding Discovery</td><td><span class="tag tag-haiku">Haiku</span></td><td>Simple extraction task — JSON from HTML table</td><td>$0.50</td></tr>
-    <tr><td>Audit Discovery</td><td><span class="tag tag-haiku">Haiku</span></td><td>Checklist comparison — no creativity needed</td><td>$1</td></tr>
-    <tr><td>Plan</td><td><span class="tag tag-opus">Opus</span></td><td>Complex multi-ticket architecture reasoning</td><td>$15</td></tr>
-    <tr><td>Audit Plan</td><td><span class="tag tag-haiku">Haiku</span></td><td>Alignment check — pattern matching</td><td>$1</td></tr>
-    <tr><td>Build (per ticket)</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Code writing — needs competence, not creativity</td><td>$10</td></tr>
-    <tr><td>Audit Build</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Needs to read code + plan, verify logic</td><td>$5</td></tr>
-    <tr><td>SendIt</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Git + gh CLI operations</td><td>$3</td></tr>
-    <tr><td>LandedIt</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Verification + status updates</td><td>$2</td></tr>
+    <tr><th>Stage</th><th>Name</th><th>Model</th><th>Why</th><th>Budget</th></tr>
+    <tr><td>1</td><td>Discovery Seed</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Reads HTML, extracts structured data, needs reliability</td><td>$2</td></tr>
+    <tr><td>2</td><td>Discovery Audit</td><td><span class="tag tag-haiku">Haiku</span></td><td>Checklist comparison — fast, cheap, accurate enough</td><td>$1</td></tr>
+    <tr><td>3</td><td>Plan Write</td><td><span class="tag tag-opus">Opus</span></td><td>Complex architecture — needs full reasoning capability</td><td>$15</td></tr>
+    <tr><td>4</td><td>Plan Audit</td><td><span class="tag tag-haiku">Haiku</span></td><td>Alignment check — pattern matching, no creativity</td><td>$1</td></tr>
+    <tr><td>5</td><td>Build (per ticket)</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Code writing — competence over creativity</td><td>$10</td></tr>
+    <tr><td>6</td><td>Build Audit</td><td><span class="tag tag-haiku">Haiku</span></td><td>Pass/fail per ticket — structured verification</td><td>$2</td></tr>
+    <tr><td>7</td><td>Deploy</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Git + gh CLI — reliable execution</td><td>$3</td></tr>
+    <tr><td>8</td><td>UX Audit</td><td><span class="tag tag-ga">Human</span></td><td>Visual judgment — only humans can do this right</td><td>—</td></tr>
   </table>
 </div>
 
@@ -813,11 +807,11 @@ Report: TICKET COMPLETE or TICKET FAILED: [reason]</code></pre>
      TAB 8 — SPRINT PLAN
 ═══════════════════════════════════════════════════════════════ -->
 <div class="panel" id="p7">
-  <h2>Sprint Plan — 12 Tickets</h2>
+  <h2>Sprint Plan — 15 Tickets</h2>
   <p class="lc">GA builds these directly. Exact file paths, exact changes, exact acceptance criteria. Zero ambiguity.</p>
 
   <div class="card accent" style="margin-bottom:24px">
-    <p><strong>Build order:</strong> TRK-S05-001 first (types.ts change unblocks everything). Then TRK-S05-002 + TRK-S05-003 in parallel (phases.ts + templates.ts are independent). Then TRK-S05-004 + TRK-S05-005 (runner.ts + phases.ts consolidation). Then TRK-S05-006 + TRK-S05-007 (routes.ts + server.ts). Then TRK-S05-008 (builder prompt update). Then TRK-S05-009 (cwd wiring). Then TRK-S05-010 (docs). Then TRK-S05-011 (verify). Then TRK-S05-012 (deploy).</p>
+    <p><strong>Build order:</strong> TRK-S05-001 first (types.ts unblocks everything). Then 002+003+015 in parallel (phases.ts, templates.ts, model routing). Then 004+005 (runner.ts + phases consolidation). Then 006+007 (routes.ts + server.ts). Then 008+009 (builder prompt + cwd). Then 013+014 in parallel (FORGE board UX Audit stage). Then 010 (docs). Then 011 (verify all). Then 012 (deploy MDJ1).</p>
   </div>
 
   <!-- TRK-S05-001 -->
@@ -1147,6 +1141,85 @@ Report: TICKET COMPLETE or TICKET FAILED: [reason]</code></pre>
     </table>
   </div>
 
+  <!-- TRK-S05-013 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-013</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Add ux_audited status + #LetsAuditTheUX to FORGE board</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>~/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code></td></tr>
+      <tr><th>Change</th><td>
+        Add <code>ux_audited</code> to STATUS_CONFIG (green, label: 'UX Audited'). Add to STATUSES array. Add to SPRINT_PHASES between confirming and confirmed. Add to STATUS_RANK (rank 9, shift confirmed to 10). Add PHASE_CONFIG entry: label 'UX Audit', action 'ux_audit', actionLabel '#LetsAuditTheUX'. Update phase detection minRank thresholds accordingly.
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>Sprint at confirming phase shows <code>#LetsAuditTheUX</code> button (green highlight — THE ONLY GATE)</li>
+          <li>Sprint at ux_audited phase shows <code>#LandedIt!!!</code></li>
+          <li>Kanban workflow view shows UX Audit column between Confirm and Complete</li>
+          <li>tsc passes</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-014 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-014</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Wire #LetsAuditTheUX to Audit Walkthrough interface</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">Files</th><td>
+        <code>packages/ui/src/modules/Forge.tsx</code> (button handler)<br>
+        <code>apps/prodash/app/(portal)/modules/forge/audit/page.tsx</code> (accept sprint param)
+      </td></tr>
+      <tr><th>Change</th><td>
+        In Forge.tsx button handler: when phase === 'confirming', navigate to <code>/modules/forge/audit?sprint={sp.id}&type=ux</code>. In ForgeAudit.tsx: add ux audit mode that loads sprint tickets, shows each with UX checklist (does it render, does it work, screenshots). On completion: bulk update tickets confirming → ux_audited, sprint advances to complete.
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>Clicking #LetsAuditTheUX opens Audit Walkthrough pre-loaded with sprint tickets</li>
+          <li>Each ticket shows UX checklist: renders correctly / functions correctly / screenshot captured</li>
+          <li>Completing audit advances sprint to confirmed/complete</li>
+          <li>Any team member (not just JDM) can execute this without technical knowledge</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-015 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-015</span>
+      <span class="tag tag-fix">FIX</span>
+      <strong>Update runner.ts model routing — Haiku for all audits</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/phases.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        Update model in each phase function to match the finalized routing:<br>
+        • runSeedDiscovery → Sonnet ($2 budget)<br>
+        • runAuditDiscovery → <strong>Haiku</strong> ($1 budget) — was Haiku ✓<br>
+        • runPlan → Opus ($15 budget) — was Opus ✓<br>
+        • runAuditPlan → <strong>Haiku</strong> ($1 budget) — was Haiku ✓<br>
+        • runBuild per ticket → Sonnet ($10 budget) — was Sonnet ✓<br>
+        • runAuditBuild → <strong>Haiku</strong> ($2 budget) — was Sonnet ✗ FIX THIS<br>
+        • runSendIt → Sonnet ($3 budget) — was Sonnet ✓<br>
+        • runConfirm (LandedIt) → Sonnet ($2 budget)
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>runAuditBuild uses model: 'haiku' (currently incorrectly set to 'sonnet')</li>
+          <li>All audit phases use Haiku — verified by reading phases.ts model params</li>
+          <li>tsc passes, npm run build passes</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
   <hr class="divider">
   <h3>Summary Table</h3>
   <table>
@@ -1163,6 +1236,9 @@ Report: TICKET COMPLETE or TICKET FAILED: [reason]</code></pre>
     <tr><td><span class="trk">S05-010</span></td><td><code>FORGE_STANDARDS.md</code></td><td><span class="tag tag-fix">FIX</span></td><td>—</td></tr>
     <tr><td><span class="trk">S05-011</span></td><td>All</td><td><span class="tag tag-fix">FIX</span></td><td>S05-001 through S05-009</td></tr>
     <tr><td><span class="trk">S05-012</span></td><td>MDJ1 deploy</td><td><span class="tag tag-fix">FIX</span></td><td>S05-011</td></tr>
+    <tr><td><span class="trk">S05-013</span></td><td><code>Forge.tsx</code></td><td><span class="tag tag-new">NEW</span></td><td>—</td></tr>
+    <tr><td><span class="trk">S05-014</span></td><td><code>Forge.tsx + ForgeAudit</code></td><td><span class="tag tag-new">NEW</span></td><td>S05-013</td></tr>
+    <tr><td><span class="trk">S05-015</span></td><td><code>phases.ts</code></td><td><span class="tag tag-fix">FIX</span></td><td>—</td></tr>
   </table>
 </div>
 

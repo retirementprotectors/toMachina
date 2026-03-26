@@ -391,9 +391,9 @@ function ForgeInner({ portal }: ForgeProps) {
   }, [items])
 
   // Sprint lifecycle phases + phase detection
-  const SPRINT_PHASES = ['in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed'] as const
+  const SPRINT_PHASES = ['unseeded', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed'] as const
   const PHASE_CONFIG: Record<string, { label: string; color: string; action: string; actionLabel: string }> = {
-    in_sprint:     { label: 'Seed',            color: 'rgb(245,158,11)',        action: 'seed',            actionLabel: '#LetsSeedTheDiscovery' },
+    unseeded:      { label: 'Seed',            color: 'rgb(245,158,11)',        action: 'seed',            actionLabel: '#LetsSeedTheDiscovery' },
     seeded:        { label: 'Discovery',       color: 'rgb(251,146,60)',        action: 'audit_discovery', actionLabel: '#LetsAuditTheDiscovery' },
     disc_audited:  { label: 'Plan',            color: 'rgb(234,88,12)',         action: 'prompt',          actionLabel: '#LetsPlanIt' },
     planned:       { label: 'Plan Audit',      color: 'var(--portal, #4a7ab5)', action: 'audit_plan',      actionLabel: '#LetsAuditThePlan' },
@@ -417,7 +417,9 @@ function ForgeInner({ portal }: ForgeProps) {
 
       // Phase = lowest status rank among active items (bottleneck), or stored phase for empty sprints
       const activeItems = sprintItems.filter(i => !['deferred', 'wont_fix'].includes(i.status))
-      let phase = 'in_sprint'
+      // Default: unseeded (shows #LetsSeedTheDiscovery)
+      // in_sprint is a RAIDEN reactive status — never used in FORGE sprint pipeline
+      let phase = 'unseeded'
       if (sp.status === 'complete') {
         phase = 'confirmed'
       } else if (activeItems.length > 0) {
@@ -429,9 +431,9 @@ function ForgeInner({ portal }: ForgeProps) {
         else if (minRank >= 5) phase = 'planned'
         else if (minRank >= 4) phase = 'disc_audited'
         else if (minRank >= 3) phase = 'seeded'
-        else phase = 'in_sprint'
-      } else if (sp.phase) {
-        // No active items — use stored phase from sprint doc
+        else phase = 'unseeded'
+      } else if (sp.phase && sp.phase !== 'in_sprint') {
+        // No active items — use stored phase (but never in_sprint)
         phase = sp.phase
       }
 
@@ -1854,7 +1856,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation()
-                                if (phase === 'in_sprint') generatePrompt(sp.id, 'seed')
+                                if (phase === 'unseeded') generatePrompt(sp.id, 'seed')
                                 else if (phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
                                 else if (phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
                                 else if (phase === 'planned') generatePhaseAudit(sp.id, 'plan')
@@ -1886,7 +1888,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             >
                               <Icon name={
                                 (phase === 'confirmed' && reopeningSprintId === sp.id) ? 'sync' :
-                                phase === 'in_sprint' ? 'fact_check' :
+                                phase === 'unseeded' ? 'fact_check' :
                                 phase === 'disc_audited' ? 'terminal' :
                                 phase === 'planned' ? 'fact_check' :
                                 phase === 'plan_audited' ? 'terminal' :
