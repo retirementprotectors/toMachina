@@ -1586,7 +1586,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               {phaseConfig && (
                 <button
                   onClick={async () => {
-                    if (sp.phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
+                    if (sp.phase === 'in_sprint') generatePrompt(sp.id, 'seed')
+                    else if (sp.phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
                     else if (sp.phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
                     else if (sp.phase === 'planned') generatePhaseAudit(sp.id, 'plan')
                     else if (sp.phase === 'plan_audited') generatePrompt(sp.id, 'building')
@@ -1853,7 +1854,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation()
-                                if (phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
+                                if (phase === 'in_sprint') generatePrompt(sp.id, 'seed')
+                                else if (phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
                                 else if (phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
                                 else if (phase === 'planned') generatePhaseAudit(sp.id, 'plan')
                                 else if (phase === 'plan_audited') generatePrompt(sp.id, 'building')
