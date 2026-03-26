@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 004: RAIDEN — The Reactive Guardian</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --muted: #888;
+    --red: #ef4444;
+    --red-dim: #7f1d1d;
+    --red-glow: rgba(239,68,68,0.15);
+    --gold: #d4a44c;
+    --gold-dim: #78350f;
+    --blue: #3b82f6;
+    --blue-dim: #1e3a5f;
+    --green: #22c55e;
+    --green-dim: #14532d;
+    --orange: #f97316;
+    --purple: #a855f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a0505 0%, #0f0f0f 40%, #0a1020 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(239,68,68,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(59,130,246,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .header-inner { position: relative; max-width: 1100px; margin: 0 auto; }
+  .sprint-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--red-dim);
+    border: 1px solid var(--red);
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  .sprint-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .header h1 {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .header h1 span.raiden { color: var(--red); }
+  .header .tagline {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .header .tagline strong { color: var(--text); }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .meta-value { font-size: 13px; font-weight: 600; color: var(--text); }
+  .meta-value.red { color: var(--red); }
+  .meta-value.gold { color: var(--gold); }
+  .meta-value.blue { color: var(--blue); }
+
+  /* TABS */
+  .tabs-container { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .tabs { display: flex; max-width: 1100px; margin: 0 auto; padding: 0 48px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+
+  /* CONTENT */
+  .content { max-width: 1100px; margin: 0 auto; padding: 40px 48px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SECTION BLOCKS */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card.red-border { border-left: 3px solid var(--red); }
+  .card.gold-border { border-left: 3px solid var(--gold); }
+  .card.blue-border { border-left: 3px solid var(--blue); }
+  .card.green-border { border-left: 3px solid var(--green); }
+  .card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .card p { color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .card p + p { margin-top: 8px; }
+
+  /* DOJO TABLE */
+  .dojo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .dojo-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .dojo-card.active-agent { border-color: var(--red); background: rgba(239,68,68,0.05); }
+  .dojo-card .agent-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .dojo-card .agent-role { font-size: 12px; color: var(--muted); }
+  .dojo-card .agent-icon { font-size: 28px; margin-bottom: 8px; }
+  .dojo-card.active-agent .agent-name { color: var(--red); }
+
+  /* QUOTE */
+  .quote {
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-left: 3px solid var(--red);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 24px 0;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* FLOW DIAGRAM */
+  .flow {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 0;
+    position: relative;
+  }
+  .flow-step + .flow-step { margin-top: 0; }
+  .flow-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 32px;
+  }
+  .flow-node {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .flow-node.red { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+  .flow-node.blue { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue); }
+  .flow-node.green { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+  .flow-node.gold { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+  .flow-line { width: 2px; flex: 1; background: var(--border); min-height: 20px; }
+  .flow-body { padding: 4px 0 24px; flex: 1; }
+  .flow-body .flow-title { font-weight: 600; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+  .flow-body .flow-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .flow-step:last-child .flow-body { padding-bottom: 0; }
+
+  /* DECISION TREE */
+  .tree {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--muted);
+  }
+  .tree .trigger { color: var(--red); font-weight: 700; }
+  .tree .question { color: var(--gold); }
+  .tree .outcome-train { color: var(--green); font-weight: 600; }
+  .tree .outcome-fix { color: var(--blue); font-weight: 600; }
+  .tree .outcome-route { color: var(--orange); font-weight: 600; }
+  .tree .outcome-queue { color: var(--purple); font-weight: 600; }
+  .tree .indent1 { padding-left: 24px; }
+  .tree .indent2 { padding-left: 48px; }
+  .tree .indent3 { padding-left: 72px; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-gold { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .badge-orange { background: rgba(249,115,22,0.15); color: var(--orange); }
+  .badge-purple { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .badge-muted { background: rgba(136,136,136,0.15); color: var(--muted); }
+
+  /* CODE */
+  .code-block {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #ccc;
+    margin: 12px 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .code-block .comment { color: #555; }
+  .code-block .keyword { color: var(--blue); }
+  .code-block .string { color: var(--green); }
+  .code-block .func { color: var(--gold); }
+  .code-block .var { color: var(--red); }
+
+  /* MESSAGE TEMPLATES */
+  .slack-msg {
+    background: #1a1d21;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: -apple-system, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .slack-msg .sender { font-weight: 700; color: var(--red); margin-bottom: 4px; font-size: 14px; }
+  .slack-msg .timestamp { font-size: 11px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+  .slack-msg .body { color: #ddd; }
+  .slack-msg .body .highlight { color: var(--blue); }
+  .slack-msg .body .good { color: var(--green); }
+  .slack-msg .body .warn { color: var(--gold); }
+  .slack-msg .body .bad { color: var(--red); }
+  .slack-msg .sig { color: var(--muted); font-style: italic; margin-top: 4px; }
+
+  /* TICKET CARDS */
+  .ticket {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .ticket:hover { border-color: #3a3a3a; }
+  .ticket-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+  .ticket-id {
+    font-family: 'SF Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .ticket-title { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+  .ticket-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .ticket-ac { color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .ticket-ac strong { color: var(--text); }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 12px; color: var(--muted); }
+
+  /* FILE TREE */
+  .file-tree {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 2;
+    color: #ccc;
+  }
+  .file-tree .dir { color: var(--blue); font-weight: 600; }
+  .file-tree .new { color: var(--green); }
+  .file-tree .existing { color: var(--muted); }
+  /* PATTERN CARDS */
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .pattern-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .pattern-card .pattern-icon { font-size: 24px; margin-bottom: 8px; }
+  .pattern-card .pattern-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .pattern-card .pattern-freq { font-size: 12px; margin-bottom: 10px; }
+  .pattern-card .pattern-signals { list-style: none; }
+  .pattern-card .pattern-signals li { font-size: 12px; color: var(--muted); padding: 3px 0; padding-left: 12px; position: relative; }
+  .pattern-card .pattern-signals li::before { content: '→'; position: absolute; left: 0; color: var(--border); }
+
+  /* WATCH TIMELINE */
+  .watch-cycle {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .cycle-step {
+    flex: 1;
+    text-align: center;
+    padding: 0 8px;
+    position: relative;
+  }
+  .cycle-step::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--border);
+    font-size: 16px;
+  }
+  .cycle-step:last-child::after { display: none; }
+  .cycle-step .cs-num { font-size: 22px; font-weight: 800; color: var(--red); line-height: 1; }
+  .cycle-step .cs-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .header { padding: 24px 20px 20px; }
+    .header h1 { font-size: 28px; }
+    .content { padding: 24px 20px; }
+    .tabs { padding: 0 20px; }
+    .watch-cycle { flex-direction: column; gap: 12px; }
+    .cycle-step::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="sprint-badge">
+      <span class="dot"></span>
+      Sprint 004 — Discovery Document
+    </div>
+    <h1>⚡ <span class="raiden">RAIDEN</span> — The Reactive Guardian</h1>
+    <p class="tagline"><strong>RONIN builds the future.</strong> RAIDEN protects the present. Named after the guardian of Earth — always watching, strikes when something breaks, never sleeps.</p>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-label">Sprint</span>
+        <span class="meta-value blue">004</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Agent</span>
+        <span class="meta-value red">RAIDEN</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Watch Channel</span>
+        <span class="meta-value">#prodashx-urgent-fixes-and-bugs</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Poll Interval</span>
+        <span class="meta-value red">15 minutes</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Initial Backlog</span>
+        <span class="meta-value gold">8 open issues</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Date</span>
+        <span class="meta-value">March 26, 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tabs-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="vision">Vision</div>
+    <div class="tab" data-tab="watch">The Watch</div>
+    <div class="tab" data-tab="triage">Triage Logic</div>
+    <div class="tab" data-tab="backlog">Initial Backlog</div>
+    <div class="tab" data-tab="patterns">Bug Patterns</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="comms">Comms Templates</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+<div class="content">
+
+  <!-- ====== TAB: VISION ====== -->
+  <div class="panel active" id="panel-vision">
+
+    <div class="section">
+      <div class="section-title">The Dojo — March 2026</div>
+      <div class="dojo-grid">
+        <div class="dojo-card">
+          <div class="agent-icon">⚔️</div>
+          <div class="agent-name">Sensei</div>
+          <div class="agent-role">JDM — Vision + Decisions</div>
+        </div>
+        <div class="dojo-card">
+          <div class="agent-icon">🥷</div>
+          <div class="agent-name">Shinobi</div>
+          <div class="agent-role">The OG Ninja GA (Legend)</div>
+        </div>
+        <div class="dojo-card">
+          <div class="agent-icon">🔨</div>
+          <div class="agent-name">RONIN</div>
+          <div class="agent-role">Proactive Autonomous Builder</div>
+        </div>
+        <div class="dojo-card">
+          <div class="agent-icon">🤖</div>
+          <div class="agent-name">VOLTRON</div>
+          <div class="agent-role">The AI Bot — The Magic</div>
+        </div>
+        <div class="dojo-card active-agent">
+          <div class="agent-icon">⚡</div>
+          <div class="agent-name">RAIDEN</div>
+          <div class="agent-role">Reactive Autonomous Guardian</div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Why RAIDEN Exists</div>
+      <div class="quote">
+        "RONIN ships the future. RAIDEN guards the present. Together, nothing breaks and nothing stops moving."
+      </div>
+      <div class="card red-border">
+        <h3>The Problem Before RAIDEN</h3>
+        <p>Every bug that hit production on March 25 consumed JDM's personal attention. Phone routing down. Auth sessions dropping. ACF scans timing out. MDJ tools returning empty. Eight issues — all identified, none auto-resolved. Hours of JDM time burned on triage, context-switching, Slack threads.</p>
+        <p>The team stops and waits. Every minute a bug sits open is a minute a client isn't served, a call isn't made, a case doesn't close.</p>
+      </div>
+      <div class="card green-border">
+        <h3>The World With RAIDEN</h3>
+        <p>A bug appears in #prodashx-urgent-fixes-and-bugs at 2:14am. By 2:29am, RAIDEN has read it, triaged it, found the root cause (one missing setInterval call), committed the fix to a new branch, opened a PR, and posted back to the channel: "Fixed. PR #412. — @RAIDEN."</p>
+        <p>JDM wakes up at 7am to a Slack DM: "2 quick fixes shipped overnight. 1 issue routed to RONIN sprint. Nothing pending." The team never stopped. No one waited. The Machine protected itself.</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">RAIDEN's Identity</div>
+      <div class="card blue-border">
+        <h3>The Reactive Counterpart to RONIN</h3>
+        <p>RONIN is a masterless samurai — takes a contract, builds the future, ships code, moves on. RAIDEN is the guardian — takes a post, watches the perimeter, responds to threats. Different mandate. Same standard of execution.</p>
+        <p>RAIDEN never goes offline. Every 15 minutes, it reads the watch channel and the FORGE board. Every bug that lands in scope gets a response in under 15 minutes. The team stops waiting for JDM to triage — RAIDEN handles it or routes it.</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">What Changes</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div class="card">
+          <h3 style="color:var(--muted);">Before RAIDEN</h3>
+          <p>Bug surfaces in Slack → JDM sees it → JDM triages → JDM delegates → developer fixes → JDM verifies → closes. Hours to days. JDM is the bottleneck at every step.</p>
+        </div>
+        <div class="card red-border">
+          <h3>After RAIDEN</h3>
+          <p>Bug surfaces in Slack → RAIDEN sees it within 15 min → RAIDEN triages in seconds → RAIDEN fixes or routes → RAIDEN posts result. JDM is notified only for P0 issues or complex routes to RONIN.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ====== TAB: THE WATCH ====== -->
+  <div class="panel" id="panel-watch">
+
+    <div class="section">
+      <div class="section-title">The 15-Minute Cycle</div>
+      <div class="watch-cycle">
+        <div class="cycle-step">
+          <div class="cs-num">0:00</div>
+          <div class="cs-label">Cycle Start</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num">~0:02</div>
+          <div class="cs-label">Read Slack</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num">~0:04</div>
+          <div class="cs-label">Read FORGE Board</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num">~0:05</div>
+          <div class="cs-label">Triage All Items</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num">~0:08</div>
+          <div class="cs-label">Execute + Notify</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num">~0:10</div>
+          <div class="cs-label">Log Run</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>The Two Inputs</h3>
+        <p><strong>#prodashx-urgent-fixes-and-bugs (C0ANMBVMSTV)</strong> — Created March 25, 2026. Members: JDM, Vince Vazquez, Angelique Bonilla. This is the team's direct line to RAIDEN. Any message here is a potential work item. RAIDEN reads all new messages since its last check, deduplicates, and evaluates each.</p>
+        <p style="margin-top:12px;"><strong>FORGE Board — GET /api/tracker</strong> — Filtered for <code style="color:var(--red);">type=bug|broken</code>, <code style="color:var(--red);">status=open</code>, <code style="color:var(--red);">assignee=null</code>. New tickets created by the team that haven't been claimed. RAIDEN reads these on every cycle and either handles or assigns.</p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Historical Bug Pattern Analysis</div>
+      <div class="card red-border" style="margin-bottom:16px;">
+        <h3>Where Time Gets Burned</h3>
+        <p>Analysis of #prodash-hl-fixes identified 5 recurring categories accounting for nearly all reactive work. RAIDEN is trained on all of them and gets faster with each fix.</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--red);">1</div>
+          <div class="stat-label">Phone / COMMS</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--gold);">2</div>
+          <div class="stat-label">Auth Failures</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--blue);">3</div>
+          <div class="stat-label">Data Seeding</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--green);">4</div>
+          <div class="stat-label">Nav / UI</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color:var(--purple);">5</div>
+          <div class="stat-label">Scheduler / Cron</div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Why the Watch Matters</div>
+      <div class="card gold-border">
+        <h3>The Cost of Unguarded Time</h3>
+        <p>On March 25, 8 open issues were identified in a single session. None auto-resolved. The ACF scan timeout blocked the entire team from finding documents. The COMMS webhook fix was complete but unverified — meaning the team couldn't trust the phone system. RAIDEN turns that session from "identified 8 issues" to "shipped 6 fixes and routed 2."</p>
+        <p style="margin-top:8px;"><strong>The channel is open 24/7. RAIDEN is on watch 24/7.</strong> The team posts at 10pm and RAIDEN responds before midnight.</p>
+      </div>
+    </div>
+
+  </div>
+  <!-- ====== TAB: TRIAGE LOGIC ====== -->
+  <div class="panel" id="panel-triage">
+
+    <div class="section">
+      <div class="section-title">Decision Tree</div>
+      <div class="tree">
+<span class="trigger">New item arrives</span> (Slack message or FORGE ticket)
+<span class="indent1">↓</span>
+<span class="indent1 question">Does this already exist in the platform?</span>
+<span class="indent2 comment">→ Query knowledge_entries (Sprint 003) or CLAUDE.md fallback</span>
+<span class="indent2 comment">→ Signals: "how do I", "where is", "does ProDash have", "show me how"</span>
+<span class="indent2">→ YES: <span class="outcome-train">TRAIN — find docs, @mention person, post answer, close</span></span>
+<span class="indent2">→ NO: continue ↓</span>
+
+<span class="indent1 question">Is this a quick fix? (effort ≤ 30 min)</span>
+<span class="indent2 comment">→ Signals: single file change, known pattern, no data migration</span>
+<span class="indent2 comment">→ Examples: missing setInterval, type export gap, wrong URL in config</span>
+<span class="indent2">→ YES: <span class="outcome-fix">FIX — branch → commit → PR → notify channel → close</span></span>
+<span class="indent2">→ NO: continue ↓</span>
+
+<span class="indent1 question">Is this complex? (multi-file, architectural, risky)</span>
+<span class="indent2 comment">→ Signals: touches auth/Firebase, requires schema changes, cross-service</span>
+<span class="indent2 comment">→ Examples: ACF batch processing, MDJ search route audit, COMMS E2E</span>
+<span class="indent2">→ YES: <span class="outcome-route">ROUTE — create TRK ticket → RONIN queue → DM JDM</span></span>
+<span class="indent2">→ NO: continue ↓</span>
+
+<span class="indent1 question">Is this a feature request or enhancement?</span>
+<span class="indent2 comment">→ Signals: "would be nice", "can we add", "enhancement", "new feature"</span>
+<span class="indent2">→ YES: <span class="outcome-queue">QUEUE — tag as enhancement → next RONIN sprint → notify requester</span></span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">The Four Outcomes</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div class="card green-border">
+          <h3 style="color:var(--green);">TRAIN</h3>
+          <p>Feature already exists. User needs education, not code. RAIDEN queries knowledge_entries for matching docs, formats a clear response, @mentions the requester, and posts to channel. Closes immediately. No dev work needed.</p>
+        </div>
+        <div class="card blue-border">
+          <h3 style="color:var(--blue);">FIX</h3>
+          <p>Real bug, scope ≤ 30 minutes. RAIDEN invokes RONIN's claudeInvoke() pattern to execute the fix autonomously. Creates branch, commits, opens PR. Posts to channel with PR link and root cause summary. JDM is NOT notified unless explicitly P0.</p>
+        </div>
+        <div class="card red-border">
+          <h3 style="color:var(--orange);">ROUTE</h3>
+          <p>Real bug, scope > 30 min or structurally complex. RAIDEN creates a TRK item in the FORGE board, routes it to RONIN's sprint queue, and DMs JDM with the issue summary, complexity estimate, and TRK number.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--purple);">
+          <h3 style="color:var(--purple);">QUEUE</h3>
+          <p>Feature request, not a bug. No urgency. RAIDEN tags the FORGE ticket as <code>type=enhancement</code>, adds to the backlog, and notifies the requester that it's been captured for the next sprint cycle.</p>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">P0 Escalation Override</div>
+      <div class="card red-border">
+        <h3>P0 conditions — always DM JDM immediately</h3>
+        <p>Regardless of triage outcome, the following conditions trigger an immediate DM to JDM (U09BBHTN8F2):</p>
+        <ul style="list-style:none; margin-top:12px;">
+          <li style="padding:6px 0; border-bottom:1px solid var(--border); color:var(--muted);">⚡ Auth system failure — users can't log in</li>
+          <li style="padding:6px 0; border-bottom:1px solid var(--border); color:var(--muted);">📞 Phone system down — +1 888 620 8587 not routing</li>
+          <li style="padding:6px 0; border-bottom:1px solid var(--border); color:var(--muted);">🔥 Any production data loss or corruption detected</li>
+          <li style="padding:6px 0; border-bottom:1px solid var(--border); color:var(--muted);">❌ CI failures after RAIDEN's own auto-fix PR</li>
+          <li style="padding:6px 0; color:var(--muted);">🚨 Any bug RAIDEN can't classify (ambiguous triage)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Quick Fix Threshold — How RAIDEN Decides</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Signal</th><th>Weight</th><th>Decision</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Single file change identified</td><td><span class="badge badge-green">+FIX</span></td><td>Strong indicator it's quick</td></tr>
+            <tr><td>Known pattern (setInterval, type export, wrong URL)</td><td><span class="badge badge-green">+FIX</span></td><td>RAIDEN has seen this before</td></tr>
+            <tr><td>No data migration required</td><td><span class="badge badge-green">+FIX</span></td><td>No risk of data impact</td></tr>
+            <tr><td>Touches auth or Firebase</td><td><span class="badge badge-red">+ROUTE</span></td><td>Too much blast radius</td></tr>
+            <tr><td>Requires schema change</td><td><span class="badge badge-red">+ROUTE</span></td><td>Multi-step, risky</td></tr>
+            <tr><td>Cross-service (API + frontend + MDJ)</td><td><span class="badge badge-red">+ROUTE</span></td><td>Coordination complexity</td></tr>
+            <tr><td>Requires E2E verification with real phone/comms</td><td><span class="badge badge-red">+ROUTE</span></td><td>Can't auto-verify</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <!-- ====== TAB: INITIAL BACKLOG ====== -->
+  <div class="panel" id="panel-backlog">
+
+    <div class="section">
+      <div class="section-title">RAIDEN's First Contracts — 8 Open Issues from March 25</div>
+      <div class="card red-border" style="margin-bottom:24px;">
+        <h3>These are RAIDEN's Day-One Work Items</h3>
+        <p>Shinobi identified all 8 during the March 25 session but didn't ship them — too many concurrent workstreams. RAIDEN's first act after launch is clearing this backlog. Six are auto-fixable. Two route to RONIN.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Issue</th><th>Type</th><th>Priority</th><th>Effort</th><th>RAIDEN Action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-muted">1</span></td>
+              <td><strong>ACF scan timeout on full-client runs</strong><br><span style="color:var(--muted);font-size:12px;">/api/document-index/scan-all times out before indexing all clients</span></td>
+              <td><span class="badge badge-red">bug</span></td>
+              <td><span class="badge badge-red">HIGH</span></td>
+              <td>3–4 hrs</td>
+              <td><span class="badge badge-orange">ROUTE → RONIN</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-muted">2</span></td>
+              <td><strong>COMMS live E2E test</strong><br><span style="color:var(--muted);font-size:12px;">Webhooks + UI bridge fixed. +1 888 620 8587 unverified end-to-end</span></td>
+              <td><span class="badge badge-gold">verification</span></td>
+              <td><span class="badge badge-red">HIGH</span></td>
+              <td>P0 check</td>
+              <td><span class="badge badge-red">P0 DM → JDM</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-muted">3</span></td>
+              <td><strong>MDJ search returns empty</strong><br><span style="color:var(--muted);font-size:12px;">Tool path definitions don't match actual API routes</span></td>
+              <td><span class="badge badge-red">bug</span></td>
+              <td><span class="badge badge-gold">MEDIUM</span></td>
+              <td>45–60 min</td>
+              <td><span class="badge badge-orange">ROUTE → RONIN</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-muted">4</span></td>
+              <td><strong>MDJ panel needs FAB conversion</strong><br><span style="color:var(--muted);font-size:12px;">MDJ only accessible from sidebar — needs floating action button</span></td>
+              <td><span class="badge badge-blue">enhancement</span></td>
+              <td><span class="badge badge-gold">MEDIUM</span></td>
+              <td>2–3 hrs</td>
+              <td><span class="badge badge-purple">QUEUE → next sprint</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-muted">5</span></td>
+              <td><strong>"Unknown" clients in ProDash</strong><br><span style="color:var(--muted);font-size:12px;">Imported records missing display names show as "Unknown"</span></td>
+              <td><span class="badge badge-red">bug</span></td>
+              <td><span class="badge badge-gold">MEDIUM</span></td>
+              <td>30–45 min</td>
+              <td><span class="badge badge-orange">ROUTE → RONIN</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-muted">6</span></td>
+              <td><strong>checkStaleGates never scheduled</strong><br><span style="color:var(--muted);font-size:12px;">Function exists in gates.ts, server.ts never calls setInterval for it</span></td>
+              <td><span class="badge badge-red">bug</span></td>
+              <td><span class="badge badge-muted">LOW</span></td>
+              <td>&lt; 15 min</td>
+              <td><span class="badge badge-blue">AUTO-FIX</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-muted">7</span></td>
+              <td><strong>ForgeRunState missing exported fields</strong><br><span style="color:var(--muted);font-size:12px;">11 fields exist in runner but not in exported type definition</span></td>
+              <td><span class="badge badge-red">bug</span></td>
+              <td><span class="badge badge-muted">LOW</span></td>
+              <td>&lt; 20 min</td>
+              <td><span class="badge badge-blue">AUTO-FIX</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-muted">8</span></td>
+              <td><strong>MDJ preferences UI gaps</strong><br><span style="color:var(--muted);font-size:12px;">auto_approve_tools + retention fields have no UI controls in AdminPanel</span></td>
+              <td><span class="badge badge-blue">enhancement</span></td>
+              <td><span class="badge badge-muted">LOW</span></td>
+              <td>1–2 hrs</td>
+              <td><span class="badge badge-purple">QUEUE → next sprint</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Day-One Execution Plan</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+        <div class="card green-border">
+          <h3 style="color:var(--green);">Auto-Fix (2 issues)</h3>
+          <p style="font-size:12px; color:var(--muted);">#6 — checkStaleGates: one setInterval line in server.ts<br><br>#7 — ForgeRunState types: add 11 fields to exported interface</p>
+          <p style="font-size:12px; color:var(--green); margin-top:12px;">Ships within first 15-min cycle.</p>
+        </div>
+        <div class="card red-border">
+          <h3 style="color:var(--orange);">Route → RONIN (3 issues)</h3>
+          <p style="font-size:12px; color:var(--muted);">#1 — ACF scan: batch processing needed<br><br>#3 — MDJ search: route audit needed<br><br>#5 — Unknown clients: data quality investigation</p>
+          <p style="font-size:12px; color:var(--orange); margin-top:12px;">TRK tickets created. JDM DM'd.</p>
+        </div>
+        <div class="card" style="border-left:3px solid var(--purple);">
+          <h3 style="color:var(--purple);">Queue (2 issues) + P0 (1)</h3>
+          <p style="font-size:12px; color:var(--muted);">#4 — MDJ FAB: enhancement queue<br><br>#8 — MDJ prefs UI: enhancement queue<br><br>#2 — COMMS E2E: P0 DM to JDM immediately</p>
+          <p style="font-size:12px; color:var(--purple); margin-top:12px;">Zero dev backlog created.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ====== TAB: BUG PATTERNS ====== -->
+  <div class="panel" id="panel-patterns">
+
+    <div class="section">
+      <div class="section-title">The 5 Recurring Bug Categories</div>
+      <p style="color:var(--muted); margin-bottom:24px; font-size:13px;">From historical analysis of #prodash-hl-fixes. RAIDEN recognizes these patterns instantly and applies the correct fix approach without re-investigation.</p>
+      <div class="pattern-grid">
+
+        <div class="pattern-card" style="border-color:var(--red);">
+          <div class="pattern-icon">📞</div>
+          <div class="pattern-title">Phone / COMMS</div>
+          <div class="pattern-freq"><span class="badge badge-red">Most Volatile</span> <span class="badge badge-red">P0 Urgency</span></div>
+          <ul class="pattern-signals">
+            <li>Twilio webhook URL mismatch after redeploy</li>
+            <li>OIDC identity token expiry on Cloud Run</li>
+            <li>Call routing tables out of sync</li>
+            <li>Softphone UI disconnects from WebRTC bridge</li>
+            <li>Inbound call falls to voicemail unexpectedly</li>
+          </ul>
+          <p style="font-size:12px; color:var(--muted); margin-top:12px;">RAIDEN triage: if +18886208587 is down → P0 DM to JDM immediately. Webhook URL mismatch → check Cloud Run URL vs Twilio config → update → verify.</p>
+        </div>
+        <div class="pattern-card" style="border-color:var(--gold);">
+          <div class="pattern-icon">🔐</div>
+          <div class="pattern-title">Auth Failures</div>
+          <div class="pattern-freq"><span class="badge badge-gold">High Blast Radius</span> <span class="badge badge-gold">All Users</span></div>
+          <ul class="pattern-signals">
+            <li>Firebase session persistence drops</li>
+            <li>ID token refresh loop on re-auth</li>
+            <li>Entitlement check 403 on valid users</li>
+            <li>Service account key expiry (MDJ1)</li>
+            <li>CORS rejection on portal API proxy</li>
+          </ul>
+          <p style="font-size:12px; color:var(--muted); margin-top:12px;">RAIDEN triage: Auth bugs always ROUTE — blast radius too high to auto-fix. Create TRK, DM JDM. Exception: SA key rotation on MDJ1 is a known quick fix.</p>
+        </div>
+        <div class="pattern-card" style="border-color:var(--blue);">
+          <div class="pattern-icon">🌱</div>
+          <div class="pattern-title">Data Seeding Gaps</div>
+          <div class="pattern-freq"><span class="badge badge-blue">Code Exists, Data Missing</span></div>
+          <ul class="pattern-signals">
+            <li>New Firestore collection has no seed data</li>
+            <li>Security rules missing for new collection</li>
+            <li>Feature works locally, 403 in prod</li>
+            <li>Schema added to code but not seeded</li>
+            <li>FORGE tracker missing initial TRK records</li>
+          </ul>
+          <p style="font-size:12px; color:var(--muted); margin-top:12px;">Quick-fixable. Check firestore.rules for missing collection. Add rules → deploy → verify.</p>
+        </div>
+        <div class="pattern-card" style="border-color:var(--green);">
+          <div class="pattern-icon">🧭</div>
+          <div class="pattern-title">Navigation / UI Regressions</div>
+          <div class="pattern-freq"><span class="badge badge-green">User-Visible</span> <span class="badge badge-green">Usually Quick</span></div>
+          <ul class="pattern-signals">
+            <li>Row click handler broken after component refactor</li>
+            <li>Popup blocked by browser security policies</li>
+            <li>Route mismatch after Next.js app dir change</li>
+            <li>Modal renders off-screen on mobile</li>
+            <li>Tab navigation jumps to wrong section</li>
+          </ul>
+          <p style="font-size:12px; color:var(--muted); margin-top:12px;">Strong auto-fix candidate. Single component, no data risk. Check onClick removal, Next.js route group changes, CSS z-index conflicts.</p>
+        </div>
+        <div class="pattern-card" style="border-color:var(--purple);">
+          <div class="pattern-icon">⏰</div>
+          <div class="pattern-title">Scheduler / Cron Failures</div>
+          <div class="pattern-freq"><span class="badge badge-purple">Silent Until It Isn't</span></div>
+          <ul class="pattern-signals">
+            <li>Cloud Scheduler hitting wrong URL after redeploy</li>
+            <li>OIDC token not attached to scheduled requests</li>
+            <li>setInterval never registered in server.ts</li>
+            <li>Cron job succeeds but handler throws silently</li>
+            <li>Time zone offset causing off-schedule triggers</li>
+          </ul>
+          <p style="font-size:12px; color:var(--muted); margin-top:12px;">URL mismatches and missing setInterval calls are quick-fixes (checkStaleGates is a live example). OIDC auth mismatches route to RONIN.</p>
+        </div>
+
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Pattern Learning Over Time</div>
+      <div class="card blue-border">
+        <h3>RAIDEN Gets Smarter</h3>
+        <p>Every fix is logged to mdj_raiden_runs with pattern category, root cause, and fix applied. When Sprint 003 ships, RAIDEN's history feeds knowledge_entries — making TRAIN outcomes sharper and pattern recognition faster. After 30 days: most recurring bugs (Twilio URL, setInterval, firestore.rules) resolved in under 5 minutes.</p>
+      </div>
+    </div>
+
+  </div>
+  <!-- ====== TAB: ARCHITECTURE ====== -->
+  <div class="panel" id="panel-architecture">
+
+    <div class="section">
+      <div class="section-title">Where RAIDEN Lives</div>
+      <div class="file-tree">
+<span class="dir">~/mdj-agent/</span>                         <span style="color:var(--border);"># MDJ1 agent server</span>
+├── src/
+│   ├── <span class="existing">agent.ts</span>                       <span style="color:var(--border);"># existing MDJ agent core</span>
+│   ├── <span class="existing">tools/</span>                         <span style="color:var(--border);"># existing 82 tools</span>
+│   ├── <span class="existing">specialists/</span>                   <span style="color:var(--border);"># existing 6 specialists</span>
+│   └── <span class="new">raiden/</span>                        <span style="color:var(--green);"># NEW — RAIDEN service</span>
+│       ├── <span class="new">index.ts</span>                   <span style="color:var(--green);"># Express routes at /raiden/*</span>
+│       ├── <span class="new">scheduler.ts</span>               <span style="color:var(--green);"># 15-min polling loop</span>
+│       ├── <span class="new">slack-poller.ts</span>            <span style="color:var(--green);"># reads C0ANMBVMSTV</span>
+│       ├── <span class="new">forge-poller.ts</span>            <span style="color:var(--green);"># reads /api/tracker (bugs)</span>
+│       ├── <span class="new">triage-engine.ts</span>           <span style="color:var(--green);"># 4-outcome classifier</span>
+│       ├── <span class="new">auto-fixer.ts</span>              <span style="color:var(--green);"># executes quick fixes</span>
+│       ├── <span class="new">ronin-router.ts</span>            <span style="color:var(--green);"># creates TRK tickets</span>
+│       ├── <span class="new">trainer.ts</span>                 <span style="color:var(--green);"># knowledge_entries query</span>
+│       ├── <span class="new">notifier.ts</span>                <span style="color:var(--green);"># Slack message formatter</span>
+│       └── <span class="new">logger.ts</span>                  <span style="color:var(--green);"># mdj_raiden_runs writes</span>
+├── <span class="existing">server.ts</span>                          <span style="color:var(--border);"># existing — import raiden router</span>
+└── <span class="existing">package.json</span>                       <span style="color:var(--border);"># shared deps (no new install)</span>
+
+<span class="dir">/etc/systemd/system/</span>
+└── <span class="new">raiden.service</span>                     <span style="color:var(--green);"># runs alongside mdj-agent.service</span>
+
+<span class="dir">/var/log/</span>
+└── <span class="new">raiden.log</span>                         <span style="color:var(--green);"># structured JSON logs</span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Shared Infrastructure (No Duplication)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div class="card green-border">
+          <h3>Shared with MDJ Agent</h3>
+          <p>Firebase Admin SDK, Slack bot token, FORGE board access (/api/tracker), Anthropic SDK (claudeInvoke() pattern from RONIN), Express app (RAIDEN mounts as sub-router).</p>
+        </div>
+        <div class="card red-border">
+          <h3>RAIDEN Owns Exclusively</h3>
+          <p>mdj_raiden_runs Firestore collection, 15-min polling interval (independent setInterval), triage decision tree, auto-fixer execution context.</p>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Firestore: mdj_raiden_runs</div>
+      <div class="code-block"><span class="comment">// Collection: mdj_raiden_runs</span>
+<span class="comment">// Document per 15-min cycle</span>
+{
+  <span class="string">"run_id"</span>: <span class="string">"raiden_20260326_021500"</span>,
+  <span class="string">"started_at"</span>: Timestamp,
+  <span class="string">"completed_at"</span>: Timestamp,
+  <span class="string">"items_checked"</span>: 3,
+  <span class="string">"triage_outcomes"</span>: {
+    <span class="string">"train"</span>: 0,
+    <span class="string">"fix"</span>: 2,
+    <span class="string">"route"</span>: 1,
+    <span class="string">"queue"</span>: 0
+  },
+  <span class="string">"fixes_applied"</span>: [
+    { <span class="string">"issue"</span>: <span class="string">"checkStaleGates never scheduled"</span>, <span class="string">"pr"</span>: 412, <span class="string">"branch"</span>: <span class="string">"fix/stale-gates-interval"</span> }
+  ],
+  <span class="string">"routes_created"</span>: [
+    { <span class="string">"issue"</span>: <span class="string">"ACF scan timeout"</span>, <span class="string">"trk"</span>: <span class="string">"TRK-0089"</span>, <span class="string">"reason"</span>: <span class="string">"batch processing required"</span> }
+  ],
+  <span class="string">"jdm_notified"</span>: <span class="keyword">true</span>,
+  <span class="string">"channel_posted"</span>: <span class="keyword">true</span>
+}</div>
+    </div>
+    <div class="section">
+      <div class="section-title">Notification Flow</div>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node red">1</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">Issue Detected</div>
+            <div class="flow-desc">Slack poller or FORGE poller surfaces a new item. RAIDEN deduplicates against previous run's item IDs.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node red">2</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">Triage Decision</div>
+            <div class="flow-desc">Triage engine classifies in &lt;2 seconds: TRAIN / FIX / ROUTE / QUEUE. P0 check runs in parallel.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node blue">3A</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">If FIX: Execute autonomously</div>
+            <div class="flow-desc">claudeInvoke() writes fix → git branch → commit → PR. If CI passes, RAIDEN posts to channel. If CI fails, RAIDEN DMs JDM.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node gold">3B</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">If ROUTE/P0: Notify JDM</div>
+            <div class="flow-desc">DM to U09BBHTN8F2 with: issue, complexity, TRK number, and recommended sprint slot. No action items for JDM unless business decision needed.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node green">4</div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">Log to Firestore + Post Summary</div>
+            <div class="flow-desc">Every cycle writes to mdj_raiden_runs. If any actions taken, posts cycle summary to #prodashx-urgent-fixes-and-bugs. Silent cycles produce no Slack noise.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ====== TAB: COMMS TEMPLATES ====== -->
+  <div class="panel" id="panel-comms">
+
+    <div class="section">
+      <div class="section-title">Fix Applied — Channel Post</div>
+      <div class="slack-msg">
+        <div class="sender">⚡ RAIDEN <span class="timestamp">Today at 2:29 AM</span></div>
+        <div class="body">
+          <span class="good">✓ Fixed:</span> <strong>checkStaleGates never scheduled</strong><br><br>
+          <span style="color:var(--muted);">Root cause:</span> <code style="color:#aaa;">server.ts</code> never registered the interval for <code style="color:#aaa;">checkStaleGates()</code> in <code style="color:#aaa;">gates.ts</code>. One line missing.<br><br>
+          <span style="color:var(--muted);">Fix:</span> Added <code style="color:#aaa;">setInterval(checkStaleGates, 60_000)</code> to server startup sequence.<br><br>
+          <span class="highlight">PR #412 → feat/forge: wire checkStaleGates interval</span><br>
+          CI running. Will auto-merge on pass.<br><br>
+          <span class="sig">— @RAIDEN</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Routed to RONIN — Channel Post</div>
+      <div class="slack-msg">
+        <div class="sender">⚡ RAIDEN <span class="timestamp">Today at 2:31 AM</span></div>
+        <div class="body">
+          <span class="warn">⟳ Routed to RONIN:</span> <strong>ACF scan timeout on full-client runs</strong><br><br>
+          <span style="color:var(--muted);">Why this needs RONIN:</span> Requires batch processing implementation in <code style="color:#aaa;">/api/document-index/scan-all</code> — multi-step change, potential Cloud Run timeout config, needs integration testing. Estimated 3–4 hours.<br><br>
+          Sprint ticket created: <span class="highlight">TRK-0089</span> — queued for next RONIN sprint.<br><br>
+          <span class="sig">— @RAIDEN</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Training Response — Channel Post</div>
+      <div class="slack-msg">
+        <div class="sender">⚡ RAIDEN <span class="timestamp">Today at 10:03 AM</span></div>
+        <div class="body">
+          <span style="color:var(--blue);">@Vince Vazquez</span> — This is already in ProDash!<br><br>
+          RMD Center is in the left nav under <strong>Clients → RMD Center</strong>. You can calculate required minimum distributions for any client from there.<br><br>
+          Relevant docs: <span class="highlight">knowledge/rmd-center-guide.md</span><br><br>
+          <span class="sig">— @RAIDEN</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">P0 Alert — JDM Direct Message</div>
+      <div class="slack-msg">
+        <div class="sender">⚡ RAIDEN <span class="timestamp">Today at 3:47 AM</span></div>
+        <div class="body">
+          <span class="bad">🚨 P0 ALERT — Phone system status unverified</span><br><br>
+          +1 888 620 8587 COMMS webhooks and UI bridge fixes were shipped in Sprint 003, but no confirmed E2E test has run. The line may or may not be routing correctly.<br><br>
+          <strong>Recommended action:</strong> Call +1 888 620 8587 from an external number and verify routing.<br><br>
+          This is not auto-fixable — requires live call verification. No code changes needed if routing is working.<br><br>
+          I've tagged this as <span class="highlight">TRK-0090 (verification, P0)</span> in FORGE.<br><br>
+          <span class="sig">— @RAIDEN</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Overnight Summary — Channel Post (if actions taken)</div>
+      <div class="slack-msg">
+        <div class="sender">⚡ RAIDEN <span class="timestamp">Today at 7:00 AM</span></div>
+        <div class="body">
+          <strong>Overnight summary (12am–7am)</strong><br><br>
+          ✓ <span class="good">2 quick fixes shipped</span> → PRs #412, #413 (both merged)<br>
+          ⟳ <span class="warn">1 issue routed to RONIN</span> → TRK-0089 (ACF batch processing)<br>
+          🚨 <span class="bad">1 P0 flagged</span> → TRK-0090 (COMMS verification) — DM sent to JDM<br>
+          ○ 0 training responses, 0 enhancements queued<br><br>
+          Nothing pending from your team. Good morning.<br><br>
+          <span class="sig">— @RAIDEN</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ====== TAB: SPRINT PLAN ====== -->
+  <div class="panel" id="panel-sprint">
+
+    <div class="section">
+      <div class="section-title">Sprint 004 — 12 Tickets</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:32px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--text);">12</div><div style="font-size:12px;color:var(--muted);">Total Tickets</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--blue);">3</div><div style="font-size:12px;color:var(--muted);">Infrastructure</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--green);">8</div><div style="font-size:12px;color:var(--muted);">Features</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--gold);">1</div><div style="font-size:12px;color:var(--muted);">Test / Deploy</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Phase 1 — Foundation (Tickets 001–002)</div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-001</span>
+          <span class="ticket-title">RAIDEN service scaffold in ~/mdj-agent/src/raiden/</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">infrastructure</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Express sub-router mounted at <code>/raiden/*</code> in server.ts. Firebase Admin connection shared (no new init). <code>mdj_raiden_runs</code> Firestore collection created with schema. TypeScript strict mode. GET <code>/raiden/status</code> returns <code>&#123; running: true, lastRun: timestamp &#125;</code>.
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-002</span>
+          <span class="ticket-title">Slack channel poller (15-min interval)</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Reads #prodashx-urgent-fixes-and-bugs (C0ANMBVMSTV) for all new messages since last check timestamp. Deduplicates against previous run's message IDs. Returns structured <code>SlackItem[]</code> with: message_ts, user, text, channel, thread_ts. Handles empty channel gracefully (no noise).
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Phase 2 — Inputs + Triage (Tickets 003–004)</div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-003</span>
+          <span class="ticket-title">FORGE board poller (new bug/broken tickets)</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> GET <code>/api/tracker</code> filtered for <code>type=bug|broken</code>, <code>assignee=null</code>, <code>status=open</code>. Returns only items created since last run (uses <code>created_at</code> comparison). Deduplicates against items already processed. Returns structured <code>ForgeItem[]</code> with: trk_id, title, description, type, priority.
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-004</span>
+          <span class="ticket-title">Triage engine — classify and route</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Accepts <code>SlackItem | ForgeItem</code>, returns <code>&#123; outcome: 'TRAIN'|'FIX'|'ROUTE'|'QUEUE', reasoning: string, p0: boolean &#125;</code>. Four-outcome decision tree implemented. Quick fix threshold logic (signals-based, not time-estimate). Queries <code>knowledge_entries</code> for TRAIN check with CLAUDE.md fallback. P0 detection runs independently. Unit tests: all 4 outcomes covered.
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Phase 3 — Execution (Tickets 005–007)</div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-005</span>
+          <span class="ticket-title">Auto-fixer — executes quick fixes autonomously</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Uses RONIN's <code>claudeInvoke()</code> pattern to execute code fixes. Creates git branch from main, commits fix, opens PR with standardized title. Posts PR link to channel via notifier. Handles CI failure by DMing JDM (not retrying). Verified against two real fixes: (1) checkStaleGates setInterval, (2) ForgeRunState type exports.
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-006</span>
+          <span class="ticket-title">RONIN router — creates sprint tickets for complex bugs</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> POSTs to <code>/api/tracker</code> to create TRK item with: title, description, type=bug, status=open, source=raiden, complexity_reason. Returns TRK ID. Sends DM to JDM (U09BBHTN8F2) with: issue summary, why it's complex, TRK number, recommended sprint. Posts brief note to channel.
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-007</span>
+          <span class="ticket-title">Training responder — finds docs for "already exists"</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Queries <code>knowledge_entries</code> Firestore collection with semantic search for matching docs. Falls back to CLAUDE.md pattern matching if knowledge_entries empty (pre-Sprint-003 fallback). Formats response with: feature location, usage instructions, doc link if available. Posts to channel with @mention of original requester.
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Phase 4 — Backlog + Polish (Tickets 008–010)</div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-008</span>
+          <span class="ticket-title">Clear the initial backlog (8 open issues from March 25)</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> RAIDEN processes all 8 backlog items via its triage engine. Expected outcomes: #1 ACF → ROUTE TRK; #2 COMMS → P0 DM JDM; #3 MDJ search → ROUTE TRK; #4 MDJ FAB → QUEUE; #5 Unknown clients → ROUTE TRK; #6 checkStaleGates → AUTO-FIX; #7 ForgeRunState → AUTO-FIX; #8 MDJ prefs → QUEUE. All 8 actioned. Zero items left unaddressed.
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-009</span>
+          <span class="ticket-title">Slack notification formatter</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-green">feat</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Consistent message format for all 4 outcomes (as defined in Comms Templates tab). @mention handling for TRAIN responses. "— @RAIDEN" signature on all posts. JDM DM format matches P0/ROUTE templates. Overnight summary post (7am) if any actions taken in last cycle window. Silent if no actions.
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-010</span>
+          <span class="ticket-title">mdj_raiden_runs Firestore collection + logging</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">infrastructure</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Every 15-min cycle writes a structured document (schema as defined in Architecture tab). Items checked, triage outcomes map, fixes array, routes array, JDM notified flag, channel posted flag. Queryable by date range. GET <code>/raiden/history?limit=10</code> returns last N run documents.
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Phase 5 — Deploy (Tickets 011–012)</div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-011</span>
+          <span class="ticket-title">Systemd service for RAIDEN on MDJ_SERVER</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">infrastructure</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> <code>raiden.service</code> systemd unit created. Runs alongside (not inside) mdj-agent.service. Auto-restarts on crash (Restart=always, RestartSec=10). Logs to <code>/var/log/raiden.log</code> with rotation. Service enabled on boot. <code>systemctl status raiden</code> shows active+running. Confirmed via SSH to MDJ1.
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket-header">
+          <span class="ticket-id">TRK-S04-012</span>
+          <span class="ticket-title">E2E test + deploy</span>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">test / deployment</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Post a test bug message to #prodashx-urgent-fixes-and-bugs. Within 15 minutes, RAIDEN (1) detects it, (2) triages it as FIX or ROUTE, (3) posts a response to the channel with "— @RAIDEN" signature, (4) logs the run to mdj_raiden_runs. Confirm via GET <code>/raiden/history</code>. RAIDEN service running live on MDJ1 (100.99.181.57). Sprint marked complete.
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Dependencies + Launch Conditions</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Dependency</th><th>Required?</th><th>Status</th><th>Fallback</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sprint 003 (Learning Loop 2.0) — knowledge_entries</td>
+              <td><span class="badge badge-gold">Preferred</span></td>
+              <td><span class="badge badge-muted">In Progress</span></td>
+              <td>RAIDEN uses CLAUDE.md pattern matching for TRAIN decisions until Sprint 003 ships</td>
+            </tr>
+            <tr>
+              <td>Sprint 001 (VOLTRON) — team communications</td>
+              <td><span class="badge badge-green">No</span></td>
+              <td><span class="badge badge-muted">In Progress</span></td>
+              <td>RAIDEN posts directly to Slack via bot token — doesn't need VOLTRON</td>
+            </tr>
+            <tr>
+              <td>MDJ1 server — SSH access, systemd</td>
+              <td><span class="badge badge-red">Required</span></td>
+              <td><span class="badge badge-green">Live</span></td>
+              <td>None — RAIDEN runs on MDJ1</td>
+            </tr>
+            <tr>
+              <td>FORGE board — /api/tracker endpoint</td>
+              <td><span class="badge badge-red">Required</span></td>
+              <td><span class="badge badge-green">Live</span></td>
+              <td>None — RAIDEN polls FORGE directly</td>
+            </tr>
+            <tr>
+              <td>Slack bot token — C0ANMBVMSTV access</td>
+              <td><span class="badge badge-red">Required</span></td>
+              <td><span class="badge badge-green">Live</span></td>
+              <td>None</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="quote" style="margin-top:0;">
+        RAIDEN has zero hard blockers. It can launch the moment Sprint 004 ships — no dependency gates. Learning Loop and VOLTRON make it smarter and louder over time, but the core guardian is fully independent.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+
+      tab.classList.add('active');
+      document.getElementById('panel-' + target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
