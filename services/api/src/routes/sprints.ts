@@ -663,7 +663,29 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
 
     // Build markdown
     let md = ''
-    if (phase === 'building') {
+    if (phase === 'seed') {
+      md += `# #LetsSeedTheDiscovery: ${sprint.name}\n\n`
+      md += `> **Your job:** Read the Discovery Document, extract every ticket from the Sprint Plan tab, and create them in the FORGE tracker.\n`
+      md += `> This seeds the sprint so the Discovery Audit has something to check against.\n\n`
+      md += `## Discovery Document\n\n`
+      md += `Read this document in full: \`${sprint.discovery_url}\`\n\n`
+      md += `## Your Task\n\n`
+      md += `1. Read the Discovery Doc — specifically the **Sprint Plan** tab\n`
+      md += `2. Extract every ticket from the Sprint Plan table (TRK-S05-001 through TRK-S05-012)\n`
+      md += `3. For each ticket, create a tracker item via \`POST /api/tracker\` with:\n`
+      md += `   - \`sprint_id: "${id}"\`\n`
+      md += `   - \`title\`: from the ticket title\n`
+      md += `   - \`type\`: from the ticket type (feat/enhancement/docs/test)\n`
+      md += `   - \`description\`: from the acceptance criteria\n`
+      md += `   - \`component\`: from the file path (e.g., "phases.ts" → component "RONIN")\n`
+      md += `   - \`portal\`: "SHARED"\n`
+      md += `   - \`status\`: "in_sprint"\n`
+      md += `4. Report back: list every ticket created with its TRK ID\n\n`
+      md += `## Sprint ID\n\`${id}\`\n\n`
+      md += `## API Base\n\`https://tm-api-365181509090.us-central1.run.app\`\n\n`
+      md += `## Auth\nUse the service account credentials available in the environment.\n\n`
+      md += `**When done, output: SEEDING COMPLETE — [N] tickets created**\n`
+    } else if (phase === 'building') {
       md += `# FORGE Builder: ${sprint.name}\n\n`
       md += `> **You are a builder agent executing the ${sprint.name} sprint.**\n`
       md += `> Your job is to READ the plan, EXECUTE every ticket, and REPORT results.\n`

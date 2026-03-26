@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/mdj-agent">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 005: RONIN Autonomy + FORGE Board Improvements</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #f97316;
+    --accent2: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+    --text: #e5e5e5;
+    --muted: #737373;
+    --code-bg: #111;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; gap: 16px; }
+  header .badge { background: var(--accent); color: #000; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px; letter-spacing: .5px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .tabs { display: flex; gap: 2px; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; overflow-x: auto; }
+  .tab { padding: 12px 18px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); white-space: nowrap; transition: all .15s; user-select: none; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .panel { display: none; padding: 32px; max-width: 1100px; }
+  .panel.active { display: block; }
+  h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+  h3 { font-size: 14px; font-weight: 600; margin: 20px 0 10px; color: var(--accent); }
+  h4 { font-size: 13px; font-weight: 600; margin: 14px 0 6px; color: var(--text); }
+  p { margin-bottom: 12px; color: #ccc; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; color: #ccc; }
+  li { margin-bottom: 4px; }
+  code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: #f97316; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 16px; overflow-x: auto; margin-bottom: 16px; }
+  pre code { background: none; border: none; padding: 0; color: #e5e5e5; font-size: 12px; line-height: 1.7; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card.warn { border-left: 3px solid var(--yellow); }
+  .card.danger { border-left: 3px solid var(--red); }
+  .card.info { border-left: 3px solid var(--accent2); }
+  .card.success { border-left: 3px solid var(--green); }
+  .card.accent { border-left: 3px solid var(--accent); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+  th { background: var(--surface2); color: var(--muted); font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: .3px; }
+  .tag-haiku { background: #1e3a5f; color: #60a5fa; }
+  .tag-sonnet { background: #1c3a2a; color: #4ade80; }
+  .tag-opus { background: #3b1f5e; color: #c084fc; }
+  .tag-ga { background: #3b1a0a; color: #fb923c; }
+  .tag-new { background: #1c2e1c; color: #4ade80; }
+  .tag-fix { background: #2e1c1c; color: #f87171; }
+  .tag-file { background: #1a1a2e; color: #93c5fd; font-family: 'SF Mono', monospace; font-size: 11px; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; }
+  .step { display: flex; gap: 12px; margin-bottom: 12px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #000; font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-body { flex: 1; }
+  .trk { font-family: 'SF Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); }
+  .file-path { font-family: 'SF Mono', monospace; font-size: 11px; color: #93c5fd; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .inline-tag { display: inline-block; }
+  .lc { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">SPRINT 005</div>
+  <h1>RONIN Autonomy + FORGE Board Improvements</h1>
+  <div class="sub">GA Build · 12 Tickets · /home/jdm/mdj-agent</div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="show(0)">1. Vision</div>
+  <div class="tab" onclick="show(1)">2. The 8 Bugs</div>
+  <div class="tab" onclick="show(2)">3. New Lifecycle</div>
+  <div class="tab" onclick="show(3)">4. Routing Insight</div>
+  <div class="tab" onclick="show(4)">5. Architecture Changes</div>
+  <div class="tab" onclick="show(5)">6. Builder Prompt Spec</div>
+  <div class="tab" onclick="show(6)">7. cwd Per Sprint</div>
+  <div class="tab" onclick="show(7)">8. Sprint Plan</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 1 — VISION
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel active" id="p0">
+  <h2>Why Sprint 001 Failed — and What Sprint 005 Fixes</h2>
+
+  <div class="card accent">
+    <h3 style="margin-top:0">The Core Problem</h3>
+    <p>RONIN (Sprint-000) shipped. Sprint 001 ran. Eight bugs hit in sequence. Every bug required a GA-level debug session to diagnose, patch, and re-run. By the time Sprint 001 completed, we had patched RONIN's engine <strong>during the flight</strong> — a plane repaired while airborne.</p>
+    <p>Sprint 005 is the maintenance bay. We land the plane, fix the root causes architecturally, and get RONIN to a state where it can fly <strong>unassisted</strong>.</p>
+  </div>
+
+  <h3>The GA Sprint Concept</h3>
+  <div class="card info">
+    <p><strong>This sprint is NOT built by RONIN.</strong> It is built by the GA (Shinobi) directly — because it modifies RONIN's own engine. A surgeon cannot operate on themselves.</p>
+    <p>Every ticket below has exact file paths, exact function signatures, and exact code changes. There is zero ambiguity. The GA reads this document and executes. No planning phase. No discovery phase. This document IS the plan.</p>
+  </div>
+
+  <h3>What Changes After This Sprint</h3>
+  <div class="grid2">
+    <div class="card success">
+      <h4 style="margin-top:0">RONIN Before S005</h4>
+      <ul>
+        <li>Requires manually-crafted ticket arrays in the POST body</li>
+        <li>Loses state between phases if service restarts</li>
+        <li>Discovery Doc URL ignored — regenerates from scratch</li>
+        <li>Builder agents get ticket titles only — no specs</li>
+        <li>cwd is hardcoded to toMachina</li>
+        <li>No /resume endpoint — wrong URL used in Sprint 001</li>
+      </ul>
+    </div>
+    <div class="card success">
+      <h4 style="margin-top:0">RONIN After S005</h4>
+      <ul>
+        <li>Reads Discovery Doc URL, extracts tickets automatically</li>
+        <li>Auto-resumes orphaned runs on service restart</li>
+        <li>Discovery Doc is authoritative — no regeneration</li>
+        <li>Builder agents get full acceptance criteria per ticket</li>
+        <li>cwd specified in Discovery Doc metadata</li>
+        <li>/resume and /seed endpoints exist and are correct</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The Architectural Insight (JDM, 2026-03-26)</h3>
+  <div class="card accent">
+    <p>FORGE has two distinct ticket types that have always been conflated:</p>
+    <ul>
+      <li><strong>Sprint stage statuses</strong> — Discovery, Plan, Audit, Build, Ship — proactive, structured, RONIN's domain</li>
+      <li><strong>Reactive statuses</strong> — Queue, Backlog, Bug, Not Touched, Deferred, Won't Fix — reactive, unstructured, RAIDEN's domain</li>
+    </ul>
+    <p>Zero overlap. The board status already encodes the routing. This insight resolves a longstanding confusion about what RONIN should pick up. Sprint 005 documents this split in FORGE_STANDARDS.md and wires it into how RONIN selects tickets.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 2 — THE 8 BUGS
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="p1">
+  <h2>The 8 Bugs We Hit Running Sprint 001</h2>
+  <p class="lc">All 8 are patched in the current codebase. Sprint 005 addresses the architectural root causes so this class of failure cannot recur.</p>
+
+  <div class="card danger">
+    <h3 style="margin-top:0">Bug 1 — Discovery Doc URL Ignored</h3>
+    <p><strong>What happened:</strong> We passed a Discovery Doc URL in the POST body. <code>runDiscovery()</code> regenerated a blank discovery from scratch instead of using it.</p>
+    <p><strong>Root cause:</strong> The URL was stored in <code>state.artifacts['discovery_doc']</code> but <code>runDiscovery</code> read from <code>opts.discovery_doc</code>, which was only available in-memory at run start — not re-read from state on resume.</p>
+    <p><strong>Fix in code:</strong> <code>runDiscovery</code> now checks <code>opts.discovery_doc</code> first and returns early if present, skipping regeneration.</p>
+    <p><strong>Architectural fix (S005):</strong> <code>runSeedDiscovery</code> phase reads the URL from <code>state.artifacts['discovery_doc']</code> directly — decoupled from opts entirely. No opts needed post-seeding.</p>
+  </div>
+
+  <div class="card danger">
+    <h3 style="margin-top:0">Bug 2 — Artifacts Never Saved to Firestore</h3>
+    <p><strong>What happened:</strong> <code>state.artifacts</code> was always empty when any phase after <code>creating_sprint</code> ran.</p>
+    <p><strong>Root cause:</strong> <code>recordPhaseResult()</code> only persisted <code>artifactPath</code> and <code>planPath</code> from <code>result.result</code> — it never wrote back to <code>state.artifacts</code> in-memory after the Firestore update. The next phase read stale local state.</p>
+    <p><strong>Fix in code:</strong> After <code>recordPhaseResult()</code>, the run loop now syncs artifacts back into local state: <code>if (phaseArtifacts?.artifactPath) state.artifacts['discovery'] = ...</code></p>
+    <p><strong>Architectural fix (S005):</strong> <code>getTickets()</code> helper always falls back to <code>getSprintTickets(state.sprint_id)</code> — phases are never dependent on in-memory opts passing correctly.</p>
+  </div>
+
+  <div class="card danger">
+    <h3 style="margin-top:0">Bug 3 — sprint_id Never Persisted</h3>
+    <p><strong>What happened:</strong> Every phase after <code>creating_sprint</code> had <code>state.sprint_id = ''</code>.</p>
+    <p><strong>Root cause:</strong> <code>runCreateSprint</code> returned <code>sprint_id</code> in <code>result.result</code>. <code>recordPhaseResult()</code> wrote it to Firestore. But local <code>state.sprint_id</code> was never updated — next phases called <code>getSprintTickets('')</code>.</p>
+    <p><strong>Fix in code:</strong> <code>if (phaseArtifacts?.sprint_id) state.sprint_id = phaseArtifacts.sprint_id</code> added to the run loop after recordPhaseResult.</p>
+    <p><strong>Architectural fix (S005):</strong> TRK-S05-005 — <code>getTickets()</code> consolidates all ticket fetching. One place to fix, all phases benefit.</p>
+  </div>
+
+  <div class="card danger">
+    <h3 style="margin-top:0">Bug 4 — In-Memory State Not Synced After recordPhaseResult</h3>
+    <p><strong>What happened:</strong> Firestore had correct data. Local <code>state</code> object was stale. Phases read local state.</p>
+    <p><strong>Root cause:</strong> <code>recordPhaseResult()</code> wrote to Firestore via <code>update()</code> but returned void — local state was never refreshed. Same issue exists in <code>_runFromExisting()</code>.</p>
+    <p><strong>Fix in code:</strong> Explicit sync after recordPhaseResult for sprint_id, artifactPath, planPath in both <code>run()</code> and <code>_runFromExisting()</code>.</p>
+    <p><strong>Architectural fix (S005):</strong> <code>getTickets()</code> always re-fetches from Firestore by sprint_id — doesn't trust local opts.tickets.</p>
+  </div>
+
+  <div class="card warn">
+    <h3 style="margin-top:0">Bug 5 — No /forge/resume Endpoint</h3>
+    <p><strong>What happened:</strong> We called <code>POST /forge/resume/:id</code> to restart a stalled sprint. Got 404. The endpoint didn't exist — only <code>/forge/run/:id</code> existed.</p>
+    <p><strong>Root cause:</strong> routes.ts was written with <code>/run/:id</code> doing resume logic, but the semantically correct URL was never added.</p>
+    <p><strong>Fix in code:</strong> Currently requires using <code>/forge/run/:id</code> (undocumented workaround).</p>
+    <p><strong>Architectural fix (S005):</strong> TRK-S05-006 — add <code>POST /forge/resume/:id</code> as the canonical resume endpoint.</p>
+  </div>
+
+  <div class="card warn">
+    <h3 style="margin-top:0">Bug 6 — claude Binary Not in systemd PATH</h3>
+    <p><strong>What happened:</strong> <code>claudeInvoke()</code> shell-execs <code>claude</code>. The mdj-agent.service systemd unit had a restricted PATH that didn't include <code>/home/jdm/.local/bin</code> where claude lives.</p>
+    <p><strong>Root cause:</strong> systemd units start with a clean environment. User-level PATH from <code>.bashrc</code>/<code>.profile</code> is not inherited.</p>
+    <p><strong>Fix in code:</strong> Added <code>Environment=PATH=/home/jdm/.local/bin:/usr/local/bin:/usr/bin:/bin</code> to the systemd unit.</p>
+    <p><strong>Architectural fix (S005):</strong> TRK-S05-011 — document this in .env and verify in smoke test. The fix is a deployment concern, not a code concern.</p>
+  </div>
+
+  <div class="card warn">
+    <h3 style="margin-top:0">Bug 7 — opts.tickets Empty in All Phases</h3>
+    <p><strong>What happened:</strong> Build phase got zero tickets. Every phase that consumed <code>opts.tickets ?? []</code> got an empty array because tickets were never passed in opts — they were created in Firestore during <code>creating_sprint</code>.</p>
+    <p><strong>Root cause:</strong> The Sprint 001 POST body didn't include a <code>tickets</code> array — it included a Discovery Doc URL. Tickets were meant to be seeded from the doc. No seeding phase existed.</p>
+    <p><strong>Fix in code:</strong> <code>runBuild</code> and <code>runAuditDiscovery</code> already had a fallback: <code>if (ticketList.length === 0 &amp;&amp; state.sprint_id) { const res = await getSprintTickets(state.sprint_id)... }</code>. This pattern was not consistent across all phases.</p>
+    <p><strong>Architectural fix (S005):</strong> TRK-S05-005 — <code>getTickets()</code> helper enforces this fallback everywhere. All phases call <code>getTickets(state, opts)</code>.</p>
+  </div>
+
+  <div class="card warn">
+    <h3 style="margin-top:0">Bug 8 — Audit Prompts Didn't Force Verdict Format</h3>
+    <p><strong>What happened:</strong> <code>parseAuditResult()</code> looked for <code>AUDIT PASSED</code> on its own line. Haiku returned it inline: "The audit has AUDIT PASSED all checks." — failed the regex.</p>
+    <p><strong>Root cause:</strong> Prompt said "end your response with AUDIT PASSED" but Haiku embedded it in prose. <code>parseAuditResult()</code> regex was line-anchored.</p>
+    <p><strong>Fix in code:</strong> <code>parseAuditResult()</code> updated to strip leading non-alpha chars before pattern matching, making it more tolerant. Prompts now say "The LAST LINE of your response MUST be exactly: AUDIT PASSED".</p>
+    <p><strong>Architectural fix (S005):</strong> TRK-S05-003 — <code>buildSeedDiscoveryPrompt</code> enforces JSON-only output for the seeding phase, no prose. Same discipline applied to all audit prompts in TRK-S05-008.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 3 — NEW LIFECYCLE
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="p2">
+  <h2>The New FORGE Lifecycle — #LetsSeedTheDiscovery</h2>
+
+  <div class="card accent">
+    <p>The fundamental gap in Sprint 001: RONIN had no way to bootstrap itself from a Discovery Doc. The doc existed. The tickets didn't. RONIN needed a human to pre-create tickets or pass them in the POST body. That's not autonomous.</p>
+    <p><strong>The fix:</strong> A new <code>seeding_discovery</code> phase that runs immediately after sprint creation. RONIN reads the Discovery Doc, extracts the Sprint Plan ticket table using Haiku (cheap), and creates the tickets in Firestore. From that point forward, every phase fetches tickets from Firestore — no human ticket input required.</p>
+  </div>
+
+  <h3>10-Stage Lifecycle</h3>
+
+  <div class="step">
+    <div class="step-num">0</div>
+    <div class="step-body">
+      <strong>JDM Hands Discovery Doc URL</strong><br>
+      <span class="lc">POST /forge/sprint { name, discovery_doc: "https://...", testMode: false }</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>#LetsSeedTheDiscovery</strong> <span class="tag tag-haiku">Haiku</span><br>
+      <span class="lc">RONIN reads Discovery Doc URL from state.artifacts. Haiku extracts Sprint Plan ticket table → JSON array. createTrackerItems() in Firestore. Also extracts cwd if present.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>#LetsAuditTheDiscovery</strong> <span class="tag tag-haiku">Haiku</span><br>
+      <span class="lc">Verifies Discovery Doc ↔ tickets align. Checks for gaps, scope creep, missing acceptance criteria.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>#LetsPlanIt</strong> <span class="tag tag-opus">Opus</span><br>
+      <span class="lc">Reads Discovery Doc + tickets. Writes implementation plan with execution order, parallel tracks, file-level specs, acceptance criteria per ticket.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <strong>#LetsAuditThePlan</strong> <span class="tag tag-haiku">Haiku</span><br>
+      <span class="lc">Plan ↔ Tickets alignment check. Every ticket has a plan entry. Every plan entry maps to a ticket. Dependencies ordered correctly.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <strong>Gate 1 — JDM Approves Plan</strong> <span class="tag tag-ga">Human Gate</span><br>
+      <span class="lc">RONIN pauses at awaiting_plan_approval. Slack notification sent. JDM calls POST /forge/approve/:id to proceed.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-body">
+      <strong>#LetsBuildIt</strong> <span class="tag tag-sonnet">Sonnet</span> <span class="lc">(parallel, up to 3)</span><br>
+      <span class="lc">One Sonnet sub-agent per ticket. cwd = state.artifacts['cwd']. Each builder gets: ticket title + description + acceptance criteria from plan. Max $10 each.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-body">
+      <strong>#LetsAuditTheBuild</strong> <span class="tag tag-sonnet">Sonnet</span><br>
+      <span class="lc">Build ↔ Plan alignment. Per-ticket PASS/FAIL. Checks: tsc passes, no scope creep, acceptance criteria met.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">8</div>
+    <div class="step-body">
+      <strong>Gate 2 — JDM Approves Build</strong> <span class="tag tag-ga">Human Gate</span><br>
+      <span class="lc">RONIN pauses at awaiting_build_approval. Slack notification sent. JDM calls POST /forge/approve/:id to proceed.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">9</div>
+    <div class="step-body">
+      <strong>#SendIt</strong> <span class="tag tag-sonnet">Sonnet</span><br>
+      <span class="lc">git checkout -b → git add → git commit → git push → gh pr create --auto --squash. PR URL saved to sprint.</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">10</div>
+    <div class="step-body">
+      <strong>#LandedIt!!!</strong> <span class="tag tag-sonnet">Sonnet</span><br>
+      <span class="lc">Verifies PR merged, CI green, deploy complete. Marks sprint complete in Firestore. All tickets → confirmed.</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <h3>Model Routing Summary</h3>
+  <table>
+    <tr><th>Stage</th><th>Model</th><th>Why</th><th>Max Budget</th></tr>
+    <tr><td>Seeding Discovery</td><td><span class="tag tag-haiku">Haiku</span></td><td>Simple extraction task — JSON from HTML table</td><td>$0.50</td></tr>
+    <tr><td>Audit Discovery</td><td><span class="tag tag-haiku">Haiku</span></td><td>Checklist comparison — no creativity needed</td><td>$1</td></tr>
+    <tr><td>Plan</td><td><span class="tag tag-opus">Opus</span></td><td>Complex multi-ticket architecture reasoning</td><td>$15</td></tr>
+    <tr><td>Audit Plan</td><td><span class="tag tag-haiku">Haiku</span></td><td>Alignment check — pattern matching</td><td>$1</td></tr>
+    <tr><td>Build (per ticket)</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Code writing — needs competence, not creativity</td><td>$10</td></tr>
+    <tr><td>Audit Build</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Needs to read code + plan, verify logic</td><td>$5</td></tr>
+    <tr><td>SendIt</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Git + gh CLI operations</td><td>$3</td></tr>
+    <tr><td>LandedIt</td><td><span class="tag tag-sonnet">Sonnet</span></td><td>Verification + status updates</td><td>$2</td></tr>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 4 — ROUTING INSIGHT
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="p3">
+  <h2>The Architectural Split: RONIN vs RAIDEN</h2>
+
+  <div class="card accent">
+    <p>JDM identified this on 2026-03-26: FORGE tickets are not all the same. The board status tells you <em>who owns the ticket</em>. This was implicit before. Sprint 005 makes it explicit.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card info">
+      <h3 style="margin-top:0">RONIN's Domain — Sprint Stages</h3>
+      <p>Proactive, structured work. RONIN picks these up and runs the full FORGE lifecycle.</p>
+      <table>
+        <tr><th>Status</th><th>Meaning</th></tr>
+        <tr><td><code>in_discovery</code></td><td>Being researched</td></tr>
+        <tr><td><code>in_plan</code></td><td>Being planned</td></tr>
+        <tr><td><code>in_sprint</code></td><td>Active sprint work</td></tr>
+        <tr><td><code>built</code></td><td>Code written, awaiting audit</td></tr>
+        <tr><td><code>in_review</code></td><td>In audit phase</td></tr>
+        <tr><td><code>shipped</code></td><td>PR merged, CI passed</td></tr>
+        <tr><td><code>confirmed</code></td><td>Deployed, verified live</td></tr>
+      </table>
+      <p><strong>Rule:</strong> A ticket with a sprint stage status belongs to an active FORGE run. RONIN created it; RONIN finishes it.</p>
+    </div>
+
+    <div class="card warn">
+      <h3 style="margin-top:0">RAIDEN's Domain — Reactive Statuses</h3>
+      <p>Reactive, unstructured work. RAIDEN handles these on-demand, without the full FORGE lifecycle.</p>
+      <table>
+        <tr><th>Status</th><th>Meaning</th></tr>
+        <tr><td><code>queue</code></td><td>Waiting to be prioritized</td></tr>
+        <tr><td><code>backlog</code></td><td>Acknowledged, not scheduled</td></tr>
+        <tr><td><code>bug</code></td><td>Defect report — needs fix</td></tr>
+        <tr><td><code>not_touched</code></td><td>Created but untriaged</td></tr>
+        <tr><td><code>deferred</code></td><td>Explicitly postponed</td></tr>
+        <tr><td><code>wont_fix</code></td><td>Closed without action</td></tr>
+      </table>
+      <p><strong>Rule:</strong> A ticket with a reactive status is waiting for a human (or RAIDEN) to triage and act. RONIN never picks these up automatically.</p>
+    </div>
+  </div>
+
+  <h3>Why This Matters for Sprint 005</h3>
+  <div class="card info">
+    <p>The <code>seeding_discovery</code> phase creates tickets with status <code>not_touched</code> initially, then immediately transitions them to <code>in_discovery</code>. This is the handoff point from the reactive domain to the sprint domain. Once a ticket is <code>in_discovery</code>, it belongs to RONIN's lifecycle.</p>
+    <p>Future RAIDEN work: RAIDEN watches for <code>bug</code> status tickets, triages them, and either promotes to <code>queue</code> for a future sprint or self-resolves. No FORGE lifecycle required — just a targeted Sonnet fix + PR.</p>
+  </div>
+
+  <h3>Board Routing Logic (Post-S005)</h3>
+  <pre><code>function routeTicket(ticket) {
+  const sprintStages = ['in_discovery','in_plan','in_sprint','built','in_review','shipped','confirmed']
+  const reactiveStages = ['queue','backlog','bug','not_touched','deferred','wont_fix']
+
+  if (sprintStages.includes(ticket.status)) return 'RONIN'   // active FORGE run owns it
+  if (reactiveStages.includes(ticket.status)) return 'RAIDEN' // reactive queue
+  return 'UNKNOWN' // should never happen
+}</code></pre>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 5 — ARCHITECTURE CHANGES
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="p4">
+  <h2>File-by-File Architecture Changes</h2>
+
+  <h3><span class="tag tag-file">src/forge/types.ts</span></h3>
+  <div class="card">
+    <h4>Change: Add seeding_discovery to ForgePhase enum</h4>
+    <p>Insert after <code>creating_sprint</code>, before <code>running_discovery</code>.</p>
+    <pre><code>// BEFORE
+export enum ForgePhase {
+  idle = 'idle',
+  creating_sprint = 'creating_sprint',
+  running_discovery = 'running_discovery',
+  ...
+
+// AFTER
+export enum ForgePhase {
+  idle = 'idle',
+  creating_sprint = 'creating_sprint',
+  seeding_discovery = 'seeding_discovery',   // ← NEW
+  running_discovery = 'running_discovery',
+  ...</code></pre>
+    <p><strong>Impact:</strong> ForgePhase.seeding_discovery is importable everywhere. No other changes required in types.ts.</p>
+  </div>
+
+  <h3><span class="tag tag-file">src/forge/templates.ts</span></h3>
+  <div class="card">
+    <h4>Change 1: Add buildSeedDiscoveryPrompt()</h4>
+    <p>New export. Instructs Haiku to read a Discovery Doc HTML file, find the Sprint Plan section (a table with columns Title, Type, Description), and output ONLY a valid JSON array. No prose. Output must be parseable by <code>JSON.parse()</code>.</p>
+    <pre><code>export function buildSeedDiscoveryPrompt(sprintName: string, discoveryUrl: string): string {
+  return `# FORGE Seed: Extract Sprint Tickets from Discovery Doc
+
+You are a ticket extraction agent. Your ONLY job is to output valid JSON.
+
+## Discovery Document
+${discoveryUrl}
+
+## Task
+1. Read the discovery document at the URL above (use WebFetch or Bash curl)
+2. Find the section titled "Sprint Plan" — it contains a table of tickets
+3. Extract every row as a ticket object
+
+## Output Format
+Output ONLY a valid JSON array. No prose. No markdown. No explanation.
+The array elements must have this shape:
+[
+  {
+    "title": "Short ticket title",
+    "type": "feature|bug|chore|docs",
+    "description": "Full acceptance criteria — what done looks like",
+    "file_paths": ["list of files this ticket touches, if specified"]
+  }
+]
+
+## CRITICAL
+- The ENTIRE response must be parseable by JSON.parse()
+- Do NOT include \`\`\`json fences
+- Do NOT include any text before or after the array
+- If you cannot find a Sprint Plan section, output: []`
+}</code></pre>
+
+    <h4>Change 2: Update buildBuilderPrompt() — add acceptance criteria</h4>
+    <p>The current builder prompt passes ticket descriptions in a markdown table but buries them. The updated version promotes acceptance criteria to a dedicated section so the builder agent has unambiguous file-level specs.</p>
+    <pre><code>// In formatTickets() — add description prominently
+function formatTickets(tickets: Array&lt;Record&lt;string, unknown&gt;&gt;): string {
+  if (!tickets.length) return 'No tickets defined.'
+  return tickets.map(t =&gt; [
+    `### ${t.id || 'TBD'}: ${t.title || 'Untitled'}`,
+    `**Status:** ${t.status || 'pending'}`,
+    `**Description / Acceptance Criteria:**`,
+    t.description ? t.description : '_No description provided._',
+    t.file_paths ? `**Files to touch:** ${(t.file_paths as string[]).join(', ')}` : '',
+  ].filter(Boolean).join('\n')).join('\n\n---\n\n')
+}
+
+// In buildBuilderPrompt() — replace table with structured blocks
+export function buildBuilderPrompt(
+  sprintData: SprintData,
+  ticketList: Array&lt;Record&lt;string, unknown&gt;&gt;,
+  ticketId: string
+): string {
+  const ticket = ticketList.find(t =&gt; t.id === ticketId) ?? ticketList[0]
+  return `# FORGE Builder: ${sprintData.name} — ${ticketId}
+
+&gt; You are a builder executing ONE ticket. Read the acceptance criteria carefully.
+&gt; Do NOT add scope. Do NOT touch files outside the list. Run verification when done.
+
+## Your Ticket
+### ${ticket?.id}: ${ticket?.title}
+
+**Acceptance Criteria:**
+${ticket?.description ?? 'See plan document.'}
+
+**Files to modify:**
+${(ticket?.file_paths as string[] | undefined)?.join('\n') ?? 'See plan for file list.'}
+
+## Context
+- Discovery: ${sprintData.discovery_url ?? 'See sprint dir'}
+- Plan: ${sprintData.plan_url ?? 'See sprint dir'}
+- Working Directory: Will be set by runner (cwd param)
+
+## Verification
+After completing the ticket:
+\\\`\\\`\\\`bash
+npx tsc --noEmit        # Must pass
+npm run build           # Must pass
+\\\`\\\`\\\`
+
+Report: TICKET COMPLETE or TICKET FAILED: [reason]`
+}</code></pre>
+  </div>
+
+  <h3><span class="tag tag-file">src/forge/phases.ts</span></h3>
+  <div class="card">
+    <h4>Change 1: Add getTickets() helper</h4>
+    <p>Single source of truth for ticket fetching. Replaces all <code>(opts.tickets ?? [])</code> patterns.</p>
+    <pre><code>async function getTickets(
+  state: ForgeRunState,
+  opts: ForgeRunOpts
+): Promise&lt;Array&lt;Record&lt;string, unknown&gt;&gt;&gt; {
+  if (opts.tickets && opts.tickets.length &gt; 0) return opts.tickets
+  if (state.sprint_id) {
+    const res = await getSprintTickets(state.sprint_id)
+    if (res.success && Array.isArray(res.data) && res.data.length &gt; 0) return res.data
+  }
+  return []
+}</code></pre>
+
+    <h4>Change 2: Add runSeedDiscovery()</h4>
+    <p>New exported phase function. Reads Discovery Doc URL from <code>state.artifacts['discovery_doc']</code>, invokes Haiku to extract tickets as JSON, calls <code>createTrackerItems()</code>. Also scans for <code>data-cwd</code> attribute and stores in <code>state.artifacts['cwd']</code>.</p>
+    <pre><code>export async function runSeedDiscovery(
+  state: ForgeRunState,
+  opts: ForgeRunOpts
+): Promise&lt;ForgePhaseResult&gt; {
+  if (opts.testMode) {
+    return {
+      success: true,
+      result: { seeded: 3, cwd: '/home/jdm/mdj-agent' },
+      output: '[TEST MODE] Seeded 3 test tickets.',
+    }
+  }
+
+  const discoveryUrl = (state.artifacts as Record&lt;string, string&gt;)['discovery_doc']
+  if (!discoveryUrl) {
+    return { success: false, error: 'No discovery_doc URL in state.artifacts. Cannot seed tickets.' }
+  }
+
+  // Invoke Haiku to extract tickets from the Discovery Doc
+  const raw = await claudeInvoke(
+    buildSeedDiscoveryPrompt(state.sprint_name, discoveryUrl),
+    { model: 'haiku', maxBudgetUsd: 0.5, timeoutMs: 120_000 }
+  )
+
+  let tickets: Array&lt;Record&lt;string, unknown&gt;&gt;
+  try {
+    // Strip any accidental code fences before parsing
+    const cleaned = raw.replace(/^```[\w]*\n?/gm, '').replace(/```$/gm, '').trim()
+    tickets = JSON.parse(cleaned)
+    if (!Array.isArray(tickets)) throw new Error('Not an array')
+  } catch (err) {
+    return {
+      success: false,
+      error: `Failed to parse ticket JSON from Haiku output: ${String(err)}\nOutput: ${raw.slice(0, 500)}`,
+    }
+  }
+
+  if (tickets.length === 0) {
+    return { success: false, error: 'Haiku returned empty ticket array. Check Discovery Doc has Sprint Plan section.' }
+  }
+
+  const trackerRes = await createTrackerItems(tickets, state.sprint_id)
+  if (!trackerRes.success) {
+    return { success: false, error: trackerRes.error ?? 'createTrackerItems failed during seeding' }
+  }
+
+  // Extract cwd from Discovery Doc data attribute if present
+  // Expected format: &lt;html data-cwd="/home/jdm/mdj-agent"&gt;
+  const cwdMatch = raw.match(/data-cwd="([^"]+)"/) ?? discoveryUrl.match(/data-cwd=([^\s&gt;]+)/)
+  const cwd = cwdMatch?.[1] ?? null
+
+  return {
+    success: true,
+    result: { seeded: tickets.length, cwd, trackerIds: trackerRes.data },
+    output: `Seeded ${tickets.length} tickets from Discovery Doc.${cwd ? ` cwd: ${cwd}` : ''}`,
+  }
+}</code></pre>
+
+    <h4>Change 3: Replace opts.tickets patterns in all phases with getTickets()</h4>
+    <p>Phases affected: <code>runDiscovery</code>, <code>runAuditDiscovery</code>, <code>runPlan</code>, <code>runAuditPlan</code>, <code>runBuild</code>, <code>runAuditBuild</code>, <code>runConfirm</code>.</p>
+    <pre><code>// BEFORE (example in runAuditDiscovery)
+let ticketList = (opts.tickets ?? []) as Array&lt;Record&lt;string, unknown&gt;&gt;
+if (ticketList.length === 0 && state.sprint_id) {
+  const res = await getSprintTickets(state.sprint_id)
+  if (res.success && Array.isArray(res.data)) ticketList = res.data
+}
+
+// AFTER (all phases)
+const ticketList = await getTickets(state, opts)</code></pre>
+  </div>
+
+  <h3><span class="tag tag-file">src/forge/runner.ts</span></h3>
+  <div class="card">
+    <h4>Change 1: Add seeding_discovery to phaseSeq (in both run() and _runFromExisting())</h4>
+    <p>Insert at position 1, after <code>creating_sprint</code>, before <code>running_discovery</code>. The exec function passes the discoveryDoc URL from state.artifacts (not opts) to decouple from in-memory opts.</p>
+    <pre><code>// Add to imports at top of runner.ts
+import { runSeedDiscovery, ... } from './phases.js'
+
+// In phaseSeq array — insert after creating_sprint entry:
+{
+  phase: ForgePhase.seeding_discovery,
+  exec: (s) =&gt; runSeedDiscovery(s, opts),
+  next: ForgePhase.running_discovery,
+},</code></pre>
+
+    <p>Also: after <code>recordPhaseResult</code> for <code>seeding_discovery</code>, sync cwd into local state:</p>
+    <pre><code>// Add to the artifact sync block after recordPhaseResult:
+const phaseArtifacts = result.result as Record&lt;string, unknown&gt; | undefined
+if (phaseArtifacts?.cwd) state.artifacts['cwd'] = phaseArtifacts.cwd as string</code></pre>
+
+    <h4>Change 2: Auto-resume on startup</h4>
+    <p>In <code>src/server.ts</code> (or wherever ForgeRunner is instantiated), add startup auto-resume:</p>
+    <pre><code>// In server.ts after forgeRunner is initialized:
+async function autoResumeInProgress() {
+  const resumable = await forgeRunner.findResumableRuns()
+  const active = resumable.filter(r =&gt;
+    !GATE_PHASES_SET.has(r.phase as ForgePhase) &&
+    !TERMINAL_PHASES_SET.has(r.phase as ForgePhase)
+  )
+  for (const run of active) {
+    logger.info({ event: 'forge_auto_resume', run_id: run.id, phase: run.phase })
+    forgeRunner.resume(run.id).catch(err =&gt;
+      logger.error({ event: 'forge_auto_resume_error', run_id: run.id, error: String(err) })
+    )
+  }
+}
+
+// Call after server starts listening:
+server.listen(PORT, () =&gt; {
+  logger.info({ event: 'server_start', port: PORT })
+  autoResumeInProgress().catch(err =&gt;
+    logger.warn({ event: 'auto_resume_failed', error: String(err) })
+  )
+})</code></pre>
+  </div>
+
+  <h3><span class="tag tag-file">src/forge/routes.ts</span></h3>
+  <div class="card">
+    <h4>Change: Add POST /forge/resume/:id and POST /forge/seed/:id</h4>
+    <pre><code>/**
+ * POST /forge/resume/:id — Resume an in-progress run.
+ * Semantically correct URL for what /run/:id was doing.
+ */
+forgeRoutes.post('/resume/:id', async (req, res) =&gt; {
+  try {
+    const runId = req.params.id
+    const r = getRunner()
+    const state = await r.resume(runId)
+    res.json({
+      success: true,
+      data: { run_id: runId, phase: state.phase, status: 'resuming' },
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    const status = msg.includes('not found') ? 404 :
+                   msg.includes('terminal') ? 409 :
+                   msg.includes('gate') ? 409 : 500
+    res.status(status).json({ success: false, error: msg })
+  }
+})
+
+/**
+ * POST /forge/seed/:id — Manually trigger seeding phase on an existing run.
+ * Useful if seeding failed and needs retry.
+ */
+forgeRoutes.post('/seed/:id', async (req, res) =&gt; {
+  try {
+    const runId = req.params.id
+    const r = getRunner()
+    // Resume will re-enter phaseSeq from seeding_discovery if that's current phase
+    const state = await r.resume(runId)
+    res.json({
+      success: true,
+      data: { run_id: runId, phase: state.phase, status: 'seeding' },
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ success: false, error: msg })
+  }
+})</code></pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 6 — BUILDER PROMPT SPEC
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="p5">
+  <h2>The Improved Builder Prompt</h2>
+
+  <div class="card warn">
+    <p><strong>Root cause of Sprint 001 build failures:</strong> The builder agent received a ticket like <code>TRK-001: Add ForgePhase enum value</code> with no description, no file path, no acceptance criteria. It had to guess what to do — and guessed wrong, touching files outside scope or implementing the wrong interface.</p>
+  </div>
+
+  <h3>What Builders Need (Minimum Viable Spec)</h3>
+  <div class="grid3">
+    <div class="card info">
+      <h4 style="margin-top:0">1. The File(s)</h4>
+      <p>Exact absolute path. No guessing. <code>/home/jdm/mdj-agent/src/forge/types.ts</code> — not "the types file."</p>
+    </div>
+    <div class="card info">
+      <h4 style="margin-top:0">2. The Change</h4>
+      <p>What to add/remove/modify. The more specific the better. "Add <code>seeding_discovery = 'seeding_discovery'</code> after <code>creating_sprint</code> in the enum."</p>
+    </div>
+    <div class="card info">
+      <h4 style="margin-top:0">3. Done Criteria</h4>
+      <p>"tsc passes" is not enough. "tsc passes AND <code>ForgePhase.seeding_discovery</code> is importable in runner.ts" is a testable criterion.</p>
+    </div>
+  </div>
+
+  <h3>Full Builder Prompt Example (Post-S005)</h3>
+  <pre><code># FORGE Builder: Sprint 005 — TRK-S05-001
+
+&gt; You are a builder executing ONE ticket.
+&gt; Read the acceptance criteria carefully.
+&gt; Do NOT add scope. Do NOT touch files outside the list.
+&gt; Run verification when done and report result.
+
+## Your Ticket
+### TRK-S05-001: Add seeding_discovery to ForgePhase enum
+
+**Acceptance Criteria:**
+- Add `seeding_discovery = 'seeding_discovery'` to the ForgePhase enum
+- It must appear AFTER `creating_sprint` and BEFORE `running_discovery`
+- `npx tsc --noEmit` must pass after the change
+- `ForgePhase.seeding_discovery` must be importable from types.ts
+
+**File to modify:**
+/home/jdm/mdj-agent/src/forge/types.ts
+
+## Context
+- Discovery: https://...
+- Plan: https://...
+- Working Directory: /home/jdm/mdj-agent
+
+## Verification
+```bash
+cd /home/jdm/mdj-agent
+npx tsc --noEmit
+```
+
+Report: TICKET COMPLETE or TICKET FAILED: [reason]</code></pre>
+
+  <h3>How Discovery Docs Power This</h3>
+  <p>The seeding phase extracts ticket objects with this shape from the Discovery Doc's Sprint Plan section:</p>
+  <pre><code>{
+  "title": "Add seeding_discovery to ForgePhase enum",
+  "type": "feature",
+  "description": "Add `seeding_discovery = 'seeding_discovery'` after `creating_sprint` in ForgePhase enum. tsc must pass. Importable from types.ts.",
+  "file_paths": ["/home/jdm/mdj-agent/src/forge/types.ts"]
+}</code></pre>
+  <p>The <code>description</code> field becomes the acceptance criteria. The <code>file_paths</code> array tells the builder exactly what to touch. The builder prompt template injects both directly.</p>
+
+  <h3>The Contract</h3>
+  <div class="card accent">
+    <p>Discovery Doc authors (JDM + Shinobi) must write the Sprint Plan table with enough detail that a Sonnet agent can execute without asking questions. The measure: <em>could you hand this ticket to a junior developer who just joined today and have them deliver it correctly?</em> If yes, the spec is sufficient. If no, it needs more detail.</p>
+    <p>Sprint 005 enforces this by extracting <code>description</code> from the HTML table and passing it verbatim to builders. The quality of the build is directly proportional to the quality of the spec.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 7 — CWD PER SPRINT
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="p6">
+  <h2>Working Directory Per Sprint</h2>
+
+  <div class="card warn">
+    <p><strong>Sprint 001 bug:</strong> The builder agents were spawned with <code>cwd = /home/jdm/Projects/toMachina</code> hardcoded in phases.ts. Sprint 001 built changes to <code>/home/jdm/mdj-agent</code>. Every builder ran <code>npm run build</code> in the wrong directory.</p>
+  </div>
+
+  <h3>The Fix: data-cwd in Discovery Docs</h3>
+  <p>Discovery Doc HTML files specify their working directory via a <code>data-cwd</code> attribute on the <code>&lt;html&gt;</code> tag:</p>
+  <pre><code>&lt;!-- Sprint targets mdj-agent codebase --&gt;
+&lt;html lang="en" data-cwd="/home/jdm/mdj-agent"&gt;
+
+&lt;!-- Sprint targets toMachina codebase (default) --&gt;
+&lt;html lang="en" data-cwd="/home/jdm/Projects/toMachina"&gt;
+
+&lt;!-- Sprint targets a GAS project --&gt;
+&lt;html lang="en" data-cwd="/home/jdm/Projects/gas/RAPID_IMPORT"&gt;</code></pre>
+
+  <h3>How It Flows</h3>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body"><strong>Discovery Doc is written</strong> — JDM/Shinobi adds <code>data-cwd</code> attribute to the HTML tag. This document has <code>data-cwd="/home/jdm/mdj-agent"</code>.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body"><strong>runSeedDiscovery runs</strong> — After extracting tickets, it scans the raw fetched HTML for the <code>data-cwd</code> attribute using: <code>raw.match(/data-cwd="([^"]+)"/)  </code>. Stores result in <code>state.artifacts['cwd']</code> via Firestore.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body"><strong>runner.ts syncs cwd into local state</strong> — After recordPhaseResult for seeding_discovery: <code>if (phaseArtifacts?.cwd) state.artifacts['cwd'] = phaseArtifacts.cwd</code>.</div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body"><strong>runBuild reads cwd</strong> — <code>const buildCwd = (state.artifacts as Record&lt;string, string&gt;)['cwd'] || '/home/jdm/Projects/toMachina'</code>. This is already in the current phases.ts — just needs the seeding phase to populate it.</div>
+  </div>
+
+  <h3>Verification Command Per cwd</h3>
+  <table>
+    <tr><th>cwd</th><th>Verification Command</th></tr>
+    <tr><td><code>/home/jdm/mdj-agent</code></td><td><code>cd /home/jdm/mdj-agent && npx tsc --noEmit && npm run build</code></td></tr>
+    <tr><td><code>/home/jdm/Projects/toMachina</code></td><td><code>cd ~/Projects/toMachina && npm run type-check && npm run build</code></td></tr>
+    <tr><td><code>/home/jdm/Projects/gas/*</code></td><td><code>NODE_TLS_REJECT_UNAUTHORIZED=0 clasp push --force</code></td></tr>
+  </table>
+
+  <div class="card info">
+    <h4 style="margin-top:0">This Discovery Doc's cwd</h4>
+    <p>This document targets the mdj-agent codebase. All 12 Sprint 005 tickets modify files in <code>/home/jdm/mdj-agent/</code>. The HTML tag on this document should be:</p>
+    <pre><code>&lt;html lang="en" data-cwd="/home/jdm/mdj-agent"&gt;</code></pre>
+    <p>Note: This file is a local file at <code>/Users/joshd.millang/Projects/toMachina/sprint-005-ronin-autonomy-discovery.html</code> — it won't be fetched by the MDJ1 server. Sprint 005 is a GA sprint built directly, so cwd is not extracted by the seeding phase. The GA reads this doc and executes manually.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 8 — SPRINT PLAN
+═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="p7">
+  <h2>Sprint Plan — 12 Tickets</h2>
+  <p class="lc">GA builds these directly. Exact file paths, exact changes, exact acceptance criteria. Zero ambiguity.</p>
+
+  <div class="card accent" style="margin-bottom:24px">
+    <p><strong>Build order:</strong> TRK-S05-001 first (types.ts change unblocks everything). Then TRK-S05-002 + TRK-S05-003 in parallel (phases.ts + templates.ts are independent). Then TRK-S05-004 + TRK-S05-005 (runner.ts + phases.ts consolidation). Then TRK-S05-006 + TRK-S05-007 (routes.ts + server.ts). Then TRK-S05-008 (builder prompt update). Then TRK-S05-009 (cwd wiring). Then TRK-S05-010 (docs). Then TRK-S05-011 (verify). Then TRK-S05-012 (deploy).</p>
+  </div>
+
+  <!-- TRK-S05-001 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-001</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Add seeding_discovery to ForgePhase enum</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/types.ts</code></td></tr>
+      <tr><th>Change</th><td>Add <code>seeding_discovery = 'seeding_discovery'</code> as line 7 (after <code>creating_sprint = 'creating_sprint'</code>, before <code>running_discovery = 'running_discovery'</code>)</td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li><code>npx tsc --noEmit</code> passes in /home/jdm/mdj-agent</li>
+          <li><code>ForgePhase.seeding_discovery</code> resolves when imported in runner.ts</li>
+          <li>Enum order: idle → creating_sprint → <strong>seeding_discovery</strong> → running_discovery → ...</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-002 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-002</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Implement runSeedDiscovery() phase function</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/phases.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Add <code>runSeedDiscovery(state, opts)</code> export (full implementation in Tab 5)</li>
+          <li>Reads <code>state.artifacts['discovery_doc']</code> for URL</li>
+          <li>Invokes Haiku with <code>buildSeedDiscoveryPrompt()</code></li>
+          <li>Parses JSON response, calls <code>createTrackerItems(tickets, state.sprint_id)</code></li>
+          <li>Extracts <code>data-cwd</code> from HTML response, stores in result</li>
+          <li>testMode: returns 3 stubbed tickets without API calls</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>Given a Discovery Doc URL with a Sprint Plan table: creates correct tickets in Firestore under the sprint_id</li>
+          <li>Given testMode=true: returns success with seeded=3 without network calls</li>
+          <li>Given a doc with <code>data-cwd="/home/jdm/mdj-agent"</code>: result.cwd equals that path</li>
+          <li>Given a doc with no Sprint Plan section: returns success=false with descriptive error</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-003 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-003</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Add buildSeedDiscoveryPrompt() to templates.ts</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/templates.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Add <code>export function buildSeedDiscoveryPrompt(sprintName: string, discoveryUrl: string): string</code></li>
+          <li>Full prompt text in Tab 5 (Architecture Changes → templates.ts)</li>
+          <li>Key requirement: output must be ONLY valid JSON array, no prose</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>Function is exported and importable in phases.ts</li>
+          <li>Prompt instructs Haiku to output ONLY a JSON array</li>
+          <li>Prompt says "The ENTIRE response must be parseable by JSON.parse()"</li>
+          <li>tsc passes with no type errors</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-004 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-004</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Add seeding_discovery to runner phaseSeq</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/runner.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Import <code>runSeedDiscovery</code> from <code>./phases.js</code></li>
+          <li>In <code>run()</code> phaseSeq: insert seeding_discovery step at index 1 (after creating_sprint)</li>
+          <li>In <code>_runFromExisting()</code> phaseSeq: same insertion</li>
+          <li>After <code>recordPhaseResult</code> for seeding_discovery: add cwd sync: <code>if (phaseArtifacts?.cwd) state.artifacts['cwd'] = phaseArtifacts.cwd as string</code></li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>New sprint in testMode transitions: idle → creating_sprint → seeding_discovery → running_discovery → ...</li>
+          <li>seeding_discovery appears in Firestore run log</li>
+          <li>After seeding, state.artifacts['cwd'] is populated if Discovery Doc had data-cwd</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-005 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-005</span>
+      <span class="tag tag-fix">FIX</span>
+      <strong>Create getTickets() helper — consolidate ticket fetching</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/phases.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Add <code>async function getTickets(state: ForgeRunState, opts: ForgeRunOpts)</code> (see Tab 5 for signature)</li>
+          <li>Replace ALL <code>(opts.tickets ?? [])</code> + fallback patterns in: <code>runDiscovery</code>, <code>runAuditDiscovery</code>, <code>runPlan</code>, <code>runAuditPlan</code>, <code>runBuild</code>, <code>runAuditBuild</code>, <code>runConfirm</code></li>
+          <li>Every replacement: <code>const ticketList = await getTickets(state, opts)</code></li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>No phase contains a raw <code>opts.tickets ??</code> expression (grep check)</li>
+          <li>Given sprint with tickets in Firestore but empty opts.tickets: phases get correct ticket list</li>
+          <li>Given sprint with tickets in opts.tickets: opts.tickets used (priority)</li>
+          <li>Given sprint with no tickets anywhere: returns [] without throwing</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-006 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-006</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Add /forge/resume/:id route</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/routes.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Add <code>forgeRoutes.post('/resume/:id', ...)</code> — full implementation in Tab 5</li>
+          <li>Add <code>forgeRoutes.post('/seed/:id', ...)</code> — triggers runSeedDiscovery via resume</li>
+          <li>Proper error status codes: 404 (not found), 409 (terminal or gate state), 500 (other)</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li><code>POST /forge/resume/{runId}</code> returns <code>{"success": true, "data": {"run_id": "...", "phase": "...", "status": "resuming"}}</code></li>
+          <li><code>POST /forge/resume/{badId}</code> returns 404</li>
+          <li><code>POST /forge/resume/{completedRunId}</code> returns 409</li>
+          <li><code>POST /forge/resume/{gateRunId}</code> returns 409 with message about using approve</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-007 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-007</span>
+      <span class="tag tag-new">NEW</span>
+      <strong>Auto-resume in-progress runs on startup</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/server.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Add <code>autoResumeInProgress()</code> function (full implementation in Tab 5)</li>
+          <li>Call after <code>server.listen()</code> fires its callback</li>
+          <li>Filters out terminal phases and gate phases — only resumes actively-running phases</li>
+          <li>Fire-and-forget per run — errors logged but don't crash startup</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>Service restart while run is in <code>running_plan</code> → auto-resumes that run</li>
+          <li>Service restart while run is in <code>awaiting_plan_approval</code> → does NOT resume (gate)</li>
+          <li>Service restart while run is <code>complete</code> → does NOT resume (terminal)</li>
+          <li>Log shows <code>forge_auto_resume</code> event with run_id on startup if resumable runs exist</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-008 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-008</span>
+      <span class="tag tag-fix">FIX</span>
+      <strong>Update builder prompt with acceptance criteria</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/home/jdm/mdj-agent/src/forge/templates.ts</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Update <code>formatTickets()</code> to output structured ticket blocks instead of a markdown table (see Tab 5 + Tab 6)</li>
+          <li>Update <code>buildBuilderPrompt()</code> to use <code>ticket.description</code> as Acceptance Criteria section</li>
+          <li>Add <code>ticket.file_paths</code> display to the builder prompt</li>
+          <li>Signature change: <code>buildBuilderPrompt(sprintData, ticketList, ticketId: string)</code> — builder now scoped to ONE ticket by ID</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>Builder prompt for a ticket with description: shows "Acceptance Criteria:" section with that description</li>
+          <li>Builder prompt for a ticket with file_paths: shows "Files to modify:" section with those paths</li>
+          <li>tsc passes — signature change propagates to phases.ts caller (<code>buildBuilderPrompt(sprintData, [ticket], ticketId)</code>)</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-009 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-009</span>
+      <span class="tag tag-fix">FIX</span>
+      <strong>cwd per sprint from Discovery Doc — wire seeding → build</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">Files</th><td>
+        <code>/home/jdm/mdj-agent/src/forge/phases.ts</code> (runSeedDiscovery + runBuild)<br>
+        <code>/home/jdm/mdj-agent/src/forge/runner.ts</code> (artifact sync)
+      </td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li><strong>runSeedDiscovery:</strong> extract <code>data-cwd</code> from fetched HTML (already in TRK-S05-002 implementation), return as <code>result.cwd</code></li>
+          <li><strong>runner.ts artifact sync:</strong> <code>if (phaseArtifacts?.cwd) state.artifacts['cwd'] = phaseArtifacts.cwd as string</code> (already in TRK-S05-004)</li>
+          <li><strong>runBuild:</strong> verify the existing line <code>const buildCwd = (state.artifacts as Record&lt;string, string&gt;)['cwd'] || SPRINT_BASE_DIR.replace('/.claude/sprints', '')</code> is correct — it already is, just needs TRK-S05-004 to populate it</li>
+          <li><strong>Verify fallback:</strong> if no data-cwd in Discovery Doc, buildCwd defaults to <code>/home/jdm/Projects/toMachina</code> (safe default)</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>Discovery Doc with <code>data-cwd="/home/jdm/mdj-agent"</code>: builder agents run in that directory</li>
+          <li>Discovery Doc with no data-cwd: builder agents run in /home/jdm/Projects/toMachina (default)</li>
+          <li>state.artifacts['cwd'] visible in GET /forge/status/:id response after seeding</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-010 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-010</span>
+      <span class="tag tag-fix">FIX</span>
+      <strong>Update FORGE_STANDARDS.md with new lifecycle + routing split</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">File</th><td><code>/Users/joshd.millang/Projects/toMachina/.claude/sprints/FORGE_STANDARDS.md</code></td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Replace existing lifecycle section with the 10-stage lifecycle (Stage 0–10) documented in Tab 3</li>
+          <li>Add section: "Sprint Stage Statuses (RONIN)" — the 7 statuses RONIN manages</li>
+          <li>Add section: "Reactive Statuses (RAIDEN)" — the 6 statuses RAIDEN handles</li>
+          <li>Add section: "cwd Per Sprint" — how data-cwd is specified in Discovery Docs</li>
+          <li>Add section: "Routing Rule" — one sentence: ticket status determines which system owns it</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>File updated (not created) — FORGE_STANDARDS.md already exists at that path</li>
+          <li>New sprint onboarding can follow Stage 0–10 lifecycle from the doc alone</li>
+          <li>RONIN vs RAIDEN routing clearly documented with status lists</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-011 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-011</span>
+      <span class="tag tag-fix">FIX</span>
+      <strong>TypeScript clean compile + build passes</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">Files</th><td>All files modified in TRK-S05-001 through TRK-S05-009</td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>Run <code>npx tsc --noEmit</code> in /home/jdm/mdj-agent — fix any type errors</li>
+          <li>Run <code>npm run build</code> in /home/jdm/mdj-agent — fix any build errors</li>
+          <li>Common issues to watch for: missing imports of runSeedDiscovery in runner.ts, ForgePhase.seeding_discovery used before types.ts is compiled, buildSeedDiscoveryPrompt not exported from templates.ts</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li><code>npx tsc --noEmit</code> exits with code 0 — zero type errors</li>
+          <li><code>npm run build</code> exits with code 0 — zero build errors</li>
+          <li>Output: these two commands' results pasted in the commit message</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <!-- TRK-S05-012 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <span class="trk">TRK-S05-012</span>
+      <span class="tag tag-fix">FIX</span>
+      <strong>Deploy to MDJ1 + smoke test seeding_discovery</strong>
+    </div>
+    <table>
+      <tr><th style="width:140px">Files</th><td>All modified files</td></tr>
+      <tr><th>Change</th><td>
+        <ul>
+          <li>On PRO: <code>git add -A && git commit -m "feat(forge): Sprint 005 — RONIN autonomy + seeding phase"</code></li>
+          <li><code>git push</code> to remote</li>
+          <li>On MDJ1: <code>ssh mdj1 "cd /home/jdm/mdj-agent && git pull && npm run build && sudo systemctl restart mdj-agent"</code></li>
+          <li>Smoke test: <code>curl -X POST http://localhost:4200/forge/sprint -H 'Content-Type: application/json' -d '{"name":"smoke-test-005","discovery_doc":"https://retirementprotectors.github.io/toMachina/...","opts":{"testMode":true}}'</code></li>
+          <li>Watch log: <code>ssh mdj1 "sudo journalctl -u mdj-agent -f"</code> — verify seeding_discovery phase appears in sequence</li>
+        </ul>
+      </td></tr>
+      <tr><th>Acceptance</th><td>
+        <ul>
+          <li>GET /health on MDJ1 returns 200 after restart</li>
+          <li>Smoke test POST returns 202 with run_id</li>
+          <li>GET /forge/status/{run_id} shows phase progression through seeding_discovery</li>
+          <li>In testMode, run completes all the way to complete (or awaiting_plan_approval gate)</li>
+          <li>No 500 errors in journalctl output</li>
+        </ul>
+      </td></tr>
+    </table>
+  </div>
+
+  <hr class="divider">
+  <h3>Summary Table</h3>
+  <table>
+    <tr><th>TRK</th><th>File</th><th>Type</th><th>Depends On</th></tr>
+    <tr><td><span class="trk">S05-001</span></td><td><code>types.ts</code></td><td><span class="tag tag-new">NEW</span></td><td>—</td></tr>
+    <tr><td><span class="trk">S05-002</span></td><td><code>phases.ts</code></td><td><span class="tag tag-new">NEW</span></td><td>S05-001, S05-003</td></tr>
+    <tr><td><span class="trk">S05-003</span></td><td><code>templates.ts</code></td><td><span class="tag tag-new">NEW</span></td><td>—</td></tr>
+    <tr><td><span class="trk">S05-004</span></td><td><code>runner.ts</code></td><td><span class="tag tag-new">NEW</span></td><td>S05-001, S05-002</td></tr>
+    <tr><td><span class="trk">S05-005</span></td><td><code>phases.ts</code></td><td><span class="tag tag-fix">FIX</span></td><td>S05-002</td></tr>
+    <tr><td><span class="trk">S05-006</span></td><td><code>routes.ts</code></td><td><span class="tag tag-new">NEW</span></td><td>—</td></tr>
+    <tr><td><span class="trk">S05-007</span></td><td><code>server.ts</code></td><td><span class="tag tag-new">NEW</span></td><td>S05-004</td></tr>
+    <tr><td><span class="trk">S05-008</span></td><td><code>templates.ts</code></td><td><span class="tag tag-fix">FIX</span></td><td>—</td></tr>
+    <tr><td><span class="trk">S05-009</span></td><td><code>phases.ts + runner.ts</code></td><td><span class="tag tag-fix">FIX</span></td><td>S05-002, S05-004</td></tr>
+    <tr><td><span class="trk">S05-010</span></td><td><code>FORGE_STANDARDS.md</code></td><td><span class="tag tag-fix">FIX</span></td><td>—</td></tr>
+    <tr><td><span class="trk">S05-011</span></td><td>All</td><td><span class="tag tag-fix">FIX</span></td><td>S05-001 through S05-009</td></tr>
+    <tr><td><span class="trk">S05-012</span></td><td>MDJ1 deploy</td><td><span class="tag tag-fix">FIX</span></td><td>S05-011</td></tr>
+  </table>
+</div>
+
+<script>
+function show(idx) {
+  document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx))
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx))
+}
+</script>
+</body>
+</html>
