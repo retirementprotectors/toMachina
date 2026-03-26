@@ -64,6 +64,7 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   plan_audited:    { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Plan Audited' },
   built:           { color: 'rgb(20,184,166)', bg: 'rgba(20,184,166,0.15)', label: 'Built' },
   audited:         { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Audited' },
+  ux_audited:      { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'UX Audited' },
   confirmed:       { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Confirmed' },
   deferred:        { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Deferred' },
   wont_fix:        { color: 'rgb(100,116,139)', bg: 'rgba(100,116,139,0.15)', label: "Won't Fix" },
@@ -85,7 +86,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 const TYPES = ['broken', 'idea', 'improve', 'question', 'feat', 'bug', 'enhancement', 'test'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
-const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed', 'deferred', 'wont_fix'] as const
+const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'ux_audited', 'confirmed', 'deferred', 'wont_fix'] as const
 
 const API_BASE = '/api'
 
@@ -391,7 +392,7 @@ function ForgeInner({ portal }: ForgeProps) {
   }, [items])
 
   // Sprint lifecycle phases + phase detection
-  const SPRINT_PHASES = ['unseeded', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed'] as const
+  const SPRINT_PHASES = ['unseeded', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'ux_audited', 'confirmed'] as const
   const PHASE_CONFIG: Record<string, { label: string; color: string; action: string; actionLabel: string }> = {
     unseeded:      { label: 'Seed',            color: 'rgb(245,158,11)',        action: 'seed',            actionLabel: '#LetsSeedTheDiscovery' },
     seeded:        { label: 'Discovery',       color: 'rgb(251,146,60)',        action: 'audit_discovery', actionLabel: '#LetsAuditTheDiscovery' },
@@ -400,10 +401,11 @@ function ForgeInner({ portal }: ForgeProps) {
     plan_audited:  { label: 'Build',           color: 'rgb(99,102,241)',        action: 'prompt',          actionLabel: '#LetsBuildIt' },
     built:         { label: 'Audit',           color: 'rgb(20,184,166)',        action: 'audit',           actionLabel: '#LetsAuditTheBuild' },
     audited:       { label: 'Confirm',         color: 'rgb(168,85,247)',        action: 'sendit',          actionLabel: '#SendIt' },
+    ux_audited:    { label: 'UX Audit',        color: 'rgb(34,197,94)',         action: 'ux_audit',        actionLabel: '#LetsAuditTheUX' },
     confirmed:     { label: 'Complete',        color: 'rgb(34,197,94)',         action: 'reopen',          actionLabel: 'Reopen Sprint' },
   }
 
-  const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, seeded: 3, disc_audited: 4, planned: 5, plan_audited: 6, built: 7, audited: 8, confirmed: 9 }
+  const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, seeded: 3, disc_audited: 4, planned: 5, plan_audited: 6, built: 7, audited: 8, ux_audited: 9, confirmed: 10 }
 
   const sprintCards = useMemo(() => {
     return sprints.map(sp => {
@@ -424,7 +426,8 @@ function ForgeInner({ portal }: ForgeProps) {
         phase = 'confirmed'
       } else if (activeItems.length > 0) {
         const minRank = Math.min(...activeItems.map(i => STATUS_RANK[i.status] ?? 0))
-        if (minRank >= 9) phase = 'confirmed'
+        if (minRank >= 10) phase = 'confirmed'
+        else if (minRank >= 9) phase = 'ux_audited'
         else if (minRank >= 8) phase = 'audited'
         else if (minRank >= 7) phase = 'built'
         else if (minRank >= 6) phase = 'plan_audited'
@@ -1597,9 +1600,20 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                     else if (sp.phase === 'audited') {
                       try {
                         const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
-                        if (r.success) { await loadItems(); await loadSprints() }
+                        if (r.success) {
+                          // Advance audited items to ux_audited
+                          const auditedItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'audited')
+                          if (auditedItems.length > 0) {
+                            await fetchValidated(`${API_BASE}/tracker/bulk`, {
+                              method: 'PATCH',
+                              body: JSON.stringify({ ids: auditedItems.map(i => i.id), updates: { status: 'ux_audited' } }),
+                            })
+                          }
+                          await loadItems(); await loadSprints()
+                        }
                       } catch { /* silent */ }
                     }
+                    else if (sp.phase === 'ux_audited') window.location.href = `/modules/forge/audit?sprint=${sp.id}&type=ux`
                     else if (sp.phase === 'confirmed') reopenSprint(sp.id)
                   }}
                   style={{
@@ -1865,9 +1879,20 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                                 else if (phase === 'audited') {
                                   try {
                                     const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
-                                    if (r.success) { await loadItems(); await loadSprints() }
+                                    if (r.success) {
+                                      // Advance audited items to ux_audited
+                                      const auditedItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'audited')
+                                      if (auditedItems.length > 0) {
+                                        await fetchValidated(`${API_BASE}/tracker/bulk`, {
+                                          method: 'PATCH',
+                                          body: JSON.stringify({ ids: auditedItems.map(i => i.id), updates: { status: 'ux_audited' } }),
+                                        })
+                                      }
+                                      await loadItems(); await loadSprints()
+                                    }
                                   } catch { /* silent */ }
                                 }
+                                else if (phase === 'ux_audited') window.location.href = `/modules/forge/audit?sprint=${sp.id}&type=ux`
                                 else if (phase === 'confirmed') reopenSprint(sp.id)
                               }}
                               disabled={phase === 'confirmed' && reopeningSprintId === sp.id}
@@ -1893,6 +1918,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                                 phase === 'planned' ? 'fact_check' :
                                 phase === 'plan_audited' ? 'terminal' :
                                 phase === 'built' ? 'fact_check' :
+                                phase === 'ux_audited' ? 'verified' :
                                 phase === 'confirmed' ? 'undo' :
                                 'rocket_launch'
                               } size={14} color={phase === 'confirmed' ? (reopeningSprintId === sp.id ? '#fff' : 'rgb(245,158,11)') : '#fff'} />
