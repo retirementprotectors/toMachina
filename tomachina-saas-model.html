@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>toMachina — SaaS Revenue Model</title>
+<style>
+  :root { --bg: #0a0e17; --bg-card: #111827; --bg-hover: #1a2236; --border: #1e293b; --text: #e2e8f0; --text-muted: #94a3b8; --accent: #3b82f6; --green: #22c55e; --orange: #f59e0b; --purple: #a855f7; --pink: #ec4899; --cyan: #06b6d4; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px; }
+  .header { text-align: center; padding: 40px 20px 24px; }
+  .header h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { color: var(--text-muted); margin-top: 8px; }
+  .tier { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .tier-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+  .tier-name { font-size: 1.1rem; font-weight: 700; }
+  .tier-price { font-size: 1.3rem; font-weight: 800; }
+  .tier-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; }
+  .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .item { background: var(--bg-hover); border-radius: 8px; padding: 12px; border-left: 3px solid var(--accent); }
+  .item h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+  .item p { font-size: 0.75rem; color: var(--text-muted); }
+  .item .price-tag { font-size: 0.7rem; font-weight: 700; color: var(--green); margin-top: 4px; }
+  .t1 .tier-name, .t1 .tier-price { color: var(--accent); }
+  .t1 .item { border-left-color: var(--accent); }
+  .t2 .tier-name, .t2 .tier-price { color: var(--purple); }
+  .t2 .item { border-left-color: var(--purple); }
+  .t3 .tier-name, .t3 .tier-price { color: var(--orange); }
+  .t3 .item { border-left-color: var(--orange); }
+  .t4 .tier-name, .t4 .tier-price { color: var(--green); }
+  .t4 .item { border-left-color: var(--green); }
+  .t5 .tier-name, .t5 .tier-price { color: var(--cyan); }
+  .t5 .item { border-left-color: var(--cyan); }
+  .scenario { background: var(--bg-card); border: 2px solid var(--accent); border-radius: 12px; padding: 24px; margin: 32px 0; }
+  .scenario h2 { color: var(--accent); font-size: 1.1rem; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 12px 0; }
+  th { text-align: left; padding: 8px 12px; background: var(--bg-hover); color: var(--accent); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  td:last-child { text-align: right; font-weight: 600; color: var(--green); }
+  .total td { color: var(--text); font-weight: 800; font-size: 1rem; border-top: 2px solid var(--accent); }
+  .total td:last-child { color: var(--green); font-size: 1.1rem; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .comp-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+  .comp-card h3 { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
+  .comp-card .num { font-size: 1.8rem; font-weight: 800; }
+  .comp-card .sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>toMachina — SaaS Revenue Model</h1>
+  <p>Salesforce-style pricing: Platform + AI + Markets + Add-Ons + Integrations</p>
+</div>
+
+<!-- TIER 1: Platform -->
+<div class="tier t1">
+  <div class="tier-header">
+    <div class="tier-name">TIER 1: Platform (Base)</div>
+    <div class="tier-price">$49-99 /user/mo</div>
+  </div>
+  <div class="tier-desc">The foundation. Portal access + core workspace. Every customer starts here.</div>
+  <div class="items">
+    <div class="item"><h4>Portal Access</h4><p>ProDashX (B2C), RIIMO (B2E), or SENTINEL (B2B)</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Contacts / Households</h4><p>Client management, detail views, search</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Accounts</h4><p>Policy, annuity, investment, Medicare tracking</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Pipelines</h4><p>Basic flow engine + pipeline views</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Notifications</h4><p>Alerts, approvals, system updates</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>MyRPI</h4><p>Profile, documents, team info, drop zone</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Admin</h4><p>Team config, permissions, firestore config</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Global Search</h4><p>Cross-entity search across clients + accounts</p><div class="price-tag">Included</div></div>
+  </div>
+</div>
+
+<!-- TIER 2: AI Wrapper -->
+<div class="tier t2">
+  <div class="tier-header">
+    <div class="tier-name">TIER 2: MyDigitalJosh (AI Layer)</div>
+    <div class="tier-price">$29-59 /user/mo</div>
+  </div>
+  <div class="tier-desc">The AI assistant. Add conversational intelligence to any portal. Like Salesforce Einstein.</div>
+  <div class="items">
+    <div class="item"><h4>MDJ Chat Panel</h4><p>Conversational AI in every portal</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>MDJ Mobile</h4><p>Phone app for field agents</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Tool Access (82+)</h4><p>Search, lookup, pipeline, comms via chat</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Conversation Memory</h4><p>Persistent context, client insights</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>General Specialist</h4><p>MDJ-General assistant</p><div class="price-tag">Included</div></div>
+    <div class="item"><h4>Additional Specialists</h4><p>Medicare, Securities, Service, DAVID, Ops</p><div class="price-tag">$9/specialist/mo</div></div>
+    <div class="item"><h4>MDJ-Coach</h4><p>Career development + onboarding AI</p><div class="price-tag">$19/user/mo</div></div>
+    <div class="item"><h4>Custom Specialists</h4><p>Build your own domain expert</p><div class="price-tag">$499 setup + $9/mo</div></div>
+  </div>
+</div>
+
+<!-- TIER 3: Markets -->
+<div class="tier t3">
+  <div class="tier-header">
+    <div class="tier-name">TIER 3: Market Modules</div>
+    <div class="tier-price">$19-39 /module/user/mo</div>
+  </div>
+  <div class="tier-desc">Industry verticals. Buy what you sell. Like Salesforce Health Cloud vs Sales Cloud.</div>
+  <div class="items">
+    <div class="item"><h4>Medicare / Health</h4><p>QUE-Medicare quoting, MAPD/PDP/MedSupp, AEP workflows, Spark integration, NPI/CMS lookups</p><div class="price-tag">$39/user/mo</div></div>
+    <div class="item"><h4>Life Insurance</h4><p>QUE-Life quoting, illustrations, carrier submissions, underwriting workflows</p><div class="price-tag">$29/user/mo</div></div>
+    <div class="item"><h4>Annuity / Retirement</h4><p>QUE-Annuity quoting, FIA/MYGA/RILA, 1035 exchanges, RMD center, income planning</p><div class="price-tag">$29/user/mo</div></div>
+    <div class="item"><h4>Advisory / Securities</h4><p>RIA/BD operations, Schwab/RBC integration, Gradient, fee-based accounts, compliance</p><div class="price-tag">$39/user/mo</div></div>
+    <div class="item"><h4>M&A / Partnerships</h4><p>SENTINEL portal, DAVID HUB, BoB analysis, deal pipeline, agency onboarding</p><div class="price-tag">$39/user/mo</div></div>
+    <div class="item"><h4>Legacy / Estate</h4><p>Estate planning, beneficiary management, trust coordination, CoF integration</p><div class="price-tag">$19/user/mo</div></div>
+  </div>
+</div>
+
+<!-- TIER 4: Add-Ons -->
+<div class="tier t4">
+  <div class="tier-header">
+    <div class="tier-name">TIER 4: Add-On Apps</div>
+    <div class="tier-price">$9-99 /app/mo or per-seat</div>
+  </div>
+  <div class="tier-desc">Power tools. Each one solves a specific problem. Like Salesforce AppExchange.</div>
+  <div class="items">
+    <div class="item"><h4>ATLAS</h4><p>Data intelligence — sources, wires, health monitoring, gap analysis</p><div class="price-tag">$49/mo (org-wide)</div></div>
+    <div class="item"><h4>C3 Campaign Engine</h4><p>60 campaigns, 661 templates, automated outreach</p><div class="price-tag">$29/mo + $0.01/send</div></div>
+    <div class="item"><h4>DEX Document Center</h4><p>Carrier forms, DocuSign, PDF generation, kit builder</p><div class="price-tag">$19/user/mo</div></div>
+    <div class="item"><h4>CAM Commissions</h4><p>Commission tracking, splits, agent rates, revenue reporting</p><div class="price-tag">$29/mo (org-wide)</div></div>
+    <div class="item"><h4>Pipeline Studio</h4><p>Visual pipeline builder, flow engine admin, custom workflows</p><div class="price-tag">$19/mo (org-wide)</div></div>
+    <div class="item"><h4>GUARDIAN</h4><p>Data protection — write gates, schema validation, anomaly detection</p><div class="price-tag">$29/mo (org-wide)</div></div>
+    <div class="item"><h4>FORGE</h4><p>Sprint management, build tracker, autonomous development</p><div class="price-tag">$19/mo (org-wide)</div></div>
+    <div class="item"><h4>ProZONE</h4><p>Territory management, zone scheduling, prospecting scorecards</p><div class="price-tag">$19/user/mo</div></div>
+    <div class="item"><h4>Command Center</h4><p>Meeting management, action items, weekly digests, roadmaps</p><div class="price-tag">$9/user/mo</div></div>
+    <div class="item"><h4>CaseWork Generator</h4><p>Interactive client presentations with sliders (the Mineart sniper rifle)</p><div class="price-tag">$29/user/mo</div></div>
+  </div>
+</div>
+
+<!-- TIER 5: Integrations -->
+<div class="tier t5">
+  <div class="tier-header">
+    <div class="tier-name">TIER 5: Integrations / Carrier Connections</div>
+    <div class="tier-price">$19-99 /integration/mo</div>
+  </div>
+  <div class="tier-desc">Wire into carrier systems, custodians, and external platforms. The MCP Hub.</div>
+  <div class="items">
+    <div class="item"><h4>Carrier Data Feeds</h4><p>Auto-ingest policy data from carriers (per carrier)</p><div class="price-tag">$29/carrier/mo</div></div>
+    <div class="item"><h4>Schwab/RBC Custodian</h4><p>Advisory account sync, performance reporting</p><div class="price-tag">$49/mo</div></div>
+    <div class="item"><h4>Gradient/Signal IMO</h4><p>Contracting, commissions, licensing sync</p><div class="price-tag">$49/mo</div></div>
+    <div class="item"><h4>Twilio Communications</h4><p>SMS, voice, call recording, IVR</p><div class="price-tag">$19/mo + usage</div></div>
+    <div class="item"><h4>SendGrid Email</h4><p>Transactional + marketing email delivery</p><div class="price-tag">$19/mo + usage</div></div>
+    <div class="item"><h4>Google Workspace</h4><p>Drive, Gmail, Calendar, Meet, Chat integration</p><div class="price-tag">$19/mo</div></div>
+    <div class="item"><h4>CMS / Medicare.gov</h4><p>Plan data, formulary, provider network lookups</p><div class="price-tag">$29/mo</div></div>
+    <div class="item"><h4>DocuSign</h4><p>E-signature workflows for carrier submissions</p><div class="price-tag">$19/mo + usage</div></div>
+    <div class="item"><h4>Carrier Portal Automation</h4><p>Playwright browser automation per carrier portal</p><div class="price-tag">$49/carrier/mo</div></div>
+    <div class="item"><h4>Custom API Integration</h4><p>Build a custom MCP connector to any system</p><div class="price-tag">$2,500 setup + $29/mo</div></div>
+  </div>
+</div>
+
+<!-- SCENARIO: Small Agency -->
+<div class="scenario">
+  <h2>Scenario A: Small Agency (10 agents, Medicare + Life)</h2>
+  <table>
+    <tr><th>Item</th><th>Qty</th><th>Monthly</th></tr>
+    <tr><td>Platform Base</td><td>10 users × $49</td><td>$490</td></tr>
+    <tr><td>MDJ AI Layer</td><td>10 users × $29</td><td>$290</td></tr>
+    <tr><td>Medicare Market Module</td><td>10 users × $39</td><td>$390</td></tr>
+    <tr><td>Life Market Module</td><td>10 users × $29</td><td>$290</td></tr>
+    <tr><td>DEX (Document Center)</td><td>10 users × $19</td><td>$190</td></tr>
+    <tr><td>C3 (Campaigns)</td><td>Org-wide</td><td>$29</td></tr>
+    <tr><td>3 Carrier Data Feeds</td><td>3 × $29</td><td>$87</td></tr>
+    <tr><td>Twilio + SendGrid</td><td>2 integrations</td><td>$38</td></tr>
+    <tr class="total"><td colspan="2">TOTAL (10 agents)</td><td>$1,804/mo</td></tr>
+    <tr><td colspan="2" style="color:var(--text-muted)">Per agent</td><td style="color:var(--text-muted)">$180/agent/mo</td></tr>
+  </table>
+</div>
+
+<!-- SCENARIO: Mid-Size -->
+<div class="scenario">
+  <h2>Scenario B: Mid-Size Agency (50 agents, Full Suite)</h2>
+  <table>
+    <tr><th>Item</th><th>Qty</th><th>Monthly</th></tr>
+    <tr><td>Platform Base</td><td>50 users × $69</td><td>$3,450</td></tr>
+    <tr><td>MDJ AI Layer + 3 Specialists</td><td>50 users × ($39 + $27)</td><td>$3,300</td></tr>
+    <tr><td>MDJ-Coach</td><td>50 users × $19</td><td>$950</td></tr>
+    <tr><td>Medicare + Life + Annuity Modules</td><td>50 users × $97</td><td>$4,850</td></tr>
+    <tr><td>All Add-On Apps (8)</td><td>Mix of org-wide + per-seat</td><td>$1,800</td></tr>
+    <tr><td>10 Carrier Feeds + Integrations</td><td>10 × $29-49</td><td>$390</td></tr>
+    <tr><td>Twilio + SendGrid + Google + DocuSign</td><td>4 integrations</td><td>$76</td></tr>
+    <tr class="total"><td colspan="2">TOTAL (50 agents)</td><td>$14,816/mo</td></tr>
+    <tr><td colspan="2" style="color:var(--text-muted)">Per agent</td><td style="color:var(--text-muted)">$296/agent/mo</td></tr>
+  </table>
+</div>
+
+<!-- SCENARIO: Enterprise / 181 Agencies -->
+<div class="scenario">
+  <h2>Scenario C: Enterprise — 181 Agencies (500 agents, Everything)</h2>
+  <table>
+    <tr><th>Item</th><th>Qty</th><th>Monthly</th></tr>
+    <tr><td>Platform Base (volume discount)</td><td>500 users × $49</td><td>$24,500</td></tr>
+    <tr><td>MDJ Full AI Suite (all specialists + Coach)</td><td>500 users × $59</td><td>$29,500</td></tr>
+    <tr><td>All 6 Market Modules</td><td>500 users × $99 (bundle)</td><td>$49,500</td></tr>
+    <tr><td>All Add-On Apps (10)</td><td>Enterprise license</td><td>$5,000</td></tr>
+    <tr><td>25 Carrier Feeds</td><td>25 × $29</td><td>$725</td></tr>
+    <tr><td>Full Integration Suite</td><td>All connectors</td><td>$500</td></tr>
+    <tr><td>Priority Support + SLA</td><td>Enterprise</td><td>$2,500</td></tr>
+    <tr class="total"><td colspan="2">TOTAL (500 agents)</td><td>$112,225/mo</td></tr>
+    <tr><td colspan="2" style="color:var(--text-muted)">Per agent</td><td style="color:var(--text-muted)">$224/agent/mo</td></tr>
+  </table>
+</div>
+
+<!-- ARR Projections -->
+<div class="comparison">
+  <div class="comp-card">
+    <h3>10 Agencies (Year 1)</h3>
+    <div class="num" style="color: var(--green)">$216K</div>
+    <div class="sub">ARR @ $1,800/mo avg</div>
+  </div>
+  <div class="comp-card">
+    <h3>50 Agencies (Year 2)</h3>
+    <div class="num" style="color: var(--accent)">$1.8M</div>
+    <div class="sub">ARR @ $14.8K/mo avg</div>
+  </div>
+  <div class="comp-card">
+    <h3>181 Agencies (Year 3)</h3>
+    <div class="num" style="color: var(--purple)">$13.5M</div>
+    <div class="sub">ARR @ $112K/mo enterprise</div>
+  </div>
+</div>
+
+<div class="scenario" style="border-color: var(--purple);">
+  <h2 style="color: var(--purple)">Revenue Stream Summary</h2>
+  <table>
+    <tr><th>Stream</th><th>Type</th><th>% of Revenue</th></tr>
+    <tr><td>Platform Base (Tier 1)</td><td>Per-seat, recurring</td><td>22%</td></tr>
+    <tr><td>MDJ AI Layer (Tier 2)</td><td>Per-seat, recurring</td><td>26%</td></tr>
+    <tr><td>Market Modules (Tier 3)</td><td>Per-seat per-module, recurring</td><td>30%</td></tr>
+    <tr><td>Add-On Apps (Tier 4)</td><td>Org-wide + per-seat, recurring</td><td>12%</td></tr>
+    <tr><td>Integrations (Tier 5)</td><td>Per-connection, recurring + usage</td><td>5%</td></tr>
+    <tr><td>Professional Services</td><td>Setup, custom integrations, training</td><td>5%</td></tr>
+    <tr class="total"><td colspan="2">SaaS Gross Margin</td><td>85%+</td></tr>
+  </table>
+</div>
+
+<div class="scenario" style="border-color: var(--green);">
+  <h2 style="color: var(--green)">Valuation Impact</h2>
+  <table>
+    <tr><th>Metric</th><th>Insurance Only</th><th>Insurance + SaaS</th></tr>
+    <tr><td>Revenue Multiple</td><td>3-6x (insurance)</td><td>8-15x (SaaS blend)</td></tr>
+    <tr><td>Year 3 Revenue</td><td>$120M (NOI)</td><td>$120M + $13.5M SaaS</td></tr>
+    <tr><td>Valuation</td><td>$720M (6x)</td><td>$720M + $135M (10x SaaS) = $855M+</td></tr>
+    <tr><td>With ESOP narrative</td><td>$1.2B</td><td>$1.5-2B+ (tech + insurance)</td></tr>
+    <tr class="total"><td colspan="2">SaaS revenue DOUBLES the valuation multiple on the tech component</td><td></td></tr>
+  </table>
+</div>
+
+<div class="footer">
+  toMachina SaaS Revenue Model — Retirement Protectors, Inc.<br>
+  <em>"An AI Enterprise Platform with 3 SaaS Portals, dozens of Add-Ons, built for Retail Financial Services."</em><br>
+  2026
+</div>
+
+</body>
+</html>

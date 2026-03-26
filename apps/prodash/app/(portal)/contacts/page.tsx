@@ -9,7 +9,7 @@ import type { Client, User, Household } from '@tomachina/core'
 import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
-import { ColumnSelector, getDefaultVisibleColumns } from './components/ColumnSelector'
+import { ColumnSelector, getDefaultVisibleColumns, getDefaultColumnOrder, ALL_COLUMNS } from './components/ColumnSelector'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -118,6 +118,14 @@ export default function ClientsPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [page, setPage] = useState(0)
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(getDefaultVisibleColumns)
+  const [columnOrder, setColumnOrder] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return getDefaultColumnOrder()
+    try {
+      const raw = localStorage.getItem('rpi-col-order-contacts')
+      if (raw) { const p = JSON.parse(raw); if (Array.isArray(p)) return p as string[] }
+    } catch { /* */ }
+    return getDefaultColumnOrder()
+  })
   const [groupByHousehold, setGroupByHousehold] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
@@ -257,16 +265,42 @@ export default function ClientsPage() {
     return order.map(key => groups.get(key)!)
   }, [groupByHousehold, paged])
 
+  // Ordered list of visible column keys (excluding 'name' which is always first)
+  const orderedVisibleKeys = useMemo(
+    () => columnOrder.filter((k) => k !== 'name' && visibleColumns.has(k)),
+    [columnOrder, visibleColumns]
+  )
+
   // Count visible columns for colSpan on group headers
-  const visibleColCount = useMemo(() => {
-    // 1 for checkbox + 1 for name (always visible) + each toggled column
-    let count = 2
-    const toggleable = ['location', 'phone', 'email', 'agent', 'status', 'household', 'age', 'dob', 'ssn', 'gender', 'marital', 'timezone', 'employment']
-    for (const k of toggleable) {
-      if (visibleColumns.has(k)) count++
+  const visibleColCount = useMemo(() => 2 + orderedVisibleKeys.length, [orderedVisibleKeys])
+
+  // DeDup: detect potential duplicates in current loaded set (TRK-13679)
+  const dupeIds = useMemo(() => {
+    const ids = new Set<string>()
+    const emailMap = new Map<string, string[]>()
+    const nameMap = new Map<string, string[]>()
+    for (const c of clients) {
+      const cid = c._id || c.client_id
+      if (c.email) {
+        const e = c.email.toLowerCase()
+        if (!emailMap.has(e)) emailMap.set(e, [])
+        emailMap.get(e)!.push(cid)
+      }
+      const ln = (c.last_name || '').toLowerCase().trim()
+      if (ln && c.dob) {
+        const key = ln + '|' + String(c.dob)
+        if (!nameMap.has(key)) nameMap.set(key, [])
+        nameMap.get(key)!.push(cid)
+      }
     }
-    return count
-  }, [visibleColumns])
+    for (const group of emailMap.values()) {
+      if (group.length > 1) group.forEach(id => ids.add(id))
+    }
+    for (const group of nameMap.values()) {
+      if (group.length > 1) group.forEach(id => ids.add(id))
+    }
+    return ids
+  }, [clients])
 
   // Handlers — reset page on filter change
   const resetPage = useCallback(() => setPage(0), [])
@@ -301,7 +335,7 @@ export default function ClientsPage() {
 
   const handleRowClick = useCallback(
     (client: ClientRow) => {
-      window.open(`/contacts/${client._id || client.client_id}`, '_blank')
+      window.location.href = `/contacts/${client._id || client.client_id}`
     },
     []
   )
@@ -329,6 +363,44 @@ export default function ClientsPage() {
       {label}
     </th>
   )
+
+  // Column header config for dynamic ordering
+  const HEADER_MAP: Record<string, React.ReactNode> = {
+    location: renderSortHeader('City/State', 'location'),
+    phone: renderStaticHeader('Phone'),
+    email: renderStaticHeader('Email'),
+    agent: renderSortHeader('Agent', 'agent_name'),
+    status: renderSortHeader('Status', 'status'),
+    household: renderSortHeader('Household', 'household'),
+    age: renderStaticHeader('Age'),
+    dob: renderStaticHeader('DOB'),
+    ssn: renderStaticHeader('SSN'),
+    gender: renderStaticHeader('Gender'),
+    marital: renderStaticHeader('Marital'),
+    timezone: renderStaticHeader('Time Zone'),
+    employment: renderStaticHeader('Employment'),
+  }
+
+  // Column cell renderer for dynamic ordering
+  const renderCell = (key: string, client: ClientRow, age: number | null) => {
+    const dash = <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
+    switch (key) {
+      case 'location': return client.city || client.state ? <span className="text-[var(--text-secondary)]">{[client.city, client.state].filter(Boolean).join(', ')}</span> : dash
+      case 'phone': return client.phone ? <span className="text-[var(--text-secondary)] whitespace-nowrap">{formatPhone(client.phone)}</span> : dash
+      case 'email': return client.email ? <a href={`mailto:${client.email}`} onClick={(e) => e.stopPropagation()} className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block">{client.email}</a> : dash
+      case 'agent': return client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash
+      case 'status': return <StatusBadge status={client.status} />
+      case 'household': return client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash
+      case 'age': return age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash
+      case 'dob': return client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash
+      case 'ssn': return client.ssn_last4 ? <span className="text-[var(--text-secondary)] text-xs">***-**-{String(client.ssn_last4)}</span> : dash
+      case 'gender': return client.gender ? <span className="text-[var(--text-secondary)] text-xs">{String(client.gender)}</span> : dash
+      case 'marital': return client.marital_status ? <span className="text-[var(--text-secondary)] text-xs">{String(client.marital_status)}</span> : dash
+      case 'timezone': return client.timezone ? <span className="text-[var(--text-secondary)] text-xs">{String(client.timezone)}</span> : dash
+      case 'employment': return client.employment_status ? <span className="text-[var(--text-secondary)] text-xs">{String(client.employment_status)}</span> : dash
+      default: return dash
+    }
+  }
 
   // Loading state
   if (loading) {
@@ -392,6 +464,9 @@ export default function ClientsPage() {
             <ColumnSelector
               visibleColumns={visibleColumns}
               onChange={setVisibleColumns}
+              columnOrder={columnOrder}
+              onOrderChange={setColumnOrder}
+              storageKey="contacts"
             />
             <button
               onClick={() => setGroupByHousehold(g => !g)}
@@ -464,21 +539,12 @@ export default function ClientsPage() {
                       }}
                     />
                   </th>
-                  {/* name is always visible */}
+                  {/* name is always first */}
                   {renderSortHeader('Contact', 'name')}
-                  {col('location') && renderSortHeader('City/State', 'location')}
-                  {col('phone') && renderStaticHeader('Phone')}
-                  {col('email') && renderStaticHeader('Email')}
-                  {col('agent') && renderSortHeader('Agent', 'agent_name')}
-                  {col('status') && renderSortHeader('Status', 'status')}
-                  {col('household') && renderSortHeader('Household', 'household')}
-                  {col('age') && renderStaticHeader('Age')}
-                  {col('dob') && renderStaticHeader('DOB')}
-                  {col('ssn') && renderStaticHeader('SSN')}
-                  {col('gender') && renderStaticHeader('Gender')}
-                  {col('marital') && renderStaticHeader('Marital')}
-                  {col('timezone') && renderStaticHeader('Time Zone')}
-                  {col('employment') && renderStaticHeader('Employment')}
+                  {/* Remaining columns in user-defined order */}
+                  {orderedVisibleKeys.map((key) => (
+                    <React.Fragment key={key}>{HEADER_MAP[key]}</React.Fragment>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -526,22 +592,13 @@ export default function ClientsPage() {
                                 <div className="min-w-0">
                                   <p className="truncate font-medium text-[var(--text-primary)]">{cleanName(String(client.preferred_name || client.first_name || ''))}{' '}{cleanName(String(client.last_name || ''))}</p>
                                   {age != null && <p className="text-xs text-[var(--text-muted)]">Age {age}</p>}
+                                  {dupeIds.has(client._id || client.client_id) && <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400"><span className="material-icons-outlined" style={{fontSize: 11}}>warning</span>Dupe</span>}
                                 </div>
                               </div>
                             </td>
-                            {col('location') && (<td className="px-3 py-3">{client.city || client.state ? <span className="text-[var(--text-secondary)]">{[client.city, client.state].filter(Boolean).join(', ')}</span> : dash}</td>)}
-                            {col('phone') && (<td className="px-3 py-3">{client.phone ? <span className="text-[var(--text-secondary)] whitespace-nowrap">{formatPhone(client.phone)}</span> : dash}</td>)}
-                            {col('email') && (<td className="px-3 py-3">{client.email ? <a href={`mailto:${client.email}`} onClick={(e) => e.stopPropagation()} className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block">{client.email}</a> : dash}</td>)}
-                            {col('agent') && (<td className="px-3 py-3">{client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash}</td>)}
-                            {col('status') && (<td className="px-3 py-3"><StatusBadge status={client.status} /></td>)}
-                            {col('household') && (<td className="px-3 py-3">{client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash}</td>)}
-                            {col('age') && (<td className="px-3 py-3">{age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash}</td>)}
-                            {col('dob') && (<td className="px-3 py-3">{client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash}</td>)}
-                            {col('ssn') && (<td className="px-3 py-3">{client.ssn_last4 ? <span className="text-[var(--text-secondary)] text-xs">***-**-{String(client.ssn_last4)}</span> : dash}</td>)}
-                            {col('gender') && (<td className="px-3 py-3">{client.gender ? <span className="text-[var(--text-secondary)] text-xs">{String(client.gender)}</span> : dash}</td>)}
-                            {col('marital') && (<td className="px-3 py-3">{client.marital_status ? <span className="text-[var(--text-secondary)] text-xs">{String(client.marital_status)}</span> : dash}</td>)}
-                            {col('timezone') && (<td className="px-3 py-3">{client.timezone ? <span className="text-[var(--text-secondary)] text-xs">{String(client.timezone)}</span> : dash}</td>)}
-                            {col('employment') && (<td className="px-3 py-3">{client.employment_status ? <span className="text-[var(--text-secondary)] text-xs">{String(client.employment_status)}</span> : dash}</td>)}
+                            {orderedVisibleKeys.map((key) => (
+                              <td key={key} className="px-3 py-3">{renderCell(key, client, age)}</td>
+                            ))}
                           </tr>
                         )
                       })}
@@ -586,144 +643,10 @@ export default function ClientsPage() {
                         </div>
                       </td>
 
-                      {/* City/State */}
-                      {col('location') && (
-                        <td className="px-3 py-3">
-                          {client.city || client.state ? (
-                            <span className="text-[var(--text-secondary)]">
-                              {[client.city, client.state].filter(Boolean).join(', ')}
-                            </span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Phone */}
-                      {col('phone') && (
-                        <td className="px-3 py-3">
-                          {client.phone ? (
-                            <span className="text-[var(--text-secondary)] whitespace-nowrap">
-                              {formatPhone(client.phone)}
-                            </span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Email */}
-                      {col('email') && (
-                        <td className="px-3 py-3">
-                          {client.email ? (
-                            <a
-                              href={`mailto:${client.email}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="truncate text-xs text-[var(--portal)] hover:underline max-w-[180px] block"
-                            >
-                              {client.email}
-                            </a>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Agent */}
-                      {col('agent') && (
-                        <td className="px-3 py-3">
-                          {client.agent_name ? (
-                            <span className="text-[var(--text-secondary)] text-xs">
-                              {String(client.agent_name)}
-                            </span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Status */}
-                      {col('status') && (
-                        <td className="px-3 py-3">
-                          <StatusBadge status={client.status} />
-                        </td>
-                      )}
-
-                      {/* Household */}
-                      {col('household') && (
-                        <td className="px-3 py-3">
-                          {client.household_name ? (
-                            <a
-                              href={`/households/${client.household_id}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-xs text-[var(--portal)] hover:underline"
-                            >
-                              {String(client.household_name)}
-                            </a>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Age (optional column) */}
-                      {col('age') && (
-                        <td className="px-3 py-3">
-                          {age != null ? (
-                            <span className="text-[var(--text-secondary)] text-xs">{age}</span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Date of Birth (optional column) */}
-                      {col('dob') && (
-                        <td className="px-3 py-3">
-                          {client.dob ? (
-                            <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">
-                              {new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
-                            </span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* SSN Last 4 (optional column) */}
-                      {col('ssn') && (
-                        <td className="px-3 py-3">
-                          {client.ssn_last4 ? (
-                            <span className="text-[var(--text-secondary)] text-xs">
-                              ***-**-{String(client.ssn_last4)}
-                            </span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Gender (optional column) */}
-                      {col('gender') && (
-                        <td className="px-3 py-3">
-                          {client.gender ? (
-                            <span className="text-[var(--text-secondary)] text-xs">{String(client.gender)}</span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Marital Status (optional column) */}
-                      {col('marital') && (
-                        <td className="px-3 py-3">
-                          {client.marital_status ? (
-                            <span className="text-[var(--text-secondary)] text-xs">{String(client.marital_status)}</span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Time Zone (optional column) */}
-                      {col('timezone') && (
-                        <td className="px-3 py-3">
-                          {client.timezone ? (
-                            <span className="text-[var(--text-secondary)] text-xs">{String(client.timezone)}</span>
-                          ) : dash}
-                        </td>
-                      )}
-
-                      {/* Employment (optional column) */}
-                      {col('employment') && (
-                        <td className="px-3 py-3">
-                          {client.employment_status ? (
-                            <span className="text-[var(--text-secondary)] text-xs">{String(client.employment_status)}</span>
-                          ) : dash}
-                        </td>
-                      )}
+                      {/* Dynamic columns in user-defined order */}
+                      {orderedVisibleKeys.map((key) => (
+                        <td key={key} className="px-3 py-3">{renderCell(key, client, age)}</td>
+                      ))}
                     </tr>
                   )
                 })

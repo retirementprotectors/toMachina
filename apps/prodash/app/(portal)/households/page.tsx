@@ -79,7 +79,7 @@ export default function HouseholdsPage() {
 
   const handleRowClick = useCallback((household: Household & { _id?: string }) => {
     const id = household._id || household.household_id
-    window.open(`/households/${id}`, '_blank')
+    window.location.href = `/households/${id}`
   }, [])
 
   return (

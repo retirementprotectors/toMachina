@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMMS-POLISH — Production-Ready Communications</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --dim: #484f58;
+    --blue: #4a7ab5; --blue-bright: #6b9fd4; --blue-glow: rgba(74,122,181,0.12); --blue-border: rgba(74,122,181,0.28);
+    --green: #3fb950; --red: #f85149; --orange: #d29922; --amber: #e3b341;
+    --purple: #bc8cff; --teal: #39d4b0; --cyan: #58a6ff;
+    --amber-bg: rgba(227,179,65,0.06); --amber-border: rgba(227,179,65,0.22);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+
+  .header { padding: 56px 40px 36px; text-align: center; position: relative; border-bottom: 1px solid var(--border); overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%; background: linear-gradient(135deg, var(--blue) 0%, #1a1a2e 100%); opacity: 0.15; }
+  .header::after { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(circle, rgba(74,122,181,0.12) 0%, transparent 70%); pointer-events: none; }
+  .header .sprint-badge { display: inline-flex; align-items: center; gap: 8px; padding: 5px 16px; border-radius: 100px; background: var(--blue-glow); border: 1px solid var(--blue-border); color: var(--blue-bright); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; position: relative; z-index: 1; }
+  .header h1 { font-size: 38px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 8px; background: linear-gradient(135deg, var(--blue-bright), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; z-index: 1; }
+  .header .sub { font-size: 15px; color: var(--muted); max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+  .header .meta { display: flex; gap: 24px; justify-content: center; margin-top: 20px; position: relative; z-index: 1; }
+  .header .meta-item { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .header .meta-item strong { color: var(--muted); font-weight: 600; }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 40px; }
+  h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin: 52px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  h2 .accent { color: var(--blue-bright); }
+  h3 { font-size: 16px; font-weight: 700; margin: 28px 0 8px; color: var(--blue-bright); }
+  h4 { font-size: 14px; font-weight: 700; margin: 16px 0 6px; color: var(--text); }
+  p, li { font-size: 14px; color: var(--muted); line-height: 1.75; }
+  ul { padding-left: 20px; margin: 8px 0 16px; }
+  li { margin-bottom: 4px; }
+  strong { color: var(--text); }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--blue-bright); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .ticket { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; background: var(--blue-glow); color: var(--blue-bright); border: 1px solid var(--blue-border); margin-right: 6px; margin-bottom: 4px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 4px; }
+  .tag.ui { background: rgba(188,140,255,0.10); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .tag.api { background: rgba(57,212,176,0.10); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .tag.bug { background: rgba(248,81,73,0.10); color: var(--red); border: 1px solid rgba(248,81,73,0.25); }
+  .tag.infra { background: rgba(210,153,34,0.10); color: var(--orange); border: 1px solid rgba(210,153,34,0.25); }
+
+  .strategy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+  .stat-card .num { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
+  .stat-card .num.green { color: var(--green); }
+  .stat-card .num.purple { color: var(--purple); }
+  .stat-card .num.orange { color: var(--orange); }
+  .stat-card .label { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+
+  .route-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .route-table th { text-align: left; font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .route-table td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); color: var(--muted); vertical-align: top; }
+  .route-table td code { font-size: 11px; }
+  .route-table td strong { color: var(--text); font-weight: 600; }
+
+  .para-map { margin: 24px 0; }
+  .wave { margin-bottom: 20px; }
+  .wave-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .wave-label { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 4px; }
+  .wave-label.w1 { background: rgba(63,185,80,0.12); color: var(--green); border: 1px solid rgba(63,185,80,0.25); }
+  .wave-label.w2 { background: rgba(188,140,255,0.12); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
+  .wave-label.w3 { background: rgba(210,153,34,0.12); color: var(--orange); border: 1px solid rgba(210,153,34,0.25); }
+  .wave-label.w4 { background: rgba(88,166,255,0.12); color: var(--cyan); border: 1px solid rgba(88,166,255,0.25); }
+  .wave-label.w5 { background: rgba(57,212,176,0.12); color: var(--teal); border: 1px solid rgba(57,212,176,0.25); }
+  .wave-label.w6 { background: rgba(248,81,73,0.12); color: var(--red); border: 1px solid rgba(248,81,73,0.25); }
+  .wave-tag { font-size: 11px; color: var(--dim); font-weight: 500; }
+  .wave-boxes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .wave-box { flex: 1; min-width: 180px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .wave-box .box-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .wave-box .box-tickets { font-size: 11px; color: var(--dim); }
+  .wave-connector { display: flex; justify-content: center; padding: 6px 0; }
+  .wave-arrow { color: var(--dim); font-size: 20px; }
+
+  .checklist { list-style: none; padding: 0; margin: 16px 0; }
+  .checklist li { padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 14px; color: var(--muted); display: flex; align-items: flex-start; gap: 10px; }
+  .checklist li .check { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+  .checklist li .idx { font-weight: 800; color: var(--blue-bright); min-width: 18px; }
+
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .header { border-bottom-color: #ddd; }
+    .header h1 { -webkit-text-fill-color: var(--blue); }
+    .card, .stat-card, .wave-box { border-color: #ddd; background: #f8f9fa; }
+    .checklist li { border-color: #ddd; background: #f8f9fa; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-badge">FORGE Sprint &middot; COMMS-POLISH</div>
+  <h1>Production-Ready Communications</h1>
+  <div class="sub">Tab order, button consistency, push layout, vendor label removal, inbound call fix, reply/view client wiring, smart routing, voicemail, recordings verification, A2P status</div>
+  <div class="meta">
+    <div class="meta-item">Status: <strong>Plan</strong></div>
+    <div class="meta-item">Tickets: <strong>15</strong></div>
+    <div class="meta-item">Builder: <strong>Single</strong></div>
+    <div class="meta-item">Predecessor: <strong>COMMS-LIVE (shipped 2026-03-23)</strong></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <h2>Sprint <span class="accent">Strategy</span></h2>
+  <div class="strategy">
+    <div class="stat-card"><div class="num green">15</div><div class="label">Tickets</div></div>
+    <div class="stat-card"><div class="num purple">6</div><div class="label">Waves</div></div>
+    <div class="stat-card"><div class="num orange">13</div><div class="label">Files Modified</div></div>
+  </div>
+
+  <h2>Deliverable <span class="accent">Overview</span></h2>
+
+  <table class="route-table">
+    <thead>
+      <tr><th>Ticket</th><th>Layer</th><th>Deliverable</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="ticket">TRK-13670</span></td><td><span class="tag ui">UI</span></td><td><strong>Tab Order</strong> — Reorder to Call, Text, Email, Log</td></tr>
+      <tr><td><span class="ticket">TRK-13669</span> <span class="ticket">TRK-13672</span></td><td><span class="tag ui">UI</span></td><td><strong>Button Consistency</strong> — Uniform 40px pills, portal-colored, consistent labels</td></tr>
+      <tr><td><span class="ticket">TRK-13674</span></td><td><span class="tag ui">UI</span></td><td><strong>Panel Push-Not-Overlay</strong> — Content shrinks on desktop, no backdrop</td></tr>
+      <tr><td><span class="ticket">TRK-13675</span></td><td><span class="tag ui">UI</span></td><td><strong>Remove Vendor Labels</strong> — Zero "Twilio", "SendGrid", "Gmail API" in UI</td></tr>
+      <tr><td><span class="ticket">TRK-13690</span></td><td><span class="tag bug">BUG</span></td><td><strong>Inbound Call Answer</strong> — Fix card not appearing + add ring audio + notifications</td></tr>
+      <tr><td><span class="ticket">TRK-13688</span> <span class="ticket">TRK-13689</span></td><td><span class="tag ui">UI</span></td><td><strong>Reply / View Client</strong> — Wire stub buttons in CommsFeed</td></tr>
+      <tr><td><span class="ticket">TRK-13692</span></td><td><span class="tag api">API</span></td><td><strong>Call Routing</strong> — Smart routing by assigned agent, config UI</td></tr>
+      <tr><td><span class="ticket">TRK-13693</span></td><td><span class="tag api">API</span></td><td><strong>Voicemail</strong> — Webhook handler, greeting config, recording + transcription</td></tr>
+      <tr><td><span class="ticket">TRK-13694</span></td><td><span class="tag bug">BUG</span></td><td><strong>Recordings Verification</strong> — E2E pipeline test, CORS proxy if needed</td></tr>
+      <tr><td><span class="ticket">TRK-13671</span></td><td><span class="tag infra">INFRA</span></td><td><strong>A2P Campaign Check</strong> — Query status, update config if approved</td></tr>
+      <tr><td><span class="ticket">TRK-13668</span></td><td><span class="tag ui">UI</span></td><td><strong>To: Field Cleanup</strong> — Show client name, not raw phone number</td></tr>
+      <tr><td><span class="ticket">TRK-13673</span></td><td><span class="tag ui">UI</span></td><td><strong>Log Tab Overhaul</strong> — Layout, readability, visual hierarchy</td></tr>
+      <tr><td><span class="ticket">TRK-13686</span></td><td><span class="tag ui">UI</span></td><td><strong>Tab Alignment</strong> — Consistent tabs across Comms/Connect/Notifications</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Build <span class="accent">Order</span></h2>
+
+  <div class="para-map">
+    <div class="wave">
+      <div class="wave-header">
+        <span class="wave-label w1">Wave 1</span>
+        <span class="wave-tag">Quick Wins &mdash; No behavioral changes</span>
+      </div>
+      <div class="wave-boxes">
+        <div class="wave-box"><div class="box-title">Remove Vendor Labels</div><div class="box-tickets">TRK-13675</div></div>
+        <div class="wave-box"><div class="box-title">Button Consistency</div><div class="box-tickets">TRK-13669, TRK-13672</div></div>
+        <div class="wave-box"><div class="box-title">Tab Order</div><div class="box-tickets">TRK-13670</div></div>
+        <div class="wave-box"><div class="box-title">To: Field Cleanup</div><div class="box-tickets">TRK-13668</div></div>
+        <div class="wave-box"><div class="box-title">Log Tab Overhaul</div><div class="box-tickets">TRK-13673</div></div>
+        <div class="wave-box"><div class="box-title">Tab Alignment</div><div class="box-tickets">TRK-13686</div></div>
+      </div>
+    </div>
+
+    <div class="wave-connector"><span class="wave-arrow">&darr;</span></div>
+
+    <div class="wave">
+      <div class="wave-header">
+        <span class="wave-label w2">Wave 2</span>
+        <span class="wave-tag">Layout Change &mdash; Panel push behavior</span>
+      </div>
+      <div class="wave-boxes">
+        <div class="wave-box"><div class="box-title">Panel Push-Not-Overlay</div><div class="box-tickets">TRK-13674 &mdash; All 3 portal layouts + CommsModule</div></div>
+      </div>
+    </div>
+
+    <div class="wave-connector"><span class="wave-arrow">&darr;</span></div>
+
+    <div class="wave">
+      <div class="wave-header">
+        <span class="wave-label w3">Wave 3</span>
+        <span class="wave-tag">Wire Stub Buttons</span>
+      </div>
+      <div class="wave-boxes">
+        <div class="wave-box"><div class="box-title">Reply Wiring</div><div class="box-tickets">TRK-13688 &mdash; Reply opens correct tab + pre-fills contact</div></div>
+        <div class="wave-box"><div class="box-title">View Client Wiring</div><div class="box-tickets">TRK-13689 &mdash; Navigate to /contacts/{id}</div></div>
+      </div>
+    </div>
+
+    <div class="wave-connector"><span class="wave-arrow">&darr;</span></div>
+
+    <div class="wave">
+      <div class="wave-header">
+        <span class="wave-label w4">Wave 4</span>
+        <span class="wave-tag">Inbound Call Fix + Polish</span>
+      </div>
+      <div class="wave-boxes">
+        <div class="wave-box"><div class="box-title">InboundCallCard Bug Fix</div><div class="box-tickets">TRK-13690 &mdash; Debug why card isn't appearing</div></div>
+        <div class="wave-box"><div class="box-title">Ring Audio + Notifications</div><div class="box-tickets">TRK-13690 &mdash; Audio loop, browser notification, auto-dismiss</div></div>
+      </div>
+    </div>
+
+    <div class="wave-connector"><span class="wave-arrow">&darr;</span></div>
+
+    <div class="wave">
+      <div class="wave-header">
+        <span class="wave-label w5">Wave 5</span>
+        <span class="wave-tag">Backend Features</span>
+      </div>
+      <div class="wave-boxes">
+        <div class="wave-box"><div class="box-title">Call Routing</div><div class="box-tickets">TRK-13692 &mdash; Smart routing + config UI</div></div>
+        <div class="wave-box"><div class="box-title">Voicemail</div><div class="box-tickets">TRK-13693 &mdash; Webhook + greeting + config UI</div></div>
+      </div>
+    </div>
+
+    <div class="wave-connector"><span class="wave-arrow">&darr;</span></div>
+
+    <div class="wave">
+      <div class="wave-header">
+        <span class="wave-label w6">Wave 6</span>
+        <span class="wave-tag">Verification</span>
+      </div>
+      <div class="wave-boxes">
+        <div class="wave-box"><div class="box-title">Recordings Pipeline</div><div class="box-tickets">TRK-13694 &mdash; E2E test + CORS proxy if needed</div></div>
+        <div class="wave-box"><div class="box-title">A2P Campaign</div><div class="box-tickets">TRK-13671 &mdash; Status check + config update</div></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Wave 1: <span class="accent">Quick Wins</span></h2>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13675</span> Remove Vendor Labels</h4>
+    <ul>
+      <li>Remove "Powered by Twilio" badge from SMS channel section <code>CommsCompose.tsx:728-735</code></li>
+      <li>Remove "Powered by Twilio" from dialer area <code>CommsCompose.tsx:132-136</code></li>
+      <li>Send buttons: "Send" (not "Send via Twilio/SendGrid")</li>
+      <li>Email badge: remove "Gmail API", show "RPI Email" or from address</li>
+      <li>Keep "+1 (888) 620-8587 RPI Toll-Free" (our branding)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13669</span> <span class="ticket">TRK-13672</span> Button Consistency</h4>
+    <ul>
+      <li>All send buttons: <code>h-[40px] rounded-lg px-6 text-sm font-semibold</code> with <code>var(--portal)</code></li>
+      <li>Reply/Call Back buttons: same 40px pill style</li>
+      <li>Filter pills: <code>h-[36px] rounded-lg</code> (not rounded-full)</li>
+      <li>Consistent hover: <code>hover:brightness-110</code> on all action buttons</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13670</span> Tab Order</h4>
+    <ul>
+      <li>Reorder TABS array: <strong>Call &rarr; Text &rarr; Email &rarr; Log</strong></li>
+      <li>Default active tab: <code>'call'</code></li>
+      <li>Verify client detail button mappings still work</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13668</span> To: Field Cleanup</h4>
+    <ul>
+      <li>When opening from client detail, show client name in To: field (not raw phone)</li>
+      <li>Store actual phone/email as hidden value for API calls</li>
+      <li>Disable search when contact is pre-set</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13673</span> Log Tab UI Overhaul</h4>
+    <ul>
+      <li>Clearer visual separation between entries (border-bottom or gap)</li>
+      <li>Contact name prominent, timestamp + type secondary, preview tertiary</li>
+      <li>Consistent padding/spacing</li>
+      <li>Status badges: consistent sizing and alignment</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13686</span> Tab Alignment Across Modules</h4>
+    <ul>
+      <li>Define shared tab bar: left-aligned, 44px height, consistent gap + indicator</li>
+      <li>Apply to CommsModule, ConnectPanel, and NotificationsPanel</li>
+      <li>Consider extracting shared <code>ModuleTabBar</code> component</li>
+    </ul>
+  </div>
+
+  <h2>Wave 2: <span class="accent">Push Layout</span></h2>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13674</span> Panel Push-Not-Overlay</h4>
+    <ul>
+      <li>Remove backdrop div (<code>fixed inset-0 z-40 bg-black/20</code>)</li>
+      <li>Create <code>useCommsPanel</code> shared state hook</li>
+      <li>Portal layouts read isOpen &rarr; apply <code>pr-[360px] / pr-[460px]</code> with transition</li>
+      <li>Mobile (&lt;1024px): keep full-width overlay with backdrop</li>
+      <li><strong>Files:</strong> All 3 portal <code>layout.tsx</code> + <code>CommsModule/index.tsx</code></li>
+    </ul>
+  </div>
+
+  <h2>Wave 3: <span class="accent">Wire Stubs</span></h2>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13688</span> Reply Button Wiring</h4>
+    <ul>
+      <li>SMS entry &rarr; Reply opens Text tab with phone pre-filled</li>
+      <li>Email entry &rarr; Reply opens Email tab with email + "Re: " subject</li>
+      <li>Voice entry &rarr; Call Back opens Call tab with phone pre-filled</li>
+      <li>Expose <code>switchTab(tab, contact?)</code> from CommsModule to CommsFeed</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13689</span> View Client Button Wiring</h4>
+    <ul>
+      <li>Add <code>clientId</code> to <code>CommEntry</code> interface (map from Firestore <code>client_id</code>)</li>
+      <li>If client_id exists &rarr; <code>router.push('/contacts/' + clientId)</code></li>
+      <li>If no client_id &rarr; toast "Client not found"</li>
+    </ul>
+  </div>
+
+  <h2>Wave 4: <span class="accent">Inbound Call</span></h2>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13690</span> InboundCallCard Bug Fix + Polish</h4>
+    <ul>
+      <li><strong>BUG FIX FIRST:</strong> Debug why InboundCallCard is not appearing. Check Device registration, incoming event, custom event dispatch, render conditions, z-index.</li>
+      <li><strong>Ring audio:</strong> Play ringtone loop via <code>new Audio('/ring.mp3')</code>, stop on answer/decline/cancel</li>
+      <li><strong>Browser notification:</strong> Request permission, show system notification with caller name</li>
+      <li><strong>Ring animation:</strong> Concentric circle pulse replacing opacity-only animation</li>
+      <li><strong>Auto-dismiss:</strong> 25s timeout fallback if Twilio doesn't cancel</li>
+    </ul>
+  </div>
+
+  <h2>Wave 5: <span class="accent">Backend</span></h2>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13692</span> Call Routing</h4>
+    <ul>
+      <li>New helper: <code>resolveCallRouting(fromNumber)</code> &mdash; lookup client by phone &rarr; get assigned_agent &rarr; resolve agent email</li>
+      <li>Update <code>voice-incoming</code> webhook to use resolved identity instead of hardcoded default</li>
+      <li>Wire <code>CallRoutingConfig.tsx</code> to Firestore <code>config/call_routing</code></li>
+      <li>Fields: default_agent, business_hours_start/end, after_hours_action</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13693</span> Voicemail</h4>
+    <ul>
+      <li>New webhook: <code>POST /api/comms/webhook/voicemail</code> &mdash; receives recording, updates comm doc with <code>status: 'voicemail'</code></li>
+      <li>Update voice-incoming TwiML: greeting <code>&lt;Say&gt;</code> + <code>&lt;Record&gt;</code> with transcription</li>
+      <li>Wire <code>VoicemailConfig.tsx</code> to Firestore <code>config/voicemail</code></li>
+      <li>Fields: greeting_text, max_length, email_notification, transcription_enabled</li>
+    </ul>
+  </div>
+
+  <h2>Wave 6: <span class="accent">Verification</span></h2>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13694</span> Recordings Verification</h4>
+    <ul>
+      <li>Add loading spinner + error states to <code>RecordingPlayer.tsx</code></li>
+      <li>Test CORS on Twilio recording URLs &mdash; add proxy <code>GET /api/comms/recording/:sid</code> if blocked</li>
+      <li>Manual test: outbound recording, inbound recording, voicemail recording</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4><span class="ticket">TRK-13671</span> A2P Campaign Status</h4>
+    <ul>
+      <li>Query Twilio for campaign <code>CM62449e...72705b101</code></li>
+      <li>If approved: update <code>TWILIO_SMS_NUMBER</code> env var to local number</li>
+      <li>If pending: document status, keep toll-free fallback</li>
+    </ul>
+  </div>
+
+  <h2>File <span class="accent">Manifest</span></h2>
+  <div class="card">
+<pre><code>packages/ui/src/modules/CommsModule/
+  index.tsx                  # Tabs, panel layout, push behavior
+  CommsCompose.tsx           # Buttons, vendor labels, To: field
+  CommsFeed.tsx              # Reply/View Client, pills, log layout
+  useIncomingCall.ts         # Ring audio, notification, auto-dismiss
+  InboundCallCard.tsx        # Ring animation, bug fix
+  IncomingCallRing.tsx       # Ring UI
+  RecordingPlayer.tsx        # Error handling, loading states
+  CallRoutingConfig.tsx      # Firestore wiring
+  VoicemailConfig.tsx        # Firestore wiring
+  useCommsPanel.ts           # NEW — shared panel open/close state
+
+services/api/src/routes/
+  comms.ts                   # Routing logic, voicemail handler
+
+apps/prodash/app/(portal)/layout.tsx    # Push layout
+apps/riimo/app/(portal)/layout.tsx      # Push layout
+apps/sentinel/app/(portal)/layout.tsx   # Push layout</code></pre>
+  </div>
+
+  <h2>Verification <span class="accent">Checklist</span></h2>
+  <ul class="checklist">
+    <li><div class="check"></div><span class="idx">1</span> Tabs: Call, Text, Email, Log in all 3 portals</li>
+    <li><div class="check"></div><span class="idx">2</span> Buttons: Uniform 40px, rounded-lg, portal-colored, no vendor text</li>
+    <li><div class="check"></div><span class="idx">3</span> Push layout: Desktop content shrinks, no backdrop. Mobile overlay preserved.</li>
+    <li><div class="check"></div><span class="idx">4</span> No vendor labels: Zero "Twilio", "SendGrid", "Gmail API" visible</li>
+    <li><div class="check"></div><span class="idx">5</span> To: field shows client name (not raw phone) when opened from client detail</li>
+    <li><div class="check"></div><span class="idx">6</span> Log tab: Clear entry separation, readable hierarchy, consistent spacing</li>
+    <li><div class="check"></div><span class="idx">7</span> Tab alignment: Comms/Connect/Notifications use same tab bar pattern</li>
+    <li><div class="check"></div><span class="idx">8</span> Reply: SMS&rarr;Text, Email&rarr;Email (Re:), Voice&rarr;Call. Contact pre-filled.</li>
+    <li><div class="check"></div><span class="idx">9</span> View Client: Navigates to /contacts/{id}. No match &rarr; toast warning.</li>
+    <li><div class="check"></div><span class="idx">10</span> Inbound call: Card appears, ringtone plays, browser notification shows</li>
+    <li><div class="check"></div><span class="idx">11</span> Routing: Assigned-client call &rarr; routes to agent. Unknown &rarr; default.</li>
+    <li><div class="check"></div><span class="idx">12</span> Voicemail: Greeting plays, records, logged in feed with playback</li>
+    <li><div class="check"></div><span class="idx">13</span> Recordings: All 3 types play back in RecordingPlayer</li>
+    <li><div class="check"></div><span class="idx">14</span> A2P: Campaign status documented</li>
+    <li><div class="check"></div><span class="idx">15</span> Build: <code>npm run build</code> passes (13/13 type-check)</li>
+  </ul>
+
+</div>
+</body>
+</html>

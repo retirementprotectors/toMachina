@@ -9,6 +9,7 @@ import {
   successResponse, errorResponse, getPaginationParams, paginatedQuery,
   stripInternalFields, validateRequired, param, writeThroughBridge,
 } from '../lib/helpers.js'
+import { dispatchCheck } from '@tomachina/core'
 import type {
   FlowPipelineDTO,
   FlowPipelineDetailDTO,
@@ -24,6 +25,7 @@ import type {
   FlowTasksGenerateResult,
   FlowTaskCompleteResult,
   FlowTaskSkipResult,
+  CheckResult,
 } from '@tomachina/core'
 
 export const flowRoutes = Router()
@@ -381,19 +383,25 @@ flowRoutes.patch('/instances/:id', async (req: Request, res: Response) => {
           return
         }
 
-        // Check gate
+        // Check gate — both task status AND system check results
         const currentStage = stages[currentIdx]
         if (currentStage.gate_enforced) {
           const tasksSnap = await db.collection(TASKS)
             .where('instance_id', '==', id)
             .where('stage_id', '==', currentStage.stage_id)
             .get()
-          const blockers = tasksSnap.docs
-            .map(d => d.data())
-            .filter(t => t.is_required && !['completed', 'skipped'].includes(t.status))
+          const taskDocs = tasksSnap.docs.map(d => d.data())
+          const statusBlockers = taskDocs
+            .filter(t => t.is_required && !['completed', 'skipped'].includes(String(t.status)))
+          const checkBlockers = taskDocs
+            .filter(t => t.is_system_check && t.status === 'completed' && t.check_result && t.check_result !== 'PASS')
 
-          if (blockers.length > 0) {
-            res.status(400).json(errorResponse('Gate blocked — required tasks incomplete', 400))
+          if (statusBlockers.length > 0 || checkBlockers.length > 0) {
+            const reasons = [
+              ...statusBlockers.map(t => `"${t.task_name}" is ${t.status}`),
+              ...checkBlockers.map(t => `"${t.task_name}" check returned ${t.check_result}`),
+            ]
+            res.status(400).json(errorResponse(`Gate blocked — ${reasons.join('; ')}`, 400))
             return
           }
         }
@@ -585,9 +593,29 @@ flowRoutes.patch('/tasks/:id', async (req: Request, res: Response) => {
       return
     }
 
-    // Complete
-    const updates = {
-      status: 'completed', check_result: 'PASS', check_detail: 'Completed manually',
+    // Complete — run dispatchCheck for system check tasks
+    let checkResult: CheckResult = 'PASS'
+    let checkDetail = 'Completed manually'
+    let completedStatus = 'completed'
+
+    if (task.is_system_check && task.check_type) {
+      const instanceDoc = await db.collection(INSTANCES).doc(String(task.instance_id)).get()
+      const instanceData = instanceDoc.exists ? (instanceDoc.data() as Record<string, unknown>) : {}
+      const checkConfigRaw = String(task.check_config || '{}')
+      const dispatchResult = dispatchCheck(String(task.check_type), checkConfigRaw, instanceData)
+
+      checkResult = dispatchResult.result
+      checkDetail = dispatchResult.detail
+      // Don't advance to completed if check didn't pass
+      if (checkResult === 'FAIL') {
+        completedStatus = 'blocked'
+      } else if (checkResult === 'PENDING') {
+        completedStatus = 'in_progress'
+      }
+    }
+
+    const updates: Record<string, unknown> = {
+      status: completedStatus, check_result: checkResult, check_detail: checkDetail,
       completed_by: userEmail, completed_at: now, notes, updated_at: now,
     }
     await db.collection(TASKS).doc(taskId).update(updates)
@@ -595,11 +623,11 @@ flowRoutes.patch('/tasks/:id', async (req: Request, res: Response) => {
     const actId = crypto.randomUUID()
     await db.collection(ACTIVITY).doc(actId).set({
       activity_id: actId, instance_id: task.instance_id, pipeline_key: task.pipeline_key,
-      action: 'COMPLETE_TASK', from_value: String(task.task_name), to_value: 'completed',
+      action: 'COMPLETE_TASK', from_value: String(task.task_name), to_value: completedStatus,
       performed_by: userEmail, performed_at: now, notes,
     })
 
-    res.json(successResponse<FlowTaskCompleteResult>({ task_instance_id: taskId, status: 'completed', check_result: 'PASS' } as unknown as FlowTaskCompleteResult))
+    res.json(successResponse<FlowTaskCompleteResult>({ task_instance_id: taskId, status: completedStatus, check_result: checkResult } as unknown as FlowTaskCompleteResult))
   } catch (err) {
     console.error('PATCH /api/flow/tasks/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -612,6 +640,9 @@ flowRoutes.patch('/tasks/:id', async (req: Request, res: Response) => {
 
 /**
  * Generate tasks for a stage from templates.
+ * For steps with execution_type: 'dex_output', system check tasks are
+ * automatically configured with DEX_KIT_GENERATE if no check_type is set,
+ * and are pre-linked with step-level DEX config (product_type, registration_type, action).
  */
 async function generateStageTasks(
   db: FirebaseFirestore.Firestore,
@@ -629,6 +660,20 @@ async function generateStageTasks(
 
   if (templatesSnap.empty) return 0
 
+  // Fetch step definitions for this stage to detect dex_output execution type
+  const stepsSnap = await db.collection('flow_steps')
+    .where('pipeline_key', '==', pipelineKey)
+    .where('stage_id', '==', stageId)
+    .get()
+
+  const dexOutputSteps = new Map<string, Record<string, unknown>>()
+  for (const stepDoc of stepsSnap.docs) {
+    const stepData = stepDoc.data()
+    if (stepData.execution_type === 'dex_output') {
+      dexOutputSteps.set(String(stepData.step_id), stepData)
+    }
+  }
+
   const now = new Date().toISOString()
   const batch = db.batch()
   let count = 0
@@ -640,12 +685,33 @@ async function generateStageTasks(
       : (tmpl.default_owner && tmpl.default_owner !== 'ADVISOR') ? tmpl.default_owner
       : assignedTo
 
+    let checkType = tmpl.check_type || ''
+    let checkConfig = tmpl.check_config || ''
+
+    // For dex_output steps: auto-configure system check tasks with DEX_KIT_GENERATE
+    const stepId = String(tmpl.step_id || '')
+    const dexStep = dexOutputSteps.get(stepId)
+    if (dexStep && tmpl.is_system_check && !checkType) {
+      checkType = 'DEX_KIT_GENERATE'
+      // Merge step-level DEX config into the check config
+      const existingConfig = typeof checkConfig === 'string' && checkConfig
+        ? safeJsonParse(checkConfig)
+        : {}
+      const dexConfig = {
+        ...existingConfig,
+        product_type: dexStep.product_type || existingConfig.product_type || '',
+        registration_type: dexStep.registration_type || existingConfig.registration_type || '',
+        action: dexStep.action || existingConfig.action || '',
+      }
+      checkConfig = JSON.stringify(dexConfig)
+    }
+
     batch.set(db.collection(TASKS).doc(taskInstanceId), {
       task_instance_id: taskInstanceId,
       instance_id: instanceId,
       pipeline_key: pipelineKey,
       stage_id: stageId,
-      step_id: tmpl.step_id || '',
+      step_id: stepId,
       task_id: tmpl.task_id || '',
       task_name: tmpl.task_name || '',
       task_order: tmpl.task_order || 0,
@@ -653,8 +719,8 @@ async function generateStageTasks(
       status: 'pending',
       is_required: tmpl.is_required ?? true,
       is_system_check: tmpl.is_system_check ?? false,
-      check_type: tmpl.check_type || '',
-      check_config: tmpl.check_config || '',
+      check_type: checkType,
+      check_config: checkConfig,
       created_at: now,
       updated_at: now,
     })
@@ -663,4 +729,9 @@ async function generateStageTasks(
 
   await batch.commit()
   return count
+}
+
+/** Safely parse a JSON string into an object, returning empty object on failure. */
+function safeJsonParse(str: string): Record<string, unknown> {
+  try { return JSON.parse(str) } catch { return {} }
 }

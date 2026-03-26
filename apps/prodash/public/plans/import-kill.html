@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMPORT-KILL — Kill Last 2 GAS Engines | Discovery</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; max-width: 960px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; }
+  h1 { color: #40bc58; font-size: 28px; border-bottom: 2px solid #40bc5833; padding-bottom: 12px; }
+  h2 { color: #40bc58; font-size: 20px; margin-top: 40px; border-bottom: 1px solid #40bc5822; padding-bottom: 6px; }
+  h3 { color: #34d399; font-size: 16px; margin-top: 24px; }
+  h4 { color: #94a3b8; font-size: 14px; margin-top: 16px; }
+  code { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #40bc58; }
+  pre { background: #1e293b; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; border: 1px solid #334155; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 8px 12px; border: 1px solid #334155; text-align: left; font-size: 13px; }
+  th { background: #1e293b; color: #40bc58; }
+  tr:hover { background: #1e293b44; }
+  .accent { color: #40bc58; }
+  .status-ported { color: #34d399; font-weight: 600; }
+  .status-needs-port { color: #fbbf24; font-weight: 600; }
+  .status-archive { color: #64748b; }
+  .status-retain { color: #60a5fa; font-weight: 600; }
+  .status-dead { color: #f87171; text-decoration: line-through; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-port { background: #fbbf2422; color: #fbbf24; }
+  .badge-archive { background: #64748b22; color: #64748b; }
+  .badge-done { background: #34d39922; color: #34d399; }
+  .badge-retain { background: #60a5fa22; color: #60a5fa; }
+  .badge-migrate { background: #a78bfa22; color: #a78bfa; }
+  .badge-entry { background: #f0abfc22; color: #f0abfc; }
+  .phase { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .phase-title { font-size: 16px; font-weight: 700; color: #40bc58; margin-bottom: 8px; }
+  blockquote { border-left: 3px solid #40bc58; padding-left: 16px; color: #94a3b8; font-style: italic; }
+  .metric { display: inline-block; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px 20px; margin: 4px 8px 4px 0; text-align: center; }
+  .metric-value { font-size: 24px; font-weight: 700; color: #40bc58; display: block; }
+  .metric-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .wire-row-ported td:first-child { border-left: 3px solid #34d399; }
+  .wire-row-needs td:first-child { border-left: 3px solid #fbbf24; }
+  .wire-row-cloud td:first-child { border-left: 3px solid #60a5fa; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+  .triage-section { margin: 12px 0; }
+  .triage-section summary { cursor: pointer; font-weight: 600; color: #40bc58; font-size: 14px; }
+  .triage-section summary:hover { color: #34d399; }
+  ul { padding-left: 20px; }
+  li { margin: 4px 0; }
+</style>
+</head>
+<body>
+
+<h1>IMPORT-KILL</h1>
+<p>FORGE Sprint: <code>IMPORT_KILL_1774367857727</code></p>
+
+<blockquote>Kill the last 2 GAS engines. Port the 4 remaining functions that still reference RAPID_IMPORT or RAPID_CORE. Archive 122K lines of legacy Apps Script. When done, toMachina runs on zero GAS dependencies.</blockquote>
+
+<div style="margin: 24px 0;">
+  <span class="metric"><span class="metric-value">106,641</span><span class="metric-label">RAPID_IMPORT lines</span></span>
+  <span class="metric"><span class="metric-value">16,211</span><span class="metric-label">RAPID_CORE lines</span></span>
+  <span class="metric"><span class="metric-value">30</span><span class="metric-label">GAS files total</span></span>
+  <span class="metric"><span class="metric-value">4</span><span class="metric-label">Functions to port</span></span>
+  <span class="metric"><span class="metric-value">0</span><span class="metric-label">GAS deps after</span></span>
+</div>
+
+<!-- ============================================================ -->
+<h2>1. Current State</h2>
+
+<p>toMachina has <strong>63 Cloud Run API routes</strong>, <strong>4 intake Cloud Functions</strong>, a full <code>packages/core</code> business logic layer, and 3 deployed portal apps. The GAS migration (Sprint 4-5) replaced 6 engines: RAPID_COMMS, RAPID_FLOW, RAPID_API, C3, ATLAS, CAM. Two remain:</p>
+
+<div class="grid-2">
+  <div class="phase">
+    <div class="phase-title">RAPID_IMPORT</div>
+    <p style="margin:4px 0;color:#94a3b8;">30 .gs files &middot; 106,641 lines</p>
+    <p>Data ingestion engine. Handles Book-of-Business imports, account processing, agent onboarding, commission reconciliation, client enrichment, validation, and carrier seeding. Most functions already replaced by Cloud Run routes + intake Cloud Functions.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-title">RAPID_CORE</div>
+    <p style="margin:4px 0;color:#94a3b8;">17 .gs files &middot; 16,211 lines</p>
+    <p>Shared GAS library. Provides Sheets adapter (<code>getMATRIX_ID</code>, <code>TABLE_ROUTING</code>), normalization helpers, matching, validation API, carrier lookups, Drive ops, org admin, entitlements. All business logic already ported to <code>packages/core</code>. Only remains as runtime dependency for RAPID_IMPORT.</p>
+  </div>
+</div>
+
+<p><strong>Key insight:</strong> RAPID_CORE only survives because RAPID_IMPORT calls it. Kill RAPID_IMPORT's last 4 functions and RAPID_CORE dies automatically &mdash; no consumers remain.</p>
+
+<!-- ============================================================ -->
+<h2>2. ATLAS Wire Analysis</h2>
+
+<p>The 16 ATLAS wire definitions (from <code>services/api/src/routes/atlas.ts</code>) describe every data pipeline in the platform. Each wire's stages declare which system handles each step. This analysis identifies which wires still reference GAS.</p>
+
+<table>
+<tr>
+  <th>#</th>
+  <th>Wire ID</th>
+  <th>Name</th>
+  <th>Product / Domain</th>
+  <th>GAS Dependency</th>
+  <th>Status</th>
+</tr>
+<tr class="wire-row-needs">
+  <td>1</td>
+  <td><code>WIRE_MAPD_ENROLLMENT</code></td>
+  <td>Medicare Enrollment Pipeline</td>
+  <td>MAPD / ENROLLMENT</td>
+  <td><code>scanMailFolder</code> (RAPID_IMPORT), <code>processApproval</code> (RAPID_IMPORT)</td>
+  <td><span class="badge badge-done">PORTED</span> intake Cloud Functions replaced scanner; approval engine in Cloud Run</td>
+</tr>
+<tr class="wire-row-needs">
+  <td>2</td>
+  <td><code>WIRE_COMMISSION_SYNC</code></td>
+  <td>Commission Sync Pipeline</td>
+  <td>ALL / COMMISSIONS</td>
+  <td><code>scanEmailInboxes</code> (RAPID_IMPORT), <code>calculate_commission</code> (CAM)</td>
+  <td><span class="badge badge-done">PORTED</span> email-intake Cloud Function + CAM route in Cloud Run</td>
+</tr>
+<tr class="wire-row-ported">
+  <td>3</td>
+  <td><code>WIRE_DOC_INTAKE_MAIL</code></td>
+  <td>Document Intake (Mail)</td>
+  <td>ALL / ALL</td>
+  <td><code>scanMailFolder</code> (RAPID_IMPORT)</td>
+  <td><span class="badge badge-done">PORTED</span> mail-intake Cloud Function + launchd watcher</td>
+</tr>
+<tr class="wire-row-ported">
+  <td>4</td>
+  <td><code>WIRE_DOC_INTAKE_EMAIL</code></td>
+  <td>Document Intake (Email)</td>
+  <td>ALL / ALL</td>
+  <td><code>scanEmailInboxes</code> (RAPID_IMPORT)</td>
+  <td><span class="badge badge-done">PORTED</span> email-intake Cloud Function</td>
+</tr>
+<tr class="wire-row-needs">
+  <td>5</td>
+  <td><code>WIRE_CLIENT_ENRICHMENT</code></td>
+  <td>Client Enrichment Pipeline</td>
+  <td>ALL / DEMOGRAPHICS</td>
+  <td><code>normalizePhone</code> (RAPID_CORE)</td>
+  <td><span class="badge badge-done">PORTED</span> packages/core/normalizers already handles phone normalization</td>
+</tr>
+<tr class="wire-row-needs">
+  <td>6</td>
+  <td><code>WIRE_VALIDATION_PIPELINE</code></td>
+  <td>Contact Validation Pipeline</td>
+  <td>ALL / VALIDATION</td>
+  <td><code>validatePhone</code>, <code>validateEmail</code> (RAPID_CORE), <code>scoreContactQuality</code> (RAPID_IMPORT)</td>
+  <td><span class="badge badge-port">NEEDS PORT</span> <code>scoreContactQuality</code> not yet in Cloud Run</td>
+</tr>
+<tr class="wire-row-ported">
+  <td>7</td>
+  <td><code>WIRE_MAPD_QUOTING</code></td>
+  <td>Medicare Plan Quoting</td>
+  <td>MAPD / ACCOUNTS</td>
+  <td>None &mdash; fully Cloud Run (QUE-API)</td>
+  <td><span class="badge badge-done">CLOUD NATIVE</span></td>
+</tr>
+<tr class="wire-row-needs">
+  <td>8</td>
+  <td><code>WIRE_LIFE_ANNUITY_ACCOUNTS</code></td>
+  <td>Life/Annuity Account Pipeline</td>
+  <td>FIA / ACCOUNTS</td>
+  <td><code>processAccountImport</code> (RAPID_IMPORT), <code>normalizeAccountData</code> (RAPID_CORE)</td>
+  <td><span class="badge badge-port">NEEDS PORT</span> <code>processAccountImport</code> not yet in Cloud Run</td>
+</tr>
+<tr class="wire-row-needs">
+  <td>9</td>
+  <td><code>WIRE_INVESTMENT_ACCOUNTS</code></td>
+  <td>Investment Account Pipeline</td>
+  <td>INVESTMENTS / ACCOUNTS</td>
+  <td><code>processAccountImport</code> (RAPID_IMPORT), <code>normalizeAccountData</code> (RAPID_CORE)</td>
+  <td><span class="badge badge-port">NEEDS PORT</span> shares <code>processAccountImport</code> with Wire 8</td>
+</tr>
+<tr class="wire-row-needs">
+  <td>10</td>
+  <td><code>WIRE_AGENT_MANAGEMENT</code></td>
+  <td>Agent/Producer Management</td>
+  <td>ALL / DEMOGRAPHICS</td>
+  <td><code>processAgentImport</code> (RAPID_IMPORT)</td>
+  <td><span class="badge badge-port">NEEDS PORT</span> <code>processAgentImport</code> not yet in Cloud Run</td>
+</tr>
+<tr class="wire-row-ported">
+  <td>11</td>
+  <td><code>WIRE_MEETING_PROCESSING</code></td>
+  <td>Meeting Processing Pipeline</td>
+  <td>ALL / ALL</td>
+  <td><code>storeMeetingNotes</code> (RAPID_COMMS &mdash; archived)</td>
+  <td><span class="badge badge-done">PORTED</span> MCP + Firestore direct</td>
+</tr>
+<tr class="wire-row-ported">
+  <td>12</td>
+  <td><code>WIRE_PORTAL_PRODASHX</code></td>
+  <td>ProDashX Portal Flow</td>
+  <td>ALL / ALL</td>
+  <td>None &mdash; fully Cloud Run</td>
+  <td><span class="badge badge-done">CLOUD NATIVE</span></td>
+</tr>
+<tr class="wire-row-ported">
+  <td>13</td>
+  <td><code>WIRE_PORTAL_SENTINEL</code></td>
+  <td>SENTINEL Portal Flow</td>
+  <td>ALL / ALL</td>
+  <td>None &mdash; fully Cloud Run</td>
+  <td><span class="badge badge-done">CLOUD NATIVE</span></td>
+</tr>
+<tr class="wire-row-ported">
+  <td>14</td>
+  <td><code>WIRE_PORTAL_RIIMO</code></td>
+  <td>RIIMO Portal Flow</td>
+  <td>ALL / ALL</td>
+  <td>None &mdash; fully Cloud Run</td>
+  <td><span class="badge badge-done">CLOUD NATIVE</span></td>
+</tr>
+<tr class="wire-row-needs">
+  <td>15</td>
+  <td><code>WIRE_NAIC_CARRIER_SEEDING</code></td>
+  <td>NAIC Carrier Seeding</td>
+  <td>ALL / DEMOGRAPHICS</td>
+  <td><code>processCarrierSeed</code> (RAPID_IMPORT)</td>
+  <td><span class="badge badge-port">NEEDS PORT</span> <code>processCarrierSeed</code> not yet in Cloud Run</td>
+</tr>
+<tr class="wire-row-ported">
+  <td>16</td>
+  <td><code>WIRE_MEDICARE_ACCOUNTS</code></td>
+  <td>Medicare Account Pipeline</td>
+  <td>MAPD / ACCOUNTS</td>
+  <td>None &mdash; fully Cloud Run (ATLAS introspect + import routes)</td>
+  <td><span class="badge badge-done">CLOUD NATIVE</span></td>
+</tr>
+</table>
+
+<h3>Wire Summary</h3>
+<table>
+<tr><th>Category</th><th>Count</th><th>Wires</th></tr>
+<tr><td class="status-ported">Already Ported / Cloud Native</td><td><strong>9</strong></td><td>MAPD_ENROLLMENT, COMMISSION_SYNC, DOC_INTAKE_MAIL, DOC_INTAKE_EMAIL, CLIENT_ENRICHMENT, MAPD_QUOTING, MEETING_PROCESSING, PORTAL_*, MEDICARE_ACCOUNTS</td></tr>
+<tr><td class="status-needs-port">Needs Porting (4 functions)</td><td><strong>4</strong></td><td>VALIDATION_PIPELINE, LIFE_ANNUITY_ACCOUNTS, INVESTMENT_ACCOUNTS, AGENT_MANAGEMENT</td></tr>
+<tr><td class="status-needs-port">Needs Porting (1 function)</td><td><strong>1</strong></td><td>NAIC_CARRIER_SEEDING</td></tr>
+<tr><td colspan="3" style="color:#94a3b8;font-style:italic;">Note: WIRE_NPI_LOOKUP was removed 2026-03-15 (NPI != NPN). To be replaced by WIRE_NIPR_LOOKUP.</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>3. The 4 Functions to Port</h2>
+
+<p>Only <strong>4 distinct GAS functions</strong> block the kill. Two wires share <code>processAccountImport</code>, so there are 4 unique ports covering 5 wires.</p>
+
+<table>
+<tr><th>Function</th><th>Source File</th><th>Blocking Wires</th><th>What It Does</th><th>Target Location</th></tr>
+<tr>
+  <td><code>scoreContactQuality</code></td>
+  <td>IMPORT_Validation.gs</td>
+  <td>WIRE_VALIDATION_PIPELINE</td>
+  <td>Scores contacts 0-100 based on completeness (phone, email, address, DOB). Flags low-quality records for enrichment.</td>
+  <td><code>packages/core/src/validation/</code> + expose via <code>services/api/src/routes/clients.ts</code></td>
+</tr>
+<tr>
+  <td><code>processAccountImport</code></td>
+  <td>IMPORT_Account.gs</td>
+  <td>WIRE_LIFE_ANNUITY_ACCOUNTS, WIRE_INVESTMENT_ACCOUNTS</td>
+  <td>Parses carrier/custodian account files. Maps columns to schema. Dedup against existing accounts. Writes to _ACCOUNT_ANNUITY or _ACCOUNT_INVESTMENTS.</td>
+  <td><code>services/api/src/routes/import.ts</code> (extend existing import route)</td>
+</tr>
+<tr>
+  <td><code>processAgentImport</code></td>
+  <td>IMPORT_Agent.gs</td>
+  <td>WIRE_AGENT_MANAGEMENT</td>
+  <td>Imports agent/producer records from Gradient. Maps appointment data. Dedup against _AGENT_MASTER. Creates/updates producer records.</td>
+  <td><code>services/api/src/routes/import.ts</code> (extend existing import route)</td>
+</tr>
+<tr>
+  <td><code>processCarrierSeed</code></td>
+  <td>IMPORT_Client.gs or dedicated</td>
+  <td>WIRE_NAIC_CARRIER_SEEDING</td>
+  <td>Seeds carrier collection from NAIC data export. Parses NAIC codes, company names, state domicile, lines of business.</td>
+  <td><code>services/api/src/routes/carriers.ts</code> (extend existing carriers route)</td>
+</tr>
+</table>
+
+<p><strong>All 4 functions follow the same pattern:</strong> parse input file &rarr; normalize fields (using RAPID_CORE helpers) &rarr; match/dedup against existing records &rarr; write to MATRIX sheet. The Cloud Run version replaces MATRIX writes with Firestore writes, and RAPID_CORE helpers with <code>packages/core</code> normalizers + matchers.</p>
+
+<!-- ============================================================ -->
+<h2>4. File Triage (30 GAS Files)</h2>
+
+<p>Every <code>.gs</code> file in RAPID_IMPORT, categorized by disposition:</p>
+
+<details class="triage-section" open>
+<summary><span class="badge badge-port">PORT</span> &mdash; 4 files (contain the 4 functions above)</summary>
+<table>
+<tr><th>File</th><th>Lines</th><th>Function</th><th>Port To</th></tr>
+<tr><td>IMPORT_Validation.gs</td><td>~2,400</td><td><code>scoreContactQuality</code></td><td>packages/core/src/validation/</td></tr>
+<tr><td>IMPORT_Account.gs</td><td>~5,200</td><td><code>processAccountImport</code></td><td>services/api/src/routes/import.ts</td></tr>
+<tr><td>IMPORT_Agent.gs</td><td>~2,800</td><td><code>processAgentImport</code></td><td>services/api/src/routes/import.ts</td></tr>
+<tr><td>IMPORT_Client.gs</td><td>~4,100</td><td><code>processCarrierSeed</code> + client import logic</td><td>services/api/src/routes/carriers.ts</td></tr>
+</table>
+</details>
+
+<details class="triage-section" open>
+<summary><span class="badge badge-archive">ARCHIVE</span> &mdash; 11 FIX files (one-time data fixes, already run)</summary>
+<table>
+<tr><th>File</th><th>Purpose</th><th>Why Archive</th></tr>
+<tr><td>FIX_AI3Import.gs</td><td>One-time Ai3 data cleanup</td><td>Already executed</td></tr>
+<tr><td>FIX_AnnuityBob.gs</td><td>Annuity BoB fix</td><td>Already executed</td></tr>
+<tr><td>FIX_BdriaBob.gs</td><td>BD/RIA BoB fix</td><td>Already executed</td></tr>
+<tr><td>FIX_CarrierInference.gs</td><td>Carrier name inference fix</td><td>Already executed</td></tr>
+<tr><td>FIX_CarrierXlsxImport.gs</td><td>XLSX carrier import fix</td><td>Already executed</td></tr>
+<tr><td>FIX_CofClientImport.gs</td><td>CoF client import fix</td><td>Already executed</td></tr>
+<tr><td>FIX_CommissionReconcile.gs</td><td>Commission reconciliation fix</td><td>Already executed</td></tr>
+<tr><td>FIX_LifeBob.gs</td><td>Life BoB fix</td><td>Already executed</td></tr>
+<tr><td>FIX_MedicareBob.gs</td><td>Medicare BoB fix</td><td>Already executed</td></tr>
+<tr><td>FIX_SignalRevenue.gs</td><td>Signal revenue fix</td><td>Already executed</td></tr>
+<tr><td>IMPORT_BoBEnrich_Archive.gs</td><td>Archived enrichment code</td><td>Already superseded</td></tr>
+</table>
+</details>
+
+<details class="triage-section" open>
+<summary><span class="badge badge-done">ALREADY REPLACED</span> &mdash; 10 files (Cloud Run equivalents exist)</summary>
+<table>
+<tr><th>File</th><th>Replaced By</th></tr>
+<tr><td>IMPORT_Approval.gs</td><td>services/api/src/routes/approval.ts</td></tr>
+<tr><td>IMPORT_BoBImport.gs</td><td>services/api/src/routes/import.ts</td></tr>
+<tr><td>IMPORT_BoBEnrich.gs</td><td>services/api/src/routes/import.ts</td></tr>
+<tr><td>IMPORT_BulkValidation.gs</td><td>packages/core/src/validation/</td></tr>
+<tr><td>IMPORT_CaseTasks.gs</td><td>services/api/src/routes/case-tasks.ts</td></tr>
+<tr><td>IMPORT_Comms.gs</td><td>services/api/src/routes/comms.ts + communications.ts</td></tr>
+<tr><td>IMPORT_DriveHygiene.gs</td><td>services/api/src/routes/dex.ts</td></tr>
+<tr><td>IMPORT_Intake.gs</td><td>services/intake/ (4 Cloud Functions)</td></tr>
+<tr><td>IMPORT_IntegrationStatus.gs</td><td>services/api/src/routes/atlas.ts</td></tr>
+<tr><td>IMPORT_Reconcile.gs</td><td>services/api/src/routes/revenue.ts</td></tr>
+</table>
+</details>
+
+<details class="triage-section" open>
+<summary><span class="badge badge-retain">RETAIN (GHL)</span> &mdash; 1 file</summary>
+<table>
+<tr><th>File</th><th>Lines</th><th>Why Retain</th></tr>
+<tr><td>IMPORT_GHL.gs</td><td>~4,394</td><td>GHL import/sync code retained for M&amp;A acquisitions via DAVID/SENTINEL. Not ported &mdash; kept as ready-made intake tool for GHL-based book acquisitions.</td></tr>
+</table>
+<p style="color:#94a3b8;font-size:13px;">Decision: IMPORT_GHL stays in <code>gas/RAPID_IMPORT/</code> as an isolated GAS utility. It does NOT keep RAPID_CORE alive &mdash; it has its own MATRIX ID references. Can be moved to archive later if DAVID M&amp;A workflow moves to Cloud Run.</p>
+</details>
+
+<details class="triage-section" open>
+<summary><span class="badge badge-migrate">MIGRATE LAST</span> &mdash; 4 files (utility/support, die when PORT files move)</summary>
+<table>
+<tr><th>File</th><th>Purpose</th><th>Disposition</th></tr>
+<tr><td>IMPORT_Revenue.gs</td><td>Revenue import orchestration</td><td>Covered by services/api/src/routes/revenue.ts &mdash; verify no unique logic remains</td></tr>
+<tr><td>IMPORT_RateDetection.gs</td><td>Carrier rate detection</td><td>Covered by rpi-business MCP rate tools &mdash; verify coverage</td></tr>
+<tr><td>IMPORT_Testing.gs</td><td>Test harness for GAS imports</td><td>No Cloud Run equivalent needed &mdash; replaced by e2e-intake tests</td></tr>
+<tr><td>IMPORT_BoBEnrich.gs</td><td>BoB enrichment pipeline</td><td>Already listed in REPLACED &mdash; confirm no orphaned callers</td></tr>
+</table>
+</details>
+
+<details class="triage-section" open>
+<summary><span class="badge badge-entry">ENTRY POINT</span> &mdash; 1 file</summary>
+<table>
+<tr><th>File</th><th>Purpose</th><th>Disposition</th></tr>
+<tr><td>Code.gs</td><td>GAS entry point &mdash; menu triggers, onOpen, doGet/doPost</td><td>Dies when all callers are ported. No port needed.</td></tr>
+</table>
+</details>
+
+<!-- ============================================================ -->
+<h2>5. RAPID_CORE Disposition</h2>
+
+<p>RAPID_CORE (17 files, 16,211 lines) is a <strong>shared library</strong>. Every function has already been ported to <code>packages/core</code>:</p>
+
+<table>
+<tr><th>RAPID_CORE File</th><th>packages/core Equivalent</th></tr>
+<tr><td>CORE_Normalize.gs</td><td>packages/core/src/normalizers/</td></tr>
+<tr><td>CORE_Match.gs</td><td>packages/core/src/matching/</td></tr>
+<tr><td>CORE_Validation_API.gs</td><td>packages/core/src/validation/</td></tr>
+<tr><td>CORE_Carriers.gs</td><td>packages/core/src/constants.ts + services/api/src/routes/carriers.ts</td></tr>
+<tr><td>CORE_Database.gs</td><td>packages/db/ (typed Firestore client)</td></tr>
+<tr><td>CORE_Config.gs</td><td>packages/core/src/constants.ts</td></tr>
+<tr><td>CORE_Drive.gs</td><td>services/api/src/routes/dex.ts + dex-pipeline.ts</td></tr>
+<tr><td>CORE_Entitlements.gs</td><td>packages/auth/ (entitlements system)</td></tr>
+<tr><td>CORE_OrgAdmin.gs</td><td>services/api/src/routes/org.ts + access.ts</td></tr>
+<tr><td>CORE_Api.gs</td><td>services/api/ (entire Express app)</td></tr>
+<tr><td>CORE_Logging.gs</td><td>services/api logging middleware</td></tr>
+<tr><td>CORE_DevTools.gs</td><td>Not needed &mdash; dev tooling is CLI-native</td></tr>
+<tr><td>CORE_Reconcile.gs</td><td>services/api/src/routes/revenue.ts</td></tr>
+<tr><td>SETUP_*.gs (3 files)</td><td>Seed scripts in services/api/src/scripts/</td></tr>
+</table>
+
+<p><strong>No port work needed for RAPID_CORE.</strong> Once RAPID_IMPORT's 4 functions are ported, RAPID_CORE has zero consumers and is archived as-is.</p>
+
+<!-- ============================================================ -->
+<h2>6. Cloud Run Coverage (What Already Exists)</h2>
+
+<h3>API Routes (63 files)</h3>
+<p>The Cloud Run API (<code>services/api/</code>) already covers the vast majority of what RAPID_IMPORT + RAPID_CORE did:</p>
+
+<div class="grid-2">
+<div>
+<h4>Data Management</h4>
+<ul>
+  <li><code>clients.ts</code> &mdash; client CRUD + search</li>
+  <li><code>accounts.ts</code> &mdash; account CRUD</li>
+  <li><code>agents.ts</code> &mdash; agent/producer CRUD</li>
+  <li><code>carriers.ts</code> &mdash; carrier CRUD</li>
+  <li><code>revenue.ts</code> &mdash; revenue/commission</li>
+  <li><code>households.ts</code> &mdash; household management</li>
+  <li><code>producers.ts</code> &mdash; producer grid</li>
+  <li><code>products.ts</code> &mdash; product catalog</li>
+</ul>
+</div>
+<div>
+<h4>Import / Intake</h4>
+<ul>
+  <li><code>import.ts</code> &mdash; bulk import pipeline</li>
+  <li><code>intake.ts</code> &mdash; intake orchestration</li>
+  <li><code>intake-queue.ts</code> &mdash; queue management</li>
+  <li><code>dropzone.ts</code> &mdash; file upload</li>
+  <li><code>atlas.ts</code> &mdash; wire defs + introspect</li>
+  <li><code>approval.ts</code> &mdash; approval engine</li>
+  <li><code>document-index.ts</code> &mdash; document tracking</li>
+  <li><code>acf.ts</code> &mdash; Active Client File</li>
+</ul>
+</div>
+</div>
+
+<h3>Intake Cloud Functions (4 deployed)</h3>
+<table>
+<tr><th>Function</th><th>Trigger</th><th>Replaces</th></tr>
+<tr><td>mail-intake</td><td>Firestore onCreate on intake_queue (source: MAIL)</td><td>IMPORT_Intake.gs scanMailFolder</td></tr>
+<tr><td>email-intake</td><td>Firestore onCreate on intake_queue (source: EMAIL)</td><td>IMPORT_Intake.gs scanEmailInboxes</td></tr>
+<tr><td>meet-intake</td><td>Firestore onCreate on intake_queue (source: MEET)</td><td>RAPID_COMMS storeMeetingNotes</td></tr>
+<tr><td>commission-intake</td><td>Firestore onCreate on intake_queue (source: COMMISSION)</td><td>CAM commission processing</td></tr>
+</table>
+
+<h3>Core Package</h3>
+<table>
+<tr><th>Directory</th><th>Replaces</th></tr>
+<tr><td>packages/core/src/normalizers/</td><td>CORE_Normalize.gs (all 16 normalizers)</td></tr>
+<tr><td>packages/core/src/matching/</td><td>CORE_Match.gs (exact + fuzzy + new)</td></tr>
+<tr><td>packages/core/src/validation/</td><td>CORE_Validation_API.gs (phone, email, address)</td></tr>
+<tr><td>packages/core/src/atlas/</td><td>ATLAS wire definitions + introspection</td></tr>
+<tr><td>packages/core/src/financial/</td><td>CAM_Commission.gs calculations</td></tr>
+<tr><td>packages/core/src/schemas/</td><td>TABLE_ROUTING column schemas</td></tr>
+</table>
+
+<h3>MCP Tools</h3>
+<table>
+<tr><th>MCP Server</th><th>Relevant Tools</th><th>Replaces</th></tr>
+<tr><td>rpi-business</td><td>calculate_commission, get_agent_rates, pivot_rate_lookup</td><td>CAM + IMPORT_RateDetection</td></tr>
+<tr><td>rpi-workspace</td><td>execute_script (fallback only)</td><td>Direct GAS execution</td></tr>
+<tr><td>rpi-comms</td><td>comms_send_email, comms_send_sms</td><td>IMPORT_Comms</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>7. Target Architecture</h2>
+
+<pre>
+BEFORE (today):
+  Carrier file &rarr; RAPID_IMPORT (GAS) &rarr; RAPID_CORE (GAS) &rarr; MATRIX (Sheets) &rarr; Bridge &rarr; Firestore
+                      &darr; calls &uarr;
+                 (4 functions still live)
+
+AFTER (IMPORT-KILL):
+  Carrier file &rarr; Cloud Run API (import.ts / carriers.ts) &rarr; Firestore (direct)
+                      &darr; uses
+              packages/core (normalizers + matchers + validators)
+                      &darr; optional
+              Bridge &rarr; Sheets (SHEETS_WRITE_ENABLED toggle, transitional)
+
+GAS footprint: ZERO active engines
+  - RAPID_IMPORT &rarr; archived to ~/Projects/archive/RAPID_IMPORT/
+  - RAPID_CORE &rarr; archived to ~/Projects/archive/RAPID_CORE/
+  - IMPORT_GHL.gs &rarr; stays in gas/RAPID_IMPORT/ as isolated M&amp;A utility
+</pre>
+
+<h3>Wire Definition Updates</h3>
+<p>After porting, update the 5 affected wire definitions in <code>services/api/src/routes/atlas.ts</code> to replace <code>GAS_FUNCTION</code> stages with <code>API_ENDPOINT</code> stages pointing to Cloud Run routes.</p>
+
+<!-- ============================================================ -->
+<h2>8. Parallelization Plan</h2>
+
+<p>The 4 function ports are independent. 3 builders can work in parallel, plus 1 cleanup agent:</p>
+
+<div class="phase">
+  <div class="phase-title">Builder 1: Account + Investment Import</div>
+  <p style="color:#94a3b8;margin:4px 0;">Port <code>processAccountImport</code> from IMPORT_Account.gs</p>
+  <ul>
+    <li>Read IMPORT_Account.gs &mdash; extract parsing, normalization, dedup logic</li>
+    <li>Port to <code>services/api/src/routes/import.ts</code> (new POST endpoints for account import)</li>
+    <li>Use <code>packages/core/normalizers</code> for field normalization (replaces RAPID_CORE calls)</li>
+    <li>Use <code>packages/core/matching</code> for dedup (replaces CORE_Match.gs)</li>
+    <li>Write to Firestore <code>accounts</code> collection (replaces _ACCOUNT_ANNUITY / _ACCOUNT_INVESTMENTS MATRIX writes)</li>
+    <li>Update WIRE_LIFE_ANNUITY_ACCOUNTS + WIRE_INVESTMENT_ACCOUNTS definitions in atlas.ts</li>
+    <li><strong>Covers 2 wires</strong></li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Builder 2: Agent Import + Carrier Seed</div>
+  <p style="color:#94a3b8;margin:4px 0;">Port <code>processAgentImport</code> from IMPORT_Agent.gs + <code>processCarrierSeed</code></p>
+  <ul>
+    <li>Read IMPORT_Agent.gs &mdash; extract Gradient appointment mapping, dedup logic</li>
+    <li>Port to <code>services/api/src/routes/import.ts</code> (new POST endpoint for agent import)</li>
+    <li>Read carrier seed logic &mdash; extract NAIC parsing</li>
+    <li>Port to <code>services/api/src/routes/carriers.ts</code> (new POST endpoint for NAIC seed)</li>
+    <li>Update WIRE_AGENT_MANAGEMENT + WIRE_NAIC_CARRIER_SEEDING definitions in atlas.ts</li>
+    <li><strong>Covers 2 wires</strong></li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Builder 3: Contact Quality Scoring</div>
+  <p style="color:#94a3b8;margin:4px 0;">Port <code>scoreContactQuality</code> from IMPORT_Validation.gs</p>
+  <ul>
+    <li>Read IMPORT_Validation.gs &mdash; extract scoring algorithm (field weights, completeness checks)</li>
+    <li>Port scoring logic to <code>packages/core/src/validation/contact-quality.ts</code></li>
+    <li>Expose via <code>services/api/src/routes/clients.ts</code> (new GET endpoint: <code>/api/clients/:id/quality-score</code>)</li>
+    <li>Also port <code>validatePhone</code> + <code>validateEmail</code> calls to use packages/core equivalents (likely already done)</li>
+    <li>Update WIRE_VALIDATION_PIPELINE definition in atlas.ts</li>
+    <li><strong>Covers 1 wire</strong></li>
+  </ul>
+</div>
+
+<div class="phase">
+  <div class="phase-title">Builder 4: Cleanup + Archive</div>
+  <p style="color:#94a3b8;margin:4px 0;">Post-port validation, wire updates, archive</p>
+  <ul>
+    <li>Verify all 5 updated wire definitions compile and pass type-check</li>
+    <li>Run <code>npm run build</code> to confirm no broken imports</li>
+    <li>Move <code>gas/RAPID_IMPORT/</code> to <code>archive/RAPID_IMPORT/</code> (preserve IMPORT_GHL.gs reference)</li>
+    <li>Move <code>gas/RAPID_CORE/</code> to <code>archive/RAPID_CORE/</code></li>
+    <li>Update <code>CLAUDE.md</code> Project Locations tree (remove gas/ entries, add archive/ entries)</li>
+    <li>Update <code>services/bridge/</code> config if any bridge references remain</li>
+    <li>Final verification: grep entire repo for <code>RAPID_IMPORT</code> and <code>RAPID_CORE</code> references &mdash; ensure all are comments, docs, or archive paths</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<h2>9. Risk Assessment</h2>
+
+<table>
+<tr><th>Risk</th><th>Mitigation</th></tr>
+<tr><td>IMPORT_GHL.gs references RAPID_CORE at runtime</td><td>Audit GHL file for CORE dependencies. If any exist, inline them (GHL is isolated, no shared library needed).</td></tr>
+<tr><td>Bridge Sheets writes break for account/agent/carrier</td><td>Bridge is toggle-gated (<code>SHEETS_WRITE_ENABLED</code>). Existing bridge logic for contacts/accounts should cover new import paths. Verify bridge handlers exist for account types.</td></tr>
+<tr><td>Edge cases in scoring algorithm lost during port</td><td>Read IMPORT_Validation.gs line-by-line. Port scoring weights exactly. Add unit test for known contact scores.</td></tr>
+<tr><td>processAccountImport handles multiple account types</td><td>Single function serves both ANNUITY and INVESTMENT wires. Port once with product_line parameter, not twice.</td></tr>
+<tr><td>Existing ATLAS wire stage types must match frontend rendering</td><td>Use <code>API_ENDPOINT</code> type consistently. Frontend ATLAS views already handle this type.</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>10. Definition of Done</h2>
+
+<ul>
+  <li>All 4 functions ported to Cloud Run (TypeScript, Firestore-native)</li>
+  <li>All 5 affected ATLAS wire definitions updated (GAS_FUNCTION &rarr; API_ENDPOINT)</li>
+  <li>16/16 wires reference zero GAS stages (except IMPORT_GHL which is inert)</li>
+  <li><code>npm run build</code> passes (all 11 workspaces)</li>
+  <li><code>npm run type-check</code> passes (all 13 workspaces)</li>
+  <li>e2e-intake tests pass with new import endpoints</li>
+  <li>RAPID_IMPORT archived to <code>~/Projects/archive/RAPID_IMPORT/</code></li>
+  <li>RAPID_CORE archived to <code>~/Projects/archive/RAPID_CORE/</code></li>
+  <li>CLAUDE.md + MEMORY.md updated to reflect 0 GAS engines</li>
+  <li>Zero grep hits for runtime RAPID_IMPORT/RAPID_CORE references outside archive/</li>
+</ul>
+
+<p style="margin-top:40px;color:#64748b;font-size:12px;border-top:1px solid #334155;padding-top:16px;">
+  IMPORT-KILL Discovery &middot; Generated 2026-03-24 &middot; FORGE Sprint IMPORT_KILL_1774367857727
+</p>
+
+</body>
+</html>

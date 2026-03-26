@@ -67,8 +67,13 @@ import { queRoutes } from './routes/que.js'
 import { configRoutes } from './routes/config.js'
 import { dashboardRoutes } from './routes/dashboard.js'
 import { mdjRoutes } from './routes/mdj.js'
+import { notificationRoutes } from './routes/notifications.js'
+import { validationRoutes } from './routes/validation.js'
+import { importAccountRoutes } from './routes/import-accounts.js'
+import { importAgentRoutes } from './routes/import-agents.js'
 import { auditMiddleware } from './middleware/audit.js'
-import { registerDexCheckHandlers } from './lib/dex-check-handlers.js'
+import { registerCheckHandler } from '@tomachina/core'
+import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -78,10 +83,11 @@ if (getApps().length === 0) {
   })
 }
 
-export const db = getFirestore()
+// Register flow engine check handlers
+registerCheckHandler('DEX_KIT_GENERATE', handleDexKitGenerate)
+registerCheckHandler('DEX_DOCUSIGN', handleDexDocuSign)
 
-// Register DEX check handlers for Flow Engine (NBX pipeline integration)
-registerDexCheckHandlers()
+export const db = getFirestore()
 
 const app = express()
 
@@ -117,6 +123,7 @@ app.use('/api/case-tasks', normalizeBody, caseTaskRoutes)
 app.use('/api/communications', communicationRoutes)
 app.use('/api/org', orgRoutes)
 app.use('/api/campaign-send', normalizeBody, campaignSendRoutes)
+app.use('/api/import/accounts', normalizeBody, importAccountRoutes)
 app.use('/api/import', normalizeBody, importRoutes)
 app.use('/api/compliance', complianceRoutes)
 app.use('/api/booking', normalizeBody, bookingRoutes)
@@ -162,6 +169,9 @@ app.use('/api/que', normalizeBody, queRoutes)
 app.use('/api/config', normalizeBody, configRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/mdj', normalizeBody, mdjRoutes)
+app.use('/api/notifications', notificationRoutes)
+app.use('/api/validation', validationRoutes)
+app.use('/api/import-agents', normalizeBody, importAgentRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {

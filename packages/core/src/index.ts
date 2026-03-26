@@ -31,4 +31,4 @@ export * from './schemas'
 // Guardian — Data Protection Engine
 export * from './types/guardian'
 export * from './guardian/lifecycle'
-export * from './validation/collection-schemas'
+export * from './validation'

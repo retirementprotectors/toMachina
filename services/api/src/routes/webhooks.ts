@@ -1,10 +1,12 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
+import multer from 'multer'
 import {
   successResponse,
   errorResponse,
 } from '../lib/helpers.js'
 import type { WebhookSendgridResult, WebhookDocusignResult } from '@tomachina/core'
+import { createNotification } from './notifications.js'
 
 export const webhookRoutes = Router()
 
@@ -57,6 +59,18 @@ webhookRoutes.post('/sendgrid', async (req: Request, res: Response) => {
         if (sgMessageId) {
           await updateSendLogByExternalId(db, sgMessageId, 'sendgrid', newStatus, eventType, event)
           await updateCommLogByExternalId(db, sgMessageId, 'sendgrid_message_id', newStatus)
+        }
+
+        // TRK-13685: Create notification on bounce/drop
+        if (eventType === 'bounce' || eventType === 'dropped') {
+          createNotification({
+            type: 'warning',
+            category: 'contact',
+            title: `Email bounced for ${event.email || 'unknown'}`,
+            body: event.reason ? String(event.reason) : `SendGrid ${eventType}`,
+            portal: 'all',
+            _created_by: 'sendgrid-webhook',
+          }).catch(() => {/* fire-and-forget */})
         }
 
         processed++
@@ -297,6 +311,95 @@ webhookRoutes.post('/docusign', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('POST /api/webhooks/docusign error:', err)
     // Always return 200 to DocuSign to prevent retries on processing errors
+    res.status(200).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// SENDGRID INBOUND PARSE (TRK-13691)
+// ============================================================================
+
+/**
+ * POST /api/webhooks/sendgrid-inbound
+ * Handle SendGrid Inbound Parse webhook — receives emails sent to inbound.retireprotected.com.
+ * Creates a communications doc + notification. No Firebase Auth (public webhook).
+ */
+const inboundUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } })
+
+webhookRoutes.post('/sendgrid-inbound', inboundUpload.none(), async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const body = req.body as Record<string, string>
+
+    const from = body.from || ''
+    const to = body.to || ''
+    const subject = body.subject || ''
+    const text = body.text || ''
+    const html = body.html || ''
+    const attachmentCount = parseInt(body.attachments || '0', 10)
+
+    // Extract email address from "Name <email>" format
+    const emailMatch = from.match(/<([^>]+)>/)
+    const senderEmail = emailMatch ? emailMatch[1].toLowerCase() : from.toLowerCase().trim()
+
+    // Match sender to client by email
+    let matchedClient: { id: string; first_name?: string; last_name?: string } | null = null
+    if (senderEmail) {
+      const clientSnap = await db
+        .collection('clients')
+        .where('email', '==', senderEmail)
+        .limit(1)
+        .get()
+      if (!clientSnap.empty) {
+        const clientDoc = clientSnap.docs[0]
+        const clientData = clientDoc.data()
+        matchedClient = {
+          id: clientDoc.id,
+          first_name: clientData.first_name,
+          last_name: clientData.last_name,
+        }
+      }
+    }
+
+    const now = new Date().toISOString()
+    const commId = crypto.randomUUID()
+
+    // Create communications doc
+    await db.collection('communications').doc(commId).set({
+      comm_id: commId,
+      direction: 'inbound',
+      channel: 'email',
+      from_address: from,
+      to_address: to,
+      subject,
+      body_text: text,
+      body_html: html,
+      attachment_count: attachmentCount,
+      client_id: matchedClient?.id || null,
+      client_name: matchedClient ? `${matchedClient.first_name || ''} ${matchedClient.last_name || ''}`.trim() : null,
+      status: 'received',
+      created_at: now,
+      _created_by: 'sendgrid-webhook',
+    })
+
+    // Create notification
+    const senderLabel = matchedClient
+      ? `${matchedClient.first_name || ''} ${matchedClient.last_name || ''}`.trim()
+      : senderEmail || from
+    createNotification({
+      type: 'action',
+      category: 'contact',
+      title: `Inbound email from ${senderLabel}`,
+      body: subject,
+      link: matchedClient ? `/contacts/${matchedClient.id}` : '',
+      portal: 'all',
+      _created_by: 'sendgrid-webhook',
+    }).catch(() => {/* fire-and-forget */})
+
+    res.status(200).json(successResponse({ processed: true, commId, client_id: matchedClient?.id || null }))
+  } catch (err) {
+    console.error('POST /api/webhooks/sendgrid-inbound error:', err)
+    // Always return 200 to SendGrid to prevent retries
     res.status(200).json(errorResponse(String(err)))
   }
 })

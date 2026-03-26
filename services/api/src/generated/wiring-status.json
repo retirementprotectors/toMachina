@@ -62,7 +62,7 @@
       "status": "backend_only",
       "backend": "access.ts",
       "frontend": "",
-      "backend_endpoints": 237,
+      "backend_endpoints": 240,
       "hardcoded": false,
       "sub_collection": true,
       "backend_routes": [
@@ -115,7 +115,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 18,
+          "endpoints": 21,
           "reads": true,
           "writes": true,
           "operations": [
@@ -229,12 +229,24 @@
     },
     "accounts_investments": {
       "status": "backend_only",
-      "backend": "import.ts",
+      "backend": "dex-pipeline.ts",
       "frontend": "",
-      "backend_endpoints": 61,
+      "backend_endpoints": 81,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
+        {
+          "file": "dex-pipeline.ts",
+          "endpoints": 20,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
         {
           "file": "import.ts",
           "endpoints": 61,
@@ -344,7 +356,7 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 78,
+      "backend_endpoints": 81,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -396,7 +408,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 18,
+          "endpoints": 21,
           "reads": true,
           "writes": true,
           "operations": [
@@ -597,13 +609,13 @@
       "status": "backend_only",
       "backend": "dex-pipeline.ts",
       "frontend": "",
-      "backend_endpoints": 18,
+      "backend_endpoints": 20,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "dex-pipeline.ts",
-          "endpoints": 18,
+          "endpoints": 20,
           "reads": true,
           "writes": true,
           "operations": [
@@ -850,7 +862,7 @@
       "status": "backend_only",
       "backend": "campaign-send.ts",
       "frontend": "",
-      "backend_endpoints": 50,
+      "backend_endpoints": 52,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -868,7 +880,7 @@
         },
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -987,7 +999,7 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 365,
+      "backend_endpoints": 383,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1073,8 +1085,18 @@
           ]
         },
         {
+          "file": "comms-routing.ts",
+          "endpoints": 4,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
           "file": "comms.ts",
-          "endpoints": 17,
+          "endpoints": 19,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1085,7 +1107,7 @@
         },
         {
           "file": "dex-pipeline.ts",
-          "endpoints": 18,
+          "endpoints": 20,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1196,6 +1218,17 @@
             "get",
             "create"
           ]
+        },
+        {
+          "file": "webhooks.ts",
+          "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
         }
       ],
       "frontend_components": [],
@@ -1276,13 +1309,13 @@
       "status": "backend_only",
       "backend": "webhooks.ts",
       "frontend": "",
-      "backend_endpoints": 8,
+      "backend_endpoints": 10,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1302,13 +1335,13 @@
       "status": "backend_only",
       "backend": "comms.ts",
       "frontend": "",
-      "backend_endpoints": 44,
+      "backend_endpoints": 56,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "comms.ts",
-          "endpoints": 17,
+          "endpoints": 19,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1320,6 +1353,17 @@
         {
           "file": "prozone.ts",
           "endpoints": 27,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
+          "file": "webhooks.ts",
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1437,6 +1481,31 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "config": {
+      "status": "backend_only",
+      "backend": "comms-routing.ts",
+      "frontend": "",
+      "backend_endpoints": 4,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "comms-routing.ts",
+          "endpoints": 4,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "content_blocks": {
       "status": "backend_only",
       "backend": "templates.ts",
@@ -1498,13 +1567,13 @@
       "status": "backend_only",
       "backend": "webhooks.ts",
       "frontend": "",
-      "backend_endpoints": 8,
+      "backend_endpoints": 10,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1524,13 +1593,13 @@
       "status": "backend_only",
       "backend": "webhooks.ts",
       "frontend": "",
-      "backend_endpoints": 8,
+      "backend_endpoints": 10,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "webhooks.ts",
-          "endpoints": 8,
+          "endpoints": 10,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1725,6 +1794,33 @@
             "list",
             "get",
             "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "flow_steps": {
+      "status": "backend_only",
+      "backend": "flow.ts",
+      "frontend": "",
+      "backend_endpoints": 37,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "flow.ts",
+          "endpoints": 37,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
           ]
         }
       ],
@@ -2040,11 +2136,94 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "mdj_conversations": {
+      "status": "backend_only",
+      "backend": "mdj.ts",
+      "frontend": "",
+      "backend_endpoints": 13,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "mdj.ts",
+          "endpoints": 13,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "riimo"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "mdj_specialist_configs": {
+      "status": "backend_only",
+      "backend": "mdj.ts",
+      "frontend": "",
+      "backend_endpoints": 13,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "mdj.ts",
+          "endpoints": 13,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "messages": {
+      "status": "backend_only",
+      "backend": "mdj.ts",
+      "frontend": "",
+      "backend_endpoints": 13,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "mdj.ts",
+          "endpoints": 13,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "notifications": {
       "status": "backend_only",
       "backend": "intake.ts",
       "frontend": "",
-      "backend_endpoints": 31,
+      "backend_endpoints": 32,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2061,7 +2240,7 @@
         },
         {
           "file": "tracker.ts",
-          "endpoints": 26,
+          "endpoints": 27,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2176,13 +2355,13 @@
       "status": "backend_only",
       "backend": "clients.ts",
       "frontend": "",
-      "backend_endpoints": 18,
+      "backend_endpoints": 21,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "clients.ts",
-          "endpoints": 18,
+          "endpoints": 21,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2445,13 +2624,13 @@
       "status": "backend_only",
       "backend": "sprints.ts",
       "frontend": "",
-      "backend_endpoints": 44,
+      "backend_endpoints": 46,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "sprints.ts",
-          "endpoints": 44,
+          "endpoints": 46,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2475,7 +2654,7 @@
       "status": "backend_only",
       "backend": "booking.ts",
       "frontend": "",
-      "backend_endpoints": 164,
+      "backend_endpoints": 201,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2491,8 +2670,30 @@
           ]
         },
         {
+          "file": "comms-routing.ts",
+          "endpoints": 4,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
+        {
           "file": "connect.ts",
           "endpoints": 10,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
+          ]
+        },
+        {
+          "file": "dex-pipeline.ts",
+          "endpoints": 20,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2536,6 +2737,18 @@
             "get",
             "create",
             "update"
+          ]
+        },
+        {
+          "file": "mdj.ts",
+          "endpoints": 13,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "delete"
           ]
         },
         {
@@ -2882,7 +3095,7 @@
     },
     "clients.ts": {
       "file": "clients.ts",
-      "endpoints": 18,
+      "endpoints": 21,
       "operations": [
         "list",
         "get",
@@ -2898,17 +3111,32 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "comms-routing.ts": {
+      "file": "comms-routing.ts",
+      "endpoints": 4,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "clients",
+        "users",
+        "config"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "comms.ts": {
       "file": "comms.ts",
-      "endpoints": 17,
+      "endpoints": 19,
       "operations": [
         "list",
         "get",
         "create"
       ],
       "collections": [
-        "clients",
-        "communications"
+        "communications",
+        "clients"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -2995,7 +3223,7 @@
     },
     "dex-pipeline.ts": {
       "file": "dex-pipeline.ts",
-      "endpoints": 18,
+      "endpoints": 20,
       "operations": [
         "list",
         "get",
@@ -3004,6 +3232,8 @@
       ],
       "collections": [
         "clients",
+        "accounts_investments",
+        "users",
         "artifacts"
       ],
       "frontend_consumers": [],
@@ -3076,14 +3306,16 @@
     },
     "flow.ts": {
       "file": "flow.ts",
-      "endpoints": 34,
+      "endpoints": 37,
       "operations": [
         "list",
         "get",
         "create",
         "update"
       ],
-      "collections": [],
+      "collections": [
+        "flow_steps"
+      ],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -3135,6 +3367,26 @@
         "accounts",
         "appointments"
       ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "import-accounts.ts": {
+      "file": "import-accounts.ts",
+      "endpoints": 3,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "import-agents.ts": {
+      "file": "import-agents.ts",
+      "endpoints": 5,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -3210,11 +3462,19 @@
     },
     "mdj.ts": {
       "file": "mdj.ts",
-      "endpoints": 1,
+      "endpoints": 13,
       "operations": [
-        "create"
+        "list",
+        "get",
+        "create",
+        "delete"
       ],
-      "collections": [],
+      "collections": [
+        "users",
+        "mdj_conversations",
+        "messages",
+        "mdj_specialist_configs"
+      ],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -3225,6 +3485,19 @@
         "list",
         "get",
         "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "notifications.ts": {
+      "file": "notifications.ts",
+      "endpoints": 6,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
       ],
       "collections": [],
       "frontend_consumers": [],
@@ -3400,7 +3673,7 @@
     },
     "sprints.ts": {
       "file": "sprints.ts",
-      "endpoints": 44,
+      "endpoints": 46,
       "operations": [
         "list",
         "get",
@@ -3462,7 +3735,7 @@
     },
     "tracker.ts": {
       "file": "tracker.ts",
-      "endpoints": 26,
+      "endpoints": 27,
       "operations": [
         "list",
         "get",
@@ -3500,9 +3773,21 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "validation.ts": {
+      "file": "validation.ts",
+      "endpoints": 6,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "webhooks.ts": {
       "file": "webhooks.ts",
-      "endpoints": 8,
+      "endpoints": 10,
       "operations": [
         "list",
         "get",
@@ -3511,6 +3796,8 @@
       "collections": [
         "dex_packages",
         "dex_package_events",
+        "clients",
+        "communications",
         "campaign_send_log",
         "communication_log"
       ],
@@ -3766,6 +4053,24 @@
       "sensitive": false
     },
     {
+      "name": "MDJ_AUTH_SECRET",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
+      "name": "MDJ1_URL",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
       "name": "NEXT_PUBLIC_FIREBASE_API_KEY",
       "services": [
         "root",
@@ -3989,14 +4294,14 @@
   ],
   "hookify_rules": [],
   "scan_stats": {
-    "route_files": 60,
-    "ui_files": 129,
-    "portal_pages": 150,
-    "collections_found": 63,
-    "api_routes_found": 60,
+    "route_files": 65,
+    "ui_files": 138,
+    "portal_pages": 151,
+    "collections_found": 68,
+    "api_routes_found": 65,
     "cloud_functions_found": 14,
-    "env_vars_found": 34,
+    "env_vars_found": 36,
     "hookify_rules_found": 0,
-    "scanned_at": "2026-03-24T06:25:14.202Z"
+    "scanned_at": "2026-03-26T16:56:31.755Z"
   }
 }

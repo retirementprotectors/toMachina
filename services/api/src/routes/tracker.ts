@@ -12,6 +12,7 @@ import {
   param,
 } from '../lib/helpers.js'
 import type { TrackerItemDTO, TrackerBulkUpdateResult, DedupScanData, DedupMergeResult, TrackerDeleteResult, TrackerAttachmentDTO, AttachmentDeleteResult } from '@tomachina/core'
+import { createNotification } from './notifications.js'
 
 export const trackerRoutes = Router()
 const COLLECTION = 'tracker_items'
@@ -343,13 +344,37 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     const db = getFirestore()
     const now = new Date().toISOString()
 
-    // Auto-generate item_id as TRK-NNN
-    const snap = await db.collection(COLLECTION).orderBy('item_id', 'desc').limit(1).get()
-    let nextNum = 1
-    if (!snap.empty) {
-      const lastId = (snap.docs[0].data().item_id || 'TRK-000') as string
-      nextNum = parseInt(lastId.replace('TRK-', ''), 10) + 1
+    // Auto-generate item_id as TRK-NNN (scan all docs to find true max, skip NaN poison)
+    const allSnap = await db.collection(COLLECTION).get()
+    let maxNum = 0
+    const nanDocs: FirebaseFirestore.QueryDocumentSnapshot[] = []
+    for (const doc of allSnap.docs) {
+      const id = (doc.data().item_id || '') as string
+      if (id === 'TRK-NaN' || id.includes('NaN')) {
+        nanDocs.push(doc)
+        continue
+      }
+      const num = parseInt(id.replace('TRK-', ''), 10)
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num
+      }
     }
+
+    // Reassign TRK-NaN docs with proper sequential IDs
+    if (nanDocs.length > 0) {
+      const nanBatch = db.batch()
+      for (const nanDoc of nanDocs) {
+        maxNum++
+        const fixedId = `TRK-${String(maxNum).padStart(3, '0')}`
+        const nanData = nanDoc.data()
+        const fixedRef = db.collection(COLLECTION).doc(fixedId)
+        nanBatch.set(fixedRef, { ...nanData, item_id: fixedId, updated_at: now })
+        nanBatch.delete(nanDoc.ref)
+      }
+      await nanBatch.commit()
+    }
+
+    const nextNum = maxNum + 1
     const itemId = `TRK-${String(nextNum).padStart(3, '0')}`
 
     const data = {
@@ -414,6 +439,21 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
     delete updates.created_at
 
     await docRef.update(updates)
+
+    // TRK-13685: Create notification on status change
+    const oldData = doc.data() as Record<string, unknown>
+    if (req.body.status && req.body.status !== oldData.status) {
+      createNotification({
+        type: 'info',
+        category: 'data',
+        title: `${oldData.item_id || id} status changed to ${req.body.status}`,
+        body: (oldData.title as string) || '',
+        link: '/modules/forge',
+        portal: 'all',
+        _created_by: (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api',
+      }).catch(() => {/* fire-and-forget */})
+    }
+
     const updated = await docRef.get()
     res.json(successResponse<TrackerItemDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as TrackerItemDTO))
   } catch (err) {

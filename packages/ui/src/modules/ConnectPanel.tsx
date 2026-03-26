@@ -472,14 +472,28 @@ function PersonCard({ member }: { member: TeamMember }) {
 
       <div className="mt-2 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
         <button
-          onClick={() => window.open('https://chat.google.com/dm/', '_blank')}
+          onClick={() => window.open(`https://chat.google.com/dm/${encodeURIComponent(member.email)}`, '_blank')}
           className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] h-[28px] px-2 text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
         >
           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>chat</span>
           Chat
         </button>
         <button
-          onClick={() => window.open('https://meet.google.com/new', '_blank')}
+          onClick={async () => {
+            try {
+              const res = await fetchValidated<{ meetLink: string }>('/api/connect/meet', {
+                method: 'POST',
+                body: JSON.stringify({ name: member.name }),
+              })
+              if (res.success && res.data?.meetLink) {
+                window.open(res.data.meetLink, '_blank')
+              } else {
+                window.open('https://meet.google.com/new', '_blank')
+              }
+            } catch {
+              window.open('https://meet.google.com/new', '_blank')
+            }
+          }}
           className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] h-[28px] px-2 text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
         >
           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>videocam</span>
@@ -646,7 +660,21 @@ function MeetTab() {
         <div className="mb-4">
           <span className="px-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Quick Actions</span>
           <div className="mt-1.5 space-y-1">
-            <MeetActionRow icon="videocam" title="Start Instant Meeting" subtitle="Create a new Google Meet right now" onClick={() => window.open('https://meet.google.com/new', '_blank')} />
+            <MeetActionRow icon="videocam" title="Start Instant Meeting" subtitle="Create a new Google Meet right now" onClick={async () => {
+              try {
+                const res = await fetchValidated<{ meetLink: string }>('/api/connect/meet', {
+                  method: 'POST',
+                  body: JSON.stringify({ name: 'Quick Meeting' }),
+                })
+                if (res.success && res.data?.meetLink) {
+                  window.open(res.data.meetLink, '_blank')
+                } else {
+                  window.open('https://meet.google.com/new', '_blank')
+                }
+              } catch {
+                window.open('https://meet.google.com/new', '_blank')
+              }
+            }} />
             <MeetActionRow icon="calendar_month" title="Schedule Meeting" subtitle="Open Google Calendar to schedule" onClick={() => window.open('https://calendar.google.com/calendar/r/eventedit', '_blank')} />
             <MeetActionRow icon="link" title="Share My Meeting Link" subtitle="Copy your personal Meet room link" onClick={() => { /* TODO: wire personal Meet link */ }} />
           </div>
@@ -744,37 +772,45 @@ export function ConnectPanel({ open, onClose }: ConnectPanelProps) {
 
   return (
     <>
-      {/* Backdrop — click to close */}
-      <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} />
+      {/* Backdrop — mobile only (TRK-13677: push-not-overlay removes backdrop on desktop) */}
+      <div className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={onClose} />
 
       {/* TRK-101: Responsive panel widths */}
       <div
         className={CONNECT_PANEL_CLASSES}
         style={{ boxShadow: '-8px 0 32px rgba(0,0,0,0.4)' }}
       >
-        <div className="flex items-center gap-1 border-b border-[var(--border-subtle)] px-3 py-2">
-          <div className="flex flex-1 gap-1">
+        {/* CP13: Header + Tab bar — matches CommsModule pattern */}
+        <div className="border-b border-[var(--border-subtle)]">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--portal)' }}>hub</span>
+              <h2 className="text-sm font-semibold text-[var(--text-primary)]">RPI Connect</h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+              title="Close panel"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-0 px-2">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex flex-1 items-center justify-center gap-1 rounded-md h-[34px] text-xs font-medium transition-colors ${
-                  activeTab === tab.key ? 'text-white' : 'text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-secondary)]'
+                className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 h-[44px] text-xs font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-[var(--portal)] text-[var(--portal)]'
+                    : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                 }`}
-                style={activeTab === tab.key ? { background: 'var(--portal)' } : undefined}
               >
-                <span className="material-icons-outlined" style={{ fontSize: '14px' }}>{tab.icon}</span>
+                <span className="material-icons-outlined" style={{ fontSize: '16px' }}>{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
           </div>
-          <button
-            onClick={onClose}
-            className="ml-1 flex h-7 w-7 items-center justify-center rounded-md text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-            title="Close panel"
-          >
-            <span className="material-icons-outlined" style={{ fontSize: '18px' }}>close</span>
-          </button>
         </div>
 
         <div className="flex-1 overflow-hidden">

@@ -19,6 +19,15 @@ export function DataTab({ notifications, loading, onNavigate, onMarkRead }: Data
     [notifications]
   )
 
+  if (!loading && filtered.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '32px' }}>cloud_off</span>
+        <p className="mt-2 text-xs text-[var(--text-muted)]">No data notifications</p>
+      </div>
+    )
+  }
+
   return (
     <AllTab
       notifications={filtered}

@@ -244,7 +244,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const [sprints, setSprints] = useState<Sprint[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [filters, setFilters] = useState({ status: '', portal: '', scope: '', component: '', sprint_id: '', type: '' })
+  const [filters, setFilters] = useState({ status: '', portal: '', scope: '', component: '', sprint_id: '', type: '', reporter: '' })
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [editItem, setEditItem] = useState<TrackerItem | null>(null)
   const [editForm, setEditForm] = useState<Partial<TrackerItem>>({})
@@ -330,16 +330,22 @@ function ForgeInner({ portal }: ForgeProps) {
     return Array.from(set).sort()
   }, [items])
 
+  const reporters = useMemo(() => {
+    const set = new Set(items.map(i => i.created_by).filter(Boolean))
+    return Array.from(set).sort()
+  }, [items])
+
   const sortedItems = useMemo(() => {
-    const sorted = [...items]
-    sorted.sort((a, b) => {
+    let list = [...items]
+    if (filters.reporter) list = list.filter(i => i.created_by === filters.reporter)
+    list.sort((a, b) => {
       const av = (a as unknown as Record<string, unknown>)[sortField] as string || ''
       const bv = (b as unknown as Record<string, unknown>)[sortField] as string || ''
       const cmp = av.localeCompare(bv)
       return sortDir === 'asc' ? cmp : -cmp
     })
-    return sorted
-  }, [items, sortField, sortDir])
+    return list
+  }, [items, sortField, sortDir, filters.reporter])
 
   const pagedItems = useMemo(() => {
     const start = page * pageSize
@@ -1254,9 +1260,15 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           options={sprints.map(sp => ({ value: sp.id, label: sp.name }))}
           placeholder="All Sprints"
         />
-        {(filters.status || filters.portal || filters.scope || filters.component || filters.sprint_id || filters.type || search) && (
+        <Select
+          value={filters.reporter}
+          onChange={(v) => { setFilters(f => ({ ...f, reporter: v })); setPage(0) }}
+          options={reporters.map(r => ({ value: r, label: r }))}
+          placeholder="All Reporters"
+        />
+        {(filters.status || filters.portal || filters.scope || filters.component || filters.sprint_id || filters.type || filters.reporter || search) && (
           <button
-            onClick={() => { setFilters({ status: '', portal: '', scope: '', component: '', sprint_id: '', type: '' }); setSearch(''); setPage(0) }}
+            onClick={() => { setFilters({ status: '', portal: '', scope: '', component: '', sprint_id: '', type: '', reporter: '' }); setSearch(''); setPage(0) }}
             style={{
               padding: '6px 12px', borderRadius: 6, border: `1px solid ${s.border}`,
               background: 'transparent', color: s.textSecondary, fontSize: 12, cursor: 'pointer',

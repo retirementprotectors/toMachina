@@ -72,7 +72,7 @@ interface FlowPipelineRecord {
   assigned_section?: 'sales' | 'service' | 'both' | null
 }
 
-type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'firestore-config' | 'platform' | 'config-registry'
+type AdminTab = 'module-config' | 'team-config' | 'acf-config' | 'firestore-config' | 'platform' | 'config-registry' | 'mission-control'
 
 /* ─── Section Definitions (mirrors PortalSidebar NAV_SECTIONS) ─── */
 
@@ -757,6 +757,131 @@ function AgentDesignation({
 
 /* ─── Member row — extracted to a proper component so hooks are valid ─── */
 
+/* ─── MDJ Preferences Section (TRK-018) ─── */
+
+function MDJPreferencesSection({ memberId, memberEmail }: { memberId: string; memberEmail: string }) {
+  const [showToolDetails, setShowToolDetails] = useState(true)
+  const [defaultSpecialist, setDefaultSpecialist] = useState('')
+  const [autoApproveTools, setAutoApproveTools] = useState('')
+  const [retention, setRetention] = useState<'standard' | 'minimal' | 'none'>('standard')
+  const [loaded, setLoaded] = useState(false)
+
+  // Load existing MDJ preferences from users/{email}.mdj_preferences
+  useEffect(() => {
+    if (!memberEmail) return
+    const loadPrefs = async () => {
+      try {
+        const ref = doc(getDb(), 'users', memberId)
+        const { getDoc: getDocFn } = await import('firebase/firestore')
+        const snap = await getDocFn(ref)
+        const prefs = snap.data()?.mdj_preferences
+        if (prefs) {
+          setShowToolDetails(prefs.show_tool_details ?? true)
+          setDefaultSpecialist(prefs.default_specialist || '')
+          setAutoApproveTools(prefs.auto_approve_tools || '')
+          setRetention(prefs.retention || 'standard')
+        }
+      } catch { /* ignore load errors */ }
+      setLoaded(true)
+    }
+    loadPrefs()
+  }, [memberId, memberEmail])
+
+  const savePrefs = useCallback(async (updates: Record<string, unknown>) => {
+    try {
+      const ref = doc(getDb(), 'users', memberId)
+      await updateDoc(ref, {
+        'mdj_preferences': {
+          show_tool_details: showToolDetails,
+          default_specialist: defaultSpecialist || null,
+          auto_approve_tools: autoApproveTools || '',
+          retention,
+          ...updates,
+        },
+        updated_at: new Date().toISOString(),
+      })
+    } catch { /* ignore save errors */ }
+  }, [memberId, showToolDetails, defaultSpecialist, autoApproveTools, retention])
+
+  if (!loaded) return null
+
+  return (
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-2.5 space-y-2.5">
+      <div className="flex items-center gap-2">
+        <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '16px' }}>smart_toy</span>
+        <span className="text-xs font-semibold text-[var(--text-primary)]">MDJ Preferences</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {/* Show Tool Details */}
+        <label className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
+          <input
+            type="checkbox"
+            checked={showToolDetails}
+            onChange={(e) => {
+              setShowToolDetails(e.target.checked)
+              savePrefs({ show_tool_details: e.target.checked })
+            }}
+            className="rounded"
+          />
+          Show tool details
+        </label>
+
+        {/* Default Specialist */}
+        <div>
+          <label className="text-[10px] text-[var(--text-muted)] block mb-0.5">Default Specialist</label>
+          <select
+            value={defaultSpecialist}
+            onChange={(e) => {
+              setDefaultSpecialist(e.target.value)
+              savePrefs({ default_specialist: e.target.value || null })
+            }}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)]"
+          >
+            <option value="">General (default)</option>
+            <option value="mdj-medicare">Medicare</option>
+            <option value="mdj-securities">Securities</option>
+            <option value="mdj-service">Service</option>
+            <option value="mdj-david">DAVID</option>
+            <option value="mdj-ops">Operations</option>
+          </select>
+        </div>
+
+        {/* Auto-Approve Tools */}
+        <div>
+          <label className="text-[10px] text-[var(--text-muted)] block mb-0.5">Auto-Approve Tools (comma-separated)</label>
+          <input
+            type="text"
+            value={autoApproveTools}
+            onChange={(e) => setAutoApproveTools(e.target.value)}
+            onBlur={() => savePrefs({ auto_approve_tools: autoApproveTools })}
+            placeholder="e.g. search_clients, lookup_npi"
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)]"
+          />
+        </div>
+
+        {/* Retention */}
+        <div>
+          <label className="text-[10px] text-[var(--text-muted)] block mb-0.5">Conversation Retention</label>
+          <select
+            value={retention}
+            onChange={(e) => {
+              const val = e.target.value as 'standard' | 'minimal' | 'none'
+              setRetention(val)
+              savePrefs({ retention: val })
+            }}
+            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)]"
+          >
+            <option value="standard">Standard (keep all)</option>
+            <option value="minimal">Minimal (summaries only)</option>
+            <option value="none">None (no persistence)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /** Unified item type used by section-based rendering in TeamMemberRow */
 interface UnifiedItem {
   key: string
@@ -1026,6 +1151,11 @@ function TeamMemberRow({
             <AgentDesignation member={member} isLeader={canEdit} isSelf={false} />
           )}
 
+          {/* MDJ Preferences — TRK-018 */}
+          {canEdit && (
+            <MDJPreferencesSection memberId={member._id} memberEmail={member.email || ''} />
+          )}
+
           {isFullyLocked && (
             <div className="flex items-center gap-1.5 rounded-md bg-[var(--bg-card)] px-3 py-2">
               <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '14px' }}>verified</span>
@@ -1257,6 +1387,212 @@ function TeamConfigTab({
   )
 }
 
+/* ─── Mission Control — MDJ_SERVER status + agent health ─── */
+
+function MissionControl() {
+  const [health, setHealth] = useState<Record<string, unknown> | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchHealth = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/mdj/health')
+      if (res.ok) {
+        const json = await res.json()
+        const d = json.data || json
+        setHealth({
+          status: d.status || 'ok',
+          connected: true,
+          uptime_seconds: d.uptime_seconds,
+          memory_mb: d.memory_mb,
+          active_conversations: d.active_conversations,
+          version: d.version,
+        })
+      } else {
+        setHealth({ status: 'degraded', connected: true, http_status: res.status })
+      }
+    } catch {
+      setError('Cannot reach MDJ_SERVER')
+      setHealth({ status: 'offline', connected: false })
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchHealth()
+    const interval = setInterval(fetchHealth, 30000) // refresh every 30s
+    return () => clearInterval(interval)
+  }, [fetchHealth])
+
+  const StatusDot = ({ ok }: { ok: boolean }) => (
+    <span
+      className="inline-block h-2.5 w-2.5 rounded-full"
+      style={{ background: ok ? '#22c55e' : '#ef4444', boxShadow: ok ? '0 0 6px #22c55e' : '0 0 6px #ef4444' }}
+    />
+  )
+
+  const isOnline = health?.status === 'ok'
+
+  return (
+    <div className="space-y-4">
+      {/* Server Status */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>dns</span>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">MDJ_SERVER</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <StatusDot ok={isOnline} />
+            <span className={`text-xs font-medium ${isOnline ? 'text-green-400' : 'text-red-400'}`}>
+              {loading ? 'Checking...' : isOnline ? 'Online' : error || 'Offline'}
+            </span>
+            <button
+              onClick={fetchHealth}
+              className="flex h-6 w-6 items-center justify-center rounded hover:bg-[var(--bg-hover)]"
+              title="Refresh"
+            >
+              <span className="material-icons-outlined" style={{ fontSize: '14px', color: 'var(--text-muted)' }}>refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Platform</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">Dell PowerEdge T440</div>
+            <div className="text-[10px] text-[var(--text-muted)]">Ubuntu 24.04 LTS</div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Hardware</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">16 Cores</div>
+            <div className="text-[10px] text-[var(--text-muted)]">16GB RAM (32GB soon)</div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Network</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">Tailscale</div>
+            <div className="text-[10px] text-[var(--text-muted)]">100.99.181.57</div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Funnel</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">Public HTTPS</div>
+            <div className="text-[10px] text-[var(--text-muted)]">mdjserver.tail7845ea.ts.net</div>
+          </div>
+        </div>
+      </div>
+
+      {/* MDJ Agent */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>smart_toy</span>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">MDJ Agent Service</h3>
+          <StatusDot ok={isOnline} />
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Uptime</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">
+              {health?.uptime_seconds != null
+                ? `${Math.floor(Number(health.uptime_seconds) / 3600)}h ${Math.floor((Number(health.uptime_seconds) % 3600) / 60)}m`
+                : '—'}
+            </div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Memory</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">
+              {health?.memory_mb != null ? `${health.memory_mb} MB` : '—'}
+            </div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Active Chats</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">
+              {health?.active_conversations != null ? String(health.active_conversations) : '—'}
+            </div>
+          </div>
+          <div className="rounded-lg bg-[var(--bg-surface)] p-3">
+            <div className="text-[10px] font-semibold uppercase text-[var(--text-muted)]">Tools</div>
+            <div className="text-sm font-medium text-[var(--text-primary)] mt-1">82</div>
+            <div className="text-[10px] text-[var(--text-muted)]">57 API + 25 MCP</div>
+          </div>
+        </div>
+      </div>
+
+      {/* MCP Servers */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>hub</span>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">MCP Servers (8)</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[
+            { name: 'rpi-workspace', tools: 73, icon: 'business' },
+            { name: 'rpi-business', tools: 28, icon: 'payments' },
+            { name: 'rpi-healthcare', tools: 79, icon: 'medical_services' },
+            { name: 'rpi-comms', tools: 18, icon: 'phone' },
+            { name: 'slack', tools: 10, icon: 'chat' },
+            { name: 'gdrive', tools: 40, icon: 'folder' },
+            { name: 'google-calendar', tools: 8, icon: 'calendar_today' },
+            { name: 'gmail', tools: 6, icon: 'email' },
+          ].map((mcp) => (
+            <div key={mcp.name} className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2">
+              <span className="material-icons-outlined" style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{mcp.icon}</span>
+              <div>
+                <div className="text-xs font-medium text-[var(--text-primary)]">{mcp.name}</div>
+                <div className="text-[10px] text-[var(--text-muted)]">{mcp.tools} tools</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Quick Links */}
+      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="material-icons-outlined text-[var(--portal)]" style={{ fontSize: '20px' }}>link</span>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Quick Access</h3>
+        </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <a href="https://mdjserver.tail7845ea.ts.net/code/" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors">
+            <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>code</span>
+            <div>
+              <div className="text-xs font-medium text-[var(--text-primary)]">Code Server</div>
+              <div className="text-[10px] text-[var(--text-muted)]">Browse MDJ_SERVER files (VS Code)</div>
+            </div>
+          </a>
+          <a href="https://mdj-mobile--claude-mcp-484718.us-central1.hosted.app/" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors">
+            <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>phone_iphone</span>
+            <div>
+              <div className="text-xs font-medium text-[var(--text-primary)]">MDJ Mobile</div>
+              <div className="text-[10px] text-[var(--text-muted)]">Phone app for field agents</div>
+            </div>
+          </a>
+          <a href="https://retirementprotectors.github.io/toMachina/mdj-discovery.html" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors">
+            <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>description</span>
+            <div>
+              <div className="text-xs font-medium text-[var(--text-primary)]">MDJ Discovery Docs</div>
+              <div className="text-[10px] text-[var(--text-muted)]">Architecture + plans (7 docs)</div>
+            </div>
+          </a>
+          <a href="https://console.firebase.google.com/project/claude-mcp-484718/firestore" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors">
+            <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>database</span>
+            <div>
+              <div className="text-xs font-medium text-[var(--text-primary)]">Firestore Console</div>
+              <div className="text-[10px] text-[var(--text-muted)]">Direct database access</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Main Component ─── */
 
 export function AdminPanel({ portal }: AdminPanelProps) {
@@ -1404,6 +1740,7 @@ export function AdminPanel({ portal }: AdminPanelProps) {
           { key: 'firestore-config' as AdminTab, label: 'Firestore Config', icon: 'local_fire_department' },
           { key: 'platform' as AdminTab, label: 'Platform Intel', icon: 'radar' },
           { key: 'config-registry' as AdminTab, label: 'Config Registry', icon: 'tune' },
+          { key: 'mission-control' as AdminTab, label: 'Mission Control', icon: 'rocket_launch' },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -1515,6 +1852,11 @@ export function AdminPanel({ portal }: AdminPanelProps) {
       {/* Config Registry Tab */}
       {activeTab === 'config-registry' && (
         <ConfigRegistry portal={portal} />
+      )}
+
+      {/* Mission Control Tab — MDJ_SERVER status + agent health */}
+      {activeTab === 'mission-control' && (
+        <MissionControl />
       )}
 
     </div>

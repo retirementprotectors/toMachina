@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 001: VOLTRON Foundation — Discovery Document</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --bg-code: #0d1117;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239, 68, 68, 0.12);
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1a0533 40%, #0a1628 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 32px 40px;
+    text-align: center;
+  }
+  .header-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+  .header h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #3b82f6 0%, #a855f7 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+  .header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto 20px;
+  }
+  .header-badges {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .badge-blue { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-purple { background: rgba(168,85,247,0.12); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+
+  /* ─── TABS ─── */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15,15,15,0.97);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(8px);
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    gap: 2px;
+  }
+  .tab-btn {
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ─── CONTENT ─── */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 32px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .section-sub {
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    font-size: 0.95rem;
+  }
+
+  /* ─── TABLES ─── */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th {
+    background: rgba(59,130,246,0.08);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(30,41,59,0.6);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-hover); }
+  .mono { font-family: 'SF Mono', 'Fira Code', Consolas, monospace; font-size: 0.83em; color: var(--cyan); }
+  .strike { text-decoration: line-through; color: var(--text-muted); }
+
+  /* ─── CODE ─── */
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    font-size: 0.83rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    color: #c9d1d9;
+  }
+  code {
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    font-size: 0.85em;
+    background: rgba(255,255,255,0.07);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  /* ─── GRID ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ─── STAT BOXES ─── */
+  .stat-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-box .stat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ─── CALLOUTS ─── */
+  .callout {
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    border-left: 3px solid;
+    font-size: 0.9rem;
+  }
+  .callout-blue { background: var(--accent-glow); border-color: var(--accent); }
+  .callout-green { background: var(--green-glow); border-color: var(--green); }
+  .callout-orange { background: var(--orange-glow); border-color: var(--orange); }
+  .callout-red { background: var(--red-glow); border-color: var(--red); }
+  .callout strong { font-weight: 700; }
+  .callout-blue strong { color: var(--accent); }
+  .callout-green strong { color: var(--green); }
+  .callout-orange strong { color: var(--orange); }
+  .callout-red strong { color: var(--red); }
+
+  /* ─── PILLS ─── */
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pill-blue { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  .pill-green { background: rgba(34,197,94,0.15); color: #86efac; }
+  .pill-orange { background: rgba(245,158,11,0.15); color: #fcd34d; }
+  .pill-red { background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .pill-purple { background: rgba(168,85,247,0.15); color: #d8b4fe; }
+  .pill-cyan { background: rgba(6,182,212,0.15); color: #67e8f9; }
+  .pill-gray { background: rgba(148,163,184,0.12); color: var(--text-muted); }
+
+  /* ─── CHECKLIST ─── */
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 8px 0;
+    padding-left: 28px;
+    position: relative;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(30,41,59,0.4);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+  }
+  .checklist li.done::before {
+    background: var(--green);
+    border-color: var(--green);
+    content: '✓';
+    color: white;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+  }
+
+  /* ─── FLOW DIAGRAM ─── */
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .flow-node {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.accent { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+  .flow-node.green { border-color: var(--green); color: var(--green); background: var(--green-glow); }
+  .flow-node.orange { border-color: var(--orange); color: var(--orange); background: var(--orange-glow); }
+  .flow-arrow {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 300;
+  }
+
+  /* ─── PHASE BLOCK ─── */
+  .phase-block {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .phase-header {
+    padding: 14px 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .phase-header.phase-1 { background: rgba(59,130,246,0.1); border-bottom: 1px solid rgba(59,130,246,0.2); }
+  .phase-header.phase-2 { background: rgba(168,85,247,0.1); border-bottom: 1px solid rgba(168,85,247,0.2); }
+  .phase-header.phase-3 { background: rgba(34,197,94,0.1); border-bottom: 1px solid rgba(34,197,94,0.2); }
+  .phase-body { padding: 20px; }
+  .phase-label {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-left: auto;
+  }
+
+  /* ─── TICKET ROWS ─── */
+  .ticket-ac { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+  .ticket-title { font-weight: 600; }
+
+  /* ─── MISC ─── */
+  p { margin-bottom: 14px; font-size: 0.93rem; color: #cbd5e1; }
+  p:last-child { margin-bottom: 0; }
+  ul, ol { padding-left: 20px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; font-size: 0.9rem; color: #cbd5e1; }
+  h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+  h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  .tag { font-size: 0.78rem; color: var(--text-muted); font-style: italic; }
+
+  .epiphany-quote {
+    background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(59,130,246,0.08));
+    border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .epiphany-quote blockquote {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text);
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .epiphany-quote cite {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-style: normal;
+  }
+
+  .golden-rule {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(239,68,68,0.05));
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .golden-rule .rule-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 0.3px;
+  }
+  .golden-rule .rule-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; }
+
+  .file-tree {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+    font-size: 0.83rem;
+    line-height: 1.9;
+    margin-bottom: 20px;
+    color: #c9d1d9;
+  }
+  .file-tree .dir { color: var(--accent); }
+  .file-tree .new { color: var(--green); }
+  .file-tree .mod { color: var(--orange); }
+  .file-tree .keep { color: var(--text-muted); }
+  .file-tree .warn { color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─────────────────────────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-eyebrow">FORGE Sprint 001 · Discovery Document</div>
+  <h1>VOLTRON Foundation</h1>
+  <div class="subtitle">Agent SDK Migration — Transforming VOLTRON from a hand-built chat relay into a true autonomous operating engine.</div>
+  <div class="header-badges">
+    <span class="badge badge-blue">Sprint 001</span>
+    <span class="badge badge-purple">13 Tickets</span>
+    <span class="badge badge-orange">3 Phases</span>
+    <span class="badge badge-green">Additive · Never Replacement</span>
+  </div>
+</div>
+
+<!-- ─── TABS ───────────────────────────────────────────────────────────────── -->
+<div class="tab-container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('vision')">Vision</button>
+    <button class="tab-btn" onclick="showTab('epiphany')">The Epiphany</button>
+    <button class="tab-btn" onclick="showTab('architecture')">Two-Mode Architecture</button>
+    <button class="tab-btn" onclick="showTab('migration')">Migration Plan</button>
+    <button class="tab-btn" onclick="showTab('deploy-pipeline')">Deploy Pipeline</button>
+    <button class="tab-btn" onclick="showTab('os-enforcement')">OS Enforcement</button>
+    <button class="tab-btn" onclick="showTab('sprint-plan')">Sprint Plan</button>
+  </div>
+</div>
+
+<!-- ─── MAIN CONTENT ────────────────────────────────────────────────────────── -->
+<div class="content">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TAB 1: VISION                                              -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-vision">
+
+    <div class="section-title">VOLTRON: The Machine's Steering Wheel</div>
+    <div class="section-sub">Not a chatbot. A conversational operating system built directly into RPI's platform.</div>
+
+    <div class="epiphany-quote">
+      <blockquote>"The portal is the dashboard. VOLTRON is the steering wheel."</blockquote>
+      <cite>— JDM, Sprint 001 direction</cite>
+    </div>
+
+    <div class="grid-3">
+      <div class="stat-box">
+        <div class="stat-value">82</div>
+        <div class="stat-label">Tools today (hand-coded)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">∞</div>
+        <div class="stat-label">Tools after SDK (auto-discovered)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">15</div>
+        <div class="stat-label">Max rounds today → unlimited</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What VOLTRON Is Today</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Current Implementation</th><th>Location</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Runtime</td>
+              <td>Custom Express server, port 4200</td>
+              <td><span class="mono">~/Projects/mdj-agent/src/server.ts</span></td>
+            </tr>
+            <tr>
+              <td>Core Engine</td>
+              <td>Raw <code>@anthropic-ai/sdk</code> with <code>client.messages.stream()</code> + manual 15-round tool loop</td>
+              <td><span class="mono">src/agent/claude-client.ts</span></td>
+            </tr>
+            <tr>
+              <td>Tool Definitions</td>
+              <td>82 hand-coded tool definitions (57 TM API + 25 MCP)</td>
+              <td><span class="mono">src/tools/tm-api-tools.ts</span> + <span class="mono">mcp-bridge.ts</span></td>
+            </tr>
+            <tr>
+              <td>Specialists</td>
+              <td>6 configs in Firestore, keyword + Claude classification routing</td>
+              <td><span class="mono">src/agent/specialist-router.ts</span> → Firestore <code>mdj_specialist_configs</code></td>
+            </tr>
+            <tr>
+              <td>Streaming</td>
+              <td>SSE via manual event parsing from Anthropic stream</td>
+              <td><span class="mono">src/agent/claude-client.ts</span> lines 194–220</td>
+            </tr>
+            <tr>
+              <td>Approval Gates</td>
+              <td>In-memory <code>ApprovalManager</code>, Promise-based pause/resume, 5-min timeout</td>
+              <td><span class="mono">src/agent/approval-manager.ts</span></td>
+            </tr>
+            <tr>
+              <td>FORGE Runner</td>
+              <td>RONIN — autonomous sprint execution engine, Phase-gated, Firestore-tracked</td>
+              <td><span class="mono">src/forge/</span> — DO NOT TOUCH</td>
+            </tr>
+            <tr>
+              <td>System</td>
+              <td>MDJ_SERVER (Dell PowerEdge T440), Ubuntu 24.04, Tailscale: 100.99.181.57</td>
+              <td>systemd: <code>mdj-agent.service</code></td>
+            </tr>
+            <tr>
+              <td>Package</td>
+              <td><code>@anthropic-ai/claude-agent-sdk ^0.2.83</code> already installed but unused</td>
+              <td><span class="mono">package.json</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What VOLTRON Becomes</div>
+      <p>VOLTRON v2 is JDM's replacement in RPI daily operations. Not in the sense of a chatbot that answers questions — but an agent that can execute multi-step work across the entire Platform the way JDM would direct a team member to do it.</p>
+      <p>Today: "What accounts does Jim Aswegan have?" → VOLTRON looks it up and tells you. <br>Tomorrow: "Prep Jim Aswegan for next Tuesday's review meeting" → VOLTRON reads his accounts, pulls his RMDs, checks the pipeline, drafts talking points, and returns a compiled brief.</p>
+      <p>The key insight: <strong>VOLTRON doesn't need a UI upgrade</strong>. The same ProDashX App that hosts the current chat widget gets a second mode — a task deployment mode — that wires to the Agent SDK backend. The user types a goal. VOLTRON works. The user gets results.</p>
+
+      <div class="callout callout-blue">
+        <strong>VOLTRON's Permanent Home:</strong> MDJ_SERVER is not a temporary dev host. All MCP servers run on MDJ_SERVER. Agent SDK sessions must be co-located with MCP processes to use them natively. Redundancy is GitHub (code) + Firestore/Drive (state). Cloud Run is for the toMachina API — not for VOLTRON.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Additive Approach — The Non-Negotiable</div>
+      <div class="callout callout-green">
+        <strong>Sprint 001 is ADDITIVE. It adds Mode 1 (Agent SDK) alongside the existing Mode 2 (Raw SDK). It does NOT remove, rewrite, or break any current functionality.</strong> Mode 2 (the chat interface) stays exactly as-is. Mode 1 is a new endpoint, a new client wrapper, and a new ProDashX UI section layered on top.
+      </div>
+      <p>Rationale: Mode 2 is live, in use by the team, and battle-tested. Mode 1 is new and unproven in production at this org. The safe path: ship Mode 1 in parallel, validate it, then decide in a future sprint if Mode 2 should be migrated or deprecated. Sprint 001 does not answer that question — it doesn't need to.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">The Renaming: MDJ1 → VOLTRON</div>
+      <p>The system was called MDJ1 (internally) and "MyDigitalJosh" (display name). Going forward:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>What</th><th>Old Name</th><th>New Name</th><th>Where to Update</th></tr></thead>
+          <tbody>
+            <tr><td>System/code name</td><td>MDJ1 / mdj-agent</td><td>VOLTRON</td><td>All source code references, configs, routes</td></tr>
+            <tr><td>Server</td><td>MDJ1 Server</td><td>MDJ_SERVER</td><td>CLAUDE.md, docs (server keeps name MDJ_SERVER)</td></tr>
+            <tr><td>API routes</td><td><code>/agent/chat</code>, <code>/api/mdj/*</code></td><td><code>/api/voltron/*</code> (new) + keep old for Mode 2</td><td>server.ts (add new, alias old)</td></tr>
+            <tr><td>Firestore collections</td><td><code>mdj_conversations</code>, <code>mdj_specialist_configs</code></td><td>VOLTRON (update display names in docs, keep collection IDs or migrate)</td><td>Firestore specialist configs display_name field</td></tr>
+            <tr><td>Display name / persona</td><td>MyDigitalJosh</td><td>VOLTRON (display name can stay "MyDigitalJosh" if JDM prefers)</td><td>system prompts, UI labels</td></tr>
+            <tr><td>Repo</td><td>retirementprotectors/mdj-agent</td><td>Rename or leave — repo name is cosmetic</td><td>GitHub settings (optional)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TAB 2: THE EPIPHANY                                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-epiphany">
+
+    <div class="section-title">The 04:13 AM Discovery</div>
+    <div class="section-sub">Shinobi's session, March 25, 2026 — what changed everything.</div>
+
+    <div class="epiphany-quote">
+      <blockquote>"The entire src/agent/ directory gets AUGMENTED by one query() call from @anthropic-ai/claude-agent-sdk."</blockquote>
+      <cite>— Shinobi, 04:13 AM, March 25, 2026</cite>
+    </div>
+
+    <div class="card">
+      <div class="card-title">The Package Was Already Installed</div>
+      <p>The crucial discovery: <code>@anthropic-ai/claude-agent-sdk ^0.2.83</code> was already listed in <code>package.json</code> dependencies as of Sprint-000. It was installed but never invoked. A single <code>query()</code> call unlocks a fundamentally different category of capability.</p>
+
+      <div class="callout callout-orange">
+        <strong>Analogy:</strong> The Raw SDK is like a telephone call. VOLTRON speaks one sentence, waits for one reply, hangs up. The Agent SDK is like a full work session. VOLTRON sits down, opens the files, runs the commands, loops until the job is done, then reports back.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Hand-Built vs Agent SDK — Full Comparison</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>What We Hand-Built (Mode 2)</th>
+              <th>What Agent SDK Gives Free (Mode 1)</th>
+              <th>Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tool Discovery</td>
+              <td>82 hand-coded definitions in <span class="mono">tm-api-tools.ts</span> + <span class="mono">mcp-bridge.ts</span></td>
+              <td>Auto-discovers ALL MCP servers connected to the session (native protocol)</td>
+              <td><span class="pill pill-green">Massive reduction</span></td>
+            </tr>
+            <tr>
+              <td>Tool Execution</td>
+              <td>Manual fetch calls to TM API via <span class="mono">executeTmApiTool()</span> + <span class="mono">callMcpTool()</span></td>
+              <td>Native MCP protocol execution — the SDK handles transport, retry, errors</td>
+              <td><span class="pill pill-green">No custom code needed</span></td>
+            </tr>
+            <tr>
+              <td>Streaming</td>
+              <td>338 lines of manual event parsing in <span class="mono">streamChat()</span> generator</td>
+              <td>Native <code>AsyncGenerator</code> of typed SDK events</td>
+              <td><span class="pill pill-green">~300 lines deleted</span></td>
+            </tr>
+            <tr>
+              <td>Tool Rounds</td>
+              <td>MAX_TOOL_ROUNDS = 15, hard coded</td>
+              <td>Unlimited turns — SDK manages the conversation loop</td>
+              <td><span class="pill pill-green">No artificial ceiling</span></td>
+            </tr>
+            <tr>
+              <td>File Access</td>
+              <td>Cannot read files — no capability</td>
+              <td>CAN read any file on MDJ_SERVER (bash + file tools)</td>
+              <td><span class="pill pill-purple">New capability</span></td>
+            </tr>
+            <tr>
+              <td>Shell Commands</td>
+              <td>Cannot run commands</td>
+              <td>CAN run bash commands on MDJ_SERVER</td>
+              <td><span class="pill pill-purple">New capability</span></td>
+            </tr>
+            <tr>
+              <td>Sub-Agents</td>
+              <td>Cannot spawn sub-agents</td>
+              <td>CAN parallelize work across multiple agents</td>
+              <td><span class="pill pill-purple">New capability</span></td>
+            </tr>
+            <tr>
+              <td>Session Persistence</td>
+              <td>In-memory only, loses state on restart — Firestore persisted manually</td>
+              <td>Sessions persist to disk natively</td>
+              <td><span class="pill pill-green">Automatic</span></td>
+            </tr>
+            <tr>
+              <td>Approval Gates</td>
+              <td>Custom <span class="mono">ApprovalManager</span> class — 133 lines of Promise machinery</td>
+              <td><code>canUseTool</code> callback — inline, 5 lines</td>
+              <td><span class="pill pill-green">~128 lines deleted</span></td>
+            </tr>
+            <tr>
+              <td>Context Condensing</td>
+              <td>Custom <span class="mono">context-manager.ts</span> — checkAndCondenseContext(), buildSummaryContext()</td>
+              <td>SDK manages context window automatically</td>
+              <td><span class="pill pill-green">Can simplify</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What Stays</div>
+      <p>Agent SDK handles the execution loop. VOLTRON's custom layer still owns the things that are RPI-specific and cannot be generic:</p>
+      <ul>
+        <li><strong>Specialist routing</strong> — keyword + Claude classification against Firestore configs. The SDK doesn't know our 6 specialists. We pre-route before calling <code>query()</code>.</li>
+        <li><strong>Tool filtering by user level</strong> — <code>filterToolsForUser()</code> enforces entitlement gates. The SDK executes whatever tools it sees, so we control what it sees.</li>
+        <li><strong>TM API tools</strong> — the 57 toMachina API tools stay as custom definitions. The SDK auto-discovers MCP tools; TM API tools are REST and still need explicit definition or an MCP wrapper.</li>
+        <li><strong>Auth middleware</strong> — Firebase auth token validation stays in Express. The SDK doesn't handle this.</li>
+        <li><strong>Memory extraction + Firestore persistence</strong> — post-conversation insight storage stays custom.</li>
+        <li><strong>Mode 2 entirely</strong> — the existing Raw SDK chat endpoint (<code>/agent/chat</code>) is not touched. It runs as-is.</li>
+        <li><strong>FORGE runner</strong> — <code>src/forge/</code> is completely untouched by Sprint 001. RONIN runs in the same process and uses the same server.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">The Architectural Shift in One Diagram</div>
+
+      <h3 style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Mode 2 (Today — Raw SDK)</h3>
+      <div class="flow">
+        <div class="flow-node">User message</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node accent">Express /agent/chat</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Specialist Router</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">streamChat() loop ≤15 rounds</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">SSE chunks to UI</div>
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 24px;">Each round: raw SDK call → parse tool_use events → fetch TM API → repeat. Manual everything.</p>
+
+      <h3 style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Mode 1 (Sprint 001 — Agent SDK)</h3>
+      <div class="flow">
+        <div class="flow-node">User goal</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node accent">Express POST /api/voltron/deploy</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Intent Classifier + Specialist Router</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">query() — Agent SDK</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">SSE bridge → UI</div>
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-muted);">query() handles everything: tool discovery, execution, looping, session management. We just translate the output to SSE.</p>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TAB 3: TWO-MODE ARCHITECTURE                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-architecture">
+
+    <div class="section-title">Two-Mode Architecture</div>
+    <div class="section-sub">Same App, same interface, automatic routing. User never picks a mode.</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color: var(--green);">Mode 1 — CCSDK (Executor)</div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">User gives a <strong>GOAL</strong>. VOLTRON executes multi-step work. Agent SDK backend.</p>
+        <ul>
+          <li>Multi-step, multi-tool, multi-turn execution</li>
+          <li>Can read files, run commands, spawn sub-agents</li>
+          <li>Returns a compiled result when done</li>
+          <li>Streams progress events back to UI in real-time</li>
+          <li>Unlimited tool rounds via Agent SDK</li>
+          <li>Backend: <code>voltron-sdk-client.ts</code> wrapping <code>query()</code></li>
+          <li>Endpoint: <code>POST /api/voltron/deploy</code></li>
+        </ul>
+        <div style="margin-top: 16px;">
+          <div class="callout callout-green">
+            <strong>Example goals:</strong> "Prep Jim Aswegan for his review meeting" · "Build a commission summary for Q1" · "Set up onboarding for new client Sarah Torres" · "Run the weekly pipeline health check"
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color: var(--accent);">Mode 2 — Raw SDK (Knowledge Engine)</div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">User asks a <strong>QUESTION</strong>. VOLTRON answers. Raw SDK backend. Unchanged from today.</p>
+        <ul>
+          <li>Fast, single-turn Q&amp;A</li>
+          <li>One or a few tool calls, direct answer</li>
+          <li>Low latency — no planning overhead</li>
+          <li>Specialist routing preserved exactly</li>
+          <li>Approval gates on sensitive tools preserved</li>
+          <li>Backend: <code>claude-client.ts</code> — zero changes</li>
+          <li>Endpoint: <code>POST /agent/chat</code> (unchanged)</li>
+        </ul>
+        <div style="margin-top: 16px;">
+          <div class="callout callout-blue">
+            <strong>Example questions:</strong> "What accounts does Jim Aswegan have?" · "Is John Smith's RMD due this year?" · "What's the current pipeline count?" · "Who owns case #12345?"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Intent Classifier Logic</div>
+      <p>The intent classifier (<code>src/agent/intent-classifier.ts</code>) routes each incoming message to the correct mode. It returns <code>{ mode: 'deploy' | 'chat', confidence: number, reasoning: string }</code>.</p>
+
+      <div class="table-wrap" style="margin-top: 20px;">
+        <table>
+          <thead>
+            <tr><th>Mode</th><th>Trigger Keywords / Patterns</th><th>Example Inputs</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pill pill-green">Mode 1 (deploy)</span></td>
+              <td>
+                <code>deploy</code>, <code>build</code>, <code>create</code>, <code>run</code>, <code>execute</code>, <code>prep</code>, <code>prepare</code>, <code>generate</code>, <code>set up</code>, <code>onboard</code>, <code>process</code>, <code>compile</code>, <code>analyze all</code>, <code>send to</code>, <code>schedule</code>, <code>automate</code>, <code>do the</code>, <code>handle</code>, <code>take care of</code>
+              </td>
+              <td>"Build a meeting prep for Jim Aswegan" · "Set up onboarding for Sarah Torres" · "Process the weekly commission report"</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-blue">Mode 2 (chat)</span></td>
+              <td>
+                <code>what</code>, <code>who</code>, <code>when</code>, <code>where</code>, <code>how</code>, <code>tell me</code>, <code>show me</code>, <code>list</code>, <code>find</code>, <code>lookup</code>, <code>check</code>, <code>is there</code>, <code>do we have</code>, <code>what is</code>, <code>are there</code>
+              </td>
+              <td>"What accounts does Jim Aswegan have?" · "Who is the agent on case 1234?" · "Tell me about our MAPD pipeline"</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-orange">Ambiguous</span></td>
+              <td>No strong signal either way</td>
+              <td>Default to Mode 2 (chat). Safer. Faster for users who just want a quick answer.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-orange">
+        <strong>Implementation note:</strong> The classifier uses keyword matching first (fast, deterministic). If no strong keyword match, it falls back to a Claude haiku call for classification (cheap, &lt;100ms). The user never sees the routing decision — they just see the result.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">ProDashX App Design: VOLTRON Module</div>
+      <p>Sprint 001 ships a new ProDashX module at <code>/modules/voltron</code>. This is NOT the existing MDJ slider widget — it is a full App module surfaced in the ProDash sidebar. ProDash only for Sprint 001. RIIMO and SENTINEL in a future sprint.</p>
+
+      <h3 style="margin-top: 20px;">UI Sections</h3>
+      <div class="grid-2" style="margin-top: 14px;">
+        <div style="background: var(--bg-code); border: 1px solid var(--border); border-radius: 10px; padding: 20px;">
+          <div style="font-weight: 700; color: var(--green); margin-bottom: 12px; font-size: 0.9rem;">Task Mode (Mode 1)</div>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Header: "What can VOLTRON do for you?"</p>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Large text area for goal input</p>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Progress stream: shows tool calls as they fire</p>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Approval gate UI: pause + approve/reject buttons</p>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Final result card when complete</p>
+        </div>
+        <div style="background: var(--bg-code); border: 1px solid var(--border); border-radius: 10px; padding: 20px;">
+          <div style="font-weight: 700; color: var(--accent); margin-bottom: 12px; font-size: 0.9rem;">Chat Mode (Mode 2)</div>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Chat bubble interface (existing slider behavior, promoted to full module)</p>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Specialist indicator in header</p>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Conversation history</p>
+          <p style="font-size: 0.83rem; color: var(--text-muted);">Tool call transparency (optional, per user prefs)</p>
+        </div>
+      </div>
+
+      <div class="callout callout-blue" style="margin-top: 20px;">
+        <strong>Routing in the UI:</strong> A single input field at the top of the module. User types. Intent classifier fires. If Mode 1: UI transitions to Task Mode view. If Mode 2: UI stays in Chat Mode view. The user never clicks "switch mode" — VOLTRON decides.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Specialist Routing in Mode 1</div>
+      <p>Mode 1 preserves specialist routing. Before calling <code>query()</code>, the server pre-routes the goal through <code>specialist-router.ts</code> (unchanged). The matched specialist's system prompt is injected as VOLTRON's system prompt for the session. The specialist's <code>available_tools</code> list filters which tools the Agent SDK can see.</p>
+
+      <div class="flow" style="margin-top: 16px;">
+        <div class="flow-node">User goal arrives</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Intent classifier → Mode 1</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">Specialist router</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Tool filter by user level + specialist tools</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">query() with specialist system prompt</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">SSE stream to UI</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TAB 4: MIGRATION PLAN                                      -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-migration">
+
+    <div class="section-title">File-by-File Migration Plan</div>
+    <div class="section-sub">What RONIN touches, what stays, and exactly what goes in each new file.</div>
+
+    <div class="callout callout-orange">
+      <strong>ADDITIVE ONLY.</strong> Files marked KEEP are not modified. Files marked NEW are created. Files marked MODIFY get additive changes only — existing functionality is preserved.
+    </div>
+
+    <div class="file-tree">
+<span class="dir">~/Projects/mdj-agent/src/</span>
+├── <span class="dir">agent/</span>
+│   ├── <span class="keep">claude-client.ts</span>              <span style="color:#4b5563">← KEEP. Mode 2 engine. Zero changes.</span>
+│   ├── <span class="keep">specialist-router.ts</span>          <span style="color:#4b5563">← KEEP. Shared by both modes.</span>
+│   ├── <span class="keep">tool-filter.ts</span>                <span style="color:#4b5563">← KEEP. Shared by both modes.</span>
+│   ├── <span class="keep">approval-manager.ts</span>           <span style="color:#4b5563">← KEEP for Mode 2. Mode 1 uses canUseTool.</span>
+│   ├── <span class="keep">api-auth.ts</span>                   <span style="color:#4b5563">← KEEP. Shared auth headers.</span>
+│   ├── <span class="keep">context-manager.ts</span>            <span style="color:#4b5563">← KEEP. Used by Mode 2.</span>
+│   ├── <span class="keep">firebase.ts</span>                   <span style="color:#4b5563">← KEEP. Shared Firestore client.</span>
+│   ├── <span class="keep">memory-extractor.ts</span>           <span style="color:#4b5563">← KEEP. Used by Mode 2 post-chat.</span>
+│   ├── <span class="keep">system-prompt.ts</span>              <span style="color:#4b5563">← KEEP. Used by Mode 2.</span>
+│   ├── <span class="keep">user-preferences.ts</span>           <span style="color:#4b5563">← KEEP. Used by both modes.</span>
+│   ├── <span class="keep">knowledge-base.ts</span>             <span style="color:#4b5563">← KEEP.</span>
+│   ├── <span class="new">voltron-sdk-client.ts</span>         <span style="color:#22c55e">← NEW. query() wrapper. Mode 1 engine.</span>
+│   └── <span class="new">intent-classifier.ts</span>          <span style="color:#22c55e">← NEW. Routes message to Mode 1 or 2.</span>
+├── <span class="dir">forge/</span>                          <span style="color:#ef4444">← DO NOT TOUCH. RONIN lives here.</span>
+├── <span class="dir">middleware/</span>
+│   └── <span class="keep">auth.ts</span>                       <span style="color:#4b5563">← KEEP. Firebase auth middleware.</span>
+├── <span class="dir">tools/</span>
+│   ├── <span class="keep">tm-api-tools.ts</span>               <span style="color:#4b5563">← KEEP. TM API tool definitions.</span>
+│   └── <span class="keep">mcp-bridge.ts</span>                 <span style="color:#4b5563">← KEEP. Used by Mode 2.</span>
+└── <span class="mod">server.ts</span>                         <span style="color:#f59e0b">← MODIFY. Add new routes. Keep all existing.</span>
+    </div>
+
+    <hr class="divider">
+
+    <div class="card">
+      <div class="card-title">NEW: src/agent/voltron-sdk-client.ts</div>
+      <p>The Agent SDK wrapper. This is VOLTRON's Mode 1 engine — the <code>query()</code> call that replaces the manual tool loop.</p>
+
+      <h3 style="margin-top: 16px;">Responsibilities</h3>
+      <ul>
+        <li>Accept: goal string, system prompt, user context, allowed tool list, session ID</li>
+        <li>Build MCP server config from environment (all servers on MDJ_SERVER)</li>
+        <li>Implement <code>canUseTool</code> callback for approval gates</li>
+        <li>Call <code>query()</code> from <code>@anthropic-ai/claude-agent-sdk</code></li>
+        <li>Translate <code>AsyncGenerator</code> events to the SSE event format the ProDashX UI already understands</li>
+        <li>Return session ID for continuity / approval resolution</li>
+      </ul>
+
+      <h3 style="margin-top: 20px;">Model Routing</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Task Type</th><th>Model</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Standard deployment goals</td><td><span class="mono">claude-sonnet-4-20250514</span></td><td>Fast, capable, cost-effective</td></tr>
+            <tr><td>Complex multi-project reasoning</td><td><span class="mono">claude-opus-4-20251101</span></td><td>High reasoning ceiling</td></tr>
+            <tr><td>Simple lookups routed through Mode 1 by mistake</td><td><span class="mono">claude-haiku-4-20250514</span></td><td>Fast, cheap</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Default model: Sonnet. OWNER-level users can specify model in request body. Standard users always get Sonnet.</p>
+
+      <h3 style="margin-top: 20px;">SSE Event Translation</h3>
+      <p>The Agent SDK produces <code>SDKEvent</code> types. The ProDashX widget expects specific SSE event shapes. The voltron-sdk-client bridges them:</p>
+      <pre>{
+  // SDK: ContentBlockDelta (text) → SSE:
+  { type: "text", text: "..." }
+
+  // SDK: ToolUse → SSE:
+  { type: "tool_call", tool_name: "...", tool_input: {...}, tool_use_id: "..." }
+
+  // SDK: ToolResult → SSE:
+  { type: "tool_result", tool_name: "...", result: {...} }
+
+  // SDK: approval needed (canUseTool returns false) → SSE:
+  { type: "approval_required", tool_name: "...", tool_input: {...}, call_id: "..." }
+
+  // Session complete → SSE:
+  "[DONE]"
+}</pre>
+
+      <h3 style="margin-top: 20px;">canUseTool Callback (replaces ApprovalManager for Mode 1)</h3>
+      <p>The Agent SDK provides a <code>canUseTool</code> callback that fires before each tool execution. Return <code>true</code> to allow, <code>false</code> to pause and emit an approval_required SSE event. The existing <code>tool-filter.ts</code> + <code>toolRequiresApproval()</code> logic feeds directly into this callback.</p>
+
+      <div class="callout callout-blue">
+        <strong>Key difference from Mode 2's ApprovalManager:</strong> In Mode 2, the approval manager uses a Promise that blocks the async loop. In Mode 1, <code>canUseTool</code> returning false tells the SDK to pause — the session is suspended until <code>POST /api/voltron/approve/:sessionId</code> resumes it. Cleaner, built-in.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">NEW: src/agent/intent-classifier.ts</div>
+      <p>Stateless function: <code>classifyIntent(message: string, userContext: UserContext): Promise&lt;IntentResult&gt;</code></p>
+
+      <pre>interface IntentResult {
+  mode: 'deploy' | 'chat'
+  confidence: number        // 0.0 – 1.0
+  reasoning: string         // For logging/debugging
+  model_used: 'keyword' | 'haiku'  // Which path fired
+}</pre>
+
+      <h3 style="margin-top: 16px;">Logic Flow</h3>
+      <ol>
+        <li>Tokenize and lowercase the message</li>
+        <li>Score against Mode 1 keyword list (deploy/build/create/run/prep/generate/set up/onboard/process/compile/send/schedule/automate/handle/take care of)</li>
+        <li>Score against Mode 2 keyword list (what/who/when/where/how/tell me/show me/list/find/lookup/check/is there/do we have)</li>
+        <li>If Mode 1 score &gt;= 1 and &gt; Mode 2 score → return mode: 'deploy', model_used: 'keyword'</li>
+        <li>If Mode 2 score &gt;= 1 and &gt; Mode 1 score → return mode: 'chat', model_used: 'keyword'</li>
+        <li>If tied or no signal → Claude Haiku classification call (max 128 tokens, cheap)</li>
+        <li>Fallback default: mode: 'chat' (safe default)</li>
+      </ol>
+
+      <h3 style="margin-top: 20px;">Test Coverage Requirement</h3>
+      <p>Ticket TRK-S01-004 requires 20+ test cases to pass. Sample cases to include:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Input</th><th>Expected Mode</th></tr></thead>
+          <tbody>
+            <tr><td>"Build a meeting prep for Jim Aswegan"</td><td><span class="pill pill-green">deploy</span></td></tr>
+            <tr><td>"What accounts does Jim Aswegan have?"</td><td><span class="pill pill-blue">chat</span></td></tr>
+            <tr><td>"Prepare the Q1 commission summary"</td><td><span class="pill pill-green">deploy</span></td></tr>
+            <tr><td>"Tell me about our MAPD pipeline"</td><td><span class="pill pill-blue">chat</span></td></tr>
+            <tr><td>"Set up onboarding for Sarah Torres"</td><td><span class="pill pill-green">deploy</span></td></tr>
+            <tr><td>"Who owns the Torres case?"</td><td><span class="pill pill-blue">chat</span></td></tr>
+            <tr><td>"Run the weekly health check"</td><td><span class="pill pill-green">deploy</span></td></tr>
+            <tr><td>"Is John Smith's RMD due this year?"</td><td><span class="pill pill-blue">chat</span></td></tr>
+            <tr><td>"Process the new client intake for Mary Johnson"</td><td><span class="pill pill-green">deploy</span></td></tr>
+            <tr><td>"How many active pipelines do we have?"</td><td><span class="pill pill-blue">chat</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">MODIFY: src/server.ts — New Routes (Additive Only)</div>
+      <p>Three new routes are added to the existing Express server. No existing routes are changed.</p>
+
+      <h3 style="margin-top: 16px;">POST /api/voltron/deploy (Mode 1 entry)</h3>
+      <ul>
+        <li>Returns <code>202 Accepted</code> immediately with <code>{ success: true, data: { session_id: "..." } }</code></li>
+        <li>Fires <code>voltronSdkClient.deployGoal()</code> asynchronously</li>
+        <li>Client polls for SSE stream at <code>GET /api/voltron/stream/:sessionId</code></li>
+        <li>Accepts body: <code>{ goal, user_context, specialist_id?, client_id?, page_path? }</code></li>
+      </ul>
+
+      <h3 style="margin-top: 20px;">GET /api/voltron/stream/:sessionId (SSE stream)</h3>
+      <ul>
+        <li>Sets SSE headers (<code>text/event-stream</code>)</li>
+        <li>Subscribes to the session's event emitter</li>
+        <li>Writes events until <code>[DONE]</code></li>
+      </ul>
+
+      <h3 style="margin-top: 20px;">POST /api/voltron/approve/:sessionId (Mode 1 approval)</h3>
+      <ul>
+        <li>Body: <code>{ approved: boolean, call_id: string }</code></li>
+        <li>Resumes the suspended Agent SDK session</li>
+        <li>Returns <code>{ success: true, data: { status: "resumed" | "rejected" } }</code></li>
+      </ul>
+
+      <h3 style="margin-top: 20px;">GET /api/voltron/specialists (route alias)</h3>
+      <ul>
+        <li>Alias for the existing <code>GET /api/mdj/specialists</code></li>
+        <li>Same handler, new path for the new naming convention</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">TRK-S01-001: Rename MDJ1 → VOLTRON — Specific Targets</div>
+      <p>RONIN must update ALL of the following. Zero tolerance for lingering "MDJ1" in production code paths:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Location</th><th>What to Change</th></tr></thead>
+          <tbody>
+            <tr><td><span class="mono">src/server.ts</span> line 223</td><td><code>logger.info(`MDJ Agent running on port ${PORT}`)</code> → <code>VOLTRON running on port...</code></td></tr>
+            <tr><td><span class="mono">src/server.ts</span> health endpoint</td><td>Health response can add <code>system: "voltron"</code> field</td></tr>
+            <tr><td><span class="mono">src/server.ts</span> error handler title</td><td><code>'MDJ Agent Error'</code> → <code>'VOLTRON Error'</code></td></tr>
+            <tr><td>Firestore <code>mdj_specialist_configs</code></td><td>Update <code>display_name</code> fields: "MDJ General" → "VOLTRON General", etc. (collection name can stay for continuity)</td></tr>
+            <tr><td>Firestore <code>mdj_conversations</code></td><td>Collection name stays (existing data). New conversations continue writing here. No migration needed.</td></tr>
+            <tr><td>System prompts</td><td>Any "You are MDJ" → "You are VOLTRON" in specialist configs</td></tr>
+            <tr><td><span class="mono">package.json</span> name field</td><td><code>"name": "mdj-agent"</code> → <code>"name": "voltron-agent"</code></td></tr>
+            <tr><td>Any remaining console.log strings mentioning MDJ1</td><td>Update to VOLTRON</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TAB 5: DEPLOY PIPELINE                                     -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-deploy-pipeline">
+
+    <div class="section-title">Deploy Pipeline</div>
+    <div class="section-sub">From manual SSH + git pull to GitHub webhook auto-deploy.</div>
+
+    <div class="card">
+      <div class="card-title">Current State (Manual)</div>
+      <div class="flow">
+        <div class="flow-node">Code pushed to GitHub</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">JDM SSHs into MDJ_SERVER</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">git pull manually</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">npm ci + tsc manually</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node orange">systemctl restart mdj-agent.service manually</div>
+      </div>
+      <p>Every code change requires human intervention. This is a bottleneck for sprint velocity, especially as RONIN ships code rapidly.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Target State (Webhook Auto-Deploy)</div>
+      <div class="flow">
+        <div class="flow-node">Push to main</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node accent">GitHub webhook fires</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">POST /webhook/deploy on MDJ_SERVER</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">Validate signature</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">git pull + npm ci + tsc</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">systemctl restart mdj-agent.service</div>
+      </div>
+      <p>Total hands-off deploy: push to main → MDJ_SERVER is live with new code in ~60 seconds.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Implementation: POST /webhook/deploy</div>
+      <p>~50 lines of Express. No external dependencies. Added to <code>server.ts</code>. No auth middleware — uses GitHub HMAC signature validation instead.</p>
+
+      <h3 style="margin-top: 16px;">Signature Validation</h3>
+      <pre>// Validate GitHub webhook signature
+import crypto from 'crypto'
+
+function validateGitHubSignature(payload: string, signature: string, secret: string): boolean {
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(payload, 'utf8')
+    .digest('hex')
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  )
+}</pre>
+
+      <h3 style="margin-top: 20px;">Deploy Sequence</h3>
+      <pre>// Webhook handler (conceptual — RONIN writes the real implementation)
+app.post('/webhook/deploy', express.raw({ type: '*/*' }), async (req, res) => {
+  const sig = req.headers['x-hub-signature-256'] as string
+  const secret = process.env.GITHUB_WEBHOOK_SECRET
+
+  if (!validateGitHubSignature(req.body.toString(), sig, secret)) {
+    return res.status(401).json({ success: false, error: 'Invalid signature' })
+  }
+
+  const payload = JSON.parse(req.body.toString())
+
+  // Only deploy on push to main
+  if (payload.ref !== 'refs/heads/main') {
+    return res.json({ success: true, data: { action: 'ignored', reason: 'not main branch' } })
+  }
+
+  // Respond immediately (GitHub expects 200 in < 10s)
+  res.json({ success: true, data: { action: 'deploy_started' } })
+
+  // Run deploy async
+  runDeploy().catch(err => logger.error('[webhook] Deploy failed:', err))
+})</pre>
+
+      <h3 style="margin-top: 20px;">runDeploy() Logic</h3>
+      <pre>async function runDeploy(): Promise&lt;void&gt; {
+  const { execSync } = await import('child_process')
+  const DEPLOY_DIR = '/home/jdm/mdj-agent'
+
+  try {
+    // Pull latest
+    execSync('git pull origin main', { cwd: DEPLOY_DIR, stdio: 'inherit' })
+
+    // Install dependencies
+    execSync('npm ci --production=false', { cwd: DEPLOY_DIR, stdio: 'inherit' })
+
+    // Build
+    execSync('npx tsc', { cwd: DEPLOY_DIR, stdio: 'inherit' })
+
+    // Restart service (keeps old process running until new one is ready)
+    execSync('sudo systemctl restart mdj-agent.service', { stdio: 'inherit' })
+
+    logger.info('[webhook] Deploy complete — VOLTRON restarted')
+
+  } catch (err) {
+    // Build failed — DO NOT restart. Old version keeps running.
+    logger.error('[webhook] Deploy failed — keeping current version:', err)
+    notifyError({
+      title: 'VOLTRON Deploy Failed',
+      message: err instanceof Error ? err.message : String(err),
+      severity: 'error',
+    })
+  }
+}</pre>
+
+      <div class="callout callout-green">
+        <strong>Rollback safety:</strong> If <code>npm ci</code> or <code>tsc</code> fails, <code>systemctl restart</code> is never called. The current running version continues serving requests. The failure is logged and a Slack notification fires.
+      </div>
+
+      <h3 style="margin-top: 20px;">GitHub Setup (JDM does manually — 5 min)</h3>
+      <ol>
+        <li>GitHub repo → Settings → Webhooks → Add webhook</li>
+        <li>Payload URL: <code>http://100.99.181.57:4200/webhook/deploy</code> (Tailscale IP)</li>
+        <li>Content type: <code>application/json</code></li>
+        <li>Secret: generate a random string, save to <code>.env</code> as <code>GITHUB_WEBHOOK_SECRET</code></li>
+        <li>Events: "Just the push event"</li>
+        <li>Active: checked</li>
+      </ol>
+
+      <div class="callout callout-orange">
+        <strong>Sudo requirement:</strong> The <code>jdm</code> user on MDJ_SERVER needs passwordless sudo for <code>systemctl restart mdj-agent.service</code> specifically. Add to <code>/etc/sudoers.d/jdm-mdj-agent</code>: <br><br><code>jdm ALL=(ALL) NOPASSWD: /bin/systemctl restart mdj-agent.service</code>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TAB 6: OS ENFORCEMENT                                      -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-os-enforcement">
+
+    <div class="section-title">OS Enforcement for RONIN</div>
+    <div class="section-sub">The hookify gap, why it matters, and how to compensate.</div>
+
+    <div class="golden-rule">
+      <div class="rule-text">The Anti-Hallucination Golden Rule</div>
+      <div class="rule-sub">"If you didn't READ IT, don't REPORT IT." — VOLTRON never fabricates data. Every fact in a response traces back to a tool call result.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">The Hookify Gap</div>
+      <p>The RPI Operating System enforces 37 rules via the hookify plugin in Claude Code sessions. These rules fire as hooks on <code>Write</code>, <code>Edit</code>, and <code>Bash</code> tool calls — blocking violations before code is written.</p>
+
+      <div class="callout callout-red">
+        <strong>RONIN's Agent SDK sessions bypass hookify entirely.</strong> When RONIN calls <code>query()</code>, the resulting agent runs in a fresh Claude context with no hookify plugin loaded. The 37 rules do not fire. This is not a bug — it is a structural gap that must be compensated with explicit instructions.
+      </div>
+
+      <p>The solution: the 10 most critical rules are re-encoded as explicit instructions in RONIN's system prompt template (<code>src/forge/templates.ts</code>). These rules travel with every RONIN invocation regardless of execution context.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">The 10 Critical Rules (Re-encoded for RONIN)</div>
+      <p>These go in a dedicated section of the FORGE prompt templates. They apply to RONIN in all phases: discovery, planning, building, deploying.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Rule</th><th>What Violation Looks Like</th><th>Correct Pattern</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pill pill-red">1</span></td>
+              <td><strong>Never hardcode secrets</strong></td>
+              <td><span class="mono">const KEY = "sk-ant-api03-..."</span> in source</td>
+              <td><span class="mono">process.env.ANTHROPIC_API_KEY</span></td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-red">2</span></td>
+              <td><strong>Never write directly to Firestore</strong></td>
+              <td><span class="mono">db.collection('clients').doc(id).set(...)</span> from app code</td>
+              <td>Use API routes: <span class="mono">POST /api/clients/:id</span></td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-red">3</span></td>
+              <td><strong>Anti-hallucination Golden Rule</strong></td>
+              <td>"Jim Aswegan has 3 annuity accounts" — when no tool was called to verify</td>
+              <td>Call <span class="mono">tm_get_client_accounts</span>, then report what it returned</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-orange">4</span></td>
+              <td><strong>Never generate SVG logos</strong></td>
+              <td>Creating a circle-and-text SVG as a "placeholder logo"</td>
+              <td>Use logos from <span class="mono">packages/ui/src/logos/</span> or ask JDM</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-orange">5</span></td>
+              <td><strong>Never use alert/confirm/prompt</strong></td>
+              <td><span class="mono">alert('Error occurred')</span> in browser code</td>
+              <td><span class="mono">showToast('Error occurred', 'error')</span></td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-orange">6</span></td>
+              <td><strong>Always npm run build before reporting complete</strong></td>
+              <td>Reporting "TRK-S01-003: BUILT" without running tsc</td>
+              <td>Run <span class="mono">npm run build</span> in <span class="mono">~/Projects/mdj-agent</span>, confirm 0 errors, then report</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-blue">7</span></td>
+              <td><strong>Always structured responses</strong></td>
+              <td>API route returning a plain string or flat number</td>
+              <td>Always <span class="mono">{ success: boolean, data?: T, error?: string }</span></td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-blue">8</span></td>
+              <td><strong>Always branch + PR, never push to main</strong></td>
+              <td><span class="mono">git push origin main</span></td>
+              <td><span class="mono">git checkout -b voltron/sprint-001-{ticket-id}</span> → PR → auto-merge</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-blue">9</span></td>
+              <td><strong>Smart Lookup for person selection</strong></td>
+              <td><span class="mono">&lt;select&gt;&lt;option&gt;Agent Name&lt;/option&gt;</span> from database</td>
+              <td>Use Smart Lookup / type-ahead component for any known-entity person field</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-purple">10</span></td>
+              <td><strong>PHI never in logs</strong></td>
+              <td><span class="mono">console.log('Client SSN:', client.ssn)</span></td>
+              <td>Log IDs only: <span class="mono">console.log('Processing client:', client.id)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Where These Rules Live in templates.ts</div>
+      <p>A new exported constant <code>RONIN_OS_RULES</code> is added to <code>src/forge/templates.ts</code>. Every phase template that builds a prompt for RONIN injects this constant.</p>
+
+      <pre>// In src/forge/templates.ts — add this constant
+export const RONIN_OS_RULES = `
+## Operating System Rules (Non-Negotiable)
+
+These rules are enforced regardless of context. Violations block sprint completion.
+
+1. SECRETS: Never hardcode API keys, tokens, passwords. Use process.env exclusively.
+2. FIRESTORE: Never write directly to Firestore from app code. Use API routes.
+3. GOLDEN RULE: "If you didn't READ IT, don't REPORT IT." Every fact must trace to a tool call.
+4. LOGOS: Never generate SVG/icon logos. Use packages/ui/src/logos/ or ask JDM.
+5. UI FEEDBACK: Never use alert/confirm/prompt. Use showToast/showConfirmation patterns.
+6. BUILD GATE: Run 'npm run build' (NOT just tsc) before reporting any ticket as BUILT.
+   Zero errors required. Report the output.
+7. RESPONSES: All API handlers return { success: boolean, data?: T, error?: string }.
+8. GIT: Branch from main (voltron/sprint-001-{ticket-id}), open PR, use --auto --squash.
+   Never push directly to main.
+9. PERSON FIELDS: Use Smart Lookup (type-ahead) for any field selecting a person
+   from a known data source. No plain &lt;select&gt; dropdowns for agents/clients/users.
+10. PHI: Never log SSN, DOB, Medicare ID, health data. Log IDs only.
+`</pre>
+
+      <div class="callout callout-blue">
+        <strong>Injection pattern:</strong> Each template function that builds a RONIN prompt appends <code>\n\n${RONIN_OS_RULES}</code> before the closing prompt. This ensures the rules travel with every phase, including phases where RONIN spawns sub-agents.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">VOLTRON-Specific Enforcement in Mode 1</div>
+      <p>VOLTRON's Agent SDK sessions also enforce a subset of these rules via the system prompt injected into <code>query()</code>. The Golden Rule is the most important one:</p>
+
+      <div class="golden-rule">
+        <div class="rule-text">"Every claim in your response must be traceable to a tool call you made in this session. If you haven't called a tool to verify it, don't say it."</div>
+        <div class="rule-sub">This rule is injected into every VOLTRON Mode 1 system prompt, regardless of specialist routing.</div>
+      </div>
+
+      <p>Additionally, before VOLTRON reports a completed task, it must emit a <code>verification</code> SSE event listing which tools it called and what they returned that supports its conclusions. The ProDashX UI surfaces this as a collapsible "Sources" section on the result card.</p>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TAB 7: SPRINT PLAN                                         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-sprint-plan">
+
+    <div class="section-title">Sprint 001 — 13 Tickets, 3 Phases</div>
+    <div class="section-sub">RONIN executes these tickets in order, phase by phase. Each ticket must pass its acceptance criteria before RONIN marks it complete.</div>
+
+    <div class="grid-3">
+      <div class="stat-box">
+        <div class="stat-value">13</div>
+        <div class="stat-label">Total tickets</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Phases</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" style="color: var(--orange);">~</div>
+        <div class="stat-label">FORGE gates after Phase 1 + Phase 2</div>
+      </div>
+    </div>
+
+    <div class="callout callout-blue">
+      <strong>FORGE Lifecycle:</strong> Each ticket follows: <code>in_sprint → disc_audited → planned → plan_audited → built → audited → confirmed</code>.
+      RONIN creates tickets via <code>POST /api/tracker</code> at <code>https://tm-api-365181509090.us-central1.run.app</code>.
+      Auth: service account JWT from <code>~/mdj-agent/sa-key.json</code>.
+      Gate phases: <code>awaiting_plan_approval</code> (after Phase 1) and <code>awaiting_build_approval</code> (after Phase 2) — JDM approves via FORGE API.
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase-block">
+      <div class="phase-header phase-1">
+        <span style="color: var(--accent); font-size: 1.1rem;">◈</span>
+        Phase 1 — Foundation
+        <span class="phase-label" style="color: var(--accent);">4 Tickets · Gate after this phase</span>
+      </div>
+      <div class="phase-body">
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Rename, install, and scaffold the two new core files. No behavior changes to existing system.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 130px;">Ticket ID</th>
+                <th>Title</th>
+                <th style="width: 100px;">Type</th>
+                <th>Acceptance Criteria</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="mono" style="color: var(--cyan);">TRK-S01-001</span></td>
+                <td class="ticket-title">Rename MDJ1 → VOLTRON</td>
+                <td><span class="pill pill-blue">enhancement</span></td>
+                <td class="ticket-ac">
+                  Zero references to "MDJ1" remain in <span class="mono">src/</span> after grepping.
+                  All 6 Firestore specialist configs have updated <code>display_name</code> fields (e.g., "VOLTRON General", "VOLTRON Medicare").
+                  Server logs on startup say "VOLTRON running on port 4200".
+                  Health endpoint returns <code>system: "voltron"</code> field.
+                  <code>package.json</code> name is <code>"voltron-agent"</code>.
+                  <code>npm run build</code> passes 0 errors.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--cyan);">TRK-S01-002</span></td>
+                <td class="ticket-title">Install + verify @anthropic-ai/claude-agent-sdk</td>
+                <td><span class="pill pill-orange">infrastructure</span></td>
+                <td class="ticket-ac">
+                  <code>import { query } from '@anthropic-ai/claude-agent-sdk'</code> resolves without TypeScript error.
+                  A standalone test script (<span class="mono">src/forge/tests/sdk-smoke-test.ts</span>) calls <code>query()</code> with a simple prompt ("Say hello") and returns a non-empty result.
+                  <code>npx tsc --noEmit</code> passes with 0 errors after import.
+                  Package version in node_modules matches <code>^0.2.83</code> range in package.json.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--cyan);">TRK-S01-003</span></td>
+                <td class="ticket-title">Create src/agent/voltron-sdk-client.ts</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  File exports: <code>deployGoal(opts: VoltronDeployOptions): AsyncGenerator&lt;SseEvent&gt;</code>.
+                  <code>query()</code> wrapper handles model routing: Sonnet (default), Opus (OWNER with explicit request), Haiku (low-complexity signals).
+                  Streaming events translated to the existing SSE event format (text, tool_call, tool_result, approval_required, [DONE]).
+                  <code>canUseTool</code> callback wired to <code>toolRequiresApproval()</code> from <code>tool-filter.ts</code>.
+                  TypeScript strict mode — no <code>any</code> types.
+                  <code>npm run build</code> passes 0 errors including this file.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--cyan);">TRK-S01-004</span></td>
+                <td class="ticket-title">Create src/agent/intent-classifier.ts</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  Exports <code>classifyIntent(message: string, userContext: UserContext): Promise&lt;IntentResult&gt;</code>.
+                  Returns <code>{ mode: 'deploy' | 'chat', confidence: number, reasoning: string, model_used: 'keyword' | 'haiku' }</code>.
+                  Vitest test file with 20+ cases covering: deploy intents, chat intents, ambiguous intents, edge cases (empty string, very long message, foreign language).
+                  All 20+ test cases pass (<code>npm test</code> or <code>npx vitest run</code>).
+                  Keyword path fires for clear signals (no Haiku API call incurred).
+                  Fallback default is <code>mode: 'chat'</code> when confidence is low.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-block">
+      <div class="phase-header phase-2">
+        <span style="color: var(--purple); font-size: 1.1rem;">◈</span>
+        Phase 2 — Integration
+        <span class="phase-label" style="color: var(--purple);">5 Tickets · Gate after this phase</span>
+      </div>
+      <div class="phase-body">
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Wire everything together. Mode 1 endpoints go live. ProDashX App updated. Mode 2 verified untouched.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 130px;">Ticket ID</th>
+                <th>Title</th>
+                <th style="width: 100px;">Type</th>
+                <th>Acceptance Criteria</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="mono" style="color: var(--purple);">TRK-S01-005</span></td>
+                <td class="ticket-title">Add POST /api/voltron/deploy endpoint (Mode 1)</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  Endpoint exists and returns <code>202 Accepted</code> with <code>{ success: true, data: { session_id: "..." } }</code> within 100ms.
+                  Fires <code>deployGoal()</code> asynchronously after responding.
+                  Requires auth middleware (Firebase token).
+                  Validates required fields: <code>goal</code>, <code>user_context</code> — returns 400 if missing.
+                  SSE stream available at <code>GET /api/voltron/stream/:sessionId</code>.
+                  Error during deploy emits error SSE event, does not crash process.
+                  Tested with curl: <code>curl -X POST .../api/voltron/deploy -H "Authorization: Bearer TOKEN" -d '{"goal":"say hello","user_context":{...}}'</code> returns 202.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--purple);">TRK-S01-006</span></td>
+                <td class="ticket-title">Preserve existing /agent/chat as Mode 2 (untouched)</td>
+                <td><span class="pill pill-cyan">verification</span></td>
+                <td class="ticket-ac">
+                  <code>POST /agent/chat</code> works identically before and after Sprint 001 changes.
+                  <span class="mono">claude-client.ts</span> file diff shows zero changes (git diff confirms).
+                  Manual test: send "What accounts does a client have?" via existing chat endpoint — specialist routes correctly, tool calls fire, SSE streams to completion.
+                  No TypeScript errors introduced to <span class="mono">claude-client.ts</span> by the sprint's other changes.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--purple);">TRK-S01-007</span></td>
+                <td class="ticket-title">Implement canUseTool callback (replaces approval-manager for Mode 1)</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  Sensitive tools (any tool with <code>requires_approval: true</code> in its definition) cause <code>canUseTool</code> to return <code>false</code> and emit an <code>approval_required</code> SSE event.
+                  Non-sensitive tools execute immediately.
+                  OWNER level (user level 0) bypasses approval — consistent with Mode 2 behavior in <code>toolRequiresApproval()</code>.
+                  User-approved tools (from user prefs <code>auto_approve_tools</code> list) also bypass.
+                  Approval resolved via <code>POST /api/voltron/approve/:sessionId</code> — resumes Agent SDK session execution.
+                  Rejection via <code>POST /api/voltron/reject/:sessionId</code> — emits rejection to Claude and continues.
+                  5-minute timeout on pending approvals — auto-rejects and emits timeout SSE event.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--purple);">TRK-S01-008</span></td>
+                <td class="ticket-title">Update ProDashX VOLTRON App shell for two modes</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  New module at <span class="mono">apps/prodash/app/(portal)/modules/voltron/</span>.
+                  Single input field at top — user types, intent classifier fires on submit.
+                  Mode 1 (deploy intent): UI transitions to Task Mode — shows goal text, streaming progress feed (tool calls as they fire), approval gate buttons when needed, final result card on completion.
+                  Mode 2 (chat intent): UI transitions to Chat Mode — existing chat bubble interface.
+                  User never sees "pick a mode" toggle.
+                  Matches toMachina design system: dark theme, CSS variables (no inline colors), shadcn/ui components.
+                  <code>npm run build</code> passes 0 errors in prodash app.
+                  No alert/confirm/prompt — uses showToast for errors.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--purple);">TRK-S01-009</span></td>
+                <td class="ticket-title">Specialist routing for Mode 1</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  <code>routeToSpecialist()</code> from <span class="mono">specialist-router.ts</span> is called before <code>deployGoal()</code>.
+                  Matched specialist's <code>system_prompt</code> is injected into the Agent SDK session.
+                  Matched specialist's <code>available_tools</code> list is applied via <code>filterToolsForUser()</code> before tool list is passed to <code>query()</code>.
+                  Specialist switch SSE event emitted if specialist changed mid-conversation.
+                  "mdj-general" (now "voltron-general") is the fallback if no keyword or classification match.
+                  Manual test: goal containing "medicare" routes to voltron-medicare specialist.
+                  Manual test: goal containing "pipeline" routes to voltron-ops or voltron-general (per current config).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-block">
+      <div class="phase-header phase-3">
+        <span style="color: var(--green); font-size: 1.1rem;">◈</span>
+        Phase 3 — Delivery
+        <span class="phase-label" style="color: var(--green);">4 Tickets · No gate — ships to production</span>
+      </div>
+      <div class="phase-body">
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Auto-deploy pipeline, OS enforcement documentation, E2E tests, production deployment and smoke test.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 130px;">Ticket ID</th>
+                <th>Title</th>
+                <th style="width: 100px;">Type</th>
+                <th>Acceptance Criteria</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="mono" style="color: var(--green);">TRK-S01-010</span></td>
+                <td class="ticket-title">GitHub webhook receiver on MDJ_SERVER</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  <code>POST /webhook/deploy</code> route added to <span class="mono">server.ts</span> (unauthenticated, signature-validated).
+                  HMAC-SHA256 signature validation using <code>GITHUB_WEBHOOK_SECRET</code> env var.
+                  Only fires deploy on pushes to <code>refs/heads/main</code> — ignores all other branches/events.
+                  Responds 200 immediately, runs deploy async.
+                  Deploy sequence: <code>git pull origin main → npm ci → npx tsc → sudo systemctl restart mdj-agent.service</code>.
+                  Build failure: service NOT restarted, error logged, Slack notification via <code>notifyError()</code>.
+                  Sudoers entry documented: <span class="mono">/etc/sudoers.d/jdm-voltron</span> granting passwordless restart of mdj-agent.service.
+                  Manual end-to-end test: push a trivial change to main → webhook fires → service restarts with new code → health endpoint returns updated version.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--green);">TRK-S01-011</span></td>
+                <td class="ticket-title">Update mdj-agent CLAUDE.md with OS enforcement rules</td>
+                <td><span class="pill pill-cyan">docs</span></td>
+                <td class="ticket-ac">
+                  <span class="mono">~/Projects/mdj-agent/CLAUDE.md</span> updated with a "## OS Enforcement Rules" section containing all 10 critical rules.
+                  Hookify gap explicitly documented: "hookify does not fire in Agent SDK sessions — these rules compensate."
+                  <code>RONIN_OS_RULES</code> constant added to <span class="mono">src/forge/templates.ts</span> and injected into all phase prompts.
+                  VOLTRON server renamed throughout CLAUDE.md from MDJ1 to VOLTRON / MDJ_SERVER as appropriate.
+                  Session URL section updated to reflect new route names (<code>/api/voltron/*</code>).
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--green);">TRK-S01-012</span></td>
+                <td class="ticket-title">E2E test: Mode 1 multi-step + Mode 2 Q&amp;A</td>
+                <td><span class="pill pill-purple">test</span></td>
+                <td class="ticket-ac">
+                  <strong>Mode 1 test:</strong> POST <code>/api/voltron/deploy</code> with goal "Build Aswegan meeting prep" (using test user context, level 0 OWNER).
+                  Verify: session_id returned in 202, SSE stream fires minimum 8 tool_call events, final result card contains non-empty content, [DONE] received without error.
+                  <strong>Mode 2 test:</strong> POST <code>/agent/chat</code> with message "What accounts does Jim Aswegan have?" (using test user context).
+                  Verify: SSE stream fires ≤3 tool_call events, response contains account type data, [DONE] received.
+                  <strong>Intent classifier test:</strong> "Build Aswegan meeting prep" → mode: 'deploy'. "What accounts does Jim Aswegan have?" → mode: 'chat'. Both verified.
+                  All 3 sub-tests pass in Vitest (<span class="mono">src/forge/tests/e2e-sprint-001.test.ts</span>).
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--green);">TRK-S01-013</span></td>
+                <td class="ticket-title">Deploy to production + smoke test</td>
+                <td><span class="pill pill-orange">deployment</span></td>
+                <td class="ticket-ac">
+                  PR merged to main on <code>retirementprotectors/mdj-agent</code>.
+                  Service restarted on MDJ_SERVER — <code>GET /health</code> returns 200 with <code>status: "ok"</code> and <code>system: "voltron"</code>.
+                  VOLTRON App loads in ProDashX without errors (check browser console).
+                  Mode 2 smoke test: type a question → chat response streams correctly.
+                  Mode 1 smoke test: type a deployment goal → progress stream fires → result returned.
+                  Webhook smoke test: push a trivial commit to main → verify webhook fires and service restarts without manual SSH.
+                  Health endpoint reports active conversations field.
+                  FORGE runner (<code>/forge/*</code> routes) unaffected — RONIN sprint execution still works.
+                  All systems green: <code>GET /health</code> returns 200 with no degraded state.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="card">
+      <div class="card-title">FORGE Tracker Integration</div>
+      <p>RONIN creates and manages these 13 tickets in the FORGE tracker. API reference:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Action</th><th>Method + Path</th><th>Body / Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Create ticket</td>
+              <td><span class="mono">POST /api/tracker</span></td>
+              <td><code>{ sprint_id, ticket_id, title, type, status: "in_sprint", ... }</code></td>
+            </tr>
+            <tr>
+              <td>Update status</td>
+              <td><span class="mono">PATCH /api/tracker/:ticket_id</span></td>
+              <td><code>{ status: "built", evidence: "..." }</code></td>
+            </tr>
+            <tr>
+              <td>Auth</td>
+              <td>Bearer JWT</td>
+              <td>SA key at <span class="mono">~/mdj-agent/sa-key.json</span> — use google-auth-library to generate JWT</td>
+            </tr>
+            <tr>
+              <td>Base URL</td>
+              <td colspan="2"><span class="mono">https://tm-api-365181509090.us-central1.run.app</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sprint Success Criteria</div>
+      <ul class="checklist">
+        <li>Zero references to "MDJ1" in <span class="mono">src/</span></li>
+        <li>Mode 1 (Agent SDK) endpoint live and accepting requests</li>
+        <li>Mode 2 (Raw SDK) endpoint unchanged and passing</li>
+        <li>ProDashX VOLTRON App module deployed and functional</li>
+        <li>Intent classifier routes correctly on 20+ test cases</li>
+        <li>Specialist routing preserved in Mode 1</li>
+        <li>Approval gates working in Mode 1 via canUseTool</li>
+        <li>GitHub webhook auto-deploy operational — no manual SSH needed</li>
+        <li>RONIN OS enforcement rules documented in templates.ts + CLAUDE.md</li>
+        <li>E2E tests passing (Mode 1 multi-step + Mode 2 Q&amp;A)</li>
+        <li>npm run build passes 0 errors across entire codebase</li>
+        <li>Production smoke test passed — all systems green</li>
+        <li>FORGE tracker: all 13 tickets in <code>confirmed</code> status</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ─── FOOTER ─────────────────────────────────────────────────────────────── -->
+<div style="background: var(--bg-card); border-top: 1px solid var(--border); padding: 24px 32px; text-align: center; margin-top: 40px;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;">
+    <span style="font-size: 0.8rem; color: var(--text-muted);">FORGE Sprint 001 · VOLTRON Foundation · Discovery Document</span>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+      <span class="badge badge-blue">Authored by Shinobi (GA)</span>
+      <span class="badge badge-purple">March 2026</span>
+      <span class="badge badge-green">Status: Ready for RONIN</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

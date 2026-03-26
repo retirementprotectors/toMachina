@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { CommsFeed } from './CommsFeed'
+import type { CommEntry } from './CommsFeed'
 import { CommsCompose } from './CommsCompose'
 import { InboundCallCard } from './InboundCallCard'
 import { ActiveCallScreen } from './ActiveCallScreen'
@@ -18,17 +19,18 @@ interface CommsModuleProps {
   onClose: () => void
   /** Active client from contact detail page — auto-fills To field */
   activeContact?: ClientResult | null
-  /** When set, opens directly on this tab instead of Log */
+  /** When set, opens directly on this tab instead of Call */
   initialTab?: 'sms' | 'email' | 'call' | null
 }
 
 type CommsTab = 'log' | 'text' | 'email' | 'call'
 
+/* CP01: Tab order — Call first (primary sales action), Log last (read-only history) */
 const TABS: Array<{ key: CommsTab; label: string; icon: string }> = [
-  { key: 'log', label: 'Log', icon: 'list_alt' },
+  { key: 'call', label: 'Call', icon: 'phone' },
   { key: 'text', label: 'Text', icon: 'sms' },
   { key: 'email', label: 'Email', icon: 'email' },
-  { key: 'call', label: 'Call', icon: 'phone' },
+  { key: 'log', label: 'Log', icon: 'list_alt' },
 ]
 
 /* ─── TRK-101: Responsive panel width classes ─── */
@@ -43,8 +45,12 @@ const PANEL_RESPONSIVE_CLASSES = [
 /* ─── Main Component ─── */
 
 export function CommsModule({ open, onClose, activeContact, initialTab }: CommsModuleProps) {
-  const [activeTab, setActiveTab] = useState<CommsTab>('log')
+  const [activeTab, setActiveTab] = useState<CommsTab>('call')
   const [activeCall, setActiveCall] = useState<ActiveCallData | null>(null)
+
+  /* CP06: Reply pre-fill state */
+  const [replyContact, setReplyContact] = useState<ClientResult | null>(null)
+  const [replySubject, setReplySubject] = useState<string | undefined>(undefined)
 
   /* TRK-13667: Inbound call handling */
   const { incomingCall, answerCall, declineCall } = useIncomingCall()
@@ -52,16 +58,48 @@ export function CommsModule({ open, onClose, activeContact, initialTab }: CommsM
   /* Jump to requested tab when opened via client detail buttons */
   useEffect(() => {
     if (open && initialTab) {
-      // Map channel names to tab keys (sms → text)
       const tabMap: Record<string, CommsTab> = { sms: 'text', email: 'email', call: 'call' }
-      setActiveTab(tabMap[initialTab] || 'log')
+      setActiveTab(tabMap[initialTab] || 'call')
     }
   }, [open, initialTab])
 
   const handleClose = useCallback(() => {
-    setActiveTab('log')
+    setActiveTab('call')
+    setReplyContact(null)
+    setReplySubject(undefined)
     onClose()
   }, [onClose])
+
+  /* CP06: Reply — switch to correct compose tab with contact pre-filled */
+  const handleReply = useCallback((entry: CommEntry) => {
+    const tabMap: Record<string, CommsTab> = { sms: 'text', email: 'email', voice: 'call' }
+    setActiveTab(tabMap[entry.type] || 'text')
+    setReplyContact({
+      id: entry.clientId || '',
+      name: entry.contactName,
+      phone: entry.type !== 'email' ? entry.contactDetail : '',
+      email: entry.type === 'email' ? entry.contactDetail : '',
+      book: entry.book,
+    })
+    if (entry.type === 'email' && entry.subject) {
+      setReplySubject(`Re: ${entry.subject}`)
+    } else {
+      setReplySubject(undefined)
+    }
+  }, [])
+
+  /* CP06: View Client — navigate to contact detail */
+  const handleViewClient = useCallback((entry: CommEntry) => {
+    if (entry.clientId) {
+      window.location.href = `/contacts/${entry.clientId}`
+    }
+  }, [])
+
+  const clearReply = useCallback(() => {
+    setActiveTab('call')
+    setReplyContact(null)
+    setReplySubject(undefined)
+  }, [])
 
   /* Answer: accept Twilio call → transition to ActiveCallScreen */
   const handleAnswer = useCallback(() => {
@@ -122,14 +160,17 @@ export function CommsModule({ open, onClose, activeContact, initialTab }: CommsM
     return <>{inboundOverlay}</>
   }
 
+  /* Determine which contact to pass to compose tabs */
+  const composeContact = replyContact || activeContact || null
+
   return (
     <>
       {/* Inbound call overlay — floats above the panel */}
       {inboundOverlay}
 
-      {/* Backdrop — click to close */}
+      {/* CP03: Backdrop — mobile only (push-not-overlay removes backdrop on desktop) */}
       <div
-        className="fixed inset-0 z-40 bg-black/20"
+        className="fixed inset-0 z-40 bg-black/20 lg:hidden"
         onClick={handleClose}
       />
 
@@ -151,13 +192,13 @@ export function CommsModule({ open, onClose, activeContact, initialTab }: CommsM
             </button>
           </div>
 
-          {/* Tab Bar */}
+          {/* CP13: Tab Bar — left-aligned, 44px height, consistent indicator */}
           <div className="flex items-center gap-0 px-2">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 py-2.5 text-xs font-medium transition-colors ${
+                className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 h-[44px] text-xs font-medium transition-colors ${
                   activeTab === tab.key
                     ? 'border-[var(--portal)] text-[var(--portal)]'
                     : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
@@ -172,10 +213,10 @@ export function CommsModule({ open, onClose, activeContact, initialTab }: CommsM
 
         {/* Content */}
         <div className="flex-1 overflow-hidden">
-          {activeTab === 'log' && <CommsFeed />}
-          {activeTab === 'text' && <CommsCompose presetChannel="sms" presetContact={activeContact} onBack={() => setActiveTab('log')} />}
-          {activeTab === 'email' && <CommsCompose presetChannel="email" presetContact={activeContact} onBack={() => setActiveTab('log')} />}
-          {activeTab === 'call' && <CommsCompose presetChannel="call" presetContact={activeContact} onBack={() => setActiveTab('log')} />}
+          {activeTab === 'log' && <CommsFeed clientId={activeContact?.id} onReply={handleReply} onViewClient={handleViewClient} />}
+          {activeTab === 'text' && <CommsCompose presetChannel="sms" presetContact={composeContact} onBack={clearReply} />}
+          {activeTab === 'email' && <CommsCompose presetChannel="email" presetContact={composeContact} replySubject={replySubject} onBack={clearReply} />}
+          {activeTab === 'call' && <CommsCompose presetChannel="call" presetContact={composeContact} onBack={clearReply} />}
         </div>
       </div>
     </>

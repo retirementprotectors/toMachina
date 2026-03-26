@@ -750,3 +750,55 @@ export interface ImportQueueStatusData {
   by_source: Record<string, number>
   total: number
 }
+
+// ── Agent Orchestration (IK-003) ─────────────────────────────────────────────
+
+/** POST /api/import-agents/agent -- single agent import result */
+export interface ImportAgentOrchResult {
+  action: 'created' | 'updated' | 'skipped'
+  agent_id: string
+  reason?: string
+  changes?: string[]
+  match_method?: string
+}
+
+/** POST /api/import-agents/agents -- batch agent import result */
+export interface ImportAgentBatchOrchResult {
+  imported: number
+  updated: number
+  skipped: number
+  errors: ImportErrorDetail[]
+  import_run_id: string
+}
+
+// ── Carrier Seed (IK-004) ────────────────────────────────────────────────────
+
+/** POST /api/import-agents/carriers -- carrier seed result */
+export interface ImportCarrierSeedResult {
+  created: number
+  updated: number
+  unchanged: number
+  errors: Array<{ carrier_id: string; error: string }>
+  import_run_id: string
+}
+
+/** POST /api/import-agents/naic -- NAIC population result */
+export interface ImportNaicPopulateResult {
+  scanned: number
+  updated: number
+  skipped_no_charter: number
+  skipped_no_naic: number
+  skipped_already_set: number
+  errors: number
+  dry_run: boolean
+  import_run_id: string
+}
+
+/** POST /api/import-agents/resolve -- carrier identity resolution */
+export interface ImportCarrierResolveResult {
+  carrier_name: string
+  charter: string | null
+  charter_code: string | null
+  naic: number | null
+  carrier_id: string | null
+}

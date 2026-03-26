@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback } from 'react'
 import { query, collection, where, type Query, type DocumentData } from 'firebase/firestore'
 import { useCollection } from '@tomachina/db'
 import { getDb } from '@tomachina/db/src/firestore'
+import { dex } from '@tomachina/core'
+import { fetchValidated } from './fetchValidated'
 
 // ============================================================================
 // Types
@@ -101,9 +103,10 @@ type Tab = 'pipeline' | 'forms' | 'kits' | 'tracker'
 
 const FORM_CATEGORIES = ['All', 'Firm:Client', 'Firm:Account', 'Product:GI', 'Product:Schwab', 'Product:RBC', 'Product:Carrier', 'Disclosure', 'Supporting'] as const
 const FORM_STATUSES = ['All', 'ACTIVE', 'TBD', 'N/A'] as const
-const KIT_PLATFORMS = ['GWM (Schwab)', 'RBC Brokerage', 'VA (Direct)', 'FIA (Direct)', 'VUL (Direct)', 'MF (Direct)', '401k', 'Financial Planning'] as const
-const KIT_REG_TYPES = ['Traditional IRA', 'Roth IRA', 'Individual (NQ)', 'Joint WROS', 'Trust', '401k/ERISA'] as const
-const KIT_ACTIONS = ['New Account', 'LPOA/Transfer', 'ACAT Transfer', 'Add Money ($10K+)'] as const
+// Pull all 13 platforms, 7 reg types, 4 actions from core config (single source of truth)
+const KIT_PLATFORMS = dex.PLATFORMS
+const KIT_REG_TYPES = dex.REGISTRATION_TYPES
+const KIT_ACTIONS = dex.ACCOUNT_ACTIONS
 
 const PIPELINE_STAGES_V2 = [
   { key: 'DRAFT', label: 'Draft', icon: 'edit_note', description: 'Kit assembled, not yet filled' },
@@ -191,8 +194,8 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Center</h1>
-        <p className="mt-1 text-sm text-[var(--text-muted)]">Document efficiency — forms, kits, and compliance</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Efficiency Xelerator</h1>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">Automated form kits, compliance tracking, and document workflows</p>
         <div className="mt-8 flex items-center justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
         </div>
@@ -203,8 +206,8 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Center</h1>
-        <p className="mt-1 text-sm text-[var(--text-secondary)]">Document efficiency — forms, kits, and compliance</p>
+        <h1 className="text-2xl font-bold text-[var(--text-primary)]">DEX — Document Efficiency Xelerator</h1>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">Automated form kits, compliance tracking, and document workflows</p>
       </div>
 
       {/* Stats */}
@@ -437,6 +440,168 @@ function FormLibraryTab({ forms }: { forms: DexForm[] }) {
 }
 
 // ============================================================================
+// KitPreviewStep — Step 4 of the Kit Builder wizard
+// ============================================================================
+
+function KitPreviewStep({
+  buildResult,
+  clientId,
+  onBack,
+  onContinue,
+  stepError,
+}: {
+  buildResult: Record<string, unknown>
+  clientId: string
+  onBack: () => void
+  onContinue: () => void
+  stepError: string | null
+}) {
+  const layers = buildResult.layers as Record<string, unknown[]> | undefined
+  const kitId = buildResult.kit_id ? String(buildResult.kit_id) : ''
+  const isPreview = Boolean(buildResult.preview)
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-sm font-semibold text-[var(--text-primary)]">Step 4: Kit Preview</h3>
+      <p className="text-xs text-[var(--text-muted)]">
+        {isPreview ? 'Preview mode — connect API for live results' : `Kit ${kitId} assembled with ${String(buildResult.form_count)} forms`}
+      </p>
+
+      <KitLayersPreview layers={layers} />
+
+      {kitId && !isPreview && (
+        <FillKitButton kitId={kitId} clientId={clientId} onFilled={() => {}} />
+      )}
+
+      {stepError && (
+        <div className="flex items-center gap-2 rounded-lg bg-[rgba(239,68,68,0.08)] px-3 py-2">
+          <span className="material-icons-outlined" style={{ fontSize: '16px', color: '#ef4444' }}>error</span>
+          <span className="text-xs text-[#ef4444]">{stepError}</span>
+        </div>
+      )}
+
+      <div className="flex gap-2">
+        <button onClick={onBack} className="rounded px-3 py-1.5 text-xs text-[var(--text-muted)]">Back</button>
+        <button onClick={onContinue} className="rounded px-4 py-1.5 text-xs font-medium text-white" style={{ background: 'var(--portal)' }}>
+          Continue to Generate
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// KitLayersPreview — renders layered form list from build result
+// ============================================================================
+
+function KitLayersPreview({ layers }: { layers?: Record<string, unknown[]> }) {
+  if (!layers || typeof layers !== 'object') {
+    return (
+      <div className="rounded-lg bg-[var(--bg-surface)] p-4 text-center text-xs text-[var(--text-muted)]">
+        Form layers will appear here when the API is connected.
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {Object.entries(layers).map(([layer, layerForms]) => {
+        const forms = layerForms as Array<{ form_id: string; form_name: string; field_count?: number; fill_status?: string }>
+        return (
+          <div key={layer} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">{layer.replace(/_/g, ' ')}</p>
+              <span className="text-[10px] text-[var(--text-muted)]">{forms.length} forms</span>
+            </div>
+            {forms.length === 0 ? (
+              <p className="mt-1 text-xs italic text-[var(--text-muted)]">None required</p>
+            ) : (
+              <div className="mt-2 space-y-1">
+                {forms.map((f) => (
+                  <div key={f.form_id} className="flex items-center justify-between rounded bg-[var(--bg-card)] px-3 py-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-[var(--text-primary)]">{f.form_name}</p>
+                      <p className="text-[10px] text-[var(--text-muted)]">{f.form_id}{f.field_count != null ? ` · ${f.field_count} fields` : ''}</p>
+                    </div>
+                    {f.fill_status && (
+                      <span className="ml-2 shrink-0 rounded-full px-2 py-0.5 text-[9px] font-medium" style={statusStyle(f.fill_status)}>
+                        {f.fill_status}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ============================================================================
+// FillKitButton — auto-fill kit fields from client data
+// ============================================================================
+
+function FillKitButton({ kitId, clientId, onFilled }: { kitId: string; clientId: string; onFilled: () => void }) {
+  const [filling, setFilling] = useState(false)
+  const [fillResult, setFillResult] = useState<{ filled: number; total: number } | null>(null)
+  const [fillError, setFillError] = useState<string | null>(null)
+
+  const handleFill = async () => {
+    setFilling(true)
+    setFillError(null)
+    try {
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex/kits/${kitId}/fill`, {
+        method: 'POST',
+        body: JSON.stringify({ client_id: clientId }),
+      })
+      if (result.success && result.data) {
+        setFillResult({ filled: Number(result.data.filled_count || 0), total: Number(result.data.total_fields || 0) })
+        onFilled()
+      } else {
+        setFillError(result.error || 'Auto-fill failed')
+      }
+    } catch {
+      setFillError('Network error during auto-fill')
+    } finally {
+      setFilling(false)
+    }
+  }
+
+  if (fillResult) {
+    return (
+      <div className="flex items-center gap-2 rounded-lg bg-[rgba(34,197,94,0.08)] px-3 py-2">
+        <span className="material-icons-outlined" style={{ fontSize: '16px', color: '#22c55e' }}>check_circle</span>
+        <span className="text-xs text-[#22c55e]">
+          Auto-filled {fillResult.filled} of {fillResult.total} fields from client data
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={handleFill}
+        disabled={filling}
+        className="flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-2 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-card)] disabled:opacity-50"
+      >
+        {filling ? (
+          <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+        ) : (
+          <span className="material-icons-outlined" style={{ fontSize: '16px' }}>auto_fix_high</span>
+        )}
+        {filling ? 'Auto-filling...' : 'Auto-fill from Client Data'}
+      </button>
+      {fillError && (
+        <p className="text-xs text-[#ef4444]">{fillError}</p>
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
 // Kit Builder Tab — 5-step wizard with PDF generation + DocuSign (step 5)
 // ============================================================================
 
@@ -501,21 +666,19 @@ function KitBuilderTab() {
     setBuilding(true)
     setStepError(null)
     try {
-      const res = await fetch('/api/dex/kits/build', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const result = await fetchValidated<Record<string, unknown>>('/api/dex/kits/build', {
+        method: 'POST',
         body: JSON.stringify({ client_id: selectedClient._id, product_type: platform, registration_type: regType, action }),
       })
-      const data = await res.json()
-      if (data.success) {
-        setBuildResult(data.data as Record<string, unknown>)
-        // Fetch field mappings for USER INPUT fields (Step 4)
-        const formIds = (data.data as Record<string, unknown>).form_ids as string[] || []
+      if (result.success && result.data) {
+        setBuildResult(result.data)
+        // Fetch field mappings for USER INPUT fields (Step 4 field input)
+        const formIds = (result.data as Record<string, unknown>).form_ids as string[] || []
         if (formIds.length > 0) {
           try {
-            const mappingsRes = await fetch(`/api/dex/mappings?form_ids=${formIds.join(',')}&status=USER%20INPUT`)
-            const mappingsData = await mappingsRes.json()
-            if (mappingsData.success && Array.isArray(mappingsData.data) && mappingsData.data.length > 0) {
-              const fields = (mappingsData.data as Array<Record<string, unknown>>).map(m => ({
+            const mappingsResult = await fetchValidated<Array<Record<string, unknown>>>(`/api/dex/mappings?form_ids=${formIds.join(',')}&status=USER%20INPUT`)
+            if (mappingsResult.success && Array.isArray(mappingsResult.data) && mappingsResult.data.length > 0) {
+              const fields = mappingsResult.data.map(m => ({
                 mapping_id: String(m.mapping_id || ''),
                 field_name: String(m.field_name || ''),
                 label: String(m.label || m.field_name || ''),
@@ -529,18 +692,16 @@ function KitBuilderTab() {
               const initialValues: Record<string, string> = {}
               fields.forEach(f => { initialValues[f.field_name] = f.value })
               setUserInputValues(initialValues)
-              setStep(4) // Go to field input step
-              return
             }
-          } catch { /* No user input fields — skip step 4 */ }
+          } catch { /* No user input fields — skip field input */ }
         }
-        setStep(5) // No user-input fields, go straight to generate
+        setStep(4)
       } else {
-        setStepError(data.error || 'Kit build failed')
+        setStepError(result.error || 'Build failed')
       }
     } catch {
       setBuildResult({ preview: true, client_name: `${selectedClient.first_name} ${selectedClient.last_name}`, platform, regType, action })
-      setStep(5)
+      setStep(4)
     } finally {
       setBuilding(false)
     }
@@ -553,8 +714,8 @@ function KitBuilderTab() {
     setStepError(null)
     try {
       // Step A: Create package from kit
-      const pkgRes = await fetch('/api/dex-pipeline/packages', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const pkgResult = await fetchValidated<Record<string, unknown>>('/api/dex-pipeline/packages', {
+        method: 'POST',
         body: JSON.stringify({
           kit_id: buildResult.kit_id,
           client_id: selectedClient._id,
@@ -566,23 +727,21 @@ function KitBuilderTab() {
           delivery_method: deliveryMethod,
         }),
       })
-      const pkgData = await pkgRes.json()
-      if (!pkgData.success) { setStepError(pkgData.error || 'Failed to create package'); setGenerating(false); return }
+      if (!pkgResult.success || !pkgResult.data) { setStepError(pkgResult.error || 'Failed to create package'); setGenerating(false); return }
 
-      const newPackageId = pkgData.data.package_id
+      const newPackageId = String((pkgResult.data as Record<string, unknown>).package_id)
       setPackageId(newPackageId)
 
       // Step B: Generate PDF
-      const pdfRes = await fetch(`/api/dex-pipeline/packages/${newPackageId}/generate-pdf`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const pdfResult = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${newPackageId}/generate-pdf`, {
+        method: 'POST',
         body: JSON.stringify({ input: userInputValues }),
       })
-      const pdfData = await pdfRes.json()
-      if (!pdfData.success) { setStepError(pdfData.error || 'PDF generation failed'); setGenerating(false); return }
+      if (!pdfResult.success || !pdfResult.data) { setStepError(pdfResult.error || 'PDF generation failed'); setGenerating(false); return }
 
-      setPdfResult(pdfData.data as Record<string, unknown>)
+      setPdfResult(pdfResult.data)
       setPdfGenerated(true)
-    } catch (err) {
+    } catch {
       setStepError('Network error during PDF generation')
     } finally {
       setGenerating(false)
@@ -595,13 +754,12 @@ function KitBuilderTab() {
     setSending(true)
     setStepError(null)
     try {
-      const res = await fetch(`/api/dex-pipeline/packages/${packageId}/send-docusign`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${packageId}/send-docusign`, {
+        method: 'POST',
       })
-      const data = await res.json()
-      if (!data.success) { setStepError(data.error || 'DocuSign send failed'); setSending(false); return }
+      if (!result.success || !result.data) { setStepError(result.error || 'DocuSign send failed'); setSending(false); return }
 
-      setDocusignResult(data.data as Record<string, unknown>)
+      setDocusignResult(result.data)
       setSent(true)
     } catch {
       setStepError('Network error sending to DocuSign')
@@ -694,68 +852,66 @@ function KitBuilderTab() {
 
         {step === 4 && buildResult && (
           <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-[var(--text-primary)]">Step 4: Fill Required Fields</h3>
-              <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-                {userInputFields.length} field{userInputFields.length !== 1 ? 's' : ''} need{userInputFields.length === 1 ? 's' : ''} your input before PDF generation
-              </p>
-            </div>
-            <div className="max-h-[400px] space-y-3 overflow-y-auto">
-              {userInputFields.map((field) => (
-                <div key={field.mapping_id} className="rounded-lg bg-[var(--bg-surface)] p-3">
-                  <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-primary)]">
-                    {field.label}
-                    {field.required && <span className="rounded px-1 py-px text-[8px] font-bold uppercase text-[var(--error)]" style={{ background: 'var(--error-glow, rgba(239,68,68,0.15))' }}>req</span>}
-                  </label>
-                  {field.help_text && <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{field.help_text}</p>}
-                  {field.input_type === 'dropdown' || field.input_type === 'radio' ? (
-                    <select
-                      value={userInputValues[field.field_name] || ''}
-                      onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
-                      className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
-                      <option value="">Select...</option>
-                      {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    </select>
-                  ) : field.input_type === 'textarea' ? (
-                    <textarea
-                      value={userInputValues[field.field_name] || ''}
-                      onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
-                      rows={3}
-                      className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
-                  ) : (
-                    <input
-                      type={field.input_type === 'date' ? 'date' : field.input_type === 'email' ? 'email' : field.input_type === 'phone' ? 'tel' : 'text'}
-                      value={userInputValues[field.field_name] || ''}
-                      onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
-                      placeholder={field.input_type === 'ssn' ? 'XXX-XX-XXXX' : field.input_type === 'phone' ? '(555) 555-5555' : ''}
-                      className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
-                  )}
-                </div>
-              ))}
-            </div>
-            {stepError && (
-              <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: 'var(--error-glow, rgba(239,68,68,0.08))' }}>
-                <span className="material-icons-outlined text-[var(--error)]" style={{ fontSize: '16px' }}>error</span>
-                <span className="text-xs text-[var(--error)]">{stepError}</span>
-              </div>
-            )}
-            <div className="flex gap-2">
-              <button onClick={() => setStep(3)} className="rounded px-3 py-1.5 text-xs text-[var(--text-muted)]">Back</button>
-              <button
-                onClick={() => {
-                  // Validate required fields
+            {/* Kit Preview (from KitPreviewStep) */}
+            <KitPreviewStep
+              buildResult={buildResult}
+              clientId={selectedClient?._id || ''}
+              onBack={() => setStep(3)}
+              onContinue={() => {
+                if (userInputFields.length > 0) {
                   const missing = userInputFields.filter(f => f.required && !userInputValues[f.field_name])
                   if (missing.length > 0) {
                     setStepError(`Missing required fields: ${missing.map(f => f.label).join(', ')}`)
                     return
                   }
-                  setStepError(null)
-                  setStep(5)
-                }}
-                className="rounded px-4 py-1.5 text-xs font-medium text-white" style={{ background: 'var(--portal)' }}>
-                Continue to Generate
-              </button>
-            </div>
+                }
+                setStepError(null)
+                setStep(5)
+              }}
+              stepError={stepError}
+            />
+
+            {/* User Input Fields (if any) */}
+            {userInputFields.length > 0 && (
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  Required Input ({userInputFields.length} field{userInputFields.length !== 1 ? 's' : ''})
+                </h4>
+                <div className="mt-3 max-h-[300px] space-y-3 overflow-y-auto">
+                  {userInputFields.map((field) => (
+                    <div key={field.mapping_id} className="rounded-lg bg-[var(--bg-surface)] p-3">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-primary)]">
+                        {field.label}
+                        {field.required && <span className="rounded px-1 py-px text-[8px] font-bold uppercase text-[var(--error)]" style={{ background: 'var(--error-glow, rgba(239,68,68,0.15))' }}>req</span>}
+                      </label>
+                      {field.help_text && <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{field.help_text}</p>}
+                      {field.input_type === 'dropdown' || field.input_type === 'radio' ? (
+                        <select
+                          value={userInputValues[field.field_name] || ''}
+                          onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
+                          className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                          <option value="">Select...</option>
+                          {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                      ) : field.input_type === 'textarea' ? (
+                        <textarea
+                          value={userInputValues[field.field_name] || ''}
+                          onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
+                          rows={3}
+                          className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                      ) : (
+                        <input
+                          type={field.input_type === 'date' ? 'date' : field.input_type === 'email' ? 'email' : field.input_type === 'phone' ? 'tel' : 'text'}
+                          value={userInputValues[field.field_name] || ''}
+                          onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
+                          placeholder={field.input_type === 'ssn' ? 'XXX-XX-XXXX' : field.input_type === 'phone' ? '(555) 555-5555' : ''}
+                          className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -897,6 +1053,9 @@ function KitBuilderTab() {
 function TrackerTab({ packages }: { packages: DexPackage[] }) {
   const [statusFilter, setStatusFilter] = useState('All')
   const [selectedPackage, setSelectedPackage] = useState<DexPackage | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
 
   const allStatuses = ['All', 'DRAFT', 'READY', 'SENT', 'VIEWED', 'SIGNED', 'SUBMITTED', 'COMPLETE', 'VOIDED', 'DECLINED'] as const
 
@@ -906,6 +1065,80 @@ function TrackerTab({ packages }: { packages: DexPackage[] }) {
     result.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
     return result
   }, [packages, statusFilter])
+
+  const handleGeneratePdf = useCallback(async (pkgId: string) => {
+    setActionLoading('pdf')
+    setActionError(null)
+    setActionSuccess(null)
+    try {
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${pkgId}/generate-pdf`, {
+        method: 'POST',
+        body: JSON.stringify({ input: {} }),
+      })
+      if (result.success && result.data) {
+        setActionSuccess(`PDF generated — ${String(result.data.pdf_page_count || '?')} pages, ${String(result.data.filled_count || '?')} fields filled`)
+      } else {
+        setActionError(result.error || 'PDF generation failed')
+      }
+    } catch {
+      setActionError('Network error during PDF generation')
+    } finally {
+      setActionLoading(null)
+    }
+  }, [])
+
+  const handleSendDocuSign = useCallback(async (pkgId: string) => {
+    setActionLoading('docusign')
+    setActionError(null)
+    setActionSuccess(null)
+    try {
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${pkgId}/send-docusign`, {
+        method: 'POST',
+      })
+      if (result.success && result.data) {
+        setActionSuccess(`Sent to DocuSign — Envelope: ${String(result.data.envelope_id || 'created')}`)
+      } else {
+        setActionError(result.error || 'DocuSign send failed')
+      }
+    } catch {
+      setActionError('Network error sending to DocuSign')
+    } finally {
+      setActionLoading(null)
+    }
+  }, [])
+
+  const handleStatusUpdate = useCallback(async (pkgId: string, newStatus: string) => {
+    setActionLoading('status')
+    setActionError(null)
+    setActionSuccess(null)
+    try {
+      const result = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${pkgId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (result.success) {
+        setActionSuccess(`Status updated to ${newStatus}`)
+      } else {
+        setActionError(result.error || 'Status update failed')
+      }
+    } catch {
+      setActionError('Network error updating status')
+    } finally {
+      setActionLoading(null)
+    }
+  }, [])
+
+  // Determine available next status transitions
+  const getNextStatuses = (currentStatus?: string): string[] => {
+    const s = (currentStatus || '').toUpperCase()
+    if (s === 'DRAFT') return ['READY']
+    if (s === 'READY') return ['SENT']
+    if (s === 'SENT') return ['VIEWED', 'SIGNED']
+    if (s === 'VIEWED') return ['SIGNED']
+    if (s === 'SIGNED') return ['SUBMITTED']
+    if (s === 'SUBMITTED') return ['COMPLETE']
+    return []
+  }
 
   return (
     <div className="space-y-4">
@@ -942,7 +1175,7 @@ function TrackerTab({ packages }: { packages: DexPackage[] }) {
                 <tbody>
                   {filtered.map((pkg) => (
                     <tr key={pkg._id}
-                      onClick={() => setSelectedPackage(pkg)}
+                      onClick={() => { setSelectedPackage(pkg); setActionError(null); setActionSuccess(null) }}
                       className={`cursor-pointer border-b border-[var(--border-subtle)] transition-colors ${selectedPackage?._id === pkg._id ? 'bg-[var(--portal-glow)]' : 'hover:bg-[var(--bg-surface)]'}`}>
                       <td className="py-2.5 pr-3 font-medium text-[var(--text-primary)]">{pkg.client_name || '-'}</td>
                       <td className="py-2.5 pr-3 text-[var(--text-secondary)]">{pkg.kit_name || '-'}</td>
@@ -974,6 +1207,88 @@ function TrackerTab({ packages }: { packages: DexPackage[] }) {
               <div className="flex justify-between"><span className="text-[var(--text-muted)]">Email</span><span className="text-[var(--text-primary)]">{selectedPackage.client_email || '-'}</span></div>
               {selectedPackage.docusign_envelope_id && (
                 <div className="flex justify-between"><span className="text-[var(--text-muted)]">Envelope</span><span className="truncate text-[var(--text-primary)]">{selectedPackage.docusign_envelope_id}</span></div>
+              )}
+            </div>
+
+            {/* Package Actions */}
+            <div className="mt-4 border-t border-[var(--border-subtle)] pt-3">
+              <h5 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Actions</h5>
+              <div className="mt-2 space-y-2">
+                {/* Generate PDF — available for DRAFT packages */}
+                {(selectedPackage.status === 'DRAFT' || !selectedPackage.pdf_storage_ref) && (
+                  <button
+                    onClick={() => handleGeneratePdf(selectedPackage.package_id || selectedPackage._id)}
+                    disabled={actionLoading === 'pdf'}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
+                    style={{ background: 'var(--portal)' }}
+                  >
+                    {actionLoading === 'pdf' ? (
+                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>picture_as_pdf</span>
+                    )}
+                    {actionLoading === 'pdf' ? 'Generating...' : 'Generate PDF'}
+                  </button>
+                )}
+
+                {/* Send for Signature — available for READY packages */}
+                {(selectedPackage.status === 'READY' || selectedPackage.status === 'DRAFT') && (
+                  <button
+                    onClick={() => handleSendDocuSign(selectedPackage.package_id || selectedPackage._id)}
+                    disabled={actionLoading === 'docusign'}
+                    className="flex w-full items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-50"
+                  >
+                    {actionLoading === 'docusign' ? (
+                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+                    ) : (
+                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>send</span>
+                    )}
+                    {actionLoading === 'docusign' ? 'Sending...' : 'Send for Signature'}
+                  </button>
+                )}
+
+                {/* Status transition buttons */}
+                {getNextStatuses(selectedPackage.status).map((nextStatus) => (
+                  <button
+                    key={nextStatus}
+                    onClick={() => handleStatusUpdate(selectedPackage.package_id || selectedPackage._id, nextStatus)}
+                    disabled={actionLoading === 'status'}
+                    className="flex w-full items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] disabled:opacity-50"
+                  >
+                    {actionLoading === 'status' ? (
+                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+                    ) : (
+                      <span className="material-icons-outlined" style={{ fontSize: '14px' }}>arrow_forward</span>
+                    )}
+                    Move to {nextStatus}
+                  </button>
+                ))}
+
+                {/* Void button — available for non-terminal statuses */}
+                {selectedPackage.status !== 'COMPLETE' && selectedPackage.status !== 'VOIDED' && selectedPackage.status !== 'DECLINED' && (
+                  <button
+                    onClick={() => handleStatusUpdate(selectedPackage.package_id || selectedPackage._id, 'VOIDED')}
+                    disabled={actionLoading === 'status'}
+                    className="flex w-full items-center gap-2 rounded-lg border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.05)] px-3 py-2 text-xs font-medium text-[#ef4444] disabled:opacity-50"
+                  >
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>cancel</span>
+                    Void Package
+                  </button>
+                )}
+              </div>
+
+              {/* Action feedback */}
+              {actionError && (
+                <div className="mt-2 flex items-center gap-1.5 rounded-lg bg-[rgba(239,68,68,0.08)] px-2.5 py-1.5">
+                  <span className="material-icons-outlined" style={{ fontSize: '14px', color: '#ef4444' }}>error</span>
+                  <span className="text-[10px] text-[#ef4444]">{actionError}</span>
+                </div>
+              )}
+              {actionSuccess && (
+                <div className="mt-2 flex items-center gap-1.5 rounded-lg bg-[rgba(34,197,94,0.08)] px-2.5 py-1.5">
+                  <span className="material-icons-outlined" style={{ fontSize: '14px', color: '#22c55e' }}>check_circle</span>
+                  <span className="text-[10px] text-[#22c55e]">{actionSuccess}</span>
+                </div>
               )}
             </div>
 

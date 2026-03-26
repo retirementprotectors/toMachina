@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useCollection, getDb } from '@tomachina/db'
 import { useAuth } from '@tomachina/auth'
-import { collection, query, orderBy, limit } from 'firebase/firestore'
+import { collection, query, orderBy, limit, where } from 'firebase/firestore'
 import { RecordingPlayer } from './RecordingPlayer'
 
 /* ─── Types ─── */
@@ -26,6 +26,8 @@ export interface CommEntry {
   recordingUrl?: string
   /** Recording duration in seconds */
   recordingDuration?: number
+  /** Firestore client_id (for View Client navigation) */
+  clientId?: string
 }
 
 /** Raw Firestore communication document */
@@ -96,6 +98,7 @@ function docToEntry(doc: CommDoc): CommEntry {
     status: mapStatus(doc.status),
     recordingUrl: doc.recording_url,
     recordingDuration: doc.recording_duration,
+    clientId: doc.client_id,
   }
 }
 
@@ -129,9 +132,20 @@ const STATUS_CONFIG: Record<string, { icon: string; color: string; label: string
   voicemail: { icon: 'voicemail', color: '#f59e0b', label: 'Voicemail' },
 }
 
+/* ─── Props ─── */
+
+interface CommsFeedProps {
+  /** When set, filter communications to this specific client */
+  clientId?: string
+  /** Callback when Reply/Call Back is clicked on a log entry */
+  onReply?: (entry: CommEntry) => void
+  /** Callback when View Client is clicked on a log entry */
+  onViewClient?: (entry: CommEntry) => void
+}
+
 /* ─── Component ─── */
 
-export function CommsFeed() {
+export function CommsFeed({ clientId, onReply, onViewClient }: CommsFeedProps) {
   const [search, setSearch] = useState('')
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all')
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>('all')
@@ -143,14 +157,18 @@ export function CommsFeed() {
   const CURRENT_USER = user?.email || ''
 
   // Live Firestore query — communications ordered by created_at desc, limit 50
+  // When clientId is provided, filter to that client's communications only
   const commsQuery = useMemo(() => {
     try {
       const db = getDb()
-      return query(collection(db, 'communications'), orderBy('created_at', 'desc'), limit(50))
+      const constraints = clientId
+        ? [where('client_id', '==', clientId), orderBy('created_at', 'desc'), limit(50)]
+        : [orderBy('created_at', 'desc'), limit(50)]
+      return query(collection(db, 'communications'), ...constraints)
     } catch {
       return null
     }
-  }, [])
+  }, [clientId])
 
   const { data: rawDocs, loading: commsLoading } = useCollection<CommDoc>(commsQuery, 'comms-feed')
 
@@ -265,7 +283,7 @@ export function CommsFeed() {
             <p className="mt-3 text-sm text-[var(--text-muted)]">Loading communications...</p>
           </div>
         ) : filteredComms.length > 0 ? (
-          <div className="space-y-0">
+          <div className="divide-y divide-[var(--border-subtle)]">
             {filteredComms.map((entry) => {
               const isExpanded = expandedId === entry.id
               const statusCfg = STATUS_CONFIG[entry.status]
@@ -273,7 +291,7 @@ export function CommsFeed() {
                 <div key={entry.id}>
                   <button
                     onClick={() => setExpandedId(isExpanded ? null : entry.id)}
-                    className="flex w-full items-start gap-3 border-b border-[var(--border-subtle)] px-4 py-3 text-left transition-colors hover:bg-[var(--bg-surface)]"
+                    className="flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
                   >
                     {/* Direction + Type icon */}
                     <div className="mt-0.5 flex flex-col items-center gap-0.5">
@@ -360,8 +378,8 @@ export function CommsFeed() {
                       </div>
                       <div className="mt-3 flex items-center gap-2">
                         <button
-                          onClick={(e) => { e.stopPropagation() }}
-                          className="flex items-center gap-1 rounded-md h-[34px] px-4 text-xs font-medium text-white transition-colors hover:brightness-110"
+                          onClick={(e) => { e.stopPropagation(); onReply?.(entry) }}
+                          className="flex items-center gap-1 rounded-lg h-[40px] px-4 text-xs font-semibold text-white transition-colors hover:brightness-110"
                           style={{ background: 'var(--portal)' }}
                         >
                           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>
@@ -369,7 +387,10 @@ export function CommsFeed() {
                           </span>
                           {entry.type === 'voice' ? 'Call Back' : 'Reply'}
                         </button>
-                        <button className="flex items-center gap-1 rounded-md h-[34px] px-4 text-xs font-medium border border-[var(--border-subtle)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onViewClient?.(entry) }}
+                          className="flex items-center gap-1 rounded-lg h-[40px] px-4 text-xs font-semibold border border-[var(--border-subtle)] text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+                        >
                           <span className="material-icons-outlined" style={{ fontSize: '14px' }}>open_in_new</span>
                           View Client
                         </button>

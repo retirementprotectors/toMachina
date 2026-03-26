@@ -11,6 +11,7 @@ import {
   param,
 } from '../lib/helpers.js'
 import type { ClientDTO, ClientListDTO, ClientDeleteResult, AccountDTO, ActivityDTO, RelationshipDTO } from '@tomachina/core'
+import { quickContactScore } from '@tomachina/core'
 
 export const clientRoutes = Router()
 const COLLECTION = 'clients'
@@ -309,3 +310,78 @@ clientRoutes.delete('/:id', async (req: Request, res: Response) => {
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+// POST /:id/dismiss-duplicate — dismiss a duplicate match (TRK-13681)
+clientRoutes.post('/:id/dismiss-duplicate', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const clientId = param(req.params.id)
+    const { match_id } = req.body
+    if (!match_id) { res.status(400).json(errorResponse('match_id required')); return }
+    const userEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
+    const now = new Date().toISOString()
+
+    const batch = db.batch()
+    // Add to both client docs (bidirectional dismiss)
+    const { FieldValue } = require('firebase-admin/firestore')
+    batch.update(db.collection(COLLECTION).doc(clientId), {
+      dismissed_duplicates: FieldValue.arrayUnion(match_id),
+      updated_at: now,
+      _updated_by: userEmail,
+    })
+    batch.update(db.collection(COLLECTION).doc(match_id), {
+      dismissed_duplicates: FieldValue.arrayUnion(clientId),
+      updated_at: now,
+      _updated_by: userEmail,
+    })
+    await batch.commit()
+
+    res.json(successResponse<{ dismissed: true }>({ dismissed: true }))
+  } catch (err) {
+    console.error('POST /api/clients/:id/dismiss-duplicate error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/clients/:id/quality-score
+ * Quick quality score from stored contact data (no external API calls).
+ * For full validated scoring, use POST /api/validation/score.
+ */
+clientRoutes.get('/:id/quality-score', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const doc = await db.collection(COLLECTION).doc(id).get()
+
+    if (!doc.exists) {
+      res.status(404).json(errorResponse('Client not found'))
+      return
+    }
+
+    const data = doc.data() as Record<string, unknown>
+
+    // Build address from client fields
+    const address = data.address_1 || data.street_address
+      ? {
+          streetAddress: String(data.address_1 || data.street_address || ''),
+          secondaryAddress: String(data.address_2 || ''),
+          city: String(data.city || ''),
+          state: String(data.state || ''),
+          ZIPCode: String(data.zip || data.zip_code || ''),
+        }
+      : undefined
+
+    const score = quickContactScore({
+      phone: data.phone ? String(data.phone) : undefined,
+      email: data.email ? String(data.email) : undefined,
+      address,
+    })
+
+    res.json(successResponse(score))
+  } catch (err) {
+    console.error('GET /api/clients/:id/quality-score error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
