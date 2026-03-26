@@ -299,6 +299,22 @@ dexPipelineRoutes.post('/packages/:id/generate-pdf', async (req: Request, res: R
     const clientDoc = await db.collection('clients').doc(String(pkg.client_id)).get()
     const clientData = clientDoc.exists ? (clientDoc.data() || {}) : {}
 
+    // Fetch account data (if provided in the package or request)
+    const accountId = String(pkg.account_id || (req.body as Record<string, unknown>).account_id || '')
+    let accountData: Record<string, unknown> = {}
+    if (accountId) {
+      const accountDoc = await db.collection('accounts_investments').doc(accountId).get()
+      if (accountDoc.exists) accountData = accountDoc.data() || {}
+    }
+
+    // Fetch advisor data from the client's assigned advisor
+    let advisorData: Record<string, unknown> = {}
+    const advisorEmail = String(clientData.assigned_to || clientData.advisor_email || '')
+    if (advisorEmail) {
+      const advisorDoc = await db.collection('users').doc(advisorEmail).get()
+      if (advisorDoc.exists) advisorData = advisorDoc.data() || {}
+    }
+
     // User-provided input from request body
     const userInput = ((req.body as Record<string, unknown>).input || {}) as Record<string, unknown>
 
@@ -316,7 +332,7 @@ dexPipelineRoutes.post('/packages/:id/generate-pdf', async (req: Request, res: R
 
       for (const mapping of mappings) {
         const source = String(mapping.data_source || '')
-        const value = resolveDataSource(source, clientData as Record<string, unknown>, userInput)
+        const value = resolveDataSource(source, clientData as Record<string, unknown>, userInput, accountData, advisorData)
 
         if (value) {
           fieldData[String(mapping.field_name)] = value
@@ -662,15 +678,24 @@ async function logPackageEvent(
 function resolveDataSource(
   source: string,
   clientData: Record<string, unknown>,
-  userInput: Record<string, unknown>
+  userInput: Record<string, unknown>,
+  accountData: Record<string, unknown> = {},
+  advisorData: Record<string, unknown> = {},
 ): string {
   if (!source) return ''
-  const [namespace, field] = source.split('.')
+  const dotIndex = source.indexOf('.')
+  if (dotIndex < 0) return ''
+  const namespace = source.substring(0, dotIndex)
+  const field = source.substring(dotIndex + 1)
   if (!field) return ''
 
   switch (namespace) {
     case 'client':
       return String(clientData[field] || '')
+    case 'account':
+      return String(accountData[field] || '')
+    case 'advisor':
+      return String(advisorData[field] || '')
     case 'input':
       return String(userInput[field] || '')
     case 'firm':

@@ -135,24 +135,24 @@ function formatDateTime(d?: string | null): string {
 
 function statusStyle(status?: string): { background: string; color: string } {
   const s = (status || '').toUpperCase()
-  if (s === 'ACTIVE' || s === 'GENERATED' || s === 'READY' || s === 'COMPLETE' || s === 'SIGNED') return { background: 'rgba(34,197,94,0.15)', color: '#22c55e' }
-  if (s === 'TBD' || s === 'NEEDS DATA' || s === 'PENDING' || s === 'DRAFT') return { background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }
-  if (s === 'SENT' || s === 'VIEWED' || s === 'SUBMITTED') return { background: 'rgba(59,130,246,0.15)', color: '#3b82f6' }
-  if (s === 'VOIDED' || s === 'DECLINED') return { background: 'rgba(239,68,68,0.15)', color: '#ef4444' }
-  if (s === 'N/A' || s === 'ARCHIVED') return { background: 'rgba(156,163,175,0.15)', color: '#9ca3af' }
+  if (s === 'ACTIVE' || s === 'GENERATED' || s === 'READY' || s === 'COMPLETE' || s === 'SIGNED') return { background: 'var(--success-glow, rgba(34,197,94,0.15))', color: 'var(--success, #22c55e)' }
+  if (s === 'TBD' || s === 'NEEDS DATA' || s === 'PENDING' || s === 'DRAFT') return { background: 'var(--warning-glow, rgba(245,158,11,0.15))', color: 'var(--warning, #f59e0b)' }
+  if (s === 'SENT' || s === 'VIEWED' || s === 'SUBMITTED') return { background: 'var(--info-glow, rgba(59,130,246,0.15))', color: 'var(--info, #3b82f6)' }
+  if (s === 'VOIDED' || s === 'DECLINED') return { background: 'var(--error-glow, rgba(239,68,68,0.15))', color: 'var(--error, #ef4444)' }
+  if (s === 'N/A' || s === 'ARCHIVED') return { background: 'var(--muted-glow, rgba(156,163,175,0.15))', color: 'var(--text-muted)' }
   return { background: 'var(--bg-surface)', color: 'var(--text-muted)' }
 }
 
 function inputTypeBadge(inputType?: string): { background: string; color: string; label: string } {
   const t = (inputType || 'text').toLowerCase()
-  if (t === 'dropdown' || t === 'radio' || t === 'checkboxes') return { background: 'rgba(168,85,247,0.15)', color: '#a855f7', label: t }
-  if (t === 'date') return { background: 'rgba(34,197,94,0.15)', color: '#22c55e', label: 'date' }
-  if (t === 'signature') return { background: 'rgba(239,68,68,0.15)', color: '#ef4444', label: 'signature' }
-  if (t === 'ssn' || t === 'phone' || t === 'email') return { background: 'rgba(245,158,11,0.15)', color: '#f59e0b', label: t }
-  if (t === 'currency' || t === 'percent') return { background: 'rgba(14,165,233,0.15)', color: '#0ea5e9', label: t }
-  if (t === 'checkbox') return { background: 'rgba(168,85,247,0.15)', color: '#a855f7', label: 'checkbox' }
-  if (t === 'textarea') return { background: 'rgba(59,130,246,0.15)', color: '#3b82f6', label: 'textarea' }
-  return { background: 'rgba(59,130,246,0.15)', color: '#3b82f6', label: t || 'text' }
+  if (t === 'dropdown' || t === 'radio' || t === 'checkboxes') return { background: 'var(--accent-glow, rgba(168,85,247,0.15))', color: 'var(--accent, #a855f7)', label: t }
+  if (t === 'date') return { background: 'var(--success-glow, rgba(34,197,94,0.15))', color: 'var(--success, #22c55e)', label: 'date' }
+  if (t === 'signature') return { background: 'var(--error-glow, rgba(239,68,68,0.15))', color: 'var(--error, #ef4444)', label: 'signature' }
+  if (t === 'ssn' || t === 'phone' || t === 'email') return { background: 'var(--warning-glow, rgba(245,158,11,0.15))', color: 'var(--warning, #f59e0b)', label: t }
+  if (t === 'currency' || t === 'percent') return { background: 'var(--info-glow, rgba(14,165,233,0.15))', color: 'var(--info, #0ea5e9)', label: t }
+  if (t === 'checkbox') return { background: 'var(--accent-glow, rgba(168,85,247,0.15))', color: 'var(--accent, #a855f7)', label: 'checkbox' }
+  if (t === 'textarea') return { background: 'var(--info-glow, rgba(59,130,246,0.15))', color: 'var(--info, #3b82f6)', label: 'textarea' }
+  return { background: 'var(--info-glow, rgba(59,130,246,0.15))', color: 'var(--info, #3b82f6)', label: t || 'text' }
 }
 
 function parseOptions(options?: string[] | string): string[] {
@@ -176,12 +176,10 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
 
   const formsQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'dex_forms')), [])
   const kitsQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'dex_kits')), [])
-  const clientsQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'clients')), [])
   const packagesQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'dex_packages')), [])
 
   const { data: forms, loading: formsLoading } = useCollection<DexForm>(formsQ, 'dex-forms')
   const { data: kits, loading: kitsLoading } = useCollection<DexKit>(kitsQ, 'dex-kits')
-  const { data: clients, loading: clientsLoading } = useCollection<ClientRecord>(clientsQ, 'dex-clients')
   const { data: packages, loading: packagesLoading } = useCollection<DexPackage>(packagesQ, 'dex-packages')
 
   const loading = formsLoading || kitsLoading || packagesLoading
@@ -234,7 +232,7 @@ export function DexDocCenter({ portal }: DexDocCenterProps) {
 
       {activeTab === 'pipeline' && <PipelineTab packages={packages} />}
       {activeTab === 'forms' && <FormLibraryTab forms={forms} />}
-      {activeTab === 'kits' && <KitBuilderTab clients={clients} />}
+      {activeTab === 'kits' && <KitBuilderTab />}
       {activeTab === 'tracker' && <TrackerTab packages={packages} />}
     </div>
   )
@@ -296,8 +294,8 @@ function PipelineTab({ packages }: { packages: DexPackage[] }) {
         </div>
 
         {voidedCount > 0 && (
-          <div className="mt-3 flex items-center gap-2 rounded-lg bg-[rgba(239,68,68,0.08)] px-3 py-2 text-xs">
-            <span className="material-icons-outlined" style={{ fontSize: '14px', color: '#ef4444' }}>cancel</span>
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--error-glow,rgba(239,68,68,0.08))] px-3 py-2 text-xs">
+            <span className="material-icons-outlined" style={{ fontSize: '14px', color: 'var(--error, #ef4444)' }}>cancel</span>
             <span className="text-[var(--text-secondary)]">{voidedCount} voided/declined</span>
           </div>
         )}
@@ -402,7 +400,7 @@ function FormLibraryTab({ forms }: { forms: DexForm[] }) {
                             <div className="flex items-center gap-1.5">
                               <p className="truncate text-xs font-medium text-[var(--text-primary)]">{m.label || m.field_name}</p>
                               {m.required && (
-                                <span className="shrink-0 rounded px-1 py-px text-[8px] font-bold uppercase" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>req</span>
+                                <span className="shrink-0 rounded px-1 py-px text-[8px] font-bold uppercase" style={{ background: 'var(--error-glow, rgba(239,68,68,0.15))', color: 'var(--error, #ef4444)' }}>req</span>
                               )}
                             </div>
                             <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{m.data_source}</p>
@@ -607,15 +605,21 @@ function FillKitButton({ kitId, clientId, onFilled }: { kitId: string; clientId:
 // Kit Builder Tab — 5-step wizard with PDF generation + DocuSign (step 5)
 // ============================================================================
 
-function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
+function KitBuilderTab() {
   const [step, setStep] = useState(1)
   const [clientSearch, setClientSearch] = useState('')
   const [selectedClient, setSelectedClient] = useState<ClientRecord | null>(null)
+  const [searchResults, setSearchResults] = useState<ClientRecord[]>([])
+  const [searching, setSearching] = useState(false)
   const [platform, setPlatform] = useState('')
   const [regType, setRegType] = useState('')
   const [action, setAction] = useState('')
   const [buildResult, setBuildResult] = useState<Record<string, unknown> | null>(null)
   const [building, setBuilding] = useState(false)
+
+  // Step 4 state: field input for USER INPUT fields
+  const [userInputFields, setUserInputFields] = useState<Array<{ mapping_id: string; field_name: string; label: string; input_type: string; help_text: string; required: boolean; options: string[]; value: string }>>([])
+  const [userInputValues, setUserInputValues] = useState<Record<string, string>>({})
 
   // Step 5 state: PDF generation + DocuSign
   const [packageId, setPackageId] = useState<string | null>(null)
@@ -628,11 +632,34 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
   const [docusignResult, setDocusignResult] = useState<Record<string, unknown> | null>(null)
   const [stepError, setStepError] = useState<string | null>(null)
 
-  const filteredClients = useMemo(() => {
-    if (!clientSearch || clientSearch.length < 2) return []
-    const lower = clientSearch.toLowerCase()
-    return clients.filter(c => `${c.first_name || ''} ${c.last_name || ''} ${c.email || ''}`.toLowerCase().includes(lower)).slice(0, 10)
-  }, [clients, clientSearch])
+  // Client search with debounced API call instead of loading entire collection
+  const handleClientSearch = useCallback(async (searchValue: string) => {
+    setClientSearch(searchValue)
+    setSelectedClient(null)
+    if (searchValue.length < 2) { setSearchResults([]); return }
+
+    setSearching(true)
+    try {
+      const res = await fetch(`/api/clients?search=${encodeURIComponent(searchValue)}&limit=10`)
+      const data = await res.json()
+      if (data.success && Array.isArray(data.data)) {
+        setSearchResults(data.data.map((c: Record<string, unknown>) => ({ _id: String(c.id || c._id || ''), ...c } as ClientRecord)))
+      }
+    } catch {
+      // Fallback: use Firestore query directly for first/last name prefix match
+      const { getDocs, limit: fsLimit } = await import('firebase/firestore')
+      const titleCase = searchValue.charAt(0).toUpperCase() + searchValue.slice(1).toLowerCase()
+      const lastQ = query(collection(getDb(), 'clients'), where('last_name', '>=', titleCase), where('last_name', '<=', titleCase + '\uf8ff'), fsLimit(10))
+      const firstQ = query(collection(getDb(), 'clients'), where('first_name', '>=', titleCase), where('first_name', '<=', titleCase + '\uf8ff'), fsLimit(10))
+      const [lastSnap, firstSnap] = await Promise.all([getDocs(lastQ), getDocs(firstQ)])
+      const results = new Map<string, ClientRecord>()
+      lastSnap.docs.forEach(d => results.set(d.id, { _id: d.id, ...d.data() } as ClientRecord))
+      firstSnap.docs.forEach(d => results.set(d.id, { _id: d.id, ...d.data() } as ClientRecord))
+      setSearchResults(Array.from(results.values()).slice(0, 10))
+    } finally {
+      setSearching(false)
+    }
+  }, [])
 
   const handleBuild = useCallback(async () => {
     if (!selectedClient || !platform || !regType || !action) return
@@ -643,8 +670,35 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
         method: 'POST',
         body: JSON.stringify({ client_id: selectedClient._id, product_type: platform, registration_type: regType, action }),
       })
-      if (result.success && result.data) { setBuildResult(result.data); setStep(4) }
-      else { setStepError(result.error || 'Build failed') }
+      if (result.success && result.data) {
+        setBuildResult(result.data)
+        // Fetch field mappings for USER INPUT fields (Step 4 field input)
+        const formIds = (result.data as Record<string, unknown>).form_ids as string[] || []
+        if (formIds.length > 0) {
+          try {
+            const mappingsResult = await fetchValidated<Array<Record<string, unknown>>>(`/api/dex/mappings?form_ids=${formIds.join(',')}&status=USER%20INPUT`)
+            if (mappingsResult.success && Array.isArray(mappingsResult.data) && mappingsResult.data.length > 0) {
+              const fields = mappingsResult.data.map(m => ({
+                mapping_id: String(m.mapping_id || ''),
+                field_name: String(m.field_name || ''),
+                label: String(m.label || m.field_name || ''),
+                input_type: String(m.input_type || 'text'),
+                help_text: String(m.help_text || ''),
+                required: Boolean(m.required),
+                options: parseOptions(m.options as string[] | string),
+                value: String(m.default_value || ''),
+              }))
+              setUserInputFields(fields)
+              const initialValues: Record<string, string> = {}
+              fields.forEach(f => { initialValues[f.field_name] = f.value })
+              setUserInputValues(initialValues)
+            }
+          } catch { /* No user input fields — skip field input */ }
+        }
+        setStep(4)
+      } else {
+        setStepError(result.error || 'Build failed')
+      }
     } catch {
       setBuildResult({ preview: true, client_name: `${selectedClient.first_name} ${selectedClient.last_name}`, platform, regType, action })
       setStep(4)
@@ -681,7 +735,7 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
       // Step B: Generate PDF
       const pdfResult = await fetchValidated<Record<string, unknown>>(`/api/dex-pipeline/packages/${newPackageId}/generate-pdf`, {
         method: 'POST',
-        body: JSON.stringify({ input: {} }),
+        body: JSON.stringify({ input: userInputValues }),
       })
       if (!pdfResult.success || !pdfResult.data) { setStepError(pdfResult.error || 'PDF generation failed'); setGenerating(false); return }
 
@@ -716,10 +770,10 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
 
   const reset = () => {
     setStep(1); setBuildResult(null); setSelectedClient(null); setClientSearch('')
-    setPlatform(''); setRegType(''); setAction('')
+    setSearchResults([]); setPlatform(''); setRegType(''); setAction('')
     setPackageId(null); setPdfGenerated(false); setSent(false)
     setPdfResult(null); setDocusignResult(null); setStepError(null)
-    setDeliveryMethod('EMAIL')
+    setDeliveryMethod('EMAIL'); setUserInputFields([]); setUserInputValues({})
   }
 
   return (
@@ -732,11 +786,12 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
             <h3 className="text-sm font-semibold text-[var(--text-primary)]">Step 1: Select Client</h3>
             <div className="relative mt-3">
               <input type="text" placeholder="Type client name..." value={clientSearch}
-                onChange={(e) => { setClientSearch(e.target.value); setSelectedClient(null) }}
+                onChange={(e) => handleClientSearch(e.target.value)}
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--portal)] focus:outline-none" />
-              {filteredClients.length > 0 && !selectedClient && (
+              {searching && <div className="absolute right-3 top-1/2 -translate-y-1/2"><div className="h-3 w-3 animate-spin rounded-full border border-[var(--portal)] border-t-transparent" /></div>}
+              {searchResults.length > 0 && !selectedClient && (
                 <div className="absolute z-10 mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] shadow-lg">
-                  {filteredClients.map((c) => (
+                  {searchResults.map((c) => (
                     <button key={c._id} onClick={() => { setSelectedClient(c); setClientSearch(`${c.first_name} ${c.last_name}`); setStep(2) }}
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[var(--bg-surface)]">
                       <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>person</span>
@@ -796,13 +851,68 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
         )}
 
         {step === 4 && buildResult && (
-          <KitPreviewStep
-            buildResult={buildResult}
-            clientId={selectedClient?._id || ''}
-            onBack={() => setStep(3)}
-            onContinue={() => setStep(5)}
-            stepError={stepError}
-          />
+          <div className="space-y-4">
+            {/* Kit Preview (from KitPreviewStep) */}
+            <KitPreviewStep
+              buildResult={buildResult}
+              clientId={selectedClient?._id || ''}
+              onBack={() => setStep(3)}
+              onContinue={() => {
+                if (userInputFields.length > 0) {
+                  const missing = userInputFields.filter(f => f.required && !userInputValues[f.field_name])
+                  if (missing.length > 0) {
+                    setStepError(`Missing required fields: ${missing.map(f => f.label).join(', ')}`)
+                    return
+                  }
+                }
+                setStepError(null)
+                setStep(5)
+              }}
+              stepError={stepError}
+            />
+
+            {/* User Input Fields (if any) */}
+            {userInputFields.length > 0 && (
+              <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                  Required Input ({userInputFields.length} field{userInputFields.length !== 1 ? 's' : ''})
+                </h4>
+                <div className="mt-3 max-h-[300px] space-y-3 overflow-y-auto">
+                  {userInputFields.map((field) => (
+                    <div key={field.mapping_id} className="rounded-lg bg-[var(--bg-surface)] p-3">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-primary)]">
+                        {field.label}
+                        {field.required && <span className="rounded px-1 py-px text-[8px] font-bold uppercase text-[var(--error)]" style={{ background: 'var(--error-glow, rgba(239,68,68,0.15))' }}>req</span>}
+                      </label>
+                      {field.help_text && <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{field.help_text}</p>}
+                      {field.input_type === 'dropdown' || field.input_type === 'radio' ? (
+                        <select
+                          value={userInputValues[field.field_name] || ''}
+                          onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
+                          className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none">
+                          <option value="">Select...</option>
+                          {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                      ) : field.input_type === 'textarea' ? (
+                        <textarea
+                          value={userInputValues[field.field_name] || ''}
+                          onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
+                          rows={3}
+                          className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                      ) : (
+                        <input
+                          type={field.input_type === 'date' ? 'date' : field.input_type === 'email' ? 'email' : field.input_type === 'phone' ? 'tel' : 'text'}
+                          value={userInputValues[field.field_name] || ''}
+                          onChange={(e) => setUserInputValues(prev => ({ ...prev, [field.field_name]: e.target.value }))}
+                          placeholder={field.input_type === 'ssn' ? 'XXX-XX-XXXX' : field.input_type === 'phone' ? '(555) 555-5555' : ''}
+                          className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:border-[var(--portal)] focus:outline-none" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {step === 5 && buildResult && (
@@ -851,9 +961,9 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
 
             {/* Error display */}
             {stepError && (
-              <div className="flex items-center gap-2 rounded-lg bg-[rgba(239,68,68,0.08)] px-3 py-2">
-                <span className="material-icons-outlined" style={{ fontSize: '16px', color: '#ef4444' }}>error</span>
-                <span className="text-xs text-[#ef4444]">{stepError}</span>
+              <div className="flex items-center gap-2 rounded-lg bg-[var(--error-glow,rgba(239,68,68,0.08))] px-3 py-2">
+                <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--error, #ef4444)' }}>error</span>
+                <span className="text-xs text-[var(--error,#ef4444)]">{stepError}</span>
               </div>
             )}
 
@@ -881,9 +991,9 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
             {/* PDF generated — show result + Send for Signature */}
             {pdfGenerated && pdfResult && (
               <div className="space-y-3">
-                <div className="flex items-center gap-2 rounded-lg bg-[rgba(34,197,94,0.08)] px-3 py-2">
-                  <span className="material-icons-outlined" style={{ fontSize: '16px', color: '#22c55e' }}>check_circle</span>
-                  <span className="text-xs text-[#22c55e]">
+                <div className="flex items-center gap-2 rounded-lg bg-[var(--success-glow,rgba(34,197,94,0.08))] px-3 py-2">
+                  <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--success, #22c55e)' }}>check_circle</span>
+                  <span className="text-xs text-[var(--success,#22c55e)]">
                     PDF generated — {String(pdfResult.pdf_page_count)} pages, {String(pdfResult.filled_count)} fields filled
                     {Number(pdfResult.missing_count || 0) > 0 && `, ${String(pdfResult.missing_count)} missing`}
                   </span>
@@ -913,10 +1023,10 @@ function KitBuilderTab({ clients }: { clients: ClientRecord[] }) {
 
             {/* DocuSign sent confirmation */}
             {sent && docusignResult && (
-              <div className="rounded-lg border border-[rgba(34,197,94,0.3)] bg-[rgba(34,197,94,0.08)] p-4">
+              <div className="rounded-lg border border-[var(--success,rgba(34,197,94,0.3))] bg-[var(--success-glow,rgba(34,197,94,0.08))] p-4">
                 <div className="flex items-center gap-2">
-                  <span className="material-icons-outlined" style={{ fontSize: '20px', color: '#22c55e' }}>mark_email_read</span>
-                  <span className="text-sm font-semibold text-[#22c55e]">Sent for Signature</span>
+                  <span className="material-icons-outlined" style={{ fontSize: '20px', color: 'var(--success, #22c55e)' }}>mark_email_read</span>
+                  <span className="text-sm font-semibold text-[var(--success,#22c55e)]">Sent for Signature</span>
                 </div>
                 <div className="mt-2 space-y-1 text-xs text-[var(--text-secondary)]">
                   <p>Envelope ID: {String(docusignResult.envelope_id)}</p>

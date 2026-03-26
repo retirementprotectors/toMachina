@@ -88,6 +88,7 @@ registerCheckHandler('DEX_KIT_GENERATE', handleDexKitGenerate)
 registerCheckHandler('DEX_DOCUSIGN', handleDexDocuSign)
 
 export const db = getFirestore()
+
 const app = express()
 
 // Global middleware

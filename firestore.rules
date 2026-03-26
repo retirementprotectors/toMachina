@@ -330,13 +330,13 @@ service cloud.firestore {
     }
 
     // ----------------------------------------------------------------
-    // DEX — document package pipeline + form library
+    // DEX — Document Efficiency Xelerator (forms, mappings, rules, kits, packages)
     // ----------------------------------------------------------------
     match /dex_forms/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
-    match /dex_kits/{docId} {
+    match /dex_field_mappings/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
@@ -344,9 +344,21 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
-    match /dex_field_mappings/{docId} {
+    match /dex_kits/{docId} {
       allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
+      allow write: if isRPIUser();
+    }
+    match /dex_packages/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
+      match /{subcollection}/{subDocId} {
+        allow read: if isRPIUser();
+        allow write: if isRPIUser();
+      }
+    }
+    match /dex_package_events/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
     }
     match /taxonomy_carriers/{docId} {
       allow read: if isRPIUser();
@@ -362,14 +374,6 @@ service cloud.firestore {
     }
     match /taxonomy_transactions/{docId} {
       allow read: if isRPIUser();
-      allow write: if isLeaderOrAbove();
-    }
-    match /dex_packages/{docId} {
-      allow read: if isLeaderOrAbove();
-      allow write: if isLeaderOrAbove();
-    }
-    match /dex_package_events/{docId} {
-      allow read: if isLeaderOrAbove();
       allow write: if isLeaderOrAbove();
     }
 
