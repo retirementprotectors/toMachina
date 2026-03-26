@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 003: Learning Loop 2.0 — FORGE Discovery Document</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.15);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.15);
+    --red: #ef4444;
+    --red-glow: rgba(239, 68, 68, 0.15);
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.15);
+    --pink: #ec4899;
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #0c1a2e 30%, #1a0a2e 60%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 32px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 50%, rgba(59,130,246,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(168,85,247,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .header .sprint-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+  .header h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3b82f6 0%, #a855f7 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  .header .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 680px;
+    margin: 0 auto 20px;
+  }
+  .header-badges {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .badge-blue { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  .tab {
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-glow); }
+
+  .content {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card-accent-blue { border-left: 4px solid var(--accent); }
+  .card-accent-green { border-left: 4px solid var(--green); }
+  .card-accent-purple { border-left: 4px solid var(--purple); }
+  .card-accent-orange { border-left: 4px solid var(--orange); }
+  .card-accent-red { border-left: 4px solid var(--red); }
+  .card-accent-cyan { border-left: 4px solid var(--cyan); }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--accent); }
+  .card h3.green { color: var(--green); }
+  .card h3.purple { color: var(--purple); }
+  .card h3.orange { color: var(--orange); }
+  .card h3.cyan { color: var(--cyan); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul, .card ol { margin-left: 22px; color: var(--text-muted); margin-bottom: 12px; }
+  .card li { margin-bottom: 6px; }
+  .card strong { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 14px; background: var(--bg-hover); color: var(--accent); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+  tr:hover td { background: var(--bg-hover); }
+  td strong { color: var(--text); }
+
+  .diagram {
+    background: #070c14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+
+  pre {
+    background: #070c14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #a5f3fc;
+    margin: 12px 0;
+  }
+  code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    background: rgba(255,255,255,0.07);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--cyan);
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pill-blue { background: var(--accent-glow); color: var(--accent); }
+  .pill-green { background: var(--green-glow); color: var(--green); }
+  .pill-purple { background: var(--purple-glow); color: var(--purple); }
+  .pill-orange { background: var(--orange-glow); color: var(--orange); }
+  .pill-red { background: var(--red-glow); color: var(--red); }
+  .pill-cyan { background: var(--cyan-glow); color: var(--cyan); }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .stat-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card .stat-label { font-size: 0.8rem; color: var(--text-muted); }
+
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin: 16px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg-card);
+  }
+  .timeline-item.green::before { background: var(--green); }
+  .timeline-item.orange::before { background: var(--orange); }
+  .timeline-item.purple::before { background: var(--purple); }
+  .timeline-item.red::before { background: var(--red); }
+  .timeline-item .time { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .timeline-item .label { font-size: 0.95rem; color: var(--text); font-weight: 600; margin-top: 2px; }
+  .timeline-item .desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+  .flywheel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 24px;
+    background: var(--bg-hover);
+    border-radius: 12px;
+    margin: 16px 0;
+  }
+  .flywheel-node {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 140px;
+  }
+  .flywheel-arrow {
+    font-size: 1.4rem;
+    color: var(--accent);
+    font-weight: 300;
+  }
+
+  .ticket {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .ticket-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .ticket-id {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .ticket-title { font-size: 0.95rem; font-weight: 700; color: var(--text); flex: 1; }
+  .ticket-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+  .ticket-acceptance {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+  .ticket-acceptance strong { color: var(--green); }
+
+  .urgent-box {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.35);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .urgent-box .urgent-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--red);
+    margin-bottom: 10px;
+  }
+  .urgent-box p { color: var(--text-muted); margin-bottom: 8px; }
+
+  .highlight-box {
+    background: var(--accent-glow);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .highlight-box p { color: var(--text); margin-bottom: 0; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 16px 0; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+  .percent-bar-container { margin: 12px 0; }
+  .percent-bar-label { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px; }
+  .percent-bar-label span:first-child { color: var(--text); font-weight: 600; }
+  .percent-bar-label span:last-child { color: var(--text-muted); }
+  .percent-bar { height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; }
+  .percent-bar-fill { height: 100%; border-radius: 4px; }
+
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 2rem; }
+    .content { padding: 16px; }
+    .card { padding: 18px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">FORGE Discovery Document &mdash; Sprint 003</div>
+  <h1>Learning Loop 2.0</h1>
+  <div class="subtitle">
+    80% Agent-facing compound learning. Every session feeds every future agent.
+    The system gets smarter every week. Automatically.
+  </div>
+  <div class="header-badges">
+    <span class="badge badge-blue">Sprint 003</span>
+    <span class="badge badge-purple">15 Tickets</span>
+    <span class="badge badge-green">GCS + BigQuery + Firestore</span>
+    <span class="badge badge-orange">3 Machines</span>
+    <span class="badge badge-cyan">VOLTRON + RONIN</span>
+    <span class="badge badge-red">Urgent: Cleanup Fix</span>
+  </div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="vision">Vision</div>
+    <div class="tab" data-tab="vault">The Vault</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="extract">Extract Pipeline</div>
+    <div class="tab" data-tab="agent">Agent-Facing (80%)</div>
+    <div class="tab" data-tab="analytics">Analytics (20%)</div>
+    <div class="tab" data-tab="schema">BQ + Firestore Schema</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ==================== TAB 1: VISION ==================== -->
+<div class="tab-panel active" id="vision">
+
+  <div class="card card-accent-purple">
+    <h2>The 80/20 Directive</h2>
+    <p>JDM's exact words: <strong>"Make the Learning Loop 2.0 80% Agent-facing, 20% Data/Analytics/Reporting for Me."</strong></p>
+    <div class="two-col" style="margin-top: 20px;">
+      <div>
+        <div class="percent-bar-container">
+          <div class="percent-bar-label"><span>Agent-Facing Compound Learning</span><span>80%</span></div>
+          <div class="percent-bar"><div class="percent-bar-fill" style="width:80%; background: linear-gradient(90deg, var(--accent), var(--purple));"></div></div>
+        </div>
+        <p style="font-size:0.85rem; margin-top: 12px;">Every session feeds every future agent. Self-improving nervous system. Pre-session briefings. RONIN sprint memory. VOLTRON gap analysis. CLAUDE.md compression. Cross-session learning within 24 hours.</p>
+      </div>
+      <div>
+        <div class="percent-bar-container">
+          <div class="percent-bar-label"><span>JDM Analytics &amp; Reporting</span><span>20%</span></div>
+          <div class="percent-bar"><div class="percent-bar-fill" style="width:20%; background: var(--orange);"></div></div>
+        </div>
+        <p style="font-size:0.85rem; margin-top: 12px;">Quantify time, value, and agent-hours for JDM, team, and investors. The investor slide. The ROI multiplier. ProDashX Admin tab. The numbers that prove The Machine works.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-accent-blue">
+    <h2>The Shinobi Effect vs The Real Gold</h2>
+    <div class="two-col">
+      <div style="background: var(--bg-hover); border-radius: 10px; padding: 20px; border: 1px solid var(--border);">
+        <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); margin-bottom:10px;">The Shinobi Effect</div>
+        <div style="font-size:2.5rem; font-weight:800; color:var(--orange); line-height:1; margin-bottom:8px;">49 MB</div>
+        <p style="font-size:0.85rem;">One legendary agent's knowledge. A single session. Brilliant — and one-time. The knowledge that launched MDJ1 from a dusty Dell to a live AI server in 18 hours.</p>
+        <div class="badge badge-orange" style="margin-top: 12px;">Good. Not Enough.</div>
+      </div>
+      <div style="background: var(--bg-hover); border-radius: 10px; padding: 20px; border: 1px solid var(--border);">
+        <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); margin-bottom:10px;">The Real Gold</div>
+        <div style="font-size:2.5rem; font-weight:800; color:var(--green); line-height:1; margin-bottom:8px;">1.6 GB+</div>
+        <p style="font-size:0.85rem;">ALL sessions. Growing weekly. AIR + PRO + VOLTRON. Auto-extracted, structured, feeding every future agent. This is compound interest on institutional knowledge.</p>
+        <div class="badge badge-green" style="margin-top: 12px;">This is What We're Building</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:20px;">
+      <p><strong>The core insight:</strong> Individual sessions are brilliant but ephemeral. The compounding effect of extracting and feeding <em>all</em> sessions back into every future agent — that's the nervous system. Every week that passes without this pipeline running is a week of gold left in the ground.</p>
+    </div>
+  </div>
+
+  <div class="card card-accent-green">
+    <h2>The End State</h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--accent);">500+</div>
+        <div class="stat-label">Sessions of distilled wisdom every agent starts with</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--green);">24hr</div>
+        <div class="stat-label">From lesson learned to all future agents knowing it</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--orange);">30k</div>
+        <div class="stat-label">Target CLAUDE.md size (down from 53k). Deep context moves to Firestore.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--purple);">3</div>
+        <div class="stat-label">Machines feeding one unified nervous system (AIR, PRO, VOLTRON)</div>
+      </div>
+    </div>
+    <p style="margin-top:16px; font-size:1.05rem; text-align:center; font-weight:600; color:var(--text);">
+      "The System Gets Smarter Every Week. Automatically."
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Compound Learning Flywheel</h2>
+    <p>The mechanism that makes this exponential, not linear:</p>
+    <div class="flywheel">
+      <div class="flywheel-node" style="border-color:var(--accent);">Session Runs<br><small style="color:var(--text-muted);font-weight:400;">AIR / PRO / VOLTRON</small></div>
+      <div class="flywheel-arrow">→</div>
+      <div class="flywheel-node" style="border-color:var(--green);">Saved to GCS<br><small style="color:var(--text-muted);font-weight:400;">Saturday 11pm extract</small></div>
+      <div class="flywheel-arrow">→</div>
+      <div class="flywheel-node" style="border-color:var(--orange);">BigQuery Parsed<br><small style="color:var(--text-muted);font-weight:400;">Nightly structured load</small></div>
+      <div class="flywheel-arrow">→</div>
+      <div class="flywheel-node" style="border-color:var(--purple);">Haiku Extracts<br><small style="color:var(--text-muted);font-weight:400;">Decisions / patterns / insights</small></div>
+      <div class="flywheel-arrow">→</div>
+      <div class="flywheel-node" style="border-color:var(--cyan);">Firestore Store<br><small style="color:var(--text-muted);font-weight:400;">knowledge_entries collection</small></div>
+      <div class="flywheel-arrow">→</div>
+      <div class="flywheel-node" style="border-color:var(--pink);">CLAUDE.md Updated<br><small style="color:var(--text-muted);font-weight:400;">Daily 4am promotion</small></div>
+      <div class="flywheel-arrow">→</div>
+      <div class="flywheel-node" style="border-color:var(--accent);">Next Session Smarter<br><small style="color:var(--text-muted);font-weight:400;">Pre-session briefing injected</small></div>
+    </div>
+    <p style="font-size:0.85rem; color:var(--text-muted); text-align:center; margin-top:8px;">Each turn of the flywheel makes the next one more powerful. Session count compounds. Knowledge density compounds. Agent quality compounds.</p>
+  </div>
+
+  <div class="card card-accent-cyan">
+    <h2>Three Input Sources → One Nervous System</h2>
+    <table>
+      <tr>
+        <th>Source</th>
+        <th>Machine</th>
+        <th>Volume</th>
+        <th>Type</th>
+        <th>Sprint 003 Action</th>
+      </tr>
+      <tr>
+        <td><strong>Claude Code Sessions</strong></td>
+        <td>AIR + PRO</td>
+        <td>124 main + 755+ subagent</td>
+        <td>Architecture decisions, code patterns, violations</td>
+        <td>Extract pipeline + BigQuery ingestion</td>
+      </tr>
+      <tr>
+        <td><strong>RONIN Sprint Sessions</strong></td>
+        <td>VOLTRON (MDJ_SERVER)</td>
+        <td>Growing with every sprint</td>
+        <td>Build decisions, phase learnings, sprint outcomes</td>
+        <td>Sprint memory writes at phase completion</td>
+      </tr>
+      <tr>
+        <td><strong>VOLTRON Conversations</strong></td>
+        <td>VOLTRON (MDJ_SERVER)</td>
+        <td>mdj_conversations Firestore</td>
+        <td>Team questions, unanswered gaps, usage patterns</td>
+        <td>Nightly gap analysis + flagging</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 2: THE VAULT ==================== -->
+<div class="tab-panel" id="vault">
+
+  <div class="card card-accent-green">
+    <h2>What Exists in GCS Tonight</h2>
+    <p>GCS Bucket: <code>gs://rpi-session-intelligence</code> &mdash; Project: <code>claude-mcp-484718</code> &mdash; Region: <code>us-central1</code></p>
+    <div class="stat-grid" style="margin-top: 20px;">
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--accent);">2.24 GB</div>
+        <div class="stat-label">Total backed up to GCS tonight</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--green);">33</div>
+        <div class="stat-label">Main sessions from AIR (158 MB)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--orange);">91</div>
+        <div class="stat-label">Main sessions from PRO (476 MB)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--purple);">755+</div>
+        <div class="stat-label">Subagent sessions across AIR + PRO</div>
+      </div>
+    </div>
+    <table style="margin-top: 20px;">
+      <tr>
+        <th>Machine</th>
+        <th>Path in GCS</th>
+        <th>Main Sessions</th>
+        <th>Subagent Sessions</th>
+        <th>Approx Size</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td><strong>AIR</strong></td>
+        <td><code>gs://rpi-session-intelligence/air/</code></td>
+        <td>33</td>
+        <td>255</td>
+        <td>~158 MB</td>
+        <td><span class="pill pill-green">Backed Up</span></td>
+      </tr>
+      <tr>
+        <td><strong>PRO</strong></td>
+        <td><code>gs://rpi-session-intelligence/pro/</code></td>
+        <td>91</td>
+        <td>500+</td>
+        <td>~476 MB</td>
+        <td><span class="pill pill-green">Backed Up</span></td>
+      </tr>
+      <tr>
+        <td><strong>VOLTRON (MDJ_SERVER)</strong></td>
+        <td><code>gs://rpi-session-intelligence/mdj1/</code></td>
+        <td>TBD</td>
+        <td>TBD (RONIN sessions)</td>
+        <td>TBD</td>
+        <td><span class="pill pill-red">Not Yet Extracted</span></td>
+      </tr>
+    </table>
+    <p style="margin-top: 12px; font-size:0.85rem;">The third machine (VOLTRON) has its own <code>~/.claude/projects/</code> directory containing RONIN sprint sessions and VOLTRON agent logs. TRK-S03-004 sets up the extract pipeline on VOLTRON. Once live, all three machines feed the same GCS bucket.</p>
+  </div>
+
+  <div class="urgent-box">
+    <div class="urgent-label">URGENT: The Cleanup Timing Problem</div>
+    <p><strong>This is happening every Sunday at 3am.</strong> The cleanup script deletes all session .jsonl files older than 7 days — including sessions that have never been backed up to GCS.</p>
+    <p>Current launchd agent: <code>com.rpi.claude-cleanup</code> &mdash; Runs: Sunday 3am &mdash; Script: <code>~/.claude/cleanup.sh</code></p>
+    <p>Line 89 of cleanup.sh: <code>find "$CLAUDE_DIR/projects" -name "*.jsonl" -mtime +7 -print0</code></p>
+    <p><strong>This deletes the gold every week.</strong> Sessions that aren't extracted first are gone permanently.</p>
+  </div>
+
+  <div class="card card-accent-red">
+    <h2>Current vs Fixed Timeline</h2>
+    <div class="two-col">
+      <div>
+        <h3 style="color:var(--red); margin-top:0;">Current (BROKEN)</h3>
+        <div class="timeline">
+          <div class="timeline-item red">
+            <div class="time">Sunday 3:00 AM</div>
+            <div class="label">cleanup.sh runs</div>
+            <div class="desc">Deletes all .jsonl files older than 7 days. Sessions not yet in GCS are gone forever.</div>
+          </div>
+          <div class="timeline-item red">
+            <div class="time">Sunday 3:01 AM</div>
+            <div class="label">Gold deleted</div>
+            <div class="desc">Weeks of architectural decisions, code patterns, sprint learnings — permanently destroyed.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="green" style="margin-top:0;">Fixed (Sprint 003)</h3>
+        <div class="timeline">
+          <div class="timeline-item purple">
+            <div class="time">Saturday 11:00 PM</div>
+            <div class="label">com.rpi.session-extract fires</div>
+            <div class="desc">New launchd agent on ALL 3 machines. Runs gcloud storage rsync first.</div>
+          </div>
+          <div class="timeline-item green">
+            <div class="time">Saturday 11:01 PM</div>
+            <div class="label">GCS sync complete</div>
+            <div class="desc">All new session files pushed to gs://rpi-session-intelligence/{machine}/</div>
+          </div>
+          <div class="timeline-item">
+            <div class="time">Sunday 3:00 AM</div>
+            <div class="label">cleanup.sh runs safely</div>
+            <div class="desc">Local files deleted — but they're already in GCS. Nothing is lost.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:8px; font-size:0.85rem; color:var(--text-muted);">TRK-S03-001 fixes cleanup.sh immediately. TRK-S03-002/003/004 install the extract agent on all three machines. Both must ship in Sprint 003 before another Sunday passes.</p>
+  </div>
+
+  <div class="card">
+    <h2>Session File Format (JSONL Schema)</h2>
+    <p>Each session is a <code>.jsonl</code> file in <code>~/.claude/projects/{project-hash}/</code>. Each line is one message event:</p>
+    <pre>{
+  "type": "user" | "assistant",
+  "message": {
+    "role": "user" | "assistant",
+    "content": string | array  // string OR array of content blocks
+  },
+  "timestamp": "2026-03-24T02:14:33.821Z",  // ISO 8601
+  "uuid": "550e8400-e29b-41d4-a716-446655440000",
+  "parentUuid": "550e8400-..."  // null for first message
+}</pre>
+    <h3>Content Block Types (when content is array)</h3>
+    <table>
+      <tr><th>Type</th><th>Shape</th><th>When Used</th></tr>
+      <tr>
+        <td><code>text</code></td>
+        <td><code>{ type: "text", text: string }</code></td>
+        <td>Regular text messages</td>
+      </tr>
+      <tr>
+        <td><code>tool_use</code></td>
+        <td><code>{ type: "tool_use", id, name, input: {} }</code></td>
+        <td>Assistant calls a tool (Bash, Read, Edit, etc.)</td>
+      </tr>
+      <tr>
+        <td><code>tool_result</code></td>
+        <td><code>{ type: "tool_result", tool_use_id, content: string|array }</code></td>
+        <td>Tool execution result returned to assistant</td>
+      </tr>
+    </table>
+    <p style="margin-top:12px; font-size:0.85rem;">The parser (TRK-S03-006) must handle all three content formats. Subagent sessions live in subdirectories under the main project hash and have their own JSONL files. Parent/child relationships are tracked via <code>parentUuid</code>.</p>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 3: ARCHITECTURE ==================== -->
+<div class="tab-panel" id="architecture">
+
+  <div class="card card-accent-blue">
+    <h2>4-Layer Data Architecture</h2>
+    <div class="diagram">
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 1: RAW STORAGE — Google Cloud Storage                                    │
+│  gs://rpi-session-intelligence/                                                 │
+│    ├── air/         (33 main + 255 subagent sessions → 158 MB)                  │
+│    ├── pro/         (91 main + 500+ subagent sessions → 476 MB)                 │
+│    └── mdj1/        (VOLTRON: RONIN sprints + MDJ agent sessions → TBD)         │
+│                                                                                 │
+│  Source: launchd com.rpi.session-extract (Saturday 11pm, all 3 machines)        │
+│  Format: .jsonl files, organized by project-hash subdirectory                  │
+└───────────────────────────┬─────────────────────────────────────────────────────┘
+                            │ Nightly batch load (TRK-S03-006)
+                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 2: STRUCTURED — BigQuery                                                 │
+│  Dataset: rpi_session_intelligence (project: claude-mcp-484718)                 │
+│                                                                                 │
+│  Tables:                                                                        │
+│    sessions          — 1 row per session (id, machine, timestamps, msg_count)  │
+│    messages          — 1 row per message (role, content, tool_calls_count)      │
+│    tool_calls        — 1 row per tool invocation (name, input, result)          │
+│    subagent_sessions — 1 row per subagent (parent_id, model, duration)          │
+│                                                                                 │
+│  Retention: 365 days (sessions), 90 days (messages/tool_calls)                 │
+│  Current size after backfill: ~2.24 GB raw → ~600 MB structured (est.)         │
+└───────────────────────────┬─────────────────────────────────────────────────────┘
+                            │ Daily 2am Entity Extractor (TRK-S03-009)
+                            │ Claude Haiku: targeted extraction prompts
+                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 3: SEMANTIC — Firestore knowledge_entries                                 │
+│  Collection: knowledge_entries (project: claude-mcp-484718)                    │
+│                                                                                 │
+│  Types: decision | pattern | insight | violation | architecture                 │
+│  Fields: content, tags[], confidence (0-1), source_session_id, machine          │
+│  Indexes: type, confidence, promoted_to_claude_md, tags (array-contains)        │
+│                                                                                 │
+│  Also feeds from:                                                               │
+│    → RONIN phase completions (TRK-S03-012)                                     │
+│    → VOLTRON gap analysis (TRK-S03-013)                                         │
+│    → violation-log.jsonl (existing — unchanged)                                 │
+└───────────────────────────┬─────────────────────────────────────────────────────┘
+                            │ Daily 4am knowledge-promote.js (TRK-S03-010)
+                            │ Reads BOTH Firestore entries AND MEMORY.md
+                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 4: PROMOTION — CLAUDE.md + Pre-Session Briefing                          │
+│                                                                                 │
+│  knowledge-promote.js:                                                          │
+│    1. Read all knowledge_entries where promoted_to_claude_md = false            │
+│    2. Score by confidence × recency                                             │
+│    3. Deduplicate against existing CLAUDE.md content                            │
+│    4. Promote top entries (CLAUDE.md target: 30k chars)                         │
+│    5. Deep context stays in Firestore — queryable, not static                  │
+│    6. Slack DM to JDM (U09BBHTN8F2): daily digest                              │
+│                                                                                 │
+│  intent-session-start hook (TRK-S03-011):                                      │
+│    → Queries knowledge_entries for context relevant to current project          │
+│    → Injects top-10 entries as session briefing                                 │
+│    → Agents start calibrated — less CLAUDE.md dependency                       │
+└─────────────────────────────────────────────────────────────────────────────────┘</div>
+  </div>
+
+  <div class="card card-accent-purple">
+    <h2>Full Nightly Pipeline Schedule</h2>
+    <div class="timeline">
+      <div class="timeline-item purple">
+        <div class="time">Saturday 11:00 PM</div>
+        <div class="label">com.rpi.session-extract fires (AIR + PRO + VOLTRON)</div>
+        <div class="desc">gcloud storage rsync ~/.claude/projects/ → gs://rpi-session-intelligence/{machine}/ --recursive</div>
+      </div>
+      <div class="timeline-item">
+        <div class="time">Sunday 3:00 AM</div>
+        <div class="label">com.rpi.claude-cleanup runs safely</div>
+        <div class="desc">Local .jsonl files cleaned up. GCS already has everything.</div>
+      </div>
+      <div class="timeline-item orange">
+        <div class="time">Nightly (any day) — TBD</div>
+        <div class="label">BigQuery batch loader runs</div>
+        <div class="desc">Scans GCS for new files not yet in BigQuery. Parses JSONL → sessions/messages/tool_calls/subagent_sessions tables. Idempotent.</div>
+      </div>
+      <div class="timeline-item green">
+        <div class="time">Daily 2:00 AM</div>
+        <div class="label">Entity Extractor runs (launchd on VOLTRON)</div>
+        <div class="desc">Queries BigQuery for messages from last 24hrs. Claude Haiku extracts decisions/patterns/insights. Writes to Firestore knowledge_entries with confidence scores.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="time">Daily 4:00 AM</div>
+        <div class="label">knowledge-promote.js runs (existing, enhanced)</div>
+        <div class="desc">Reads MEMORY.md + knowledge_entries. Promotes highest-confidence entries to CLAUDE.md. Sends Slack DM digest to JDM.</div>
+      </div>
+      <div class="timeline-item green">
+        <div class="time">Nightly (any day)</div>
+        <div class="label">VOLTRON gap analysis runs</div>
+        <div class="desc">Queries mdj_conversations Firestore. Clusters repeated unanswered questions. Creates gap knowledge_entries. Slack notification to JDM.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>GCP Resources Required</h2>
+    <table>
+      <tr>
+        <th>Resource</th>
+        <th>Status</th>
+        <th>Action in Sprint 003</th>
+      </tr>
+      <tr>
+        <td><strong>GCS Bucket</strong> <code>rpi-session-intelligence</code></td>
+        <td><span class="pill pill-green">Exists</span></td>
+        <td>No action needed. Already created tonight.</td>
+      </tr>
+      <tr>
+        <td><strong>BigQuery Dataset</strong> <code>rpi_session_intelligence</code></td>
+        <td><span class="pill pill-orange">Needs Creation</span></td>
+        <td>TRK-S03-005: Create dataset + 4 tables with correct schemas.</td>
+      </tr>
+      <tr>
+        <td><strong>Firestore Collection</strong> <code>knowledge_entries</code></td>
+        <td><span class="pill pill-orange">Needs Creation</span></td>
+        <td>TRK-S03-008: Create collection, enforce schema, create indexes.</td>
+      </tr>
+      <tr>
+        <td><strong>Service Account</strong> <code>mdj-agent@claude-mcp-484718</code></td>
+        <td><span class="pill pill-green">Exists</span></td>
+        <td>Already has BigQuery + Firestore Full SA permissions on GCP.</td>
+      </tr>
+      <tr>
+        <td><strong>Vertex AI</strong> <code>text-embedding-004</code></td>
+        <td><span class="pill pill-blue">Seed Only</span></td>
+        <td>Sprint 003 enables the API. Full semantic search = Sprint 004.</td>
+      </tr>
+      <tr>
+        <td><strong>gcloud CLI on VOLTRON</strong></td>
+        <td><span class="pill pill-red">Not Installed</span></td>
+        <td>TRK-S03-004: Install gcloud on MDJ_SERVER, authenticate SA key.</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 4: EXTRACT PIPELINE ==================== -->
+<div class="tab-panel" id="extract">
+
+  <div class="card card-accent-red">
+    <h2>TRK-S03-001: Fix cleanup.sh (URGENT)</h2>
+    <p>One-line addition to <code>~/.claude/cleanup.sh</code> before the deletion loop. Must be deployed to AIR, PRO, and VOLTRON.</p>
+    <h3>Current cleanup.sh (broken around line 89)</h3>
+    <pre># DELETE old session files (CURRENT — DELETES WITHOUT BACKING UP)
+find "$CLAUDE_DIR/projects" -name "*.jsonl" -mtime +7 -print0 | \
+  xargs -0 rm -f</pre>
+    <h3 class="green">Fixed cleanup.sh (Sprint 003)</h3>
+    <pre># LEARNING LOOP 2.0: Sync to GCS BEFORE deletion (TRK-S03-001)
+MACHINE_NAME="${MACHINE_NAME:-$(hostname -s | tr '[:upper:]' '[:lower:]')}"
+echo "[cleanup] Syncing sessions to GCS before cleanup (machine: $MACHINE_NAME)..."
+gcloud storage rsync "$CLAUDE_DIR/projects/" \
+  "gs://rpi-session-intelligence/${MACHINE_NAME}/" \
+  --recursive --quiet
+
+# Now safe to delete local files
+find "$CLAUDE_DIR/projects" -name "*.jsonl" -mtime +7 -print0 | \
+  xargs -0 rm -f
+echo "[cleanup] Session cleanup complete. Files preserved in GCS."</pre>
+    <p style="font-size:0.85rem;">The <code>MACHINE_NAME</code> env var must be set in each machine's shell profile: <code>export MACHINE_NAME=air</code> (or <code>pro</code>, or <code>mdj1</code>). If not set, falls back to <code>hostname -s</code>.</p>
+  </div>
+
+  <div class="card card-accent-blue">
+    <h2>com.rpi.session-extract — launchd Plist (AIR + PRO)</h2>
+    <p>File location: <code>~/Library/LaunchAgents/com.rpi.session-extract.plist</code></p>
+    <pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;
+  &lt;string&gt;com.rpi.session-extract&lt;/string&gt;
+
+  &lt;key&gt;ProgramArguments&lt;/key&gt;
+  &lt;array&gt;
+    &lt;string&gt;/bin/zsh&lt;/string&gt;
+    &lt;string&gt;-c&lt;/string&gt;
+    &lt;string&gt;
+      export MACHINE_NAME=air  &lt;!-- CHANGE TO: pro, mdj1 --&gt;
+      CLAUDE_DIR="$HOME/.claude"
+      echo "[session-extract] Starting sync for machine: $MACHINE_NAME"
+      gcloud storage rsync "$CLAUDE_DIR/projects/" \
+        "gs://rpi-session-intelligence/${MACHINE_NAME}/" \
+        --recursive
+      echo "[session-extract] Sync complete: $(date)"
+    &lt;/string&gt;
+  &lt;/array&gt;
+
+  &lt;key&gt;StartCalendarInterval&lt;/key&gt;
+  &lt;dict&gt;
+    &lt;key&gt;Weekday&lt;/key&gt;
+    &lt;integer&gt;6&lt;/integer&gt;  &lt;!-- Saturday = 6 --&gt;
+    &lt;key&gt;Hour&lt;/key&gt;
+    &lt;integer&gt;23&lt;/integer&gt;
+    &lt;key&gt;Minute&lt;/key&gt;
+    &lt;integer&gt;0&lt;/integer&gt;
+  &lt;/dict&gt;
+
+  &lt;key&gt;StandardOutPath&lt;/key&gt;
+  &lt;string&gt;/tmp/com.rpi.session-extract.log&lt;/string&gt;
+  &lt;key&gt;StandardErrorPath&lt;/key&gt;
+  &lt;string&gt;/tmp/com.rpi.session-extract.err&lt;/string&gt;
+
+  &lt;key&gt;EnvironmentVariables&lt;/key&gt;
+  &lt;dict&gt;
+    &lt;key&gt;PATH&lt;/key&gt;
+    &lt;string&gt;/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin&lt;/string&gt;
+  &lt;/dict&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;</pre>
+    <h3>Deploy commands (run on each machine)</h3>
+    <pre># Load the agent
+launchctl load ~/Library/LaunchAgents/com.rpi.session-extract.plist
+
+# Test immediately (don't wait for Saturday)
+launchctl start com.rpi.session-extract
+
+# Verify it ran
+cat /tmp/com.rpi.session-extract.log</pre>
+  </div>
+
+  <div class="card card-accent-purple">
+    <h2>VOLTRON (MDJ_SERVER) Setup — TRK-S03-004</h2>
+    <p>VOLTRON runs Ubuntu 24.04. No launchd — use systemd timer instead.</p>
+    <h3>Step 1: Install gcloud CLI on VOLTRON</h3>
+    <pre>ssh mdj1
+# Install gcloud
+curl https://sdk.cloud.google.com | bash
+exec -l $SHELL
+gcloud init
+
+# Authenticate with SA key (already exists at /home/jdm/mdj-agent/sa-key.json)
+gcloud auth activate-service-account \
+  --key-file=/home/jdm/mdj-agent/sa-key.json
+
+# Set project
+gcloud config set project claude-mcp-484718
+
+# Test
+gcloud storage ls gs://rpi-session-intelligence/</pre>
+    <h3>Step 2: Create systemd timer</h3>
+    <pre># /etc/systemd/system/session-extract.service
+[Unit]
+Description=RPI Session Extract to GCS
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=jdm
+Environment="MACHINE_NAME=mdj1"
+ExecStart=/bin/bash -c 'gcloud storage rsync \
+  /home/jdm/.claude/projects/ \
+  gs://rpi-session-intelligence/mdj1/ \
+  --recursive'
+StandardOutput=journal
+StandardError=journal
+
+# /etc/systemd/system/session-extract.timer
+[Unit]
+Description=Run session-extract every Saturday at 11pm
+
+[Timer]
+OnCalendar=Sat *-*-* 23:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target</pre>
+    <pre># Enable and start
+sudo systemctl daemon-reload
+sudo systemctl enable session-extract.timer
+sudo systemctl start session-extract.timer
+
+# Test immediately
+sudo systemctl start session-extract.service
+journalctl -u session-extract.service -f</pre>
+  </div>
+
+  <div class="card card-accent-orange">
+    <h2>Backfill: Load 2.24 GB into BigQuery (TRK-S03-007)</h2>
+    <p>One-time job. Run after TRK-S03-005 (BigQuery schemas) and TRK-S03-006 (parser) are complete.</p>
+    <pre># From VOLTRON or any machine with gcloud + SA key access
+# The session parser script (TRK-S03-006) is designed to be idempotent —
+# re-running it on already-loaded sessions is safe (deduplication on session_id)
+
+# List what's in GCS
+gcloud storage ls gs://rpi-session-intelligence/air/ | wc -l
+gcloud storage ls gs://rpi-session-intelligence/pro/ | wc -l
+
+# Run backfill
+node ~/Projects/services/learning-loop/session-parser.js \
+  --source gs://rpi-session-intelligence/ \
+  --machines air,pro \
+  --backfill \
+  --dry-run  # Remove --dry-run to actually load
+
+# Verify row counts
+bq query --use_legacy_sql=false \
+  'SELECT machine, COUNT(*) as session_count
+   FROM `claude-mcp-484718.rpi_session_intelligence.sessions`
+   GROUP BY machine'</pre>
+    <p style="font-size:0.85rem; margin-top:8px;">Expected after backfill: ~124 sessions in <code>sessions</code> table, ~200k+ rows in <code>messages</code> table, ~500k+ rows in <code>tool_calls</code> table. Subagent sessions: ~755+ rows.</p>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 5: AGENT-FACING (80%) ==================== -->
+<div class="tab-panel" id="agent">
+
+  <div class="card card-accent-blue">
+    <h2>Feature 1: Pre-Session Briefing</h2>
+    <p><span class="pill pill-purple">TRK-S03-011</span> &nbsp; Updates the <code>intent-session-start</code> hookify rule</p>
+    <p>When a Claude Code session starts, the hook queries <code>knowledge_entries</code> for relevant context and injects the top-10 most relevant entries as the opening briefing. Agents start calibrated. CLAUDE.md dependency drops.</p>
+    <h3>How it works</h3>
+    <pre>// intent-session-start hook — updated behavior (TRK-S03-011)
+// 1. Detect current project from cwd
+const projectPath = process.cwd();
+const projectName = detectProject(projectPath); // e.g., "toMachina", "MCP-Hub"
+
+// 2. Query Firestore knowledge_entries
+const entries = await db.collection('knowledge_entries')
+  .where('tags', 'array-contains-any', [projectName, 'global'])
+  .where('confidence', '>=', 0.7)
+  .orderBy('confidence', 'desc')
+  .limit(10)
+  .get();
+
+// 3. Format as session briefing
+const briefing = entries.docs.map(doc => {
+  const d = doc.data();
+  return `[${d.type.toUpperCase()}] ${d.content} (confidence: ${d.confidence})`;
+}).join('\n');
+
+// 4. Inject into session context
+return `## Session Briefing — ${projectName}\n${briefing}`;</pre>
+    <h3>What this replaces</h3>
+    <p>Currently, every agent has to re-read CLAUDE.md (53k chars) to get context. With pre-session briefing, agents get a targeted 10-entry briefing of the most relevant, high-confidence knowledge for the current project. CLAUDE.md becomes smaller, agents start smarter.</p>
+  </div>
+
+  <div class="card card-accent-green">
+    <h2>Feature 2: Entity Extractor (Haiku Pipeline)</h2>
+    <p><span class="pill pill-orange">TRK-S03-009</span> &nbsp; Runs daily at 2am on VOLTRON</p>
+    <p>The entity extractor reads new BigQuery messages and uses Claude Haiku (cost-efficient) to identify decisions, patterns, and insights worth preserving.</p>
+    <h3>Extraction prompt template</h3>
+    <pre>SYSTEM: You are an institutional knowledge extractor for a financial services AI platform.
+Extract valuable learnings from Claude Code session messages.
+
+Return JSON array. Each item:
+{
+  "type": "decision" | "pattern" | "insight" | "architecture",
+  "content": "one clear sentence describing what was learned",
+  "tags": ["tag1", "tag2"],  // project names, tech areas, team names
+  "confidence": 0.0-1.0      // how certain you are this is reusable knowledge
+}
+
+Rules:
+- Only extract things that would help a FUTURE agent working on the same project
+- Skip conversational filler, status updates, one-time fixes
+- Prioritize: architectural decisions, gotchas, patterns that prevented bugs,
+  business logic that isn't obvious from code
+- confidence 0.9+: hard-won lessons, non-obvious gotchas
+- confidence 0.7-0.9: useful patterns, confirmed approaches
+- confidence 0.5-0.7: interesting observations worth noting
+
+SESSION MESSAGES:
+{messages}</pre>
+    <h3>Cost estimate</h3>
+    <table>
+      <tr><th>Volume</th><th>Model</th><th>Est. tokens/day</th><th>Est. cost/day</th></tr>
+      <tr>
+        <td>~200k new messages/week (after backfill)</td>
+        <td>Claude Haiku</td>
+        <td>~50k input + 5k output</td>
+        <td>~$0.03/day</td>
+      </tr>
+    </table>
+    <p style="font-size:0.85rem;">Haiku is the right model here. Extraction is pattern-matching, not strategic reasoning. Saves ~$4/day vs using Sonnet, $40/day vs Opus.</p>
+  </div>
+
+  <div class="card card-accent-cyan">
+    <h2>Feature 3: RONIN Sprint Memory Writes</h2>
+    <p><span class="pill pill-cyan">TRK-S03-012</span> &nbsp; Updates RONIN's <code>runner.ts</code></p>
+    <p>At the end of each FORGE sprint phase, RONIN writes its discoveries to <code>knowledge_entries</code>. Future RONIN sprints don't re-solve already-solved problems. The institutional knowledge of every sprint is preserved permanently.</p>
+    <h3>What RONIN writes at phase completion</h3>
+    <pre>// runner.ts — phase completion hook (TRK-S03-012)
+async function writePhaseMemory(sprintId: string, phase: string, discoveries: Discovery[]) {
+  const batch = db.batch();
+
+  for (const d of discoveries) {
+    const ref = db.collection('knowledge_entries').doc();
+    batch.set(ref, {
+      id: ref.id,
+      type: d.type,  // 'decision' | 'pattern' | 'insight' | 'architecture'
+      content: d.content,
+      tags: [...d.tags, 'ronin', `sprint-${sprintId}`, `phase-${phase}`],
+      confidence: d.confidence,
+      machine: 'mdj1',
+      source_session_id: sprintId,
+      created_at: Timestamp.now(),
+      promoted_to_claude_md: false,
+      context: {
+        sprint_id: sprintId,
+        phase: phase,
+        tickets: d.relatedTickets
+      }
+    });
+  }
+
+  await batch.commit();
+  console.log(`[RONIN memory] Wrote ${discoveries.length} entries for ${phase}`);
+}</pre>
+    <h3>Example entries RONIN would have written from Sprint 000</h3>
+    <table>
+      <tr><th>Type</th><th>Content</th><th>Confidence</th></tr>
+      <tr>
+        <td><code>architecture</code></td>
+        <td>FORGE runner uses @anthropic-ai/claude-agent-sdk with parallel track execution. Track isolation prevents cross-contamination between independent feature builds.</td>
+        <td>0.95</td>
+      </tr>
+      <tr>
+        <td><code>pattern</code></td>
+        <td>MDJ panel widget uses smart_toy button in sidebar. Wired to /api/mdj/chat endpoint. Panel component lives in packages/ui/src/components/mdj/.</td>
+        <td>0.92</td>
+      </tr>
+      <tr>
+        <td><code>decision</code></td>
+        <td>VOLTRON SA key auth is permanent and never expires. Path: /home/jdm/mdj-agent/sa-key.json. Use for all GCP service calls from MDJ agent.</td>
+        <td>0.98</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card card-accent-purple">
+    <h2>Feature 4: VOLTRON Conversation Gap Analysis</h2>
+    <p><span class="pill pill-purple">TRK-S03-013</span> &nbsp; Nightly analysis of <code>mdj_conversations</code> Firestore collection</p>
+    <p>If 5+ people ask VOLTRON the same question and it can't answer — that's a gap. Nightly job clusters repeated unanswered questions, creates knowledge entries, and notifies JDM so the gap can be filled.</p>
+    <h3>Gap detection algorithm</h3>
+    <pre>// gap-analyzer.ts (runs nightly on VOLTRON)
+
+// 1. Query failed/low-confidence VOLTRON responses from last 7 days
+const conversations = await db.collection('mdj_conversations')
+  .where('created_at', '>=', sevenDaysAgo)
+  .where('response_confidence', '<', 0.6)  // VOLTRON wasn't sure
+  .get();
+
+// 2. Extract user intents via Haiku clustering
+const intents = await extractIntents(conversations.docs.map(d => d.data().user_message));
+
+// 3. Find clusters (5+ similar questions)
+const clusters = clusterBySemanticSimilarity(intents, threshold=0.8, minSize=5);
+
+// 4. For each gap cluster, create a knowledge_entries record
+for (const cluster of clusters) {
+  await db.collection('knowledge_entries').add({
+    type: 'insight',
+    content: `VOLTRON GAP: ${cluster.canonicalQuestion} — asked ${cluster.count}x in 7 days`,
+    tags: ['voltron-gap', ...cluster.detectedTopics],
+    confidence: 0.85,
+    machine: 'mdj1',
+    gap_metadata: {
+      question_count: cluster.count,
+      sample_questions: cluster.samples.slice(0, 3),
+      detected_topics: cluster.detectedTopics
+    },
+    promoted_to_claude_md: false,
+    created_at: Timestamp.now()
+  });
+}
+
+// 5. Slack DM to JDM if gaps found
+if (clusters.length > 0) {
+  await slack.postMessage({
+    channel: 'U09BBHTN8F2',
+    text: `VOLTRON found ${clusters.length} knowledge gaps this week. Top gap: "${clusters[0].canonicalQuestion}" (asked ${clusters[0].count}x).`
+  });
+}</pre>
+  </div>
+
+  <div class="card card-accent-orange">
+    <h2>Feature 5: CLAUDE.md Compression (53k → 30k)</h2>
+    <p><span class="pill pill-orange">TRK-S03-010</span> &nbsp; Enhanced <code>knowledge-promote.js</code></p>
+    <p>CLAUDE.md is 53k characters today. Target: 30k. Deep context moves to <code>knowledge_entries</code> (queryable, not static). CLAUDE.md becomes rules + references only.</p>
+    <div class="two-col">
+      <div style="background:var(--bg-hover); border-radius:8px; padding:16px; border:1px solid var(--border);">
+        <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--red); margin-bottom:8px;">Stays in CLAUDE.md (Rules)</div>
+        <ul style="font-size:0.82rem; color:var(--text-muted); margin-left:16px;">
+          <li>Golden Rules (non-negotiable behaviors)</li>
+          <li>Forbidden patterns (hookify-enforced)</li>
+          <li>Required patterns (code standards)</li>
+          <li>Communication signals (LFG, SKODEN, etc.)</li>
+          <li>PHI handling rules</li>
+          <li>Deployment procedures</li>
+          <li>MCP tool list</li>
+          <li>Active project locations</li>
+          <li>Session protocol</li>
+        </ul>
+      </div>
+      <div style="background:var(--bg-hover); border-radius:8px; padding:16px; border:1px solid var(--border);">
+        <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--green); margin-bottom:8px;">Moves to knowledge_entries (Context)</div>
+        <ul style="font-size:0.82rem; color:var(--text-muted); margin-left:16px;">
+          <li>Session-specific learnings</li>
+          <li>Per-project architectural decisions</li>
+          <li>Bug/gotcha notes with context</li>
+          <li>Historical sprint outcomes</li>
+          <li>MATRIX field notes</li>
+          <li>Integration quirks</li>
+          <li>Team contact details</li>
+          <li>Carrier/vendor-specific notes</li>
+          <li>One-time setup notes</li>
+        </ul>
+      </div>
+    </div>
+    <h3>Enhanced knowledge-promote.js logic</h3>
+    <pre>// knowledge-promote.js — updated to read BOTH sources (TRK-S03-010)
+
+// Source 1: Existing MEMORY.md files (unchanged behavior)
+const memoryEntries = await readMemoryFiles();
+
+// Source 2: NEW — Firestore knowledge_entries
+const firestoreEntries = await db.collection('knowledge_entries')
+  .where('promoted_to_claude_md', '==', false)
+  .where('confidence', '>=', 0.75)
+  .orderBy('confidence', 'desc')
+  .limit(50)
+  .get();
+
+// Combine, deduplicate against existing CLAUDE.md content
+const allCandidates = [...memoryEntries, ...firestoreEntries.docs.map(d => d.data())];
+const deduped = deduplicateAgainstClaudeMd(allCandidates, currentClaudeMd);
+
+// Only promote if CLAUDE.md is under 30k chars after addition
+let promotedCount = 0;
+for (const entry of deduped) {
+  if (currentSize + entry.content.length > 30000) break;
+  await promoteToClaudeMd(entry);
+  await markPromoted(entry.id);
+  promotedCount++;
+}
+
+// Slack DM digest
+await sendSlackDigest(promotedCount, firestoreEntries.size);</pre>
+  </div>
+
+  <div class="card">
+    <h2>Feature 6: Cross-Session Learning — The 24-Hour Guarantee</h2>
+    <p>The compound learning promise: a lesson learned in one session reaches all future agents within 24 hours.</p>
+    <div class="diagram">
+Session A learns something (9am Tuesday)
+      ↓
+Session A ends → JSONL file written locally
+      ↓
+Saturday 11pm → GCS sync captures file
+      ↓
+Nightly → BigQuery parser loads messages
+      ↓
+Daily 2am → Entity Extractor identifies lesson as 0.85 confidence "pattern"
+      ↓
+Daily 4am → knowledge-promote.js promotes to CLAUDE.md
+      ↓
+Session B starts Wednesday → pre-session briefing includes the lesson
+      ↓
+Total time: 19 hours (9am Tuesday → 4am Wednesday)
+      ↓
+Once VOLTRON is running Entity Extractor continuously (Sprint 004+):
+Total time: &lt; 24 hours, same-day sessions inform same-day context</div>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 6: ANALYTICS (20%) ==================== -->
+<div class="tab-panel" id="analytics">
+
+  <div class="card card-accent-orange">
+    <h2>Time Metrics</h2>
+    <p>From session timestamps in BigQuery <code>sessions</code> table:</p>
+    <table>
+      <tr>
+        <th>Metric</th>
+        <th>BigQuery Query</th>
+        <th>Purpose</th>
+      </tr>
+      <tr>
+        <td><strong>JDM Wall-Clock Hours</strong></td>
+        <td><code>SUM(duration_seconds) / 3600</code></td>
+        <td>Total hours JDM's machines were running sessions</td>
+      </tr>
+      <tr>
+        <td><strong>Per-Machine Breakdown</strong></td>
+        <td><code>GROUP BY machine</code></td>
+        <td>AIR vs PRO vs VOLTRON — where is the work happening?</td>
+      </tr>
+      <tr>
+        <td><strong>Active vs Processing</strong></td>
+        <td>Count user messages vs assistant messages</td>
+        <td>Active time (JDM typing) vs AI processing time</td>
+      </tr>
+      <tr>
+        <td><strong>Peak Productivity</strong></td>
+        <td><code>EXTRACT(HOUR FROM timestamp_start)</code></td>
+        <td>When is The Machine most active? Hour/day heatmap.</td>
+      </tr>
+    </table>
+    <h3>SQL: Time per session with hourly breakdown</h3>
+    <pre>-- TRK-S03-014: Time metrics view
+CREATE OR REPLACE VIEW `claude-mcp-484718.rpi_session_intelligence.time_per_session` AS
+SELECT
+  session_id,
+  machine,
+  DATE(timestamp_start) as session_date,
+  EXTRACT(HOUR FROM timestamp_start) as start_hour,
+  EXTRACT(DAYOFWEEK FROM timestamp_start) as day_of_week,
+  TIMESTAMP_DIFF(timestamp_end, timestamp_start, SECOND) as duration_seconds,
+  ROUND(TIMESTAMP_DIFF(timestamp_end, timestamp_start, SECOND) / 3600.0, 2) as duration_hours,
+  message_count,
+  tool_call_count,
+  project
+FROM `claude-mcp-484718.rpi_session_intelligence.sessions`
+WHERE timestamp_end IS NOT NULL;</pre>
+  </div>
+
+  <div class="card card-accent-green">
+    <h2>Agent Compute Metrics</h2>
+    <table>
+      <tr>
+        <th>Metric</th>
+        <th>Source</th>
+        <th>Investor Story</th>
+      </tr>
+      <tr>
+        <td><strong>Total Agent-Hours</strong></td>
+        <td><code>subagent_sessions.duration_seconds</code></td>
+        <td>Equivalent engineering hours generated by AI</td>
+      </tr>
+      <tr>
+        <td><strong>Parallel Efficiency</strong></td>
+        <td>Max concurrent subagents at any timestamp</td>
+        <td>"We ran N engineers in parallel. No human team can do that."</td>
+      </tr>
+      <tr>
+        <td><strong>Tool Call Depth</strong></td>
+        <td><code>AVG(tool_call_count) per session</code></td>
+        <td>Depth indicator — complex multi-step work vs simple queries</td>
+      </tr>
+      <tr>
+        <td><strong>Model Breakdown</strong></td>
+        <td><code>subagent_sessions.model</code></td>
+        <td>Haiku vs Sonnet vs Opus — cost routing effectiveness</td>
+      </tr>
+    </table>
+    <h3>SQL: Agent-hours total</h3>
+    <pre>-- TRK-S03-014: Agent compute view
+CREATE OR REPLACE VIEW `claude-mcp-484718.rpi_session_intelligence.agent_hours_total` AS
+SELECT
+  DATE(s.timestamp_start) as date,
+  s.machine,
+  COUNT(DISTINCT s.session_id) as main_sessions,
+  COUNT(DISTINCT sa.agent_session_id) as subagent_count,
+  ROUND(SUM(sa.duration_seconds) / 3600.0, 2) as total_agent_hours,
+  ROUND(SUM(s.duration_seconds) / 3600.0, 2) as jdm_wall_clock_hours,
+  ROUND(SUM(sa.duration_seconds) / NULLIF(SUM(s.duration_seconds), 0), 2) as amplification_ratio
+FROM `claude-mcp-484718.rpi_session_intelligence.sessions` s
+LEFT JOIN `claude-mcp-484718.rpi_session_intelligence.subagent_sessions` sa
+  ON s.session_id = sa.parent_session_id
+GROUP BY 1, 2;</pre>
+  </div>
+
+  <div class="card card-accent-purple">
+    <h2>Value Quantification — The Investor Slide</h2>
+    <p>The numbers that prove The Machine's ROI. Based on real session data after Sprint 003 backfill.</p>
+    <table>
+      <tr>
+        <th>Component</th>
+        <th>Calculation</th>
+        <th>Rate Used</th>
+        <th>Est. Total</th>
+      </tr>
+      <tr>
+        <td><strong>JDM CEO Time</strong></td>
+        <td>Wall-clock hours × $2,000/hr CEO equivalent</td>
+        <td>$2,000/hr</td>
+        <td><em>Computed from BigQuery</em></td>
+      </tr>
+      <tr>
+        <td><strong>Agent Compute</strong></td>
+        <td>Total agent-hours × $150/hr engineering rate</td>
+        <td>$150/hr</td>
+        <td><em>Computed from BigQuery</em></td>
+      </tr>
+      <tr>
+        <td><strong>Actual API Spend</strong></td>
+        <td>Known from billing</td>
+        <td>—</td>
+        <td>~$7,000</td>
+      </tr>
+      <tr>
+        <td><strong>ROI Multiplier</strong></td>
+        <td>(CEO value + Agent value) ÷ API spend</td>
+        <td>—</td>
+        <td><em>Computed from BigQuery</em></td>
+      </tr>
+      <tr>
+        <td><strong>Amplification Factor</strong></td>
+        <td>Agent-hours ÷ JDM-hours</td>
+        <td>—</td>
+        <td><em>The Machine's leverage ratio</em></td>
+      </tr>
+    </table>
+    <h3>SQL: Value quantification view</h3>
+    <pre>-- TRK-S03-014: Value quantification
+CREATE OR REPLACE VIEW `claude-mcp-484718.rpi_session_intelligence.value_quantification` AS
+WITH totals AS (
+  SELECT
+    SUM(s.duration_seconds) / 3600.0 as jdm_hours_total,
+    SUM(sa.duration_seconds) / 3600.0 as agent_hours_total,
+    COUNT(DISTINCT s.session_id) as total_sessions,
+    COUNT(DISTINCT sa.agent_session_id) as total_subagents
+  FROM `claude-mcp-484718.rpi_session_intelligence.sessions` s
+  LEFT JOIN `claude-mcp-484718.rpi_session_intelligence.subagent_sessions` sa
+    ON s.session_id = sa.parent_session_id
+)
+SELECT
+  ROUND(jdm_hours_total, 1) as jdm_hours,
+  ROUND(agent_hours_total, 1) as agent_hours,
+  total_sessions,
+  total_subagents,
+  ROUND(jdm_hours_total * 2000, 0) as jdm_ceo_value_usd,
+  ROUND(agent_hours_total * 150, 0) as agent_engineering_value_usd,
+  ROUND((jdm_hours_total * 2000 + agent_hours_total * 150) / 7000, 1) as roi_multiplier,
+  ROUND(agent_hours_total / NULLIF(jdm_hours_total, 0), 1) as amplification_factor
+FROM totals;</pre>
+    <div class="highlight-box" style="margin-top:16px;">
+      <p><strong>The investor one-liner:</strong> "We built $X in software value with $7,000 in API spend plus Y CEO hours and Z agent hours. That's a [ROI multiplier]x return. No engineering team. Just The Machine."</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ProDashX Admin — Learning Loop Tab (TRK-S03-015)</h2>
+    <p>JDM-only Admin tab in ProDashX. Shows pipeline health + analytics summary. Route: <code>/admin/learning-loop</code>.</p>
+    <h3>Dashboard sections</h3>
+    <table>
+      <tr><th>Section</th><th>Data Source</th><th>Refresh</th></tr>
+      <tr>
+        <td><strong>Pipeline Health</strong></td>
+        <td>Last run timestamps for each launchd/systemd agent</td>
+        <td>On load</td>
+      </tr>
+      <tr>
+        <td><strong>Knowledge Entries</strong></td>
+        <td>Firestore knowledge_entries count, by type, by confidence band</td>
+        <td>On load</td>
+      </tr>
+      <tr>
+        <td><strong>CLAUDE.md Size Trend</strong></td>
+        <td>Historical size tracked in knowledge_entries metadata</td>
+        <td>Daily</td>
+      </tr>
+      <tr>
+        <td><strong>Violation Trends</strong></td>
+        <td>compliance-history.json (existing, unchanged)</td>
+        <td>Daily</td>
+      </tr>
+      <tr>
+        <td><strong>Analytics Cards</strong></td>
+        <td>BigQuery value_quantification view</td>
+        <td>Daily</td>
+      </tr>
+      <tr>
+        <td><strong>VOLTRON Gaps</strong></td>
+        <td>knowledge_entries where tags contains 'voltron-gap'</td>
+        <td>Daily</td>
+      </tr>
+    </table>
+    <h3>Analytics summary cards (from BigQuery)</h3>
+    <div class="stat-grid" style="margin-top:12px;">
+      <div class="stat-card" style="border:1px solid var(--accent);">
+        <div class="stat-value" style="color:var(--accent); font-size:1.4rem;">JDM Hours</div>
+        <div class="stat-label">Total CEO time invested in The Machine</div>
+      </div>
+      <div class="stat-card" style="border:1px solid var(--green);">
+        <div class="stat-value" style="color:var(--green); font-size:1.4rem;">Agent Hours</div>
+        <div class="stat-label">Engineering equivalent hours delivered</div>
+      </div>
+      <div class="stat-card" style="border:1px solid var(--orange);">
+        <div class="stat-value" style="color:var(--orange); font-size:1.4rem;">ROI</div>
+        <div class="stat-label">Value generated ÷ API spend</div>
+      </div>
+      <div class="stat-card" style="border:1px solid var(--purple);">
+        <div class="stat-value" style="color:var(--purple); font-size:1.4rem;">Amplification</div>
+        <div class="stat-label">Agent-hours ÷ JDM-hours = The Machine's leverage</div>
+      </div>
+    </div>
+    <p style="font-size:0.85rem; margin-top:16px;">Access gated to JDM only via Firebase Auth entitlements check. No team member sees this tab.</p>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 7: BQ + FIRESTORE SCHEMA ==================== -->
+<div class="tab-panel" id="schema">
+
+  <div class="card card-accent-blue">
+    <h2>BigQuery: sessions table</h2>
+    <pre>-- TRK-S03-005
+CREATE TABLE IF NOT EXISTS
+  `claude-mcp-484718.rpi_session_intelligence.sessions`
+(
+  session_id        STRING NOT NULL,  -- hash of the JSONL filename
+  machine           STRING NOT NULL,  -- 'air' | 'pro' | 'mdj1'
+  project_hash      STRING,           -- ~/.claude/projects/{hash}
+  project_name      STRING,           -- derived from project path
+  timestamp_start   TIMESTAMP,
+  timestamp_end     TIMESTAMP,
+  duration_seconds  INT64,
+  message_count     INT64,
+  user_message_count INT64,
+  assistant_message_count INT64,
+  tool_call_count   INT64,
+  is_subagent       BOOL DEFAULT FALSE,
+  loaded_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+)
+PARTITION BY DATE(timestamp_start)
+CLUSTER BY machine, project_name
+OPTIONS (
+  partition_expiration_days = 365
+);</pre>
+  </div>
+
+  <div class="card card-accent-green">
+    <h2>BigQuery: messages table</h2>
+    <pre>CREATE TABLE IF NOT EXISTS
+  `claude-mcp-484718.rpi_session_intelligence.messages`
+(
+  message_uuid      STRING NOT NULL,
+  session_id        STRING NOT NULL,
+  parent_uuid       STRING,
+  role              STRING NOT NULL,   -- 'user' | 'assistant'
+  content_text      STRING,            -- extracted text content (all blocks joined)
+  content_type      STRING,            -- 'text' | 'mixed' | 'tool_only'
+  tool_calls_count  INT64,
+  timestamp         TIMESTAMP,
+  machine           STRING,
+  loaded_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+)
+PARTITION BY DATE(timestamp)
+CLUSTER BY session_id, role
+OPTIONS (
+  partition_expiration_days = 90
+);</pre>
+  </div>
+
+  <div class="card card-accent-orange">
+    <h2>BigQuery: tool_calls table</h2>
+    <pre>CREATE TABLE IF NOT EXISTS
+  `claude-mcp-484718.rpi_session_intelligence.tool_calls`
+(
+  tool_call_id      STRING NOT NULL,   -- tool_use.id from JSONL
+  session_id        STRING NOT NULL,
+  message_uuid      STRING NOT NULL,
+  tool_name         STRING NOT NULL,   -- 'Bash' | 'Read' | 'Edit' | 'Glob' | etc.
+  tool_input_json   JSON,              -- full input object
+  tool_result_text  STRING,            -- extracted result text (truncated at 2000 chars)
+  tool_result_error BOOL DEFAULT FALSE,
+  timestamp         TIMESTAMP,
+  machine           STRING,
+  loaded_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+)
+PARTITION BY DATE(timestamp)
+CLUSTER BY session_id, tool_name
+OPTIONS (
+  partition_expiration_days = 90
+);</pre>
+  </div>
+
+  <div class="card card-accent-purple">
+    <h2>BigQuery: subagent_sessions table</h2>
+    <pre>CREATE TABLE IF NOT EXISTS
+  `claude-mcp-484718.rpi_session_intelligence.subagent_sessions`
+(
+  agent_session_id  STRING NOT NULL,
+  parent_session_id STRING NOT NULL,
+  agent_type        STRING,           -- 'code-reviewer' | 'explore' | 'build' | etc.
+  model             STRING,           -- 'claude-haiku-4-5' | 'claude-sonnet-4-6' | etc.
+  duration_seconds  INT64,
+  message_count     INT64,
+  tool_call_count   INT64,
+  timestamp_start   TIMESTAMP,
+  timestamp_end     TIMESTAMP,
+  machine           STRING,
+  loaded_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+)
+PARTITION BY DATE(timestamp_start)
+CLUSTER BY parent_session_id, model;</pre>
+  </div>
+
+  <div class="card card-accent-cyan">
+    <h2>Firestore: knowledge_entries Schema</h2>
+    <pre>// Collection: knowledge_entries
+// Document ID: auto-generated
+
+interface KnowledgeEntry {
+  id: string;                    // Firestore document ID
+  type:
+    | 'decision'                 // A choice made: "We chose X over Y because Z"
+    | 'pattern'                  // A recurring approach: "Always do X when Y"
+    | 'insight'                  // An observation: "X tends to cause Y"
+    | 'violation'                // A rule break: "Used alert() in component X"
+    | 'architecture';            // A structural decision: "Module X owns Y"
+
+  content: string;               // One clear, reusable sentence
+  tags: string[];                // e.g., ['toMachina', 'firestore', 'sprint-003']
+  confidence: number;            // 0.0 - 1.0
+
+  source_session_id: string;     // BigQuery session_id or Firestore doc ID
+  machine: 'air' | 'pro' | 'mdj1';
+  created_at: Timestamp;
+
+  promoted_to_claude_md: boolean; // Has this been written to CLAUDE.md?
+  promoted_at?: Timestamp;
+
+  expiry_at?: Timestamp;         // For time-sensitive entries (e.g., "auth token expires X")
+
+  // Optional: for VOLTRON gap entries
+  gap_metadata?: {
+    question_count: number;
+    sample_questions: string[];
+    detected_topics: string[];
+  };
+
+  // Optional: for RONIN sprint entries
+  sprint_context?: {
+    sprint_id: string;
+    phase: string;
+    tickets: string[];
+  };
+}</pre>
+    <h3>Required Firestore Indexes</h3>
+    <pre>// firestore.indexes.json additions (TRK-S03-008)
+{
+  "indexes": [
+    {
+      "collectionGroup": "knowledge_entries",
+      "fields": [
+        { "fieldPath": "promoted_to_claude_md", "order": "ASCENDING" },
+        { "fieldPath": "confidence", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "knowledge_entries",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "knowledge_entries",
+      "fields": [
+        { "fieldPath": "tags", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "confidence", "order": "DESCENDING" }
+      ]
+    }
+  ]
+}</pre>
+  </div>
+
+  <div class="card">
+    <h2>Example Agent-Facing Queries</h2>
+    <h3>Pre-session briefing (top knowledge for a project)</h3>
+    <pre>db.collection('knowledge_entries')
+  .where('tags', 'array-contains-any', ['toMachina', 'global'])
+  .where('confidence', '>=', 0.75)
+  .orderBy('confidence', 'desc')
+  .limit(10)</pre>
+    <h3>RONIN: what decisions were made in previous sprints?</h3>
+    <pre>db.collection('knowledge_entries')
+  .where('type', '==', 'decision')
+  .where('tags', 'array-contains', 'ronin')
+  .orderBy('created_at', 'desc')
+  .limit(20)</pre>
+    <h3>VOLTRON gaps awaiting filling</h3>
+    <pre>db.collection('knowledge_entries')
+  .where('tags', 'array-contains', 'voltron-gap')
+  .where('promoted_to_claude_md', '==', false)
+  .orderBy('created_at', 'desc')</pre>
+    <h3>BigQuery: most-used tools this week</h3>
+    <pre>SELECT
+  tool_name,
+  COUNT(*) as call_count,
+  COUNT(DISTINCT session_id) as session_count,
+  SUM(CASE WHEN tool_result_error THEN 1 ELSE 0 END) as error_count
+FROM `claude-mcp-484718.rpi_session_intelligence.tool_calls`
+WHERE DATE(timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
+GROUP BY tool_name
+ORDER BY call_count DESC
+LIMIT 20;</pre>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 8: SPRINT PLAN ==================== -->
+<div class="tab-panel" id="sprint">
+
+  <div class="card card-accent-blue">
+    <h2>Sprint 003 — 15 Tickets</h2>
+    <p>Ordered by dependency. TRK-S03-001 through TRK-S03-004 are infrastructure and must land first. TRK-S03-005 through TRK-S03-009 are the data pipeline. TRK-S03-010 through TRK-S03-015 are the intelligence layer.</p>
+
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin:16px 0; text-align:center;">
+      <div style="background:var(--red-glow); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:12px;">
+        <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--red);">Phase 1 — Urgent Fix</div>
+        <div style="font-size:1.6rem; font-weight:800; color:var(--text); margin:4px 0;">1</div>
+        <div style="font-size:0.8rem; color:var(--text-muted);">TRK-S03-001</div>
+      </div>
+      <div style="background:var(--orange-glow); border:1px solid rgba(245,158,11,0.3); border-radius:8px; padding:12px;">
+        <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--orange);">Phase 2 — Infrastructure</div>
+        <div style="font-size:1.6rem; font-weight:800; color:var(--text); margin:4px 0;">7</div>
+        <div style="font-size:0.8rem; color:var(--text-muted);">TRK-S03-002 → 008</div>
+      </div>
+      <div style="background:var(--green-glow); border:1px solid rgba(34,197,94,0.3); border-radius:8px; padding:12px;">
+        <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--green);">Phase 3 — Intelligence</div>
+        <div style="font-size:1.6rem; font-weight:800; color:var(--text); margin:4px 0;">7</div>
+        <div style="font-size:0.8rem; color:var(--text-muted);">TRK-S03-009 → 015</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets -->
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-001</span>
+      <span class="ticket-title">Fix cleanup.sh — extract before delete</span>
+      <span class="pill pill-red">URGENT</span>
+    </div>
+    <div class="ticket-desc">Add GCS sync step to cleanup.sh before it deletes .jsonl files. Deploy to AIR, PRO, and VOLTRON. This is the single highest-priority ticket in Sprint 003 — the gold is being deleted every Sunday.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Running cleanup.sh with --dry-run shows GCS sync step before any file deletion. Verified on AIR. MACHINE_NAME env var set correctly on all 3 machines.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-002</span>
+      <span class="ticket-title">Create com.rpi.session-extract launchd agent (AIR)</span>
+      <span class="pill pill-orange">infrastructure</span>
+    </div>
+    <div class="ticket-desc">Install launchd plist on AIR. Runs Saturday 11pm. Syncs ~/.claude/projects/ to gs://rpi-session-intelligence/air/ recursively. Runs 4 hours before Sunday cleanup.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> launchctl list shows com.rpi.session-extract loaded. Test run succeeds. /tmp/com.rpi.session-extract.log shows sync output. GCS shows updated file listing for /air/.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-003</span>
+      <span class="ticket-title">Create com.rpi.session-extract launchd agent (PRO)</span>
+      <span class="pill pill-orange">infrastructure</span>
+    </div>
+    <div class="ticket-desc">Same as TRK-S03-002 but for PRO machine. MACHINE_NAME=pro. GCS path = /pro/. Identical plist, different machine identifier.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Same criteria as TRK-S03-002. GCS /pro/ path shows sync output.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-004</span>
+      <span class="ticket-title">Create com.rpi.session-extract agent (VOLTRON / MDJ_SERVER)</span>
+      <span class="pill pill-orange">infrastructure</span>
+    </div>
+    <div class="ticket-desc">Install gcloud CLI on VOLTRON. Authenticate with existing SA key at /home/jdm/mdj-agent/sa-key.json. Create systemd timer (not launchd — Ubuntu). Syncs VOLTRON ~/.claude/projects/ to gs://rpi-session-intelligence/mdj1/. Also extracts VOLTRON's own agent session logs if applicable.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> systemctl list-timers shows session-extract.timer active. Test run succeeds. GCS /mdj1/ path populated. Initial session count verified.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-005</span>
+      <span class="ticket-title">BigQuery dataset setup + table schemas</span>
+      <span class="pill pill-orange">infrastructure</span>
+    </div>
+    <div class="ticket-desc">Create BigQuery dataset rpi_session_intelligence in project claude-mcp-484718. Create all 4 tables with exact schemas from Tab 7: sessions, messages, tool_calls, subagent_sessions. Set partition + cluster configs. Verify SA permissions.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> bq ls shows dataset. bq show shows all 4 tables with correct schemas. SA mdj-agent@claude-mcp-484718 has BigQuery Data Editor on dataset.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-006</span>
+      <span class="ticket-title">Session parser + BigQuery loader</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">Node.js script at services/learning-loop/session-parser.js. Reads JSONL files from GCS. Extracts session metadata, messages, tool_calls, subagent relationships. Handles all 3 content formats (string, array of text blocks, array with tool_use/tool_result). Loads to BigQuery via streaming insert. Idempotent on session_id.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Parsing 5 sample sessions produces correct row counts in all 4 tables. Re-running same sessions does not create duplicate rows. All 3 content block types handled without parse errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-007</span>
+      <span class="ticket-title">Backfill existing 2.24 GB into BigQuery</span>
+      <span class="pill pill-purple">data</span>
+    </div>
+    <div class="ticket-desc">One-time job. Run session-parser.js across all existing GCS files from AIR + PRO. Load all 124+ main sessions and 755+ subagent sessions into BigQuery. Verify row counts. Fix any parse errors discovered during backfill. VOLTRON sessions added once TRK-S03-004 is complete.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> BigQuery sessions table has 124+ rows for AIR+PRO. Messages table has 150k+ rows. No parse errors in loader output. Row counts verified with bq query.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-008</span>
+      <span class="ticket-title">Firestore knowledge_entries collection + schema</span>
+      <span class="pill pill-orange">infrastructure</span>
+    </div>
+    <div class="ticket-desc">Create knowledge_entries collection in Firestore (project claude-mcp-484718). Enforce schema via TypeScript type in @tomachina/core. Create composite indexes as defined in Tab 7. Update firestore.rules to allow service account reads/writes.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Can write a test document with all required fields. All 3 composite indexes created and active. Query for confidence >= 0.75 ordered by confidence desc returns results without error.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-009</span>
+      <span class="ticket-title">Entity Extractor (Claude Haiku pipeline)</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">Node.js service at services/learning-loop/entity-extractor.js. Runs daily at 2am (launchd on VOLTRON). Queries BigQuery for messages from last 24 hours. Batches into chunks of ~20 messages. Sends to Claude Haiku with extraction prompt from Tab 5. Parses JSON response. Writes to Firestore knowledge_entries. Tracks processed messages to avoid re-extraction.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Running on 100 sample messages produces at least 5 knowledge_entries in Firestore. Confidence scores are varied (not all 1.0). Tags include project names. No duplicate entries on re-run.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-010</span>
+      <span class="ticket-title">Enhanced knowledge-promote.js</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">Update existing knowledge-promote.js to read from BOTH MEMORY.md (existing behavior unchanged) AND Firestore knowledge_entries (new). Merge candidates, score by confidence × recency, deduplicate against existing CLAUDE.md content. Only promote if CLAUDE.md stays under 30k chars. Mark promoted entries in Firestore. Slack DM digest to JDM.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Existing MEMORY.md promotion still works. At least 1 Firestore knowledge_entry is promoted on first run. CLAUDE.md does not exceed 30k chars. promoted_to_claude_md set to true on promoted entries. Slack DM received by U09BBHTN8F2.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-011</span>
+      <span class="ticket-title">Pre-session briefing (intent-session-start hook update)</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">Update the intent-session-start hookify rule to query knowledge_entries at session start. Detect current project from cwd. Query for relevant entries (by project tag + confidence >= 0.7). Format top-10 as a session briefing block injected into initial context. Reduces CLAUDE.md dependency for deep-context knowledge.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Starting a new Claude Code session in ~/Projects/toMachina shows a "Session Briefing" block with at least 3 relevant knowledge entries. Query completes in under 2 seconds. If Firestore unavailable, hook fails gracefully (no session blocking).</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-012</span>
+      <span class="ticket-title">RONIN sprint memory writes</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">Update RONIN runner.ts to write key discoveries to knowledge_entries at the end of each sprint phase. RONIN extracts decisions/patterns/insights from the phase work and writes them to Firestore before advancing to the next phase. Future RONIN sprints query existing entries to avoid re-solving already-solved problems.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Running a test sprint phase produces at least 2 knowledge_entries in Firestore tagged with 'ronin' and the sprint ID. A subsequent RONIN sprint can query and surface those entries in its initial context.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-013</span>
+      <span class="ticket-title">VOLTRON conversation gap analysis</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">Nightly service (runs on VOLTRON). Queries mdj_conversations Firestore collection for low-confidence responses from last 7 days. Uses Haiku to extract and cluster user intents. Identifies clusters of 5+ similar unanswered questions. Creates knowledge_entries for each gap with gap_metadata. Slack DM to JDM when gaps found.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Service runs without error on real mdj_conversations data. At least 1 gap entry created in knowledge_entries (or verified empty if no gaps exist). Slack DM contains gap summary. Runs under 60 seconds for 7-day window.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-014</span>
+      <span class="ticket-title">Analytics BigQuery views + value calculation</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">Create all BigQuery views defined in Tab 6: time_per_session, agent_hours_total, value_quantification. Run value calculation against real backfill data. Compute: JDM hours, agent hours, JDM CEO value ($2k/hr), agent engineering value ($150/hr), ROI multiplier, amplification factor. Verify numbers make sense.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> All 3 views created and queryable. value_quantification view returns single row with all computed columns. ROI multiplier is a positive number. Amplification factor (agent-hours ÷ JDM-hours) is computed correctly. Numbers verified against known session counts.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-015</span>
+      <span class="ticket-title">ProDashX Admin Learning Loop Tab</span>
+      <span class="pill pill-blue">feat</span>
+    </div>
+    <div class="ticket-desc">New tab in ProDashX Admin module at /admin/learning-loop. JDM-only visibility (entitlement check). Sections: Pipeline Health (last run timestamps), Knowledge Entries (count by type/confidence), CLAUDE.md Size Trend, Violation Trends (compliance-history.json), Analytics Summary Cards (from BigQuery views), VOLTRON Gaps (open knowledge gaps). Backend: new API route /api/admin/learning-loop that aggregates all data sources.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Tab visible for JDM, invisible for other users. All 6 sections render with real data. Analytics cards show JDM hours, agent hours, ROI, amplification. VOLTRON gaps section shows current open gaps. API route returns within 3 seconds.</div>
+  </div>
+
+  <div class="card" style="margin-top: 20px;">
+    <h2>Dependency Graph</h2>
+    <div class="diagram">
+TRK-S03-001 (cleanup fix) ─────────────────────────────────────────► UNBLOCKED
+TRK-S03-002 (extract AIR) ─────────────────────────────────────────► UNBLOCKED
+TRK-S03-003 (extract PRO) ─────────────────────────────────────────► UNBLOCKED
+TRK-S03-004 (extract VOLTRON) ─────────────────────────────────────► UNBLOCKED
+TRK-S03-005 (BQ schemas) ──────────────────────────────────────────► UNBLOCKED
+TRK-S03-006 (parser) ──────────────── requires: 005 ────────────────► after 005
+TRK-S03-007 (backfill) ────────────── requires: 002+003+005+006 ────► after all
+TRK-S03-008 (Firestore schema) ─────────────────────────────────────► UNBLOCKED
+TRK-S03-009 (entity extractor) ─────── requires: 006+007+008 ───────► after pipeline
+TRK-S03-010 (promote.js) ───────────── requires: 008+009 ───────────► after 008+009
+TRK-S03-011 (session briefing) ─────── requires: 008+009 ───────────► after 008+009
+TRK-S03-012 (RONIN memory) ─────────── requires: 008 ───────────────► after 008
+TRK-S03-013 (gap analysis) ─────────── requires: 008 ───────────────► after 008
+TRK-S03-014 (BQ views) ─────────────── requires: 007 ───────────────► after 007
+TRK-S03-015 (Admin tab) ─────────────── requires: 010+013+014 ──────► last</div>
+
+    <h3>Parallel execution tracks for RONIN</h3>
+    <table>
+      <tr>
+        <th>Track A — Urgent + Infrastructure</th>
+        <th>Track B — Data Pipeline</th>
+        <th>Track C — Intelligence + UI</th>
+      </tr>
+      <tr>
+        <td>001, 002, 003, 004</td>
+        <td>005, 006, 007, 008</td>
+        <td>009, 010, 011, 012, 013, 014, 015</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text-muted); font-size:0.82rem;">Runs immediately. No dependencies. VOLTRON setup may require JDM confirmation after gcloud install.</td>
+        <td style="color:var(--text-muted); font-size:0.82rem;">Runs immediately. 006 needs 005. 007 needs 002+003+005+006.</td>
+        <td style="color:var(--text-muted); font-size:0.82rem;">Starts after Track B completes 008. 015 is last — needs 010+013+014.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card card-accent-green">
+    <h2>Sprint 003 Success Definition</h2>
+    <ul>
+      <li><strong>The gold stops getting deleted.</strong> cleanup.sh syncs to GCS before deleting. All 3 machines running extract agent.</li>
+      <li><strong>2.24 GB of sessions are in BigQuery.</strong> Queryable, structured, ready for analysis.</li>
+      <li><strong>knowledge_entries collection is live.</strong> Entity Extractor running nightly. First entries promoted to CLAUDE.md.</li>
+      <li><strong>Agents start smarter.</strong> Pre-session briefing injecting relevant knowledge at session start.</li>
+      <li><strong>RONIN sprints are self-improving.</strong> Phase completions write to knowledge_entries. Sprint 004 RONIN starts with Sprint 003 learnings.</li>
+      <li><strong>VOLTRON gaps are tracked.</strong> Nightly analysis running. JDM gets Slack DM on gaps.</li>
+      <li><strong>JDM has the numbers.</strong> BigQuery views showing hours, agent-hours, ROI, amplification. Admin tab live in ProDashX.</li>
+      <li><strong>CLAUDE.md is 30k chars.</strong> Down from 53k. Deep context lives in Firestore. The file is rules, not history.</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:16px;">
+      <p style="font-size:1rem; font-weight:600; text-align:center;">After Sprint 003: Every session that runs anywhere feeds every future agent everywhere. The Machine is learning.</p>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  Sprint 003: Learning Loop 2.0 &mdash; FORGE Discovery Document &mdash; toMachina Platform<br>
+  GCP: claude-mcp-484718 &mdash; Bucket: gs://rpi-session-intelligence &mdash; Three Machines: AIR + PRO + VOLTRON<br>
+  <span style="color:var(--accent);">#RunningOurOwnRACE</span>
+</div>
+
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+
+      // Scroll to top of content
+      document.querySelector('.content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

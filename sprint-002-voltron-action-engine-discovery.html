@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 002 — VOLTRON Action Engine</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f0f;color:#e5e5e5;line-height:1.6}
+header{background:#111;border-bottom:1px solid #1e1e1e;padding:24px 40px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:1.4rem;font-weight:700;color:#fff}
+header h1 span{color:#3b82f6}
+.meta{display:flex;gap:16px;align-items:center}
+.badge{background:#1d2d4a;color:#3b82f6;border:1px solid #2a3f5f;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;letter-spacing:.05em}
+.badge.warn{background:#2d2014;color:#f59e0b;border-color:#4a3520}
+nav{background:#0a0a0a;border-bottom:1px solid #1e1e1e;padding:0 40px;display:flex;gap:4px;overflow-x:auto}
+nav button{background:none;border:none;color:#888;padding:14px 18px;cursor:pointer;font-size:.85rem;white-space:nowrap;border-bottom:2px solid transparent;transition:.2s}
+nav button.active,nav button:hover{color:#fff;border-bottom-color:#3b82f6}
+.tab{display:none;padding:40px;max-width:1100px;margin:0 auto}
+.tab.active{display:block}
+h2{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:20px}
+h3{font-size:1rem;font-weight:600;color:#3b82f6;margin:24px 0 10px}
+p{color:#aaa;margin-bottom:14px;font-size:.9rem}
+.callout{background:#111;border:1px solid #1e3a5f;border-left:4px solid #3b82f6;padding:16px 20px;border-radius:4px;margin-bottom:20px}
+.callout.gold{border-color:#f59e0b;border-left-color:#f59e0b;background:#111}
+.callout p{margin:0;font-size:.88rem}
+.callout strong{color:#fff}
+table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:24px}
+th{background:#181818;color:#888;font-weight:600;text-align:left;padding:10px 14px;border-bottom:1px solid #2a2a2a;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase}
+td{padding:10px 14px;border-bottom:1px solid #1a1a1a;color:#ccc;vertical-align:top}
+td code{background:#1a1a1a;color:#60a5fa;padding:2px 6px;border-radius:3px;font-size:.82rem}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:.72rem;font-weight:600}
+.tag.feat{background:#1a2e1a;color:#4ade80}
+.tag.infra{background:#1a1a2e;color:#818cf8}
+.tag.ref{background:#2a1a2a;color:#c084fc}
+.tag.test{background:#2a2a14;color:#facc15}
+.tag.dep{background:#2a1414;color:#f87171}
+.tag.crown{background:#2d2014;color:#f59e0b}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:#111;border:1px solid #1e1e1e;border-radius:6px;padding:20px}
+.card h4{color:#fff;font-size:.9rem;font-weight:600;margin-bottom:8px}
+.card p{font-size:.83rem;color:#999;margin-bottom:0}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.flow span{background:#181818;border:1px solid #2a2a2a;padding:5px 12px;border-radius:4px;font-size:.8rem;color:#ccc}
+.flow .arrow{color:#3b82f6;font-size:.9rem}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+.tool-card{background:#111;border:1px solid #1e1e1e;border-radius:5px;padding:14px}
+.tool-card .name{color:#60a5fa;font-size:.82rem;font-weight:600;font-family:monospace}
+.tool-card p{font-size:.78rem;color:#888;margin:4px 0 0}
+.tool-card .new{color:#4ade80;font-size:.7rem;font-weight:700;background:#1a2e1a;padding:1px 6px;border-radius:2px}
+.st-block{background:#111;border:1px solid #1e1e1e;border-radius:6px;padding:18px;margin-bottom:14px}
+.st-block h4{color:#fff;font-size:.88rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.st-block .chain{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.st-block .chain .t{background:#1a1a2a;color:#a5b4fc;padding:3px 10px;border-radius:3px;font-size:.75rem;font-family:monospace}
+.st-block .chain .arr{color:#555;font-size:.8rem}
+.st-block .io{font-size:.78rem;color:#777}
+.st-block .io span{color:#ccc}
+.entitle-cell{font-size:.78rem;text-align:center}
+.yes{color:#4ade80}
+.no{color:#333}
+.sprint-num{font-size:.75rem;color:#555;font-weight:600}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Sprint 002 — <span>VOLTRON</span> Action Engine</h1>
+    <p style="color:#555;font-size:.8rem;margin-top:4px">RONIN autonomous build · Depends on Sprint 001 (Agent SDK Migration)</p>
+  </div>
+  <div class="meta">
+    <span class="badge warn">DEPENDS: S001</span>
+    <span class="badge">15 TICKETS</span>
+    <span class="badge">packages/core/src/voltron/</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab(0)">Vision</button>
+  <button onclick="showTab(1)">ATLAS Mirror</button>
+  <button onclick="showTab(2)">Auto-Registry</button>
+  <button onclick="showTab(3)">Atomic Tools</button>
+  <button onclick="showTab(4)">Super Tools</button>
+  <button onclick="showTab(5)">Wires</button>
+  <button onclick="showTab(6)">Entitlement</button>
+  <button onclick="showTab(7)">Sprint Plan</button>
+</nav>
+
+<!-- TAB 0: VISION -->
+<div class="tab active">
+  <h2>What VOLTRON Becomes</h2>
+
+  <div class="callout gold">
+    <p><strong>The Aswegan Proof.</strong> "Full review on the Aswegans" → 8 autonomous tool calls → complete $1M+ portfolio review in seconds. That's not a chatbot. That's a capability executor. Sprint 002 formalizes it.</p>
+  </div>
+
+  <div class="col2">
+    <div class="card">
+      <h4>Before Sprint 002</h4>
+      <p>82 hand-coded tools. No composition. No workflow. Each request hits VOLTRON one tool at a time. The Aswegan review works — but only because VOLTRON stumbles through it via model reasoning.</p>
+    </div>
+    <div class="card">
+      <h4>After Sprint 002</h4>
+      <p>Structured Super Tools + Wires. VOLTRON receives "build casework for the Minearts" → executes BUILD_CASEWORK wire → pulls data, runs QUE, generates HTML, saves to ACF, Slacks Archer. Done. Archer closed $100k.</p>
+    </div>
+  </div>
+
+  <h3>BUILD_CASEWORK — The Crown Jewel</h3>
+  <div class="flow">
+    <span>User request</span><span class="arrow">→</span>
+    <span>get_client</span><span class="arrow">→</span>
+    <span>run_que_quote</span><span class="arrow">→</span>
+    <span>generate_html</span><span class="arrow">→</span>
+    <span>save_to_acf</span><span class="arrow">→</span>
+    <span>notify_agent (Slack)</span><span class="arrow">→</span>
+    <span style="color:#4ade80;background:#1a2e1a;border-color:#2a4a2a">Closed deal</span>
+  </div>
+  <p>This is the full client-to-close pipeline in a single VOLTRON command. Sprint 002 makes every wire like this — deterministic, auditable, repeatable.</p>
+
+  <h3>Scale Math</h3>
+  <table>
+    <tr><th>Scenario</th><th>Today</th><th>After Sprint 002</th></tr>
+    <tr><td>Review prep for 1 client</td><td>30–45 min manual</td><td>~20 sec, VOLTRON</td></tr>
+    <tr><td>181 agencies × same capability</td><td>Not possible</td><td>Same wire, every agency</td></tr>
+    <tr><td>AEP enrollment prep</td><td>Agent builds manually</td><td>AEP_ENROLLMENT wire</td></tr>
+    <tr><td>New business casework</td><td>Hours across team</td><td>NEW_BUSINESS wire</td></tr>
+  </table>
+
+  <div class="callout">
+    <p><strong>The Machine's steering wheel.</strong> ProDashX is the dashboard. VOLTRON Mode 1 (wire selector) is how team members drive it without knowing what's under the hood. Sprint 002 builds the engine. Sprint 002 UI (TRK-S02-013) builds the wheel.</p>
+  </div>
+</div>
+
+<!-- TAB 1: ATLAS MIRROR -->
+<div class="tab">
+  <h2>ATLAS Pattern — Applied to Capabilities</h2>
+  <p>ATLAS manages data movement. The Action Engine manages capability execution. Same architecture, different domain. New home: <code>packages/core/src/voltron/</code></p>
+
+  <table>
+    <tr>
+      <th>Concept</th>
+      <th>ATLAS (Data In)</th>
+      <th>Action Engine (Capabilities Out)</th>
+    </tr>
+    <tr>
+      <td><strong>Atomic Unit</strong></td>
+      <td>Atomic Tool — pure data transform function</td>
+      <td>Atomic Tool — pure capability function (get_client, send_sms, etc.)</td>
+    </tr>
+    <tr>
+      <td><strong>Result Type</strong></td>
+      <td><code>AtomicToolResult&lt;T&gt; &#123; success, data?, error? &#125;</code></td>
+      <td><code>VoltronToolResult&lt;T&gt; &#123; success, data?, error?, metadata? &#125;</code></td>
+    </tr>
+    <tr>
+      <td><strong>Orchestrator</strong></td>
+      <td>Super Tool — stage composition (SUPER_PREPARE, SUPER_CLASSIFY…)</td>
+      <td>Super Tool — task composition (REVIEW_PREP, BUILD_CASEWORK…)</td>
+    </tr>
+    <tr>
+      <td><strong>Orchestrator Result</strong></td>
+      <td><code>SuperToolResult&lt;T&gt; &#123; success, data?, tool_results?, stats? &#125;</code></td>
+      <td><code>VoltronSuperResult&lt;T&gt; &#123; success, data?, tool_results?, duration_ms? &#125;</code></td>
+    </tr>
+    <tr>
+      <td><strong>End-to-End Flow</strong></td>
+      <td>Wire — source → transform → Firestore</td>
+      <td>Wire — request → orchestrate → output + artifacts</td>
+    </tr>
+    <tr>
+      <td><strong>Wire Engine</strong></td>
+      <td><code>atlas/wire-executor.ts</code> — sequential super tool chain</td>
+      <td><code>voltron/wire-executor.ts</code> — adapted, adds approval gates + streaming</td>
+    </tr>
+    <tr>
+      <td><strong>Context Object</strong></td>
+      <td><code>SuperToolContext</code> — carries file IDs, mappings, client_id</td>
+      <td><code>VoltronContext</code> — carries client_id, user_role, wire_id, entitlement</td>
+    </tr>
+    <tr>
+      <td><strong>Registry</strong></td>
+      <td>ATLAS Firestore collection (source registry)</td>
+      <td><code>voltron_registry</code> Firestore collection (auto-generated)</td>
+    </tr>
+    <tr>
+      <td><strong>Source of truth</strong></td>
+      <td>Hand-maintained + carrier introspection</td>
+      <td>Auto-generated from codebase at deploy time</td>
+    </tr>
+    <tr>
+      <td><strong>Approval gates</strong></td>
+      <td><code>approval_required</code> flag on WireContext</td>
+      <td>Per-wire gate config (e.g. confirm before send_sms)</td>
+    </tr>
+  </table>
+
+  <h3>Directory Mirror</h3>
+  <div class="col2">
+    <div class="card">
+      <h4>packages/core/src/atlas/</h4>
+      <p style="font-family:monospace;font-size:.78rem;color:#888;line-height:1.8">
+        types.ts<br>
+        wire-executor.ts<br>
+        wires.ts<br>
+        super-tools/<br>
+        &nbsp;&nbsp;prepare.ts<br>
+        &nbsp;&nbsp;classify.ts<br>
+        &nbsp;&nbsp;extract.ts<br>
+        &nbsp;&nbsp;validate.ts<br>
+        tools/<br>
+        index.ts
+      </p>
+    </div>
+    <div class="card">
+      <h4>packages/core/src/voltron/ <span style="color:#4ade80;font-size:.7rem">NEW</span></h4>
+      <p style="font-family:monospace;font-size:.78rem;color:#888;line-height:1.8">
+        types.ts<br>
+        wire-executor.ts<br>
+        wires.ts<br>
+        super-tools/<br>
+        &nbsp;&nbsp;review-prep.ts<br>
+        &nbsp;&nbsp;build-casework.ts<br>
+        &nbsp;&nbsp;pull-documents.ts<br>
+        &nbsp;&nbsp;… (8 total)<br>
+        tools/<br>
+        registry-generator.ts<br>
+        index.ts
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: AUTO-REGISTRY -->
+<div class="tab">
+  <h2>Auto-Registry — Tools That Don't Go Stale</h2>
+
+  <div class="callout">
+    <p><strong>Problem:</strong> 82 hand-coded tool definitions in the MDJ agent. Every API route change, new Firestore field, or MCP update requires a manual edit to the tool list. They fall out of sync within days of a deploy.</p>
+  </div>
+
+  <h3>Solution: Generate at Deploy Time</h3>
+  <div class="flow">
+    <span>API routes (services/api/src/routes/*.ts)</span><span class="arrow">→</span>
+    <span>Registry Generator</span>
+  </div>
+  <div class="flow">
+    <span>Firestore schema (packages/db/src/types/*.ts)</span><span class="arrow">→</span>
+    <span>Registry Generator</span>
+  </div>
+  <div class="flow">
+    <span>MCP server manifests</span><span class="arrow">→</span>
+    <span>Registry Generator</span>
+  </div>
+  <div class="flow">
+    <span>Voltron tool declarations (voltron/tools/*.ts)</span><span class="arrow">→</span>
+    <span>Registry Generator</span>
+  </div>
+  <div class="flow">
+    <span style="background:#1a2e1a;color:#4ade80;border-color:#2a4a2a">Merged voltron_registry (Firestore)</span>
+  </div>
+
+  <h3>Generator Pipeline</h3>
+  <table>
+    <tr><th>Source</th><th>Parse Method</th><th>Output</th></tr>
+    <tr><td>API routes</td><td>AST parse route files — extract method, path, params, return type</td><td>endpoint tool definitions</td></tr>
+    <tr><td>Firestore schemas</td><td>Read TypeScript interface declarations from packages/db</td><td>field-aware read/write tools</td></tr>
+    <tr><td>MCP servers</td><td>Read MCP manifest JSON / tool list endpoint</td><td>MCP-backed tool wrappers</td></tr>
+    <tr><td>Voltron tool files</td><td>Export-scan voltron/tools/*.ts for tool metadata decorators</td><td>first-class voltron tools</td></tr>
+  </table>
+
+  <h3>voltron_registry Collection Schema</h3>
+  <table>
+    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+    <tr><td><code>tool_id</code></td><td>string</td><td>Unique, stable. Stable across regenerations.</td></tr>
+    <tr><td><code>name</code></td><td>string</td><td>Function name VOLTRON calls</td></tr>
+    <tr><td><code>description</code></td><td>string</td><td>LLM-facing description for tool selection</td></tr>
+    <tr><td><code>type</code></td><td>ATOMIC | SUPER | WIRE</td><td>Layer in the stack</td></tr>
+    <tr><td><code>source</code></td><td>API_ROUTE | MCP | VOLTRON | FIRESTORE</td><td>Where this tool lives</td></tr>
+    <tr><td><code>entitlement_min</code></td><td>string</td><td>Minimum role required (COORDINATOR → VP)</td></tr>
+    <tr><td><code>parameters</code></td><td>JSON Schema</td><td>Input schema, auto-generated</td></tr>
+    <tr><td><code>server_only</code></td><td>boolean</td><td>Cannot run in browser — API call required</td></tr>
+    <tr><td><code>generated_at</code></td><td>timestamp</td><td>Last auto-generation time</td></tr>
+  </table>
+
+  <h3>Registry API</h3>
+  <table>
+    <tr><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><code>GET /api/voltron/registry</code></td><td>Returns role-filtered tool list. Uses Firebase Auth token to determine entitlement. VOLTRON loads this on session start.</td></tr>
+    <tr><td><code>POST /api/voltron/registry/regenerate</code></td><td>Triggers generator. Called by CI post-deploy hook (TRK-S02-012).</td></tr>
+  </table>
+</div>
+
+<!-- TAB 3: ATOMIC TOOLS -->
+<div class="tab">
+  <h2>Atomic Tools — Pure Capability Functions</h2>
+  <p>Each atomic tool does exactly one thing. Returns <code>VoltronToolResult&lt;T&gt;</code>. No side effects beyond its declared purpose. Server-only tools are clearly marked — they run via API, never directly in browser.</p>
+
+  <h3>Existing 82 Tools (categories)</h3>
+  <table>
+    <tr><th>Category</th><th>Count</th><th>Examples</th></tr>
+    <tr><td>Client / Account</td><td>~20</td><td>search_client, get_client, get_accounts, get_pipeline</td></tr>
+    <tr><td>Communications</td><td>~12</td><td>get_conversations, send_email, get_email_thread</td></tr>
+    <tr><td>Medicare / QUE</td><td>~15</td><td>run_que_quote, get_formulary, check_coverage, compare_plans</td></tr>
+    <tr><td>Drive / ACF</td><td>~8</td><td>list_drive, get_file_link, search_drive</td></tr>
+    <tr><td>Calendar / Tasks</td><td>~6</td><td>list_events, create_event, get_tasks</td></tr>
+    <tr><td>Org / Team</td><td>~8</td><td>get_team, get_agent, list_producers</td></tr>
+    <tr><td>MCP Wrappers</td><td>~13</td><td>slack_post, npi_lookup, calculate_commission</td></tr>
+  </table>
+
+  <h3>11 New Atomic Tools Needed</h3>
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="name">get_client_documents</div>
+      <span class="new">NEW — PRIORITY</span>
+      <p>List all docs in client ACF folder. Returns file metadata + links.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">get_document</div>
+      <span class="new">NEW</span>
+      <p>Retrieve single document by Drive file ID. Returns content or download URL.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">create_acf_folder</div>
+      <span class="new">NEW</span>
+      <p>Create ACF subfolder for new client/agency. Returns folder ID.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">list_acf_contents</div>
+      <span class="new">NEW</span>
+      <p>List all files in ACF folder with metadata. Paginated.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">save_to_drive</div>
+      <span class="new">NEW</span>
+      <p>Save content (HTML, PDF, text) to a specified Drive folder. Returns file ID + link.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">run_que_quote</div>
+      <span class="new">NEW</span>
+      <p>Execute QUE Medicare quote for a client. Returns plan comparison data.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">schedule_meeting</div>
+      <span class="new">NEW</span>
+      <p>Create calendar event + send invites via Google Calendar MCP.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">send_sms</div>
+      <span class="new">NEW</span>
+      <p>Send SMS via Lead Connector. Requires approval gate before execution.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">create_calendar_event</div>
+      <span class="new">NEW</span>
+      <p>Direct calendar event creation with attendees. Wraps google-calendar MCP.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">log_activity</div>
+      <span class="new">NEW</span>
+      <p>Write activity log entry to Firestore for audit trail.</p>
+    </div>
+    <div class="tool-card">
+      <div class="name">run_illustration</div>
+      <span class="new">NEW — PLAYWRIGHT</span>
+      <p>Browser automation on carrier portal. Returns illustration data + PDF. North American + Athene first.</p>
+    </div>
+  </div>
+
+  <h3>Standard Interface</h3>
+  <div class="callout">
+    <p><code style="color:#60a5fa">// Every atomic tool exports this shape</code><br>
+    <code style="color:#ccc">export async function tool_name(input: ToolInput, ctx: VoltronContext): Promise&lt;VoltronToolResult&lt;T&gt;&gt;</code><br><br>
+    <strong>Server-only rule:</strong> Tools calling Anthropic SDK, fs, child_process, or carrier portals (Playwright) must NEVER be exported from package barrels. Import directly in API routes only.</p>
+  </div>
+</div>
+
+<!-- TAB 4: SUPER TOOLS -->
+<div class="tab">
+  <h2>Super Tools — Task Orchestrators</h2>
+  <p>Each Super Tool chains atomic tools in sequence. Output of step N is available to step N+1 via context. Returns <code>VoltronSuperResult</code> with per-tool audit trail.</p>
+
+  <div class="st-block">
+    <h4>REVIEW_PREP <span style="font-size:.75rem;color:#888;font-weight:400">— proof of concept (Aswegan)</span></h4>
+    <div class="chain">
+      <span class="t">search_client</span><span class="arr">→</span>
+      <span class="t">get_client</span><span class="arr">→</span>
+      <span class="t">get_accounts</span><span class="arr">→</span>
+      <span class="t">check_pipeline</span><span class="arr">→</span>
+      <span class="t">compile_review</span>
+    </div>
+    <div class="io">Input: <span>client name or ID</span> · Output: <span>complete review packet (client + accounts + pipeline status + summary)</span></div>
+  </div>
+
+  <div class="st-block">
+    <h4>PULL_DOCUMENTS</h4>
+    <div class="chain">
+      <span class="t">get_client</span><span class="arr">→</span>
+      <span class="t">get_acf_folder</span><span class="arr">→</span>
+      <span class="t">list_acf_contents</span><span class="arr">→</span>
+      <span class="t">return_links</span>
+    </div>
+    <div class="io">Input: <span>client_id</span> · Output: <span>structured file list with Drive links by category</span></div>
+  </div>
+
+  <div class="st-block">
+    <h4>DRAFT_COMMUNICATION</h4>
+    <div class="chain">
+      <span class="t">get_client</span><span class="arr">→</span>
+      <span class="t">compose_message</span><span class="arr">→</span>
+      <span class="t">save_draft</span>
+    </div>
+    <div class="io">Input: <span>client_id + intent (email | sms | letter)</span> · Output: <span>saved Gmail draft with link</span></div>
+  </div>
+
+  <div class="st-block">
+    <h4>RMD_ANALYSIS</h4>
+    <div class="chain">
+      <span class="t">get_accounts</span><span class="arr">→</span>
+      <span class="t">calculate_rmd</span><span class="arr">→</span>
+      <span class="t">generate_recommendations</span>
+    </div>
+    <div class="io">Input: <span>client_id + tax year</span> · Output: <span>RMD amounts per account + withdrawal strategy recommendations</span></div>
+  </div>
+
+  <div class="st-block">
+    <h4>COVERAGE_GAP</h4>
+    <div class="chain">
+      <span class="t">get_accounts</span><span class="arr">→</span>
+      <span class="t">analyze_life_coverage</span><span class="arr">→</span>
+      <span class="t">analyze_health_coverage</span><span class="arr">→</span>
+      <span class="t">identify_gaps</span>
+    </div>
+    <div class="io">Input: <span>client_id</span> · Output: <span>gap analysis report with priority ranking</span></div>
+  </div>
+
+  <div class="st-block">
+    <h4>MEETING_PREP</h4>
+    <div class="chain">
+      <span class="t">REVIEW_PREP</span><span class="arr">→</span>
+      <span class="t">PULL_DOCUMENTS</span><span class="arr">→</span>
+      <span class="t">generate_agenda</span>
+    </div>
+    <div class="io">Input: <span>client_id + meeting date</span> · Output: <span>complete meeting packet (review + docs + agenda)</span></div>
+  </div>
+
+  <div class="st-block" style="border-color:#f59e0b">
+    <h4>BUILD_CASEWORK <span class="tag crown">CROWN JEWEL</span></h4>
+    <div class="chain">
+      <span class="t">get_client</span><span class="arr">→</span>
+      <span class="t">run_que_quote</span><span class="arr">→</span>
+      <span class="t">generate_html</span><span class="arr">→</span>
+      <span class="t">save_to_acf</span><span class="arr">→</span>
+      <span class="t">notify_agent</span>
+    </div>
+    <div class="io">Input: <span>client_id + product_type</span> · Output: <span>interactive casework HTML in ACF + Slack notification to assigned agent with link</span></div>
+    <p style="font-size:.78rem;color:#f59e0b;margin-top:8px">Mineart casework → Archer notified → $100k closed. This is the wire that sells.</p>
+  </div>
+
+  <div class="st-block">
+    <h4>RUN_ILLUSTRATION <span style="font-size:.75rem;color:#888;font-weight:400">— Playwright carrier automation</span></h4>
+    <div class="chain">
+      <span class="t">get_client</span><span class="arr">→</span>
+      <span class="t">playwright_navigate</span><span class="arr">→</span>
+      <span class="t">fill_illustration_form</span><span class="arr">→</span>
+      <span class="t">download_pdf</span><span class="arr">→</span>
+      <span class="t">save_to_acf</span>
+    </div>
+    <div class="io">Input: <span>client_id + carrier (north_american | athene) + product params</span> · Output: <span>illustration PDF saved to ACF + file link</span></div>
+    <p style="font-size:.78rem;color:#888;margin-top:8px">Playwright MCP already on MDJ1. North American → Athene priority order.</p>
+  </div>
+</div>
+
+<!-- TAB 5: WIRES -->
+<div class="tab">
+  <h2>Wires — End-to-End Workflows</h2>
+  <p>Wires compose Super Tools into complete business workflows. The Wire Executor (adapted from <code>atlas/wire-executor.ts</code>) runs them sequentially, chains output N→N+1, enforces approval gates, and writes an audit trail to Firestore.</p>
+
+  <h3>Wire Executor Adaptations</h3>
+  <table>
+    <tr><th>ATLAS Wire Executor</th><th>Voltron Wire Executor (new)</th></tr>
+    <tr><td>WireInput has file_id / csv / commission modes</td><td>VoltronWireInput has client_id, wire_id, params, entitlement</td></tr>
+    <tr><td>Approval gates for bulk data imports</td><td>Approval gates for comms (send_sms, send_email) and irreversible actions</td></tr>
+    <tr><td>Writes created_records to Firestore</td><td>Writes wire_executions audit log to Firestore</td></tr>
+    <tr><td>Dry run mode for testing</td><td>Simulation mode — shows what would happen without executing</td></tr>
+    <tr><td>No streaming</td><td>Server-Sent Events for real-time progress in Mode 1 UI</td></tr>
+  </table>
+
+  <h3>ANNUAL_REVIEW Wire</h3>
+  <div class="flow">
+    <span>REVIEW_PREP</span><span class="arrow">→</span>
+    <span>PULL_DOCUMENTS</span><span class="arrow">→</span>
+    <span>MEETING_PREP</span><span class="arrow">→</span>
+    <span>DRAFT_COMMUNICATION</span>
+  </div>
+  <p style="font-size:.83rem;color:#888">Trigger: "Prep annual review for [client]" · Output: Full meeting packet + draft follow-up email ready to send · Approval gate before DRAFT_COMMUNICATION fires</p>
+
+  <h3>AEP_ENROLLMENT Wire</h3>
+  <div class="flow">
+    <span>check_medicare_status</span><span class="arrow">→</span>
+    <span>run_que_comparison</span><span class="arrow">→</span>
+    <span>DRAFT_COMMUNICATION (enrollment)</span><span class="arrow">→</span>
+    <span>schedule_followup</span>
+  </div>
+  <p style="font-size:.83rem;color:#888">Trigger: "AEP prep for [client]" · AEP Blackout enforcement: Oct–Dec comms wire auto-checks blackout status before firing</p>
+
+  <h3>ONBOARD_AGENCY Wire</h3>
+  <div class="flow">
+    <span>get_agency_data</span><span class="arrow">→</span>
+    <span>create_client_records</span><span class="arrow">→</span>
+    <span>create_acf_folder</span><span class="arrow">→</span>
+    <span>notify_team (Slack)</span>
+  </div>
+  <p style="font-size:.83rem;color:#888">Trigger: "Onboard [agency name]" · Creates all Firestore records + ACF structure + notifies team · Used by DAVID/SENTINEL channel</p>
+
+  <h3>NEW_BUSINESS Wire</h3>
+  <div class="flow">
+    <span>REVIEW_PREP</span><span class="arrow">→</span>
+    <span>BUILD_CASEWORK</span><span class="arrow">→</span>
+    <span>schedule_meeting</span><span class="arrow">→</span>
+    <span>track_pipeline</span>
+  </div>
+  <p style="font-size:.83rem;color:#888">Trigger: "New business for [client] — [product]" · Full pipeline from prospect to casework to scheduled meeting to opportunity created</p>
+
+  <h3>Wire Execution Audit Trail</h3>
+  <p style="font-size:.83rem;color:#888">Each wire execution writes to <code>wire_executions/{execution_id}</code>: wire_id, user_email, client_id, started_at, completed_at, stage_results[], status, artifacts[]. Same pattern as ATLAS wire runs.</p>
+</div>
+
+<!-- TAB 6: ENTITLEMENT -->
+<div class="tab">
+  <h2>Entitlement — Tool Filtering at Registry Level</h2>
+  <p>Entitlement is enforced at <code>GET /api/voltron/registry</code>. Each request is authenticated via Firebase Auth. The user's role determines which tools are returned. VOLTRON never sees tools the user can't run.</p>
+
+  <h3>Role Definitions</h3>
+  <table>
+    <tr><th>Role</th><th>Layers</th><th>Typical User</th></tr>
+    <tr><td><strong>Coordinator</strong></td><td>1–3 (Atomic only)</td><td>COR — support, service intake</td></tr>
+    <tr><td><strong>Specialist</strong></td><td>1–4 (+ Super Tools read)</td><td>AST — licensed agent</td></tr>
+    <tr><td><strong>Director</strong></td><td>1–5 (+ Wires basic)</td><td>SPC — team lead, senior agent</td></tr>
+    <tr><td><strong>VP</strong></td><td>All</td><td>Division VP, Josh, John</td></tr>
+    <tr><td><strong>Admin</strong></td><td>All + registry mgmt</td><td>Super Admins only (Josh, John)</td></tr>
+  </table>
+
+  <h3>Tool Access Matrix</h3>
+  <table>
+    <tr>
+      <th>Tool / Capability</th>
+      <th class="entitle-cell">Coordinator</th>
+      <th class="entitle-cell">Specialist</th>
+      <th class="entitle-cell">Director</th>
+      <th class="entitle-cell">VP+</th>
+    </tr>
+    <tr><td>search_client, get_client, get_accounts</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>list_acf_contents, get_client_documents</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>send_sms (approval gated)</td><td class="entitle-cell no">—</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>REVIEW_PREP, PULL_DOCUMENTS</td><td class="entitle-cell no">—</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>BUILD_CASEWORK, RUN_ILLUSTRATION</td><td class="entitle-cell no">—</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>ANNUAL_REVIEW wire, AEP_ENROLLMENT wire</td><td class="entitle-cell no">—</td><td class="entitle-cell no">—</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>ONBOARD_AGENCY wire, NEW_BUSINESS wire</td><td class="entitle-cell no">—</td><td class="entitle-cell no">—</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>run_illustration (Playwright carrier)</td><td class="entitle-cell no">—</td><td class="entitle-cell no">—</td><td class="entitle-cell yes">✓</td><td class="entitle-cell yes">✓</td></tr>
+    <tr><td>Registry regeneration, audit logs</td><td class="entitle-cell no">—</td><td class="entitle-cell no">—</td><td class="entitle-cell no">—</td><td class="entitle-cell yes">✓</td></tr>
+  </table>
+
+  <div class="callout">
+    <p><strong>Implementation:</strong> <code>entitlement_min</code> field on each registry entry maps to a role rank (Coordinator=1 … Admin=5). <code>GET /api/voltron/registry</code> reads caller's role from Firestore <code>users</code> collection, filters registry to entries where <code>entitlement_rank &lt;= caller_rank</code>. VOLTRON's tool list is role-scoped before the model ever sees it.</p>
+  </div>
+</div>
+
+<!-- TAB 7: SPRINT PLAN -->
+<div class="tab">
+  <h2>Sprint 002 — 15 Tickets</h2>
+  <p>RONIN executes. Parallel tracks where dependencies allow. S001 (Agent SDK Migration) must be complete before this sprint starts.</p>
+
+  <table>
+    <tr>
+      <th style="width:130px">Ticket</th>
+      <th>Title</th>
+      <th style="width:80px">Type</th>
+      <th>Acceptance Criteria</th>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-001</span></td>
+      <td>ATLAS audit + interface mirror spec</td>
+      <td><span class="tag ref">research</span></td>
+      <td>Interfaces documented. <code>packages/core/src/voltron/types.ts</code> structure defined. Divergence from ATLAS types noted with rationale.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-002</span></td>
+      <td>voltron/types.ts — full type definitions</td>
+      <td><span class="tag infra">infra</span></td>
+      <td><code>VoltronToolResult</code>, <code>VoltronSuperResult</code>, <code>VoltronContext</code>, <code>VoltronWireInput</code>, <code>VoltronWireResult</code> defined. TypeScript strict. No <code>any</code>.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-003</span></td>
+      <td>Registry generator (parse API routes + Firestore schema)</td>
+      <td><span class="tag feat">feat</span></td>
+      <td><code>npm run generate:voltron-registry</code> outputs valid tool definitions JSON from 4 sources. Idempotent — re-runs don't duplicate.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-004</span></td>
+      <td>voltron_registry Firestore collection + <code>GET /api/voltron/registry</code></td>
+      <td><span class="tag feat">feat</span></td>
+      <td>Role-filtered endpoint live. Auth required. Returns correct subset per role. Tested with Coordinator, Specialist, VP roles.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-005</span></td>
+      <td>Migrate 82 hand-coded tools to generated format</td>
+      <td><span class="tag ref">refactor</span></td>
+      <td>All 82 tools represented in generated registry. Equivalence verified (same names, descriptions, params). Existing VOLTRON chat unaffected — no regression.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-006</span></td>
+      <td>11 new atomic tools (<code>get_client_documents</code> priority)</td>
+      <td><span class="tag feat">feat</span></td>
+      <td>All 11 implemented. TypeScript strict. <code>get_client_documents</code> + <code>list_acf_contents</code> tested E2E with real client ACF folder. <code>run_illustration</code> Playwright skeleton works on North American portal.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-007</span></td>
+      <td>8 Super Tools (REVIEW_PREP first)</td>
+      <td><span class="tag feat">feat</span></td>
+      <td>All 8 Super Tools implemented in <code>voltron/super-tools/</code>. REVIEW_PREP tested E2E with Aswegan data — produces complete review packet via 8+ tool calls.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-008</span></td>
+      <td>Wire Executor (adapt atlas/wire-executor.ts)</td>
+      <td><span class="tag feat">feat</span></td>
+      <td>Sequential execution with output chaining. Approval gate enforcement. Audit trail writes to <code>wire_executions</code>. SSE progress events for Mode 1 UI. Simulation mode works.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-009</span></td>
+      <td>4 Wires</td>
+      <td><span class="tag feat">feat</span></td>
+      <td>ANNUAL_REVIEW, AEP_ENROLLMENT, ONBOARD_AGENCY, NEW_BUSINESS defined in <code>voltron/wires.ts</code>. ANNUAL_REVIEW and BUILD_CASEWORK (part of NEW_BUSINESS) verified in production.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-010</span></td>
+      <td>Playwright carrier automation (North American + Athene)</td>
+      <td><span class="tag feat">feat</span></td>
+      <td>RUN_ILLUSTRATION Super Tool completes full illustration flow on both carriers. Returns result data + PDF saved to ACF Drive folder. Playwright MCP on MDJ1 confirmed working.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-011</span></td>
+      <td>Entitlement filtering at registry level</td>
+      <td><span class="tag feat">feat</span></td>
+      <td>Each role receives correct tool subset from <code>/api/voltron/registry</code>. Coordinator cannot see Wires. VP sees all. Verified with 5 role types.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-012</span></td>
+      <td>Registry auto-regeneration on CI deploy</td>
+      <td><span class="tag infra">infra</span></td>
+      <td>Post-deploy CI step calls <code>POST /api/voltron/registry/regenerate</code>. Confirmed in GitHub Actions workflow. Registry timestamp updates after each deploy.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-013</span></td>
+      <td>ProDashX VOLTRON App Mode 1 UI — wire selector</td>
+      <td><span class="tag feat">feat</span></td>
+      <td>User can select a wire or type a request. VOLTRON executes and shows real-time progress via SSE. Completion shows artifacts (links, summaries). Works on mobile.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-014</span></td>
+      <td>E2E: Aswegan REVIEW_PREP + Mineart BUILD_CASEWORK</td>
+      <td><span class="tag test">test</span></td>
+      <td>Both verified in production with real client data. REVIEW_PREP returns complete packet. BUILD_CASEWORK produces casework HTML in ACF + Slack notification fires.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-S02-015</span></td>
+      <td>Deploy + smoke test all Super Tools</td>
+      <td><span class="tag dep">deploy</span></td>
+      <td>All 8 Super Tools callable via Mode 1 UI in production. Wire Executor processes at least one full wire without error. Audit trail entries visible. Registry auto-generated post-deploy.</td>
+    </tr>
+  </table>
+
+  <h3>Parallel Tracks</h3>
+  <table>
+    <tr><th>Track</th><th>Tickets</th><th>Can start when</th></tr>
+    <tr><td>Types + Registry</td><td>001 → 002 → 003 → 004</td><td>Sprint starts (no dependencies)</td></tr>
+    <tr><td>Atomic Tools</td><td>005 → 006</td><td>After 002 (needs types)</td></tr>
+    <tr><td>Super Tools + Wires</td><td>007 → 008 → 009</td><td>After 006 (needs all atomic tools)</td></tr>
+    <tr><td>Playwright</td><td>010</td><td>Parallel with 007 (independent)</td></tr>
+    <tr><td>Entitlement + CI</td><td>011 → 012</td><td>After 004 (needs registry)</td></tr>
+    <tr><td>UI + E2E + Deploy</td><td>013 → 014 → 015</td><td>After 009, 011 complete</td></tr>
+  </table>
+
+  <div class="callout gold" style="margin-top:24px">
+    <p><strong>RONIN execution note:</strong> Sprint 001 (Agent SDK Migration) must ship first. Once Sprint 001 is confirmed complete, RONIN spawns parallel agents for Tracks 1, 2, and Playwright simultaneously. Target: all 15 tickets shipped in a single FORGE session.</p>
+  </div>
+</div>
+
+<script>
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((t,idx)=>{t.classList.toggle('active',idx===i)});
+  document.querySelectorAll('nav button').forEach((b,idx)=>{b.classList.toggle('active',idx===i)});
+}
+</script>
+</body>
+</html>
