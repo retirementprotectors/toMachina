@@ -58,6 +58,7 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   queue:           { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Queue' },
   not_touched:     { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Not Touched' },
   in_sprint:       { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'In Sprint' },
+  seeded:          { color: 'rgb(251,146,60)', bg: 'rgba(251,146,60,0.15)', label: 'Seeded' },
   disc_audited:    { color: 'rgb(234,88,12)', bg: 'rgba(234,88,12,0.15)', label: 'Discovery Audited' },
   planned:         { color: 'var(--portal, #4a7ab5)', bg: 'rgba(74,122,181,0.15)', label: 'Planned' },
   plan_audited:    { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Plan Audited' },
@@ -84,7 +85,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 const TYPES = ['broken', 'idea', 'improve', 'question', 'feat', 'bug', 'enhancement', 'test'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
-const STATUSES = ['queue', 'not_touched', 'in_sprint', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed', 'deferred', 'wont_fix'] as const
+const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed', 'deferred', 'wont_fix'] as const
 
 const API_BASE = '/api'
 
@@ -390,9 +391,10 @@ function ForgeInner({ portal }: ForgeProps) {
   }, [items])
 
   // Sprint lifecycle phases + phase detection
-  const SPRINT_PHASES = ['in_sprint', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed'] as const
+  const SPRINT_PHASES = ['in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'confirmed'] as const
   const PHASE_CONFIG: Record<string, { label: string; color: string; action: string; actionLabel: string }> = {
-    in_sprint:     { label: 'Discovery',       color: 'rgb(245,158,11)',        action: 'audit_discovery', actionLabel: '#LetsAuditTheDiscovery' },
+    in_sprint:     { label: 'Seed',            color: 'rgb(245,158,11)',        action: 'seed',            actionLabel: '#LetsSeedTheDiscovery' },
+    seeded:        { label: 'Discovery',       color: 'rgb(251,146,60)',        action: 'audit_discovery', actionLabel: '#LetsAuditTheDiscovery' },
     disc_audited:  { label: 'Plan',            color: 'rgb(234,88,12)',         action: 'prompt',          actionLabel: '#LetsPlanIt' },
     planned:       { label: 'Plan Audit',      color: 'var(--portal, #4a7ab5)', action: 'audit_plan',      actionLabel: '#LetsAuditThePlan' },
     plan_audited:  { label: 'Build',           color: 'rgb(99,102,241)',        action: 'prompt',          actionLabel: '#LetsBuildIt' },
@@ -401,7 +403,7 @@ function ForgeInner({ portal }: ForgeProps) {
     confirmed:     { label: 'Complete',        color: 'rgb(34,197,94)',         action: 'reopen',          actionLabel: 'Reopen Sprint' },
   }
 
-  const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, disc_audited: 3, planned: 4, plan_audited: 5, built: 6, audited: 7, confirmed: 8 }
+  const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, seeded: 3, disc_audited: 4, planned: 5, plan_audited: 6, built: 7, audited: 8, confirmed: 9 }
 
   const sprintCards = useMemo(() => {
     return sprints.map(sp => {
@@ -420,12 +422,13 @@ function ForgeInner({ portal }: ForgeProps) {
         phase = 'confirmed'
       } else if (activeItems.length > 0) {
         const minRank = Math.min(...activeItems.map(i => STATUS_RANK[i.status] ?? 0))
-        if (minRank >= 8) phase = 'confirmed'
-        else if (minRank >= 7) phase = 'audited'
-        else if (minRank >= 6) phase = 'built'
-        else if (minRank >= 5) phase = 'plan_audited'
-        else if (minRank >= 4) phase = 'planned'
-        else if (minRank >= 3) phase = 'disc_audited'
+        if (minRank >= 9) phase = 'confirmed'
+        else if (minRank >= 8) phase = 'audited'
+        else if (minRank >= 7) phase = 'built'
+        else if (minRank >= 6) phase = 'plan_audited'
+        else if (minRank >= 5) phase = 'planned'
+        else if (minRank >= 4) phase = 'disc_audited'
+        else if (minRank >= 3) phase = 'seeded'
         else phase = 'in_sprint'
       } else if (sp.phase) {
         // No active items — use stored phase from sprint doc
@@ -533,7 +536,7 @@ function ForgeInner({ portal }: ForgeProps) {
         setShowPrompt(true)
         // Move items forward based on phase (use allItems, not filtered items)
         const targetStatus = phaseParam === 'discovery' ? 'planned' : phaseParam === 'building' ? 'built' : null
-        const fromStatuses = phaseParam === 'discovery' ? ['disc_audited', 'in_sprint'] : phaseParam === 'building' ? ['plan_audited', 'planned'] : []
+        const fromStatuses = phaseParam === 'discovery' ? ['disc_audited', 'seeded'] : phaseParam === 'building' ? ['plan_audited', 'planned'] : []
         const sprintItems = targetStatus ? allItems.filter(i => i.sprint_id === sid && fromStatuses.includes(i.status)) : []
         if (sprintItems.length > 0) {
           await fetchValidated(`${API_BASE}/tracker/bulk`, {
@@ -699,9 +702,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         setPromptText(res.data?.prompt || '')
         setPromptSprintId(sprintId)
         setShowPrompt(true)
-        // Advance items: discovery audit (in_sprint → disc_audited), plan audit (planned → plan_audited)
+        // Advance items: discovery audit (seeded → disc_audited), plan audit (planned → plan_audited)
         const targetStatus = auditType === 'discovery' ? 'disc_audited' : 'plan_audited'
-        const fromStatuses = auditType === 'discovery' ? ['in_sprint'] : ['planned']
+        const fromStatuses = auditType === 'discovery' ? ['seeded'] : ['planned']
         const sprintItems = allItems.filter(i => i.sprint_id === sprintId && fromStatuses.includes(i.status))
         if (sprintItems.length > 0) {
           await fetchValidated(`${API_BASE}/tracker/bulk`, {
@@ -1583,7 +1586,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               {phaseConfig && (
                 <button
                   onClick={async () => {
-                    if (sp.phase === 'in_sprint') generatePhaseAudit(sp.id, 'discovery')
+                    if (sp.phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
                     else if (sp.phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
                     else if (sp.phase === 'planned') generatePhaseAudit(sp.id, 'plan')
                     else if (sp.phase === 'plan_audited') generatePrompt(sp.id, 'building')
@@ -1850,7 +1853,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation()
-                                if (phase === 'in_sprint') generatePhaseAudit(sp.id, 'discovery')
+                                if (phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
                                 else if (phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
                                 else if (phase === 'planned') generatePhaseAudit(sp.id, 'plan')
                                 else if (phase === 'plan_audited') generatePrompt(sp.id, 'building')
