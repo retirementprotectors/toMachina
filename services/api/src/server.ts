@@ -68,6 +68,7 @@ import { configRoutes } from './routes/config.js'
 import { dashboardRoutes } from './routes/dashboard.js'
 import { mdjRoutes } from './routes/mdj.js'
 import { auditMiddleware } from './middleware/audit.js'
+import { registerDexCheckHandlers } from './lib/dex-check-handlers.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -78,6 +79,10 @@ if (getApps().length === 0) {
 }
 
 export const db = getFirestore()
+
+// Register DEX check handlers for Flow Engine (NBX pipeline integration)
+registerDexCheckHandlers()
+
 const app = express()
 
 // Global middleware
