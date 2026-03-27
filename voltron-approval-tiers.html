@@ -621,17 +621,25 @@
           <td>Creates a calendar event (Google Calendar)</td>
           <td class="risk-label">Affects schedules of team members and clients without their knowledge. Wrong times or attendees cause confusion.</td>
         </tr>
+        <!-- Bulk / campaign sends -->
+        <tr>
+          <td><span class="mono">mcp_comms_campaign_execute_send</span></td>
+          <td>Executes a campaign send to its full audience immediately</td>
+          <td class="risk-label">Can touch hundreds or thousands of clients at once. One bad send is catastrophic — PHI exposure, opt-out violations, brand damage.</td>
+        </tr>
+        <tr>
+          <td><span class="mono">mcp_comms_campaign_execute_batch</span></td>
+          <td>Executes a campaign in batches across a contact list</td>
+          <td class="risk-label">Same risk as a full send — batch execution at scale with no human checkpoint is unacceptable.</td>
+        </tr>
+        <tr>
+          <td><span class="mono">mcp_comms_comms_send_bulk_email</span></td>
+          <td>Sends a bulk email blast to a list of recipients</td>
+          <td class="risk-label">Mass outbound email — deliverability reputation, CAN-SPAM, PHI risk. Never autonomous.</td>
+        </tr>
       </tbody>
     </table>
   </div>
-
-  <!-- NOTE: bulk sends are classified as DANGEROUS in the source but listed under OWNER_BYPASS in some comments.
-       The source arrays are authoritative — these 3 are in DANGEROUS_TOOLS. -->
-  <!-- Wait — re-reading the source: the bulk sends are actually in DANGEROUS_TOOLS. Let me verify... -->
-  <!-- From the file: mcp_comms_campaign_execute_send, mcp_comms_campaign_execute_batch, mcp_comms_comms_send_bulk_email
-       These are in DANGEROUS_TOOLS (lines 83-85). But that makes the RED count 19 not 17.
-       Let me recount: 7 comms + 2 slack/chat + 2 client + 2 account + 3 flow + 1 calendar + 3 bulk = 20.
-       Wait, re-reading lines 41-86 of voltron-os-rules.ts carefully... -->
 
   <!-- ══════════════════════════════════════════════════ YELLOW TIER -->
   <div class="tier-banner tier-banner-yellow">
@@ -645,7 +653,7 @@
       </div>
     </div>
     <div style="text-align:right;">
-      <div class="tier-count">19</div>
+      <div class="tier-count">25</div>
       <div class="tier-count-label">tools</div>
     </div>
   </div>
@@ -806,7 +814,7 @@
       </div>
     </div>
     <div style="text-align:right;">
-      <div class="tier-count">57</div>
+      <div class="tier-count">75</div>
       <div class="tier-count-label">tools</div>
     </div>
   </div>
