@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sprint 004: RAIDEN — The Reactive Guardian</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
   :root {
     --bg: #0f0f0f;
@@ -511,6 +512,8 @@
     <div class="tab" data-tab="architecture">Architecture</div>
     <div class="tab" data-tab="comms">Comms Templates</div>
     <div class="tab" data-tab="sprint">Sprint Plan</div>
+    <div class="tab" data-tab="forge-ui"><span class="material-icons" style="font-size:15px;vertical-align:middle;margin-right:3px">temple_buddhist</span>The Dojo</div>
+    <div class="tab" data-tab="cost-matrix">💰 Cost Matrix</div>
   </div>
 </div>
 <div class="content">
@@ -1357,6 +1360,636 @@
 
   </div>
 
+  <!-- ====== TAB: THE DOJO ====== -->
+  <div class="panel" id="panel-forge-ui">
+
+    <div class="section">
+      <div class="section-title">The Dojo — RONIN &amp; RAIDEN's Home</div>
+      <div class="card red-border">
+        <h3>Why Two Tabs?</h3>
+        <p>The Dojo (formerly FORGE) is the ProDashX module where both agents live. RONIN builds. RAIDEN guards. The ProDashX module is being renamed <strong>The Dojo</strong> — <code>temple_buddhist</code> icon — because this is where the agents train, work, and ship. RONIN and RAIDEN live here. The name reflects the discipline.</p>
+        <p>The Dojo board has two tabs: RAIDEN (reactive bug queue) and RONIN (sprint lifecycle). RAIDEN gets the lightning bolt — that bolt <em>is</em> RAIDEN. RONIN gets the robotic arm — the autonomous builder. The icons do the talking.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tab</th>
+              <th>Icon</th>
+              <th>Material Icon</th>
+              <th>Agent</th>
+              <th>Focus</th>
+              <th>Flow</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>⚡ RAIDEN</strong></td>
+              <td>Lightning Bolt</td>
+              <td><code>bolt</code></td>
+              <td><span class="badge badge-red">RAIDEN</span></td>
+              <td>Reactive bug/fix queue — task-based</td>
+              <td>6-stage fast loop</td>
+            </tr>
+            <tr>
+              <td><strong>RONIN</strong></td>
+              <td>Robotic Arm</td>
+              <td><code>precision_manufacturing</code></td>
+              <td><span class="badge badge-muted">RONIN</span></td>
+              <td>Sprint lifecycle — project-based</td>
+              <td>10-stage FORGE flow</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="quote">
+        RONIN builds the future. RAIDEN guards the present. The Dojo is where both live — same surface, different weapons.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">RAIDEN Tab — Ticket Field Spec</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">RAIDEN tickets are NOT RONIN sprint tickets. No Discovery Doc. No Plan Doc. No gate reviews. These are fast-loop reactive items — in, triaged, fixed, done.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Values / Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>item_id</code></td>
+              <td>string</td>
+              <td>Auto-generated. Prefix by type: <span class="badge badge-red">BUG-001</span> <span class="badge badge-blue">FIX-001</span> <span class="badge badge-purple">UX-001</span> (replaces TRK- prefix)</td>
+            </tr>
+            <tr>
+              <td><code>title</code></td>
+              <td>string</td>
+              <td>Issue description — required</td>
+            </tr>
+            <tr>
+              <td><code>type</code></td>
+              <td>enum</td>
+              <td><code>bug</code> | <code>fix</code> | <code>regression</code> | <code>ux</code> | <code>question</code> | <code>training</code></td>
+            </tr>
+            <tr>
+              <td><code>reporter</code></td>
+              <td>string</td>
+              <td>Team member name or <span class="badge badge-red">RAIDEN auto-detect</span></td>
+            </tr>
+            <tr>
+              <td><code>priority</code></td>
+              <td>enum</td>
+              <td><span class="badge badge-red">P0 Critical</span> <span class="badge badge-orange">P1 High</span> <span class="badge badge-gold">P2 Medium</span> <span class="badge badge-muted">P3 Low</span></td>
+            </tr>
+            <tr>
+              <td><code>status</code></td>
+              <td>enum</td>
+              <td>RAIDEN's 6 stage statuses — see below</td>
+            </tr>
+            <tr>
+              <td><code>source</code></td>
+              <td>enum</td>
+              <td><code>slack</code> | <code>dojo_board</code> | <code>auto_detect</code> | <code>team_submission</code></td>
+            </tr>
+            <tr>
+              <td><code>resolution</code></td>
+              <td>string</td>
+              <td>What RAIDEN did — free text, written by agent</td>
+            </tr>
+            <tr>
+              <td><code>raiden_action</code></td>
+              <td>enum</td>
+              <td><code>auto_fixed</code> | <code>routed_to_ronin</code> | <code>training_sent</code> | <code>escalated</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">RAIDEN's 6-Stage Status Flow</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Compare to RONIN's 10-stage FORGE lifecycle. RAIDEN runs fast. Anything too complex exits through <strong style="color:var(--orange);">ESCALATED</strong> and becomes a RONIN sprint ticket automatically.</p>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node blue">1</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">NEW <span class="badge badge-blue" style="margin-left:8px;">new</span></div>
+            <div class="flow-desc">Just came in, unprocessed. RAIDEN has seen it but hasn't classified it yet. Tickets from Slack, Quick Submit, or auto-detect land here first.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node gold">2</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">TRIAGING <span class="badge badge-gold" style="margin-left:8px;">triaging</span></div>
+            <div class="flow-desc">RAIDEN is classifying — reading context, checking recent deploys, checking for duplicates, determining whether it can self-fix or must route.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node red">3</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">FIXING <span class="badge badge-red" style="margin-left:8px;">fixing</span></div>
+            <div class="flow-desc">RAIDEN is actively working — writing a fix, creating a PR, or generating training content. This is the execution phase.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node purple">4</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">VERIFYING <span class="badge badge-purple" style="margin-left:8px;">verifying</span></div>
+            <div class="flow-desc">Fix applied. RAIDEN is checking it worked — CI status, Slack acknowledgment, follow-up from reporter. Stays here until confirmed resolved.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node green">5</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">DONE <span class="badge badge-green" style="margin-left:8px;">done</span></div>
+            <div class="flow-desc">Resolved. Resolution field filled. RAIDEN DMs JDM overnight summary. Archived after 30 days.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-connector">
+            <div class="flow-node" style="background:rgba(249,115,22,0.15);color:var(--orange);border:1px solid var(--orange);">6</div>
+          </div>
+          <div class="flow-body">
+            <div class="flow-title">ESCALATED → RONIN <span class="badge badge-orange" style="margin-left:8px;">escalated</span></div>
+            <div class="flow-desc">Too complex for a fast fix. RAIDEN creates a RONIN sprint ticket automatically, links back to the RAIDEN item, and posts context in #prodashx-urgent-fixes-and-bugs. The issue doesn't disappear — it upgrades.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">RAIDEN Kanban — Column Layout</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Columns map directly to RAIDEN's 6 stages. P0s always sort to the top of every column. Priority badge color makes severity scannable at a glance.</p>
+      <div class="watch-cycle" style="background:var(--surface2);">
+        <div class="cycle-step">
+          <div class="cs-num" style="color:var(--blue);">NEW</div>
+          <div class="cs-label">Unprocessed</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num" style="color:var(--gold);">TRIAGING</div>
+          <div class="cs-label">Classifying</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num" style="color:var(--red);">FIXING</div>
+          <div class="cs-label">Active Work</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num" style="color:var(--purple);">VERIFYING</div>
+          <div class="cs-label">Check It Worked</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num" style="color:var(--green);">DONE</div>
+          <div class="cs-label">Resolved</div>
+        </div>
+        <div class="cycle-step">
+          <div class="cs-num" style="color:var(--orange);">ESCALATED</div>
+          <div class="cs-label">→ RONIN Sprint</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Card Display</h3>
+        <p>Each RAIDEN Kanban card shows: <strong>Priority badge</strong> (P0 = red, P1 = orange, P2 = yellow, P3 = gray) · <strong>Type badge</strong> (Bug, Fix, UX, etc.) · <strong>Reporter name</strong> · <strong>RAIDEN action badge</strong> (Auto Fixed / Training Sent / Routed / Escalated) · <strong>Time in queue</strong>. Sorted by priority descending within each column.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">AutoSprint Integration — Auto-Triage</div>
+      <div class="card gold-border">
+        <h3>Wire POST /api/sprints/auto to RAIDEN's Tab</h3>
+        <p>The existing <code>POST /api/sprints/auto</code> endpoint clusters unassigned tickets by component and generates a sprint. It's perfect for RAIDEN's batch workflow. An "Auto-Triage" button in the RAIDEN tab header fires this endpoint scoped to RAIDEN's NEW queue.</p>
+        <p style="margin-top:8px;">RAIDEN groups similar issues (e.g., 3 ACF timeout bugs → one micro-sprint), suggests batch fix order, marks them as a grouped triage pass. No manual sorting, no JDM involvement. One click, queue organized.</p>
+      </div>
+      <div class="code-block"><span class="comment">// RAIDEN Auto-Triage — reuses existing endpoint, scoped to RAIDEN items</span>
+<span class="keyword">POST</span> <span class="string">/api/sprints/auto</span>
+{
+  <span class="string">"scope"</span>: <span class="string">"raiden"</span>,          <span class="comment">// filters to RAIDEN ticket types only</span>
+  <span class="string">"status"</span>: <span class="string">"new"</span>,            <span class="comment">// only unprocessed items</span>
+  <span class="string">"groupBy"</span>: <span class="string">"component"</span>       <span class="comment">// clusters by affected area</span>
+}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Filter &amp; Sort — Tab Differences</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Filter / Sort</th>
+              <th>⚡ RAIDEN Tab</th>
+              <th>RONIN Tab</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Priority</td>
+              <td><span class="badge badge-green">Yes</span> P0 / P1 / P2 / P3</td>
+              <td>Not applicable</td>
+            </tr>
+            <tr>
+              <td>Type</td>
+              <td><span class="badge badge-green">Yes</span> Bug / Fix / UX / Training / etc.</td>
+              <td><span class="badge badge-green">Yes</span> existing types</td>
+            </tr>
+            <tr>
+              <td>RAIDEN Action</td>
+              <td><span class="badge badge-green">Yes</span> Auto Fixed / Routed / Training / Escalated</td>
+              <td>Not applicable</td>
+            </tr>
+            <tr>
+              <td>Reporter</td>
+              <td><span class="badge badge-green">Yes</span> filter by submitter</td>
+              <td>Not applicable</td>
+            </tr>
+            <tr>
+              <td>Source</td>
+              <td><span class="badge badge-green">Yes</span> Slack / Manual / Auto-detect</td>
+              <td>Not applicable</td>
+            </tr>
+            <tr>
+              <td>Time Range</td>
+              <td><span class="badge badge-green">Yes</span> Last 24h / 7d / 30d</td>
+              <td>Not applicable</td>
+            </tr>
+            <tr>
+              <td>Portal</td>
+              <td>Not applicable</td>
+              <td><span class="badge badge-green">Yes</span> existing filter</td>
+            </tr>
+            <tr>
+              <td>Component / Sprint / Status</td>
+              <td>Not applicable</td>
+              <td><span class="badge badge-green">Yes</span> all existing filters</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Quick Submit Form — Team Member Submission</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Team members submit issues directly to RAIDEN's queue from inside The Dojo. No Slack DM hunting. No "who do I tell?" confusion. Under 30 seconds from problem noticed to ticket created.</p>
+      <div class="card blue-border">
+        <h3>Form Fields (minimal — by design)</h3>
+        <p><strong>Title</strong> (required) — "What broke?" placeholder. Red border on empty submit — form blocks if title is empty.<br>
+        <strong>Type</strong> dropdown — Bug / Fix / UX / Question / Training<br>
+        <strong>Priority</strong> — defaults to P2, team can bump to P1 or P0<br>
+        <strong>Screenshot attachment</strong> — optional, drag-and-drop<br>
+        <strong>Submit</strong> → goes directly to RAIDEN's <code>new</code> queue</p>
+      </div>
+      <div class="card">
+        <h3>60-Second Slack Confirmation Loop</h3>
+        <p>Within 60 seconds of submission, RAIDEN posts to the <strong>Dojo channel</strong> (not just a DM — the channel is visible to everyone):</p>
+        <div class="code-block" style="margin-top:12px;"><span class="comment">// On submission</span>
+🔴 NEW: [Title] — TRK-XXX submitted by @[name]
+Type: [Bug/Fix/UX] | Priority: P2
+RAIDEN is triaging...
+
+<span class="comment">// On duplicate detected (similar title already open)</span>
+⚠️ Already reported: TRK-XXX "[existing title]" — Status: [Fixing/Done]
+No need to resubmit.
+
+<span class="comment">// When RAIDEN starts working</span>
+🔧 IN PROGRESS: TRK-XXX "[title]" — RAIDEN is on it
+
+<span class="comment">// When fix ships</span>
+✅ FIXED: TRK-XXX "[title]" — deployed. Refresh to verify.</div>
+      </div>
+      <div class="card">
+        <h3>Design Rules</h3>
+        <p>No discovery doc. No description field. No component selector. No epic link. Team members are not engineers — they describe symptoms, not causes. RAIDEN reads the symptom and figures out the rest. Keep the form to 3 fields + submit.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Slack Channel — Primary Submission Path</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Team members can also submit directly from Slack — no need to open The Dojo. This is the zero-friction path for people already living in Slack.</p>
+      <div class="card gold-border">
+        <h3>#dojo-fixes — The Source of Truth</h3>
+        <p>A dedicated Slack channel (<code>#dojo-fixes</code> or <code>#prodash-report</code>) gives the team a natural-workflow submission path. RAIDEN monitors the channel as a first-class submission source — identical processing to the Quick Submit button.</p>
+        <p style="margin-top:8px;">Channel purpose: submission, acknowledgement, status updates, resolution confirmation. The channel IS the source of truth for what's broken and what's been fixed.</p>
+      </div>
+      <div class="card red-border">
+        <h3 style="color:var(--red);">Why This Matters — The 10-Duplicate Problem</h3>
+        <p>When 10 people hit the same bug at the same time, they all submit a ticket. Without visibility, you get 10 duplicate tickets, 10 people asking "is it fixed yet?", and noise that buries the real signal.</p>
+        <p style="margin-top:8px;"><strong>With the channel:</strong> Person 1 submits → everyone sees the ID immediately → persons 2–10 see it's already reported and stand down. RAIDEN posts the fix. Everyone sees it. Done. No follow-up DMs. No support queue. The channel IS the source of truth.</p>
+      </div>
+      <div class="table-wrap" style="margin-top:16px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Channel Post</th>
+              <th>Timing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>New submission received</td>
+              <td>🔴 NEW: [Title] — TRK-XXX | Type | Priority | RAIDEN is triaging...</td>
+              <td>&lt; 60 seconds</td>
+            </tr>
+            <tr>
+              <td>Duplicate detected</td>
+              <td>⚠️ Already reported: TRK-XXX — Status: [Fixing/Done] — No need to resubmit.</td>
+              <td>Immediate</td>
+            </tr>
+            <tr>
+              <td>RAIDEN starts fix</td>
+              <td>🔧 IN PROGRESS: TRK-XXX "[title]" — RAIDEN is on it</td>
+              <td>At stage transition</td>
+            </tr>
+            <tr>
+              <td>Fix ships</td>
+              <td>✅ FIXED: TRK-XXX "[title]" — deployed. Refresh to verify.</td>
+              <td>At deploy confirmation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Ticket: TRK-S04-RAIDEN-SLACK-001</h3>
+        <p>Create <code>#dojo-fixes</code> Slack channel and wire RAIDEN to monitor it as a submission source (same 15-min polling interval as The Dojo board). Messages posted to the channel are processed as ticket submissions — RAIDEN reads them, creates a <code>tracker_item</code>, and replies in-thread with the TRK ID. Identical processing to Quick Submit button.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">RONIN Tab — Minimal Changes</div>
+      <div class="card">
+        <h3>Keep Everything. Add Two Things.</h3>
+        <p>Everything in the current RONIN Sprint Kanban (inside The Dojo) stays exactly as-is. The only additions:</p>
+        <p style="margin-top:8px;">1. <strong><code>precision_manufacturing</code> icon</strong> in the RONIN tab header — the robotic arm signals autonomous builder.<br>
+        2. <strong>RONIN attribution badge</strong> on sprint cards — subtle callout that this work is agent-owned vs. human-created.<br>
+        Tab state persists per user session in localStorage.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sprint Plan — The Dojo Tickets</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">8 tickets. The Dojo app (module rename + dual-tab board + submissions) + Slack channel integration. Add these to the Sprint 004 plan.</p>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-001</div>
+          <div class="ticket-title">Rename FORGE module to The Dojo (temple_buddhist icon)</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-red">P1 High</span>
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-muted">The Dojo</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Rename the FORGE ProDashX module to <strong>The Dojo</strong>. Update: nav sidebar label, module header, route title, page <code>&lt;title&gt;</code>, and any FORGE references in Dojo.tsx / Forge.tsx. Module icon: <code>temple_buddhist</code> (Material Icons). RONIN and RAIDEN live here — the name should reflect the discipline.<br><br>
+          <strong>Acceptance:</strong> No visible reference to "FORGE" as the app name remains in the UI. All internal code references updated. temple_buddhist icon renders in sidebar nav and module header.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-002</div>
+          <div class="ticket-title">Create RAIDEN tab in The Dojo board (Dojo.tsx)</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-red">P1 High</span>
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-muted">RAIDEN</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> New tab in The Dojo header with <code>bolt</code> (lightning bolt) icon. RAIDEN-specific Kanban columns: NEW → TRIAGING → FIXING → VERIFYING → DONE → ESCALATED. Stage statuses wired to Firestore <code>tracker_items</code> with <code>agent: "raiden"</code> filter.<br><br>
+          <strong>Acceptance:</strong> Tab renders with correct columns. Switching from RONIN tab is clean (no flicker, no state leak). Priority sorting active by default (P0s at top of every column).
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-003</div>
+          <div class="ticket-title">Rename RONIN tab with precision_manufacturing icon</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-muted">RONIN</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Update existing Sprint Kanban to be explicitly the RONIN tab. Add <code>precision_manufacturing</code> Material Icon to the tab header. Add subtle RONIN attribution badge on sprint cards.<br><br>
+          <strong>Acceptance:</strong> Both tabs visible in The Dojo header. Correct icons displayed. Tab state persists in localStorage between page loads.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-004</div>
+          <div class="ticket-title">RAIDEN ticket schema — new Firestore fields</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-red">P1 High</span>
+          <span class="badge badge-orange">Backend</span>
+          <span class="badge badge-muted">Data</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Extend <code>tracker_items</code> Firestore collection to support RAIDEN fields: <code>priority</code> (p0–p3), <code>source</code> (slack/dojo_board/auto_detect/team_submission), <code>raiden_action</code> (auto_fixed/routed_to_ronin/training_sent/escalated), <code>resolution</code> (string). Item ID prefix by type: BUG- / FIX- / UX- (generated server-side in API route). Add <code>agent</code> field (<code>"raiden"</code> | <code>"ronin"</code>) to allow shared collection with filtered reads.<br><br>
+          <strong>Acceptance:</strong> <code>tracker_items</code> supports both RONIN and RAIDEN fields without breaking existing RONIN reads. RAIDEN items correctly prefixed. API contract verified before writing (read frontend consumer first).
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-005</div>
+          <div class="ticket-title">Auto-Triage button — AutoSprint wired to RAIDEN tab</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-orange">Backend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> "Auto-Triage" button in RAIDEN tab header fires <code>POST /api/sprints/auto</code> with <code>{ scope: "raiden", status: "new", groupBy: "component" }</code>. Response groups similar new tickets, suggests batch fix order, returns grouped clusters. UI shows triage results as a quick-review modal before committing the sort.<br><br>
+          <strong>Acceptance:</strong> One click groups and prioritizes RAIDEN's NEW queue. No manual sorting required. Grouped result visible in RAIDEN Kanban immediately after confirmation.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-006</div>
+          <div class="ticket-title">Quick Submit form — title validation + Slack DM on submit</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-muted">UX</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Quick Submit form in The Dojo's RAIDEN tab. Fields: Title (required — "What broke?" placeholder, red border + block on empty submit), Type dropdown (Bug/Fix/UX/Question/Training), Priority (default P2), optional screenshot attachment. Submits to <code>POST /api/tracker/raiden</code>. RAIDEN sends Slack DM to submitter with item ID + status within 60 seconds.<br><br>
+          <strong>Acceptance:</strong> Any team member submits in under 30 seconds. Empty title blocked at form level. Submitter receives DM confirmation with item ID within 60 seconds of submit.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-007</div>
+          <div class="ticket-title">Create #dojo-fixes Slack channel + wire RAIDEN as monitor</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-orange">Backend</span>
+          <span class="badge badge-muted">Slack</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Create <code>#dojo-fixes</code> channel in the RPI Slack workspace. Wire RAIDEN to monitor the channel as a first-class submission source — same 15-min polling interval as The Dojo board. New messages in the channel are processed identically to Quick Submit: RAIDEN reads the message, creates a <code>tracker_item</code>, replies in-thread with TRK ID + status.<br><br>
+          <strong>Acceptance:</strong> Channel exists and confirmed in workspace. RAIDEN polls and processes channel messages. In-thread reply confirms ticket creation with item ID. Source field on created item = <code>"slack"</code>.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-008</div>
+          <div class="ticket-title">60-second Slack channel confirmation loop</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-orange">Backend</span>
+          <span class="badge badge-muted">Slack</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> RAIDEN posts status updates to <code>#dojo-fixes</code> at key lifecycle events — not just DMs. Four event types:<br>
+          1. <strong>On submit</strong> (&lt;60s): 🔴 NEW: [Title] — TRK-XXX submitted by @[name] | Type | Priority | RAIDEN is triaging...<br>
+          2. <strong>On duplicate</strong> (immediate): ⚠️ Already reported: TRK-XXX "[existing title]" — Status: [Fixing/Done] — No need to resubmit.<br>
+          3. <strong>On RAIDEN start</strong>: 🔧 IN PROGRESS: TRK-XXX "[title]" — RAIDEN is on it<br>
+          4. <strong>On fix ship</strong>: ✅ FIXED: TRK-XXX "[title]" — deployed. Refresh to verify.<br><br>
+          <strong>Acceptance:</strong> All 4 message types post to channel (not just DM). Duplicate detection fires before creating a second ticket. Deploy confirmation triggers the FIXED message. Channel serves as the single source of truth — no follow-up DMs needed.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="panel" id="panel-cost-matrix">
+  <div class="content" style="max-width:1100px;margin:0 auto;padding:40px 48px;">
+
+    <div class="section">
+      <div class="section-title">RAIDEN — Triage Stage Model Routing</div>
+      <table>
+        <tr>
+          <th>Stage</th><th>Trigger</th><th>Model</th><th>Budget Cap</th>
+          <th style="color:var(--green)">Quick Fix</th>
+          <th style="color:var(--gold)">Medium Bug</th>
+          <th style="color:var(--orange)">Complex Issue</th>
+          <th>Why This Model</th>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Triage</td><td>Auto (15-min poll)</td>
+          <td><span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Haiku</span></td><td>$0.50</td>
+          <td style="color:var(--green);font-weight:700">$0.02</td><td style="color:var(--gold);font-weight:700">$0.05</td><td style="color:var(--orange);font-weight:700">$0.10</td>
+          <td style="color:var(--muted);font-size:12px">Classify only. Fast, cheap, binary decision.</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Training Response</td><td>"Already exists"</td>
+          <td><span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Haiku</span></td><td>$1</td>
+          <td style="color:var(--green);font-weight:700">$0.05</td><td style="color:var(--gold);font-weight:700">$0.10</td><td style="color:var(--muted)">—</td>
+          <td style="color:var(--muted);font-size:12px">Find docs + format Slack message. Haiku fast enough.</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Auto-Fix</td><td>Quick fix path</td>
+          <td><span style="background:rgba(59,130,246,0.15);color:#3b82f6;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Sonnet</span></td><td>$8</td>
+          <td style="color:var(--green);font-weight:700">$0.50</td><td style="color:var(--gold);font-weight:700">$2.00</td><td style="color:var(--orange);font-weight:700">$5.00</td>
+          <td style="color:var(--muted);font-size:12px">Real code change. Sonnet reliable for targeted fixes.</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Verify Fix</td><td>Post-fix check</td>
+          <td><span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Haiku</span></td><td>$1</td>
+          <td style="color:var(--green);font-weight:700">$0.05</td><td style="color:var(--gold);font-weight:700">$0.10</td><td style="color:var(--orange);font-weight:700">$0.20</td>
+          <td style="color:var(--muted);font-size:12px">Did it work? Binary check. Haiku sufficient.</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Escalate → RONIN</td><td>Too complex</td>
+          <td><span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Haiku</span></td><td>$0.50</td>
+          <td colspan="3" style="color:var(--muted);font-size:12px">Creates RONIN sprint ticket + notifies JDM</td>
+          <td style="color:var(--muted);font-size:12px">Just routing. Near-zero cost.</td>
+        </tr>
+        <tr style="border-top:2px solid var(--border);font-weight:700;background:#111">
+          <td colspan="4"><strong>RAIDEN Total Per Issue</strong></td>
+          <td style="color:var(--green);font-weight:700">$0.07–0.60</td>
+          <td style="color:var(--gold);font-weight:700">$0.15–2.20</td>
+          <td style="color:var(--orange);font-weight:700">$5–8 then → RONIN</td>
+          <td style="color:var(--muted);font-size:12px">RAIDEN is inherently cheap by design</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Project Size Comparison</div>
+      <table>
+        <tr>
+          <th>Size</th><th>Tickets</th><th>Example</th><th>RONIN Cost</th><th>Time (Overnight)</th><th>vs. Human Dev</th>
+        </tr>
+        <tr>
+          <td style="color:#22c55e;font-weight:700">TINY</td><td>3–5</td><td>Single bug fix sprint, small feature</td>
+          <td style="color:#22c55e;font-weight:700">$5–10</td><td>2–3 hours</td>
+          <td style="color:var(--muted);font-size:12px">$5k+ in eng time → $8</td>
+        </tr>
+        <tr>
+          <td style="color:var(--gold);font-weight:700">AVERAGE</td><td>10–15</td><td>Sprint 001 VOLTRON, Sprint 005</td>
+          <td style="color:var(--gold);font-weight:700">$15–30</td><td>4–6 hours</td>
+          <td style="color:var(--muted);font-size:12px">$15k+ in eng time → $25</td>
+        </tr>
+        <tr>
+          <td style="color:var(--orange);font-weight:700">MAJOR</td><td>20–30</td><td>RSP Pipeline, Action Engine</td>
+          <td style="color:var(--orange);font-weight:700">$35–75</td><td>8–12 hours</td>
+          <td style="color:var(--muted);font-size:12px">$50k+ in eng time → $55</td>
+        </tr>
+        <tr>
+          <td style="color:var(--red);font-weight:700">PLATFORM</td><td>50+</td><td>ACF Overhaul, Full portal build</td>
+          <td style="color:var(--red);font-weight:700">$100–200</td><td>Multiple nights</td>
+          <td style="color:var(--muted);font-size:12px">$200k+ in eng time → $150</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">The Rules</div>
+      <div class="card gold-border" style="margin-bottom:10px">
+        <p><strong style="color:var(--gold)">Rule 1:</strong> RONIN builds use <span style="background:rgba(165,85,247,0.15);color:#a855f7;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Opus</span> for Plan + Build. Always. Accuracy costs pennies compared to rework.</p>
+      </div>
+      <div class="card gold-border" style="margin-bottom:10px">
+        <p><strong style="color:var(--gold)">Rule 2:</strong> Audits use <span style="background:rgba(59,130,246,0.15);color:#3b82f6;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Sonnet</span> at $5–8, not Haiku at $1. The $1 cap was why audits failed all night.</p>
+      </div>
+      <div class="card gold-border" style="margin-bottom:10px">
+        <p><strong style="color:var(--gold)">Rule 3:</strong> RAIDEN stays on <span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Haiku</span> for triage/routing, <span style="background:rgba(59,130,246,0.15);color:#3b82f6;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">Sonnet</span> only when writing code.</p>
+      </div>
+      <div class="card gold-border" style="margin-bottom:10px">
+        <p><strong style="color:var(--gold)">Rule 4:</strong> The expensive sessions ($21k ACF) aren't model cost — they're <strong>runaway context windows on GA sessions</strong>. RONIN/RAIDEN short bounded sessions = never hits that wall.</p>
+      </div>
+      <div class="card gold-border" style="margin-bottom:10px">
+        <p><strong style="color:var(--gold)">Rule 5:</strong> Your $7k/month isn't from RONIN/RAIDEN. It's from 53-hour GA sessions with full codebase in context. Learning Loop 2.0 + shorter sessions fixes this permanently.</p>
+      </div>
+    </div>
+
+    <div class="card blue-border">
+      <p style="color:var(--muted);font-size:12px">Baseline from Sprint 001 runs — to be refined after Sprint 005 infrastructure is locked in. Model performance cannot be fairly evaluated until prompts, budgets, cwd, and phase transitions are all correctly configured.</p>
+    </div>
+
+  </div>
 </div>
 
 <script>

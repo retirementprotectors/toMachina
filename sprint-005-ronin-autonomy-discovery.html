@@ -89,6 +89,7 @@
   <div class="tab" onclick="show(5)">6. Builder Prompt Spec</div>
   <div class="tab" onclick="show(6)">7. cwd Per Sprint</div>
   <div class="tab" onclick="show(7)">8. Sprint Plan</div>
+  <div class="tab" onclick="show(8)">💰 Cost Matrix</div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
@@ -1240,6 +1241,116 @@ Report: TICKET COMPLETE or TICKET FAILED: [reason]</code></pre>
     <tr><td><span class="trk">S05-014</span></td><td><code>Forge.tsx + ForgeAudit</code></td><td><span class="tag tag-new">NEW</span></td><td>S05-013</td></tr>
     <tr><td><span class="trk">S05-015</span></td><td><code>phases.ts</code></td><td><span class="tag tag-fix">FIX</span></td><td>—</td></tr>
   </table>
+</div>
+
+<div class="panel" id="p8">
+  <h2>💰 Cost Matrix</h2>
+
+  <h3>RONIN — Stage-by-Stage Model Routing</h3>
+  <table>
+    <tr>
+      <th>Stage</th><th>Hashtag</th><th>Model</th><th>Budget Cap</th>
+      <th style="color:#22c55e">Tiny (3-5 tix)</th>
+      <th style="color:#eab308">Avg (10-15 tix)</th>
+      <th style="color:#f97316">Major (20-30 tix)</th>
+      <th>Why This Model</th>
+    </tr>
+    <tr>
+      <td style="font-weight:600">Discovery Seed</td><td><code>#LetsSeedTheDiscovery</code></td>
+      <td><span class="tag tag-sonnet">Sonnet</span></td><td>$3</td>
+      <td style="color:#22c55e;font-weight:700">$0.10</td><td style="color:#eab308;font-weight:700">$0.30</td><td style="color:#f97316;font-weight:700">$0.60</td>
+      <td class="lc">Read HTML, extract JSON. Needs reliability not genius.</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">Discovery Audit</td><td><code>#LetsAuditTheDiscovery</code></td>
+      <td><span class="tag tag-sonnet">Sonnet</span></td><td>$5</td>
+      <td style="color:#22c55e;font-weight:700">$0.20</td><td style="color:#eab308;font-weight:700">$0.50</td><td style="color:#f97316;font-weight:700">$1.00</td>
+      <td class="lc">Must WebFetch URL + audit tickets. $1 Haiku ran out mid-audit.</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">Plan (Write)</td><td><code>#LetsPlanIt</code></td>
+      <td><span class="tag tag-opus">Opus</span></td><td>$20</td>
+      <td style="color:#22c55e;font-weight:700">$1.50</td><td style="color:#eab308;font-weight:700">$3.00</td><td style="color:#f97316;font-weight:700">$8.00</td>
+      <td class="lc">Architecture reasoning. Opus or it's wrong. Non-negotiable.</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">Plan Audit</td><td><code>#LetsAuditThePlan</code></td>
+      <td><span class="tag tag-sonnet">Sonnet</span></td><td>$5</td>
+      <td style="color:#22c55e;font-weight:700">$0.15</td><td style="color:#eab308;font-weight:700">$0.40</td><td style="color:#f97316;font-weight:700">$0.80</td>
+      <td class="lc">Structured checklist. Sonnet handles it cleanly at this budget.</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">Build (per ticket)</td><td><code>#LetsBuildIt</code></td>
+      <td><span class="tag tag-opus">Opus</span></td><td>$15/ticket</td>
+      <td style="color:#22c55e;font-weight:700">$3–8</td><td style="color:#eab308;font-weight:700">$10–25</td><td style="color:#f97316;font-weight:700">$25–60</td>
+      <td class="lc">ACCURACY over speed. Opus writes it right the first time. Parallel 3×.</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">Build Audit</td><td><code>#LetsAuditTheBuild</code></td>
+      <td><span class="tag tag-sonnet">Sonnet</span></td><td>$8</td>
+      <td style="color:#22c55e;font-weight:700">$0.30</td><td style="color:#eab308;font-weight:700">$0.80</td><td style="color:#f97316;font-weight:700">$1.50</td>
+      <td class="lc">Read files + verify per ticket. Sonnet at $8 gets it done properly.</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">Deploy (#SendIt)</td><td><code>#SendIt</code></td>
+      <td><span class="tag tag-sonnet">Sonnet</span></td><td>$5</td>
+      <td style="color:#22c55e;font-weight:700">$0.20</td><td style="color:#eab308;font-weight:700">$0.40</td><td style="color:#f97316;font-weight:700">$0.60</td>
+      <td class="lc">Git + PR + CI. Mechanical, reliable. Sonnet nails it.</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">UX Audit</td><td><code>#LetsAuditTheUX</code></td>
+      <td style="color:#eab308;font-weight:700">JDM/Team</td><td>—</td>
+      <td style="color:#22c55e;font-weight:700">10 min</td><td style="color:#eab308;font-weight:700">20 min</td><td style="color:#f97316;font-weight:700">45 min</td>
+      <td class="lc">⭐ THE ONLY GATE. Human eyes, zero cost.</td>
+    </tr>
+    <tr style="background:var(--surface2);font-weight:700">
+      <td colspan="4"><strong>RONIN Total Sprint Cost</strong></td>
+      <td style="color:#22c55e;font-weight:700">$5–10</td>
+      <td style="color:#eab308;font-weight:700">$15–30</td>
+      <td style="color:#f97316;font-weight:700">$35–75</td>
+      <td class="lc">Entirely dominated by Opus build phase</td>
+    </tr>
+  </table>
+
+  <hr class="divider">
+  <h3>Project Size Comparison</h3>
+  <table>
+    <tr>
+      <th>Size</th><th>Tickets</th><th>Example</th><th>RONIN Cost</th><th>Time (Overnight)</th><th>vs. Human Dev</th>
+    </tr>
+    <tr>
+      <td style="color:#22c55e;font-weight:700">TINY</td><td>3–5</td><td>Single bug fix sprint, small feature</td>
+      <td style="color:#22c55e;font-weight:700">$5–10</td><td>2–3 hours</td>
+      <td class="lc">$5k+ in eng time → $8</td>
+    </tr>
+    <tr>
+      <td style="color:#eab308;font-weight:700">AVERAGE</td><td>10–15</td><td>Sprint 001 VOLTRON, Sprint 005</td>
+      <td style="color:#eab308;font-weight:700">$15–30</td><td>4–6 hours</td>
+      <td class="lc">$15k+ in eng time → $25</td>
+    </tr>
+    <tr>
+      <td style="color:#f97316;font-weight:700">MAJOR</td><td>20–30</td><td>RSP Pipeline, Action Engine</td>
+      <td style="color:#f97316;font-weight:700">$35–75</td><td>8–12 hours</td>
+      <td class="lc">$50k+ in eng time → $55</td>
+    </tr>
+    <tr>
+      <td style="color:var(--red);font-weight:700">PLATFORM</td><td>50+</td><td>ACF Overhaul, Full portal build</td>
+      <td style="color:var(--red);font-weight:700">$100–200</td><td>Multiple nights</td>
+      <td class="lc">$200k+ in eng time → $150</td>
+    </tr>
+  </table>
+
+  <hr class="divider">
+  <h3>The Rules</h3>
+  <div class="card accent" style="margin-bottom:10px"><p><strong>Rule 1:</strong> RONIN builds use <span class="tag tag-opus">Opus</span> for Plan + Build. Always. Accuracy costs pennies compared to rework.</p></div>
+  <div class="card accent" style="margin-bottom:10px"><p><strong>Rule 2:</strong> Audits use <span class="tag tag-sonnet">Sonnet</span> at $5–8, not Haiku at $1. The $1 cap was why audits failed all night.</p></div>
+  <div class="card accent" style="margin-bottom:10px"><p><strong>Rule 3:</strong> RAIDEN stays on <span class="tag tag-haiku">Haiku</span> for triage/routing, <span class="tag tag-sonnet">Sonnet</span> only when writing code.</p></div>
+  <div class="card accent" style="margin-bottom:10px"><p><strong>Rule 4:</strong> The expensive sessions ($21k ACF) aren't model cost — they're <strong>runaway context windows on GA sessions</strong>. RONIN/RAIDEN short bounded sessions = never hits that wall.</p></div>
+  <div class="card accent" style="margin-bottom:10px"><p><strong>Rule 5:</strong> Your $7k/month isn't from RONIN/RAIDEN. It's from 53-hour GA sessions with full codebase in context. Learning Loop 2.0 + shorter sessions fixes this permanently.</p></div>
+
+  <div class="card warn">
+    <p class="lc">Sprint 001 actual costs: Plan $2.84 (Opus, 2 attempts), Build Audit $0.05×4 (Haiku hit context wall before finishing), SendIt $0.36 (Sonnet). Total ~$3.40. Audits failed not due to model capability but $1 budget cap being exhausted reading the 400KB Discovery Doc before auditing began. Raise audits to Sonnet $5–8.</p>
+  </div>
 </div>
 
 <script>

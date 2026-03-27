@@ -685,15 +685,87 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
       md += `## API Base\n\`https://tm-api-365181509090.us-central1.run.app\`\n\n`
       md += `## Auth\nUse the service account credentials available in the environment.\n\n`
       md += `**When done, output: SEEDING COMPLETE — [N] tickets created**\n`
+    } else if (phase === 'audit_discovery') {
+      md += `# #LetsAuditTheDiscovery — ${sprint.name}\n\n`
+      md += `> **Stage 2: Discovery Audit.** Verify the seeded tickets match the Discovery Document.\n`
+      md += `> You are the auditor. Your job: find gaps, mismatches, missing acceptance criteria.\n\n`
+      md += `## Step 1 — Read the Discovery Document\n`
+      md += `Use WebFetch to read this URL IN FULL before auditing:\n`
+      md += `\`${sprint.discovery_url || 'MISSING — check sprint record'}\`\n\n`
+      md += `## Step 2 — Audit Against These Tickets\n`
+      md += `Sprint ID: \`${id}\` | Fetch tickets: \`GET https://tm-api-365181509090.us-central1.run.app/api/tracker?sprint_id=${id}\`\n\n`
+      md += `## Audit Checklist\n`
+      md += `- [ ] Every seeded ticket has a corresponding entry in the Discovery Doc Sprint Plan?\n`
+      md += `- [ ] Every Discovery Doc finding has a corresponding ticket?\n`
+      md += `- [ ] Acceptance criteria are clear and testable on every ticket?\n`
+      md += `- [ ] Dependencies identified? No circular dependencies?\n`
+      md += `- [ ] No scope creep beyond what the Discovery Doc specifies?\n\n`
+      md += `## Output Format\n`
+      md += `List any GAPS | MISMATCHES | AMBIGUITIES | SCOPE CREEP found.\n`
+      md += `End your response with ONE of these on its own line:\n`
+      md += `\`\`\`\nAUDIT PASSED\n\`\`\`\nor\n\`\`\`\nAUDIT FAILED\n\`\`\`\n`
+    } else if (phase === 'audit_plan') {
+      md += `# #LetsAuditThePlan — ${sprint.name}\n\n`
+      md += `> **Stage 4: Plan Audit.** Verify the plan covers every ticket with sufficient detail to build from.\n\n`
+      md += `## Step 1 — Read Both Documents\n`
+      md += `Use WebFetch to read BOTH URLs:\n`
+      md += `1. Discovery Doc: \`${sprint.discovery_url || 'MISSING'}\`\n`
+      md += `2. Plan Doc: \`${sprint.plan_link || 'MISSING — plan not yet written'}\`\n\n`
+      md += `## Step 2 — Audit the Plan\n`
+      md += `Tickets: \`GET https://tm-api-365181509090.us-central1.run.app/api/tracker?sprint_id=${id}\`\n\n`
+      md += `## Audit Checklist\n`
+      md += `- [ ] Every ticket has a plan entry with exact file paths?\n`
+      md += `- [ ] Every plan entry maps back to a ticket (no orphans)?\n`
+      md += `- [ ] Plan addresses all findings in the Discovery Doc?\n`
+      md += `- [ ] Dependencies are correctly ordered (no ticket blocked by an unplanned dependency)?\n`
+      md += `- [ ] Parallel tracks have zero file overlap?\n`
+      md += `- [ ] Build verification commands included?\n\n`
+      md += `## Output Format\n`
+      md += `List any GAPS | MISMATCHES | AMBIGUITIES found.\n`
+      md += `End your response with ONE of these on its own line:\n`
+      md += `\`\`\`\nAUDIT PASSED\n\`\`\`\nor\n\`\`\`\nAUDIT FAILED\n\`\`\`\n`
+    } else if (phase === 'audit' || phase === 'audit_build') {
+      md += `# #LetsAuditTheBuild — ${sprint.name}\n\n`
+      md += `> **Stage 6: Build Audit.** Verify the code was actually written — not that it should exist, but that it does.\n\n`
+      md += `## Step 1 — Read the Plan\n`
+      md += `Use WebFetch to read: \`${sprint.plan_link || 'MISSING'}\`\n\n`
+      md += `## Step 2 — Verify Each Ticket in the Codebase\n`
+      md += `Tickets: \`GET https://tm-api-365181509090.us-central1.run.app/api/tracker?sprint_id=${id}\`\n\n`
+      md += `For each ticket: use Read/Glob/Grep to verify the target files EXIST and contain the expected changes.\n`
+      md += `Do NOT assume the build worked. Check the actual files.\n\n`
+      md += `## Audit Checklist\n`
+      md += `- [ ] Each ticket's target files exist at the expected paths?\n`
+      md += `- [ ] Acceptance criteria met (verify by reading actual file content)?\n`
+      md += `- [ ] No files modified outside ticket scope?\n`
+      md += `- [ ] Build would pass (check for obvious syntax/import errors)?\n\n`
+      md += `## Output Format\n`
+      md += `Per ticket: PASS | FAIL — [file checked, specific reason]\n`
+      md += `End your response with ONE of these on its own line:\n`
+      md += `\`\`\`\nAUDIT PASSED\n\`\`\`\nor\n\`\`\`\nAUDIT FAILED\n\`\`\`\n`
+    } else if (phase === 'ux_audit') {
+      md += `# #LetsAuditTheUX — ${sprint.name}\n\n`
+      md += `> ⭐ **Stage 8: UX Audit — THE ONLY REAL GATE.**\n`
+      md += `> Human eyes verify the UI/UX works as expected before anything ships permanently.\n\n`
+      md += `## Your Role\n`
+      md += `Walk through each ticket's UI/UX deliverable. This is not a code review — it's a visual and functional check.\n`
+      md += `Any team member can do this. No technical knowledge required.\n\n`
+      md += `## Tickets to Verify\n`
+      md += `Fetch: \`GET https://tm-api-365181509090.us-central1.run.app/api/tracker?sprint_id=${id}\`\n\n`
+      md += `## For Each Ticket — Check:\n`
+      md += `- [ ] Does it render correctly (no broken layout, missing elements)?\n`
+      md += `- [ ] Does it function as described in the acceptance criteria?\n`
+      md += `- [ ] Does it feel right? (UX judgment — this is why humans are here)\n`
+      md += `- [ ] Any regression in existing functionality?\n\n`
+      md += `## Pass/Fail\n`
+      md += `Per ticket: ✅ PASS or ❌ FAIL — [what you saw, what you expected]\n\n`
+      md += `When all tickets verified, update status to \`ux_audited\` and the sprint advances to Complete.\n`
     } else if (phase === 'building') {
-      md += `# FORGE Builder: ${sprint.name}\n\n`
-      md += `> **You are a builder agent executing the ${sprint.name} sprint.**\n`
-      md += `> Your job is to READ the plan, EXECUTE every ticket, and REPORT results.\n`
-      md += `> Do NOT deviate from the plan. Do NOT skip tickets. Do NOT add scope.\n`
-      md += `> **FORGE Standards:** Read \`.claude/sprints/FORGE_STANDARDS.md\` for reporting format requirements.\n\n`
+      md += `# #LetsBuildIt — ${sprint.name}\n\n`
+      md += `> **Stage 5: Build.** Read the plan, execute every ticket, verify your work.\n`
+      md += `> ACCURACY is the only metric. You have time. Do it right the first time.\n\n`
       md += `## Your Documents\n\n`
-      if (sprint.discovery_url) md += `**Discovery Doc (source of truth):**\nRead FIRST: \`${sprint.discovery_url}\`\n\n`
-      if (sprint.plan_link) md += `**Plan Doc (your blueprint):**\nRead SECOND: \`${sprint.plan_link}\`\n\n`
+      if (sprint.discovery_url) md += `**Discovery Doc (source of truth):**\nRead via WebFetch FIRST: \`${sprint.discovery_url}\`\n\n`
+      if (sprint.plan_link) md += `**Plan Doc (your blueprint):**\nRead via WebFetch SECOND: \`${sprint.plan_link}\`\n\n`
       if (sprint.description) md += `**Sprint Goal:** ${sprint.description}\n\n`
     } else {
       md += `# ${sprint.name}`
@@ -832,7 +904,13 @@ sprintRoutes.get('/:id/prompt', async (req: Request, res: Response) => {
     md += `\n---\n`
     md += `\n## FORGE Status Protocol\n`
     md += `This sprint is tracked in FORGE (Build Tracker). Sprint is in **${
-      phase === 'discovery' ? 'Plan' : phase === 'building' ? 'Build' : 'Unknown'
+      phase === 'seed' ? 'Seed' :
+      phase === 'audit_discovery' ? 'Discovery Audit' :
+      phase === 'discovery' ? 'Plan' :
+      phase === 'audit_plan' ? 'Plan Audit' :
+      phase === 'building' ? 'Build' :
+      phase === 'audit' || phase === 'audit_build' ? 'Build Audit' :
+      phase === 'ux_audit' ? 'UX Audit' : 'Unknown'
     }** phase.\n`
     md += `\n**Sprint ID:** \`${id}\``
     md += `\n**Items:** ${itemIds.join(', ')}`
