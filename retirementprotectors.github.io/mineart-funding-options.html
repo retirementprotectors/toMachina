@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funding Options — Stephen & Joyce Mineart</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a3158;
+    --navy-dark: #0f1d30;
+    --rpi-blue: #4a7ab5;
+    --pale-blue: #e5ecf6;
+    --pale-blue-soft: #edf2f8;
+    --charcoal: #5a6270;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --border: #e2e5ea;
+    --bg-light: #f8f9fa;
+    --gold: #c5a55a;
+    --gold-light: #d4bb7a;
+    --white: #ffffff;
+    --green: #16a34a;
+    --green-soft: #f0fdf4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: letter; margin: 0.5in 0.6in; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--white);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page { page-break-after: always; position: relative; }
+  .page:last-child { page-break-after: avoid; }
+
+  /* ── COVER ── */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 9.5in;
+    text-align: center;
+    padding: 1in 0.5in;
+  }
+  .cover-shield { width: 1.1in; margin-bottom: 0.25in; }
+  .cover-brand {
+    font-size: 14pt; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--navy); margin-bottom: 0.12in;
+  }
+  .cover-tagline {
+    font-size: 9pt; font-weight: 500; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--rpi-blue); margin-bottom: 0.5in;
+  }
+  .cover-line {
+    width: 3in; height: 3px;
+    background: linear-gradient(90deg, var(--rpi-blue), var(--gold));
+    margin: 0 auto 0.5in; border-radius: 2px;
+  }
+  .cover h1 {
+    font-size: 28pt; font-weight: 800; color: var(--navy);
+    line-height: 1.15; margin-bottom: 0.15in;
+  }
+  .cover h2 {
+    font-size: 15pt; font-weight: 400; color: var(--text-muted); margin-bottom: 0.6in;
+  }
+  .cover-client { font-size: 18pt; font-weight: 700; color: var(--navy); margin-bottom: 0.08in; }
+  .cover-detail { font-size: 11pt; color: var(--text-muted); font-weight: 400; }
+  .cover-footer {
+    position: absolute; bottom: 0.5in; left: 0; right: 0; text-align: center;
+  }
+  .cover-footer-line {
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--rpi-blue), var(--gold), transparent);
+    margin-bottom: 0.2in;
+  }
+  .cover-advisor { font-size: 10pt; color: var(--text-muted); }
+  .cover-advisor strong { color: var(--navy); font-weight: 700; }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 0.12in; border-bottom: 2px solid var(--navy); margin-bottom: 0.25in;
+  }
+  .page-header-left { display: flex; align-items: center; gap: 8px; }
+  .page-header-shield { height: 22px; }
+  .page-header-brand {
+    font-size: 9pt; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--rpi-blue);
+  }
+  .page-header-title { font-size: 9pt; font-weight: 500; color: var(--text-muted); }
+
+  /* ── SECTIONS ── */
+  .section-title { font-size: 20pt; font-weight: 800; color: var(--navy); margin-bottom: 0.08in; }
+  .section-divider {
+    height: 3px; background: linear-gradient(90deg, var(--rpi-blue), var(--gold), transparent);
+    border-radius: 2px; margin-bottom: 0.25in;
+  }
+  .subsection-title {
+    font-size: 14pt; font-weight: 800; color: var(--navy);
+    margin-bottom: 0.08in; margin-top: 0.2in;
+  }
+  .body-text { font-size: 11pt; line-height: 1.6; color: var(--text-secondary); margin-bottom: 0.15in; }
+  .emphasis-text { font-size: 12pt; font-weight: 600; color: var(--navy); line-height: 1.55; }
+
+  /* ── INFO BANNER ── */
+  .info-banner { background: var(--pale-blue); border-radius: 8px; padding: 0.2in 0.25in; margin-bottom: 0.2in; }
+  .info-banner-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.15in; }
+  .info-item-label {
+    font-size: 8pt; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--rpi-blue); margin-bottom: 2px;
+  }
+  .info-item-value { font-size: 11pt; font-weight: 700; color: var(--navy); }
+
+  /* ── TABLE ── */
+  .comparison-table { width: 100%; border-collapse: collapse; margin-bottom: 0.2in; font-size: 10.5pt; }
+  .comparison-table thead th {
+    background: var(--navy); color: var(--white);
+    padding: 10px 14px; text-align: center; font-weight: 700; font-size: 10pt;
+  }
+  .comparison-table thead th:first-child { text-align: left; border-radius: 6px 0 0 0; }
+  .comparison-table thead th:last-child { border-radius: 0 6px 0 0; }
+  .comparison-table tbody td {
+    padding: 8px 14px; text-align: center; border-bottom: 1px solid var(--border);
+  }
+  .comparison-table tbody td:first-child { text-align: left; font-weight: 600; color: var(--text-secondary); }
+  .comparison-table tbody tr:nth-child(even) { background: var(--bg-light); }
+  .comparison-table tbody tr.highlight-row { background: var(--pale-blue-soft); }
+  .comparison-table tbody tr.highlight-row td { font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--rpi-blue); }
+  .badge-rec {
+    display: inline-block; background: var(--gold); color: var(--navy-dark);
+    font-size: 7pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: var(--navy); color: var(--white); border-radius: 8px;
+    padding: 0.25in 0.3in; margin-bottom: 0.2in;
+  }
+  .callout-gold { border-left: 4px solid var(--gold); }
+  .callout h3 { font-size: 13pt; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+  .callout p { font-size: 11pt; font-weight: 400; line-height: 1.55; color: rgba(255,255,255,0.92); }
+
+  /* ── METRIC CARDS ── */
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.175in; margin-bottom: 0.2in; }
+  .metric-card { border: 2px solid var(--border); border-radius: 8px; padding: 0.18in 0.2in; text-align: center; }
+  .metric-card.primary { border-color: var(--rpi-blue); background: var(--pale-blue-soft); }
+  .metric-card.gold { border-color: var(--gold); background: #faf6ed; }
+  .metric-card.green { border-color: var(--green); background: var(--green-soft); }
+  .metric-card .metric-value { font-size: 22pt; font-weight: 800; color: var(--navy); line-height: 1.1; }
+  .metric-card .metric-label {
+    font-size: 8.5pt; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-muted); margin-top: 4px;
+  }
+
+  /* ── FUNDING STACK ── */
+  .funding-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.2in; margin-bottom: 0.25in; }
+  .funding-card { border-radius: 8px; padding: 0.2in; }
+  .funding-card h4 {
+    font-size: 11pt; font-weight: 800; color: var(--navy);
+    margin-bottom: 0.12in; padding-bottom: 0.08in; border-bottom: 2px solid var(--border);
+  }
+  .funding-line {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 0; font-size: 10pt;
+  }
+  .funding-line .label { color: var(--text-secondary); }
+  .funding-line .value { font-weight: 700; color: var(--navy); }
+  .funding-line.total {
+    border-top: 2px solid var(--navy); margin-top: 6px; padding-top: 8px;
+  }
+  .funding-line.total .label { font-weight: 700; color: var(--navy); }
+  .funding-line.total .value { font-size: 13pt; }
+  .funding-line.extra { color: var(--rpi-blue); }
+  .funding-line.extra .label { color: var(--rpi-blue); font-style: italic; }
+  .funding-line.extra .value { color: var(--rpi-blue); }
+
+  /* ── FOOTNOTES ── */
+  .footnotes { margin-top: 0.3in; padding-top: 0.12in; border-top: 1px solid var(--border); }
+  .footnotes p { font-size: 8pt; color: var(--text-muted); line-height: 1.45; margin-bottom: 3px; }
+
+  .text-navy { color: var(--navy); }
+  .text-blue { color: var(--rpi-blue); }
+  .text-gold { color: var(--gold); }
+  .text-green { color: var(--green); }
+  .text-center { text-align: center; }
+  .mt-sm { margin-top: 0.1in; }
+  .mb-sm { margin-bottom: 0.1in; }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { page-break-after: always; }
+    .page:last-child { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PAGE 1: COVER ═══════════════ -->
+<div class="page cover">
+  <img src="rpi-shield.png" alt="RPI" class="cover-shield">
+  <div class="cover-brand">Retirement Protectors</div>
+  <div class="cover-tagline">We're Your People&trade;</div>
+  <div class="cover-line"></div>
+  <h1>Legacy Funding Options</h1>
+  <h2>John Hancock Survivorship IUL &mdash; Three Scenarios</h2>
+
+  <div style="margin: 0.5in 0;">
+    <div class="cover-client">Stephen &amp; Joyce Mineart</div>
+    <div class="cover-detail">Prepared March 24, 2026</div>
+  </div>
+
+  <div style="margin-top: 0.3in;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.2in; max-width: 5.5in;">
+      <div style="background: var(--pale-blue); border-radius: 8px; padding: 0.15in 0.2in; text-align: center;">
+        <div style="font-size: 8pt; font-weight: 600; color: var(--rpi-blue); text-transform: uppercase; letter-spacing: 1px;">Option A</div>
+        <div style="font-size: 16pt; font-weight: 800; color: var(--navy); margin-top: 2px;">$70,000</div>
+      </div>
+      <div style="background: var(--pale-blue); border-radius: 8px; padding: 0.15in 0.2in; text-align: center;">
+        <div style="font-size: 8pt; font-weight: 600; color: var(--rpi-blue); text-transform: uppercase; letter-spacing: 1px;">Option B</div>
+        <div style="font-size: 16pt; font-weight: 800; color: var(--navy); margin-top: 2px;">$80,000</div>
+      </div>
+      <div style="background: var(--pale-blue); border-radius: 8px; padding: 0.15in 0.2in; text-align: center;">
+        <div style="font-size: 8pt; font-weight: 600; color: var(--rpi-blue); text-transform: uppercase; letter-spacing: 1px;">Option C</div>
+        <div style="font-size: 16pt; font-weight: 800; color: var(--navy); margin-top: 2px;">$90,000</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <div class="cover-footer-line"></div>
+    <div class="cover-advisor">
+      Presented by <strong>Josh Archer</strong> &nbsp;|&nbsp; Retirement Protectors, Inc.<br>
+      6750 Westown Parkway, Suite 200-382 &nbsp;|&nbsp; West Des Moines, IA 50266 &nbsp;|&nbsp; 515-992-5000
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE 2: STARTING POINT + THREE OPTIONS ═══════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <img src="rpi-shield.png" alt="RPI" class="page-header-shield">
+      <div class="page-header-brand">Retirement Protectors</div>
+    </div>
+    <div class="page-header-title">Legacy Funding Options &mdash; Mineart</div>
+  </div>
+
+  <div class="section-title">Your Starting Point</div>
+  <div class="section-divider"></div>
+
+  <p class="body-text">
+    You've settled on <strong>$12,900 per month</strong> in income. After securing that income, here's
+    what's available to fund tax-free legacy protection through a John Hancock Survivorship IUL:
+  </p>
+
+  <div class="info-banner">
+    <div class="info-banner-grid">
+      <div>
+        <div class="info-item-label">Monthly Income (Settled)</div>
+        <div class="info-item-value">$12,900</div>
+      </div>
+      <div>
+        <div class="info-item-label">Nassau Remainder (Annual)</div>
+        <div class="info-item-value">$65,219</div>
+      </div>
+      <div>
+        <div class="info-item-label">PRU Term Savings (Annual)</div>
+        <div class="info-item-value">$4,000</div>
+      </div>
+      <div>
+        <div class="info-item-label">Baseline Available</div>
+        <div class="info-item-value" style="color: var(--green);">~$70,000 / year</div>
+      </div>
+      <div>
+        <div class="info-item-label">Additional Source</div>
+        <div class="info-item-value">Portfolio Income</div>
+      </div>
+      <div>
+        <div class="info-item-label">Policy</div>
+        <div class="info-item-value">JH Protection SIUL</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection-title">Three Options &mdash; How They Stack Up</div>
+
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th style="width: 34%"></th>
+        <th>Option A<br><span style="font-weight: 400; font-size: 8pt;">Baseline</span></th>
+        <th>Option B<br><span style="font-weight: 400; font-size: 8pt;">+$10K Portfolio</span></th>
+        <th>Option C<br><span style="font-weight: 400; font-size: 8pt;">+$20K Portfolio</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Annual Premium to JH</td>
+        <td><strong>$70,000</strong></td>
+        <td><strong>$80,000</strong></td>
+        <td><strong>$90,000</strong></td>
+      </tr>
+      <tr class="highlight-row">
+        <td>Estimated Tax-Free Death Benefit</td>
+        <td><strong>~$3,500,000</strong></td>
+        <td><strong>~$4,000,000</strong></td>
+        <td><strong>~$4,500,000</strong></td>
+      </tr>
+      <tr>
+        <td>Death Benefit Guarantee</td>
+        <td>To age 87</td>
+        <td>To age 87</td>
+        <td>To age 87</td>
+      </tr>
+      <tr>
+        <td>From Nassau Remainder</td>
+        <td>$65,219</td>
+        <td>$65,219</td>
+        <td>$65,219</td>
+      </tr>
+      <tr>
+        <td>From PRU Term Savings</td>
+        <td>$4,000</td>
+        <td>$4,000</td>
+        <td>$4,000</td>
+      </tr>
+      <tr>
+        <td>Additional from Portfolio</td>
+        <td>$781</td>
+        <td>$10,781</td>
+        <td>$20,781</td>
+      </tr>
+      <tr class="highlight-row">
+        <td>Extra DB vs. Option A</td>
+        <td>&mdash;</td>
+        <td><strong>+$500,000</strong></td>
+        <td><strong>+$1,000,000</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-gold">
+    <h3>The Key Question</h3>
+    <p>
+      Every <strong>$10,000</strong> in additional annual premium creates approximately
+      <strong>$500,000</strong> in additional tax-free death benefit for your family.
+      The only question is how much of your portfolio income you're comfortable redirecting to
+      maximize that legacy.
+    </p>
+  </div>
+
+  <div class="footnotes">
+    <p>Death benefit estimates based on John Hancock Protection Survivorship IUL illustrations using current non-guaranteed assumptions and an initial assumed segment growth rate of 6.69%. Actual illustrated values may vary slightly. Death benefit amounts are income tax-free under IRC &sect;101(a). Consult your tax advisor regarding your specific situation.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE 3: WHERE THE MONEY COMES FROM ═══════════════ -->
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <img src="rpi-shield.png" alt="RPI" class="page-header-shield">
+      <div class="page-header-brand">Retirement Protectors</div>
+    </div>
+    <div class="page-header-title">Legacy Funding Options &mdash; Mineart</div>
+  </div>
+
+  <div class="section-title">Where the Money Comes From</div>
+  <div class="section-divider"></div>
+
+  <p class="body-text">
+    All three options start with the same foundation: the Nassau remainder and the PRU Term premium savings.
+    The difference is how much additional portfolio income is directed to the policy.
+  </p>
+
+  <div class="funding-grid">
+    <!-- Option A -->
+    <div class="funding-card" style="background: var(--bg-light); border: 2px solid var(--border);">
+      <h4>Option A &mdash; $70,000</h4>
+      <div class="funding-line">
+        <span class="label">Nassau Remainder</span>
+        <span class="value">$65,219</span>
+      </div>
+      <div class="funding-line">
+        <span class="label">PRU Term Savings</span>
+        <span class="value">$4,000</span>
+      </div>
+      <div class="funding-line extra">
+        <span class="label">From Portfolio</span>
+        <span class="value">$781</span>
+      </div>
+      <div class="funding-line total">
+        <span class="label">Annual Premium</span>
+        <span class="value">$70,000</span>
+      </div>
+      <div style="text-align: center; margin-top: 0.15in; padding-top: 0.1in; border-top: 1px solid var(--border);">
+        <div style="font-size: 8pt; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Death Benefit</div>
+        <div style="font-size: 20pt; font-weight: 800; color: var(--navy);">~$3.5M</div>
+        <div style="font-size: 9pt; color: var(--green); font-weight: 600;">Tax-Free</div>
+      </div>
+    </div>
+
+    <!-- Option B -->
+    <div class="funding-card" style="background: var(--pale-blue-soft); border: 2px solid var(--rpi-blue);">
+      <h4>Option B &mdash; $80,000</h4>
+      <div class="funding-line">
+        <span class="label">Nassau Remainder</span>
+        <span class="value">$65,219</span>
+      </div>
+      <div class="funding-line">
+        <span class="label">PRU Term Savings</span>
+        <span class="value">$4,000</span>
+      </div>
+      <div class="funding-line extra">
+        <span class="label">From Portfolio</span>
+        <span class="value">$10,781</span>
+      </div>
+      <div class="funding-line total">
+        <span class="label">Annual Premium</span>
+        <span class="value">$80,000</span>
+      </div>
+      <div style="text-align: center; margin-top: 0.15in; padding-top: 0.1in; border-top: 1px solid var(--rpi-blue);">
+        <div style="font-size: 8pt; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Death Benefit</div>
+        <div style="font-size: 20pt; font-weight: 800; color: var(--rpi-blue);">~$4.0M</div>
+        <div style="font-size: 9pt; color: var(--green); font-weight: 600;">Tax-Free</div>
+      </div>
+    </div>
+
+    <!-- Option C -->
+    <div class="funding-card" style="background: var(--green-soft); border: 2px solid var(--green);">
+      <h4>Option C &mdash; $90,000</h4>
+      <div class="funding-line">
+        <span class="label">Nassau Remainder</span>
+        <span class="value">$65,219</span>
+      </div>
+      <div class="funding-line">
+        <span class="label">PRU Term Savings</span>
+        <span class="value">$4,000</span>
+      </div>
+      <div class="funding-line extra">
+        <span class="label">From Portfolio</span>
+        <span class="value">$20,781</span>
+      </div>
+      <div class="funding-line total">
+        <span class="label">Annual Premium</span>
+        <span class="value">$90,000</span>
+      </div>
+      <div style="text-align: center; margin-top: 0.15in; padding-top: 0.1in; border-top: 1px solid var(--green);">
+        <div style="font-size: 8pt; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Death Benefit</div>
+        <div style="font-size: 20pt; font-weight: 800; color: var(--green);">~$4.5M</div>
+        <div style="font-size: 9pt; color: var(--green); font-weight: 600;">Tax-Free</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection-title">What Each Extra $10,000 Buys</div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.175in; margin-bottom: 0.2in;">
+    <div style="background: var(--pale-blue-soft); border-left: 4px solid var(--rpi-blue); border-radius: 0 8px 8px 0; padding: 0.18in 0.22in;">
+      <div style="font-size: 10pt; font-weight: 800; color: var(--navy); margin-bottom: 6px;">$10,000/yr More (Option A &rarr; B)</div>
+      <div style="font-size: 10pt; color: var(--text-secondary); line-height: 1.55;">
+        <strong style="font-size: 14pt; color: var(--rpi-blue);">+$500,000</strong> additional tax-free death benefit<br>
+        <span style="font-size: 9pt; color: var(--text-muted);">~$833/month from portfolio income</span>
+      </div>
+    </div>
+    <div style="background: var(--green-soft); border-left: 4px solid var(--green); border-radius: 0 8px 8px 0; padding: 0.18in 0.22in;">
+      <div style="font-size: 10pt; font-weight: 800; color: var(--navy); margin-bottom: 6px;">$20,000/yr More (Option A &rarr; C)</div>
+      <div style="font-size: 10pt; color: var(--text-secondary); line-height: 1.55;">
+        <strong style="font-size: 14pt; color: var(--green);">+$1,000,000</strong> additional tax-free death benefit<br>
+        <span style="font-size: 9pt; color: var(--text-muted);">~$1,667/month from portfolio income</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-gold">
+    <h3>Income Is Secured. This Is About Legacy.</h3>
+    <p>
+      Your <strong>$12,900/month income is locked in</strong> &mdash; that doesn't change regardless of
+      which option you choose. The only decision is how much additional portfolio income to redirect
+      toward creating a larger tax-free inheritance for your family.
+    </p>
+    <p style="margin-top: 8px;">
+      Option A requires <strong>virtually nothing</strong> beyond the Nassau remainder and PRU Term savings.
+      Options B and C tap a portion of portfolio gains &mdash; money that would otherwise be taxable to
+      your heirs &mdash; and convert it into tax-free death benefit at roughly <strong>50:1 leverage</strong>.
+    </p>
+  </div>
+
+  <div class="metric-row" style="margin-top: 0.2in;">
+    <div class="metric-card">
+      <div class="metric-value text-navy">~$3.5M</div>
+      <div class="metric-label">Option A: Baseline</div>
+    </div>
+    <div class="metric-card primary">
+      <div class="metric-value text-blue">~$4.0M</div>
+      <div class="metric-label">Option B: +$10K Portfolio</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-value text-green">~$4.5M</div>
+      <div class="metric-label">Option C: +$20K Portfolio</div>
+    </div>
+  </div>
+
+  <p class="emphasis-text text-center">
+    All death benefit proceeds are <strong style="color: var(--green);">100% income tax-free</strong> under IRC &sect;101(a).
+  </p>
+
+  <div class="footnotes">
+    <p>Death benefit estimates based on John Hancock Protection Survivorship IUL illustrations with current non-guaranteed assumptions. Actual illustrated values are subject to change based on policy charges, credited rates, and date of second death. The $90,000 scenario aligns with previously run JH illustrations. The $70,000 and $80,000 estimates are proportional projections &mdash; formal carrier illustrations will confirm exact death benefit amounts. PRU Term savings assumes current annual premium of approximately $4,000. Portfolio income amounts assume fixed annual redirections; actual amounts may vary with market performance.</p>
+    <p style="margin-top: 4px;">Life insurance death benefits are generally income tax-free under IRC &sect;101(a). Estate tax treatment depends on ownership structure and applicable exemptions. This material is for educational purposes only and does not constitute tax, legal, or investment advice. Consult your professional advisors regarding your specific situation.</p>
+  </div>
+</div>
+
+</body>
+</html>
