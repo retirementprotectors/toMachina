@@ -15,15 +15,15 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return next()
   }
 
-  // MDJ Agent service auth — shared secret for server-to-server calls from MDJ1
+  // VOLTRON Agent service auth — shared secret for server-to-server calls from VOLTRON
   const mdjAuth = req.headers['x-mdj-auth'] as string | undefined
   const mdjSecret = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
   if (mdjAuth && mdjAuth === mdjSecret) {
-    // Set a synthetic user context for MDJ agent calls
+    // Set a synthetic user context for VOLTRON agent calls
     ;(req as any).user = {
-      email: 'mdj-agent@retireprotected.com',
-      name: 'MDJ Agent',
-      uid: 'mdj-agent-service',
+      email: 'voltron@retireprotected.com',
+      name: 'VOLTRON Agent',
+      uid: 'voltron-agent-service',
     }
     return next()
   }
