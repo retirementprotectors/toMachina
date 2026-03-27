@@ -32,5 +32,7 @@ export { NotificationsModule, UnreadBadge } from './Notifications'
 
 export { MDJPanel } from './MDJPanel'
 
+export { VoltronApp } from './VoltronApp'
+
 export { ClientDocuments } from './ClientDocuments'
 export { AccountDocuments } from './AccountDocuments'
