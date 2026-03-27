@@ -157,6 +157,36 @@ jobs:
           echo "API health check passed (HTTP $STATUS)"
           curl -s -H "Authorization: Bearer $TOKEN" "$API_URL/health" | jq .
 
+      # Post-deploy: Regenerate VOLTRON registry (TRK-13748)
+      # Triggers auto-generation of voltron_registry from codebase.
+      # Idempotent — safe to re-run; updates generated_at timestamp.
+      - name: Regenerate VOLTRON registry
+        run: |
+          API_URL=$(gcloud run services describe tm-api --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }} --format 'value(status.url)')
+          TOKEN=$(gcloud auth print-identity-token --impersonate-service-account=github-deployer@claude-mcp-484718.iam.gserviceaccount.com --audiences="$API_URL" --include-email)
+          RESPONSE=$(curl -s -w '\n%{http_code}' \
+            -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-CI-Deploy-Key: ${{ secrets.VOLTRON_REGISTRY_DEPLOY_KEY }}" \
+            "$API_URL/api/voltron/registry/regenerate")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Registry regeneration failed with status $HTTP_CODE"
+            echo "$BODY"
+            exit 1
+          fi
+          echo "VOLTRON registry regenerated successfully (HTTP $HTTP_CODE)"
+          echo "$BODY" | jq .
+          # Verify timestamp was updated
+          GENERATED_AT=$(echo "$BODY" | jq -r '.data.generated_at // .generated_at // empty')
+          if [ -z "$GENERATED_AT" ]; then
+            echo "::warning::Could not verify generated_at timestamp in response"
+          else
+            echo "Registry generated_at: $GENERATED_AT"
+          fi
+
   e2e-intake:
     needs: deploy-api
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
