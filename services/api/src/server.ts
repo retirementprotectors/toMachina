@@ -74,6 +74,8 @@ import { importAgentRoutes } from './routes/import-agents.js'
 import { voltronRegistryRoutes } from './routes/voltron-registry.js'
 import { voltronWireRoutes } from './routes/voltron-wire.js'
 import { auditMiddleware } from './middleware/audit.js'
+import { raidenRoutes } from './raiden/index.js'
+import { startRaidenScheduler } from './raiden/scheduler.js'
 import { registerCheckHandler } from '@tomachina/core'
 import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
 
@@ -177,6 +179,9 @@ app.use('/api/import-agents', normalizeBody, importAgentRoutes)
 app.use('/api/voltron/registry', voltronRegistryRoutes)
 app.use('/api/voltron/wire', normalizeBody, voltronWireRoutes)
 
+// RAIDEN Reactive Guardian — sub-router at /raiden/*
+app.use('/raiden', raidenRoutes)
+
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
   res.status(404).json({ success: false, error: 'Route not found' })
@@ -192,4 +197,5 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 const PORT = parseInt(process.env.PORT || '8080', 10)
 app.listen(PORT, () => {
   console.log(`toMachina API listening on port ${PORT}`)
+  startRaidenScheduler()
 })
