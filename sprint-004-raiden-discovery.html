@@ -1744,7 +1744,7 @@ No need to resubmit.
 
     <div class="section">
       <div class="section-title">Sprint Plan — The Dojo Tickets</div>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">8 tickets. The Dojo app (module rename + dual-tab board + submissions) + Slack channel integration. Add these to the Sprint 004 plan.</p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">10 tickets. The Dojo app (module rename + dual-tab board + submissions) + Slack channel integration + infrastructure cleanup. Add these to the Sprint 004 plan.</p>
 
       <div class="ticket">
         <div class="ticket-header">
@@ -1875,6 +1875,38 @@ No need to resubmit.
           3. <strong>On RAIDEN start</strong>: 🔧 IN PROGRESS: TRK-XXX "[title]" — RAIDEN is on it<br>
           4. <strong>On fix ship</strong>: ✅ FIXED: TRK-XXX "[title]" — deployed. Refresh to verify.<br><br>
           <strong>Acceptance:</strong> All 4 message types post to channel (not just DM). Duplicate detection fires before creating a second ticket. Deploy confirmation triggers the FIXED message. Channel serves as the single source of truth — no follow-up DMs needed.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-009</div>
+          <div class="ticket-title">Rename GitHub repo mdj-agent → mdj-server</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-blue">Infrastructure</span>
+          <span class="badge badge-muted">Enhancement</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Rename the GitHub repo from <code>mdj-agent</code> to <code>mdj-server</code>. GitHub auto-redirects old URLs but all hard references must be updated atomically: CLAUDE.md (global + project), systemd service file(s), CI workflows, SSH configs, and any scripts referencing the old repo name. Treat as a single atomic change — find all references first, update everything in one commit.<br><br>
+          <strong>Acceptance:</strong> <code>github.com/retirementprotectors/mdj-server</code> is the canonical URL. Zero remaining references to <code>mdj-agent</code> in CLAUDE.md, systemd, CI, or SSH config. Existing clone at <code>/home/jdm/mdj-agent</code> on MDJ1 noted as a local path (not a blocker — rename directory at maintenance window).
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-010</div>
+          <div class="ticket-title">UN-FUCK FORGE Sprint UI/UX</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-red">P1 High</span>
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-muted">Enhancement</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Comprehensive UX pass on the FORGE/Dojo Sprint board. Current rating from JDM: <em>"It's Aiight"</em> — that is not acceptable. Known issues: (1) Sprint ticket statuses use values not recognized by the UI status list (e.g. <code>"deployed"</code> falls through to display as <code>"unseeded"</code> — any unrecognized status silently maps to wrong state); (2) Sprint phase calculation from <code>tracker_items</code> is fragile — phase label doesn't reflect actual RONIN progression; (3) Action buttons don't reflect current phase state; (4) Visual feedback on phase transitions is weak. Full audit required: enumerate all valid status values, wire them to UI, fix phase calculation logic, update action buttons to be context-aware, add clear visual feedback for phase transitions.<br><br>
+          <strong>Acceptance:</strong> Every status value RONIN can write maps to a visible, correctly-labeled UI state — zero silent fallbacks. Sprint phase displayed matches actual execution state. Action buttons are context-aware (grayed or active based on current phase). JDM rates the board higher than "It's Aiight." Regression: no existing RONIN sprint data is broken by the changes.
         </div>
       </div>
 
