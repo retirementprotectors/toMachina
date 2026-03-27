@@ -1306,7 +1306,7 @@ async function seedFirestoreCarriers(
   if (dryRun) {
     console.log('  [DRY RUN] Would write:')
     for (const w of writes) {
-      console.log(`    carriers/${w.docId} (${w.data.display_name}: ${w.data.underwriting_charters.length} charters)`)
+      console.log(`    carriers/${w.docId} (${w.data.display_name}: ${(w.data.underwriting_charters as unknown[]).length} charters)`)
     }
     return writes.length
   }

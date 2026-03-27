@@ -16,7 +16,7 @@
 
 import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
-import { findDuplicates } from '@tomachina/core/src/matching/index.js'
+import { findDuplicates } from '@tomachina/core/matching/index'
 
 // ── Firebase Init ──
 

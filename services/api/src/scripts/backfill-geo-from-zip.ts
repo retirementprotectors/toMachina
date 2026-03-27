@@ -118,7 +118,7 @@ async function main() {
     cityByBob.set(b.bob, (cityByBob.get(b.bob) || 0) + 1)
   }
   console.log('\nCity backfills by BoB:')
-  for (const [bob, count] of [...cityByBob.entries()].sort((a, b) => b - a)) {
+  for (const [bob, count] of [...cityByBob.entries()].sort((a, b) => b[1] - a[1])) {
     console.log(`  ${bob}: ${count}`)
   }
 
@@ -128,7 +128,7 @@ async function main() {
     countyByBob.set(b.bob, (countyByBob.get(b.bob) || 0) + 1)
   }
   console.log('\nCounty-only backfills by BoB:')
-  for (const [bob, count] of [...countyByBob.entries()].sort((a, b) => b - a)) {
+  for (const [bob, count] of [...countyByBob.entries()].sort((a, b) => b[1] - a[1])) {
     console.log(`  ${bob}: ${count}`)
   }
 
@@ -138,7 +138,7 @@ async function main() {
     ghostByBob.set(g.bob, (ghostByBob.get(g.bob) || 0) + 1)
   }
   console.log('\nGhost records by BoB:')
-  for (const [bob, count] of [...ghostByBob.entries()].sort((a, b) => b - a)) {
+  for (const [bob, count] of [...ghostByBob.entries()].sort((a, b) => b[1] - a[1])) {
     console.log(`  ${bob}: ${count}`)
   }
 

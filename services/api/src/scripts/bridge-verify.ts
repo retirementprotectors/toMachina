@@ -8,6 +8,8 @@
  * Run: npx tsx services/api/src/scripts/bridge-verify.ts
  */
 
+export {}
+
 const BRIDGE_URL = process.env.BRIDGE_URL || 'https://tm-bridge-365181509090.us-central1.run.app'
 const TEST_COLLECTION = '_bridge_test'
 

@@ -48,6 +48,14 @@
     "./notifications/*": {
       "types": "./src/notifications/*.ts",
       "default": "./dist/notifications/*.js"
+    },
+    "./matching/*": {
+      "types": "./src/matching/*.ts",
+      "default": "./dist/matching/*.js"
+    },
+    "./atlas/super-tools/*": {
+      "types": "./src/atlas/super-tools/*.ts",
+      "default": "./dist/atlas/super-tools/*.js"
     }
   },
   "scripts": {

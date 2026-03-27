@@ -14,8 +14,8 @@ import {
   profileCsvColumns,
   profileCollection,
   matchProfiles,
-} from '@tomachina/core/src/atlas/introspect.js'
-import type { ColumnMapping, FieldProfile } from '@tomachina/core/src/atlas/types.js'
+} from '@tomachina/core/atlas/introspect'
+import type { ColumnMapping, FieldProfile } from '@tomachina/core/atlas/types'
 import { CARRIER_FORMATS, detectCarrierFormat } from '../lib/carrier-formats.js'
 
 // ---------------------------------------------------------------------------

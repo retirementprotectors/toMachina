@@ -29,7 +29,8 @@ import Anthropic from '@anthropic-ai/sdk'
 import { pdf } from 'pdf-to-img'
 import fs from 'fs'
 import path from 'path'
-import { glob } from 'glob'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { glob } = require('glob') as { glob: (pattern: string) => Promise<string[]> }
 import dotenv from 'dotenv'
 
 // Load API key from MCP-Hub .env or local .env.anthropic

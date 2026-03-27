@@ -13,15 +13,15 @@ describe('MDJ API', () => {
   })
 
   it('GET /api/mdj/conversations returns array', async () => {
-    const result = await apiGet<{ success: boolean; data: unknown[] }>('/api/mdj/conversations')
+    const result = await apiGet<unknown[]>('/api/mdj/conversations')
     expect(result.success).toBe(true)
     expect(Array.isArray(result.data)).toBe(true)
   })
 
   it('GET /api/mdj/specialists returns 6 specialists', async () => {
-    const result = await apiGet<{ success: boolean; data: unknown[] }>('/api/mdj/specialists')
+    const result = await apiGet<unknown[]>('/api/mdj/specialists')
     expect(result.success).toBe(true)
-    expect(result.data.length).toBe(6)
+    expect((result.data ?? []).length).toBe(6)
   })
 
   it('POST /api/mdj/conversations/:id/approve returns success', async () => {

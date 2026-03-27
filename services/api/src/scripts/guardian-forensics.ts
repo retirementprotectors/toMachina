@@ -7,7 +7,7 @@
 import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { BigQuery } from '@google-cloud/bigquery'
-import { COLLECTION_SCHEMAS } from '@tomachina/core/src/validation/collection-schemas.js'
+import { COLLECTION_SCHEMAS } from '@tomachina/core/validation/collection-schemas'
 
 if (getApps().length === 0) {
   initializeApp({ projectId: 'claude-mcp-484718' })
@@ -123,7 +123,7 @@ async function schemaViolations(): Promise<QueryResult> {
   // Build CASE statements for required fields per collection
   const cases: string[] = []
 
-  for (const [collection, schema] of Object.entries(COLLECTION_SCHEMAS)) {
+  for (const [collection, schema] of Object.entries(COLLECTION_SCHEMAS) as [string, { required: string[] }][]) {
     for (const field of schema.required) {
       cases.push(
         `WHEN collection = '${collection}' AND (JSON_VALUE(data_json, '$.${field}') IS NULL OR JSON_VALUE(data_json, '$.${field}') = '') THEN STRUCT('${collection}' AS coll, '${field}' AS missing_field, document_id AS did)`
@@ -137,7 +137,7 @@ async function schemaViolations(): Promise<QueryResult> {
 
   // Simpler approach: query each collection separately and union
   const unions: string[] = []
-  for (const [collection, schema] of Object.entries(COLLECTION_SCHEMAS)) {
+  for (const [collection, schema] of Object.entries(COLLECTION_SCHEMAS) as [string, { required: string[] }][]) {
     for (const field of schema.required) {
       unions.push(`
         SELECT '${collection}' AS collection, '${field}' AS missing_field, document_id, timestamp

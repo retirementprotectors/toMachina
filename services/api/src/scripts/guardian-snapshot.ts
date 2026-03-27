@@ -7,7 +7,7 @@
 import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { createHash } from 'crypto'
-import type { DataSnapshot, CollectionSnapshot } from '@tomachina/core/src/types/guardian.js'
+import type { DataSnapshot, CollectionSnapshot } from '@tomachina/core/types/guardian'
 
 if (getApps().length === 0) {
   initializeApp({ projectId: 'claude-mcp-484718' })
@@ -142,7 +142,7 @@ async function main() {
     triggered_by: 'manual',
     collections,
     stored_at: now,
-    created_by: 'guardian-snapshot-script',
+    _created_by: 'guardian-snapshot-script',
   }
 
   // Write to Firestore
@@ -161,7 +161,7 @@ async function main() {
 
     if (Object.keys(col.field_coverage).length > 0) {
       console.log('    Field Coverage:')
-      for (const [field, pct] of Object.entries(col.field_coverage)) {
+      for (const [field, pct] of Object.entries(col.field_coverage) as [string, number][]) {
         const bar = pct >= 90 ? 'OK' : pct >= 50 ? 'WARN' : 'LOW'
         console.log(`      ${field.padEnd(25)} ${pct.toFixed(1).padStart(6)}%  [${bar}]`)
       }

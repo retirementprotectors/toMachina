@@ -16,12 +16,12 @@ import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 
 // Super tools from packages/core
-import { executeValidate } from '@tomachina/core/src/atlas/super-tools/index.js'
-import { executeNormalize } from '@tomachina/core/src/atlas/super-tools/index.js'
-import { executeMatch } from '@tomachina/core/src/atlas/super-tools/index.js'
-import { executeWrite } from '@tomachina/core/src/atlas/super-tools/index.js'
-import type { SuperToolContext } from '@tomachina/core/src/atlas/types.js'
-import type { MatchTag } from '@tomachina/core/src/atlas/super-tools/match.js'
+import { executeValidate } from '@tomachina/core/atlas/super-tools/index'
+import { executeNormalize } from '@tomachina/core/atlas/super-tools/index'
+import { executeMatch } from '@tomachina/core/atlas/super-tools/index'
+import { executeWrite } from '@tomachina/core/atlas/super-tools/index'
+import type { SuperToolContext } from '@tomachina/core/atlas/types'
+import type { MatchTag } from '@tomachina/core/atlas/super-tools/match'
 
 // Carrier format detection
 import { detectCarrierFormat, mapRowToCanonical } from '../lib/carrier-formats.js'
@@ -138,9 +138,9 @@ async function loadExistingMedicareAccounts(): Promise<Record<string, unknown>[]
     ...d.data(),
     account_id: d.id,
     _doc_path: d.ref.path,
-  }))
+  })) as Array<Record<string, unknown>>
   const medicare = allAccounts.filter(a =>
-    String(a.account_type_category || '').toLowerCase() === 'medicare'
+    String(a['account_type_category'] || '').toLowerCase() === 'medicare'
   )
   console.log(`  Loaded ${medicare.length} Medicare accounts (from ${allAccounts.length} total)`)
   return medicare

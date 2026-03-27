@@ -373,7 +373,7 @@ async function seedRules(
   }
 
   // Batched writes
-  const writes = rules.map((r) => ({ docId: r.rule_id, data: r as Record<string, unknown> }))
+  const writes = rules.map((r) => ({ docId: r.rule_id, data: r as unknown as Record<string, unknown> }))
 
   for (let i = 0; i < writes.length; i += BATCH_LIMIT) {
     const batch = db.batch()

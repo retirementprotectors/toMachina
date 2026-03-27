@@ -208,7 +208,7 @@ async function main() {
     const src = c.source || '(blank)'
     sourceMap.set(src, (sourceMap.get(src) || 0) + 1)
   }
-  for (const [src, count] of [...sourceMap.entries()].sort((a, b) => b - a)) {
+  for (const [src, count] of [...sourceMap.entries()].sort((a, b) => b[1] - a[1])) {
     console.log(`  ${src}: ${count}`)
   }
 

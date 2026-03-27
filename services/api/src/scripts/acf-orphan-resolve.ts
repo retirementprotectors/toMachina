@@ -16,7 +16,7 @@
 
 import { initializeApp, getApps } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
-import { matchClient } from '@tomachina/core/src/matching/index.js'
+import { matchClient } from '@tomachina/core/matching/index'
 
 // ── Firebase Init ──
 

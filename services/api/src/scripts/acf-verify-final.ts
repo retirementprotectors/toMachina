@@ -16,7 +16,7 @@ import { getFirestore } from 'firebase-admin/firestore'
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import { homedir } from 'os'
-import { findDuplicates } from '@tomachina/core/src/matching/index.js'
+import { findDuplicates } from '@tomachina/core/matching/index'
 
 // ── Firebase Init ────────────────────────────────────────────────────────────
 
