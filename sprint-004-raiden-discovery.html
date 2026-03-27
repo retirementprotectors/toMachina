@@ -511,7 +511,7 @@
     <div class="tab" data-tab="architecture">Architecture</div>
     <div class="tab" data-tab="comms">Comms Templates</div>
     <div class="tab" data-tab="sprint">Sprint Plan</div>
-    <div class="tab" data-tab="forge-ui">FORGE 2.0 UI</div>
+    <div class="tab" data-tab="forge-ui">🛕 The Dojo</div>
     <div class="tab" data-tab="cost-matrix">💰 Cost Matrix</div>
   </div>
 </div>
@@ -1359,15 +1359,15 @@
 
   </div>
 
-  <!-- ====== TAB: FORGE 2.0 UI ====== -->
+  <!-- ====== TAB: THE DOJO ====== -->
   <div class="panel" id="panel-forge-ui">
 
     <div class="section">
-      <div class="section-title">The Core Concept — Dual-Tab FORGE</div>
+      <div class="section-title">The Dojo — RONIN &amp; RAIDEN's Home</div>
       <div class="card red-border">
         <h3>Why Two Tabs?</h3>
-        <p>The FORGE board currently serves one agent: RONIN. RAIDEN is a fundamentally different kind of worker — reactive, fast-loop, ticket-based. Cramming both into the same Kanban would create noise. Two tabs, two agents, one board. Each with its own columns, fields, and flow.</p>
-        <p>The lightning bolt icon already exists in the FORGE sidebar toggle. That bolt <em>is</em> RAIDEN. It becomes his tab. RONIN gets the robotic arm — the autonomous builder. The icons do the talking.</p>
+        <p>The Dojo (formerly FORGE) is the ProDashX module where both agents live. RONIN builds. RAIDEN guards. The ProDashX module is being renamed <strong>The Dojo</strong> — <code>temple_buddhist</code> icon — because this is where the agents train, work, and ship. RONIN and RAIDEN live here. The name reflects the discipline.</p>
+        <p>The Dojo board has two tabs: RAIDEN (reactive bug queue) and RONIN (sprint lifecycle). RAIDEN gets the lightning bolt — that bolt <em>is</em> RAIDEN. RONIN gets the robotic arm — the autonomous builder. The icons do the talking.</p>
       </div>
       <div class="table-wrap">
         <table>
@@ -1402,7 +1402,7 @@
         </table>
       </div>
       <div class="quote">
-        RONIN builds the future. RAIDEN guards the present. The board reflects both — same surface, different weapons.
+        RONIN builds the future. RAIDEN guards the present. The Dojo is where both live — same surface, different weapons.
       </div>
     </div>
 
@@ -1452,7 +1452,7 @@
             <tr>
               <td><code>source</code></td>
               <td>enum</td>
-              <td><code>slack</code> | <code>forge_board</code> | <code>auto_detect</code> | <code>team_submission</code></td>
+              <td><code>slack</code> | <code>dojo_board</code> | <code>auto_detect</code> | <code>team_submission</code></td>
             </tr>
             <tr>
               <td><code>resolution</code></td>
@@ -1645,15 +1645,32 @@
 
     <div class="section">
       <div class="section-title">Quick Submit Form — Team Member Submission</div>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Team members submit issues directly to RAIDEN's queue. No Slack DM hunting. No "who do I tell?" confusion. Under 30 seconds from problem noticed to ticket created.</p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Team members submit issues directly to RAIDEN's queue from inside The Dojo. No Slack DM hunting. No "who do I tell?" confusion. Under 30 seconds from problem noticed to ticket created.</p>
       <div class="card blue-border">
         <h3>Form Fields (minimal — by design)</h3>
-        <p><strong>Title</strong> (required) — describe the issue in plain language<br>
+        <p><strong>Title</strong> (required) — "What broke?" placeholder. Red border on empty submit — form blocks if title is empty.<br>
         <strong>Type</strong> dropdown — Bug / Fix / UX / Question / Training<br>
         <strong>Priority</strong> — defaults to P2, team can bump to P1 or P0<br>
         <strong>Screenshot attachment</strong> — optional, drag-and-drop<br>
-        <strong>Submit</strong> → goes directly to RAIDEN's <code>new</code> queue<br>
-        RAIDEN picks it up within 15 minutes. Submitter gets a Slack DM with the item ID and status.</p>
+        <strong>Submit</strong> → goes directly to RAIDEN's <code>new</code> queue</p>
+      </div>
+      <div class="card">
+        <h3>60-Second Slack Confirmation Loop</h3>
+        <p>Within 60 seconds of submission, RAIDEN posts to the <strong>Dojo channel</strong> (not just a DM — the channel is visible to everyone):</p>
+        <div class="code-block" style="margin-top:12px;"><span class="comment">// On submission</span>
+🔴 NEW: [Title] — TRK-XXX submitted by @[name]
+Type: [Bug/Fix/UX] | Priority: P2
+RAIDEN is triaging...
+
+<span class="comment">// On duplicate detected (similar title already open)</span>
+⚠️ Already reported: TRK-XXX "[existing title]" — Status: [Fixing/Done]
+No need to resubmit.
+
+<span class="comment">// When RAIDEN starts working</span>
+🔧 IN PROGRESS: TRK-XXX "[title]" — RAIDEN is on it
+
+<span class="comment">// When fix ships</span>
+✅ FIXED: TRK-XXX "[title]" — deployed. Refresh to verify.</div>
       </div>
       <div class="card">
         <h3>Design Rules</h3>
@@ -1662,10 +1679,62 @@
     </div>
 
     <div class="section">
+      <div class="section-title">Slack Channel — Primary Submission Path</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Team members can also submit directly from Slack — no need to open The Dojo. This is the zero-friction path for people already living in Slack.</p>
+      <div class="card gold-border">
+        <h3>#dojo-fixes — The Source of Truth</h3>
+        <p>A dedicated Slack channel (<code>#dojo-fixes</code> or <code>#prodash-report</code>) gives the team a natural-workflow submission path. RAIDEN monitors the channel as a first-class submission source — identical processing to the Quick Submit button.</p>
+        <p style="margin-top:8px;">Channel purpose: submission, acknowledgement, status updates, resolution confirmation. The channel IS the source of truth for what's broken and what's been fixed.</p>
+      </div>
+      <div class="card red-border">
+        <h3 style="color:var(--red);">Why This Matters — The 10-Duplicate Problem</h3>
+        <p>When 10 people hit the same bug at the same time, they all submit a ticket. Without visibility, you get 10 duplicate tickets, 10 people asking "is it fixed yet?", and noise that buries the real signal.</p>
+        <p style="margin-top:8px;"><strong>With the channel:</strong> Person 1 submits → everyone sees the ID immediately → persons 2–10 see it's already reported and stand down. RAIDEN posts the fix. Everyone sees it. Done. No follow-up DMs. No support queue. The channel IS the source of truth.</p>
+      </div>
+      <div class="table-wrap" style="margin-top:16px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Channel Post</th>
+              <th>Timing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>New submission received</td>
+              <td>🔴 NEW: [Title] — TRK-XXX | Type | Priority | RAIDEN is triaging...</td>
+              <td>&lt; 60 seconds</td>
+            </tr>
+            <tr>
+              <td>Duplicate detected</td>
+              <td>⚠️ Already reported: TRK-XXX — Status: [Fixing/Done] — No need to resubmit.</td>
+              <td>Immediate</td>
+            </tr>
+            <tr>
+              <td>RAIDEN starts fix</td>
+              <td>🔧 IN PROGRESS: TRK-XXX "[title]" — RAIDEN is on it</td>
+              <td>At stage transition</td>
+            </tr>
+            <tr>
+              <td>Fix ships</td>
+              <td>✅ FIXED: TRK-XXX "[title]" — deployed. Refresh to verify.</td>
+              <td>At deploy confirmation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Ticket: TRK-S04-RAIDEN-SLACK-001</h3>
+        <p>Create <code>#dojo-fixes</code> Slack channel and wire RAIDEN to monitor it as a submission source (same 15-min polling interval as The Dojo board). Messages posted to the channel are processed as ticket submissions — RAIDEN reads them, creates a <code>tracker_item</code>, and replies in-thread with the TRK ID. Identical processing to Quick Submit button.</p>
+      </div>
+    </div>
+
+    <div class="section">
       <div class="section-title">RONIN Tab — Minimal Changes</div>
       <div class="card">
         <h3>Keep Everything. Add Two Things.</h3>
-        <p>Everything in the current FORGE Sprint Kanban stays exactly as-is. The only additions:</p>
+        <p>Everything in the current RONIN Sprint Kanban (inside The Dojo) stays exactly as-is. The only additions:</p>
         <p style="margin-top:8px;">1. <strong><code>precision_manufacturing</code> icon</strong> in the RONIN tab header — the robotic arm signals autonomous builder.<br>
         2. <strong>RONIN attribution badge</strong> on sprint cards — subtle callout that this work is agent-owned vs. human-created.<br>
         Tab state persists per user session in localStorage.</p>
@@ -1673,13 +1742,29 @@
     </div>
 
     <div class="section">
-      <div class="section-title">Sprint Plan — FORGE 2.0 UI Tickets</div>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">5 tickets. All FORGE board changes. Add these to the Sprint 004 plan.</p>
+      <div class="section-title">Sprint Plan — The Dojo Tickets</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">8 tickets. The Dojo app (module rename + dual-tab board + submissions) + Slack channel integration. Add these to the Sprint 004 plan.</p>
 
       <div class="ticket">
         <div class="ticket-header">
           <div class="ticket-id">TRK-S04-FORGE-001</div>
-          <div class="ticket-title">Create RAIDEN tab in FORGE board (Forge.tsx)</div>
+          <div class="ticket-title">Rename FORGE module to The Dojo (temple_buddhist icon)</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-red">P1 High</span>
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-muted">The Dojo</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Rename the FORGE ProDashX module to <strong>The Dojo</strong>. Update: nav sidebar label, module header, route title, page <code>&lt;title&gt;</code>, and any FORGE references in Dojo.tsx / Forge.tsx. Module icon: <code>temple_buddhist</code> (Material Icons). RONIN and RAIDEN live here — the name should reflect the discipline.<br><br>
+          <strong>Acceptance:</strong> No visible reference to "FORGE" as the app name remains in the UI. All internal code references updated. temple_buddhist icon renders in sidebar nav and module header.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-002</div>
+          <div class="ticket-title">Create RAIDEN tab in The Dojo board (Dojo.tsx)</div>
         </div>
         <div class="ticket-meta">
           <span class="badge badge-red">P1 High</span>
@@ -1687,14 +1772,14 @@
           <span class="badge badge-muted">RAIDEN</span>
         </div>
         <div class="ticket-ac">
-          <strong>What:</strong> New tab in FORGE header with <code>bolt</code> (lightning bolt) icon. RAIDEN-specific Kanban columns: NEW → TRIAGING → FIXING → VERIFYING → DONE → ESCALATED. Stage statuses wired to Firestore <code>tracker_items</code> with <code>agent: "raiden"</code> filter.<br><br>
+          <strong>What:</strong> New tab in The Dojo header with <code>bolt</code> (lightning bolt) icon. RAIDEN-specific Kanban columns: NEW → TRIAGING → FIXING → VERIFYING → DONE → ESCALATED. Stage statuses wired to Firestore <code>tracker_items</code> with <code>agent: "raiden"</code> filter.<br><br>
           <strong>Acceptance:</strong> Tab renders with correct columns. Switching from RONIN tab is clean (no flicker, no state leak). Priority sorting active by default (P0s at top of every column).
         </div>
       </div>
 
       <div class="ticket">
         <div class="ticket-header">
-          <div class="ticket-id">TRK-S04-FORGE-002</div>
+          <div class="ticket-id">TRK-S04-FORGE-003</div>
           <div class="ticket-title">Rename RONIN tab with precision_manufacturing icon</div>
         </div>
         <div class="ticket-meta">
@@ -1704,13 +1789,13 @@
         </div>
         <div class="ticket-ac">
           <strong>What:</strong> Update existing Sprint Kanban to be explicitly the RONIN tab. Add <code>precision_manufacturing</code> Material Icon to the tab header. Add subtle RONIN attribution badge on sprint cards.<br><br>
-          <strong>Acceptance:</strong> Both tabs visible in FORGE header. Correct icons displayed. Tab state persists in localStorage between page loads.
+          <strong>Acceptance:</strong> Both tabs visible in The Dojo header. Correct icons displayed. Tab state persists in localStorage between page loads.
         </div>
       </div>
 
       <div class="ticket">
         <div class="ticket-header">
-          <div class="ticket-id">TRK-S04-FORGE-003</div>
+          <div class="ticket-id">TRK-S04-FORGE-004</div>
           <div class="ticket-title">RAIDEN ticket schema — new Firestore fields</div>
         </div>
         <div class="ticket-meta">
@@ -1719,14 +1804,14 @@
           <span class="badge badge-muted">Data</span>
         </div>
         <div class="ticket-ac">
-          <strong>What:</strong> Extend <code>tracker_items</code> Firestore collection to support RAIDEN fields: <code>priority</code> (p0–p3), <code>source</code> (slack/forge_board/auto_detect/team_submission), <code>raiden_action</code> (auto_fixed/routed_to_ronin/training_sent/escalated), <code>resolution</code> (string). Item ID prefix by type: BUG- / FIX- / UX- (generated server-side in API route). Add <code>agent</code> field (<code>"raiden"</code> | <code>"ronin"</code>) to allow shared collection with filtered reads.<br><br>
+          <strong>What:</strong> Extend <code>tracker_items</code> Firestore collection to support RAIDEN fields: <code>priority</code> (p0–p3), <code>source</code> (slack/dojo_board/auto_detect/team_submission), <code>raiden_action</code> (auto_fixed/routed_to_ronin/training_sent/escalated), <code>resolution</code> (string). Item ID prefix by type: BUG- / FIX- / UX- (generated server-side in API route). Add <code>agent</code> field (<code>"raiden"</code> | <code>"ronin"</code>) to allow shared collection with filtered reads.<br><br>
           <strong>Acceptance:</strong> <code>tracker_items</code> supports both RONIN and RAIDEN fields without breaking existing RONIN reads. RAIDEN items correctly prefixed. API contract verified before writing (read frontend consumer first).
         </div>
       </div>
 
       <div class="ticket">
         <div class="ticket-header">
-          <div class="ticket-id">TRK-S04-FORGE-004</div>
+          <div class="ticket-id">TRK-S04-FORGE-005</div>
           <div class="ticket-title">Auto-Triage button — AutoSprint wired to RAIDEN tab</div>
         </div>
         <div class="ticket-meta">
@@ -1742,8 +1827,8 @@
 
       <div class="ticket">
         <div class="ticket-header">
-          <div class="ticket-id">TRK-S04-FORGE-005</div>
-          <div class="ticket-title">Quick Submit form for team members</div>
+          <div class="ticket-id">TRK-S04-FORGE-006</div>
+          <div class="ticket-title">Quick Submit form — title validation + Slack DM on submit</div>
         </div>
         <div class="ticket-meta">
           <span class="badge badge-gold">P2 Medium</span>
@@ -1751,8 +1836,44 @@
           <span class="badge badge-muted">UX</span>
         </div>
         <div class="ticket-ac">
-          <strong>What:</strong> Simple issue submission form accessible from RAIDEN tab (floating "+ Submit Issue" button). Fields: Title (required), Type dropdown (Bug/Fix/UX/Question/Training), Priority (default P2), optional screenshot attachment. Submits to RAIDEN's <code>new</code> queue via <code>POST /api/tracker/raiden</code>. Auto-sends Slack DM to submitter with item ID + status.<br><br>
-          <strong>Acceptance:</strong> Any team member can describe an issue and submit in under 30 seconds. No technical knowledge required. No empty submissions (title required). Submitter receives Slack confirmation with item ID within 60 seconds.
+          <strong>What:</strong> Quick Submit form in The Dojo's RAIDEN tab. Fields: Title (required — "What broke?" placeholder, red border + block on empty submit), Type dropdown (Bug/Fix/UX/Question/Training), Priority (default P2), optional screenshot attachment. Submits to <code>POST /api/tracker/raiden</code>. RAIDEN sends Slack DM to submitter with item ID + status within 60 seconds.<br><br>
+          <strong>Acceptance:</strong> Any team member submits in under 30 seconds. Empty title blocked at form level. Submitter receives DM confirmation with item ID within 60 seconds of submit.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-007</div>
+          <div class="ticket-title">Create #dojo-fixes Slack channel + wire RAIDEN as monitor</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-orange">Backend</span>
+          <span class="badge badge-muted">Slack</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> Create <code>#dojo-fixes</code> channel in the RPI Slack workspace. Wire RAIDEN to monitor the channel as a first-class submission source — same 15-min polling interval as The Dojo board. New messages in the channel are processed identically to Quick Submit: RAIDEN reads the message, creates a <code>tracker_item</code>, replies in-thread with TRK ID + status.<br><br>
+          <strong>Acceptance:</strong> Channel exists and confirmed in workspace. RAIDEN polls and processes channel messages. In-thread reply confirms ticket creation with item ID. Source field on created item = <code>"slack"</code>.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-S04-FORGE-008</div>
+          <div class="ticket-title">60-second Slack channel confirmation loop</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">P2 Medium</span>
+          <span class="badge badge-orange">Backend</span>
+          <span class="badge badge-muted">Slack</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>What:</strong> RAIDEN posts status updates to <code>#dojo-fixes</code> at key lifecycle events — not just DMs. Four event types:<br>
+          1. <strong>On submit</strong> (&lt;60s): 🔴 NEW: [Title] — TRK-XXX submitted by @[name] | Type | Priority | RAIDEN is triaging...<br>
+          2. <strong>On duplicate</strong> (immediate): ⚠️ Already reported: TRK-XXX "[existing title]" — Status: [Fixing/Done] — No need to resubmit.<br>
+          3. <strong>On RAIDEN start</strong>: 🔧 IN PROGRESS: TRK-XXX "[title]" — RAIDEN is on it<br>
+          4. <strong>On fix ship</strong>: ✅ FIXED: TRK-XXX "[title]" — deployed. Refresh to verify.<br><br>
+          <strong>Acceptance:</strong> All 4 message types post to channel (not just DM). Duplicate detection fires before creating a second ticket. Deploy confirmation triggers the FIXED message. Channel serves as the single source of truth — no follow-up DMs needed.
         </div>
       </div>
 
