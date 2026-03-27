@@ -23,6 +23,7 @@ healthRoutes.get('/', async (_req, res) => {
       success: true,
       data: {
         status: 'ok',
+        system: 'voltron',
         service: 'tomachina-api',
         version: '0.5.0',
         timestamp: new Date().toISOString(),
@@ -35,6 +36,7 @@ healthRoutes.get('/', async (_req, res) => {
       success: false,
       data: {
         status: 'degraded',
+        system: 'voltron',
         service: 'tomachina-api',
         version: '0.5.0',
         timestamp: new Date().toISOString(),
