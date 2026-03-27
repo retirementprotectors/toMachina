@@ -2,7 +2,7 @@ import { GoogleAuth } from 'google-auth-library'
 
 const auth = new GoogleAuth()
 const TM_API = 'https://tm-api-365181509090.us-central1.run.app'
-const MDJ1 = process.env.MDJ1_URL || 'https://tail7845ea.ts.net'
+const VOLTRON_URL = process.env.VOLTRON_URL || process.env.MDJ1_URL || 'https://tail7845ea.ts.net'
 
 async function handler(
   request: Request,
@@ -12,9 +12,9 @@ async function handler(
   const joined = path.join('/')
   const search = new URL(request.url).search
 
-  // MDJ chat routes proxy to the MDJ1 agent server via Tailscale
+  // MDJ chat routes proxy to the VOLTRON agent server via Tailscale
   if (joined.startsWith('mdj/')) {
-    return proxyToMDJ1(request, joined, search)
+    return proxyToVoltron(request, joined, search)
   }
 
   // Everything else proxies to Cloud Run tm-api
@@ -69,11 +69,11 @@ async function proxyToTmApi(request: Request, path: string, search: string) {
 }
 
 /**
- * Proxy to MDJ1 agent server on Dell PowerEdge via Tailscale.
+ * Proxy to VOLTRON agent server on Dell PowerEdge via Tailscale.
  * Forwards Firebase Auth token. Streams SSE responses back to client.
  */
-async function proxyToMDJ1(request: Request, path: string, search: string) {
-  const targetUrl = `${MDJ1}/api/${path}${search}`
+async function proxyToVoltron(request: Request, path: string, search: string) {
+  const targetUrl = `${VOLTRON_URL}/api/${path}${search}`
 
   const forwardHeaders: Record<string, string> = {
     'content-type': request.headers.get('content-type') || 'application/json',
@@ -108,7 +108,7 @@ async function proxyToMDJ1(request: Request, path: string, search: string) {
     })
   } catch (err) {
     return Response.json(
-      { success: false, error: 'MDJ1 proxy error: ' + String(err) },
+      { success: false, error: 'VOLTRON proxy error: ' + String(err) },
       { status: 502 }
     )
   }

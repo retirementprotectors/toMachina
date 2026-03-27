@@ -1,8 +1,8 @@
 /**
- * MDJ Routes — MyDigitalJosh AI Assistant
- * Proxies chat requests to MDJ1 agent service via Tailscale.
+ * MDJ Routes — VOLTRON AI Assistant
+ * Proxies chat requests to VOLTRON agent service via Tailscale.
  * Handles conversation CRUD and specialist listing from Firestore.
- * TRK-003: Wire Cloud Run → MDJ1
+ * TRK-003: Wire Cloud Run → VOLTRON
  */
 
 import { Router, type Request, type Response } from 'express'
@@ -18,38 +18,38 @@ function db() {
   return _db
 }
 
-// MDJ1 agent service URL via Tailscale
-const MDJ1_URL = process.env.MDJ1_URL || 'https://mdjserver.tail7845ea.ts.net'
+// VOLTRON agent service URL via Tailscale
+const VOLTRON_URL = process.env.VOLTRON_URL || process.env.MDJ1_URL || 'https://mdjserver.tail7845ea.ts.net'
 const MDJ_AUTH_SECRET = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
 
 /**
  * GET /api/mdj/health
- * Lightweight health check — proxies directly to MDJ1's /health endpoint.
+ * Lightweight health check — proxies directly to VOLTRON's /health endpoint.
  * Used by Mission Control. No token burn, no chat pipeline.
  */
 mdjRoutes.get('/health', async (_req: Request, res: Response) => {
   try {
-    const agentRes = await fetch(`${MDJ1_URL}/health`, {
+    const agentRes = await fetch(`${VOLTRON_URL}/health`, {
       method: 'GET',
       headers: { 'X-MDJ-Auth': MDJ_AUTH_SECRET },
       signal: AbortSignal.timeout(5000),
     })
 
     if (!agentRes.ok) {
-      res.status(agentRes.status).json(errorResponse(`MDJ1 returned ${agentRes.status}`))
+      res.status(agentRes.status).json(errorResponse(`VOLTRON returned ${agentRes.status}`))
       return
     }
 
     const data = await agentRes.json()
     res.json(successResponse(data))
   } catch (err) {
-    res.status(503).json(errorResponse('MDJ1 unreachable'))
+    res.status(503).json(errorResponse('VOLTRON unreachable'))
   }
 })
 
 /**
  * POST /api/mdj/chat
- * SSE streaming endpoint — proxies to MDJ1 agent service.
+ * SSE streaming endpoint — proxies to VOLTRON agent service.
  * Forwards user context (email, level, permissions) from Firebase auth.
  */
 mdjRoutes.post('/chat', async (req: Request, res: Response) => {
@@ -95,8 +95,8 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
     res.setHeader('X-Accel-Buffering', 'no')
     res.flushHeaders()
 
-    // Proxy to MDJ1 agent service
-    const agentUrl = `${MDJ1_URL}/agent/chat`
+    // Proxy to VOLTRON agent service
+    const agentUrl = `${VOLTRON_URL}/agent/chat`
 
     try {
       const agentRes = await fetch(agentUrl, {
@@ -115,13 +115,13 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
       })
 
       if (!agentRes.ok) {
-        res.write(`data: ${JSON.stringify({ text: `MDJ agent error: ${agentRes.status}` })}\n\n`)
+        res.write(`data: ${JSON.stringify({ text: `VOLTRON agent error: ${agentRes.status}` })}\n\n`)
         res.write('data: [DONE]\n\n')
         res.end()
         return
       }
 
-      // Stream SSE from MDJ1 back to client
+      // Stream SSE from VOLTRON back to client
       if (agentRes.body) {
         const reader = agentRes.body.getReader()
         const decoder = new TextDecoder()
@@ -138,10 +138,10 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
         res.end()
       }
     } catch (proxyErr) {
-      // MDJ1 unreachable — fall back to placeholder
-      const fallback = `I'm having trouble connecting to my brain (MDJ1 server). ` +
-        `The agent service at ${MDJ1_URL} may be down. ` +
-        `Check: ssh mdj1 "sudo systemctl status mdj-agent"`
+      // VOLTRON unreachable — fall back to placeholder
+      const fallback = `I'm having trouble connecting to my brain (VOLTRON server). ` +
+        `The agent service at ${VOLTRON_URL} may be down. ` +
+        `Check: ssh voltron "sudo systemctl status mdj-agent"`
       res.write(`data: ${JSON.stringify({ text: fallback })}\n\n`)
       res.write('data: [DONE]\n\n')
       res.end()
@@ -241,8 +241,8 @@ mdjRoutes.post('/conversations/:id/approve', async (req: Request, res: Response)
     const { call_id } = req.body as { call_id: string }
     const user = (req as unknown as Record<string, unknown>).user as Record<string, unknown> | undefined
 
-    // Forward approval to MDJ1 agent
-    const agentRes = await fetch(`${MDJ1_URL}/agent/approve`, {
+    // Forward approval to VOLTRON agent
+    const agentRes = await fetch(`${VOLTRON_URL}/agent/approve`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -271,7 +271,7 @@ mdjRoutes.post('/conversations/:id/reject', async (req: Request, res: Response) 
     const { call_id, reason } = req.body as { call_id: string; reason?: string }
     const user = (req as unknown as Record<string, unknown>).user as Record<string, unknown> | undefined
 
-    const agentRes = await fetch(`${MDJ1_URL}/agent/reject`, {
+    const agentRes = await fetch(`${VOLTRON_URL}/agent/reject`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

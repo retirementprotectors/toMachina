@@ -23,11 +23,11 @@ const db = getFirestore()
 const SPECIALISTS = [
   {
     id: 'mdj-general',
-    specialist_name: 'General MDJ',
-    display_name: 'MDJ',
+    specialist_name: 'VOLTRON General',
+    display_name: 'VOLTRON',
     icon: 'smart_toy',
     system_prompt:
-      'You are MyDigitalJosh (MDJ), a general-purpose AI assistant for RPI. You help with any topic. If a question requires deep domain expertise, recommend switching to a specialist.',
+      'You are VOLTRON, a general-purpose AI assistant for RPI. You help with any topic. If a question requires deep domain expertise, recommend switching to a specialist.',
     available_tools: [],
     routing_keywords: [],
     required_level: 3,
@@ -35,7 +35,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-medicare',
-    specialist_name: 'MDJ-Medicare',
+    specialist_name: 'VOLTRON Medicare',
     display_name: 'Medicare Specialist',
     icon: 'health_and_safety',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -46,7 +46,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-securities',
-    specialist_name: 'MDJ-Securities',
+    specialist_name: 'VOLTRON Securities',
     display_name: 'Securities Specialist',
     icon: 'account_balance',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -57,7 +57,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-service',
-    specialist_name: 'MDJ-Service',
+    specialist_name: 'VOLTRON Service',
     display_name: 'Service Specialist',
     icon: 'support_agent',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -68,7 +68,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-david',
-    specialist_name: 'MDJ-DAVID',
+    specialist_name: 'VOLTRON DAVID',
     display_name: 'DAVID Specialist',
     icon: 'handshake',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -79,7 +79,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-ops',
-    specialist_name: 'MDJ-Ops',
+    specialist_name: 'VOLTRON Ops',
     display_name: 'Operations Specialist',
     icon: 'settings_suggest',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
