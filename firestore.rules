@@ -459,6 +459,10 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
     }
+    match /voltron_registry/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isLeaderOrAbove();
+    }
     match /wire_executions/{docId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();

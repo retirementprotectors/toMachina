@@ -3785,6 +3785,30 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "voltron-registry.ts": {
+      "file": "voltron-registry.ts",
+      "endpoints": 3,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "voltron-wire.ts": {
+      "file": "voltron-wire.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "webhooks.ts": {
       "file": "webhooks.ts",
       "endpoints": 10,
@@ -4608,14 +4632,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 65,
-    "ui_files": 144,
-    "portal_pages": 152,
+    "route_files": 67,
+    "ui_files": 138,
+    "portal_pages": 158,
     "collections_found": 68,
-    "api_routes_found": 65,
+    "api_routes_found": 67,
     "cloud_functions_found": 14,
     "env_vars_found": 37,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-03-27T10:50:29.942Z"
+    "scanned_at": "2026-03-27T19:15:00.165Z"
   }
 }

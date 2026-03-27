@@ -56,6 +56,14 @@
     "./atlas/super-tools/*": {
       "types": "./src/atlas/super-tools/*.ts",
       "default": "./dist/atlas/super-tools/*.js"
+    },
+    "./voltron/*": {
+      "types": "./src/voltron/*.ts",
+      "default": "./dist/voltron/*.js"
+    },
+    "./voltron/super-tools/*": {
+      "types": "./src/voltron/super-tools/*.ts",
+      "default": "./dist/voltron/super-tools/*.js"
     }
   },
   "scripts": {

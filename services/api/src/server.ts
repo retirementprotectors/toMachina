@@ -71,6 +71,8 @@ import { notificationRoutes } from './routes/notifications.js'
 import { validationRoutes } from './routes/validation.js'
 import { importAccountRoutes } from './routes/import-accounts.js'
 import { importAgentRoutes } from './routes/import-agents.js'
+import { voltronRegistryRoutes } from './routes/voltron-registry.js'
+import { voltronWireRoutes } from './routes/voltron-wire.js'
 import { auditMiddleware } from './middleware/audit.js'
 import { registerCheckHandler } from '@tomachina/core'
 import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
@@ -172,6 +174,8 @@ app.use('/api/mdj', normalizeBody, mdjRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/validation', validationRoutes)
 app.use('/api/import-agents', normalizeBody, importAgentRoutes)
+app.use('/api/voltron/registry', voltronRegistryRoutes)
+app.use('/api/voltron/wire', normalizeBody, voltronWireRoutes)
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
