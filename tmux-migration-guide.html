@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#0d1117;color:#c9d1d9">
+<head>
+<meta charset="utf-8">
+<title>MDJ1 tmux Migration Guide — 2HINOBI + MUSASHI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Consolas,monospace;background:#0d1117;color:#c9d1d9;padding:24px;max-width:900px;margin:0 auto;line-height:1.6}
+h1{color:#58a6ff;font-size:1.8em;margin-bottom:8px;border-bottom:2px solid #30363d;padding-bottom:12px}
+h2{color:#f0883e;font-size:1.3em;margin:28px 0 12px;border-left:4px solid #f0883e;padding-left:12px}
+h3{color:#7ee787;font-size:1.1em;margin:20px 0 8px}
+.subtitle{color:#8b949e;font-size:0.9em;margin-bottom:24px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin:12px 0}
+.card.warn{border-color:#d29922}
+.card.success{border-color:#3fb950}
+code{background:#1f2937;padding:2px 6px;border-radius:4px;font-size:0.9em;color:#79c0ff}
+pre{background:#1f2937;padding:16px;border-radius:8px;overflow-x:auto;margin:8px 0;font-size:0.85em;line-height:1.5}
+.step{display:flex;gap:12px;margin:8px 0;align-items:flex-start}
+.step-num{background:#f0883e;color:#0d1117;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.8em;flex-shrink:0;margin-top:2px}
+.step-content{flex:1}
+.checkbox{display:flex;align-items:flex-start;gap:8px;margin:6px 0;padding:8px;background:#1c2128;border-radius:6px;cursor:pointer}
+.checkbox input{margin-top:4px;accent-color:#3fb950;width:16px;height:16px}
+.checkbox label{cursor:pointer;flex:1}
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{background:#1c2128;text-align:left;padding:8px 12px;color:#58a6ff;font-size:0.85em}
+td{padding:8px 12px;border-bottom:1px solid #21262d;font-size:0.85em}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.75em;font-weight:bold}
+.tag.done{background:#1b4332;color:#3fb950}
+.tag.todo{background:#3d2004;color:#d29922}
+.tag.critical{background:#3d0c0c;color:#f85149}
+.divider{border:none;border-top:1px solid #30363d;margin:28px 0}
+.emoji{font-size:1.2em}
+</style>
+</head>
+<body>
+
+<h1><span class="emoji">🥷</span> MDJ1 tmux Migration Guide</h1>
+<p class="subtitle">Migrating 2HINOBI + MUSASHI to persistent tmux sessions on the Dell PowerEdge</p>
+
+<div class="card">
+<strong>What this does:</strong> Moves both agents from ephemeral sessions (direct SSH / PRO laptop) to persistent tmux sessions on MDJ1. Sessions survive disconnects, reboots (with tmux-resurrect), and let you switch between agents instantly.
+</div>
+
+<hr class="divider">
+
+<h2>Pre-Flight: What MDJ1 Already Has</h2>
+
+<table>
+<tr><th>Component</th><th>Status</th><th>Details</th></tr>
+<tr><td>Global CLAUDE.md</td><td><span class="tag done">READY</span></td><td>1,146 lines, synced from AIR</td></tr>
+<tr><td>Memory files</td><td><span class="tag done">READY</span></td><td>25 files (AIR sync) + 2 local</td></tr>
+<tr><td>Settings.json</td><td><span class="tag done">READY</span></td><td>bypassPermissions, Opus 1M, hookify enabled</td></tr>
+<tr><td>MCP Servers</td><td><span class="tag done">READY</span></td><td>8 servers: workspace, business, healthcare, comms, slack, gdrive, gcal, gmail</td></tr>
+<tr><td>Hookify Rules</td><td><span class="tag done">READY</span></td><td>41 rules symlinked</td></tr>
+<tr><td>Plugins</td><td><span class="tag done">READY</span></td><td>frontend-design, context7, hookify</td></tr>
+<tr><td>SA Key</td><td><span class="tag done">READY</span></td><td>/home/jdm/mdj-agent/sa-key.json (permanent)</td></tr>
+<tr><td>toMachina repo</td><td><span class="tag done">READY</span></td><td>~/Projects/toMachina (full clone)</td></tr>
+<tr><td>mdj-agent repo</td><td><span class="tag done">READY</span></td><td>~/mdj-agent (full clone + built)</td></tr>
+<tr><td>Playwright plugin</td><td><span class="tag todo">MISSING</span></td><td>Not installed. Non-blocking — install later if needed</td></tr>
+</table>
+
+<hr class="divider">
+
+<h2>Migration 1: 2HINOBI → tmux</h2>
+<p style="color:#8b949e;margin-bottom:12px">You're already on MDJ1. This moves your current direct session into a persistent tmux.</p>
+
+<div class="step">
+<div class="step-num">1</div>
+<div class="step-content">
+<strong>Export current session</strong>
+<div class="checkbox"><input type="checkbox" id="c1"><label for="c1">In this Claude Code session, type: <code>/export</code></label></div>
+<div class="checkbox"><input type="checkbox" id="c2"><label for="c2">Copy the file path it outputs (something like <code>/home/jdm/.claude/exports/2026-03-28-...</code>)</label></div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">2</div>
+<div class="step-content">
+<strong>Clean up old tmux sessions</strong>
+<div class="checkbox"><input type="checkbox" id="c3"><label for="c3">Open a NEW terminal to MDJ1: <code>ssh mdj1</code></label></div>
+<div class="checkbox"><input type="checkbox" id="c4"><label for="c4">Kill stale sessions:</label></div>
+<pre>tmux kill-session -t 2HINOBI 2>/dev/null
+tmux kill-session -t MUSASHI 2>/dev/null
+tmux kill-session -t archer 2>/dev/null
+tmux kill-session -t forge-phase1a 2>/dev/null
+tmux kill-session -t forge-trk012 2>/dev/null</pre>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">3</div>
+<div class="step-content">
+<strong>Create tmux + launch Claude Code</strong>
+<div class="checkbox"><input type="checkbox" id="c5"><label for="c5">Run:</label></div>
+<pre>tmux new -s 2HINOBI
+cd /home/jdm/Projects/toMachina && claude</pre>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">4</div>
+<div class="step-content">
+<strong>Feed context — first message</strong>
+<div class="checkbox"><input type="checkbox" id="c6"><label for="c6">Paste this as your first message (replace the file path):</label></div>
+<pre>Read /home/jdm/.claude/[YOUR EXPORT FILE PATH] — full context from my
+previous session. I am 2HINOBI, The Architect, running on MDJ1 in tmux.
+
+3 RONINs are running:
+- forge-1774658590392-85w1h1 (SHINOBI-ONLINE)
+- forge-1774658596081-q3igos (VOLTRON Foundation v2)
+- forge-1774658601767-b7lrgs (VOLTRON Action Engine v2)
+
+Set up cron to monitor all 3 + Slack channel C0AP2QL9Z6X.
+Resume Dojo management.</pre>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">5</div>
+<div class="step-content">
+<strong>Verify + detach</strong>
+<div class="checkbox"><input type="checkbox" id="c7"><label for="c7">Confirm 2HINOBI is oriented (knows the sprints, knows his role)</label></div>
+<div class="checkbox"><input type="checkbox" id="c8"><label for="c8">Detach: <code>Ctrl+B</code> then <code>D</code> — session keeps running</label></div>
+</div>
+</div>
+
+<div class="card success">
+<strong>2HINOBI is now persistent.</strong> Come back anytime: <code>ssh mdj1 && tmux attach -t 2HINOBI</code>
+</div>
+
+<hr class="divider">
+
+<h2>Migration 2: MUSASHI → tmux (from PRO)</h2>
+<p style="color:#8b949e;margin-bottom:12px">MUSASHI lives on your MacBook Pro. We're moving him to MDJ1.</p>
+
+<div class="step">
+<div class="step-num">1</div>
+<div class="step-content">
+<strong>Export MUSASHI on PRO</strong>
+<div class="checkbox"><input type="checkbox" id="m1"><label for="m1">In MUSASHI's Claude Code session on PRO, type: <code>/export</code></label></div>
+<div class="checkbox"><input type="checkbox" id="m2"><label for="m2">Copy the file path</label></div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">2</div>
+<div class="step-content">
+<strong>Sync files to MDJ1</strong>
+<div class="checkbox"><input type="checkbox" id="m3"><label for="m3">From PRO terminal:</label></div>
+<pre># Export transcript
+scp [EXPORT FILE PATH] mdj1:/home/jdm/.claude/musashi-export.txt
+
+# Memory files (grab all project memories)
+scp -r /Users/joshd.millang/.claude/projects/-Users-joshd-millang-Projects-toMachina/memory/ \
+  mdj1:/home/jdm/.claude/musashi-memory/ 2>/dev/null
+
+# Any project-specific CLAUDE.md overrides
+scp /Users/joshd.millang/Projects/toMachina/CLAUDE.md \
+  mdj1:/home/jdm/.claude/musashi-project-claude.md 2>/dev/null</pre>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">3</div>
+<div class="step-content">
+<strong>SSH to MDJ1 + create tmux</strong>
+<div class="checkbox"><input type="checkbox" id="m4"><label for="m4">Run:</label></div>
+<pre>ssh mdj1
+tmux new -s MUSASHI
+cd /home/jdm/Projects/toMachina && claude</pre>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">4</div>
+<div class="step-content">
+<strong>Feed MUSASHI his brain</strong>
+<div class="checkbox"><input type="checkbox" id="m5"><label for="m5">First message:</label></div>
+<pre>Read /home/jdm/.claude/musashi-export.txt — full context from my PRO
+session. I am MUSASHI, ARTxBLADE, the creative SME for RPI.
+
+I've been migrated to MDJ1 (Dell PowerEdge T440). My discovery docs,
+hookify updates, and creative work continue from here.
+
+Key context: I wrote 4 discovery docs today including SHINOBI-ONLINE
+(Sprint 008, 14 tickets, seeded in FORGE). 55 total tickets on the
+FORGE board.
+
+All my tools (Slack, Drive, Calendar, etc.) work through MDJ1's MCP
+servers.</pre>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num">5</div>
+<div class="step-content">
+<strong>Verify + detach</strong>
+<div class="checkbox"><input type="checkbox" id="m6"><label for="m6">Confirm MUSASHI knows who he is and what he's working on</label></div>
+<div class="checkbox"><input type="checkbox" id="m7"><label for="m7">Detach: <code>Ctrl+B</code> then <code>D</code></label></div>
+</div>
+</div>
+
+<div class="card success">
+<strong>MUSASHI is now on MDJ1.</strong> Come back anytime: <code>ssh mdj1 && tmux attach -t MUSASHI</code>
+</div>
+
+<hr class="divider">
+
+<h2>Post-Migration: Daily Operations</h2>
+
+<h3>Quick Reference</h3>
+<pre># See all sessions
+ssh mdj1 && tmux ls
+
+# Talk to The Architect
+tmux attach -t 2HINOBI
+
+# Talk to the Creative SME
+tmux attach -t MUSASHI
+
+# Detach (session keeps running)
+Ctrl+B, D
+
+# Switch between sessions (while in tmux)
+Ctrl+B, S  → select from list</pre>
+
+<h3>The Dojo on MDJ1</h3>
+<table>
+<tr><th>Agent</th><th>Type</th><th>Access</th></tr>
+<tr><td><span class="emoji">🥷</span> 2HINOBI</td><td>tmux (conversation)</td><td><code>tmux attach -t 2HINOBI</code></td></tr>
+<tr><td><span class="emoji">🎨</span> MUSASHI</td><td>tmux (conversation)</td><td><code>tmux attach -t MUSASHI</code></td></tr>
+<tr><td><span class="emoji">⚡</span> SHINOBI</td><td>CCSDK (autonomous)</td><td><code>POST /shinobi/*</code> (Sprint 008)</td></tr>
+<tr><td><span class="emoji">🤖</span> VOLTRON</td><td>CCSDK (portal)</td><td><code>POST /agent/chat</code></td></tr>
+<tr><td><span class="emoji">⚔️</span> RONIN</td><td>CCSDK (builder)</td><td><code>POST /forge/sprint</code></td></tr>
+<tr><td><span class="emoji">🛡️</span> RAIDEN</td><td>CCSDK (reactive)</td><td><code>POST /raiden/*</code> (Sprint 004)</td></tr>
+</table>
+
+<hr class="divider">
+
+<div class="card" style="text-align:center;border-color:#58a6ff">
+<p style="font-size:1.1em;color:#58a6ff"><strong>The entire org chart. One Dell PowerEdge. At your feet.</strong></p>
+<p style="color:#8b949e;margin-top:8px">#RunningOurOwnRACE</p>
+</div>
+
+<p style="text-align:center;color:#484f58;margin-top:16px;font-size:0.8em">Generated by 2HINOBI — The Architect, MDJ1 • 2026-03-28</p>
+
+</body>
+</html>
