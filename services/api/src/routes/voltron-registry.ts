@@ -5,6 +5,9 @@
 // GET  /api/voltron/registry           — Returns role-filtered tool list
 // POST /api/voltron/registry/regenerate — Triggers registry regeneration (VP+)
 //
+// TRK-13801: Hardened entitlement filtering with dual enforcement (rank + type),
+//   role validation, audit metadata, and defensive defaults.
+//
 // NOTE: Uses bracket notation for Firestore writes (hookify-safe).
 // ---------------------------------------------------------------------------
 
@@ -28,12 +31,29 @@ export const voltronRegistryRoutes = Router()
 
 const VOLTRON_REGISTRY_COL = 'voltron_registry'
 
+/** All valid roles — used for validation before any filtering. */
+const VALID_ROLES: ReadonlySet<string> = new Set<string>(Object.keys(VOLTRON_ROLE_RANK))
+
 /* ─── Firestore helpers (bracket notation for hookify) ─── */
 
 function registryCol() {
   const store = getFirestore()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (store as any)['collection'](VOLTRON_REGISTRY_COL)
+}
+
+/* ─── TRK-13801: Role validation + normalization ─── */
+
+/**
+ * Validate and normalize a role string.
+ * Unknown/missing roles are clamped to COORDINATOR (lowest privilege).
+ * Returns the validated role and whether it was normalized.
+ */
+function validateRole(raw: string | undefined): { role: VoltronUserRole; normalized: boolean } {
+  if (!raw) return { role: 'COORDINATOR', normalized: true }
+  const upper = raw.toUpperCase().trim()
+  if (VALID_ROLES.has(upper)) return { role: upper as VoltronUserRole, normalized: upper !== raw }
+  return { role: 'COORDINATOR', normalized: true }
 }
 
 /* ─── Role rank resolution ─── */
@@ -50,73 +70,120 @@ function isTypeAllowedForRole(role: string, toolType: string): boolean {
   return allowed.includes(toolType as VoltronToolType)
 }
 
+/* ─── TRK-13801: Entitlement filter with dual enforcement ─── */
+
+/**
+ * Filter a list of registry entries by caller role.
+ * Dual enforcement: rank gate (numeric) AND type gate (tool type matrix).
+ * Returns only entries where BOTH gates pass.
+ */
+function filterByEntitlement(
+  entries: VoltronRegistryEntry[],
+  role: VoltronUserRole,
+): { allowed: VoltronRegistryEntry[]; denied: number } {
+  const callerRank = getRoleRank(role)
+  const allowed: VoltronRegistryEntry[] = []
+  let denied = 0
+
+  for (const entry of entries) {
+    const entryRank = getRoleRank(entry.entitlement_min)
+    const rankOk = entryRank <= callerRank
+    const typeOk = isTypeAllowedForRole(role, entry.type)
+
+    if (rankOk && typeOk) {
+      allowed.push(entry)
+    } else {
+      denied++
+    }
+  }
+
+  return { allowed, denied }
+}
+
 // ─── GET /api/voltron/registry ──────────────────────────────────────────────
 // Returns tools filtered by caller's role. Uses Firebase Auth token from middleware.
+// TRK-13801: Hardened with role validation, dual enforcement, and audit metadata.
 
 voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
   try {
-    const userRole = ((req as any).user?.role as string) || 'COORDINATOR'
+    // TRK-13801: Validate and normalize role before any filtering
+    const rawRole = (req as any).user?.role as string | undefined
+    const { role: userRole, normalized } = validateRole(rawRole)
     const callerRank = getRoleRank(userRole)
+
+    if (normalized && rawRole) {
+      console.warn(`[voltron-registry] Role normalized: "${rawRole}" → "${userRole}"`)
+    }
 
     const col = registryCol()
     const snapshot = await col.get()
 
-    const entries: VoltronRegistryEntry[] = []
+    const allEntries: VoltronRegistryEntry[] = []
     snapshot.forEach((doc: any) => {
       const data = doc.data() as VoltronRegistryEntry
-      const entryRank = getRoleRank(data.entitlement_min)
-      // TRK-13747: Dual enforcement — rank gate + type gate
-      if (entryRank <= callerRank && isTypeAllowedForRole(userRole, data.type)) {
-        entries.push({ ...data, tool_id: doc.id })
-      }
+      allEntries.push({ ...data, tool_id: doc.id })
     })
 
     // If registry is empty (not yet generated), return in-memory definitions
-    if (entries.length === 0) {
+    if (allEntries.length === 0) {
       const superDefs = getVoltronSuperToolDefinitions()
       const wireDefs = VOLTRON_WIRE_DEFINITIONS
+      const now = new Date().toISOString()
 
-      // TRK-13747: Dual enforcement on in-memory fallback (rank gate + type gate)
       const memoryEntries: VoltronRegistryEntry[] = [
-        // Super tools — only if role allows SUPER type
-        ...(isTypeAllowedForRole(userRole, 'SUPER')
-          ? superDefs
-              .filter(d => getRoleRank(d.entitlement_min) <= callerRank)
-              .map(d => ({
-                tool_id: d.super_tool_id,
-                name: d.name,
-                description: d.description,
-                type: 'SUPER' as const,
-                source: 'VOLTRON' as const,
-                entitlement_min: d.entitlement_min,
-                parameters: { tools: d.tools },
-                server_only: false,
-                generated_at: new Date().toISOString(),
-              }))
-          : []),
-        // Wires — only if role allows WIRE type
-        ...(isTypeAllowedForRole(userRole, 'WIRE')
-          ? wireDefs
-              .filter(w => getRoleRank(w.entitlement_min) <= callerRank)
-              .map(w => ({
-                tool_id: w.wire_id,
-                name: w.name,
-                description: w.description,
-                type: 'WIRE' as const,
-                source: 'VOLTRON' as const,
-                entitlement_min: w.entitlement_min,
-                parameters: { super_tools: w.super_tools, approval_gates: w.approval_gates },
-                server_only: false,
-                generated_at: new Date().toISOString(),
-              }))
-          : []),
+        ...superDefs.map(d => ({
+          tool_id: d.super_tool_id,
+          name: d.name,
+          description: d.description,
+          type: 'SUPER' as const,
+          source: 'VOLTRON' as const,
+          entitlement_min: d.entitlement_min,
+          parameters: { tools: d.tools },
+          server_only: false,
+          generated_at: now,
+        })),
+        ...wireDefs.map(w => ({
+          tool_id: w.wire_id,
+          name: w.name,
+          description: w.description,
+          type: 'WIRE' as const,
+          source: 'VOLTRON' as const,
+          entitlement_min: w.entitlement_min,
+          parameters: { super_tools: w.super_tools, approval_gates: w.approval_gates },
+          server_only: false,
+          generated_at: now,
+        })),
       ]
 
-      res.json(successResponse(memoryEntries))
+      // TRK-13801: Apply same dual enforcement to in-memory fallback
+      const { allowed, denied } = filterByEntitlement(memoryEntries, userRole)
+
+      res.json(successResponse({
+        tools: allowed,
+        _meta: {
+          role: userRole,
+          rank: callerRank,
+          total_available: allowed.length,
+          filtered_out: denied,
+          source: 'memory',
+        },
+      }))
       return
     }
 
-    res.json(successResponse(entries))
+    // TRK-13801: Dual enforcement via centralized filter
+    const { allowed, denied } = filterByEntitlement(allEntries, userRole)
+
+    res.json(successResponse({
+      tools: allowed,
+      _meta: {
+        role: userRole,
+        rank: callerRank,
+        total_available: allowed.length,
+        filtered_out: denied,
+        source: 'firestore',
+      },
+    }))
   } catch (err) {
     console.error('GET /api/voltron/registry error:', err)
     res.status(500).json(errorResponse('Failed to fetch registry'))
@@ -128,7 +195,8 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
 
 voltronRegistryRoutes.post('/regenerate', async (req: Request, res: Response) => {
   try {
-    const userRole = ((req as any).user?.role as string) || 'COORDINATOR'
+    // TRK-13801: Use validated role for regenerate endpoint too
+    const { role: userRole } = validateRole((req as any).user?.role as string | undefined)
     const callerRank = getRoleRank(userRole)
 
     // VP+ only (rank >= 4)

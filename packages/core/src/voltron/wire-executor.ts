@@ -114,6 +114,62 @@ function emitSSE(executionId: string, event: WireSSEEvent): void {
   }
 }
 
+// ── Artifact Extraction ─────────────────────────────────────────────────────
+
+/**
+ * Extract artifacts from a super tool result.
+ * Looks for known artifact shapes in result data (Drive links, PDFs, etc.).
+ */
+function extractArtifacts(toolId: string, result: VoltronSuperResult): VoltronArtifact[] {
+  const extracted: VoltronArtifact[] = []
+  if (!result.data || typeof result.data !== 'object') return extracted
+
+  const data = result.data as Record<string, unknown>
+
+  // Extract Drive file links
+  if (typeof data.drive_link === 'string') {
+    extracted.push({ type: 'drive_file', link: data.drive_link, label: `${toolId} — Drive file` })
+  }
+  // Extract PDF links
+  if (typeof data.pdf_link === 'string') {
+    extracted.push({ type: 'pdf', link: data.pdf_link, label: `${toolId} — PDF` })
+  }
+  // Extract HTML output links
+  if (typeof data.html_link === 'string') {
+    extracted.push({ type: 'html', link: data.html_link, label: `${toolId} — HTML` })
+  }
+  // Extract generic artifact arrays
+  if (Array.isArray(data.artifacts)) {
+    for (const a of data.artifacts) {
+      if (a && typeof a === 'object' && typeof (a as Record<string, unknown>).link === 'string') {
+        const artifact = a as Record<string, unknown>
+        extracted.push({
+          type: typeof artifact.type === 'string' ? artifact.type : 'unknown',
+          link: artifact.link as string,
+          label: typeof artifact.label === 'string' ? artifact.label : `${toolId} artifact`,
+        })
+      }
+    }
+  }
+
+  // Collect per-tool artifacts from tool_results
+  if (result.tool_results) {
+    for (const tr of result.tool_results) {
+      if (tr.data && typeof tr.data === 'object') {
+        const trData = tr.data as Record<string, unknown>
+        if (typeof trData.drive_link === 'string') {
+          extracted.push({ type: 'drive_file', link: trData.drive_link, label: `${tr.metadata?.tool_id ?? toolId} — Drive file` })
+        }
+        if (typeof trData.pdf_link === 'string') {
+          extracted.push({ type: 'pdf', link: trData.pdf_link, label: `${tr.metadata?.tool_id ?? toolId} — PDF` })
+        }
+      }
+    }
+  }
+
+  return extracted
+}
+
 // ── Audit Document Builder ──────────────────────────────────────────────────
 
 function buildAuditDoc(
@@ -125,6 +181,7 @@ function buildAuditDoc(
   status: VoltronWireResult['status'],
   startedAt: string,
   simulation: boolean,
+  errorMessage?: string,
 ): Record<string, unknown> {
   return {
     execution_id: executionId,
@@ -139,6 +196,30 @@ function buildAuditDoc(
     artifacts,
     entitlement: context.entitlement,
     simulation,
+    ...(errorMessage ? { error: errorMessage } : {}),
+  }
+}
+
+// ── Failure Result Helper ───────────────────────────────────────────────────
+
+function buildFailResult(
+  executionId: string,
+  wireId: string,
+  context: VoltronContext,
+  startedAt: string,
+  stages: VoltronStageResult[] = [],
+  artifacts: VoltronArtifact[] = [],
+): VoltronWireResult {
+  return {
+    execution_id: executionId,
+    wire_id: wireId,
+    user_email: context.user_email,
+    client_id: context.client_id ?? wireId,
+    started_at: startedAt,
+    completed_at: new Date().toISOString(),
+    stage_results: stages,
+    status: 'failed',
+    artifacts,
   }
 }
 
@@ -151,6 +232,8 @@ export interface ExecuteWireOptions {
   writeAudit?: (doc: Record<string, unknown>) => Promise<string>
   /** Resume from a specific stage (used after approval gate) */
   resumeFromStage?: string
+  /** Prior stage outputs to restore output chaining on resume (keyed by stage ID) */
+  priorStageOutputs?: Record<string, unknown>
 }
 
 export async function executeVoltronWire(
@@ -163,6 +246,7 @@ export async function executeVoltronWire(
   const stages: VoltronStageResult[] = []
   const artifacts: VoltronArtifact[] = []
   const isSimulation = options.simulate === true
+  const isResume = typeof options.resumeFromStage === 'string'
 
   // Register for SSE tracking
   activeExecutions.set(executionId, { events: [], listeners: new Set() })
@@ -171,17 +255,7 @@ export async function executeVoltronWire(
     // Pre-execution constraint validation (AEP blackout, etc.)
     const validation = validateWireExecution(wireInput.wire_id)
     if (!validation.valid) {
-      const failResult: VoltronWireResult = {
-        execution_id: executionId,
-        wire_id: wireInput.wire_id,
-        user_email: context.user_email,
-        client_id: wireInput.client_id,
-        started_at: startedAt,
-        completed_at: new Date().toISOString(),
-        stage_results: [],
-        status: 'failed',
-        artifacts: [],
-      }
+      const failResult = buildFailResult(executionId, wireInput.wire_id, context, startedAt)
 
       emitSSE(executionId, {
         type: 'wire_error',
@@ -194,7 +268,7 @@ export async function executeVoltronWire(
       // Write audit for validation failure
       if (options.writeAudit) {
         await options.writeAudit(
-          buildAuditDoc(executionId, wireInput.wire_id, context, stages, artifacts, 'failed', startedAt, isSimulation),
+          buildAuditDoc(executionId, wireInput.wire_id, context, stages, artifacts, 'failed', startedAt, isSimulation, validation.error),
         )
       }
 
@@ -204,17 +278,8 @@ export async function executeVoltronWire(
     // Resolve wire definition
     const wireDef = getVoltronWireById(wireInput.wire_id)
     if (!wireDef) {
-      const failResult: VoltronWireResult = {
-        execution_id: executionId,
-        wire_id: wireInput.wire_id,
-        user_email: context.user_email,
-        client_id: wireInput.client_id,
-        started_at: startedAt,
-        completed_at: new Date().toISOString(),
-        stage_results: [],
-        status: 'failed',
-        artifacts: [],
-      }
+      const errorMsg = `Wire definition not found: ${wireInput.wire_id}`
+      const failResult = buildFailResult(executionId, wireInput.wire_id, context, startedAt)
 
       emitSSE(executionId, {
         type: 'wire_error',
@@ -223,6 +288,13 @@ export async function executeVoltronWire(
         result: failResult,
         timestamp: new Date().toISOString(),
       })
+
+      // Write audit for missing wire definition
+      if (options.writeAudit) {
+        await options.writeAudit(
+          buildAuditDoc(executionId, wireInput.wire_id, context, stages, artifacts, 'failed', startedAt, isSimulation, errorMsg),
+        )
+      }
 
       return failResult
     }
@@ -233,17 +305,8 @@ export async function executeVoltronWire(
     const { VOLTRON_ROLE_RANK } = await import('./types.js')
     const requiredRank = VOLTRON_ROLE_RANK[wireDef.entitlement_min]
     if (context.entitlement < requiredRank) {
-      const failResult: VoltronWireResult = {
-        execution_id: executionId,
-        wire_id: wireInput.wire_id,
-        user_email: context.user_email,
-        client_id: wireInput.client_id,
-        started_at: startedAt,
-        completed_at: new Date().toISOString(),
-        stage_results: [],
-        status: 'failed',
-        artifacts: [],
-      }
+      const errorMsg = `Insufficient entitlement: role rank ${context.entitlement} < required ${requiredRank} (${wireDef.entitlement_min})`
+      const failResult = buildFailResult(executionId, wireInput.wire_id, context, startedAt)
 
       emitSSE(executionId, {
         type: 'wire_error',
@@ -253,12 +316,19 @@ export async function executeVoltronWire(
         timestamp: new Date().toISOString(),
       })
 
+      // Write audit for entitlement failure
+      if (options.writeAudit) {
+        await options.writeAudit(
+          buildAuditDoc(executionId, wireInput.wire_id, context, stages, artifacts, 'failed', startedAt, isSimulation, errorMsg),
+        )
+      }
+
       return failResult
     }
 
     // Simulation mode — return plan without executing
     if (isSimulation) {
-      const simStages: VoltronStageResult[] = wireDef.super_tools.map((toolId, idx) => ({
+      const simStages: VoltronStageResult[] = wireDef.super_tools.map((toolId) => ({
         stage: toolId,
         super_tool_id: toolId,
         status: 'pending' as const,
@@ -298,11 +368,40 @@ export async function executeVoltronWire(
 
     // Determine starting point (for resume after approval)
     const superTools = wireDef.super_tools
-    const startIdx = options.resumeFromStage
-      ? superTools.indexOf(options.resumeFromStage)
-      : 0
+    let startIdx = 0
 
+    if (options.resumeFromStage) {
+      const resumeIdx = superTools.indexOf(options.resumeFromStage)
+      if (resumeIdx === -1) {
+        const errorMsg = `Resume stage not found in wire: ${options.resumeFromStage}`
+        const failResult = buildFailResult(executionId, wireInput.wire_id, context, startedAt)
+
+        emitSSE(executionId, {
+          type: 'wire_error',
+          execution_id: executionId,
+          wire_id: wireInput.wire_id,
+          result: failResult,
+          timestamp: new Date().toISOString(),
+        })
+
+        if (options.writeAudit) {
+          await options.writeAudit(
+            buildAuditDoc(executionId, wireInput.wire_id, context, stages, artifacts, 'failed', startedAt, false, errorMsg),
+          )
+        }
+
+        return failResult
+      }
+      startIdx = resumeIdx
+    }
+
+    // Restore previous output for chaining on resume
+    // If priorStageOutputs provided, use the output of the stage before startIdx
     let previousOutput: unknown = null
+    if (isResume && options.priorStageOutputs && startIdx > 0) {
+      const priorStageId = superTools[startIdx - 1]
+      previousOutput = options.priorStageOutputs[priorStageId] ?? null
+    }
 
     // Sequential execution with output chaining
     for (let i = startIdx; i < superTools.length; i++) {
@@ -345,9 +444,14 @@ export async function executeVoltronWire(
         break
       }
 
-      // Check approval gate before execution
-      if (wireDef.approval_gates?.includes(toolId)) {
+      // Check approval gate BEFORE execution
+      // Skip the gate if this is the stage being resumed (approval already granted)
+      const isApprovalGate = wireDef.approval_gates?.includes(toolId) || false
+      const skipGateBecauseResume = isResume && i === startIdx
+
+      if (isApprovalGate && !skipGateBecauseResume) {
         stageResult.status = 'approval_pending'
+        stageResult.approval_gate = true
         stageResult.completed_at = new Date().toISOString()
 
         // Emit approval_required SSE event
@@ -394,6 +498,12 @@ export async function executeVoltronWire(
         stageResult.output = result.data
         stageResult.error = result.error
         stageResult.completed_at = new Date().toISOString()
+
+        // Collect artifacts from successful stages
+        if (result.success) {
+          const stageArtifacts = extractArtifacts(toolId, result)
+          artifacts.push(...stageArtifacts)
+        }
 
         // Emit stage_complete or stage_error SSE event
         emitSSE(executionId, {
@@ -472,12 +582,19 @@ export async function executeVoltronWire(
 
 // ── Resume After Approval ───────────────────────────────────────────────────
 
+/**
+ * Resume wire execution after approval gate.
+ * Automatically skips the approval gate for the resumed stage and restores
+ * output chaining from prior stage outputs.
+ */
 export async function resumeVoltronWireAfterApproval(
   executionId: string,
   wireInput: VoltronWireInput,
   context: VoltronContext,
   resumeFromStage: string,
-  options: Omit<ExecuteWireOptions, 'simulate' | 'resumeFromStage'> = {},
+  options: Omit<ExecuteWireOptions, 'simulate' | 'resumeFromStage'> & {
+    priorStageOutputs?: Record<string, unknown>
+  } = {},
 ): Promise<VoltronWireResult> {
   return executeVoltronWire(wireInput, context, {
     ...options,

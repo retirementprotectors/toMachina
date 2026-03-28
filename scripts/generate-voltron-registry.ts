@@ -8,9 +8,10 @@
 // Idempotent: re-runs produce identical output given unchanged sources.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { writeFileSync, mkdirSync, existsSync } from 'fs'
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs'
 import path from 'path'
 import { generateVoltronRegistry } from '../packages/core/src/voltron/registry-generator'
+import type { VoltronRegistryEntry } from '../packages/core/src/voltron/types'
 
 const MONOREPO_ROOT = path.resolve(__dirname, '..')
 const MDJ_AGENT_ROOT = path.resolve('/home/jdm/mdj-agent')
@@ -18,6 +19,15 @@ const OUTPUT_DIR = path.join(MONOREPO_ROOT, 'packages/core/src/voltron/generated
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'voltron-registry.json')
 
 const isDryRun = process.argv.includes('--dry-run')
+
+// ─── Idempotency helper ─────────────────────────────────────────────────────
+// Compare entries ignoring generated_at timestamps.
+// If source content hasn't changed, reuse existing timestamp to keep file stable.
+
+function stripTimestamps(entries: VoltronRegistryEntry[]): string {
+  const stripped = entries.map(({ generated_at: _ts, ...rest }) => rest)
+  return JSON.stringify(stripped)
+}
 
 // ─── Run Generator ──────────────────────────────────────────────────────────
 
@@ -47,9 +57,32 @@ if (result.stats.duplicates_merged > 0) {
 }
 console.log('')
 
+// ─── Idempotency Check ─────────────────────────────────────────────────────
+// If existing output has identical content (ignoring timestamps), reuse the
+// existing file's timestamp so the file stays byte-identical across re-runs.
+
+let finalEntries = result.entries
+
+if (!isDryRun && existsSync(OUTPUT_FILE)) {
+  try {
+    const existing: VoltronRegistryEntry[] = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8'))
+    const existingStripped = stripTimestamps(existing)
+    const newStripped = stripTimestamps(result.entries)
+
+    if (existingStripped === newStripped) {
+      // Content identical — reuse existing timestamps for byte-level idempotency
+      finalEntries = existing
+      console.log('⚡ Content unchanged — reusing existing timestamps (idempotent)')
+      console.log('')
+    }
+  } catch {
+    // Existing file corrupt or unparseable — overwrite with fresh data
+  }
+}
+
 // ─── Output ─────────────────────────────────────────────────────────────────
 
-const json = JSON.stringify(result.entries, null, 2)
+const json = JSON.stringify(finalEntries, null, 2)
 
 if (isDryRun) {
   console.log('── Registry Output (dry run) ──')

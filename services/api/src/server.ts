@@ -76,6 +76,8 @@ import { voltronWireRoutes } from './routes/voltron-wire.js'
 import { auditMiddleware } from './middleware/audit.js'
 import { raidenRoutes } from './raiden/index.js'
 import { startRaidenScheduler } from './raiden/scheduler.js'
+import { shinobiRoutes } from './shinobi/routes.js'
+import { runCheck } from './shinobi/shinobi-check.js'
 import { registerCheckHandler } from '@tomachina/core'
 import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
 
@@ -182,6 +184,9 @@ app.use('/api/voltron/wire', normalizeBody, voltronWireRoutes)
 // RAIDEN Reactive Guardian — sub-router at /raiden/*
 app.use('/raiden', raidenRoutes)
 
+// SHINOBI Autonomous Execution — sub-router at /shinobi/*
+app.use('/shinobi', shinobiRoutes)
+
 // 404 handler
 app.use((_req: express.Request, res: express.Response) => {
   res.status(404).json({ success: false, error: 'Route not found' })
@@ -198,4 +203,18 @@ const PORT = parseInt(process.env.PORT || '8080', 10)
 app.listen(PORT, () => {
   console.log(`toMachina API listening on port ${PORT}`)
   startRaidenScheduler()
+
+  // Shinobi cron: run check every 5 minutes (TRK-13788)
+  const SHINOBI_CHECK_INTERVAL = 5 * 60 * 1000 // 5 minutes
+
+  setInterval(async () => {
+    try {
+      const result = await runCheck()
+      console.log(`[shinobi-cron] Check completed: ${result.slack_messages_processed} msgs`)
+    } catch (err) {
+      console.error('[shinobi-cron] Check error:', err)
+    }
+  }, SHINOBI_CHECK_INTERVAL)
+
+  console.log('[shinobi] Cron started: checking every 5 minutes')
 })

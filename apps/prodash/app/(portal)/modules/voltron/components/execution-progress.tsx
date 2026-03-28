@@ -17,8 +17,27 @@ interface ExecutionProgressProps {
 
 /** Icon + color for each stage status */
 function stageIcon(stage: VoltronStageResult): { icon: string; color: string } {
-  if (stage.success) return { icon: 'check_circle', color: 'var(--success)' }
-  return { icon: 'error', color: 'var(--error)' }
+  switch (stage.status) {
+    case 'complete':
+      return { icon: 'check_circle', color: 'var(--success)' }
+    case 'error':
+      return { icon: 'error', color: 'var(--error)' }
+    case 'running':
+      return { icon: 'pending', color: 'var(--info)' }
+    case 'approval_pending':
+      return { icon: 'gpp_maybe', color: 'var(--warning)' }
+    case 'skipped':
+      return { icon: 'skip_next', color: 'var(--text-muted)' }
+    case 'pending':
+    default:
+      return { icon: 'radio_button_unchecked', color: 'var(--text-muted)' }
+  }
+}
+
+/** Compute duration from start/completed timestamps (ms) */
+function stageDuration(stage: VoltronStageResult): number | null {
+  if (!stage.started_at || !stage.completed_at) return null
+  return new Date(stage.completed_at).getTime() - new Date(stage.started_at).getTime()
 }
 
 /**
@@ -100,11 +119,14 @@ export function ExecutionProgress({
                 {stage.error && (
                   <div className="text-xs text-[var(--error)] mt-0.5">{stage.error}</div>
                 )}
-                {stage.duration_ms > 0 && (
-                  <div className="text-[10px] text-[var(--text-muted)] mt-0.5">
-                    {stage.duration_ms}ms
-                  </div>
-                )}
+                {(() => {
+                  const ms = stageDuration(stage)
+                  return ms != null && ms > 0 ? (
+                    <div className="text-[10px] text-[var(--text-muted)] mt-0.5">
+                      {ms}ms
+                    </div>
+                  ) : null
+                })()}
               </div>
             </div>
           )

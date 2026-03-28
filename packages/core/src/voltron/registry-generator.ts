@@ -20,6 +20,7 @@ import type {
   VoltronToolType,
   VoltronUserRole,
 } from './types'
+import { LEGACY_TOOL_MAP } from './tools/legacy-tool-map'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -417,28 +418,21 @@ function generateVoltronEntries(paths: RegistryGeneratorPaths, timestamp: string
     }
   }
 
-  // 4d. Legacy tool map — parse tool_id entries from legacy-tool-map.ts
-  const legacyPath = path.join(toolsDir, 'legacy-tool-map.ts')
-  if (existsSync(legacyPath)) {
-    const content = readFileSync(legacyPath, 'utf8')
-
-    // Match entry() calls: entry('tool_id', 'description', 'SOURCE', 'ROLE', {...}, bool)
-    const entryRegex = /entry\(\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'/g
-    let m: RegExpExecArray | null
-
-    while ((m = entryRegex.exec(content)) !== null) {
-      entries.push(makeEntry(
-        m[1],         // tool_id
-        m[1],         // name (same as tool_id for legacy)
-        m[2],         // description
-        'ATOMIC',
-        m[3] as VoltronToolSource,
-        m[4] as VoltronUserRole,
-        {},
-        true,
-        timestamp,
-      ))
-    }
+  // 4d. Legacy tool map — import directly to preserve full parameter schemas
+  // Previously used regex parsing which dropped parameters. Now uses the
+  // typed LEGACY_TOOL_MAP export for exact equivalence (TRK-13795).
+  for (const legacy of LEGACY_TOOL_MAP) {
+    entries.push(makeEntry(
+      legacy.tool_id,
+      legacy.name,
+      legacy.description,
+      legacy.type,
+      legacy.source,
+      legacy.entitlement_min,
+      legacy.parameters,
+      legacy.server_only,
+      timestamp,
+    ))
   }
 
   return entries

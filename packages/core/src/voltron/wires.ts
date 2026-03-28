@@ -25,8 +25,8 @@ export const VOLTRON_WIRE_DEFINITIONS: VoltronWireDefinition[] = [
     wire_id: 'AEP_ENROLLMENT',
     name: 'AEP Enrollment',
     description:
-      'Annual Enrollment Period preparation: client review, coverage gap analysis, and enrollment communication draft. AEP blackout (Oct 1 – Dec 7) blocks communications automatically.',
-    super_tools: ['REVIEW_PREP', 'COVERAGE_GAP', 'DRAFT_COMMUNICATION'],
+      'Annual Enrollment Period preparation: client review, coverage gap analysis, enrollment communication draft, and scheduled follow-up meeting. AEP blackout (Oct 1 – Dec 7) blocks communications automatically.',
+    super_tools: ['REVIEW_PREP', 'COVERAGE_GAP', 'DRAFT_COMMUNICATION', 'MEETING_PREP'],
     approval_gates: ['DRAFT_COMMUNICATION'],
     entitlement_min: 'DIRECTOR',
   },

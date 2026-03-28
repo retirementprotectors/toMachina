@@ -1,60 +1,34 @@
 /**
- * VOLTRON Action Engine — Local UI types
- * Mirrors the planned packages/core/src/voltron/types.ts contracts.
- * These will be replaced by core imports once TRK-13738 lands.
+ * VOLTRON Action Engine — UI Types
+ *
+ * Core domain types are re-exported from @tomachina/core/voltron.
+ * UI-only types (SSE events, execution state machine) live here.
+ *
+ * TRK-13803: Replaced local mirrors with core imports.
  */
 
-export type VoltronUserRole = 'COORDINATOR' | 'SPECIALIST' | 'DIRECTOR' | 'VP' | 'ADMIN'
-export type VoltronToolType = 'ATOMIC' | 'SUPER' | 'WIRE'
-export type VoltronToolSource = 'API_ROUTE' | 'MCP' | 'VOLTRON' | 'FIRESTORE'
+// ── Re-exports from @tomachina/core ──────────────────────────────────────────
+export type {
+  VoltronUserRole,
+  VoltronToolType,
+  VoltronToolSource,
+  VoltronRegistryEntry,
+  VoltronWireDefinition,
+  VoltronStageResult,
+  VoltronArtifact,
+  VoltronWireResult,
+  VoltronToolResult,
+  VoltronSuperResult,
+  VoltronContext,
+  VoltronWireInput,
+} from '@tomachina/core'
 
-export interface VoltronRegistryEntry {
-  tool_id: string
-  name: string
-  description: string
-  type: VoltronToolType
-  source: VoltronToolSource
-  entitlement_min: VoltronUserRole
-  parameters: Record<string, unknown>
-  server_only: boolean
-  generated_at: string
-}
+export { VOLTRON_ROLE_RANK, VOLTRON_ROLE_TYPE_ACCESS, isToolTypeAllowed } from '@tomachina/core'
 
-export interface VoltronWireDefinition {
-  wire_id: string
-  name: string
-  description: string
-  super_tools: string[]
-  approval_gates?: string[]
-  entitlement_min: VoltronUserRole
-}
+/** Backward-compat alias used by UI components */
+export { VOLTRON_ROLE_RANK as ROLE_RANK } from '@tomachina/core'
 
-export interface VoltronStageResult {
-  stage: string
-  super_tool_id: string
-  success: boolean
-  data?: unknown
-  error?: string
-  duration_ms: number
-}
-
-export interface VoltronArtifact {
-  type: string
-  link: string
-  label?: string
-}
-
-export interface VoltronWireResult {
-  execution_id: string
-  wire_id: string
-  user_email: string
-  client_id: string
-  started_at: string
-  completed_at: string
-  stage_results: VoltronStageResult[]
-  status: 'complete' | 'failed' | 'approval_pending'
-  artifacts: VoltronArtifact[]
-}
+// ── UI-Only Types ────────────────────────────────────────────────────────────
 
 /** SSE event types emitted by /api/voltron/wire/:id/stream */
 export type VoltronSSEEventType =
@@ -73,9 +47,9 @@ export interface VoltronSSEEvent {
   error?: string
   timestamp: string
   /** Artifacts available so far */
-  artifacts?: VoltronArtifact[]
+  artifacts?: import('@tomachina/core').VoltronArtifact[]
   /** Final result on wire_complete */
-  result?: VoltronWireResult
+  result?: import('@tomachina/core').VoltronWireResult
 }
 
 export type ExecutionPhase = 'idle' | 'executing' | 'approval_pending' | 'complete' | 'error'
@@ -84,19 +58,10 @@ export interface WireExecutionState {
   phase: ExecutionPhase
   execution_id: string | null
   wire_id: string | null
-  stages: VoltronStageResult[]
+  stages: import('@tomachina/core').VoltronStageResult[]
   current_stage: string | null
-  artifacts: VoltronArtifact[]
+  artifacts: import('@tomachina/core').VoltronArtifact[]
   error: string | null
-  result: VoltronWireResult | null
+  result: import('@tomachina/core').VoltronWireResult | null
   simulation: boolean
-}
-
-/** Role rank mapping for client-side entitlement checks */
-export const ROLE_RANK: Record<VoltronUserRole, number> = {
-  COORDINATOR: 1,
-  SPECIALIST: 2,
-  DIRECTOR: 3,
-  VP: 4,
-  ADMIN: 5,
 }
