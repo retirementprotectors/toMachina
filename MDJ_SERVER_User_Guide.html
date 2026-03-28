@@ -281,6 +281,22 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
       <div class="card info" style="margin-top:0">
         <span class="muted">tmux warriors (2HINOBI, MUSASHI, SHINOB1) need a soul + spirit feed on every restart — see the <strong>Dojo Rebuild</strong> tab for the 5-step process. CCSDK warriors are always-on services managed by systemd.</span>
       </div>
+
+      <!-- Access Model -->
+      <div style="margin-top:16px">
+        <strong style="color:var(--red);font-size:0.85em">Access Model — who has what and why</strong>
+        <table style="font-size:0.82em;margin-top:8px">
+          <tr><th>Agent</th><th>MCP Tools</th><th>Firestore</th><th>Git/Repo</th><th>Portal (client-facing)</th></tr>
+          <tr>
+            <td><strong>Executive.AI</strong><br><span class="muted" style="font-size:0.8em">SHINOB1 · 2HINOBI · MUSASHI</span></td>
+            <td style="color:var(--green)">All 8 servers</td><td style="color:var(--green)">Full</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td>
+          </tr>
+          <tr><td><strong>VOLTRON</strong></td><td style="color:var(--green)">All 8 servers</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td><td style="color:var(--green)"><strong>ONLY one</strong></td></tr>
+          <tr><td><strong>RONIN</strong></td><td style="color:var(--red)">None</td><td style="color:var(--orange)">FORGE state</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td></tr>
+          <tr><td><strong>RAIDEN</strong></td><td style="color:var(--orange)">Slack only</td><td style="color:var(--orange)">Monitoring</td><td style="color:var(--orange)">Read only</td><td style="color:var(--red)">No</td></tr>
+        </table>
+        <p class="muted" style="font-size:0.8em;margin-top:6px"><strong>VOLTRON is the ONLY agent that touches clients + team</strong> via toMachina (Portals → Apps → Modules → Tools). RONIN builds code, not relationships. RAIDEN watches, doesn't serve. Executives talk to JDM, not clients.</p>
+      </div>
     </div>
   </details>
 
