@@ -420,7 +420,7 @@
 
     <div class="card">
       <h2>Build Strategy</h2>
-      <p>MDJ is built across 4 sequential phases. Within each phase, tickets run in 3 parallel tracks so nothing blocks. Phase 1 unlocks Phase 2, and so on. Jr (MDJ1) runs Track A overnight while AIR/GA handles the rest.</p>
+      <p>MDJ is built across 4 sequential phases. Within each phase, tickets run in 3 parallel tracks so nothing blocks. Phase 1 unlocks Phase 2, and so on. Jr (MDJ_SERVER) runs Track A overnight while AIR/GA handles the rest.</p>
 
       <div class="phase-summary">
         <div class="phase-box">
@@ -456,10 +456,10 @@
           </ul>
         </div>
         <div class="machine-card mdj1">
-          <h4>MDJ1</h4>
+          <h4>MDJ_SERVER</h4>
           <div class="role-tag">Jr &mdash; Builder (runs overnight)</div>
           <ul>
-            <li>Agent service on MDJ1</li>
+            <li>Agent service on MDJ_SERVER</li>
             <li>Tool registry (Track A)</li>
             <li>MCP bridge</li>
             <li>Infrastructure hardening</li>
@@ -479,12 +479,12 @@
 
     <div class="card">
       <h2>Phase Execution Order</h2>
-      <p>Phases are sequential. Tickets within each phase are parallel. Track A = MDJ1/Jr. Track B = AIR/GA. Track C = AIR/GA (after A+B, or concurrent where noted).</p>
+      <p>Phases are sequential. Tickets within each phase are parallel. Track A = MDJ_SERVER/Jr. Track B = AIR/GA. Track C = AIR/GA (after A+B, or concurrent where noted).</p>
       <table>
         <tr>
           <th>Phase</th>
           <th>Tickets</th>
-          <th>Track A (MDJ1/Jr)</th>
+          <th>Track A (MDJ_SERVER/Jr)</th>
           <th>Track B (AIR/GA)</th>
           <th>Track C (AIR/GA)</th>
           <th>Gate</th>
@@ -516,7 +516,7 @@
         <tr>
           <td><strong>4 — Production</strong></td>
           <td>TRK-016–020</td>
-          <td>MDJ1 hardening + Cloudflare Tunnel</td>
+          <td>MDJ_SERVER hardening + Cloudflare Tunnel</td>
           <td>Long context + preferences</td>
           <td>E2E tests + Admin dashboard</td>
           <td>Tunnel live, tests pass in CI</td>
@@ -541,13 +541,13 @@
       <span class="phase-sub">5 tickets &mdash; 3 parallel tracks</span>
     </div>
 
-    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: MDJPanel opens on all 3 portals. Messages stream. Agent service runs on MDJ1. Firestore collections exist. Cloud Run proxies to MDJ1.</p>
+    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: MDJPanel opens on all 3 portals. Messages stream. Agent service runs on MDJ_SERVER. Firestore collections exist. Cloud Run proxies to MDJ_SERVER.</p>
 
     <!-- TRACK A -->
     <div class="track-header track-a">
       <span class="track-label">Track A</span>
       <h4>Backend &mdash; Agent Service + Firestore</h4>
-      <span class="track-machine">MDJ1 / Jr &mdash; runs overnight</span>
+      <span class="track-machine">MDJ_SERVER / Jr &mdash; runs overnight</span>
     </div>
 
     <div class="ticket">
@@ -557,7 +557,7 @@
         <span class="pill new">New</span>
         <span class="ticket-dep">No dependencies &mdash; start immediately</span>
       </div>
-      <p>Build the Express server at <code>~/mdj-agent/</code> on MDJ1. This is the AI brain — the process that talks to Claude and streams back SSE.</p>
+      <p>Build the Express server at <code>~/mdj-agent/</code> on MDJ_SERVER. This is the AI brain — the process that talks to Claude and streams back SSE.</p>
       <div class="file-tree">~/mdj-agent/
   package.json
   tsconfig.json
@@ -675,13 +675,13 @@
     <div class="ticket">
       <div class="ticket-header">
         <span class="ticket-id">TRK-003</span>
-        <span class="ticket-title">Cloud Run /api/mdj/* routes — wire to MDJ1</span>
+        <span class="ticket-title">Cloud Run /api/mdj/* routes — wire to MDJ_SERVER</span>
         <span class="pill mod">Modify</span>
         <span class="ticket-dep">Depends on TRK-002</span>
       </div>
-      <p>Update <code>services/api/src/routes/mdj.ts</code> to proxy to the live MDJ1 agent service via SSE.</p>
+      <p>Update <code>services/api/src/routes/mdj.ts</code> to proxy to the live MDJ_SERVER agent service via SSE.</p>
       <ul>
-        <li>Replace placeholder response with SSE proxy to MDJ1:
+        <li>Replace placeholder response with SSE proxy to MDJ_SERVER:
           <ul>
             <li><code>POST /api/mdj/chat</code> → forward to <code>MDJ1_URL/agent/chat</code></li>
             <li>Attach user context: email, level, module_permissions, portal</li>
@@ -718,7 +718,7 @@
     <div class="track-header track-a">
       <span class="track-label">Track A</span>
       <h4>Tool Registry &mdash; TM API Tools</h4>
-      <span class="track-machine">MDJ1 / Jr</span>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
     </div>
 
     <div class="ticket">
@@ -751,7 +751,7 @@
     <div class="track-header track-b">
       <span class="track-label">Track B</span>
       <h4>MCP Bridge</h4>
-      <span class="track-machine">MDJ1 / Jr</span>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
     </div>
 
     <div class="ticket">
@@ -759,7 +759,7 @@
         <span class="ticket-id">TRK-007</span>
         <span class="ticket-title">MCP bridge</span>
         <span class="pill new">New</span>
-        <span class="ticket-dep">Phase 1 complete. MCP servers must be running on MDJ1.</span>
+        <span class="ticket-dep">Phase 1 complete. MCP servers must be running on MDJ_SERVER.</span>
       </div>
       <p>Create <code>~/mdj-agent/src/tools/mcp-bridge.ts</code>. Connect to all 8 MCP servers and expose their tools to Claude with proper prefixing and approval flags.</p>
       <ul>
@@ -819,7 +819,7 @@
             <li>Wait for <code>POST /api/mdj/conversations/:id/approve</code> or <code>reject</code></li>
           </ul>
         </li>
-        <li>Cloud Run: add approve/reject endpoints that forward decision to MDJ1</li>
+        <li>Cloud Run: add approve/reject endpoints that forward decision to MDJ_SERVER</li>
         <li>On approve: resume tool execution, return result to Claude</li>
         <li>On reject: return rejection message to Claude, Claude acknowledges gracefully</li>
       </ul>
@@ -858,7 +858,7 @@
     <div class="track-header track-a">
       <span class="track-label">Track A</span>
       <h4>Specialists &mdash; Router + Prompts</h4>
-      <span class="track-machine">MDJ1 / Jr</span>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
     </div>
 
     <div class="ticket">
@@ -1002,23 +1002,23 @@ Relevant client insights: {extracted_insights_summary}</div>
       <span class="phase-sub">5 tickets &mdash; 3 parallel tracks</span>
     </div>
 
-    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: Cloudflare Tunnel is live and serving MDJ1 securely. Long conversations summarize without context loss. Admin dashboard shows real analytics. E2E tests pass in CI.</p>
+    <p style="color:var(--text-muted); margin-bottom:20px;">Goal: Cloudflare Tunnel is live and serving MDJ_SERVER securely. Long conversations summarize without context loss. Admin dashboard shows real analytics. E2E tests pass in CI.</p>
 
     <!-- TRACK A -->
     <div class="track-header track-a">
       <span class="track-label">Track A</span>
-      <h4>Infrastructure &mdash; MDJ1 Hardening</h4>
-      <span class="track-machine">MDJ1 / Jr</span>
+      <h4>Infrastructure &mdash; MDJ_SERVER Hardening</h4>
+      <span class="track-machine">MDJ_SERVER / Jr</span>
     </div>
 
     <div class="ticket">
       <div class="ticket-header">
         <span class="ticket-id">TRK-016</span>
-        <span class="ticket-title">MDJ1 production hardening</span>
+        <span class="ticket-title">MDJ_SERVER production hardening</span>
         <span class="pill mod">Modify</span>
         <span class="ticket-dep">Phase 3 complete</span>
       </div>
-      <p>Lock MDJ1 down and make it bulletproof for 24/7 operation.</p>
+      <p>Lock MDJ_SERVER down and make it bulletproof for 24/7 operation.</p>
       <ul>
         <li>Cloudflare Tunnel:
           <ul>
@@ -1148,14 +1148,14 @@ Relevant client insights: {extracted_insights_summary}</div>
   <div class="tab-panel" id="jr">
 
     <div class="card">
-      <h2>Jr (MDJ1) Overnight Assignment</h2>
-      <p>Jr gets Phase 1 Track A — the two backend tickets that need to run on MDJ1 directly. Everything else builds on top of what Jr ships overnight.</p>
+      <h2>Jr (MDJ_SERVER) Overnight Assignment</h2>
+      <p>Jr gets Phase 1 Track A — the two backend tickets that need to run on MDJ_SERVER directly. Everything else builds on top of what Jr ships overnight.</p>
 
       <table>
         <tr><th>Ticket</th><th>Task</th><th>Expected Duration</th></tr>
         <tr>
           <td><span class="ticket-id" style="display:inline-block; padding:2px 8px; border-radius:4px; font-family:monospace; font-size:0.75rem; background:rgba(59,130,246,0.15); color:var(--accent); border:1px solid rgba(59,130,246,0.25);">TRK-002</span></td>
-          <td>Build <code>mdj-agent</code> Express server on MDJ1 — port 4200, health + chat endpoints, SSE streaming, systemd service</td>
+          <td>Build <code>mdj-agent</code> Express server on MDJ_SERVER — port 4200, health + chat endpoints, SSE streaming, systemd service</td>
           <td>1–2 hours</td>
         </tr>
         <tr>
@@ -1168,7 +1168,7 @@ Relevant client insights: {extracted_insights_summary}</div>
 
     <div class="card">
       <h2>Exact Prompt for Jr</h2>
-      <p>Paste this into the tmux session on MDJ1 to kick off Jr. Copy it verbatim — no paraphrasing.</p>
+      <p>Paste this into the tmux session on MDJ_SERVER to kick off Jr. Copy it verbatim — no paraphrasing.</p>
 
       <div class="prompt-box">You are building the MDJ Agent Service for the MyDigitalJosh AI assistant.
 
@@ -1205,10 +1205,10 @@ When done, run the health check and report results.</div>
       <p>AIR/GA works in parallel on the frontend and middleware tracks — no waiting required.</p>
       <table>
         <tr><th>Who</th><th>What</th></tr>
-        <tr><td><strong>Jr (MDJ1)</strong></td><td>TRK-002 (agent service) + TRK-001 (Firestore seed) — runs overnight</td></tr>
+        <tr><td><strong>Jr (MDJ_SERVER)</strong></td><td>TRK-002 (agent service) + TRK-001 (Firestore seed) — runs overnight</td></tr>
         <tr><td><strong>AIR / GA</strong></td><td>TRK-004 (MDJPanel component) — can start immediately, no dependencies</td></tr>
         <tr><td><strong>AIR / GA</strong></td><td>TRK-005 (portal integration) — starts after TRK-004</td></tr>
-        <tr><td><strong>AIR / GA</strong></td><td>TRK-003 (Cloud Run proxy) — starts after TRK-002 is running on MDJ1</td></tr>
+        <tr><td><strong>AIR / GA</strong></td><td>TRK-003 (Cloud Run proxy) — starts after TRK-002 is running on MDJ_SERVER</td></tr>
       </table>
     </div>
 

@@ -696,7 +696,7 @@ MCP Servers (claude mcp list → enumerate tools)
       <p>Not everything has an API. A significant portion of the carrier ecosystem — illustrations, enrollment systems, portal status checks — exists only as a web UI. No API. No integration available. No workaround through standard MCP tools.</p>
       <p>This is where MDJ hits a wall without Playwright. The conversation starts strong, then hits "I'd need you to go to the carrier portal and..." — and the human is back in the loop.</p>
       <div class="highlight-box orange">
-        <p>Playwright browser automation on MDJ1 closes this gap permanently. MDJ launches a headless browser, navigates to the carrier portal, fills the form, runs the illustration, captures the result, and returns it to the conversation. The human never leaves the chat.</p>
+        <p>Playwright browser automation on MDJ_SERVER closes this gap permanently. MDJ launches a headless browser, navigates to the carrier portal, fills the form, runs the illustration, captures the result, and returns it to the conversation. The human never leaves the chat.</p>
       </div>
     </div>
 
@@ -809,7 +809,7 @@ MCP Servers (claude mcp list → enumerate tools)
       <div class="flow-step">
         <div class="flow-num">3</div>
         <div class="flow-body">
-          <h4>Playwright launches headless browser on MDJ1</h4>
+          <h4>Playwright launches headless browser on MDJ_SERVER</h4>
           <p>Navigates to Athene illustration portal, logs in with vault credentials, fills form fields.</p>
         </div>
       </div>
@@ -827,7 +827,7 @@ MCP Servers (claude mcp list → enumerate tools)
           <p>"Athene 7-year MYGA at $200k: 5.40% guaranteed rate, $14,242 interest year 1. PDF saved to Robert's ACF folder."</p>
         </div>
       </div>
-      <p style="color:var(--text-muted); margin-top:12px;">The Playwright MCP is already configured on MDJ1. Sprint 3 writes the carrier-specific automation scripts.</p>
+      <p style="color:var(--text-muted); margin-top:12px;">The Playwright MCP is already configured on MDJ_SERVER. Sprint 3 writes the carrier-specific automation scripts.</p>
     </div>
   </div>
 
@@ -917,8 +917,8 @@ MCP Servers (claude mcp list → enumerate tools)
     </div>
 
     <div class="card">
-      <h2>Centralized Credential Vault on MDJ1</h2>
-      <p>All credentials — API keys, OAuth tokens, carrier passwords — live in one encrypted location on MDJ1. MDJ accesses them as needed. Nothing in code. Nothing in env files. Nothing in chat.</p>
+      <h2>Centralized Credential Vault on MDJ_SERVER</h2>
+      <p>All credentials — API keys, OAuth tokens, carrier passwords — live in one encrypted location on MDJ_SERVER. MDJ accesses them as needed. Nothing in code. Nothing in env files. Nothing in chat.</p>
 
       <div class="spec-grid">
         <div class="spec-card">
@@ -1263,12 +1263,12 @@ MCP Servers (claude mcp list → enumerate tools)
       <div class="sprint-card">
         <div class="sprint-num">Sprint 3</div>
         <h4>Playwright Carrier Automation</h4>
-        <p>RUN_ILLUSTRATION Super Tool wired to top-5 carrier portals. North American, Athene, Allianz, Nationwide, Lincoln. Headless browser on MDJ1. Credentials via vault. Results returned to conversation and saved to ACF folder.</p>
+        <p>RUN_ILLUSTRATION Super Tool wired to top-5 carrier portals. North American, Athene, Allianz, Nationwide, Lincoln. Headless browser on MDJ_SERVER. Credentials via vault. Results returned to conversation and saved to ACF folder.</p>
       </div>
       <div class="sprint-card">
         <div class="sprint-num">Sprint 4</div>
         <h4>Credential Vault + Team Password Management</h4>
-        <p>Centralized encrypted vault on MDJ1. Admin UI in ProDashX. Rotation alerts via Slack. Team credential access via MDJ conversation with permission check + audit log. FINRA-ready access trail.</p>
+        <p>Centralized encrypted vault on MDJ_SERVER. Admin UI in ProDashX. Rotation alerts via Slack. Team credential access via MDJ conversation with permission check + audit log. FINRA-ready access trail.</p>
       </div>
       <div class="sprint-card">
         <div class="sprint-num">Sprint 5</div>
