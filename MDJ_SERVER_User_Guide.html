@@ -140,6 +140,7 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
   <div class="nav-brand">MDJ_SERVER <span>/ User Guide</span></div>
   <button class="tab-btn active" onclick="showTab('daily',this)">Day-to-Day</button>
   <button class="tab-btn" onclick="showTab('newmachine',this)">New Machine</button>
+  <button class="tab-btn" onclick="showTab('newserver',this)">New Server</button>
   <button class="tab-btn" onclick="showTab('dojo',this)">Dojo Rebuild</button>
   <button class="tab-btn" onclick="showTab('troubleshoot',this)">Troubleshoot</button>
 </nav>
@@ -151,8 +152,8 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
 
   <div class="status-bar">
     <div class="status-item"><div class="dot green"></div><strong>Local IP (192.168.6.93)</strong> — UP · 0.9ms</div>
-    <div class="status-item"><div class="dot green"></div><strong>MDJ Agent :4200</strong> — Running</div>
-    <div class="status-item"><div class="dot green"></div><strong>MDJ Agent Service</strong> — systemd auto-start</div>
+    <div class="status-item"><div class="dot green"></div><strong>mdj-agent service :4200</strong> — Running</div>
+    <div class="status-item"><div class="dot green"></div><strong>mdj-agent service</strong> — systemd auto-start</div>
     <div class="status-item"><div class="dot red"></div><strong>Tailscale</strong> — Not reliable, not used for SSH</div>
   </div>
 
@@ -192,7 +193,7 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
         <tr><td>Agent Health</td><td><code>ssh mdj1-local "curl http://localhost:4200/health"</code></td><td><code>ssh mdj1 "curl http://localhost:4200/health"</code></td><td>Healthy = JSON with <code>status: ok</code></td></tr>
         <tr><td>Network Drive</td><td><code>sftp://192.168.6.93</code></td><td><code>sftp://100.99.181.57</code></td><td>Mount via Cyberduck. Drag + drop from Finder.</td></tr>
         <tr><td>Restart Agent</td><td><code>ssh mdj1-local "sudo systemctl restart mdj-agent"</code></td><td><code>ssh mdj1 "sudo systemctl restart mdj-agent"</code></td><td>Wait 10 sec then re-check health</td></tr>
-        <tr><td>Reboot MDJ1</td><td><code>ssh mdj1-local "sudo reboot"</code></td><td><code>ssh mdj1 "sudo reboot"</code></td><td>Wait 2 min. Agent auto-starts. tmux sessions gone.</td></tr>
+        <tr><td>Reboot MDJ_SERVER</td><td><code>ssh mdj1-local "sudo reboot"</code></td><td><code>ssh mdj1 "sudo reboot"</code></td><td>Wait 2 min. Agent auto-starts. tmux sessions gone.</td></tr>
         <tr><td>MDJ Mobile</td><td colspan="2" style="text-align:center">https://mdj-mobile--claude-mcp-484718.us-central1.hosted.app/</td><td><strong>Best away option</strong> — no SSH needed</td></tr>
         <tr><td>MDJ Funnel</td><td colspan="2" style="text-align:center">https://mdjserver.tail7845ea.ts.net</td><td>Tailscale web access</td></tr>
       </table>
@@ -258,10 +259,9 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
         <tr><td><strong>2HINOBI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t 2HINOBI</code></td><td>The Architect — strategy, planning, Dojo management</td></tr>
         <tr><td><strong>MUSASHI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t MUSASHI</code></td><td>ARTxBLADE — creative SME, discovery docs, hookify</td></tr>
         <tr><td><strong>SHINOBI</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /shinobi/*</code></td><td>Sprint 008 autonomous builder</td></tr>
-        <tr><td><strong>VOLTRON</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /agent/chat</code></td><td>Portal agent — MDJ conversational layer</td></tr>
+        <tr><td><strong>VOLTRON</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /agent/chat</code></td><td>Portal agent — VOLTRON conversational layer</td></tr>
         <tr><td><strong>RONIN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /forge/sprint</code></td><td>Autonomous builder — takes discovery docs, ships code</td></tr>
         <tr><td><strong>RAIDEN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /raiden/*</code></td><td>Reactive guardian</td></tr>
-        <tr><td><strong>MDJ</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td>Portal widget (all 3 portals)</td><td>82 tools, 6 specialists, the team's weapon</td></tr>
       </table>
       <div class="card info" style="margin-top:12px">
         <span class="muted">tmux warriors need a brain feed on every restart — see the <strong>Dojo Rebuild</strong> tab. CCSDK warriors are always-on services managed by systemd.</span>
@@ -269,9 +269,9 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
     </div>
   </details>
 
-  <!-- MDJ Agent -->
+  <!-- mdj-agent service -->
   <details>
-    <summary>MDJ Agent</summary>
+    <summary>mdj-agent service</summary>
     <div class="details-body">
       <h3>Health Check</h3>
       <div class="copy-wrap"><pre>ssh mdj1-local "curl -s http://localhost:4200/health"</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
@@ -282,12 +282,12 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
       <h3>Endpoints</h3>
       <table>
         <tr><th>Service</th><th>URL</th></tr>
-        <tr><td>Agent Health</td><td><code>http://localhost:4200/health</code> (from MDJ1)</td></tr>
+        <tr><td>Agent Health</td><td><code>http://localhost:4200/health</code> (from MDJ_SERVER)</td></tr>
         <tr><td>MDJ Mobile PWA</td><td><a href="https://mdj-mobile--claude-mcp-484718.us-central1.hosted.app/" style="color:var(--blue)">https://mdj-mobile--claude-mcp-484718.us-central1.hosted.app/</a></td></tr>
         <tr><td>MDJ Funnel URL</td><td><a href="https://mdjserver.tail7845ea.ts.net" style="color:var(--blue)">https://mdjserver.tail7845ea.ts.net</a></td></tr>
       </table>
 
-      <h3>MDJ Specialists</h3>
+      <h3>VOLTRON Specialists</h3>
       <table>
         <tr><th>Specialist</th><th>Domain</th></tr>
         <tr><td>General</td><td>Platform-wide questions, cross-domain tasks</td></tr>
@@ -308,12 +308,12 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
       <table>
         <tr><th>Terminal Tab</th><th>Command</th><th>Purpose</th></tr>
         <tr><td>Tab 1 — Claude Code</td><td><code>ssh mdj1-local</code> → <code>tmux new -s claude</code> → <code>claude</code></td><td>Primary agent session. Persistent.</td></tr>
-        <tr><td>Tab 2 — MDJ Agent</td><td><code>ssh mdj1-local</code> → <code>tmux new -s mdj1</code></td><td>Agent monitoring. Always on.</td></tr>
+        <tr><td>Tab 2 — mdj-agent service</td><td><code>ssh mdj1-local</code> → <code>tmux new -s mdj-agent</code></td><td>Agent monitoring. Always on.</td></tr>
         <tr><td>Tab 3 — RONIN Sprint</td><td><code>ssh mdj1-local</code> → <code>tmux new -s ronin</code></td><td>FORGE sprint builds. Survives overnight.</td></tr>
         <tr><td>Tab 4+ — More RONINs</td><td><code>tmux new -s ronin2</code>, <code>ronin3</code>…</td><td>Unlimited parallel builds. One per sprint.</td></tr>
       </table>
       <div class="card info" style="margin-top:8px">
-        <span class="muted">SSH into MDJ1 in each tab independently. Each tab has its own SSH connection. tmux keeps sessions alive even when you close a tab.</span>
+        <span class="muted">SSH into MDJ_SERVER in each tab independently. Each tab has its own SSH connection. tmux keeps sessions alive even when you close a tab.</span>
       </div>
     </div>
   </details>
@@ -331,7 +331,7 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
       <div class="step">
         <div class="step-num">1</div>
         <div class="step-content">
-          <strong>Copy your SSH key to MDJ1 (enter password once — never again)</strong>
+          <strong>Copy your SSH key to MDJ_SERVER (enter password once — never again)</strong>
           <div class="copy-wrap"><pre>ssh-copy-id jdm@192.168.6.93</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         </div>
       </div>
@@ -362,22 +362,22 @@ EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
     </div>
   </details>
 
-  <!-- What's Already On MDJ1 -->
+  <!-- What's Already On MDJ_SERVER -->
   <details>
-    <summary>What's Already On MDJ1</summary>
+    <summary>What's Already On MDJ_SERVER</summary>
     <div class="details-body">
-      <p class="muted" style="font-size:0.88em;margin-bottom:12px">MDJ1 is fully configured. You're connecting to it — not setting it up. Here's what's already there.</p>
+      <p class="muted" style="font-size:0.88em;margin-bottom:12px">MDJ_SERVER is fully configured. You're connecting to it — not setting it up. Here's what's already there.</p>
       <table>
         <tr><th>Component</th><th>Status</th><th>Details</th></tr>
         <tr><td>Global CLAUDE.md</td><td><span class="tag ready">READY</span></td><td>Synced from AIR — 1,146+ lines</td></tr>
-        <tr><td>Memory files</td><td><span class="tag ready">READY</span></td><td>25 files (AIR sync) + local MDJ1 memories</td></tr>
+        <tr><td>Memory files</td><td><span class="tag ready">READY</span></td><td>25 files (AIR sync) + local MDJ_SERVER memories</td></tr>
         <tr><td>settings.json</td><td><span class="tag ready">READY</span></td><td>bypassPermissions, Opus 1M, hookify enabled</td></tr>
         <tr><td>8 MCP Servers</td><td><span class="tag ready">READY</span></td><td>workspace, business, healthcare, comms, slack, gdrive, gcal, gmail</td></tr>
         <tr><td>41 Hookify Rules</td><td><span class="tag ready">READY</span></td><td>Symlinked to all active projects</td></tr>
         <tr><td>Plugins</td><td><span class="tag ready">READY</span></td><td>frontend-design, context7, hookify</td></tr>
         <tr><td>SA Key</td><td><span class="tag ready">READY</span></td><td><code>/home/jdm/mdj-agent/sa-key.json</code> (permanent, never expires)</td></tr>
         <tr><td>toMachina repo</td><td><span class="tag ready">READY</span></td><td><code>~/Projects/toMachina</code> (full clone)</td></tr>
-        <tr><td>mdj-agent repo</td><td><span class="tag ready">READY</span></td><td><code>~/mdj-agent</code> (full clone + built)</td></tr>
+        <tr><td>MDJ_SERVER repo</td><td><span class="tag ready">READY</span></td><td><code>~/mdj-agent</code> — <a href="https://github.com/retirementprotectors/MDJ_SERVER" style="color:var(--blue)">github.com/retirementprotectors/MDJ_SERVER</a></td></tr>
         <tr><td>dojo-warriors repo</td><td><span class="tag ready">READY</span></td><td><code>~/Projects/dojo-warriors</code> (brain files)</td></tr>
         <tr><td>Playwright plugin</td><td><span class="tag missing">MISSING</span></td><td>Not installed — non-blocking, install later if needed</td></tr>
       </table>
@@ -392,8 +392,8 @@ EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         <div class="stat-card"><div class="stat-val">16</div><div class="stat-label">CPU Cores</div></div>
         <div class="stat-card"><div class="stat-val">16GB</div><div class="stat-label">RAM (32GB incoming)</div></div>
         <div class="stat-card"><div class="stat-val">8</div><div class="stat-label">MCP Servers</div></div>
-        <div class="stat-card"><div class="stat-val">82+</div><div class="stat-label">MDJ Tools</div></div>
-        <div class="stat-card"><div class="stat-val">6</div><div class="stat-label">Dojo Agents</div></div>
+        <div class="stat-card"><div class="stat-val">82+</div><div class="stat-label">VOLTRON Tools</div></div>
+        <div class="stat-card"><div class="stat-val">7</div><div class="stat-label">Dojo Warriors</div></div>
         <div class="stat-card"><div class="stat-val">41</div><div class="stat-label">Hookify Rules</div></div>
       </div>
 
@@ -417,7 +417,7 @@ EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         <tr><td>Tailscale IP</td><td><code>100.99.181.57</code></td><td>Unreliable, not used for SSH</td></tr>
         <tr><td>SA Key</td><td><code>/home/jdm/mdj-agent/sa-key.json</code></td><td>Permanent, never expires</td></tr>
         <tr><td>toMachina repo</td><td><code>~/Projects/toMachina/</code></td><td>Full monorepo clone</td></tr>
-        <tr><td>MDJ Agent</td><td><code>~/mdj-agent/</code></td><td>Built + running</td></tr>
+        <tr><td>mdj-agent service</td><td><code>~/mdj-agent/</code></td><td>Built + running</td></tr>
         <tr><td>Claude Config</td><td><code>~/.claude/</code></td><td>Config, memory, settings, plugins</td></tr>
         <tr><td>Dojo Warriors</td><td><code>~/Projects/dojo-warriors/</code></td><td>Brain files for all agents</td></tr>
       </table>
@@ -438,7 +438,260 @@ EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
   </details>
 </div>
 
-<!-- ============================== TAB 3: DOJO REBUILD ============================== -->
+<!-- ============================== TAB 3: NEW SERVER (BARE METAL) ============================== -->
+<div id="tab-newserver" class="page">
+  <h1>New Server (Bare Metal)</h1>
+  <p class="subtitle">Standing up a replacement Dell from scratch if the current MDJ_SERVER dies. Full rebuild guide.</p>
+
+  <div class="card warn" style="margin-bottom:20px">
+    <strong>This is the nuclear option.</strong> Only needed if MDJ_SERVER is completely dead and unrecoverable. If it's just a software issue, check the Troubleshoot tab first.
+  </div>
+
+  <!-- What You Need -->
+  <details>
+    <summary>What You Need Before Starting</summary>
+    <div class="details-body">
+      <ul style="list-style:none;padding:0">
+        <li class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>A machine (Dell PowerEdge or equivalent)</label></li>
+        <li class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Ubuntu 24.04 LTS installer USB</label></li>
+        <li class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Access to GitHub (retirementprotectors org)</label></li>
+        <li class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Access to GCP Console (claude-mcp-484718 project) — for regenerating SA key if needed</label></li>
+        <li class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Your Mac with SSH keys</label></li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Step 1: Ubuntu -->
+  <details>
+    <summary>1. Install Ubuntu + Base Packages</summary>
+    <div class="details-body">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Install Ubuntu 24.04 LTS, create user <code>jdm</code></strong>
+          <p class="muted" style="font-size:0.85em;margin-top:4px">Boot from USB. Follow the installer. Set hostname to <code>mdjserver</code> during setup or after.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Install base packages</strong>
+          <div class="copy-wrap"><pre>sudo apt update && sudo apt install -y git curl tmux build-essential</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Install Node.js 22.x</strong>
+          <div class="copy-wrap"><pre>curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Install Docker</strong>
+          <div class="copy-wrap"><pre>curl -fsSL https://get.docker.com | sh && sudo usermod -aG docker jdm</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <strong>Set hostname</strong>
+          <div class="copy-wrap"><pre>sudo hostnamectl set-hostname mdjserver</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Step 2: SSH + Network -->
+  <details>
+    <summary>2. SSH + Network</summary>
+    <div class="details-body">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>From your Mac — copy SSH key to the new server</strong>
+          <div class="copy-wrap"><pre>ssh-copy-id jdm@&lt;NEW_IP&gt;</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Update <code>~/.ssh/config</code> on your Mac with the new IP for <code>mdj1-local</code></strong>
+          <div class="copy-wrap"><pre>Host mdj1-local
+    HostName &lt;NEW_IP&gt;
+    User jdm
+    ForwardAgent yes</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>If using Tailscale (for away access)</strong>
+          <div class="copy-wrap"><pre>curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Step 3: Clone Repos -->
+  <details>
+    <summary>3. Clone Repos</summary>
+    <div class="details-body">
+      <div class="copy-wrap"><pre>mkdir -p ~/Projects
+cd ~/Projects && git clone https://github.com/retirementprotectors/toMachina.git
+cd toMachina && npm install
+cd ~ && git clone https://github.com/retirementprotectors/MDJ_SERVER.git mdj-agent
+cd mdj-agent && npm install && npm run build
+git clone https://github.com/retirementprotectors/dojo-warriors.git ~/Projects/dojo-warriors</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+      <div class="card info" style="margin-top:12px">
+        <span class="muted">The mdj-agent service repo clones to <code>~/mdj-agent/</code> — this path is hardcoded in the systemd service. Do not change it.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Step 4: SA Key -->
+  <details>
+    <summary>4. Service Account Key</summary>
+    <div class="details-body">
+      <div class="card success" style="margin-bottom:12px">
+        <strong>If you have a backup:</strong> Copy <code>sa-key.json</code> to the server.
+        <div class="copy-wrap" style="margin-top:8px"><pre>scp sa-key.json jdm@&lt;NEW_IP&gt;:/home/jdm/mdj-agent/sa-key.json</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+      </div>
+      <div class="card warn">
+        <strong>If not:</strong> Go to GCP Console → IAM → Service Accounts → find the claude-mcp-484718 service account → create new key → download JSON → scp to server.
+      </div>
+      <div class="card danger" style="margin-top:8px">
+        <strong>The key path must be exactly:</strong> <code>/home/jdm/mdj-agent/sa-key.json</code><br>
+        <span style="font-size:0.85em;color:var(--muted);margin-top:4px;display:block">The mdj-agent service is hardcoded to look here.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Step 5: Configure Claude Code -->
+  <details>
+    <summary>5. Configure Claude Code</summary>
+    <div class="details-body">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Install Claude Code</strong>
+          <div class="copy-wrap"><pre>npm install -g @anthropic-ai/claude-code</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Copy settings from your Mac (run from your Mac)</strong>
+          <div class="copy-wrap"><pre>scp ~/.claude/CLAUDE.md jdm@&lt;NEW_IP&gt;:/home/jdm/.claude/CLAUDE.md
+scp ~/.claude/settings.json jdm@&lt;NEW_IP&gt;:/home/jdm/.claude/settings.json</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Copy memory files (run from your Mac)</strong>
+          <div class="copy-wrap"><pre>scp -r ~/.claude/projects/-home-jdm-Projects-toMachina/memory/ jdm@&lt;NEW_IP&gt;:/home/jdm/.claude/projects/-home-jdm-Projects-toMachina/memory/</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Add 8 MCP servers (run on the new server)</strong>
+          <div class="copy-wrap"><pre>claude mcp add rpi-workspace --scope user -- node ~/Projects/services/MCP-Hub/rpi-workspace-mcp/index.js
+claude mcp add rpi-business --scope user -- node ~/Projects/services/MCP-Hub/rpi-business-mcp/index.js
+claude mcp add rpi-healthcare --scope user -- node ~/Projects/services/MCP-Hub/rpi-healthcare-mcp/index.js
+claude mcp add rpi-comms --scope user -- node ~/Projects/services/MCP-Hub/rpi-comms-mcp/index.js
+claude mcp add slack --scope user -- npx -y @anthropic-ai/mcp-slack
+claude mcp add gdrive --scope user -- npx -y @anthropic-ai/mcp-gdrive
+claude mcp add gcal --scope user -- npx -y @anthropic-ai/mcp-google-calendar
+claude mcp add gmail --scope user -- npx -y @anthropic-ai/mcp-gmail</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <strong>Symlink hookify rules</strong>
+          <div class="copy-wrap"><pre>~/Projects/_RPI_STANDARDS/scripts/setup-hookify-symlinks.sh</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Step 6: mdj-agent systemd Service -->
+  <details>
+    <summary>6. Set Up mdj-agent systemd Service</summary>
+    <div class="details-body">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Create the service file</strong>
+          <div class="copy-wrap"><pre>sudo tee /etc/systemd/system/mdj-agent.service << 'EOF'
+[Unit]
+Description=MDJ Agent Service
+After=network.target
+
+[Service]
+Type=simple
+User=jdm
+WorkingDirectory=/home/jdm/mdj-agent
+ExecStart=/usr/bin/node dist/server.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Enable + start the service</strong>
+          <div class="copy-wrap"><pre>sudo systemctl daemon-reload
+sudo systemctl enable mdj-agent
+sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Verify it's running</strong>
+          <div class="copy-wrap"><pre>curl http://localhost:4200/health</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <p class="muted" style="font-size:0.82em;margin-top:6px">Should return JSON with <code>"status":"ok"</code></p>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Step 7: Rebuild Warriors -->
+  <details>
+    <summary>7. Rebuild Warriors</summary>
+    <div class="details-body">
+      <div class="card info">
+        <strong>tmux warriors (2HINOBI, MUSASHI):</strong> Follow the steps on the <strong>Dojo Rebuild</strong> tab — they need a brain feed on every fresh server.
+      </div>
+      <div class="card success" style="margin-top:12px">
+        <strong>CCSDK warriors (RONIN, RAIDEN, SHINOBI, VOLTRON):</strong> Auto-start with the mdj-agent service — no rebuild needed. They come up automatically when the service starts.
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ============================== TAB 4: DOJO REBUILD ============================== -->
 <div id="tab-dojo" class="page">
   <h1>Dojo Rebuild</h1>
   <p class="subtitle">How to rebuild a warrior after a reboot, crash, or fresh start. This is the critical workflow.</p>
@@ -452,7 +705,7 @@ EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
   <details>
     <summary>How Warriors Work (4 Layers)</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">Every Claude Code session on MDJ1 loads context in 4 layers. Layers 1-3 are automatic. Layer 4 is manual — the first message you send.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">Every Claude Code session on MDJ_SERVER loads context in 4 layers. Layers 1-3 are automatic. Layer 4 is manual — the first message you send.</p>
 
       <div class="layer-card">
         <div class="layer-num">1</div>
@@ -496,7 +749,7 @@ EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
   <details>
     <summary>Rebuild 2HINOBI</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">2HINOBI is The Architect — strategy, planning, Dojo management. Lives in tmux on MDJ1.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">2HINOBI is The Architect — strategy, planning, Dojo management. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -522,12 +775,20 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
         <div class="step-num">3</div>
         <div class="step-content">
           <strong>Paste brain feed as your FIRST message</strong>
-          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/2hinobi/brain.txt — full context from my previous session. I am 2HINOBI, The Architect, running on MDJ1 in tmux. Set up cron to monitor Slack channel C0AP2QL9Z6X. Resume Dojo management.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/2hinobi/brain.txt — full context from my previous session. I am 2HINOBI, The Architect, running on MDJ_SERVER in tmux. Set up cron to monitor Slack channel C0AP2QL9Z6X. Resume Dojo management.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Name the session</strong>
+          <div class="copy-wrap"><pre>/rename 2HINOBI The Architect. [tmux > MDJ_SERVER]</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
         <div class="step-content">
           <strong>Verify + detach</strong>
           <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Confirm 2HINOBI is oriented and knows who he is</label></div>
@@ -545,7 +806,7 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
   <details>
     <summary>Rebuild MUSASHI</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">MUSASHI is ARTxBLADE — creative SME, discovery docs, hookify. Lives in tmux on MDJ1.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">MUSASHI is ARTxBLADE — creative SME, discovery docs, hookify. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -560,12 +821,20 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
         <div class="step-num">2</div>
         <div class="step-content">
           <strong>Paste brain feed as your FIRST message</strong>
-          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/musashi/brain.txt — full context from my PRO session. I am MUSASHI, ARTxBLADE, the creative SME for RPI. I've been migrated to MDJ1 (Dell PowerEdge T440). Discovery docs, hookify updates, and creative work continue from here.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/musashi/brain.txt — full context from my PRO session. I am MUSASHI, ARTxBLADE, the creative SME for RPI. I've been migrated to MDJ_SERVER (Dell PowerEdge T440). Discovery docs, hookify updates, and creative work continue from here.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Name the session</strong>
+          <div class="copy-wrap"><pre>/rename MUSASHI ARTxBLADE. [tmux > MDJ_SERVER]</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
         <div class="step-content">
           <strong>Verify + detach</strong>
           <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Confirm MUSASHI knows who he is and his active projects</label></div>
@@ -574,7 +843,7 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
       </div>
 
       <div class="card success" style="margin-top:8px">
-        <strong>MUSASHI is on MDJ1.</strong> Return anytime: <code>ssh mdj1-local && tmux attach -t MUSASHI</code>
+        <strong>MUSASHI is on MDJ_SERVER.</strong> Return anytime: <code>ssh mdj1-local && tmux attach -t MUSASHI</code>
       </div>
     </div>
   </details>
@@ -583,7 +852,7 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
   <details>
     <summary>Migrate a Warrior from Another Machine</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">Moving a warrior that lives on PRO or AIR to MDJ1.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">Moving a warrior that lives on PRO or AIR to MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -597,7 +866,7 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-content">
-          <strong>SCP the brain + memory files to MDJ1</strong>
+          <strong>SCP the brain + memory files to MDJ_SERVER</strong>
           <div class="copy-wrap"><pre># From source machine terminal — replace [EXPORT_PATH] and [WARRIOR]:
 scp [EXPORT_PATH] mdj1-local:/home/jdm/.claude/[WARRIOR]-export.txt
 
@@ -660,7 +929,7 @@ git push</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></di
   </details>
 </div>
 
-<!-- ============================== TAB 4: TROUBLESHOOT ============================== -->
+<!-- ============================== TAB 5: TROUBLESHOOT ============================== -->
 <div id="tab-troubleshoot" class="page">
   <h1>Troubleshoot</h1>
   <p class="subtitle">Problem → Fix. Start here when something breaks.</p>
@@ -674,7 +943,7 @@ git push</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></di
         <tr><td>SSH hangs, no connection</td><td><code>ssh jdm@192.168.6.93</code></td><td>Use raw IP if alias isn't working. Must be on home network.</td></tr>
         <tr><td><code>mdj1-local</code> alias not working</td><td>Check <code>~/.ssh/config</code> — add the Host block from New Machine tab</td><td>Alias only exists on machines where you've set it up.</td></tr>
         <tr><td><code>ssh mdj1</code> won't connect (away)</td><td>Make sure Tailscale shows "Connected" in menu bar, then retry. If still failing — use MDJ Mobile instead.</td><td>Tailscale SSH is unreliable. MDJ Mobile is the better away option.</td></tr>
-        <tr><td>Tailscale not running (away)</td><td><code>open -a Tailscale</code> — wait for "Connected" in menu bar</td><td>Required for any away SSH access to MDJ1.</td></tr>
+        <tr><td>Tailscale not running (away)</td><td><code>open -a Tailscale</code> — wait for "Connected" in menu bar</td><td>Required for any away SSH access to MDJ_SERVER.</td></tr>
         <tr><td>Away access alternatives</td><td>MDJ Mobile PWA: <a href="https://mdj-mobile--claude-mcp-484718.us-central1.hosted.app/" style="color:var(--blue)">mdj-mobile link</a> | MDJ Funnel: <a href="https://mdjserver.tail7845ea.ts.net" style="color:var(--blue)">mdjserver.tail7845ea.ts.net</a></td><td>No SSH needed. Browser only.</td></tr>
       </table>
     </div>
@@ -686,7 +955,7 @@ git push</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></di
     <div class="details-body">
       <table>
         <tr><th>Problem</th><th>Fix</th><th>Notes</th></tr>
-        <tr><td>MDJ Agent service down (<code>connection refused</code> on :4200)</td><td><code>ssh mdj1-local "sudo systemctl restart mdj-agent"</code></td><td>Wait 10 sec then re-check health.</td></tr>
+        <tr><td>mdj-agent service down (<code>connection refused</code> on :4200)</td><td><code>ssh mdj1-local "sudo systemctl restart mdj-agent"</code></td><td>Wait 10 sec then re-check health.</td></tr>
         <tr><td>Agent health check fails</td><td>Restart the service, wait 10 sec, try again</td><td>If still failing after restart, check <code>sudo systemctl status mdj-agent</code></td></tr>
         <tr><td>Claude Code hangs on startup (blank screen)</td><td><code>rm -rf ~/.claude-code && claude</code></td><td>Nukes runtime cache only. Config preserved. Regenerates on next launch.</td></tr>
         <tr><td>Claude Code still hangs after cache clear</td><td><code>mv ~/.claude ~/.claude-backup && rm -rf ~/.claude-code && claude</code></td><td>Nuclear option — then restore selectively from backup.</td></tr>
