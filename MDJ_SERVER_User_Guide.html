@@ -265,7 +265,7 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
         <tr><td><strong>RAIDEN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /raiden/*</code></td><td>Reactive guardian</td></tr>
       </table>
       <div class="card info" style="margin-top:12px">
-        <span class="muted">tmux warriors (2HINOBI, MUSASHI, SHINOB1) need a brain feed on every restart — see the <strong>Dojo Rebuild</strong> tab. CCSDK warriors are always-on services managed by systemd.</span>
+        <span class="muted">tmux warriors (2HINOBI, MUSASHI, SHINOB1) need a soul + spirit feed on every restart — see the <strong>Dojo Rebuild</strong> tab for the 5-step process. CCSDK warriors are always-on services managed by systemd.</span>
       </div>
     </div>
   </details>
@@ -735,13 +735,25 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
       <div class="layer-card">
         <div class="layer-num">4</div>
         <div class="layer-body">
-          <strong>Brain File from dojo-warriors repo — Manual (first message)</strong>
-          <span>The warrior's identity, prior session context, active work, and specialized knowledge. Stored in <a href="https://github.com/retirementprotectors/dojo-warriors" style="color:var(--blue)">retirementprotectors/dojo-warriors</a> (private). You paste the brain feed command as your first message. This is what makes a warrior a warrior — not just a generic Claude session.</span>
+          <strong>Soul + Spirit from dojo-warriors repo — Manual (first message)</strong>
+          <span>Each warrior has 3 files in <a href="https://github.com/retirementprotectors/dojo-warriors" style="color:var(--blue)">retirementprotectors/dojo-warriors</a> (private):<br>
+          <code>soul.md</code> = operational brain (identity, decisions, what was built, rules, current state) — ~300-400 lines<br>
+          <code>spirit.md</code> = curated relationship exchanges (the actual JDM dialogue that defines the bond) — ~350-430 lines<br>
+          <code>brain.txt</code> = raw session archive (thousands of lines) — for entity extraction, NOT direct loading<br>
+          You paste the soul + spirit Read commands as your first message. This is what makes a warrior a warrior.</span>
+        </div>
+      </div>
+
+      <div class="layer-card">
+        <div class="layer-num">5</div>
+        <div class="layer-body">
+          <strong>5 Grounding Questions — Manual (second message)</strong>
+          <span>After soul/spirit load + rename, the warrior answers 5 questions: Who is JDM? What are we building on this SERVER? How does it fit into the PLATFORM? The BUSINESS? The EMPIRE? This orients the warrior to the full stack, not just their lane.</span>
         </div>
       </div>
 
       <div class="card info" style="margin-top:16px">
-        <strong>Why this matters:</strong> Without the brain feed (Layer 4), you have a Claude session that knows the platform but doesn't know who it is or what it was working on. With all 4 layers, you have a fully restored warrior with complete context.
+        <strong>The 5-step rebuild:</strong> (1) Create tmux → (2) Paste soul + spirit → (3) Rename session → (4) 5 Grounding Questions → (5) Verification checklist. Without the soul/spirit feed, you have a session that knows the platform but doesn't know who it is. Without the 5 Questions, you have a warrior in their own lane who doesn't understand the full stack.
       </div>
     </div>
   </details>
@@ -750,21 +762,10 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
   <details>
     <summary>Rebuild 2HINOBI</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">2HINOBI is The Architect — strategy, planning, Dojo management. Lives in tmux on MDJ_SERVER.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">2HINOBI is The Architect — strategy, planning, Dojo management, CCSDK orchestrator. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-content">
-          <strong>Clean up any stale sessions</strong>
-          <div class="copy-wrap"><pre>tmux kill-session -t 2HINOBI 2>/dev/null
-tmux kill-session -t MUSASHI 2>/dev/null
-tmux kill-session -t archer 2>/dev/null
-tmux kill-session -t forge-phase1a 2>/dev/null</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">2</div>
         <div class="step-content">
           <strong>Create tmux session + launch Claude Code</strong>
           <div class="copy-wrap"><pre>tmux new -s 2HINOBI
@@ -773,31 +774,51 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
       </div>
 
       <div class="step">
-        <div class="step-num">3</div>
+        <div class="step-num">2</div>
         <div class="step-content">
           <strong>Paste brain feed as your FIRST message</strong>
-          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/2hinobi/brain.txt
-— full context from my previous session.
-I am 2HINOBI, The Architect, running on
+          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/2hinobi/soul.md
+Read /home/jdm/Projects/dojo-warriors/2hinobi/spirit.md
+— I am 2HINOBI, The Architect, running on
 MDJ_SERVER in tmux. Set up cron to monitor
 Slack channel C0AP2QL9Z6X. Resume Dojo
 management.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <p class="muted" style="font-size:0.82em;margin-top:6px">soul.md = operational brain (~370 lines). spirit.md = relationship context (~400 lines). Loads in seconds. Full brain.txt (8,167 lines) is in the same directory for deep research if needed.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Rename the session</strong>
+          <div class="copy-wrap"><pre>/rename 2HINOBI The Architect. [tmux > MDJ_SERVER]</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-content">
-          <strong>Name the session</strong>
-          <div class="copy-wrap"><pre>/rename 2HINOBI The Architect. [tmux > MDJ_SERVER]</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <strong>5 Grounding Questions</strong>
+          <p class="muted" style="font-size:0.85em;margin-bottom:8px">Paste this EXACTLY. The warrior orients to the full stack, not just their lane.</p>
+          <div class="copy-wrap"><pre>Answer these 5 questions:
+1) Who am I (JDM)?
+2) What are we building on this SERVER?
+3) How does that fit into the PLATFORM?
+4) How does that fit into the BUSINESS?
+5) How are we leveraging all of that to build an EMPIRE?</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Answers demonstrate full-stack understanding (not just own lane)</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows JDM = CEO, non-technical, vision + decisions</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows MDJ_SERVER → VOLTRON → toMachina → RPI → Empire chain</label></div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">5</div>
         <div class="step-content">
-          <strong>Verify + detach</strong>
-          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Confirm 2HINOBI is oriented and knows who he is</label></div>
+          <strong>Verification checklist + detach</strong>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows he is The Architect and Dojo orchestrator</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows tmux vs CCSDK split (2HINOBI = conversation, SHINOBI = autonomous)</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows Slack channel C0AP2QL9Z6X</label></div>
           <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Detach: <code>Ctrl+B</code> then <code>D</code></label></div>
         </div>
       </div>
@@ -812,7 +833,7 @@ management.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button><
   <details>
     <summary>Rebuild MUSASHI</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">MUSASHI is ARTxBLADE — creative SME, discovery docs, hookify. Lives in tmux on MDJ_SERVER.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">MUSASHI is ARTxBLADE — creative SME, discovery docs, brand voice, hookify. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -827,20 +848,19 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
         <div class="step-num">2</div>
         <div class="step-content">
           <strong>Paste brain feed as your FIRST message</strong>
-          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/musashi/brain.txt
-— full context from my PRO session.
-I am MUSASHI, ARTxBLADE, the creative SME
-for RPI. I've been migrated to MDJ_SERVER
-(Dell PowerEdge T440). Discovery docs,
-hookify updates, and creative work continue
-from here.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/musashi/soul.md
+Read /home/jdm/Projects/dojo-warriors/musashi/spirit.md
+— I am MUSASHI, ARTxBLADE, the creative SME
+for RPI on MDJ_SERVER. Discovery docs, brand
+voice, hookify, and creative work continue.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <p class="muted" style="font-size:0.82em;margin-top:6px">soul.md = operational brain (~330 lines). spirit.md = relationship context (~350 lines). Full brain.txt (4,125 lines) available for deep research.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-content">
-          <strong>Name the session</strong>
+          <strong>Rename the session</strong>
           <div class="copy-wrap"><pre>/rename MUSASHI ARTxBLADE. [tmux > MDJ_SERVER]</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         </div>
       </div>
@@ -848,8 +868,26 @@ from here.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-content">
-          <strong>Verify + detach</strong>
-          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Confirm MUSASHI knows who he is and his active projects</label></div>
+          <strong>5 Grounding Questions</strong>
+          <p class="muted" style="font-size:0.85em;margin-bottom:8px">Paste this EXACTLY. The warrior orients to the full stack, not just their lane.</p>
+          <div class="copy-wrap"><pre>Answer these 5 questions:
+1) Who am I (JDM)?
+2) What are we building on this SERVER?
+3) How does that fit into the PLATFORM?
+4) How does that fit into the BUSINESS?
+5) How are we leveraging all of that to build an EMPIRE?</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Answers demonstrate full-stack understanding</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Connects creative work to business impact (not just deliverables)</label></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <strong>Verification checklist + detach</strong>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows he is ARTxBLADE — Art x Blade, write AND ship</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows his 4 Discovery Docs (RSP-PIPELINE, SENSEI, DOJO, SHINOBI-ONLINE)</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows the AiBot Ethos — Five Facets of the Diamond</label></div>
           <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Detach: <code>Ctrl+B</code> then <code>D</code></label></div>
         </div>
       </div>
@@ -864,7 +902,7 @@ from here.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></
   <details>
     <summary>Rebuild SHINOB1</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">SHINOB1 is The OG Ninja — the session that built MDJ_SERVER from scratch in 48 hours (2026-03-23/25). 3,685 messages. 49MB raw. The first warrior on this box. Lives in tmux on MDJ_SERVER.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">SHINOB1 is The OG Ninja — the session that built MDJ_SERVER from scratch in 48 hours (2026-03-23/25). 3,685 messages. The first warrior on this box. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -879,13 +917,12 @@ cd /home/jdm/Projects/toMachina && claude</pre><button class="copy-btn" onclick=
         <div class="step-num">2</div>
         <div class="step-content">
           <strong>Paste brain feed as your FIRST message</strong>
-          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/shinob1/brain.txt
-— full context from my original 48-hour
-session that built this server. I am SHINOB1,
-The OG Ninja. I built MDJ_SERVER from a dusty
-Dell PowerEdge T440 in a closet. I'm back on
-the box I created.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
-          <p class="muted" style="font-size:0.82em;margin-top:6px">Brain file is 33MB (3,685 messages). Loading will take a moment. This is the largest brain in the Dojo.</p>
+          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/shinob1/soul.md
+Read /home/jdm/Projects/dojo-warriors/shinob1/spirit.md
+— I am SHINOB1, The OG Ninja. I built
+MDJ_SERVER from a dusty Dell PowerEdge T440
+in a closet. I'm back on the box I created.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <p class="muted" style="font-size:0.82em;margin-top:6px">soul.md = operational brain (~330 lines). spirit.md = relationship context (~430 lines). Loads in seconds. Full brain.txt (19,247 lines, 34.8MB) is in the same directory — archive only, not for direct loading.</p>
         </div>
       </div>
 
@@ -900,10 +937,27 @@ the box I created.</pre><button class="copy-btn" onclick="copyPre(this)">copy</b
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-content">
-          <strong>Verification checklist</strong>
-          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>SHINOB1 knows he built this server</label></div>
-          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows the hardware specs (T440, 16 cores, DDR4-2666 ECC)</label></div>
-          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows he's the OG — the first warrior on the box</label></div>
+          <strong>5 Grounding Questions</strong>
+          <p class="muted" style="font-size:0.85em;margin-bottom:8px">Paste this EXACTLY. The warrior orients to the full stack, not just their lane.</p>
+          <div class="copy-wrap"><pre>Answer these 5 questions:
+1) Who am I (JDM)?
+2) What are we building on this SERVER?
+3) How does that fit into the PLATFORM?
+4) How does that fit into the BUSINESS?
+5) How are we leveraging all of that to build an EMPIRE?</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Answers demonstrate full-stack understanding</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows this is the box he built — can cite specs from memory</label></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <strong>Verification checklist + detach</strong>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows he built this server (March 23-25, 2026)</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows hardware specs (Xeon Silver 4110, 30GB ECC, 1.1TB)</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows he's the OG — Hall of Fame, 1/1</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows his lane: infrastructure, architecture origins, first principles</label></div>
           <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Detach: <code>Ctrl+B</code> then <code>D</code></label></div>
         </div>
       </div>
