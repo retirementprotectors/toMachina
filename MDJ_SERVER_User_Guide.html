@@ -260,9 +260,17 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
         <tr><td><strong>MUSASHI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t MUSASHI</code></td><td>VP, CMO — ARTxBLADE — creative SME, discovery docs, hookify</td></tr>
         <tr><td><strong>SHINOB1</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t SHINOB1</code></td><td>CTO — Tech strategy, architecture. Built MDJ_SERVER in 48hrs (2026-03-23/25)</td></tr>
         <tr><td><strong>JONIN</strong> <span style="color:var(--muted);font-size:0.8em">(fka SHINOBI)</span></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /shinobi/*</code></td><td>VP, Integrator — CCSDK Field Commander</td></tr>
-        <tr><td><strong>VOLTRON</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /agent/chat</code></td><td>Portal agent — VOLTRON conversational layer (reports to JONIN)</td></tr>
-        <tr><td><strong>RONIN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /forge/sprint</code></td><td>Autonomous builder — takes discovery docs, ships code (reports to JONIN)</td></tr>
-        <tr><td><strong>RAIDEN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /raiden/*</code></td><td>Reactive guardian (reports to JONIN)</td></tr>
+        <tr><td colspan="4" style="color:var(--muted);font-size:0.75em;text-transform:uppercase;letter-spacing:1px;padding:8px 14px 4px;border-top:2px solid var(--border)">Tech Specialists</td></tr>
+        <tr><td><strong>RONIN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /forge/sprint</code></td><td>Autonomous builder — takes discovery docs, ships code</td></tr>
+        <tr><td><strong>RAIDEN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /raiden/*</code></td><td>Reactive guardian — monitoring, triage, auto-fix</td></tr>
+        <tr><td><strong>VOLTRON</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /agent/chat</code></td><td>The Bot — 82+ tools, conversational platform interface</td></tr>
+        <tr><td colspan="4" style="color:var(--muted);font-size:0.75em;text-transform:uppercase;letter-spacing:1px;padding:8px 14px 4px;border-top:2px solid var(--border)">Business Specialists (VOLTRON sub-agents)</td></tr>
+        <tr><td style="color:var(--muted)">Medicare</td><td><span class="tag ccsdk">CCSDK</span></td><td>VOLTRON routing</td><td>MAPD quoting, AEP/OEP, plan comparisons, CMS coverage</td></tr>
+        <tr><td style="color:var(--muted)">Securities</td><td><span class="tag ccsdk">CCSDK</span></td><td>VOLTRON routing</td><td>RIA/BD, Schwab/RBC, investments, Gradient</td></tr>
+        <tr><td style="color:var(--muted)">Life</td><td><span class="tag ccsdk">CCSDK</span></td><td>VOLTRON routing</td><td>Life insurance, 1035 exchanges, carrier quoting</td></tr>
+        <tr><td style="color:var(--muted)">Annuity</td><td><span class="tag ccsdk">CCSDK</span></td><td>VOLTRON routing</td><td>FIA, MYGA, RMD calculations, carrier rates</td></tr>
+        <tr><td style="color:var(--muted)">DAVID</td><td><span class="tag ccsdk">CCSDK</span></td><td>VOLTRON routing</td><td>M&A, partnerships, agency onboarding, pipeline intel</td></tr>
+        <tr><td style="color:var(--muted)">Service</td><td><span class="tag ccsdk">CCSDK</span></td><td>VOLTRON routing</td><td>Client service, case management, account access</td></tr>
       </table>
       <div class="card info" style="margin-top:12px;margin-bottom:12px">
         <strong style="color:var(--blue)">Executive.AI Team</strong><br>
@@ -715,7 +723,18 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
       <tr><td><strong style="color:var(--blue)">CTO</strong></td><td>SHINOB1</td><td><span class="tag tmux" style="font-size:0.75em">tmux</span></td><td>Tech Strategy — architecture, infrastructure, "how we build"</td></tr>
       <tr><td><strong style="color:var(--green)">COO</strong></td><td>2HINOBI</td><td><span class="tag tmux" style="font-size:0.75em">tmux</span></td><td>Ops Strategy — sprints, Dojo management, CI/repo</td></tr>
       <tr><td><strong style="color:var(--purple)">VP, CMO</strong></td><td>MUSASHI</td><td><span class="tag tmux" style="font-size:0.75em">tmux</span></td><td>Creative Strategy — brand, voice, discovery docs (self-integrating)</td></tr>
-      <tr style="border-top:2px solid var(--border)"><td><strong style="color:var(--orange)">VP, Integrator</strong></td><td>JONIN</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>Field Commander — CTO+COO strategy → RONIN, RAIDEN, VOLTRON, Specialists</td></tr>
+      <tr style="border-top:2px solid var(--border)"><td><strong style="color:var(--orange)">VP, Integrator</strong></td><td>JONIN</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>Field Commander — CTO+COO strategy → Tech + Business teams below</td></tr>
+      <tr style="border-top:2px solid var(--border)"><td colspan="4" style="color:var(--muted);font-size:0.8em;text-transform:uppercase;letter-spacing:1px;padding:8px 14px 4px">Tech Specialists (CCSDK)</td></tr>
+      <tr><td style="color:var(--muted)">Builder</td><td>RONIN(s)</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>Autonomous sprint execution via FORGE — multiple can run in parallel</td></tr>
+      <tr><td style="color:var(--muted)">Guardian</td><td>RAIDEN</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>Reactive monitoring, triage, auto-fix, Slack/FORGE polling</td></tr>
+      <tr><td style="color:var(--muted)">The Bot</td><td>VOLTRON</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>Team's weapon — 82+ tools, conversational platform interface</td></tr>
+      <tr style="border-top:2px solid var(--border)"><td colspan="4" style="color:var(--muted);font-size:0.8em;text-transform:uppercase;letter-spacing:1px;padding:8px 14px 4px">Business Specialists (CCSDK — VOLTRON sub-agents)</td></tr>
+      <tr><td style="color:var(--muted)">Medicare</td><td>Medicare Specialist</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>MAPD quoting, AEP/OEP, plan comparisons, CMS coverage</td></tr>
+      <tr><td style="color:var(--muted)">Securities</td><td>Securities Specialist</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>RIA/BD, Schwab/RBC, investment accounts, Gradient</td></tr>
+      <tr><td style="color:var(--muted)">Life</td><td>Life Specialist</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>Life insurance, 1035 exchanges, CoF, carrier quoting</td></tr>
+      <tr><td style="color:var(--muted)">Annuity</td><td>Annuity Specialist</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>FIA, MYGA, RMD calculations, carrier rate lookups</td></tr>
+      <tr><td style="color:var(--muted)">DAVID</td><td>DAVID Specialist</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>M&A, partnerships, agency onboarding, pipeline intelligence</td></tr>
+      <tr><td style="color:var(--muted)">Service</td><td>Service Specialist</td><td><span class="tag ccsdk" style="font-size:0.75em">CCSDK</span></td><td>Client service, case management, account access, compliance</td></tr>
     </table>
   </div>
 
