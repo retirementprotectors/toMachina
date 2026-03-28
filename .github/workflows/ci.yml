@@ -7,7 +7,26 @@ on:
     branches: [main]
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.filter.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check if only docs changed
+        id: filter
+        run: |
+          if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -qvE '\.(html|md)$'; then
+            echo "docs_only=false" >> $GITHUB_OUTPUT
+          else
+            echo "docs_only=true" >> $GITHUB_OUTPUT
+          fi
+
   check:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -20,7 +39,8 @@ jobs:
       - run: npx turbo run build
 
   e2e-pure:
-    needs: check
+    needs: [changes, check]
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -32,6 +52,8 @@ jobs:
       - run: npm run test:e2e:pure
 
   e2e-ui:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     env:
       FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
@@ -62,8 +84,8 @@ jobs:
           retention-days: 14
 
   deploy-api:
-    needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [changes, check]
+    if: needs.changes.outputs.docs_only != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -177,8 +199,8 @@ jobs:
           fi
 
   e2e-intake:
-    needs: deploy-api
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [changes, deploy-api]
+    if: needs.changes.outputs.docs_only != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     continue-on-error: true
     permissions:
