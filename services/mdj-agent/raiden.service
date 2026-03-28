@@ -1,0 +1,19 @@
+[Unit]
+Description=RAIDEN Reactive Guardian (within MDJ Agent)
+After=network.target
+Wants=mdj-agent.service
+
+[Service]
+Type=simple
+User=jdm
+WorkingDirectory=/home/jdm/mdj-agent
+ExecStart=/usr/bin/node dist/server.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+EnvironmentFile=/home/jdm/mdj-agent/.env
+StandardOutput=append:/var/log/raiden.log
+StandardError=append:/var/log/raiden.log
+
+[Install]
+WantedBy=multi-user.target
