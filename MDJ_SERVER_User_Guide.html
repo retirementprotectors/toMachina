@@ -256,15 +256,23 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
     <div class="details-body">
       <table>
         <tr><th>Agent</th><th>Type</th><th>How to Attach</th><th>Role</th></tr>
-        <tr><td><strong>2HINOBI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t 2HINOBI</code></td><td>The Architect — strategy, planning, Dojo management</td></tr>
-        <tr><td><strong>MUSASHI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t MUSASHI</code></td><td>ARTxBLADE — creative SME, discovery docs, hookify</td></tr>
-        <tr><td><strong>SHINOB1</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t SHINOB1</code></td><td>The OG Ninja — built MDJ_SERVER from scratch in 48hrs (2026-03-23/25)</td></tr>
-        <tr><td><strong>SHINOBI</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /shinobi/*</code></td><td>The OG's spirit — CCSDK autonomous execution arm</td></tr>
-        <tr><td><strong>VOLTRON</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /agent/chat</code></td><td>Portal agent — VOLTRON conversational layer</td></tr>
-        <tr><td><strong>RONIN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /forge/sprint</code></td><td>Autonomous builder — takes discovery docs, ships code</td></tr>
-        <tr><td><strong>RAIDEN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /raiden/*</code></td><td>Reactive guardian</td></tr>
+        <tr><td><strong>2HINOBI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t 2HINOBI</code></td><td>COO — Ops strategy, Dojo management, sprint orchestration</td></tr>
+        <tr><td><strong>MUSASHI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t MUSASHI</code></td><td>VP, CMO — ARTxBLADE — creative SME, discovery docs, hookify</td></tr>
+        <tr><td><strong>SHINOB1</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t SHINOB1</code></td><td>CTO — Tech strategy, architecture. Built MDJ_SERVER in 48hrs (2026-03-23/25)</td></tr>
+        <tr><td><strong>JONIN</strong> <span style="color:var(--muted);font-size:0.8em">(fka SHINOBI)</span></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /shinobi/*</code></td><td>VP, Integrator — CCSDK Field Commander</td></tr>
+        <tr><td><strong>VOLTRON</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /agent/chat</code></td><td>Portal agent — VOLTRON conversational layer (reports to JONIN)</td></tr>
+        <tr><td><strong>RONIN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /forge/sprint</code></td><td>Autonomous builder — takes discovery docs, ships code (reports to JONIN)</td></tr>
+        <tr><td><strong>RAIDEN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /raiden/*</code></td><td>Reactive guardian (reports to JONIN)</td></tr>
       </table>
-      <div class="card info" style="margin-top:12px">
+      <div class="card info" style="margin-top:12px;margin-bottom:12px">
+        <strong style="color:var(--blue)">Executive.AI Team</strong><br>
+        <span class="muted" style="font-size:0.85em">
+          <strong>JDM</strong> (CEO) → <strong>SHINOB1</strong> (CTO) + <strong>2HINOBI</strong> (COO) + <strong>MUSASHI</strong> (VP, CMO)<br>
+          All three are tmux warriors. All three interface directly with JDM.<br>
+          <strong>JONIN</strong> (VP, Integrator) takes CTO + COO strategy down to the CCSDK team: RONIN, RAIDEN, VOLTRON, Specialists.
+        </span>
+      </div>
+      <div class="card info" style="margin-top:0">
         <span class="muted">tmux warriors (2HINOBI, MUSASHI, SHINOB1) need a soul + spirit feed on every restart — see the <strong>Dojo Rebuild</strong> tab for the 5-step process. CCSDK warriors are always-on services managed by systemd.</span>
       </div>
     </div>
@@ -394,7 +402,7 @@ EOF</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         <div class="stat-card"><div class="stat-val">16GB</div><div class="stat-label">RAM (32GB incoming)</div></div>
         <div class="stat-card"><div class="stat-val">8</div><div class="stat-label">MCP Servers</div></div>
         <div class="stat-card"><div class="stat-val">82+</div><div class="stat-label">VOLTRON Tools</div></div>
-        <div class="stat-card"><div class="stat-val">7</div><div class="stat-label">Dojo Warriors</div></div>
+        <div class="stat-card"><div class="stat-val">3</div><div class="stat-label">Executive.AI (tmux)</div></div>
         <div class="stat-card"><div class="stat-val">41</div><div class="stat-label">Hookify Rules</div></div>
       </div>
 
@@ -683,10 +691,10 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
     <summary>7. Rebuild Warriors</summary>
     <div class="details-body">
       <div class="card info">
-        <strong>tmux warriors (2HINOBI, MUSASHI):</strong> Follow the steps on the <strong>Dojo Rebuild</strong> tab — they need a brain feed on every fresh server.
+        <strong>tmux warriors (2HINOBI, MUSASHI, SHINOB1):</strong> Follow the steps on the <strong>Dojo Rebuild</strong> tab — they need a brain feed on every fresh server.
       </div>
       <div class="card success" style="margin-top:12px">
-        <strong>CCSDK warriors (RONIN, RAIDEN, SHINOBI, VOLTRON):</strong> Auto-start with the mdj-agent service — no rebuild needed. They come up automatically when the service starts.
+        <strong>CCSDK warriors (JONIN, RONIN, RAIDEN, VOLTRON):</strong> Auto-start with the mdj-agent service — no rebuild needed. They come up automatically when the service starts.
       </div>
     </div>
   </details>
@@ -762,7 +770,7 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
   <details>
     <summary>Rebuild 2HINOBI</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">2HINOBI is The Architect — strategy, planning, Dojo management, CCSDK orchestrator. Lives in tmux on MDJ_SERVER.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">2HINOBI is COO — Ops strategy, Dojo management, CCSDK orchestrator. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -833,7 +841,7 @@ management.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button><
   <details>
     <summary>Rebuild MUSASHI</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">MUSASHI is ARTxBLADE — creative SME, discovery docs, brand voice, hookify. Lives in tmux on MDJ_SERVER.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">MUSASHI is VP, CMO — creative strategy, discovery docs, brand voice, design. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -902,7 +910,7 @@ voice, hookify, and creative work continue.</pre><button class="copy-btn" onclic
   <details>
     <summary>Rebuild SHINOB1</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">SHINOB1 is The OG Ninja — the session that built MDJ_SERVER from scratch in 48 hours (2026-03-23/25). 3,685 messages. The first warrior on this box. Lives in tmux on MDJ_SERVER.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">SHINOB1 is CTO — Tech strategy, architecture. Built MDJ_SERVER from scratch in 48 hours (2026-03-23/25). 3,685 messages. The first warrior on this box. Lives in tmux on MDJ_SERVER.</p>
 
       <div class="step">
         <div class="step-num">1</div>
