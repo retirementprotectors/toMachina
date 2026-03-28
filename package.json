@@ -39,7 +39,7 @@
     "pdf-to-img": "^5.0.0",
     "pdfjs-dist": "^5.5.207",
     "turbo": "^2.8.20",
-    "typescript": "^5.7.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.0",
     "xlsx": "^0.18.5",
     "zipcodes": "^8.0.0",

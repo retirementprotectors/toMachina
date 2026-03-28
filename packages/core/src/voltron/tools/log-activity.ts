@@ -40,7 +40,7 @@ export const definition = {
     },
     required: ['client_id', 'activity_type', 'details'],
   },
-  server_only: false,
+  server_only: true,
 }
 
 // ── Execute ───────────────────────────────────────────────────────────────────

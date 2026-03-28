@@ -33,24 +33,19 @@ const INITIAL_STATE: WireExecutionState = {
  */
 export function useWireExecution() {
   const [state, setState] = useState<WireExecutionState>(INITIAL_STATE)
-  const eventSourceRef = useRef<EventSource | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
-  /** Close any active SSE connection */
+  /** Abort any active SSE fetch connection */
   const closeStream = useCallback(() => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close()
-      eventSourceRef.current = null
+    if (abortRef.current) {
+      abortRef.current.abort()
+      abortRef.current = null
     }
   }, [])
 
   /** Reset to idle state */
   const reset = useCallback(() => {
     closeStream()
-    if (abortRef.current) {
-      abortRef.current.abort()
-      abortRef.current = null
-    }
     setState(INITIAL_STATE)
   }, [closeStream])
 
@@ -59,9 +54,7 @@ export function useWireExecution() {
     (executionId: string) => {
       closeStream()
 
-      // Use fetchWithAuth to get the token, then open EventSource with auth
-      // EventSource doesn't support headers natively, so we use the query param approach
-      // or fall back to fetch-based SSE parsing
+      // Fetch-based SSE reader — supports Firebase Auth headers (EventSource cannot)
       const streamUrl = `/api/voltron/wire/${executionId}/stream`
 
       const processEvent = (event: VoltronSSEEvent) => {
@@ -80,9 +73,9 @@ export function useWireExecution() {
                 const stageResult: VoltronStageResult = {
                   stage: event.stage,
                   super_tool_id: event.super_tool_id ?? event.stage,
-                  success: true,
-                  data: event.data,
-                  duration_ms: 0,
+                  status: 'complete',
+                  completed_at: event.timestamp,
+                  output: event.data,
                 }
                 next.stages = [...prev.stages, stageResult]
               }
@@ -97,9 +90,9 @@ export function useWireExecution() {
                 const stageResult: VoltronStageResult = {
                   stage: event.stage,
                   super_tool_id: event.super_tool_id ?? event.stage,
-                  success: false,
+                  status: 'error',
+                  completed_at: event.timestamp,
                   error: event.error,
-                  duration_ms: 0,
                 }
                 next.stages = [...prev.stages, stageResult]
               }
@@ -135,6 +128,10 @@ export function useWireExecution() {
       }
 
       // Fetch-based SSE reader (supports auth headers)
+      // Abort any lingering connection before creating a new one
+      if (abortRef.current) {
+        abortRef.current.abort()
+      }
       const controller = new AbortController()
       abortRef.current = controller
 

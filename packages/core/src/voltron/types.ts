@@ -46,6 +46,11 @@ export function isToolTypeAllowed(role: VoltronUserRole, toolType: VoltronToolTy
 
 // ── Tool Results ────────────────────────────────────────────────────────────
 
+/**
+ * Return shape for atomic tools.
+ * Every atomic tool returns `VoltronToolResult<T>` where `T` is the
+ * tool-specific payload. Metadata is populated by the execution harness.
+ */
 export interface VoltronToolResult<T = unknown> {
   success: boolean
   data?: T
@@ -56,6 +61,10 @@ export interface VoltronToolResult<T = unknown> {
   }
 }
 
+/**
+ * Return shape for super tools (task orchestrators).
+ * Includes a per-tool audit trail (`tool_results`) and aggregate timing.
+ */
 export interface VoltronSuperResult<T = unknown> {
   success: boolean
   data?: T
@@ -67,6 +76,10 @@ export interface VoltronSuperResult<T = unknown> {
 
 // ── Context & Input ─────────────────────────────────────────────────────────
 
+/**
+ * Request context carried through tool chains.
+ * Enables role-based filtering, audit logging, and wire scoping.
+ */
 export interface VoltronContext {
   client_id: string
   user_role: VoltronUserRole
@@ -75,6 +88,10 @@ export interface VoltronContext {
   user_email: string
 }
 
+/**
+ * Wire execution trigger payload.
+ * Specifies target client, wire type, and runtime parameters.
+ */
 export interface VoltronWireInput {
   wire_id: string
   client_id: string
@@ -84,6 +101,7 @@ export interface VoltronWireInput {
 
 // ── Wire Execution ──────────────────────────────────────────────────────────
 
+/** Individual stage result within a wire execution. */
 export interface VoltronStageResult {
   stage: string
   super_tool_id: string
@@ -92,8 +110,14 @@ export interface VoltronStageResult {
   completed_at?: string
   output?: unknown
   error?: string
+  /** True if this stage has an approval gate (used in simulation mode) */
+  approval_gate?: boolean
 }
 
+/**
+ * Wire execution audit record written to Firestore `wire_executions` collection.
+ * Tracks full execution history per invocation including per-stage results.
+ */
 export interface VoltronWireResult {
   execution_id: string
   wire_id: string
@@ -106,6 +130,7 @@ export interface VoltronWireResult {
   artifacts: VoltronArtifact[]
 }
 
+/** An artifact produced by a wire execution (e.g. PDF link, Drive file). */
 export interface VoltronArtifact {
   type: string
   link: string
@@ -114,6 +139,7 @@ export interface VoltronArtifact {
 
 // ── Registry ────────────────────────────────────────────────────────────────
 
+/** A single entry in the `voltron_registry` collection. */
 export interface VoltronRegistryEntry {
   tool_id: string
   name: string
@@ -128,6 +154,7 @@ export interface VoltronRegistryEntry {
 
 // ── Definitions ─────────────────────────────────────────────────────────────
 
+/** Definition of a super tool — specifies which atomic tools it orchestrates. */
 export interface VoltronSuperToolDefinition {
   super_tool_id: string
   name: string
@@ -136,6 +163,7 @@ export interface VoltronSuperToolDefinition {
   entitlement_min: VoltronUserRole
 }
 
+/** Definition of a wire — specifies which super tools it chains with optional approval gates. */
 export interface VoltronWireDefinition {
   wire_id: string
   name: string
@@ -147,6 +175,7 @@ export interface VoltronWireDefinition {
 
 // ── Super Tool Execute Signature ────────────────────────────────────────────
 
+/** Execution function signature for super tools. Server-only. */
 export type VoltronSuperToolExecuteFn = (
   input: { client_id: string; params: Record<string, unknown> },
   context: VoltronContext,

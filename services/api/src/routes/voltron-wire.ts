@@ -152,8 +152,18 @@ voltronWireRoutes.get('/:id/stream', async (req: Request, res: Response) => {
     // Subscribe to wire execution updates
     const { subscribeToWire } = await loadVoltronWireExecutor()
 
-    const unsubscribe = subscribeToWire(executionId, (stage: unknown) => {
-      res.write(`data: ${JSON.stringify(stage)}\n\n`)
+    // WireSSEEvent is now typed — use `event` field name for clarity
+    const unsubscribe = subscribeToWire(executionId, (event: unknown) => {
+      const sseEvent = event as Record<string, unknown>
+      // Use SSE named events so EventSource.addEventListener works on the client
+      const eventType = (sseEvent.type as string) || 'message'
+      res.write(`event: ${eventType}\ndata: ${JSON.stringify(sseEvent)}\n\n`)
+
+      // Auto-close stream on terminal events
+      if (eventType === 'wire_complete' || eventType === 'wire_error') {
+        res.end()
+        unsubscribe()
+      }
     })
 
     // Also check Firestore for completed executions

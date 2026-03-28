@@ -1,14 +1,19 @@
 // ─── RUN_ILLUSTRATION Super Tool (Playwright Carrier Automation) ────────────
-// Chain: get_client → playwright_navigate → fill_illustration_form → download_pdf → save_to_acf
+// Chain: get_client → run_illustration (MDJ single-call) → return result
 // Output: Illustration PDF saved to ACF + file link
 // NOTE: Server-only on MDJ1. Playwright execution happens on mdj-agent.
 //
+// Architecture:
+//   1. Get client demographics from TM API
+//   2. Call MDJ agent's single illustration endpoint:
+//      POST /api/mdj/illustration/:carrier
+//      (handles: portal login → form fill → PDF generate → download → ACF upload)
+//   3. Format and return result
+//
 // The actual browser automation lives in:
 //   /home/jdm/mdj-agent/src/tools/playwright/carrier-automation.ts
-//
-// This super tool orchestrates the request and formats the result.
-// When called from packages/core (non-MDJ context), it delegates via TM API.
-// When called from mdj-agent directly, it invokes carrier-automation.ts.
+//   /home/jdm/mdj-agent/src/tools/playwright/north-american.ts
+//   /home/jdm/mdj-agent/src/tools/playwright/athene.ts
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {
@@ -21,6 +26,8 @@ import type {
 /** Supported carriers for illustration automation */
 export type IllustrationCarrier = 'north_american' | 'athene'
 
+const SUPPORTED_CARRIERS: readonly IllustrationCarrier[] = ['north_american', 'athene'] as const
+
 /** Input parameters for the RUN_ILLUSTRATION super tool */
 export interface RunIllustrationParams {
   carrier: IllustrationCarrier
@@ -30,6 +37,41 @@ export interface RunIllustrationParams {
   index_strategy?: string
   rider?: string
   income_start_age?: number
+  surrender_years?: number
+}
+
+/** Client data resolved from TM API — sent to MDJ for form fill */
+interface ResolvedClientData {
+  first_name: string
+  last_name: string
+  date_of_birth: string
+  state: string
+  gender: 'male' | 'female'
+  age?: number
+}
+
+/** Response shape from MDJ agent's POST /api/mdj/illustration/:carrier */
+interface MdjIllustrationResponse {
+  success: boolean
+  data?: {
+    illustration_id: string
+    client_id: string
+    carrier: string
+    product_name: string
+    pdf_file_id?: string
+    pdf_link?: string
+    acf_folder_id?: string
+    status: 'complete' | 'pending' | 'error'
+    generated_at: string
+    summary?: {
+      guaranteed_values?: Record<string, number>
+      projected_values?: Record<string, number>
+      income_benefit?: { annual_income?: number; start_age?: number; benefit_base?: number }
+      death_benefit?: number
+    }
+  }
+  error?: string
+  duration_ms: number
 }
 
 /** Result data from a completed illustration */
@@ -37,6 +79,7 @@ export interface RunIllustrationData {
   client_id: string
   carrier: IllustrationCarrier
   product_name: string
+  illustration_id: string | null
   illustration_pdf: string | null
   acf_link: string | null
   acf_file_id: string | null
@@ -50,10 +93,63 @@ export const definition: VoltronSuperToolDefinition = {
   name: 'Run Illustration',
   description:
     'Browser automation on carrier portals for illustration PDF generation. ' +
-    'Supports North American and Athene. PDF saved to ACF. Server-only on MDJ1.',
-  tools: ['get_client', 'playwright_navigate', 'fill_illustration_form', 'download_pdf', 'save_to_acf'],
+    'Supports North American and Athene. Runs Playwright on MDJ1: login → fill form → ' +
+    'generate → download PDF → save to ACF. Returns PDF link + illustration summary.',
+  tools: ['get_client', 'run_illustration'],
   entitlement_min: 'DIRECTOR',
 }
+
+// ── API Helper ──────────────────────────────────────────────────────────────
+
+async function callApi<T>(
+  baseUrl: string,
+  path: string,
+  toolId: string,
+  start: number,
+  method: 'GET' | 'POST' = 'GET',
+  body?: Record<string, unknown>,
+): Promise<VoltronToolResult<T>> {
+  try {
+    const options: RequestInit = {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+    }
+    if (body) options.body = JSON.stringify(body)
+
+    const response = await fetch(`${baseUrl}${path}`, options)
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: `API ${path} returned ${response.status}: ${response.statusText}`,
+        metadata: { duration_ms: Date.now() - start, tool_id: toolId },
+      }
+    }
+
+    const result = (await response.json()) as { success: boolean; data?: T; error?: string }
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error ?? `API error on ${path}`,
+        metadata: { duration_ms: Date.now() - start, tool_id: toolId },
+      }
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      metadata: { duration_ms: Date.now() - start, tool_id: toolId },
+    }
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : `Failed to call ${path}`,
+      metadata: { duration_ms: Date.now() - start, tool_id: toolId },
+    }
+  }
+}
+
+// ── Execute ─────────────────────────────────────────────────────────────────
 
 export async function execute(
   input: { client_id: string; params: Record<string, unknown> },
@@ -65,94 +161,146 @@ export async function execute(
   const productName = (input.params.product_name as string) || ''
   const premium = (input.params.premium as number) || 0
 
+  // ── Validate carrier ────────────────────────────────────────────────
+  if (!SUPPORTED_CARRIERS.includes(carrier)) {
+    return {
+      success: false,
+      error: `Unsupported carrier: ${carrier}. Supported: ${SUPPORTED_CARRIERS.join(', ')}`,
+      tool_results: toolResults,
+      duration_ms: Date.now() - start,
+    }
+  }
+
+  // ── Validate required params ────────────────────────────────────────
+  if (!input.client_id || !productName || !premium) {
+    return {
+      success: false,
+      error: 'client_id, carrier, product_name, and premium are required',
+      tool_results: toolResults,
+      duration_ms: Date.now() - start,
+    }
+  }
+
+  const tmApiBase = process.env.TOMACHINA_API_URL ?? ''
+  const mdjBase = process.env.MDJ_AGENT_URL ?? ''
+
   try {
-    // ── Stage 1: Resolve client ───────────────────────────────────────
-    // In production, this calls the TM API to get client data.
-    // The carrier automation module on MDJ1 handles this via get_client.
-    toolResults.push({
-      success: true,
-      data: {
+    // ── Stage 1: Resolve client demographics from TM API ──────────────
+    const clientResult = await callApi<{
+      id: string
+      first_name: string
+      last_name: string
+      dob: string
+      state: string
+      gender?: 'male' | 'female'
+      age?: number
+    }>(
+      tmApiBase,
+      `/api/clients/${encodeURIComponent(input.client_id)}`,
+      'get_client',
+      start,
+    )
+    toolResults.push(clientResult)
+
+    if (!clientResult.success || !clientResult.data) {
+      return {
+        success: false,
+        error: clientResult.error ?? 'Failed to resolve client for illustration',
+        tool_results: toolResults,
+        duration_ms: Date.now() - start,
+      }
+    }
+
+    const clientData: ResolvedClientData = {
+      first_name: clientResult.data.first_name,
+      last_name: clientResult.data.last_name,
+      date_of_birth: clientResult.data.dob,
+      state: clientResult.data.state,
+      gender: clientResult.data.gender ?? 'male',
+      age: clientResult.data.age,
+    }
+
+    // ── Stage 2: Run illustration via MDJ agent ───────────────────────
+    // Single call to MDJ handles: portal login → form fill → generate
+    // → PDF download → ACF upload. Returns PDF link + summary data.
+    const carrierSlug = carrier.replace(/_/g, '-')
+    const illustrationStart = Date.now()
+
+    const illustrationResult = await callApi<MdjIllustrationResponse['data']>(
+      mdjBase,
+      `/api/mdj/illustration/${carrierSlug}`,
+      'run_illustration',
+      illustrationStart,
+      'POST',
+      {
         client_id: input.client_id,
-        resolved: true,
         carrier,
         product_name: productName,
+        premium,
+        payment_mode: (input.params.payment_mode as string) ?? 'single',
+        index_strategy: (input.params.index_strategy as string) ?? undefined,
+        rider: (input.params.rider as string) ?? undefined,
+        income_start_age: (input.params.income_start_age as number) ?? undefined,
+        surrender_years: (input.params.surrender_years as number) ?? undefined,
+        requested_by: context.user_email,
+        client_data: clientData,
       },
-      metadata: { duration_ms: 0, tool_id: 'get_client' },
-    })
+    )
+    toolResults.push(illustrationResult)
 
-    // ── Stage 2: Navigate carrier portal (Playwright — server-only) ──
-    // Actual navigation happens via MDJ agent's Playwright modules:
-    //   mdj-agent/src/tools/playwright/north-american.ts
-    //   mdj-agent/src/tools/playwright/athene.ts
-    toolResults.push({
-      success: true,
-      data: {
-        client_id: input.client_id,
-        carrier,
-        portal_connected: true,
-        note: `Playwright execution delegated to MDJ agent — ${carrier} module`,
-      },
-      metadata: { duration_ms: 0, tool_id: 'playwright_navigate' },
-    })
+    if (!illustrationResult.success || !illustrationResult.data) {
+      return {
+        success: false,
+        error: illustrationResult.error ?? 'MDJ illustration automation failed',
+        tool_results: toolResults,
+        duration_ms: Date.now() - start,
+        stats: { stages_completed: 1, stages_total: 2, carrier },
+      }
+    }
 
-    // ── Stage 3: Fill illustration form ───────────────────────────────
-    toolResults.push({
-      success: true,
-      data: {
-        client_id: input.client_id,
-        carrier,
-        form_filled: true,
-        product_params: {
-          product_name: productName,
-          premium,
-          payment_mode: input.params.payment_mode,
-          index_strategy: input.params.index_strategy,
-          rider: input.params.rider,
-          income_start_age: input.params.income_start_age,
-        },
-      },
-      metadata: { duration_ms: 0, tool_id: 'fill_illustration_form' },
-    })
-
-    // ── Stage 4: Download PDF ─────────────────────────────────────────
-    // PDF capture handled by carrier module's generateAndDownloadPdf()
-    toolResults.push({
-      success: true,
-      data: {
-        client_id: input.client_id,
-        carrier,
-        pdf_downloaded: true,
-      },
-      metadata: { duration_ms: 0, tool_id: 'download_pdf' },
-    })
-
-    // ── Stage 5: Save to ACF ──────────────────────────────────────────
-    // PDF uploaded via POST /api/acf/:clientId/upload (base64)
-    // carrier-automation.ts handles the actual upload to ACF
+    // ── Build result ──────────────────────────────────────────────────
+    const illData = illustrationResult.data
     const result: RunIllustrationData = {
       client_id: input.client_id,
       carrier,
       product_name: productName,
-      illustration_pdf: null,    // Populated by MDJ agent after Playwright run
-      acf_link: null,            // Populated after ACF upload
-      acf_file_id: null,         // Populated after ACF upload
-      illustration_data: null,   // Populated from carrier results page
+      illustration_id: illData.illustration_id ?? null,
+      illustration_pdf: illData.pdf_file_id ? `${carrier}_${productName.replace(/\s+/g, '_')}_${input.client_id}.pdf` : null,
+      acf_link: illData.pdf_link ?? null,
+      acf_file_id: illData.pdf_file_id ?? null,
+      illustration_data: illData.summary
+        ? {
+            guaranteed_values: illData.summary.guaranteed_values ?? null,
+            projected_values: illData.summary.projected_values ?? null,
+            income_benefit: illData.summary.income_benefit ?? null,
+            death_benefit: illData.summary.death_benefit ?? null,
+            premium,
+            payment_mode: input.params.payment_mode ?? 'single',
+            index_strategy: input.params.index_strategy ?? null,
+            rider: input.params.rider ?? null,
+          }
+        : {
+            premium,
+            payment_mode: input.params.payment_mode ?? 'single',
+            index_strategy: input.params.index_strategy ?? null,
+            rider: input.params.rider ?? null,
+          },
       prepared_by: context.user_email,
       prepared_at: new Date().toISOString(),
     }
-
-    toolResults.push({
-      success: true,
-      data: result,
-      metadata: { duration_ms: Date.now() - start, tool_id: 'save_to_acf' },
-    })
 
     return {
       success: true,
       data: result,
       tool_results: toolResults,
       duration_ms: Date.now() - start,
-      stats: { stages_completed: 5, stages_total: 5, carrier },
+      stats: {
+        stages_completed: 2,
+        stages_total: 2,
+        carrier,
+        illustration_id: illData.illustration_id,
+        acf_saved: !!illData.pdf_file_id,
+      },
     }
   } catch (err) {
     return {

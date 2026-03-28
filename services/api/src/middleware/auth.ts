@@ -28,6 +28,19 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return next()
   }
 
+  // TRK-13802: CI deploy registry regeneration — VOLTRON_CI_TOKEN from GitHub Actions
+  const ciToken = req.headers['x-voltron-ci-token'] as string | undefined
+  const ciSecret = process.env.VOLTRON_CI_TOKEN
+  if (ciToken && ciSecret && ciToken === ciSecret) {
+    ;(req as any).user = {
+      email: 'ci-deploy@retireprotected.com',
+      name: 'CI Registry Regenerator',
+      uid: 'ci-deploy-service',
+      role: 'ADMIN',
+    }
+    return next()
+  }
+
   const authHeader = (req.headers['x-forwarded-authorization'] as string | undefined) || req.headers.authorization
   if (!authHeader?.startsWith('Bearer ')) {
     res.status(401).json({ success: false, error: 'Missing auth token' })

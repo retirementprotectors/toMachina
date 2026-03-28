@@ -30,7 +30,10 @@ export {
   getVoltronWireIds,
   getVoltronWireStats,
   isAepBlackout,
+  validateWireExecution,
 } from './wires'
+
+export type { WireValidationResult } from './wires'
 
 // Super tool definitions (browser-safe — no execute functions from barrel)
 export {
@@ -101,4 +104,4 @@ export type {
 // Wire executor — type-only exports from barrel (import directly for execution)
 // Backend-only (services/api) import directly:
 //   import { executeVoltronWire } from '@tomachina/core/voltron/wire-executor'
-export type { ExecuteWireOptions } from './wire-executor'
+export type { ExecuteWireOptions, WireSSEEvent, WireSSEEventType, WireStatusListener } from './wire-executor'

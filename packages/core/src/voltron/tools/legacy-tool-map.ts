@@ -20,17 +20,9 @@
 import type { VoltronRegistryEntry, VoltronToolSource, VoltronUserRole } from '../types'
 
 // ─── Level-to-Role Mapping ──────────────────────────────────────────────────
-
-const LEVEL_TO_ROLE: Record<number, VoltronUserRole> = {
-  0: 'ADMIN',
-  1: 'VP',
-  2: 'DIRECTOR',
-  3: 'COORDINATOR',
-}
-
-function levelToRole(level: number): VoltronUserRole {
-  return LEVEL_TO_ROLE[level] ?? 'COORDINATOR'
-}
+// NOTE: All entry() calls below use string literals (e.g. 'COORDINATOR') instead
+// of levelToRole() so the registry generator's regex parser can extract the role.
+// Mapping: level 0 → ADMIN, 1 → VP, 2 → DIRECTOR, 3 → COORDINATOR
 
 // ─── Helper: Build a registry entry ─────────────────────────────────────────
 
@@ -61,201 +53,201 @@ function entry(
 
 const TM_API_TOOLS: VoltronRegistryEntry[] = [
   // ── CLIENTS (7) ───────────────────────────────────────────────────────────
-  entry('tm_clients_search', 'Search clients by last name prefix. Returns id, name, email, phone, status, account_count.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_clients_search', 'Search clients by last name prefix. Returns id, name, email, phone, status, account_count.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { q: { type: 'string', description: 'Search query (last name prefix, min 2 chars)' } }, required: ['q'],
   }, true),
-  entry('tm_clients_list', 'List clients with optional status filter and pagination. Ordered by last name ascending.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_clients_list', 'List clients with optional status filter and pagination. Ordered by last name ascending.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { status: { type: 'string' }, q: { type: 'string' }, limit: { type: 'number' }, startAfter: { type: 'string' } },
   }, true),
-  entry('tm_clients_get', 'Get a single client record by Firestore document ID. Returns full client data.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_clients_get', 'Get a single client record by Firestore document ID. Returns full client data.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Client Firestore document ID' } }, required: ['id'],
   }, true),
-  entry('tm_clients_get_accounts', 'Get all financial accounts for a client. Optionally filter by account type category.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_clients_get_accounts', 'Get all financial accounts for a client. Optionally filter by account type category.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Client Firestore document ID' }, type: { type: 'string' } }, required: ['id'],
   }, true),
-  entry('tm_clients_get_activities', 'Get activity log for a client (notes, changes, events). Ordered newest first.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_clients_get_activities', 'Get activity log for a client (notes, changes, events). Ordered newest first.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Client Firestore document ID' }, limit: { type: 'number' } }, required: ['id'],
   }, true),
-  entry('tm_clients_create', 'Create a new client record. Requires first_name and last_name.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_clients_create', 'Create a new client record. Requires first_name and last_name.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { first_name: { type: 'string' }, last_name: { type: 'string' }, email: { type: 'string' }, phone: { type: 'string' }, dob: { type: 'string' }, state: { type: 'string' }, zip: { type: 'string' }, status: { type: 'string' } }, required: ['first_name', 'last_name'],
   }, true),
-  entry('tm_clients_update', 'Update an existing client record (partial update). Only provided fields are changed.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_clients_update', 'Update an existing client record (partial update). Only provided fields are changed.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string' }, first_name: { type: 'string' }, last_name: { type: 'string' }, email: { type: 'string' }, phone: { type: 'string' }, dob: { type: 'string' }, state: { type: 'string' }, zip: { type: 'string' }, status: { type: 'string' } }, required: ['id'],
   }, true),
 
   // ── ACCOUNTS (4) ──────────────────────────────────────────────────────────
-  entry('tm_accounts_list', 'List all financial accounts across all clients. Filter by type, status, or carrier name.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_accounts_list', 'List all financial accounts across all clients. Filter by type, status, or carrier name.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { type: { type: 'string' }, status: { type: 'string' }, q: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_accounts_get', 'Get a single account record by client ID and account ID.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_accounts_get', 'Get a single account record by client ID and account ID.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { clientId: { type: 'string' }, accountId: { type: 'string' } }, required: ['clientId', 'accountId'],
   }, true),
-  entry('tm_accounts_create', 'Create a new financial account under a client. Requires account_type.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_accounts_create', 'Create a new financial account under a client. Requires account_type.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { clientId: { type: 'string' }, account_type: { type: 'string' }, account_type_category: { type: 'string' }, carrier_name: { type: 'string' }, policy_number: { type: 'string' }, status: { type: 'string' }, premium: { type: 'number' }, face_amount: { type: 'number' } }, required: ['clientId', 'account_type'],
   }, true),
-  entry('tm_accounts_update', 'Update an existing account record (partial update).', 'API_ROUTE', levelToRole(3), {
+  entry('tm_accounts_update', 'Update an existing account record (partial update).', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { clientId: { type: 'string' }, accountId: { type: 'string' }, carrier_name: { type: 'string' }, policy_number: { type: 'string' }, status: { type: 'string' }, premium: { type: 'number' }, face_amount: { type: 'number' } }, required: ['clientId', 'accountId'],
   }, true),
 
   // ── HOUSEHOLDS (3) ────────────────────────────────────────────────────────
-  entry('tm_households_list', 'List all households. Filter by status or assigned user.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_households_list', 'List all households. Filter by status or assigned user.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { status: { type: 'string' }, assigned_user_id: { type: 'string' }, search: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_households_get', 'Get a single household record with members list.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_households_get', 'Get a single household record with members list.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Household Firestore document ID' } }, required: ['id'],
   }, true),
-  entry('tm_households_meeting_prep', 'Generate structured meeting prep data for a household — member inventory, financial aggregates, opportunities, action items.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_households_meeting_prep', 'Generate structured meeting prep data for a household — member inventory, financial aggregates, opportunities, action items.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Household Firestore document ID' } }, required: ['id'],
   }, true),
 
   // ── SEARCH (1) ────────────────────────────────────────────────────────────
-  entry('tm_search_global', 'Global search across clients, accounts, households, and producers.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_search_global', 'Global search across clients, accounts, households, and producers.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { q: { type: 'string', description: 'Search query' }, scope: { type: 'string' }, limit: { type: 'number' } }, required: ['q'],
   }, true),
 
   // ── PIPELINES (2) ─────────────────────────────────────────────────────────
-  entry('tm_pipelines_list', 'List all pipelines (sales, onboarding, service).', 'API_ROUTE', levelToRole(3), {
+  entry('tm_pipelines_list', 'List all pipelines (sales, onboarding, service).', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { status: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_pipelines_get', 'Get a single pipeline by ID with stage details.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_pipelines_get', 'Get a single pipeline by ID with stage details.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Pipeline Firestore document ID' } }, required: ['id'],
   }, true),
 
   // ── FLOW ENGINE (8) ───────────────────────────────────────────────────────
-  entry('tm_flow_my_active', 'Get active flow instances for the current user.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_my_active', 'Get active flow instances for the current user.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { status: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_flow_pipelines_list', 'List all flow pipeline definitions.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_pipelines_list', 'List all flow pipeline definitions.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: {},
   }, true),
-  entry('tm_flow_pipeline_get', 'Get a flow pipeline definition by key.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_pipeline_get', 'Get a flow pipeline definition by key.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { key: { type: 'string', description: 'Pipeline key' } }, required: ['key'],
   }, true),
-  entry('tm_flow_pipeline_stages', 'Get stages for a flow pipeline.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_pipeline_stages', 'Get stages for a flow pipeline.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { key: { type: 'string', description: 'Pipeline key' } }, required: ['key'],
   }, true),
-  entry('tm_flow_instances_list', 'List all flow instances with optional filters.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_instances_list', 'List all flow instances with optional filters.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { pipeline_key: { type: 'string' }, status: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_flow_instance_get', 'Get a single flow instance by ID.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_instance_get', 'Get a single flow instance by ID.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Instance Firestore document ID' } }, required: ['id'],
   }, true),
-  entry('tm_flow_instance_create', 'Create a new flow pipeline instance. Triggers downstream automations.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_instance_create', 'Create a new flow pipeline instance. Triggers downstream automations.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { pipeline_key: { type: 'string' }, entity_id: { type: 'string' }, entity_type: { type: 'string' }, entity_name: { type: 'string' } }, required: ['pipeline_key', 'entity_id', 'entity_type'],
   }, true),
-  entry('tm_flow_instance_update', 'Update a flow instance (advance stage, update status).', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_instance_update', 'Update a flow instance (advance stage, update status).', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string' }, stage_key: { type: 'string' }, status: { type: 'string' } }, required: ['id'],
   }, true),
-  entry('tm_flow_task_update', 'Update a flow task (complete, reassign, add notes).', 'API_ROUTE', levelToRole(3), {
+  entry('tm_flow_task_update', 'Update a flow task (complete, reassign, add notes).', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string' }, status: { type: 'string' }, assigned_to: { type: 'string' }, notes: { type: 'string' } }, required: ['id'],
   }, true),
 
   // ── COMMUNICATIONS (5) ────────────────────────────────────────────────────
-  entry('tm_communications_list', 'List communication records with optional filters.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_communications_list', 'List communication records with optional filters.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { client_id: { type: 'string' }, type: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_communications_get', 'Get a single communication record by ID.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_communications_get', 'Get a single communication record by ID.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Communication Firestore document ID' } }, required: ['id'],
   }, true),
-  entry('tm_comms_send_email', 'Send an email via the TM API comms service. Requires approval.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_comms_send_email', 'Send an email via the TM API comms service. Requires approval.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { to: { type: 'string' }, subject: { type: 'string' }, body: { type: 'string' }, client_id: { type: 'string' } }, required: ['to', 'subject', 'body'],
   }, true),
-  entry('tm_comms_send_sms', 'Send an SMS via the TM API comms service. Requires approval.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_comms_send_sms', 'Send an SMS via the TM API comms service. Requires approval.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { to: { type: 'string' }, message: { type: 'string' }, client_id: { type: 'string' } }, required: ['to', 'message'],
   }, true),
-  entry('tm_comms_send_voice', 'Initiate an outbound voice call via TM API. Requires approval.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_comms_send_voice', 'Initiate an outbound voice call via TM API. Requires approval.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { to: { type: 'string' }, client_id: { type: 'string' }, script: { type: 'string' } }, required: ['to'],
   }, true),
-  entry('tm_comms_log_call', 'Log a completed call (no outbound dial). Internal record only.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_comms_log_call', 'Log a completed call (no outbound dial). Internal record only.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { client_id: { type: 'string' }, direction: { type: 'string' }, duration: { type: 'number' }, notes: { type: 'string' } }, required: ['client_id'],
   }, true),
-  entry('tm_comms_status', 'Check delivery status of a sent communication by SID.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_comms_status', 'Check delivery status of a sent communication by SID.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { sid: { type: 'string', description: 'Communication SID' } }, required: ['sid'],
   }, true),
 
   // ── QUE (5) ───────────────────────────────────────────────────────────────
-  entry('tm_que_sessions_list', 'List QUE quoting sessions with optional filters.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_que_sessions_list', 'List QUE quoting sessions with optional filters.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { client_id: { type: 'string' }, status: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_que_session_create', 'Create a new QUE quoting session (draft — no external action).', 'API_ROUTE', levelToRole(3), {
+  entry('tm_que_session_create', 'Create a new QUE quoting session (draft — no external action).', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { client_id: { type: 'string' }, session_type: { type: 'string' } }, required: ['client_id'],
   }, true),
-  entry('tm_que_session_get', 'Get a single QUE session by ID with all quotes.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_que_session_get', 'Get a single QUE session by ID with all quotes.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { sessionId: { type: 'string', description: 'QUE session ID' } }, required: ['sessionId'],
   }, true),
-  entry('tm_que_quote_add', 'Add a quote to a draft QUE session (no send, no client mutation).', 'API_ROUTE', levelToRole(3), {
+  entry('tm_que_quote_add', 'Add a quote to a draft QUE session (no send, no client mutation).', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { sessionId: { type: 'string' }, carrier_name: { type: 'string' }, product_name: { type: 'string' }, premium: { type: 'number' }, benefits: { type: 'object' } }, required: ['sessionId', 'carrier_name', 'product_name'],
   }, true),
-  entry('tm_que_session_update', 'Update status/fields on a QUE session — internal only.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_que_session_update', 'Update status/fields on a QUE session — internal only.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { sessionId: { type: 'string' }, status: { type: 'string' }, notes: { type: 'string' } }, required: ['sessionId'],
   }, true),
 
   // ── REVENUE (3) ───────────────────────────────────────────────────────────
-  entry('tm_revenue_list', 'List revenue records. Leader+ access (required_level 2).', 'API_ROUTE', levelToRole(2), {
+  entry('tm_revenue_list', 'List revenue records. Leader+ access (required_level 2).', 'API_ROUTE', 'DIRECTOR', {
     type: 'object', properties: { agent_id: { type: 'string' }, period: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_revenue_get', 'Get a single revenue record by ID. Leader+ access.', 'API_ROUTE', levelToRole(2), {
+  entry('tm_revenue_get', 'Get a single revenue record by ID. Leader+ access.', 'API_ROUTE', 'DIRECTOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Revenue record ID' } }, required: ['id'],
   }, true),
-  entry('tm_revenue_summary_by_agent', 'Get revenue summary grouped by agent. Leader+ access.', 'API_ROUTE', levelToRole(2), {
+  entry('tm_revenue_summary_by_agent', 'Get revenue summary grouped by agent. Leader+ access.', 'API_ROUTE', 'DIRECTOR', {
     type: 'object', properties: { period: { type: 'string' }, team_id: { type: 'string' } },
   }, true),
 
   // ── PRODUCERS (2) ─────────────────────────────────────────────────────────
-  entry('tm_producers_list', 'List all producers/agents. Leader+ access.', 'API_ROUTE', levelToRole(2), {
+  entry('tm_producers_list', 'List all producers/agents. Leader+ access.', 'API_ROUTE', 'DIRECTOR', {
     type: 'object', properties: { status: { type: 'string' }, team_id: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_producers_get', 'Get a single producer/agent record by ID. Leader+ access.', 'API_ROUTE', levelToRole(2), {
+  entry('tm_producers_get', 'Get a single producer/agent record by ID. Leader+ access.', 'API_ROUTE', 'DIRECTOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Producer Firestore document ID' } }, required: ['id'],
   }, true),
 
   // ── ATLAS (4) ─────────────────────────────────────────────────────────────
-  entry('tm_atlas_sources_list', 'List ATLAS data sources. Executive+ access.', 'API_ROUTE', levelToRole(1), {
+  entry('tm_atlas_sources_list', 'List ATLAS data sources. Executive+ access.', 'API_ROUTE', 'VP', {
     type: 'object', properties: {},
   }, true),
-  entry('tm_atlas_tools_list', 'List ATLAS tools and their status. Executive+ access.', 'API_ROUTE', levelToRole(1), {
+  entry('tm_atlas_tools_list', 'List ATLAS tools and their status. Executive+ access.', 'API_ROUTE', 'VP', {
     type: 'object', properties: {},
   }, true),
-  entry('tm_atlas_wires_list', 'List ATLAS wire definitions and execution history. Executive+ access.', 'API_ROUTE', levelToRole(1), {
+  entry('tm_atlas_wires_list', 'List ATLAS wire definitions and execution history. Executive+ access.', 'API_ROUTE', 'VP', {
     type: 'object', properties: {},
   }, true),
-  entry('tm_atlas_health', 'Get ATLAS system health status. Executive+ access.', 'API_ROUTE', levelToRole(1), {
+  entry('tm_atlas_health', 'Get ATLAS system health status. Executive+ access.', 'API_ROUTE', 'VP', {
     type: 'object', properties: {},
   }, true),
 
   // ── NOTIFICATIONS (3) ─────────────────────────────────────────────────────
-  entry('tm_notifications_list', 'List notifications for the current user.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_notifications_list', 'List notifications for the current user.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { status: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_notifications_mark_read', 'Mark a single notification as read.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_notifications_mark_read', 'Mark a single notification as read.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Notification ID' } }, required: ['id'],
   }, true),
-  entry('tm_notifications_read_all', 'Mark all notifications as read for the current user.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_notifications_read_all', 'Mark all notifications as read for the current user.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: {},
   }, true),
 
   // ── SPRINTS (3) ───────────────────────────────────────────────────────────
-  entry('tm_sprints_list', 'List all FORGE sprints.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_sprints_list', 'List all FORGE sprints.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { status: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_sprints_get', 'Get a single sprint by ID.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_sprints_get', 'Get a single sprint by ID.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Sprint ID' } }, required: ['id'],
   }, true),
-  entry('tm_sprints_create', 'Create a new FORGE sprint. No downstream automation.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_sprints_create', 'Create a new FORGE sprint. No downstream automation.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { name: { type: 'string' }, description: { type: 'string' }, target_date: { type: 'string' } }, required: ['name'],
   }, true),
 
   // ── TRACKER (4) ───────────────────────────────────────────────────────────
-  entry('tm_tracker_list', 'List all tracker tickets with optional filters.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_tracker_list', 'List all tracker tickets with optional filters.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { sprint_id: { type: 'string' }, status: { type: 'string' }, assigned_to: { type: 'string' }, limit: { type: 'number' } },
   }, true),
-  entry('tm_tracker_get', 'Get a single tracker ticket by ID.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_tracker_get', 'Get a single tracker ticket by ID.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string', description: 'Tracker ticket ID' } }, required: ['id'],
   }, true),
-  entry('tm_tracker_create', 'Create a new tracker ticket. No downstream automation.', 'API_ROUTE', levelToRole(3), {
+  entry('tm_tracker_create', 'Create a new tracker ticket. No downstream automation.', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { title: { type: 'string' }, description: { type: 'string' }, sprint_id: { type: 'string' }, assigned_to: { type: 'string' }, priority: { type: 'string' } }, required: ['title'],
   }, true),
-  entry('tm_tracker_update', 'Update a tracker ticket (status, assignment, fields).', 'API_ROUTE', levelToRole(3), {
+  entry('tm_tracker_update', 'Update a tracker ticket (status, assignment, fields).', 'API_ROUTE', 'COORDINATOR', {
     type: 'object', properties: { id: { type: 'string' }, title: { type: 'string' }, status: { type: 'string' }, assigned_to: { type: 'string' }, priority: { type: 'string' }, notes: { type: 'string' } }, required: ['id'],
   }, true),
 ]
