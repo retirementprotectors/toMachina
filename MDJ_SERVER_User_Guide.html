@@ -258,13 +258,14 @@ hr{border:none;border-top:1px solid var(--border);margin:28px 0}
         <tr><th>Agent</th><th>Type</th><th>How to Attach</th><th>Role</th></tr>
         <tr><td><strong>2HINOBI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t 2HINOBI</code></td><td>The Architect — strategy, planning, Dojo management</td></tr>
         <tr><td><strong>MUSASHI</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t MUSASHI</code></td><td>ARTxBLADE — creative SME, discovery docs, hookify</td></tr>
-        <tr><td><strong>SHINOBI</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /shinobi/*</code></td><td>Sprint 008 autonomous builder</td></tr>
+        <tr><td><strong>SHINOB1</strong></td><td><span class="tag tmux">tmux</span></td><td><code>tmux attach -t SHINOB1</code></td><td>The OG Ninja — built MDJ_SERVER from scratch in 48hrs (2026-03-23/25)</td></tr>
+        <tr><td><strong>SHINOBI</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /shinobi/*</code></td><td>The OG's spirit — CCSDK autonomous execution arm</td></tr>
         <tr><td><strong>VOLTRON</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /agent/chat</code></td><td>Portal agent — VOLTRON conversational layer</td></tr>
         <tr><td><strong>RONIN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /forge/sprint</code></td><td>Autonomous builder — takes discovery docs, ships code</td></tr>
         <tr><td><strong>RAIDEN</strong></td><td><span class="tag ccsdk">CCSDK</span></td><td><code>POST /raiden/*</code></td><td>Reactive guardian</td></tr>
       </table>
       <div class="card info" style="margin-top:12px">
-        <span class="muted">tmux warriors need a brain feed on every restart — see the <strong>Dojo Rebuild</strong> tab. CCSDK warriors are always-on services managed by systemd.</span>
+        <span class="muted">tmux warriors (2HINOBI, MUSASHI, SHINOB1) need a brain feed on every restart — see the <strong>Dojo Rebuild</strong> tab. CCSDK warriors are always-on services managed by systemd.</span>
       </div>
     </div>
   </details>
@@ -848,6 +849,55 @@ cd ~/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre
     </div>
   </details>
 
+  <!-- Rebuild SHINOB1 -->
+  <details>
+    <summary>Rebuild SHINOB1</summary>
+    <div class="details-body">
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">SHINOB1 is The OG Ninja — the session that built MDJ_SERVER from scratch in 48 hours (2026-03-23/25). 3,685 messages. 49MB raw. The first warrior on this box. Lives in tmux on MDJ_SERVER.</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Create tmux session + launch Claude Code</strong>
+          <div class="copy-wrap"><pre>tmux new -s SHINOB1
+cd /home/jdm/Projects/toMachina && claude</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Paste brain feed as your FIRST message</strong>
+          <div class="copy-wrap"><pre>Read /home/jdm/Projects/dojo-warriors/shinob1/brain.txt — full context from my original 48-hour session that built this server. I am SHINOB1, The OG Ninja. I built MDJ_SERVER from a dusty Dell PowerEdge T440 in a closet. I'm back on the box I created.</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <p class="muted" style="font-size:0.82em;margin-top:6px">Brain file is 33MB (3,685 messages). Loading will take a moment. This is the largest brain in the Dojo.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Rename the session</strong>
+          <div class="copy-wrap"><pre>/rename SHINOB1 The OG Ninja. [tmux > MDJ_SERVER]</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Verification checklist</strong>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>SHINOB1 knows he built this server</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows the hardware specs (T440, 16 cores, DDR4-2666 ECC)</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Knows he's the OG — the first warrior on the box</label></div>
+          <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Detach: <code>Ctrl+B</code> then <code>D</code></label></div>
+        </div>
+      </div>
+
+      <div class="card success" style="margin-top:8px">
+        <strong>SHINOB1 is back.</strong> Return anytime: <code>ssh mdj1-local && tmux attach -t SHINOB1</code>
+      </div>
+    </div>
+  </details>
+
   <!-- Migrate a Warrior -->
   <details>
     <summary>Migrate a Warrior from Another Machine</summary>
@@ -892,7 +942,13 @@ scp -r ~/.claude/projects/[PROJECT]/memory/ \
   <details>
     <summary>Update a Brain File</summary>
     <div class="details-body">
-      <p class="muted" style="margin-bottom:16px;font-size:0.88em">After a meaningful session, update the warrior's brain file so the next rebuild picks up where you left off.</p>
+      <p class="muted" style="margin-bottom:16px;font-size:0.88em">Brain files grow over time — each session's context gets <strong>appended</strong>, never overwritten. The warrior's brain is their entire history.</p>
+
+      <div class="card info" style="margin-bottom:16px">
+        <strong>Automatic (coming in Sprint 003, TRK-S03-016):</strong> The <code>brain-save</code> command will fire automatically at every milestone — every <code>#SendIt</code>, <code>#LetsBuildIt</code>, <code>#LandedIt</code>, git commit, and 19 other hookify triggers. Plus <code>#BrainDump</code> as a standalone "save right now" trigger. Zero manual steps. See the <a href="https://retirementprotectors.github.io/sprint-003-learning-loop-discovery.html" style="color:var(--blue)">Learning Loop 2.0 Discovery Doc</a> for details.
+      </div>
+
+      <p style="margin-bottom:12px"><strong>Manual process (until brain-save ships):</strong></p>
 
       <div class="step">
         <div class="step-num">1</div>
@@ -906,25 +962,28 @@ scp -r ~/.claude/projects/[PROJECT]/memory/ \
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-content">
-          <strong>Redact any secrets from the export</strong>
-          <div class="copy-wrap"><pre>sed -i 's/mdj-alpha-shared-secret-2026/[REDACTED]/g' [EXPORT_PATH]</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <strong>Redact secrets + APPEND to brain (not overwrite!)</strong>
+          <div class="copy-wrap"><pre># Replace [WARRIOR] with 2hinobi, musashi, shinob1, etc.
+# Replace [EXPORT_PATH] with the path from step 1
+
+echo "" >> ~/Projects/dojo-warriors/[WARRIOR]/brain.txt
+echo "═══ Session appended: $(date) ═══" >> ~/Projects/dojo-warriors/[WARRIOR]/brain.txt
+sed 's/mdj-alpha-shared-[^"]*/[REDACTED]/g; s/Bearer [A-Za-z0-9_\.-]\{20,\}/Bearer [REDACTED]/g; s/"private_key"[^"]*"[^"]*"/"private_key": "[REDACTED]"/g' [EXPORT_PATH] >> ~/Projects/dojo-warriors/[WARRIOR]/brain.txt</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
+          <p class="muted" style="font-size:0.82em;margin-top:6px">This APPENDS the new session to the existing brain. The warrior's history grows with every save.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-content">
-          <strong>Copy to dojo-warriors + commit</strong>
-          <div class="copy-wrap"><pre># Replace [WARRIOR] with 2hinobi or musashi, etc.
-cp [EXPORT_PATH] ~/Projects/dojo-warriors/[WARRIOR]/brain.txt
-
-cd ~/Projects/dojo-warriors
-git add -A && git commit -m "update [WARRIOR] brain — [date]"
+          <strong>Commit + push</strong>
+          <div class="copy-wrap"><pre>cd ~/Projects/dojo-warriors
+git add -A && git commit -m "update [WARRIOR] brain — $(date +%Y-%m-%d)"
 git push</pre><button class="copy-btn" onclick="copyPre(this)">copy</button></div>
         </div>
       </div>
 
-      <div class="card success" style="margin-top:8px">Brain updated. Next rebuild will pick up this context automatically.</div>
+      <div class="card success" style="margin-top:8px">Brain updated. Next rebuild will pick up this context automatically. When <code>brain-save</code> ships (Sprint 003), this entire process becomes automatic at every <code>#SendIt</code> and milestone.</div>
     </div>
   </details>
 </div>
