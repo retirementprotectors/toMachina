@@ -1145,9 +1145,9 @@
   <div class="panel" id="panel-sprint">
 
     <div class="section">
-      <div class="section-title">Sprint 004 — 12 Tickets</div>
+      <div class="section-title">Sprint 004 — 25 Tickets</div>
       <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:32px;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--text);">12</div><div style="font-size:12px;color:var(--muted);">Total Tickets</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--text);">25</div><div style="font-size:12px;color:var(--muted);">Total Tickets</div></div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--blue);">3</div><div style="font-size:12px;color:var(--muted);">Infrastructure</div></div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--green);">8</div><div style="font-size:12px;color:var(--muted);">Features</div></div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center;min-width:120px;"><div style="font-size:28px;font-weight:800;color:var(--gold);">1</div><div style="font-size:12px;color:var(--muted);">Test / Deploy</div></div>
@@ -1907,6 +1907,185 @@ No need to resubmit.
         <div class="ticket-ac">
           <strong>What:</strong> Comprehensive UX pass on the FORGE/Dojo Sprint board. Current rating from JDM: <em>"It's Aiight"</em> — that is not acceptable. Known issues: (1) Sprint ticket statuses use values not recognized by the UI status list (e.g. <code>"deployed"</code> falls through to display as <code>"unseeded"</code> — any unrecognized status silently maps to wrong state); (2) Sprint phase calculation from <code>tracker_items</code> is fragile — phase label doesn't reflect actual RONIN progression; (3) Action buttons don't reflect current phase state; (4) Visual feedback on phase transitions is weak. Full audit required: enumerate all valid status values, wire them to UI, fix phase calculation logic, update action buttons to be context-aware, add clear visual feedback for phase transitions.<br><br>
           <strong>Acceptance:</strong> Every status value RONIN can write maps to a visible, correctly-labeled UI state — zero silent fallbacks. Sprint phase displayed matches actual execution state. Action buttons are context-aware (grayed or active based on current phase). JDM rates the board higher than "It's Aiight." Regression: no existing RONIN sprint data is broken by the changes.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="section">
+      <div class="section-title">Polish Tickets (Added 2026-03-29)</div>
+      <p style="font-size:13px;margin-bottom:20px;">13 additional tickets added to Firestore after initial discovery. Covers The Dojo rename, RAIDEN tab, UX overhaul, Slack wiring, mdj-agent rename, history endpoint, overnight summary, and full E2E test cycle.</p>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13806</div>
+          <div class="ticket-title">Rename FORGE module to The Dojo + temple_buddhist icon</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">Frontend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Nav sidebar label, module header, route title, and page title updated from FORGE to The Dojo. Module icon set to <code>temple_buddhist</code> (Material Icons). No visible "FORGE" references remain in the UI.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13807</div>
+          <div class="ticket-title">Create RAIDEN tab in The Dojo board</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-red">RAIDEN</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> New tab in The Dojo header with <code>bolt</code> (lightning bolt) icon. RAIDEN Kanban columns: NEW → TRIAGING → FIXING → VERIFYING → DONE → ESCALATED. Wired to Firestore <code>tracker_items</code> filtered by <code>agent: "raiden"</code>. Priority sorting active by default (P0s at top of every column). Tab switch clean — no flicker or state leak.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13808</div>
+          <div class="ticket-title">Rename RONIN tab + precision_manufacturing icon</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">Frontend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Existing sprint Kanban is explicitly the RONIN tab. <code>precision_manufacturing</code> Material Icon added to tab header. RONIN attribution badge on sprint cards. Tab state persists in localStorage between page loads. Both tabs visible in Dojo header with correct icons.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13809</div>
+          <div class="ticket-title">UN-FUCK the FORGE Sprint Board UX</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-red">P1 High</span>
+          <span class="badge badge-blue">Frontend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Full UX audit: all valid RONIN status values (<code>in_sprint</code>, <code>planned</code>, <code>built</code>, <code>audited</code>, <code>confirmed</code>, <code>deployed</code>, etc.) map to visible, correctly-labeled UI states — zero silent fallbacks. Sprint phase displayed matches actual execution state. Action buttons are context-aware (grayed or active based on current phase). Phase calculation from <code>tracker_items</code> is reliable. JDM rates the board above "It's Aiight." No existing sprint data is broken.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13810</div>
+          <div class="ticket-title">RAIDEN ticket schema (priority/source/action fields)</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-orange">Backend</span>
+          <span class="badge badge-muted">Data</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> <code>tracker_items</code> Firestore collection extended with RAIDEN fields: <code>priority</code> (p0–p3), <code>source</code> (slack/dojo_board/auto_detect/team_submission), <code>raiden_action</code> (auto_fixed/routed_to_ronin/training_sent/escalated), <code>resolution</code> (string), <code>agent</code> (raiden/ronin). Item ID prefix by type: BUG- / FIX- / UX-. Existing RONIN reads unaffected. API contract verified (read frontend consumer before writing).
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13811</div>
+          <div class="ticket-title">Auto-Triage button wired to RAIDEN API</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">Frontend</span>
+          <span class="badge badge-orange">Backend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Auto-Triage button in RAIDEN tab header fires <code>POST /api/sprints/auto</code> with <code>{ scope: "raiden", status: "new", groupBy: "component" }</code>. Response groups similar new tickets and suggests batch fix order. UI shows triage results as a quick-review modal before committing the sort.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13812</div>
+          <div class="ticket-title">Quick Submit form (Ctrl+N)</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-blue">Frontend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Ctrl+N keyboard shortcut opens a Quick Submit modal in The Dojo. Fields: Title (required), Description, Type (bug/fix/ux), Priority (p0–p3), Component. Submit fires <code>POST /api/tracker</code> with <code>agent: "raiden"</code>. Form resets and closes on success. showToast on success/error — no native dialog APIs. Accessible (focus trap in modal).
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13813</div>
+          <div class="ticket-title">Wire #dojo-fixes Slack channel to RAIDEN poller</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-orange">Backend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> RAIDEN poller reads both <code>#prodashx-urgent-fixes-and-bugs</code> and <code>#dojo-fixes</code> for new messages. Channel IDs stored in env vars. Deduplication works across both channels. Messages from both sources flow into the same triage engine. No double-processing.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13814</div>
+          <div class="ticket-title">60-second Slack confirmation loop</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-orange">Backend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> On every RAIDEN action (NEW, DUPLICATE, IN PROGRESS, FIXED), Slack post fires within 60 seconds of triggering event. Confirmation loop verifies post delivered (no error from Slack API). On delivery failure: retry once, then log and DM JDM. Timing verified in E2E test.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13815</div>
+          <div class="ticket-title">Rename mdj-agent → mdj-server across all refs</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-muted">Infrastructure</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> All references to <code>mdj-agent</code> as a server/host label updated to <code>mdj-server</code> across: CLAUDE.md files, service configs, systemd unit names (as applicable), log strings, Slack notifications. Code-level package names (<code>voltron-agent</code>) unaffected — this is a display/label rename only. Grep confirms zero remaining <code>mdj-agent</code> server refs after change.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13816</div>
+          <div class="ticket-title">GET /raiden/history endpoint</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-orange">Backend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> <code>GET /raiden/history?limit=N</code> returns last N run documents from <code>mdj_raiden_runs</code> ordered by <code>run_at</code> desc. Default limit: 10. Max limit: 100. Each document includes: items_checked, triage_outcomes, fixes, routes, jdm_notified, channel_posted, run_at. Auth required (Firebase token). Tested with Postman — returns valid JSON array.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13817</div>
+          <div class="ticket-title">RAIDEN overnight summary post (7am)</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-orange">Backend</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> At 7:00am daily (MDJ_SERVER local time), RAIDEN posts a summary to <code>#dojo-fixes</code> if any actions were taken in the last 24 hours. Summary format: total issues triaged, breakdown by outcome (AUTO_FIX / ROUTED / TRAINED / ESCALATED), links to any open PRs. Silent if no activity. Cron job confirmed active via <code>crontab -l</code> on MDJ_SERVER.
+        </div>
+      </div>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-id">TRK-13818</div>
+          <div class="ticket-title">E2E test: RAIDEN full triage cycle</div>
+        </div>
+        <div class="ticket-meta">
+          <span class="badge badge-gold">test / deployment</span>
+        </div>
+        <div class="ticket-ac">
+          <strong>AC:</strong> Post a test bug message to #dojo-fixes. Within 60 seconds: (1) RAIDEN detects it, (2) triages as FIX or ROUTE, (3) posts Slack response with "— @RAIDEN" signature, (4) logs run to <code>mdj_raiden_runs</code>. Confirm via <code>GET /raiden/history</code>. Overnight summary fires in test mode (manual trigger). All new polish tickets: deployed, smoke-tested, systems green.
         </div>
       </div>
 
