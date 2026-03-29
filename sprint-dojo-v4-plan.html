@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DOJO v4 — Build Order Plan</title>
+<style>
+body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; background: #0d1117; color: #c9d1d9; }
+h1, h2, h3 { color: #58a6ff; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #30363d; padding: 0.5rem; text-align: left; }
+th { background: #161b22; color: #58a6ff; }
+tr:nth-child(even) { background: #161b22; }
+.wave { border-left: 4px solid #58a6ff; padding-left: 1rem; margin: 1.5rem 0; }
+.wave-critical { border-left-color: #f85149; }
+code { background: #161b22; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; margin-right: 4px; }
+.tag-new { background: #238636; color: #fff; }
+.tag-mod { background: #9e6a03; color: #fff; }
+.tag-mdj { background: #8b5cf6; color: #fff; }
+.note { background: #1c1e26; border: 1px solid #f0883e; padding: 0.75rem; border-radius: 4px; margin: 1rem 0; }
+</style>
+</head>
+<body>
+
+<h1>DOJO v4 — Lean Build Order</h1>
+<p><strong>Sprint:</strong> 008 &nbsp;|&nbsp; <strong>Discovery:</strong> <a href="https://retirementprotectors.github.io/sprint-008-dojo-discovery.html">sprint-008-dojo-discovery</a> &nbsp;|&nbsp; <strong>Tickets:</strong> 12 &nbsp;|&nbsp; <strong>Waves:</strong> 5</p>
+
+<div class="note">
+<strong>Architecture Notes:</strong><br>
+- <strong>DOJ-010</strong> API route = Cloud Run (<code>services/api/</code>) — REST only, no AI orchestration.<br>
+- <strong>DOJ-011</strong> system prompts = MDJ_SERVER (<code>/home/jdm/mdj-agent/</code>) per OS constraint #1.<br>
+- <strong>ProDashX route:</strong> Discovery puts UI in <code>packages/ui/src/modules/MystAI/</code> (reusable components). A ProDashX page route at <code>apps/prodash/app/(portal)/modules/myst-ai/page.tsx</code> should import these — builder should create this if ProDashX integration is in scope.<br>
+- <strong>Model IDs:</strong> claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001
+</div>
+
+<!-- ======================================= -->
+<h2>Dependency Graph</h2>
+<!-- ======================================= -->
+
+<table>
+<tr><th>Ticket</th><th>Depends On</th><th>Wave</th></tr>
+<tr><td>DOJ-001</td><td>—</td><td>1</td></tr>
+<tr><td>DOJ-004</td><td>—</td><td>1</td></tr>
+<tr><td>DOJ-002</td><td>DOJ-001</td><td>2</td></tr>
+<tr><td>DOJ-003</td><td>DOJ-001</td><td>2</td></tr>
+<tr><td>DOJ-005</td><td>DOJ-004</td><td>2</td></tr>
+<tr><td>DOJ-008</td><td>DOJ-004</td><td>2</td></tr>
+<tr><td>DOJ-011</td><td>DOJ-001, DOJ-004</td><td>2</td></tr>
+<tr><td>DOJ-006</td><td>DOJ-004, DOJ-005</td><td>3</td></tr>
+<tr><td>DOJ-007</td><td>DOJ-004, DOJ-005</td><td>3</td></tr>
+<tr><td>DOJ-010</td><td>DOJ-004, DOJ-008</td><td>3</td></tr>
+<tr><td>DOJ-009</td><td>DOJ-005, DOJ-006</td><td>4</td></tr>
+<tr><td>DOJ-012</td><td>DOJ-005, DOJ-007, DOJ-009</td><td>5</td></tr>
+</table>
+
+<!-- ======================================= -->
+<h2>Wave 1 — Foundation (Parallel)</h2>
+<!-- ======================================= -->
+
+<div class="wave">
+<h3>TRK-DOJ-001 · AiBot Brand Guide Document</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_BRAND_GUIDE.md</code></li>
+</ul>
+<p><strong>Dependencies:</strong> None</p>
+<p><strong>AC:</strong> Any Claude session can read this file and generate team-facing output in the correct character voice for all 6 bots (VOLTRON, SENSEI, RAIDEN, RONIN, MUSASHI, 2HINOBI). Contains: Ethos, Voice Rules (internal/team/client), 6 Character Profiles, Message Templates, Visual Identity.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code> (no TS impact but validates monorepo integrity)</p>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-004 · AiBot Brand Types</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>packages/core/src/aibot-brand.ts</code></li>
+<li><span class="tag tag-mod">MOD</span> <code>packages/core/src/index.ts</code> (add export)</li>
+</ul>
+<p><strong>Dependencies:</strong> None</p>
+<p><strong>AC:</strong> Types <code>AiBotCharacter</code>, <code>AiBotVoiceGuide</code>, <code>AiBotProfile</code>, <code>AiBotBioPage</code> export from <code>@tomachina/core</code>. Character data for all 6 bots queryable by bot name. <code>npm run build</code> passes zero errors.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code> — types must be importable from package index</p>
+</div>
+
+<!-- ======================================= -->
+<h2>Wave 2 — Content + UI Shell (Parallel, 5 tickets)</h2>
+<!-- ======================================= -->
+
+<div class="wave">
+<h3>TRK-DOJ-002 · Voice Sample Library</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_VOICE_SAMPLES.md</code></li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-001 (reads Brand Guide for character specs)</p>
+<p><strong>AC:</strong> 5+ example messages per character across contexts: Slack DM, release note, training intro, error response, celebration. Team member can identify bot author without seeing the name.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-003 · Transcript Library</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_TRANSCRIPT_LIBRARY.md</code></li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-001 (reads Brand Guide for voice consistency)</p>
+<p><strong>AC:</strong> 10+ curated real-session moments with hyperlinks, formatted for Slack delivery. Includes the 3AM sprint, the Discovery Doc called "worth framing", JDM refusing sleep.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-005 · MYST.AI Page Component</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>packages/ui/src/modules/MystAI/MystAIPage.tsx</code></li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-004 (imports AiBotProfile types)</p>
+<p><strong>AC:</strong> Page renders "Technology Team" header + responsive circular avatar grid for all 6 bots. Click-through to bio pages. Matches client-facing MYST page visual language. <code>npm run build</code> zero errors.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-008 · MYST.AI Character Data</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>packages/ui/src/modules/MystAI/myst-ai-data.ts</code></li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-004 (uses AiBotCharacter types)</p>
+<p><strong>AC:</strong> All 6 bots fully populated: name, title, quote, traits, voice guide, fun facts, avatar URL, interface link. Data conforms to <code>@tomachina/core</code> types and matches Brand Guide.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-011 · Bot System Prompt Integration</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-mdj">MDJ</span> <code>/home/jdm/mdj-agent/</code> — VOLTRON system prompt</li>
+<li><span class="tag tag-mdj">MDJ</span> <code>/home/jdm/mdj-agent/</code> — RAIDEN triage config</li>
+<li><span class="tag tag-mdj">MDJ</span> <code>/home/jdm/mdj-agent/</code> — RONIN FORGE update templates</li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-001 (Brand Guide voice specs), DOJ-004 (type definitions)</p>
+<p><strong>AC:</strong> VOLTRON responds in BFF voice. RONIN sends updates in builder voice. Each bot distinctly recognizable in Slack messages. System prompts reference Brand Guide voice characteristics.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code> (monorepo) + verify mdj-agent prompts load correctly</p>
+<div class="note">
+<strong>MDJ_SERVER constraint:</strong> All system prompt files live in <code>/home/jdm/mdj-agent/</code>. Builder must identify exact file paths at build time by reading the mdj-agent directory structure. Do NOT place agent config in Cloud Run.
+</div>
+</div>
+
+<!-- ======================================= -->
+<h2>Wave 3 — UI Components + API (Parallel, 3 tickets)</h2>
+<!-- ======================================= -->
+
+<div class="wave">
+<h3>TRK-DOJ-006 · MYST.AI Bio Cards</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>packages/ui/src/modules/MystAI/MystAIBioCard.tsx</code></li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-004 (types), DOJ-005 (page layout context)</p>
+<p><strong>AC:</strong> Circular avatar + name + title + signature quote. Hover effect. Navigates to full bio page on click. Matches client MYST page styling.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-007 · MYST.AI Bio Pages</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>packages/ui/src/modules/MystAI/MystAIBioPage.tsx</code></li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-004 (types), DOJ-005 (page navigation context)</p>
+<p><strong>AC:</strong> Full bot bio: personality profile, responsibilities, traits, voice sample, fun facts. "Talk to me" button links to correct interface per bot. Each bot's bio page loads with complete profile.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-010 · MYST.AI API Route</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>services/api/src/routes/myst-ai.ts</code></li>
+<li><span class="tag tag-mod">MOD</span> <code>services/api/src/routes/index.ts</code> (register route)</li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-004 (types), DOJ-008 (character data)</p>
+<p><strong>AC:</strong> <code>GET /api/myst-ai</code> returns all 6 character profiles (<code>{ success: true, data: [...] }</code>). <code>GET /api/myst-ai/:botName</code> returns single bot bio. VOLTRON can query its own profile. Response format follows OS Rule #7.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+<div class="note">
+<strong>Cloud Run constraint:</strong> This is REST-only. No claude-agent-sdk. No AI orchestration. Returns static character data sourced from DOJ-008.
+</div>
+</div>
+
+<!-- ======================================= -->
+<h2>Wave 4 — Section Integration</h2>
+<!-- ======================================= -->
+
+<div class="wave">
+<h3>TRK-DOJ-009 · MYST Technology Section</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> <code>packages/ui/src/modules/MystAI/MystAISection.tsx</code></li>
+<li><span class="tag tag-mod">MOD</span> Existing MYST/team page (embed section alongside Leadership, Sales, Service)</li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-005 (page component), DOJ-006 (bio cards for grid rendering)</p>
+<p><strong>AC:</strong> "Technology Team" section renders in existing team page. Consistent styling with human team sections (Leadership, Sales, Service). Avatar grid uses MystAIBioCard components.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code></p>
+</div>
+
+<!-- ======================================= -->
+<h2>Wave 5 — External Deploy</h2>
+<!-- ======================================= -->
+
+<div class="wave wave-critical">
+<h3>TRK-DOJ-012 · GitHub Pages MYST.AI Standalone</h3>
+<p><strong>Files:</strong></p>
+<ul>
+<li><span class="tag tag-new">NEW</span> GitHub Pages repo/directory for <code>retirementprotectors.github.io/myst-ai/</code></li>
+<li><span class="tag tag-new">NEW</span> Self-contained HTML build (static export of MYST.AI page + bio pages)</li>
+</ul>
+<p><strong>Dependencies:</strong> DOJ-005 (page), DOJ-007 (bio pages), DOJ-009 (section component)</p>
+<p><strong>AC:</strong> Public URL <code>retirementprotectors.github.io/myst-ai/</code> shows full Technology Team with clickable bios. Self-contained for external audiences (DAVID partners, recruits). No auth required.</p>
+<p><strong>Build Verify:</strong> <code>npm run build</code> + verify static HTML renders correctly in browser</p>
+</div>
+
+<!-- ======================================= -->
+<h2>Summary: Wave Execution Matrix</h2>
+<!-- ======================================= -->
+
+<table>
+<tr>
+<th>Wave</th>
+<th>Tickets (Parallel)</th>
+<th>File Overlap Check</th>
+<th>Gate</th>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>DOJ-001, DOJ-004</td>
+<td>Zero overlap (_RPI_STANDARDS vs packages/core)</td>
+<td><code>npm run build</code></td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>DOJ-002, DOJ-003, DOJ-005, DOJ-008, DOJ-011</td>
+<td>Zero overlap (3 distinct dirs + mdj-agent)</td>
+<td><code>npm run build</code></td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>DOJ-006, DOJ-007, DOJ-010</td>
+<td>Zero overlap (BioCard vs BioPage vs services/api)</td>
+<td><code>npm run build</code></td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>DOJ-009</td>
+<td>Unique file (MystAISection.tsx + team page mod)</td>
+<td><code>npm run build</code></td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>DOJ-012</td>
+<td>External repo / static build</td>
+<td><code>npm run build</code> + browser verify</td>
+</tr>
+</table>
+
+<!-- ======================================= -->
+<h2>Dependency Verification Audit</h2>
+<!-- ======================================= -->
+
+<table>
+<tr><th>Ticket</th><th>Wave</th><th>Dependencies</th><th>Dep Waves</th><th>Valid?</th></tr>
+<tr><td>DOJ-001</td><td>1</td><td>—</td><td>—</td><td>YES</td></tr>
+<tr><td>DOJ-004</td><td>1</td><td>—</td><td>—</td><td>YES</td></tr>
+<tr><td>DOJ-002</td><td>2</td><td>DOJ-001</td><td>1</td><td>YES</td></tr>
+<tr><td>DOJ-003</td><td>2</td><td>DOJ-001</td><td>1</td><td>YES</td></tr>
+<tr><td>DOJ-005</td><td>2</td><td>DOJ-004</td><td>1</td><td>YES</td></tr>
+<tr><td>DOJ-008</td><td>2</td><td>DOJ-004</td><td>1</td><td>YES</td></tr>
+<tr><td>DOJ-011</td><td>2</td><td>DOJ-001, DOJ-004</td><td>1, 1</td><td>YES</td></tr>
+<tr><td>DOJ-006</td><td>3</td><td>DOJ-004, DOJ-005</td><td>1, 2</td><td>YES</td></tr>
+<tr><td>DOJ-007</td><td>3</td><td>DOJ-004, DOJ-005</td><td>1, 2</td><td>YES</td></tr>
+<tr><td>DOJ-010</td><td>3</td><td>DOJ-004, DOJ-008</td><td>1, 2</td><td>YES</td></tr>
+<tr><td>DOJ-009</td><td>4</td><td>DOJ-005, DOJ-006</td><td>2, 3</td><td>YES</td></tr>
+<tr><td>DOJ-012</td><td>5</td><td>DOJ-005, DOJ-007, DOJ-009</td><td>2, 3, 4</td><td>YES</td></tr>
+</table>
+
+<p><strong>All 12 discovery endpoints/deliverables covered. All dependencies resolve to earlier waves. Zero file overlap in parallel tracks. Every wave gates on <code>npm run build</code>.</strong></p>
+
+</body>
+</html>
