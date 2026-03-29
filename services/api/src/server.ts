@@ -82,6 +82,10 @@ import { runCheck } from './shinobi/shinobi-check.js'
 import { registerCheckHandler } from '@tomachina/core'
 import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
 import { webhookDeployRoutes } from './routes/webhook-deploy.js'
+import { mystAiRoutes } from './routes/myst-ai.js'
+import { adminWarriorRoutes } from './routes/admin-warriors.js'
+import { rspRoutes } from './routes/rsp.js'
+import { senseiAnalyticsRoutes } from './routes/sensei-analytics.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -191,6 +195,13 @@ app.use('/api/import-agents', normalizeBody, importAgentRoutes)
 app.use('/api/voltron/registry', voltronRegistryRoutes)
 app.use('/api/voltron/wire', normalizeBody, voltronWireRoutes)
 app.use('/api/voltron', normalizeBody, voltronDeployRoutes)
+
+app.use('/api/myst-ai', mystAiRoutes)
+app.use('/api/admin/warriors', adminWarriorRoutes)
+app.use('/api/rsp', normalizeBody, rspRoutes)
+
+// SENSEI Analytics — TRK-14146
+app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)
 
 // RAIDEN Reactive Guardian — sub-router at /raiden/*
 app.use('/raiden', raidenRoutes)
