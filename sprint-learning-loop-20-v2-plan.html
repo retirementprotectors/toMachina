@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 003 - Learning Loop 2.0 v2 | Implementation Plan</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --accent: #58a6ff; --green: #3fb950; --red: #f85149; --orange: #d29922; --purple: #bc8cff; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Fira Code', monospace; background: var(--bg); color: var(--text); padding: 2rem; line-height: 1.6; }
+  h1 { color: var(--accent); font-size: 1.8rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+  h2 { color: var(--green); font-size: 1.4rem; margin: 2rem 0 1rem; border-left: 4px solid var(--green); padding-left: 0.75rem; }
+  h3 { color: var(--purple); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  h4 { color: var(--orange); margin: 1rem 0 0.5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  .ticket { border-left: 4px solid var(--accent); }
+  .ticket.urgent { border-left-color: var(--red); }
+  .ticket.infra { border-left-color: var(--orange); }
+  .ticket.data { border-left-color: var(--green); }
+  .ticket.intel { border-left-color: var(--purple); }
+  .ticket.warrior { border-left-color: #f778ba; }
+  .wave-header { background: var(--accent); color: var(--bg); padding: 0.5rem 1rem; border-radius: 6px; font-weight: bold; font-size: 1.2rem; margin: 2rem 0 1rem; display: inline-block; }
+  .wave-header.w0 { background: var(--red); }
+  .wave-header.w1 { background: var(--orange); }
+  .wave-header.w2 { background: var(--green); }
+  .wave-header.w3 { background: var(--purple); }
+  .wave-header.w4 { background: #f778ba; }
+  .wave-header.w5 { background: var(--accent); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+  th { background: var(--card); color: var(--accent); }
+  code { background: #1f2937; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9rem; color: var(--green); }
+  pre { background: #1f2937; padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.5rem 0; font-size: 0.85rem; }
+  .dep { color: var(--orange); font-weight: bold; }
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { padding: 0.25rem 0; }
+  .ac { list-style: none; padding: 0; }
+  .ac li { padding: 0.2rem 0; }
+  .build-gate { background: #1a1a2e; border: 2px solid var(--red); border-radius: 6px; padding: 0.75rem; margin: 0.5rem 0; text-align: center; color: var(--red); font-weight: bold; }
+  .constraint { background: #2d1b1b; border: 1px solid var(--red); padding: 0.75rem; border-radius: 6px; margin: 0.5rem 0; }
+  .parallel-badge { background: var(--green); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+  .sequential-badge { background: var(--orange); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+  .dep-graph { font-family: monospace; white-space: pre; background: #1f2937; padding: 1rem; border-radius: 6px; overflow-x: auto; line-height: 1.4; }
+  .risk { background: #2d1b1b; border-left: 3px solid var(--red); padding: 0.5rem 0.75rem; margin: 0.5rem 0; border-radius: 0 4px 4px 0; }
+  .note { background: #1b2d1b; border-left: 3px solid var(--green); padding: 0.5rem 0.75rem; margin: 0.5rem 0; border-radius: 0 4px 4px 0; }
+</style>
+</head>
+<body>
+
+<h1>Sprint 003 - Learning Loop 2.0 v2 | Implementation Plan</h1>
+<p>Generated: 2026-03-29 | 20 Tickets | 6 Waves | Architect: FORGE Planner</p>
+
+<h2>Architecture Constraints (Non-Negotiable)</h2>
+
+<div class="constraint">
+  <strong>1. MDJ_SERVER = <code>/home/jdm/mdj-agent</code></strong> - ALL agent SDK code lives here. VOLTRON, RONIN, any new agent routes go in mdj-agent. NOT Cloud Run.<br>
+  <strong>2. Cloud Run (tm-api) = <code>services/api/</code></strong> - Portal REST API only. No claude-agent-sdk. No AI orchestration.<br>
+  <strong>3. RONIN_OS_RULES + agent config</strong> lives on MDJ1 at <code>/home/jdm/mdj-agent/</code>.<br>
+  <strong>4. ProDashX module path</strong> = <code>apps/prodash/app/(portal)/modules/[module-name]/</code>.<br>
+  <strong>5. Parallel tracks MUST have zero file overlap.</strong><br>
+  <strong>6. Model IDs:</strong> Opus = <code>claude-opus-4-6</code>, Sonnet = <code>claude-sonnet-4-6</code>, Haiku = <code>claude-haiku-4-5-20251001</code>.<br>
+  <strong>7. Build gate:</strong> <code>npm run build</code> - NEVER <code>tsc --noEmit</code> alone.<br>
+  <strong>8. API response format:</strong> <code>{ success: boolean, data?: T, error?: string }</code>.
+</div>
+
+<h2>Dependency Graph</h2>
+
+<div class="dep-graph">
+WAVE 0 (URGENT)
+  TRK-14165 (cleanup.sh fix)
+
+WAVE 1 (INFRA - all parallel)
+  TRK-14166 (launchd AIR)   -- needs 14165
+  TRK-14167 (launchd PRO)   -- needs 14165
+  TRK-14168 (systemd VOLT)  -- needs 14165
+  TRK-14169 (BQ schemas)    -- needs 14165
+  TRK-14172 (Firestore)     -- needs 14165
+  TRK-14180 (brain export)  -- needs 14165
+  TRK-14183 (warrior reg)   -- needs 14165
+
+WAVE 2 (PARSERS + PIPELINES - all parallel)
+  TRK-14170 (parser+loader) -- needs 14169
+  TRK-14176 (RONIN memory)  -- needs 14172
+  TRK-14177 (VOLTRON gaps)  -- needs 14172
+  TRK-14175 (pre-session)   -- needs 14172
+
+WAVE 3 (DATA + INTELLIGENCE)
+  TRK-14171 (backfill)      -- needs 14166+14167+14170
+  TRK-14173 (entity extract)-- needs 14170+14172
+  TRK-14174 (promote.js)    -- needs 14172+14173 (sequential after 14173)
+
+WAVE 4 (ANALYTICS + WARRIOR INTEL - all parallel)
+  TRK-14178 (BQ views)      -- needs 14171
+  TRK-14181 (soul/spirit)   -- needs 14173+14180
+  TRK-14184 (CLAUDE.md evol)-- needs 14173
+
+WAVE 5 (UI + CROSS-WARRIOR - parallel)
+  TRK-14179 (admin tab)     -- needs 14174+14177+14178
+  TRK-14182 (cross-warrior) -- needs 14175+14181
+</div>
+
+<h2>Wave Summary Table</h2>
+
+<table>
+  <tr>
+    <th>Wave</th><th>Tickets</th><th>Execution</th><th>Dependencies</th><th>Est. Effort</th>
+  </tr>
+  <tr>
+    <td>0 - Urgent</td><td>TRK-14165</td><td>Sequential (1 ticket)</td><td>None</td><td>1 hr</td>
+  </tr>
+  <tr>
+    <td>1 - Infra</td><td>TRK-14166, 14167, 14168, 14169, 14172, 14180, 14183</td><td>All 7 parallel</td><td>14165</td><td>4 hrs</td>
+  </tr>
+  <tr>
+    <td>2 - Parsers</td><td>TRK-14170, 14176, 14177, 14175</td><td>All 4 parallel</td><td>14169, 14172</td><td>6 hrs</td>
+  </tr>
+  <tr>
+    <td>3 - Data</td><td>TRK-14171, 14173, 14174</td><td>14171 || 14173; 14174 after 14173</td><td>14170, 14172, 14166/67</td><td>5 hrs</td>
+  </tr>
+  <tr>
+    <td>4 - Analytics</td><td>TRK-14178, 14181, 14184</td><td>All 3 parallel</td><td>14171, 14173, 14180</td><td>4 hrs</td>
+  </tr>
+  <tr>
+    <td>5 - UI+Cross</td><td>TRK-14179, 14182</td><td>Both parallel</td><td>14174+14177+14178, 14175+14181</td><td>5 hrs</td>
+  </tr>
+</table>
+
+<!-- WAVE 0 -->
+<div class="wave-header w0">WAVE 0 - URGENT FIX</div>
+
+<div class="card ticket urgent">
+  <h3>TRK-14165 - Fix cleanup.sh: Extract Before Delete</h3>
+  <p><span class="dep">Dependencies:</span> None</p>
+  <p><span class="dep">Blocks:</span> ALL subsequent waves</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>EDIT: <code>~/.claude/scripts/cleanup.sh</code> (AIR) - Add GCS rsync before deletion</li>
+    <li>EDIT: <code>~/.claude/scripts/cleanup.sh</code> (PRO) - Same modification</li>
+    <li>EDIT: <code>~/.claude/scripts/cleanup.sh</code> (VOLTRON/MDJ1) - Same modification</li>
+    <li>EDIT: <code>~/.zshrc</code> or <code>~/.bashrc</code> (all 3 machines) - Add <code>export MACHINE_NAME=air|pro|mdj1</code></li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+# Add to cleanup.sh BEFORE any file deletion:
+MACHINE_NAME="${MACHINE_NAME:-$(hostname -s)}"
+CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
+
+echo "[cleanup] Syncing sessions to GCS before cleanup..."
+gcloud storage rsync "$CLAUDE_DIR/projects/" \
+  "gs://rpi-session-intelligence/${MACHINE_NAME}/" \
+  --recursive --quiet
+
+if [ $? -ne 0 ]; then
+  echo "[cleanup] ERROR: GCS sync failed. Aborting cleanup to preserve data."
+  exit 1
+fi
+
+echo "[cleanup] GCS sync complete. Proceeding with cleanup..."
+# Existing deletion logic follows
+find "$CLAUDE_DIR/projects" -name "*.jsonl" -mtime +7 -print0 | xargs -0 rm -f
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Running cleanup.sh --dry-run shows GCS sync step before any file deletion</li>
+    <li>AC2: Verified on AIR, PRO, and VOLTRON</li>
+    <li>AC3: MACHINE_NAME env var set correctly on all 3 machines (air, pro, mdj1)</li>
+    <li>AC4: GCS sync failure aborts cleanup (no silent data loss)</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: N/A - Shell script (no TypeScript build). Verify with bash -n cleanup.sh</div>
+</div>
+
+<!-- WAVE 1 -->
+<div class="wave-header w1">WAVE 1 - INFRASTRUCTURE (7 tickets, all parallel)</div>
+<p><span class="parallel-badge">PARALLEL</span> All 7 tickets can execute simultaneously - zero file overlap.</p>
+
+<div class="card ticket infra">
+  <h3>TRK-14166 - Create com.rpi.session-extract launchd Agent (AIR)</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14165 (Wave 0)</p>
+  <p><span class="dep">Machine:</span> AIR (macOS)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>~/Library/LaunchAgents/com.rpi.session-extract.plist</code> (AIR)</li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+# Deploy plist with MACHINE_NAME=air
+# ProgramArguments: gcloud storage rsync ~/.claude/projects/ gs://rpi-session-intelligence/air/ --recursive
+# StartCalendarInterval: Saturday (Weekday=6), Hour=23, Minute=0
+# StandardOutPath: /tmp/com.rpi.session-extract.log
+# StandardErrorPath: /tmp/com.rpi.session-extract.err
+# PATH must include /opt/homebrew/bin for gcloud
+
+launchctl load ~/Library/LaunchAgents/com.rpi.session-extract.plist
+launchctl start com.rpi.session-extract  # Test immediately
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: launchctl list | grep session-extract shows agent loaded</li>
+    <li>AC2: Test run succeeds (manual launchctl start)</li>
+    <li>AC3: /tmp/com.rpi.session-extract.log shows sync output</li>
+    <li>AC4: GCS gs://rpi-session-intelligence/air/ shows updated file listing</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: N/A - macOS plist. Verify with plutil -lint</div>
+</div>
+
+<div class="card ticket infra">
+  <h3>TRK-14167 - Create com.rpi.session-extract launchd Agent (PRO)</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14165 (Wave 0)</p>
+  <p><span class="dep">Machine:</span> PRO (macOS)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>~/Library/LaunchAgents/com.rpi.session-extract.plist</code> (PRO)</li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+# Identical to TRK-14166 but MACHINE_NAME=pro
+# GCS path: gs://rpi-session-intelligence/pro/
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: launchctl list shows agent loaded</li>
+    <li>AC2: Test run succeeds</li>
+    <li>AC3: /tmp/com.rpi.session-extract.log shows sync output</li>
+    <li>AC4: GCS gs://rpi-session-intelligence/pro/ shows updated listing</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: N/A - macOS plist. Verify with plutil -lint</div>
+</div>
+
+<div class="card ticket infra">
+  <h3>TRK-14168 - Create com.rpi.session-extract Agent (VOLTRON / MDJ_SERVER)</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14165 (Wave 0)</p>
+  <p><span class="dep">Machine:</span> MDJ1 (Ubuntu - /home/jdm/mdj-agent/)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>/etc/systemd/system/session-extract.service</code></li>
+    <li>NEW: <code>/etc/systemd/system/session-extract.timer</code></li>
+  </ul>
+
+  <h4>Implementation Steps</h4>
+  <pre>
+# Step 1: Install gcloud CLI on MDJ1
+curl https://sdk.cloud.google.com | bash
+gcloud auth activate-service-account --key-file=/home/jdm/mdj-agent/sa-key.json
+gcloud config set project claude-mcp-484718
+
+# Step 2: systemd service
+[Unit]
+Description=RPI Session Extract to GCS
+After=network-online.target
+[Service]
+Type=oneshot
+User=jdm
+Environment="MACHINE_NAME=mdj1"
+ExecStart=/bin/bash -c 'gcloud storage rsync /home/jdm/.claude/projects/ gs://rpi-session-intelligence/mdj1/ --recursive'
+
+# Step 3: systemd timer
+[Timer]
+OnCalendar=Sat *-*-* 23:00:00
+Persistent=true
+[Install]
+WantedBy=timers.target
+
+# Step 4: Enable
+sudo systemctl daemon-reload
+sudo systemctl enable session-extract.timer
+sudo systemctl start session-extract.timer
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: gcloud CLI installed and authenticated with SA key</li>
+    <li>AC2: systemctl list-timers shows session-extract.timer active</li>
+    <li>AC3: Test run succeeds (journalctl -u session-extract.service)</li>
+    <li>AC4: GCS gs://rpi-session-intelligence/mdj1/ path populated</li>
+    <li>AC5: Initial session count verified</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: N/A - systemd units. Verify with systemd-analyze verify</div>
+</div>
+
+<div class="card ticket infra">
+  <h3>TRK-14169 - BigQuery Dataset Setup + Table Schemas</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14165 (Wave 0)</p>
+  <p><span class="dep">Blocks:</span> TRK-14170, TRK-14171, TRK-14178</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/schemas/bigquery-setup.sql</code></li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+# Dataset: rpi_session_intelligence (project: claude-mcp-484718, region: us-central1)
+bq mk --dataset --location=us-central1 claude-mcp-484718:rpi_session_intelligence
+
+# Table 1: sessions
+# session_id STRING NOT NULL, machine STRING NOT NULL, project_hash STRING,
+# project_name STRING, timestamp_start TIMESTAMP, timestamp_end TIMESTAMP,
+# duration_seconds INT64, message_count INT64, user_message_count INT64,
+# assistant_message_count INT64, tool_call_count INT64, is_subagent BOOL DEFAULT FALSE,
+# loaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+# PARTITION BY DATE(timestamp_start) CLUSTER BY machine, project_name
+# OPTIONS (partition_expiration_days = 365)
+
+# Table 2: messages
+# message_uuid STRING NOT NULL, session_id STRING NOT NULL, parent_uuid STRING,
+# role STRING NOT NULL, content_text STRING, content_type STRING,
+# tool_calls_count INT64, timestamp TIMESTAMP, machine STRING,
+# loaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+# PARTITION BY DATE(timestamp) CLUSTER BY session_id, role
+# OPTIONS (partition_expiration_days = 90)
+
+# Table 3: tool_calls
+# tool_call_id STRING NOT NULL, session_id STRING NOT NULL, message_uuid STRING NOT NULL,
+# tool_name STRING NOT NULL, tool_input_json JSON, tool_result_text STRING,
+# tool_result_error BOOL DEFAULT FALSE, timestamp TIMESTAMP, machine STRING,
+# loaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+# PARTITION BY DATE(timestamp) CLUSTER BY session_id, tool_name
+# OPTIONS (partition_expiration_days = 90)
+
+# Table 4: subagent_sessions
+# agent_session_id STRING NOT NULL, parent_session_id STRING NOT NULL,
+# agent_type STRING, model STRING, duration_seconds INT64,
+# message_count INT64, tool_call_count INT64, timestamp_start TIMESTAMP,
+# timestamp_end TIMESTAMP, machine STRING, loaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+# PARTITION BY DATE(timestamp_start) CLUSTER BY parent_session_id, model
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: bq ls shows dataset rpi_session_intelligence</li>
+    <li>AC2: bq show shows all 4 tables with correct schemas</li>
+    <li>AC3: SA mdj-agent@claude-mcp-484718 has BigQuery Data Editor on dataset</li>
+    <li>AC4: Partition and cluster configs match discovery doc</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: N/A - BigQuery DDL. Verify with bq show --schema on each table.</div>
+</div>
+
+<div class="card ticket infra">
+  <h3>TRK-14172 - Firestore knowledge_entries Collection + Schema</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14165 (Wave 0)</p>
+  <p><span class="dep">Blocks:</span> TRK-14173, 14174, 14175, 14176, 14177</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/types/knowledge-entry.ts</code></li>
+    <li>EDIT: <code>firestore.rules</code> (project root)</li>
+    <li>NEW: <code>services/learning-loop/schemas/firestore-indexes.json</code></li>
+    <li>NEW: <code>services/learning-loop/scripts/seed-knowledge-entry.ts</code></li>
+    <li>NEW: <code>services/learning-loop/package.json</code></li>
+    <li>NEW: <code>services/learning-loop/tsconfig.json</code></li>
+  </ul>
+
+  <h4>TypeScript Interface</h4>
+  <pre>
+// services/learning-loop/types/knowledge-entry.ts
+import { Timestamp } from 'firebase-admin/firestore';
+
+export interface KnowledgeEntry {
+  id: string;
+  type: 'decision' | 'pattern' | 'insight' | 'violation' | 'architecture';
+  content: string;            // One clear, reusable sentence
+  tags: string[];             // ['toMachina', 'firestore', 'sprint-003']
+  confidence: number;         // 0.0 - 1.0
+  source_session_id: string;
+  machine: 'air' | 'pro' | 'mdj1';
+  created_at: Timestamp;
+  promoted_to_claude_md: boolean;
+  promoted_at?: Timestamp;
+  expiry_at?: Timestamp;
+  gap_metadata?: {
+    question_count: number;
+    sample_questions: string[];
+    detected_topics: string[];
+  };
+  sprint_context?: {
+    sprint_id: string;
+    phase: string;
+    tickets: string[];
+  };
+}
+  </pre>
+
+  <h4>Composite Indexes (3 required)</h4>
+  <pre>
+1. promoted_to_claude_md (ASC) + confidence (DESC)
+2. type (ASC) + created_at (DESC)
+3. tags (ARRAY-CONTAINS) + confidence (DESC)
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Can write test document with ALL required fields to knowledge_entries</li>
+    <li>AC2: All 3 composite indexes created and status = READY</li>
+    <li>AC3: Query confidence >= 0.75 ORDER BY confidence DESC returns results without error</li>
+    <li>AC4: Firestore rules updated to allow SA access</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/learning-loop && npm run build</div>
+</div>
+
+<div class="card ticket warrior">
+  <h3>TRK-14180 - Brain File Auto-Export Pipeline</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14165 (Wave 0)</p>
+  <p><span class="dep">Blocks:</span> TRK-14181 (soul/spirit extraction)</p>
+  <p><span class="dep">Repo:</span> retirementprotectors/dojo-warriors (private)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>~/Projects/dojo-warriors/brain-save.sh</code></li>
+    <li>NEW: <code>/usr/local/bin/brain-save</code> (symlink)</li>
+    <li>EDIT: All 22 hookify rule files - Add brain-save call</li>
+  </ul>
+
+  <h4>Script Logic</h4>
+  <pre>
+#!/bin/bash
+# brain-save.sh - Auto-export warrior brain to dojo-warriors repo
+set -euo pipefail
+
+# 1. Detect warrior from active tmux session
+WARRIOR=$(tmux display-message -p '#S' 2>/dev/null | tr '[:upper:]' '[:lower:]')
+if [ -z "$WARRIOR" ]; then exit 0; fi
+
+BRAIN_DIR="$HOME/Projects/dojo-warriors/$WARRIOR"
+BRAIN_FILE="$BRAIN_DIR/brain.txt"
+if [ ! -d "$BRAIN_DIR" ]; then exit 0; fi
+
+# 2. Snapshot transcript
+TRANSCRIPT=$(tmux capture-pane -p -S -1000 2>/dev/null)
+if [ -z "$TRANSCRIPT" ]; then exit 0; fi
+
+# 3. Redact secrets via regex
+REDACTED=$(echo "$TRANSCRIPT" | sed -E \
+  -e 's/(sk-[A-Za-z0-9_-]{20,})/[REDACTED_API_KEY]/g' \
+  -e 's/(AIza[A-Za-z0-9_-]{30,})/[REDACTED_GCLOUD_KEY]/g' \
+  -e 's/(password[=:][^ ]{5,})/password=[REDACTED]/gi' \
+  -e 's/[0-9]{3}-[0-9]{2}-[0-9]{4}/[REDACTED_SSN]/g')
+
+# 4. APPEND with session separator (idempotent via hash)
+SESSION_HASH=$(echo "$REDACTED" | md5sum | cut -d' ' -f1)
+if grep -q "hash:${SESSION_HASH}" "$BRAIN_FILE" 2>/dev/null; then exit 0; fi
+
+printf "\n\n=== SESSION %s | hash:%s ===\n" "$(date -Iseconds)" "${SESSION_HASH}" >> "$BRAIN_FILE"
+echo "$REDACTED" >> "$BRAIN_FILE"
+
+# 5. Git commit + push
+cd "$HOME/Projects/dojo-warriors"
+git add "$WARRIOR/brain.txt"
+git commit -m "brain-save: $WARRIOR $(date +%Y-%m-%d_%H:%M)"
+git push origin main
+  </pre>
+
+  <h4>Hookify Integration (22 rules)</h4>
+  <table>
+    <tr><th>Category</th><th>Count</th></tr>
+    <tr><td>FORGE lifecycle</td><td>9</td></tr>
+    <tr><td>Intent rules</td><td>6</td></tr>
+    <tr><td>Quality gates</td><td>6</td></tr>
+    <tr><td>Standalone (#BrainDump)</td><td>1</td></tr>
+  </table>
+  <p>All 22 rules append: <code>brain-save &amp;</code> (async, non-blocking)</p>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Running brain-save auto-detects warrior from active tmux session</li>
+    <li>AC2: Captures transcript from current pane</li>
+    <li>AC3: Secrets redacted via regex patterns</li>
+    <li>AC4: Export APPENDED to brain.txt (not overwritten)</li>
+    <li>AC5: Idempotent on duplicate sessions (hash check)</li>
+    <li>AC6: All 22 hookify rules call brain-save</li>
+    <li>AC7: Brain file committed and pushed after each save</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: N/A - Shell script. Verify with bash -n brain-save.sh + shellcheck</div>
+</div>
+
+<div class="card ticket warrior">
+  <h3>TRK-14183 - Warrior Registry (Firestore)</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14165 (Wave 0)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/types/warrior-registry.ts</code></li>
+    <li>NEW: <code>services/learning-loop/scripts/seed-warriors.ts</code></li>
+    <li>NEW: <code>services/api/src/routes/admin-warriors.ts</code></li>
+    <li>EDIT: <code>services/api/src/server.ts</code> - Register admin-warriors route</li>
+  </ul>
+
+  <h4>Firestore Schema (dojo_warriors collection)</h4>
+  <pre>
+interface WarriorRegistry {
+  name: string;              // 'shinob1'
+  display_name: string;      // 'SHINOB1'
+  type: 'tmux' | 'ccsdk';
+  executive_role?: 'CTO' | 'COO' | 'VP_CMO' | 'Builder' | 'Guardian' | 'Bot';
+  personality: string;
+  status: 'active' | 'dormant' | 'migrating';
+  soul_path?: string;        // 'shinob1/soul.md' (tmux only)
+  spirit_path?: string;      // 'shinob1/spirit.md' (tmux only)
+  brain_path?: string;       // 'shinob1/brain.txt'
+  last_brain_update?: Timestamp;
+  last_session_start?: Timestamp;
+  machine: string;           // 'mdj1'
+  tmux_session?: string;     // 'SHINOB1' (tmux only)
+  ccsdk_route?: string;      // '/ronin' (ccsdk only)
+}
+  </pre>
+
+  <h4>Seed Data (6 Warriors)</h4>
+  <table>
+    <tr><th>Name</th><th>Type</th><th>Role</th><th>Machine</th><th>Soul/Spirit</th></tr>
+    <tr><td>SHINOB1</td><td>tmux</td><td>CTO</td><td>mdj1</td><td>Yes (soul+spirit+brain)</td></tr>
+    <tr><td>2HINOBI</td><td>tmux</td><td>COO</td><td>mdj1</td><td>Yes (soul+spirit+brain)</td></tr>
+    <tr><td>MUSASHI</td><td>tmux</td><td>VP_CMO</td><td>mdj1</td><td>Yes (soul+spirit+brain)</td></tr>
+    <tr><td>RONIN</td><td>ccsdk</td><td>Builder</td><td>mdj1</td><td>brain_path only</td></tr>
+    <tr><td>RAIDEN</td><td>ccsdk</td><td>Guardian</td><td>mdj1</td><td>brain_path only</td></tr>
+    <tr><td>VOLTRON</td><td>ccsdk</td><td>Bot</td><td>mdj1</td><td>brain_path only</td></tr>
+  </table>
+
+  <h4>API Route</h4>
+  <pre>
+// services/api/src/routes/admin-warriors.ts
+// GET /api/admin/warriors
+// Auth: JDM entitlement check
+// Response: { success: true, data: WarriorRegistry[] }
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: dojo_warriors collection with 6 documents</li>
+    <li>AC2: Executive.AI warriors have soul_path, spirit_path, brain_path</li>
+    <li>AC3: CCSDK warriors have brain_path only</li>
+    <li>AC4: API route GET /api/admin/warriors returns registry</li>
+    <li>AC5: Response format: { success: true, data: [...] }</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/api && npm run build</div>
+</div>
+
+<!-- WAVE 2 -->
+<div class="wave-header w2">WAVE 2 - PARSERS + AGENT INTELLIGENCE (4 tickets, all parallel)</div>
+<p><span class="parallel-badge">PARALLEL</span> Zero file overlap between these 4 tickets.</p>
+
+<div class="card ticket data">
+  <h3>TRK-14170 - Session Parser + BigQuery Loader</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14169 (BQ schemas - Wave 1)</p>
+  <p><span class="dep">Blocks:</span> TRK-14171 (backfill), TRK-14173 (entity extractor)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/session-parser.js</code></li>
+    <li>NEW: <code>services/learning-loop/bigquery-loader.js</code></li>
+  </ul>
+
+  <h4>Parser: 3 Content Block Types</h4>
+  <pre>
+function extractContent(message) {
+  const content = message.message?.content;
+  if (typeof content === 'string') {
+    return { text: content, type: 'text', toolCalls: [] };
+  }
+  if (Array.isArray(content)) {
+    const texts = content.filter(b => b.type === 'text').map(b => b.text);
+    const tools = content.filter(b => b.type === 'tool_use');
+    const type = tools.length > 0
+      ? (texts.length > 0 ? 'mixed' : 'tool_only')
+      : 'text';
+    return { text: texts.join('\n'), type, toolCalls: tools };
+  }
+  return { text: '', type: 'text', toolCalls: [] };
+}
+  </pre>
+
+  <h4>Loader: Idempotent Insert</h4>
+  <pre>
+// Check session_id exists before insert (skip if present)
+// Streaming insert for incremental loads
+// Batch load jobs for backfill (TRK-14171)
+// tool_result_text truncated at 2000 chars
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Parsing 5 sample sessions produces correct row counts</li>
+    <li>AC2: Re-running does NOT create duplicate rows (idempotent on session_id)</li>
+    <li>AC3: All 3 content block types handled without errors</li>
+    <li>AC4: tool_result_text truncated at 2000 chars</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/learning-loop && npm run build</div>
+</div>
+
+<div class="card ticket intel">
+  <h3>TRK-14176 - RONIN Sprint Memory Writes</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14172 (Firestore - Wave 1)</p>
+  <p><span class="dep">Location:</span> /home/jdm/mdj-agent/ (MDJ_SERVER)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>EDIT: <code>/home/jdm/mdj-agent/src/forge/runner.ts</code> - Add writePhaseMemory() at phase completion</li>
+    <li>NEW: <code>/home/jdm/mdj-agent/src/forge/phase-memory.ts</code></li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// /home/jdm/mdj-agent/src/forge/phase-memory.ts
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+
+export async function writePhaseMemory(
+  sprintId: string, phase: string, discoveries: Discovery[]
+): Promise&lt;void&gt; {
+  const db = getFirestore();
+  const batch = db.batch();
+  for (const d of discoveries) {
+    const ref = db.collection('knowledge_entries').doc();
+    batch.set(ref, {
+      id: ref.id, type: d.type, content: d.content,
+      tags: [...d.tags, 'ronin', `sprint-${sprintId}`, `phase-${phase}`],
+      confidence: d.confidence, machine: 'mdj1',
+      source_session_id: sprintId,
+      created_at: Timestamp.now(),
+      promoted_to_claude_md: false,
+      sprint_context: { sprint_id: sprintId, phase, tickets: d.relatedTickets }
+    });
+  }
+  await batch.commit();
+}
+
+// Integration in runner.ts:
+// const discoveries = extractDiscoveries(phaseOutput);
+// await writePhaseMemory(sprintId, currentPhase, discoveries);
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Test sprint phase produces at least 2 knowledge_entries tagged 'ronin' + sprint ID</li>
+    <li>AC2: Subsequent RONIN sprint can query and surface those entries</li>
+    <li>AC3: Entries include correct sprint_context</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent && npm run build</div>
+</div>
+
+<div class="card ticket intel">
+  <h3>TRK-14177 - VOLTRON Conversation Gap Analysis</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14172 (Firestore - Wave 1)</p>
+  <p><span class="dep">Blocks:</span> TRK-14179 (admin tab - Wave 5)</p>
+  <p><span class="dep">Location:</span> /home/jdm/mdj-agent/ (MDJ_SERVER)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>/home/jdm/mdj-agent/src/agent/gap-analyzer.ts</code></li>
+    <li>NEW: <code>/etc/systemd/system/voltron-gap-analysis.service</code></li>
+    <li>NEW: <code>/etc/systemd/system/voltron-gap-analysis.timer</code></li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// /home/jdm/mdj-agent/src/agent/gap-analyzer.ts
+// 1. Query mdj_conversations for response_confidence &lt; 0.6 (last 7 days)
+// 2. Extract + cluster intents via Claude Haiku (claude-haiku-4-5-20251001)
+// 3. Identify clusters with 5+ similar unanswered questions
+// 4. Write knowledge_entries: type='insight', tags=['voltron-gap', ...topics]
+//    confidence=0.85, gap_metadata={question_count, sample_questions, detected_topics}
+// 5. Slack DM to JDM (U09BBHTN8F2) with gap summary
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Service runs without error on real data</li>
+    <li>AC2: At least 1 gap entry created (or verified empty)</li>
+    <li>AC3: Slack DM to JDM contains gap summary</li>
+    <li>AC4: Runs under 60 seconds for 7-day window</li>
+    <li>AC5: Uses claude-haiku-4-5-20251001</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent && npm run build</div>
+</div>
+
+<div class="card ticket intel">
+  <h3>TRK-14175 - Pre-Session Briefing (intent-session-start hook)</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14172 (Firestore - Wave 1)</p>
+  <p><span class="dep">Blocks:</span> TRK-14182 (cross-warrior - Wave 5)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>EDIT: Hookify rule: <code>intent-session-start</code></li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// 1. Detect project from cwd
+const projectName = detectProject(process.cwd());
+
+// 2. Query knowledge_entries
+const entries = await db.collection('knowledge_entries')
+  .where('tags', 'array-contains-any', [projectName, 'global'])
+  .where('confidence', '>=', 0.7)
+  .orderBy('confidence', 'desc')
+  .limit(10)
+  .get();
+
+// 3. Format as briefing block
+const briefing = entries.docs.map(doc => {
+  const d = doc.data();
+  return `[${d.type.toUpperCase()}] ${d.content} (confidence: ${d.confidence})`;
+}).join('\n');
+
+// 4. Graceful fallback if Firestore unavailable
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Starting new session shows "Session Briefing" block with 3+ entries</li>
+    <li>AC2: Query completes in under 2 seconds</li>
+    <li>AC3: Graceful failure if Firestore unavailable</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: node --check on hookify rule script</div>
+</div>
+
+<!-- WAVE 3 -->
+<div class="wave-header w3">WAVE 3 - DATA PIPELINE + PROMOTION (3 tickets)</div>
+<p><span class="sequential-badge">MIXED</span> TRK-14171 || TRK-14173 (parallel), then TRK-14174 (after 14173).</p>
+
+<div class="card ticket data">
+  <h3>TRK-14171 - Backfill Existing 2.24 GB into BigQuery</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14166+14167 (launchd) + TRK-14170 (parser)</p>
+  <p><span class="dep">Blocks:</span> TRK-14178 (BQ views)</p>
+  <p><span class="parallel-badge">PARALLEL</span> with TRK-14173</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/scripts/backfill.js</code></li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// One-time backfill job
+// 1. List all JSONL in GCS: air/ + pro/
+// 2. Run session-parser.js across ALL files
+// 3. Use BATCH load jobs (not streaming) for 2.24 GB
+// 4. VOLTRON sessions added after TRK-14168 verified
+// 5. Verify counts:
+//    sessions: 124+ (air>=33, pro>=91)
+//    messages: 150k+
+//    subagent_sessions: 755+
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: BigQuery sessions has 124+ rows for AIR+PRO</li>
+    <li>AC2: messages table has 150k+ rows</li>
+    <li>AC3: No parse errors in loader output</li>
+    <li>AC4: Row counts verified with bq query</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/learning-loop && npm run build</div>
+</div>
+
+<div class="card ticket intel">
+  <h3>TRK-14173 - Entity Extractor (Claude Haiku Pipeline)</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14170 (parser) + TRK-14172 (Firestore)</p>
+  <p><span class="dep">Blocks:</span> TRK-14174, 14181, 14184</p>
+  <p><span class="parallel-badge">PARALLEL</span> with TRK-14171</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/entity-extractor.js</code></li>
+    <li>NEW: <code>services/learning-loop/prompts/extraction-prompt.txt</code></li>
+    <li>NEW: <code>/etc/systemd/system/entity-extractor.service</code></li>
+    <li>NEW: <code>/etc/systemd/system/entity-extractor.timer</code> (Daily 2am)</li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// Daily 2am via systemd on MDJ1 (NOT launchd - Ubuntu server)
+// 1. Query BQ for yesterday's assistant messages (>100 chars)
+// 2. Batch into chunks of ~20 messages
+// 3. Send to Claude Haiku (claude-haiku-4-5-20251001) with extraction prompt
+// 4. Parse JSON response
+// 5. Deduplicate against existing knowledge_entries
+// 6. Write to Firestore
+// Cost: ~$0.03/day
+  </pre>
+
+  <h4>Extraction Prompt</h4>
+  <pre>
+SYSTEM: Extract valuable learnings from Claude Code session messages.
+Return JSON array:
+{ "type": "decision"|"pattern"|"insight"|"architecture",
+  "content": "one clear sentence",
+  "tags": ["tag1", "tag2"],
+  "confidence": 0.0-1.0 }
+
+Rules:
+- Only extract things that would help a FUTURE agent
+- Skip filler, status updates, one-time fixes
+- Confidence 0.9+: hard-won lessons, non-obvious gotchas
+- Confidence 0.7-0.9: useful patterns, confirmed approaches
+- Confidence 0.5-0.7: interesting observations
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: 100 sample messages produces 5+ knowledge_entries</li>
+    <li>AC2: Confidence scores are varied</li>
+    <li>AC3: Tags include project names</li>
+    <li>AC4: No duplicates on re-run</li>
+    <li>AC5: Uses claude-haiku-4-5-20251001</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/learning-loop && npm run build</div>
+</div>
+
+<div class="card ticket intel">
+  <h3>TRK-14174 - Enhanced knowledge-promote.js</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14172 + TRK-14173</p>
+  <p><span class="dep">Blocks:</span> TRK-14179 (admin tab)</p>
+  <p><span class="sequential-badge">SEQUENTIAL</span> - after TRK-14173</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/knowledge-promote.js</code></li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// Daily 4am on MDJ1
+// 1. Read MEMORY.md entries (existing behavior preserved)
+// 2. Read Firestore: promoted_to_claude_md==false, confidence>=0.75, limit 50
+// 3. Merge + score by confidence * recency decay
+// 4. Deduplicate against existing CLAUDE.md content
+// 5. Promote if CLAUDE.md stays under 30,000 chars
+// 6. Mark promoted entries: promoted_to_claude_md=true, promoted_at=now
+// 7. Slack DM digest to JDM (U09BBHTN8F2)
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Existing MEMORY.md promotion still works</li>
+    <li>AC2: At least 1 Firestore entry promoted</li>
+    <li>AC3: CLAUDE.md under 30,000 chars</li>
+    <li>AC4: promoted_to_claude_md set to true</li>
+    <li>AC5: Slack DM received by JDM</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/learning-loop && npm run build</div>
+</div>
+
+<!-- WAVE 4 -->
+<div class="wave-header w4">WAVE 4 - ANALYTICS + WARRIOR INTEL (3 tickets, all parallel)</div>
+<p><span class="parallel-badge">PARALLEL</span> Zero file overlap.</p>
+
+<div class="card ticket data">
+  <h3>TRK-14178 - Analytics BigQuery Views + Value Calculation</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14171 (backfill)</p>
+  <p><span class="dep">Blocks:</span> TRK-14179 (admin tab)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/schemas/bigquery-views.sql</code></li>
+    <li>NEW: <code>services/learning-loop/scripts/create-views.js</code></li>
+  </ul>
+
+  <h4>BigQuery Views (3)</h4>
+  <pre>
+-- 1. time_per_session: session_id, machine, duration_hours, message_count
+-- 2. agent_hours_total: machine, model, agent_count, total_hours
+-- 3. value_quantification:
+--    jdm_hours, agent_hours, total_sessions, total_subagents,
+--    jdm_ceo_value_usd ($2000/hr), agent_engineering_value_usd ($150/hr),
+--    roi_multiplier ((CEO+agent)/$7000), amplification_factor (agent/jdm)
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: All 3 views created and queryable</li>
+    <li>AC2: value_quantification returns single row with all columns</li>
+    <li>AC3: ROI multiplier is positive</li>
+    <li>AC4: Amplification factor = agent_hours / jdm_hours</li>
+    <li>AC5: Numbers verified against known counts</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: N/A - BigQuery DDL. Verify with bq query</div>
+</div>
+
+<div class="card ticket warrior">
+  <h3>TRK-14181 - Brain + Soul + Spirit Entity Extraction</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14173 (entity extractor) + TRK-14180 (brain export)</p>
+  <p><span class="dep">Blocks:</span> TRK-14182 (cross-warrior)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>EDIT: <code>services/learning-loop/entity-extractor.js</code> - Add warrior mode</li>
+    <li>NEW: <code>services/learning-loop/warrior-extractor.js</code></li>
+  </ul>
+
+  <h4>Processing Order + Confidence</h4>
+  <pre>
+# Processing order: soul -> spirit -> brain (soul-curated takes precedence)
+
+# SOUL.MD:   tags=['soul-curated', warrior], confidence >= 0.9, expect 5+ entries
+# SPIRIT.MD: tags=['spirit-curated', warrior], confidence >= 0.85, expect 3+ entries
+# BRAIN.TXT: tags=['warrior-context', warrior], standard scoring, expect 10+ entries
+
+# Warrior files in dojo-warriors repo:
+# shinob1/soul.md, shinob1/spirit.md, shinob1/brain.txt
+# 2hinobi/soul.md, 2hinobi/spirit.md, 2hinobi/brain.txt
+# musashi/soul.md, musashi/spirit.md, musashi/brain.txt
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Extractor processes all 3 file types for each Executive.AI warrior</li>
+    <li>AC2: soul.md produces 5+ entries at confidence >= 0.9</li>
+    <li>AC3: spirit.md produces 3+ entries at confidence >= 0.85</li>
+    <li>AC4: brain.txt produces 10+ entries at standard scoring</li>
+    <li>AC5: No duplicates on re-run</li>
+    <li>AC6: Soul-curated entries take precedence</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/learning-loop && npm run build</div>
+</div>
+
+<div class="card ticket intel">
+  <h3>TRK-14184 - CLAUDE.md Evolution Tracking</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14173 (entity extractor)</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>services/learning-loop/claude-md-tracker.js</code></li>
+    <li>NEW: <code>/etc/systemd/system/claude-md-tracker.service</code></li>
+    <li>NEW: <code>/etc/systemd/system/claude-md-tracker.timer</code> (weekly)</li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// Weekly via systemd on MDJ1
+// 1. git log --since="7 days ago" on dojo-warriors/mdj-server-config/CLAUDE.md
+// 2. Extract diffs for each commit
+// 3. Send to Haiku (claude-haiku-4-5-20251001): "Summarize WHY rules changed"
+// 4. Write knowledge_entry: type='insight', tags=['claude-md-evolution','weekly','global']
+// 5. Pre-session briefing picks up via 'claude-md-evolution' tag
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Tracker produces knowledge_entry on CLAUDE.md changes (last 7 days)</li>
+    <li>AC2: Pre-session briefing includes "Rules Evolution" section</li>
+    <li>AC3: Summaries are human-readable (not raw diffs)</li>
+    <li>AC4: Uses claude-haiku-4-5-20251001</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd services/learning-loop && npm run build</div>
+</div>
+
+<!-- WAVE 5 -->
+<div class="wave-header w5">WAVE 5 - UI + CROSS-WARRIOR (2 tickets, parallel)</div>
+<p><span class="parallel-badge">PARALLEL</span> Admin tab (Cloud Run API + ProDashX) vs Cross-warrior briefing (hookify) - zero file overlap.</p>
+
+<div class="card ticket intel">
+  <h3>TRK-14179 - ProDashX Admin Learning Loop Tab</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14174 + TRK-14177 + TRK-14178</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>NEW: <code>apps/prodash/app/(portal)/modules/learning-loop/page.tsx</code></li>
+    <li>NEW: <code>apps/prodash/app/(portal)/modules/learning-loop/components/PipelineHealth.tsx</code></li>
+    <li>NEW: <code>apps/prodash/app/(portal)/modules/learning-loop/components/KnowledgeEntries.tsx</code></li>
+    <li>NEW: <code>apps/prodash/app/(portal)/modules/learning-loop/components/ClaudeMdTrend.tsx</code></li>
+    <li>NEW: <code>apps/prodash/app/(portal)/modules/learning-loop/components/ViolationTrends.tsx</code></li>
+    <li>NEW: <code>apps/prodash/app/(portal)/modules/learning-loop/components/AnalyticsSummary.tsx</code></li>
+    <li>NEW: <code>apps/prodash/app/(portal)/modules/learning-loop/components/VoltronGaps.tsx</code></li>
+    <li>NEW: <code>services/api/src/routes/admin-learning-loop.ts</code></li>
+    <li>EDIT: <code>services/api/src/server.ts</code> - Register route</li>
+  </ul>
+
+  <h4>API Route</h4>
+  <pre>
+// GET /api/admin/learning-loop
+// Auth: JDM-only entitlement check
+// Target: &lt; 3 second response
+// Response: { success: true, data: {
+//   pipeline_health: { last_run timestamps for all agents },
+//   knowledge_entries: { total, by_type, by_confidence, promoted_count },
+//   claude_md_trend: [{ date, size_chars }],
+//   violation_trends: [{ date, violations, type }],
+//   analytics: { jdm_hours, agent_hours, roi_multiplier, amplification_factor, ... },
+//   voltron_gaps: [{ content, question_count, detected_topics, created_at }]
+// }}
+  </pre>
+
+  <h4>6 Dashboard Sections</h4>
+  <table>
+    <tr><th>#</th><th>Section</th><th>Component</th><th>Data Source</th></tr>
+    <tr><td>1</td><td>Pipeline Health</td><td>PipelineHealth.tsx</td><td>Last run timestamps</td></tr>
+    <tr><td>2</td><td>Knowledge Entries</td><td>KnowledgeEntries.tsx</td><td>Firestore aggregation</td></tr>
+    <tr><td>3</td><td>CLAUDE.md Size Trend</td><td>ClaudeMdTrend.tsx</td><td>Git history</td></tr>
+    <tr><td>4</td><td>Violation Trends</td><td>ViolationTrends.tsx</td><td>compliance-history.json</td></tr>
+    <tr><td>5</td><td>Analytics Summary</td><td>AnalyticsSummary.tsx</td><td>BQ value_quantification</td></tr>
+    <tr><td>6</td><td>VOLTRON Gaps</td><td>VoltronGaps.tsx</td><td>Firestore voltron-gap tag</td></tr>
+  </table>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Tab visible for JDM, invisible for others (entitlement check)</li>
+    <li>AC2: All 6 sections render with real data</li>
+    <li>AC3: Analytics cards: JDM hours, agent hours, ROI, amplification</li>
+    <li>AC4: VOLTRON gaps section shows current open gaps</li>
+    <li>AC5: API returns within 3 seconds</li>
+    <li>AC6: Response: { success: true, data: {...} }</li>
+    <li>AC7: No alert/confirm/prompt - use showToast (OS Rule #5)</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: cd apps/prodash && npm run build AND cd services/api && npm run build</div>
+</div>
+
+<div class="card ticket warrior">
+  <h3>TRK-14182 - Cross-Warrior Pre-Session Briefing</h3>
+  <p><span class="dep">Dependencies:</span> TRK-14175 + TRK-14181</p>
+
+  <h4>File Changes</h4>
+  <ul class="file-list">
+    <li>EDIT: Hookify rule: <code>intent-session-start</code> - Add cross-warrior section</li>
+  </ul>
+
+  <h4>Implementation</h4>
+  <pre>
+// Extend intent-session-start from TRK-14175
+// 1. Detect current warrior from tmux session name
+// 2. Query soul-curated entries from OTHER warriors (confidence >= 0.9)
+// 3. Query warrior-context entries from others (7 days, confidence >= 0.7)
+// 4. Filter out current warrior's own entries
+// 5. Format: Soul-curated entries appear FIRST
+// 6. Graceful fallback if no cross-warrior entries exist
+
+// Example output for MUSASHI:
+// ## Cross-Warrior Intelligence
+// ### From SHINOB1 (CTO) - Soul Highlights
+// [ARCHITECTURE] MDJ_SERVER is source for all agent SDK code (0.95)
+// ### From 2HINOBI (COO) - Soul Highlights
+// [PATTERN] Sprint phases need build gate verification (0.93)
+// ### Recent Warrior Knowledge (7 days)
+// [INSIGHT] BigQuery streaming insert needs explicit schema (0.82)
+  </pre>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>AC1: Starting MUSASHI shows soul.md highlights from SHINOB1 and 2HINOBI</li>
+    <li>AC2: Soul-curated entries appear first</li>
+    <li>AC3: Graceful fallback if no cross-warrior entries exist</li>
+    <li>AC4: Does NOT show current warrior's own soul entries</li>
+  </ul>
+
+  <div class="build-gate">BUILD GATE: Hookify rules - verify with dry-run in tmux</div>
+</div>
+
+<!-- RISKS -->
+<h2>Cross-Ticket Risks and Mitigations</h2>
+
+<div class="risk">
+  <strong>RISK 1: GCS sync failure during cleanup (CRITICAL)</strong><br>
+  Impact: Data loss - the crisis that spawned TRK-14165.<br>
+  Mitigation: sync-or-abort logic. Non-zero gcloud exit = abort cleanup entirely.
+</div>
+
+<div class="risk">
+  <strong>RISK 2: JSONL content format variations</strong><br>
+  Impact: Parser fails on unexpected content block types.<br>
+  Mitigation: Handle all 3 known formats + catch-all for unknown (log + skip, don't crash).
+</div>
+
+<div class="risk">
+  <strong>RISK 3: Firestore composite index creation delay</strong><br>
+  Impact: Indexes take 5-15 minutes to build, blocking Wave 2 queries.<br>
+  Mitigation: Create indexes first in Wave 1. Poll status. Block Wave 2 until all READY.
+</div>
+
+<div class="risk">
+  <strong>RISK 4: BigQuery streaming insert quotas on backfill</strong><br>
+  Impact: 2.24 GB may hit rate limits.<br>
+  Mitigation: Use batch load jobs for backfill. Reserve streaming for daily incremental only.
+</div>
+
+<div class="risk">
+  <strong>RISK 5: Haiku extraction quality</strong><br>
+  Impact: Low-quality or noisy knowledge_entries.<br>
+  Mitigation: High confidence threshold (0.7+). JDM reviews first 50 before auto-promotion.
+</div>
+
+<div class="risk">
+  <strong>RISK 6: CLAUDE.md size overflow</strong><br>
+  Impact: knowledge-promote.js pushes past 30k chars.<br>
+  Mitigation: Hard cap check - calculate projected size before each promotion.
+</div>
+
+<div class="risk">
+  <strong>RISK 7: brain-save.sh slowing hookify rules</strong><br>
+  Impact: 22 rules each calling brain-save could slow sessions.<br>
+  Mitigation: Run async (brain-save &amp;). 5-second timeout guard. Non-blocking.
+</div>
+
+<div class="risk">
+  <strong>RISK 8: services/learning-loop needs bootstrapping</strong><br>
+  Impact: New service dir needs package.json before code runs.<br>
+  Mitigation: TRK-14172 (first to touch it) creates package.json with all shared deps.
+</div>
+
+<!-- VERIFICATION -->
+<h2>Dependency Verification Matrix</h2>
+<p><strong>Rule: For every ticket in Wave N, ALL dependencies are in Wave N-1 or earlier.</strong></p>
+
+<table>
+  <tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>Dep Wave</th><th>Valid?</th></tr>
+  <tr><td>TRK-14165</td><td>0</td><td>-</td><td>-</td><td>YES</td></tr>
+  <tr><td>TRK-14166</td><td>1</td><td>14165</td><td>0</td><td>YES</td></tr>
+  <tr><td>TRK-14167</td><td>1</td><td>14165</td><td>0</td><td>YES</td></tr>
+  <tr><td>TRK-14168</td><td>1</td><td>14165</td><td>0</td><td>YES</td></tr>
+  <tr><td>TRK-14169</td><td>1</td><td>14165</td><td>0</td><td>YES</td></tr>
+  <tr><td>TRK-14172</td><td>1</td><td>14165</td><td>0</td><td>YES</td></tr>
+  <tr><td>TRK-14180</td><td>1</td><td>14165</td><td>0</td><td>YES</td></tr>
+  <tr><td>TRK-14183</td><td>1</td><td>14165</td><td>0</td><td>YES</td></tr>
+  <tr><td>TRK-14170</td><td>2</td><td>14169</td><td>1</td><td>YES</td></tr>
+  <tr><td>TRK-14176</td><td>2</td><td>14172</td><td>1</td><td>YES</td></tr>
+  <tr><td>TRK-14177</td><td>2</td><td>14172</td><td>1</td><td>YES</td></tr>
+  <tr><td>TRK-14175</td><td>2</td><td>14172</td><td>1</td><td>YES</td></tr>
+  <tr><td>TRK-14171</td><td>3</td><td>14166,14167,14170</td><td>1,1,2</td><td>YES</td></tr>
+  <tr><td>TRK-14173</td><td>3</td><td>14170,14172</td><td>2,1</td><td>YES</td></tr>
+  <tr><td>TRK-14174</td><td>3</td><td>14172,14173</td><td>1,3*</td><td>YES (seq in wave)</td></tr>
+  <tr><td>TRK-14178</td><td>4</td><td>14171</td><td>3</td><td>YES</td></tr>
+  <tr><td>TRK-14181</td><td>4</td><td>14173,14180</td><td>3,1</td><td>YES</td></tr>
+  <tr><td>TRK-14184</td><td>4</td><td>14173</td><td>3</td><td>YES</td></tr>
+  <tr><td>TRK-14179</td><td>5</td><td>14174,14177,14178</td><td>3,2,4</td><td>YES</td></tr>
+  <tr><td>TRK-14182</td><td>5</td><td>14175,14181</td><td>2,4</td><td>YES</td></tr>
+</table>
+
+<div class="note">
+  <strong>Wave 3 note:</strong> TRK-14174 depends on TRK-14173 (both Wave 3). Valid because they run SEQUENTIAL within the wave. The parallel pair is 14171 || 14173, with 14174 chained after 14173.
+</div>
+
+<!-- FILE OVERLAP -->
+<h2>File Overlap Verification (Parallel Safety)</h2>
+<table>
+  <tr><th>Wave</th><th>Parallel Tickets</th><th>Overlap?</th><th>Safe?</th></tr>
+  <tr><td>1</td><td>14166(AIR) 14167(PRO) 14168(MDJ1) 14169(BQ) 14172(FS) 14180(dojo) 14183(API)</td><td>None</td><td>YES</td></tr>
+  <tr><td>2</td><td>14170(learning-loop/) 14176(mdj-agent/forge/) 14177(mdj-agent/agent/) 14175(hookify)</td><td>None</td><td>YES</td></tr>
+  <tr><td>3</td><td>14171(scripts/) || 14173(entity-extractor)</td><td>None</td><td>YES</td></tr>
+  <tr><td>4</td><td>14178(BQ SQL) 14181(warrior-extractor) 14184(claude-md-tracker)</td><td>None</td><td>YES</td></tr>
+  <tr><td>5</td><td>14179(ProDashX+API) 14182(hookify)</td><td>None</td><td>YES</td></tr>
+</table>
+
+<!-- DIRECTORY STRUCTURE -->
+<h2>New Directory Structure</h2>
+<pre>
+# toMachina monorepo - new service
+services/learning-loop/
+  package.json, tsconfig.json
+  types/knowledge-entry.ts, warrior-registry.ts
+  schemas/bigquery-setup.sql, bigquery-views.sql, firestore-indexes.json
+  prompts/extraction-prompt.txt
+  scripts/seed-knowledge-entry.ts, seed-warriors.ts, backfill.js, create-views.js
+  session-parser.js, bigquery-loader.js
+  entity-extractor.js, warrior-extractor.js
+  knowledge-promote.js, claude-md-tracker.js
+
+# ProDashX - new module
+apps/prodash/app/(portal)/modules/learning-loop/
+  page.tsx
+  components/PipelineHealth.tsx, KnowledgeEntries.tsx, ClaudeMdTrend.tsx,
+             ViolationTrends.tsx, AnalyticsSummary.tsx, VoltronGaps.tsx
+
+# Cloud Run API - new routes
+services/api/src/routes/admin-warriors.ts, admin-learning-loop.ts
+
+# MDJ_SERVER - new modules
+/home/jdm/mdj-agent/src/forge/phase-memory.ts
+/home/jdm/mdj-agent/src/agent/gap-analyzer.ts
+
+# dojo-warriors repo
+~/Projects/dojo-warriors/brain-save.sh -> /usr/local/bin/brain-save
+
+# systemd units (MDJ1)
+/etc/systemd/system/
+  session-extract.service + .timer
+  entity-extractor.service + .timer
+  voltron-gap-analysis.service + .timer
+  claude-md-tracker.service + .timer
+</pre>
+
+<!-- ENV VARS -->
+<h2>Environment Variables Required</h2>
+<table>
+  <tr><th>Variable</th><th>Where</th><th>Value</th></tr>
+  <tr><td>MACHINE_NAME</td><td>AIR, PRO, MDJ1 profiles</td><td>air / pro / mdj1</td></tr>
+  <tr><td>GOOGLE_APPLICATION_CREDENTIALS</td><td>MDJ1</td><td>/home/jdm/mdj-agent/sa-key.json</td></tr>
+  <tr><td>GCP_PROJECT_ID</td><td>services/learning-loop</td><td>claude-mcp-484718</td></tr>
+  <tr><td>ANTHROPIC_API_KEY</td><td>MDJ1</td><td>process.env (OS Rule #1)</td></tr>
+  <tr><td>SLACK_BOT_TOKEN</td><td>MDJ1</td><td>process.env (OS Rule #1)</td></tr>
+  <tr><td>JDM_SLACK_USER_ID</td><td>Constants</td><td>U09BBHTN8F2</td></tr>
+  <tr><td>DOJO_WARRIORS_PATH</td><td>MDJ1</td><td>/home/jdm/Projects/dojo-warriors</td></tr>
+</table>
+
+<!-- PIPELINE SCHEDULE -->
+<h2>Nightly Pipeline Schedule (Final State)</h2>
+<table>
+  <tr><th>Time</th><th>Service</th><th>Ticket</th><th>Action</th></tr>
+  <tr><td>Sat 11pm</td><td>session-extract (3 machines)</td><td>14166/67/68</td><td>GCS rsync sessions</td></tr>
+  <tr><td>Sun 3am</td><td>cleanup.sh (3 machines)</td><td>14165</td><td>GCS sync then delete .jsonl</td></tr>
+  <tr><td>Daily 2am</td><td>entity-extractor (MDJ1)</td><td>14173</td><td>Haiku extracts to Firestore</td></tr>
+  <tr><td>Daily 4am</td><td>knowledge-promote.js (MDJ1)</td><td>14174</td><td>Promote to CLAUDE.md + Slack</td></tr>
+  <tr><td>Nightly</td><td>voltron-gap-analysis (MDJ1)</td><td>14177</td><td>Cluster gaps + Slack DM</td></tr>
+  <tr><td>Weekly</td><td>claude-md-tracker (MDJ1)</td><td>14184</td><td>Diff summary to knowledge_entry</td></tr>
+  <tr><td>On hookify</td><td>brain-save (MDJ1)</td><td>14180</td><td>Append transcript + git push</td></tr>
+</table>
+
+<!-- ENDPOINTS -->
+<h2>Endpoint Coverage Verification</h2>
+<table>
+  <tr><th>Endpoint (Discovery Doc)</th><th>Ticket</th><th>File</th><th>Covered?</th></tr>
+  <tr><td>GET /api/admin/warriors</td><td>TRK-14183</td><td>services/api/src/routes/admin-warriors.ts</td><td>YES</td></tr>
+  <tr><td>GET /api/admin/learning-loop</td><td>TRK-14179</td><td>services/api/src/routes/admin-learning-loop.ts</td><td>YES</td></tr>
+</table>
+
+<!-- EXECUTION CHECKLIST -->
+<h2>Execution Checklist</h2>
+<table>
+  <tr><th>Wave</th><th>Ticket</th><th>Build Command</th><th>Status</th></tr>
+  <tr><td>0</td><td>TRK-14165</td><td>bash -n cleanup.sh</td><td>[ ]</td></tr>
+  <tr><td>1</td><td>TRK-14166</td><td>plutil -lint *.plist</td><td>[ ]</td></tr>
+  <tr><td>1</td><td>TRK-14167</td><td>plutil -lint *.plist</td><td>[ ]</td></tr>
+  <tr><td>1</td><td>TRK-14168</td><td>systemd-analyze verify</td><td>[ ]</td></tr>
+  <tr><td>1</td><td>TRK-14169</td><td>bq show --schema</td><td>[ ]</td></tr>
+  <tr><td>1</td><td>TRK-14172</td><td>cd services/learning-loop && npm run build</td><td>[ ]</td></tr>
+  <tr><td>1</td><td>TRK-14180</td><td>bash -n brain-save.sh && shellcheck</td><td>[ ]</td></tr>
+  <tr><td>1</td><td>TRK-14183</td><td>cd services/api && npm run build</td><td>[ ]</td></tr>
+  <tr><td>2</td><td>TRK-14170</td><td>cd services/learning-loop && npm run build</td><td>[ ]</td></tr>
+  <tr><td>2</td><td>TRK-14176</td><td>cd /home/jdm/mdj-agent && npm run build</td><td>[ ]</td></tr>
+  <tr><td>2</td><td>TRK-14177</td><td>cd /home/jdm/mdj-agent && npm run build</td><td>[ ]</td></tr>
+  <tr><td>2</td><td>TRK-14175</td><td>node --check hookify-rule.js</td><td>[ ]</td></tr>
+  <tr><td>3</td><td>TRK-14171</td><td>cd services/learning-loop && npm run build</td><td>[ ]</td></tr>
+  <tr><td>3</td><td>TRK-14173</td><td>cd services/learning-loop && npm run build</td><td>[ ]</td></tr>
+  <tr><td>3</td><td>TRK-14174</td><td>cd services/learning-loop && npm run build</td><td>[ ]</td></tr>
+  <tr><td>4</td><td>TRK-14178</td><td>bq query --use_legacy_sql=false</td><td>[ ]</td></tr>
+  <tr><td>4</td><td>TRK-14181</td><td>cd services/learning-loop && npm run build</td><td>[ ]</td></tr>
+  <tr><td>4</td><td>TRK-14184</td><td>cd services/learning-loop && npm run build</td><td>[ ]</td></tr>
+  <tr><td>5</td><td>TRK-14179</td><td>cd apps/prodash && npm run build + cd services/api && npm run build</td><td>[ ]</td></tr>
+  <tr><td>5</td><td>TRK-14182</td><td>Hookify dry-run in tmux</td><td>[ ]</td></tr>
+</table>
+
+<!-- SUCCESS CRITERIA -->
+<h2>Sprint Success Criteria</h2>
+<ul class="ac">
+  <li>Gold stops being deleted - GCS backup before cleanup.sh on all 3 machines</li>
+  <li>2.24 GB sessions loaded into queryable BigQuery (4 tables, verified counts)</li>
+  <li>knowledge_entries collection live with entity extraction running nightly</li>
+  <li>Agents start smarter - pre-session briefing with project-relevant knowledge</li>
+  <li>RONIN self-improves - phase memory writes to Firestore</li>
+  <li>VOLTRON gaps tracked and reported to JDM via Slack DM</li>
+  <li>Investor metrics ready: JDM hours, agent hours, ROI, amplification</li>
+  <li>CLAUDE.md target: under 30k chars, deep context in Firestore</li>
+  <li>Cross-warrior intelligence: warriors share soul highlights at session start</li>
+  <li>24-hour learning guarantee: lesson learned -> all future agents within 24 hours</li>
+</ul>
+
+<hr>
+<p style="text-align: center; color: #484f58; margin-top: 2rem;">
+  FORGE Plan v2 | Sprint 003 - Learning Loop 2.0 | 20 Tickets | 6 Waves<br>
+  Every session feeds every future agent. The Machine learns automatically.<br>
+  Generated by FORGE Planner - 2026-03-29
+</p>
+
+</body>
+</html>
