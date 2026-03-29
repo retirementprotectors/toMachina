@@ -447,7 +447,7 @@
   <div class="subtitle">Agent SDK Migration — Transforming VOLTRON from a hand-built chat relay into a true autonomous operating engine.</div>
   <div class="header-badges">
     <span class="badge badge-blue">Sprint 001</span>
-    <span class="badge badge-purple">13 Tickets</span>
+    <span class="badge badge-purple">18 Tickets</span>
     <span class="badge badge-orange">3 Phases</span>
     <span class="badge badge-green">Additive · Never Replacement</span>
   </div>
@@ -1352,12 +1352,12 @@ These rules are enforced regardless of context. Violations block sprint completi
   <!-- ══════════════════════════════════════════════════════════ -->
   <div class="tab-panel" id="tab-sprint-plan">
 
-    <div class="section-title">Sprint 001 — 13 Tickets, 3 Phases</div>
+    <div class="section-title">Sprint 001 — 18 Tickets, 3 Phases + Polish</div>
     <div class="section-sub">RONIN executes these tickets in order, phase by phase. Each ticket must pass its acceptance criteria before RONIN marks it complete.</div>
 
     <div class="grid-3">
       <div class="stat-box">
-        <div class="stat-value">13</div>
+        <div class="stat-value">18</div>
         <div class="stat-label">Total tickets</div>
       </div>
       <div class="stat-box">
@@ -1629,6 +1629,72 @@ These rules are enforced regardless of context. Violations block sprint completi
       </div>
     </div>
 
+    <!-- POLISH TICKETS -->
+    <div class="phase-block">
+      <div class="phase-header" style="background: rgba(245,158,11,0.1); border-bottom: 1px solid rgba(245,158,11,0.2);">
+        <span style="color: var(--orange); font-size: 1.1rem;">◈</span>
+        Polish Tickets (Added 2026-03-29)
+        <span class="phase-label" style="color: var(--orange);">5 Tickets · Added to Firestore post-discovery</span>
+      </div>
+      <div class="phase-body">
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Additional tickets added after initial discovery. Complete Mode 1 deploy pipeline, intent classifier wiring, GitHub webhook, E2E tests, and production smoke test.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 130px;">Ticket ID</th>
+                <th>Title</th>
+                <th style="width: 100px;">Type</th>
+                <th>Acceptance Criteria</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="mono" style="color: var(--orange);">TRK-13819</span></td>
+                <td class="ticket-title">Mode 1 deploy + SSE stream + approve/reject endpoints</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  <code>POST /api/voltron/deploy</code> live and returning 202. SSE stream at <code>GET /api/voltron/stream/:sessionId</code> emits events in real time. Approve endpoint <code>POST /api/voltron/approve/:sessionId</code> and reject endpoint <code>POST /api/voltron/reject/:sessionId</code> both operational. Auth middleware enforced on all three endpoints.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--orange);">TRK-13820</span></td>
+                <td class="ticket-title">Wire intent classifier into ProDashX (dual-mode)</td>
+                <td><span class="pill pill-green">feat</span></td>
+                <td class="ticket-ac">
+                  ProDashX VOLTRON App calls <code>classifyIntent()</code> on every submission before routing. Deploy-intent inputs route to Mode 1 task flow. Chat-intent inputs route to Mode 2 chat bubble. User never sees a mode toggle. Intent classifier result logged (not PHI) for monitoring. <code>npm run build</code> passes 0 errors in prodash app.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--orange);">TRK-13821</span></td>
+                <td class="ticket-title">GitHub webhook receiver for auto-deploy</td>
+                <td><span class="pill pill-orange">infrastructure</span></td>
+                <td class="ticket-ac">
+                  <code>POST /webhook/deploy</code> registered in server.ts. HMAC-SHA256 signature validated against <code>GITHUB_WEBHOOK_SECRET</code>. Only fires on pushes to <code>refs/heads/main</code>. Deploy sequence: <code>git pull → npm ci → npx tsc → systemctl restart mdj-agent.service</code>. On build failure: service NOT restarted, Slack error notification sent. Sudoers entry documented in <code>/etc/sudoers.d/jdm-voltron</code>.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--orange);">TRK-13822</span></td>
+                <td class="ticket-title">E2E test: Mode 1 + Mode 2 + intent classification</td>
+                <td><span class="pill pill-purple">test</span></td>
+                <td class="ticket-ac">
+                  Vitest test file <code>src/forge/tests/e2e-sprint-001.test.ts</code> covers: (1) Mode 1 — POST deploy, SSE fires 8+ tool_call events, [DONE] received; (2) Mode 2 — POST chat, SSE fires ≤3 tool_calls, Q&amp;A response correct; (3) Intent classifier — "Build Aswegan meeting prep" → deploy, "What accounts does Aswegan have?" → chat. All 3 sub-tests pass.
+                </td>
+              </tr>
+              <tr>
+                <td><span class="mono" style="color: var(--orange);">TRK-13823</span></td>
+                <td class="ticket-title">Deploy + full smoke test</td>
+                <td><span class="pill pill-orange">deployment</span></td>
+                <td class="ticket-ac">
+                  PR merged to main. Service restarted — <code>GET /health</code> returns 200 with <code>system: "voltron"</code>. ProDashX VOLTRON App loads, no console errors. Mode 1 smoke: deploy goal streams progress and returns result. Mode 2 smoke: chat question returns correct answer. Webhook smoke: push trivial commit → auto-deploy fires without SSH. All systems green.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <hr class="divider">
 
     <div class="card">
@@ -1678,7 +1744,7 @@ These rules are enforced regardless of context. Violations block sprint completi
         <li>E2E tests passing (Mode 1 multi-step + Mode 2 Q&amp;A)</li>
         <li>npm run build passes 0 errors across entire codebase</li>
         <li>Production smoke test passed — all systems green</li>
-        <li>FORGE tracker: all 13 tickets in <code>confirmed</code> status</li>
+        <li>FORGE tracker: all 18 tickets in <code>confirmed</code> status</li>
       </ul>
     </div>
 

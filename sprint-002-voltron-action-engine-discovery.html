@@ -70,7 +70,7 @@ td code{background:#1a1a1a;color:#60a5fa;padding:2px 6px;border-radius:3px;font-
   </div>
   <div class="meta">
     <span class="badge warn">DEPENDS: S001</span>
-    <span class="badge">15 TICKETS</span>
+    <span class="badge">18 TICKETS</span>
     <span class="badge">packages/core/src/voltron/</span>
   </div>
 </header>
@@ -567,7 +567,7 @@ td code{background:#1a1a1a;color:#60a5fa;padding:2px 6px;border-radius:3px;font-
 
 <!-- TAB 7: SPRINT PLAN -->
 <div class="tab">
-  <h2>Sprint 002 — 15 Tickets</h2>
+  <h2>Sprint 002 — 18 Tickets</h2>
   <p>RONIN executes. Parallel tracks where dependencies allow. S001 (Agent SDK Migration) must be complete before this sprint starts.</p>
 
   <table>
@@ -681,8 +681,37 @@ td code{background:#1a1a1a;color:#60a5fa;padding:2px 6px;border-radius:3px;font-
   </table>
 
   <div class="callout gold" style="margin-top:24px">
-    <p><strong>RONIN execution note:</strong> Sprint 001 (Agent SDK Migration) must ship first. Once Sprint 001 is confirmed complete, RONIN spawns parallel agents for Tracks 1, 2, and Playwright simultaneously. Target: all 15 tickets shipped in a single FORGE session.</p>
+    <p><strong>RONIN execution note:</strong> Sprint 001 (Agent SDK Migration) must ship first. Once Sprint 001 is confirmed complete, RONIN spawns parallel agents for Tracks 1, 2, and Playwright simultaneously. Target: all 18 tickets shipped in a single FORGE session.</p>
   </div>
+
+  <h3 style="margin-top:32px">Polish Tickets (Added 2026-03-29)</h3>
+  <p style="margin-bottom:16px">3 additional tickets added to Firestore after initial discovery. E2E verification for Aswegan + Mineart wires, Playwright carrier automation, and full smoke test.</p>
+  <table>
+    <tr>
+      <th style="width:130px">Ticket</th>
+      <th>Title</th>
+      <th style="width:80px">Type</th>
+      <th>Acceptance Criteria</th>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-13824</span></td>
+      <td>E2E wire test: Aswegan ANNUAL_REVIEW + Mineart BUILD_CASEWORK</td>
+      <td><span class="tag test">test</span></td>
+      <td>Both wires verified in production with real client data. ANNUAL_REVIEW returns complete review packet via 8+ tool calls. BUILD_CASEWORK produces casework HTML in ACF Drive folder and fires Slack notification. Both tests documented in <code>src/forge/tests/e2e-sprint-002.test.ts</code> and pass.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-13825</span></td>
+      <td>Playwright carrier automation E2E</td>
+      <td><span class="tag test">test</span></td>
+      <td>RUN_ILLUSTRATION Super Tool completes full illustration flow on North American and Athene carrier portals via Playwright. Returns result data. PDF saved to client ACF Drive folder. Both carriers verified with real policy parameters. Playwright MCP on MDJ_SERVER confirmed operational.</td>
+    </tr>
+    <tr>
+      <td><span class="sprint-num">TRK-13826</span></td>
+      <td>Deploy + smoke test all 8 Super Tools</td>
+      <td><span class="tag dep">deploy</span></td>
+      <td>PR merged to main. All 8 Super Tools callable via Mode 1 UI in production. Wire Executor processes at least one full wire end-to-end without error. Audit trail entries written to <code>wire_executions</code> collection. Registry auto-regenerates post-deploy (timestamp updates confirmed). All systems green.</td>
+    </tr>
+  </table>
 </div>
 
 <script>
