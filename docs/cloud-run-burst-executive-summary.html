@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Run Burst — Executive Summary</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242838;
+    --border: #2d3148;
+    --text: #e2e4eb;
+    --text-muted: #8b8fa3;
+    --accent: #60a5fa;
+    --accent2: #a78bfa;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+  h2 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    margin: 2rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h3 {
+    font-size: 1.05rem;
+    color: var(--text);
+    margin: 1.5rem 0 0.75rem;
+  }
+  p, li { color: var(--text); margin-bottom: 0.75rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+  .card-highlight {
+    border-left: 3px solid var(--accent);
+  }
+  .card-green { border-left: 3px solid var(--green); }
+  .card-amber { border-left: 3px solid var(--amber); }
+  .card-red { border-left: 3px solid var(--red); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    background: var(--surface2);
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  code {
+    background: var(--surface2);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--green);
+  }
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-green { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+  .badge-amber { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+  .badge-blue { background: rgba(96, 165, 250, 0.15); color: var(--accent); }
+  .badge-purple { background: rgba(167, 139, 250, 0.15); color: var(--accent2); }
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .flow-step {
+    background: var(--surface2);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .flow-arrow { color: var(--text-muted); }
+  ul { padding-left: 1.5rem; }
+  li { margin-bottom: 0.5rem; }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+  .metric {
+    text-align: center;
+    padding: 1.25rem;
+  }
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .metric-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  .diagram {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-family: monospace;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1>Cloud Run Burst</h1>
+<div class="subtitle">
+  Executive Summary — RONIN Overflow Architecture<br>
+  Prepared by MUSASHI, ARTxBLADE — 2026-03-29<br>
+  For: JDM (CEO) &amp; SHINOB1 (CTO)
+</div>
+
+<!-- ─── THE PROBLEM ─── -->
+<h2>The Problem</h2>
+
+<div class="card card-red">
+  <p><strong>7 concurrent RONIN agents crashed MDJ_SERVER at 32GB RAM.</strong></p>
+  <p>Each RONIN runs a Claude Code session via the Agent SDK + spawns sub-agents for build/test/audit phases. With <code>tsc</code> and webpack builds running simultaneously across 7 agents, memory exceeded physical capacity. The Machine outgrew its body.</p>
+</div>
+
+<div class="grid-2">
+  <div class="card metric">
+    <div class="metric-value">32 GB</div>
+    <div class="metric-label">RAM when it crashed</div>
+  </div>
+  <div class="card metric">
+    <div class="metric-value">7</div>
+    <div class="metric-label">Concurrent RONIN agents</div>
+  </div>
+  <div class="card metric">
+    <div class="metric-value">104</div>
+    <div class="metric-label">Total tickets across 6 sprints</div>
+  </div>
+  <div class="card metric">
+    <div class="metric-value">~4.5 GB</div>
+    <div class="metric-label">Per-agent memory footprint</div>
+  </div>
+</div>
+
+<!-- ─── WHAT WE HAVE TODAY ─── -->
+<h2>What We Have Today</h2>
+
+<div class="card card-green">
+  <h3>MDJ_SERVER (Dell PowerEdge T440)</h3>
+  <table>
+    <tr><td>RAM</td><td>32 GB <span class="badge badge-amber">→ 64 GB incoming</span></td></tr>
+    <tr><td>CPU</td><td>16 cores</td></tr>
+    <tr><td>GPU</td><td>None <span class="badge badge-amber">→ P40 incoming</span></td></tr>
+    <tr><td>OS</td><td>Ubuntu 24.04 LTS</td></tr>
+    <tr><td>Runtime</td><td>systemd (<code>mdj-agent.service</code>) on port 4200</td></tr>
+    <tr><td>FORGE Runner</td><td>Claude Agent SDK → <code>claudeInvoke()</code> → local Claude Code CLI</td></tr>
+    <tr><td>Concurrency</td><td>Unlimited (2HINOBI manages via tmux)</td></tr>
+  </table>
+</div>
+
+<div class="card card-green">
+  <h3>Cloud Run (GCP <code>claude-mcp-484718</code>)</h3>
+  <table>
+    <tr><td>Registry</td><td><code>us-central1-docker.pkg.dev/claude-mcp-484718/tomachina/</code></td></tr>
+    <tr><td>Active Services</td><td><code>tm-api</code> (1Gi/2CPU), <code>tm-bridge</code> (512Mi/1CPU), <code>tm-webhooks</code> (256Mi/1CPU)</td></tr>
+    <tr><td>Deploy SA</td><td><code>github-deployer@claude-mcp-484718.iam.gserviceaccount.com</code></td></tr>
+    <tr><td>Auth</td><td>Workload Identity Federation (OIDC, no key files)</td></tr>
+    <tr><td>Cloud Run Jobs</td><td><span class="badge badge-amber">None yet</span></td></tr>
+  </table>
+</div>
+
+<!-- ─── THE ARCHITECTURE ─── -->
+<h2>The Architecture — Cloud Run Burst</h2>
+
+<p>When MDJ_SERVER hits capacity, overflow RONIN agents launch as <strong>Cloud Run Jobs</strong> instead of local tmux sessions. Same FORGE lifecycle. Same code. Same results. Different metal.</p>
+
+<div class="diagram">
+┌──────────────────────────────────────────────────────────────┐
+│  2HINOBI (COO) — The Dispatcher                             │
+│  Decides: local or cloud based on MDJ_SERVER headroom       │
+├──────────────────────┬───────────────────────────────────────┤
+│                      │                                       │
+│  MDJ_SERVER (local)  │  Cloud Run Jobs (overflow)            │
+│  ┌────────────────┐  │  ┌────────────────────────────────┐   │
+│  │ RONIN 1  (tmux)│  │  │ RONIN 5  (Job: 4Gi/2CPU)     │   │
+│  │ RONIN 2  (tmux)│  │  │ RONIN 6  (Job: 4Gi/2CPU)     │   │
+│  │ RONIN 3  (tmux)│  │  │ RONIN 7  (Job: 4Gi/2CPU)     │   │
+│  │ RONIN 4  (tmux)│  │  │ RONIN N  (auto-scale)        │   │
+│  └────────────────┘  │  └────────────────────────────────┘   │
+│                      │                                       │
+│  Firestore ◄─────────┼──────────► Firestore                  │
+│  Git push ◄──────────┼──────────► Git push                   │
+│  Slack war room ◄────┼──────────► Slack war room              │
+└──────────────────────┴───────────────────────────────────────┘</div>
+
+<div class="card card-highlight">
+  <h3>Key Principle: Same Interface, Different Metal</h3>
+  <p>A Cloud Run RONIN and a local RONIN are <strong>indistinguishable</strong> to the rest of The Machine. Both write to Firestore. Both push to git. Both post to the Slack war room. Both follow the same 13-phase FORGE lifecycle. 2HINOBI doesn't care where a RONIN runs — only that it ships.</p>
+</div>
+
+<!-- ─── HOW IT WORKS ─── -->
+<h2>How It Works</h2>
+
+<div class="flow">
+  <div class="flow-step">2HINOBI checks memory</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">Headroom? Local tmux</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">Full? Launch Cloud Run Job</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">RONIN runs FORGE phases</div>
+  <span class="flow-arrow">→</span>
+  <div class="flow-step">Results land same place</div>
+</div>
+
+<div class="card">
+  <h3>The Cloud Run Job Container</h3>
+  <table>
+    <tr><th>Layer</th><th>What</th></tr>
+    <tr><td>Base</td><td><code>node:22-alpine</code> + git + build tools</td></tr>
+    <tr><td>Runtime</td><td>Claude Code CLI (<code>@anthropic-ai/claude-code</code>)</td></tr>
+    <tr><td>Auth</td><td>Anthropic API key (Secret Manager) + GCP SA (Workload Identity)</td></tr>
+    <tr><td>Repo</td><td><code>git clone</code> toMachina at job start (fresh checkout every run)</td></tr>
+    <tr><td>State</td><td>Firestore for FORGE run tracking (same collection: <code>mdj_forge_runs</code>)</td></tr>
+    <tr><td>Output</td><td><code>git push</code> for code, Firestore for status, Slack for war room</td></tr>
+    <tr><td>Specs</td><td>4Gi RAM / 2 CPU per job (configurable per sprint complexity)</td></tr>
+    <tr><td>Timeout</td><td>3600s (1 hour max per FORGE run)</td></tr>
+  </table>
+</div>
+
+<!-- ─── WHAT STAYS LOCAL ─── -->
+<h2>What Stays Local vs. What Overflows</h2>
+
+<table>
+  <tr><th>Component</th><th>Where</th><th>Why</th></tr>
+  <tr>
+    <td>2HINOBI (COO)</td>
+    <td><span class="badge badge-green">MDJ_SERVER</span></td>
+    <td>Manages the mesh, needs tmux, persistent session</td>
+  </tr>
+  <tr>
+    <td>SHINOB1 (CTO)</td>
+    <td><span class="badge badge-green">MDJ_SERVER</span></td>
+    <td>Architecture decisions, needs full context</td>
+  </tr>
+  <tr>
+    <td>MUSASHI (CMO)</td>
+    <td><span class="badge badge-green">MDJ_SERVER</span></td>
+    <td>Creative work, Discovery Docs, interactive with JDM</td>
+  </tr>
+  <tr>
+    <td>VOLTRON</td>
+    <td><span class="badge badge-green">MDJ_SERVER</span></td>
+    <td>Client/team-facing, needs all 82 tools + MCPs</td>
+  </tr>
+  <tr>
+    <td>RONIN (primary)</td>
+    <td><span class="badge badge-green">MDJ_SERVER</span></td>
+    <td>First 4 agents, local for speed + MCP access</td>
+  </tr>
+  <tr>
+    <td>RONIN (overflow)</td>
+    <td><span class="badge badge-blue">Cloud Run</span></td>
+    <td>Agents 5+ when server is full. Ephemeral. Stateless.</td>
+  </tr>
+</table>
+
+<!-- ─── WHAT NEEDS TO BE BUILT ─── -->
+<h2>What Needs To Be Built</h2>
+
+<div class="card card-amber">
+  <h3>Deliverables (CTO Scope — SHINOB1)</h3>
+  <table>
+    <tr><th>#</th><th>Deliverable</th><th>Complexity</th></tr>
+    <tr>
+      <td>1</td>
+      <td><strong>RONIN Cloud Run Dockerfile</strong><br>Node 22 + git + Claude Code CLI + build tools. Entry point: <code>node forge-job.js</code> with sprint config passed via env vars.</td>
+      <td><span class="badge badge-green">Low</span></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><strong>forge-job.ts</strong><br>Standalone entry point that reads sprint config from env, runs the FORGE lifecycle, writes results to Firestore + git. Extracted from <code>runner.ts</code>.</td>
+      <td><span class="badge badge-amber">Medium</span></td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><strong>2HINOBI dispatch logic</strong><br>Memory check → if &gt;80% used, launch Cloud Run Job instead of local tmux. Route decision logged to Firestore.</td>
+      <td><span class="badge badge-amber">Medium</span></td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><strong>Secret Manager wiring</strong><br>Anthropic API key + GitHub token stored in Secret Manager, mounted into Cloud Run Job at runtime.</td>
+      <td><span class="badge badge-green">Low</span></td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><strong>CI pipeline update</strong><br>Build + push <code>ronin-runner</code> image to Artifact Registry alongside tm-api/tm-bridge.</td>
+      <td><span class="badge badge-green">Low</span></td>
+    </tr>
+  </table>
+</div>
+
+<!-- ─── COST ─── -->
+<h2>Cost Impact</h2>
+
+<div class="card">
+  <table>
+    <tr><th>Resource</th><th>Cost</th><th>Notes</th></tr>
+    <tr>
+      <td>Cloud Run Job (4Gi/2CPU)</td>
+      <td>~$0.15/hour per agent</td>
+      <td>Only runs when needed. No idle cost.</td>
+    </tr>
+    <tr>
+      <td>Artifact Registry</td>
+      <td>~$0.10/GB/month</td>
+      <td>One additional image (~500MB)</td>
+    </tr>
+    <tr>
+      <td>Secret Manager</td>
+      <td>~$0.06/10K accesses</td>
+      <td>Negligible</td>
+    </tr>
+    <tr>
+      <td>Anthropic API (Claude)</td>
+      <td>Same as local</td>
+      <td>API calls cost the same regardless of where the agent runs</td>
+    </tr>
+    <tr>
+      <td><strong>Total marginal cost</strong></td>
+      <td><strong>~$0.15/hr per overflow agent</strong></td>
+      <td>Zero cost when not in use</td>
+    </tr>
+  </table>
+  <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+    Compare: a crashed server that blocks ALL 7 agents costs far more in lost time than $0.15/hr for overflow capacity.
+  </p>
+</div>
+
+<!-- ─── PHASED ROLLOUT ─── -->
+<h2>Phased Rollout</h2>
+
+<div class="card card-green">
+  <h3>Phase 1 — Hardware (Now)</h3>
+  <p>Install 64GB RAM + P40 GPU. This alone handles 5-6 concurrent RONINs comfortably. Buys time.</p>
+  <p><span class="badge badge-green">No code changes. Just hardware.</span></p>
+</div>
+
+<div class="card card-highlight">
+  <h3>Phase 2 — Cloud Run Burst (When Ready)</h3>
+  <p>Build the Dockerfile + forge-job.ts + dispatch logic. Test with a single overflow RONIN. Validate that results are identical to local runs.</p>
+  <p><span class="badge badge-blue">SHINOB1 architects. RONIN builds. MUSASHI writes the Discovery Doc if needed.</span></p>
+</div>
+
+<div class="card card-amber">
+  <h3>Phase 3 — Auto-Scale (Future)</h3>
+  <p>2HINOBI dynamically decides concurrency based on sprint priority + server load + cost budget. No human in the loop. The Machine scales itself.</p>
+  <p><span class="badge badge-purple">The Machine managing The Machine.</span></p>
+</div>
+
+<!-- ─── RECOMMENDATION ─── -->
+<h2>Recommendation</h2>
+
+<div class="card card-green">
+  <p><strong>Phase 1 is the move right now.</strong> 64GB + P40 handles 90% of use cases. Cloud Run Burst is the insurance policy for when The Machine outgrows 64GB — and it will.</p>
+  <p>The architecture is clean because everything already talks to Firestore and git. A Cloud Run RONIN doesn't need MDJ_SERVER for anything except dispatch. The plumbing is there. The gap is a Dockerfile and an entry point.</p>
+  <p>When SHINOB1 is ready to spec Phase 2, MUSASHI will write the Discovery Doc. Until then — install the RAM, install the P40, and let the RONINs run.</p>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<div class="footer">
+  Cloud Run Burst — Executive Summary<br>
+  Prepared by MUSASHI, ARTxBLADE (VP, CMO) — 2026-03-29<br>
+  For JDM (CEO) &amp; SHINOB1 (CTO)<br>
+  #RunningOurOwnRACE
+</div>
+
+</body>
+</html>
