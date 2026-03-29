@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSP-PIPELINE Implementation Plan — Sprint 006</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --red: #f85149; --orange: #d29922; --purple: #bc8cff; --cyan: #39d2c0; --blue: #388bfd; --yellow: #e3b341; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 2rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+  h2 { font-size: 1.5rem; color: var(--accent); margin: 2rem 0 1rem; border-left: 4px solid var(--accent); padding-left: 0.75rem; }
+  h3 { font-size: 1.2rem; color: var(--purple); margin: 1.5rem 0 0.75rem; }
+  h4 { font-size: 1rem; color: var(--green); margin: 1rem 0 0.5rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  .ticket { border-left: 4px solid var(--accent); }
+  .ticket.wave1 { border-left-color: var(--green); }
+  .ticket.wave2 { border-left-color: var(--orange); }
+  .ticket.wave3 { border-left-color: var(--purple); }
+  .ticket.wave4 { border-left-color: var(--red); }
+  .ticket.wave5 { border-left-color: var(--cyan); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 4px; }
+  .tag-parallel { background: #3fb95033; color: var(--green); }
+  .tag-sequential { background: #f8514933; color: var(--red); }
+  code { background: #1c2128; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
+  pre { background: #1c2128; padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.75rem 0; font-size: 0.85rem; line-height: 1.5; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
+  th { background: var(--card); color: var(--accent); }
+  ul, ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+  li { margin: 0.25rem 0; }
+  .risk { border-left: 3px solid var(--red); padding-left: 0.75rem; margin: 0.5rem 0; }
+  .ac { color: var(--green); }
+  .dep { color: var(--orange); font-weight: 600; }
+  .file-list { list-style: none; margin-left: 0; }
+  .file-list li.new::before { content: "NEW"; font-size: 0.65rem; background: var(--green); color: var(--bg); padding: 1px 4px; border-radius: 3px; font-weight: 700; margin-right: 0.5rem; }
+  .file-list li.mod::before { content: "MOD"; font-size: 0.65rem; background: var(--orange); color: var(--bg); padding: 1px 4px; border-radius: 3px; font-weight: 700; margin-right: 0.5rem; }
+  .build-gate { background: #1c2128; border: 1px solid var(--green); border-radius: 6px; padding: 0.75rem; margin: 0.75rem 0; }
+  .build-gate::before { content: "BUILD GATE"; font-size: 0.7rem; color: var(--green); font-weight: 700; display: block; margin-bottom: 0.25rem; }
+  .wave-header { display: flex; align-items: center; gap: 0.5rem; }
+  .wave-badge { font-size: 0.7rem; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+  .wb1 { background: var(--green); color: var(--bg); }
+  .wb2 { background: var(--orange); color: var(--bg); }
+  .wb3 { background: var(--purple); color: var(--bg); }
+  .wb4 { background: var(--red); color: var(--bg); }
+  .wb5 { background: var(--cyan); color: var(--bg); }
+</style>
+</head>
+<body>
+
+<h1>RSP-PIPELINE Implementation Plan</h1>
+<div class="meta">
+  Sprint: 006 &mdash; RSP-PIPELINE | Tickets: TRK-14118 &ndash; TRK-14132 (15 total)<br>
+  Target: <code>/home/jdm/Projects/toMachina</code> | Date: 2026-03-29<br>
+  Architect: FORGE Planner | Discovery: <a href="https://retirementprotectors.github.io/rsp-pipeline-discovery.html" style="color:var(--accent)">rsp-pipeline-discovery.html</a>
+</div>
+
+<!-- ================================================================== -->
+<h2>1. Architecture Overview</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <p><strong>RSP-PIPELINE</strong> transforms the 75-tab Retirement Sales Process playbook into an executable digital pipeline within ProDashX. It implements a 5-color-stage Kanban (Orange &rarr; Blue &rarr; Yellow &rarr; Green &rarr; Red + Service handoff) with meeting-based transitions, stage gates, and integrations to ProZone, DEX, QUE, and Comms.</p>
+
+  <h4>Pipeline Topology</h4>
+  <pre>
+ProZone (Booked) &rarr; RSP Pipeline
+  ORANGE  Book Discovery    CONNECT &rarr; CLOSE &rarr; NO &rarr; LATER &rarr; CAN'T REACH
+  BLUE    Complete Picture   Auth + Data + Reports (GATE: 100% required)
+  YELLOW  Build Case         QUE hooks per product line (stubs)
+  GREEN   Present + Close    CONNECT &rarr; CLOSE &rarr; NO &rarr; LATER &rarr; RESCHD
+  RED     Booked/NewBiz      A+R meeting &rarr; NewBiz kit
+  SERVICE Post-Impl          Auto-created service cards</pre>
+
+  <h4>Three Meeting Transitions</h4>
+  <ol>
+    <li><strong>Discovery Meeting</strong> (Orange &rarr; Blue): Data collection, education, authorization signing</li>
+    <li><strong>A+R Meeting</strong> (Green &rarr; Red): Analysis &amp; Recommendation presentation using Yellow case package</li>
+    <li><strong>Implementation Meeting</strong> (Red &rarr; Service): Hand off to service teams, NewBiz kit generation</li>
+  </ol>
+
+  <h4>Architecture Constraints</h4>
+  <ul>
+    <li>All UI modules at <code>apps/prodash/app/(portal)/modules/[module-name]/</code></li>
+    <li>All pipeline configs at <code>packages/core/src/flow/configs/</code></li>
+    <li>All UI components at <code>packages/ui/src/modules/</code></li>
+    <li>All API routes at <code>services/api/src/routes/</code></li>
+    <li>API responses use <code>successResponse&lt;T&gt;()</code> / <code>errorResponse()</code> helpers</li>
+    <li>Never write Firestore from app code &mdash; API routes only (OS Rule #2)</li>
+    <li>Never use alert/confirm/prompt &mdash; use showToast/showConfirm (OS Rule #5)</li>
+    <li>Build gate: <code>npm run build</code> (turbo), never <code>tsc --noEmit</code> alone (OS Rule #6)</li>
+  </ul>
+</div>
+
+<!-- ================================================================== -->
+<h2>2. Dependency Graph &amp; Wave Execution Order</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <h4>Wave Dependency Map</h4>
+  <pre>
+WAVE 1 (Foundation)           WAVE 2 (Discovery UX)         WAVE 3 (Blue Gate + Publish)    WAVE 4 (Transitions)        WAVE 5 (Handoffs)
+Parallel x4                   Parallel x5                   Parallel x3                    Parallel x2                 Parallel x1
+                              (depends on Wave 1)            (depends on Wave 1+2)           (depends on Wave 2+3)       (depends on Wave 4)
+
++---------------------+
+| TRK-14118           |--+
+| RSP Pipeline Config |  |
++---------------------+  |
++---------------------+  |    +---------------------+
+| TRK-14119           |--+--->| TRK-14122           |--+
+| ProZone Handoff     |  |    | RSP Discovery Panel |  |    +---------------------+
++---------------------+  |    +---------------------+  |    | TRK-14127           |--+
++---------------------+  |    +---------------------+  |    | Blue Gate UI        |  |    +---------------------+
+| TRK-14120           |--+--->| TRK-14123           |--+--->+---------------------+  |    | TRK-14131           |--+
+| RSP Stage Gates     |  |    | RSP Client Profile  |  |    +---------------------+  +--->| Green&rarr;Red A+R      |  |    +---------------------+
++---------------------+  |    +---------------------+  |    | TRK-14128           |--+    +---------------------+  |    | TRK-14132           |
++---------------------+  |    +---------------------+  |    | Report Tracker      |  |    +---------------------+  +--->| Red&rarr;Service Handoff |
+| TRK-14121           |--+--->| TRK-14124           |--+    +---------------------+  +--->| TRK-14130           |  |    +---------------------+
+| Auth Form Templates |  |    | RSP Account Review  |  |    +---------------------+  |    | Yellow QUE Hooks    |--+
++---------------------+  |    +---------------------+  +--->| TRK-14129           |--+    +---------------------+
+                         |    +---------------------+       | RSP Seed + Publish  |
+                         +--->| TRK-14125           |       +---------------------+
+                              | RSP Auth Dashboard  |
+                              +---------------------+
+                              +---------------------+
+                              | TRK-14126           |
+                              | F2F Kit Generator   |
+                              +---------------------+</pre>
+
+  <h4>Dependency Verification Matrix</h4>
+  <table>
+    <tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>Dep Waves</th><th>Valid?</th></tr>
+    <tr><td>TRK-14118 RSP Pipeline Config</td><td>1</td><td>&mdash; (none)</td><td>&mdash;</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14119 ProZone &rarr; Orange</td><td>1</td><td>&mdash; (none)</td><td>&mdash;</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14120 RSP Stage Gates</td><td>1</td><td>&mdash; (none)</td><td>&mdash;</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14121 Auth Form Templates</td><td>1</td><td>&mdash; (none)</td><td>&mdash;</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14122 RSP Discovery Panel</td><td>2</td><td>TRK-14118, TRK-14119</td><td>1, 1</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14123 RSP Client Profile</td><td>2</td><td>TRK-14118</td><td>1</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14124 RSP Account Review</td><td>2</td><td>TRK-14118</td><td>1</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14125 RSP Auth Dashboard</td><td>2</td><td>TRK-14121</td><td>1</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14126 F2F Kit Generator</td><td>2</td><td>TRK-14121</td><td>1</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14127 Blue Gate UI</td><td>3</td><td>TRK-14120, TRK-14123, TRK-14124, TRK-14125</td><td>1, 2, 2, 2</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14128 Report Tracker</td><td>3</td><td>TRK-14124</td><td>2</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14129 RSP Seed + Publish</td><td>3</td><td>TRK-14118, TRK-14122</td><td>1, 2</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14130 Yellow QUE Hooks</td><td>4</td><td>TRK-14127, TRK-14124</td><td>3, 2</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14131 Green &rarr; Red A+R</td><td>4</td><td>TRK-14127, TRK-14129</td><td>3, 3</td><td>&#10003;</td></tr>
+    <tr><td>TRK-14132 Red &rarr; Service Handoff</td><td>5</td><td>TRK-14131</td><td>4</td><td>&#10003;</td></tr>
+  </table>
+  <p style="color:var(--muted); font-size:0.85rem;">Wave 2 components are child panels rendered inside the Discovery Panel container. They share no files and can build in parallel. All interfaces defined in types.ts (Wave 1) ensure type-safe integration.</p>
+</div>
+
+<!-- ================================================================== -->
+<h2>3. File Overlap Analysis</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <table>
+    <tr><th>File</th><th>Touched By</th><th>Conflict?</th></tr>
+    <tr><td><code>packages/core/src/flow/configs/rsp-pipeline.ts</code></td><td>TRK-14118 only</td><td>No</td></tr>
+    <tr><td><code>packages/core/src/flow/configs/index.ts</code></td><td>TRK-14118 only</td><td>No</td></tr>
+    <tr><td><code>packages/core/src/flow/rsp-stage-gates.ts</code></td><td>TRK-14120 (create), TRK-14127 (import only)</td><td>No</td></tr>
+    <tr><td><code>services/api/src/routes/rsp.ts</code></td><td>TRK-14118 (scaffold), TRK-14126 (kit), TRK-14127 (gate), TRK-14128 (reports), TRK-14131 (transition), TRK-14132 (handoff)</td><td><strong>Sequential via stubs</strong></td></tr>
+    <tr><td><code>services/api/src/routes/rsp-auth-forms.ts</code></td><td>TRK-14121 (create), TRK-14125 (import only)</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/RSPPipeline/RSPDiscoveryPanel.tsx</code></td><td>TRK-14122 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/RSPPipeline/RSPClientProfile.tsx</code></td><td>TRK-14123 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/RSPPipeline/RSPAccountReview.tsx</code></td><td>TRK-14124 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/RSPPipeline/RSPAuthStatus.tsx</code></td><td>TRK-14125 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/RSPPipeline/RSPKitGenerator.tsx</code></td><td>TRK-14126 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/RSPPipeline/RSPBlueGate.tsx</code></td><td>TRK-14127 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/RSPPipeline/RSPReportTracker.tsx</code></td><td>TRK-14128 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/ProZone/FlowTab.tsx</code></td><td>TRK-14119 only</td><td>No</td></tr>
+    <tr><td><code>packages/ui/src/modules/ProZone/CallPanel.tsx</code></td><td>TRK-14119 only</td><td>No</td></tr>
+    <tr><td><code>services/api/src/routes/prozone.ts</code></td><td>TRK-14119 only</td><td>No</td></tr>
+    <tr><td><code>apps/prodash/app/(portal)/modules/rsp-pipeline/page.tsx</code></td><td>TRK-14129 only</td><td>No</td></tr>
+    <tr><td><code>apps/prodash/app/(portal)/components/PortalSidebar.tsx</code></td><td>TRK-14129 only</td><td>No</td></tr>
+    <tr><td><code>services/api/src/server.ts</code></td><td>TRK-14118 only</td><td>No</td></tr>
+  </table>
+
+  <div class="risk">
+    <strong>Shared route file strategy:</strong> <code>services/api/src/routes/rsp.ts</code> is touched across waves. Wave 1 creates the full scaffold with ALL handler stubs (empty functions returning <code>errorResponse('Not implemented')</code>). Subsequent waves fill handler bodies. Each handler is its own exported function &mdash; no merge conflicts.
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2>4. Complete File Tree (New + Modified)</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <ul class="file-list">
+    <li class="new"><code>packages/core/src/flow/configs/rsp-pipeline.ts</code> &mdash; RSP pipeline config (5 stages, sub-stages, gate defs, workflows, steps, tasks)</li>
+    <li class="mod"><code>packages/core/src/flow/configs/index.ts</code> &mdash; Add RSP_PIPELINE export + ALL_PIPELINE_CONFIGS entry</li>
+    <li class="new"><code>packages/core/src/flow/rsp-stage-gates.ts</code> &mdash; Blue gate: field + report + auth completion logic</li>
+    <li class="new"><code>packages/core/src/flow/rsp-transitions.ts</code> &mdash; Meeting transition handlers (Orange&rarr;Blue, Green&rarr;Red, Red&rarr;Service)</li>
+    <li class="new"><code>services/api/src/routes/rsp.ts</code> &mdash; RSP API: gate check, kit gen, transitions, report tracker</li>
+    <li class="new"><code>services/api/src/routes/rsp-auth-forms.ts</code> &mdash; Auth template CRUD + DocuSign trigger</li>
+    <li class="mod"><code>services/api/src/server.ts</code> &mdash; Mount /api/rsp and /api/rsp-auth routes</li>
+    <li class="new"><code>services/api/src/scripts/seed-rsp-pipeline.ts</code> &mdash; Seed RSP pipeline to Firestore</li>
+    <li class="new"><code>services/api/src/scripts/seed-rsp-auth-templates.ts</code> &mdash; Seed 6 auth form templates to dex_forms</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/index.ts</code> &mdash; Barrel export for all RSP components</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/types.ts</code> &mdash; RSP-specific TypeScript interfaces</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPDiscoveryPanel.tsx</code> &mdash; Main panel: virtual + F2F toggle, tabs</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPClientProfile.tsx</code> &mdash; Ai3 fields interactive form with have/need</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPAccountReview.tsx</code> &mdash; Tabbed by product line, gap badges</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPAuthStatus.tsx</code> &mdash; Per-form status + DocuSign trigger</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPKitGenerator.tsx</code> &mdash; F2F Kit PDF builder (household-level)</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPBlueGate.tsx</code> &mdash; Progress ring + missing items + block state</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPReportTracker.tsx</code> &mdash; Per-account report status tracker</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPYellowQUE.tsx</code> &mdash; QUE app link stubs per account type</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPTransitionPanel.tsx</code> &mdash; Meeting transition UI (A+R + Service)</li>
+    <li class="mod"><code>packages/ui/src/index.ts</code> &mdash; Add RSPPipeline barrel export</li>
+    <li class="mod"><code>packages/ui/src/modules/ProZone/FlowTab.tsx</code> &mdash; RSP converted status indicator</li>
+    <li class="mod"><code>packages/ui/src/modules/ProZone/CallPanel.tsx</code> &mdash; Booked handler triggers RSP handoff</li>
+    <li class="mod"><code>services/api/src/routes/prozone.ts</code> &mdash; POST /api/prozone/handoff-rsp endpoint</li>
+    <li class="new"><code>apps/prodash/app/(portal)/modules/rsp-pipeline/page.tsx</code> &mdash; Next.js page wrapper</li>
+    <li class="mod"><code>apps/prodash/app/(portal)/components/PortalSidebar.tsx</code> &mdash; Ensure RSP appears in Sales section</li>
+  </ul>
+</div>
+
+<!-- ================================================================== -->
+<h2>5. Wave 1 &mdash; Foundation (Parallel x4)</h2>
+<!-- ================================================================== -->
+
+<!-- ---- TRK-14118 ---- -->
+<div class="card ticket wave1">
+  <div class="wave-header">
+    <span class="wave-badge wb1">WAVE 1</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+  </div>
+  <h3>TRK-14118: RSP Pipeline Config</h3>
+  <p>Define RSP with 5 stages, sub-stages per Playbook, 3 meeting transitions. Seed to Firestore.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/core/src/flow/configs/rsp-pipeline.ts</code></li>
+    <li class="mod"><code>packages/core/src/flow/configs/index.ts</code></li>
+    <li class="new"><code>services/api/src/routes/rsp.ts</code> (scaffold with stub handlers)</li>
+    <li class="mod"><code>services/api/src/server.ts</code> (mount rsp + rsp-auth routes)</li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/types.ts</code></li>
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/index.ts</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Create <code>RSP_PIPELINE_CONFIG</code> following exact pattern from <code>sales-retirement.ts</code></li>
+    <li>Pipeline definition:
+      <pre>
+const pipeline: FlowPipelineDef = {
+  pipeline_key: 'RSP_PIPELINE',
+  pipeline_name: 'RSP - Retirement Sales Process',
+  description: 'Full RSP playbook as executable pipeline. 5 color-coded stages with meeting transitions.',
+  portal: 'PRODASHX',
+  domain: 'RETIREMENT',
+  default_view: 'kanban',
+  icon: 'account_balance',
+  assigned_section: 'sales',
+  status: 'active',
+  created_at: '2026-03-29T00:00:00.000Z',
+  updated_at: '2026-03-29T00:00:00.000Z',
+}</pre>
+    </li>
+    <li>5 stages with sub-stages:
+      <pre>
+orange     (10) Book Discovery     sub: connect, close, no, later, cant_reach   gate_enforced: false
+blue       (20) Complete Picture   sub: auth, data, reports                     gate_enforced: true
+yellow     (30) Build Case         sub: que_life, que_annuity, que_medicare, que_invest  gate_enforced: true
+green      (40) Present + Close    sub: connect, close, no, later, reschd       gate_enforced: true
+red        (50) Booked/NewBiz      sub: (none)                                 gate_enforced: false</pre>
+    </li>
+    <li>Workflows: one per stage (orange_workflow, blue_workflow, yellow_workflow, green_workflow, red_workflow)</li>
+    <li>Steps: per sub-stage, each with execution_type and gate_enforced flags</li>
+    <li>Tasks: system check tasks for Blue gate (FIELD_PRESENT, ALL_FORMS_CHECKED), manual tasks for others</li>
+    <li>Meeting transition config embedded in stage definitions:
+      <pre>
+orange.transition_config = { type: 'meeting', meeting_name: 'Discovery Meeting', target_stage: 'blue' }
+green.transition_config  = { type: 'meeting', meeting_name: 'A+R Meeting', target_stage: 'red' }
+red.transition_config    = { type: 'meeting', meeting_name: 'Implementation Meeting', target_stage: 'service' }</pre>
+    </li>
+    <li>Add to <code>configs/index.ts</code>: export + <code>ALL_PIPELINE_CONFIGS.RSP_PIPELINE</code></li>
+    <li>Create <code>types.ts</code> with interfaces: RSPClientProfileData, RSPAccountData, RSPAuthFormStatus, RSPReportStatus, RSPGateResult, RSPTransitionConfig</li>
+    <li>Scaffold <code>rsp.ts</code> route with stubs:
+      <pre>
+GET  /api/rsp/gate/:instanceId                 &larr; Blue Gate check
+POST /api/rsp/transition/:instanceId           &larr; Meeting transitions
+POST /api/rsp/kit/:householdId                 &larr; F2F Kit generation
+GET  /api/rsp/reports/:instanceId              &larr; Report tracker list
+POST /api/rsp/reports/:instanceId/:accountId   &larr; Update report status</pre>
+    </li>
+    <li>Mount in server.ts: <code>app.use('/api/rsp', rspRoutes)</code> and <code>app.use('/api/rsp-auth', rspAuthRoutes)</code></li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Pipeline in Pipeline Studio admin, all stages render in Kanban</li>
+    <li>&#10003; RSP_PIPELINE key exists in ALL_PIPELINE_CONFIGS</li>
+    <li>&#10003; 5 stages with correct colors (orange, blue, yellow, green, red)</li>
+    <li>&#10003; Sub-stages defined per Playbook spec</li>
+    <li>&#10003; 3 meeting transitions configured in stage metadata</li>
+    <li>&#10003; Route scaffold mounts at /api/rsp/* without errors</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify RSP_PIPELINE_CONFIG exports, types compile, route mounts cleanly.
+  </div>
+</div>
+
+<!-- ---- TRK-14119 ---- -->
+<div class="card ticket wave1">
+  <div class="wave-header">
+    <span class="wave-badge wb1">WAVE 1</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+  </div>
+  <h3>TRK-14119: ProZone &rarr; Orange Handoff</h3>
+  <p>Auto-create RSP Orange card when prospect reaches Booked in ProZone. ProZone card closes.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="mod"><code>packages/ui/src/modules/ProZone/CallPanel.tsx</code></li>
+    <li class="mod"><code>packages/ui/src/modules/ProZone/FlowTab.tsx</code></li>
+    <li class="mod"><code>services/api/src/routes/prozone.ts</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Add <code>POST /api/prozone/handoff-rsp</code> endpoint:
+      <pre>
+Input:  { prospect_id, specialist_id, household_id, client_id, meeting_datetime }
+Logic:
+  1. Create flow_instances doc: pipeline_key='RSP_PIPELINE', current_stage='orange',
+     entity_type='HOUSEHOLD', entity_id=household_id
+  2. Store client_id + household_id in entity_data
+  3. Store meeting_datetime in custom_fields.discovery_meeting_date
+  4. Update prospect status to 'converted' in prozone_prospects collection
+  5. Return { success: true, data: { instance_id, pipeline_key: 'RSP_PIPELINE' } }</pre>
+    </li>
+    <li>In CallPanel.tsx (~line 161): when outcome === 'booked', fire POST /api/prozone/handoff-rsp after stage advancement</li>
+    <li>In FlowTab.tsx: add "Converted to RSP" badge on booked prospects with link to RSP card</li>
+    <li>Use showToast('RSP card created', 'success') on success</li>
+    <li>Error handling: if RSP creation fails, show toast error but don't block ProZone booking</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Book meeting in ProZone &rarr; RSP Orange card auto-created with client linked</li>
+    <li>&#10003; ProZone card shows "Converted to RSP" status after handoff</li>
+    <li>&#10003; RSP instance entity_data contains household_id and client_id</li>
+    <li>&#10003; Zero manual copy/paste required</li>
+    <li>&#10003; API returns { success: true, data: { instance_id } }</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify prozone.ts, CallPanel.tsx, FlowTab.tsx all compile.
+  </div>
+</div>
+
+<!-- ---- TRK-14120 ---- -->
+<div class="card ticket wave1">
+  <div class="wave-header">
+    <span class="wave-badge wb1">WAVE 1</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+  </div>
+  <h3>TRK-14120: RSP Stage Gates</h3>
+  <p>Blue gate queries Client + Account fields + report flags, returns % + missing items, blocks if &lt;100%.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/core/src/flow/rsp-stage-gates.ts</code></li>
+    <li class="new"><code>packages/core/src/flow/rsp-transitions.ts</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li><code>rsp-stage-gates.ts</code> exports:
+      <pre>
+interface RSPGateResult {
+  pass: boolean
+  percentage: number
+  missing_items: RSPMissingItem[]
+  categories: {
+    client_profile: { complete: number, total: number, missing: string[] }
+    account_details: { complete: number, total: number, missing: string[] }
+    auth_forms: { complete: number, total: number, missing: string[] }
+    reports: { complete: number, total: number, missing: string[] }
+  }
+}
+
+function evaluateRSPBlueGate(
+  clientData: RSPClientProfileData,
+  accounts: RSPAccountData[],
+  authStatus: RSPAuthFormStatus[],
+  reportStatus: RSPReportStatus[]
+): RSPGateResult</pre>
+    </li>
+    <li>Weight: Client Profile 30% + Account Details 30% + Auth Forms 20% + Reports 20%</li>
+    <li>Client Profile checks: personal(6), spouse(5), employment(5), social_security(4), objectives(4) = ~24 fields</li>
+    <li>Account Details: required fields per product type (varies by account count)</li>
+    <li>Auth Forms: signed status for all applicable forms</li>
+    <li>Reports: filed status for all accounts</li>
+    <li>Gate passes ONLY at 100%</li>
+    <li><code>rsp-transitions.ts</code> exports transition payload builders:
+      <pre>
+buildDiscoveryTransitionData(instanceId): TransitionPayload
+buildARTransitionData(instanceId, meetingData): TransitionPayload
+buildServiceHandoffData(instanceId): TransitionPayload</pre>
+    </li>
+    <li>Pure functions &mdash; no Firestore dependency, fully unit-testable</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Incomplete shows '72% &mdash; 4 missing', blocks advance</li>
+    <li>&#10003; Gate returns categorized missing items per category</li>
+    <li>&#10003; 100% allows advancement to Yellow</li>
+    <li>&#10003; Weight distribution: 30/30/20/20</li>
+    <li>&#10003; Pure functions, no Firestore dependency</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify gate function compiles, types exported.
+  </div>
+</div>
+
+<!-- ---- TRK-14121 ---- -->
+<div class="card ticket wave1">
+  <div class="wave-header">
+    <span class="wave-badge wb1">WAVE 1</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+  </div>
+  <h3>TRK-14121: Auth Form Templates in DEX</h3>
+  <p>Create Life Auth (6 checkboxes) + ITS Auth templates in DEX. Wire existing forms. Access Center auto-generates on Blue entry.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>services/api/src/routes/rsp-auth-forms.ts</code></li>
+    <li class="new"><code>services/api/src/scripts/seed-rsp-auth-templates.ts</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>6 auth form templates:
+      <ol>
+        <li><strong>RSP_LIFE_AUTH_H</strong> &mdash; Life Auth (Husband). 6 checkboxes: current_performance, face_solve, premium_solve, lower_face, lower_premium, term_conversion</li>
+        <li><strong>RSP_LIFE_AUTH_W</strong> &mdash; Life Auth (Wife). Same 6 checkboxes</li>
+        <li><strong>RSP_ITS_AUTH_H</strong> &mdash; ITS/Trust Auth (Husband). Trust analysis, estate docs, trustee fields</li>
+        <li><strong>RSP_ITS_AUTH_W</strong> &mdash; ITS/Trust Auth (Wife). Same fields</li>
+        <li><strong>RSP_WEALTH_AUTH</strong> &mdash; Wire existing DEX Wealth Auth form</li>
+        <li><strong>RSP_HIPAA_AUTH</strong> &mdash; Wire existing DEX HIPAA template</li>
+      </ol>
+    </li>
+    <li>Each template in dex_forms: form_id, form_name, category:'Firm:Client', docusign_enabled:true, pre_fill_source:'client_profile', fields array</li>
+    <li>Route rsp-auth-forms.ts:
+      <pre>
+GET  /api/rsp-auth/templates                     &mdash; List RSP auth templates
+GET  /api/rsp-auth/instance/:instanceId          &mdash; Auth status for instance
+POST /api/rsp-auth/send/:instanceId/:formId      &mdash; DocuSign send (stub: sets status to 'sent')
+POST /api/rsp-auth/status/:instanceId/:formId    &mdash; Update status: not_started|sent|signed|filed</pre>
+    </li>
+    <li>Seed script writes 6 templates to dex_forms using batch write pattern</li>
+    <li>DocuSign: stub that updates status + creates dex_package_events audit entry</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; All 6 auth forms in DEX pre-fillable</li>
+    <li>&#10003; Life Auth has 6 illustration checkboxes</li>
+    <li>&#10003; Templates in dex_forms with docusign_enabled flag</li>
+    <li>&#10003; Status flow: not_started &rarr; sent &rarr; signed &rarr; filed</li>
+    <li>&#10003; API returns { success: true, data }</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify route compiles, seed script compiles.
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2>6. Wave 2 &mdash; Discovery Experience (Parallel x5, depends on Wave 1)</h2>
+<!-- ================================================================== -->
+
+<!-- ---- TRK-14122 ---- -->
+<div class="card ticket wave2">
+  <div class="wave-header">
+    <span class="wave-badge wb2">WAVE 2</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14118, TRK-14119</span>
+  </div>
+  <h3>TRK-14122: RSP Discovery Panel</h3>
+  <p>Main panel at Orange&rarr;Blue transition. Client Profile + Account Review + Auth Status.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPDiscoveryPanel.tsx</code></li>
+    <li class="mod"><code>packages/ui/src/index.ts</code> (add RSPPipeline barrel export)</li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Three-tab panel:
+      <pre>
+Tab 1: CLIENT PROFILE  &rarr; &lt;RSPClientProfile /&gt;  (TRK-14123)
+Tab 2: ACCOUNTS        &rarr; &lt;RSPAccountReview /&gt;  (TRK-14124)
+Tab 3: AUTHORIZATIONS  &rarr; &lt;RSPAuthStatus /&gt;     (TRK-14125)</pre>
+    </li>
+    <li>Top bar: Virtual | F2F toggle. F2F shows "Generate Kit" button (RSPKitGenerator)</li>
+    <li>Props: instanceId, householdId, clientId, mode: 'virtual' | 'f2f'</li>
+    <li>Creates RSPDiscoveryContext provider with instance data + refresh callbacks</li>
+    <li>Fetches instance on mount: GET /api/flow/instances/:instanceId</li>
+    <li>Renders in PipelineKanban card detail slide-out</li>
+    <li>Tab badges show completion counts via child callbacks</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Opens from RSP card in Kanban view</li>
+    <li>&#10003; 3 tabs: Client Profile, Accounts, Authorizations</li>
+    <li>&#10003; Virtual/F2F toggle visible and functional</li>
+    <li>&#10003; Fields editable in virtual mode</li>
+    <li>&#10003; Auth tracking visible in Authorizations tab</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify panel renders, child imports resolve.
+  </div>
+</div>
+
+<!-- ---- TRK-14123 ---- -->
+<div class="card ticket wave2">
+  <div class="wave-header">
+    <span class="wave-badge wb2">WAVE 2</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14118</span>
+  </div>
+  <h3>TRK-14123: RSP Client Profile (Ai3 Form)</h3>
+  <p>All Ai3 fields grouped by category with have/need indicators.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPClientProfile.tsx</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>6 field groups from Ai3 spec:
+      <pre>
+PERSONAL:    name, dob, ssn_last4, address, phone, email                         (6)
+SPOUSE:      spouse_name, spouse_dob, spouse_ssn_last4, spouse_phone, spouse_email (5)
+EMPLOYMENT:  status, employer, retirement_date, retirement_age, income            (5)
+SOC_SEC:     claiming_age, estimated_benefit, spouse_claiming_age, spouse_benefit  (4)
+OBJECTIVES:  primary_goal, risk_tolerance, time_horizon, income_needs             (4)
+AUTH_STATUS:  life_auth, wealth_auth, its_auth, hipaa, soa (read-only from auth)  (5)</pre>
+    </li>
+    <li>Per-field states: HAVE (green dot), NEED (red dot), N/A (gray)</li>
+    <li>Category header: "4/6 fields" badge with progress bar</li>
+    <li>Save: PUT /api/clients/:clientId. Load: GET /api/clients/:clientId</li>
+    <li>SSN: last 4 only, masked input, never log (OS Rule #10)</li>
+    <li>DOB: date picker, never log (OS Rule #10)</li>
+    <li>Exposes getCompletionCount() for Blue Gate integration</li>
+    <li>showToast('Profile saved', 'success') on save</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Loads data, gaps highlighted with red NEED dot</li>
+    <li>&#10003; All Ai3 groups with have/need indicators</li>
+    <li>&#10003; Save writes via API (OS Rule #2)</li>
+    <li>&#10003; SSN last 4 only, DOB never logged (OS Rule #10)</li>
+    <li>&#10003; Category completion badges visible</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify component compiles, types match RSPClientProfileData.
+  </div>
+</div>
+
+<!-- ---- TRK-14124 ---- -->
+<div class="card ticket wave2">
+  <div class="wave-header">
+    <span class="wave-badge wb2">WAVE 2</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14118</span>
+  </div>
+  <h3>TRK-14124: RSP Account Review</h3>
+  <p>Tabbed by product line with gap count badges. Add-new-account flow. Inline edit saves.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPAccountReview.tsx</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>4 product line tabs:
+      <pre>
+LIFE       &mdash; carrier, policy_no, type, face_amount, premium, cash_value,
+              issue_date, surrender_period, beneficiary, 6 illustration checkboxes
+ANNUITY    &mdash; carrier, contract_no, type(FIA/MYGA/VA), value, surrender_schedule,
+              riders, income_benefit, allocation, mva, fees
+MEDICARE   &mdash; medicare_no, part_a_effective, plan_type, carrier, premium, pcp,
+              specialists, prescriptions, county, enrollment_window
+INVESTMENT &mdash; custodian, account_no, type(IRA/Roth/NQ/Trust), value, allocation,
+              fees, risk_score, performance</pre>
+    </li>
+    <li>Tab badge: "Life (3)" = 3 gap fields. Red if gaps &gt; 0, green if 0</li>
+    <li>Inline-editable cards per account. Save per card</li>
+    <li>"+ Add Account" button per tab. Load: GET /api/accounts?household_id=X. Save: PUT /api/accounts/:id. Create: POST /api/accounts</li>
+    <li>Exposes getCompletionCount() for Blue Gate</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Tabs render per product line</li>
+    <li>&#10003; Gap badges show missing field count</li>
+    <li>&#10003; Inline edit saves via API</li>
+    <li>&#10003; Add-new-account flow creates record</li>
+    <li>&#10003; Fields match discovery doc spec per product type</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify component compiles, types match RSPAccountData.
+  </div>
+</div>
+
+<!-- ---- TRK-14125 ---- -->
+<div class="card ticket wave2">
+  <div class="wave-header">
+    <span class="wave-badge wb2">WAVE 2</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14121</span>
+  </div>
+  <h3>TRK-14125: RSP Auth Status Dashboard</h3>
+  <p>Per-form status tracking: Not Started &rarr; Sent &rarr; Signed &rarr; Filed. DocuSign trigger.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPAuthStatus.tsx</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Status table for 6 forms. Status badges: NOT STARTED &rarr; SENT &rarr; SIGNED &rarr; FILED</li>
+    <li>"Send DocuSign" calls POST /api/rsp-auth/send/:instanceId/:formId</li>
+    <li>"Mark Filed" calls POST /api/rsp-auth/status/:instanceId/:formId with { status: 'filed' }</li>
+    <li>Load: GET /api/rsp-auth/instance/:instanceId</li>
+    <li>Shows pre-fill preview: which fields auto-populated from client profile</li>
+    <li>showToast('DocuSign sent', 'success') on send</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; All auths shown with per-form status</li>
+    <li>&#10003; DocuSign fires pre-filled</li>
+    <li>&#10003; Status: not_started &rarr; sent &rarr; signed &rarr; filed</li>
+    <li>&#10003; Filed feeds Blue Gate auth completion</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify component compiles, API signatures match route.
+  </div>
+</div>
+
+<!-- ---- TRK-14126 ---- -->
+<div class="card ticket wave2">
+  <div class="wave-header">
+    <span class="wave-badge wb2">WAVE 2</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14121</span>
+  </div>
+  <h3>TRK-14126: F2F Kit Generator</h3>
+  <p>One button &rarr; PDF at Household level: profiles, all accounts, auth forms per person, brochures.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPKitGenerator.tsx</code></li>
+    <li class="mod"><code>services/api/src/routes/rsp.ts</code> (fill POST /api/rsp/kit/:householdId)</li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>"Generate F2F Kit" button in Discovery Panel (F2F mode)</li>
+    <li>POST /api/rsp/kit/:householdId with { instance_id, include_brochures }</li>
+    <li>API assembles: Client+Spouse profiles, Account sheets (blanks for fill-in), Auth forms (H+W, pre-filled), Brochures</li>
+    <li>PDF: HTML template with print CSS, following DEX kit builder pattern</li>
+    <li>Response: Content-Type: application/pdf, binary download</li>
+    <li>showToast('Kit generated!', 'success')</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Click &rarr; PDF downloads with household data</li>
+    <li>&#10003; PDF: profiles, account sheets, auth forms, brochures</li>
+    <li>&#10003; Auth forms labeled H + W</li>
+    <li>&#10003; Gaps as blank fields for SPC</li>
+    <li>&#10003; Single-button operation</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify component + route handler compile.
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2>7. Wave 3 &mdash; Blue Gate + Publish (Parallel x3, depends on Wave 1+2)</h2>
+<!-- ================================================================== -->
+
+<!-- ---- TRK-14127 ---- -->
+<div class="card ticket wave3">
+  <div class="wave-header">
+    <span class="wave-badge wb3">WAVE 3</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14120, TRK-14123, TRK-14124, TRK-14125</span>
+  </div>
+  <h3>TRK-14127: Blue Gate UI</h3>
+  <p>Progress ring, categorized missing items, cannot-advance state.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPBlueGate.tsx</code></li>
+    <li class="mod"><code>services/api/src/routes/rsp.ts</code> (fill GET /api/rsp/gate/:instanceId)</li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>SVG progress ring (circular), category breakdown bars, missing items list</li>
+    <li>API: GET /api/rsp/gate/:instanceId loads client+accounts+auth+reports, calls evaluateRSPBlueGate()</li>
+    <li>"Advance to Yellow" enabled at 100% only. Calls POST /api/flow/instances/:instanceId/advance</li>
+    <li>Auto-refresh every 30s while panel open</li>
+    <li>showConfirm before advancing</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; % complete shown as progress ring</li>
+    <li>&#10003; Blocker list with categorized missing items</li>
+    <li>&#10003; Advance disabled at &lt;100%, enabled at 100%</li>
+    <li>&#10003; Category breakdown: 30/30/20/20 weighting</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify component + route handler compile.
+  </div>
+</div>
+
+<!-- ---- TRK-14128 ---- -->
+<div class="card ticket wave3">
+  <div class="wave-header">
+    <span class="wave-badge wb3">WAVE 3</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14124</span>
+  </div>
+  <h3>TRK-14128: Report Tracker</h3>
+  <p>Per-account: Not Ordered &rarr; Ordered &rarr; Received &rarr; Filed.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPReportTracker.tsx</code></li>
+    <li class="mod"><code>services/api/src/routes/rsp.ts</code> (fill GET/POST /api/rsp/reports)</li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Auto-generates report rows from instance accounts</li>
+    <li>Status: not_ordered &rarr; ordered &rarr; received &rarr; filed</li>
+    <li>Stored in flow_instances.custom_fields.report_status map</li>
+    <li>Feeds Blue Gate reports category</li>
+    <li>API: GET /api/rsp/reports/:instanceId, POST /api/rsp/reports/:instanceId/:accountId</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Auto-generates from accounts</li>
+    <li>&#10003; Status toggles work</li>
+    <li>&#10003; Feeds Blue Gate</li>
+    <li>&#10003; API returns { success: true, data }</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify component + route handlers compile.
+  </div>
+</div>
+
+<!-- ---- TRK-14129 ---- -->
+<div class="card ticket wave3">
+  <div class="wave-header">
+    <span class="wave-badge wb3">WAVE 3</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14118, TRK-14122</span>
+  </div>
+  <h3>TRK-14129: RSP Seed + Publish</h3>
+  <p>Seed pipeline to Firestore. Publish as Module in Sales section. Role-based visibility.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>services/api/src/scripts/seed-rsp-pipeline.ts</code></li>
+    <li class="new"><code>apps/prodash/app/(portal)/modules/rsp-pipeline/page.tsx</code></li>
+    <li class="mod"><code>apps/prodash/app/(portal)/components/PortalSidebar.tsx</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Seed script follows seed-pipelines.ts pattern: import RSP_PIPELINE_CONFIG, batch write to flow_pipelines/stages/workflows/steps/task_templates. CLI: --dry-run, --pipeline=RSP_PIPELINE</li>
+    <li>Next.js page: AppWrapper + PipelineKanban with pipelineKey='RSP_PIPELINE'</li>
+    <li>Sidebar: RSP auto-appears via assigned_section:'sales' + dynamic pipeline injection. Backup: manual nav item with moduleKey:'RSP_PIPELINE'</li>
+    <li>Role-based: canAccessModule(ctx, 'RSP_PIPELINE'), min level: USER</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; RSP in sidebar under Sales</li>
+    <li>&#10003; Role-based visibility</li>
+    <li>&#10003; Seed script writes all docs</li>
+    <li>&#10003; Kanban renders 5 color-coded stages</li>
+    <li>&#10003; /modules/rsp-pipeline loads correctly</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify page, seed, sidebar compile.
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2>8. Wave 4 &mdash; Transitions (Parallel x2, depends on Wave 2+3)</h2>
+<!-- ================================================================== -->
+
+<!-- ---- TRK-14130 ---- -->
+<div class="card ticket wave4">
+  <div class="wave-header">
+    <span class="wave-badge wb4">WAVE 4</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14127, TRK-14124</span>
+  </div>
+  <h3>TRK-14130: Yellow QUE Hooks</h3>
+  <p>Yellow card surfaces QUE app links based on account types. Stub only.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPYellowQUE.tsx</code></li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Renders in Yellow stage card detail</li>
+    <li>Scans accounts, shows stub links: QUE-Life, QUE-Annuity, QUE-Medicare, QUE-Investment</li>
+    <li>Links: /modules/que?type=life&amp;account_id=X (stub, full integration deferred)</li>
+    <li>Shows account context: "QUE-Life: Ameritas #1234 (face $500k)"</li>
+    <li>No API calls &mdash; reads from loaded instance data</li>
+    <li>"STUB" badge on each link</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Yellow with life account shows 'Open QUE-Life'</li>
+    <li>&#10003; Links per account type present</li>
+    <li>&#10003; Stub links navigate with context params</li>
+    <li>&#10003; No broken imports</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors.
+  </div>
+</div>
+
+<!-- ---- TRK-14131 ---- -->
+<div class="card ticket wave4">
+  <div class="wave-header">
+    <span class="wave-badge wb4">WAVE 4</span>
+    <span class="tag tag-parallel">PARALLEL</span>
+    <span class="dep">Depends: TRK-14127, TRK-14129</span>
+  </div>
+  <h3>TRK-14131: Green &rarr; Red A+R Transition</h3>
+  <p>Schedule A+R meeting. Attach Yellow case package. Advance to Red.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="new"><code>packages/ui/src/modules/RSPPipeline/RSPTransitionPanel.tsx</code></li>
+    <li class="mod"><code>services/api/src/routes/rsp.ts</code> (fill POST /api/rsp/transition for A+R)</li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Green stage transition panel: date/time picker, location selector, case package checklist</li>
+    <li>Button: POST /api/rsp/transition/:instanceId with { transition:'ar_meeting', meeting_datetime, meeting_type, package_items }</li>
+    <li>API: creates calendar event (stub), attaches package, advances green &rarr; red</li>
+    <li>showConfirm before advancing, showToast on success</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; Button &rarr; calendar event + package &rarr; advances to Red</li>
+    <li>&#10003; Meeting date/time required</li>
+    <li>&#10003; Case package attached</li>
+    <li>&#10003; Confirmation dialog shown</li>
+    <li>&#10003; API returns { success: true, data }</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify component + route compile.
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2>9. Wave 5 &mdash; Service Handoff (Sequential, depends on Wave 4)</h2>
+<!-- ================================================================== -->
+
+<!-- ---- TRK-14132 ---- -->
+<div class="card ticket wave5">
+  <div class="wave-header">
+    <span class="wave-badge wb5">WAVE 5</span>
+    <span class="tag tag-sequential">SEQUENTIAL</span>
+    <span class="dep">Depends: TRK-14131</span>
+  </div>
+  <h3>TRK-14132: Red &rarr; Service Handoff</h3>
+  <p>DEX generates NewBiz kit. Auto-creates service pipeline cards.</p>
+
+  <h4>Files</h4>
+  <ul class="file-list">
+    <li class="mod"><code>services/api/src/routes/rsp.ts</code> (fill POST /api/rsp/transition for service handoff)</li>
+    <li class="mod"><code>packages/ui/src/modules/RSPPipeline/RSPTransitionPanel.tsx</code> (add service mode)</li>
+  </ul>
+
+  <h4>Implementation Details</h4>
+  <ul>
+    <li>Red stage "Complete Implementation" panel: NewBiz checklist + service card preview</li>
+    <li>POST /api/rsp/transition/:instanceId with { transition:'service_handoff' }</li>
+    <li>API:
+      <ol>
+        <li>DEX NewBiz kit via POST /api/dex-pipeline/create</li>
+        <li>Create service flow_instances: RMD Center (retirement accts), Beni Center (life), Access Center (all), Comms (all)</li>
+        <li>Mark RSP instance complete</li>
+        <li>Return { success: true, data: { newbiz_kit_id, service_cards: [...] } }</li>
+      </ol>
+    </li>
+    <li>Service card creation best-effort (skip if pipeline doesn't exist)</li>
+    <li>showConfirm before, showToast after</li>
+  </ul>
+
+  <h4>Acceptance Criteria</h4>
+  <ul class="ac">
+    <li>&#10003; NewBiz kit generated via DEX</li>
+    <li>&#10003; Service cards auto-created</li>
+    <li>&#10003; RSP instance marked complete</li>
+    <li>&#10003; Service cards linked to same household</li>
+    <li>&#10003; API returns { success: true, data }</li>
+  </ul>
+
+  <div class="build-gate">
+    <code>npm run build</code> &mdash; zero errors. Verify route + panel compile.
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2>10. API Endpoint Coverage</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <h4>RSP Routes (services/api/src/routes/rsp.ts)</h4>
+  <table>
+    <tr><th>Method</th><th>Path</th><th>Ticket</th><th>Purpose</th></tr>
+    <tr><td>GET</td><td><code>/api/rsp/gate/:instanceId</code></td><td>TRK-14127</td><td>Blue Gate check</td></tr>
+    <tr><td>POST</td><td><code>/api/rsp/transition/:instanceId</code></td><td>TRK-14131, TRK-14132</td><td>Meeting transitions</td></tr>
+    <tr><td>POST</td><td><code>/api/rsp/kit/:householdId</code></td><td>TRK-14126</td><td>F2F Kit PDF</td></tr>
+    <tr><td>GET</td><td><code>/api/rsp/reports/:instanceId</code></td><td>TRK-14128</td><td>Report tracker list</td></tr>
+    <tr><td>POST</td><td><code>/api/rsp/reports/:instanceId/:accountId</code></td><td>TRK-14128</td><td>Update report status</td></tr>
+  </table>
+
+  <h4>RSP Auth Routes (services/api/src/routes/rsp-auth-forms.ts)</h4>
+  <table>
+    <tr><th>Method</th><th>Path</th><th>Ticket</th><th>Purpose</th></tr>
+    <tr><td>GET</td><td><code>/api/rsp-auth/templates</code></td><td>TRK-14121</td><td>List templates</td></tr>
+    <tr><td>GET</td><td><code>/api/rsp-auth/instance/:instanceId</code></td><td>TRK-14125</td><td>Auth status</td></tr>
+    <tr><td>POST</td><td><code>/api/rsp-auth/send/:instanceId/:formId</code></td><td>TRK-14125</td><td>DocuSign send</td></tr>
+    <tr><td>POST</td><td><code>/api/rsp-auth/status/:instanceId/:formId</code></td><td>TRK-14125</td><td>Update status</td></tr>
+  </table>
+
+  <h4>ProZone Addition (services/api/src/routes/prozone.ts)</h4>
+  <table>
+    <tr><th>Method</th><th>Path</th><th>Ticket</th><th>Purpose</th></tr>
+    <tr><td>POST</td><td><code>/api/prozone/handoff-rsp</code></td><td>TRK-14119</td><td>Create RSP Orange card</td></tr>
+  </table>
+
+  <p style="color:var(--muted); font-size:0.85rem;">Total: 11 endpoints across 3 route files. All use successResponse/errorResponse helpers.</p>
+</div>
+
+<!-- ================================================================== -->
+<h2>11. Risks &amp; Mitigations</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <div class="risk">
+    <strong>Risk 1: Shared rsp.ts route file across waves.</strong><br>
+    <em>Mitigation:</em> Wave 1 creates scaffold with ALL stub handlers. Subsequent waves fill bodies only. No merge conflicts.
+  </div>
+  <div class="risk">
+    <strong>Risk 2: DocuSign integration is stubbed.</strong><br>
+    <em>Mitigation:</em> Status endpoint accepts manual updates. DocuSign send sets status to 'sent' without actual API. Full flow works end-to-end.
+  </div>
+  <div class="risk">
+    <strong>Risk 3: PDF generation for F2F Kit.</strong><br>
+    <em>Mitigation:</em> Use DEX kit builder pattern (HTML &rarr; PDF). Fallback: print-ready HTML for browser Print-to-PDF.
+  </div>
+  <div class="risk">
+    <strong>Risk 4: SALES_RETIREMENT pipeline already exists.</strong><br>
+    <em>Mitigation:</em> RSP_PIPELINE is separate (key: 'RSP_PIPELINE'). Both coexist. RSP is the v2 with full UX.
+  </div>
+  <div class="risk">
+    <strong>Risk 5: Service pipelines may not exist yet (TRK-14132).</strong><br>
+    <em>Mitigation:</em> Best-effort creation. Log warning and skip if target pipeline missing.
+  </div>
+  <div class="risk">
+    <strong>Risk 6: Wave 2 parallel components share context.</strong><br>
+    <em>Mitigation:</em> Interfaces in types.ts (Wave 1). Context provider in Wave 2. Zero file overlap.
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2>12. Firestore Collection Impact</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <table>
+    <tr><th>Collection</th><th>Operation</th><th>Tickets</th></tr>
+    <tr><td><code>flow_pipelines</code></td><td>Write (seed)</td><td>TRK-14129</td></tr>
+    <tr><td><code>flow_stages</code></td><td>Write (seed 5 docs)</td><td>TRK-14129</td></tr>
+    <tr><td><code>flow_workflows</code></td><td>Write (seed 5 docs)</td><td>TRK-14129</td></tr>
+    <tr><td><code>flow_steps</code></td><td>Write (seed)</td><td>TRK-14129</td></tr>
+    <tr><td><code>flow_task_templates</code></td><td>Write (seed)</td><td>TRK-14129</td></tr>
+    <tr><td><code>flow_instances</code></td><td>Create/Read/Update</td><td>TRK-14119, 14127, 14128, 14131, 14132</td></tr>
+    <tr><td><code>flow_instance_tasks</code></td><td>Create/Update</td><td>TRK-14127</td></tr>
+    <tr><td><code>flow_activity</code></td><td>Create (audit)</td><td>TRK-14119, 14131, 14132</td></tr>
+    <tr><td><code>dex_forms</code></td><td>Write (seed 6 templates)</td><td>TRK-14121</td></tr>
+    <tr><td><code>dex_packages</code></td><td>Create</td><td>TRK-14126, 14132</td></tr>
+    <tr><td><code>dex_package_events</code></td><td>Create (audit)</td><td>TRK-14125</td></tr>
+    <tr><td><code>clients</code></td><td>Read/Update</td><td>TRK-14123</td></tr>
+    <tr><td><code>accounts</code></td><td>Read/Update/Create</td><td>TRK-14124, 14128</td></tr>
+    <tr><td><code>households</code></td><td>Read</td><td>TRK-14122, 14126</td></tr>
+    <tr><td><code>prozone_prospects</code></td><td>Update</td><td>TRK-14119</td></tr>
+  </table>
+</div>
+
+<!-- ================================================================== -->
+<h2>13. Summary &amp; Execution Checklist</h2>
+<!-- ================================================================== -->
+
+<div class="card">
+  <table>
+    <tr><th>Wave</th><th>Tickets</th><th>Parallel?</th><th>Depends On</th><th>Est. LOC</th></tr>
+    <tr><td style="color:var(--green)">Wave 1</td><td>TRK-14118, 14119, 14120, 14121</td><td>&#10003;</td><td>&mdash;</td><td>~1,800</td></tr>
+    <tr><td style="color:var(--orange)">Wave 2</td><td>TRK-14122, 14123, 14124, 14125, 14126</td><td>&#10003;</td><td>Wave 1</td><td>~2,500</td></tr>
+    <tr><td style="color:var(--purple)">Wave 3</td><td>TRK-14127, 14128, 14129</td><td>&#10003;</td><td>Wave 1+2</td><td>~1,200</td></tr>
+    <tr><td style="color:var(--red)">Wave 4</td><td>TRK-14130, 14131</td><td>&#10003;</td><td>Wave 2+3</td><td>~800</td></tr>
+    <tr><td style="color:var(--cyan)">Wave 5</td><td>TRK-14132</td><td>Seq</td><td>Wave 4</td><td>~400</td></tr>
+  </table>
+  <p><strong>Total: ~6,700 LOC | 15 tickets | 26 files (16 new, 10 modified) | 11 API endpoints | 5 waves</strong></p>
+
+  <h4>Per-Ticket Protocol</h4>
+  <ol>
+    <li>Branch: <code>git checkout -b voltron/sprint-006-trk-{id}</code></li>
+    <li>Implement per file list</li>
+    <li><strong>npm run build</strong> &mdash; ZERO errors</li>
+    <li>Commit referencing TRK-{id}</li>
+    <li>PR: <code>gh pr create --auto --squash</code></li>
+  </ol>
+
+  <h4>Post-Sprint Verification</h4>
+  <ul>
+    <li>&#9744; Seed: <code>npx tsx services/api/src/scripts/seed-rsp-pipeline.ts --pipeline=RSP_PIPELINE</code></li>
+    <li>&#9744; Seed: <code>npx tsx services/api/src/scripts/seed-rsp-auth-templates.ts</code></li>
+    <li>&#9744; RSP in Sales sidebar</li>
+    <li>&#9744; Kanban: 5 stages, correct colors</li>
+    <li>&#9744; ProZone &rarr; Orange handoff</li>
+    <li>&#9744; Discovery Panel: 3 tabs, V/F2F toggle</li>
+    <li>&#9744; Client Profile: Ai3 fields, have/need</li>
+    <li>&#9744; Account Review: 4 tabs, gap badges</li>
+    <li>&#9744; Auth Dashboard: 6 forms, DocuSign stub</li>
+    <li>&#9744; F2F Kit: button &rarr; PDF</li>
+    <li>&#9744; Blue Gate: ring, blockers, 100% advance</li>
+    <li>&#9744; Report Tracker: auto-gen, toggles</li>
+    <li>&#9744; Yellow QUE: stub links</li>
+    <li>&#9744; Green &rarr; Red: A+R transition</li>
+    <li>&#9744; Red &rarr; Service: NewBiz kit + cards</li>
+    <li>&#9744; Final: <code>npm run build</code> on main</li>
+  </ul>
+</div>
+
+</body>
+</html>
