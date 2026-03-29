@@ -39,4 +39,26 @@ export interface RaidenRunDoc {
   channel_posted: boolean
 }
 
+export interface DuplicateMatch {
+  trk_id: string
+  title: string
+  status: string
+  score: number
+}
+
+export type DojoFixesEventType =
+  | 'new_submission'
+  | 'duplicate_detected'
+  | 'in_progress'
+  | 'fixed'
+
+export interface DojoFixesEvent {
+  type: DojoFixesEventType
+  trk_id: string
+  title: string
+  reporter?: string
+  status?: string
+  posted_at: string
+}
+
 export const RAIDEN_RUNS_COLLECTION = 'mdj_raiden_runs'

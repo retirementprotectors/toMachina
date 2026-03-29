@@ -13,7 +13,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 // Architecture:
 //   Super Tool chain: get_client → run_illustration (MDJ) → return result
 //   MDJ Agent flow:   portal login → form fill → generate → PDF download → ACF upload
-//   Carrier modules:  /services/mdj-agent/dist/dist/tools/playwright/
+//   Carrier modules:  /services/mdj-server/dist/dist/tools/playwright/
 // ---------------------------------------------------------------------------
 
 // ── Types ─────────────────────────────────────────────────────────────────
@@ -34,9 +34,9 @@ interface SseEvent {
 }
 
 /** Re-export types from the MDJ agent dist for structural verification */
-type CarrierAutomationModule = import('../../../services/mdj-agent/dist/dist/tools/playwright/types').CarrierAutomationModule
-type IllustrationInput = import('../../../services/mdj-agent/dist/dist/tools/playwright/types').IllustrationInput
-type IllustrationResult = import('../../../services/mdj-agent/dist/dist/tools/playwright/types').IllustrationResult
+type CarrierAutomationModule = import('../../../services/mdj-server/dist/dist/tools/playwright/types').CarrierAutomationModule
+type IllustrationInput = import('../../../services/mdj-server/dist/dist/tools/playwright/types').IllustrationInput
+type IllustrationResult = import('../../../services/mdj-server/dist/dist/tools/playwright/types').IllustrationResult
 
 // ── SSE Protocol Parser ──────────────────────────────────────────────────
 
@@ -93,7 +93,7 @@ function parseSsePayload(raw: string): ParsedSseStream {
   return { events, toolCalls, toolResults, textChunks, done, errors }
 }
 
-// ── Carrier Module Imports — direct from compiled mdj-agent ──────────────
+// ── Carrier Module Imports — direct from compiled mdj-server ──────────────
 
 let northAmericanModule: CarrierAutomationModule
 let atheneModule: CarrierAutomationModule
@@ -102,7 +102,7 @@ let SUPPORTED_CARRIERS: string[]
 
 beforeAll(async () => {
   const carrierMod = await import(
-    '../../../services/mdj-agent/dist/dist/tools/playwright/carrier-automation.js'
+    '../../../services/mdj-server/dist/dist/tools/playwright/carrier-automation.js'
   )
   northAmericanModule = carrierMod.northAmericanModule as CarrierAutomationModule
   atheneModule = carrierMod.atheneModule as CarrierAutomationModule

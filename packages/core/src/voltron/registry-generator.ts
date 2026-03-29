@@ -6,7 +6,7 @@
 // Sources:
 //   1. API Routes   — services/api/src/routes/*.ts  (method + path → ATOMIC)
 //   2. Firestore    — packages/db/src/firestore.ts  (collections → CRUD tools)
-//   3. MCP Bridge   — mdj-agent/src/tools/mcp-bridge.ts  (25 MCP tools)
+//   3. MCP Bridge   — mdj-server/src/tools/mcp-bridge.ts  (25 MCP tools)
 //   4. Voltron      — voltron/tools/*.ts + super-tools + wires + legacy map
 //
 // NOT exported from barrel — server/script-only (uses Node fs).
@@ -27,7 +27,7 @@ import { LEGACY_TOOL_MAP } from './tools/legacy-tool-map'
 export interface RegistryGeneratorPaths {
   /** Root of the toMachina monorepo */
   monorepoRoot: string
-  /** Root of mdj-agent (for MCP bridge) */
+  /** Root of mdj-server (for MCP bridge) */
   mdjAgentRoot: string
 }
 

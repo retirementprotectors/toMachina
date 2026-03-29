@@ -208,13 +208,23 @@ sprintRoutes.get('/roadmap', async (_req: Request, res: Response) => {
     const typeLabels: Record<string, string> = { broken: 'Bug', improve: 'Enhancement', idea: 'Feature', question: 'Question' }
     const statusLabels: Record<string, string> = {
       queue: 'Queue', not_touched: 'Not Touched', in_sprint: 'In Sprint',
-      planned: 'Planned', built: 'Built', audited: 'Audited',
+      seeded: 'Discovery Audit', disc_audited: 'Plan', planned: 'Planned',
+      plan_audited: 'Build', built: 'Built', audited: 'Audited',
+      deployed: 'Deployed', ux_audited: 'UX Audited',
       confirmed: 'Confirmed', deferred: 'Deferred', wont_fix: "Won't Fix",
+      backlog: 'Backlog', blocked: 'Blocked',
+      new: 'New', triaging: 'Triaging', fixing: 'Fixing', verifying: 'Verifying',
+      done: 'Done', escalated: 'Escalated',
     }
     const statusColors: Record<string, string> = {
       queue: '#fbbf24', not_touched: '#ef4444', in_sprint: '#f59e0b',
-      planned: '#4a7ab5', built: '#14b8a6', audited: '#a855f7',
+      seeded: '#fb923c', disc_audited: '#ea580c', planned: '#4a7ab5',
+      plan_audited: '#6366f1', built: '#14b8a6', audited: '#a855f7',
+      deployed: '#10b981', ux_audited: '#22c55e',
       confirmed: '#22c55e', deferred: '#9ca3af', wont_fix: '#64748b',
+      backlog: '#94a3b8', blocked: '#ef4444',
+      new: '#ef4444', triaging: '#fbbf24', fixing: '#f59e0b', verifying: '#6366f1',
+      done: '#22c55e', escalated: '#ef4444',
     }
 
     const tabs = [

@@ -9,7 +9,7 @@ import { transitionState } from './shinobi-state.js'
 
 const MODEL = 'claude-opus-4-6'
 const MAX_RETRIES = 3
-const CWD = '/home/jdm/mdj-agent'
+const CWD = '/home/jdm/mdj-server'
 
 export interface ShinobiQueryResult {
   response: string

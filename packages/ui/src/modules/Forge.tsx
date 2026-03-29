@@ -66,9 +66,20 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   audited:         { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Deploy' },
   ux_audited:      { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'UX Audited' },
   confirmed:       { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Confirmed' },
+  deployed:        { color: 'rgb(16,185,129)', bg: 'rgba(16,185,129,0.15)', label: 'Deployed' },
+  closed:          { color: 'rgb(107,114,128)', bg: 'rgba(107,114,128,0.15)', label: 'Closed' },
+  // RAIDEN reactive statuses
+  new:             { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'New' },
+  triaging:        { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Triaging' },
+  fixing:          { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Fixing' },
+  verifying:       { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Verifying' },
+  done:            { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Done' },
+  escalated:       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Escalated' },
+  // Terminal statuses
   deferred:        { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Deferred' },
   wont_fix:        { color: 'rgb(100,116,139)', bg: 'rgba(100,116,139,0.15)', label: "Won't Fix" },
   backlog:         { color: 'rgb(148,163,184)', bg: 'rgba(148,163,184,0.15)', label: 'Backlog' },
+  blocked:         { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Blocked' },
 }
 
 const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
@@ -86,7 +97,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 const TYPES = ['broken', 'idea', 'improve', 'question', 'feat', 'bug', 'enhancement', 'test'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
-const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'ux_audited', 'confirmed', 'deferred', 'wont_fix'] as const
+const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed', 'closed', 'new', 'triaging', 'fixing', 'verifying', 'done', 'escalated', 'deferred', 'wont_fix', 'backlog', 'blocked'] as const
 
 const API_BASE = '/api'
 
@@ -222,13 +233,18 @@ function FFormSelect({ label, value, onChange, options }: {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const cfg = STATUS_CONFIG[status] || { color: 'var(--text-muted, #64748b)', bg: 'rgba(100,116,139,0.15)', label: status }
+  const isKnown = status in STATUS_CONFIG
+  const cfg = STATUS_CONFIG[status] || { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: status.replace(/_/g, ' ') }
   return (
-    <span style={{
-      display: 'inline-block', padding: '2px 10px', borderRadius: 12,
-      fontSize: 11, fontWeight: 600, background: cfg.bg, color: cfg.color,
-      whiteSpace: 'nowrap',
-    }}>
+    <span
+      style={{
+        display: 'inline-block', padding: '2px 10px', borderRadius: 12,
+        fontSize: 11, fontWeight: 600, background: cfg.bg, color: cfg.color,
+        whiteSpace: 'nowrap',
+        border: isKnown ? 'none' : '1px dashed rgb(251,191,36)',
+      }}
+      title={isKnown ? cfg.label : `Unmapped status: "${status}" — displaying as-is`}
+    >
       {cfg.label}
     </span>
   )
@@ -263,6 +279,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const [dedupGroups, setDedupGroups] = useState<Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }>>([])
   const [dedupLoading, setDedupLoading] = useState(false)
   const [reopeningSprintId, setReopeningSprintId] = useState<string | null>(null)
+  const [actionLoadingSprintId, setActionLoadingSprintId] = useState<string | null>(null)
   const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null)
   const [sprintEditField, setSprintEditField] = useState<string | null>(null)
   const [sprintEditValue, setSprintEditValue] = useState('')
@@ -392,7 +409,7 @@ function ForgeInner({ portal }: ForgeProps) {
   }, [items])
 
   // Sprint lifecycle phases + phase detection
-  const SPRINT_PHASES = ['unseeded', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'ux_audited', 'confirmed'] as const
+  const SPRINT_PHASES = ['unseeded', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed'] as const
   const PHASE_CONFIG: Record<string, { label: string; color: string; action: string; actionLabel: string }> = {
     unseeded:      { label: 'Seed',            color: 'rgb(245,158,11)',        action: 'seed',            actionLabel: '#LetsSeedTheDiscovery' },
     seeded:        { label: 'Discovery Audit', color: 'rgb(251,146,60)',        action: 'audit_discovery', actionLabel: '#LetsAuditTheDiscovery' },
@@ -401,11 +418,23 @@ function ForgeInner({ portal }: ForgeProps) {
     plan_audited:  { label: 'Build',           color: 'rgb(99,102,241)',        action: 'prompt',          actionLabel: '#LetsBuildIt' },
     built:         { label: 'Build Audit',     color: 'rgb(20,184,166)',        action: 'audit',           actionLabel: '#LetsAuditTheBuild' },
     audited:       { label: 'Deploy',          color: 'rgb(168,85,247)',        action: 'sendit',          actionLabel: '#SendIt' },
-    ux_audited:    { label: 'UX Audit',        color: 'rgb(34,197,94)',         action: 'ux_audit',        actionLabel: '#LetsAuditTheUX' },
+    deployed:      { label: 'Deployed',        color: 'rgb(16,185,129)',        action: 'ux_audit',        actionLabel: '#LetsAuditTheUX' },
+    ux_audited:    { label: 'UX Audited',      color: 'rgb(34,197,94)',         action: 'confirm',         actionLabel: '#LandedIt!!!' },
     confirmed:     { label: 'Complete',        color: 'rgb(34,197,94)',         action: 'reopen',          actionLabel: 'Reopen Sprint' },
   }
 
-  const STATUS_RANK: Record<string, number> = { queue: 0, not_touched: 1, in_sprint: 2, seeded: 3, disc_audited: 4, planned: 5, plan_audited: 6, built: 7, audited: 8, ux_audited: 9, confirmed: 10 }
+  // Ranks define phase progression — each phase has a unique rank, no collisions
+  const STATUS_RANK: Record<string, number> = {
+    queue: 0, not_touched: 1, in_sprint: 2, seeded: 3, disc_audited: 4, planned: 5,
+    plan_audited: 6, built: 7, audited: 8, deployed: 9, ux_audited: 10, confirmed: 11,
+    closed: 11,
+    // RAIDEN statuses map to sprint-equivalent ranks
+    new: 0, triaging: 1, fixing: 5, verifying: 7, done: 11, escalated: 0,
+    backlog: 0, blocked: 0,
+  }
+  // Fallback for truly unknown statuses: treat as mid-pipeline (planned) rather than
+  // rank 0 which would silently drag the entire sprint phase back to "unseeded"
+  const getStatusRank = (status: string): number => STATUS_RANK[status] ?? 5
 
   const sprintCards = useMemo(() => {
     return sprints.map(sp => {
@@ -414,20 +443,23 @@ function ForgeInner({ portal }: ForgeProps) {
       const enhancements = sprintItems.filter(i => i.type === 'improve').length
       const features = sprintItems.filter(i => i.type === 'idea').length
       const questions = sprintItems.filter(i => i.type === 'question').length
-      const confirmed = sprintItems.filter(i => i.status === 'confirmed').length
+      const confirmed = sprintItems.filter(i => ['confirmed', 'closed'].includes(i.status)).length
       const total = sprintItems.length
 
       // Phase = lowest status rank among active items (bottleneck), or stored phase for empty sprints
-      const activeItems = sprintItems.filter(i => !['deferred', 'wont_fix'].includes(i.status))
+      const activeItems = sprintItems.filter(i => !['deferred', 'wont_fix', 'blocked', 'closed'].includes(i.status))
       // Default: unseeded (shows #LetsSeedTheDiscovery)
       // in_sprint is a RAIDEN reactive status — never used in FORGE sprint pipeline
       let phase = 'unseeded'
       if (sp.status === 'complete') {
         phase = 'confirmed'
       } else if (activeItems.length > 0) {
-        const minRank = Math.min(...activeItems.map(i => STATUS_RANK[i.status] ?? 0))
-        if (minRank >= 10) phase = 'confirmed'
-        else if (minRank >= 9) phase = 'ux_audited'
+        // Use getStatusRank() — unknown statuses fall to mid-pipeline (5) not 0, preventing
+        // a single unrecognized status from dragging the whole sprint to "unseeded"
+        const minRank = Math.min(...activeItems.map(i => getStatusRank(i.status)))
+        if (minRank >= 11) phase = 'confirmed'
+        else if (minRank >= 10) phase = 'ux_audited'
+        else if (minRank >= 9) phase = 'deployed'
         else if (minRank >= 8) phase = 'audited'
         else if (minRank >= 7) phase = 'built'
         else if (minRank >= 6) phase = 'plan_audited'
@@ -743,7 +775,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   }
 
   const confirmAllInSprint = async (sprintId: string) => {
-    const sprintItems = allItems.filter(i => i.sprint_id === sprintId && i.status !== 'confirmed' && i.status !== 'deferred' && i.status !== 'wont_fix')
+    const sprintItems = allItems.filter(i => i.sprint_id === sprintId && i.status !== 'confirmed' && i.status !== 'deferred' && i.status !== 'wont_fix' && i.status !== 'closed')
     if (sprintItems.length === 0) return
     try {
       await fetchValidated(`${API_BASE}/tracker/bulk`, {
@@ -892,12 +924,16 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
   // Map sprint phase columns to the ticket status that items should be set to
   const PHASE_TO_STATUS: Record<string, string> = {
+    unseeded: 'in_sprint',
+    seeded: 'seeded',
     in_sprint: 'in_sprint',
     disc_audited: 'disc_audited',
     planned: 'planned',
     plan_audited: 'plan_audited',
     built: 'built',
     audited: 'audited',
+    deployed: 'deployed',
+    ux_audited: 'ux_audited',
     confirmed: 'confirmed',
   }
 
@@ -910,7 +946,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       const targetStatus = PHASE_TO_STATUS[toPhase]
       if (!targetStatus) return
       // Update all items in this sprint to the target status (use allItems, not filtered items)
-      const sprintItems = allItems.filter(i => i.sprint_id === data.sprintId && !['deferred', 'wont_fix'].includes(i.status))
+      const sprintItems = allItems.filter(i => i.sprint_id === data.sprintId && !['deferred', 'wont_fix', 'blocked', 'closed'].includes(i.status))
       // Always save phase to sprint doc (supports empty sprints)
       await fetchValidated(`${API_BASE}/sprints/${data.sprintId}`, {
         method: 'PATCH',
@@ -1588,46 +1624,100 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                   textTransform: 'uppercase', letterSpacing: '0.05em',
                 }}>{phaseConfig.label}</span>
               )}
-              {phaseConfig && (
+              {phaseConfig && (() => {
+                const isLoading = actionLoadingSprintId === sp.id
+                const isConfirmed = sp.phase === 'confirmed'
+                const isReopening = isConfirmed && reopeningSprintId === sp.id
+                const phaseIcon = isLoading ? 'sync' :
+                  sp.phase === 'unseeded' ? 'fact_check' :
+                  sp.phase === 'seeded' ? 'search' :
+                  sp.phase === 'disc_audited' ? 'terminal' :
+                  sp.phase === 'planned' ? 'fact_check' :
+                  sp.phase === 'plan_audited' ? 'terminal' :
+                  sp.phase === 'built' ? 'fact_check' :
+                  sp.phase === 'audited' ? 'rocket_launch' :
+                  sp.phase === 'deployed' ? 'verified' :
+                  sp.phase === 'ux_audited' ? 'celebration' :
+                  isConfirmed ? 'undo' : 'play_arrow'
+                return (
                 <button
+                  disabled={isLoading || isReopening}
                   onClick={async () => {
-                    if (sp.phase === 'in_sprint') generatePrompt(sp.id, 'seed')
-                    else if (sp.phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
-                    else if (sp.phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
-                    else if (sp.phase === 'planned') generatePhaseAudit(sp.id, 'plan')
-                    else if (sp.phase === 'plan_audited') generatePrompt(sp.id, 'building')
-                    else if (sp.phase === 'built') generateAuditPrompt(sp.id)
-                    else if (sp.phase === 'audited') {
-                      try {
-                        const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
+                    if (isLoading) return
+                    setActionLoadingSprintId(sp.id)
+                    try {
+                      if (sp.phase === 'unseeded') {
+                        await generatePrompt(sp.id, 'seed')
+                        showToast('Seeding discovery...', 'success')
+                      } else if (sp.phase === 'seeded') {
+                        await generatePhaseAudit(sp.id, 'discovery')
+                        showToast('Auditing discovery...', 'success')
+                      } else if (sp.phase === 'disc_audited') {
+                        await generatePrompt(sp.id, 'discovery')
+                        showToast('Generating plan...', 'success')
+                      } else if (sp.phase === 'planned') {
+                        await generatePhaseAudit(sp.id, 'plan')
+                        showToast('Auditing plan...', 'success')
+                      } else if (sp.phase === 'plan_audited') {
+                        await generatePrompt(sp.id, 'building')
+                        showToast('Generating build prompt...', 'success')
+                      } else if (sp.phase === 'built') {
+                        await generateAuditPrompt(sp.id)
+                        showToast('Auditing build...', 'success')
+                      } else if (sp.phase === 'audited') {
+                        const r = await fetchValidated(\`\${API_BASE}/sprints/\${sp.id}/sendit\`, { method: 'POST' })
                         if (r.success) {
-                          // Advance audited items to ux_audited
                           const auditedItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'audited')
                           if (auditedItems.length > 0) {
-                            await fetchValidated(`${API_BASE}/tracker/bulk`, {
+                            await fetchValidated(\`\${API_BASE}/tracker/bulk\`, {
                               method: 'PATCH',
-                              body: JSON.stringify({ ids: auditedItems.map(i => i.id), updates: { status: 'ux_audited' } }),
+                              body: JSON.stringify({ ids: auditedItems.map(i => i.id), updates: { status: 'deployed' } }),
                             })
                           }
+                          showToast('Sprint deployed — UX audit ready', 'success')
                           await loadItems(); await loadSprints()
+                        } else {
+                          showToast('Deploy failed — check logs', 'error')
                         }
-                      } catch { /* silent */ }
+                      } else if (sp.phase === 'deployed') {
+                        window.location.href = \`/modules/forge/audit?sprint=\${sp.id}&type=ux\`
+                      } else if (sp.phase === 'ux_audited') {
+                        // Advance all ux_audited items to confirmed
+                        const uxItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'ux_audited')
+                        if (uxItems.length > 0) {
+                          await fetchValidated(\`\${API_BASE}/tracker/bulk\`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ ids: uxItems.map(i => i.id), updates: { status: 'confirmed' } }),
+                          })
+                        }
+                        showToast('#LandedIt!!! — Sprint confirmed', 'success')
+                        await loadItems(); await loadSprints()
+                      } else if (isConfirmed) {
+                        await reopenSprint(sp.id)
+                      }
+                    } catch (err) {
+                      showToast(\`Action failed: \${String(err)}\`, 'error')
+                    } finally {
+                      setActionLoadingSprintId(null)
                     }
-                    else if (sp.phase === 'ux_audited') window.location.href = `/modules/forge/audit?sprint=${sp.id}&type=ux`
-                    else if (sp.phase === 'confirmed') reopenSprint(sp.id)
                   }}
                   style={{
                     padding: '6px 16px', borderRadius: 6,
-                    border: sp.phase === 'confirmed' ? '1px solid rgb(245,158,11)' : 'none',
-                    background: sp.phase === 'confirmed' ? 'transparent' : phaseConfig.color,
-                    color: sp.phase === 'confirmed' ? 'rgb(245,158,11)' : '#fff',
-                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    border: isConfirmed ? '1px solid rgb(245,158,11)' : 'none',
+                    background: isLoading ? 'rgba(255,255,255,0.08)' : (isConfirmed ? 'transparent' : phaseConfig.color),
+                    color: isConfirmed ? 'rgb(245,158,11)' : '#fff',
+                    fontSize: 12, fontWeight: 600,
+                    cursor: isLoading ? 'wait' : 'pointer',
+                    opacity: isLoading ? 0.7 : 1,
                     display: 'flex', alignItems: 'center', gap: 6,
+                    transition: 'all 0.2s ease',
                   }}
                 >
-                  {phaseConfig.actionLabel}
+                  <Icon name={phaseIcon} size={14} color={isConfirmed ? 'rgb(245,158,11)' : '#fff'} />
+                  {isLoading ? 'Working...' : phaseConfig.actionLabel}
                 </button>
-              )}
+                )
+              })()}
               <button
                 onClick={() => { setFilters(f => ({ ...f, sprint_id: sp.id })); setView('grid') }}
                 style={{
@@ -1659,6 +1749,88 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               <span><strong style={{ color: s.textMuted }}>Created:</strong> {formatDate(sp.created_at)}</span>
               <span><strong style={{ color: s.textMuted }}>Status:</strong> {safeStr(sp.status)}</span>
             </div>
+
+            {/* Phase Stepper — visual pipeline showing current position */}
+            <div style={{
+              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+              padding: '12px 16px', marginBottom: 16, overflowX: 'auto',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0, minWidth: 'max-content' }}>
+                {SPRINT_PHASES.map((p, i) => {
+                  const pc = PHASE_CONFIG[p]
+                  if (!pc) return null
+                  const phaseIdx = SPRINT_PHASES.indexOf(sp.phase as typeof SPRINT_PHASES[number])
+                  const stepIdx = i
+                  const isActive = p === sp.phase
+                  const isPast = stepIdx < phaseIdx
+                  const isFuture = stepIdx > phaseIdx
+                  return (
+                    <React.Fragment key={p}>
+                      {i > 0 && (
+                        <div style={{
+                          width: 20, height: 2, flexShrink: 0,
+                          background: isPast ? pc.color : 'rgba(255,255,255,0.08)',
+                          transition: 'background 0.3s ease',
+                        }} />
+                      )}
+                      <div
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                          opacity: isFuture ? 0.35 : 1,
+                          transition: 'opacity 0.3s ease',
+                        }}
+                        title={pc.label}
+                      >
+                        <div style={{
+                          width: isActive ? 28 : 18, height: isActive ? 28 : 18, borderRadius: '50%',
+                          background: isPast ? pc.color : (isActive ? pc.color : 'rgba(255,255,255,0.06)'),
+                          border: isActive ? `3px solid ${pc.color}` : (isPast ? 'none' : '1px solid rgba(255,255,255,0.12)'),
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.3s ease',
+                          boxShadow: isActive ? `0 0 12px ${pc.color}40` : 'none',
+                        }}>
+                          {isPast && <Icon name="check" size={12} color="#fff" />}
+                          {isActive && <Icon name="radio_button_checked" size={14} color="#fff" />}
+                        </div>
+                        <span style={{
+                          fontSize: 9, fontWeight: isActive ? 700 : 500,
+                          color: isActive ? pc.color : (isPast ? s.textSecondary : s.textMuted),
+                          whiteSpace: 'nowrap', letterSpacing: '0.02em',
+                          transition: 'color 0.3s ease',
+                        }}>
+                          {pc.label}
+                        </span>
+                      </div>
+                    </React.Fragment>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Unmapped status warning */}
+            {(() => {
+              const unmapped = sprintItems.filter(i => !(i.status in STATUS_CONFIG))
+              if (unmapped.length === 0) return null
+              const uniqueStatuses = [...new Set(unmapped.map(i => i.status))]
+              return (
+                <div style={{
+                  background: 'rgba(251,191,36,0.08)', borderRadius: 10,
+                  border: '1px solid rgba(251,191,36,0.3)', padding: 12, marginBottom: 16,
+                  display: 'flex', alignItems: 'flex-start', gap: 10,
+                }}>
+                  <Icon name="warning" size={18} color="rgb(251,191,36)" />
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'rgb(251,191,36)', marginBottom: 4 }}>
+                      {unmapped.length} item{unmapped.length > 1 ? 's' : ''} with unmapped status
+                    </div>
+                    <div style={{ fontSize: 11, color: s.textSecondary }}>
+                      Status values not in FORGE config: {uniqueStatuses.map(st => `"${st}"`).join(', ')}.
+                      These items display with fallback styling and rank as mid-pipeline.
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Progress */}
             <div style={{
@@ -1867,66 +2039,107 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             </div>
 
                             {/* Phase action button */}
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                if (phase === 'unseeded') generatePrompt(sp.id, 'seed')
-                                else if (phase === 'seeded') generatePhaseAudit(sp.id, 'discovery')
-                                else if (phase === 'disc_audited') generatePrompt(sp.id, 'discovery')
-                                else if (phase === 'planned') generatePhaseAudit(sp.id, 'plan')
-                                else if (phase === 'plan_audited') generatePrompt(sp.id, 'building')
-                                else if (phase === 'built') generateAuditPrompt(sp.id)
-                                else if (phase === 'audited') {
-                                  try {
-                                    const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
-                                    if (r.success) {
-                                      // Advance audited items to ux_audited
-                                      const auditedItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'audited')
-                                      if (auditedItems.length > 0) {
-                                        await fetchValidated(`${API_BASE}/tracker/bulk`, {
-                                          method: 'PATCH',
-                                          body: JSON.stringify({ ids: auditedItems.map(i => i.id), updates: { status: 'ux_audited' } }),
-                                        })
-                                      }
-                                      await loadItems(); await loadSprints()
-                                    }
-                                  } catch { /* silent */ }
-                                }
-                                else if (phase === 'ux_audited') window.location.href = `/modules/forge/audit?sprint=${sp.id}&type=ux`
-                                else if (phase === 'confirmed') reopenSprint(sp.id)
-                              }}
-                              disabled={phase === 'confirmed' && reopeningSprintId === sp.id}
-                              style={{
-                                width: '100%', padding: '6px 0', borderRadius: 6,
-                                border: phase === 'confirmed' ? '1px solid rgb(245,158,11)' : 'none',
-                                background: phase === 'confirmed'
-                                  ? (reopeningSprintId === sp.id ? 'rgb(245,158,11)' : 'transparent')
-                                  : phaseConfig.color,
-                                color: phase === 'confirmed'
-                                  ? (reopeningSprintId === sp.id ? '#fff' : 'rgb(245,158,11)')
-                                  : '#fff',
-                                fontSize: 12, fontWeight: 600,
-                                cursor: reopeningSprintId === sp.id ? 'wait' : 'pointer',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                                transition: 'all 0.2s ease',
-                              }}
-                            >
-                              <Icon name={
-                                (phase === 'confirmed' && reopeningSprintId === sp.id) ? 'sync' :
+                            {(() => {
+                              const isLoading = actionLoadingSprintId === sp.id
+                              const isConfirmed = phase === 'confirmed'
+                              const isReopening = isConfirmed && reopeningSprintId === sp.id
+                              const phaseIcon = isLoading ? 'sync' :
                                 phase === 'unseeded' ? 'fact_check' :
+                                phase === 'seeded' ? 'search' :
                                 phase === 'disc_audited' ? 'terminal' :
                                 phase === 'planned' ? 'fact_check' :
                                 phase === 'plan_audited' ? 'terminal' :
                                 phase === 'built' ? 'fact_check' :
-                                phase === 'ux_audited' ? 'verified' :
-                                phase === 'confirmed' ? 'undo' :
-                                'rocket_launch'
-                              } size={14} color={phase === 'confirmed' ? (reopeningSprintId === sp.id ? '#fff' : 'rgb(245,158,11)') : '#fff'} />
-                              {(phase === 'confirmed' && reopeningSprintId === sp.id) ? 'Reopening...' : phaseConfig.actionLabel}
-                            </button>
+                                phase === 'audited' ? 'rocket_launch' :
+                                phase === 'deployed' ? 'verified' :
+                                phase === 'ux_audited' ? 'celebration' :
+                                isConfirmed ? 'undo' : 'play_arrow'
+                              return (
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation()
+                                  if (isLoading) return
+                                  setActionLoadingSprintId(sp.id)
+                                  try {
+                                    if (phase === 'unseeded') {
+                                      await generatePrompt(sp.id, 'seed')
+                                      showToast(`${sp.name}: Seeding discovery...`, 'success')
+                                    } else if (phase === 'seeded') {
+                                      await generatePhaseAudit(sp.id, 'discovery')
+                                      showToast(`${sp.name}: Auditing discovery...`, 'success')
+                                    } else if (phase === 'disc_audited') {
+                                      await generatePrompt(sp.id, 'discovery')
+                                      showToast(`${sp.name}: Generating plan...`, 'success')
+                                    } else if (phase === 'planned') {
+                                      await generatePhaseAudit(sp.id, 'plan')
+                                      showToast(`${sp.name}: Auditing plan...`, 'success')
+                                    } else if (phase === 'plan_audited') {
+                                      await generatePrompt(sp.id, 'building')
+                                      showToast(`${sp.name}: Generating build prompt...`, 'success')
+                                    } else if (phase === 'built') {
+                                      await generateAuditPrompt(sp.id)
+                                      showToast(`${sp.name}: Auditing build...`, 'success')
+                                    } else if (phase === 'audited') {
+                                      const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
+                                      if (r.success) {
+                                        const auditedItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'audited')
+                                        if (auditedItems.length > 0) {
+                                          await fetchValidated(`${API_BASE}/tracker/bulk`, {
+                                            method: 'PATCH',
+                                            body: JSON.stringify({ ids: auditedItems.map(i => i.id), updates: { status: 'deployed' } }),
+                                          })
+                                        }
+                                        showToast(`${sp.name}: Deployed — UX audit ready`, 'success')
+                                        await loadItems(); await loadSprints()
+                                      } else {
+                                        showToast(`${sp.name}: Deploy failed — check logs`, 'error')
+                                      }
+                                    } else if (phase === 'deployed') {
+                                      window.location.href = `/modules/forge/audit?sprint=${sp.id}&type=ux`
+                                    } else if (phase === 'ux_audited') {
+                                      const uxItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'ux_audited')
+                                      if (uxItems.length > 0) {
+                                        await fetchValidated(`${API_BASE}/tracker/bulk`, {
+                                          method: 'PATCH',
+                                          body: JSON.stringify({ ids: uxItems.map(i => i.id), updates: { status: 'confirmed' } }),
+                                        })
+                                      }
+                                      showToast(`${sp.name}: #LandedIt!!! — Sprint confirmed`, 'success')
+                                      await loadItems(); await loadSprints()
+                                    } else if (isConfirmed) {
+                                      await reopenSprint(sp.id)
+                                    }
+                                  } catch (err) {
+                                    showToast(`${sp.name}: Action failed: ${String(err)}`, 'error')
+                                  } finally {
+                                    setActionLoadingSprintId(null)
+                                  }
+                                }}
+                                disabled={isLoading || isReopening}
+                                style={{
+                                  width: '100%', padding: '6px 0', borderRadius: 6,
+                                  border: isConfirmed ? '1px solid rgb(245,158,11)' : 'none',
+                                  background: isLoading ? 'rgba(255,255,255,0.08)' : (isConfirmed
+                                    ? (isReopening ? 'rgb(245,158,11)' : 'transparent')
+                                    : phaseConfig.color),
+                                  color: isConfirmed
+                                    ? (isReopening ? '#fff' : 'rgb(245,158,11)')
+                                    : '#fff',
+                                  fontSize: 12, fontWeight: 600,
+                                  cursor: (isLoading || isReopening) ? 'wait' : 'pointer',
+                                  opacity: isLoading ? 0.7 : 1,
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                  transition: 'all 0.2s ease',
+                                }}
+                              >
+                                <Icon name={phaseIcon} size={14} color={isConfirmed ? (isReopening ? '#fff' : 'rgb(245,158,11)') : '#fff'} />
+                                {isLoading ? 'Working...' : (isReopening ? 'Reopening...' : phaseConfig.actionLabel)}
+                              </button>
+                              )
+                            })()}
 
                             {/* Audit Walkthrough link for sprints ready for/in audit */}
-                            {(phase === 'built' || phase === 'audited') && (
+                            {(phase === 'built' || phase === 'audited' || phase === 'deployed') && (
                               <a
                                 href={`/modules/forge/audit?sprint=${sp.id}`}
                                 onClick={(e) => e.stopPropagation()}
