@@ -1665,11 +1665,11 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                         await generateAuditPrompt(sp.id)
                         showToast('Auditing build...', 'success')
                       } else if (sp.phase === 'audited') {
-                        const r = await fetchValidated(\`\${API_BASE}/sprints/\${sp.id}/sendit\`, { method: 'POST' })
+                        const r = await fetchValidated(`${API_BASE}/sprints/${sp.id}/sendit`, { method: 'POST' })
                         if (r.success) {
                           const auditedItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'audited')
                           if (auditedItems.length > 0) {
-                            await fetchValidated(\`\${API_BASE}/tracker/bulk\`, {
+                            await fetchValidated(`${API_BASE}/tracker/bulk`, {
                               method: 'PATCH',
                               body: JSON.stringify({ ids: auditedItems.map(i => i.id), updates: { status: 'deployed' } }),
                             })
@@ -1680,12 +1680,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                           showToast('Deploy failed — check logs', 'error')
                         }
                       } else if (sp.phase === 'deployed') {
-                        window.location.href = \`/modules/forge/audit?sprint=\${sp.id}&type=ux\`
+                        window.location.href = `/modules/forge/audit?sprint=${sp.id}&type=ux`
                       } else if (sp.phase === 'ux_audited') {
                         // Advance all ux_audited items to confirmed
                         const uxItems = allItems.filter(i => i.sprint_id === sp.id && i.status === 'ux_audited')
                         if (uxItems.length > 0) {
-                          await fetchValidated(\`\${API_BASE}/tracker/bulk\`, {
+                          await fetchValidated(`${API_BASE}/tracker/bulk`, {
                             method: 'PATCH',
                             body: JSON.stringify({ ids: uxItems.map(i => i.id), updates: { status: 'confirmed' } }),
                           })
@@ -1696,7 +1696,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                         await reopenSprint(sp.id)
                       }
                     } catch (err) {
-                      showToast(\`Action failed: \${String(err)}\`, 'error')
+                      showToast(`Action failed: ${String(err)}`, 'error')
                     } finally {
                       setActionLoadingSprintId(null)
                     }
