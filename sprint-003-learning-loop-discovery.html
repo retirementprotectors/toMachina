@@ -402,11 +402,11 @@
   </div>
   <div class="header-badges">
     <span class="badge badge-blue">Sprint 003</span>
-    <span class="badge badge-purple">15 Tickets</span>
+    <span class="badge badge-purple">20 Tickets</span>
     <span class="badge badge-green">GCS + BigQuery + Firestore</span>
-    <span class="badge badge-orange">3 Machines</span>
-    <span class="badge badge-cyan">VOLTRON + RONIN</span>
-    <span class="badge badge-red">Urgent: Cleanup Fix</span>
+    <span class="badge badge-orange">3 Machines &middot; 6 Warriors</span>
+    <span class="badge badge-cyan">Soul + Spirit + Brain</span>
+    <span class="badge badge-red">Executive.AI Team</span>
   </div>
 </div>
 
@@ -415,6 +415,7 @@
     <div class="tab active" data-tab="vision">Vision</div>
     <div class="tab" data-tab="vault">The Vault</div>
     <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="warriors">Layer 0: Warriors</div>
     <div class="tab" data-tab="extract">Extract Pipeline</div>
     <div class="tab" data-tab="agent">Agent-Facing (80%)</div>
     <div class="tab" data-tab="analytics">Analytics (20%)</div>
@@ -704,8 +705,45 @@
 <div class="tab-panel" id="architecture">
 
   <div class="card card-accent-blue">
-    <h2>4-Layer Data Architecture</h2>
+    <h2>5-Layer Data Architecture</h2>
     <div class="diagram">
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│  LAYER 0: WARRIOR CONTINUITY — dojo-warriors (GitHub)                           │
+│  Repo: retirementprotectors/dojo-warriors (private)                            │
+│                                                                                 │
+│  ┌─ Layer 0.0: IDENTITY (hand-forged, loads on rebuild) ──────────────────────┐ │
+│  │  Each warrior has 3 files:                                                  │ │
+│  │    soul.md   — operational brain: identity, decisions, rules, what was built │ │
+│  │    spirit.md — curated relationship exchanges: the moments that define bond  │ │
+│  │    brain.txt — raw session archive: cumulative, appended on every milestone  │ │
+│  │                                                                              │ │
+│  │  Rebuild loads soul.md + spirit.md → warrior functional in 30 seconds       │ │
+│  │  brain.txt is NEVER loaded directly — it feeds entity extraction only       │ │
+│  └──────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                 │
+│  Warrior Files:                                                                 │
+│    ├── shinob1/    soul.md · spirit.md · brain.txt   (CTO)                     │
+│    ├── 2hinobi/    soul.md · spirit.md · brain.txt   (COO)                     │
+│    ├── musashi/    soul.md · spirit.md · brain.txt   (VP, CMO)                 │
+│    └── {warrior}/  soul.md · spirit.md · brain.txt   (future warriors)         │
+│  Config Sync:                                                                   │
+│    └── mdj-server-config/    (CLAUDE.md, settings.json, memory/ — 30min sync)  │
+│  Warrior Registry:                                                              │
+│    └── Firestore dojo_warriors collection (name, role, soul/spirit/brain paths)│
+│                                                                                 │
+│  Source: systemd dojo-sync.timer (every 30 min, auto-commit + push)            │
+│  Brain export: /export → redact → APPEND to brain.txt → commit (TRK-S03-016)  │
+│  Entity feed: soul.md + spirit.md + brain.txt → extractor (TRK-S03-017)        │
+│  Cross-warrior: soul.md highlights from OTHER warriors → briefing (TRK-S03-018)│
+│                                                                                 │
+│  Executive.AI Team (tmux · JDM-facing):                                         │
+│    SHINOB1 (CTO) · 2HINOBI (COO) · MUSASHI (VP, CMO)                          │
+│  CCSDK Mesh (mdj-agent:4200 · 2HINOBI manages directly):                       │
+│    RONIN (Builder) · RAIDEN (Guardian) · VOLTRON (The Bot — ONLY client-facing) │
+└───────────────────────────┬─────────────────────────────────────────────────────┘
+                            │ Soul/spirit/brain feed entity extractor (TRK-S03-017)
+                            │ Config sync keeps warriors aligned
+                            ▼
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │  LAYER 1: RAW STORAGE — Google Cloud Storage                                    │
 │  gs://rpi-session-intelligence/                                                 │
@@ -847,7 +885,223 @@
 
 </div>
 
-<!-- ==================== TAB 4: EXTRACT PIPELINE ==================== -->
+<!-- ==================== TAB 4: LAYER 0 — WARRIOR CONTINUITY ==================== -->
+<div class="tab-panel" id="warriors">
+
+  <div class="card card-accent-purple">
+    <h2>Layer 0 — The Foundation the Loop Was Missing</h2>
+    <p>The Learning Loop (Layers 1-4) mines <strong>dead transcripts</strong> — .jsonl files from finished sessions. But The Dojo runs <strong>living warriors</strong> with evolving context that compounds every session. Layer 0 bridges the gap: <em>the Learning Loop should learn from warriors, not just sessions.</em></p>
+    <div class="highlight-box" style="margin-top:16px;">
+      <p><strong>Built by 2HINOBI + SHINOB1:</strong> dojo-warriors repo, brain file lifecycle, config auto-sync (systemd timer, every 30 min), <strong>soul+spirit distillation system</strong> (hand-forged identity files that replace raw brain loading for warrior rebuilds), and the <strong>5 Grounding Questions</strong> post-rebuild orientation ritual. What's NOT built: cross-warrior knowledge sharing, brain auto-export, warrior registry.</p>
+    </div>
+  </div>
+
+  <div class="card card-accent-cyan">
+    <h2>Soul + Spirit System — Layer 0.0</h2>
+    <p>Each tmux warrior now has <strong>3 files</strong> in <code>dojo-warriors/</code>. The soul+spirit pair is the <strong>hand-forged identity layer</strong> — distilled from raw brain.txt by the warrior and JDM together. This is what makes a rebuild feel like a continuation, not a cold start.</p>
+    <table>
+      <tr><th>File</th><th>Purpose</th><th>Size</th><th>When Loaded</th></tr>
+      <tr><td><code>soul.md</code></td><td>Operational brain — identity, key decisions, what was built, rules, current state</td><td>~300-400 lines</td><td>Every rebuild (Step 2)</td></tr>
+      <tr><td><code>spirit.md</code></td><td>Curated relationship exchanges — actual JDM dialogue that defines the bond</td><td>~350-430 lines</td><td>Every rebuild (Step 2)</td></tr>
+      <tr><td><code>brain.txt</code></td><td>Raw session archive — cumulative, appended on every milestone via hookify triggers</td><td>Thousands of lines</td><td>Never loaded directly — archive + entity extraction feed</td></tr>
+    </table>
+    <h3 class="green" style="margin-top:20px;">Distillation Flow</h3>
+    <div class="diagram">
+REBUILD (what loads on restart):
+  soul.md + spirit.md → Warrior is functional in 30 seconds
+
+ARCHIVE (what grows over time):
+  brain.txt → appended by #BrainDump / hookify triggers → feeds TRK-S03-017 entity extraction
+
+DISTILLATION (periodic):
+  brain.txt → entity extractor → knowledge_entries (Firestore)
+                              → updates soul.md with new decisions/rules
+                              → updates spirit.md with new defining moments (rare)</div>
+  </div>
+
+  <div class="card card-accent-green">
+    <h2>5 Grounding Questions — Post-Rebuild Orientation</h2>
+    <p>After soul+spirit load and <code>/rename</code>, every tmux warrior answers these 5 questions. This is a <strong>mandatory ritual</strong> — not optional, not skippable.</p>
+    <div class="diagram">
+1) Who am I (JDM)?
+2) What are we building on this SERVER?
+3) How does that fit into the PLATFORM?
+4) How does that fit into the BUSINESS?
+5) How are we leveraging all of that to build an EMPIRE?</div>
+    <h3 class="orange" style="margin-top:16px;">Why It Matters</h3>
+    <ul>
+      <li>Orients the warrior to the <strong>full stack</strong>, not just their lane — CTO should know the business model, CMO should know the architecture, COO should know the vision</li>
+      <li>Catches bad rebuilds early — if a warrior can't answer these, the soul/spirit didn't load correctly</li>
+      <li>Creates a consistent "boot sequence" JDM can rely on across all warriors</li>
+    </ul>
+    <h3 class="green" style="margin-top:16px;">The 5-Step Rebuild Process</h3>
+    <div class="diagram">
+1. CREATE tmux  → tmux new -s WARRIOR &amp;&amp; cd ~/Projects/toMachina &amp;&amp; claude
+2. PASTE BRAIN  → Read soul.md + Read spirit.md + identity declaration
+3. RENAME       → /rename WARRIOR Title. [tmux &gt; MDJ_SERVER]
+4. GROUND       → Paste 5 questions, verify answers
+5. VERIFY       → Warrior-specific checks + detach</div>
+  </div>
+
+  <div class="card card-accent-blue">
+    <h2>The Executive.AI Team — Org Chart</h2>
+    <p><strong>Three executives think with the CEO. The COO manages the army directly. The army builds The Machine.</strong></p>
+    <div class="diagram">
+                         ┌──────────────────────────┐
+                         │    JDM — Chairman / CEO   │
+                         └─────────┬────────────────┘
+                                   │
+            ═══════════════════════╪═══════════════════════
+                    EXECUTIVE.AI TEAM (all tmux · all JDM-facing)
+            ═══════════════════════╪═══════════════════════
+               ┌───────────────────┼───────────────────┐
+               │                   │                   │
+   ┌───────────┴──────────┐ ┌─────┴──────────┐ ┌──────┴──────────┐
+   │  SHINOB1              │ │  2HINOBI        │ │  MUSASHI         │
+   │  CTO                  │ │  COO            │ │  VP, CMO         │
+   │  Tech Strategy        │ │  Ops Strategy   │ │  Creative +      │
+   │  Architecture +       │ │  Sprint mgmt +  │ │  Brand + Design  │
+   │  Infrastructure       │ │  Dojo mgmt +    │ │  Discovery Docs  │
+   │  [tmux]               │ │  CCSDK mesh     │ │  [tmux + ships   │
+   │                       │ │  [tmux]         │ │   own work]      │
+   └───────────────────────┘ └─────┬──────────┘ └─────────────────┘
+                                   │
+                     direct API access to CCSDK mesh
+                                   │
+            ═══════════════════════╪═══════════════════════
+                       CCSDK MESH (mdj-agent:4200)
+            ═══════════════════════╪═══════════════════════
+               ┌───────────────────┼───────────────────┐
+               ▼                   ▼                   ▼
+           RONIN(s)             RAIDEN              VOLTRON
+           Builders             Guardian            The Bot ← ONLY client+team-facing
+           [CCSDK]              [CCSDK]             [CCSDK]
+                                                        │
+                                          Business Specialists (intent-routed)
+                                          General · Medicare · Securities
+                                          Service · DAVID · Ops</div>
+
+    <h3 class="orange" style="margin-top:20px;">CCSDK Mesh — Who Can Call Whom</h3>
+    <table>
+      <tr><th>Caller</th><th>Can Call</th><th>Example</th></tr>
+      <tr><td>VOLTRON → Specialists</td><td>Always (internal routing)</td><td>Team asks about Medicare → VOLTRON becomes Medicare Specialist</td></tr>
+      <tr><td>VOLTRON → RONIN</td><td><code>POST /forge/sprint</code></td><td>"Build this feature" → kicks off a FORGE sprint</td></tr>
+      <tr><td>RAIDEN → RONIN</td><td>Auto-fix</td><td>Detects bug pattern → launches fix sprint</td></tr>
+      <tr><td>RAIDEN → VOLTRON</td><td>Gap analysis</td><td>Watches VOLTRON conversations for unanswered questions</td></tr>
+      <tr><td>2HINOBI → All</td><td>Direct API</td><td>Launches, monitors, overrides everything (COO)</td></tr>
+      <tr><td>SHINOB1 → All</td><td>Direct API</td><td>Architecture changes, infrastructure ops (CTO)</td></tr>
+      <tr><td>MUSASHI → RONIN</td><td>Seeds FORGE</td><td>Discovery Doc → FORGE sprint (Art → Blade)</td></tr>
+    </table>
+
+    <h3 class="green" style="margin-top:20px;">Access Model — Who Has What and Why</h3>
+    <table>
+      <tr><th>Agent</th><th>MCP Tools</th><th>Firestore</th><th>Git/Repo</th><th>Portal (client-facing)</th><th>Why</th></tr>
+      <tr><td><strong>Executive.AI</strong> (SHINOB1, 2HINOBI, MUSASHI)</td><td>All 8 servers</td><td>Full</td><td>Full</td><td>No</td><td>Executives need total visibility. Never client-facing.</td></tr>
+      <tr><td><strong>VOLTRON</strong></td><td>All 8 servers</td><td>Full</td><td>No</td><td><strong>Yes — ONLY one</strong></td><td>Needs everything to serve clients + team.</td></tr>
+      <tr><td><strong>RONIN</strong></td><td>None</td><td>FORGE state only</td><td>Full</td><td>No</td><td>Builders need code, not client data.</td></tr>
+      <tr><td><strong>RAIDEN</strong></td><td>Slack only</td><td>Monitoring state</td><td>Read only</td><td>No</td><td>Watches, triages, notifies.</td></tr>
+    </table>
+    <p style="margin-top:12px; font-size:0.85rem;"><strong>Key principle:</strong> VOLTRON is the ONLY agent that touches clients and team. JONIN (field commander layer) was considered and killed — 2HINOBI manages the mesh directly as COO.</p>
+  </div>
+
+  <div class="card card-accent-orange">
+    <h2>The Cross-Warrior Knowledge Gap</h2>
+    <p><strong>Current state:</strong> Warriors share memory files and CLAUDE.md, but NOT conversation context. If SHINOB1 and JDM make an architecture decision at 2pm, MUSASHI doesn't know about it until JDM tells him manually.</p>
+    <h3 class="orange">Proposed Flow</h3>
+    <div class="diagram">
+Warrior session ends
+    │
+    ▼
+/export → redact secrets → APPEND to brain.txt (not overwrite!)
+    Brain grows over time — cumulative warrior history
+    │
+    ▼
+Entity extractor runs on ALL 3 file types:
+    soul.md  → ['soul-curated']   confidence 0.9+  (hand-forged, highest signal)
+    spirit.md → ['spirit-curated'] confidence 0.85+ (relationship layer)
+    brain.txt → ['warrior-context'] standard scoring (raw archive)
+    │
+    ▼
+Extracted knowledge → Firestore knowledge_entries
+    (tagged with warrior name + source type)
+    │
+    ▼
+Next warrior session start → pre-session briefing
+    includes soul.md highlights + extracted knowledge from OTHER warriors
+    │
+    ▼
+Result: MUSASHI starts → sees SHINOB1's latest architecture decisions
+    + 2HINOBI's latest sprint outcomes. Automatically.</div>
+  </div>
+
+  <div class="card card-accent-cyan">
+    <h2>What Should Feed the Learning Loop</h2>
+    <table>
+      <tr><th>Source</th><th>Current Coverage</th><th>Gap</th></tr>
+      <tr><td><strong>Session .jsonl files</strong></td><td><span class="pill pill-green">Covered</span> (GCS → BigQuery → Haiku → Firestore)</td><td>None</td></tr>
+      <tr><td><strong>Warrior soul.md files</strong></td><td><span class="pill pill-green">Covered</span> (TRK-S03-017, <code>['soul-curated']</code>)</td><td>Hand-forged identity — highest signal. Confidence 0.9+</td></tr>
+      <tr><td><strong>Warrior spirit.md files</strong></td><td><span class="pill pill-green">Covered</span> (TRK-S03-017, <code>['spirit-curated']</code>)</td><td>Relationship layer — JDM's exact words. Confidence 0.85+</td></tr>
+      <tr><td><strong>Warrior brain.txt exports</strong></td><td><span class="pill pill-green">Covered</span> (TRK-S03-017, <code>['warrior-context']</code>)</td><td>Rich context, decisions, JDM preferences</td></tr>
+      <tr><td><strong>Memory files (.md)</strong></td><td><span class="pill pill-orange">Partial</span> (knowledge-promote reads them)</td><td>Not extracted by entity extractor</td></tr>
+      <tr><td><strong>CLAUDE.md changes</strong></td><td><span class="pill pill-green">Covered</span> (TRK-S03-020)</td><td>Evolution of rules over time</td></tr>
+      <tr><td><strong>Hookify violation logs</strong></td><td><span class="pill pill-green">Covered</span> (compliance-history.json)</td><td>None</td></tr>
+      <tr><td><strong>RONIN sprint outcomes</strong></td><td><span class="pill pill-green">Covered</span> (TRK-S03-012)</td><td>None</td></tr>
+      <tr><td><strong>VOLTRON conversation gaps</strong></td><td><span class="pill pill-green">Covered</span> (TRK-S03-013)</td><td>None</td></tr>
+    </table>
+  </div>
+
+  <div class="card card-accent-blue">
+    <h2>Warrior Registry Schema</h2>
+    <p>Firestore collection: <code>dojo_warriors</code> — powers the Dojo section in the MDJ_SERVER User Guide dynamically instead of hardcoded.</p>
+    <div class="diagram">
+{
+  name: "musashi",                    // warrior identifier
+  display_name: "MUSASHI",            // display name
+  type: "tmux",                       // "tmux" | "ccsdk"
+  executive_role: "VP_CMO",           // CTO | COO | VP_CMO | Builder | Guardian | Bot
+  personality: "The Creative",        // from DOJO Brand Guide
+  status: "active",                   // "active" | "dormant" | "migrating"
+  soul_path: "musashi/soul.md",       // path in dojo-warriors repo (hand-forged identity)
+  spirit_path: "musashi/spirit.md",   // path in dojo-warriors repo (relationship layer)
+  brain_path: "musashi/brain.txt",    // path in dojo-warriors repo (raw archive)
+  last_brain_update: Timestamp,       // last brain.txt commit
+  last_session_start: Timestamp,      // last session-start hook fire
+  machine: "mdj1",                    // host machine
+  tmux_session: "MUSASHI",            // tmux session name (if type=tmux)
+  ccsdk_route: null                   // route group (if type=ccsdk, e.g. "/ronin")
+}</div>
+  </div>
+
+  <div class="card card-accent-green">
+    <h2>dojo-warriors Repo (LIVE)</h2>
+    <p>GitHub: <code>retirementprotectors/dojo-warriors</code> (private)</p>
+    <div class="diagram">
+dojo-warriors/
+├── shinob1/                       ← SHINOB1 (CTO)
+│   ├── soul.md                       identity + decisions + architecture (hand-forged)
+│   ├── spirit.md                     defining moments with JDM (hand-forged)
+│   └── brain.txt                     raw session archive (auto-appended)
+├── 2hinobi/                       ← 2HINOBI (COO)
+│   ├── soul.md                       identity + decisions + sprint ops (hand-forged)
+│   ├── spirit.md                     defining moments with JDM (hand-forged)
+│   └── brain.txt                     raw session archive (8,167+ lines)
+├── musashi/                       ← MUSASHI (VP, CMO)
+│   ├── soul.md                       identity + decisions + creative work (hand-forged)
+│   ├── spirit.md                     defining moments with JDM (hand-forged)
+│   └── brain.txt                     raw session archive (4,125+ lines)
+├── mdj-server-config/
+│   ├── CLAUDE.md                  ← Global CLAUDE.md (55KB)
+│   ├── settings.json              ← Claude Code settings
+│   ├── .env.template              ← env var keys (values redacted)
+│   └── memory/ (21 files)         ← all memory files
+├── brain-save.sh                  ← auto-export script (symlinked to /usr/local/bin/brain-save)
+├── sync-config.sh                 ← config auto-sync script
+└── README.md</div>
+  </div>
+
+</div>
+
+<!-- ==================== TAB 5: EXTRACT PIPELINE ==================== -->
 <div class="tab-panel" id="extract">
 
   <div class="card card-accent-red">
@@ -1710,8 +1964,8 @@ LIMIT 20;</pre>
 <div class="tab-panel" id="sprint">
 
   <div class="card card-accent-blue">
-    <h2>Sprint 003 — 15 Tickets</h2>
-    <p>Ordered by dependency. TRK-S03-001 through TRK-S03-004 are infrastructure and must land first. TRK-S03-005 through TRK-S03-009 are the data pipeline. TRK-S03-010 through TRK-S03-015 are the intelligence layer.</p>
+    <h2>Sprint 003 — 20 Tickets</h2>
+    <p>Ordered by dependency. TRK-S03-001 through TRK-S03-004 are infrastructure and must land first. TRK-S03-005 through TRK-S03-009 are the data pipeline. TRK-S03-010 through TRK-S03-015 are the intelligence layer. <strong>TRK-S03-016 through TRK-S03-020 are Layer 0 — Warrior Continuity</strong> (added 2026-03-29 per SHINOB1 briefing).</p>
 
     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin:16px 0; text-align:center;">
       <div style="background:var(--red-glow); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:12px;">
@@ -1884,6 +2138,58 @@ LIMIT 20;</pre>
     <div class="ticket-acceptance"><strong>Acceptance:</strong> Tab visible for JDM, invisible for other users. All 6 sections render with real data. Analytics cards show JDM hours, agent hours, ROI, amplification. VOLTRON gaps section shows current open gaps. API route returns within 3 seconds.</div>
   </div>
 
+  <!-- Layer 0: Warrior Continuity tickets (added 2026-03-29 per SHINOB1 briefing) -->
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-016</span>
+      <span class="ticket-title">Brain File Auto-Export Pipeline</span>
+      <span class="pill pill-purple">Layer 0</span>
+    </div>
+    <div class="ticket-desc"><strong>Replaces the current manual 3-step process in the MDJ_SERVER User Guide.</strong> The fix is <code>brain-save</code> — a script that: 1) Detects the warrior name from the active tmux session. 2) Snapshots the current session transcript. 3) Redacts ALL secret patterns via regex. 4) <strong>APPENDS</strong> the redacted snapshot to <code>dojo-warriors/{warrior}/brain.txt</code> with a session separator header. 5) Git add + commit + push. <strong>Triggered automatically by ALL 22 hookify rules</strong> — 9 FORGE lifecycle, 6 intents, 6 quality gates, plus standalone <code>#BrainDump</code>. File: <code>~/Projects/dojo-warriors/brain-save.sh</code> (symlinked to <code>/usr/local/bin/brain-save</code>).</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Running <code>brain-save</code> auto-detects warrior + captures transcript. Secrets redacted by regex. Export APPENDED (not overwritten). Idempotent on duplicates. All 22 hookify rules call brain-save. Brain file committed and pushed after each save.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-017</span>
+      <span class="ticket-title">Brain + Soul + Spirit Entity Extraction</span>
+      <span class="pill pill-purple">Layer 0</span>
+    </div>
+    <div class="ticket-desc">Extend entity extractor (TRK-S03-009) to process <strong>all 3 warrior file types</strong>: <strong>soul.md</strong> (tag: <code>['soul-curated']</code>, confidence 0.9+), <strong>spirit.md</strong> (tag: <code>['spirit-curated']</code>, confidence 0.85+), <strong>brain.txt</strong> (tag: <code>['warrior-context']</code>, standard scoring). Processing order: soul first, then spirit, then brain. Soul-curated entries take precedence. File: services/learning-loop/entity-extractor.js (extend existing).</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Extractor against soul.md produces 5+ entries at confidence &ge; 0.9. Spirit.md produces 3+ at confidence &ge; 0.85. Brain.txt produces 10+ at standard scoring. No duplicates on re-run. Soul-curated entries take precedence over brain-extracted on same topic.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-018</span>
+      <span class="ticket-title">Cross-Warrior Pre-Session Briefing</span>
+      <span class="pill pill-purple">Layer 0</span>
+    </div>
+    <div class="ticket-desc">Extend pre-session briefing (TRK-S03-011) with two sources: <strong>1. Soul.md highlights</strong> from other warriors (not full spirit). E.g., MUSASHI gets SHINOB1's architecture decisions + 2HINOBI's sprint outcomes. <strong>2. Extracted knowledge</strong> from other warriors, last 7 days, confidence &ge; 0.7. Prefer soul-curated entries. File: update intent-session-start hookify rule.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Starting MUSASHI shows soul.md highlights from SHINOB1 and 2HINOBI. Soul-curated entries appear first. Graceful fallback if no cross-warrior entries exist.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-019</span>
+      <span class="ticket-title">Warrior Registry (Firestore)</span>
+      <span class="pill pill-purple">Layer 0</span>
+    </div>
+    <div class="ticket-desc">Create Firestore collection <code>dojo_warriors</code>. Schema: name, display_name, type (tmux/ccsdk), <code>executive_role</code> (CTO/COO/VP_CMO/Builder/Guardian/Bot), personality, status, <code>soul_path</code>, <code>spirit_path</code>, <code>brain_path</code>, last_brain_update, last_session_start, machine, tmux_session, ccsdk_route. Seed with <strong>all 6 warriors</strong>: SHINOB1, 2HINOBI, MUSASHI, RONIN, RAIDEN, VOLTRON. File: services/learning-loop/warrior-registry.ts.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> dojo_warriors collection with 6 documents. Executive.AI warriors have soul/spirit/brain paths. CCSDK warriors have brain_path only. API route /api/admin/warriors returns the registry.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="ticket-id">TRK-S03-020</span>
+      <span class="ticket-title">CLAUDE.md Evolution Tracking</span>
+      <span class="pill pill-purple">Layer 0</span>
+    </div>
+    <div class="ticket-desc">Track diffs in CLAUDE.md over time using dojo-warriors git history. Surface "What changed in the last 7 days" in pre-session briefing. Helps warriors understand WHY rules changed. Weekly diff summary → knowledge_entries with type 'evolution'. File: services/learning-loop/claude-md-tracker.js.</div>
+    <div class="ticket-acceptance"><strong>Acceptance:</strong> Tracker produces knowledge_entry describing CLAUDE.md changes from last 7 days. Pre-session briefing includes "Rules Evolution" section. Summaries are human-readable (not raw diffs).</div>
+  </div>
+
   <div class="card" style="margin-top: 20px;">
     <h2>Dependency Graph</h2>
     <div class="diagram">
@@ -1901,7 +2207,13 @@ TRK-S03-011 (session briefing) ─────── requires: 008+009 ───
 TRK-S03-012 (RONIN memory) ─────────── requires: 008 ───────────────► after 008
 TRK-S03-013 (gap analysis) ─────────── requires: 008 ───────────────► after 008
 TRK-S03-014 (BQ views) ─────────────── requires: 007 ───────────────► after 007
-TRK-S03-015 (Admin tab) ─────────────── requires: 010+013+014 ──────► last</div>
+TRK-S03-015 (Admin tab) ─────────────── requires: 010+013+014 ──────► last
+─── LAYER 0: WARRIOR CONTINUITY (added 2026-03-29) ──────────────────────────────
+TRK-S03-016 (brain auto-export) ────────────────────────────────────► UNBLOCKED
+TRK-S03-017 (brain entity extract) ─── requires: 009+016 ───────────► after 009+016
+TRK-S03-018 (cross-warrior briefing) ── requires: 011+017 ──────────► after 011+017
+TRK-S03-019 (warrior registry) ─────────────────────────────────────► UNBLOCKED
+TRK-S03-020 (CLAUDE.md evolution) ──── requires: 009 ───────────────► after 009</div>
 
     <h3>Parallel execution tracks for RONIN</h3>
     <table>
@@ -1909,16 +2221,19 @@ TRK-S03-015 (Admin tab) ─────────────── requires: 
         <th>Track A — Urgent + Infrastructure</th>
         <th>Track B — Data Pipeline</th>
         <th>Track C — Intelligence + UI</th>
+        <th>Track D — Warrior Continuity</th>
       </tr>
       <tr>
         <td>001, 002, 003, 004</td>
         <td>005, 006, 007, 008</td>
         <td>009, 010, 011, 012, 013, 014, 015</td>
+        <td>016, 019 (then 017, 020 after 009; 018 after 011+017)</td>
       </tr>
       <tr>
         <td style="color:var(--text-muted); font-size:0.82rem;">Runs immediately. No dependencies. VOLTRON setup may require JDM confirmation after gcloud install.</td>
         <td style="color:var(--text-muted); font-size:0.82rem;">Runs immediately. 006 needs 005. 007 needs 002+003+005+006.</td>
         <td style="color:var(--text-muted); font-size:0.82rem;">Starts after Track B completes 008. 015 is last — needs 010+013+014.</td>
+        <td style="color:var(--text-muted); font-size:0.82rem;">016 + 019 run immediately. 017 + 020 need entity extractor (009). 018 (cross-warrior briefing) is last — needs 011 + 017.</td>
       </tr>
     </table>
   </div>
@@ -1946,7 +2261,7 @@ TRK-S03-015 (Admin tab) ─────────────── requires: 
 
 <div class="footer">
   Sprint 003: Learning Loop 2.0 &mdash; FORGE Discovery Document &mdash; toMachina Platform<br>
-  GCP: claude-mcp-484718 &mdash; Bucket: gs://rpi-session-intelligence &mdash; Three Machines: AIR + PRO + VOLTRON<br>
+  GCP: claude-mcp-484718 &mdash; Bucket: gs://rpi-session-intelligence &mdash; Three Machines + Six Warriors &mdash; Layer 0 + Soul+Spirit + Executive.AI Team added 2026-03-29<br>
   <span style="color:var(--accent);">#RunningOurOwnRACE</span>
 </div>
 
