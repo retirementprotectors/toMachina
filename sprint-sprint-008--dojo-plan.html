@@ -2,275 +2,272 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sprint 008 — DOJO — Build Order Plan</title>
+<title>Sprint 008 — DOJO — Build Plan</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; color: #1a1a2e; }
-  h1 { border-bottom: 3px solid #e94560; padding-bottom: 0.5rem; }
-  h2 { color: #e94560; margin-top: 2rem; }
-  h3 { color: #0f3460; }
-  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-  th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; font-size: 0.9rem; }
-  th { background: #0f3460; color: #fff; }
-  .wave { background: #f8f8fc; border-left: 4px solid #e94560; padding: 1rem; margin: 1rem 0; }
-  .tag-new { color: #27ae60; font-weight: bold; }
-  .tag-mod { color: #e67e22; font-weight: bold; }
-  .tag-exist { color: #3498db; font-weight: bold; }
-  code { background: #f0f0f0; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.85rem; }
-  .verify { background: #e8f5e9; border: 1px solid #4caf50; padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
+  body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; background: #0d1117; color: #c9d1d9; }
+  h1 { color: #58a6ff; border-bottom: 2px solid #30363d; padding-bottom: 0.5rem; }
+  h2 { color: #ff7b72; margin-top: 2rem; }
+  h3 { color: #d2a8ff; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { border: 1px solid #30363d; padding: 0.5rem; text-align: left; font-size: 0.9rem; }
+  th { background: #161b22; color: #58a6ff; }
+  .new { color: #3fb950; font-weight: bold; }
+  .mod { color: #d29922; font-weight: bold; }
+  .wave { background: #161b22; border-left: 4px solid #58a6ff; padding: 1rem; margin: 1rem 0; border-radius: 4px; }
+  .dep { color: #ff7b72; font-style: italic; }
+  code { background: #161b22; padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; }
+  .verify { background: #0d2818; border: 1px solid #238636; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; font-family: monospace; font-size: 0.85rem; }
 </style>
 </head>
 <body>
 
-<h1>Sprint 008 — DOJO — Build Order Plan</h1>
-<p><strong>Discovery:</strong> <a href="https://retirementprotectors.github.io/sprint-008-dojo-discovery.html">sprint-008-dojo-discovery.html</a><br>
-<strong>Theme:</strong> AiBot Brand Code — One Voice, Five Warriors, Zero Sharp Edges<br>
-<strong>Tickets:</strong> 12 (TRK-DOJ-001 → TRK-DOJ-012)<br>
-<strong>Waves:</strong> 5<br>
-<strong>Critical Path:</strong> DOJ-004 → DOJ-008 → DOJ-006 → DOJ-005 → DOJ-012</p>
+<h1>Sprint 008 — DOJO — Build Plan</h1>
+<p><strong>Sprint:</strong> DOJO — "The toMachina AiBot Ethos"<br>
+<strong>Tickets:</strong> TRK-DOJ-001 through TRK-DOJ-012 (12 total)<br>
+<strong>Phases:</strong> 4 Waves<br>
+<strong>Discovery:</strong> <a href="https://retirementprotectors.github.io/sprint-008-dojo-discovery.html">sprint-008-dojo-discovery.html</a><br>
+<strong>Date:</strong> 2026-03-29</p>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Prior Art (Already Exists)</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
+<h2>Codebase Status — What Already Exists</h2>
 <table>
-  <tr><th>File</th><th>Lines</th><th>Status</th><th>Impact</th></tr>
-  <tr>
-    <td><code>packages/core/src/aibot-brand.ts</code></td>
-    <td>55</td>
-    <td><span class="tag-exist">EXISTS</span></td>
-    <td>Types + <code>getAiBotByName</code> helper already defined. TRK-DOJ-004 becomes enhancement (populate character data constants, export <code>ALL_BOTS</code>).</td>
-  </tr>
-  <tr>
-    <td><code>services/api/src/routes/myst-ai.ts</code></td>
-    <td>194</td>
-    <td><span class="tag-exist">EXISTS</span></td>
-    <td>Both endpoints implemented with inline character data. TRK-DOJ-010 becomes refactor (import from <code>@tomachina/core</code>, remove inline types).</td>
-  </tr>
+  <tr><th>File</th><th>Status</th><th>Notes</th></tr>
+  <tr><td><code>packages/core/src/aibot-brand.ts</code></td><td class="mod">EXISTS (55 lines)</td><td>Types + lookup. Needs voice-guide export, signature alignment with discovery doc.</td></tr>
+  <tr><td><code>packages/ui/src/modules/MystAI/*</code></td><td class="mod">EXISTS (6 files)</td><td>MystAIPage, BioCard, BioPage, Section, data, index. Needs Brand Guide alignment.</td></tr>
+  <tr><td><code>services/api/src/routes/myst-ai.ts</code></td><td class="mod">EXISTS (194 lines)</td><td>Both endpoints work. Has DUPLICATE types — must import from @tomachina/core.</td></tr>
+  <tr><td><code>_RPI_STANDARDS/reference/brand/*</code></td><td class="new">MISSING</td><td>Brand Guide, Voice Samples, Transcript Library — all three need creation.</td></tr>
+  <tr><td><code>packages/core/src/aibot-voice-guide.ts</code></td><td class="new">MISSING</td><td>Voice templates per character for system prompts.</td></tr>
 </table>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Wave 1 — Brand Code Foundation (Parallel x 4)</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
-<p><strong>Dependencies:</strong> None. All four tickets are independent with zero file overlap.</p>
+<p><strong>Key Finding:</strong> Signature lines in existing code do NOT match discovery doc. Examples: VOLTRON built as "Let me help." but discovery says "Ask me anything. Seriously." — RAIDEN built as "Not on my watch." but discovery says "Already exists. Here's the link." All data files need alignment pass against Brand Guide.</p>
+
+<hr>
+
+<h2>Wave 1 — Brand Code Foundation (Parallel, No Dependencies)</h2>
+<p>4 tickets, zero file overlap. All run simultaneously.</p>
 
 <div class="wave">
-<h3>TRK-DOJ-001 — AiBot Brand Guide Document</h3>
+<h3>TRK-DOJ-001: AiBot Brand Guide Document</h3>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_BRAND_GUIDE.md</code></td></tr>
-  <tr><td>Depends On</td><td>—</td></tr>
-  <tr><td>AC</td><td>Markdown doc contains: ethos origin, voice rules matrix (internal/team/client), all 6 character profiles (name, title, JDM facet, traits, do/don't, voice guide), message templates, visual identity specs. Any session reading this doc generates correct character-voice output.</td></tr>
-</table>
-<div class="verify">Build: npm run build (doc-only — verify file exists and is non-empty)</div>
-</div>
-
-<div class="wave">
-<h3>TRK-DOJ-002 — Voice Sample Library</h3>
-<table>
-  <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_VOICE_SAMPLES.md</code></td></tr>
-  <tr><td>Depends On</td><td>—</td></tr>
-  <tr><td>AC</td><td>5+ example messages per character across 5 contexts (Slack DM, release note, training intro, error response, celebration). Each character voice distinctly identifiable without name attribution.</td></tr>
-</table>
-<div class="verify">Build: npm run build (doc-only — verify file exists and is non-empty)</div>
-</div>
-
-<div class="wave">
-<h3>TRK-DOJ-003 — Transcript Library</h3>
-<table>
-  <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_TRANSCRIPT_LIBRARY.md</code></td></tr>
-  <tr><td>Depends On</td><td>—</td></tr>
-  <tr><td>AC</td><td>10+ curated real session moments formatted for Slack delivery with hyperlinks. Includes: "3AM sprint grind," "the Discovery Doc worth framing," "JDM refusing sleep." All ready for immediate team use.</td></tr>
-</table>
-<div class="verify">Build: npm run build (doc-only — verify file exists and is non-empty)</div>
-</div>
-
-<div class="wave">
-<h3>TRK-DOJ-004 — AiBot Brand Types and Character Data</h3>
-<table>
-  <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-mod">MODIFY</span> <code>packages/core/src/aibot-brand.ts</code></td></tr>
-  <tr><td>Depends On</td><td>—</td></tr>
-  <tr><td>AC</td><td>All 6 bot character constants exported (<code>ALL_BOTS: AiBotCharacter[]</code>). Types importable from <code>@tomachina/core</code>. <code>getAiBotByName('VOLTRON')</code> returns full character data. <code>npm run build</code> passes zero errors.</td></tr>
-</table>
-<div class="verify">npm run build</div>
-</div>
-
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Wave 2 — Data Layer + Independent Integrations (Parallel x 3)</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
-<p><strong>Dependencies:</strong> All depend on Wave 1. Zero file overlap between the three tickets.</p>
-
-<div class="wave">
-<h3>TRK-DOJ-008 — MYST.AI Character Data (UI)</h3>
-<table>
-  <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-new">NEW</span> <code>apps/prodash/app/(portal)/modules/myst-ai/myst-ai-data.ts</code></td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-004 (types)</td></tr>
-  <tr><td>AC</td><td>Static data for all 6 bots: name, title, quote, traits, voice guide, fun facts, avatar URL, interface link. Imports types from <code>@tomachina/core</code>. Data matches Brand Guide. <code>npm run build</code> passes.</td></tr>
+  <tr><td>Type</td><td>Content</td></tr>
+  <tr><td>File</td><td class="new">NEW: <code>_RPI_STANDARDS/reference/brand/AIBOT_BRAND_GUIDE.md</code></td></tr>
+  <tr><td>Dependencies</td><td>None</td></tr>
+  <tr><td>AC</td><td>Master doc contains: (1) Ethos/origin story, (2) Voice Rules (internal/team/client tiers), (3) All 6 character profiles with full personality specs, (4) Message templates per character, (5) Visual identity section. Any session can read it and produce correct character voice output.</td></tr>
 </table>
 <div class="verify">npm run build</div>
 </div>
 
 <div class="wave">
-<h3>TRK-DOJ-010 — MYST.AI API Route (Refactor)</h3>
+<h3>TRK-DOJ-002: Voice Sample Library</h3>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-mod">MODIFY</span> <code>services/api/src/routes/myst-ai.ts</code></td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-004 (shared types + character data)</td></tr>
-  <tr><td>AC</td><td>Remove inline type defs; import from <code>@tomachina/core</code>. <code>GET /api/myst-ai</code> returns all 6 profiles. <code>GET /api/myst-ai/VOLTRON</code> returns single bio. Response shape: <code>{ success, data }</code>. <code>npm run build</code> passes.</td></tr>
+  <tr><td>Type</td><td>Content</td></tr>
+  <tr><td>File</td><td class="new">NEW: <code>_RPI_STANDARDS/reference/brand/AIBOT_VOICE_SAMPLES.md</code></td></tr>
+  <tr><td>Dependencies</td><td>None</td></tr>
+  <tr><td>AC</td><td>5+ example messages per character across 5 contexts (Slack DM, release note, training intro, error response, celebration). Each character is distinctly recognizable — team could identify author without seeing name.</td></tr>
 </table>
 <div class="verify">npm run build</div>
 </div>
 
 <div class="wave">
-<h3>TRK-DOJ-011 — Bot System Prompt Integration</h3>
+<h3>TRK-DOJ-003: Transcript Library</h3>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Content</td></tr>
+  <tr><td>File</td><td class="new">NEW: <code>_RPI_STANDARDS/reference/brand/AIBOT_TRANSCRIPT_LIBRARY.md</code></td></tr>
+  <tr><td>Dependencies</td><td>None</td></tr>
+  <tr><td>AC</td><td>10+ curated real session moments (3AM sprint story, praised docs, etc.) formatted for Slack delivery with hyperlinks. Ready to deploy immediately.</td></tr>
+</table>
+<div class="verify">npm run build</div>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-004: AiBot Brand Types + Voice Guide Module</h3>
+<table>
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Infrastructure</td></tr>
   <tr><td>Files</td><td>
-    <span class="tag-mod">MODIFY</span> <code>/home/jdm/mdj-agent/src/</code> — VOLTRON system prompt<br>
-    <span class="tag-mod">MODIFY</span> <code>/home/jdm/mdj-agent/src/</code> — RAIDEN triage config<br>
-    <span class="tag-mod">MODIFY</span> <code>/home/jdm/mdj-agent/src/</code> — RONIN FORGE update templates
+    <span class="mod">MODIFY: <code>packages/core/src/aibot-brand.ts</code></span> — add voice tier templates, update signature lines to match discovery doc<br>
+    <span class="new">NEW: <code>packages/core/src/aibot-voice-guide.ts</code></span> — voice templates per character for system prompt injection<br>
+    <span class="mod">MODIFY: <code>packages/core/src/index.ts</code></span> — export new module
   </td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-001 (Brand Guide for voice injection)</td></tr>
-  <tr><td>AC</td><td>VOLTRON responds as BFF tone. RONIN sends builder-voice FORGE updates. Each bot distinctly recognizable in Slack output. Voice guide injected from Brand Guide. <strong>All changes in mdj-agent (MDJ_SERVER), NOT Cloud Run.</strong></td></tr>
+  <tr><td>Dependencies</td><td>None</td></tr>
+  <tr><td>AC</td><td>(1) Types importable from <code>@tomachina/core</code>. (2) <code>getAiBotByName()</code> returns character by name. (3) Voice guide templates exported for all 6 bots across 3 tiers (internal/team/client). (4) Signature lines match discovery doc exactly. (5) <code>npm run build</code> passes zero errors.</td></tr>
 </table>
-<div class="verify">cd /home/jdm/mdj-agent &amp;&amp; npm run build</div>
+<div class="verify">npm run build</div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Wave 3 — UI Components (Parallel x 2)</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
-<p><strong>Dependencies:</strong> TRK-DOJ-008 (data). Zero file overlap between 006 and 007.</p>
+<hr>
+
+<h2>Wave 2 — Data Alignment (Depends on Wave 1)</h2>
+<p>2 tickets, zero file overlap. Both run simultaneously after Wave 1.</p>
 
 <div class="wave">
-<h3>TRK-DOJ-006 — MYST.AI Bio Cards</h3>
+<h3>TRK-DOJ-008: MYST.AI Character Data Alignment</h3>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-new">NEW</span> <code>apps/prodash/app/(portal)/modules/myst-ai/MystAIBioCard.tsx</code></td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-008 (character data)</td></tr>
-  <tr><td>AC</td><td>Renders: circular avatar + name + title + signature quote. Hover effects present. Click navigates to full bio page. Matches existing MYST styling. <code>npm run build</code> passes.</td></tr>
+  <tr><td>Type</td><td>Chore</td></tr>
+  <tr><td>File</td><td class="mod">MODIFY: <code>packages/ui/src/modules/MystAI/myst-ai-data.ts</code></td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-004 (types from @tomachina/core)</td></tr>
+  <tr><td>AC</td><td>(1) Remove duplicate type definitions — import from <code>@tomachina/core</code>. (2) All 6 bots fully populated with data matching Brand Guide (DOJ-001). (3) Signature lines match discovery doc. (4) Avatar URLs and interface links populated. (5) <code>npm run build</code> passes zero errors.</td></tr>
 </table>
 <div class="verify">npm run build</div>
 </div>
 
 <div class="wave">
-<h3>TRK-DOJ-007 — MYST.AI Bio Pages</h3>
+<h3>TRK-DOJ-010: MYST.AI API Route Refactor</h3>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-new">NEW</span> <code>apps/prodash/app/(portal)/modules/myst-ai/MystAIBioPage.tsx</code></td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-008 (character data)</td></tr>
-  <tr><td>AC</td><td>Full profile per bot: personality, responsibilities, traits, voice sample, fun facts. "Talk to me" button links to correct bot interface. Loads by bot name param. <code>npm run build</code> passes.</td></tr>
+  <tr><td>Type</td><td>Feature</td></tr>
+  <tr><td>File</td><td class="mod">MODIFY: <code>services/api/src/routes/myst-ai.ts</code></td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-004 (types from @tomachina/core)</td></tr>
+  <tr><td>Endpoints</td><td>
+    <code>GET /api/myst-ai</code> — returns all 6 profiles<br>
+    <code>GET /api/myst-ai/:botName</code> — returns single bot bio
+  </td></tr>
+  <tr><td>AC</td><td>(1) Remove duplicate type definitions — import from <code>@tomachina/core</code>. (2) Both endpoints return <code>{ success: boolean, data?: T, error?: string }</code>. (3) VOLTRON can query its own profile via <code>GET /api/myst-ai/voltron</code>. (4) Character data matches Brand Guide. (5) <code>npm run build</code> passes zero errors.</td></tr>
 </table>
 <div class="verify">npm run build</div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Wave 4 — Page Assembly (Parallel x 2)</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
-<p><strong>Dependencies:</strong> TRK-DOJ-006 (bio cards). Zero file overlap between 005 and 009.</p>
+<hr>
+
+<h2>Wave 3 — UI Components (Depends on Wave 2)</h2>
+<p>4 tickets. DOJ-005/006/007 run in parallel. DOJ-009 runs after DOJ-005 completes.</p>
 
 <div class="wave">
-<h3>TRK-DOJ-005 — MYST.AI Page Component</h3>
+<h3>TRK-DOJ-005: MYST.AI Page Component</h3>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Feature</td></tr>
+  <tr><td>File</td><td class="mod">MODIFY: <code>packages/ui/src/modules/MystAI/MystAIPage.tsx</code></td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-008 (aligned character data)</td></tr>
+  <tr><td>AC</td><td>(1) "Technology Team" header renders. (2) All 6 bots display in responsive circular avatar grid. (3) Click-through navigates to bio page per bot. (4) Matches client-facing MYST visual language. (5) <code>npm run build</code> passes zero errors.</td></tr>
+</table>
+<div class="verify">npm run build</div>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-006: MYST.AI Bio Cards</h3>
+<table>
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Feature</td></tr>
+  <tr><td>File</td><td class="mod">MODIFY: <code>packages/ui/src/modules/MystAI/MystAIBioCard.tsx</code></td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-008 (aligned character data)</td></tr>
+  <tr><td>AC</td><td>(1) Circular avatar + name + title + signature quote renders per card. (2) Hover effect present. (3) Click navigates to full bio page. (4) Cards match client MYST styling. (5) <code>npm run build</code> passes zero errors.</td></tr>
+</table>
+<div class="verify">npm run build</div>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-007: MYST.AI Bio Pages</h3>
+<table>
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Feature</td></tr>
+  <tr><td>File</td><td class="mod">MODIFY: <code>packages/ui/src/modules/MystAI/MystAIBioPage.tsx</code></td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-008 (aligned character data)</td></tr>
+  <tr><td>AC</td><td>(1) Full personality profile renders (traits, role, voice guide). (2) Fun facts section with real session stories. (3) "Talk to me" button links to correct bot interface. (4) Each bot bio page loads with complete profile. (5) <code>npm run build</code> passes zero errors.</td></tr>
+</table>
+<div class="verify">npm run build</div>
+</div>
+
+<div class="wave">
+<h3>TRK-DOJ-009: MYST Technology Section</h3>
+<table>
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Feature</td></tr>
+  <tr><td>File</td><td class="mod">MODIFY: <code>packages/ui/src/modules/MystAI/MystAISection.tsx</code></td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-005 (page component), TRK-DOJ-008 (data)</td></tr>
+  <tr><td>AC</td><td>(1) "Technology Team" section embeds in existing MYST/team page. (2) Avatar grid renders alongside Leadership, Sales, Service, Support sections. (3) Consistent styling with other team sections. (4) <code>npm run build</code> passes zero errors.</td></tr>
+</table>
+<div class="verify">npm run build</div>
+</div>
+
+<hr>
+
+<h2>Wave 4 — Integration and External (Depends on Waves 1-3)</h2>
+<p>2 tickets, zero file overlap. Both run simultaneously.</p>
+
+<div class="wave">
+<h3>TRK-DOJ-011: Bot System Prompt Integration</h3>
+<table>
+  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Feature</td></tr>
   <tr><td>Files</td><td>
-    <span class="tag-new">NEW</span> <code>apps/prodash/app/(portal)/modules/myst-ai/page.tsx</code><br>
-    <span class="tag-new">NEW</span> <code>apps/prodash/app/(portal)/modules/myst-ai/MystAIPage.tsx</code>
+    <span class="mod">MODIFY: VOLTRON system prompt</span> (mdj-agent config)<br>
+    <span class="mod">MODIFY: RAIDEN triage config</span> (mdj-agent config)<br>
+    <span class="mod">MODIFY: RONIN FORGE update templates</span> (mdj-agent config)<br>
+    <em>Exact paths in <code>/home/jdm/mdj-agent/</code> — builder inspects at build time</em>
   </td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-006 (bio cards), TRK-DOJ-008 (data)</td></tr>
-  <tr><td>AC</td><td>"Technology Team" header. Circular avatar grid for all 6 bots. Click-through to bio pages. Responsive grid layout. Visual language matches client-facing MYST. <code>npm run build</code> passes.</td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-001 (Brand Guide), TRK-DOJ-002 (Voice Samples), TRK-DOJ-004 (voice-guide.ts)</td></tr>
+  <tr><td>AC</td><td>(1) VOLTRON responds in BFF voice (warm, encouraging). (2) RONIN sends FORGE updates in builder voice (precise, clean). (3) RAIDEN triage uses guardian voice (direct, protective). (4) Each bot is distinctly recognizable in output. (5) <code>npm run build</code> passes zero errors.</td></tr>
 </table>
 <div class="verify">npm run build</div>
+<p><strong>ARCHITECTURE NOTE:</strong> Per Constraint #1, all agent SDK code lives in <code>/home/jdm/mdj-agent/</code> (MDJ_SERVER). NOT Cloud Run. Builder must inspect that directory for exact prompt file locations.</p>
 </div>
 
 <div class="wave">
-<h3>TRK-DOJ-009 — MYST Technology Section (Embeddable)</h3>
+<h3>TRK-DOJ-012: GitHub Pages MYST.AI Standalone</h3>
 <table>
   <tr><th>Field</th><th>Value</th></tr>
-  <tr><td>Files</td><td><span class="tag-new">NEW</span> <code>apps/prodash/app/(portal)/modules/myst-ai/MystAISection.tsx</code></td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-006 (bio cards)</td></tr>
-  <tr><td>AC</td><td>Embeddable section component. Renders avatar grid alongside Leadership, Sales, Service on existing MYST/team page. Styling consistent with human team sections. <code>npm run build</code> passes.</td></tr>
-</table>
-<div class="verify">npm run build</div>
-</div>
-
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Wave 5 — GitHub Pages Standalone (Sequential x 1)</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
-<p><strong>Dependencies:</strong> All UI tickets (Waves 3 + 4) must be complete.</p>
-
-<div class="wave">
-<h3>TRK-DOJ-012 — GitHub Pages MYST.AI Standalone</h3>
-<table>
-  <tr><th>Field</th><th>Value</th></tr>
+  <tr><td>Type</td><td>Design</td></tr>
   <tr><td>Files</td><td>
-    <span class="tag-new">NEW</span> <code>docs/myst-ai/index.html</code><br>
-    <span class="tag-new">NEW</span> <code>docs/myst-ai/styles.css</code><br>
-    <span class="tag-new">NEW</span> <code>docs/myst-ai/data.js</code>
+    <span class="new">NEW: <code>retirementprotectors.github.io/myst-ai/index.html</code></span><br>
+    <em>Self-contained HTML page — no build tooling dependency</em>
   </td></tr>
-  <tr><td>Depends On</td><td>TRK-DOJ-005, TRK-DOJ-006, TRK-DOJ-007, TRK-DOJ-008 (all UI finalized)</td></tr>
-  <tr><td>AC</td><td>Public URL at <code>retirementprotectors.github.io/myst-ai/</code> displays full Technology Team. All 6 bots with clickable bios. Self-contained HTML (no React). Shareable for external audiences.</td></tr>
+  <tr><td>Dependencies</td><td class="dep">TRK-DOJ-005 (page design), TRK-DOJ-008 (character data)</td></tr>
+  <tr><td>AC</td><td>(1) Public URL displays full Technology Team page. (2) All 6 bots with circular avatars, names, titles. (3) Clickable bios with full personality profiles. (4) Self-contained HTML (no external JS dependencies). (5) Shareable with DAVID partners and recruits.</td></tr>
 </table>
-<div class="verify">npm run build (monorepo) &amp;&amp; open docs/myst-ai/index.html (manual visual check)</div>
+<div class="verify">npm run build (toMachina repo); standalone HTML validates</div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Dependency Verification Matrix</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
+<hr>
+
+<h2>Dependency Matrix</h2>
 <table>
-  <tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>All Deps in Earlier Wave?</th></tr>
-  <tr><td>TRK-DOJ-001</td><td>1</td><td>—</td><td>N/A</td></tr>
-  <tr><td>TRK-DOJ-002</td><td>1</td><td>—</td><td>N/A</td></tr>
-  <tr><td>TRK-DOJ-003</td><td>1</td><td>—</td><td>N/A</td></tr>
-  <tr><td>TRK-DOJ-004</td><td>1</td><td>—</td><td>N/A</td></tr>
-  <tr><td>TRK-DOJ-008</td><td>2</td><td>DOJ-004 (W1)</td><td>YES</td></tr>
-  <tr><td>TRK-DOJ-010</td><td>2</td><td>DOJ-004 (W1)</td><td>YES</td></tr>
-  <tr><td>TRK-DOJ-011</td><td>2</td><td>DOJ-001 (W1)</td><td>YES</td></tr>
-  <tr><td>TRK-DOJ-006</td><td>3</td><td>DOJ-008 (W2)</td><td>YES</td></tr>
-  <tr><td>TRK-DOJ-007</td><td>3</td><td>DOJ-008 (W2)</td><td>YES</td></tr>
-  <tr><td>TRK-DOJ-005</td><td>4</td><td>DOJ-006 (W3), DOJ-008 (W2)</td><td>YES</td></tr>
-  <tr><td>TRK-DOJ-009</td><td>4</td><td>DOJ-006 (W3)</td><td>YES</td></tr>
-  <tr><td>TRK-DOJ-012</td><td>5</td><td>DOJ-005,006,007,008 (W2-4)</td><td>YES</td></tr>
+  <tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>Parallel With</th></tr>
+  <tr><td>TRK-DOJ-001</td><td>1</td><td>—</td><td>002, 003, 004</td></tr>
+  <tr><td>TRK-DOJ-002</td><td>1</td><td>—</td><td>001, 003, 004</td></tr>
+  <tr><td>TRK-DOJ-003</td><td>1</td><td>—</td><td>001, 002, 004</td></tr>
+  <tr><td>TRK-DOJ-004</td><td>1</td><td>—</td><td>001, 002, 003</td></tr>
+  <tr><td>TRK-DOJ-008</td><td>2</td><td>004</td><td>010</td></tr>
+  <tr><td>TRK-DOJ-010</td><td>2</td><td>004</td><td>008</td></tr>
+  <tr><td>TRK-DOJ-005</td><td>3</td><td>008</td><td>006, 007</td></tr>
+  <tr><td>TRK-DOJ-006</td><td>3</td><td>008</td><td>005, 007</td></tr>
+  <tr><td>TRK-DOJ-007</td><td>3</td><td>008</td><td>005, 006</td></tr>
+  <tr><td>TRK-DOJ-009</td><td>3</td><td>005, 008</td><td>—(after 005)</td></tr>
+  <tr><td>TRK-DOJ-011</td><td>4</td><td>001, 002, 004</td><td>012</td></tr>
+  <tr><td>TRK-DOJ-012</td><td>4</td><td>005, 008</td><td>011</td></tr>
 </table>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>File Overlap Check (Parallel Safety)</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
-<table>
-  <tr><th>Wave</th><th>Parallel Tickets</th><th>File Overlap</th></tr>
-  <tr><td>1</td><td>001, 002, 003, 004</td><td>ZERO — 3 new .md files + 1 existing .ts</td></tr>
-  <tr><td>2</td><td>008, 010, 011</td><td>ZERO — ProDashX module / tm-api route / mdj-agent</td></tr>
-  <tr><td>3</td><td>006, 007</td><td>ZERO — BioCard.tsx vs BioPage.tsx</td></tr>
-  <tr><td>4</td><td>005, 009</td><td>ZERO — MystAIPage.tsx vs MystAISection.tsx</td></tr>
-  <tr><td>5</td><td>012 (solo)</td><td>N/A</td></tr>
-</table>
-
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Architecture Notes for Builder</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
+<h2>Dependency Verification</h2>
 <ul>
-  <li><strong>MDJ_SERVER:</strong> TRK-DOJ-011 touches <code>/home/jdm/mdj-agent/</code> only. No agent SDK code in Cloud Run.</li>
-  <li><strong>ProDashX module path:</strong> <code>apps/prodash/app/(portal)/modules/myst-ai/</code> — NOT <code>packages/ui/src/modules/</code> as discovery suggests.</li>
-  <li><strong>Cloud Run (tm-api):</strong> TRK-DOJ-010 is REST-only refactor. No AI orchestration.</li>
-  <li><strong>Existing code:</strong> <code>aibot-brand.ts</code> (55 lines) has types — DOJ-004 extends, not rewrites. <code>myst-ai.ts</code> (194 lines) has endpoints — DOJ-010 refactors to use shared types.</li>
-  <li><strong>GitHub Pages:</strong> DOJ-012 is self-contained HTML/CSS/JS — no React build. Lives in <code>docs/myst-ai/</code>.</li>
-  <li><strong>Model IDs:</strong> <code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5-20251001</code>.</li>
+  <li><strong>Wave 1:</strong> All 4 tickets have zero dependencies. PASS</li>
+  <li><strong>Wave 2:</strong> DOJ-008 depends on DOJ-004 (Wave 1). DOJ-010 depends on DOJ-004 (Wave 1). PASS</li>
+  <li><strong>Wave 3:</strong> DOJ-005/006/007 depend on DOJ-008 (Wave 2). DOJ-009 depends on DOJ-005 (Wave 3) — sequenced after 005 within wave. PASS</li>
+  <li><strong>Wave 4:</strong> DOJ-011 depends on DOJ-001+002+004 (Wave 1). DOJ-012 depends on DOJ-005+008 (Waves 2-3). PASS</li>
+  <li><strong>No same-wave circular deps.</strong> DOJ-009 is the only intra-wave dep and is sequenced after DOJ-005. PASS</li>
 </ul>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<h2>Execution Summary</h2>
-<!-- ════════════════════════════════════════════════════════════════ -->
+<h2>File Overlap Verification</h2>
 <table>
-  <tr><th>Wave</th><th>Parallelism</th><th>Tickets</th><th>Effort</th></tr>
-  <tr><td>Wave 1</td><td>4 parallel</td><td>001, 002, 003, 004</td><td>Brand docs + type enhancement</td></tr>
-  <tr><td>Wave 2</td><td>3 parallel</td><td>008, 010, 011</td><td>UI data + API refactor + bot prompts</td></tr>
-  <tr><td>Wave 3</td><td>2 parallel</td><td>006, 007</td><td>Card + Bio page components</td></tr>
-  <tr><td>Wave 4</td><td>2 parallel</td><td>005, 009</td><td>Page assembly + embeddable section</td></tr>
-  <tr><td>Wave 5</td><td>1 sequential</td><td>012</td><td>GitHub Pages standalone</td></tr>
+  <tr><th>Wave</th><th>Parallel Tickets</th><th>Overlap?</th></tr>
+  <tr><td>1</td><td>001 (brand .md), 002 (voice .md), 003 (transcript .md), 004 (core .ts)</td><td>None PASS</td></tr>
+  <tr><td>2</td><td>008 (ui data.ts), 010 (api route.ts)</td><td>None PASS</td></tr>
+  <tr><td>3</td><td>005 (Page.tsx), 006 (BioCard.tsx), 007 (BioPage.tsx)</td><td>None PASS</td></tr>
+  <tr><td>3-seq</td><td>009 (Section.tsx) after 005</td><td>None PASS</td></tr>
+  <tr><td>4</td><td>011 (mdj-agent), 012 (github pages)</td><td>None PASS</td></tr>
 </table>
 
-<p><strong>Total:</strong> 12 tickets | 5 waves | max parallelism 4 | critical path 5 waves deep</p>
+<h2>Critical Path</h2>
+<p><code>TRK-DOJ-004</code> &rarr; <code>TRK-DOJ-008</code> &rarr; <code>TRK-DOJ-005</code> &rarr; <code>TRK-DOJ-009</code> &rarr; <code>TRK-DOJ-012</code></p>
+
+<h2>Build Verification Gate (Every Ticket)</h2>
+<div class="verify">
+cd /home/jdm/Projects/toMachina &amp;&amp; npm run build
+# Zero errors required before any ticket is marked BUILT
+# NEVER use tsc --noEmit alone (OS Rule #6)
+</div>
 
 </body>
 </html>
