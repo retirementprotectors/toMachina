@@ -73,6 +73,7 @@ import { importAccountRoutes } from './routes/import-accounts.js'
 import { importAgentRoutes } from './routes/import-agents.js'
 import { voltronRegistryRoutes } from './routes/voltron-registry.js'
 import { voltronWireRoutes } from './routes/voltron-wire.js'
+import { voltronDeployRoutes } from './routes/voltron-deploy.js'
 import { auditMiddleware } from './middleware/audit.js'
 import { raidenRoutes } from './raiden/index.js'
 import { startRaidenScheduler } from './raiden/scheduler.js'
@@ -80,6 +81,7 @@ import { shinobiRoutes } from './shinobi/routes.js'
 import { runCheck } from './shinobi/shinobi-check.js'
 import { registerCheckHandler } from '@tomachina/core'
 import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
+import { webhookDeployRoutes } from './routes/webhook-deploy.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -99,6 +101,14 @@ const app = express()
 
 // Global middleware
 app.use(cors({ origin: true }))
+
+// GitHub webhook deploy — raw body needed for HMAC-SHA256 validation (TRK-13862)
+// Mounted BEFORE express.json() to capture raw buffer
+app.use('/webhook/deploy', express.raw({ type: '*/*' }), (req, _res, next) => {
+  ;(req as typeof req & { rawBody: Buffer }).rawBody = req.body as Buffer
+  next()
+}, webhookDeployRoutes)
+
 app.use(express.json({ limit: '10mb' }))
 
 // Health check — no auth, no rate limit, no logging
@@ -180,6 +190,7 @@ app.use('/api/validation', validationRoutes)
 app.use('/api/import-agents', normalizeBody, importAgentRoutes)
 app.use('/api/voltron/registry', voltronRegistryRoutes)
 app.use('/api/voltron/wire', normalizeBody, voltronWireRoutes)
+app.use('/api/voltron', normalizeBody, voltronDeployRoutes)
 
 // RAIDEN Reactive Guardian — sub-router at /raiden/*
 app.use('/raiden', raidenRoutes)

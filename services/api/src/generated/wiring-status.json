@@ -999,7 +999,7 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 383,
+      "backend_endpoints": 384,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1144,7 +1144,7 @@
         },
         {
           "file": "health.ts",
-          "endpoints": 2,
+          "endpoints": 3,
           "reads": true,
           "writes": false,
           "operations": [
@@ -2773,6 +2773,31 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "voltron_sessions": {
+      "status": "backend_only",
+      "backend": "health.ts",
+      "frontend": "",
+      "backend_endpoints": 3,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "health.ts",
+          "endpoints": 3,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "wire_executions": {
       "status": "backend_only",
       "backend": "intake.ts",
@@ -3341,13 +3366,14 @@
     },
     "health.ts": {
       "file": "health.ts",
-      "endpoints": 2,
+      "endpoints": 3,
       "operations": [
         "list",
         "get"
       ],
       "collections": [
-        "clients"
+        "clients",
+        "voltron_sessions"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -3785,6 +3811,19 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "voltron-deploy.ts": {
+      "file": "voltron-deploy.ts",
+      "endpoints": 11,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "delete"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "voltron-registry.ts": {
       "file": "voltron-registry.ts",
       "endpoints": 3,
@@ -3803,6 +3842,16 @@
       "operations": [
         "list",
         "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "webhook-deploy.ts": {
+      "file": "webhook-deploy.ts",
+      "endpoints": 1,
+      "operations": [
         "create"
       ],
       "collections": [],
@@ -4030,6 +4079,15 @@
       "sensitive": false
     },
     {
+      "name": "GITHUB_WEBHOOK_SECRET",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": true
+    },
+    {
       "name": "GODADDY_API_KEY",
       "services": [
         "root"
@@ -4069,6 +4127,15 @@
     },
     {
       "name": "INTAKE_UPLOAD_FOLDER_ID",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
+    {
+      "name": "MDJ_AGENT_DIR",
       "services": [
         "api"
       ],
@@ -4242,6 +4309,15 @@
       "has_value": false,
       "source": "code_reference",
       "sensitive": true
+    },
+    {
+      "name": "SLACK_DEPLOY_CHANNEL",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
     },
     {
       "name": "TWILIO_ACCOUNT_SID",
@@ -4632,14 +4708,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 67,
+    "route_files": 69,
     "ui_files": 138,
-    "portal_pages": 158,
-    "collections_found": 68,
-    "api_routes_found": 67,
+    "portal_pages": 161,
+    "collections_found": 69,
+    "api_routes_found": 69,
     "cloud_functions_found": 14,
-    "env_vars_found": 37,
+    "env_vars_found": 40,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-03-28T04:32:40.967Z"
+    "scanned_at": "2026-03-29T06:28:29.336Z"
   }
 }

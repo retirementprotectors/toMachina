@@ -116,18 +116,12 @@ export function VoltronMode1() {
   const isExecuting = execution.phase === 'executing' || execution.phase === 'approval_pending'
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-page-title flex items-center gap-2">
-            <span className="material-icons-outlined text-[28px] text-[var(--portal)]">bolt</span>
-            VOLTRON
-          </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Action Engine — Select a wire, pick a client, execute.
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* Simulation toggle */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-[var(--text-secondary)]">
+          Select a wire, pick a client, execute.
+        </p>
         <SimulationToggle
           enabled={simulation}
           onChange={setSimulation}
