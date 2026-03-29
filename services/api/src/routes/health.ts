@@ -19,6 +19,22 @@ healthRoutes.get('/', async (_req, res) => {
     const db = getFirestore()
     await withTimeout(db.collection('clients').limit(1).get(), 5000)
 
+    // Count active VOLTRON sessions (created in last 30 min, not terminal)
+    let activeConversations = 0
+    try {
+      const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000)
+      const sessionsSnap = await withTimeout(
+        db.collection('voltron_sessions')
+          .where('status', 'in', ['active', 'executing', 'approval_pending'])
+          .where('created_at', '>=', thirtyMinAgo.toISOString())
+          .get(),
+        3000
+      )
+      activeConversations = sessionsSnap.size
+    } catch {
+      // Non-critical — report 0 if query fails
+    }
+
     res.json({
       success: true,
       data: {
@@ -28,6 +44,8 @@ healthRoutes.get('/', async (_req, res) => {
         version: '0.5.0',
         timestamp: new Date().toISOString(),
         firestore: 'connected',
+        active_conversations: activeConversations,
+        uptime: Math.floor(process.uptime()),
       },
     })
   } catch (err) {
