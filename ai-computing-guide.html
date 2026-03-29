@@ -714,6 +714,123 @@ ollama serve                   # Start the API server</div>
         <strong>Nobody can turn off your AI.</strong> Not by raising prices, changing terms of service, or having an outage. The Machine runs on hardware you own, with models that are free forever.
       </div>
     </div>
+
+    <div class="card">
+      <h2>Context Windows — Local vs API</h2>
+      <p>Context window = how much of the conversation the model can "see" at once. Bigger window = longer conversations without losing track.</p>
+      <table>
+        <tr><th>Model</th><th>Context Window</th><th>Notes</th></tr>
+        <tr><td>Llama 3.1 (all sizes)</td><td>128K tokens</td><td>Big on paper, but attention quality degrades at length</td></tr>
+        <tr><td>Claude Sonnet</td><td>200K tokens</td><td>Better at tracking details across long conversations</td></tr>
+        <tr><td><strong>Claude Opus</strong></td><td><strong>200K-1M tokens</strong></td><td><strong>Best-in-class context handling + automatic compression</strong></td></tr>
+      </table>
+
+      <h3>Key Differences</h3>
+      <table>
+        <tr><th>Feature</th><th>Local Llama</th><th>Claude API</th></tr>
+        <tr><td>Context limit</td><td>128K tokens</td><td>200K-1M tokens</td></tr>
+        <tr><td>Automatic compression</td><td>No &mdash; when you hit the limit, it stops</td><td>Yes &mdash; Claude Code compresses older messages automatically</td></tr>
+        <tr><td>Export / save</td><td>Yes &mdash; Open WebUI saves all chats, export as .txt/.json/.pdf</td><td>Yes &mdash; /export command</td></tr>
+        <tr><td>Attention quality at length</td><td>Degrades more on long context</td><td>Significantly better at maintaining coherence</td></tr>
+        <tr><td>VRAM impact</td><td>Longer context = more VRAM consumed. P40 practical limit ~8-16K tokens for speed.</td><td>Handled by Anthropic's servers</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>What this means for hybrid routing:</strong> Simple queries don't need much context &mdash; local is fine. Long complex sessions (FORGE sprints, casework analysis, architecture planning) go to Claude because it's better at maintaining coherence over long conversations. The A100 upgrade extends local context headroom significantly.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The Mesh Layer — Where It Gets Powerful</h2>
+      <p>The basic hybrid routes whole conversations to either local or Claude. The <strong>Mesh Layer</strong> goes further: local Llama handles the conversation for free, but when it needs to <em>do</em> something (send a Slack message, query Firestore, pull a document), it hands off to a Claude Code SDK agent that executes the action and returns the result.</p>
+      <p>The user never sees the handoff. They talk to one AI. Two brains work behind it.</p>
+
+      <div class="diagram">User asks TBD.ai: "Send Vince the Mineart account summary on Slack"
+         |
+    Local Llama (free, instant)
+    Understands the request, formats the intent
+         |
+    Can I do this alone?
+    +--------+---------+
+    |                  |
+   YES                NO — needs to act on systems
+   (just Q&A)              |
+    |              Mesh Router dispatches
+    |              Claude Code SDK Agent
+  Answer                   |
+  (free)            Agent executes:
+                    +---> MCP: Slack (send message)
+                    +---> MCP: Drive (pull account data)
+                    +---> Firestore (query client record)
+                           |
+                    Returns result to Llama
+                           |
+                    Llama formats response
+                    for the user (free)</div>
+
+      <h3>Why This Matters</h3>
+      <p>Without the Mesh, local Llama is a brain in a jar. It can think and talk but can't <em>do</em> anything. The Claude Code SDK gives it hands.</p>
+      <table>
+        <tr><th>Approach</th><th>Conversation Cost</th><th>Action Cost</th><th>Can Act on Systems?</th></tr>
+        <tr><td>All Claude (today)</td><td>Paid (every message)</td><td>Paid (every tool call)</td><td>Yes &mdash; 82+ MCP tools</td></tr>
+        <tr><td>Local only (no mesh)</td><td>Free</td><td>N/A</td><td>No &mdash; brain in a jar</td></tr>
+        <tr><td><strong>Mesh (Local + Claude SDK)</strong></td><td><strong>Free (Llama handles chat)</strong></td><td><strong>Paid only when acting</strong></td><td><strong>Yes &mdash; full tool access via agents</strong></td></tr>
+      </table>
+
+      <div class="callout-green callout">
+        <strong>The math:</strong> 90% of a conversation is back-and-forth clarification, context-building, and formatting. That's all free on Llama. You only pay Claude tokens for the 10% that requires tool execution. Biggest potential cost reduction of any architecture change.
+      </div>
+
+      <h3>What Local Llama Can vs Can't Do</h3>
+      <table>
+        <tr><th>Capability</th><th>Local Llama (Open WebUI)</th><th>Claude Code SDK Agent (via Mesh)</th></tr>
+        <tr><td>Chat / Q&A</td><td style="color: var(--green);">Yes</td><td style="color: var(--green);">Yes</td></tr>
+        <tr><td>Summarize documents</td><td style="color: var(--green);">Yes</td><td style="color: var(--green);">Yes</td></tr>
+        <tr><td>Draft emails / messages</td><td style="color: var(--green);">Yes</td><td style="color: var(--green);">Yes</td></tr>
+        <tr><td>Upload &amp; read PDFs</td><td style="color: var(--green);">Yes (RAG)</td><td style="color: var(--green);">Yes</td></tr>
+        <tr><td>Send Slack messages</td><td style="color: var(--red);">No</td><td style="color: var(--green);">Yes (MCP)</td></tr>
+        <tr><td>Query Firestore / client data</td><td style="color: var(--red);">No</td><td style="color: var(--green);">Yes (MCP)</td></tr>
+        <tr><td>Send emails</td><td style="color: var(--red);">No</td><td style="color: var(--green);">Yes (MCP)</td></tr>
+        <tr><td>Create calendar events</td><td style="color: var(--red);">No</td><td style="color: var(--green);">Yes (MCP)</td></tr>
+        <tr><td>Execute code / scripts</td><td style="color: var(--red);">No</td><td style="color: var(--green);">Yes (Bash)</td></tr>
+        <tr><td>Multi-step agent chains</td><td style="color: var(--red);">No</td><td style="color: var(--green);">Yes (15+ rounds)</td></tr>
+        <tr><td>Parallel agent orchestration</td><td style="color: var(--red);">No</td><td style="color: var(--green);">Yes (FORGE-style)</td></tr>
+      </table>
+
+      <h3>What It Takes to Build</h3>
+      <table>
+        <tr><th>Component</th><th>Status</th><th>Work Needed</th></tr>
+        <tr><td>Ollama on MDJ1</td><td><span class="status status-next">Phase 4</span></td><td>Install after GPU arrives</td></tr>
+        <tr><td>Open WebUI</td><td><span class="status status-next">Phase 4</span></td><td>One Docker command</td></tr>
+        <tr><td>Claude Agent SDK</td><td><span class="status status-done">Available</span></td><td><code>@anthropic-ai/claude-code-sdk</code> npm package</td></tr>
+        <tr><td>MCP Tools on MDJ1</td><td><span class="status status-done">82 tools wired</span></td><td>Already operational</td></tr>
+        <tr><td><strong>Mesh Router</strong></td><td><span class="status status-future">FORGE Sprint</span></td><td>Service on MDJ1 that brokers between Llama and Claude agents</td></tr>
+      </table>
+
+      <p>The Mesh Router is the only net-new piece. It's a service on MDJ1 that intercepts requests from Open WebUI, classifies intent (talk vs act), and dispatches Claude SDK agents when action is needed. Everything else already exists.</p>
+
+      <h3>The Full Architecture</h3>
+      <div class="diagram">TBD.ai (Open WebUI — toMachina App)
+    |
+    v
+Mesh Router (Node.js service on MDJ1)
+    |
+    +---> Local Llama: conversation, Q&A, summaries .......... FREE
+    |
+    +---> Claude SDK Agent: tool calls, workflows ............ PAID per action
+    |         |
+    |         +---> MCP Tools (Slack, Drive, Calendar, Gmail...)
+    |         +---> Firestore (client data, accounts, pipelines)
+    |         +---> Code execution (scripts, data processing)
+    |         +---> Multi-step workflows (NIGO, casework, comms)
+    |
+    +---> MDJ Panel: portal-integrated version (same mesh)
+
+Cost model:
+  - Conversation tokens (90% of usage): $0 (local Llama)
+  - Action tokens (10% of usage): Claude API pricing
+  - Net savings: 60-80% reduction from current $250/day</div>
+    </div>
   </div>
 
   <!-- TAB 6: UPGRADE PATH -->
