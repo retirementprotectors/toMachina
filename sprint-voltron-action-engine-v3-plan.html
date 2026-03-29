@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FORGE PLAN — VOLTRON Action Engine v3 (Sprint 002)</title>
+<style>
+  :root { --bg: #0d1117; --surface: #161b22; --border: #30363d; --text: #c9d1d9; --heading: #f0f6fc; --accent: #58a6ff; --green: #3fb950; --red: #f85149; --yellow: #d29922; --purple: #bc8cff; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'SF Mono', 'Fira Code', monospace; font-size: 14px; line-height: 1.6; padding: 2rem; }
+  h1 { color: var(--accent); font-size: 1.8rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+  h2 { color: var(--green); font-size: 1.4rem; margin: 2rem 0 0.5rem; border-left: 4px solid var(--green); padding-left: 0.5rem; }
+  h3 { color: var(--purple); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  h4 { color: var(--yellow); margin: 1rem 0 0.3rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem; text-align: left; }
+  th { background: var(--surface); color: var(--accent); }
+  td { background: var(--bg); }
+  code { background: var(--surface); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; color: var(--accent); }
+  pre { background: var(--surface); padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.5rem 0; border: 1px solid var(--border); }
+  .wave { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1rem 0; }
+  .wave-header { color: var(--accent); font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; }
+  .ticket { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin: 0.5rem 0; }
+  .ticket-id { color: var(--yellow); font-weight: bold; }
+  .dep { color: var(--red); font-style: italic; }
+  .file-list { list-style: none; padding-left: 0; }
+  .ac-list { list-style: none; padding-left: 0; }
+  .risk { color: var(--red); }
+  .parallel-tag { display: inline-block; background: var(--green); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+  .sequential-tag { display: inline-block; background: var(--yellow); color: var(--bg); padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+  .constraint { background: #1c1208; border: 1px solid var(--yellow); padding: 0.8rem; border-radius: 6px; margin: 0.5rem 0; }
+  .build-block { background: #0d2818; border: 1px solid var(--green); padding: 0.5rem 1rem; border-radius: 6px; margin: 0.5rem 0; font-family: monospace; }
+</style>
+</head>
+<body>
+<h1>FORGE PLAN — VOLTRON Action Engine v3 (Sprint 002)</h1>
+<p><strong>Generated:</strong> 2026-03-29 | <strong>Tickets:</strong> 18 | <strong>Waves:</strong> 7 | <strong>Tracks:</strong> 4 parallel</p>
+<h2>Architecture Constraints (Non-Negotiable)</h2>
+<div class="constraint"><strong>MDJ_SERVER</strong> = <code>/home/jdm/mdj-agent</code> — ALL agent SDK code lives here. VOLTRON, RONIN, any new agent routes go in mdj-agent. NOT Cloud Run.</div>
+<div class="constraint"><strong>Cloud Run (tm-api)</strong> = portal REST API only. No claude-agent-sdk. No AI orchestration.</div>
+<div class="constraint"><strong>ProDashX module path</strong> = <code>apps/prodash/app/(portal)/modules/[module-name]/</code></div>
+<div class="constraint"><strong>Claude model IDs:</strong> Opus = <code>claude-opus-4-6</code>, Sonnet = <code>claude-sonnet-4-6</code>, Haiku = <code>claude-haiku-4-5-20251001</code></div>
+<div class="constraint"><strong>Build Gate:</strong> <code>npm run build</code> (NEVER tsc --noEmit alone). Zero errors required.</div>
+<div class="constraint"><strong>Parallel tracks MUST have zero file overlap.</strong> Same file = sequential.</div>
+<h2>Dependency Graph</h2>
+<pre>
+WAVE 1: TRK-14147 (audit) then TRK-14148 (types)
+WAVE 2: TRK-14149 (registry gen) then TRK-14151 (migrate 82)
+WAVE 3: TRK-14150 (registry API) || TRK-14152 (11 atomics)
+WAVE 4: TRK-14153 (8 supers) || TRK-14156 (playwright) || TRK-14157 (entitlements)
+WAVE 5: TRK-14154 (wire executor) || TRK-14155 (4 wires) || TRK-14158 (CI regen)
+WAVE 6: TRK-14159 (UI) || TRK-14160 (E2E super) then TRK-14162 (E2E wire) then TRK-14163 (E2E playwright)
+WAVE 7: TRK-14161 (deploy) then TRK-14164 (final validation)
+</pre>
+<h2>Parallel Track Map</h2>
+<table>
+<tr><th>Track</th><th>Focus</th><th>Key Files</th><th>Waves</th></tr>
+<tr><td><span class="parallel-tag">TRACK A</span></td><td>Types / Registry / Entitlements</td><td><code>packages/core/src/voltron/types.ts</code><br><code>packages/core/src/voltron/tools/registry-generator.ts</code><br><code>services/api/src/routes/voltron-registry.ts</code></td><td>1-2-3-4</td></tr>
+<tr><td><span class="parallel-tag">TRACK B</span></td><td>Atomic Tools / Super Tools / Wires</td><td><code>packages/core/src/voltron/tools/*.ts</code><br><code>packages/core/src/voltron/super-tools/*.ts</code><br><code>packages/core/src/voltron/wires.ts</code><br><code>packages/core/src/voltron/wire-executor.ts</code></td><td>3-4-5</td></tr>
+<tr><td><span class="parallel-tag">TRACK C</span></td><td>Playwright Carrier Automation</td><td><code>packages/core/src/voltron/tools/run-illustration.ts</code><br>MDJ_SERVER Playwright MCP config</td><td>4-6</td></tr>
+<tr><td><span class="parallel-tag">TRACK D</span></td><td>UI / E2E / Deploy</td><td><code>apps/prodash/app/(portal)/modules/voltron/*</code><br><code>src/forge/tests/e2e-sprint-002.test.ts</code></td><td>5-6-7</td></tr>
+</table>
+<h2>WAVE 1 — Foundation</h2>
+<div class="wave"><div class="wave-header">WAVE 1 — Types and Audit</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14147</span> — ATLAS audit + interface mirror spec</h3>
+<p><strong>Deps:</strong> None | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14147</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>packages/core/src/voltron/ATLAS_AUDIT.md</code> — interface comparison</li><li><code>packages/core/src/voltron/types.ts</code> — verify + divergence JSDoc</li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>Interfaces documented in ATLAS_AUDIT.md</li><li>packages/core/src/voltron/types.ts structure defined</li><li>Divergence from ATLAS noted with rationale</li><li>5 core interfaces: VoltronToolResult, VoltronSuperResult, VoltronContext, VoltronWireInput, VoltronWireResult</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14148</span> — voltron/types.ts full type definitions <span class="sequential-tag">SEQ after 14147</span></h3>
+<p><strong>Deps:</strong> TRK-14147 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14148</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>packages/core/src/voltron/types.ts</code> — all interfaces: VoltronToolResult&lt;T&gt;, VoltronSuperResult&lt;T&gt;, VoltronContext, VoltronWireInput, VoltronWireResult, VoltronStageResult, VoltronArtifact, VoltronRegistryEntry, VoltronSuperToolDefinition, VoltronWireDefinition, VoltronSuperToolExecuteFn</li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>VoltronToolResult, VoltronSuperResult, VoltronContext, VoltronWireInput, VoltronWireResult defined</li><li>TypeScript strict — zero any</li><li>All interfaces have JSDoc</li><li>VoltronUserRole: COORDINATOR | SPECIALIST | DIRECTOR | VP | ADMIN</li><li>VOLTRON_ROLE_RANK maps 1-5</li><li>VoltronRegistryEntry: tool_id, name, description, type, source, entitlement_min, parameters, server_only, generated_at</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div></div>
+<h2>WAVE 2 — Registry + Migration</h2>
+<div class="wave"><div class="wave-header">WAVE 2 — Registry Generator + Legacy Migration <span class="sequential-tag">SEQUENTIAL</span></div>
+<p class="dep">Depends on: Wave 1 (types must exist)</p>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14149</span> — Registry generator (parse 4 sources)</h3>
+<p><strong>Deps:</strong> TRK-14148 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14149</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>packages/core/src/voltron/tools/registry-generator.ts</code></li><li><code>packages/core/src/voltron/generated/</code> — output dir</li><li><code>package.json</code> — add generate:voltron-registry script</li></ul>
+<h4>4 Sources</h4>
+<table><tr><th>Source</th><th>Location</th></tr>
+<tr><td>API routes (AST parse)</td><td><code>services/api/src/routes/*.ts</code></td></tr>
+<tr><td>Firestore schemas</td><td><code>packages/db/src/types/*.ts</code></td></tr>
+<tr><td>MCP servers</td><td>MCP manifest configs</td></tr>
+<tr><td>Voltron tools</td><td><code>packages/core/src/voltron/tools/*.ts</code></td></tr></table>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>npm run generate:voltron-registry outputs valid JSON from 4 sources</li><li>Idempotent — no duplicates</li><li>Entries match VoltronRegistryEntry shape</li><li>Stable tool_id across regenerations</li><li>generated_at timestamp included</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors<br><code>npm run generate:voltron-registry</code> — valid JSON</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14151</span> — Migrate 82 tools <span class="sequential-tag">SEQ after 14149</span></h3>
+<p><strong>Deps:</strong> TRK-14149 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14151</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>packages/core/src/voltron/tools/legacy-tool-map.ts</code></li><li><code>packages/core/src/voltron/tools/index.ts</code></li><li><code>packages/core/src/voltron/generated/</code></li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>All 82 tools in generated registry</li><li>Equivalence: same names, descriptions, params</li><li>VOLTRON chat unaffected — no regression</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors<br><code>npm run generate:voltron-registry</code> — 82+ tools</div>
+</div></div>
+<h2>WAVE 3 — Registry API + Atomics</h2>
+<div class="wave"><div class="wave-header">WAVE 3 <span class="parallel-tag">PARALLEL</span></div>
+<p class="dep">Depends on: Wave 2</p>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14150</span> — voltron_registry + GET /api/voltron/registry</h3>
+<p><strong>Deps:</strong> TRK-14149 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14150</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>services/api/src/routes/voltron-registry.ts</code> — GET (role-filtered) + POST regenerate (Admin)</li></ul>
+<h4>API</h4><pre>
+GET /api/voltron/registry — Firebase Auth, role-filtered
+POST /api/voltron/registry/regenerate — Admin only
+Both: { success, data?, error? } (OS Rule #7)</pre>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>Role-filtered endpoint live</li><li>401 for unauthed</li><li>Tested with Coordinator, Specialist, VP</li><li>Correct subset per role</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14152</span> — 11 new atomic tools <span class="parallel-tag">PARALLEL with 14150</span></h3>
+<p><strong>Deps:</strong> TRK-14148 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14152</code></p>
+<h4>Files</h4><ul class="file-list">
+<li><code>packages/core/src/voltron/tools/get-client-documents.ts</code> — list docs in client ACF folder</li>
+<li><code>packages/core/src/voltron/tools/get-document.ts</code> — retrieve by Drive file ID</li>
+<li><code>packages/core/src/voltron/tools/create-acf-folder.ts</code> — create subfolder</li>
+<li><code>packages/core/src/voltron/tools/list-acf-contents.ts</code> — paginated file list</li>
+<li><code>packages/core/src/voltron/tools/save-to-drive.ts</code> — save HTML/PDF/text</li>
+<li><code>packages/core/src/voltron/tools/run-que-quote.ts</code> — QUE Medicare quote</li>
+<li><code>packages/core/src/voltron/tools/schedule-meeting.ts</code> — calendar + invites</li>
+<li><code>packages/core/src/voltron/tools/send-sms.ts</code> — Lead Connector (approval gated)</li>
+<li><code>packages/core/src/voltron/tools/create-calendar-event.ts</code> — direct calendar</li>
+<li><code>packages/core/src/voltron/tools/log-activity.ts</code> — audit via API route (OS #2)</li>
+<li><code>packages/core/src/voltron/tools/run-illustration.ts</code> — Playwright skeleton</li>
+<li><code>packages/core/src/voltron/tools/index.ts</code> — exports</li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>All 11 implemented, TypeScript strict, no any</li><li>Each returns VoltronToolResult&lt;T&gt;</li><li>get_client_documents + list_acf_contents E2E tested</li><li>run_illustration skeleton works on NA portal</li><li>process.env for secrets (OS #1)</li><li>No Firestore direct writes (OS #2)</li><li>No PHI logged (OS #10)</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div></div>
+<h2>WAVE 4 — Super Tools + Playwright + Entitlements</h2>
+<div class="wave"><div class="wave-header">WAVE 4 <span class="parallel-tag">PARALLEL (3 tracks)</span></div>
+<p class="dep">Depends on: Wave 3</p>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14153</span> — 8 Super Tools (REVIEW_PREP first)</h3>
+<p><strong>Deps:</strong> TRK-14152 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14153</code></p>
+<h4>Files</h4><ul class="file-list">
+<li><code>packages/core/src/voltron/super-tools/review-prep.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/pull-documents.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/draft-communication.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/rmd-analysis.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/coverage-gap.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/meeting-prep.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/build-casework.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/run-illustration.ts</code></li>
+<li><code>packages/core/src/voltron/super-tools/index.ts</code></li></ul>
+<h4>Super Tool Chains</h4>
+<table><tr><th>Tool</th><th>Chain</th><th>Output</th></tr>
+<tr><td>REVIEW_PREP</td><td>search_client &gt; get_client &gt; get_accounts &gt; check_pipeline &gt; compile_review</td><td>Review packet</td></tr>
+<tr><td>PULL_DOCUMENTS</td><td>get_client &gt; get_acf_folder &gt; list_acf_contents &gt; return_links</td><td>File list + links</td></tr>
+<tr><td>DRAFT_COMMUNICATION</td><td>get_client &gt; compose_message &gt; save_draft</td><td>Gmail draft</td></tr>
+<tr><td>RMD_ANALYSIS</td><td>get_accounts &gt; calculate_rmd &gt; generate_recommendations</td><td>RMD strategy</td></tr>
+<tr><td>COVERAGE_GAP</td><td>get_accounts &gt; analyze_life &gt; analyze_health &gt; identify_gaps</td><td>Gap report</td></tr>
+<tr><td>MEETING_PREP</td><td>REVIEW_PREP &gt; PULL_DOCUMENTS &gt; generate_agenda</td><td>Meeting packet</td></tr>
+<tr><td>BUILD_CASEWORK</td><td>get_client &gt; run_que_quote &gt; generate_html &gt; save_to_acf &gt; notify_agent</td><td>HTML + Slack</td></tr>
+<tr><td>RUN_ILLUSTRATION</td><td>get_client &gt; playwright &gt; fill_form &gt; download_pdf &gt; save_to_acf</td><td>PDF in ACF</td></tr></table>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>All 8 in super-tools/</li><li>REVIEW_PREP E2E with Aswegan — 8+ tool calls</li><li>Each returns VoltronSuperResult with tool_results</li><li>BUILD_CASEWORK fires Slack notification</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14156</span> — Playwright (NA + Athene) <span class="parallel-tag">PARALLEL</span></h3>
+<p><strong>Deps:</strong> TRK-14152 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14156</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>packages/core/src/voltron/tools/run-illustration.ts</code> — complete flows</li><li>MDJ_SERVER (<code>/home/jdm/mdj-agent/</code>) — Playwright MCP config</li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>Full flow on NA + Athene portals</li><li>PDF saved to ACF Drive</li><li>Playwright MCP on MDJ1 confirmed</li><li>Real policy params verified</li><li>process.env for credentials (OS #1)</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14157</span> — Entitlement filtering <span class="parallel-tag">PARALLEL</span></h3>
+<p><strong>Deps:</strong> TRK-14150 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14157</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>services/api/src/routes/voltron-registry.ts</code> — entitlement matrix</li></ul>
+<h4>Entitlement Matrix</h4>
+<table><tr><th>Role</th><th>Rank</th><th>Sees</th></tr>
+<tr><td>Coordinator</td><td>1</td><td>Atomics only: search_client, get_client, get_accounts, list_acf_contents</td></tr>
+<tr><td>Specialist</td><td>2</td><td>+ Super Tools: send_sms (gated), REVIEW_PREP, PULL_DOCUMENTS, BUILD_CASEWORK</td></tr>
+<tr><td>Director</td><td>3</td><td>+ Wires: ANNUAL_REVIEW, AEP_ENROLLMENT, run_illustration</td></tr>
+<tr><td>VP</td><td>4</td><td>All tools, wires, Playwright</td></tr>
+<tr><td>Admin</td><td>5</td><td>All + registry regen + audit</td></tr></table>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>5 roles verified</li><li>Coordinator cannot see Wires</li><li>VP sees all</li><li>entitlement_rank &lt;= caller_rank filtering</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div></div>
+<h2>WAVE 5 — Wires + CI</h2>
+<div class="wave"><div class="wave-header">WAVE 5 <span class="parallel-tag">PARALLEL (3 tracks)</span></div>
+<p class="dep">Depends on: Wave 4</p>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14154</span> — Wire Executor</h3>
+<p><strong>Deps:</strong> TRK-14153 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14154</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>packages/core/src/voltron/wire-executor.ts</code></li><li><code>services/api/src/routes/voltron-wire.ts</code></li></ul>
+<h4>Features</h4><pre>
+1. Sequential execution with output chaining
+2. Approval gates — emit approval_pending
+3. Audit trail to wire_executions via API (OS #2)
+4. SSE: stage_start, stage_complete, wire_complete, error
+5. Simulation mode — no side effects</pre>
+<h4>API</h4><pre>
+POST /api/voltron/wire/execute — SSE stream, role-gated
+  Body: { wire_id, client_id, params, simulation?: boolean }
+GET /api/voltron/wire/status/:execution_id — Firebase Auth
+Both: { success, data?, error? } (OS #7)</pre>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>Output chaining works</li><li>Approval gates pause + emit status</li><li>Audit to wire_executions via API route</li><li>SSE events working</li><li>Simulation mode works</li><li>VoltronWireResult: execution_id, wire_id, user_email, client_id, started_at, completed_at, stage_results[], status, artifacts[]</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14155</span> — 4 Wires <span class="parallel-tag">PARALLEL</span></h3>
+<p><strong>Deps:</strong> TRK-14153 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14155</code></p>
+<p><em>Zero file overlap with TRK-14154 (wires.ts vs wire-executor.ts)</em></p>
+<h4>Files</h4><ul class="file-list"><li><code>packages/core/src/voltron/wires.ts</code></li></ul>
+<h4>Wire Definitions</h4>
+<table><tr><th>Wire</th><th>Steps</th><th>Gates</th><th>Min Role</th></tr>
+<tr><td>ANNUAL_REVIEW</td><td>REVIEW_PREP &gt; PULL_DOCUMENTS &gt; MEETING_PREP &gt; DRAFT_COMMUNICATION</td><td>Before DRAFT</td><td>DIRECTOR</td></tr>
+<tr><td>AEP_ENROLLMENT</td><td>check_medicare &gt; run_que &gt; DRAFT &gt; schedule</td><td>Oct-Dec blackout</td><td>DIRECTOR</td></tr>
+<tr><td>ONBOARD_AGENCY</td><td>get_agency &gt; create_records &gt; create_acf &gt; notify</td><td>None</td><td>DIRECTOR</td></tr>
+<tr><td>NEW_BUSINESS</td><td>REVIEW_PREP &gt; BUILD_CASEWORK &gt; schedule &gt; track</td><td>None</td><td>SPECIALIST</td></tr></table>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>4 wires in wires.ts as VoltronWireDefinition</li><li>ANNUAL_REVIEW approval gate before DRAFT</li><li>AEP blackout enforced</li><li>ANNUAL_REVIEW + BUILD_CASEWORK verified</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14158</span> — Registry CI auto-regen <span class="parallel-tag">PARALLEL</span></h3>
+<p><strong>Deps:</strong> TRK-14150 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14158</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>.github/workflows/deploy.yml</code> — post-deploy step</li><li><code>services/api/src/routes/voltron-deploy.ts</code></li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>Post-deploy calls POST /api/voltron/registry/regenerate</li><li>In GitHub Actions workflow</li><li>generated_at updates</li><li>Auth via process.env (OS #1)</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div></div>
+<h2>WAVE 6 — UI + E2E</h2>
+<div class="wave"><div class="wave-header">WAVE 6 — Mode 1 UI + E2E Tests</div>
+<p class="dep">Depends on: Wave 5</p>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14159</span> — Mode 1 UI wire selector <span class="parallel-tag">PARALLEL with tests</span></h3>
+<p><strong>Deps:</strong> TRK-14154, TRK-14155, TRK-14150 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14159</code></p>
+<h4>Files</h4><ul class="file-list">
+<li><code>apps/prodash/app/(portal)/modules/voltron/voltron-mode1.tsx</code></li>
+<li><code>apps/prodash/app/(portal)/modules/voltron/components/wire-selector.tsx</code></li>
+<li><code>apps/prodash/app/(portal)/modules/voltron/components/progress-display.tsx</code></li>
+<li><code>apps/prodash/app/(portal)/modules/voltron/components/artifact-viewer.tsx</code></li>
+<li><code>apps/prodash/app/(portal)/modules/voltron/hooks/use-wire-execution.ts</code></li>
+<li><code>apps/prodash/app/(portal)/modules/voltron/hooks/use-sse-progress.ts</code></li>
+<li><code>apps/prodash/app/(portal)/modules/voltron/types.ts</code></li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>Select wire or type request</li><li>SSE real-time progress</li><li>Artifacts on completion</li><li>Mobile responsive</li><li>showToast not alert (OS #5)</li><li>Role-filtered registry</li><li>Smart Lookup for persons (OS #9)</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14160</span> — E2E: Aswegan REVIEW_PREP + Mineart BUILD_CASEWORK</h3>
+<p><strong>Deps:</strong> TRK-14153 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14160</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>src/forge/tests/e2e-sprint-002.test.ts</code> — Super Tool tests</li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>Aswegan REVIEW_PREP complete packet</li><li>Mineart BUILD_CASEWORK HTML in ACF + Slack</li><li>Tests pass, no PHI (OS #10)</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14162</span> — E2E wire: ANNUAL_REVIEW + BUILD_CASEWORK <span class="sequential-tag">SEQ after 14160</span></h3>
+<p><strong>Deps:</strong> TRK-14154, TRK-14155, TRK-14160 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14162</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>src/forge/tests/e2e-sprint-002.test.ts</code> — wire tests (distinct describe blocks)</li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>ANNUAL_REVIEW via 8+ tool calls</li><li>BUILD_CASEWORK HTML + Slack</li><li>Audit trail in wire_executions</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14163</span> — Playwright E2E <span class="sequential-tag">SEQ after 14162</span></h3>
+<p><strong>Deps:</strong> TRK-14156, TRK-14162 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14163</code></p>
+<h4>Files</h4><ul class="file-list"><li><code>src/forge/tests/e2e-sprint-002.test.ts</code> — Playwright tests (distinct describe)</li></ul>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>RUN_ILLUSTRATION on NA + Athene</li><li>PDF saved to ACF</li><li>Real policy params</li><li>Playwright MCP on MDJ_SERVER confirmed</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div></div>
+<h2>WAVE 7 — Deploy</h2>
+<div class="wave"><div class="wave-header">WAVE 7 <span class="sequential-tag">SEQUENTIAL</span></div>
+<p class="dep">Depends on: ALL previous waves</p>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14161</span> — Deploy + smoke test</h3>
+<p><strong>Deps:</strong> All Waves 1-6 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14161</code></p>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>8 Super Tools callable in Mode 1 UI</li><li>Wire Executor 1+ wire without error</li><li>Audit trail visible</li><li>Registry auto-generated</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors</div>
+</div>
+<div class="ticket">
+<h3><span class="ticket-id">TRK-14164</span> — Full production validation <span class="sequential-tag">SEQ after 14161</span></h3>
+<p><strong>Deps:</strong> TRK-14161 | <strong>Branch:</strong> <code>voltron/sprint-002-TRK-14164</code></p>
+<h4>Acceptance Criteria</h4><ul class="ac-list"><li>PR merged to main</li><li>8 Super Tools callable</li><li>Wire Executor full E2E</li><li>Audit trail in wire_executions</li><li>Registry regenerates (timestamp confirmed)</li><li>All systems green</li></ul>
+<div class="build-block"><code>npm run build</code> — zero errors (final gate)</div>
+</div></div>
+<h2>Risk Matrix</h2>
+<table><tr><th>Risk</th><th>Impact</th><th>Mitigation</th><th>Tickets</th></tr>
+<tr><td class="risk">Playwright MCP instability</td><td>High</td><td>Verify before TRK-14156; fallback path</td><td>14156, 14163, 14153</td></tr>
+<tr><td class="risk">Registry AST parsing</td><td>Medium</td><td>Start with simplest source</td><td>14149, 14151</td></tr>
+<tr><td class="risk">Test file overlap</td><td>Low</td><td>Distinct describe blocks, sequential</td><td>14160, 14162, 14163</td></tr>
+<tr><td class="risk">SSE through Cloud Run</td><td>Medium</td><td>Test early; WebSocket fallback</td><td>14154, 14159</td></tr>
+<tr><td class="risk">Firestore direct writes</td><td>High</td><td>ALL writes via API (OS #2)</td><td>14154, 14152</td></tr>
+<tr><td class="risk">Legacy regression</td><td>High</td><td>Equivalence test before merge</td><td>14151</td></tr></table>
+<h2>Firestore Collections</h2>
+<table><tr><th>Collection</th><th>Purpose</th><th>Written By</th><th>Read By</th></tr>
+<tr><td><code>voltron_registry</code></td><td>Tool definitions</td><td>POST regenerate</td><td>GET registry</td></tr>
+<tr><td><code>wire_executions</code></td><td>Audit trail</td><td>Wire Executor via API</td><td>Admin</td></tr>
+<tr><td><code>users</code></td><td>Role/auth</td><td>Auth system</td><td>Registry endpoint</td></tr></table>
+<h2>API Endpoints — Complete Coverage</h2>
+<table><tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Ticket</th><th>File</th></tr>
+<tr><td>GET</td><td><code>/api/voltron/registry</code></td><td>Firebase (role-filtered)</td><td>TRK-14150</td><td><code>services/api/src/routes/voltron-registry.ts</code></td></tr>
+<tr><td>POST</td><td><code>/api/voltron/registry/regenerate</code></td><td>Admin</td><td>TRK-14150, 14158</td><td><code>services/api/src/routes/voltron-registry.ts</code></td></tr>
+<tr><td>POST</td><td><code>/api/voltron/wire/execute</code></td><td>Role-gated</td><td>TRK-14154</td><td><code>services/api/src/routes/voltron-wire.ts</code></td></tr>
+<tr><td>GET</td><td><code>/api/voltron/wire/status/:execution_id</code></td><td>Firebase</td><td>TRK-14154</td><td><code>services/api/src/routes/voltron-wire.ts</code></td></tr></table>
+<p><strong>All endpoints:</strong> <code>{ success: boolean, data?: T, error?: string }</code> (OS Rule #7)</p>
+<h2>Dependency Verification</h2>
+<table><tr><th>Ticket</th><th>Wave</th><th>Deps</th><th>Dep Waves</th><th>Valid</th></tr>
+<tr><td>14147</td><td>1</td><td>None</td><td>-</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14148</td><td>1</td><td>14147</td><td>1 seq</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14149</td><td>2</td><td>14148</td><td>1</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14151</td><td>2</td><td>14149</td><td>2 seq</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14150</td><td>3</td><td>14149</td><td>2</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14152</td><td>3</td><td>14148</td><td>1</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14153</td><td>4</td><td>14152</td><td>3</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14156</td><td>4</td><td>14152</td><td>3</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14157</td><td>4</td><td>14150</td><td>3</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14154</td><td>5</td><td>14153</td><td>4</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14155</td><td>5</td><td>14153</td><td>4</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14158</td><td>5</td><td>14150</td><td>3</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14159</td><td>6</td><td>14154,14155</td><td>5,5</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14160</td><td>6</td><td>14153</td><td>4</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14162</td><td>6</td><td>14154,14160</td><td>5,6 seq</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14163</td><td>6</td><td>14156,14162</td><td>4,6 seq</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14161</td><td>7</td><td>All 1-6</td><td>1-6</td><td style="color:#3fb950">YES</td></tr>
+<tr><td>14164</td><td>7</td><td>14161</td><td>7 seq</td><td style="color:#3fb950">YES</td></tr></table>
+<h2>File Ownership</h2>
+<table><tr><th>File</th><th>Owner</th><th>Wave</th><th>Conflict</th></tr>
+<tr><td><code>packages/core/src/voltron/ATLAS_AUDIT.md</code></td><td>14147</td><td>1</td><td>None</td></tr>
+<tr><td><code>packages/core/src/voltron/types.ts</code></td><td>14147 then 14148</td><td>1 seq</td><td>Safe</td></tr>
+<tr><td><code>packages/core/src/voltron/tools/registry-generator.ts</code></td><td>14149</td><td>2</td><td>None</td></tr>
+<tr><td><code>packages/core/src/voltron/tools/legacy-tool-map.ts</code></td><td>14151</td><td>2</td><td>None</td></tr>
+<tr><td><code>services/api/src/routes/voltron-registry.ts</code></td><td>14150 then 14157</td><td>3,4</td><td>Safe</td></tr>
+<tr><td><code>packages/core/src/voltron/tools/*.ts</code> (11)</td><td>14152</td><td>3</td><td>None</td></tr>
+<tr><td><code>packages/core/src/voltron/tools/run-illustration.ts</code></td><td>14152 then 14156</td><td>3,4</td><td>Safe</td></tr>
+<tr><td><code>packages/core/src/voltron/super-tools/*.ts</code></td><td>14153</td><td>4</td><td>None</td></tr>
+<tr><td><code>packages/core/src/voltron/wire-executor.ts</code></td><td>14154</td><td>5</td><td>None</td></tr>
+<tr><td><code>packages/core/src/voltron/wires.ts</code></td><td>14155</td><td>5</td><td>None</td></tr>
+<tr><td><code>services/api/src/routes/voltron-wire.ts</code></td><td>14154</td><td>5</td><td>None</td></tr>
+<tr><td><code>.github/workflows/deploy.yml</code></td><td>14158</td><td>5</td><td>None</td></tr>
+<tr><td><code>apps/prodash/.../modules/voltron/*</code></td><td>14159</td><td>6</td><td>None</td></tr>
+<tr><td><code>src/forge/tests/e2e-sprint-002.test.ts</code></td><td>14160,14162,14163</td><td>6 seq</td><td>Safe</td></tr></table>
+<h2>Summary</h2>
+<table><tr><th>Metric</th><th>Value</th></tr>
+<tr><td>Total Tickets</td><td>18</td></tr>
+<tr><td>Total Waves</td><td>7</td></tr>
+<tr><td>Parallel Tracks</td><td>4</td></tr>
+<tr><td>New Atomic Tools</td><td>11</td></tr>
+<tr><td>Super Tools</td><td>8</td></tr>
+<tr><td>Wires</td><td>4</td></tr>
+<tr><td>API Endpoints</td><td>4</td></tr>
+<tr><td>Firestore Collections</td><td>3</td></tr>
+<tr><td>Build Gate</td><td>npm run build (never tsc --noEmit)</td></tr></table>
+<p style="margin-top:2rem;color:#3fb950;font-size:1.2rem;text-align:center"><strong>PLAN COMPLETE — 18 tickets, 7 waves, full dependency verification</strong></p>
+</body>
+</html>
