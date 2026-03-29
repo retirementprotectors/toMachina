@@ -727,10 +727,17 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
   <h1>Dojo Rebuild</h1>
   <p class="subtitle">How to rebuild a warrior after a reboot, crash, or fresh start. This is the critical workflow.</p>
 
-  <!-- Executive.AI Org Chart -->
-  <div class="card" style="margin-bottom:20px;border-left:4px solid var(--blue);background:var(--bg2)">
-    <strong style="color:var(--blue);font-size:1.15em">The Machine — Full Architecture</strong>
-    <p class="muted" style="font-size:0.85em;margin:8px 0 16px">Three executives think with the CEO. The CCSDK mesh builds, guards, and serves. VOLTRON is the only agent that touches clients and team.</p>
+  <!-- The Machine — Full Architecture (collapsible) -->
+  <details>
+    <summary>The Machine — Full Architecture</summary>
+    <div class="details-body">
+    <p class="muted" style="font-size:0.85em;margin-bottom:16px">Three executives think with the CEO. The CCSDK mesh builds, guards, and serves. <strong>The team only needs to know about their Portal + VOLTRON.</strong> Everything else is under the hood.</p>
+
+    <div class="card" style="margin-bottom:16px;border-left:4px solid var(--cyan);background:var(--bg2)">
+      <strong style="color:var(--cyan);font-size:1em">For the Team: Your Portal + VOLTRON = Your Access to the AI Team</strong>
+      <p class="muted" style="font-size:0.85em;margin-top:8px">VOLTRON is the <strong>ONLY team-facing agent</strong>. It lives inside your Portal (ProDashX, RIIMO, or SENTINEL) as the MDJ Panel. Click the bot icon in the sidebar → talk to VOLTRON → it routes you to the right specialist automatically. That's it. Everything below this box is behind the scenes — you never need to think about it.</p>
+      <p class="muted" style="font-size:0.82em;margin-top:6px"><em>Client-facing AI access is on the roadmap — we'll cover that when we get closer.</em></p>
+    </div>
 
     <!-- Executive Layer -->
     <div style="margin-bottom:16px">
@@ -762,7 +769,7 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
         <tr>
           <td><strong>VOLTRON</strong></td><td>The Bot</td>
           <td style="color:var(--green)"><strong>82 tools + 8 MCP servers + Firestore</strong></td>
-          <td>Conversational platform interface — <strong style="color:var(--cyan)">ONLY client + team-facing agent</strong></td>
+          <td>Conversational platform interface — <strong style="color:var(--cyan)">ONLY team-facing agent</strong></td>
         </tr>
       </table>
       <div class="card info" style="margin:12px 0 8px;font-size:0.82em">
@@ -771,8 +778,8 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
     </div>
 
     <!-- VOLTRON Specialists -->
-    <div style="margin-bottom:8px">
-      <div style="color:var(--cyan);font-size:0.75em;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Business Specialists — inside VOLTRON · intent-routed · client + team-facing</div>
+    <div style="margin-bottom:16px">
+      <div style="color:var(--cyan);font-size:0.75em;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Business Specialists — inside VOLTRON · intent-routed · team-facing</div>
       <table style="font-size:0.85em">
         <tr><th>Specialist</th><th>Domain</th><th>Key Tools</th></tr>
         <tr><td>Medicare</td><td>MAPD quoting, AEP/OEP, plan comparisons</td><td>CMS Coverage MCP, NPI Registry, ICD-10</td></tr>
@@ -786,18 +793,21 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
     </div>
 
     <!-- Access Model -->
-    <div>
-      <div style="color:var(--red);font-size:0.75em;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Access Model — who has what and why</div>
+    <details style="margin-top:8px">
+      <summary>Access Model — who has what and why</summary>
+      <div class="details-body">
       <table style="font-size:0.82em">
-        <tr><th>Agent</th><th>MCP Tools</th><th>Firestore</th><th>Git/Repo</th><th>Portal (client-facing)</th><th>Why</th></tr>
-        <tr><td><strong>Executive.AI</strong><br><span class="muted" style="font-size:0.8em">SHINOB1, 2HINOBI, MUSASHI</span></td><td style="color:var(--green)">All 8 servers</td><td style="color:var(--green)">Full</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td><td>Executives need total visibility. Never client-facing — they talk to JDM.</td></tr>
-        <tr><td><strong>VOLTRON</strong></td><td style="color:var(--green)">All 8 servers</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td><td style="color:var(--green)"><strong>Yes — ONLY one</strong></td><td>The bot needs everything to serve clients + team. Only agent exposed via MDJ Panel on portals.</td></tr>
-        <tr><td><strong>RONIN</strong></td><td style="color:var(--red)">None</td><td style="color:var(--orange)">FORGE state only</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td><td>Builders need code, not client data. Scoped to prevent accidental client impact.</td></tr>
+        <tr><th>Agent</th><th>MCP Tools</th><th>Firestore</th><th>Git/Repo</th><th>Portal (team-facing)</th><th>Why</th></tr>
+        <tr><td><strong>Executive.AI</strong><br><span class="muted" style="font-size:0.8em">SHINOB1, 2HINOBI, MUSASHI</span></td><td style="color:var(--green)">All 8 servers</td><td style="color:var(--green)">Full</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td><td>Executives need total visibility. Never team-facing — they talk to JDM.</td></tr>
+        <tr><td><strong>VOLTRON</strong></td><td style="color:var(--green)">All 8 servers</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td><td style="color:var(--green)"><strong>Yes — ONLY one</strong></td><td>The bot needs everything to serve the team. Only agent exposed via MDJ Panel on portals.</td></tr>
+        <tr><td><strong>RONIN</strong></td><td style="color:var(--red)">None</td><td style="color:var(--orange)">FORGE state only</td><td style="color:var(--green)">Full</td><td style="color:var(--red)">No</td><td>Builders need code, not client data. Scoped to prevent accidental impact.</td></tr>
         <tr><td><strong>RAIDEN</strong></td><td style="color:var(--orange)">Slack only</td><td style="color:var(--orange)">Monitoring state</td><td style="color:var(--orange)">Read only</td><td style="color:var(--red)">No</td><td>Guardian watches, triages, notifies. Doesn't build or serve — scoped to observe + alert.</td></tr>
       </table>
-      <p class="muted" style="font-size:0.82em;margin-top:8px"><strong>Key principle:</strong> VOLTRON is the ONLY agent that touches clients and team, via the toMachina Platform (Portals → Apps → Modules → Tools). Everything else is internal. This is intentional — you don't want RONIN talking to clients or RAIDEN modifying accounts.</p>
+      <p class="muted" style="font-size:0.82em;margin-top:8px"><strong>Key principle:</strong> VOLTRON is the ONLY agent the team interacts with, via the toMachina Platform (Portals → Apps → Modules → Tools). Everything else is internal. Client-facing access is on the roadmap.</p>
+      </div>
+    </details>
     </div>
-  </div>
+  </details>
 
   <div class="card purple" style="margin-bottom:20px">
     <strong style="color:var(--purple);font-size:1.1em">"If you didn't READ IT, don't REPORT IT."</strong><br>
