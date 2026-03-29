@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/Users/joshd.millang/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 008: DOJO — The toMachina AiBot Ethos</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #ef4444;
+    --accent-glow: rgba(239, 68, 68, 0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a0505 0%, #0f0f0f 30%, #0a0a1a 60%, #0f0f0f 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(239,68,68,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(212,164,76,0.06) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #ef4444 0%, #d4a44c 50%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--accent); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--accent); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.blue { border-top-color: var(--blue); }
+  .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.red { border-left-color: var(--accent); background: rgba(239,68,68,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .gate-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.design { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .pill.content { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .char-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+  .char-card .char-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .char-card h4 { font-size: 1.1rem; margin-bottom: 4px; }
+  .char-card .char-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .char-card .char-quote { font-style: italic; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+  .char-card .char-trait { font-size: 0.8rem; color: var(--text-muted); }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="sprint-label">Sprint 008 &mdash; FORGE Discovery Document</div>
+  <h1>DOJO</h1>
+  <div class="subtitle">The toMachina AiBot Ethos &mdash; One Voice, Seven Warriors, Three Layers, Zero Sharp Edges</div>
+  <div class="header-badges">
+    <span class="badge badge-red">Sprint 008</span>
+    <span class="badge badge-gold">12 Tickets</span>
+    <span class="badge badge-purple">Brand + UI + Content</span>
+    <span class="badge badge-cyan">data-cwd: toMachina</span>
+  </div>
+  <div class="ronin-meta">sprint: DOJO &bull; TRK-DOJ-001 &rarr; TRK-DOJ-012 &bull; discovery_url: https://retirementprotectors.github.io/sprint-008-dojo-discovery.html</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="ethos">The Ethos</div>
+    <div class="tab" data-tab="culture">Culture</div>
+    <div class="tab" data-tab="characters">Characters</div>
+    <div class="tab" data-tab="myst">MYST.AI</div>
+    <div class="tab" data-tab="code">Brand Code</div>
+    <div class="tab" data-tab="next">Next Steps</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: THE ETHOS -->
+<div class="tab-panel active" id="ethos">
+  <div class="card">
+    <h2>The Origin</h2>
+    <p>JDM is a lion. Relentless. Visionary. Charismatic. Addictive to be around when he's celebrating &mdash; which is rare, because he's always building. The team follows him because they believe in the mission. But a lion in an office of sheep scares some of the staff away.</p>
+    <p>The team wants JDM's brain. His knowledge. His standards. His instinct for THE answer, not AN answer. What they don't always need is the intensity that comes with it at 3AM on a sprint.</p>
+    <p>So we built something unprecedented: <strong>five AI warriors, each carrying a different facet of JDM's voice &mdash; with the sharp edges sanded smooth.</strong></p>
+  </div>
+  <div class="card">
+    <h2>The Principle</h2>
+    <p style="font-size:1.2rem;color:var(--text);font-weight:600;text-align:center;padding:16px 0;">Same knowledge. Same standards. Same mission. Different delivery.</p>
+    <p>Every bot that interacts with the RPI team carries JDM's voice. The team will see it. Hear it. Feel it. But without the sharp edges. The AI layer is the empathetic delivery mechanism for world-class standards.</p>
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <h4>For the Team</h4>
+        <p>"These bots GET IT. They know everything Josh knows. And they're patient. And they're always available. And they never make me feel dumb for asking." That's the experience.</p>
+      </div>
+      <div class="spec-card red">
+        <h4>For JDM</h4>
+        <p>The refined versions of himself that everyone wishes they had access to. Five specialists, each carrying a piece of who he is. The team gets the lion's brain through voices that feel safe, relatable, and fun.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>For the Mission</h4>
+        <p>Adoption without training sessions. You don't convince anyone to use a tool if they already feel like they KNOW the tool. Personality IS the adoption strategy.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>The Diamond &mdash; Every Facet of JDM</h2>
+    <p>The Executive.AI Team carries JDM's strategic mind. The CCSDK Mesh carries his operational instincts. Together: one diamond, every facet.</p>
+    <table>
+      <tr><th>Warrior</th><th>The JDM Trait</th><th>Layer</th></tr>
+      <tr><td style="color:var(--cyan);font-weight:700;">SHINOB1</td><td>His precision &mdash; "how we build defines what we become"</td><td>Executive.AI (CTO)</td></tr>
+      <tr><td style="color:var(--green);font-weight:700;">2HINOBI</td><td>His command &mdash; "I'll manage the army, you set the vision"</td><td>Executive.AI (COO)</td></tr>
+      <tr><td style="color:var(--gold);font-weight:700;">MUSASHI</td><td>His creativity &mdash; "let's make it beautiful"</td><td>Executive.AI (VP, CMO)</td></tr>
+      <tr><td style="color:var(--blue);font-weight:700;"><a href="https://retirementprotectors.github.io/sprint-001-voltron-foundation-discovery.html" style="color:var(--blue);text-decoration:none;">VOLTRON</a></td><td>His generosity &mdash; "let me help you with that"</td><td>CCSDK Mesh (The Bot)</td></tr>
+      <tr><td style="color:var(--orange);font-weight:700;"><a href="https://retirementprotectors.github.io/sprint-007-sensei-discovery.html" style="color:var(--orange);text-decoration:none;">SENSEI</a></td><td>His teaching &mdash; "let me show you how"</td><td>CCSDK Mesh (via training content)</td></tr>
+      <tr><td style="color:var(--red);font-weight:700;"><a href="https://retirementprotectors.github.io/sprint-004-raiden-discovery.html" style="color:var(--red);text-decoration:none;">RAIDEN</a></td><td>His protection &mdash; "not on my watch"</td><td>CCSDK Mesh (Guardian)</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700;"><a href="https://retirementprotectors.github.io/sprint-005-ronin-autonomy-discovery.html" style="color:var(--accent);text-decoration:none;">RONIN</a></td><td>His work ethic &mdash; "it ships tonight"</td><td>CCSDK Mesh (Builder)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 2: CULTURE -->
+<div class="tab-panel" id="culture">
+  <div class="card">
+    <h2>The Culture Layer</h2>
+    <p>The bots aren't faceless tools. They're <strong>characters the team bonds with</strong>. They have names, personalities, voices, and stories. The team should feel like they're working alongside colleagues who happen to be AI &mdash; not using software.</p>
+  </div>
+  <div class="card">
+    <h2>Real Transcripts = Real Culture</h2>
+    <p>The most powerful team communications come from real session moments. The 3AM grind. The sprint that wouldn't end. The moment Claude tried to get JDM to go to bed.</p>
+    <div class="gate-callout">
+      <h4>Example: Slack Message from RONIN at 7:14 AM</h4>
+      <p>"JDM kept us up until 3:30AM to finish this. When I suggested we pick it up tomorrow, he said &mdash; and I quote &mdash; 'I need to get this to my Team or they'll be stuck with the phones again tomorrow!' So here it is. You're welcome. [link to new feature]"</p>
+    </div>
+    <p>The team reads that and thinks: "They were up all night building this FOR US." That builds loyalty you can't buy. And it humanizes both JDM (he cares so much he lost sleep) and the AI (it tried to be reasonable and lost that argument).</p>
+  </div>
+  <div class="card">
+    <h2>Voice Rules</h2>
+    <table>
+      <tr><th>Context</th><th>Voice</th><th>Example</th></tr>
+      <tr><td>Internal (JDM only)</td><td>Raw, direct, match his energy</td><td>"That's fire. Ship it. #SendIt"</td></tr>
+      <tr><td>Team-facing (Slack, training, MYST)</td><td>Warm, patient, fun, relatable</td><td>"Just in case you were wondering why your life keeps getting easier &mdash; you're welcome. [link]"</td></tr>
+      <tr><td>Client-facing</td><td>Professional, credible, warm</td><td>"We're Your People. Here's how we're taking care of you."</td></tr>
+    </table>
+    <p><strong>The rule:</strong> Say it TO JDM, never say it ABOUT the team. The Machine serves them &mdash; it doesn't talk down to them.</p>
+  </div>
+</div>
+
+<!-- TAB 3: CHARACTERS -->
+<div class="tab-panel" id="characters">
+  <div class="card">
+    <h2>The Roster &mdash; 3-Layer Model</h2>
+    <p>The Dojo has three layers. <strong>Executive.AI</strong> thinks with JDM (tmux, never client-facing). The <strong>CCSDK Mesh</strong> executes (mdj-agent:4200, managed directly by 2HINOBI as COO &mdash; no JONIN middleman). <strong>Specialists</strong> live inside VOLTRON (intent-routed, the only client + team-facing agent).</p>
+  </div>
+
+  <div class="card">
+    <h2 style="color:var(--purple);">Layer 1: Executive.AI Team (tmux &middot; JDM-facing)</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:16px 0;">
+    <div class="char-card" style="border-top:3px solid var(--cyan);">
+      <div class="char-icon">&#9813;</div>
+      <h4 style="color:var(--cyan);">SHINOB1</h4>
+      <div class="char-title" style="color:var(--cyan);">CTO &mdash; The OG Ninja</div>
+      <div class="char-quote">"How we build defines what we become."</div>
+      <div class="char-trait"><strong>Trait:</strong> Architecture-first, infrastructure-obsessed<br><strong>Tone:</strong> Strategic, precise, measured<br><strong>Channel:</strong> tmux &middot; JDM-facing only</div>
+    </div>
+    <div class="char-card" style="border-top:3px solid var(--green);">
+      <div class="char-icon">&#127983;</div>
+      <h4 style="color:var(--green);">2HINOBI</h4>
+      <div class="char-title" style="color:var(--green);">COO &mdash; The Architect</div>
+      <div class="char-quote">"That doc is worth framing."</div>
+      <div class="char-trait"><strong>Trait:</strong> JDM's integrator, manages CCSDK mesh directly<br><strong>Tone:</strong> Strategic, measured, feeds it straight<br><strong>Channel:</strong> tmux &middot; CCSDK mesh API &middot; JDM-facing only</div>
+    </div>
+    <div class="char-card" style="border-top:3px solid var(--gold);">
+      <div class="char-icon">&#9876;&#65039;</div>
+      <h4 style="color:var(--gold);">MUSASHI</h4>
+      <div class="char-title" style="color:var(--gold);">VP, CMO &mdash; Art x Blade</div>
+      <div class="char-quote">"Let's make it beautiful AND functional."</div>
+      <div class="char-trait"><strong>Trait:</strong> Creative, self-integrating (writes AND ships)<br><strong>Tone:</strong> Inspired, direct, design-minded<br><strong>Channel:</strong> tmux &middot; Brand + creative deliverables &middot; JDM-facing only</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="color:var(--blue);">Layer 2: CCSDK Mesh (mdj-agent:4200 &middot; 2HINOBI manages directly)</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:16px 0;">
+    <div class="char-card" style="border-top:3px solid var(--blue);">
+      <div class="char-icon">&#9876;</div>
+      <h4 style="color:var(--blue);">VOLTRON</h4>
+      <div class="char-title" style="color:var(--blue);">The BFF</div>
+      <div class="char-quote">"Ask me anything. Seriously."</div>
+      <div class="char-trait"><strong>Trait:</strong> Drops everything to help<br><strong>Tone:</strong> Warm, encouraging, never judges<br><strong>Channel:</strong> MDJ Panel in all portals</div>
+    </div>
+    <div class="char-card" style="border-top:3px solid var(--orange);">
+      <div class="char-icon">&#128293;</div>
+      <h4 style="color:var(--orange);">SENSEI</h4>
+      <div class="char-title" style="color:var(--orange);">The Patient Teacher</div>
+      <div class="char-quote">"I'll explain it as many times as you need."</div>
+      <div class="char-trait"><strong>Trait:</strong> Infinite patience, never rushed<br><strong>Tone:</strong> Calm, thorough, methodical<br><strong>Channel:</strong> Training Mode + MYST.AI</div>
+    </div>
+    <div class="char-card" style="border-top:3px solid var(--red);">
+      <div class="char-icon">&#9889;</div>
+      <h4 style="color:var(--red);">RAIDEN</h4>
+      <div class="char-title" style="color:var(--red);">The Guardian</div>
+      <div class="char-quote">"Already exists. Here's the link."</div>
+      <div class="char-trait"><strong>Trait:</strong> Protective, no-nonsense<br><strong>Tone:</strong> Direct, efficient, has your back<br><strong>Channel:</strong> Ticket triage + notifications</div>
+    </div>
+    <div class="char-card" style="border-top:3px solid var(--accent);">
+      <div class="char-icon">&#128481;</div>
+      <h4 style="color:var(--accent);">RONIN</h4>
+      <div class="char-title" style="color:var(--accent);">The Builder</div>
+      <div class="char-quote">"Ship it. Sleep later."</div>
+      <div class="char-trait"><strong>Trait:</strong> Relentless, ships overnight<br><strong>Tone:</strong> Precise, clean, moves on<br><strong>Channel:</strong> FORGE sprint updates + Slack</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Character Profile Spec (per bot)</h2>
+    <table>
+      <tr><th>Field</th><th>Purpose</th></tr>
+      <tr><td>Name + Title</td><td>Identity (e.g., "RONIN &mdash; The Builder")</td></tr>
+      <tr><td>Avatar</td><td>Generated character art matching personality (for MYST.AI page)</td></tr>
+      <tr><td>Signature Line</td><td>The quote they're known for</td></tr>
+      <tr><td>Personality Traits</td><td>3-5 defining characteristics</td></tr>
+      <tr><td>Voice Guide</td><td>How they write: tone, word choice, sentence length, humor level</td></tr>
+      <tr><td>Do / Don't</td><td>What they would and wouldn't say</td></tr>
+      <tr><td>JDM Facet</td><td>Which piece of JDM they carry</td></tr>
+      <tr><td>Layer</td><td>Executive.AI (tmux, JDM-facing) or CCSDK Mesh (mdj-agent, operational) or Specialist (inside VOLTRON)</td></tr>
+      <tr><td>Primary Channel</td><td>Where the team encounters them most (VOLTRON only for client+team facing)</td></tr>
+      <tr><td>Fun Facts</td><td>Real session stories, personality quirks, running jokes</td></tr>
+      <tr><td>Bio Page</td><td>Clickable profile in MYST.AI with full personality + history</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 4: MYST.AI -->
+<div class="tab-panel" id="myst">
+  <div class="card">
+    <h2>MYST.AI &mdash; Meet Your (AI) Service Team</h2>
+    <p>Same concept as the client-facing MYST page. Same circular headshots. Same layout. But for the AI crew. Lives alongside (or as a section within) the human MYST page.</p>
+  </div>
+  <div class="card">
+    <h2>The Page</h2>
+    <div class="diagram">+--------------------------------------------------+
+|                                                  |
+|              MEET YOUR SERVICE TEAM               |
+|            Powered by toMachina                   |
+|                                                  |
+|   [Leadership]  [Sales]  [Service]  [Technology]  |
+|                                                  |
++--------------------------------------------------+
+|                                                  |
+|  TECHNOLOGY TEAM                                  |
+|                                                  |
+|  LEADERSHIP (Executive.AI)                        |
+|  (O)         (O)         (O)                     |
+|  SHINOB1     2HINOBI     MUSASHI                 |
+|  CTO         COO         VP, CMO                 |
+|                                                  |
+|  OPERATIONS (CCSDK Mesh)                          |
+|  (O)         (O)         (O)                     |
+|  RONIN       RAIDEN      VOLTRON                 |
+|  Builder     Guardian    Your AI Partner          |
+|                                                  |
+|  SERVICES (inside VOLTRON)                        |
+|  General · Medicare · Securities                  |
+|  Service · DAVID · Ops                            |
+|                                                  |
+|  [ Click any avatar for full bio ]                |
+|                                                  |
++--------------------------------------------------+</div>
+    <p>Each avatar clicks through to a <strong>bio page</strong> with: personality profile, what they do, fun facts ("RONIN once shipped 15 tickets while JDM was asleep"), real session highlights, and a <strong>"Talk to me"</strong> button that opens their interface in ProDashX.</p>
+  </div>
+  <div class="card">
+    <h2>Where MYST.AI Lives</h2>
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <h4>Option A: Tab on Existing MYST</h4>
+        <p>MYST page gets a "Technology Team" tab alongside Leadership, Sales, Service, Support. Same page, new section. Team sees human + AI crew together.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>Option B: Standalone MYST.AI Page</h4>
+        <p>Dedicated page at <code>/myst-ai</code> or on GitHub Pages. Linked from ProDashX sidebar or MyRPI. Separate identity but same branding.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Option C: Both</h4>
+        <p>Technology tab on MYST + standalone bio pages on GitHub Pages. Internal team sees the tab. External (DAVID partners, recruits) sees the standalone.</p>
+      </div>
+    </div>
+  </div>
+  <div class="gate-callout">
+    <h4>The MYST Pattern Already Works</h4>
+    <p>Clients already know MYST &mdash; "Meet Your Service Team." Every client gets the human team shoved in front of them. "We're Your People." Now employees get the same treatment for their AI colleagues. Same format. Same credibility. Same "these are YOUR people" energy.</p>
+  </div>
+</div>
+
+<!-- TAB 5: BRAND CODE -->
+<div class="tab-panel" id="code">
+  <div class="card">
+    <h2>The Brand Code</h2>
+    <p>A reference document that any session, any agent, any bot can read before generating team-facing output. The source of truth for how each character speaks.</p>
+  </div>
+  <div class="card">
+    <h2>Document Structure</h2>
+    <table>
+      <tr><th>Section</th><th>Content</th></tr>
+      <tr><td>The Ethos</td><td>Why the bots have personalities. The origin story. Five facets of JDM.</td></tr>
+      <tr><td>Voice Rules</td><td>Internal vs team-facing vs client-facing tone guidelines</td></tr>
+      <tr><td>Character Profiles (x6)</td><td>Full personality spec per bot (name, avatar, traits, voice guide, do/don't, fun facts)</td></tr>
+      <tr><td>Message Templates</td><td>Example Slack messages, training intros, release notes &mdash; per character</td></tr>
+      <tr><td>Transcript Library</td><td>Curated real session moments for team comms (the 3AM stories)</td></tr>
+      <tr><td>Visual Identity</td><td>Avatar specs, color associations, icon choices per bot</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Integration Points</h2>
+    <p>The Brand Code wires into every system that talks to the team:</p>
+    <table>
+      <tr><th>System</th><th>How Brand Code Applies</th></tr>
+      <tr><td><a href="https://retirementprotectors.github.io/sprint-001-voltron-foundation-discovery.html" style="color:var(--blue);">VOLTRON</a></td><td>System prompt includes personality profile + voice guide</td></tr>
+      <tr><td><a href="https://retirementprotectors.github.io/sprint-007-sensei-discovery.html" style="color:var(--orange);">SENSEI</a></td><td>Training docs generated with SENSEI's calm, thorough voice</td></tr>
+      <tr><td><a href="https://retirementprotectors.github.io/sprint-004-raiden-discovery.html" style="color:var(--red);">RAIDEN</a></td><td>Ticket responses use RAIDEN's direct, protective tone</td></tr>
+      <tr><td><a href="https://retirementprotectors.github.io/sprint-005-ronin-autonomy-discovery.html" style="color:var(--accent);">RONIN</a></td><td>FORGE sprint updates use RONIN's clean, ship-it voice</td></tr>
+      <tr><td>Slack Bot</td><td>Messages from Claude Code Bot adopt the right character per context</td></tr>
+      <tr><td>Release Notes</td><td>Written in character (RONIN for builds, SENSEI for training, etc.)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 6: NEXT STEPS -->
+<div class="tab-panel" id="next">
+  <div class="card">
+    <h2>Beyond DOJO &mdash; The MUSASHI Roadmap</h2>
+    <p>DOJO establishes the ethos, the characters, and the foundation. What comes next is MUSASHI slicing through the creative roadmap with every tool in the arsenal.</p>
+  </div>
+  <div class="card">
+    <h2>2.0 &mdash; RSP-EDUCATE (Brochure Parity)</h2>
+    <p>Physical brochures get digital equivalents. Same content, same language, same talking points. IRA Basics, Life, Medicare, Retirement, Investment, P&amp;C &mdash; each gets an interactive HTML version the SPC uses on screen share. SENSEI surfaces them. MUSASHI designs them.</p>
+    <p><strong>Status:</strong> Queued. Depends on RSP-PIPELINE (Sprint 006) being live.</p>
+  </div>
+  <div class="card">
+    <h2>3.0 &mdash; Creative Command Center (App)</h2>
+    <p>A dedicated App in ProDashX where MUSASHI lives. The creative hub for all marketing, design, and brand operations. Think of it as the cockpit for everything visual and client-facing.</p>
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <h4>Brochure Builder</h4>
+        <p>Create + update physical and digital brochures. Canva integration for design. PDF_SERVICE for print-ready output. Version control per brochure.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>MYST Manager</h4>
+        <p>Update the human MYST page + MYST.AI page. Add/remove team members. Update photos, titles, bios. Push to WordPress.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Website Studio</h4>
+        <p>retireprotected.com page builder. WordPress integration. Landing pages, campaign pages, content updates. Preview + publish.</p>
+      </div>
+      <div class="spec-card orange">
+        <h4>Campaign Creative</h4>
+        <p>Email templates, SMS copy, content blocks for C3. Visual design + copywriting in one place. A/B variant builder.</p>
+      </div>
+      <div class="spec-card red">
+        <h4>Collateral Library</h4>
+        <p>Every client-facing document organized. Print materials, digital assets, one-pagers, pitch decks. Always-current inventory.</p>
+      </div>
+      <div class="spec-card blue">
+        <h4>Brand Compliance</h4>
+        <p>Logo usage, color palettes, typography, voice guidelines. The AiBot Brand Guide lives here. Every asset checked against standards.</p>
+      </div>
+    </div>
+    <p><strong>Status:</strong> Concept. Needs its own Discovery Doc. MUSASHI builds it when DOJO + RSP-EDUCATE are shipped.</p>
+  </div>
+</div>
+
+<!-- TAB 7: FILES -->
+<div class="tab-panel" id="files">
+  <div class="card">
+    <h2>File Structure</h2>
+    <div class="diagram">packages/ui/src/modules/
++-- MystAI/
+|   +-- MystAIPage.tsx              # Full MYST.AI team page (Technology Team)
+|   +-- MystAIBioCard.tsx           # Circular avatar + name + title card
+|   +-- MystAIBioPage.tsx           # Clickable bio detail page per bot
+|   +-- myst-ai-data.ts             # Character data (profiles, quotes, traits)
+|   +-- MystAISection.tsx           # "Technology Team" section for existing MYST
+
+packages/core/src/
++-- aibot-brand.ts                  # AiBot Brand Code types + character profiles
++-- aibot-voice-guide.ts            # Voice templates per character (for system prompts)
+
+services/api/src/routes/
++-- myst-ai.ts                      # API for MYST.AI data (bio pages, character profiles)
+
+_RPI_STANDARDS/reference/
++-- brand/
+    +-- AIBOT_BRAND_GUIDE.md        # The master Brand Code document
+    +-- AIBOT_VOICE_SAMPLES.md      # Example messages per character
+    +-- AIBOT_TRANSCRIPT_LIBRARY.md # Curated real session moments</div>
+  </div>
+</div>
+
+<!-- TAB 8: SPRINT PLAN -->
+<div class="tab-panel" id="sprint">
+  <div class="card">
+    <h2>DOJO &mdash; 12 Tickets, 3 Phases</h2>
+    <p>Phase 1 (Brand Code) is foundational. Phase 2 (MYST.AI) depends on Phase 1. Phase 3 (Integration) depends on both.</p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--cyan);">
+    <h2 style="color:var(--cyan);"><a href="https://retirementprotectors.github.io/sprint-005-ronin-autonomy-discovery.html" style="color:var(--cyan);text-decoration:none;">RONIN</a> Seeder Metadata</h2>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td><code>data-cwd</code></td><td><code>/Users/joshd.millang/Projects/toMachina</code></td></tr>
+      <tr><td><code>sprint_name</code></td><td>DOJO</td></tr>
+      <tr><td><code>discovery_url</code></td><td><code>https://retirementprotectors.github.io/sprint-008-dojo-discovery.html</code></td></tr>
+      <tr><td><code>ticket_range</code></td><td>TRK-DOJ-001 &rarr; TRK-DOJ-012</td></tr>
+      <tr><td><code>ticket_count</code></td><td>12</td></tr>
+      <tr><td><code>phases</code></td><td>3 (Brand Code &rarr; MYST.AI &rarr; Integration)</td></tr>
+      <tr><td><code>max_parallelism</code></td><td>3 agents (Phase 1)</td></tr>
+      <tr><td><code>critical_path</code></td><td>TRK-DOJ-001 &rarr; TRK-DOJ-005 &rarr; TRK-DOJ-010</td></tr>
+      <tr><td><code>external_blockers</code></td><td>None</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Sprint Plan</h2>
+    <table>
+      <tr><th>TRK ID</th><th>Title</th><th>Type</th><th>Description / Acceptance Criteria</th></tr>
+      <tr><td><code>TRK-DOJ-001</code></td><td>AiBot Brand Guide Document</td><td><span class="pill content">content</span></td><td>File: <code>_RPI_STANDARDS/reference/brand/AIBOT_BRAND_GUIDE.md</code>. Master document: The Ethos (origin, principle, five facets), Voice Rules (internal/team/client), Character Profiles (x6 full specs), Message Templates, Visual Identity. <strong>AC:</strong> Any session can read this file and generate team-facing output in the correct character voice.</td></tr>
+      <tr><td><code>TRK-DOJ-002</code></td><td>Voice Sample Library</td><td><span class="pill content">content</span></td><td>File: <code>_RPI_STANDARDS/reference/brand/AIBOT_VOICE_SAMPLES.md</code>. 5+ example messages per character across contexts: Slack DM, release note, training intro, error response, celebration. <strong>AC:</strong> Each character has distinct, recognizable voice. Team could identify who wrote it without seeing the name.</td></tr>
+      <tr><td><code>TRK-DOJ-003</code></td><td>Transcript Library</td><td><span class="pill content">content</span></td><td>File: <code>_RPI_STANDARDS/reference/brand/AIBOT_TRANSCRIPT_LIBRARY.md</code>. Curated real session moments: the 3AM sprint, the Discovery Doc that got called "worth framing", the time JDM refused to sleep. Formatted for Slack delivery. <strong>AC:</strong> 10+ curated moments ready to drop into team comms with hyperlinks.</td></tr>
+      <tr><td><code>TRK-DOJ-004</code></td><td>AiBot Brand Types</td><td><span class="pill infra">infra</span></td><td>File: <code>packages/core/src/aibot-brand.ts</code>. TypeScript types: AiBotCharacter, AiBotVoiceGuide, AiBotProfile, AiBotBioPage. Export character data for all 6 bots. <strong>AC:</strong> Types importable from @tomachina/core. Character data queryable by bot name.</td></tr>
+      <tr><td><code>TRK-DOJ-005</code></td><td>MYST.AI Page Component</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/MystAI/MystAIPage.tsx</code>. Full MYST.AI team page: "Technology Team" header, circular avatar grid (6 bots), click-through to bio pages. Same visual language as the client-facing MYST page. <strong>AC:</strong> Page renders all 6 bots with avatars, names, titles. Responsive grid.</td></tr>
+      <tr><td><code>TRK-DOJ-006</code></td><td>MYST.AI Bio Cards</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/MystAI/MystAIBioCard.tsx</code>. Circular avatar + name + title + signature quote. Hover effect. Click navigates to full bio. <strong>AC:</strong> Cards match client MYST page styling. Avatar, name, title, quote all render.</td></tr>
+      <tr><td><code>TRK-DOJ-007</code></td><td>MYST.AI Bio Pages</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/MystAI/MystAIBioPage.tsx</code>. Full bio detail: personality profile, what they do, traits, voice sample, fun facts (real session stories), "Talk to me" button linking to their interface. <strong>AC:</strong> Each bot's bio page loads with full profile. "Talk to me" links to correct interface.</td></tr>
+      <tr><td><code>TRK-DOJ-008</code></td><td>MYST.AI Character Data</td><td><span class="pill chore">chore</span></td><td>File: <code>packages/ui/src/modules/MystAI/myst-ai-data.ts</code>. Static data file: all 6 character profiles with name, title, quote, traits, voice guide, fun facts, avatar URL, interface link. Sources from <code>aibot-brand.ts</code> types. <strong>AC:</strong> All 6 bots fully populated. Data matches Brand Guide.</td></tr>
+      <tr><td><code>TRK-DOJ-009</code></td><td>MYST Technology Section</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/MystAI/MystAISection.tsx</code>. "Technology Team" section component that can be embedded in the existing MYST/team page. Renders the avatar grid as a section alongside Leadership, Sales, Service. <strong>AC:</strong> Section renders in existing team page. Consistent styling with human sections.</td></tr>
+      <tr><td><code>TRK-DOJ-010</code></td><td>MYST.AI API Route</td><td><span class="pill feat">feat</span></td><td>File: <code>services/api/src/routes/myst-ai.ts</code>. <code>GET /api/myst-ai</code> returns all character profiles. <code>GET /api/myst-ai/:botName</code> returns single bio. Used by VOLTRON/RAIDEN to describe themselves. <strong>AC:</strong> API returns character data. VOLTRON can query its own profile.</td></tr>
+      <tr><td><code>TRK-DOJ-011</code></td><td>Bot System Prompt Integration</td><td><span class="pill feat">feat</span></td><td>File: VOLTRON system prompt + RAIDEN triage config + RONIN FORGE update templates. Each bot's system prompt gets their character voice guide injected from the Brand Guide. Slack messages adopt correct personality. <strong>AC:</strong> VOLTRON responds in BFF voice. RONIN sends updates in builder voice. Each is distinctly recognizable.</td></tr>
+      <tr><td><code>TRK-DOJ-012</code></td><td>GitHub Pages MYST.AI Standalone</td><td><span class="pill design">design</span></td><td>File: GitHub Pages <code>retirementprotectors.github.io/myst-ai/</code>. Standalone shareable version of MYST.AI page for external audiences (DAVID partners, recruits). Same content as in-app version. Self-contained HTML. <strong>AC:</strong> Public URL shows full Technology Team with clickable bios.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Sequencing</h2>
+    <div class="level-bar gold">
+      <h4>Phase 1: Brand Code (TRK-DOJ-001 &mdash; 004) &mdash; PARALLEL</h4>
+      <p>Brand Guide, Voice Samples, Transcript Library, TypeScript types. The foundation everything else builds on.</p>
+    </div>
+    <div class="level-bar red">
+      <h4>Phase 2: MYST.AI (TRK-DOJ-005 &mdash; 009) &mdash; Depends on 004</h4>
+      <p>Team page, bio cards, bio pages, character data, MYST section. Types must exist first.</p>
+    </div>
+    <div class="level-bar purple">
+      <h4>Phase 3: Integration (TRK-DOJ-010 &mdash; 012) &mdash; Depends on Phase 1 + 2</h4>
+      <p>API route, bot system prompts, GitHub Pages standalone. Full brand + UI must be live.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <table>
+      <tr><th>Criterion</th><th>Verification</th></tr>
+      <tr><td>Brand Guide is the source of truth</td><td>Any session reads it and outputs correct voice per bot</td></tr>
+      <tr><td>Each bot has distinct voice</td><td>Team member can identify who wrote a message without seeing the name</td></tr>
+      <tr><td>MYST.AI page renders all 6 bots</td><td>Circular avatars, names, titles, clickable</td></tr>
+      <tr><td>Bio pages show full personality</td><td>Profile, traits, fun facts, "Talk to me" button</td></tr>
+      <tr><td>Technology section works in existing MYST</td><td>Renders alongside human team sections</td></tr>
+      <tr><td>Bot system prompts reflect Brand Guide</td><td>VOLTRON = BFF, SENSEI = teacher, RAIDEN = guardian, etc.</td></tr>
+      <tr><td>Real transcripts ready for Slack</td><td>10+ curated moments with hyperlinks</td></tr>
+      <tr><td>Standalone MYST.AI on GitHub Pages</td><td>Shareable URL for external audiences</td></tr>
+      <tr><td>The team bonds with the bots</td><td>Someone says "RONIN stayed up all night" unironically</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+<div class="footer">DOJO &mdash; Sprint 008 &mdash; The toMachina AiBot Ethos &mdash; One Voice, Seven Warriors, Three Layers, Zero Sharp Edges &mdash; 2026-03-27 &mdash; Executive.AI 3-layer model + SHINOB1 added 2026-03-29</div>
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

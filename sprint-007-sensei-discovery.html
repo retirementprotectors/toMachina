@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/Users/joshd.millang/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 007: SENSEI — The Training Intelligence Layer</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #f59e0b;
+    --accent-glow: rgba(245, 158, 11, 0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --red-glow: rgba(239, 68, 68, 0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #0f172a 0%, #1a1505 40%, #0f172a 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(245,158,11,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(168,85,247,0.05) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; opacity: 0.9; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ef4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 680px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-orange { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--accent); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--accent); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.blue { border-top-color: var(--blue); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.red { border-left-color: var(--red); background: rgba(239,68,68,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-left: 4px solid var(--orange); }
+  .gate-callout h4 { color: var(--orange); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.built { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.exists { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.stub { background: rgba(245,158,11,0.2); color: var(--orange); }
+  .pill.missing { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="sprint-label">Sprint 007 &mdash; FORGE Discovery Document</div>
+  <h1>SENSEI</h1>
+  <div class="subtitle">The Training Intelligence Layer &mdash; Auto-Generated, Context-Aware, Always Current</div>
+  <div class="header-badges">
+    <span class="badge badge-orange">Sprint 007</span>
+    <span class="badge badge-purple">14 Tickets</span>
+    <span class="badge badge-cyan">CI + ProDashX + RAIDEN + VOLTRON</span>
+    <span class="badge badge-green">data-cwd: toMachina</span>
+  </div>
+  <div class="ronin-meta">sprint: SENSEI &bull; TRK-SNS-001 &rarr; TRK-SNS-014 &bull; discovery_url: https://retirementprotectors.github.io/sprint-007-sensei-discovery.html</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="vision">Vision</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="pipeline">Content Pipeline</div>
+    <div class="tab" data-tab="guidemode">SENSEI Mode</div>
+    <div class="tab" data-tab="wiring">Knowledge Wiring</div>
+    <div class="tab" data-tab="reference">Reference Output</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: VISION -->
+<div class="tab-panel active" id="vision">
+  <div class="card">
+    <h2>The Problem</h2>
+    <p>JDM answers the same questions over and over. "How do I use Households?" "Where's the pipeline?" "What happened to that feature?" Every question burns CEO time. <a href="https://retirementprotectors.github.io/sprint-004-raiden-discovery.html" style="color:var(--red);text-decoration:none;border-bottom:1px dashed var(--red);">RAIDEN</a> has a <code>TRAIN</code> triage outcome built in &mdash; but no training content to point to. <a href="https://retirementprotectors.github.io/sprint-001-voltron-foundation-discovery.html" style="color:var(--blue);text-decoration:none;border-bottom:1px dashed var(--blue);">VOLTRON</a> can walk someone through anything &mdash; but has no knowledge base to draw from. The team gets trained once, forgets, and asks again.</p>
+    <p>Meanwhile, CI already screenshots <strong>every single UI state</strong> on every deploy via Playwright. The raw material for always-current training exists. It's just not organized, templated, or accessible.</p>
+  </div>
+  <div class="card">
+    <h2>The Solution: SENSEI</h2>
+    <p style="font-size:1.15rem;color:var(--text);font-weight:600;text-align:center;padding:12px 0;">Every question answered once. Every answer available everywhere. Zero repeat training.</p>
+    <div class="spec-grid">
+      <div class="spec-card orange">
+        <h4>1. Content Pipeline</h4>
+        <p>CI runs Playwright &rarr; screenshots captured &rarr; uploaded to Firebase Storage organized by module &rarr; training generator builds role-based HTML docs. Ticket type = content type: <code>workflow</code> &rarr; step-by-step, <code>ui</code> &rarr; visual, <code>feat</code> &rarr; feature overview. Deploys replace. Always current. Zero maintenance.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>2. SENSEI Mode (The Toggle)</h4>
+        <p>Top-level toggle in the portal header. OFF by default. When ON: hover over <strong>anything</strong> &rarr; training popup for that exact element. Context-aware: Workspace &rarr; Tab &rarr; Module &rarr; App. Every layer teaches itself. One click, everything has a guide.</p>
+      </div>
+      <div class="spec-card red">
+        <h4>3. Knowledge Wiring</h4>
+        <p><strong><a href="https://retirementprotectors.github.io/sprint-004-raiden-discovery.html" style="color:var(--red);text-decoration:none;">RAIDEN</a>:</strong> Ticket about something that exists &rarr; "We already have that. Here's the training." &rarr; ticket closed. No human in loop.<br><br><strong><a href="https://retirementprotectors.github.io/sprint-002-voltron-action-engine-discovery.html" style="color:var(--blue);text-decoration:none;">VOLTRON</a>:</strong> "How do I use Households?" &rarr; pulls SENSEI content &rarr; walks them through conversationally. Same content, two delivery mechanisms.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>The Insight</h2>
+    <p>E2E tests already photograph the entire UI. Ticket types already categorize the content. Permissions already know who sees what. ATLAS already knows the terminology. The training system isn't being built from scratch &mdash; it's a pipeline that converts what already exists into training docs. The screenshots are the raw material. The work is: <strong>organize &rarr; template &rarr; publish &rarr; wire</strong>.</p>
+  </div>
+  <div class="card">
+    <h2>The Gold Standard</h2>
+    <p>The DEX Training Guide we built for Nikki and Angie is what every auto-generated training looks like:</p>
+    <p><a href="https://retirementprotectors.github.io/dex-training/" style="color:var(--accent);">https://retirementprotectors.github.io/dex-training/</a></p>
+    <p>Personalized header. Live stats from real data. Actual ProDashX screenshots. Tabbed walkthrough. Step-by-step instructions. Pro tips. Glossary. Daily workflow checklist. Role-specific. Sent it, never had to answer a question about DEX again.</p>
+    <p><strong>SENSEI auto-generates this &mdash; for every module, every app, every workflow &mdash; and keeps it current on every deploy.</strong></p>
+  </div>
+</div>
+
+<!-- TAB 2: ARCHITECTURE -->
+<div class="tab-panel" id="architecture">
+  <div class="card">
+    <h2>SENSEI Architecture</h2>
+    <div class="diagram">CI Pipeline (every deploy)
+    |
+    v
+Playwright runs E2E tests
+    |-- screenshot: 'on' (playwright.config.ts)
+    |-- test-results/ directory
+    |-- Ticket type determines content type:
+    |     workflow --> step-by-step training
+    |     ui       --> visual state training
+    |     feat     --> feature overview training
+    |
+    v
+Post-Deploy Hook: Upload + Organize
+    |-- Firebase Storage: /training/{module}/{test-name}.png
+    |-- Metadata: { module, test_type, timestamp, screenshot_urls[] }
+    |-- Firestore: sensei_content collection (indexed by module)
+    |
+    v
+Training Generator (Cloud Function or API route)
+    |-- Reads screenshots by module
+    |-- Pulls live stats from Firestore (client counts, account totals, etc.)
+    |-- Applies role-based HTML template (DEX Training Doc format)
+    |-- Generates: /training/{module}/index.html
+    |
+    v
+Two Distribution Channels:
+    |
+    +---> SENSEI Mode (in-app contextual overlays)
+    |     Toggle ON --> hover anything --> training popup
+    |     Context: Workspace > Tab > Module > App
+    |     Powered by: sensei_content Firestore collection
+    |
+    +---> RAIDEN + VOLTRON (reactive + conversational)
+          RAIDEN: Ticket about existing feature --> TRAIN --> link to SENSEI doc
+          VOLTRON: "How do I..." --> query sensei_content --> walk through it</div>
+  </div>
+  <div class="card">
+    <h2>What's Already Built vs What's New</h2>
+    <table>
+      <tr><th>Component</th><th>Status</th><th>SENSEI Uses It For</th></tr>
+      <tr><td>Playwright E2E tests</td><td><span class="pill built">BUILT</span></td><td>Raw screenshots on every deploy</td></tr>
+      <tr><td><code>screenshot: 'on'</code> in playwright.config</td><td><span class="pill built">BUILT</span></td><td>Captures every UI state automatically</td></tr>
+      <tr><td>E2E test names by module</td><td><span class="pill built">BUILT</span></td><td>Screenshot-to-module mapping</td></tr>
+      <tr><td>FORGE ticket types</td><td><span class="pill built">BUILT</span></td><td>Content type classification (workflow/ui/feat)</td></tr>
+      <tr><td><a href="https://retirementprotectors.github.io/sprint-004-raiden-discovery.html" style="color:var(--red);">RAIDEN</a> TRAIN triage outcome</td><td><span class="pill exists">EXISTS</span></td><td>Route to training docs (currently empty)</td></tr>
+      <tr><td><a href="https://retirementprotectors.github.io/sprint-001-voltron-foundation-discovery.html" style="color:var(--blue);">VOLTRON</a> knowledge queries</td><td><span class="pill exists">EXISTS</span></td><td>Conversational training delivery</td></tr>
+      <tr><td>Firebase Storage</td><td><span class="pill built">BUILT</span></td><td>Screenshot hosting + CDN</td></tr>
+      <tr><td>ATLAS terminology</td><td><span class="pill built">BUILT</span></td><td>Auto-generated glossaries</td></tr>
+      <tr><td>Role/entitlement system</td><td><span class="pill built">BUILT</span></td><td>Role-based training filtering</td></tr>
+      <tr><td>Screenshot upload hook</td><td><span class="pill missing">NEW</span></td><td>Post-deploy: organize screenshots by module</td></tr>
+      <tr><td>Training generator</td><td><span class="pill missing">NEW</span></td><td>Screenshots + stats + template &rarr; HTML</td></tr>
+      <tr><td>SENSEI Mode toggle</td><td><span class="pill missing">NEW</span></td><td>Portal header toggle + overlay system</td></tr>
+      <tr><td><code>sensei_content</code> collection</td><td><span class="pill missing">NEW</span></td><td>Training content index in Firestore</td></tr>
+      <tr><td>RAIDEN TRAIN wiring</td><td><span class="pill missing">NEW</span></td><td>TRAIN outcome &rarr; SENSEI doc link</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 3: CONTENT PIPELINE -->
+<div class="tab-panel" id="pipeline">
+  <div class="card">
+    <h2>The Screenshot Pipeline</h2>
+    <p>CI already has the raw material. The ticket type IS the content type. When it deploys, it replaces. Always current. Zero maintenance.</p>
+    <div class="spec-grid">
+      <div class="spec-card orange">
+        <h4>Workflow Tickets</h4>
+        <p>CI captures every step of the workflow. Output: <strong>step-by-step training</strong> with numbered instructions + screenshots at each stage. Like the NBX/DEX doc for Nikki and Angie.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>UI Tickets</h4>
+        <p>CI captures the visual state of every screen. Output: <strong>visual training</strong> &mdash; annotated screenshots showing what each element does, where things are, how to navigate.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Feature Tickets</h4>
+        <p>CI captures the feature in context. Output: <strong>feature overview</strong> &mdash; what it does, where to find it, what changed from the previous version.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Training Generator</h2>
+    <p>The generator reads organized screenshots + pulls live stats from Firestore + applies the DEX Training Doc HTML template. Output is a self-contained HTML per module.</p>
+    <table>
+      <tr><th>Input</th><th>Source</th><th>Output</th></tr>
+      <tr><td>Screenshots by module</td><td>Firebase Storage <code>/training/{module}/</code></td><td>Embedded images in training HTML</td></tr>
+      <tr><td>Live stats</td><td>Firestore (client counts, account totals, pipeline status)</td><td>Dynamic header stats (like DEX: "60 cases, 103 accounts")</td></tr>
+      <tr><td>Step sequence</td><td>E2E test execution order</td><td>Numbered step-by-step instructions</td></tr>
+      <tr><td>Glossary terms</td><td>ATLAS registry</td><td>Auto-generated glossary section</td></tr>
+      <tr><td>Role filtering</td><td>User entitlements</td><td>Role-specific content (Service Division vs Sales vs Admin)</td></tr>
+      <tr><td>Module metadata</td><td><code>sensei_content</code> collection</td><td>Title, description, related modules, last updated</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Content Coverage Map</h2>
+    <p>Every layer of the portal has its own SENSEI training:</p>
+    <div class="spec-grid">
+      <div class="spec-card blue"><h4>Workspaces</h4><p>Contacts, Households, Accounts &mdash; "Here's how to find, create, and manage client records"</p></div>
+      <div class="spec-card orange"><h4>Sales Modules</h4><p>RSP Pipeline, QUE, ProZone &mdash; "Here's the sales workflow from prospect to close"</p></div>
+      <div class="spec-card green"><h4>Service Modules</h4><p>RMD Center, Beni Center, Access Center &mdash; "Here's how to manage ongoing client service"</p></div>
+      <div class="spec-card purple"><h4>Apps</h4><p>ATLAS, CAM, DEX, C3, Pipeline Studio, FORGE &mdash; "Here's what this app does and how to use it"</p></div>
+      <div class="spec-card cyan"><h4>Bottom Bar</h4><p>Comms, Connect, Notifications, MDJ, Admin &mdash; "Here's how to communicate, collaborate, and configure"</p></div>
+      <div class="spec-card red"><h4>Pipelines</h4><p>Full workflow HTMLs per pipeline (RSP, NBX, Medicare) &mdash; "Here's the end-to-end process"</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: SENSEI MODE -->
+<div class="tab-panel" id="guidemode">
+  <div class="card">
+    <h2>SENSEI Mode &mdash; The Toggle</h2>
+    <p>Top-level toggle in the portal header. OFF by default for power users. ON for new hires, confused team members, or anyone who needs it. One click &mdash; everything teaches itself.</p>
+  </div>
+  <div class="card">
+    <h2>How It Works</h2>
+    <p><strong>Toggle ON &rarr;</strong> subtle overlay indicators appear on every interactive element. Hover over anything &rarr; training popup for that exact thing. Context-aware by current location:</p>
+    <table>
+      <tr><th>Context Level</th><th>What SENSEI Shows</th><th>Example</th></tr>
+      <tr><td>Workspace</td><td>Workspace overview + navigation guide</td><td>Contacts workspace: "Here's how to search, filter, and manage clients"</td></tr>
+      <tr><td>Tab</td><td>Tab-specific walkthrough</td><td>Households tab: "Here's how to create and link households"</td></tr>
+      <tr><td>Module</td><td>Module training (from generated HTML)</td><td>RMD Center: step-by-step distribution planning</td></tr>
+      <tr><td>App</td><td>App training (from generated HTML)</td><td>Pipeline Studio: how to build and configure pipelines</td></tr>
+      <tr><td>Element</td><td>Specific element help</td><td>Blue Gate progress ring: "This shows what's missing before Yellow"</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h2>UI Specification</h2>
+    <div class="spec-grid">
+      <div class="spec-card orange">
+        <h4>The Toggle</h4>
+        <p>Portal header, right side near user avatar. Icon: graduation cap or lightbulb. Label: "SENSEI". Amber glow when active. Persists per user in Firestore user preferences. OFF by default.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>Overlay Indicators</h4>
+        <p>When SENSEI Mode ON: subtle pulsing dots on interactive elements. Non-intrusive. Amber color to match SENSEI brand. Click/hover reveals training popup.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Training Popup</h4>
+        <p>Floating card near element. Screenshot + short description + "View Full Training" link to the full HTML doc. Dismissible. Doesn't block the UI.</p>
+      </div>
+    </div>
+  </div>
+  <div class="gate-callout">
+    <h4>The NBX/DEX Pattern</h4>
+    <p>SENSEI Mode for pipelines is exactly what we built for Nikki and Angie &mdash; the full tabbed workflow HTML. But instead of manually building it, SENSEI auto-generates it from the CI screenshots + test execution order. Send to new hire &rarr; they're trained &rarr; JDM never answers that question again.</p>
+  </div>
+</div>
+
+<!-- TAB 5: KNOWLEDGE WIRING -->
+<div class="tab-panel" id="wiring">
+  <div class="card">
+    <h2>Training Hierarchy &mdash; Executive.AI Team</h2>
+    <p>SENSEI's training content is informed by the <strong>3-layer Dojo structure</strong>. The training system knows who sets direction, who manages operations, and who builds.</p>
+    <table>
+      <tr><th>Layer</th><th>Warriors</th><th>SENSEI Relevance</th></tr>
+      <tr><td><strong>Executive.AI</strong> (tmux &middot; JDM-facing)</td><td>SHINOB1 (CTO), 2HINOBI (COO), MUSASHI (VP, CMO)</td><td>CTO sets architecture decisions that SENSEI must teach. CMO creates brand voice that SENSEI adopts. COO manages the CCSDK mesh directly &mdash; no middleman.</td></tr>
+      <tr><td><strong>CCSDK Mesh</strong> (mdj-agent:4200)</td><td>RONIN (Builder), RAIDEN (Guardian), VOLTRON (The Bot)</td><td>RAIDEN routes to SENSEI via TRAIN outcome. VOLTRON queries SENSEI conversationally. RONIN ships features that SENSEI auto-documents.</td></tr>
+      <tr><td><strong>Specialists</strong> (inside VOLTRON)</td><td>General, Medicare, Securities, Service, DAVID, Ops</td><td>Specialists draw from SENSEI's knowledge base for domain-specific answers.</td></tr>
+    </table>
+    <p style="margin-top:12px;font-size:0.85rem;"><strong>Key principle:</strong> VOLTRON is the ONLY agent that touches clients and team. SENSEI content flows TO the team exclusively through VOLTRON (conversational) and RAIDEN (tickets). Executive.AI warriors inform what gets taught but never face the team directly. 2HINOBI manages the CCSDK mesh directly as COO &mdash; no JONIN field commander layer.</p>
+  </div>
+  <div class="card">
+    <h2><a href="https://retirementprotectors.github.io/sprint-004-raiden-discovery.html" style="color:var(--red);text-decoration:none;">RAIDEN</a> Integration</h2>
+    <p>RAIDEN's triage already has a <code>TRAIN</code> outcome. Right now it's empty &mdash; no training to point to. SENSEI fills that gap.</p>
+    <div class="diagram">Ticket submitted: "I need to see household data"
+    |
+    v
+RAIDEN triage: Does this feature exist?
+    |-- YES --> outcome: TRAIN
+    |           |
+    |           v
+    |     Query sensei_content: module = "households"
+    |           |
+    |           v
+    |     Return: "We already have that. It's in the
+    |              Households module. Here's the training:
+    |              [link to SENSEI doc]"
+    |           |
+    |           v
+    |     Ticket auto-closed. No human in loop.
+    |
+    |-- NO --> normal RAIDEN flow (route to FORGE, etc.)</div>
+  </div>
+  <div class="card">
+    <h2><a href="https://retirementprotectors.github.io/sprint-002-voltron-action-engine-discovery.html" style="color:var(--blue);text-decoration:none;">VOLTRON</a> Integration</h2>
+    <p>VOLTRON is the conversational access point. Same content, different delivery.</p>
+    <div class="diagram">User: "How do I use the RMD Center?"
+    |
+    v
+VOLTRON: Query sensei_content for "rmd-center"
+    |
+    v
+Returns: Training HTML content + screenshots
+    |
+    v
+VOLTRON: Walks user through it conversationally
+    "The RMD Center is in your Service section.
+     Here's what you see when you open it: [screenshot]
+     Step 1: Select the client...
+     Step 2: Review their accounts...
+     Step 3: Calculate the distribution..."</div>
+  </div>
+  <div class="card">
+    <h2>The Deduplication Loop</h2>
+    <p>Every time RAIDEN returns a TRAIN response, it logs the query. Over time, this creates a heat map of what people ask about most. SENSEI can prioritize training depth for high-traffic modules. The system literally teaches itself what to teach better.</p>
+  </div>
+</div>
+
+<!-- TAB 6: REFERENCE OUTPUT -->
+<div class="tab-panel" id="reference">
+  <div class="card">
+    <h2>Gold Standard: DEX Training Guide</h2>
+    <p><a href="https://retirementprotectors.github.io/dex-training/" style="color:var(--accent);font-size:1.1rem;">https://retirementprotectors.github.io/dex-training/</a></p>
+    <p>This is what every auto-generated SENSEI training doc should look like. Here's what makes it devastating:</p>
+    <table>
+      <tr><th>Element</th><th>What It Does</th><th>SENSEI Auto-Generates From</th></tr>
+      <tr><td>Personalized header</td><td>"For Nikki Gray &amp; Angelique" + role title</td><td>User entitlement + role from Firestore</td></tr>
+      <tr><td>Live stats</td><td>60 cases, 103 accounts, $500K+ AUM</td><td>Firestore queries (always current)</td></tr>
+      <tr><td>Screenshots</td><td>Actual ProDashX UI showing exactly what they see</td><td>CI Playwright screenshots (updated every deploy)</td></tr>
+      <tr><td>Tabbed walkthrough</td><td>Overview &rarr; Pipeline &rarr; Working a Case &rarr; Generate Kit &rarr; Doc Center &rarr; Quick Reference</td><td>E2E test structure (each test = a tab)</td></tr>
+      <tr><td>Numbered steps</td><td>Step-by-step with screenshots at each stage</td><td>E2E test execution order</td></tr>
+      <tr><td>Pro tips</td><td>Contextual advice placed where relevant</td><td>ATLAS notes + team feedback logs</td></tr>
+      <tr><td>Glossary</td><td>NIGO, LPOA, GWM &mdash; terms they need</td><td>ATLAS terminology registry</td></tr>
+      <tr><td>Daily checklist</td><td>What to do every day in this module</td><td>Workflow ticket task sequence</td></tr>
+      <tr><td>Role-specific</td><td>Built for Service Division, not generic</td><td>Role-based content filtering</td></tr>
+    </table>
+    <p><strong>This isn't documentation. It's a complete digital training experience that replaces a 2-hour onboarding call.</strong></p>
+  </div>
+</div>
+
+<!-- TAB 7: FILES -->
+<div class="tab-panel" id="files">
+  <div class="card">
+    <h2>File Structure</h2>
+    <div class="diagram">packages/ui/src/modules/
++-- SenseiMode/
+|   +-- SenseiToggle.tsx            # Header toggle component (amber glow)
+|   +-- SenseiOverlay.tsx           # Overlay indicator dots on elements
+|   +-- SenseiPopup.tsx             # Training popup card (screenshot + desc)
+|   +-- SenseiProvider.tsx          # Context provider (active state + module mapping)
+|   +-- useSensei.ts                # Hook: query sensei_content for current context
+|   +-- sensei-registry.ts          # Static map: element ID --> training module
+
+services/api/src/routes/
++-- sensei.ts                       # CRUD for sensei_content + training generation trigger
++-- sensei-generator.ts             # Training HTML generator (screenshots + stats + template)
+
+services/api/src/scripts/
++-- seed-sensei-content.ts          # Seed initial sensei_content from existing modules
++-- upload-screenshots.ts           # Post-deploy hook: organize + upload CI screenshots
+
+packages/core/src/
++-- sensei-types.ts                 # SenseiContent, SenseiModule, SenseiOverlayConfig types
+
+.github/workflows/
++-- (modify existing CI)            # Add post-deploy step: upload screenshots + trigger gen</div>
+  </div>
+</div>
+
+<!-- TAB 8: SPRINT PLAN -->
+<div class="tab-panel" id="sprint">
+  <div class="card">
+    <h2>SENSEI &mdash; 14 Tickets, 4 Phases</h2>
+    <p>Phase 1 (infrastructure) is parallel. Phase 2 (UI) depends on Phase 1. Phase 3 (content) depends on Phase 1. Phase 4 (wiring) depends on 2 + 3.</p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--cyan);">
+    <h2 style="color:var(--cyan);"><a href="https://retirementprotectors.github.io/sprint-005-ronin-autonomy-discovery.html" style="color:var(--cyan);text-decoration:none;">RONIN</a> Seeder Metadata</h2>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td><code>data-cwd</code></td><td><code>/Users/joshd.millang/Projects/toMachina</code></td></tr>
+      <tr><td><code>sprint_name</code></td><td>SENSEI</td></tr>
+      <tr><td><code>discovery_url</code></td><td><code>https://retirementprotectors.github.io/sprint-007-sensei-discovery.html</code></td></tr>
+      <tr><td><code>ticket_range</code></td><td>TRK-SNS-001 &rarr; TRK-SNS-014</td></tr>
+      <tr><td><code>ticket_count</code></td><td>14</td></tr>
+      <tr><td><code>phases</code></td><td>4 (Infrastructure &rarr; UI &rarr; Content &rarr; Wiring)</td></tr>
+      <tr><td><code>max_parallelism</code></td><td>4 agents (Phase 1)</td></tr>
+      <tr><td><code>critical_path</code></td><td>TRK-SNS-001 &rarr; TRK-SNS-005 &rarr; TRK-SNS-011</td></tr>
+      <tr><td><code>external_blockers</code></td><td>None</td></tr>
+      <tr><td><code>depends_on</code></td><td>Sprint 005 (RONIN) for RAIDEN TRAIN outcome wiring</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Sprint Plan</h2>
+    <table>
+      <tr><th>TRK ID</th><th>Title</th><th>Type</th><th>Description / Acceptance Criteria</th></tr>
+      <tr><td><code>TRK-SNS-001</code></td><td>Sensei Firestore Collection + Types</td><td><span class="pill infra">infra</span></td><td>File: <code>packages/core/src/sensei-types.ts</code> + Firestore <code>sensei_content</code> collection. Define SenseiContent interface: module_id, title, description, screenshot_urls[], stats_query, template_type (workflow/ui/feat), role_filter, last_generated, version. <strong>AC:</strong> Types exported from @tomachina/core. Collection readable via API.</td></tr>
+      <tr><td><code>TRK-SNS-002</code></td><td>Screenshot Upload Hook</td><td><span class="pill infra">infra</span></td><td>File: <code>services/api/src/scripts/upload-screenshots.ts</code> + CI workflow modification. Post-deploy: read <code>test-results/</code>, organize by test name &rarr; module mapping, upload to Firebase Storage <code>/training/{module}/{test-name}.png</code>. Write metadata to <code>sensei_content</code>. <strong>AC:</strong> After CI deploy, screenshots appear in Storage organized by module.</td></tr>
+      <tr><td><code>TRK-SNS-003</code></td><td>Sensei API Routes</td><td><span class="pill feat">feat</span></td><td>File: <code>services/api/src/routes/sensei.ts</code>. CRUD for sensei_content (list, get by module, update). <code>POST /api/sensei/generate/:module</code> triggers training generation for a specific module. <code>GET /api/sensei/:module/training</code> returns generated HTML. <strong>AC:</strong> API endpoints work, module content queryable by RAIDEN/VOLTRON.</td></tr>
+      <tr><td><code>TRK-SNS-004</code></td><td>Sensei Content Seed</td><td><span class="pill chore">chore</span></td><td>File: <code>services/api/src/scripts/seed-sensei-content.ts</code>. Seed initial sensei_content entries for all existing modules: Contacts, Households, Accounts, RMD Center, Beni Center, Access Center, ATLAS, CAM, DEX, C3, Pipeline Studio, FORGE, ProZone, Comms, Connect, Notifications, MDJ, Admin, MyRPI. <strong>AC:</strong> 19+ module entries in sensei_content with metadata.</td></tr>
+      <tr><td><code>TRK-SNS-005</code></td><td>SENSEI Mode Toggle</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/SenseiMode/SenseiToggle.tsx</code>. Portal header toggle (right side, near avatar). Amber glow when active. State persisted to Firestore user preferences. OFF by default. <strong>AC:</strong> Toggle visible in all 3 portals, persists per user, amber indicator when ON.</td></tr>
+      <tr><td><code>TRK-SNS-006</code></td><td>SENSEI Provider + Hook</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/SenseiMode/SenseiProvider.tsx</code> + <code>useSensei.ts</code>. React context provider wrapping portal layout. Tracks: active state, current module context (from route), available training. <code>useSensei()</code> hook returns: isActive, currentModule, trainingContent, showPopup(). <strong>AC:</strong> Any component can call useSensei() to check mode and get training.</td></tr>
+      <tr><td><code>TRK-SNS-007</code></td><td>SENSEI Overlay Indicators</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/SenseiMode/SenseiOverlay.tsx</code>. When SENSEI Mode ON: render subtle amber pulsing dots on elements registered in sensei-registry. Non-intrusive. Only visible when mode is active. <strong>AC:</strong> Toggle ON &rarr; dots appear on registered elements. Toggle OFF &rarr; dots disappear.</td></tr>
+      <tr><td><code>TRK-SNS-008</code></td><td>SENSEI Popup Card</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/SenseiMode/SenseiPopup.tsx</code>. Floating card triggered on hover/click of overlay dot. Shows: screenshot thumbnail, short description, "View Full Training" link. Dismissible. Positioned near element without blocking UI. <strong>AC:</strong> Hover dot &rarr; popup appears with training preview. Click link &rarr; opens full HTML.</td></tr>
+      <tr><td><code>TRK-SNS-009</code></td><td>Sensei Registry</td><td><span class="pill feat">feat</span></td><td>File: <code>packages/ui/src/modules/SenseiMode/sensei-registry.ts</code>. Static map: DOM element selector &rarr; sensei module_id. Registers which UI elements have training. Extensible &mdash; new modules auto-register via convention. <strong>AC:</strong> Registry covers all 19+ modules. New modules can register via single-line entry.</td></tr>
+      <tr><td><code>TRK-SNS-010</code></td><td>Training HTML Generator</td><td><span class="pill feat">feat</span></td><td>File: <code>services/api/src/routes/sensei-generator.ts</code>. Reads screenshots from Storage + stats from Firestore + template (DEX Training Doc format). Generates self-contained HTML: tabbed layout, personalized header, live stats, embedded screenshots, numbered steps, glossary from ATLAS, role-specific content. <strong>AC:</strong> <code>POST /api/sensei/generate/dex</code> produces HTML matching DEX Training Doc quality.</td></tr>
+      <tr><td><code>TRK-SNS-011</code></td><td>RAIDEN TRAIN Wiring</td><td><span class="pill feat">feat</span></td><td>File: MDJ agent RAIDEN triage module. When TRAIN outcome fires, query <code>sensei_content</code> for matching module. Return training URL + summary. Auto-close ticket with training link attached. <strong>AC:</strong> Submit ticket about Households &rarr; RAIDEN returns "We have that. Here's the training: [link]" &rarr; ticket closed.</td></tr>
+      <tr><td><code>TRK-SNS-012</code></td><td>VOLTRON SENSEI Queries</td><td><span class="pill feat">feat</span></td><td>File: MDJ agent VOLTRON knowledge module. Add sensei_content as knowledge source. "How do I use X?" queries SENSEI for module X, returns training content for conversational walkthrough. <strong>AC:</strong> "How do I use RMD Center?" &rarr; VOLTRON walks through steps with screenshots.</td></tr>
+      <tr><td><code>TRK-SNS-013</code></td><td>CI Pipeline Integration</td><td><span class="pill infra">infra</span></td><td>File: <code>.github/workflows/</code> (existing CI). Add post-deploy step after E2E tests pass: run <code>upload-screenshots.ts</code>, trigger <code>sensei-generator</code> for changed modules. Only regenerates training for modules whose screenshots changed. <strong>AC:</strong> Deploy with UI changes &rarr; training auto-updated. Deploy without UI changes &rarr; no regeneration.</td></tr>
+      <tr><td><code>TRK-SNS-014</code></td><td>SENSEI Heat Map + Analytics</td><td><span class="pill feat">feat</span></td><td>File: <code>services/api/src/routes/sensei.ts</code>. Log every RAIDEN TRAIN response + every VOLTRON SENSEI query + every SENSEI Mode popup view. Aggregate by module. Surface top-10 most-queried modules in <a href="https://retirementprotectors.github.io/forge-runner-discovery.html" style="color:var(--accent);text-decoration:none;">FORGE</a> dashboard. <strong>AC:</strong> After 1 week, can see which modules get the most training requests.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Sequencing</h2>
+    <div class="level-bar blue">
+      <h4>Phase 1: Infrastructure (TRK-SNS-001 &mdash; 004) &mdash; PARALLEL</h4>
+      <p>Firestore collection, screenshot upload hook, API routes, content seed. All independent &mdash; 4 parallel agents.</p>
+    </div>
+    <div class="level-bar orange">
+      <h4>Phase 2: SENSEI Mode UI (TRK-SNS-005 &mdash; 009) &mdash; Depends on 001</h4>
+      <p>Toggle, provider/hook, overlay indicators, popup card, registry. Types must exist first.</p>
+    </div>
+    <div class="level-bar purple">
+      <h4>Phase 3: Content Generation (TRK-SNS-010 + 013) &mdash; Depends on 001 + 002</h4>
+      <p>Training HTML generator + CI pipeline integration. Screenshots + collection must exist first.</p>
+    </div>
+    <div class="level-bar red">
+      <h4>Phase 4: Knowledge Wiring (TRK-SNS-011 + 012 + 014) &mdash; Depends on Phase 2 + 3</h4>
+      <p>RAIDEN TRAIN wiring, VOLTRON queries, heat map analytics. Full system must be live.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <table>
+      <tr><th>Criterion</th><th>Verification</th></tr>
+      <tr><td>sensei_content collection populated</td><td>19+ modules seeded with metadata</td></tr>
+      <tr><td>CI screenshots upload to Storage</td><td>Deploy &rarr; screenshots in <code>/training/{module}/</code></td></tr>
+      <tr><td>Training HTML generates</td><td><code>POST /api/sensei/generate/dex</code> &rarr; HTML matching gold standard</td></tr>
+      <tr><td>SENSEI Mode toggle works</td><td>Toggle ON &rarr; amber indicators appear in portal</td></tr>
+      <tr><td>Overlay popups show training</td><td>Hover indicator &rarr; popup with screenshot + description</td></tr>
+      <tr><td>RAIDEN TRAIN returns SENSEI links</td><td>Ticket about existing module &rarr; training link returned &rarr; ticket closed</td></tr>
+      <tr><td>VOLTRON queries SENSEI</td><td>"How do I use Households?" &rarr; conversational walkthrough</td></tr>
+      <tr><td>CI auto-regenerates on deploy</td><td>UI change deployed &rarr; training auto-updated</td></tr>
+      <tr><td>Heat map tracks queries</td><td>Dashboard shows top-10 most-queried modules after 1 week</td></tr>
+      <tr><td>JDM never answers that question again</td><td>Team member asks about existing feature &rarr; SENSEI handles it</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+<div class="footer">SENSEI &mdash; Sprint 007 &mdash; The Training Intelligence Layer &mdash; The Machine Teaches Itself &mdash; 2026-03-27 &mdash; Executive.AI hierarchy added 2026-03-29</div>
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
