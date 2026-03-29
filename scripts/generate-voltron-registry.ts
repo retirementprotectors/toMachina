@@ -14,7 +14,7 @@ import { generateVoltronRegistry } from '../packages/core/src/voltron/registry-g
 import type { VoltronRegistryEntry } from '../packages/core/src/voltron/types'
 
 const MONOREPO_ROOT = path.resolve(__dirname, '..')
-const MDJ_AGENT_ROOT = path.resolve('/home/jdm/mdj-agent')
+const MDJ_AGENT_ROOT = path.resolve('/home/jdm/mdj-server')
 const OUTPUT_DIR = path.join(MONOREPO_ROOT, 'packages/core/src/voltron/generated')
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'voltron-registry.json')
 

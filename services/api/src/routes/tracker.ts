@@ -13,6 +13,8 @@ import {
 } from '../lib/helpers.js'
 import type { TrackerItemDTO, TrackerBulkUpdateResult, DedupScanData, DedupMergeResult, TrackerDeleteResult, TrackerAttachmentDTO, AttachmentDeleteResult } from '@tomachina/core'
 import { createNotification } from './notifications.js'
+import { checkForDuplicate } from '../raiden/duplicate-guard.js'
+import { postNewSubmission, postInProgress, postFixed } from '../raiden/channel-notifier.js'
 
 export const trackerRoutes = Router()
 const COLLECTION = 'tracker_items'
@@ -336,10 +338,29 @@ trackerRoutes.get('/:id', async (req: Request, res: Response) => {
 })
 
 // POST / — create new tracker item (auto-generates TRK-NNN id)
+// TRK-14240: Duplicate guard fires BEFORE creation. Channel confirmation posts within 60s.
 trackerRoutes.post('/', async (req: Request, res: Response) => {
   try {
     const err = validateRequired(req.body, ['title'])
     if (err) { res.status(400).json(errorResponse(err)); return }
+
+    // TRK-14240: Duplicate detection — fires BEFORE creating a second ticket
+    const dupResult = await checkForDuplicate(req.body.title as string)
+    if (dupResult.isDuplicate && dupResult.match) {
+      res.status(409).json({
+        success: false,
+        error: 'Duplicate detected',
+        existing: {
+          item_id: dupResult.match.item_id,
+          title: dupResult.match.title,
+          status: dupResult.match.status,
+          reason: dupResult.match.reason,
+          score: dupResult.match.score,
+        },
+        channel_posted: dupResult.channelPosted,
+      })
+      return
+    }
 
     const db = getFirestore()
     const now = new Date().toISOString()
@@ -412,6 +433,15 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
       created_at: now,
       created_by: reporterEmail,
     })
+
+    // TRK-14240: Post 🔴 NEW to #dojo-fixes (<60 seconds from submission)
+    postNewSubmission(
+      itemTitle,
+      itemId,
+      reporterName,
+      itemType,
+      (req.body.priority as string) || 'P2',
+    ).catch(slackErr => console.error('[raiden-channel] NEW post failed:', slackErr))
 
     res.status(201).json(successResponse<TrackerItemDTO>({ id: itemId, ...data } as unknown as TrackerItemDTO))
   } catch (err) {

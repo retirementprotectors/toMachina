@@ -1,10 +1,10 @@
 // src/shinobi/shinobi-sprint.ts — POST /shinobi/sprint handler
 // TRK-13785: Accept sprint name + discovery URL. Validate doc. Start RONIN.
-// Calls mdj-agent's /forge/sprint endpoint via HTTP (same pattern as mdj.ts proxy).
+// Calls mdj-server's /forge/sprint endpoint via HTTP (same pattern as mdj.ts proxy).
 
 import { updateShinobiState } from './shinobi-state.js'
 
-// mdj-agent (VOLTRON/RONIN) service URL — reuse same env vars as mdj routes
+// mdj-server (VOLTRON/RONIN) service URL — reuse same env vars as mdj routes
 const MDJ_AGENT_URL =
   process.env.VOLTRON_URL || process.env.MDJ1_URL || 'https://mdjserver.tail7845ea.ts.net'
 const MDJ_AUTH_SECRET = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
@@ -37,7 +37,7 @@ export async function startSprint(body: {
     throw new Error(`Discovery doc unreachable: ${err instanceof Error ? err.message : String(err)}`)
   }
 
-  // Call mdj-agent /forge/sprint to start RONIN (fire-and-forget on their side, returns 202)
+  // Call mdj-server /forge/sprint to start RONIN (fire-and-forget on their side, returns 202)
   const forgeRes = await fetch(`${MDJ_AGENT_URL}/forge/sprint`, {
     method: 'POST',
     headers: {

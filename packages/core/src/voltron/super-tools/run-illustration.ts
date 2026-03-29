@@ -1,7 +1,7 @@
 // ─── RUN_ILLUSTRATION Super Tool (Playwright Carrier Automation) ────────────
 // Chain: get_client → run_illustration (MDJ single-call) → return result
 // Output: Illustration PDF saved to ACF + file link
-// NOTE: Server-only on MDJ1. Playwright execution happens on mdj-agent.
+// NOTE: Server-only on MDJ1. Playwright execution happens on mdj-server.
 //
 // Architecture:
 //   1. Get client demographics from TM API
@@ -11,9 +11,9 @@
 //   3. Format and return result
 //
 // The actual browser automation lives in:
-//   /home/jdm/mdj-agent/src/tools/playwright/carrier-automation.ts
-//   /home/jdm/mdj-agent/src/tools/playwright/north-american.ts
-//   /home/jdm/mdj-agent/src/tools/playwright/athene.ts
+//   /home/jdm/mdj-server/src/tools/playwright/carrier-automation.ts
+//   /home/jdm/mdj-server/src/tools/playwright/north-american.ts
+//   /home/jdm/mdj-server/src/tools/playwright/athene.ts
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {

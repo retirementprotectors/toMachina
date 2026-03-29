@@ -47,12 +47,12 @@ async function notifyDeployError(message: string): Promise<void> {
  *
  * - HMAC-SHA256 signature validated against GITHUB_WEBHOOK_SECRET
  * - Only fires on pushes to refs/heads/main
- * - Deploy sequence: git pull → npm ci → npx tsc → systemctl restart mdj-agent.service
+ * - Deploy sequence: git pull → npm ci → npx tsc → systemctl restart mdj-server.service
  * - On build failure: service NOT restarted, Slack error notification sent
  *
  * Sudoers entry (documented):
  *   File: /etc/sudoers.d/jdm-voltron
- *   jdm ALL=(ALL) NOPASSWD: /bin/systemctl restart mdj-agent.service
+ *   jdm ALL=(ALL) NOPASSWD: /bin/systemctl restart mdj-server.service
  *
  * TRK-13856 / TRK-13862
  */
@@ -110,7 +110,7 @@ webhookDeployRoutes.post('/', async (req: Request, res: Response) => {
   res.status(200).json({ success: true, action: 'deploy_started' })
 
   // --- Async deploy sequence ---
-  const PROJECT_DIR = process.env.MDJ_AGENT_DIR || '/home/jdm/Projects/toMachina/services/mdj-agent'
+  const PROJECT_DIR = process.env.MDJ_AGENT_DIR || '/home/jdm/Projects/toMachina/services/mdj-server'
 
   try {
     console.log('[webhook/deploy] Starting deploy sequence...')
@@ -128,8 +128,8 @@ webhookDeployRoutes.post('/', async (req: Request, res: Response) => {
     await execAsync('npx tsc', { cwd: PROJECT_DIR, timeout: 60_000 })
 
     // Step 4: Only restart if all steps succeeded
-    console.log('[webhook/deploy] Restarting mdj-agent.service...')
-    await execAsync('sudo /bin/systemctl restart mdj-agent.service')
+    console.log('[webhook/deploy] Restarting mdj-server.service...')
+    await execAsync('sudo /bin/systemctl restart mdj-server.service')
 
     console.log('[webhook/deploy] Deploy completed successfully')
   } catch (err) {

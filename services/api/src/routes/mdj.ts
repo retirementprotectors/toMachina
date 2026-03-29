@@ -141,7 +141,7 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
       // VOLTRON unreachable — fall back to placeholder
       const fallback = `I'm having trouble connecting to my brain (VOLTRON server). ` +
         `The agent service at ${VOLTRON_URL} may be down. ` +
-        `Check: ssh voltron "sudo systemctl status mdj-agent"`
+        `Check: ssh voltron "sudo systemctl status mdj-server"`
       res.write(`data: ${JSON.stringify({ text: fallback })}\n\n`)
       res.write('data: [DONE]\n\n')
       res.end()

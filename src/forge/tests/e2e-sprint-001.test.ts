@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 
 // ---------------------------------------------------------------------------
-// TRK-13863: E2E Sprint 001 — Mode 1 + Mode 2 + Intent Classification
+// TRK-14201: E2E Sprint 001 — Mode 1 + Mode 2 + Intent Classification
 //
 // Validates the VOLTRON two-mode architecture and intent routing contract:
 //   (1) Mode 1 — POST /api/voltron/deploy: SSE fires 8+ tool_call events, [DONE]
@@ -176,7 +176,7 @@ const MODE_2_CHAT_STREAM = [
 // TEST SUITE
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('TRK-13863: E2E Sprint 001 — VOLTRON Foundation', () => {
+describe('TRK-14201: E2E Sprint 001 — VOLTRON Foundation', () => {
   // ── Sub-test 1: Mode 1 — Deploy (8+ tool_calls, [DONE]) ──────────────
   describe('Mode 1 — POST /api/voltron/deploy', () => {
     let parsed: ParsedSseStream

@@ -48,7 +48,7 @@ function entry(
 }
 
 // ─── TM API Tools (57) ─────────────────────────────────────────────────────
-// Source: /home/jdm/mdj-agent/src/tools/tm-api-tools.ts
+// Source: /home/jdm/mdj-server/src/tools/tm-api-tools.ts
 // All are API_ROUTE source, all are server_only.
 
 const TM_API_TOOLS: VoltronRegistryEntry[] = [
@@ -253,7 +253,7 @@ const TM_API_TOOLS: VoltronRegistryEntry[] = [
 ]
 
 // ─── MCP Bridge Tools (25) ──────────────────────────────────────────────────
-// Source: /home/jdm/mdj-agent/src/tools/mcp-bridge.ts
+// Source: /home/jdm/mdj-server/src/tools/mcp-bridge.ts
 // All are MCP source, all are server_only.
 
 const MCP_BRIDGE_TOOLS: VoltronRegistryEntry[] = [

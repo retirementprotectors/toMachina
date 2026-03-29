@@ -2,134 +2,433 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>RAIDEN Reactive Guardian v3 Plan</title>
-<style>:root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--yellow:#d29922;--purple:#bc8cff;--orange:#f0883e}*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:2rem;max-width:1400px;margin:0 auto}h1{font-size:2rem;margin-bottom:.5rem}h2{font-size:1.5rem;margin:2rem 0 1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem}h4{font-size:1rem;margin:1rem 0 .5rem;color:var(--purple)}.subtitle{color:var(--muted);font-size:1.1rem;margin-bottom:2rem}.wave{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0}.wave-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}.wave-badge{color:var(--bg);padding:2px 10px;border-radius:12px;font-weight:700;font-size:.85rem}.w1{background:var(--green)}.w2{background:var(--accent)}.w3{background:var(--purple)}.w4{background:var(--orange)}.w5{background:var(--yellow)}.w6{background:var(--red)}.ticket{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:1.25rem;margin:.75rem 0}.ticket-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}.trk{font-family:monospace;font-weight:700;color:var(--yellow);font-size:.9rem}.ticket-title{font-weight:600;font-size:1.05rem}.track-badge{font-size:.75rem;padding:1px 8px;border-radius:10px;font-weight:600}.track-a{background:#1f3a5f;color:var(--accent)}.track-b{background:#3b1f5f;color:var(--purple)}.track-c{background:#3b3a1f;color:var(--yellow)}.dep{color:var(--muted);font-size:.85rem;font-style:italic;margin-bottom:.75rem}.files{background:#0d1117;border:1px solid var(--border);border-radius:4px;padding:.75rem;margin:.5rem 0}.files code{color:var(--green);font-size:.85rem}.ac{margin:.5rem 0;padding-left:1.5rem}.ac li{margin:.25rem 0;font-size:.9rem}.ac li::marker{color:var(--green)}.build-gate{background:#1a1206;border:1px solid var(--yellow);border-radius:4px;padding:.5rem .75rem;margin-top:.75rem;font-family:monospace;font-size:.85rem;color:var(--yellow)}.risk{background:#1a0606;border-left:3px solid var(--red);padding:.5rem .75rem;margin:.5rem 0;font-size:.9rem;color:var(--red)}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{border:1px solid var(--border);padding:.5rem .75rem;text-align:left}th{background:var(--surface);color:var(--accent);font-weight:600}td{background:var(--bg)}code{background:var(--surface);padding:1px 5px;border-radius:3px;font-size:.9em;color:var(--green)}.diagram{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1rem;margin:1rem 0;font-family:monospace;font-size:.8rem;white-space:pre;overflow-x:auto;color:var(--muted)}.summary-table td:first-child{font-weight:600;color:var(--accent)}ul{padding-left:1.5rem}ul li{margin:.2rem 0}.constraint{background:#1a0612;border:1px solid var(--purple);border-radius:4px;padding:.75rem;margin:.5rem 0;font-size:.9rem}a{color:var(--accent)}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAIDEN Reactive Guardian v3 — Implementation Plan</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --red: #f85149; --orange: #d29922; --purple: #bc8cff; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.6; padding: 2rem; max-width: 1400px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  h1 span { color: var(--orange); }
+  h2 { color: var(--accent); font-size: 1.5rem; margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  h3 { color: var(--purple); font-size: 1.15rem; margin: 1.5rem 0 0.75rem; }
+  h4 { color: var(--muted); font-size: 0.95rem; margin: 1rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .meta { color: var(--muted); margin-bottom: 2rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .badge-mdj { background: #f8514933; color: var(--red); border: 1px solid var(--red); }
+  .badge-cloud { background: #3fb95033; color: var(--green); border: 1px solid var(--green); }
+  .badge-ui { background: #bc8cff33; color: var(--purple); border: 1px solid var(--purple); }
+  .badge-both { background: #d2992233; color: var(--orange); border: 1px solid var(--orange); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { padding: 0.6rem 0.75rem; text-align: left; border: 1px solid var(--border); font-size: 0.9rem; }
+  th { background: #21262d; color: var(--accent); font-weight: 600; }
+  tr:hover { background: #1c2128; }
+  code { background: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: var(--orange); }
+  pre { background: #21262d; padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.75rem 0; font-size: 0.85rem; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  ul, ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+  li { margin: 0.25rem 0; }
+  .dep-arrow { color: var(--orange); font-weight: bold; }
+  .warn { background: #f8514920; border-left: 3px solid var(--red); padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 0 4px 4px 0; }
+  .info { background: #58a6ff20; border-left: 3px solid var(--accent); padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 0 4px 4px 0; }
+  .file-list { font-size: 0.85rem; }
+  .file-list li code { color: var(--green); }
+  .ac { list-style: none; margin-left: 0; }
+  .ac li::before { content: "[ ] "; color: var(--muted); font-family: monospace; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+</style>
 </head>
 <body>
-<h1>RAIDEN Reactive Guardian v3 — Implementation Plan</h1>
-<p class="subtitle">Sprint 004 | 22 Tickets | 6 Waves | "RONIN builds the future. RAIDEN protects the present."</p>
-<h2>Architecture Overview</h2>
-<div class="constraint"><strong>Architecture Constraints (Non-Negotiable)</strong><ul><li><strong>MDJ_SERVER</strong> = <code>/home/jdm/mdj-agent</code> — ALL agent SDK code. Express :4200.</li><li><strong>Cloud Run (tm-api)</strong> = portal REST API only at <code>services/api/</code>. No claude-agent-sdk.</li><li><strong>ProDashX module path</strong> = <code>apps/prodash/app/(portal)/modules/[module-name]/</code></li><li><strong>Claude models:</strong> Opus=<code>claude-opus-4-6</code>, Sonnet=<code>claude-sonnet-4-6</code>, Haiku=<code>claude-haiku-4-5-20251001</code></li><li><strong>Zero file overlap</strong> in parallel tracks.</li><li><strong>Build gate:</strong> <code>npm run build</code> (NEVER tsc --noEmit alone)</li></ul></div>
-<div class="diagram">+---------------------------------------------------------------------------------+
-|  THE DOJO (ProDashX Module at /modules/forge)                                   |
-|  +------------------------------+  +------------------------------+             |
-|  | RAIDEN Tab (bolt icon)        |  | RONIN Tab (precision_mfg)    |             |
-|  |  NEW-TRIAGING-FIXING-         |  |  Seed-Disc-Plan-Build-       |             |
-|  |  VERIFYING-DONE-ESCALATED    |  |  Audit-Deploy-Confirm        |             |
-|  |  Quick Submit | Auto-Triage  |  |  Phase buttons | Sprint cards|             |
-|  +------------------------------+  +------------------------------+             |
-+----------------+-----------------------------------------------------------------+
-                 |
-    +------------v------------+        +-----------------------------+
-    |  Cloud Run (tm-api)     |        |  MDJ_SERVER (:4200)         |
-    |  /api/tracker/*         |        |  /home/jdm/mdj-agent        |
-    |  /api/sprints/*         |        |  src/raiden/                 |
-    |  REST only, no AI       |        |    scheduler, pollers,      |
-    +-------------------------+        |    triage, fixer, router,   |
-                                       |    trainer, notifier, logger|
-    +-------------------------+        +-----------------------------+
-    |  Slack                  |        |  Firestore:                 |
-    |  #prodashx-urgent-*     |&lt;------&gt;|  - tracker_items            |
-    |  #dojo-fixes            |        |  - mdj_raiden_runs          |
-    +-------------------------+        +-----------------------------+</div>
+
+<h1><span>&#9889;</span> RAIDEN Reactive Guardian v3 &mdash; Implementation Plan</h1>
+<p class="meta">Sprint 004 | 22 Tickets | Generated 2026-03-29 | Discovery: <a href="https://retirementprotectors.github.io/toMachina/sprint-004-raiden-discovery.html" style="color:var(--accent)">sprint-004-raiden-discovery.html</a></p>
+
+<h2>Architecture Constraints (Non-Negotiable)</h2>
+<div class="card">
+<table>
+<tr><th>Constraint</th><th>Rule</th></tr>
+<tr><td>MDJ_SERVER</td><td><code>/home/jdm/mdj-agent</code> &mdash; ALL agent SDK code. RAIDEN core lives here.</td></tr>
+<tr><td>Cloud Run (tm-api)</td><td><code>/home/jdm/Projects/toMachina/services/api/</code> &mdash; Portal REST API only. No claude-agent-sdk.</td></tr>
+<tr><td>ProDashX Modules</td><td><code>apps/prodash/app/(portal)/modules/[name]/</code></td></tr>
+<tr><td>Model IDs</td><td>Opus = <code>claude-opus-4-6</code>, Sonnet = <code>claude-sonnet-4-6</code>, Haiku = <code>claude-haiku-4-5-20251001</code></td></tr>
+<tr><td>Build Gate</td><td><code>npm run build</code> (NEVER <code>tsc --noEmit</code> alone)</td></tr>
+<tr><td>Git</td><td>Branch from main: <code>voltron/sprint-004-{ticket-id}</code>, PR with <code>--auto --squash</code></td></tr>
+<tr><td>Secrets</td><td><code>process.env</code> exclusively. No hardcoded keys.</td></tr>
+<tr><td>API Response</td><td><code>{ success: boolean, data?: T, error?: string }</code></td></tr>
+<tr><td>UI Feedback</td><td><code>showToast</code> / <code>showConfirmation</code> only. No <code>alert()</code>.</td></tr>
+</table>
+</div>
+
+<h2>Existing Implementation Status</h2>
+<div class="card">
+<p>The RAIDEN module at <code>/home/jdm/mdj-agent/src/raiden/</code> is <strong>fully implemented</strong> with 11 files:</p>
+<table>
+<tr><th>File</th><th>Status</th><th>Notes</th></tr>
+<tr><td><code>index.ts</code></td><td>&#9989; Complete</td><td>Routes: /status, /history, /triage, /e2e/*</td></tr>
+<tr><td><code>scheduler.ts</code></td><td>&#9989; Complete</td><td>15-min cycle, polls Slack + Forge, runs triage</td></tr>
+<tr><td><code>slack-poller.ts</code></td><td>&#9989; Complete</td><td>Polls C0ANMBVMSTV, dedup by message_ts</td></tr>
+<tr><td><code>forge-poller.ts</code></td><td>&#9989; Complete</td><td>Queries tracker_items for open bugs/broken</td></tr>
+<tr><td><code>triage-engine.ts</code></td><td>&#9989; Complete</td><td>4-outcome triage with P0 detection, Haiku classification</td></tr>
+<tr><td><code>auto-fixer.ts</code></td><td>&#9989; Complete</td><td>Claude Sonnet invocation, git branch + PR</td></tr>
+<tr><td><code>ronin-router.ts</code></td><td>&#9989; Complete</td><td>POST to /api/tracker, DM to JDM</td></tr>
+<tr><td><code>trainer.ts</code></td><td>&#9989; Complete</td><td>knowledge_entries search + CLAUDE.md fallback</td></tr>
+<tr><td><code>notifier.ts</code></td><td>&#9989; Complete</td><td>5 message types (fix, route, P0, training, overnight)</td></tr>
+<tr><td><code>logger.ts</code></td><td>&#9989; Complete</td><td>mdj_raiden_runs collection writes + history reads</td></tr>
+<tr><td><code>types.ts</code></td><td>&#9989; Complete</td><td>SlackItem, ForgeItem, TriageResult, RaidenRunDoc</td></tr>
+</table>
+<div class="info">The core RAIDEN engine on MDJ_SERVER is production-ready. This sprint focuses on: <strong>(1)</strong> The Dojo UI (FORGE rename + RAIDEN tab), <strong>(2)</strong> enhanced Slack channel integration (#dojo-fixes), <strong>(3)</strong> Quick Submit form, <strong>(4)</strong> RAIDEN Firestore schema extensions, <strong>(5)</strong> systemd service, <strong>(6)</strong> Sprint board UX fixes, <strong>(7)</strong> E2E verification.</div>
+</div>
+
 <h2>Dependency Graph</h2>
-<div class="diagram">WAVE 1 (Foundation)          WAVE 2 (Core I/O)           WAVE 3 (Intelligence)
-TRK-14221 Scaffold ------+  TRK-14222 Slack Poller --+  TRK-14224 Triage Engine
-                          |  TRK-14223 FORGE Poller --+
-                          +  TRK-14230 Logger            TRK-14229 Notifier
-                          +  TRK-14236 Schema --------+  TRK-14234 RAIDEN Tab
-TRK-14233 Rename ---------+  TRK-14235 RONIN Tab ----+
-TRK-14241 Repo Rename                                   TRK-14239 #dojo-fixes
+<div class="card">
+<pre><code>WAVE 1 (Foundation &mdash; zero dependencies)
+  TRK-14236 Firestore schema extensions
+  TRK-14233 Rename FORGE &rarr; The Dojo
+  TRK-14235 Rename RONIN tab + icon
+  TRK-14241 Rename mdj-agent &rarr; mdj-server repo
+  TRK-14221 RAIDEN service scaffold (verify/extend)
 
-WAVE 4 (Execution)           WAVE 5 (Integration)       WAVE 6 (Deploy)
-TRK-14225 Auto-fixer ---+    TRK-14228 Clear Backlog    TRK-14231 Systemd
-TRK-14226 RONIN Router -+    TRK-14237 Auto-Triage      TRK-14232 E2E Test
-TRK-14227 Trainer ------+    TRK-14240 60s Confirm
-TRK-14238 Quick Submit
-TRK-14242 UN-FUCK UX</div>
-<h2>Parallel Tracks</h2>
-<table><tr><th>Track</th><th>Name</th><th>Repo</th><th>Tickets</th></tr><tr><td><span class="track-badge track-a">A</span></td><td>MDJ Agent Backend</td><td><code>/home/jdm/mdj-agent</code></td><td>14221,14222,14223,14224,14225,14226,14227,14228,14229,14230</td></tr><tr><td><span class="track-badge track-b">B</span></td><td>ProDashX Dojo UI</td><td><code>/home/jdm/Projects/toMachina</code></td><td>14233,14234,14235,14236,14237,14238,14242</td></tr><tr><td><span class="track-badge track-c">C</span></td><td>Infra and Ops</td><td>Both + MDJ1</td><td>14239,14240,14241,14231,14232</td></tr></table>
+WAVE 2 (depends on Wave 1)
+  TRK-14234 RAIDEN tab in The Dojo          &larr; 14233, 14236
+  TRK-14222 Slack channel poller            &larr; 14221
+  TRK-14223 FORGE board poller              &larr; 14221, 14236
+  TRK-14224 Triage engine                   &larr; 14221
+  TRK-14230 mdj_raiden_runs logging         &larr; 14221, 14236
 
-<h2>WAVE 1 — Foundation</h2>
-<div class="wave"><div class="wave-header"><span class="wave-badge w1">WAVE 1</span><strong>No Dependencies — All Parallel</strong></div>
+WAVE 3 (depends on Wave 2)
+  TRK-14225 Auto-fixer                      &larr; 14224
+  TRK-14226 RONIN router                    &larr; 14224
+  TRK-14227 Training responder              &larr; 14224
+  TRK-14229 Slack notification formatter    &larr; 14222
+  TRK-14237 Auto-Triage button              &larr; 14234
+  TRK-14238 Quick Submit form               &larr; 14234, 14236
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14221</span><span class="ticket-title">RAIDEN Service Scaffold in ~/mdj-agent/src/raiden/</span><span class="track-badge track-a">A</span></div><div class="dep">Dependencies: None</div><h4>Context</h4><p>src/raiden/ exists (index.ts 2.1KB, scheduler.ts 2.9KB, types.ts 979B). Harden scaffold, verify mount, update types.</p><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/index.ts</code> — Verify sub-router, stubs: GET /status, GET /history, POST /triage, POST /e2e/*<br><code>/home/jdm/mdj-agent/src/raiden/types.ts</code> — SlackItem, ForgeItem, TriageOutcome, TriageResult, FixRecord, RouteRecord, RaidenRunDoc<br><code>/home/jdm/mdj-agent/src/raiden/scheduler.ts</code> — POLL_INTERVAL = 15*60*1000<br><code>/home/jdm/mdj-agent/src/server.ts</code> — Verify raidenRoutes at /raiden</div><h4>Acceptance Criteria</h4><ul class="ac"><li>GET /raiden/status returns { running: true, lastRun: timestamp }</li><li>Sub-router at /raiden/* in server.ts</li><li>Firebase shared (import db from ../agent/firebase)</li><li>mdj_raiden_runs schema in types.ts</li><li>TypeScript strict, zero errors</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+WAVE 4 (depends on Wave 3)
+  TRK-14239 Create #dojo-fixes channel      &larr; 14229, 14222
+  TRK-14240 60-sec Slack confirmation loop  &larr; 14229, 14238
+  TRK-14228 Clear initial backlog           &larr; 14225, 14226, 14227
+  TRK-14242 UN-FUCK FORGE Sprint UI/UX      &larr; 14234, 14233
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14233</span><span class="ticket-title">Rename FORGE Module to The Dojo (temple_buddhist)</span><span class="track-badge track-b">B</span></div><div class="dep">Dependencies: None</div><h4>File Changes</h4><div class="files"><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> — Header "FORGE" to "The Dojo", icon temple_buddhist<br><code>/home/jdm/Projects/toMachina/apps/prodash/app/(portal)/modules/forge/page.tsx</code> — Title to "The Dojo"<br><code>/home/jdm/Projects/toMachina/apps/prodash/app/(portal)/components/PortalSidebar.tsx</code> — APP_ITEMS ~line 93: label "The Dojo", icon temple_buddhist</div><h4>Acceptance Criteria</h4><ul class="ac"><li>No visible "FORGE" in UI</li><li>temple_buddhist icon in sidebar+header</li><li>Route stays /modules/forge</li><li>Title "The Dojo"</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build — 0 errors</div></div>
+WAVE 5 (depends on Wave 4)
+  TRK-14231 Systemd service for RAIDEN      &larr; all MDJ code
+  TRK-14232 E2E test + deploy               &larr; ALL tickets</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14241</span><span class="ticket-title">Rename GitHub Repo mdj-agent to mdj-server</span><span class="track-badge track-c">C</span></div><div class="dep">Dependencies: None</div><h4>File Changes</h4><div class="files"><code>/home/jdm/.claude/CLAUDE.md</code> — Update URLs<br><code>/home/jdm/.claude/projects/*/CLAUDE.md</code> — Update refs<br><code>/home/jdm/mdj-agent/.github/workflows/*.yml</code> — Update repo<br><code>/etc/systemd/system/mdj-agent.service</code> — Update desc<br><code>/home/jdm/mdj-agent/package.json</code> — Update repository</div><h4>Acceptance Criteria</h4><ul class="ac"><li>github.com/retirementprotectors/mdj-server canonical</li><li>Zero mdj-agent repo refs in CLAUDE.md, systemd, CI, SSH</li><li>Local /home/jdm/mdj-agent noted, not blocker</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div></div>
+<h2>Wave 1 &mdash; Foundation (No Dependencies)</h2>
 
-<h2>WAVE 2 — Core I/O and Schema</h2>
-<div class="wave"><div class="wave-header"><span class="wave-badge w2">WAVE 2</span><strong>Depends on Wave 1</strong></div>
+<div class="card" id="trk-14236"><div class="card-header"><h3>TRK-14236: RAIDEN Ticket Schema &mdash; New Firestore Fields</h3><span><span class="badge badge-cloud">Cloud Run</span> <span class="badge badge-mdj">MDJ</span></span></div>
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/Projects/toMachina/packages/core/src/api-types/forge.ts</code> &mdash; Add RAIDEN fields to TrackerItemDTO: priority (p0-p3), source (slack|dojo_board|auto_detect|team_submission), raiden_action (auto_fixed|routed_to_ronin|training_sent|escalated), resolution (string), agent ("raiden"|"ronin")</li>
+  <li><code>/home/jdm/Projects/toMachina/services/api/src/routes/tracker.ts</code> &mdash; Update POST to accept RAIDEN fields. Server-side item_id prefix: type=bug&rarr;BUG-NNN, fix&rarr;FIX-NNN, ux&rarr;UX-NNN. Preserve TRK-NNN for RONIN. GET supports agent filter.</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/types.ts</code> &mdash; Add priority, source, raiden_action, resolution, agent to ForgeItem</li>
+</ul>
+<h4>Acceptance Criteria</h4>
+<ul class="ac"><li>tracker_items supports both RONIN and RAIDEN fields without breaking existing reads</li><li>RAIDEN items correctly prefixed (BUG-/FIX-/UX-)</li><li>GET /api/tracker?agent=raiden returns only RAIDEN items</li><li>API contract verified against frontend consumer</li></ul>
+<h4>Build Verification</h4>
+<pre><code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build
+cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14222</span><span class="ticket-title">Slack Channel Poller (15-min)</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14221</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/slack-poller.ts</code> — Read C0ANMBVMSTV via MCP slack_read_channel. Dedup message_ts. Return SlackItem[].</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Reads C0ANMBVMSTV since last check</li><li>Deduplicates message IDs</li><li>Returns SlackItem[] {message_ts, user, text, channel, thread_ts}</li><li>Empty = silent</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14233"><div class="card-header"><h3>TRK-14233: Rename FORGE Module to The Dojo (temple_buddhist icon)</h3><span class="badge badge-ui">UI</span></div>
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/Projects/toMachina/packages/ui/src/apps/brands.ts</code> &mdash; label&rarr;"The Dojo", icon&rarr;"temple_buddhist"</li>
+  <li><code>/home/jdm/Projects/toMachina/packages/core/src/users/modules.ts</code> &mdash; Update FORGE module def, backward-compatible key</li>
+  <li><code>/home/jdm/Projects/toMachina/apps/prodash/app/(portal)/components/PortalSidebar.tsx</code> &mdash; Update sidebar entry</li>
+  <li><code>/home/jdm/Projects/toMachina/apps/sentinel/app/(portal)/components/PortalSidebar.tsx</code> &mdash; Same</li>
+  <li><code>/home/jdm/Projects/toMachina/apps/riimo/app/(portal)/components/PortalSidebar.tsx</code> &mdash; Same</li>
+  <li><code>/home/jdm/Projects/toMachina/apps/prodash/app/(portal)/modules/forge/page.tsx</code> &mdash; Update metadata title</li>
+  <li><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> &mdash; Update header text, keep export name</li>
+  <li><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/AdminPanel.tsx</code> &mdash; Update admin nav</li>
+</ul>
+<h4>Acceptance Criteria</h4>
+<ul class="ac"><li>No visible "FORGE" reference in UI</li><li>temple_buddhist icon renders in sidebar and header</li><li>All three portals show "The Dojo"</li><li>Zero data migration required</li></ul>
+<h4>Build Verification</h4>
+<pre><code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14223</span><span class="ticket-title">FORGE Board Poller (bug/broken)</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14221</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/forge-poller.ts</code> — GET /api/tracker?type=bug&amp;status=open. Filter assignee=null. created_at comparison. ForgeItem[].</div><h4>Acceptance Criteria</h4><ul class="ac"><li>type=bug|broken, assignee=null, status=open</li><li>Only since last run</li><li>Deduplicates</li><li>ForgeItem[] {trk_id, title, description, type, priority}</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14235"><div class="card-header"><h3>TRK-14235: Rename RONIN Tab with precision_manufacturing Icon</h3><span class="badge badge-ui">UI</span></div>
+<h4>Dependencies (intra-wave): Execute after TRK-14233 (shared Forge.tsx)</h4>
+<h4>File Changes</h4>
+<ul class="file-list"><li><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> &mdash; Add tab system. Existing Kanban = "RONIN" tab. precision_manufacturing icon. RONIN badge on cards. localStorage dojo_active_tab.</li></ul>
+<h4>Acceptance Criteria</h4>
+<ul class="ac"><li>Both tabs visible (RONIN + placeholder for RAIDEN)</li><li>precision_manufacturing icon on RONIN tab</li><li>Tab state persists in localStorage</li><li>RONIN attribution badge on sprint cards</li></ul>
+<h4>Build Verification</h4>
+<pre><code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14236</span><span class="ticket-title">RAIDEN Ticket Schema — Firestore Fields</span><span class="track-badge track-b">B</span></div><div class="dep">Depends: TRK-14221</div><h4>File Changes</h4><div class="files"><code>/home/jdm/Projects/toMachina/services/api/src/routes/tracker.ts</code> — Add fields: priority, source, raiden_action, resolution, agent. POST /raiden with BUG-/FIX-/UX- prefix.<br><code>/home/jdm/Projects/toMachina/packages/core/src/types/</code> — TrackerItem type</div><h4>New Fields</h4><table><tr><th>Field</th><th>Type</th><th>Values</th></tr><tr><td>priority</td><td>string?</td><td>p0|p1|p2|p3</td></tr><tr><td>source</td><td>string?</td><td>slack|dojo_board|auto_detect|team_submission</td></tr><tr><td>raiden_action</td><td>string?</td><td>auto_fixed|routed_to_ronin|training_sent|escalated</td></tr><tr><td>resolution</td><td>string?</td><td>Free text</td></tr><tr><td>agent</td><td>string?</td><td>raiden|ronin</td></tr></table><h4>Acceptance Criteria</h4><ul class="ac"><li>Supports RAIDEN+RONIN, no breaks</li><li>BUG-/FIX-/UX- prefixed server-side</li><li>Verified against Forge.tsx TrackerItem</li><li>agent enables filtered reads</li><li>POST /api/tracker/raiden {success, data} (OS Rule #7)</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14241"><div class="card-header"><h3>TRK-14241: Rename GitHub Repo mdj-agent &rarr; mdj-server</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/.claude/CLAUDE.md</code> &mdash; Update repo URLs</li>
+  <li><code>/home/jdm/Projects/toMachina/.claude/CLAUDE.md</code> &mdash; Same</li>
+  <li><code>/home/jdm/mdj-agent/mdj-agent.service</code> &mdash; Update Description</li>
+  <li><code>/home/jdm/mdj-agent/.github/workflows/*.yml</code> &mdash; Update refs</li>
+  <li><code>/home/jdm/mdj-agent/package.json</code> &mdash; Update name + repository.url</li>
+</ul>
+<h4>Acceptance Criteria</h4>
+<ul class="ac"><li>github.com/retirementprotectors/mdj-server is canonical URL</li><li>Zero remaining mdj-agent references in CLAUDE.md, systemd, CI, SSH</li><li>Local dir /home/jdm/mdj-agent stays (maintenance-window rename)</li></ul>
+<h4>Build Verification</h4>
+<pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14230</span><span class="ticket-title">mdj_raiden_runs Logging</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14221</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/logger.ts</code> — Write: run_id, started_at, completed_at, items_checked, triage_outcomes, fixes_applied[], routes_created[], jdm_notified, channel_posted<br><code>/home/jdm/mdj-agent/src/raiden/index.ts</code> — GET /raiden/history?limit=N</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Every cycle writes to mdj_raiden_runs</li><li>GET /raiden/history returns last N desc</li><li>Default 10, max 100</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14221"><div class="card-header"><h3>TRK-14221: RAIDEN Service Scaffold (verify/extend)</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>File Changes</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/mdj-agent/src/raiden/index.ts</code> &mdash; Verify routes, GET /raiden/status returns { running, lastRun }</li>
+  <li><code>/home/jdm/mdj-agent/src/server.ts</code> &mdash; Verify mount + startRaidenScheduler()</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/types.ts</code> &mdash; Verify RaidenRunDoc schema</li>
+</ul>
+<h4>Acceptance Criteria</h4>
+<ul class="ac"><li>Sub-router at /raiden/* in server.ts</li><li>Firebase shared (no new init)</li><li>mdj_raiden_runs schema correct</li><li>TypeScript strict mode active</li><li>GET /raiden/status returns { running: true, lastRun }</li></ul>
+<h4>Build Verification</h4>
+<pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14235</span><span class="ticket-title">RONIN Tab + precision_manufacturing</span><span class="track-badge track-b">B</span></div><div class="dep">Depends: TRK-14233</div><h4>File Changes</h4><div class="files"><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> — Tab bar: RAIDEN (bolt, placeholder) + RONIN (precision_manufacturing, wraps existing). localStorage: dojo-active-tab. RONIN badge.</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Both tabs visible</li><li>precision_manufacturing on RONIN</li><li>RONIN badge on sprint cards</li><li>localStorage persistence</li><li>Existing views unchanged</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build — 0 errors</div></div></div>
+<h2>Wave 2 &mdash; Core Subsystems (Depends on Wave 1)</h2>
 
-<h2>WAVE 3 — Intelligence + UI Shell</h2>
-<div class="wave"><div class="wave-header"><span class="wave-badge w3">WAVE 3</span><strong>Depends on Wave 2</strong></div>
+<div class="card" id="trk-14234"><div class="card-header"><h3>TRK-14234: Create RAIDEN Tab in The Dojo</h3><span class="badge badge-ui">UI</span></div>
+<h4>Dependencies: TRK-14233, TRK-14235, TRK-14236</h4>
+<h4>File Changes</h4>
+<ul class="file-list"><li><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> &mdash; RAIDEN tab with bolt icon. 6-column Kanban: NEW&rarr;TRIAGING&rarr;FIXING&rarr;VERIFYING&rarr;DONE&rarr;ESCALATED. GET /api/tracker?agent=raiden. Priority sort. Badges: P0=red, P1=orange, P2=yellow, P3=gray. Type badges.</li></ul>
+<h4>Acceptance Criteria</h4>
+<ul class="ac"><li>Tab renders with bolt icon and correct columns</li><li>Clean tab switching (no flicker/state leak)</li><li>P0s at top of every column</li><li>Filtered by agent: "raiden"</li><li>Empty state message</li></ul>
+<h4>Build Verification</h4>
+<pre><code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14224</span><span class="ticket-title">Triage Engine — Classify and Route</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14222, TRK-14223</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/triage-engine.ts</code> — 4-outcome: TRAIN|FIX|ROUTE|QUEUE. claudeInvoke() Haiku (claude-haiku-4-5-20251001, $0.50). knowledge_entries+CLAUDE.md fallback. P0 independent.<br><code>/home/jdm/mdj-agent/src/raiden/__tests__/triage-engine.test.ts</code> — All 4 outcomes+P0</div><h4>Signals</h4><table><tr><th>Signal</th><th>Outcome</th></tr><tr><td>Single file, known pattern, no migration</td><td>+FIX</td></tr><tr><td>Auth, schema, cross-service, E2E</td><td>+ROUTE</td></tr><tr><td>Feature in knowledge_entries</td><td>+TRAIN</td></tr><tr><td>Enhancement</td><td>+QUEUE</td></tr></table><h4>P0 Triggers</h4><ul><li>Auth failure, Phone down, Data loss, CI fail, Ambiguous</li></ul><h4>Acceptance Criteria</h4><ul class="ac"><li>SlackItem|ForgeItem to {outcome,reasoning,p0}</li><li>4-outcome tree</li><li>Signals-based</li><li>knowledge_entries+fallback</li><li>P0 independent</li><li>Unit tests all 4</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14222"><div class="card-header"><h3>TRK-14222: Slack Channel Poller</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14221</h4>
+<h4>Files</h4><ul class="file-list"><li><code>/home/jdm/mdj-agent/src/raiden/slack-poller.ts</code> &mdash; Verify C0ANMBVMSTV polling, dedup, bot filter. Add #dojo-fixes placeholder.</li></ul>
+<h4>AC</h4><ul class="ac"><li>Reads new messages since last check</li><li>Deduplicates by message_ts</li><li>Returns SlackItem[] (message_ts, user, text, channel, thread_ts)</li><li>Handles empty channel gracefully</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14229</span><span class="ticket-title">Slack Notification Formatter</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14221, TRK-14222</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/notifier.ts</code> — 5 templates: Fixed, Routed, Training, P0 DM (U09BBHTN8F2), Overnight 7am. "— @RAIDEN". Channel C0ANMBVMSTV.</div><h4>Acceptance Criteria</h4><ul class="ac"><li>4 templates match discovery</li><li>@mention for TRAIN</li><li>"— @RAIDEN" signature</li><li>JDM DM matches</li><li>Overnight 7am, silent if none</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14223"><div class="card-header"><h3>TRK-14223: FORGE Board Poller</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14221, TRK-14236</h4>
+<h4>Files</h4><ul class="file-list"><li><code>/home/jdm/mdj-agent/src/raiden/forge-poller.ts</code> &mdash; Verify type=bug|broken, status=open, assignee=null. Incremental via created_at.</li></ul>
+<h4>AC</h4><ul class="ac"><li>Correct filters applied</li><li>Only new items since last run</li><li>Deduplicates processed items</li><li>Returns ForgeItem[]</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14234</span><span class="ticket-title">RAIDEN Tab in The Dojo</span><span class="track-badge track-b">B</span></div><div class="dep">Depends: TRK-14233, TRK-14236, TRK-14235</div><h4>File Changes</h4><div class="files"><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/DojoRaidenTab.tsx</code> — NEW: 6-col Kanban. GET /api/tracker?agent=raiden. P0 top. Badges.<br><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> — Import DojoRaidenTab<br><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/index.ts</code> — Export</div><h4>Columns</h4><table><tr><th>Column</th><th>Status</th><th>Color</th></tr><tr><td>NEW</td><td>new</td><td>#f85149</td></tr><tr><td>TRIAGING</td><td>triaging</td><td>#d29922</td></tr><tr><td>FIXING</td><td>fixing</td><td>#58a6ff</td></tr><tr><td>VERIFYING</td><td>verifying</td><td>#bc8cff</td></tr><tr><td>DONE</td><td>done</td><td>#3fb950</td></tr><tr><td>ESCALATED</td><td>escalated</td><td>#f0883e</td></tr></table><h4>Acceptance Criteria</h4><ul class="ac"><li>6 columns</li><li>agent:"raiden" filter</li><li>No flicker</li><li>P0 top</li><li>Badges visible</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14224"><div class="card-header"><h3>TRK-14224: Triage Engine &mdash; Classify and Route</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14221</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/mdj-agent/src/raiden/triage-engine.ts</code> &mdash; Verify 4-outcome tree, P0 detection, claude-haiku-4-5-20251001</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/__tests__/triage-engine.test.ts</code> &mdash; Unit tests for all 4 outcomes + P0</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>Returns { outcome: TRAIN|FIX|ROUTE|QUEUE, reasoning, p0 }</li><li>Signals-based quick fix threshold</li><li>knowledge_entries query + CLAUDE.md fallback</li><li>P0 detection independent</li><li>All 4 outcomes unit tested</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14239</span><span class="ticket-title">#dojo-fixes Channel + Wire</span><span class="track-badge track-c">C</span></div><div class="dep">Depends: TRK-14222</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/slack-poller.ts</code> — Add #dojo-fixes ID, poll both<br><code>/home/jdm/mdj-agent/src/raiden/types.ts</code> — DOJO_FIXES_CHANNEL_ID</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Channel exists</li><li>RAIDEN polls+processes</li><li>In-thread reply</li><li>Source="slack"</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div></div>
+<div class="card" id="trk-14230"><div class="card-header"><h3>TRK-14230: mdj_raiden_runs Logging</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14221, TRK-14236</h4>
+<h4>Files</h4><ul class="file-list"><li><code>/home/jdm/mdj-agent/src/raiden/logger.ts</code> &mdash; Verify schema</li><li><code>/home/jdm/mdj-agent/src/raiden/index.ts</code> &mdash; Verify GET /raiden/history</li></ul>
+<h4>AC</h4><ul class="ac"><li>Every cycle writes structured doc</li><li>Queryable by date range</li><li>GET /raiden/history?limit=10 works</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<h2>WAVE 4 — Execution Layer</h2>
-<div class="wave"><div class="wave-header"><span class="wave-badge w4">WAVE 4</span><strong>Depends on Wave 3</strong></div>
+<h2>Wave 3 &mdash; Action Executors &amp; UI (Depends on Wave 2)</h2>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14225</span><span class="ticket-title">Auto-Fixer</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14224</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/auto-fixer.ts</code> — claudeInvoke() Sonnet (claude-sonnet-4-6, $8). Branch fix/{slug}. PR --auto --squash. CI fail=DM JDM.</div><h4>Acceptance Criteria</h4><ul class="ac"><li>claudeInvoke() from ../forge/claude-invoke.ts</li><li>Branch+PR (OS Rule #8)</li><li>PR link posted</li><li>CI fail=DM, no retry</li><li>Verified: checkStaleGates, ForgeRunState</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14225"><div class="card-header"><h3>TRK-14225: Auto-Fixer</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14224</h4>
+<h4>Files</h4><ul class="file-list"><li><code>/home/jdm/mdj-agent/src/raiden/auto-fixer.ts</code> &mdash; Verify claudeInvoke() with claude-sonnet-4-6. Branch, PR, CI failure DM.</li></ul>
+<h4>AC</h4><ul class="ac"><li>Uses claudeInvoke() pattern</li><li>Creates branch from main, opens PR</li><li>Posts PR link to channel</li><li>DMs JDM on CI failure (no retry)</li><li>Verified against checkStaleGates + ForgeRunState fixes</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14226</span><span class="ticket-title">RONIN Router</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14224</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/ronin-router.ts</code> — POST /api/tracker: type=bug, source=raiden, agent=ronin. DM JDM (U09BBHTN8F2).</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Creates TRK item</li><li>Returns TRK ID</li><li>DMs JDM: summary, complexity, TRK#</li><li>Channel post</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14226"><div class="card-header"><h3>TRK-14226: RONIN Router</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14224</h4>
+<h4>Files</h4><ul class="file-list"><li><code>/home/jdm/mdj-agent/src/raiden/ronin-router.ts</code> &mdash; Verify POST /api/tracker with source=raiden. DM to JDM (U09BBHTN8F2).</li></ul>
+<h4>AC</h4><ul class="ac"><li>Creates TRK item with source: "raiden"</li><li>Returns TRK ID</li><li>DMs JDM with summary + TRK number</li><li>Posts to channel</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14227</span><span class="ticket-title">Training Responder</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14224</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/trainer.ts</code> — knowledge_entries query. CLAUDE.md fallback via Haiku. @mention. "— @RAIDEN".</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Queries knowledge_entries</li><li>CLAUDE.md fallback</li><li>Feature location, usage, doc link</li><li>@mention requester</li><li>"— @RAIDEN"</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14227"><div class="card-header"><h3>TRK-14227: Training Responder</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14224</h4>
+<h4>Files</h4><ul class="file-list"><li><code>/home/jdm/mdj-agent/src/raiden/trainer.ts</code> &mdash; Verify knowledge_entries + CLAUDE.md fallback. @mention poster.</li></ul>
+<h4>AC</h4><ul class="ac"><li>Queries knowledge_entries with semantic search</li><li>CLAUDE.md fallback</li><li>Formats: location, instructions, doc link</li><li>@mentions original requester</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14238</span><span class="ticket-title">Quick Submit Form</span><span class="track-badge track-b">B</span></div><div class="dep">Depends: TRK-14234, TRK-14236</div><h4>File Changes</h4><div class="files"><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/DojoRaidenTab.tsx</code> — Title (required, "What broke?", red border), Type (Bug/Fix/UX/Question/Training), Priority (P2), screenshot. POST /api/tracker/raiden. showToast.</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Under 30s</li><li>Empty blocked</li><li>DM within 60s</li><li>POST /api/tracker/raiden</li><li>showToast (OS Rule #5)</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14229"><div class="card-header"><h3>TRK-14229: Slack Notification Formatter</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14222</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/mdj-agent/src/raiden/notifier.ts</code> &mdash; Verify 4 templates. Add "&mdash; @RAIDEN" signature. Overnight summary (7am).</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/scheduler.ts</code> &mdash; Wire postTraining() + overnight summary.</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>All 4 templates match discovery</li><li>@mention on TRAIN</li><li>"&mdash; @RAIDEN" signature everywhere</li><li>Overnight 7am summary (silent if no actions)</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14242</span><span class="ticket-title">UN-FUCK FORGE Sprint UI/UX</span><span class="track-badge track-b">B</span></div><div class="dep">Depends: TRK-14233, TRK-14234, TRK-14235</div><h4>File Changes</h4><div class="files"><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> — (1) STATUS_CONFIG: add deployed, in_sprint, closed. Zero fallbacks. (2) Phase calc: harden. (3) Buttons: context-aware. (4) Visual feedback.</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Zero silent fallbacks</li><li>Phase=execution state</li><li>Buttons context-aware</li><li>Visual feedback</li><li>Higher than "It's Aiight"</li><li>No RONIN data broken</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build — 0 errors</div></div></div>
+<div class="card" id="trk-14237"><div class="card-header"><h3>TRK-14237: Auto-Triage Button</h3><span class="badge badge-both">UI + Cloud Run</span></div>
+<h4>Dep: TRK-14234</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> &mdash; Auto-Triage button. POST /api/sprints/auto { scope: "raiden", status: "new", groupBy: "component" }. Modal preview.</li>
+  <li><code>/home/jdm/Projects/toMachina/services/api/src/routes/sprints.ts</code> &mdash; Support scope=raiden. Filter agent=raiden. Group by component.</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>One click groups RAIDEN NEW queue</li><li>Modal preview before commit</li><li>Kanban updates after confirmation</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code></pre>
+</div>
 
-<h2>WAVE 5 — Integration</h2>
-<div class="wave"><div class="wave-header"><span class="wave-badge w5">WAVE 5</span><strong>Depends on Wave 4</strong></div>
+<div class="card" id="trk-14238"><div class="card-header"><h3>TRK-14238: Quick Submit Form</h3><span class="badge badge-both">UI + Cloud Run</span></div>
+<h4>Dep: TRK-14234, TRK-14236</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> &mdash; Ctrl+N modal: Title (required, "What broke?"), Type dropdown, Priority (P2 default), Screenshot drag-drop. POST /api/tracker with agent=raiden. showToast.</li>
+  <li><code>/home/jdm/Projects/toMachina/services/api/src/routes/tracker.ts</code> &mdash; Accept RAIDEN fields. Prefix-based item_id.</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>Submit in under 30 seconds</li><li>Empty title blocked (red border)</li><li>DM confirmation within 60 seconds</li><li>No native alert/confirm/prompt</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14228</span><span class="ticket-title">Clear Backlog (8 Issues)</span><span class="track-badge track-a">A</span></div><div class="dep">Depends: TRK-14224,14225,14226,14227</div><h4>Outcomes</h4><table><tr><th>#</th><th>Issue</th><th>Action</th></tr><tr><td>1</td><td>ACF timeout</td><td>ROUTE</td></tr><tr><td>2</td><td>COMMS E2E</td><td>P0 DM</td></tr><tr><td>3</td><td>MDJ search</td><td>ROUTE</td></tr><tr><td>4</td><td>MDJ FAB</td><td>QUEUE</td></tr><tr><td>5</td><td>Unknown clients</td><td>ROUTE</td></tr><tr><td>6</td><td>checkStaleGates</td><td>FIX</td></tr><tr><td>7</td><td>ForgeRunState</td><td>FIX</td></tr><tr><td>8</td><td>MDJ prefs</td><td>QUEUE</td></tr></table><h4>Acceptance Criteria</h4><ul class="ac"><li>All 8 actioned</li><li>#6,#7 PRs</li><li>#1,#3,#5 TRKs</li><li>#2 DM</li><li>#4,#8 backlogged</li><li>Logged</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div>
+<h2>Wave 4 &mdash; Integration &amp; Polish (Depends on Wave 3)</h2>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14237</span><span class="ticket-title">Auto-Triage Button</span><span class="track-badge track-b">B</span></div><div class="dep">Depends: TRK-14234</div><h4>File Changes</h4><div class="files"><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/DojoRaidenTab.tsx</code> — Button POST /api/sprints/auto {scope:"raiden",status:"new",groupBy:"component"}. Modal.<br><code>/home/jdm/Projects/toMachina/services/api/src/routes/sprints.ts</code> — Extend POST /auto for scope:raiden+groupBy:component</div><h4>Acceptance Criteria</h4><ul class="ac"><li>Groups NEW queue</li><li>By component</li><li>Modal preview</li><li>Kanban updates</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/Projects/toMachina &amp;&amp; npm run build — 0 errors</div></div>
+<div class="card" id="trk-14239"><div class="card-header"><h3>TRK-14239: Create #dojo-fixes Channel</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14229, TRK-14222</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><strong>Slack Admin</strong> &mdash; Create #dojo-fixes, record channel ID</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/slack-poller.ts</code> &mdash; Add second channel</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/notifier.ts</code> &mdash; Post to #dojo-fixes, in-thread replies</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/types.ts</code> &mdash; source="slack"</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>Channel exists</li><li>RAIDEN polls on 15-min interval</li><li>In-thread reply with item ID</li><li>source="slack" on created items</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14240</span><span class="ticket-title">60s Confirmation Loop</span><span class="track-badge track-c">C</span></div><div class="dep">Depends: TRK-14239, TRK-14229</div><h4>File Changes</h4><div class="files"><code>/home/jdm/mdj-agent/src/raiden/notifier.ts</code> — 4 confirms to #dojo-fixes<br><code>/home/jdm/mdj-agent/src/raiden/scheduler.ts</code> — Wire transitions. Dedup.</div><h4>Acceptance Criteria</h4><ul class="ac"><li>4 types to #dojo-fixes</li><li>Dedup before 2nd ticket</li><li>FIXED on deploy</li><li>Single source of truth</li><li>Within 60s</li></ul><div class="build-gate">BUILD GATE: cd /home/jdm/mdj-agent &amp;&amp; npm run build — 0 errors</div></div></div>
+<div class="card" id="trk-14240"><div class="card-header"><h3>TRK-14240: 60-Second Confirmation Loop</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14229, TRK-14238</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/mdj-agent/src/raiden/notifier.ts</code> &mdash; 4 functions: postNewSubmission, postDuplicate, postInProgress, postFixed</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/scheduler.ts</code> &mdash; Wire confirmations into cycle</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden/triage-engine.ts</code> &mdash; Add Jaccard duplicate detection</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>All 4 message types post to channel</li><li>Duplicate detection before creating ticket</li><li>FIXED message on deploy</li><li>Channel = single source of truth</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<h2>WAVE 6 — Deploy</h2>
-<div class="wave"><div class="wave-header"><span class="wave-badge w6">WAVE 6</span><strong>ALL Previous</strong></div>
+<div class="card" id="trk-14228"><div class="card-header"><h3>TRK-14228: Clear Initial Backlog (8 issues)</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: TRK-14225, TRK-14226, TRK-14227</h4>
+<table><tr><th>#</th><th>Issue</th><th>Action</th></tr>
+<tr><td>1</td><td>ACF scan timeout</td><td>ROUTE</td></tr><tr><td>2</td><td>COMMS E2E</td><td>P0 DM</td></tr><tr><td>3</td><td>MDJ search</td><td>ROUTE</td></tr><tr><td>4</td><td>MDJ FAB</td><td>QUEUE</td></tr><tr><td>5</td><td>Unknown clients</td><td>ROUTE</td></tr><tr><td>6</td><td>checkStaleGates</td><td>AUTO-FIX</td></tr><tr><td>7</td><td>ForgeRunState</td><td>AUTO-FIX</td></tr><tr><td>8</td><td>MDJ prefs</td><td>QUEUE</td></tr></table>
+<h4>AC</h4><ul class="ac"><li>All 8 actioned, zero unaddressed</li><li>#6,#7 have PRs</li><li>#1,#3,#5 have TRK tickets</li><li>#2 P0 DM sent</li><li>#4,#8 queued</li></ul>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14231</span><span class="ticket-title">Systemd Service</span><span class="track-badge track-c">C</span></div><div class="dep">Depends: All W1-W5</div><h4>File Changes</h4><div class="files"><code>/etc/systemd/system/raiden.service</code> — NEW: Restart=always, RestartSec=10, /var/log/raiden.log<br><code>/home/jdm/mdj-agent/src/raiden-standalone.ts</code> — Entry if needed<br><code>/etc/logrotate.d/raiden</code> — Rotation</div><p class="risk">DECISION: If embedded in mdj-agent.service, becomes verify+log rotation.</p><h4>Acceptance Criteria</h4><ul class="ac"><li>Running alongside mdj-agent</li><li>Restart=always,10s</li><li>Log rotation</li><li>Boot enabled</li><li>status=active on MDJ1</li></ul><div class="build-gate">BUILD GATE: build + systemctl active</div></div>
+<div class="card" id="trk-14242"><div class="card-header"><h3>TRK-14242: UN-FUCK FORGE Sprint UI/UX</h3><span class="badge badge-ui">UI</span></div>
+<h4>Dep: TRK-14234, TRK-14233</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/Projects/toMachina/packages/ui/src/modules/Forge.tsx</code> &mdash; Fix status mapping (deployed fallthrough), phase calculation, context-aware action buttons, visual feedback, polish</li>
+  <li><code>/home/jdm/Projects/toMachina/packages/core/src/api-types/forge.ts</code> &mdash; Add "deployed" + missing statuses</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>Every RONIN status maps to visible UI state</li><li>Phase matches execution state</li><li>Context-aware buttons</li><li>JDM rates higher than "It's Aiight"</li><li>No RONIN data regression</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code></pre>
+</div>
 
-<div class="ticket"><div class="ticket-header"><span class="trk">TRK-14232</span><span class="ticket-title">E2E Test + Deploy</span><span class="track-badge track-c">C</span></div><div class="dep">Depends: ALL</div><h4>Acceptance Criteria</h4><ul class="ac"><li>RAIDEN on MDJ1 (100.99.181.57)</li><li>Message detected</li><li>Correct triage</li><li>"— @RAIDEN" response</li><li>mdj_raiden_runs logged</li><li>Sprint complete</li></ul><div class="build-gate">BUILD GATE: Full E2E live</div></div></div>
+<h2>Wave 5 &mdash; Deploy &amp; Verify</h2>
 
-<h2>Dependency Verification</h2>
-<table class="summary-table"><tr><th>Ticket</th><th>Wave</th><th>Deps</th><th>Dep Waves</th><th>OK</th></tr><tr><td>14221</td><td>1</td><td>None</td><td>—</td><td>YES</td></tr><tr><td>14233</td><td>1</td><td>None</td><td>—</td><td>YES</td></tr><tr><td>14241</td><td>1</td><td>None</td><td>—</td><td>YES</td></tr><tr><td>14222</td><td>2</td><td>14221</td><td>W1</td><td>YES</td></tr><tr><td>14223</td><td>2</td><td>14221</td><td>W1</td><td>YES</td></tr><tr><td>14236</td><td>2</td><td>14221</td><td>W1</td><td>YES</td></tr><tr><td>14230</td><td>2</td><td>14221</td><td>W1</td><td>YES</td></tr><tr><td>14235</td><td>2</td><td>14233</td><td>W1</td><td>YES</td></tr><tr><td>14224</td><td>3</td><td>14222,14223</td><td>W2</td><td>YES</td></tr><tr><td>14229</td><td>3</td><td>14221,14222</td><td>W1,W2</td><td>YES</td></tr><tr><td>14234</td><td>3</td><td>14233,14236,14235</td><td>W1,W2</td><td>YES</td></tr><tr><td>14239</td><td>3</td><td>14222</td><td>W2</td><td>YES</td></tr><tr><td>14225</td><td>4</td><td>14224</td><td>W3</td><td>YES</td></tr><tr><td>14226</td><td>4</td><td>14224</td><td>W3</td><td>YES</td></tr><tr><td>14227</td><td>4</td><td>14224</td><td>W3</td><td>YES</td></tr><tr><td>14238</td><td>4</td><td>14234,14236</td><td>W3,W2</td><td>YES</td></tr><tr><td>14242</td><td>4</td><td>14233,14234,14235</td><td>W1,W3,W2</td><td>YES</td></tr><tr><td>14228</td><td>5</td><td>14224-27</td><td>W3,W4</td><td>YES</td></tr><tr><td>14237</td><td>5</td><td>14234</td><td>W3</td><td>YES</td></tr><tr><td>14240</td><td>5</td><td>14239,14229</td><td>W3</td><td>YES</td></tr><tr><td>14231</td><td>6</td><td>All</td><td>W1-5</td><td>YES</td></tr><tr><td>14232</td><td>6</td><td>All</td><td>W1-5</td><td>YES</td></tr></table>
-<p><strong>All verified. Zero violations.</strong></p>
+<div class="card" id="trk-14231"><div class="card-header"><h3>TRK-14231: Systemd Service for RAIDEN</h3><span class="badge badge-mdj">MDJ</span></div>
+<h4>Dep: All MDJ code</h4>
+<h4>Files</h4>
+<ul class="file-list">
+  <li><code>/home/jdm/mdj-agent/raiden.service</code> (NEW) &mdash; Restart=always, RestartSec=10, /var/log/raiden.log</li>
+  <li><code>/home/jdm/mdj-agent/src/raiden-standalone.ts</code> (NEW if extracting)</li>
+  <li><code>/etc/logrotate.d/raiden</code> &mdash; Log rotation</li>
+</ul>
+<h4>AC</h4><ul class="ac"><li>systemd unit created</li><li>Runs alongside mdj-agent.service</li><li>Auto-restarts (Restart=always, RestartSec=10)</li><li>/var/log/raiden.log with rotation</li><li>Enabled on boot</li><li>systemctl status raiden = active+running</li><li>Confirmed on MDJ1 (100.99.181.57)</li></ul>
+<h4>Build</h4><pre><code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></pre>
+</div>
 
-<h2>File Overlap</h2>
-<table><tr><th>File</th><th>Tickets</th><th>Waves</th></tr><tr><td><code>raiden/index.ts</code></td><td>14221,14230</td><td>W1,W2</td></tr><tr><td><code>raiden/types.ts</code></td><td>14221,14239</td><td>W1,W3</td></tr><tr><td><code>raiden/slack-poller.ts</code></td><td>14222,14239</td><td>W2,W3</td></tr><tr><td><code>raiden/notifier.ts</code></td><td>14229,14240</td><td>W3,W5</td></tr><tr><td><code>raiden/scheduler.ts</code></td><td>14221,14240</td><td>W1,W5</td></tr><tr><td><code>Forge.tsx</code></td><td>14233,14235,14234,14242</td><td>W1,W2,W3,W4</td></tr><tr><td><code>DojoRaidenTab.tsx</code></td><td>14234,14238,14237</td><td>W3,W4,W5</td></tr></table>
-<p><strong>Zero within-wave overlap. Parallel safe.</strong></p>
+<div class="card" id="trk-14232"><div class="card-header"><h3>TRK-14232: E2E Test + Deploy</h3><span class="badge badge-both">ALL</span></div>
+<h4>Dep: ALL tickets</h4>
+<h4>Test Script</h4>
+<ol><li>POST /raiden/e2e/post-test</li><li>Wait for cycle (15 min)</li><li>GET /raiden/history?limit=1</li><li>Verify triage outcome</li><li>Verify Slack response with "&mdash; @RAIDEN"</li><li>Verify mdj_raiden_runs entry</li><li>Verify Dojo UI RAIDEN tab</li></ol>
+<h4>AC</h4><ul class="ac"><li>RAIDEN live on MDJ1 (100.99.181.57)</li><li>Detects, triages, responds, logs within 15 min</li><li>GET /raiden/history confirms</li><li>Sprint complete</li></ul>
+<h4>Build</h4><pre><code>curl -H "X-MDJ-Auth: $MDJ_AUTH_SECRET" http://100.99.181.57:4200/raiden/status
+curl -H "X-MDJ-Auth: $MDJ_AUTH_SECRET" http://100.99.181.57:4200/raiden/history?limit=5</code></pre>
+</div>
 
-<h2>API Coverage</h2>
-<table><tr><th>Endpoint</th><th>Ticket</th></tr><tr><td>GET /raiden/status</td><td>14221</td></tr><tr><td>GET /raiden/history</td><td>14230</td></tr><tr><td>POST /raiden/triage</td><td>14224</td></tr><tr><td>POST /raiden/e2e/*</td><td>14232</td></tr><tr><td>POST /api/tracker/raiden</td><td>14236</td></tr><tr><td>POST /api/sprints/auto (ext)</td><td>14237</td></tr><tr><td>GET /api/tracker (filtered)</td><td>14223</td></tr><tr><td>POST /api/tracker (ext)</td><td>14236</td></tr></table>
+<h2>Execution Summary</h2>
+<div class="card">
+<table>
+<tr><th>Wave</th><th>Tickets</th><th>Parallel</th><th>Constraint</th></tr>
+<tr><td><strong>1</strong></td><td>14236, 14233, 14235, 14241, 14221</td><td>5</td><td>14233&rarr;14235 (Forge.tsx)</td></tr>
+<tr><td><strong>2</strong></td><td>14234, 14222, 14223, 14224, 14230</td><td>5</td><td>14234 solo on Forge.tsx</td></tr>
+<tr><td><strong>3</strong></td><td>14225, 14226, 14227, 14229, 14237, 14238</td><td>4+2seq</td><td>14237&rarr;14238 (Forge.tsx)</td></tr>
+<tr><td><strong>4</strong></td><td>14239, 14240, 14228, 14242</td><td>3+1exec</td><td>14228 exec-only</td></tr>
+<tr><td><strong>5</strong></td><td>14231, 14232</td><td>Sequential</td><td>systemd&rarr;E2E</td></tr>
+</table>
+</div>
 
-<h2>Risks</h2>
-<table><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr><tr><td>Forge.tsx 2595 lines</td><td>HIGH</td><td>Extract to DojoRaidenTab.tsx</td></tr><tr><td>Systemd embedded vs standalone</td><td>MED</td><td>Test embedded first</td></tr><tr><td>Slack bot #dojo-fixes</td><td>MED</td><td>Verify before 14239</td></tr><tr><td>claudeInvoke() broken PRs</td><td>MED</td><td>CI gate, DM JDM</td></tr><tr><td>Repo rename</td><td>LOW</td><td>GitHub redirects</td></tr><tr><td>Empty knowledge_entries</td><td>LOW</td><td>CLAUDE.md fallback</td></tr><tr><td>RONIN regression</td><td>HIGH</td><td>Additive only, verify</td></tr></table>
+<div class="card">
+<h3>File Overlap Matrix</h3>
+<table>
+<tr><th>File</th><th>Tickets</th><th>Order</th></tr>
+<tr><td><code>packages/ui/src/modules/Forge.tsx</code></td><td>14233, 14235, 14234, 14237, 14238, 14242</td><td>Strict sequential</td></tr>
+<tr><td><code>packages/core/src/api-types/forge.ts</code></td><td>14236, 14242</td><td>14236&rarr;14242</td></tr>
+<tr><td><code>services/api/src/routes/tracker.ts</code></td><td>14236, 14238</td><td>14236&rarr;14238</td></tr>
+<tr><td><code>services/api/src/routes/sprints.ts</code></td><td>14237</td><td>Solo</td></tr>
+<tr><td><code>mdj-agent/src/raiden/notifier.ts</code></td><td>14229, 14239, 14240</td><td>14229&rarr;14239&rarr;14240</td></tr>
+<tr><td><code>mdj-agent/src/raiden/scheduler.ts</code></td><td>14229, 14240</td><td>14229&rarr;14240</td></tr>
+<tr><td><code>mdj-agent/src/raiden/slack-poller.ts</code></td><td>14222, 14239</td><td>14222&rarr;14239</td></tr>
+<tr><td><code>mdj-agent/src/raiden/triage-engine.ts</code></td><td>14224, 14240</td><td>14224&rarr;14240</td></tr>
+<tr><td><code>mdj-agent/src/raiden/types.ts</code></td><td>14236, 14239</td><td>14236&rarr;14239</td></tr>
+</table>
+</div>
 
-<h2>Build Verification</h2>
-<div class="constraint"><ul><li>Track A: <code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code></li><li>Track B: <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code></li><li>Track C: Build + MDJ1 live</li><li>NEVER tsc --noEmit (OS Rule #6)</li><li>Git: raiden/sprint-004-{id}, --auto --squash (OS Rule #8)</li><li>API: {success,data?,error?} (OS Rule #7)</li><li>No hardcoded secrets (OS Rule #1)</li></ul></div>
+<h2>Risk Register</h2>
+<div class="card">
+<table>
+<tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+<tr><td>Forge.tsx 130KB, 6 tickets</td><td>HIGH</td><td>Strict sequential. npm run build after every edit.</td></tr>
+<tr><td>Module rename breaks perms</td><td>MEDIUM</td><td>Backward-compatible key mapping</td></tr>
+<tr><td>#dojo-fixes not created</td><td>LOW</td><td>Placeholder until Wave 4</td></tr>
+<tr><td>MDJ1 SSH for systemd</td><td>MEDIUM</td><td>Prepare locally, SSH deploy Wave 5</td></tr>
+<tr><td>Auto-fixer bad PRs</td><td>MEDIUM</td><td>CI gate. DM JDM on failure.</td></tr>
+<tr><td>knowledge_entries missing</td><td>LOW</td><td>CLAUDE.md fallback exists</td></tr>
+<tr><td>Repo rename breaks clones</td><td>MEDIUM</td><td>GitHub auto-redirects</td></tr>
+</table>
+</div>
 
-<h2>Summary</h2>
-<table class="summary-table"><tr><td>Tickets</td><td>22</td></tr><tr><td>Waves</td><td>6</td></tr><tr><td>Track A</td><td>10</td></tr><tr><td>Track B</td><td>7</td></tr><tr><td>Track C</td><td>5</td></tr><tr><td>New Files</td><td>DojoRaidenTab.tsx, raiden.service</td></tr><tr><td>New Firestore</td><td>mdj_raiden_runs</td></tr><tr><td>Extended</td><td>tracker_items (+5 fields)</td></tr><tr><td>Models</td><td>Haiku (claude-haiku-4-5-20251001), Sonnet (claude-sonnet-4-6)</td></tr><tr><td>Blockers</td><td>Zero</td></tr></table>
-<hr style="border-color:var(--border);margin:2rem 0"><p style="color:var(--muted);font-size:.85rem;text-align:center">RAIDEN v3 — Sprint 004 Plan | 2026-03-29 | "RONIN builds the future. RAIDEN protects the present."</p>
-</body></html>
+<h2>Cost Model</h2>
+<div class="card">
+<table>
+<tr><th>Stage</th><th>Model</th><th>Cap</th><th>Quick</th><th>Medium</th><th>Complex</th></tr>
+<tr><td>Triage</td><td><code>claude-haiku-4-5-20251001</code></td><td>$0.50</td><td>$0.02</td><td>$0.05</td><td>$0.10</td></tr>
+<tr><td>Training</td><td><code>claude-haiku-4-5-20251001</code></td><td>$1.00</td><td>$0.05</td><td>$0.10</td><td>&mdash;</td></tr>
+<tr><td>Auto-Fix</td><td><code>claude-sonnet-4-6</code></td><td>$8.00</td><td>$0.50</td><td>$2.00</td><td>$5.00</td></tr>
+<tr><td>Verify</td><td><code>claude-haiku-4-5-20251001</code></td><td>$1.00</td><td>$0.05</td><td>$0.10</td><td>$0.20</td></tr>
+<tr><td>Escalate</td><td><code>claude-haiku-4-5-20251001</code></td><td>$0.50</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+</table>
+</div>
+
+<h2>Endpoint Coverage</h2>
+<div class="card">
+<table>
+<tr><th>Endpoint</th><th>Ticket</th><th>Location</th></tr>
+<tr><td>GET /raiden/status</td><td>14221</td><td>mdj-agent/src/raiden/index.ts</td></tr>
+<tr><td>GET /raiden/history</td><td>14230</td><td>mdj-agent/src/raiden/index.ts</td></tr>
+<tr><td>POST /raiden/triage</td><td>14224</td><td>mdj-agent/src/raiden/index.ts</td></tr>
+<tr><td>GET /api/tracker (agent filter)</td><td>14236</td><td>services/api/src/routes/tracker.ts</td></tr>
+<tr><td>POST /api/tracker (RAIDEN)</td><td>14236, 14238</td><td>services/api/src/routes/tracker.ts</td></tr>
+<tr><td>POST /api/sprints/auto (raiden)</td><td>14237</td><td>services/api/src/routes/sprints.ts</td></tr>
+<tr><td>POST /raiden/e2e/post-test</td><td>14232</td><td>mdj-agent/src/raiden/index.ts</td></tr>
+<tr><td>POST /raiden/e2e/read-channel</td><td>14232</td><td>mdj-agent/src/raiden/index.ts</td></tr>
+</table>
+</div>
+
+<hr>
+<p style="color: var(--muted); text-align: center; margin-top: 2rem;">
+  &#9889; RAIDEN Reactive Guardian v3 | Sprint 004 | 22 Tickets | 5 Waves | 2026-03-29<br>
+  <em>Co-Authored-By: Claude Opus 4.6 &lt;noreply@anthropic.com&gt;</em>
+</p>
+</body>
+</html>
