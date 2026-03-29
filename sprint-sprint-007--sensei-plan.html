@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 007 — SENSEI Implementation Plan</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-card: #161b22;
+    --bg-accent: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --amber: #f0a030;
+    --amber-dim: rgba(240,160,48,0.15);
+    --green: #3fb950;
+    --green-dim: rgba(63,185,80,0.15);
+    --blue: #58a6ff;
+    --blue-dim: rgba(88,166,255,0.12);
+    --red: #f85149;
+    --red-dim: rgba(248,81,73,0.15);
+    --purple: #bc8cff;
+    --purple-dim: rgba(188,140,255,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; color: var(--amber); border-bottom: 2px solid var(--amber); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+  h2 { font-size: 1.3rem; color: var(--blue); margin: 2rem 0 1rem; }
+  h3 { font-size: 1.1rem; color: var(--green); margin: 1.5rem 0 0.75rem; }
+  h4 { font-size: 0.95rem; color: var(--purple); margin: 1rem 0 0.5rem; }
+  p, li { font-size: 0.85rem; color: var(--text); }
+  code { background: var(--bg-accent); padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.82rem; color: var(--amber); }
+  pre { background: var(--bg-accent); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; overflow-x: auto; margin: 0.75rem 0; font-size: 0.8rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
+  th { background: var(--bg-accent); color: var(--amber); font-weight: 600; }
+  tr:nth-child(even) { background: rgba(22,27,34,0.5); }
+  .wave { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1rem 0; }
+  .wave-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .wave-badge { background: var(--amber); color: var(--bg); font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; }
+  .parallel-badge { background: var(--green-dim); color: var(--green); font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 3px; }
+  .ticket { background: var(--bg-accent); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 0.75rem 0; }
+  .ticket-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .trk { color: var(--amber); font-weight: 700; font-size: 0.85rem; }
+  .ticket-title { color: var(--text); font-weight: 600; font-size: 0.9rem; }
+  .dep-tag { background: var(--purple-dim); color: var(--purple); font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 3px; margin-left: 0.5rem; }
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { padding: 0.2rem 0; font-size: 0.8rem; }
+  .file-new::after { content: " [NEW]"; color: var(--green); font-weight: 600; font-size: 0.7rem; }
+  .file-mod::after { content: " [MOD]"; color: var(--amber); font-weight: 600; font-size: 0.7rem; }
+  .ac-list { list-style: none; padding: 0; }
+  .ac-list li { padding: 0.25rem 0; font-size: 0.8rem; }
+  .ac-list li::before { content: "[AC] "; color: var(--green); font-weight: 600; }
+  .build-block { background: var(--green-dim); border: 1px solid rgba(63,185,80,0.3); border-radius: 4px; padding: 0.5rem 0.75rem; margin-top: 0.75rem; font-size: 0.78rem; color: var(--green); }
+  .risk { background: var(--red-dim); border: 1px solid rgba(248,81,73,0.3); border-radius: 4px; padding: 0.5rem 0.75rem; margin: 0.5rem 0; font-size: 0.8rem; color: var(--red); }
+  .note { background: var(--blue-dim); border: 1px solid rgba(88,166,255,0.3); border-radius: 4px; padding: 0.5rem 0.75rem; margin: 0.5rem 0; font-size: 0.8rem; color: var(--blue); }
+  .constraint { background: var(--amber-dim); border-left: 3px solid var(--amber); padding: 0.75rem 1rem; margin: 0.75rem 0; font-size: 0.82rem; }
+  .dep-graph { background: var(--bg-accent); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin: 1rem 0; font-family: monospace; font-size: 0.78rem; white-space: pre; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>Sprint 007 -- SENSEI Implementation Plan</h1>
+<p style="color:var(--text-muted);">Auto-Generated Training Intelligence Layer | 14 Tickets | 4 Waves</p>
+<p style="color:var(--text-muted); margin-top:0.25rem;">Plan Date: 2026-03-29 | Sprint: 007-SENSEI</p>
+
+<h2>S1 -- Architecture Constraints (Non-Negotiable)</h2>
+
+<div class="constraint">
+  <strong>AC-1:</strong> <code>MDJ_SERVER = /home/jdm/mdj-agent</code> -- ALL agent SDK code lives there. VOLTRON SENSEI queries (TRK-14144) and RAIDEN TRAIN wiring (TRK-14143) route through mdj-agent. NOT Cloud Run.
+</div>
+<div class="constraint">
+  <strong>AC-2:</strong> Cloud Run (<code>tm-api</code>) = portal REST API only. SENSEI CRUD routes, generation endpoint, and analytics live here. No <code>claude-agent-sdk</code>.
+</div>
+<div class="constraint">
+  <strong>AC-3:</strong> ProDashX module path = <code>apps/prodash/app/(portal)/modules/[module-name]/</code>
+</div>
+<div class="constraint">
+  <strong>AC-4:</strong> Claude model IDs: Opus = <code>claude-opus-4-6</code>, Sonnet = <code>claude-sonnet-4-6</code>, Haiku = <code>claude-haiku-4-5-20251001</code>
+</div>
+<div class="constraint">
+  <strong>AC-5:</strong> Build gate: <code>npm run build</code> (never <code>tsc --noEmit</code> alone). Zero errors.
+</div>
+<div class="constraint">
+  <strong>AC-6:</strong> No hardcoded secrets. <code>process.env</code> only. No direct Firestore writes from app code. API routes only.
+</div>
+<div class="constraint">
+  <strong>AC-7:</strong> Parallel wave tracks MUST have zero file overlap. Same file = sequential.
+</div>
+<div class="constraint">
+  <strong>AC-8:</strong> All API handlers return <code>{ success: boolean, data?: T, error?: string }</code>.
+</div>
+
+<h2>S2 -- Dependency Graph</h2>
+
+<div class="dep-graph">WAVE 1 (Foundation) --- No dependencies
++-- TRK-14133  Firestore Collection + Types
++-- TRK-14141  Sensei Registry
++-- TRK-14134  Screenshot Upload Hook
+
+WAVE 2 (API + Seed + UI Core) --- Depends on Wave 1
++-- TRK-14135  Sensei API Routes           &lt;-- depends on TRK-14133 (types)
++-- TRK-14136  Sensei Content Seed         &lt;-- depends on TRK-14133 (types)
++-- TRK-14138  SENSEI Provider + Hook      &lt;-- depends on TRK-14133 (types), TRK-14141 (registry)
++-- TRK-14137  SENSEI Mode Toggle          &lt;-- depends on TRK-14133 (types)
+
+WAVE 3 (UI Overlay + Generator) --- Depends on Waves 1-2
++-- TRK-14139  Overlay Indicators          &lt;-- depends on TRK-14138 (provider), TRK-14141 (registry)
++-- TRK-14140  Popup Card                  &lt;-- depends on TRK-14138 (provider), TRK-14135 (API)
++-- TRK-14142  Training HTML Generator     &lt;-- depends on TRK-14135 (API), TRK-14134 (screenshots)
+
+WAVE 4 (Wiring + CI + Analytics) --- Depends on Waves 1-3
++-- TRK-14143  RAIDEN TRAIN Wiring         &lt;-- depends on TRK-14135 (API) --- runs in mdj-agent
++-- TRK-14144  VOLTRON SENSEI Queries      &lt;-- depends on TRK-14135 (API) --- runs in mdj-agent
++-- TRK-14145  CI Pipeline Integration     &lt;-- depends on TRK-14134 (upload), TRK-14142 (generator)
++-- TRK-14146  Heat Map + Analytics        &lt;-- depends on TRK-14135 (API), TRK-14138 (provider)</div>
+
+<h3>Wave Dependency Verification Matrix</h3>
+<table>
+  <tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>Dep Waves</th><th>Valid?</th></tr>
+  <tr><td>TRK-14133</td><td>1</td><td>None</td><td>--</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14141</td><td>1</td><td>None</td><td>--</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14134</td><td>1</td><td>None</td><td>--</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14135</td><td>2</td><td>TRK-14133</td><td>W1</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14136</td><td>2</td><td>TRK-14133</td><td>W1</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14138</td><td>2</td><td>TRK-14133, TRK-14141</td><td>W1, W1</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14137</td><td>2</td><td>TRK-14133</td><td>W1</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14139</td><td>3</td><td>TRK-14138, TRK-14141</td><td>W2, W1</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14140</td><td>3</td><td>TRK-14138, TRK-14135</td><td>W2, W2</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14142</td><td>3</td><td>TRK-14135, TRK-14134</td><td>W2, W1</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14143</td><td>4</td><td>TRK-14135</td><td>W2</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14144</td><td>4</td><td>TRK-14135</td><td>W2</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14145</td><td>4</td><td>TRK-14134, TRK-14142</td><td>W1, W3</td><td style="color:var(--green)">PASS</td></tr>
+  <tr><td>TRK-14146</td><td>4</td><td>TRK-14135, TRK-14138</td><td>W2, W2</td><td style="color:var(--green)">PASS</td></tr>
+</table>
+
+<h2>S3 -- File Overlap Analysis (Parallel Safety)</h2>
+
+<table>
+  <tr><th>Wave</th><th>Parallel Tracks</th><th>File Overlap</th><th>Status</th></tr>
+  <tr><td>1</td><td>TRK-14133 || TRK-14141 || TRK-14134</td><td>None -- separate directories (packages/core/src/, packages/ui/src/modules/SenseiMode/, services/api/src/scripts/)</td><td style="color:var(--green)">SAFE</td></tr>
+  <tr><td>2</td><td>TRK-14135 || TRK-14136 || TRK-14138 || TRK-14137</td><td>TRK-14135 + TRK-14136 both touch services/api/ but different files. TRK-14137 touches TopBar.tsx, TRK-14138 touches SenseiProvider. No overlap.</td><td style="color:var(--green)">SAFE</td></tr>
+  <tr><td>3</td><td>TRK-14139 || TRK-14140 || TRK-14142</td><td>TRK-14139 + TRK-14140 both in SenseiMode/ but separate files. TRK-14142 in services/api/. No overlap.</td><td style="color:var(--green)">SAFE</td></tr>
+  <tr><td>4</td><td>TRK-14143 || TRK-14144 || TRK-14145 || TRK-14146</td><td>TRK-14143 + TRK-14144 both in mdj-agent/src/ but different files. TRK-14145 in .github/. TRK-14146 in services/api/ + new page. No overlap.</td><td style="color:var(--green)">SAFE</td></tr>
+</table>
+
+<h2>S4 -- Global File Change Manifest</h2>
+
+<table>
+  <tr><th>File Path</th><th>Action</th><th>Ticket</th></tr>
+  <tr><td><code>packages/core/src/sensei-types.ts</code></td><td>NEW</td><td>TRK-14133</td></tr>
+  <tr><td><code>packages/core/src/index.ts</code></td><td>MOD (export)</td><td>TRK-14133</td></tr>
+  <tr><td><code>packages/ui/src/modules/SenseiMode/sensei-registry.ts</code></td><td>NEW</td><td>TRK-14141</td></tr>
+  <tr><td><code>packages/ui/src/modules/SenseiMode/index.ts</code></td><td>NEW</td><td>TRK-14141</td></tr>
+  <tr><td><code>services/api/src/scripts/upload-screenshots.ts</code></td><td>NEW</td><td>TRK-14134</td></tr>
+  <tr><td><code>services/api/src/routes/sensei.ts</code></td><td>NEW</td><td>TRK-14135</td></tr>
+  <tr><td><code>services/api/src/index.ts</code></td><td>MOD (register route)</td><td>TRK-14135</td></tr>
+  <tr><td><code>services/api/src/scripts/seed-sensei-content.ts</code></td><td>NEW</td><td>TRK-14136</td></tr>
+  <tr><td><code>packages/ui/src/modules/SenseiMode/SenseiProvider.tsx</code></td><td>NEW</td><td>TRK-14138</td></tr>
+  <tr><td><code>packages/ui/src/modules/SenseiMode/useSensei.ts</code></td><td>NEW</td><td>TRK-14138</td></tr>
+  <tr><td><code>packages/ui/src/modules/SenseiMode/SenseiToggle.tsx</code></td><td>NEW</td><td>TRK-14137</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/components/TopBar.tsx</code></td><td>MOD (add toggle)</td><td>TRK-14137</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/layout.tsx</code></td><td>MOD (wrap SenseiProvider)</td><td>TRK-14137</td></tr>
+  <tr><td><code>packages/ui/src/modules/SenseiMode/SenseiOverlay.tsx</code></td><td>NEW</td><td>TRK-14139</td></tr>
+  <tr><td><code>packages/ui/src/modules/SenseiMode/SenseiPopup.tsx</code></td><td>NEW</td><td>TRK-14140</td></tr>
+  <tr><td><code>services/api/src/routes/sensei-generator.ts</code></td><td>NEW</td><td>TRK-14142</td></tr>
+  <tr><td><code>/home/jdm/mdj-agent/src/raiden/trainer.ts</code></td><td>MOD</td><td>TRK-14143</td></tr>
+  <tr><td><code>/home/jdm/mdj-agent/src/raiden/triage-engine.ts</code></td><td>MOD</td><td>TRK-14143</td></tr>
+  <tr><td><code>/home/jdm/mdj-agent/src/tools/sensei-lookup.ts</code></td><td>NEW</td><td>TRK-14144</td></tr>
+  <tr><td><code>/home/jdm/mdj-agent/src/agent/index.ts</code></td><td>MOD (register tool)</td><td>TRK-14144</td></tr>
+  <tr><td><code>.github/workflows/ci.yml</code></td><td>MOD</td><td>TRK-14145</td></tr>
+  <tr><td><code>services/api/src/routes/sensei-analytics.ts</code></td><td>NEW</td><td>TRK-14146</td></tr>
+  <tr><td><code>apps/prodash/app/(portal)/modules/forge/sensei-heatmap/page.tsx</code></td><td>NEW</td><td>TRK-14146</td></tr>
+</table>
+
+<h2>S5 -- Wave 1: Foundation (Parallel x 3)</h2>
+
+<div class="wave">
+  <div class="wave-header">
+    <span class="wave-badge">WAVE 1</span>
+    <span class="parallel-badge">3 PARALLEL TRACKS</span>
+    <span style="color:var(--text-muted); font-size:0.8rem;">No dependencies</span>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14133</span>
+      <span class="ticket-title">Sensei Firestore Collection + Types</span>
+    </div>
+    <h4>Description</h4>
+    <p>Define the <code>SenseiContent</code> TypeScript interface and export from <code>@tomachina/core</code>. This is the foundational data model that every other ticket depends on.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>packages/core/src/sensei-types.ts</code></li>
+      <li class="file-mod"><code>packages/core/src/index.ts</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// packages/core/src/sensei-types.ts
+
+export type SenseiTemplateType = 'workflow' | 'ui' | 'feat';
+
+export interface SenseiContent {
+  module_id: string;          // e.g. 'dex', 'rmd-center', 'households'
+  title: string;              // "DEX Training Guide"
+  description: string;        // Short summary for popups
+  screenshot_urls: string[];  // Firebase Storage paths: /training/{module}/{name}.png
+  stats_query: string;        // Firestore collection path for live stats
+  template_type: SenseiTemplateType;
+  role_filter: string[];      // Entitlement keys: ['dex:read', 'admin']
+  last_generated: Date;       // Timestamp of last HTML generation
+  version: string;            // Semantic version: '1.0.0'
+}
+
+export interface SenseiAnalyticsEvent {
+  event_type: 'train_response' | 'voltron_query' | 'popup_view';
+  module_id: string;
+  user_id: string;
+  timestamp: Date;
+  metadata?: Record&lt;string, unknown&gt;;
+}
+
+export interface SenseiGenerateResult {
+  module_id: string;
+  html_url: string;
+  generated_at: Date;
+  screenshot_count: number;
+  version: string;
+}</pre>
+    <p>In <code>packages/core/src/index.ts</code>, add:</p>
+    <pre>export * from './sensei-types';</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li><code>SenseiContent</code> interface exported from <code>@tomachina/core</code></li>
+      <li>Contains all 10 fields: module_id, title, description, screenshot_urls, stats_query, template_type, role_filter, last_generated, version</li>
+      <li><code>SenseiAnalyticsEvent</code> and <code>SenseiGenerateResult</code> types exported</li>
+      <li>Collection readable via API (validated in TRK-14135)</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14141</span>
+      <span class="ticket-title">Sensei Registry</span>
+    </div>
+    <h4>Description</h4>
+    <p>Static map of DOM element CSS selectors to SENSEI module IDs. Extensible via single-line entries. Used by overlay indicators and popup system.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>packages/ui/src/modules/SenseiMode/sensei-registry.ts</code></li>
+      <li class="file-new"><code>packages/ui/src/modules/SenseiMode/index.ts</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// packages/ui/src/modules/SenseiMode/sensei-registry.ts
+
+export interface SenseiRegistryEntry {
+  selector: string;       // CSS selector for DOM element
+  module_id: string;      // Matches sensei_content.module_id
+  label: string;          // Human-readable tooltip label
+  priority?: number;      // Higher = shown first (default 0)
+}
+
+export const SENSEI_REGISTRY: SenseiRegistryEntry[] = [
+  // -- Workspaces --
+  { selector: '[data-module="contacts"]',     module_id: 'contacts',      label: 'Contacts' },
+  { selector: '[data-module="households"]',   module_id: 'households',    label: 'Households' },
+  { selector: '[data-module="accounts"]',     module_id: 'accounts',      label: 'Accounts' },
+  // -- Service Centers --
+  { selector: '[data-module="rmd-center"]',   module_id: 'rmd-center',    label: 'RMD Center' },
+  { selector: '[data-module="beni-center"]',  module_id: 'beni-center',   label: 'Beni Center' },
+  { selector: '[data-module="access-center"]',module_id: 'access-center', label: 'Access Center' },
+  // -- Apps --
+  { selector: '[data-module="atlas"]',        module_id: 'atlas',         label: 'ATLAS' },
+  { selector: '[data-module="cam"]',          module_id: 'cam',           label: 'CAM' },
+  { selector: '[data-module="dex"]',          module_id: 'dex',           label: 'DEX' },
+  { selector: '[data-module="c3"]',           module_id: 'c3',            label: 'C3' },
+  { selector: '[data-module="pipeline-studio"]', module_id: 'pipeline-studio', label: 'Pipeline Studio' },
+  { selector: '[data-module="forge"]',        module_id: 'forge',         label: 'FORGE' },
+  { selector: '[data-module="prozone"]',      module_id: 'prozone',       label: 'ProZone' },
+  // -- Bottom Bar --
+  { selector: '[data-module="comms"]',        module_id: 'comms',         label: 'Comms' },
+  { selector: '[data-module="connect"]',      module_id: 'connect',       label: 'Connect' },
+  { selector: '[data-module="notifications"]',module_id: 'notifications', label: 'Notifications' },
+  { selector: '[data-module="mdj"]',          module_id: 'mdj',           label: 'MDJ' },
+  { selector: '[data-module="admin"]',        module_id: 'admin',         label: 'Admin' },
+  { selector: '[data-module="myrpi"]',        module_id: 'myrpi',         label: 'MyRPI' },
+];
+
+export function getRegistryEntry(moduleId: string): SenseiRegistryEntry | undefined {
+  return SENSEI_REGISTRY.find(e =&gt; e.module_id === moduleId);
+}
+
+export function getRegisteredModuleIds(): string[] {
+  return SENSEI_REGISTRY.map(e =&gt; e.module_id);
+}</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>Registry covers 19+ modules (Contacts, Households, Accounts, RMD Center, Beni Center, Access Center, ATLAS, CAM, DEX, C3, Pipeline Studio, FORGE, ProZone, Comms, Connect, Notifications, MDJ, Admin, MyRPI)</li>
+      <li>New modules register via single-line entry</li>
+      <li><code>getRegistryEntry()</code> and <code>getRegisteredModuleIds()</code> utility functions exported</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14134</span>
+      <span class="ticket-title">Screenshot Upload Hook</span>
+    </div>
+    <h4>Description</h4>
+    <p>Post-deploy process that reads <code>test-results/</code>, maps test names to modules, and uploads screenshots to Firebase Storage under <code>/training/{module}/{test-name}.png</code>.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>services/api/src/scripts/upload-screenshots.ts</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// services/api/src/scripts/upload-screenshots.ts
+// Reads test-results/ directory
+// Maps: test file name to module_id using naming convention:
+//   test-results/dex-*.png         --> module_id: 'dex'
+//   test-results/rmd-center-*.png  --> module_id: 'rmd-center'
+// Uploads to Firebase Storage: /training/{module_id}/{filename}.png
+// Updates sensei_content metadata via API (screenshot_urls, timestamp)
+// Only uploads files newer than last upload timestamp (incremental)
+// Auth: process.env.GOOGLE_APPLICATION_CREDENTIALS</pre>
+    <div class="note"><strong>Convention:</strong> Test filenames MUST follow <code>{module-id}-{description}.png</code> pattern for auto-mapping.</div>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>After CI deploy, screenshots appear in Firebase Storage at <code>/training/{module}/{test-name}.png</code></li>
+      <li>Script reads from <code>test-results/</code> directory</li>
+      <li>Module mapping derived from test filename convention</li>
+      <li>Metadata written to <code>sensei_content</code> Firestore collection via API</li>
+      <li>Incremental: only uploads changed files</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+</div>
+
+<h2>S6 -- Wave 2: API + Seed + UI Core (Parallel x 4)</h2>
+
+<div class="wave">
+  <div class="wave-header">
+    <span class="wave-badge">WAVE 2</span>
+    <span class="parallel-badge">4 PARALLEL TRACKS</span>
+    <span style="color:var(--text-muted); font-size:0.8rem;">Depends on Wave 1</span>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14135</span>
+      <span class="ticket-title">Sensei API Routes</span>
+      <span class="dep-tag">needs TRK-14133</span>
+    </div>
+    <h4>Description</h4>
+    <p>CRUD endpoints for <code>sensei_content</code> collection on Cloud Run (tm-api).</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>services/api/src/routes/sensei.ts</code></li>
+      <li class="file-mod"><code>services/api/src/index.ts</code> -- register routes</li>
+    </ul>
+    <h4>Endpoints Summary</h4>
+    <table>
+      <tr><th>Method</th><th>Path</th><th>Purpose</th><th>Response</th></tr>
+      <tr><td>GET</td><td><code>/api/sensei</code></td><td>List all modules</td><td><code>{ success, data: SenseiContent[] }</code></td></tr>
+      <tr><td>GET</td><td><code>/api/sensei/:module</code></td><td>Get module metadata</td><td><code>{ success, data: SenseiContent }</code></td></tr>
+      <tr><td>PUT</td><td><code>/api/sensei/:module</code></td><td>Update module</td><td><code>{ success, data: SenseiContent }</code></td></tr>
+      <tr><td>POST</td><td><code>/api/sensei/generate/:module</code></td><td>Trigger generation</td><td><code>{ success, data: SenseiGenerateResult }</code></td></tr>
+      <tr><td>GET</td><td><code>/api/sensei/:module/training</code></td><td>Get generated HTML</td><td><code>text/html</code></td></tr>
+    </table>
+    <div class="note"><strong>Route order:</strong> <code>/api/sensei/generate/:module</code> must be registered BEFORE <code>/api/sensei/:module</code> to avoid Express treating "generate" as a module_id param.</div>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>All 5 endpoints functional and returning correct response shape</li>
+      <li>Content queryable by module_id -- used by RAIDEN and VOLTRON</li>
+      <li>All responses follow <code>{ success, data?, error? }</code> pattern (OS Rule #7)</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14136</span>
+      <span class="ticket-title">Sensei Content Seed</span>
+      <span class="dep-tag">needs TRK-14133</span>
+    </div>
+    <h4>Description</h4>
+    <p>Seed script populating initial <code>sensei_content</code> Firestore entries for 19+ modules.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>services/api/src/scripts/seed-sensei-content.ts</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// 19 modules seeded: contacts, households, accounts, rmd-center, beni-center,
+// access-center, atlas, cam, dex, c3, pipeline-studio, forge, prozone,
+// comms, connect, notifications, mdj, admin, myrpi
+// Each with: module_id, title, description, screenshot_urls (empty initially),
+// stats_query, template_type, role_filter, last_generated, version
+// Idempotent: Firestore set() with merge</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>19+ module entries seeded with full metadata</li>
+      <li>Script is idempotent -- re-running does not duplicate data</li>
+      <li>All entries conform to <code>SenseiContent</code> interface</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14138</span>
+      <span class="ticket-title">SENSEI Provider + Hook</span>
+      <span class="dep-tag">needs TRK-14133</span>
+      <span class="dep-tag">needs TRK-14141</span>
+    </div>
+    <h4>Description</h4>
+    <p>React context provider wrapping the portal layout. The <code>useSensei()</code> hook provides the interface for all child components.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>packages/ui/src/modules/SenseiMode/SenseiProvider.tsx</code></li>
+      <li class="file-new"><code>packages/ui/src/modules/SenseiMode/useSensei.ts</code></li>
+      <li class="file-mod"><code>packages/ui/src/modules/SenseiMode/index.ts</code> -- add exports</li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// SenseiContextValue interface:
+// isActive: boolean           -- SENSEI mode on/off
+// setActive: (v: boolean)     -- Toggle from header
+// currentModule: string|null  -- Currently hovered module
+// setCurrentModule: (m)       -- Set current module
+// trainingContent: SenseiContent[]  -- Loaded from API
+// showPopup: (moduleId, anchorEl)   -- Show popup card
+// hidePopup: ()               -- Dismiss popup
+// popupState: { moduleId, anchorEl } | null
+
+// Provider lazy-fetches content from GET /api/sensei only when activated
+// Persists isActive to Firestore user prefs via API (OS Rule #2)
+// Default: OFF</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>Any component can call <code>useSensei()</code> to check mode and get training</li>
+      <li>Hook returns: <code>isActive</code>, <code>currentModule</code>, <code>trainingContent</code>, <code>showPopup()</code></li>
+      <li>Provider fetches training content from API on activation</li>
+      <li>Active state persisted to Firestore user preferences via API</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14137</span>
+      <span class="ticket-title">SENSEI Mode Toggle</span>
+      <span class="dep-tag">needs TRK-14133</span>
+    </div>
+    <h4>Description</h4>
+    <p>Toggle button in the portal header (right side, near avatar) with amber glow when active. OFF by default.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>packages/ui/src/modules/SenseiMode/SenseiToggle.tsx</code></li>
+      <li class="file-mod"><code>apps/prodash/app/(portal)/components/TopBar.tsx</code></li>
+      <li class="file-mod"><code>apps/prodash/app/(portal)/layout.tsx</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// SenseiToggle.tsx:
+// - Uses useSensei() hook for state
+// - Amber glow when active (bg-amber-500/20, ring-amber-400)
+// - Material icon: 'school'
+// - Compact: 34px x 34px to match TopBar avatar
+// - role="switch" aria-checked={isActive}
+
+// TopBar.tsx: Insert SenseiToggle between InboundCallCard and User Link
+// layout.tsx: Wrap portal content with SenseiProvider</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>Toggle visible in portal header, right side near avatar</li>
+      <li>Amber glow indicator when ON</li>
+      <li>State persisted to Firestore user preferences via API (OS Rule #2)</li>
+      <li>OFF by default for new users</li>
+      <li>Visible in all 3 portals -- shared component in <code>@tomachina/ui</code></li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+</div>
+
+<h2>S7 -- Wave 3: UI Overlay + Generator (Parallel x 3)</h2>
+
+<div class="wave">
+  <div class="wave-header">
+    <span class="wave-badge">WAVE 3</span>
+    <span class="parallel-badge">3 PARALLEL TRACKS</span>
+    <span style="color:var(--text-muted); font-size:0.8rem;">Depends on Waves 1-2</span>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14139</span>
+      <span class="ticket-title">SENSEI Overlay Indicators</span>
+      <span class="dep-tag">needs TRK-14138</span>
+      <span class="dep-tag">needs TRK-14141</span>
+    </div>
+    <h4>Description</h4>
+    <p>Renders subtle amber pulsing dots on all registered DOM elements when SENSEI Mode is active.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>packages/ui/src/modules/SenseiMode/SenseiOverlay.tsx</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// Renders when useSensei().isActive === true
+// Iterates SENSEI_REGISTRY, querySelector each entry
+// Amber dot: 10px circle, #f0a030, pulse animation
+// Positioned at top-right corner of target element
+// ResizeObserver + MutationObserver for repositioning
+// On hover/click: triggers showPopup() via useSensei()
+// React portal to document.body for z-index isolation
+// Cleanup on isActive = false</pre>
+    <div class="note"><strong>data-module attribute:</strong> Module containers need <code>data-module="xxx"</code> attributes for registry selectors to match.</div>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>Toggle ON -- amber pulsing dots appear on all registered elements</li>
+      <li>Toggle OFF -- dots disappear immediately</li>
+      <li>Dots are non-intrusive -- do not block UI interaction</li>
+      <li>Only visible when SENSEI mode is active</li>
+      <li>Dots reposition correctly on window resize / layout changes</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14140</span>
+      <span class="ticket-title">SENSEI Popup Card</span>
+      <span class="dep-tag">needs TRK-14138</span>
+      <span class="dep-tag">needs TRK-14135</span>
+    </div>
+    <h4>Description</h4>
+    <p>Floating card triggered on hover/click of overlay dots. Shows screenshot thumbnail, description, and "View Full Training" link.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>packages/ui/src/modules/SenseiMode/SenseiPopup.tsx</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// Renders when useSensei().popupState is not null
+// 280px wide card with: screenshot thumbnail, title, description, link
+// "View Full Training" opens /api/sensei/{module}/training in new tab
+// Viewport-aware positioning (never clips offscreen)
+// Dismiss: click X, click outside, Escape key
+// Fade-in 150ms animation
+// React portal for z-index isolation</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>Hover/click dot -- popup appears with screenshot thumbnail + description</li>
+      <li>Click link -- opens full HTML training doc in new tab</li>
+      <li>Popup is dismissible (X button, click outside, Escape key)</li>
+      <li>Positioned without blocking underlying UI</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14142</span>
+      <span class="ticket-title">Training HTML Generator</span>
+      <span class="dep-tag">needs TRK-14135</span>
+      <span class="dep-tag">needs TRK-14134</span>
+    </div>
+    <h4>Description</h4>
+    <p>Server-side engine generating self-contained HTML training documents matching the DEX Training Doc gold standard.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>services/api/src/routes/sensei-generator.ts</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// Called by POST /api/sensei/generate/:module
+// 1. Fetch SenseiContent metadata from Firestore
+// 2. Download screenshots from Firebase Storage
+// 3. Execute stats_query for live data
+// 4. Select template by template_type (workflow/ui/feat)
+// 5. Generate self-contained HTML:
+//    - Tabbed layout (Overview | Steps | Glossary | Tips)
+//    - Personalized header with user name + role
+//    - Live statistics section
+//    - Embedded screenshots (base64 or Storage URLs)
+//    - Numbered step-by-step instructions
+//    - ATLAS-sourced glossary terms
+//    - Role-specific content filtering
+// 6. Store HTML in Firebase Storage: /training/{module}/guide.html
+// 7. Update sensei_content: last_generated, version++
+// Gold Standard: https://retirementprotectors.github.io/dex-training/</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li><code>POST /api/sensei/generate/dex</code> produces HTML matching gold standard quality</li>
+      <li>Generated HTML is self-contained (embedded screenshots, inline CSS)</li>
+      <li>Tabbed layout: Overview, Steps, Glossary, Tips</li>
+      <li>Personalized header, live statistics, numbered steps</li>
+      <li>ATLAS-sourced glossary terms, role-specific content filtering</li>
+    </ul>
+    <div class="risk"><strong>RISK:</strong> Base64-inlined images may produce 5-20MB files. Fallback: use Storage URL references with lazy-loading.</div>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+</div>
+
+<h2>S8 -- Wave 4: Wiring + CI + Analytics (Parallel x 4)</h2>
+
+<div class="wave">
+  <div class="wave-header">
+    <span class="wave-badge">WAVE 4</span>
+    <span class="parallel-badge">4 PARALLEL TRACKS</span>
+    <span style="color:var(--text-muted); font-size:0.8rem;">Depends on Waves 1-3</span>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14143</span>
+      <span class="ticket-title">RAIDEN TRAIN Wiring</span>
+      <span class="dep-tag">needs TRK-14135</span>
+    </div>
+    <h4>Description</h4>
+    <p>When RAIDEN TRAIN outcome fires, query sensei_content, return training URL + summary, auto-close ticket. <strong>Lives in mdj-agent, NOT Cloud Run.</strong></p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-mod"><code>/home/jdm/mdj-agent/src/raiden/trainer.ts</code></li>
+      <li class="file-mod"><code>/home/jdm/mdj-agent/src/raiden/triage-engine.ts</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// 1. Extract module context from ticket (subject, tags, keywords)
+// 2. Query tm-api: GET /api/sensei/{module_id}
+//    API base URL from process.env.TM_API_URL
+// 3. If match: get training URL, auto-close ticket with training link
+//    Log analytics: POST /api/sensei/analytics/log
+// 4. If no match: escalate to human (existing fallback)</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>Ticket about Households -- RAIDEN returns training link -- ticket auto-closed</li>
+      <li>TRAIN outcome queries sensei_content by module via tm-api</li>
+      <li>Training URL + summary returned in ticket resolution</li>
+      <li>No match -- graceful fallback to human escalation</li>
+      <li>Analytics event logged for each TRAIN response</li>
+    </ul>
+    <div class="constraint"><strong>Architecture:</strong> All code in <code>/home/jdm/mdj-agent/</code>. Queries tm-api via HTTP.</div>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14144</span>
+      <span class="ticket-title">VOLTRON SENSEI Queries</span>
+      <span class="dep-tag">needs TRK-14135</span>
+    </div>
+    <h4>Description</h4>
+    <p>Add sensei_content as knowledge source for VOLTRON. "How do I use X?" returns conversational walkthrough. <strong>Lives in mdj-agent, NOT Cloud Run.</strong></p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>/home/jdm/mdj-agent/src/tools/sensei-lookup.ts</code></li>
+      <li class="file-mod"><code>/home/jdm/mdj-agent/src/agent/index.ts</code> -- register tool</li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre>// VOLTRON tool: sensei_lookup
+// Input: { module_name: string } (natural language)
+// 1. Normalize: "RMD Center" --> "rmd-center", "DEX" --> "dex"
+// 2. Query tm-api: GET /api/sensei/{module_id}
+// 3. Return { title, description, training_url, screenshot_urls }
+// 4. VOLTRON builds conversational walkthrough from content
+// 5. Log analytics: POST /api/sensei/analytics/log
+// Claude model: claude-sonnet-4-6</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>"How do I use RMD Center?" -- VOLTRON walks through steps with screenshots</li>
+      <li>sensei_content added as knowledge source for VOLTRON</li>
+      <li>Natural language module name resolution (fuzzy matching)</li>
+      <li>Analytics event logged for each VOLTRON SENSEI query</li>
+    </ul>
+    <div class="constraint"><strong>Architecture:</strong> All code in <code>/home/jdm/mdj-agent/</code>. Claude model: <code>claude-sonnet-4-6</code>.</div>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/mdj-agent &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14145</span>
+      <span class="ticket-title">CI Pipeline Integration</span>
+      <span class="dep-tag">needs TRK-14134</span>
+      <span class="dep-tag">needs TRK-14142</span>
+    </div>
+    <h4>Description</h4>
+    <p>Add post-deploy CI step: run upload-screenshots.ts, trigger sensei-generator for changed modules only.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-mod"><code>.github/workflows/ci.yml</code></li>
+    </ul>
+    <h4>Implementation Details</h4>
+<pre># New job: sensei-update
+# needs: [e2e-ui, deploy-api]
+# if: needs.e2e-ui.result == 'success'
+# Steps:
+#   1. Download playwright-screenshots artifact
+#   2. Run upload-screenshots.ts
+#   3. Detect changed modules (checksum diff)
+#   4. POST /api/sensei/generate/{module} for each changed module
+#   5. Skip if no UI changes detected
+# Secrets: GCP_SA_KEY_PATH, FIREBASE_PROJECT_ID, TM_API_URL, SENSEI_CI_TOKEN</pre>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>Deploy with UI changes -- training auto-updated for changed modules only</li>
+      <li>Deploy without UI changes -- no regeneration (skip step)</li>
+      <li>Screenshots uploaded after E2E tests pass</li>
+      <li>Only changed modules trigger regeneration (incremental)</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-header">
+      <span class="trk">TRK-14146</span>
+      <span class="ticket-title">SENSEI Heat Map + Analytics</span>
+      <span class="dep-tag">needs TRK-14135</span>
+      <span class="dep-tag">needs TRK-14138</span>
+    </div>
+    <h4>Description</h4>
+    <p>Log RAIDEN TRAIN responses, VOLTRON queries, popup views. Surface top-10 most-queried modules in FORGE dashboard.</p>
+    <h4>Files</h4>
+    <ul class="file-list">
+      <li class="file-new"><code>services/api/src/routes/sensei-analytics.ts</code></li>
+      <li class="file-mod"><code>services/api/src/index.ts</code> -- register analytics routes</li>
+      <li class="file-new"><code>apps/prodash/app/(portal)/modules/forge/sensei-heatmap/page.tsx</code></li>
+    </ul>
+    <h4>Analytics Endpoints</h4>
+    <table>
+      <tr><th>Method</th><th>Path</th><th>Purpose</th></tr>
+      <tr><td>POST</td><td><code>/api/sensei/analytics/log</code></td><td>Log event (train_response, voltron_query, popup_view)</td></tr>
+      <tr><td>GET</td><td><code>/api/sensei/analytics/heatmap</code></td><td>Aggregated module counts with breakdown</td></tr>
+      <tr><td>GET</td><td><code>/api/sensei/analytics/top</code></td><td>Top-10 most-queried modules</td></tr>
+    </table>
+    <h4>Acceptance Criteria</h4>
+    <ul class="ac-list">
+      <li>RAIDEN TRAIN responses, VOLTRON queries, and popup views all logged</li>
+      <li>Aggregation by module with time period filtering (7d/30d/90d)</li>
+      <li>Top-10 most-queried modules visible in FORGE dashboard</li>
+      <li>After 1 week, data shows which modules get most training requests</li>
+      <li>Heat map visualization with event type breakdown</li>
+    </ul>
+    <div class="build-block"><strong>Build Verification:</strong> <code>cd /home/jdm/Projects/toMachina &amp;&amp; npm run build</code> -- Zero errors.</div>
+  </div>
+</div>
+
+<h2>S9 -- Cross-Ticket Risks and Mitigations</h2>
+
+<table>
+  <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+  <tr><td>Large base64-inlined HTML (TRK-14142)</td><td>High</td><td>Fallback to Storage URL refs. Set max file size threshold.</td></tr>
+  <tr><td>DOM selector brittleness (TRK-14141)</td><td>Medium</td><td>Use stable data-module attributes, not CSS classes.</td></tr>
+  <tr><td>Screenshot naming convention not followed</td><td>Medium</td><td>Validate filenames in CI. Add naming linter.</td></tr>
+  <tr><td>mdj-agent to tm-api latency</td><td>Low</td><td>Cache SENSEI content with 5-min TTL in mdj-agent.</td></tr>
+  <tr><td>SenseiProvider loading all 19+ modules</td><td>Medium</td><td>Lazy-fetch only when SENSEI mode toggled ON.</td></tr>
+  <tr><td>Analytics write volume</td><td>Low</td><td>Batch writes. Debounce popup_view (1 per module per 30s).</td></tr>
+  <tr><td>CI screenshot artifacts missing</td><td>Medium</td><td>Conditional check for artifact existence before upload.</td></tr>
+</table>
+
+<h2>S10 -- Execution Summary</h2>
+
+<table>
+  <tr><th>Wave</th><th>Tickets</th><th>Track</th><th>Effort</th></tr>
+  <tr><td rowspan="3" style="vertical-align:middle; font-weight:700; color:var(--amber);">W1</td><td>TRK-14133 -- Types</td><td>Core</td><td>S</td></tr>
+  <tr><td>TRK-14141 -- Registry</td><td>UI</td><td>S</td></tr>
+  <tr><td>TRK-14134 -- Upload Hook</td><td>API</td><td>M</td></tr>
+  <tr><td rowspan="4" style="vertical-align:middle; font-weight:700; color:var(--amber);">W2</td><td>TRK-14135 -- API Routes</td><td>API</td><td>M</td></tr>
+  <tr><td>TRK-14136 -- Content Seed</td><td>API</td><td>S</td></tr>
+  <tr><td>TRK-14138 -- Provider + Hook</td><td>UI</td><td>M</td></tr>
+  <tr><td>TRK-14137 -- Toggle</td><td>UI + Portal</td><td>M</td></tr>
+  <tr><td rowspan="3" style="vertical-align:middle; font-weight:700; color:var(--amber);">W3</td><td>TRK-14139 -- Overlay Dots</td><td>UI</td><td>M</td></tr>
+  <tr><td>TRK-14140 -- Popup Card</td><td>UI</td><td>M</td></tr>
+  <tr><td>TRK-14142 -- HTML Generator</td><td>API</td><td>L</td></tr>
+  <tr><td rowspan="4" style="vertical-align:middle; font-weight:700; color:var(--amber);">W4</td><td>TRK-14143 -- RAIDEN Wiring</td><td>mdj-agent</td><td>M</td></tr>
+  <tr><td>TRK-14144 -- VOLTRON Queries</td><td>mdj-agent</td><td>M</td></tr>
+  <tr><td>TRK-14145 -- CI Pipeline</td><td>DevOps</td><td>M</td></tr>
+  <tr><td>TRK-14146 -- Analytics</td><td>API + Portal</td><td>L</td></tr>
+</table>
+
+<h3>Key Metrics</h3>
+<table>
+  <tr><td style="color:var(--amber); font-weight:700;">Total Tickets</td><td>14</td></tr>
+  <tr><td style="color:var(--amber); font-weight:700;">New Files</td><td>15</td></tr>
+  <tr><td style="color:var(--amber); font-weight:700;">Modified Files</td><td>7</td></tr>
+  <tr><td style="color:var(--amber); font-weight:700;">Repos Touched</td><td>2 (toMachina + mdj-agent)</td></tr>
+  <tr><td style="color:var(--amber); font-weight:700;">Parallel Waves</td><td>4</td></tr>
+  <tr><td style="color:var(--amber); font-weight:700;">Max Parallelism</td><td>4 tracks (Waves 2 + 4)</td></tr>
+  <tr><td style="color:var(--amber); font-weight:700;">File Overlaps</td><td>0 within any wave</td></tr>
+</table>
+
+<h2>S11 -- Definition of Done (Sprint-Level)</h2>
+
+<ul class="ac-list">
+  <li><code>sensei_content</code> populated with 19+ module entries</li>
+  <li>Deploy -- screenshots upload to organized Storage paths</li>
+  <li><code>POST /api/sensei/generate/dex</code> produces gold-standard HTML</li>
+  <li>Toggle ON -- amber indicators visible in all 3 portals</li>
+  <li>Hover indicator -- popup shows screenshot + description</li>
+  <li>Ticket about existing feature -- TRAIN outcome returns training link + auto-closes</li>
+  <li>"How do I use X?" -- VOLTRON provides conversational walkthrough</li>
+  <li>UI changes deploy -- training auto-regenerates (only changed modules)</li>
+  <li>Dashboard displays top-10 queried modules after 1 week operational</li>
+  <li><code>npm run build</code> passes with zero errors for both toMachina and mdj-agent</li>
+</ul>
+
+<hr style="border-color: var(--border); margin: 2rem 0;">
+<p style="color: var(--text-muted); font-size: 0.75rem; text-align: center;">
+  Sprint 007 -- SENSEI | Plan generated 2026-03-29 | 14 tickets / 4 waves | Zero file overlaps verified
+</p>
+
+</body>
+</html>
