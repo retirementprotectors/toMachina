@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly CLAUDE.md Evolution Tracking — Sunday 3am
+Requires=claude-md-tracker.service
+
+[Timer]
+OnCalendar=Sun *-*-* 03:00:00
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

@@ -2652,12 +2652,22 @@
     },
     "users": {
       "status": "backend_only",
-      "backend": "booking.ts",
+      "backend": "admin-warriors.ts",
       "frontend": "",
-      "backend_endpoints": 201,
+      "backend_endpoints": 204,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
+        {
+          "file": "admin-warriors.ts",
+          "endpoints": 3,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
         {
           "file": "booking.ts",
           "endpoints": 7,
@@ -2918,6 +2928,19 @@
         "activities",
         "clients",
         "households"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "admin-warriors.ts": {
+      "file": "admin-warriors.ts",
+      "endpoints": 3,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "users"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -3516,6 +3539,17 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "myst-ai.ts": {
+      "file": "myst-ai.ts",
+      "endpoints": 2,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "notifications.ts": {
       "file": "notifications.ts",
       "endpoints": 6,
@@ -3638,6 +3672,18 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "rsp.ts": {
+      "file": "rsp.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "rules.ts": {
       "file": "rules.ts",
       "endpoints": 10,
@@ -3665,6 +3711,18 @@
         "clients",
         "accounts"
       ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "sensei-analytics.ts": {
+      "file": "sensei-analytics.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -4708,14 +4766,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 69,
-    "ui_files": 138,
-    "portal_pages": 161,
+    "route_files": 73,
+    "ui_files": 150,
+    "portal_pages": 162,
     "collections_found": 69,
-    "api_routes_found": 69,
+    "api_routes_found": 73,
     "cloud_functions_found": 14,
     "env_vars_found": 40,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-03-29T06:28:29.336Z"
+    "scanned_at": "2026-03-29T16:15:46.647Z"
   }
 }
