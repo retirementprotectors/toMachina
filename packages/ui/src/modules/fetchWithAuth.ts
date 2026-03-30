@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const auth = getAuth()
   const user = auth.currentUser
-  const token = user ? await user.getIdToken() : null
+  const token = user ? await user.getIdToken(true) : null
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
