@@ -32,9 +32,9 @@ export function SpecialistBadge({
 
   const current = specialists.find((s) => s.id === currentSpecialistId) || {
     id: 'mdj-general',
-    display_name: 'MDJ',
+    display_name: 'VOLTRON',
     icon: 'smart_toy',
-    specialist_name: 'General MDJ',
+    specialist_name: 'General',
     required_level: 3,
   }
 
