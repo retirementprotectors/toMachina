@@ -19,9 +19,9 @@ const COLLECTION = 'sensei_content'
 senseiGeneratorRoutes.post('/generate/:moduleId', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const doc = await db.collection(COLLECTION).doc(req.params.moduleId).get()
+    const doc = await db.collection(COLLECTION).doc((req.params.moduleId as string)).get()
     if (!doc.exists) {
-      res.status(404).json(errorResponse(`Module ${req.params.moduleId} not found`))
+      res.status(404).json(errorResponse(`Module ${(req.params.moduleId as string)} not found`))
       return
     }
 
@@ -32,22 +32,22 @@ senseiGeneratorRoutes.post('/generate/:moduleId', async (req: Request, res: Resp
     const html = generateTrainingHTML(content)
 
     // Store generation metadata
-    await db.collection(COLLECTION).doc(req.params.moduleId).update({
+    await db.collection(COLLECTION).doc((req.params.moduleId as string)).update({
       last_generated: now,
       updated_at: now,
       version: (content.version || 0) + 1,
     })
 
     // Store generated HTML in sensei_training collection
-    await db.collection('sensei_training').doc(req.params.moduleId).set({
-      module_id: req.params.moduleId,
+    await db.collection('sensei_training').doc((req.params.moduleId as string)).set({
+      module_id: (req.params.moduleId as string),
       html,
       generated_at: now,
       version: (content.version || 0) + 1,
     })
 
     res.json(successResponse({
-      module_id: req.params.moduleId,
+      module_id: (req.params.moduleId as string),
       status: 'generated',
       last_generated: now,
       html_length: html.length,

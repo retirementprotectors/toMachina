@@ -31,9 +31,9 @@ senseiContentRoutes.get('/content', async (_req: Request, res: Response) => {
 senseiContentRoutes.get('/content/:moduleId', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const doc = await db.collection(COLLECTION).doc(req.params.moduleId).get()
+    const doc = await db.collection(COLLECTION).doc((req.params.moduleId as string)).get()
     if (!doc.exists) {
-      res.status(404).json(errorResponse(`Module ${req.params.moduleId} not found`))
+      res.status(404).json(errorResponse(`Module ${(req.params.moduleId as string)} not found`))
       return
     }
     res.json(successResponse({ ...(doc.data() as SenseiContent), module_id: doc.id }))
@@ -76,10 +76,10 @@ senseiContentRoutes.post('/content', async (req: Request, res: Response) => {
 senseiContentRoutes.patch('/content/:moduleId', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const docRef = db.collection(COLLECTION).doc(req.params.moduleId)
+    const docRef = db.collection(COLLECTION).doc((req.params.moduleId as string))
     const doc = await docRef.get()
     if (!doc.exists) {
-      res.status(404).json(errorResponse(`Module ${req.params.moduleId} not found`))
+      res.status(404).json(errorResponse(`Module ${(req.params.moduleId as string)} not found`))
       return
     }
 
@@ -94,7 +94,7 @@ senseiContentRoutes.patch('/content/:moduleId', async (req: Request, res: Respon
     delete (updates as Record<string, unknown>).created_at
 
     await docRef.update(updates)
-    res.json(successResponse({ module_id: req.params.moduleId, ...updates }))
+    res.json(successResponse({ module_id: (req.params.moduleId as string), ...updates }))
   } catch (err) {
     res.status(500).json(errorResponse(String(err)))
   }
@@ -104,21 +104,21 @@ senseiContentRoutes.patch('/content/:moduleId', async (req: Request, res: Respon
 senseiContentRoutes.post('/generate/:moduleId', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const doc = await db.collection(COLLECTION).doc(req.params.moduleId).get()
+    const doc = await db.collection(COLLECTION).doc((req.params.moduleId as string)).get()
     if (!doc.exists) {
-      res.status(404).json(errorResponse(`Module ${req.params.moduleId} not found`))
+      res.status(404).json(errorResponse(`Module ${(req.params.moduleId as string)} not found`))
       return
     }
 
     const content = doc.data() as SenseiContent
     const now = new Date().toISOString()
-    await db.collection(COLLECTION).doc(req.params.moduleId).update({
+    await db.collection(COLLECTION).doc((req.params.moduleId as string)).update({
       last_generated: now,
       updated_at: now,
     })
 
     res.json(successResponse({
-      module_id: req.params.moduleId,
+      module_id: (req.params.moduleId as string),
       status: 'generated',
       last_generated: now,
       title: content.title,
@@ -132,15 +132,15 @@ senseiContentRoutes.post('/generate/:moduleId', async (req: Request, res: Respon
 senseiContentRoutes.get('/:moduleId/training', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const doc = await db.collection(COLLECTION).doc(req.params.moduleId).get()
+    const doc = await db.collection(COLLECTION).doc((req.params.moduleId as string)).get()
     if (!doc.exists) {
-      res.status(404).json(errorResponse(`Module ${req.params.moduleId} not found`))
+      res.status(404).json(errorResponse(`Module ${(req.params.moduleId as string)} not found`))
       return
     }
 
     const content = doc.data() as SenseiContent
     res.json(successResponse({
-      module_id: req.params.moduleId,
+      module_id: (req.params.moduleId as string),
       title: content.title,
       description: content.description,
       screenshot_urls: content.screenshot_urls,
