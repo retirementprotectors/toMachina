@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { fetchValidated } from '../fetchValidated'
+import { useConfirm } from '../../components/ConfirmDialog'
 import { PipelineKanban } from '../PipelineKanban'
 
 // ============================================================================
@@ -66,8 +67,19 @@ export default function FlowTab({ portal, specialistId }: FlowTabProps) {
   }, [specialistId])
 
   // Auto-enroll handler
+  const { showConfirm: showEnrollConfirm } = useConfirm()
+
   const handleEnroll = useCallback(async () => {
     if (!specialistId || enrolling) return
+
+    const proceed = await showEnrollConfirm({
+      title: 'Auto-Enroll Prospects',
+      message: `This will create pipeline instances for every eligible prospect${selectedDomain ? ` in ${selectedDomain}` : ''} in the territory. This action cannot be easily undone.`,
+      confirmLabel: 'Enroll All',
+      variant: 'danger',
+    })
+    if (!proceed) return
+
     setEnrolling(true)
     setEnrollResult(null)
 

@@ -98,7 +98,12 @@ export default function ScheduleView({ specialistId, appointments = [] }: Schedu
                 slot_id: `${dayObj.date}-${idx}`,
                 day: dayAbbrev[dayObj.day] || 'mon' as ScheduleSlot['day'],
                 start_time: s.time,
-                end_time: '',
+                end_time: (() => {
+                  if (!s.time || !s.duration_minutes) return ''
+                  const [h, m] = s.time.split(':').map(Number)
+                  const totalMin = h * 60 + m + (s.duration_minutes as number)
+                  return `${Math.floor(totalMin / 60)}:${String(totalMin % 60).padStart(2, '0')}`
+                })(),
                 duration_minutes: s.duration_minutes,
                 slot_type: dayObj.type as 'office' | 'field',
                 zone_id: s.zones?.[0],
