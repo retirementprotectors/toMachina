@@ -86,6 +86,8 @@ import { mystAiRoutes } from './routes/myst-ai.js'
 import { adminWarriorRoutes } from './routes/admin-warriors.js'
 import { rspRoutes } from './routes/rsp.js'
 import { senseiAnalyticsRoutes } from './routes/sensei-analytics.js'
+import { senseiContentRoutes } from './routes/sensei-content.js'
+import { senseiGeneratorRoutes } from './routes/sensei-generator.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -202,6 +204,10 @@ app.use('/api/rsp', normalizeBody, rspRoutes)
 
 // SENSEI Analytics — TRK-14146
 app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)
+// SENSEI Content CRUD — TRK-SNS-003
+app.use('/api/sensei', normalizeBody, senseiContentRoutes)
+// SENSEI Training Generator — TRK-SNS-010
+app.use('/api/sensei', normalizeBody, senseiGeneratorRoutes)
 
 // RAIDEN Reactive Guardian — sub-router at /raiden/*
 app.use('/raiden', raidenRoutes)

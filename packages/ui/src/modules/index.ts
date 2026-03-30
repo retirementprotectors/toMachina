@@ -42,3 +42,6 @@ export { SenseiHeatmap } from './SenseiHeatmap'
 
 export { MystAIPage, MystAIBioCard, MystAIBioPage, MystAISection } from './MystAI'
 export type { MystAIPageProps, MystAIBioCardProps, MystAIBioPageProps, MystAISectionProps } from './MystAI'
+
+export { SenseiProvider, useSensei, SenseiToggle, SenseiOverlay, SenseiPopup, SENSEI_REGISTRY, getSenseiEntry } from './SenseiMode'
+export type { SenseiToggleProps, SenseiRegistryEntry } from './SenseiMode'
