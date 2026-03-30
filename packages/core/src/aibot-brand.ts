@@ -4,7 +4,7 @@
 
 // ── Name & Tier Unions ──────────────────────────────────────────────
 
-export type AiBotName = 'VOLTRON' | 'SENSEI' | 'RAIDEN' | 'RONIN' | 'MUSASHI' | '2HINOBI'
+export type AiBotName = 'VOLTRON' | 'SENSEI' | 'RAIDEN' | 'RONIN' | 'MUSASHI' | '2HINOBI' | 'SHINOB1'
 
 export type VoiceTier = 'internal' | 'team' | 'client'
 
