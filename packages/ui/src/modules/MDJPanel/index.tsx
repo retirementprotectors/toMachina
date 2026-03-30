@@ -52,7 +52,7 @@ export function MDJPanel({ portal, open, onClose }: MDJPanelProps) {
     const auth = getAuth()
     const user = auth.currentUser
     if (user) {
-      user.getIdToken().then(setAuthToken).catch(() => {})
+      user.getIdToken(true).then(setAuthToken).catch(() => {})
     }
   }, [open])
 
@@ -62,7 +62,7 @@ export function MDJPanel({ portal, open, onClose }: MDJPanelProps) {
       const auth = getAuth()
       const user = auth.currentUser
       if (user) {
-        user.getIdToken().then((token) => {
+        user.getIdToken(true).then((token) => {
           sendMessage(text, pageContext, token)
         })
       } else {
