@@ -10,6 +10,6 @@
     "skipLibCheck": true,
     "declaration": true
   },
-  "include": ["claude-md-tracker.ts", "cross-warrior-briefing.ts", "types/**/*.ts"],
+  "include": ["*.ts", "types/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
