@@ -1,23 +1,23 @@
 import { test, expect } from '@playwright/test'
 
-test.describe('MDJ Panel', () => {
-  test('MDJ button visible in sidebar', async ({ page }) => {
+test.describe('VOLTRON Panel', () => {
+  test('VOLTRON button visible in sidebar', async ({ page }) => {
     await page.goto('/')
-    const mdjButton = page.locator('button[title="MyDigitalJosh"]')
-    await expect(mdjButton).toBeVisible()
+    const voltronButton = page.locator('button[title="VOLTRON"]')
+    await expect(voltronButton).toBeVisible()
   })
 
-  test('click MDJ button opens panel', async ({ page }) => {
+  test('click VOLTRON button opens panel', async ({ page }) => {
     await page.goto('/')
-    await page.click('button[title="MyDigitalJosh"]')
-    const panel = page.locator('textarea[placeholder="Ask MDJ anything..."]')
+    await page.click('button[title="VOLTRON"]')
+    const panel = page.locator('textarea[placeholder="Ask VOLTRON anything..."]')
     await expect(panel).toBeVisible()
   })
 
   test('send message shows streaming response', async ({ page }) => {
     await page.goto('/')
-    await page.click('button[title="MyDigitalJosh"]')
-    const input = page.locator('textarea[placeholder="Ask MDJ anything..."]')
+    await page.click('button[title="VOLTRON"]')
+    const input = page.locator('textarea[placeholder="Ask VOLTRON anything..."]')
     await input.fill('Hello')
     await page.click('button[title="Send message"]')
     // Wait for assistant response to appear
@@ -25,19 +25,19 @@ test.describe('MDJ Panel', () => {
     await expect(response).toBeVisible({ timeout: 15000 })
   })
 
-  test('close button dismisses MDJ panel', async ({ page }) => {
+  test('close button dismisses VOLTRON panel', async ({ page }) => {
     await page.goto('/')
-    await page.click('button[title="MyDigitalJosh"]')
-    await expect(page.locator('textarea[placeholder="Ask MDJ anything..."]')).toBeVisible()
+    await page.click('button[title="VOLTRON"]')
+    await expect(page.locator('textarea[placeholder="Ask VOLTRON anything..."]')).toBeVisible()
     // Click close button inside the panel
     await page.click('button[title="Close"]')
-    await expect(page.locator('textarea[placeholder="Ask MDJ anything..."]')).not.toBeVisible()
+    await expect(page.locator('textarea[placeholder="Ask VOLTRON anything..."]')).not.toBeVisible()
   })
 
   test('new chat button clears messages', async ({ page }) => {
     await page.goto('/')
-    await page.click('button[title="MyDigitalJosh"]')
-    const input = page.locator('textarea[placeholder="Ask MDJ anything..."]')
+    await page.click('button[title="VOLTRON"]')
+    const input = page.locator('textarea[placeholder="Ask VOLTRON anything..."]')
     await input.fill('Hello')
     await page.click('button[title="Send message"]')
     await page.waitForTimeout(3000)

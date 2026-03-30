@@ -7,6 +7,7 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
+import { checkForDuplicate } from '../raiden/duplicate-guard.js'
 import type { SprintDTO, SprintAutoCreateDTO, SprintDeleteResult, DiscoveryImportPreviewData, DiscoveryImportResult, SprintPromptData, AuditRoundData, AuditRoundCreateResult, SendItResult, ReopenResult } from '@tomachina/core'
 
 export const sprintRoutes = Router()
@@ -584,10 +585,16 @@ sprintRoutes.post('/import-discovery', async (req: Request, res: Response) => {
       nextNum = parseInt(lastId.replace('TRK-', ''), 10) + 1
     }
 
-    // Create tracker items
+    // Create tracker items (with dedup guard - skip items matching existing tickets)
     const itemIds: string[] = []
+    const skippedDupes: string[] = []
     const batch = db.batch()
     for (const item of items) {
+      const dupResult = await checkForDuplicate(item.title as string)
+      if (dupResult.isDuplicate && dupResult.match) {
+        skippedDupes.push(`${dupResult.match.item_id}: "${dupResult.match.title}" (${dupResult.match.reason})`)
+        continue
+      }
       const itemId = `TRK-${String(nextNum).padStart(3, '0')}`
       const ref = db.collection(TRACKER_COLLECTION).doc(itemId)
       batch.set(ref, {
@@ -602,6 +609,9 @@ sprintRoutes.post('/import-discovery', async (req: Request, res: Response) => {
       })
       itemIds.push(itemId)
       nextNum++
+    }
+    if (skippedDupes.length > 0) {
+      console.log(`[import-discovery] Skipped ${skippedDupes.length} duplicates: ${skippedDupes.join(', ')}`)
     }
 
     // Create sprint

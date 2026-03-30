@@ -2471,6 +2471,32 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "sensei_training": {
+      "status": "backend_only",
+      "backend": "sensei-generator.ts",
+      "frontend": "",
+      "backend_endpoints": 2,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "sensei-generator.ts",
+          "endpoints": 2,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "spark_config": {
       "status": "backend_only",
       "backend": "spark.ts",
@@ -3726,6 +3752,33 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "sensei-content.ts": {
+      "file": "sensei-content.ts",
+      "endpoints": 11,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "sensei-generator.ts": {
+      "file": "sensei-generator.ts",
+      "endpoints": 2,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "sensei_training"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "spark.ts": {
       "file": "spark.ts",
       "endpoints": 10,
@@ -4766,14 +4819,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 73,
-    "ui_files": 150,
+    "route_files": 75,
+    "ui_files": 162,
     "portal_pages": 163,
-    "collections_found": 69,
-    "api_routes_found": 73,
+    "collections_found": 70,
+    "api_routes_found": 75,
     "cloud_functions_found": 14,
     "env_vars_found": 40,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-03-30T06:07:27.528Z"
+    "scanned_at": "2026-03-30T13:47:56.464Z"
   }
 }
