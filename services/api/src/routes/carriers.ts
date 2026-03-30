@@ -44,3 +44,63 @@ carrierRoutes.get('/:id', async (req: Request, res: Response) => {
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+// POST /api/carriers/seed-from-accounts — Extract unique carriers from account docs and populate carriers collection
+carrierRoutes.post('/seed-from-accounts', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const dryRun = req.query.dry_run === 'true'
+
+    // Collection group query across all clients/{clientId}/accounts
+    const accountSnap = await db.collectionGroup('accounts').get()
+    const carrierNames = new Set<string>()
+
+    for (const doc of accountSnap.docs) {
+      const data = doc.data()
+      const name = (data.carrier_name as string) || (data.carrier as string) || ''
+      if (name.trim()) {
+        carrierNames.add(name.trim())
+      }
+    }
+
+    if (dryRun) {
+      res.json(successResponse({ carriers: Array.from(carrierNames).sort(), count: carrierNames.size, dry_run: true }))
+      return
+    }
+
+    // Check existing carriers to avoid duplicates
+    const existingSnap = await db.collection(COLLECTION).get()
+    const existing = new Set(existingSnap.docs.map((d) => (d.data().carrier_name as string) || ''))
+
+    const now = new Date().toISOString()
+    const batch = db.batch()
+    let created = 0
+
+    for (const name of carrierNames) {
+      if (existing.has(name)) continue
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      const ref = db.collection(COLLECTION).doc(slug)
+      batch.set(ref, {
+        carrier_name: name,
+        status: 'active',
+        created_at: now,
+        updated_at: now,
+      })
+      created++
+    }
+
+    if (created > 0) {
+      await batch.commit()
+    }
+
+    res.json(successResponse({
+      total_unique_carriers: carrierNames.size,
+      already_existed: existing.size,
+      created,
+      carriers: Array.from(carrierNames).sort(),
+    }))
+  } catch (err) {
+    console.error('POST /api/carriers/seed-from-accounts error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
