@@ -55,7 +55,7 @@ const BOT_TIERS: BotTier[] = [
         name: '2HINOBI',
         title: 'The Architect',
         signatureLine: 'I feed it straight.',
-        icon: '⌨',
+        icon: '🏯',
         accentColor: '#22c55e',
       },
       {
@@ -74,7 +74,7 @@ const BOT_TIERS: BotTier[] = [
         name: 'RONIN',
         title: 'The Builder',
         signatureLine: 'Ship it tonight.',
-        icon: '🏃',
+        icon: '🗡️',
         accentColor: '#f97316',
       },
       {

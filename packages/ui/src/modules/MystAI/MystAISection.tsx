@@ -32,14 +32,14 @@ const BOT_TIERS: BotTier[] = [
     label: "JDM's Ninja Advisors",
     bots: [
       { name: 'SHINOB1', title: 'The OG Ninja', signatureLine: "I'll architect it.", icon: '🥷', accentColor: '#a78bfa' },
-      { name: '2HINOBI', title: 'The Architect', signatureLine: 'I feed it straight.', icon: '⌨', accentColor: '#22c55e' },
+      { name: '2HINOBI', title: 'The Architect', signatureLine: 'I feed it straight.', icon: '🏯', accentColor: '#22c55e' },
       { name: 'MUSASHI', title: 'Art × Blade', signatureLine: "Let's make it beautiful.", icon: '⚔️', accentColor: '#d4a44c' },
     ],
   },
   {
     label: 'The Autonomous Builders',
     bots: [
-      { name: 'RONIN', title: 'The Builder', signatureLine: 'Ship it tonight.', icon: '🏃', accentColor: '#f97316' },
+      { name: 'RONIN', title: 'The Builder', signatureLine: 'Ship it tonight.', icon: '🗡️', accentColor: '#f97316' },
       { name: 'RAIDEN', title: 'The Guardian', signatureLine: 'Not on my watch.', icon: '⚡', accentColor: '#ef4444' },
     ],
   },
