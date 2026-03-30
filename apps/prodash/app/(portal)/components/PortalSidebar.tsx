@@ -92,6 +92,7 @@ const APP_ITEMS: AppItem[] = [
   { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
   { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
   { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
+  { key: 'rsp', href: '/modules/rsp', moduleKey: 'RSP' },
 ]
 
 /* ─── Fixed Bottom: Connect + Admin ─── */

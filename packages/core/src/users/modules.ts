@@ -464,6 +464,14 @@ export const MODULES: Record<string, ModuleDef> = {
     suite: 'RPI_TOOLS',
     minUserLevel: 'LEADER',
   },
+  RSP: {
+    name: 'RSP',
+    fullName: 'Retirement Sales Process',
+    description: '5-stage pipeline: Discovery, Analysis, Presentation, Implementation, Service',
+    status: 'active',
+    suite: 'RPI_TOOLS',
+    minUserLevel: 'USER',
+  },
   PRODASH_HOUSEHOLDS: {
     name: 'Households',
     fullName: 'Household Management',
