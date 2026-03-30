@@ -14,6 +14,7 @@ import { ConnectPanel } from '@tomachina/ui/src/modules/ConnectPanel'
 import { NotificationsModule } from '@tomachina/ui/src/modules/Notifications'
 import { MDJPanel } from '@tomachina/ui/src/modules/MDJPanel'
 import { ReportButton } from '@tomachina/ui'
+import { SenseiProvider, SenseiOverlay, SenseiPopup } from '@tomachina/ui/src/modules/SenseiMode'
 
 export default function PortalLayout({
   children,
@@ -108,6 +109,7 @@ export default function PortalLayout({
   if (!user) return <SignInScreen onSignIn={signIn} />
 
   return (
+    <SenseiProvider>
     <TwilioDeviceProvider authenticated={!!user}>
     {/* TRK-13677: Push-not-overlay — set panel push width via CSS custom property */}
     <style>{`
@@ -151,7 +153,12 @@ export default function PortalLayout({
 
       {/* FORGE Report — screenshot + auto-fill issue tracker */}
       <ReportButton portal="prodashx" />
+
+      {/* SENSEI — Training overlay + popup */}
+      <SenseiOverlay />
+      <SenseiPopup />
     </div>
     </TwilioDeviceProvider>
+    </SenseiProvider>
   )
 }
