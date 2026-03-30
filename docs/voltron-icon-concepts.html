@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON Icon Concepts — MUSASHI Creative Brief</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2d3348;
+    --text: #f0f0f0;
+    --muted: #9ca3af;
+    --accent: #3b82f6;
+    --gold: #d4a44c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem 1.5rem 4rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .brand { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); margin-bottom: 0.5rem; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; max-width: 600px; }
+  .divider { width: 60px; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); margin: 1.5rem 0 2rem; border: none; }
+
+  .section { margin-bottom: 3rem; }
+  .section h2 { font-size: 1.25rem; font-weight: 700; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .section p { color: var(--muted); margin-bottom: 1rem; }
+
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 640px) { .concept-grid { grid-template-columns: 1fr; } }
+
+  .concept-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    transition: border-color 0.2s;
+  }
+  .concept-card:hover { border-color: var(--accent); }
+  .concept-card .label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .concept-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; }
+  .concept-card .desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+  .concept-card .specs { font-size: 0.8rem; color: var(--muted); }
+  .concept-card .specs strong { color: var(--text); }
+  .concept-card .emoji-preview {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    filter: grayscale(0.2);
+  }
+
+  .ref-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  .ref-table th, .ref-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+  .ref-table th { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .ref-table td { color: var(--muted); font-size: 0.9rem; }
+
+  .callout {
+    background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+  .callout strong { color: var(--accent); }
+
+  .vote { display: inline-block; background: var(--accent); color: #fff; padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; text-decoration: none; margin-top: 0.5rem; }
+
+  .footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="brand">MUSASHI CREATIVE BRIEF</div>
+<h1>VOLTRON Icon Concepts</h1>
+<p class="subtitle">
+  Four directions for VOLTRON's new icon — replacing the current smart_toy Material Icon
+  in the ProDash sidebar. JDM: pick your favorite direction.
+</p>
+<hr class="divider">
+
+<!-- ── CONTEXT ──────────────────────────────────────────── -->
+<div class="section">
+  <h2>Context</h2>
+  <p>
+    VOLTRON is the team's AI assistant — the "BFF" who lives in the ProDash sidebar panel.
+    Currently uses a generic <code>smart_toy</code> Material Icon. JDM said twice on the
+    leadership call: <em>"I got to get a better logo for him."</em>
+  </p>
+  <p>
+    The name comes from <strong>Voltron: Defender of the Universe</strong> (1984) —
+    five robot lions that combine into one mega robot. Key visual DNA: the V-shaped chest,
+    bold primary colors (blue, red, green, yellow, black), the Blazing Sword, and the
+    transformation sequence.
+  </p>
+</div>
+
+<!-- ── CONSTRAINTS ──────────────────────────────────────── -->
+<div class="section">
+  <h2>Design Constraints</h2>
+  <table class="ref-table">
+    <tr><th>Constraint</th><th>Requirement</th></tr>
+    <tr><td>Size</td><td>24×24px sidebar icon (must read at small size)</td></tr>
+    <tr><td>Format</td><td>SVG (vector, scalable)</td></tr>
+    <tr><td>Color</td><td>Works on dark background (#0f1117), uses VOLTRON blue (#3b82f6) as primary</td></tr>
+    <tr><td>Style</td><td>Must match the sidebar icon weight of other nav items</td></tr>
+    <tr><td>Brand</td><td>Must feel like VOLTRON — not generic AI/robot</td></tr>
+    <tr><td>Production</td><td>JDM art-directs. MUSASHI does NOT generate logos — we source artwork per brand standards.</td></tr>
+  </table>
+</div>
+
+<!-- ── 4 CONCEPT DIRECTIONS ────────────────────────────── -->
+<div class="section">
+  <h2>Four Concept Directions</h2>
+  <div class="concept-grid">
+
+    <!-- Direction A -->
+    <div class="concept-card">
+      <div class="label">Direction A</div>
+      <div class="emoji-preview">🦁</div>
+      <h3>The Lion Head</h3>
+      <div class="desc">
+        A stylized lion head — the most iconic element of the original Voltron.
+        The Black Lion leads the formation. Simple silhouette, reads at 24px,
+        instantly communicates "VOLTRON" to anyone who knows the reference.
+      </div>
+      <div class="specs">
+        <strong>Vibe:</strong> Bold, commanding, recognizable<br>
+        <strong>Reference:</strong> Black Lion face from GoLion/Voltron<br>
+        <strong>Best for:</strong> Instant brand recognition
+      </div>
+    </div>
+
+    <!-- Direction B -->
+    <div class="concept-card">
+      <div class="label">Direction B</div>
+      <div class="emoji-preview">⚔️</div>
+      <h3>The Blazing Sword</h3>
+      <div class="desc">
+        VOLTRON's signature weapon — the Blazing Sword appears in every episode's
+        climax. A stylized V-shaped sword or blade icon. Clean, sharp, minimal.
+        "Form Blazing Sword!" is the most iconic catchphrase.
+      </div>
+      <div class="specs">
+        <strong>Vibe:</strong> Action, power, decisive<br>
+        <strong>Reference:</strong> The glowing blade from the transformation sequence<br>
+        <strong>Best for:</strong> Clean sidebar icon, strong silhouette
+      </div>
+    </div>
+
+    <!-- Direction C -->
+    <div class="concept-card">
+      <div class="label">Direction C</div>
+      <div class="emoji-preview">🛡️</div>
+      <h3>The V-Shield</h3>
+      <div class="desc">
+        The "V" from VOLTRON rendered as a shield or badge shape. Combines the
+        letter V with a protective/defender motif. Modern, geometric, works
+        great at small sizes. "Defender of the Universe" energy.
+      </div>
+      <div class="specs">
+        <strong>Vibe:</strong> Protective, trustworthy, modern<br>
+        <strong>Reference:</strong> V-shaped chest plate + shield concept<br>
+        <strong>Best for:</strong> Professional feel, scales well, versatile
+      </div>
+    </div>
+
+    <!-- Direction D -->
+    <div class="concept-card">
+      <div class="label">Direction D</div>
+      <div class="emoji-preview">🤖</div>
+      <h3>The Mecha Head</h3>
+      <div class="desc">
+        VOLTRON's robot head — the combined mecha form with the distinctive
+        helmet/crown shape, angular jawline, and glowing eyes. More detailed
+        than the other options but unmistakably VOLTRON when you see it.
+      </div>
+      <div class="specs">
+        <strong>Vibe:</strong> Powerful, complete, heroic<br>
+        <strong>Reference:</strong> Combined Voltron robot face/helmet<br>
+        <strong>Best for:</strong> Maximum "that's VOLTRON" impact
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── RECOMMENDATION ──────────────────────────────────── -->
+<div class="callout">
+  <strong>MUSASHI's Recommendation:</strong> Direction C (V-Shield) for the sidebar icon.
+  It reads cleanest at 24px, feels professional, and the "V" is unmistakable.
+  Direction A (Lion Head) is the strongest brand statement if you want more personality.
+  Both work — it's a vibe call.
+</div>
+
+<!-- ── NEXT STEPS ──────────────────────────────────────── -->
+<div class="section">
+  <h2>Next Steps</h2>
+  <p>
+    1. <strong>JDM picks a direction</strong> (A, B, C, or D — or a hybrid)<br>
+    2. <strong>MUSASHI sources/commissions the artwork</strong> — proper SVG at multiple sizes<br>
+    3. <strong>JDM art-directs</strong> — revisions until it's perfect<br>
+    4. <strong>Ship it</strong> — update sidebar icon, MYST.AI page, Slack avatar
+  </p>
+  <p style="margin-top: 1rem;">
+    Drop your pick in the Dojo war room. One letter: A, B, C, or D.
+  </p>
+</div>
+
+<div class="footer">
+  MUSASHI, ARTxBLADE ⚔️ | VP/CMO, Executive.AI Team<br>
+  Built for JDM — 2026-03-31
+</div>
+
+</body>
+</html>
+
+<!-- ── BLACK LION DEEP DIVE (appended) ─────────────────── -->
+<style>
+.lion-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+@media (max-width: 640px) { .lion-grid { grid-template-columns: 1fr; } }
+.lion-preview {
+  width: 96px; height: 96px; margin: 1rem auto; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem; position: relative;
+}
+.lion-1 {
+  background: #0f1117; border: 3px solid #3b82f6;
+  box-shadow: 0 0 20px rgba(59,130,246,0.3);
+  color: #3b82f6;
+}
+.lion-2 {
+  background: #0f1117; border: 3px solid #1a1d27;
+  color: #3b82f6;
+}
+.lion-2::after {
+  content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+  box-shadow: inset 0 0 20px rgba(59,130,246,0.15);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+.lion-3 {
+  background: #0f1117; border: 3px solid #2d3348;
+  color: #e2e8f0;
+}
+</style>
+
+<div class="section" id="black-lion">
+  <h2>Black Lion Deep Dive — 3 Approaches</h2>
+  <p>JDM is leaning lion. Here's how a Black Lion icon works on our dark sidebar.
+  Each preview shows the COLOR + TREATMENT approach — final artwork will be a proper lion illustration sourced by MUSASHI.</p>
+
+  <div class="lion-grid">
+    <div class="concept-card" style="text-align:center;">
+      <div class="label">Approach 1</div>
+      <div class="lion-preview lion-1">🦁</div>
+      <h3 style="font-size:1rem;">Blue-Outlined</h3>
+      <div class="desc">Dark fill, VOLTRON blue (#3b82f6) outline. The blue edge pops on dark backgrounds. Same energy the OG show used — the Black Lion always had highlights around it.</div>
+      <div class="specs"><strong>Vibe:</strong> Clean, professional, high contrast<br><strong>Best for:</strong> Sidebar icon at 24px</div>
+    </div>
+
+    <div class="concept-card" style="text-align:center;">
+      <div class="label">Approach 2</div>
+      <div class="lion-preview lion-2">🦁</div>
+      <h3 style="font-size:1rem;">Glowing Eyes</h3>
+      <div class="desc">Near-invisible dark lion with glowing blue eyes. Dramatic. The eyes become the icon at small sizes. Animated pulse adds life. "The Black Lion emerges from darkness."</div>
+      <div class="specs"><strong>Vibe:</strong> Dramatic, mysterious, alive<br><strong>Best for:</strong> Maximum cool factor</div>
+    </div>
+
+    <div class="concept-card" style="text-align:center;">
+      <div class="label">Approach 3</div>
+      <div class="lion-preview lion-3">🦁</div>
+      <h3 style="font-size:1rem;">Light Silhouette</h3>
+      <div class="desc">White/light lion silhouette that represents the Black Lion through shape alone. At 24px, shape matters more than color. Clean, bold, works on any background.</div>
+      <div class="specs"><strong>Vibe:</strong> Bold, readable, versatile<br><strong>Best for:</strong> Maximum readability at any size</div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:1.5rem;">
+    <strong>MUSASHI's pick:</strong> Approach 1 (Blue-Outlined) for the sidebar.
+    Approach 2 (Glowing Eyes) is the coolest but may be too subtle at 24px.
+    Approach 3 (Light Silhouette) is the safest.<br><br>
+    <strong>Note:</strong> The lion emoji above shows the COLOR TREATMENT — not the final art.
+    Once JDM picks an approach, we source a proper stylized lion illustration and apply the chosen treatment.
+    <br><br>Drop your pick in the Dojo: <strong>1, 2, or 3</strong>.
+  </div>
+</div>

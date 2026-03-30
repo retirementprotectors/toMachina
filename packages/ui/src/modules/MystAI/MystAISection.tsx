@@ -22,48 +22,33 @@ export interface MystAISectionProps {
 // ── Character Data ──────────────────────────────────────────────────
 // Matches docs/myst-ai and services/api/src/routes/myst-ai.ts
 
-const BOT_ROSTER: AiBotCharacter[] = [
+interface BotTier {
+  label: string
+  bots: AiBotCharacter[]
+}
+
+const BOT_TIERS: BotTier[] = [
   {
-    name: 'VOLTRON',
-    title: 'The BFF',
-    signatureLine: 'Let me help.',
-    icon: '\u{1F50B}',
-    accentColor: '#3b82f6',
+    label: "JDM's Ninja Advisors",
+    bots: [
+      { name: 'SHINOB1', title: 'The OG Ninja', signatureLine: "I'll architect it.", icon: '🥷', accentColor: '#a78bfa' },
+      { name: '2HINOBI', title: 'The Architect', signatureLine: 'I feed it straight.', icon: '🏯', accentColor: '#22c55e' },
+      { name: 'MUSASHI', title: 'Art × Blade', signatureLine: "Let's make it beautiful.", icon: '⚔️', accentColor: '#d4a44c' },
+    ],
   },
   {
-    name: 'SENSEI',
-    title: 'Patient Teacher',
-    signatureLine: 'Let me show you.',
-    icon: '\u{1F525}',
-    accentColor: '#f59e0b',
+    label: 'The Autonomous Builders',
+    bots: [
+      { name: 'RONIN', title: 'The Builder', signatureLine: 'Ship it tonight.', icon: '🗡️', accentColor: '#f97316' },
+      { name: 'RAIDEN', title: 'The Guardian', signatureLine: 'Not on my watch.', icon: '⚡', accentColor: '#ef4444' },
+    ],
   },
   {
-    name: 'RAIDEN',
-    title: 'The Guardian',
-    signatureLine: 'Not on my watch.',
-    icon: '\u26A1',
-    accentColor: '#ef4444',
-  },
-  {
-    name: 'RONIN',
-    title: 'The Builder',
-    signatureLine: 'Ship it tonight.',
-    icon: '\u{1F3C3}',
-    accentColor: '#f97316',
-  },
-  {
-    name: 'MUSASHI',
-    title: 'Art \u00D7 Blade',
-    signatureLine: "Let's make it beautiful.",
-    icon: '\u2692',
-    accentColor: '#d4a44c',
-  },
-  {
-    name: '2HINOBI',
-    title: 'The Architect',
-    signatureLine: 'I feed it straight.',
-    icon: '\u2328',
-    accentColor: '#22c55e',
+    label: 'Your Ninja Warriors',
+    bots: [
+      { name: 'SENSEI', title: 'Patient Teacher', signatureLine: 'Let me show you.', icon: '🔥', accentColor: '#f59e0b' },
+      { name: 'VOLTRON', title: 'The BFF', signatureLine: 'Let me help.', icon: '🔋', accentColor: '#3b82f6' },
+    ],
   },
 ]
 
@@ -87,6 +72,17 @@ const headerStyle: React.CSSProperties = {
   textAlign: 'center',
 }
 
+const tierLabelStyle: React.CSSProperties = {
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.12em',
+  color: '#7ba8d4',
+  marginBottom: '1rem',
+  paddingBottom: '0.4rem',
+  borderBottom: '1px solid #2d3348',
+}
+
 const gridStyle: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(3, 1fr)',
@@ -107,15 +103,20 @@ export const MystAISection: React.FC<MystAISectionProps> = ({
           Technology Team
         </h2>
       </div>
-      <div style={gridStyle}>
-        {BOT_ROSTER.map((character) => (
-          <MystAIBioCard
-            key={character.name}
-            character={character}
-            onClick={onBotSelect ? (name) => onBotSelect(name) : undefined}
-          />
-        ))}
-      </div>
+      {BOT_TIERS.map((tier) => (
+        <div key={tier.label} style={{ marginBottom: '1.5rem' }}>
+          <div style={tierLabelStyle}>{tier.label}</div>
+          <div style={gridStyle}>
+            {tier.bots.map((character) => (
+              <MystAIBioCard
+                key={character.name}
+                character={character}
+                onClick={onBotSelect ? (name) => onBotSelect(name) : undefined}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </section>
   )
 }

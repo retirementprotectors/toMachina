@@ -151,3 +151,51 @@ senseiContentRoutes.get('/:moduleId/training', async (req: Request, res: Respons
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+/** POST /content/:moduleId/screenshots — update screenshot_urls for a module */
+senseiContentRoutes.post('/content/:moduleId/screenshots', async (req: Request, res: Response) => {
+  try {
+    const moduleId = req.params.moduleId as string
+    const db = getFirestore()
+    const docRef = db.collection(COLLECTION).doc(moduleId)
+    const doc = await docRef.get()
+
+    if (!doc.exists) {
+      res.status(404).json(errorResponse(`Module ${moduleId} not found`))
+      return
+    }
+
+    const body = req.body as { screenshots?: unknown }
+    if (!Array.isArray(body.screenshots)) {
+      res.status(400).json(errorResponse('screenshots must be an array of URLs'))
+      return
+    }
+
+    // Validate each entry is a non-empty string
+    const urls = body.screenshots as unknown[]
+    for (const url of urls) {
+      if (typeof url !== 'string' || url.trim().length === 0) {
+        res.status(400).json(errorResponse('All screenshots must be non-empty URL strings'))
+        return
+      }
+    }
+
+    const screenshotUrls = (urls as string[]).map((u) => u.trim())
+    const now = new Date().toISOString()
+    const existing = doc.data() as SenseiContent
+
+    await docRef.update({
+      screenshot_urls: screenshotUrls,
+      updated_at: now,
+      version: (existing.version || 0) + 1,
+    })
+
+    res.json(successResponse({
+      module_id: moduleId,
+      screenshot_urls: screenshotUrls,
+      updated_at: now,
+    }))
+  } catch (err) {
+    res.status(500).json(errorResponse(String(err)))
+  }
+})

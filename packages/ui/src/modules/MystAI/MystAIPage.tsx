@@ -30,48 +30,80 @@ export interface MystAIPageProps {
 // ── Bot Roster ─────────────────────────────────────────────────────────
 // Complete character data for the grid view — matches myst-ai-data.ts
 
-const BOT_ROSTER: AiBotCharacter[] = [
+// ── 3-Tier Bot Organization ────────────────────────────────────────
+// Tier 1: JDM's Ninja Advisors (SHINOB1, 2HINOBI, MUSASHI)
+// Tier 2: The Autonomous Builders (RONIN, RAIDEN)
+// Tier 3: Your Ninja Warriors (SENSEI, VOLTRON)
+
+interface BotTier {
+  label: string
+  bots: AiBotCharacter[]
+}
+
+const BOT_TIERS: BotTier[] = [
   {
-    name: 'VOLTRON',
-    title: 'The BFF',
-    signatureLine: 'Let me help.',
-    icon: '🔋',
-    accentColor: '#3b82f6',
+    label: "JDM's Ninja Advisors",
+    bots: [
+      {
+        name: 'SHINOB1',
+        title: 'The OG Ninja',
+        signatureLine: "I'll architect it.",
+        icon: '🥷',
+        accentColor: '#a78bfa',
+      },
+      {
+        name: '2HINOBI',
+        title: 'The Architect',
+        signatureLine: 'I feed it straight.',
+        icon: '🏯',
+        accentColor: '#22c55e',
+      },
+      {
+        name: 'MUSASHI',
+        title: 'Art × Blade',
+        signatureLine: "Let's make it beautiful.",
+        icon: '⚔️',
+        accentColor: '#d4a44c',
+      },
+    ],
   },
   {
-    name: 'SENSEI',
-    title: 'Patient Teacher',
-    signatureLine: 'Let me show you.',
-    icon: '🔥',
-    accentColor: '#f59e0b',
+    label: 'The Autonomous Builders',
+    bots: [
+      {
+        name: 'RONIN',
+        title: 'The Builder',
+        signatureLine: 'Ship it tonight.',
+        icon: '🗡️',
+        accentColor: '#f97316',
+      },
+      {
+        name: 'RAIDEN',
+        title: 'The Guardian',
+        signatureLine: 'Not on my watch.',
+        icon: '⚡',
+        accentColor: '#ef4444',
+      },
+    ],
   },
   {
-    name: 'RAIDEN',
-    title: 'The Guardian',
-    signatureLine: 'Not on my watch.',
-    icon: '⚡',
-    accentColor: '#ef4444',
-  },
-  {
-    name: 'RONIN',
-    title: 'The Builder',
-    signatureLine: 'Ship it tonight.',
-    icon: '🏃',
-    accentColor: '#f97316',
-  },
-  {
-    name: 'MUSASHI',
-    title: 'Art × Blade',
-    signatureLine: "Let's make it beautiful.",
-    icon: '⚒',
-    accentColor: '#d4a44c',
-  },
-  {
-    name: '2HINOBI',
-    title: 'The Architect',
-    signatureLine: 'I feed it straight.',
-    icon: '⌨',
-    accentColor: '#22c55e',
+    label: 'Your Ninja Warriors',
+    bots: [
+      {
+        name: 'SENSEI',
+        title: 'Patient Teacher',
+        signatureLine: 'Let me show you.',
+        icon: '🔥',
+        accentColor: '#f59e0b',
+      },
+      {
+        name: 'VOLTRON',
+        title: 'The BFF',
+        signatureLine: 'Let me help.',
+        icon: '🔋',
+        accentColor: '#3b82f6',
+      },
+    ],
   },
 ]
 
@@ -141,6 +173,17 @@ const dividerStyle: React.CSSProperties = {
 // CSS-in-JS can't do @media, so we use auto-fill with minmax for
 // responsive columns: ≈3 cols desktop, 2 tablet, 1 mobile.
 
+const tierLabelStyle: React.CSSProperties = {
+  fontSize: '0.85rem',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.14em',
+  color: colors.brandAccent,
+  marginBottom: '1.25rem',
+  paddingBottom: '0.5rem',
+  borderBottom: `1px solid ${colors.borderColor}`,
+}
+
 const gridStyle: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -173,22 +216,27 @@ export const MystAIPage: React.FC<MystAIPageProps> = ({ className }) => {
         <div style={brandLabelStyle}>MYST.AI</div>
         <h1 style={pageTitleStyle}>Technology Team</h1>
         <p style={pageSubtitleStyle}>
-          Six AI personalities, each reflecting a facet of how we build, protect,
-          teach, create, and connect. Click any card to learn more.
+          Seven AI personalities organized into three tiers — advisors who strategize,
+          builders who ship, and warriors who serve. Click any card to learn more.
         </p>
         <hr style={dividerStyle} />
       </header>
 
-      {/* ── Bot Grid ────────────────────────────────────────────────── */}
-      <div style={gridStyle}>
-        {BOT_ROSTER.map((character) => (
-          <MystAIBioCard
-            key={character.name}
-            character={character}
-            onClick={handleBotSelect}
-          />
-        ))}
-      </div>
+      {/* ── Tiered Bot Grid ─────────────────────────────────────────── */}
+      {BOT_TIERS.map((tier) => (
+        <div key={tier.label} style={{ marginBottom: '2.5rem' }}>
+          <h2 style={tierLabelStyle}>{tier.label}</h2>
+          <div style={gridStyle}>
+            {tier.bots.map((character) => (
+              <MystAIBioCard
+                key={character.name}
+                character={character}
+                onClick={handleBotSelect}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
