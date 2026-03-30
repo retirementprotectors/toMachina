@@ -13,17 +13,12 @@
  */
 
 import React from 'react'
+import type { AiBotName } from '@tomachina/core'
 
-// ── Types ───────────────────────────────────────────────────────────
-// Local interface until @tomachina/core exports AiBotCharacter (TRK-14109)
+export type { AiBotName }
 
-export type AiBotName =
-  | 'VOLTRON'
-  | 'SENSEI'
-  | 'RAIDEN'
-  | 'RONIN'
-  | 'MUSASHI'
-  | '2HINOBI'
+// ── Component-local character shape (includes UI-specific fields) ────
+// Uses AiBotName from @tomachina/core for the name discriminant.
 
 export interface AiBotCharacter {
   name: AiBotName
