@@ -1,4 +1,6 @@
 export { RSPYellowQUE } from './RSPYellowQUE'
 export type { RSPYellowQUEProps } from './RSPYellowQUE'
+export { RSPTransitionPanel } from './RSPTransitionPanel'
+export { RSPServiceHandoff } from './RSPServiceHandoff'
 export type { RSPAccount, QueProductLine, QueHookMeta } from './types'
 export { ACCOUNT_TYPE_TO_QUE, QUE_HOOK_META } from './types'
