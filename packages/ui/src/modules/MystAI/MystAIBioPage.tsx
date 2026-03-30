@@ -8,7 +8,7 @@
  */
 
 import React from 'react'
-import type { AiBotName, AiBotProfile } from './myst-ai-data'
+import type { AiBotName, AiBotCharacter } from './myst-ai-data'
 import { getCharacterByName } from './myst-ai-data'
 
 // ── Bio-specific metadata (extends base AiBotProfile) ───────────────
@@ -270,7 +270,7 @@ export const MystAIBioPage: React.FC<MystAIBioPageProps> = ({
   botName,
   onBack,
 }) => {
-  const profile: AiBotProfile | undefined = getCharacterByName(botName)
+  const profile: AiBotCharacter | undefined = getCharacterByName(botName)
   const meta: BotBioMeta | undefined =
     BIO_META[botName.toUpperCase() as AiBotName]
 
@@ -343,7 +343,7 @@ export const MystAIBioPage: React.FC<MystAIBioPageProps> = ({
           Personality Traits
         </p>
         <ul style={listStyle}>
-          {profile.personalityTraits.map((trait) => (
+          {profile.traits.map((trait) => (
             <ListItem key={trait} text={trait} dotColor={color} />
           ))}
         </ul>
@@ -358,15 +358,15 @@ export const MystAIBioPage: React.FC<MystAIBioPageProps> = ({
             dotColor={color}
           />
           <ListItem
-            text={`Word Choice: ${profile.voiceGuide.wordChoice}`}
+            text={`Word Choice: ${profile.voiceGuide.wordChoice.join(', ')}`}
             dotColor={color}
           />
           <ListItem
-            text={`Sentence Patterns: ${profile.voiceGuide.sentencePatterns}`}
+            text={`Sentence Length: ${profile.voiceGuide.sentenceLength}`}
             dotColor={color}
           />
           <ListItem
-            text={`Humor Level: ${profile.voiceGuide.humorLevel}`}
+            text={`Humor Style: ${profile.voiceGuide.humorStyle}`}
             dotColor={color}
           />
         </ul>
