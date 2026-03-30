@@ -12,7 +12,7 @@
     "@google-cloud/functions-framework": "^5.0.2",
     "express": "^4.21.2",
     "firebase-admin": "^13.0.2",
-    "twilio": "^5.5.1"
+    "twilio": "^5.13.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
