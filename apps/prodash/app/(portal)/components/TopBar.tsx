@@ -5,6 +5,7 @@ import { useAuth, type AuthUser } from '@tomachina/auth'
 import { PortalSwitcher } from '@tomachina/ui'
 import { InboundCallCard } from '@tomachina/ui/src/modules/CommsModule/InboundCallCard'
 import { SmartSearch } from './SmartSearch'
+import { SenseiToggle } from '@tomachina/ui/src/modules/SenseiMode'
 
 interface TopBarProps {
   user: AuthUser
@@ -43,6 +44,9 @@ export function TopBar({ user }: TopBarProps) {
         <div className="flex items-center gap-2">
           {/* Inbound Call Notification — null until real Twilio webhook wired */}
           <InboundCallCard call={null} />
+
+          {/* SENSEI — Training Mode Toggle */}
+          <SenseiToggle />
 
           {/* MYST.AI — Meet Your AI Service Team */}
           <Link
