@@ -449,8 +449,8 @@ export const MODULES: Record<string, ModuleDef> = {
     minUserLevel: 'OWNER',
   },
   MDJ: {
-    name: 'MDJ',
-    fullName: 'MyDigitalJosh AI Assistant',
+    name: 'VOLTRON',
+    fullName: 'VOLTRON AI Assistant',
     description: 'AI-powered conversational assistant wired into the entire toMachina platform',
     status: 'active',
     suite: 'ADMIN_TOOLS',

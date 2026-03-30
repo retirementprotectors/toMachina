@@ -145,7 +145,7 @@ export default function MDJAdminDashboard() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <p className="text-lg font-semibold text-foreground">Access Restricted</p>
-          <p className="text-sm text-muted-foreground mt-1">Executive access required to view MDJ analytics.</p>
+          <p className="text-sm text-muted-foreground mt-1">Executive access required to view VOLTRON analytics.</p>
         </div>
       </div>
     );
@@ -154,7 +154,7 @@ export default function MDJAdminDashboard() {
   if (entitlementsLoading || loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-muted-foreground text-sm">Loading MDJ analytics...</div>
+        <div className="text-muted-foreground text-sm">Loading VOLTRON analytics...</div>
       </div>
     );
   }
@@ -170,8 +170,8 @@ export default function MDJAdminDashboard() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">MDJ Analytics</h1>
-        <p className="text-muted-foreground text-sm mt-1">MyDigitalJosh usage across the platform</p>
+        <h1 className="text-2xl font-bold text-foreground">VOLTRON Analytics</h1>
+        <p className="text-muted-foreground text-sm mt-1">VOLTRON usage across the platform</p>
       </div>
 
       {/* Volume stats */}
