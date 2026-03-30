@@ -203,7 +203,7 @@ describe('SHINOBI-ONLINE E2E Smoke Tests (TRK-13790)', () => {
     /**
      * Manual verification steps:
      * 1. POST /shinobi/check → note `checked_at` timestamp
-     * 2. Restart the server: `pm2 restart mdj-agent` or kill/restart
+     * 2. Restart the server: `pm2 restart mdj-server` or kill/restart
      * 3. GET /shinobi/status → verify `last_check` matches the timestamp from step 1
      *
      * Passing condition: last_check survives service restart via Firestore persistence.

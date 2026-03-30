@@ -83,7 +83,7 @@ const ITEMS = [
   {
     title: 'MCP bridge',
     description:
-      'Connect mdj-agent to 8 MCP servers running on MDJ1 (rpi-workspace, rpi-business, rpi-healthcare, rpi-comms, slack, gdrive, google-calendar, gmail). Wrap each MCP tool as a Claude tool definition with mcp_ prefix. 198 tools total.',
+      'Connect mdj-server to 8 MCP servers running on MDJ1 (rpi-workspace, rpi-business, rpi-healthcare, rpi-comms, slack, gdrive, google-calendar, gmail). Wrap each MCP tool as a Claude tool definition with mcp_ prefix. 198 tools total.',
     portal: 'INFRA',
     scope: 'Platform',
     component: 'MyDigitalJosh',

@@ -117,12 +117,12 @@ const s = {
 class ForgeErrorBoundary extends React.Component<{ children: React.ReactNode; fallback?: React.ReactNode }, { error: Error | null }> {
   constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) { super(props); this.state = { error: null } }
   static getDerivedStateFromError(error: Error) { return { error } }
-  componentDidCatch(error: Error, info: React.ErrorInfo) { console.error('[FORGE ERROR BOUNDARY]', error.message, info.componentStack) }
+  componentDidCatch(error: Error, info: React.ErrorInfo) { console.error('[THE DOJO ERROR BOUNDARY]', error.message, info.componentStack) }
   render() {
     if (this.state.error) {
       return (
         <div style={{ padding: 40, textAlign: 'center', color: '#ef4444' }}>
-          <p style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>FORGE encountered an error</p>
+          <p style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>The Dojo encountered an error</p>
           <pre style={{ fontSize: 12, color: '#94a3b8', whiteSpace: 'pre-wrap', maxWidth: 600, margin: '0 auto', textAlign: 'left', background: 'rgba(0,0,0,0.2)', padding: 16, borderRadius: 8 }}>{this.state.error.message}</pre>
           <button onClick={() => this.setState({ error: null })} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 6, border: 'none', background: '#4a7ab5', color: '#fff', cursor: 'pointer', fontSize: 13 }}>Try Again</button>
         </div>
@@ -294,6 +294,140 @@ function ForgeInner({ portal }: ForgeProps) {
   const [discoveryPreviewing, setDiscoveryPreviewing] = useState(false)
   const [discoveryImporting, setDiscoveryImporting] = useState(false)
   const pageSize = 25
+
+  // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
+  const DOJO_TAB_KEY = 'dojo-active-tab'
+  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden'>(() => {
+    if (typeof window === 'undefined') return 'ronin'
+    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden') || 'ronin' } catch { return 'ronin' }
+  })
+  const switchDojoTab = (tab: 'ronin' | 'raiden') => {
+    setDojoTab(tab)
+    try { localStorage.setItem(DOJO_TAB_KEY, tab) } catch { /* noop */ }
+  }
+
+  // ─── TRK-14234: RAIDEN Kanban state ───
+  const [raidenItems, setRaidenItems] = useState<TrackerItem[]>([])
+  const [raidenLoading, setRaidenLoading] = useState(false)
+
+  const loadRaidenItems = useCallback(async () => {
+    setRaidenLoading(true)
+    try {
+      const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?limit=1000`)
+      if (result.success) {
+        // Filter to RAIDEN items (agent=raiden) or items with RAIDEN-specific statuses
+        const all = result.data || []
+        const raiden = all.filter(i =>
+          (i as unknown as Record<string, unknown>).agent === 'raiden' ||
+          ['new', 'triaging', 'fixing', 'verifying', 'done', 'escalated'].includes(i.status)
+        )
+        setRaidenItems(raiden)
+      }
+    } catch { /* silent */ }
+    setRaidenLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (dojoTab === 'raiden') loadRaidenItems()
+  }, [dojoTab, loadRaidenItems])
+
+  // Auto-refresh RAIDEN every 30s when on RAIDEN tab
+  useEffect(() => {
+    if (dojoTab !== 'raiden') return
+    const interval = setInterval(() => loadRaidenItems(), 30000)
+    return () => clearInterval(interval)
+  }, [dojoTab, loadRaidenItems])
+
+  // ─── TRK-14238: Quick Submit modal state ───
+  const [showQuickSubmit, setShowQuickSubmit] = useState(false)
+  const [quickSubmitForm, setQuickSubmitForm] = useState({ title: '', type: 'bug', priority: 'P2', screenshot: null as File | null })
+  const [quickSubmitError, setQuickSubmitError] = useState('')
+  const [quickSubmitting, setQuickSubmitting] = useState(false)
+
+  const openQuickSubmit = useCallback(() => {
+    setQuickSubmitForm({ title: '', type: 'bug', priority: 'P2', screenshot: null })
+    setQuickSubmitError('')
+    setShowQuickSubmit(true)
+  }, [])
+
+  const submitQuickForm = async () => {
+    if (!quickSubmitForm.title.trim()) {
+      setQuickSubmitError('Title is required')
+      return
+    }
+    setQuickSubmitting(true)
+    setQuickSubmitError('')
+    try {
+      const result = await fetchValidated<{ id: string; item_id: string }>(`${API_BASE}/tracker`, {
+        method: 'POST',
+        body: JSON.stringify({
+          title: quickSubmitForm.title.trim(),
+          type: quickSubmitForm.type,
+          priority: quickSubmitForm.priority,
+          agent: 'raiden',
+          source: 'dojo_board',
+          status: 'new',
+          portal: portal.toUpperCase(),
+        }),
+      })
+      if (result.success) {
+        showToast(`Submitted: ${result.data?.item_id || 'item'} — RAIDEN is triaging`, 'success')
+        setShowQuickSubmit(false)
+        await loadRaidenItems()
+        await loadItems()
+      } else {
+        setQuickSubmitError((result as unknown as Record<string, unknown>).error as string || 'Submit failed')
+      }
+    } catch (err) {
+      setQuickSubmitError(String(err))
+    }
+    setQuickSubmitting(false)
+  }
+
+  // Keyboard shortcut Ctrl+N for Quick Submit
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'n' && dojoTab === 'raiden') {
+        e.preventDefault()
+        openQuickSubmit()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [dojoTab, openQuickSubmit])
+
+  // ─── TRK-14237: Auto-Triage modal state ───
+  const [showAutoTriage, setShowAutoTriage] = useState(false)
+  const [autoTriageLoading, setAutoTriageLoading] = useState(false)
+  const [autoTriageResult, setAutoTriageResult] = useState<Record<string, unknown> | null>(null)
+
+  const runAutoTriage = async () => {
+    setAutoTriageLoading(true)
+    setAutoTriageResult(null)
+    try {
+      const result = await fetchValidated<Record<string, unknown>>(`${API_BASE}/sprints/auto`, {
+        method: 'POST',
+        body: JSON.stringify({ scope: 'raiden', status: 'new', groupBy: 'component' }),
+      })
+      if (result.success) {
+        setAutoTriageResult(result.data || {})
+      } else {
+        showToast('Auto-triage failed', 'error')
+        setShowAutoTriage(false)
+      }
+    } catch (err) {
+      showToast(`Auto-triage error: ${String(err)}`, 'error')
+      setShowAutoTriage(false)
+    }
+    setAutoTriageLoading(false)
+  }
+
+  const confirmAutoTriage = async () => {
+    showToast('RAIDEN queue sorted and grouped', 'success')
+    setShowAutoTriage(false)
+    setAutoTriageResult(null)
+    await loadRaidenItems()
+  }
 
   /* ─── Data Loading ─── */
   const loadItems = useCallback(async () => {
@@ -623,7 +757,7 @@ function ForgeInner({ portal }: ForgeProps) {
     await savePromptToSprint()
     const win = window.open('', '_blank')
     if (win) {
-      win.document.write(`<!DOCTYPE html><html><head><title>FORGE Sprint Prompt</title>
+      win.document.write(`<!DOCTYPE html><html><head><title>The Dojo Sprint Prompt</title>
 <style>
 @page { size: letter; margin: 0.75in; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -632,7 +766,7 @@ pre { white-space: pre-wrap; word-wrap: break-word; font-family: 'SF Mono', Menl
 h1 { font-size: 20px; margin-bottom: 8px; color: #e07c3e; }
 p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 </style></head><body>
-<h1>FORGE Sprint Prompt</h1>
+<h1>The Dojo Sprint Prompt</h1>
 <p>Generated ${new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</p>
 <pre>${promptText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
 <script>window.print()</script>
@@ -1110,6 +1244,340 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', color: s.text, fontFamily: 'inherit' }}>
       <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
+
+      {/* ─── TRK-14233: The Dojo Module Header + TRK-14235/14234: RONIN/RAIDEN Tabs ─── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 0,
+        marginBottom: 16, borderBottom: `1px solid ${s.border}`, paddingBottom: 0,
+      }}>
+        {/* Module identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 24 }}>
+          <span className="material-icons-outlined" style={{ fontSize: 22, color: '#e07c3e' }}>temple_buddhist</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: s.text, letterSpacing: '-0.01em' }}>The Dojo</span>
+        </div>
+        {/* Tab: RONIN */}
+        <button
+          onClick={() => switchDojoTab('ronin')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'ronin' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'ronin' ? 600 : 400,
+            borderBottom: dojoTab === 'ronin' ? `2px solid ${s.portal}` : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
+          RONIN
+        </button>
+        {/* Tab: RAIDEN */}
+        <button
+          onClick={() => switchDojoTab('raiden')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'raiden' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'raiden' ? 600 : 400,
+            borderBottom: dojoTab === 'raiden' ? '2px solid rgb(239,68,68)' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'raiden' ? 'rgb(239,68,68)' : s.textMuted }}>bolt</span>
+          RAIDEN
+        </button>
+      </div>
+
+      {/* ─── TRK-14234: RAIDEN tab content ─── */}
+      {dojoTab === 'raiden' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+          {/* RAIDEN header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
+            <span style={{ fontSize: 13, color: s.textSecondary }}>
+              Reactive fix queue — RAIDEN monitors, triages, and ships
+            </span>
+            <div style={{ flex: 1 }} />
+            {/* TRK-14237: Auto-Triage button */}
+            <button
+              onClick={() => { setShowAutoTriage(true); runAutoTriage() }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: 'rgba(239,68,68,0.15)', color: 'rgb(239,68,68)', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="auto_fix_high" size={16} color="rgb(239,68,68)" />
+              Auto-Triage
+            </button>
+            {/* TRK-14238: Quick Submit button */}
+            <button
+              onClick={openQuickSubmit}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: 'rgb(239,68,68)', color: '#fff', fontSize: 13, fontWeight: 600,
+              }}
+              title="Submit an issue (Ctrl+N)"
+            >
+              <Icon name="add" size={16} color="#fff" />
+              Quick Submit
+              <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 2 }}>Ctrl+N</span>
+            </button>
+          </div>
+
+          {/* RAIDEN Kanban: 6 columns */}
+          {raidenLoading ? (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.textMuted }}>
+              <span className="material-icons-outlined" style={{ fontSize: 24, animation: 'spin 1s linear infinite' }}>refresh</span>
+              <span style={{ marginLeft: 8 }}>Loading RAIDEN queue...</span>
+            </div>
+          ) : (
+            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
+              <div style={{ display: 'flex', gap: 12, height: '100%', minWidth: 900 }}>
+                {([
+                  { status: 'new', label: 'NEW', color: 'rgb(239,68,68)' },
+                  { status: 'triaging', label: 'TRIAGING', color: 'rgb(251,191,36)' },
+                  { status: 'fixing', label: 'FIXING', color: 'rgb(245,158,11)' },
+                  { status: 'verifying', label: 'VERIFYING', color: 'rgb(99,102,241)' },
+                  { status: 'done', label: 'DONE', color: 'rgb(34,197,94)' },
+                  { status: 'escalated', label: 'ESCALATED', color: 'rgb(239,68,68)' },
+                ] as const).map(col => {
+                  // Filter items for this column and sort by priority (P0 first)
+                  const colItems = raidenItems
+                    .filter(i => i.status === col.status)
+                    .sort((a, b) => {
+                      const pa = parseInt(((a as unknown as Record<string,unknown>).priority as string || 'P2').replace('P', ''), 10)
+                      const pb = parseInt(((b as unknown as Record<string,unknown>).priority as string || 'P2').replace('P', ''), 10)
+                      return pa - pb // P0 first
+                    })
+                  return (
+                    <div
+                      key={col.status}
+                      style={{
+                        flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column',
+                        background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`, overflow: 'hidden',
+                      }}
+                    >
+                      {/* Column header */}
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                        borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                      }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                        <span style={{
+                          marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                          borderRadius: 10, background: `${col.color}30`, color: col.color,
+                        }}>{colItems.length}</span>
+                      </div>
+                      {/* Cards */}
+                      <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {colItems.length === 0 ? (
+                          <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                        ) : colItems.map(item => {
+                          const priority = ((item as unknown as Record<string,unknown>).priority as string) || 'P2'
+                          const priorityColors: Record<string, string> = {
+                            P0: 'rgb(239,68,68)', P1: 'rgb(245,158,11)', P2: 'rgb(99,102,241)', P3: 'rgb(148,163,184)'
+                          }
+                          const pColor = priorityColors[priority] || priorityColors.P2
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => openEdit(item)}
+                              style={{
+                                background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
+                                padding: '8px 10px', cursor: 'pointer',
+                                transition: 'all 0.15s',
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color; e.currentTarget.style.background = `${col.color}0a` }}
+                              onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border; e.currentTarget.style.background = s.bg }}
+                            >
+                              {/* Priority + ID row */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                <span style={{
+                                  fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                                  background: `${pColor}20`, color: pColor, letterSpacing: '0.04em',
+                                }}>{priority}</span>
+                                <span style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
+                              </div>
+                              {/* Title */}
+                              <div style={{ fontSize: 12, fontWeight: 500, color: s.text, lineHeight: 1.4 }}>
+                                {item.title}
+                              </div>
+                              {/* Type badge */}
+                              {item.type && TYPE_CONFIG[item.type] && (
+                                <div style={{ marginTop: 4 }}>
+                                  <span style={{
+                                    fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 10,
+                                    background: TYPE_CONFIG[item.type].bg, color: TYPE_CONFIG[item.type].color,
+                                  }}>{TYPE_CONFIG[item.type].label}</span>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ─── TRK-14238: Quick Submit Modal ─── */}
+          {showQuickSubmit && (
+            <>
+              <div
+                onClick={() => setShowQuickSubmit(false)}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200 }}
+              />
+              <div style={{
+                position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                zIndex: 201, background: s.bg, borderRadius: 12, border: `1px solid ${s.border}`,
+                width: 480, padding: 24,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                  <Icon name="bolt" size={20} color="rgb(239,68,68)" />
+                  <span style={{ fontSize: 16, fontWeight: 700 }}>Quick Submit</span>
+                  <div style={{ flex: 1 }} />
+                  <button onClick={() => setShowQuickSubmit(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <Icon name="close" size={18} color={s.textMuted} />
+                  </button>
+                </div>
+                {/* Title — required */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 12, color: s.textSecondary, marginBottom: 4 }}>
+                    What broke? <span style={{ color: 'rgb(239,68,68)' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="What broke?"
+                    value={quickSubmitForm.title}
+                    onChange={(e) => { setQuickSubmitForm(f => ({ ...f, title: e.target.value })); setQuickSubmitError('') }}
+                    autoFocus
+                    style={{
+                      width: '100%', background: s.surface,
+                      border: `1px solid ${quickSubmitError ? 'rgb(239,68,68)' : s.border}`,
+                      borderRadius: 6, padding: '9px 12px', color: s.text, fontSize: 14, outline: 'none',
+                    }}
+                  />
+                  {quickSubmitError && (
+                    <span style={{ fontSize: 11, color: 'rgb(239,68,68)', marginTop: 4, display: 'block' }}>{quickSubmitError}</span>
+                  )}
+                </div>
+                {/* Type + Priority */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, color: s.textSecondary, marginBottom: 4 }}>Type</label>
+                    <select
+                      value={quickSubmitForm.type}
+                      onChange={(e) => setQuickSubmitForm(f => ({ ...f, type: e.target.value }))}
+                      style={{ width: '100%', background: s.surface, border: `1px solid ${s.border}`, borderRadius: 6, padding: '8px 10px', color: s.text, fontSize: 13, outline: 'none' }}
+                    >
+                      <option value="bug">Bug</option>
+                      <option value="broken">Broken</option>
+                      <option value="improve">Enhancement</option>
+                      <option value="idea">Feature</option>
+                      <option value="question">Question</option>
+                      <option value="test">Training</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 12, color: s.textSecondary, marginBottom: 4 }}>Priority</label>
+                    <select
+                      value={quickSubmitForm.priority}
+                      onChange={(e) => setQuickSubmitForm(f => ({ ...f, priority: e.target.value }))}
+                      style={{ width: '100%', background: s.surface, border: `1px solid ${s.border}`, borderRadius: 6, padding: '8px 10px', color: s.text, fontSize: 13, outline: 'none' }}
+                    >
+                      <option value="P0">P0 — Critical</option>
+                      <option value="P1">P1 — High</option>
+                      <option value="P2">P2 — Normal (default)</option>
+                      <option value="P3">P3 — Low</option>
+                    </select>
+                  </div>
+                </div>
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => setShowQuickSubmit(false)}
+                    style={{ padding: '8px 18px', borderRadius: 6, border: `1px solid ${s.border}`, background: 'transparent', color: s.textSecondary, fontSize: 13, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={submitQuickForm}
+                    disabled={quickSubmitting}
+                    style={{
+                      padding: '8px 18px', borderRadius: 6, border: 'none', cursor: quickSubmitting ? 'default' : 'pointer',
+                      background: quickSubmitting ? 'rgba(239,68,68,0.5)' : 'rgb(239,68,68)', color: '#fff', fontSize: 13, fontWeight: 600,
+                    }}
+                  >
+                    {quickSubmitting ? 'Submitting...' : 'Submit to RAIDEN'}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ─── TRK-14237: Auto-Triage Modal ─── */}
+          {showAutoTriage && (
+            <>
+              <div
+                onClick={() => setShowAutoTriage(false)}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200 }}
+              />
+              <div style={{
+                position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                zIndex: 201, background: s.bg, borderRadius: 12, border: `1px solid ${s.border}`,
+                width: 520, padding: 24, maxHeight: '80vh', overflowY: 'auto',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+                  <Icon name="auto_fix_high" size={20} color="rgb(239,68,68)" />
+                  <span style={{ fontSize: 16, fontWeight: 700 }}>Auto-Triage RAIDEN Queue</span>
+                  <div style={{ flex: 1 }} />
+                  <button onClick={() => { setShowAutoTriage(false); setAutoTriageResult(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <Icon name="close" size={18} color={s.textMuted} />
+                  </button>
+                </div>
+                {autoTriageLoading ? (
+                  <div style={{ padding: '40px 0', textAlign: 'center', color: s.textMuted }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 32, animation: 'spin 1s linear infinite' }}>refresh</span>
+                    <div style={{ marginTop: 8 }}>Grouping similar issues by component...</div>
+                  </div>
+                ) : autoTriageResult ? (
+                  <>
+                    <div style={{ fontSize: 13, color: s.textSecondary, marginBottom: 16 }}>
+                      RAIDEN grouped {(autoTriageResult as Record<string,unknown>).item_count as number || 0} new items. Review and confirm to apply sort.
+                    </div>
+                    <div style={{ background: s.surface, borderRadius: 8, padding: 16, marginBottom: 16, fontSize: 12, color: s.textSecondary }}>
+                      <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+                        {JSON.stringify(autoTriageResult, null, 2)}
+                      </pre>
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => { setShowAutoTriage(false); setAutoTriageResult(null) }}
+                        style={{ padding: '8px 18px', borderRadius: 6, border: `1px solid ${s.border}`, background: 'transparent', color: s.textSecondary, fontSize: 13, cursor: 'pointer' }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={confirmAutoTriage}
+                        style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', background: 'rgb(239,68,68)', color: '#fff', fontSize: 13, fontWeight: 600 }}
+                      >
+                        Confirm Triage Sort
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ padding: '20px 0', textAlign: 'center', color: s.textMuted }}>No results</div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ─── TRK-14235: RONIN tab content (existing Forge content) ─── */}
+      {dojoTab === 'ronin' && <>
 
       {/* Row 1: Toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -1824,7 +2292,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                       {unmapped.length} item{unmapped.length > 1 ? 's' : ''} with unmapped status
                     </div>
                     <div style={{ fontSize: 11, color: s.textSecondary }}>
-                      Status values not in FORGE config: {uniqueStatuses.map(st => `"${st}"`).join(', ')}.
+                      Status values not in The Dojo config: {uniqueStatuses.map(st => `"${st}"`).join(', ')}.
                       These items display with fallback styling and rank as mid-pipeline.
                     </div>
                   </div>
@@ -1988,10 +2456,20 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                             }}
                             onClick={() => openSprintDetail(sp.id)}
                           >
-                            {/* Name + action */}
+                            {/* Name + RONIN badge */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                               <Icon name="bolt" size={16} color="rgb(245,158,11)" />
                               <span style={{ fontSize: 14, fontWeight: 700, flex: 1 }}>{sp.name}</span>
+                              {/* TRK-14235: RONIN attribution badge */}
+                              <span style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 3,
+                                fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 6,
+                                background: 'rgba(74,122,181,0.12)', color: 'rgba(74,122,181,0.8)',
+                                letterSpacing: '0.06em',
+                              }}>
+                                <span className="material-icons-outlined" style={{ fontSize: 10 }}>precision_manufacturing</span>
+                                RONIN
+                              </span>
                             </div>
 
                             {/* Description */}
@@ -2799,6 +3277,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           </div>
         </>
       )}
+      {/* End RONIN tab */}
+      </>}
     </div>
   )
 }

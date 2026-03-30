@@ -14,7 +14,7 @@ import {
 import type { TrackerItemDTO, TrackerBulkUpdateResult, DedupScanData, DedupMergeResult, TrackerDeleteResult, TrackerAttachmentDTO, AttachmentDeleteResult } from '@tomachina/core'
 import { createNotification } from './notifications.js'
 import { checkForDuplicate } from '../raiden/duplicate-guard.js'
-import { postNewSubmission, postInProgress, postFixed } from '../raiden/channel-notifier.js'
+import { postNewSubmission, postFixed, postInProgress } from '../raiden/channel-notifier.js'
 
 export const trackerRoutes = Router()
 const COLLECTION = 'tracker_items'
@@ -365,7 +365,18 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     const db = getFirestore()
     const now = new Date().toISOString()
 
-    // Auto-generate item_id as TRK-NNN (scan all docs to find true max, skip NaN poison)
+    // TRK-14236: Determine item_id prefix
+    // RAIDEN items use type-specific prefix (BUG-/FIX-/UX-), RONIN items use TRK-
+    const isRaiden = (req.body.agent as string) === 'raiden'
+    const itemType = (req.body.type as string) || ''
+    const raidenPrefix = itemType === 'bug' || itemType === 'broken' ? 'BUG'
+      : itemType === 'improve' || itemType === 'enhancement' ? 'FIX'
+      : itemType === 'improve' || itemType === 'ux' ? 'UX'
+      : null
+    const prefix = isRaiden && raidenPrefix ? raidenPrefix : 'TRK'
+    const prefixPattern = `${prefix}-`
+
+    // Auto-generate item_id (scan all docs to find true max for this prefix, skip NaN poison)
     const allSnap = await db.collection(COLLECTION).get()
     let maxNum = 0
     const nanDocs: FirebaseFirestore.QueryDocumentSnapshot[] = []
@@ -375,14 +386,14 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
         nanDocs.push(doc)
         continue
       }
-      const num = parseInt(id.replace('TRK-', ''), 10)
-      if (!isNaN(num) && num > maxNum) {
+      const num = parseInt(id.replace(prefixPattern, ''), 10)
+      if (id.startsWith(prefixPattern) && !isNaN(num) && num > maxNum) {
         maxNum = num
       }
     }
 
-    // Reassign TRK-NaN docs with proper sequential IDs
-    if (nanDocs.length > 0) {
+    // Reassign TRK-NaN docs with proper sequential IDs (only for TRK- prefix to avoid collision)
+    if (prefix === 'TRK' && nanDocs.length > 0) {
       const nanBatch = db.batch()
       for (const nanDoc of nanDocs) {
         maxNum++
@@ -396,7 +407,7 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     }
 
     const nextNum = maxNum + 1
-    const itemId = `TRK-${String(nextNum).padStart(3, '0')}`
+    const itemId = `${prefix}-${String(nextNum).padStart(3, '0')}`
 
     const data = {
       ...req.body,
@@ -411,7 +422,8 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     // TRK-13563: Create notification for new FORGE reports
     const reporterEmail = (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api'
     const reporterName = (req.body.reported_by as string) || reporterEmail
-    const itemType = (req.body.type as string) || 'report'
+    // itemType already declared above (reuse it, default 'report' if empty)
+    const notifItemType = itemType || 'report'
     const itemTitle = (req.body.title as string) || 'Untitled'
     const itemPortal = (req.body.portal as string) || 'all'
 
@@ -419,11 +431,11 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
       type: 'forge_report',
       source_type: 'system',
       title: `New FORGE Report: ${itemTitle}`,
-      body: `${reporterName} submitted a ${itemType} report: ${itemTitle}`,
+      body: `${reporterName} submitted a ${notifItemType} report: ${itemTitle}`,
       metadata: {
         tracker_item_id: itemId,
         item_id: itemId,
-        type: itemType,
+        type: notifItemType,
         portal: itemPortal,
         sprint_id: (req.body.sprint_id as string) || null,
       },
@@ -439,7 +451,7 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
       itemTitle,
       itemId,
       reporterName,
-      itemType,
+      notifItemType,
       (req.body.priority as string) || 'P2',
     ).catch(slackErr => console.error('[raiden-channel] NEW post failed:', slackErr))
 
@@ -482,6 +494,17 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
         portal: 'all',
         _created_by: (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api',
       }).catch(() => {/* fire-and-forget */})
+
+      // TRK-14240: Post channel event for RAIDEN items on key lifecycle transitions
+      if (oldData.agent === 'raiden') {
+        const trkId = (oldData.item_id as string) || id
+        const title = (oldData.title as string) || 'Unknown'
+        if (req.body.status === 'fixing') {
+          postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
+        } else if (req.body.status === 'done') {
+          postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
+        }
+      }
     }
 
     const updated = await docRef.get()

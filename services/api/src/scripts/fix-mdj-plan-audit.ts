@@ -51,13 +51,13 @@ const DESCRIPTION_UPDATES: Record<
   // TRK-002: append standalone project clarification
   'TRK-002': {
     mode: 'append',
-    text: 'IMPORTANT: ~/mdj-agent/ is a standalone project on MDJ1 ONLY. It is NOT part of the toMachina monorepo. It is NOT deployed to Cloud Run. It runs exclusively on the Dell PowerEdge T440 server.',
+    text: 'IMPORTANT: ~/mdj-server/ is a standalone project on MDJ1 ONLY. It is NOT part of the toMachina monorepo. It is NOT deployed to Cloud Run. It runs exclusively on the Dell PowerEdge T440 server.',
   },
 
   // TRK-007: append MCP connection method details
   'TRK-007': {
     mode: 'append',
-    text: 'Connection method: use @modelcontextprotocol/sdk Client class to spawn and connect to each MCP server via stdio transport (same pattern as the MCP servers\' own index.js files use StdioServerTransport). Each server is spawned as a child process by the mdj-agent.',
+    text: 'Connection method: use @modelcontextprotocol/sdk Client class to spawn and connect to each MCP server via stdio transport (same pattern as the MCP servers\' own index.js files use StdioServerTransport). Each server is spawned as a child process by the mdj-server.',
   },
 
   // TRK-009: append approval state persistence details

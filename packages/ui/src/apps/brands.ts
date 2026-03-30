@@ -17,7 +17,7 @@ export const APP_BRANDS: Record<AppKey, AppBrand> = {
   c3:                 { color: '#e53e3e', icon: 'campaign',    label: 'C3',               description: 'Campaign Engine' },
   'command-center':   { color: '#718096', icon: 'speed',       label: 'Command Center',   description: 'Metrics Dashboard' },
   'david-hub':        { color: '#40bc58', icon: 'calculate',   label: 'DAVID HUB',        description: 'M&A Deal Evaluation' },
-  forge:               { color: '#e07c3e', icon: 'construction', label: 'FORGE',             description: 'Build Tracker' },
+  forge:               { color: '#e07c3e', icon: 'temple_buddhist', label: 'The Dojo',       description: 'Build Tracker' },
   guardian:            { color: '#c8872e', icon: 'shield',       label: 'GUARDIAN',          description: 'Data Protection Engine' },
   'leadership-center': { color: '#a78bfa', icon: 'leaderboard', label: 'Leadership Center', description: 'Leadership Intelligence' },
   'pipeline-studio':   { color: '#14b8a6', icon: 'architecture',  label: 'Pipeline Studio',  description: 'Pipeline Design Tool' },

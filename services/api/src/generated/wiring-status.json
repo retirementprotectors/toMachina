@@ -4768,12 +4768,12 @@
   "scan_stats": {
     "route_files": 73,
     "ui_files": 150,
-    "portal_pages": 162,
+    "portal_pages": 163,
     "collections_found": 69,
     "api_routes_found": 73,
     "cloud_functions_found": 14,
     "env_vars_found": 40,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-03-30T00:58:24.684Z"
+    "scanned_at": "2026-03-30T06:01:50.048Z"
   }
 }

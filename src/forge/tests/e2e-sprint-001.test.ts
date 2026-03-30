@@ -91,14 +91,14 @@ function parseSsePayload(raw: string): ParsedSseStream {
   return { events, toolCalls, toolResults, textChunks, done, errors }
 }
 
-// ── Intent Classifier — direct import from compiled mdj-agent ────────────
+// ── Intent Classifier — direct import from compiled mdj-server ────────────
 // Uses keyword-scoring path (deterministic, no API call) for canonical inputs.
 
 let classifyIntent: (message: string) => Promise<IntentResult>
 
 beforeAll(async () => {
   const mod = await import(
-    '../../../services/mdj-agent/dist/dist/agent/intent-classifier.js'
+    '../../../services/mdj-server/dist/dist/agent/intent-classifier.js'
   )
   classifyIntent = mod.classifyIntent
 })

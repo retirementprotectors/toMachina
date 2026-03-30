@@ -163,6 +163,28 @@ function logEvent(event: DojoFixesEvent): void {
 }
 
 // ---------------------------------------------------------------------------
+// TRK-14239: In-thread reply — posts confirmation back to the original Slack message
+// Called when a #dojo-fixes message creates a tracker item
+// ---------------------------------------------------------------------------
+
+export async function postThreadReply(
+  originalTs: string,
+  trkId: string,
+  status: string,
+): Promise<{ success: boolean; ts?: string; error?: string }> {
+  const statusLabel = formatStatus(status)
+  const text = `✅ Ticket created: *${trkId}* — Status: ${statusLabel}. RAIDEN is triaging...`
+
+  console.log(`[raiden-channel] In-thread reply for ${trkId} (ts=${originalTs})`)
+  const result = await slackPost(DOJO_FIXES_CHANNEL, text, originalTs)
+
+  if (result.success) {
+    logEvent({ type: 'thread_reply', trk_id: trkId, title: `Reply to ${originalTs}`, posted_at: new Date().toISOString() })
+  }
+  return result
+}
+
+// ---------------------------------------------------------------------------
 // Exported constants for other modules
 // ---------------------------------------------------------------------------
 

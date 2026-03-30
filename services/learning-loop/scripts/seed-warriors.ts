@@ -72,7 +72,7 @@ const WARRIORS: WarriorRegistry[] = [
     ccsdk_route: null,
   },
 
-  // ── CCSDK Mesh (mdj-agent:4200) ─────────────────────────────────────
+  // ── CCSDK Mesh (mdj-server:4200) ─────────────────────────────────────
   {
     name: 'ronin',
     display_name: 'RONIN',
