@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { postNewSubmission, postDuplicateDetected, postInProgress, postFixed } from './channel-notifier.js'
+import { getRunHistory } from './logger.js'
 
 export const raidenRoutes = Router()
 
@@ -57,6 +58,18 @@ raidenRoutes.post('/channel/fixed', async (req, res) => {
   res.json({ success: result.success, data: { ts: result.ts }, error: result.error })
 })
 
+// GET /raiden/history — TRK-13816
+raidenRoutes.get('/history', async (req, res) => {
+  const limit = parseInt(req.query.limit as string) || 10
+  try {
+    const runs = await getRunHistory(limit)
+    res.json({ success: true, data: runs })
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Failed to fetch RAIDEN history' })
+  }
+})
+
 // Re-export channel notifier for other modules
 export { postNewSubmission, postDuplicateDetected, postInProgress, postFixed } from './channel-notifier.js'
 export { checkForDuplicate } from './duplicate-guard.js'
+export { startRaidenScheduler } from './scheduler.js'
