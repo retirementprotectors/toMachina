@@ -13,6 +13,8 @@ export function useMDJStream({ portal }: UseMDJStreamOptions) {
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const messagesRef = useRef<MDJMessage[]>([])
+  messagesRef.current = messages
 
   const sendMessage = useCallback(
     async (text: string, context?: MDJPageContext, authToken?: string) => {
@@ -48,7 +50,7 @@ export function useMDJStream({ portal }: UseMDJStreamOptions) {
         if (authToken) headers['Authorization'] = `Bearer ${authToken}`
 
         // Build conversation history from existing messages (excluding the current user msg + placeholder)
-        const history = messages
+        const history = messagesRef.current
           .filter(m => m.id !== userMsg.id && m.id !== assistantId)
           .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content }))
 
