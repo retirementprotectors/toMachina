@@ -16,6 +16,7 @@ export { definition as sendSmsDefinition } from './send-sms'
 export { definition as createCalendarEventDefinition } from './create-calendar-event'
 export { definition as logActivityDefinition } from './log-activity'
 export { definition as runIllustrationDefinition } from './run-illustration'
+export { definition as senseiLookupDefinition } from './sensei-lookup'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,7 @@ export type {
   IllustrationPdfData,
   RunIllustrationInput,
 } from './run-illustration'
+export type { SenseiTrainingContent, SenseiLookupInput } from './sensei-lookup'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -48,8 +50,9 @@ import { definition as sendSms } from './send-sms'
 import { definition as createCalendarEvent } from './create-calendar-event'
 import { definition as logActivity } from './log-activity'
 import { definition as runIllustration } from './run-illustration'
+import { definition as senseiLookup } from './sensei-lookup'
 
-/** All 11 atomic tool definitions for registry generation. */
+/** All 12 atomic tool definitions for registry generation. */
 export const VOLTRON_ATOMIC_TOOL_DEFINITIONS = [
   getClientDocuments,
   getDocument,
@@ -62,6 +65,7 @@ export const VOLTRON_ATOMIC_TOOL_DEFINITIONS = [
   createCalendarEvent,
   logActivity,
   runIllustration,
+  senseiLookup,
 ] as const
 
 /** Lookup a single atomic tool definition by tool_id. */
