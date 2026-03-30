@@ -7,6 +7,39 @@
  */
 
 // ---------------------------------------------------------------------------
+// SENSEI Content (TRK-SNS-001) — training content per module
+// ---------------------------------------------------------------------------
+
+/** Template types for training content generation. */
+export type SenseiTemplateType = 'workflow' | 'ui' | 'feat'
+
+/** A single SENSEI content entry — one per module. */
+export interface SenseiContent {
+  module_id: string
+  title: string
+  description: string
+  screenshot_urls: string[]
+  stats_query?: string
+  template_type: SenseiTemplateType
+  role_filter?: string[]
+  last_generated?: string
+  version: number
+  created_at: string
+  updated_at: string
+}
+
+/** POST body for creating/updating sensei content. */
+export interface SenseiContentBody {
+  module_id: string
+  title: string
+  description: string
+  screenshot_urls?: string[]
+  stats_query?: string
+  template_type: SenseiTemplateType
+  role_filter?: string[]
+}
+
+// ---------------------------------------------------------------------------
 // Event types
 // ---------------------------------------------------------------------------
 
