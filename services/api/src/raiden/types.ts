@@ -1,4 +1,4 @@
-import type { Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase-admin/firestore'
 
 export interface SlackItem {
   message_ts: string
@@ -46,19 +46,14 @@ export interface DuplicateMatch {
   score: number
 }
 
-export type DojoFixesEventType =
-  | 'new_submission'
-  | 'duplicate_detected'
-  | 'in_progress'
-  | 'fixed'
+export const RAIDEN_RUNS_COLLECTION = 'mdj_raiden_runs'
 
+// Channel notifier event type (used by channel-notifier.ts)
 export interface DojoFixesEvent {
-  type: DojoFixesEventType
+  type: string
   trk_id: string
   title: string
   reporter?: string
   status?: string
   posted_at: string
 }
-
-export const RAIDEN_RUNS_COLLECTION = 'mdj_raiden_runs'
