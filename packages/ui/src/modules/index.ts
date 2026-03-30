@@ -35,8 +35,8 @@ export { MDJPanel } from './MDJPanel'
 export { ClientDocuments } from './ClientDocuments'
 export { AccountDocuments } from './AccountDocuments'
 
-export { RSPYellowQUE } from './RSPPipeline'
-export type { RSPYellowQUEProps, RSPAccount } from './RSPPipeline'
+export { RSPYellowQUE, RSPTransitionPanel, RSPServiceHandoff, RSPAccountReview, RSPAuthStatus, RSPBlueGate, RSPClientProfile, RSPDiscoveryPanel, RSPReportTracker } from './RSPPipeline'
+export type { RSPYellowQUEProps, RSPAccount, RSPAccountReviewProps, RSPAuthStatusProps, RSPBlueGateProps, RSPClientProfileProps, RSPDiscoveryPanelProps, RSPReportTrackerProps } from './RSPPipeline'
 
 export { SenseiHeatmap } from './SenseiHeatmap'
 
