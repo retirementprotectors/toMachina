@@ -730,7 +730,7 @@ prozoneRoutes.get('/scorecard', async (req: Request, res: Response) => {
       }
 
       attempts++
-      if (outcome === 'callback' || outcome === 'booked' || outcome === 'not_interested') {
+      if (outcome === 'callback' || outcome === 'booked') {
         connected++
       }
       if (outcome === 'booked') {
