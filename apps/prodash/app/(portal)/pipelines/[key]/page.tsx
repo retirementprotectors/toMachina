@@ -90,7 +90,7 @@ export default function PipelineKanbanPage() {
         if (cancelled) return
         const json = await res.json() as { success: boolean; data?: Carrier[] }
         if (!cancelled && json.success && json.data) {
-          setCarriers([...json.data].sort((a, b) => a.carrier_name.localeCompare(b.carrier_name)))
+          setCarriers([...json.data].sort((a, b) => (a.name || a.carrier_name || '').localeCompare(b.name || b.carrier_name || '')))
         }
       } catch { /* non-fatal */ }
     }
