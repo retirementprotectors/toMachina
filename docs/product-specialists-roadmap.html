@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Specialists Roadmap — MUSASHI Discovery Doc</title>
+<style>
+:root { --bg:#0f1117; --card:#1a1d27; --border:#2d3348; --text:#f0f0f0; --muted:#9ca3af; --dim:#6b7280; --accent:#3b82f6; --gold:#d4a44c; --green:#22c55e; --red:#ef4444; --orange:#f97316; --purple:#a78bfa; --amber:#f59e0b; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.brand{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:.5rem}
+h1{font-size:2rem;font-weight:700;margin-bottom:.5rem}
+h2{font-size:1.4rem;font-weight:700;margin:2rem 0 1rem;color:var(--accent)}
+h3{font-size:1.1rem;font-weight:600;margin:1.5rem 0 .75rem;color:var(--text)}
+.subtitle{color:var(--muted);max-width:700px;margin-bottom:1.5rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.5rem 0;border-bottom:1px solid var(--border);padding-bottom:.5rem}
+.tab{padding:.5rem 1rem;border-radius:8px 8px 0 0;cursor:pointer;font-size:.85rem;font-weight:600;background:var(--card);border:1px solid var(--border);border-bottom:none;color:var(--muted);transition:all .2s}
+.tab:hover,.tab.active{color:var(--text);background:var(--bg);border-color:var(--accent)}
+.tab.active{color:var(--accent)}
+.tab-content{display:none;padding:1.5rem 0}
+.tab-content.active{display:block}
+.container{max-width:1000px;margin:0 auto;padding:2rem 1.5rem 4rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.85rem}
+th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}
+td{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin:1rem 0}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:6px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.badge-green{background:color-mix(in srgb,var(--green) 15%,var(--bg));color:var(--green);border:1px solid color-mix(in srgb,var(--green) 30%,var(--border))}
+.badge-amber{background:color-mix(in srgb,var(--amber) 15%,var(--bg));color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--border))}
+.badge-red{background:color-mix(in srgb,var(--red) 15%,var(--bg));color:var(--red);border:1px solid color-mix(in srgb,var(--red) 30%,var(--border))}
+.badge-purple{background:color-mix(in srgb,var(--purple) 15%,var(--bg));color:var(--purple);border:1px solid color-mix(in srgb,var(--purple) 30%,var(--border))}
+.callout{background:color-mix(in srgb,var(--accent) 8%,var(--bg));border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border));border-radius:10px;padding:1rem 1.25rem;margin:1rem 0;font-size:.9rem}
+.callout strong{color:var(--accent)}
+.cherry{background:color-mix(in srgb,var(--orange) 8%,var(--bg));border:1px solid color-mix(in srgb,var(--orange) 25%,var(--border));border-radius:10px;padding:1rem 1.25rem;margin:1rem 0;font-size:.9rem}
+.cherry strong{color:var(--orange)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.stat{text-align:center;padding:1rem}
+.stat .num{font-size:2rem;font-weight:700;color:var(--accent)}
+.stat .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--dim);text-align:center}
+code{background:var(--card);padding:.15rem .4rem;border-radius:4px;font-size:.85em;color:var(--amber)}
+pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;font-size:.8rem;margin:1rem 0}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="brand">MUSASHI DISCOVERY DOC</div>
+<h1>Product Specialists Roadmap</h1>
+<p class="subtitle">5 AI Specialists — each an expert in a product domain, connected to the QUE engine, surfaced through VOLTRON. The Map for the EPIC.</p>
+
+<div class="tabs" id="tabs">
+<div class="tab active" data-tab="exec">Executive Summary</div>
+<div class="tab" data-tab="inventory">What Exists</div>
+<div class="tab" data-tab="investment">Investment</div>
+<div class="tab" data-tab="medicare">Medicare</div>
+<div class="tab" data-tab="annuity">Annuity</div>
+<div class="tab" data-tab="life">Life/Estate</div>
+<div class="tab" data-tab="legacy">Legacy/LTC</div>
+<div class="tab" data-tab="arch">Architecture</div>
+</div>
+
+<!-- TAB 1: EXECUTIVE SUMMARY -->
+<div class="tab-content active" id="exec">
+<h2>The Vision</h2>
+<p>JDM told the sales team: <em>"Five specialists — Medicare, Life, Annuity, Investment, Legacy. Each tied to specific tools and apps to handle all casework."</em></p>
+<p style="margin-top:1rem">Each specialist is a VOLTRON mode — same AI, different expertise. When an agent says "run the tax harvesting analysis on the Nepper account," VOLTRON switches to Investment Specialist mode and chains the right QUE tools automatically.</p>
+
+<div class="grid2" style="margin:2rem 0">
+<div class="card"><div class="stat"><div class="num">33</div><div class="label">QUE Calc Tools Built</div></div></div>
+<div class="card"><div class="stat"><div class="num">10</div><div class="label">Super Tools (Analysis Engines)</div></div></div>
+<div class="card"><div class="stat"><div class="num">10</div><div class="label">Wires (End-to-End Pipelines)</div></div></div>
+<div class="card"><div class="stat"><div class="num">0</div><div class="label">Specialist Modes Defined</div></div></div>
+</div>
+
+<div class="cherry"><strong>CHERRY-PICK:</strong> Investment Specialist (Tax Harvesting) builds FIRST. Real opportunity: Josh Archer + Nepper case. Tools exist, just needs wiring + output design. See Tab 3.</div>
+
+<h3>The 5 Specialists</h3>
+<table>
+<tr><th>Specialist</th><th>Domain</th><th>QUE Tools</th><th>Readiness</th><th>Cherry-Pick?</th></tr>
+<tr><td><strong>Investment</strong></td><td>Tax harvesting, RMD, Roth, portfolio</td><td>6 calc + 2 super + 2 wires</td><td><span class="badge badge-green">READY TO WIRE</span></td><td><span class="badge badge-purple">FIRST</span></td></tr>
+<tr><td><strong>Medicare</strong></td><td>Med Supp quoting, AEP, IRMAA</td><td>4 calc + 1 super + 1 wire + CSG API</td><td><span class="badge badge-green">READY TO WIRE</span></td><td></td></tr>
+<tr><td><strong>Annuity</strong></td><td>FIA/VA/MYGA analysis, income, growth</td><td>17 calc + 4 super + 4 wires</td><td><span class="badge badge-green">MOST BUILT-OUT</span></td><td></td></tr>
+<tr><td><strong>Life/Estate</strong></td><td>Estate max, DB erosion, 1035</td><td>2 calc + 1 super + 1 wire</td><td><span class="badge badge-amber">NEEDS EXPANSION</span></td><td></td></tr>
+<tr><td><strong>Legacy/LTC</strong></td><td>4-Phase LTC, Medicaid, health</td><td>1 calc + 1 super + 1 wire</td><td><span class="badge badge-amber">NEEDS EXPANSION</span></td><td></td></tr>
+</table>
+
+<h3>Phased Rollout</h3>
+<table>
+<tr><th>Phase</th><th>What</th><th>When</th></tr>
+<tr><td><span class="badge badge-purple">Phase 1</span></td><td>Investment Specialist — tax harvesting on Nepper case</td><td>This week</td></tr>
+<tr><td><span class="badge badge-green">Phase 2</span></td><td>Annuity Specialist — most tools already built</td><td>Next week</td></tr>
+<tr><td><span class="badge badge-green">Phase 3</span></td><td>Medicare Specialist — CSG quoting + AEP pipeline</td><td>Week 3</td></tr>
+<tr><td><span class="badge badge-amber">Phase 4</span></td><td>Life/Estate Specialist — expand tooling + carriers</td><td>Week 4</td></tr>
+<tr><td><span class="badge badge-amber">Phase 5</span></td><td>Legacy/LTC Specialist — health triggers + Medicaid</td><td>Week 5+</td></tr>
+</table>
+</div>
+
+<!-- TAB 2: WHAT EXISTS -->
+<div class="tab-content" id="inventory">
+<h2>Full Tool Inventory</h2>
+<p>The QUE engine is a 3-tier stack: <strong>Tools → Super Tools → Wires</strong>. All pure TypeScript, no external dependencies.</p>
+
+<h3>Atomic Calc Tools (33)</h3>
+<table>
+<tr><th>Domain</th><th>Tools</th><th>Count</th></tr>
+<tr><td>Annuity (FIA/VA/MYGA)</td><td>calcFiaProjection, calcGmib, calcRollup, calcBonusOffset, calcVaDepletion, calcMva, calcMgsv, calcSurrenderCharge, calcNetOutlay, calcDelta, calcBreakevenEquity, calcLtcPhaseAccess</td><td>12</td></tr>
+<tr><td>Tax / Income</td><td>calcFederalTax, calcStateTax, calcEffectiveTaxRate, calcSsTaxation, calcProvisionalIncome, calcLtcg, calcLotSelection</td><td>7</td></tr>
+<tr><td>Investment</td><td>calcRmd, calcHouseholdAggregate</td><td>2</td></tr>
+<tr><td>Medicare</td><td>calcIrmaa, calcSsEarningsLimit</td><td>2</td></tr>
+<tr><td>Life / Estate</td><td>calcIncomeMultiplier, calcCollegeFunding</td><td>2</td></tr>
+<tr><td>Lookups</td><td>lookupIrsFactor, lookupCarrierProduct, lookupIndexRate, lookupSurrenderSchedule, lookupFycRate, lookupTaxBracket, lookupIrmaaBracket, lookupCommunityProperty</td><td>8</td></tr>
+</table>
+
+<h3>Super Tools (10 Analysis Engines)</h3>
+<table>
+<tr><th>Super Tool</th><th>Domain</th><th>What It Does</th></tr>
+<tr><td><code>analyzeIncomeNow</code></td><td>Annuity + Investment</td><td>Immediate income activation — dormant riders, GMIB, RMD overlap</td></tr>
+<tr><td><code>analyzeIncomeLater</code></td><td>Annuity</td><td>Future income deferral — rollup projections, income gap</td></tr>
+<tr><td><code>analyzeEstate</code></td><td>Life + Estate</td><td>Lapsing policies, DB erosion, 1035 candidates, survivor gap</td></tr>
+<tr><td><code>analyzeGrowth</code></td><td>Annuity</td><td>VA vs FIA comparison — depletion vs sustainability</td></tr>
+<tr><td><code>analyzeLtc</code></td><td>LTC</td><td>4-Phase LTC Access Framework — pool, fees, break-even</td></tr>
+<tr><td><code>analyzeRoth</code></td><td>Investment + Tax</td><td>Roth conversion optimization — bracket analysis</td></tr>
+<tr><td><code>analyzeTaxHarvest</code></td><td>Investment</td><td>Tax-loss/gain harvesting — lot selection, LTCG math</td></tr>
+<tr><td><code>analyzeMge</code></td><td>Cross-domain</td><td>Master Gateway — runs all 7 above, determines applicable types</td></tr>
+<tr><td><code>generateCasework</code></td><td>Output</td><td>Produces casework document from analysis</td></tr>
+<tr><td><code>assembleOutput</code></td><td>Output</td><td>Packages all 5 output types into final deliverable</td></tr>
+</table>
+
+<h3>Wires (10 End-to-End Pipelines)</h3>
+<table>
+<tr><th>Wire</th><th>Pipeline</th><th>Domain</th></tr>
+<tr><td><code>wireIncomeNow</code></td><td>analyzeIncomeNow → generateCasework</td><td>Annuity</td></tr>
+<tr><td><code>wireIncomeLater</code></td><td>analyzeIncomeLater → generateCasework</td><td>Annuity</td></tr>
+<tr><td><code>wireEstateMax</code></td><td>analyzeEstate → generateCasework</td><td>Life + Estate</td></tr>
+<tr><td><code>wireGrowthMax</code></td><td>analyzeGrowth → generateCasework</td><td>Annuity</td></tr>
+<tr><td><code>wireLtcMax</code></td><td>analyzeLtc → generateCasework</td><td>LTC</td></tr>
+<tr><td><code>wireRothConversion</code></td><td>analyzeRoth → generateCasework</td><td>Investment</td></tr>
+<tr><td><code>wireTaxHarvest</code></td><td>analyzeTaxHarvest → generateCasework</td><td>Investment</td></tr>
+<tr><td><code>wireMgeDetailed</code></td><td>analyzeMge → all types</td><td>Full MGE</td></tr>
+<tr><td><code>wireReviewMeeting</code></td><td>analyzeMge → meeting prep</td><td>Meeting Prep</td></tr>
+<tr><td><code>wireAssembleB4</code></td><td>assembleOutput → package all</td><td>Assembly</td></tr>
+</table>
+
+<h3>VOLTRON Layer</h3>
+<table>
+<tr><th>Layer</th><th>Count</th><th>Items</th></tr>
+<tr><td>Atomic Tools</td><td>12</td><td>ACF ops, run_que_quote, schedule_meeting, send_sms, run_illustration, sensei_lookup + 82 legacy MDJ tools</td></tr>
+<tr><td>Super Tools</td><td>8</td><td>REVIEW_PREP, PULL_DOCUMENTS, DRAFT_COMMUNICATION, RMD_ANALYSIS, COVERAGE_GAP, MEETING_PREP, BUILD_CASEWORK, RUN_ILLUSTRATION</td></tr>
+<tr><td>Wires</td><td>4</td><td>ANNUAL_REVIEW, AEP_ENROLLMENT, ONBOARD_AGENCY, NEW_BUSINESS</td></tr>
+<tr><td>Specialist Modes</td><td>0</td><td><span class="badge badge-red">NOT YET DEFINED</span> — this is the gap</td></tr>
+</table>
+</div>
+
+<!-- TAB 3: INVESTMENT SPECIALIST (CHERRY-PICK) -->
+<div class="tab-content" id="investment">
+<h2>Investment Specialist <span class="badge badge-purple">CHERRY-PICK — BUILD NOW</span></h2>
+
+<div class="cherry"><strong>Real Opportunity:</strong> Josh Archer + Nepper case. Tax harvesting analysis needed THIS WEEK. $200K+ in Farm Bureau annuities being replaced. All QUE tools exist — just needs wiring + output.</div>
+
+<h3>What Exists</h3>
+<table>
+<tr><th>Layer</th><th>Tool</th><th>Status</th></tr>
+<tr><td>Calc</td><td><code>calcRmd</code> — RMD from IRS Uniform Lifetime Table</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Calc</td><td><code>calcLtcg</code> — Long-term capital gains tax</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Calc</td><td><code>calcLotSelection</code> — Tax lot optimizer</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Calc</td><td><code>calcEffectiveTaxRate</code> — Blended rate across income</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Calc</td><td><code>calcFederalTax</code> + <code>calcStateTax</code></td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Calc</td><td><code>calcHouseholdAggregate</code> — Combined income/expenses</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Super</td><td><code>analyzeTaxHarvest</code> — Full tax harvesting orchestrator</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Super</td><td><code>analyzeRoth</code> — Roth conversion optimization</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Wire</td><td><code>wireTaxHarvest</code> — Tax harvesting end-to-end</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Wire</td><td><code>wireRothConversion</code> — Roth end-to-end</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Output</td><td><code>tax-harvesting-summary</code> + <code>tax-harvesting-detail</code></td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>VOLTRON</td><td><code>RMD_ANALYSIS</code> super tool</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Reference</td><td>Nepper case files on Drive (portfolio review + statements)</td><td><span class="badge badge-green">AVAILABLE</span></td></tr>
+<tr><td>Reference</td><td>Tax harvesting strategy docs (Stulpin, Kehoe examples)</td><td><span class="badge badge-green">AVAILABLE</span></td></tr>
+</table>
+
+<h3>What's Missing (to wire the specialist)</h3>
+<table>
+<tr><th>Item</th><th>Description</th><th>Effort</th></tr>
+<tr><td>Specialist Mode</td><td>VOLTRON "Investment" mode — routes to tax/RMD/Roth tools</td><td>2-4 hrs</td></tr>
+<tr><td>Client Data Connector</td><td>Pull Nepper account data from Firestore → feed into QUE tools</td><td>1-2 hrs</td></tr>
+<tr><td>Output PDF</td><td>Client-facing tax harvesting report (branded, professional)</td><td>2-3 hrs (MUSASHI)</td></tr>
+<tr><td>VOLTRON Command</td><td>"Run tax harvesting on [client]" → triggers the full wire</td><td>1-2 hrs</td></tr>
+</table>
+
+<h3>Gaps (Future)</h3>
+<ul style="color:var(--muted);margin:1rem 0;padding-left:1.5rem">
+<li>No securities/portfolio performance tools (no Schwab/RBC integration)</li>
+<li>No DST Vision integration (mutual fund/VA data aggregator)</li>
+<li>No risk tolerance assessment tooling</li>
+<li>No model portfolio alignment tools</li>
+<li>No advisory fee calculator</li>
+</ul>
+</div>
+
+<!-- TAB 4: MEDICARE -->
+<div class="tab-content" id="medicare">
+<h2>Medicare Specialist</h2>
+
+<h3>What Exists</h3>
+<table>
+<tr><th>Layer</th><th>Tool</th><th>Status</th></tr>
+<tr><td>Calc</td><td><code>calcIrmaa</code> — IRMAA surcharge by MAGI tier</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Calc</td><td><code>calcProvisionalIncome</code> — SS provisional income test</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Calc</td><td><code>calcSsEarningsLimit</code> — SS earnings limit before 67</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Lookup</td><td><code>lookupIrmaaBracket</code> — IRMAA tier lookup</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>API</td><td><code>medicare-quote.ts</code> — CSG Actuarial Med Supp quoting (Plans A-N)</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>VOLTRON</td><td><code>run_que_quote</code> — Surfaces Medicare quoting</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>VOLTRON</td><td><code>COVERAGE_GAP</code> super tool</td><td><span class="badge badge-green">BUILT</span></td></tr>
+<tr><td>Wire</td><td><code>AEP_ENROLLMENT</code> — Full AEP prep with blackout enforcement</td><td><span class="badge badge-green">BUILT</span></td></tr>
+</table>
+
+<h3>Gaps</h3>
+<ul style="color:var(--muted);margin:1rem 0;padding-left:1.5rem">
+<li>No MAPD/Part D quoting (only Med Supp via CSG)</li>
+<li>No Part B premium lookup</li>
+<li>No T65 detection or enrollment timeline tools</li>
+<li>No drug plan comparison</li>
+</ul>
+</div>
+
+<!-- TAB 5: ANNUITY -->
+<div class="tab-content" id="annuity">
+<h2>Annuity Specialist <span class="badge badge-green">MOST BUILT-OUT</span></h2>
+<p>17 calc tools, 4 super tools, 4 wires. Covers FIA, VA, MYGA, income, growth, LTC riders.</p>
+
+<h3>Tool Coverage</h3>
+<table>
+<tr><th>Sub-Domain</th><th>Tools</th><th>Super Tool</th><th>Wire</th></tr>
+<tr><td>FIA (Growth)</td><td>calcFiaProjection, calcBonusOffset, lookupIndexRate</td><td>analyzeGrowth</td><td>wireGrowthMax</td></tr>
+<tr><td>VA (Depletion)</td><td>calcVaDepletion, calcDelta</td><td>analyzeGrowth</td><td>wireGrowthMax</td></tr>
+<tr><td>MYGA</td><td>calcMva, calcMgsv</td><td>—</td><td>—</td></tr>
+<tr><td>Income Now</td><td>calcGmib, calcRollup, calcBreakevenEquity</td><td>analyzeIncomeNow</td><td>wireIncomeNow</td></tr>
+<tr><td>Income Later</td><td>calcRollup, calcGmib</td><td>analyzeIncomeLater</td><td>wireIncomeLater</td></tr>
+<tr><td>LTC Riders</td><td>calcLtcPhaseAccess</td><td>analyzeLtc</td><td>wireLtcMax</td></tr>
+<tr><td>Transitions</td><td>calcSurrenderCharge, calcNetOutlay, calcLtcg</td><td>analyzeGrowth</td><td>—</td></tr>
+</table>
+
+<h3>Gaps</h3>
+<ul style="color:var(--muted);margin:1rem 0;padding-left:1.5rem">
+<li>No SPIA/DIA tools</li>
+<li>Only 2 carriers automated for illustrations (North American, Athene)</li>
+<li>No DTCC data integration</li>
+<li>Carrier product data is static/hardcoded</li>
+</ul>
+</div>
+
+<!-- TAB 6: LIFE/ESTATE -->
+<div class="tab-content" id="life">
+<h2>Life/Estate Specialist</h2>
+
+<h3>What Exists</h3>
+<table>
+<tr><th>Tool</th><th>What It Does</th></tr>
+<tr><td><code>calcIncomeMultiplier</code></td><td>Life insurance needs by age bracket</td></tr>
+<tr><td><code>calcCollegeFunding</code></td><td>Education funding projection</td></tr>
+<tr><td><code>analyzeEstate</code></td><td>Lapsing policies, DB erosion, 1035 candidates, survivor gap</td></tr>
+<tr><td><code>wireEstateMax</code></td><td>Full estate/life wire</td></tr>
+<tr><td><code>run_illustration</code></td><td>Playwright automation (North American + Athene only)</td></tr>
+</table>
+
+<h3>Gaps</h3>
+<ul style="color:var(--muted);margin:1rem 0;padding-left:1.5rem">
+<li>Only 2 carriers for illustrations — need more</li>
+<li>No term life quoting</li>
+<li>No final expense tooling</li>
+<li>No universal life illustration path</li>
+<li>No underwriting integration</li>
+<li>No trust/beneficiary analysis</li>
+</ul>
+</div>
+
+<!-- TAB 7: LEGACY/LTC -->
+<div class="tab-content" id="legacy">
+<h2>Legacy/LTC Specialist</h2>
+
+<h3>What Exists</h3>
+<table>
+<tr><th>Tool</th><th>What It Does</th></tr>
+<tr><td><code>calcLtcPhaseAccess</code></td><td>Proprietary RPI 4-Phase LTC Access Framework</td></tr>
+<tr><td><code>analyzeLtc</code></td><td>Maps contracts to Phase I/II/III/IV</td></tr>
+<tr><td><code>wireLtcMax</code></td><td>Full LTC analysis wire</td></tr>
+</table>
+
+<h3>The 4-Phase LTC Framework (RPI Proprietary)</h3>
+<div class="card">
+<strong>Phase I:</strong> Self-funded (savings + income)<br>
+<strong>Phase II:</strong> Annuity-funded (LTC riders, chronic illness benefits)<br>
+<strong>Phase III:</strong> Insurance-funded (standalone LTC, hybrid policies)<br>
+<strong>Phase IV:</strong> Government-funded (Medicaid, VA benefits)
+</div>
+
+<h3>Gaps</h3>
+<ul style="color:var(--muted);margin:1rem 0;padding-left:1.5rem">
+<li>No standalone legacy/estate planning beyond LTC-through-annuity</li>
+<li>No elder law/probate integration</li>
+<li>No EHR integration for health-triggered LTC qualification</li>
+<li>No Medicaid spend-down calculation</li>
+</ul>
+</div>
+
+<!-- TAB 8: ARCHITECTURE -->
+<div class="tab-content" id="arch">
+<h2>Specialist Architecture</h2>
+
+<h3>How It Works</h3>
+<pre>
+Agent says: "Run tax harvesting on the Nepper account"
+    │
+    ▼
+VOLTRON detects INVESTMENT domain
+    │
+    ▼
+Switches to INVESTMENT SPECIALIST mode
+    │
+    ▼
+Chains: get_client → get_accounts → analyzeTaxHarvest → generateCasework
+    │
+    ▼
+Output: Branded PDF in ACF folder + Slack notification to agent
+</pre>
+
+<h3>What Needs to Be Built</h3>
+<table>
+<tr><th>Component</th><th>Description</th><th>Effort</th></tr>
+<tr><td>Specialist Router</td><td>Intent detection → route to correct specialist mode</td><td>4-6 hrs</td></tr>
+<tr><td>Mode Definitions</td><td>5 mode configs: which tools, which voice, which outputs</td><td>2-3 hrs</td></tr>
+<tr><td>Tool Entitlements</td><td>Each mode gets access to specific QUE tools only</td><td>1-2 hrs</td></tr>
+<tr><td>Output Templates</td><td>Client-facing PDFs per domain (MUSASHI designs)</td><td>2-3 hrs each</td></tr>
+<tr><td>Voice Guides</td><td>Each specialist speaks differently (SENSEI for training, direct for analysis)</td><td>1 hr</td></tr>
+</table>
+
+<h3>Specialist Mode Schema</h3>
+<pre>
+{
+  name: "INVESTMENT",
+  display_name: "Investment Specialist",
+  description: "Tax harvesting, RMD analysis, Roth conversion, portfolio review",
+  que_tools: ["analyzeTaxHarvest", "analyzeRoth", "calcRmd", ...],
+  voltron_tools: ["RMD_ANALYSIS", "get_client", "get_accounts", ...],
+  wires: ["wireTaxHarvest", "wireRothConversion"],
+  output_templates: ["tax-harvesting-summary", "tax-harvesting-detail"],
+  voice: { tone: "Analytical and precise", style: "Data-driven recommendations" },
+  triggers: ["tax harvest", "capital gains", "RMD", "roth", "portfolio review"]
+}
+</pre>
+
+<h3>Golden Rule</h3>
+<div class="callout">
+<strong>Collections are the SSOT.</strong> Each specialist reads from Firestore collections — never text fields. If a dropdown exists for carriers, products, or agents, the specialist uses it. Text fields referencing collection data = WRONG.
+</div>
+</div>
+
+</div><!-- /container -->
+
+<div class="container">
+<div class="footer">
+MUSASHI, ARTxBLADE — VP/CMO, Executive.AI Team<br>
+Product Specialists Roadmap Discovery Doc v1.0 — 2026-03-31<br>
+#RunningOurOwnRACE
+</div>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
