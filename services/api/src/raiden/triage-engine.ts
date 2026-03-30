@@ -1,7 +1,7 @@
 import { getFirestore } from 'firebase-admin/firestore'
 import type { SlackItem, ForgeItem, TriageResult, TriageOutcome, DuplicateMatch } from './types.js'
 
-const db = getFirestore()
+function getDb() { return getFirestore() }
 const MDJ_URL = process.env.MDJ_AGENT_URL || 'http://localhost:4200'
 const MDJ_AUTH = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
 
@@ -34,7 +34,7 @@ function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
 
 export async function detectDuplicate(text: string): Promise<DuplicateMatch | null> {
   try {
-    const snap = await db.collection('forge_tracker')
+    const snap = await getDb().collection('forge_tracker')
       .where('status', 'in', ['open', 'in_progress', 'fixing', 'triaging', 'verifying'])
       .orderBy('created_at', 'desc')
       .limit(50)
@@ -95,7 +95,7 @@ export async function triageItem(item: SlackItem | ForgeItem): Promise<TriageRes
   let kbEmpty = true
   if (keywords.length > 0) {
     try {
-      const snap = await db.collection('knowledge_entries')
+      const snap = await getDb().collection('knowledge_entries')
         .where('tags', 'array-contains-any', keywords.slice(0, 10)).limit(3).get()
       kbEmpty = snap.empty
       if (!snap.empty && TRAIN_SIGNALS.some(rx => rx.test(text)))

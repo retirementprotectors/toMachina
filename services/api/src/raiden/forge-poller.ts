@@ -1,7 +1,7 @@
 import { getFirestore } from 'firebase-admin/firestore'
 import type { ForgeItem } from './types.js'
 
-const db = getFirestore()
+function getDb() { return getFirestore() }
 let lastRunTimestamp: string | null = null
 const FORGE_TRACKER_COLLECTION = 'forge_tracker'
 

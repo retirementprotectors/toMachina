@@ -2,7 +2,7 @@ import { getFirestore } from 'firebase-admin/firestore'
 import { readFileSync } from 'fs'
 import type { SlackItem } from './types.js'
 
-const db = getFirestore()
+function getDb() { return getFirestore() }
 const MDJ_URL = process.env.MDJ_AGENT_URL || 'http://localhost:4200'
 const MDJ_AUTH = process.env.MDJ_AUTH_SECRET || 'mdj-alpha-shared-secret-2026'
 
@@ -19,7 +19,7 @@ async function postSlack(channel: string, text: string, threadTs?: string): Prom
 export async function sendTrainingResponse(item: SlackItem, keywords: string[]): Promise<void> {
   let docSummary = ''
   try {
-    const snap = await db.collection('knowledge_entries')
+    const snap = await getDb().collection('knowledge_entries')
       .where('tags', 'array-contains-any', keywords.slice(0, 10)).limit(5).get()
     if (!snap.empty) {
       docSummary = snap.docs.map(d => d.data())
