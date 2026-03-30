@@ -94,7 +94,7 @@ senseiAnalyticsRoutes.post('/log', async (req: Request, res: Response) => {
 senseiAnalyticsRoutes.get('/heatmap', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const period = normalizePeriod(req.query.period)
+    const period = normalizePeriod(req.query.period as string)
     const cutoff = periodCutoff(period)
 
     let query: Query<DocumentData> = db.collection(COLLECTION)
@@ -139,7 +139,7 @@ senseiAnalyticsRoutes.get('/heatmap', async (req: Request, res: Response) => {
 senseiAnalyticsRoutes.get('/top', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const period = normalizePeriod(req.query.period)
+    const period = normalizePeriod(req.query.period as string)
     const cutoff = periodCutoff(period)
 
     let query: Query<DocumentData> = db.collection(COLLECTION)
