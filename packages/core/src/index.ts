@@ -35,3 +35,6 @@ export * from './validation'
 
 // VOLTRON Action Engine
 export * from './voltron'
+
+// AiBot Brand Types — DOJO v10 (TRK-13941)
+export * from './aibot-brand'
