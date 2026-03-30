@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>RAIDEN Polish v1 Build Plan</title></head>
+<body>
+<h1>RAIDEN Polish v1 Build Plan</h1>
+<p><b>Sprint:</b> 004-RAIDEN | <b>Tickets:</b> 22 | <b>Waves:</b> 7 | <b>Date:</b> 2026-03-30</p>
+<p><b>Architecture:</b> MDJ_SERVER = ~/mdj-agent (all agent code). Cloud Run (tm-api) = REST API only. ProDashX = apps/prodash frontend.</p>
+<p><b>Model IDs:</b> Triage = claude-haiku-4-5-20251001 | Auto-Fix = claude-sonnet-4-6 | RONIN Plan+Build = claude-opus-4-6</p>
+<p><b>Build gate:</b> Every ticket verified with <code>npm run build</code> not tsc --noEmit alone.</p>
+<hr>
+<h2>WAVE 1 Foundation (4 parallel tracks, zero file overlap)</h2>
+<h3>TRK-13752: RAIDEN Service Scaffold</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER)</li>
+<li><b>Dependencies:</b> None</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/index.ts (Express sub-router at /raiden/*), ~/mdj-agent/src/raiden/scheduler.ts (15-min setInterval loop), ~/mdj-agent/src/raiden/types.ts (SlackItem, ForgeItem, TriageOutcome, RaidenRunDoc interfaces)</li>
+<li><b>Modified files:</b> ~/mdj-agent/src/server.ts (import and mount raiden router)</li>
+<li><b>AC:</b> GET /raiden/status returns { running: true, lastRun: timestamp }. Firebase Admin shared (no new init). TypeScript strict. npm run build passes.</li>
+</ul>
+<h3>TRK-14233: Rename FORGE Module to The Dojo (temple_buddhist icon)</h3>
+<ul>
+<li><b>Track:</b> B (ProDashX frontend)</li>
+<li><b>Dependencies:</b> None</li>
+<li><b>Modified files:</b> apps/prodash/app/(portal)/components/PortalSidebar.tsx (label FORGE to The Dojo, icon to temple_buddhist), packages/ui/src/modules/Forge.tsx (rename component, header text, FORGE display strings), apps/prodash/app/(portal)/modules/forge/page.tsx (page title, metadata)</li>
+<li><b>AC:</b> Zero visible FORGE references in UI. temple_buddhist icon renders in sidebar + module header. Route title and page title say The Dojo. npm run build passes.</li>
+</ul>
+<h3>TRK-14236: RAIDEN Ticket Schema New Firestore Fields</h3>
+<ul>
+<li><b>Track:</b> C (Cloud Run API)</li>
+<li><b>Dependencies:</b> None</li>
+<li><b>Modified files:</b> services/api/src/routes/tracker.ts (extend POST handler for RAIDEN fields: priority, source, raiden_action, resolution, agent; generate BUG-/FIX-/UX- prefixed IDs server-side)</li>
+<li><b>New files:</b> services/api/src/types/raiden.ts (TypeScript interfaces for RAIDEN tracker fields)</li>
+<li><b>AC:</b> POST /api/tracker with agent:raiden creates item with prefixed ID (BUG-001). Existing RONIN reads unaffected. API returns { success: true, data: { item_id, trk_id, status } }. npm run build passes.</li>
+</ul>
+<h3>TRK-14241: Rename GitHub Repo mdj-agent to mdj-server</h3>
+<ul>
+<li><b>Track:</b> D (Infrastructure config files only)</li>
+<li><b>Dependencies:</b> None</li>
+<li><b>Modified files:</b> ~/.claude/CLAUDE.md (global refs), ~/.claude/projects/*/CLAUDE.md (project refs), /etc/systemd/system/mdj-agent.service, ~/mdj-agent/.github/workflows/*.yml, SSH configs</li>
+<li><b>AC:</b> GitHub repo renamed at github.com/retirementprotectors/mdj-server. grep -r mdj-agent returns zero hits across config files (local clone path noted, not a blocker). npm run build passes.</li>
+</ul>
+<hr>
+<h2>WAVE 2 Pollers + Utilities + RONIN Tab (depends on Wave 1)</h2>
+<h3>TRK-13753: Slack Channel Poller (15-min interval)</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER)</li>
+<li><b>Dependencies:</b> TRK-13752 (scaffold, W1)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/slack-poller.ts</li>
+<li><b>AC:</b> Reads #prodashx-urgent-fixes-and-bugs (C0ANMBVMSTV) via conversations.history since last_check_timestamp. Deduplicates by message_ts. Returns SlackItem[] with message_ts, user, text, channel, thread_ts. Empty channel = no noise. Token from process.env.SLACK_BOT_TOKEN. npm run build passes.</li>
+</ul>
+<h3>TRK-13754: FORGE Board Poller (new bug/broken tickets)</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER, different file)</li>
+<li><b>Dependencies:</b> TRK-13752 (scaffold, W1)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/forge-poller.ts</li>
+<li><b>AC:</b> GET /api/tracker filtered for type=bug|broken, assignee=null, status=open. Returns ForgeItem[] with trk_id, title, description, type, priority. Only items since last run. Deduplicates. npm run build passes.</li>
+</ul>
+<h3>TRK-13761: mdj_raiden_runs Firestore Collection + Logging</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER, different file)</li>
+<li><b>Dependencies:</b> TRK-13752 (scaffold, W1)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/logger.ts</li>
+<li><b>Modified files:</b> ~/mdj-agent/src/raiden/index.ts (mount GET /raiden/history route)</li>
+<li><b>AC:</b> Every cycle writes structured doc to mdj_raiden_runs (run_id, started_at, completed_at, items_checked, triage_outcomes, fixes_applied[], routes_created[], jdm_notified, channel_posted). GET /raiden/history?limit=10 returns last N docs desc (default 10, max 100). npm run build passes.</li>
+</ul>
+<h3>TRK-13760: Slack Notification Formatter</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER, different file)</li>
+<li><b>Dependencies:</b> TRK-13752 (scaffold, W1)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/notifier.ts</li>
+<li><b>AC:</b> Consistent format for all 4 outcomes (TRAIN/FIX/ROUTE/QUEUE). @mention handling. @RAIDEN signature on all posts. JDM DM for P0/ROUTE. Overnight summary (7am, only if actions taken). Silent cycles = no noise. npm run build passes.</li>
+</ul>
+<h3>TRK-14235: Rename RONIN Tab with precision_manufacturing Icon</h3>
+<ul>
+<li><b>Track:</b> B (ProDashX frontend)</li>
+<li><b>Dependencies:</b> TRK-14233 (Dojo rename, W1)</li>
+<li><b>Modified files:</b> packages/ui/src/modules/Forge.tsx (add tab header with precision_manufacturing icon, RONIN label)</li>
+<li><b>AC:</b> Existing Sprint Kanban labeled RONIN tab. precision_manufacturing icon in header. RONIN badge on sprint cards. Tab state in localStorage. Both tab slots visible. npm run build passes.</li>
+</ul>
+<hr>
+<h2>WAVE 3 Triage Engine + RAIDEN Tab (depends on Wave 2)</h2>
+<h3>TRK-13755: Triage Engine Classify and Route</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER)</li>
+<li><b>Dependencies:</b> TRK-13753 (Slack poller, W2), TRK-13754 (FORGE poller, W2)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/triage-engine.ts, ~/mdj-agent/src/raiden/__tests__/triage-engine.test.ts</li>
+<li><b>AC:</b> Accepts SlackItem | ForgeItem, returns { outcome: TRAIN|FIX|ROUTE|QUEUE, reasoning, p0 }. Uses claude-haiku-4-5-20251001 for classification. Queries knowledge_entries with CLAUDE.md fallback. P0 detection independent. Unit tests cover all 4 outcomes + P0. npm run build passes.</li>
+</ul>
+<h3>TRK-14234: Create RAIDEN Tab in The Dojo Board</h3>
+<ul>
+<li><b>Track:</b> B (ProDashX frontend)</li>
+<li><b>Dependencies:</b> TRK-14235 (RONIN tab, W2), TRK-14236 (schema, W1)</li>
+<li><b>New files:</b> packages/ui/src/modules/RaidenKanban.tsx (RAIDEN Kanban component)</li>
+<li><b>Modified files:</b> packages/ui/src/modules/Forge.tsx (wire RAIDEN tab with bolt icon, tab switcher)</li>
+<li><b>AC:</b> New tab with bolt icon. Columns: NEW, TRIAGING, FIXING, VERIFYING, DONE, ESCALATED. Wired to tracker_items filtered by agent:raiden. Clean tab switch. Priority sorting (P0 top). Cards show: priority badge (P0=red, P1=orange, P2=yellow, P3=gray), type, reporter, raiden_action, time in queue. npm run build passes.</li>
+</ul>
+<hr>
+<h2>WAVE 4 Execution Layer + UX Polish (depends on Wave 3)</h2>
+<h3>TRK-13756: Auto-Fixer Executes Quick Fixes Autonomously</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER)</li>
+<li><b>Dependencies:</b> TRK-13755 (triage, W3)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/auto-fixer.ts</li>
+<li><b>AC:</b> Uses claudeInvoke() with claude-sonnet-4-6. Creates branch from main, commits, opens PR. Posts PR link via notifier. CI failure = DM JDM (no retry). Verified on: (1) missing setInterval, (2) type export gap. npm run build passes.</li>
+</ul>
+<h3>TRK-13757: RONIN Router Creates Sprint Tickets</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER, different file)</li>
+<li><b>Dependencies:</b> TRK-13755 (triage, W3)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/ronin-router.ts</li>
+<li><b>AC:</b> POSTs to /api/tracker with title, description, type=bug, status=open, source=raiden, complexity_reason. Returns TRK ID. DMs JDM (U09BBHTN8F2) with summary, complexity, TRK number, recommended sprint. Posts channel note. npm run build passes.</li>
+</ul>
+<h3>TRK-13758: Training Responder</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER, different file)</li>
+<li><b>Dependencies:</b> TRK-13755 (triage, W3)</li>
+<li><b>New files:</b> ~/mdj-agent/src/raiden/trainer.ts</li>
+<li><b>AC:</b> Queries knowledge_entries Firestore. Falls back to CLAUDE.md. Formats response with feature location + usage + doc link. Posts with @mention of requester. Uses claude-haiku-4-5-20251001. npm run build passes.</li>
+</ul>
+<h3>TRK-14242: UN-FUCK FORGE Sprint UI/UX</h3>
+<ul>
+<li><b>Track:</b> B (ProDashX frontend)</li>
+<li><b>Dependencies:</b> TRK-14234 (RAIDEN tab, W3), TRK-14235 (RONIN tab, W2)</li>
+<li><b>Modified files:</b> packages/ui/src/modules/Forge.tsx (status mappings, phase calc), packages/ui/src/modules/RaidenKanban.tsx (if shared)</li>
+<li><b>AC:</b> ALL valid RONIN status values mapped to visible UI states. Zero silent fallbacks. Phase label matches execution state. Action buttons context-aware. Visual phase transition feedback. No sprint data broken. npm run build passes.</li>
+</ul>
+<hr>
+<h2>WAVE 5 Slack Integration + Quick Submit + Systemd (depends on Wave 4)</h2>
+<h3>TRK-14238: Quick Submit Form</h3>
+<ul>
+<li><b>Track:</b> B (ProDashX frontend)</li>
+<li><b>Dependencies:</b> TRK-14234 (RAIDEN tab, W3)</li>
+<li><b>New files:</b> packages/ui/src/modules/QuickSubmitModal.tsx</li>
+<li><b>Modified files:</b> packages/ui/src/modules/RaidenKanban.tsx (add button trigger)</li>
+<li><b>AC:</b> Modal: Title (required, What broke?, red border on empty), Type dropdown (Bug/Fix/UX/Question/Training), Priority (default P2), optional screenshot. POST /api/tracker with agent:raiden. Empty title blocked. Toast feedback (no alert/confirm/prompt). Form resets. Ctrl+N shortcut. Under 30s to submit. npm run build passes.</li>
+</ul>
+<h3>TRK-14239: Create #dojo-fixes Slack Channel + Wire RAIDEN</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER)</li>
+<li><b>Dependencies:</b> TRK-13753 (Slack poller, W2)</li>
+<li><b>Modified files:</b> ~/mdj-agent/src/raiden/slack-poller.ts (second channel via SLACK_DOJO_FIXES_CHANNEL), ~/mdj-agent/src/raiden/scheduler.ts (wire into cycle)</li>
+<li><b>AC:</b> #dojo-fixes channel created in RPI Slack. RAIDEN polls both channels same interval. In-thread reply with item ID. Source=slack. Cross-channel deduplication. Channel ID from process.env. npm run build passes.</li>
+</ul>
+<h3>TRK-13762: Systemd Service for RAIDEN</h3>
+<ul>
+<li><b>Track:</b> D (Infrastructure)</li>
+<li><b>Dependencies:</b> TRK-13752 (scaffold, W1)</li>
+<li><b>New files:</b> /etc/systemd/system/raiden.service</li>
+<li><b>AC:</b> Runs alongside mdj-agent.service (not inside). Restart=always, RestartSec=10. Log rotation at /var/log/raiden.log. Boot enabled. systemctl status raiden = active on MDJ1 (100.99.181.57). npm run build passes.</li>
+</ul>
+<hr>
+<h2>WAVE 6 Auto-Triage + Confirmation + Backlog (depends on Wave 5)</h2>
+<h3>TRK-14237: Auto-Triage Button</h3>
+<ul>
+<li><b>Track:</b> B (ProDashX + Cloud Run API)</li>
+<li><b>Dependencies:</b> TRK-14234 (RAIDEN tab, W3), TRK-14236 (schema, W1)</li>
+<li><b>New files:</b> packages/ui/src/modules/AutoTriageModal.tsx</li>
+<li><b>Modified files:</b> packages/ui/src/modules/RaidenKanban.tsx (button), services/api/src/routes/sprints.ts (scope:raiden support)</li>
+<li><b>AC:</b> POST /api/sprints/auto with { scope:raiden, status:new, groupBy:component }. Groups similar tickets. Quick-review modal. Grouped result in Kanban after confirm. npm run build passes.</li>
+</ul>
+<h3>TRK-14240: 60-Second Slack Confirmation Loop</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER)</li>
+<li><b>Dependencies:</b> TRK-14239 (#dojo-fixes, W5), TRK-13760 (notifier, W2)</li>
+<li><b>Modified files:</b> ~/mdj-agent/src/raiden/notifier.ts (4 event types), ~/mdj-agent/src/raiden/scheduler.ts (lifecycle hooks)</li>
+<li><b>AC:</b> 4 events to #dojo-fixes: (1) NEW within 60s, (2) duplicate warning, (3) IN PROGRESS, (4) FIXED on deploy. All channel posts (not DM). Duplicate detection before second ticket. npm run build passes.</li>
+</ul>
+<h3>TRK-13759: Clear Initial Backlog (8 Issues)</h3>
+<ul>
+<li><b>Track:</b> A (MDJ_SERVER runtime, no new files)</li>
+<li><b>Dependencies:</b> TRK-13755 (triage, W3), TRK-13756 (fixer, W4), TRK-13757 (router, W4), TRK-13758 (trainer, W4), TRK-13760 (notifier, W2)</li>
+<li><b>AC:</b> 8 items: #1 ACF=ROUTE, #2 COMMS=P0 DM, #3 MDJ search=ROUTE, #4 MDJ FAB=QUEUE, #5 Unknown clients=ROUTE, #6 checkStaleGates=AUTO-FIX, #7 ForgeRunState=AUTO-FIX, #8 MDJ prefs=QUEUE. Zero unaddressed. Logged to mdj_raiden_runs. npm run build passes.</li>
+</ul>
+<hr>
+<h2>WAVE 7 E2E Test + Deploy (depends on all previous)</h2>
+<h3>TRK-13763: E2E Test + Deploy</h3>
+<ul>
+<li><b>Track:</b> Full stack</li>
+<li><b>Dependencies:</b> ALL previous tickets</li>
+<li><b>AC:</b> Post test bug to #dojo-fixes. Within 15 min: RAIDEN detects, triages, posts response with @RAIDEN signature, logs to mdj_raiden_runs. Verify via GET /raiden/history. Quick Submit tested (Ctrl+N, submit, DM within 60s). Auto-Triage tested. systemctl status raiden = active on MDJ1. All 22 tickets verified. npm run build passes.</li>
+</ul>
+<hr>
+<h2>DEPENDENCY MATRIX</h2>
+<table border="1" cellpadding="4">
+<tr><th>Ticket</th><th>Wave</th><th>Depends On</th><th>OK</th></tr>
+<tr><td>TRK-13752</td><td>1</td><td>None</td><td>OK</td></tr>
+<tr><td>TRK-14233</td><td>1</td><td>None</td><td>OK</td></tr>
+<tr><td>TRK-14236</td><td>1</td><td>None</td><td>OK</td></tr>
+<tr><td>TRK-14241</td><td>1</td><td>None</td><td>OK</td></tr>
+<tr><td>TRK-13753</td><td>2</td><td>TRK-13752 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-13754</td><td>2</td><td>TRK-13752 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-13761</td><td>2</td><td>TRK-13752 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-13760</td><td>2</td><td>TRK-13752 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-14235</td><td>2</td><td>TRK-14233 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-13755</td><td>3</td><td>TRK-13753, TRK-13754 (W2)</td><td>OK</td></tr>
+<tr><td>TRK-14234</td><td>3</td><td>TRK-14235 (W2), TRK-14236 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-13756</td><td>4</td><td>TRK-13755 (W3)</td><td>OK</td></tr>
+<tr><td>TRK-13757</td><td>4</td><td>TRK-13755 (W3)</td><td>OK</td></tr>
+<tr><td>TRK-13758</td><td>4</td><td>TRK-13755 (W3)</td><td>OK</td></tr>
+<tr><td>TRK-14242</td><td>4</td><td>TRK-14234 (W3), TRK-14235 (W2)</td><td>OK</td></tr>
+<tr><td>TRK-14238</td><td>5</td><td>TRK-14234 (W3)</td><td>OK</td></tr>
+<tr><td>TRK-14239</td><td>5</td><td>TRK-13753 (W2)</td><td>OK</td></tr>
+<tr><td>TRK-13762</td><td>5</td><td>TRK-13752 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-14237</td><td>6</td><td>TRK-14234 (W3), TRK-14236 (W1)</td><td>OK</td></tr>
+<tr><td>TRK-14240</td><td>6</td><td>TRK-14239 (W5), TRK-13760 (W2)</td><td>OK</td></tr>
+<tr><td>TRK-13759</td><td>6</td><td>TRK-13755-58 (W3-4), TRK-13760 (W2)</td><td>OK</td></tr>
+<tr><td>TRK-13763</td><td>7</td><td>ALL previous</td><td>OK</td></tr>
+</table>
+<hr>
+<h2>FILE OVERLAP CHECK</h2>
+<table border="1" cellpadding="4">
+<tr><th>Wave</th><th>Track A (MDJ)</th><th>Track B (ProDashX)</th><th>Track C (API)</th><th>Track D (Infra)</th><th>Overlap</th></tr>
+<tr><td>1</td><td>raiden/index,scheduler,types + server.ts</td><td>Sidebar, Forge.tsx, forge/page</td><td>tracker.ts, raiden.ts</td><td>CLAUDE.md, systemd, CI</td><td>NONE</td></tr>
+<tr><td>2</td><td>slack-poller, forge-poller, logger, notifier</td><td>Forge.tsx (RONIN tab)</td><td>n/a</td><td>n/a</td><td>NONE</td></tr>
+<tr><td>3</td><td>triage-engine + tests</td><td>RaidenKanban.tsx (new), Forge.tsx</td><td>n/a</td><td>n/a</td><td>NONE</td></tr>
+<tr><td>4</td><td>auto-fixer, ronin-router, trainer</td><td>Forge.tsx, RaidenKanban.tsx</td><td>n/a</td><td>n/a</td><td>NONE</td></tr>
+<tr><td>5</td><td>slack-poller (mod), scheduler (mod)</td><td>QuickSubmitModal (new), RaidenKanban</td><td>n/a</td><td>raiden.service</td><td>NONE</td></tr>
+<tr><td>6</td><td>notifier (mod), scheduler (mod)</td><td>RaidenKanban, AutoTriageModal, sprints.ts</td><td>n/a</td><td>n/a</td><td>NONE</td></tr>
+<tr><td>7</td><td colspan="4">E2E verification only</td><td>NONE</td></tr>
+</table>
+<hr>
+<h2>API ENDPOINT COVERAGE</h2>
+<table border="1" cellpadding="4">
+<tr><th>Endpoint</th><th>Ticket</th><th>Wave</th></tr>
+<tr><td>GET /raiden/status</td><td>TRK-13752</td><td>1</td></tr>
+<tr><td>GET /raiden/history?limit=N</td><td>TRK-13761</td><td>2</td></tr>
+<tr><td>POST /api/tracker (RAIDEN ext)</td><td>TRK-14236</td><td>1</td></tr>
+<tr><td>GET /api/tracker (filtered)</td><td>TRK-13754</td><td>2</td></tr>
+<tr><td>POST /api/tracker (RONIN router)</td><td>TRK-13757</td><td>4</td></tr>
+<tr><td>POST /api/sprints/auto</td><td>TRK-14237</td><td>6</td></tr>
+<tr><td>POST /api/tracker/raiden</td><td>TRK-14238</td><td>5</td></tr>
+</table>
+<hr>
+<h2>ENV VARS (process.env only)</h2>
+<ul>
+<li>SLACK_BOT_TOKEN, SLACK_URGENT_CHANNEL=C0ANMBVMSTV, SLACK_DOJO_FIXES_CHANNEL</li>
+<li>JDM_USER_ID=U09BBHTN8F2, TRACKER_API_BASE, ANTHROPIC_API_KEY</li>
+<li>RAIDEN_POLL_INTERVAL_MINUTES=15, GITHUB_TOKEN, Firebase credentials (shared)</li>
+</ul>
+</body>
+</html>
