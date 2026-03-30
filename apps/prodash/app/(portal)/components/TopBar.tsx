@@ -39,10 +39,19 @@ export function TopBar({ user }: TopBarProps) {
           </div>
         </div>
 
-        {/* Right — Inbound Call + Notifications + User */}
+        {/* Right — Dojo + Inbound Call + User */}
         <div className="flex items-center gap-2">
           {/* Inbound Call Notification — null until real Twilio webhook wired */}
           <InboundCallCard call={null} />
+
+          {/* MYST.AI — Meet Your AI Service Team */}
+          <Link
+            href="/modules/myst-ai"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors hover:bg-[rgba(74,122,181,0.08)] hover:text-[var(--text-primary)] cursor-pointer"
+            title="MYST.AI — Meet Your AI Service Team"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '20px' }}>temple_buddhist</span>
+          </Link>
 
           {/* User — clicks to My RPI */}
           <Link
