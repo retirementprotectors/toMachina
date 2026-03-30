@@ -146,7 +146,7 @@ export default function PortalLayout({
       {/* Notifications Module — slide-out panel */}
       <NotificationsModule portal="prodash" open={notificationsOpen} onClose={closeNotifications} />
 
-      {/* MDJ — AI Assistant slide-out panel */}
+      {/* VOLTRON — AI Assistant slide-out panel */}
       <MDJPanel portal="prodash" open={mdjOpen} onClose={closeMdj} />
 
       {/* FORGE Report — screenshot + auto-fill issue tracker */}
