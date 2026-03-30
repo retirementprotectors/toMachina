@@ -14,6 +14,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 interface Carrier {
   id: string
   carrier_name: string
+  name: string
 }
 
 interface Advisor {
@@ -362,7 +363,7 @@ export default function PipelineKanbanPage() {
                       setForm((prev) => ({
                         ...prev,
                         carrier_id: e.target.value,
-                        carrier_name: selected?.carrier_name || '',
+                        carrier_name: selected?.name || selected?.carrier_name || '',
                       }))
                     }}
                     className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
@@ -372,7 +373,7 @@ export default function PipelineKanbanPage() {
                       {carriersLoading ? 'Loading carriers...' : 'Select carrier...'}
                     </option>
                     {carriers.map((c) => (
-                      <option key={c.id} value={c.id}>{c.carrier_name}</option>
+                      <option key={c.id} value={c.id}>{c.name || c.carrier_name}</option>
                     ))}
                   </select>
                 </div>
