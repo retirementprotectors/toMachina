@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DOJO v10 — MYST.AI Build Plan</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; background: #0d1117; color: #c9d1d9; }
+  h1, h2, h3 { color: #58a6ff; }
+  h1 { border-bottom: 2px solid #30363d; padding-bottom: .5rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { border: 1px solid #30363d; padding: .5rem .75rem; text-align: left; }
+  th { background: #161b22; color: #58a6ff; }
+  .wave { background: #161b22; border-left: 4px solid #58a6ff; padding: 1rem; margin: 1rem 0; border-radius: 4px; }
+  .wave-header { font-size: 1.2rem; font-weight: bold; color: #7ee787; margin-bottom: .5rem; }
+  .exists { color: #f0883e; font-weight: bold; }
+  .new { color: #7ee787; }
+  .modify { color: #d2a8ff; }
+  code { background: #1f2937; padding: 2px 6px; border-radius: 3px; font-size: .9em; }
+  .dep { color: #f0883e; }
+  .ac { color: #c9d1d9; font-style: italic; }
+  .note { background: #1c1e26; border: 1px solid #f0883e; padding: .75rem; border-radius: 4px; margin: .5rem 0; }
+</style>
+</head>
+<body>
+
+<h1>DOJO v10 — MYST.AI Brand &amp; Bio System</h1>
+<p><strong>Sprint:</strong> DOJO | <strong>Tickets:</strong> 12 | <strong>Waves:</strong> 5 | <strong>Date:</strong> 2026-03-30</p>
+<p><strong>Discovery:</strong> <a href="https://retirementprotectors.github.io/sprint-008-dojo-discovery.html">sprint-008-dojo-discovery.html</a></p>
+
+<h2>Pre-Existing State (READ before building)</h2>
+
+<div class="note">
+  <strong>Already shipped from prior sprints:</strong>
+  <ul>
+    <li><span class="exists">packages/core/src/aibot-brand.ts</span> — Types exist: <code>AiBotName</code>, <code>AiBotCharacter</code>, <code>AiBotVoiceGuide</code>, <code>AiBotProfile</code>, <code>AiBotBioPage</code>, <code>getAiBotByName()</code>. Verify alignment with brand guide before modifying.</li>
+    <li><span class="exists">services/api/src/routes/myst-ai.ts</span> — Routes exist: <code>GET /api/myst-ai</code>, <code>GET /api/myst-ai/:botName</code>. All 6 profiles populated inline. Uses local <code>AiBotProfile</code> interface (not importing from core).</li>
+  </ul>
+  <strong>Does NOT exist yet:</strong>
+  <ul>
+    <li><code>packages/ui/src/MystAI/</code> — no UI components</li>
+    <li><code>_RPI_STANDARDS/reference/brand/</code> — no brand docs directory</li>
+    <li>No voice/transcript libraries anywhere</li>
+    <li>No system prompt integration for character voice</li>
+  </ul>
+</div>
+
+<h2>Architecture Constraints</h2>
+<ul>
+  <li><strong>MDJ_SERVER</strong> = <code>/home/jdm/mdj-agent</code> — VOLTRON system prompt, RAIDEN triage, RONIN forge templates live HERE.</li>
+  <li><strong>Cloud Run (tm-api)</strong> = <code>services/api/</code> — REST API only. No claude-agent-sdk. No AI orchestration.</li>
+  <li><strong>ProDashX module path</strong> = <code>apps/prodash/app/(portal)/modules/[module-name]/</code></li>
+  <li><strong>UI components</strong> = <code>packages/ui/src/MystAI/</code></li>
+  <li><strong>Core types</strong> = <code>packages/core/src/aibot-brand.ts</code></li>
+  <li><strong>Build gate:</strong> <code>npm run build</code> — NEVER <code>tsc --noEmit</code> alone.</li>
+</ul>
+
+<h2>Build Order — 5 Waves</h2>
+
+<!-- WAVE 1 -->
+<div class="wave">
+  <div class="wave-header">WAVE 1 — Brand Foundation (Parallel: 3 tickets, zero file overlap)</div>
+
+  <h3>TRK-13938 — AiBot Brand Guide Document</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_BRAND_GUIDE.md</code>
+    </td></tr>
+    <tr><th>Dependencies</th><td>None</td></tr>
+    <tr><th>AC</th><td class="ac">Any session reading this file can generate correct character voice for all 6 bots. Must contain: ethos, voice rules (internal/team/client), 6 character profiles (name, title, signature line, traits, dos/donts, JDM facet, primary channel, fun facts), message templates, visual identity notes.</td></tr>
+    <tr><th>Verify</th><td><code>cat _RPI_STANDARDS/reference/brand/AIBOT_BRAND_GUIDE.md | wc -l</code> (expect 200+ lines, all 6 bots present)</td></tr>
+  </table>
+
+  <h3>TRK-13939 — Voice Sample Library</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_VOICE_SAMPLES.md</code>
+    </td></tr>
+    <tr><th>Dependencies</th><td>None (can reference brand guide structure, but written in parallel)</td></tr>
+    <tr><th>AC</th><td class="ac">5+ example messages per character across contexts (Slack DM, release note, training intro, error response, celebration). 30+ samples total. A reader could identify the author without seeing the name.</td></tr>
+    <tr><th>Verify</th><td><code>grep -c "^##" _RPI_STANDARDS/reference/brand/AIBOT_VOICE_SAMPLES.md</code> (expect 6+ character sections)</td></tr>
+  </table>
+
+  <h3>TRK-13940 — Transcript Library</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>_RPI_STANDARDS/reference/brand/AIBOT_TRANSCRIPT_LIBRARY.md</code>
+    </td></tr>
+    <tr><th>Dependencies</th><td>None</td></tr>
+    <tr><th>AC</th><td class="ac">10+ curated real session moments formatted for Slack delivery with hyperlinks. Covers multiple bots and real development milestones.</td></tr>
+    <tr><th>Verify</th><td><code>grep -c "http" _RPI_STANDARDS/reference/brand/AIBOT_TRANSCRIPT_LIBRARY.md</code> (expect 10+ links)</td></tr>
+  </table>
+</div>
+
+<!-- WAVE 2 -->
+<div class="wave">
+  <div class="wave-header">WAVE 2 — Types + Character Data (Parallel: 2 tickets)</div>
+  <p class="dep">Depends on: Wave 1 (brand guide informs type shape and data values)</p>
+
+  <h3>TRK-13941 — AiBot Brand Types</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="modify">MODIFY</span> <code>packages/core/src/aibot-brand.ts</code> — Verify types align with brand guide. Add any missing fields (e.g., VoiceTier context samples, visual identity fields). Ensure @tomachina/core exports.<br>
+      <span class="modify">MODIFY</span> <code>packages/core/src/index.ts</code> — Ensure aibot-brand exports are included.
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13938</td></tr>
+    <tr><th>AC</th><td class="ac">Types importable via <code>import { AiBotCharacter, AiBotName } from '@tomachina/core'</code>. All fields from brand guide represented. <code>getAiBotByName()</code> works.</td></tr>
+    <tr><th>Verify</th><td><code>npm run build</code> — zero errors. Grep for aibot-brand in packages/core/src/index.ts.</td></tr>
+  </table>
+
+  <h3>TRK-13945 — MYST.AI Character Data</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>packages/ui/src/MystAI/myst-ai-data.ts</code> — Static data file importing AiBotCharacter from core, exporting all 6 profiles.<br>
+      <span class="modify">MODIFY</span> <code>services/api/src/routes/myst-ai.ts</code> — Refactor to import types from @tomachina/core instead of local interface definition. Keep inline data for API independence.
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13941, TRK-13938</td></tr>
+    <tr><th>AC</th><td class="ac">All 6 bots fully populated in myst-ai-data.ts. Data matches brand guide. UI can import array of characters.</td></tr>
+    <tr><th>Verify</th><td><code>npm run build</code> — zero errors.</td></tr>
+  </table>
+</div>
+
+<!-- WAVE 3 -->
+<div class="wave">
+  <div class="wave-header">WAVE 3 — UI Components (Parallel: 2 tickets, zero file overlap)</div>
+  <p class="dep">Depends on: Wave 2 (TRK-13945 character data + TRK-13941 types)</p>
+
+  <h3>TRK-13943 — MYST.AI Bio Cards</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>packages/ui/src/MystAI/MystAIBioCard.tsx</code>
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13941, TRK-13945</td></tr>
+    <tr><th>AC</th><td class="ac">Circular avatar card renders name, title, signature quote. Hover effect present. Click handler prop for navigation. Responsive sizing.</td></tr>
+    <tr><th>Verify</th><td><code>npm run build</code> — zero errors.</td></tr>
+  </table>
+
+  <h3>TRK-13944 — MYST.AI Bio Pages</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>packages/ui/src/MystAI/MystAIBioPage.tsx</code>
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13941, TRK-13945</td></tr>
+    <tr><th>AC</th><td class="ac">Full bio detail: profile section, personality traits, voice sample quote, fun facts list, "Talk to me" button linking to bot interface. Loads by bot name param.</td></tr>
+    <tr><th>Verify</th><td><code>npm run build</code> — zero errors.</td></tr>
+  </table>
+</div>
+
+<!-- WAVE 4 -->
+<div class="wave">
+  <div class="wave-header">WAVE 4 — Page Assembly + API Polish + Section (Parallel: 3 tickets)</div>
+  <p class="dep">Depends on: Wave 3 (TRK-13943 bio cards, TRK-13944 bio pages)</p>
+
+  <h3>TRK-13942 — MYST.AI Page Component</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>packages/ui/src/MystAI/MystAIPage.tsx</code><br>
+      <span class="new">NEW</span> <code>packages/ui/src/MystAI/index.ts</code> — barrel export for all MystAI components
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13943, TRK-13944, TRK-13945</td></tr>
+    <tr><th>AC</th><td class="ac">Full team page with header, 6-bot avatar grid using MystAIBioCard, click-through navigation to MystAIBioPage. Responsive layout (3x2 desktop, 2x3 tablet, 1x6 mobile).</td></tr>
+    <tr><th>Verify</th><td><code>npm run build</code> — zero errors.</td></tr>
+  </table>
+
+  <h3>TRK-13946 — MYST Technology Section</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>packages/ui/src/MystAI/MystAISection.tsx</code> — Embeddable section for existing team page
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13943, TRK-13945</td></tr>
+    <tr><th>AC</th><td class="ac">Section renders alongside human team sections. Consistent styling with existing MYST page. Shows "Technology Team" header with 6-bot grid. Reuses MystAIBioCard.</td></tr>
+    <tr><th>Verify</th><td><code>npm run build</code> — zero errors.</td></tr>
+  </table>
+
+  <h3>TRK-13947 — MYST.AI API Route</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="modify">MODIFY</span> <code>services/api/src/routes/myst-ai.ts</code> — Refactor local types to import from @tomachina/core. Enrich profile data to match brand guide (voice samples, transcript highlights). Ensure { success, data } response shape.
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13941, TRK-13938</td></tr>
+    <tr><th>AC</th><td class="ac">GET /api/myst-ai returns all 6 profiles. GET /api/myst-ai/:botName returns single profile with voice guide. VOLTRON can query its own profile. Response shape: { success: true, data: ... }.</td></tr>
+    <tr><th>Verify</th><td><code>npm run build</code> — zero errors. curl localhost:PORT/api/myst-ai returns 6 profiles.</td></tr>
+  </table>
+</div>
+
+<!-- WAVE 5 -->
+<div class="wave">
+  <div class="wave-header">WAVE 5 — Integration + Standalone (Parallel: 2 tickets, zero file overlap)</div>
+  <p class="dep">Depends on: Waves 1-4 (all brand content, types, UI, and API must be complete)</p>
+
+  <h3>TRK-13982 — Bot System Prompt Integration</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="modify">MODIFY</span> <code>/home/jdm/mdj-agent/src/agent/system-prompt.ts</code> — Inject VOLTRON BFF voice guide into buildSystemPrompt().<br>
+      <span class="modify">MODIFY</span> <code>/home/jdm/mdj-agent/src/raiden/triage-engine.ts</code> — Inject RAIDEN guardian voice into triage output formatting.<br>
+      <span class="modify">MODIFY</span> <code>/home/jdm/mdj-agent/forge/notifier.ts</code> — Inject RONIN builder voice into FORGE sprint update templates.<br>
+      <span class="new">NEW</span> <code>/home/jdm/mdj-agent/src/agent/voice-guides.ts</code> — Centralized voice guide constants for all bots, sourced from brand guide.
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13938, TRK-13939</td></tr>
+    <tr><th>AC</th><td class="ac">VOLTRON responds as BFF (warm, encouraging). RONIN sends builder-voice sprint updates. RAIDEN triage uses guardian voice. Each bot distinctly recognizable. Voice guides sourced from brand guide constants.</td></tr>
+    <tr><th>Verify</th><td><code>cd /home/jdm/mdj-agent && npm run build</code> — zero errors. Grep voice-guides.ts for all 6 bot names.</td></tr>
+  </table>
+
+  <h3>TRK-13983 — GitHub Pages MYST.AI Standalone</h3>
+  <table>
+    <tr><th>Files</th><td>
+      <span class="new">NEW</span> <code>docs/myst-ai/index.html</code> — Self-contained HTML page (no framework deps). Publishes to retirementprotectors.github.io/myst-ai/.<br>
+      <span class="modify">MODIFY</span> GitHub Pages config if needed for /myst-ai/ path.
+    </td></tr>
+    <tr><th>Dependencies</th><td>TRK-13945, TRK-13943, TRK-13944, TRK-13938</td></tr>
+    <tr><th>AC</th><td class="ac">Public URL retirementprotectors.github.io/myst-ai/ displays full Technology Team with all 6 bots. Clickable bios expand to full profile. Self-contained HTML — no external JS framework. Same visual identity as in-app version.</td></tr>
+    <tr><th>Verify</th><td>Open docs/myst-ai/index.html in browser — all 6 bots render with avatars, names, titles, clickable bios.</td></tr>
+  </table>
+</div>
+
+<h2>Dependency Matrix</h2>
+<table>
+  <tr><th>Ticket</th><th>Title</th><th>Wave</th><th>Depends On</th></tr>
+  <tr><td>TRK-13938</td><td>AiBot Brand Guide Document</td><td>1</td><td>—</td></tr>
+  <tr><td>TRK-13939</td><td>Voice Sample Library</td><td>1</td><td>—</td></tr>
+  <tr><td>TRK-13940</td><td>Transcript Library</td><td>1</td><td>—</td></tr>
+  <tr><td>TRK-13941</td><td>AiBot Brand Types</td><td>2</td><td>TRK-13938</td></tr>
+  <tr><td>TRK-13945</td><td>MYST.AI Character Data</td><td>2</td><td>TRK-13941, TRK-13938</td></tr>
+  <tr><td>TRK-13943</td><td>MYST.AI Bio Cards</td><td>3</td><td>TRK-13941, TRK-13945</td></tr>
+  <tr><td>TRK-13944</td><td>MYST.AI Bio Pages</td><td>3</td><td>TRK-13941, TRK-13945</td></tr>
+  <tr><td>TRK-13942</td><td>MYST.AI Page Component</td><td>4</td><td>TRK-13943, TRK-13944, TRK-13945</td></tr>
+  <tr><td>TRK-13946</td><td>MYST Technology Section</td><td>4</td><td>TRK-13943, TRK-13945</td></tr>
+  <tr><td>TRK-13947</td><td>MYST.AI API Route</td><td>4</td><td>TRK-13941, TRK-13938</td></tr>
+  <tr><td>TRK-13982</td><td>Bot System Prompt Integration</td><td>5</td><td>TRK-13938, TRK-13939</td></tr>
+  <tr><td>TRK-13983</td><td>GitHub Pages MYST.AI Standalone</td><td>5</td><td>TRK-13945, TRK-13943, TRK-13944, TRK-13938</td></tr>
+</table>
+
+<h2>Parallel Safety — File Overlap Check</h2>
+<table>
+  <tr><th>Wave</th><th>Tickets</th><th>File Overlap</th><th>Safe?</th></tr>
+  <tr><td>1</td><td>TRK-13938, TRK-13939, TRK-13940</td><td>None (3 separate .md files)</td><td>YES</td></tr>
+  <tr><td>2</td><td>TRK-13941, TRK-13945</td><td>None (core/aibot-brand.ts vs ui/MystAI/myst-ai-data.ts)</td><td>YES</td></tr>
+  <tr><td>3</td><td>TRK-13943, TRK-13944</td><td>None (MystAIBioCard.tsx vs MystAIBioPage.tsx)</td><td>YES</td></tr>
+  <tr><td>4</td><td>TRK-13942, TRK-13946, TRK-13947</td><td>CAUTION: TRK-13945 already modified myst-ai.ts in W2; TRK-13947 modifies it again in W4. Sequential within that file — safe because W2 completes first.</td><td>YES</td></tr>
+  <tr><td>5</td><td>TRK-13982, TRK-13983</td><td>None (mdj-agent/ vs docs/myst-ai/)</td><td>YES</td></tr>
+</table>
+
+<h2>Critical Path</h2>
+<p><code>TRK-13938 (brand guide) -> TRK-13941 (types) -> TRK-13945 (data) -> TRK-13943 (cards) -> TRK-13942 (page) -> TRK-13983 (standalone)</code></p>
+
+<h2>Build Verification (Every Ticket)</h2>
+<p>Every ticket in toMachina monorepo: <code>npm run build</code> from repo root — zero errors required.</p>
+<p>TRK-13982 (mdj-agent): <code>cd /home/jdm/mdj-agent && npm run build</code> — zero errors required.</p>
+<p>TRK-13983 (GitHub Pages): Manual browser verification of docs/myst-ai/index.html.</p>
+<p>Wave 1 (.md docs): Content review — no build step, but verify file exists and meets line count / section requirements.</p>
+
+<h2>Notes for Builder</h2>
+<ul>
+  <li><code>packages/core/src/aibot-brand.ts</code> already has types from a prior sprint (TRK-14109). READ it first — only add/modify fields needed for brand guide alignment.</li>
+  <li><code>services/api/src/routes/myst-ai.ts</code> already has full profiles and routes. Refactor to use core types; enrich data — do NOT rewrite from scratch.</li>
+  <li>UI components go in <code>packages/ui/src/MystAI/</code> (directory does NOT exist yet — create it).</li>
+  <li>Bot system prompts live in <code>/home/jdm/mdj-agent/</code> — NOT in the toMachina monorepo.</li>
+  <li>GitHub Pages standalone must be self-contained HTML — no React, no build step. Inline all CSS/JS.</li>
+  <li>All API responses must use <code>{ success: boolean, data?: T, error?: string }</code> pattern (OS Rule #7).</li>
+  <li>Avatars: Use placeholder paths or ask JDM — do NOT generate SVG logos (OS Rule #4).</li>
+</ul>
+
+</body>
+</html>
