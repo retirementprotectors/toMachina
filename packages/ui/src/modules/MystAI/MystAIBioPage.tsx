@@ -70,6 +70,14 @@ const BIO_META: Record<AiBotName, BotBioMeta> = {
     talkLink: '/architect',
     isLive: false,
   },
+  SHINOB1: {
+    icon: '🥷',
+    color: '#a78bfa',
+    voiceSample:
+      "Found the bug. One-line fix in three files. PR is up, build is green, auto-merge set. Moving to the next fire. You'll see seven PRs merged by the time you wake up.",
+    talkLink: '/dojo',
+    isLive: false,
+  },
 }
 
 // ── Design Tokens ───────────────────────────────────────────────────
