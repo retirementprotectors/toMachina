@@ -55,9 +55,22 @@ clientRoutes.get('/', async (req: Request, res: Response) => {
     if (search) {
       const upper = search.charAt(0).toUpperCase() + search.slice(1).toLowerCase()
       const end = upper.slice(0, -1) + String.fromCharCode(upper.charCodeAt(upper.length - 1) + 1)
-      query = query.where('last_name', '>=', upper).where('last_name', '<', end)
-      params.orderBy = 'last_name'
-      params.orderDir = 'asc'
+
+      // Search both last_name AND first_name in parallel, merge + deduplicate
+      const [lastSnap, firstSnap] = await Promise.all([
+        db.collection(COLLECTION).where('last_name', '>=', upper).where('last_name', '<', end).limit(params.limit).get(),
+        db.collection(COLLECTION).where('first_name', '>=', upper).where('first_name', '<', end).limit(params.limit).get(),
+      ])
+      const seen = new Set<string>()
+      const merged: Record<string, unknown>[] = []
+      for (const doc of [...lastSnap.docs, ...firstSnap.docs]) {
+        if (seen.has(doc.id)) continue
+        seen.add(doc.id)
+        merged.push({ id: doc.id, ...doc.data() })
+      }
+      const data = merged.slice(0, params.limit).map((d) => stripInternalFields(d))
+      res.json(successResponse<ClientDTO[]>(data as unknown as ClientDTO[], { pagination: { count: data.length, total: data.length } }))
+      return
     }
 
     const result = await paginatedQuery(query, COLLECTION, params)
