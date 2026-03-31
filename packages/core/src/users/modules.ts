@@ -704,6 +704,7 @@ export const PRODASH_ROLE_TEMPLATES: Record<RoleTemplateKey, RoleTemplateDef> = 
       RMD_CENTER: ['VIEW', 'EDIT', 'ADD'],
       BENI_CENTER: ['VIEW', 'EDIT', 'ADD'],
       DISCOVERY_KIT: ['VIEW', 'EDIT', 'ADD'],
+      PROZONE: ['VIEW', 'EDIT', 'ADD'],
     },
   },
   superadmin: {
@@ -726,6 +727,7 @@ export const PRODASH_ROLE_TEMPLATES: Record<RoleTemplateKey, RoleTemplateDef> = 
       RMD_CENTER: ['VIEW', 'EDIT', 'ADD'],
       BENI_CENTER: ['VIEW', 'EDIT', 'ADD'],
       DISCOVERY_KIT: ['VIEW', 'EDIT', 'ADD'],
+      PROZONE: ['VIEW', 'EDIT', 'ADD'],
     },
   },
   admin: {
@@ -748,6 +750,7 @@ export const PRODASH_ROLE_TEMPLATES: Record<RoleTemplateKey, RoleTemplateDef> = 
       RMD_CENTER: ['VIEW', 'EDIT', 'ADD'],
       BENI_CENTER: ['VIEW', 'EDIT', 'ADD'],
       DISCOVERY_KIT: ['VIEW', 'EDIT', 'ADD'],
+      PROZONE: ['VIEW', 'EDIT', 'ADD'],
     },
   },
   service: {
@@ -770,6 +773,7 @@ export const PRODASH_ROLE_TEMPLATES: Record<RoleTemplateKey, RoleTemplateDef> = 
       RMD_CENTER: ['VIEW', 'EDIT'],
       BENI_CENTER: ['VIEW', 'EDIT'],
       DISCOVERY_KIT: ['VIEW', 'EDIT'],
+      PROZONE: ['VIEW', 'EDIT'],
     },
   },
   sales: {
@@ -792,6 +796,7 @@ export const PRODASH_ROLE_TEMPLATES: Record<RoleTemplateKey, RoleTemplateDef> = 
       RMD_CENTER: ['VIEW'],
       BENI_CENTER: ['VIEW'],
       DISCOVERY_KIT: ['VIEW'],
+      PROZONE: ['VIEW', 'EDIT'],
     },
   },
   readonly: {
@@ -814,6 +819,7 @@ export const PRODASH_ROLE_TEMPLATES: Record<RoleTemplateKey, RoleTemplateDef> = 
       RMD_CENTER: ['VIEW'],
       BENI_CENTER: ['VIEW'],
       DISCOVERY_KIT: ['VIEW'],
+      PROZONE: ['VIEW'],
     },
   },
 }
