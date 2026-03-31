@@ -347,3 +347,15 @@ tr.table-row-hover:hover {
   background: var(--bg-surface);
   border-radius: var(--radius-sm);
 }
+
+/* ─── Native select + option dark mode fix ─── */
+/* Explicit hex colors — CSS vars unreliable on native <option> in some browsers */
+select {
+  color: #f0f0f5;
+  background-color: #0a0a0e;
+}
+
+select option {
+  color: #f0f0f5;
+  background-color: #0a0a0e;
+}

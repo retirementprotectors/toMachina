@@ -331,7 +331,7 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
   )
 
   const handleRowClick = useCallback((prospect: FlatProspect) => {
-    window.open(`/clients/${prospect.client_id}`, '_blank')
+    window.open(`/contacts/${prospect.client_id}`, '_blank')
   }, [])
 
   const toggleColumn = useCallback((key: ColumnKey) => {
