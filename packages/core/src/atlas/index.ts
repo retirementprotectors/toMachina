@@ -38,10 +38,9 @@ export {
   getAtomicToolDefinitions,
 } from './tools'
 
-// Super tools (browser-safe only — SUPER_CLASSIFY excluded, imports fs/child_process)
+// Super tools (browser-safe only — SUPER_EXTRACT + SUPER_CLASSIFY excluded, imports fs/Anthropic SDK)
 export {
   extractDefinition,
-  executeExtract,
   introspectDefinition,
   executeIntrospect,
   validateDefinition,

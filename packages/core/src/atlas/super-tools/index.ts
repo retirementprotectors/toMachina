@@ -2,7 +2,10 @@
 // ATLAS Super Tools — barrel export
 // ---------------------------------------------------------------------------
 
-export { definition as extractDefinition, execute as executeExtract } from './extract'
+// SUPER_EXTRACT — definition only from barrel (imports server-only: fs, Anthropic SDK).
+// Backend services import directly:
+//   import { execute as executeExtract } from '@tomachina/core/src/atlas/super-tools/extract'
+export { definition as extractDefinition } from './extract'
 export type { ExtractInput, ExtractOutput } from './extract'
 
 export { definition as introspectDefinition, execute as executeIntrospect } from './introspect'
