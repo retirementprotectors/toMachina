@@ -49,7 +49,7 @@ interface ColumnDef {
 
 const ALL_COLUMNS: ColumnDef[] = [
   { key: 'name', label: 'Name', defaultVisible: true, sortable: true },
-  { key: 'county_city', label: 'County / City', defaultVisible: true, sortable: false },
+  { key: 'county_city', label: 'County / City', defaultVisible: true, sortable: true },
   { key: 'age', label: 'Age', defaultVisible: true, sortable: true },
   { key: 'products', label: 'Products', defaultVisible: true, sortable: false },
   { key: 'flags', label: 'Flags', defaultVisible: true, sortable: false },
@@ -65,7 +65,7 @@ const DEFAULT_VISIBLE = new Set<ColumnKey>(
 )
 
 // ─── Sorting ───
-type SortKey = 'name' | 'age' | 'zone'
+type SortKey = 'name' | 'county_city' | 'age' | 'zone'
 type SortDir = 'asc' | 'desc'
 
 // ─── Meeting type styles ───
@@ -258,6 +258,12 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
         case 'age':
           cmp = (a.age ?? -1) - (b.age ?? -1)
           break
+        case 'county_city': {
+          const ac = `${a.county ?? ''} ${a.city ?? ''}`.toLowerCase()
+          const bc = `${b.county ?? ''} ${b.city ?? ''}`.toLowerCase()
+          cmp = ac.localeCompare(bc)
+          break
+        }
         case 'zone':
           cmp = a.zone_name.localeCompare(b.zone_name)
           break
@@ -630,9 +636,13 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
                       />
                     )}
                     {col('county_city') && (
-                      <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                        County / City
-                      </th>
+                      <SortHeader
+                        label="County / City"
+                        sortKey="county_city"
+                        currentSort={sortKey}
+                        currentDir={sortDir}
+                        onSort={handleSort}
+                      />
                     )}
                     {col('age') && (
                       <SortHeader
