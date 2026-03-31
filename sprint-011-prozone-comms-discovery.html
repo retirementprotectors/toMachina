@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 011: ProZone COMMS — Auto-Dial, Call Disposition, MMS Attachments</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #ef4444;
+    --accent-glow: rgba(239, 68, 68, 0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #0a0f1a 0%, #0f0f0f 30%, #0a1020 60%, #0f0f0f 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(6,182,212,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(59,130,246,0.06) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); background: var(--cyan-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--cyan); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--cyan); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.blue { border-top-color: var(--blue); }
+  .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.red { border-left-color: var(--accent); background: rgba(239,68,68,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar.cyan { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .gate-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .exists-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-left: 4px solid var(--green); }
+  .exists-callout h4 { color: var(--green); margin-bottom: 8px; font-size: 0.95rem; }
+  .exists-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .warn-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-left: 4px solid var(--red); }
+  .warn-callout h4 { color: var(--red); margin-bottom: 8px; font-size: 0.95rem; }
+  .warn-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.fix { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.design { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .pill.content { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .quote-block { background: var(--bg-hover); border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 18px 20px; margin-bottom: 12px; }
+  .quote-block .quote-text { font-style: italic; color: var(--text); font-size: 1rem; margin-bottom: 6px; }
+  .quote-block .quote-attr { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-exists { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .status-fix { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(245,158,11,0.15); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .status-new { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(168,85,247,0.15); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">Sprint 011 &mdash; FORGE Discovery Document</div>
+  <h1>ProZone COMMS</h1>
+  <div class="subtitle">Auto-Dial, Call Disposition, MMS Attachments &mdash; Completing the Sales Calling Experience</div>
+  <div class="header-badges">
+    <span class="badge badge-cyan">Sprint 011</span>
+    <span class="badge badge-gold">~15 Tickets</span>
+    <span class="badge badge-blue">ProZone + COMMS</span>
+    <span class="badge badge-cyan">data-cwd: toMachina</span>
+  </div>
+  <div class="ronin-meta">sprint: PROZONE-COMMS &bull; TRK-PC-001 &rarr; TRK-PC-015 &bull; requested by: Vince Vazquez via #the-dojo</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="exists">What EXISTS</div>
+    <div class="tab" data-tab="autodial">Auto-Dial</div>
+    <div class="tab" data-tab="disposition">Disposition Fix</div>
+    <div class="tab" data-tab="mms">MMS Outbound</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: OVERVIEW -->
+<div class="tab-panel active" id="overview">
+  <div class="card">
+    <h2>The Sales Team Need</h2>
+    <p>Vince Vazquez submitted 3 feature requests via <strong>#the-dojo</strong>. These are real friction points the sales team is hitting during active calling sessions. Here's what he said, verbatim:</p>
+
+    <div class="quote-block">
+      <div class="quote-text">"choose names from that list/zone area, and auto dial them for a call session"</div>
+      <div class="quote-attr">Vince Vazquez &mdash; #the-dojo</div>
+    </div>
+    <div class="quote-block">
+      <div class="quote-text">"after hanging up a call, there's no way to disposition the call based on how it ended"</div>
+      <div class="quote-attr">Vince Vazquez &mdash; #the-dojo</div>
+    </div>
+    <div class="quote-block">
+      <div class="quote-text">"can we send JPEG, PDF files as attachments in texts"</div>
+      <div class="quote-attr">Vince Vazquez &mdash; #the-dojo</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Truth: What We're Actually Looking At</h2>
+    <p>Before spinning up 15 tickets, research revealed the infrastructure picture is more nuanced than it appears. Here's the honest breakdown:</p>
+    <table>
+      <tr><th>Request</th><th>Status</th><th>Reality</th></tr>
+      <tr>
+        <td>"Auto-dial call session"</td>
+        <td><span class="status-fix">Enhancement</span></td>
+        <td>Single click-to-call exists in CallPanel. Batch/sequential power dialer mode does not. Needs new UI layer on top of existing infrastructure.</td>
+      </tr>
+      <tr>
+        <td>"No way to disposition a call"</td>
+        <td><span class="status-exists">Already Built</span></td>
+        <td>CallPanel.tsx has 4 disposition outcomes + pipeline auto-advance. Something is preventing Vince from reaching this state. Could be a rendering issue or the REST API call not triggering the "calling" state transition.</td>
+      </tr>
+      <tr>
+        <td>"Send JPEG, PDF attachments in texts"</td>
+        <td><span class="status-new">Net New</span></td>
+        <td>Inbound MMS capture exists (webhook stores media_urls[]). Outbound MMS does not exist. Twilio supports it — we just haven't wired it.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="gate-callout">
+    <h4>The Gate Rule — Fix Before Build</h4>
+    <p>Before building anything new, verify what Vince can already see. The best feature is one that's already shipped. Phase 1 of this sprint is investigation + fix — we do NOT build the power dialer on top of broken disposition logic. Phase 2 (auto-dial) gates on Phase 1 completing successfully.</p>
+  </div>
+
+  <div class="card">
+    <h2>Sprint Scope Summary</h2>
+    <div class="spec-grid">
+      <div class="spec-card cyan">
+        <h4>Phase 1 &mdash; Fix What Exists</h4>
+        <p>Verify CallPanel renders and flows. Switch REST call to browser SDK for real call state tracking. Make disposition mandatory. Add missing outcome types. Verify Firestore logging.</p>
+      </div>
+      <div class="spec-card blue">
+        <h4>Phase 2 &mdash; Auto-Dial Power Dialer</h4>
+        <p>Multi-select prospects in TargetTab. Start Call Session. Sequential auto-advance through queue. Session stats. Pause/resume. End-of-session summary + Firestore batch log.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>Phase 3 &mdash; MMS Outbound</h4>
+        <p>File attachment input in SendSmsDialog. Cloud Storage upload for media. Pass MediaUrl to Twilio. Render sent attachments in CommsTimeline. 5MB limit enforced.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: WHAT EXISTS -->
+<div class="tab-panel" id="exists">
+  <div class="card">
+    <h2>Current ProZone COMMS Infrastructure</h2>
+    <p>Before writing a single line of new code, here's the honest inventory of what's already built and wired in the platform.</p>
+  </div>
+
+  <div class="card">
+    <h2>ProZone TargetTab.tsx</h2>
+    <p>The filterable, sortable prospect grid that feeds the calling workflow. Contains phone number data per prospect. Currently supports single-row click-to-call via the green phone button. Multi-select and batch operations are not implemented.</p>
+    <div class="exists-callout">
+      <h4>What's There</h4>
+      <p>Full filterable/sortable prospect grid with phone data. Green phone button per row triggers CallPanel slide-over. Single-prospect calling flow is fully wired.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ProZone CallPanel.tsx &mdash; The Critical One</h2>
+    <p>This component already contains the full 3-state call flow. The question is whether it's reachable.</p>
+    <table>
+      <tr><th>State</th><th>What It Does</th><th>Status</th></tr>
+      <tr><td><code>pre_call</code></td><td>Prospect info, phone number, call button</td><td><span class="status-exists">Built</span></td></tr>
+      <tr><td><code>calling</code></td><td>Live call timer, hang-up button</td><td><span class="status-fix">May Not Trigger</span></td></tr>
+      <tr><td><code>disposition</code></td><td>4 outcomes: booked, callback, no_answer, not_interested</td><td><span class="status-exists">Built</span></td></tr>
+    </table>
+    <div class="warn-callout">
+      <h4>The Problem with REST API Calls</h4>
+      <p>CallPanel currently uses <code>POST /api/comms/send-voice</code> (REST) to initiate calls. REST calls fire-and-forget — there's no call event feedback. The component may never receive the signal to transition from <code>pre_call</code> to <code>calling</code>. Without entering the <code>calling</code> state, the disposition step is unreachable. This is likely why Vince says "there's no way to disposition." The feature exists — the state transition is broken.</p>
+    </div>
+    <p><strong>Pipeline integration:</strong> On disposition, CallPanel auto-advances pipeline stages: <code>booked</code> advances stage, <code>not_interested</code> closes the opportunity. This logic is sound — it just needs to be reachable.</p>
+  </div>
+
+  <div class="card">
+    <h2>TwilioDeviceProvider.tsx &mdash; The Bridge We're Not Using</h2>
+    <p>The browser-based Twilio Voice SDK is already wired into the platform. It exposes <code>makeCall</code>, <code>hangup</code>, <code>answerCall</code>, and full call event callbacks (<code>onRinging</code>, <code>onConnect</code>, <code>onDisconnect</code>).</p>
+    <div class="exists-callout">
+      <h4>What's There</h4>
+      <p>Full Twilio browser SDK: makeCall, hangup, answerCall, call event callbacks. ProZone doesn't use it — it uses REST instead. Switching CallPanel to TwilioDeviceProvider gives us real-time call state (ringing, connected, disconnected) which drives the <code>calling</code> → <code>disposition</code> transition.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>COMMS API Routes (services/api/src/routes/comms.ts)</h2>
+    <table>
+      <tr><th>Route</th><th>Purpose</th><th>Status</th></tr>
+      <tr><td><code>POST /api/comms/send-sms</code></td><td>Outbound SMS (text only today)</td><td><span class="status-exists">Live</span></td></tr>
+      <tr><td><code>POST /api/comms/send-voice</code></td><td>REST-based outbound call initiation</td><td><span class="status-exists">Live</span></td></tr>
+      <tr><td><code>GET /api/comms/token</code></td><td>Twilio browser SDK token</td><td><span class="status-exists">Live</span></td></tr>
+      <tr><td><code>POST /api/comms/log-call</code></td><td>Log call outcome to Firestore</td><td><span class="status-exists">Live</span></td></tr>
+      <tr><td><code>POST /api/comms/webhooks/voice</code></td><td>Twilio voice status callback</td><td><span class="status-exists">Live</span></td></tr>
+      <tr><td><code>POST /api/comms/webhooks/sms-incoming</code></td><td>Inbound MMS capture (stores media_urls[])</td><td><span class="status-exists">Live</span></td></tr>
+      <tr><td><code>POST /api/comms/webhooks/recording</code></td><td>Call recording callback</td><td><span class="status-exists">Live</span></td></tr>
+      <tr><td><code>POST /api/comms/webhooks/voicemail</code></td><td>Voicemail drop callback</td><td><span class="status-exists">Live</span></td></tr>
+    </table>
+    <p><strong>Note on MMS:</strong> Inbound MMS is fully captured (media_urls[] stored in Firestore communications collection). Outbound MMS requires adding <code>MediaUrl</code> parameter to the Twilio API call in <code>send-sms</code> — plus a file upload mechanism on the frontend.</p>
+  </div>
+
+  <div class="card">
+    <h2>COMMS LogCallDialog</h2>
+    <p>Separate from CallPanel, LogCallDialog handles 5 outcomes: <code>connected</code>, <code>left_voicemail</code>, <code>no_answer</code>, <code>busy</code>, <code>wrong_number</code>. This is the manual "log a call" flow — distinct from the disposition step inside an active call session. Both need to exist, both need to be consistent.</p>
+  </div>
+</div>
+
+<!-- TAB 3: AUTO-DIAL -->
+<div class="tab-panel" id="autodial">
+  <div class="card">
+    <h2>Feature 1 &mdash; Auto-Dial Power Dialer</h2>
+    <p><strong>Current state:</strong> Single prospect click-to-call via green phone button in TargetTab. CallPanel slides in, handles one prospect, closes.</p>
+    <p><strong>Needed:</strong> Batch/sequential auto-dial queue. Select multiple prospects, start a session, the system auto-loads each one in sequence after disposition is logged.</p>
+  </div>
+
+  <div class="card">
+    <h2>How It Works</h2>
+    <div class="spec-grid">
+      <div class="spec-card cyan">
+        <h4>Step 1 &mdash; Select</h4>
+        <p>Checkbox column added to TargetTab. Sales rep selects 5, 10, 20 prospects. "Start Call Session" button activates at the bottom of the grid.</p>
+      </div>
+      <div class="spec-card blue">
+        <h4>Step 2 &mdash; Session Start</h4>
+        <p>ProZoneApp enters power dialer mode. CallSession.tsx wraps CallPanel with queue context. First prospect auto-loads — rep makes the call.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>Step 3 &mdash; Disposition &amp; Advance</h4>
+        <p>Rep logs disposition. useCallSession advances queue to next prospect. CallPanel auto-loads next name and number. Repeat until queue is empty.</p>
+      </div>
+      <div class="spec-card gold">
+        <h4>Step 4 &mdash; Session End</h4>
+        <p>Queue empties or rep ends manually. Session summary shown: total calls, booked, no-answer, callbacks, duration. Firestore batch log written.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Session Controls</h2>
+    <table>
+      <tr><th>Control</th><th>Behavior</th></tr>
+      <tr><td>Pause Session</td><td>Stops auto-advance after current call completes. Rep can take a break, review notes.</td></tr>
+      <tr><td>Resume Session</td><td>Re-activates auto-advance. Loads next prospect in queue.</td></tr>
+      <tr><td>End Session</td><td>Exits power dialer mode at any point. Shows partial session summary. Logs all completed calls.</td></tr>
+      <tr><td>Skip Prospect</td><td>Removes current prospect from queue without logging. Moves to next.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Session Stats Dashboard</h2>
+    <p>Live stats visible during the session in CallSession.tsx wrapper:</p>
+    <table>
+      <tr><th>Stat</th><th>Description</th></tr>
+      <tr><td>Calls Made</td><td>Total prospects dialed so far in session</td></tr>
+      <tr><td>Booked</td><td>Count of <code>booked</code> disposition outcomes</td></tr>
+      <tr><td>No Answer</td><td>Count of <code>no_answer</code> + <code>left_voicemail</code> outcomes</td></tr>
+      <tr><td>Callbacks</td><td>Count of <code>callback</code> outcomes</td></tr>
+      <tr><td>Remaining</td><td>Prospects left in current queue</td></tr>
+      <tr><td>Session Duration</td><td>Elapsed time since "Start Call Session"</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Technical Approach</h2>
+    <p><strong>Browser SDK over REST:</strong> Power dialer mode requires real call event feedback to drive auto-advance. TwilioDeviceProvider.makeCall fires events on connect/disconnect — these are what trigger the <code>calling</code> → <code>disposition</code> → <code>next prospect</code> chain. REST has no equivalent.</p>
+    <div class="diagram">// useCallSession.ts — queue state machine
+type CallSessionState = {
+  queue: Prospect[];
+  currentIndex: number;
+  status: 'idle' | 'active' | 'paused' | 'ended';
+  stats: { booked: number; no_answer: number; callback: number; duration: number };
+}
+
+// Auto-advance hook — fires after each disposition logged
+const handleDisposition = (outcome: DispositionOutcome) => {
+  logDisposition(outcome);         // writes to Firestore
+  advanceQueue();                  // moves index + 1
+  if (hasNext()) loadNextProspect(); // auto-loads CallPanel
+  else endSession();               // shows summary
+};</div>
+
+    <h3>Files to Create</h3>
+    <table>
+      <tr><th>File</th><th>Purpose</th></tr>
+      <tr><td><code>packages/ui/src/modules/ProZone/CallSession.tsx</code></td><td>Session UI wrapper — stats bar, pause/resume/end controls, progress indicator</td></tr>
+      <tr><td><code>packages/ui/src/modules/ProZone/useCallSession.ts</code></td><td>Queue state hook — manages prospect queue, auto-advance logic, session stats</td></tr>
+    </table>
+
+    <h3>Files to Modify</h3>
+    <table>
+      <tr><th>File</th><th>Change</th></tr>
+      <tr><td><code>TargetTab.tsx</code></td><td>Add checkbox column + multi-select state + "Start Call Session" button</td></tr>
+      <tr><td><code>CallPanel.tsx</code></td><td>Add queue mode prop — when in session, disposition auto-advances instead of closing panel</td></tr>
+      <tr><td><code>ProZoneApp.tsx</code></td><td>Session state management — toggle between single-call and session modes</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 4: DISPOSITION FIX -->
+<div class="tab-panel" id="disposition">
+  <div class="card">
+    <h2>Feature 2 &mdash; Call Disposition Fix</h2>
+    <p>Vince says "there's no way to disposition the call based on how it ended." The feature is built. Something is preventing him from reaching it.</p>
+  </div>
+
+  <div class="exists-callout">
+    <h4>What's Already Built in CallPanel.tsx</h4>
+    <p>4 disposition outcomes: booked, callback, no_answer, not_interested. Pipeline auto-advance on disposition (booked = advance stage, not_interested = close opportunity). The disposition step is the 3rd state in a 3-state flow.</p>
+  </div>
+
+  <div class="warn-callout">
+    <h4>The Suspected Root Cause</h4>
+    <p>CallPanel uses <code>POST /api/comms/send-voice</code> (REST) to initiate calls. A REST call fires and returns a 200. It does not emit call lifecycle events. Without a <code>onConnect</code> event, the component has no signal to transition from <code>pre_call</code> to <code>calling</code>. Without entering <code>calling</code>, the "Hang Up" button never appears. Without hanging up, disposition is never reached. Vince is stuck at <code>pre_call</code> — looking at a panel that says it called but never advanced.</p>
+  </div>
+
+  <div class="card">
+    <h2>Investigation Checklist (TRK-PC-001)</h2>
+    <p>RONIN must verify each of these before touching a line of code:</p>
+    <table>
+      <tr><th>#</th><th>Check</th><th>How to Verify</th></tr>
+      <tr><td>1</td><td>Does CallPanel render at all when a prospect is clicked?</td><td>Check ProZoneApp.tsx — is <code>callTarget</code> state wired to CallPanel render condition?</td></tr>
+      <tr><td>2</td><td>Does clicking "Call" fire the REST endpoint?</td><td>Check browser network tab or API logs for <code>POST /api/comms/send-voice</code></td></tr>
+      <tr><td>3</td><td>Does the component transition to <code>calling</code> state after the API call?</td><td>Read CallPanel.tsx — what triggers <code>setCallState('calling')</code>? Is it the API response? An event?</td></tr>
+      <tr><td>4</td><td>Does TwilioDeviceProvider token endpoint return a valid token?</td><td>Check <code>GET /api/comms/token</code> — is it returning a Twilio capability token?</td></tr>
+      <tr><td>5</td><td>Is TwilioDeviceProvider mounted in the ProZone component tree?</td><td>Check ProZoneApp.tsx or the portal layout — is the provider wrapping ProZone?</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>The Fix Plan</h2>
+
+    <h3>1. Switch to Browser SDK</h3>
+    <p>Replace <code>POST /api/comms/send-voice</code> in CallPanel with <code>TwilioDeviceProvider.makeCall()</code>. The browser SDK fires real events: <code>onRinging</code>, <code>onConnect</code>, <code>onDisconnect</code>. These map directly to <code>pre_call</code> → <code>calling</code> → <code>disposition</code> state transitions.</p>
+
+    <div class="diagram">// CallPanel.tsx — after fix
+const { makeCall, hangup, on } = useTwilioDevice();
+
+const handleCall = () => {
+  makeCall(prospect.phone);
+};
+
+on('connect', () => setCallState('calling'));    // enters calling state
+on('disconnect', () => setCallState('disposition')); // enters disposition</div>
+
+    <h3>2. Make Disposition Mandatory</h3>
+    <p>The panel must not close without a disposition logged. No X button in <code>disposition</code> state. Rep must pick an outcome before the panel closes. This ensures every call gets logged — no orphaned communications records.</p>
+
+    <h3>3. Expand Outcome List</h3>
+    <p>Add the outcomes Vince specifically requested:</p>
+    <table>
+      <tr><th>Current Outcomes</th><th>Add These</th></tr>
+      <tr><td>booked</td><td>left_voicemail</td></tr>
+      <tr><td>callback</td><td>follow_up_needed</td></tr>
+      <tr><td>no_answer</td><td>&mdash;</td></tr>
+      <tr><td>not_interested</td><td>&mdash;</td></tr>
+    </table>
+
+    <h3>4. Verify Firestore Logging</h3>
+    <p>Each disposition must write to Firestore <code>communications</code> collection with:</p>
+    <div class="diagram">// Expected Firestore document structure
+{
+  client_id: prospect.client_id,
+  type: 'voice',
+  direction: 'outbound',
+  outcome: 'booked' | 'callback' | 'no_answer' | 'not_interested' | 'left_voicemail' | 'follow_up_needed',
+  duration_seconds: number,
+  timestamp: Timestamp,
+  agent_id: currentUser.uid,
+  notes: string (optional)
+}</div>
+  </div>
+</div>
+
+<!-- TAB 5: MMS OUTBOUND -->
+<div class="tab-panel" id="mms">
+  <div class="card">
+    <h2>Feature 3 &mdash; MMS Outbound</h2>
+    <p>Vince wants to send JPEG and PDF files as attachments in texts. Inbound MMS is already captured. Outbound is the missing piece.</p>
+  </div>
+
+  <div class="exists-callout">
+    <h4>What Already Works (Inbound)</h4>
+    <p>The <code>POST /api/comms/webhooks/sms-incoming</code> webhook already captures <code>media_urls[]</code> from inbound MMS messages and stores them in Firestore. CommsTimeline already knows how to display received media attachments. The infrastructure understands MMS — we just don't send it yet.</p>
+  </div>
+
+  <div class="card">
+    <h2>Twilio MMS Constraints</h2>
+    <table>
+      <tr><th>Constraint</th><th>Value</th></tr>
+      <tr><td>Geography</td><td>US and Canada only (Twilio MMS limitation)</td></tr>
+      <tr><td>Max file size</td><td>5MB per Twilio MMS spec</td></tr>
+      <tr><td>Supported types</td><td>JPEG, PNG, GIF (animated), PDF, MP3, MP4 (varies by carrier)</td></tr>
+      <tr><td>Cost</td><td>~$0.01 per message segment + media overage</td></tr>
+      <tr><td>Supported file types for this sprint</td><td>JPEG, PNG, PDF (most common sales use case)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Implementation Spec</h2>
+
+    <h3>Frontend &mdash; SendSmsDialog.tsx</h3>
+    <p>Add a file attachment input below the message body. Accept JPEG, PNG, PDF. Show a thumbnail preview for images, filename for PDFs. Enforce 5MB client-side before upload attempt.</p>
+    <div class="diagram">// SendSmsDialog.tsx additions
+&lt;input
+  type="file"
+  accept="image/jpeg,image/png,application/pdf"
+  onChange={handleFileSelect}
+/&gt;
+
+// File preview — image thumbnail or PDF filename badge
+{selectedFile && &lt;AttachmentPreview file={selectedFile} onRemove={clearFile} /&gt;}
+
+// Size guard
+if (file.size &gt; 5 * 1024 * 1024) {
+  showToast('File must be under 5MB for MMS', 'error');
+  return;
+}</div>
+
+    <h3>Upload &mdash; Cloud Storage</h3>
+    <p>Files upload to Cloud Storage bucket (temp path: <code>mms-uploads/{userId}/{timestamp}/{filename}</code>) before sending. The API route receives a storage URL, not the raw file. Storage rules restrict access to authenticated RPI users only.</p>
+
+    <h3>API Route &mdash; comms.ts</h3>
+    <p>Extend <code>POST /api/comms/send-sms</code> to accept an optional <code>mediaUrl</code> field. Pass it as <code>MediaUrl</code> parameter to Twilio. Twilio fetches the file from Cloud Storage and attaches it to the MMS.</p>
+    <div class="diagram">// comms.ts send-sms route
+const { to, body, mediaUrl } = req.body;
+
+const messageParams: Twilio.MessageCreateOptions = {
+  to,
+  from: TWILIO_PHONE_NUMBER,
+  body,
+  ...(mediaUrl && { mediaUrl: [mediaUrl] }),  // MMS only if file attached
+};
+
+const message = await twilioClient.messages.create(messageParams);</div>
+
+    <h3>Display &mdash; CommsTimeline.tsx</h3>
+    <p>Sent MMS attachments render in the timeline alongside the message bubble. Images show as thumbnails (click to expand). PDFs show as a labeled attachment with download link. Matches the existing inbound MMS display pattern.</p>
+
+    <div class="spec-grid">
+      <div class="spec-card cyan">
+        <h4>What Vince Sees</h4>
+        <p>A paperclip icon in the SMS compose panel. He picks a JPEG or PDF from his machine. It previews before sending. He hits Send. The attachment appears in the conversation timeline alongside the message.</p>
+      </div>
+      <div class="spec-card blue">
+        <h4>What the Client Sees</h4>
+        <p>A standard MMS from RPI's number. The image or PDF renders inline on most modern smartphones. No special app required. PDF may render as a download link on some carriers.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 6: ARCHITECTURE -->
+<div class="tab-panel" id="architecture">
+  <div class="card">
+    <h2>How These Three Features Connect</h2>
+    <p>All three features share the same underlying infrastructure. The fix to CallPanel disposition (Phase 1) is the foundation everything else sits on. Auto-dial (Phase 2) extends the fixed CallPanel with session management. MMS (Phase 3) extends the existing SMS send path with media support.</p>
+  </div>
+
+  <div class="card">
+    <h2>Call Flow Diagram</h2>
+    <div class="diagram">ProZone TargetTab (prospect grid)
+│
+├── SINGLE CALL (existing, will be fixed)
+│   └── Click phone button
+│       └── CallPanel slide-over
+│           ├── [pre_call] → makeCall() via TwilioDeviceProvider (FIX: was REST)
+│           ├── [calling] → live timer, hang-up (FIX: triggered by SDK onConnect event)
+│           └── [disposition] → log outcome → pipeline advance → close
+│
+├── AUTO-DIAL SESSION (new, Phase 2)
+│   └── Multi-select checkboxes → "Start Call Session"
+│       └── CallSession.tsx (session wrapper)
+│           ├── Stats bar: calls made / booked / no-answer / callbacks / remaining
+│           ├── Controls: Pause / Resume / End Session / Skip
+│           └── CallPanel (queue mode)
+│               ├── [pre_call] → auto-loads next prospect on session start
+│               ├── [calling] → same fixed flow as single call
+│               └── [disposition] → log outcome → auto-advance queue → load next
+│                   └── Queue empty? → End Session summary → Firestore batch log
+│
+└── SMS / MMS (existing SMS + new MMS, Phase 3)
+    └── CommsModule → SendSmsDialog
+        ├── Text body (existing)
+        ├── File attachment input (NEW: JPEG / PNG / PDF, max 5MB)
+        │   └── Upload to Cloud Storage → get mediaUrl
+        └── POST /api/comms/send-sms { body, to, mediaUrl? }
+            └── Twilio → sends MMS (or SMS if no attachment)
+                └── Outcome stored in communications collection
+                    └── CommsTimeline renders sent attachment</div>
+  </div>
+
+  <div class="card">
+    <h2>TwilioDeviceProvider &mdash; The Bridge</h2>
+    <p>The browser SDK is the critical link. It's already built and mounted. Once CallPanel switches from REST to the browser SDK, the entire call lifecycle becomes trackable in real time. This single change unlocks disposition (Phase 1) and makes the power dialer viable (Phase 2).</p>
+    <table>
+      <tr><th>Event</th><th>SDK Event</th><th>UI State Transition</th></tr>
+      <tr><td>Call initiated</td><td><code>device.connect()</code></td><td><code>pre_call</code> → <code>calling</code></td></tr>
+      <tr><td>Call connected</td><td><code>onConnect</code></td><td>Start call timer</td></tr>
+      <tr><td>Call disconnected</td><td><code>onDisconnect</code></td><td><code>calling</code> → <code>disposition</code></td></tr>
+      <tr><td>Rep hangs up</td><td><code>connection.disconnect()</code></td><td>Fires <code>onDisconnect</code> → disposition</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Firestore Data Flow</h2>
+    <p>All call and message activity flows into the <code>communications</code> Firestore collection. Pipeline advancement writes to <code>flow_instances</code>. This is the existing pattern — Sprint 011 adds no new collections.</p>
+    <table>
+      <tr><th>Event</th><th>Firestore Write</th></tr>
+      <tr><td>Call disposition logged</td><td><code>communications/{id}</code> — type: voice, outcome, duration, agent_id</td></tr>
+      <tr><td>Booked disposition</td><td><code>flow_instances/{id}</code> — stage advanced to next</td></tr>
+      <tr><td>Session ended</td><td><code>communications/{id}[]</code> — batch write for full session</td></tr>
+      <tr><td>MMS sent</td><td><code>communications/{id}</code> — type: sms, media_urls: [url], direction: outbound</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 7: FILES -->
+<div class="tab-panel" id="files">
+  <div class="card">
+    <h2>Key File Paths</h2>
+    <table>
+      <tr><th>File</th><th>Role</th><th>Phase</th></tr>
+      <tr>
+        <td><code>packages/ui/src/modules/ProZone/TargetTab.tsx</code></td>
+        <td>Prospect grid — add checkbox column + multi-select + session start button</td>
+        <td><span class="badge badge-cyan" style="font-size:0.65rem;">Phase 2</span></td>
+      </tr>
+      <tr>
+        <td><code>packages/ui/src/modules/ProZone/CallPanel.tsx</code></td>
+        <td>Call + disposition flow — switch REST to SDK, add outcomes, mandatory disposition</td>
+        <td><span class="badge badge-green" style="font-size:0.65rem;">Phase 1</span></td>
+      </tr>
+      <tr>
+        <td><code>packages/ui/src/modules/ProZone/ProZoneApp.tsx</code></td>
+        <td>Main app wrapper — session state management, toggle single vs. session mode</td>
+        <td><span class="badge badge-cyan" style="font-size:0.65rem;">Phase 2</span></td>
+      </tr>
+      <tr>
+        <td><code>packages/ui/src/modules/CommsModule/TwilioDeviceProvider.tsx</code></td>
+        <td>Browser SDK — makeCall, hangup, call event callbacks (READ ONLY this sprint)</td>
+        <td><span class="badge badge-green" style="font-size:0.65rem;">Phase 1</span></td>
+      </tr>
+      <tr>
+        <td><code>packages/ui/src/modules/comms/SendSmsDialog.tsx</code></td>
+        <td>SMS compose — add file attachment input, preview, upload trigger</td>
+        <td><span class="badge badge-purple" style="font-size:0.65rem;">Phase 3</span></td>
+      </tr>
+      <tr>
+        <td><code>packages/ui/src/modules/comms/CommsTimeline.tsx</code></td>
+        <td>Activity feed — render sent MMS attachments (images + PDF labels)</td>
+        <td><span class="badge badge-purple" style="font-size:0.65rem;">Phase 3</span></td>
+      </tr>
+      <tr>
+        <td><code>services/api/src/routes/comms.ts</code></td>
+        <td>All COMMS API routes — add MediaUrl to send-sms, verify log-call schema</td>
+        <td><span class="badge badge-purple" style="font-size:0.65rem;">Phase 3</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>New Files (Phase 2)</h2>
+    <table>
+      <tr><th>File</th><th>Role</th></tr>
+      <tr>
+        <td><code>packages/ui/src/modules/ProZone/CallSession.tsx</code></td>
+        <td>Power dialer session UI wrapper — stats bar, pause/resume/end controls, progress indicator, session summary modal</td>
+      </tr>
+      <tr>
+        <td><code>packages/ui/src/modules/ProZone/useCallSession.ts</code></td>
+        <td>Queue state hook — manages prospect queue array, current index, auto-advance logic, session stats accumulation, Firestore batch log on session end</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Read Before Touching</h2>
+    <p>RONIN must read these files before writing any Phase 1 code. The bug is in the wiring, not the UI.</p>
+    <table>
+      <tr><th>File</th><th>What to Look For</th></tr>
+      <tr><td><code>CallPanel.tsx</code></td><td>What triggers <code>setCallState('calling')</code>? Is it the API response? An event? A timeout?</td></tr>
+      <tr><td><code>ProZoneApp.tsx</code></td><td>Is <code>callTarget</code> state set correctly when phone button is clicked? Is CallPanel conditionally rendered?</td></tr>
+      <tr><td><code>TwilioDeviceProvider.tsx</code></td><td>What events are exposed? What's the hook API? Is the provider wrapped around ProZone in the component tree?</td></tr>
+      <tr><td><code>comms.ts</code> (routes)</td><td>What does <code>/api/comms/token</code> return? What does <code>/api/comms/log-call</code> expect in the request body?</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 8: SPRINT PLAN -->
+<div class="tab-panel" id="sprint">
+  <div class="card">
+    <h2>PROZONE-COMMS &mdash; 15 Tickets, 3 Phases</h2>
+    <p>Phase 1 ships first — always. Fix the existing disposition flow before building the power dialer on top of it. Phases 2 and 3 are parallel-eligible once Phase 1 is verified.</p>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--cyan);">
+    <h2 style="color:var(--cyan);">RONIN Seeder Metadata</h2>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td><code>data-cwd</code></td><td><code>/home/jdm/Projects/toMachina</code></td></tr>
+      <tr><td><code>sprint_name</code></td><td>PROZONE-COMMS</td></tr>
+      <tr><td><code>discovery_url</code></td><td><code>sprint-011-prozone-comms-discovery.html</code></td></tr>
+      <tr><td><code>ticket_range</code></td><td>TRK-PC-001 &rarr; TRK-PC-015</td></tr>
+      <tr><td><code>ticket_count</code></td><td>15</td></tr>
+      <tr><td><code>phases</code></td><td>3 (Fix Existing &rarr; Auto-Dial &rarr; MMS Outbound)</td></tr>
+      <tr><td><code>max_parallelism</code></td><td>2 agents (Phase 2 + Phase 3 can run parallel after Phase 1)</td></tr>
+      <tr><td><code>critical_path</code></td><td>TRK-PC-001 &rarr; TRK-PC-002 &rarr; TRK-PC-003 &rarr; TRK-PC-006</td></tr>
+      <tr><td><code>external_blockers</code></td><td>Twilio account must have MMS enabled (verify before Phase 3)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 1 &mdash; Fix What Exists (5 Tickets)</h2>
+    <div class="level-bar cyan">
+      <h4>Gate: Phase 2 does not start until Vince can disposition a call end-to-end.</h4>
+      <p>This is non-negotiable. Build the power dialer on a broken foundation and you ship broken at scale.</p>
+    </div>
+    <table>
+      <tr><th>TRK ID</th><th>Title</th><th>Type</th><th>Acceptance Criteria</th></tr>
+      <tr>
+        <td><code>TRK-PC-001</code></td>
+        <td>Investigate CallPanel render + state flow</td>
+        <td><span class="pill chore">chore</span></td>
+        <td>Read CallPanel.tsx, ProZoneApp.tsx, TwilioDeviceProvider.tsx. Document exact bug: why does <code>calling</code> state never trigger? Write findings as inline code comments. AC: Root cause identified and documented before any code is changed.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-002</code></td>
+        <td>Switch CallPanel from REST to browser SDK</td>
+        <td><span class="pill fix">fix</span></td>
+        <td>Replace <code>POST /api/comms/send-voice</code> with <code>TwilioDeviceProvider.makeCall()</code>. Wire <code>onConnect</code> → <code>setCallState('calling')</code>. Wire <code>onDisconnect</code> → <code>setCallState('disposition')</code>. AC: Making a call triggers the calling state with live timer. Hanging up transitions to disposition.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-003</code></td>
+        <td>Make disposition mandatory before panel close</td>
+        <td><span class="pill fix">fix</span></td>
+        <td>Remove X close button from disposition state. Rep must select an outcome before panel can close. AC: Panel cannot be dismissed without logging a disposition outcome. ESC key also blocked in disposition state.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-004</code></td>
+        <td>Add "Voicemail left" + "Follow-up needed" outcomes</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Add <code>left_voicemail</code> and <code>follow_up_needed</code> to the disposition outcome list in CallPanel.tsx. Update the Firestore log-call API to accept these new values. AC: 6 total outcomes visible. Both new outcomes log to Firestore correctly.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-005</code></td>
+        <td>Verify disposition logs to Firestore communications</td>
+        <td><span class="pill chore">chore</span></td>
+        <td>After TRK-PC-002 fix, make a test call and verify the disposition document writes correctly to <code>communications</code> collection with type, outcome, duration, agent_id, timestamp. AC: Firestore document visible in console with all required fields. Pipeline stage advances on <code>booked</code> outcome.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 2 &mdash; Auto-Dial Power Dialer (6 Tickets)</h2>
+    <div class="level-bar blue">
+      <h4>Depends on: Phase 1 complete + verified</h4>
+      <p>Vince must be able to disposition a single call before we build the session queue on top of it.</p>
+    </div>
+    <table>
+      <tr><th>TRK ID</th><th>Title</th><th>Type</th><th>Acceptance Criteria</th></tr>
+      <tr>
+        <td><code>TRK-PC-006</code></td>
+        <td>Add multi-select checkboxes to TargetTab</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Add checkbox column as first column in TargetTab grid. "Select All" header checkbox. Selected count badge. "Start Call Session" button appears when 1+ prospects checked. AC: Can select individual rows and select-all. Button shows selected count ("Start Session — 12 Prospects").</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-007</code></td>
+        <td>Create CallSession.tsx session wrapper</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>New component: wraps CallPanel when in session mode. Shows stats bar at top (calls made, booked, no-answer, callbacks, remaining). Shows session controls (Pause, End Session). Shows current queue position ("Prospect 4 of 12"). AC: Session wrapper renders over TargetTab. Stats update after each call.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-008</code></td>
+        <td>Create useCallSession.ts queue state hook</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Hook manages: queue array, current index, session status (idle/active/paused/ended), stats object. Exposes: startSession(prospects[]), advanceQueue(), pauseSession(), resumeSession(), endSession(), skipProspect(). AC: Hook state updates correctly on each action. Auto-advance fires after disposition is logged.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-009</code></td>
+        <td>CallPanel queue mode &mdash; auto-advance on disposition</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Add <code>queueMode: boolean</code> prop to CallPanel. In queue mode, after disposition is logged, fire <code>onDispositionComplete(outcome)</code> callback instead of closing. Parent (useCallSession) handles advance. AC: In session mode, CallPanel does not close after disposition. It auto-loads next prospect. In single-call mode, behavior is unchanged.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-010</code></td>
+        <td>Session stats dashboard &mdash; live updates</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Stats bar in CallSession.tsx updates live after each call: calls made, booked count, no-answer count, callback count, prospects remaining, session elapsed time. AC: Stats reflect the correct running totals after each disposition. Timer counts up from session start.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-011</code></td>
+        <td>End session summary + Firestore batch log</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>When session ends (queue empty or rep ends manually): show session summary modal with final stats. Write batch communications log to Firestore for any calls not yet individually logged. AC: Summary modal shows with correct totals. All session calls exist in Firestore. Modal has "Done" button that returns to TargetTab.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 3 &mdash; MMS Outbound (4 Tickets)</h2>
+    <div class="level-bar purple">
+      <h4>Parallel-eligible with Phase 2 after Phase 1 is verified</h4>
+      <p>MMS touches different code paths (SendSmsDialog, comms.ts API) and can run independently of auto-dial work.</p>
+    </div>
+    <table>
+      <tr><th>TRK ID</th><th>Title</th><th>Type</th><th>Acceptance Criteria</th></tr>
+      <tr>
+        <td><code>TRK-PC-012</code></td>
+        <td>File attachment input in SendSmsDialog.tsx</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Add paperclip icon button to SMS compose. Clicking opens file picker (accept: image/jpeg, image/png, application/pdf). Selected file shows thumbnail (images) or filename badge (PDFs). X removes selection. Client-side 5MB size guard with toast error. AC: Rep can select a JPEG, PNG, or PDF. Preview renders. File over 5MB shows error and is rejected.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-013</code></td>
+        <td>Cloud Storage upload for media files</td>
+        <td><span class="pill infra">infra</span></td>
+        <td>On send, upload file to Cloud Storage at <code>mms-uploads/{userId}/{timestamp}/{filename}</code>. Return signed URL (short TTL or public URL depending on bucket config). AC: File uploads successfully. URL is returned and accessible by Twilio (must be publicly accessible or signed). Upload fails gracefully with toast error.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-014</code></td>
+        <td>Pass MediaUrl to Twilio in send-sms API route</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Extend <code>POST /api/comms/send-sms</code> to accept optional <code>mediaUrl</code> in request body. If present, pass as <code>MediaUrl: [mediaUrl]</code> to Twilio message create. Store <code>media_urls: [mediaUrl]</code> on the Firestore communications document. AC: API accepts mediaUrl. Twilio sends MMS. Firestore document includes media_urls array.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-PC-015</code></td>
+        <td>Render sent attachments in CommsTimeline.tsx</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>Outbound MMS messages with media_urls[] render attachments in timeline: images as thumbnails (click to expand), PDFs as labeled attachment badges with download link. Matches existing inbound MMS display pattern. AC: Sent MMS with image shows thumbnail in timeline. Sent MMS with PDF shows labeled badge. Outbound label correct (no inbound icon).</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <div class="gate-callout">
+      <h4>The Vince Test</h4>
+      <p>Vince can select 20 prospects, power-dial through them with auto-disposition after each call, and send an MMS with a PDF attachment &mdash; all from ProZone. If Vince can do this without asking a question, this sprint is done.</p>
+    </div>
+    <table>
+      <tr><th>Criterion</th><th>Verification</th></tr>
+      <tr><td>Disposition is reachable on a live call</td><td>Make a call → hear ring → hang up → disposition panel appears</td></tr>
+      <tr><td>Disposition is mandatory</td><td>Panel cannot close without selecting an outcome</td></tr>
+      <tr><td>All 6 outcomes available</td><td>booked, callback, no_answer, not_interested, left_voicemail, follow_up_needed</td></tr>
+      <tr><td>Firestore receives disposition</td><td>communications document exists with correct outcome + agent_id</td></tr>
+      <tr><td>Multi-select works in TargetTab</td><td>Can select 5+ prospects and click Start Call Session</td></tr>
+      <tr><td>Session auto-advances</td><td>After disposition, next prospect auto-loads in CallPanel</td></tr>
+      <tr><td>Session stats update live</td><td>Stats bar reflects correct running totals after each call</td></tr>
+      <tr><td>Session summary logs to Firestore</td><td>All session calls exist in communications after session end</td></tr>
+      <tr><td>MMS sends with JPEG attachment</td><td>Image arrives on recipient's phone as an MMS</td></tr>
+      <tr><td>MMS sends with PDF attachment</td><td>PDF link arrives on recipient's phone</td></tr>
+      <tr><td>Sent MMS appears in timeline</td><td>CommsTimeline shows image thumbnail or PDF badge for sent MMS</td></tr>
+      <tr><td>5MB limit enforced</td><td>File over 5MB rejected with toast error before upload</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Discovery by MUSASHI, ARTxBLADE &mdash; VP/CMO, Executive.AI Team &bull; Sprint 011 &bull; 2026-03-31
+  <br>
+  Requested by Vince Vazquez via #the-dojo &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
