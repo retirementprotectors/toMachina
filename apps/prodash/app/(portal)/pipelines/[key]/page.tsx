@@ -367,13 +367,14 @@ export default function PipelineKanbanPage() {
                       }))
                     }}
                     className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
+                    style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
                     disabled={carriersLoading}
                   >
                     <option value="">
                       {carriersLoading ? 'Loading carriers...' : 'Select carrier...'}
                     </option>
                     {carriers.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name || c.carrier_name}</option>
+                      <option key={c.id} value={c.id} style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}>{c.name || c.carrier_name}</option>
                     ))}
                   </select>
                 </div>
