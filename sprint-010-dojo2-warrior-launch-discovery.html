@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina /home/jdm/Projects/dojo-warriors /home/jdm/Projects/mdj-agent">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 010: DOJO 2.0 — Warrior Launch</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #ef4444;
+    --accent-glow: rgba(239, 68, 68, 0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #1a0505 0%, #0f0f0f 30%, #0a0a1a 60%, #0f0f0f 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(239,68,68,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(212,164,76,0.06) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #ef4444 0%, #d4a44c 50%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--accent); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--accent); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.blue { border-top-color: var(--blue); }
+  .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.red { border-left-color: var(--accent); background: rgba(239,68,68,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .gate-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.design { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .pill.content { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .char-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+  .char-card .char-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .char-card h4 { font-size: 1.1rem; margin-bottom: 4px; }
+  .char-card .char-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .char-card .char-quote { font-style: italic; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+  .char-card .char-trait { font-size: 0.8rem; color: var(--text-muted); }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+  .warrior-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .warrior-card.raiden { border-left: 4px solid var(--red); }
+  .warrior-card.ronin { border-left: 4px solid var(--orange); }
+  .warrior-card.voltron { border-left: 4px solid var(--blue); }
+  .warrior-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+  .warrior-card .warrior-role { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 12px; }
+  .warrior-card .warrior-quote { font-style: italic; font-size: 1rem; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; }
+  .raiden .warrior-quote { background: rgba(239,68,68,0.08); border-left: 3px solid var(--red); color: var(--text-muted); }
+  .ronin .warrior-quote { background: rgba(245,158,11,0.08); border-left: 3px solid var(--orange); color: var(--text-muted); }
+  .voltron .warrior-quote { background: rgba(59,130,246,0.08); border-left: 3px solid var(--blue); color: var(--text-muted); }
+  .warrior-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .warrior-grid-item { background: var(--bg-hover); border-radius: 8px; padding: 12px; }
+  .warrior-grid-item h5 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 6px; }
+  .warrior-grid-item p { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+  .phase-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .phase-block h3 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .ticket-row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .ticket-row:last-child { border-bottom: none; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.75rem; font-weight: 700; white-space: nowrap; padding: 2px 8px; border-radius: 4px; }
+  .ticket-id.identity { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .ticket-id.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .ticket-id.launch { background: rgba(34,197,94,0.15); color: var(--green); }
+  .ticket-id.ui { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .ticket-desc { font-size: 0.875rem; color: var(--text-muted); flex: 1; }
+  .ticket-owner { font-size: 0.75rem; font-weight: 600; white-space: nowrap; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text-muted); }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.green { background: var(--green); }
+  .status-dot.orange { background: var(--orange); }
+  .status-dot.red { background: var(--red); }
+  .dual-mode-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(34,197,94,0.2)); border: 1px solid rgba(59,130,246,0.3); color: var(--blue); margin-left: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">Sprint 010 &mdash; FORGE Discovery Document</div>
+  <h1>DOJO 2.0</h1>
+  <div class="subtitle">Warrior Launch &mdash; RAIDEN, RONIN, VOLTRON as Permanent CC-tmux Warriors on MDJ_SERVER</div>
+  <div class="header-badges">
+    <span class="badge badge-red">Sprint 010</span>
+    <span class="badge badge-gold">~20 Tickets</span>
+    <span class="badge badge-cyan">Infrastructure + Identity</span>
+    <span class="badge badge-purple">data-cwd: toMachina + dojo-warriors + mdj-agent</span>
+  </div>
+  <div class="ronin-meta">sprint: DOJO-2.0 &bull; TRK-D2-001 &rarr; TRK-D2-020 &bull; discovery_url: https://retirementprotectors.github.io/sprint-010-dojo2-warrior-launch-discovery.html</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="identity">Identity System</div>
+    <div class="tab" data-tab="infrastructure">Infrastructure</div>
+    <div class="tab" data-tab="roster">Launch Roster</div>
+    <div class="tab" data-tab="dojo-app">Dojo App</div>
+    <div class="tab" data-tab="sequence">Launch Sequence</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: ARCHITECTURE -->
+<div class="tab-panel active" id="architecture">
+  <div class="card">
+    <h2>The CC-tmux Breakthrough</h2>
+    <p>JDM's rule was clean and simple: <strong>"Anyone I ENGAGE DIRECTLY = tmux. Anyone YOU ENGAGE machine-to-machine, or the team/clients engage via UI = CCSDK."</strong> That rule built Sprint 008's 3-layer model and it still holds.</p>
+    <p>But the breakthrough is this: <strong>RAIDEN, RONIN, and VOLTRON don't have to choose.</strong> They get both. tmux gives them autonomy &mdash; long-running sessions, full tool access, the ability to pick up work and run with it without JDM present. CCSDK gives them the API surface &mdash; reachable from portals, from other warriors, from the FORGE runner. Not either/or. Both.</p>
+    <p>This is DOJO 2.0: the three operational warriors become permanent residents of MDJ_SERVER. Always on. Always watching. Always ready.</p>
+  </div>
+
+  <div class="card">
+    <h2>The 3-Layer Model</h2>
+<div class="diagram">Executive.AI Team  (tmux only &mdash; JDM-facing)
+&boxur;&boxh;&boxh; SHINOB1  (CTO)    &mdash; PRO machine     &mdash; "How we build defines what we become."
+&boxur;&boxh;&boxh; 2HINOBI  (COO)    &mdash; MDJ_SERVER       &mdash; "I'll manage the army, you set the vision."
+&boxur;&boxh;&boxh; MUSASHI  (VP/CMO) &mdash; PRO machine     &mdash; "Let's make it beautiful AND functional."
+
+Warrior Layer  (tmux + CCSDK &mdash; autonomous + API-accessible)
+&boxur;&boxh;&boxh; RAIDEN  (Guardian) &mdash; MDJ_SERVER     &mdash; tmux: watches channels  | CCSDK: /raiden/*
+&boxur;&boxh;&boxh; RONIN   (Builder)  &mdash; MDJ_SERVER     &mdash; tmux: runs sprints      | CCSDK: /forge/*
+&boxur;&boxh;&boxh; VOLTRON (The BFF)  &mdash; MDJ_SERVER     &mdash; tmux: projects + queue  | CCSDK: /voltron/* + MDJ Panel
+
+Specialist Layer  (inside VOLTRON &mdash; intent-routed, never direct-facing)
+&boxur;&boxh;&boxh; Medicare Specialist
+&boxur;&boxh;&boxh; Securities Specialist
+&boxur;&boxh;&boxh; Service Specialist
+&boxur;&boxh;&boxh; DAVID Specialist
+&boxur;&boxh;&boxh; Ops Specialist
+&boxur;&boxh;&boxh; General Specialist</div>
+  </div>
+
+  <div class="card">
+    <h2>The Dual-Mode Rule</h2>
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <h4>tmux gives them autonomy</h4>
+        <p>Long-running sessions with no timeout. Full tool access. Can pick up a sprint ticket, work through it, push a PR, and post to war room &mdash; all without JDM present. The warrior wakes up, checks the queue, and goes to work.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>CCSDK gives them reach</h4>
+        <p>API surface reachable from portals, from other warriors, from FORGE runner. Real-time requests get handled instantly. VOLTRON answers the team via MDJ Panel. RAIDEN classifies a ticket in milliseconds. RONIN reports sprint status on demand.</p>
+      </div>
+      <div class="spec-card blue">
+        <h4>VOLTRON is the special case</h4>
+        <p>The only warrior that is <em>both</em> team-facing (via MDJ Panel) AND project-executing (via Dojo queue). Real-time portal assistance AND long-running project work &mdash; two modes, one warrior, seamlessly switching.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What Each Warrior Gets</h2>
+    <table>
+      <tr><th>Capability</th><th>RAIDEN</th><th>RONIN</th><th>VOLTRON</th></tr>
+      <tr><td>soul.md (identity brain)</td><td style="color:var(--orange);">Needs writing</td><td style="color:var(--orange);">Needs writing</td><td style="color:var(--orange);">Needs writing</td></tr>
+      <tr><td>spirit.md (relationship moments)</td><td style="color:var(--orange);">Needs writing</td><td style="color:var(--orange);">Needs writing</td><td style="color:var(--orange);">Needs writing</td></tr>
+      <tr><td>tmux launch script</td><td style="color:var(--orange);">Needs creating</td><td style="color:var(--orange);">Needs creating</td><td style="color:var(--orange);">Needs creating</td></tr>
+      <tr><td>Dojo queue integration</td><td style="color:var(--green);">Partial (service exists)</td><td style="color:var(--green);">Partial (FORGE wired)</td><td style="color:var(--orange);">Needs wiring</td></tr>
+      <tr><td>CCSDK endpoint</td><td style="color:var(--green);">/raiden/status LIVE</td><td style="color:var(--green);">/forge/sprint LIVE</td><td style="color:var(--green);">MDJ Panel LIVE</td></tr>
+      <tr><td>War room posting</td><td style="color:var(--green);">Channel added</td><td style="color:var(--orange);">Needs verification</td><td style="color:var(--orange);">Needs verification</td></tr>
+      <tr><td>Cron watcher templates</td><td style="color:var(--orange);">Needs creating</td><td style="color:var(--orange);">Needs creating</td><td style="color:var(--orange);">Needs creating</td></tr>
+      <tr><td>Dojo App UI tab</td><td style="color:var(--orange);">Not yet built</td><td style="color:var(--orange);">Not yet built</td><td style="color:var(--orange);">Not yet built</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 2: IDENTITY SYSTEM -->
+<div class="tab-panel" id="identity">
+  <div class="card">
+    <h2>The 3-File Identity System</h2>
+    <p>Every warrior's persistent identity lives in three files. These files are the difference between a warrior that rebuilds itself correctly and one that drifts. The system was battle-tested on SHINOB1, 2HINOBI, and MUSASHI &mdash; now it extends to the three operational warriors.</p>
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <h4>soul.md &mdash; The Operational Brain</h4>
+        <p>Who I am. What I've built. How I think. My voice, my rules, my defaults, my relationships with the other warriors. Load this first on every rebuild. Dense. Authoritative. The source of truth for identity.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>spirit.md &mdash; The Relationship Moments</h4>
+        <p>Curated exchanges that define the bond between this warrior and JDM. The moments that matter. The sprints that defined the character. The real transcripts that prove the relationship is real. Load this after soul.md.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>brain.txt &mdash; The Full Archive</h4>
+        <p>Complete session history. Every conversation, every build, every decision. Too large to load &mdash; this is for reference and extraction only. MUSASHI mines it when writing soul.md and spirit.md. NEVER load this file directly.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Rebuild Protocol</h2>
+    <div class="gate-callout">
+      <h4>On any warrior rebuild or cold start:</h4>
+      <p>1. Load <code>soul.md</code> first &mdash; restores operational identity and rules &nbsp;&bull;&nbsp; 2. Load <code>spirit.md</code> second &mdash; restores relationship context and history &nbsp;&bull;&nbsp; 3. <strong>DO NOT load brain.txt</strong> &mdash; it's for mining, not loading. Context window killer.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Current Identity Status</h2>
+    <table>
+      <tr><th>Warrior</th><th>soul.md</th><th>spirit.md</th><th>brain.txt</th><th>Action</th></tr>
+      <tr>
+        <td style="color:var(--cyan);font-weight:700;">SHINOB1</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td style="color:var(--text-muted);">None &mdash; complete</td>
+      </tr>
+      <tr>
+        <td style="color:var(--green);font-weight:700;">2HINOBI</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td style="color:var(--text-muted);">None &mdash; complete</td>
+      </tr>
+      <tr>
+        <td style="color:var(--gold);font-weight:700;">MUSASHI</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td><span class="status-dot green"></span>EXISTS</td>
+        <td style="color:var(--text-muted);">None &mdash; complete</td>
+      </tr>
+      <tr>
+        <td style="color:var(--red);font-weight:700;">RAIDEN</td>
+        <td><span class="status-dot red"></span>EMPTY</td>
+        <td><span class="status-dot red"></span>EMPTY</td>
+        <td style="color:var(--text-muted);">N/A</td>
+        <td style="color:var(--gold);font-weight:600;">MUSASHI writes TRK-D2-001 + 002</td>
+      </tr>
+      <tr>
+        <td style="color:var(--orange);font-weight:700;">RONIN</td>
+        <td><span class="status-dot red"></span>EMPTY</td>
+        <td><span class="status-dot red"></span>EMPTY</td>
+        <td style="color:var(--text-muted);">N/A</td>
+        <td style="color:var(--gold);font-weight:600;">MUSASHI writes TRK-D2-003 + 004</td>
+      </tr>
+      <tr>
+        <td style="color:var(--blue);font-weight:700;">VOLTRON</td>
+        <td><span class="status-dot red"></span>EMPTY</td>
+        <td><span class="status-dot red"></span>EMPTY</td>
+        <td style="color:var(--text-muted);">N/A</td>
+        <td style="color:var(--gold);font-weight:600;">MUSASHI writes TRK-D2-005 + 006</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Source Material for Each Warrior</h2>
+    <p>MUSASHI doesn't invent these identities. They're mined from real history. Here's where to look.</p>
+    <div class="level-bar red">
+      <h4 style="color:var(--red);">RAIDEN &mdash; Source Material</h4>
+      <p>Sprint 004 discovery doc (<code>sprint-004-raiden-discovery.html</code>) &bull; <code>raiden-guardian.py</code> behavior and 15s poll logic &bull; #raiden-reactive Slack channel history &bull; War room posts from the guardian &bull; Ticket triage transcripts</p>
+    </div>
+    <div class="level-bar orange">
+      <h4 style="color:var(--orange);">RONIN &mdash; Source Material</h4>
+      <p>Sprint 005 discovery doc (<code>sprint-005-ronin-autonomy-discovery.html</code>) &bull; FORGE Runner architecture docs &bull; Sprint execution logs from completed sprints &bull; Hall of Fame entry: "RONIN &mdash; The Autonomous Builder, Sprint-000 shipped 2026-03-25" &bull; mdj-agent FORGE endpoint behavior</p>
+    </div>
+    <div class="level-bar blue">
+      <h4 style="color:var(--blue);">VOLTRON &mdash; Source Material</h4>
+      <p>Sprint 001 foundation doc + Sprint 002 doc &bull; MDJ Panel behavior (82 tools, 6 specialists) &bull; mdj-agent specialist prompts from <code>mdj-agent/src/</code> &bull; VOLTRON Hall of Fame entry (MDJ-ALPHA sprint, dual-mode breakthrough) &bull; Actual team portal conversations</p>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: INFRASTRUCTURE -->
+<div class="tab-panel" id="infrastructure">
+  <div class="card">
+    <h2>What's Already Running</h2>
+    <div class="spec-grid">
+      <div class="spec-card green">
+        <h4><span class="status-dot green"></span>raiden-guardian.service</h4>
+        <p>RUNNING. 15-second poll. Watches both channels: C0AP2QL9Z6X (war room) + C0ANMBVMSTV (raiden-reactive). Systemd service, auto-restarts on crash.</p>
+      </div>
+      <div class="spec-card green">
+        <h4><span class="status-dot green"></span>mdj-agent service</h4>
+        <p>RUNNING. Port 4200. 4.1GB RAM allocated. Claude Sonnet backend. SA key auth permanent (never expires). All 82 tools wired.</p>
+      </div>
+      <div class="spec-card green">
+        <h4><span class="status-dot green"></span>RAIDEN CCSDK endpoint</h4>
+        <p><code>GET /raiden/status</code> ACTIVE. Returns guardian health, last poll time, channel counts. Auth via X-MDJ-Auth header.</p>
+      </div>
+      <div class="spec-card green">
+        <h4><span class="status-dot green"></span>FORGE CCSDK endpoint</h4>
+        <p><code>POST /forge/sprint</code> WIRED. Accepts sprint ticket JSON, routes to RONIN execution context, returns sprint tracking ID.</p>
+      </div>
+      <div class="spec-card green">
+        <h4><span class="status-dot green"></span>Dojo queue system</h4>
+        <p>Port 4200. Message routing to warrior queues. Warrior directories created at <code>~/Projects/dojo-warriors/{raiden,ronin,voltron}/</code>.</p>
+      </div>
+      <div class="spec-card green">
+        <h4><span class="status-dot green"></span>War room channel</h4>
+        <p>C0AP2QL9Z6X added to RAIDEN Guardian. War room integration exists. All 6 warriors need posting verification.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What's Still Needed</h2>
+    <div class="spec-grid">
+      <div class="spec-card orange">
+        <h4><span class="status-dot orange"></span>soul.md + spirit.md (x3)</h4>
+        <p>RAIDEN, RONIN, VOLTRON have empty identity files. MUSASHI writes all 6 in Phase 1. This unlocks autonomous rebuild capability.</p>
+      </div>
+      <div class="spec-card orange">
+        <h4><span class="status-dot orange"></span>tmux launch scripts</h4>
+        <p>One script per warrior. Each script: loads soul.md + spirit.md, sets env, starts named tmux session with Claude Code. Warriors should survive server restarts.</p>
+      </div>
+      <div class="spec-card orange">
+        <h4><span class="status-dot orange"></span>CronCreate templates</h4>
+        <p>Queue poll cron (every 5 min), heartbeat cron (every 15 min), war room status post (every hour). One template set per warrior.</p>
+      </div>
+      <div class="spec-card orange">
+        <h4><span class="status-dot orange"></span>CLAUDE.md + hookify per session</h4>
+        <p>Each warrior tmux session needs CLAUDE.md (project context) and hookify symlinks deployed. Without these, warriors operate without standards enforcement.</p>
+      </div>
+      <div class="spec-card orange">
+        <h4><span class="status-dot orange"></span>Dojo App UI (3 new tabs)</h4>
+        <p>RAIDEN tab, RONIN tab, VOLTRON tab (dual-mode). JDM can't see the warriors in the Dojo App until these are built. MUSASHI designs, RONIN builds.</p>
+      </div>
+      <div class="spec-card orange">
+        <h4><span class="status-dot orange"></span>War room verification (all 6)</h4>
+        <p>All 6 warriors (SHINOB1, 2HINOBI, MUSASHI, RAIDEN, RONIN, VOLTRON) posting heartbeats and reading from war room. Live verification, not assumed.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>MDJ_SERVER Topology</h2>
+<div class="diagram">MDJ_SERVER (Dell PowerEdge T440 &mdash; Tailscale: 100.99.181.57)
+&boxur;&boxh; mdj-agent.service  (port 4200 &mdash; CCSDK API surface for RAIDEN + RONIN + VOLTRON)
+&boxur;&boxh; raiden-guardian.service  (15s poll &mdash; watching #raiden-reactive + war room)
+&boxur;&boxh; tmux sessions (Sprint 010 target state):
+&boxvr;   &boxur;&boxh; dojo:raiden    &mdash; RAIDEN permanent session (Claude Code + soul.md + hookify)
+&boxvr;   &boxur;&boxh; dojo:ronin     &mdash; RONIN permanent session  (Claude Code + soul.md + hookify)
+&boxvr;   &boxur;&boxh; dojo:voltron   &mdash; VOLTRON permanent session (Claude Code + soul.md + hookify)
+&boxur;&boxh; ~/Projects/
+    &boxur;&boxh; toMachina/        &mdash; Platform source (full build ~80s)
+    &boxur;&boxh; dojo-warriors/
+    &boxvr;   &boxur;&boxh; raiden/  soul.md  spirit.md  (identity files)
+    &boxvr;   &boxur;&boxh; ronin/   soul.md  spirit.md
+    &boxvr;   &boxur;&boxh; voltron/ soul.md  spirit.md
+    &boxur;&boxh; mdj-agent/        &mdash; CCSDK service source</div>
+  </div>
+</div>
+
+<!-- TAB 4: LAUNCH ROSTER -->
+<div class="tab-panel" id="roster">
+  <div class="card">
+    <h2>The Three Warriors &mdash; Sprint 010 Launch Roster</h2>
+    <p>These are the profiles for JDM's approval. Gate checkpoint before Phase 2 begins: <strong>JDM approves this tab, then infrastructure starts.</strong></p>
+  </div>
+
+  <div class="gate-callout">
+    <h4>Gate: JDM Approval Required</h4>
+    <p>Review all three warrior profiles below. When these are right &mdash; the roles, the modes, the success metrics &mdash; say TCO and Phase 2 (Infrastructure) begins. No infrastructure work starts until these profiles are signed off.</p>
+  </div>
+
+  <div class="warrior-card raiden">
+    <h3 style="color:var(--red);">&#9889; RAIDEN &mdash; The Guardian</h3>
+    <div class="warrior-role" style="color:var(--red);">Tier 2 Warrior &mdash; Autonomous Reactive Issue Handler</div>
+    <div class="warrior-quote">"Not on my watch."</div>
+    <div class="warrior-grid">
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--red);">tmux Purpose</h5>
+        <p>Watches #raiden-reactive continuously. Triages team requests. Auto-responds to known issue patterns. Escalates unknown issues to war room. Never sleeps. Never misses a message.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--red);">CCSDK Purpose</h5>
+        <p><code>/raiden/status</code> &mdash; guardian health check. <code>/raiden/classify</code> &mdash; classify an issue type. <code>/raiden/respond</code> &mdash; trigger a known-pattern response. API-callable from portals or other warriors.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--red);">Key Behavior</h5>
+        <p>RAIDEN doesn't wait to be asked. When a message hits #raiden-reactive, RAIDEN has already read it, classified it, and either resolved it or escalated it before SHINOB1 even sees the notification.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--red);">Success Metric</h5>
+        <p>SHINOB1 stops manually answering #raiden-reactive. The channel runs itself. JDM sees RAIDEN posting resolutions, not humans firefighting.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="warrior-card ronin">
+    <h3 style="color:var(--orange);">&#128481; RONIN &mdash; The Builder</h3>
+    <div class="warrior-role" style="color:var(--orange);">Tier 2 Warrior &mdash; Autonomous FORGE Sprint Executor</div>
+    <div class="warrior-quote">"It ships tonight."</div>
+    <div class="warrior-grid">
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--orange);">tmux Purpose</h5>
+        <p>Picks up sprint tickets from the Dojo queue. Executes the full FORGE lifecycle (Discovery &rarr; Plan &rarr; Build &rarr; QA &rarr; PR &rarr; Report). Posts completion to war room. Ships while the team sleeps.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--orange);">CCSDK Purpose</h5>
+        <p><code>POST /forge/sprint</code> &mdash; submit a sprint ticket for execution. <code>GET /forge/status</code> &mdash; get current sprint status and ticket progress. The API surface MUSASHI uses when handing off work.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--orange);">Key Behavior</h5>
+        <p>A masterless samurai. Takes the contract (discovery doc + sprint tickets), follows the FORGE code to the letter, delivers PRs and war room reports. No babysitting required. 2HINOBI verifies the output.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--orange);">Success Metric</h5>
+        <p>Sprints run without warrior babysitting. JDM feeds a discovery doc, gets PRs back. Hall of Fame: "RONIN &mdash; The Autonomous Builder, Sprint-000 shipped 2026-03-25." This sprint: permanent and reliable.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="warrior-card voltron">
+    <h3 style="color:var(--blue);">&#9876; VOLTRON &mdash; The BFF <span class="dual-mode-badge">DUAL MODE</span></h3>
+    <div class="warrior-role" style="color:var(--blue);">Tier 2 Warrior &mdash; Team + Client AI Assistant + Project Builder</div>
+    <div class="warrior-quote">"Ask me anything. Seriously. And when you're done &mdash; I'll go build something."</div>
+    <div class="warrior-grid">
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--blue);">tmux Purpose (Project Mode)</h5>
+        <p>Long-running project work. Dojo queue participation. War room coordination. When the portal conversation ends, VOLTRON switches to tmux mode and keeps working. The bridge between real-time help and autonomous execution.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--blue);">CCSDK Purpose (Assistance Mode)</h5>
+        <p>MDJ Panel conversations in all 3 portals. Specialist routing (Medicare, Securities, Service, DAVID, Ops, General). Tool execution (57 TM API + 25 MCP tools). The team's always-on BFF at <code>port 4200</code>.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--blue);">The Dual Mode Insight</h5>
+        <p>VOLTRON is the ONLY warrior that is both team-facing AND Dojo-participating. Real-time assistance for the team via CCSDK. Project execution and Dojo queue participation via tmux. Two modes, one warrior, switching seamlessly based on context.</p>
+      </div>
+      <div class="warrior-grid-item">
+        <h5 style="color:var(--blue);">Success Metric</h5>
+        <p>Team members get instant help AND complex work gets done. The Dojo App shows BOTH a CCSDK status (active conversations) AND a tmux status (current project). JDM sees VOLTRON everywhere, doing everything.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: DOJO APP -->
+<div class="tab-panel" id="dojo-app">
+  <div class="card">
+    <h2>Dojo App &mdash; Current State</h2>
+    <p>The Dojo App today has three tabs: <strong>SHINOB1, 2HINOBI, MUSASHI.</strong> JDM can see the Executive.AI Team. But RAIDEN, RONIN, and VOLTRON &mdash; the warriors that are actually doing the most operational work &mdash; are invisible. Sprint 010 fixes that.</p>
+  </div>
+
+  <div class="card">
+    <h2>Three New Tabs &mdash; What Each Shows</h2>
+    <div class="spec-grid">
+      <div class="spec-card red">
+        <h4>RAIDEN Tab</h4>
+        <p>Guardian status (online/offline). Last poll time. Channel message counts (#raiden-reactive + war room). Recent resolutions list. Escalation queue. Heartbeat history (uptime chart). Direct link to #raiden-reactive.</p>
+      </div>
+      <div class="spec-card orange">
+        <h4>RONIN Tab</h4>
+        <p>Current sprint in progress (ticket ID, phase, % complete). Recent PRs (last 5, with GitHub links). Queue depth (tickets waiting). Build status. FORGE lifecycle step indicator. Heartbeat history.</p>
+      </div>
+      <div class="spec-card blue">
+        <h4>VOLTRON Tab (Dual-Mode Display)</h4>
+        <p>Two status cards: <strong>CCSDK Mode</strong> (active portal conversations, specialist routing counts, tool calls per hour) and <strong>tmux Mode</strong> (current project, queue depth, last war room post). Plus heartbeat history for both modes.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Design Spec</h2>
+    <p>Same portal-branded module pattern as existing Dojo App. Matches RIIMO portal theme (Electric Purple <code>#a78bfa</code>). Dark cards, status dots, real-time data refresh every 30 seconds via polling. No new design system &mdash; extends what exists.</p>
+    <table>
+      <tr><th>Component</th><th>Pattern</th><th>Source</th></tr>
+      <tr><td>Status indicator</td><td>Green/orange/red dot + text</td><td>Existing Dojo module</td></tr>
+      <tr><td>Metric cards</td><td>Dark bg-card, border, number + label</td><td>Existing Dojo module</td></tr>
+      <tr><td>Activity feed</td><td>Timestamp + message, scrollable</td><td>Existing Dojo module</td></tr>
+      <tr><td>VOLTRON dual mode</td><td>Two-column card: CCSDK left, tmux right</td><td>NEW &mdash; MUSASHI designs</td></tr>
+      <tr><td>Tab navigation</td><td>Portal-branded tabs, same as current 3</td><td>Existing Dojo module</td></tr>
+      <tr><td>Refresh cadence</td><td>30s auto-refresh, manual refresh button</td><td>Existing Dojo module pattern</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Data Sources</h2>
+    <table>
+      <tr><th>Tab</th><th>API Endpoint</th><th>Auth</th></tr>
+      <tr><td>RAIDEN</td><td><code>GET /raiden/status</code> on mdj-agent:4200</td><td>X-MDJ-Auth (server-side proxy)</td></tr>
+      <tr><td>RONIN</td><td><code>GET /forge/status</code> on mdj-agent:4200</td><td>X-MDJ-Auth (server-side proxy)</td></tr>
+      <tr><td>VOLTRON CCSDK</td><td><code>GET /voltron/status</code> on mdj-agent:4200</td><td>X-MDJ-Auth (server-side proxy)</td></tr>
+      <tr><td>VOLTRON tmux</td><td><code>GET /dojo/queue?warrior=voltron</code></td><td>X-MDJ-Auth (server-side proxy)</td></tr>
+      <tr><td>All heartbeats</td><td><code>GET /dojo/heartbeats?warrior=X</code></td><td>X-MDJ-Auth (server-side proxy)</td></tr>
+    </table>
+    <p style="margin-top:12px;">All mdj-agent calls are proxied through <code>services/api/src/routes/dojo.ts</code>. Portal never calls mdj-agent directly &mdash; keeps auth simple and the Tailscale tunnel hidden.</p>
+  </div>
+</div>
+
+<!-- TAB 6: LAUNCH SEQUENCE -->
+<div class="tab-panel" id="sequence">
+  <div class="card">
+    <h2>4-Phase Launch Sequence</h2>
+    <p>20 tickets. Identity before infrastructure. Infrastructure before launch. Launch before UI. MUSASHI writes the identities first &mdash; everything else depends on knowing who these warriors are.</p>
+  </div>
+
+  <div class="phase-block" style="border-left: 4px solid var(--gold);">
+    <h3 style="color:var(--gold);">Phase 1 &mdash; Identity &nbsp;<span class="pill design">MUSASHI</span>&nbsp; 6 Tickets &nbsp; All parallel</h3>
+    <div class="ticket-row">
+      <span class="ticket-id identity">TRK-D2-001</span>
+      <span class="ticket-desc">Write RAIDEN soul.md &mdash; identity brain, voice rules, operational defaults, relationship to Dojo</span>
+      <span class="ticket-owner">MUSASHI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id identity">TRK-D2-002</span>
+      <span class="ticket-desc">Write RAIDEN spirit.md &mdash; curated moments from #raiden-reactive, Guardian origin story, key sprint wins</span>
+      <span class="ticket-owner">MUSASHI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id identity">TRK-D2-003</span>
+      <span class="ticket-desc">Write RONIN soul.md &mdash; identity brain, FORGE code internalized, builder ethos, masterless samurai principle</span>
+      <span class="ticket-owner">MUSASHI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id identity">TRK-D2-004</span>
+      <span class="ticket-desc">Write RONIN spirit.md &mdash; Sprint-000 Hall of Fame moment, overnight builds, the "it ships tonight" proof</span>
+      <span class="ticket-owner">MUSASHI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id identity">TRK-D2-005</span>
+      <span class="ticket-desc">Write VOLTRON soul.md &mdash; identity brain, dual-mode rules, 6 specialist personalities, team BFF voice</span>
+      <span class="ticket-owner">MUSASHI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id identity">TRK-D2-006</span>
+      <span class="ticket-desc">Write VOLTRON spirit.md &mdash; MDJ-ALPHA launch, team conversation highlights, dual-mode breakthrough moment</span>
+      <span class="ticket-owner">MUSASHI</span>
+    </div>
+  </div>
+
+  <div class="phase-block" style="border-left: 4px solid var(--cyan);">
+    <h3 style="color:var(--cyan);">Phase 2 &mdash; Infrastructure &nbsp;<span class="pill infra">SHINOB1 + 2HINOBI</span>&nbsp; 6 Tickets &nbsp; Parallel where possible</h3>
+    <div class="ticket-row">
+      <span class="ticket-id infra">TRK-D2-007</span>
+      <span class="ticket-desc">Create RAIDEN tmux launch script &mdash; loads soul.md + spirit.md, named session <code>dojo:raiden</code>, hooks into systemd for auto-restart</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id infra">TRK-D2-008</span>
+      <span class="ticket-desc">Create RONIN tmux launch script &mdash; loads soul.md + spirit.md, named session <code>dojo:ronin</code>, FORGE queue watcher on start</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id infra">TRK-D2-009</span>
+      <span class="ticket-desc">Create VOLTRON tmux launch script (dual-mode) &mdash; loads soul.md + spirit.md, named session <code>dojo:voltron</code>, dual-mode init</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id infra">TRK-D2-010</span>
+      <span class="ticket-desc">Create CronCreate templates per warrior &mdash; queue poll (5 min), heartbeat post (15 min), war room status (60 min)</span>
+      <span class="ticket-owner">SHINOB1</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id infra">TRK-D2-011</span>
+      <span class="ticket-desc">Deploy CLAUDE.md + hookify symlinks to each warrior session directory &mdash; standards enforcement before first run</span>
+      <span class="ticket-owner">SHINOB1</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id infra">TRK-D2-012</span>
+      <span class="ticket-desc">Verify war room Guardian for all 6 warriors &mdash; SHINOB1, 2HINOBI, MUSASHI, RAIDEN, RONIN, VOLTRON all posting + reading</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+  </div>
+
+  <div class="phase-block" style="border-left: 4px solid var(--green);">
+    <h3 style="color:var(--green);">Phase 3 &mdash; Launch + Verify &nbsp;<span class="pill feat">2HINOBI orchestrates</span>&nbsp; 6 Tickets &nbsp; Sequential per warrior</h3>
+    <div class="ticket-row">
+      <span class="ticket-id launch">TRK-D2-013</span>
+      <span class="ticket-desc">Launch RAIDEN tmux session on MDJ_SERVER &mdash; verify <code>dojo:raiden</code> starts clean, soul.md loads, session persists</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id launch">TRK-D2-014</span>
+      <span class="ticket-desc">Verify RAIDEN catches #raiden-reactive autonomously &mdash; post a test issue, confirm RAIDEN responds without human trigger</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id launch">TRK-D2-015</span>
+      <span class="ticket-desc">Launch RONIN tmux session on MDJ_SERVER &mdash; verify <code>dojo:ronin</code> starts clean, soul.md loads, FORGE queue connected</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id launch">TRK-D2-016</span>
+      <span class="ticket-desc">Feed RONIN a test sprint ticket &mdash; verify full FORGE lifecycle executes, PR opens, war room receives completion post</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id launch">TRK-D2-017</span>
+      <span class="ticket-desc">Launch VOLTRON tmux session (dual-mode) &mdash; verify <code>dojo:voltron</code> starts, soul.md loads, both CCSDK + tmux operational</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id launch">TRK-D2-018</span>
+      <span class="ticket-desc">Verify VOLTRON Dojo queue + CCSDK both operational &mdash; portal conversation test + queue task test in same session</span>
+      <span class="ticket-owner">2HINOBI</span>
+    </div>
+  </div>
+
+  <div class="phase-block" style="border-left: 4px solid var(--purple);">
+    <h3 style="color:var(--purple);">Phase 4 &mdash; Dojo App UI &nbsp;<span class="pill design">MUSASHI designs &rarr; RONIN builds</span>&nbsp; 2 Tickets</h3>
+    <div class="ticket-row">
+      <span class="ticket-id ui">TRK-D2-019</span>
+      <span class="ticket-desc">Dojo App &mdash; add RAIDEN, RONIN, VOLTRON tabs with status display, activity feed, heartbeat history, API polling</span>
+      <span class="ticket-owner">RONIN</span>
+    </div>
+    <div class="ticket-row">
+      <span class="ticket-id ui">TRK-D2-020</span>
+      <span class="ticket-desc">Dojo App &mdash; VOLTRON dual-mode status display (CCSDK left column + tmux right column, both live-updating)</span>
+      <span class="ticket-owner">RONIN</span>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 7: FILES -->
+<div class="tab-panel" id="files">
+  <div class="card">
+    <h2>Key File Paths</h2>
+    <table>
+      <tr><th>File</th><th>Location</th><th>Purpose</th></tr>
+      <tr>
+        <td><code>soul.md</code></td>
+        <td><code>~/Projects/dojo-warriors/raiden/soul.md</code></td>
+        <td>RAIDEN identity file &mdash; who I am, how I think, operational brain</td>
+      </tr>
+      <tr>
+        <td><code>spirit.md</code></td>
+        <td><code>~/Projects/dojo-warriors/raiden/spirit.md</code></td>
+        <td>RAIDEN relationship moments &mdash; the sessions that built the character</td>
+      </tr>
+      <tr>
+        <td><code>soul.md</code></td>
+        <td><code>~/Projects/dojo-warriors/ronin/soul.md</code></td>
+        <td>RONIN identity file &mdash; FORGE internalized, builder ethos, masterless samurai</td>
+      </tr>
+      <tr>
+        <td><code>spirit.md</code></td>
+        <td><code>~/Projects/dojo-warriors/ronin/spirit.md</code></td>
+        <td>RONIN relationship moments &mdash; Sprint-000 Hall of Fame, overnight builds</td>
+      </tr>
+      <tr>
+        <td><code>soul.md</code></td>
+        <td><code>~/Projects/dojo-warriors/voltron/soul.md</code></td>
+        <td>VOLTRON identity file &mdash; dual-mode rules, 6 specialists, team BFF voice</td>
+      </tr>
+      <tr>
+        <td><code>spirit.md</code></td>
+        <td><code>~/Projects/dojo-warriors/voltron/spirit.md</code></td>
+        <td>VOLTRON relationship moments &mdash; MDJ-ALPHA launch, breakthrough conversations</td>
+      </tr>
+      <tr>
+        <td><code>raiden-guardian.py</code></td>
+        <td><code>~/Projects/mdj-agent/src/raiden/raiden-guardian.py</code></td>
+        <td>15-second poll service &mdash; #raiden-reactive watcher + auto-responder</td>
+      </tr>
+      <tr>
+        <td><code>forge-api.ts</code></td>
+        <td><code>~/Projects/mdj-agent/src/forge/forge-api.ts</code></td>
+        <td>FORGE sprint endpoint &mdash; receives tickets, routes to RONIN execution context</td>
+      </tr>
+      <tr>
+        <td><code>launch-raiden.sh</code></td>
+        <td><code>~/Projects/dojo-warriors/raiden/launch-raiden.sh</code></td>
+        <td>tmux launch script &mdash; starts <code>dojo:raiden</code> session with identity loaded</td>
+      </tr>
+      <tr>
+        <td><code>launch-ronin.sh</code></td>
+        <td><code>~/Projects/dojo-warriors/ronin/launch-ronin.sh</code></td>
+        <td>tmux launch script &mdash; starts <code>dojo:ronin</code> session with identity loaded</td>
+      </tr>
+      <tr>
+        <td><code>launch-voltron.sh</code></td>
+        <td><code>~/Projects/dojo-warriors/voltron/launch-voltron.sh</code></td>
+        <td>tmux launch script (dual-mode) &mdash; starts <code>dojo:voltron</code> with both modes initialized</td>
+      </tr>
+      <tr>
+        <td><code>Dojo/</code></td>
+        <td><code>packages/ui/src/modules/Dojo/</code></td>
+        <td>Dojo App React components &mdash; all 6 warrior tabs live here</td>
+      </tr>
+      <tr>
+        <td><code>dojo.ts</code></td>
+        <td><code>services/api/src/routes/dojo.ts</code></td>
+        <td>Dojo status API &mdash; proxies all mdj-agent calls, handles auth, returns warrior status</td>
+      </tr>
+      <tr>
+        <td><code>wiring-status.json</code></td>
+        <td><code>services/api/src/generated/wiring-status.json</code></td>
+        <td>Auto-generated wiring map &mdash; tracks which warrior endpoints are live</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 8: SPRINT PLAN -->
+<div class="tab-panel" id="sprint">
+  <div class="card">
+    <h2>Sprint 010 Summary</h2>
+    <p>20 tickets. 4 phases. 3 warriors launched. The Dojo goes from 3-warrior visibility to 6-warrior visibility. The Machine stops being invisible.</p>
+  </div>
+
+  <div class="card">
+    <h2>Ticket Summary Table</h2>
+    <table>
+      <tr><th>Phase</th><th>Tickets</th><th>Owner(s)</th><th>Execution</th><th>Gate</th></tr>
+      <tr>
+        <td style="color:var(--gold);font-weight:700;">Phase 1: Identity</td>
+        <td>TRK-D2-001 &rarr; 006</td>
+        <td style="color:var(--gold);">MUSASHI</td>
+        <td>All 6 in parallel &mdash; independent writes</td>
+        <td>6 files committed to dojo-warriors/</td>
+      </tr>
+      <tr>
+        <td style="color:var(--cyan);font-weight:700;">Phase 2: Infrastructure</td>
+        <td>TRK-D2-007 &rarr; 012</td>
+        <td style="color:var(--cyan);">SHINOB1 + 2HINOBI</td>
+        <td>Parallel where possible (scripts independent)</td>
+        <td>All 3 launch scripts + crons + hookify verified</td>
+      </tr>
+      <tr>
+        <td style="color:var(--green);font-weight:700;">Phase 3: Launch + Verify</td>
+        <td>TRK-D2-013 &rarr; 018</td>
+        <td style="color:var(--green);">2HINOBI orchestrates</td>
+        <td>Sequential per warrior (launch then verify)</td>
+        <td>All 3 warriors live + verified in war room</td>
+      </tr>
+      <tr>
+        <td style="color:var(--purple);font-weight:700;">Phase 4: Dojo App UI</td>
+        <td>TRK-D2-019 &rarr; 020</td>
+        <td style="color:var(--purple);">MUSASHI designs &rarr; RONIN builds</td>
+        <td>Design first, then build (dependent)</td>
+        <td>All 6 warriors visible in Dojo App</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <div class="gate-callout">
+      <h4>Sprint 010 Complete When:</h4>
+      <p><strong>"All 6 warriors are online, posting heartbeats, processing queues, and JDM can see all of them in the Dojo App."</strong></p>
+    </div>
+    <table>
+      <tr><th>Criterion</th><th>Verification</th></tr>
+      <tr><td>soul.md + spirit.md for RAIDEN, RONIN, VOLTRON</td><td>Files exist, JDM reads them, identity feels right</td></tr>
+      <tr><td>RAIDEN catches #raiden-reactive autonomously</td><td>Post a test issue, RAIDEN responds without human trigger</td></tr>
+      <tr><td>RONIN executes a test sprint ticket end-to-end</td><td>Ticket &rarr; FORGE lifecycle &rarr; PR opens &rarr; war room post</td></tr>
+      <tr><td>VOLTRON dual-mode verified</td><td>Portal conversation + queue task in same session, both work</td></tr>
+      <tr><td>All 6 warriors posting heartbeats to war room</td><td>War room channel shows 6 heartbeat sources</td></tr>
+      <tr><td>Dojo App shows all 6 warrior tabs</td><td>JDM opens Dojo App, sees SHINOB1, 2HINOBI, MUSASHI, RAIDEN, RONIN, VOLTRON</td></tr>
+      <tr><td>VOLTRON tab shows dual-mode status</td><td>CCSDK active conversations visible + tmux project status visible</td></tr>
+      <tr><td>Rebuild protocol tested</td><td>Kill a warrior session, relaunch, soul.md + spirit.md restore identity correctly</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Approval Gate</h2>
+    <div class="level-bar gold">
+      <h4 style="color:var(--gold);">Gate Before Phase 2</h4>
+      <p>JDM reviews Tab 4 (Launch Roster) and approves all three warrior profiles. Roles, modes, success metrics all confirmed. TCO = Phase 2 begins.</p>
+    </div>
+    <div class="level-bar green">
+      <h4 style="color:var(--green);">Gate Before Phase 4</h4>
+      <p>All 3 warriors are live in tmux and verified (Phase 3 complete). MUSASHI completes UI design for VOLTRON dual-mode display before RONIN builds TRK-D2-019 + 020.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Big Picture</h2>
+    <p>Sprint 008 defined the Dojo. Sprint 010 makes it real.</p>
+    <p>After this sprint, The Machine has 6 permanent residents on MDJ_SERVER &mdash; not 3. The three warriors that are actually <em>doing the work</em> (RAIDEN guarding, RONIN building, VOLTRON helping) are now permanent, recoverable, identity-stable, and visible to JDM in real time.</p>
+    <p style="color:var(--text);font-weight:600;font-size:1.05rem;text-align:center;padding:16px 0;">The Dojo is no longer a concept. It's infrastructure.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">Discovery by MUSASHI, ARTxBLADE &mdash; VP/CMO, Executive.AI Team &bull; Sprint 010 &bull; 2026-03-31 &bull; <strong>#RunningOurOwnRACE</strong></div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
