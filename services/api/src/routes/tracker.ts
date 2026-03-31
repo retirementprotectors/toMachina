@@ -11,7 +11,8 @@ import {
   stripInternalFields,
   param,
 } from '../lib/helpers.js'
-import type { TrackerItemDTO, TrackerBulkUpdateResult, DedupScanData, DedupMergeResult, TrackerDeleteResult, TrackerAttachmentDTO, AttachmentDeleteResult } from '@tomachina/core'
+import type { TrackerItemDTO, TrackerBulkUpdateResult, DedupScanData, DedupMergeResult, TrackerDeleteResult, TrackerAttachmentDTO, AttachmentDeleteResult, RaidenStatusTransitionResult, RaidenNotifyResult } from '@tomachina/core'
+import { isValidTransition, getNextStatuses } from '@tomachina/core'
 import { createNotification } from './notifications.js'
 import { checkForDuplicate } from '../raiden/duplicate-guard.js'
 import { postNewSubmission, postFixed, postInProgress } from '../raiden/channel-notifier.js'
@@ -511,6 +512,161 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
     res.json(successResponse<TrackerItemDTO>(stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as TrackerItemDTO))
   } catch (err) {
     console.error('PATCH /api/tracker/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// PATCH /:id/status — RAIDEN ticket lifecycle transition
+// Valid lifecycle: new → investigating → fix_shipped → ux_testing → verified_closed
+// When transitioning to ux_testing, returns reporter context for Slack notification.
+trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const { status: newStatus } = req.body as { status: string }
+
+    if (!newStatus) {
+      res.status(400).json(errorResponse('status is required'))
+      return
+    }
+
+    const docRef = db.collection(COLLECTION).doc(id)
+    const doc = await docRef.get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Tracker item not found')); return }
+
+    const currentData = doc.data() as Record<string, unknown>
+    const currentStatus = (currentData.status as string) || 'new'
+
+    if (!isValidTransition(currentStatus, newStatus)) {
+      res.status(422).json(errorResponse(
+        `Invalid status transition: ${currentStatus} → ${newStatus}. ` +
+        `Valid next statuses: ${getNextStatuses(currentStatus).join(', ') || 'none (terminal)'}`
+      ))
+      return
+    }
+
+    const now = new Date().toISOString()
+    const updates: Record<string, unknown> = {
+      status: newStatus,
+      updated_at: now,
+      _updated_by: (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api',
+    }
+
+    await docRef.update(updates)
+
+    // Fire status-change notification
+    createNotification({
+      type: 'info',
+      category: 'data',
+      title: `${currentData.item_id || id} status → ${newStatus}`,
+      body: (currentData.title as string) || '',
+      link: '/modules/forge',
+      portal: 'all',
+      _created_by: (req as unknown as Record<string, unknown> & { user?: { email?: string } }).user?.email || 'api',
+    }).catch(() => {/* fire-and-forget */})
+
+    // Post RAIDEN channel event for key lifecycle transitions
+    if (currentData.agent === 'raiden') {
+      const trkId = (currentData.item_id as string) || id
+      const title = (currentData.title as string) || 'Unknown'
+      if (newStatus === 'investigating') {
+        postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
+      } else if (newStatus === 'fix_shipped' || newStatus === 'verified_closed') {
+        postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
+      }
+    }
+
+    const updated = await docRef.get()
+    const item = stripInternalFields({ id: updated.id, ...updated.data() } as Record<string, unknown>) as unknown as TrackerItemDTO
+
+    // When moving to ux_testing, include reporter context for Slack notification
+    const notifyContext = newStatus === 'ux_testing'
+      ? {
+          reporter_user_id: (currentData.reporter_user_id as string) || null,
+          source_channel: (currentData.source_channel as string) || null,
+          source_thread_ts: (currentData.source_thread_ts as string) || null,
+        }
+      : undefined
+
+    const result: RaidenStatusTransitionResult = notifyContext
+      ? { item, notify_context: notifyContext }
+      : { item }
+
+    res.json(successResponse<RaidenStatusTransitionResult>(result))
+  } catch (err) {
+    console.error('PATCH /api/tracker/:id/status error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// POST /:id/notify — post a Slack update to the original reporter thread
+// Reads source_channel + source_thread_ts + reporter_user_id from the ticket
+// and posts "@user Your issue {ticket_id} has been {status}. {message}"
+trackerRoutes.post('/:id/notify', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const id = param(req.params.id)
+    const doc = await db.collection(COLLECTION).doc(id).get()
+    if (!doc.exists) { res.status(404).json(errorResponse('Tracker item not found')); return }
+
+    const data = doc.data() as Record<string, unknown>
+    const sourceChannel = (data.source_channel as string) || null
+    const sourceThreadTs = (data.source_thread_ts as string) || null
+    const reporterUserId = (data.reporter_user_id as string) || null
+    const ticketId = (data.item_id as string) || id
+    const status = (data.status as string) || 'unknown'
+    const customMessage = (req.body as { message?: string }).message || ''
+
+    const token = process.env.SLACK_BOT_TOKEN
+    if (!token) {
+      res.status(503).json(errorResponse('SLACK_BOT_TOKEN not configured'))
+      return
+    }
+
+    if (!sourceChannel) {
+      res.json(successResponse<RaidenNotifyResult>({
+        notified: false,
+        channel: null,
+        thread_ts: null,
+        error: 'No source_channel on ticket — cannot notify',
+      }))
+      return
+    }
+
+    const userMention = reporterUserId ? `<@${reporterUserId}>` : 'Reporter'
+    const statusLabel = status.replace(/_/g, ' ')
+    const text = `${userMention} Your issue *${ticketId}* has been *${statusLabel}*.${customMessage ? ` ${customMessage}` : ''}`
+
+    const payload: Record<string, unknown> = { channel: sourceChannel, text }
+    if (sourceThreadTs) payload.thread_ts = sourceThreadTs
+
+    const slackRes = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    })
+    const slackData = (await slackRes.json()) as { ok: boolean; ts?: string; error?: string }
+
+    if (!slackData.ok) {
+      console.error(`[raiden-notify] chat.postMessage failed for ${ticketId}:`, slackData.error)
+      res.json(successResponse<RaidenNotifyResult>({
+        notified: false,
+        channel: sourceChannel,
+        thread_ts: sourceThreadTs,
+        error: slackData.error,
+      }))
+      return
+    }
+
+    console.log(`[raiden-notify] Notified reporter for ${ticketId} in channel ${sourceChannel}`)
+    res.json(successResponse<RaidenNotifyResult>({
+      notified: true,
+      channel: sourceChannel,
+      thread_ts: sourceThreadTs,
+      ts: slackData.ts,
+    }))
+  } catch (err) {
+    console.error('POST /api/tracker/:id/notify error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

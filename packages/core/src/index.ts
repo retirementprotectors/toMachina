@@ -38,3 +38,6 @@ export * from './voltron'
 
 // AiBot Brand Types — DOJO v10 (TRK-13941)
 export * from './aibot-brand'
+
+// RAIDEN — Reactive service desk lifecycle constants
+export * from './raiden'

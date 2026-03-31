@@ -248,6 +248,35 @@ export interface ReopenResult {
 }
 
 // ============================================================================
+// RAIDEN — PATCH /:id/status + POST /:id/notify
+// ============================================================================
+
+/**
+ * PATCH /api/tracker/:id/status — transition a RAIDEN ticket through its lifecycle.
+ *
+ * When transitioning to 'ux_testing', the response includes Slack context
+ * so the caller can notify the original reporter.
+ */
+export interface RaidenStatusTransitionResult {
+  item: TrackerItemDTO
+  /** Populated only when the new status is 'ux_testing' */
+  notify_context?: {
+    reporter_user_id: string | null
+    source_channel: string | null
+    source_thread_ts: string | null
+  }
+}
+
+/** POST /api/tracker/:id/notify — posts a Slack update back to the original thread */
+export interface RaidenNotifyResult {
+  notified: boolean
+  channel: string | null
+  thread_ts: string | null
+  ts?: string
+  error?: string
+}
+
+// ============================================================================
 // SPARK — services/api/src/routes/spark.ts
 // ============================================================================
 
