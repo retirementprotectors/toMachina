@@ -347,3 +347,15 @@ tr.table-row-hover:hover {
   background: var(--bg-surface);
   border-radius: var(--radius-sm);
 }
+
+/* ─── Native select + option dark mode fix ─── */
+/* CSS vars work in stylesheet rules (unlike inline style props on <option>) */
+select {
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+select option {
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
