@@ -567,25 +567,33 @@ acfRoutes.get('/:clientId', async (req: Request, res: Response) => {
         return
       }
 
-      // Full Drive listing
-      const subfolders = await listSubfolders(folderId)
-      const subfolderDetails = await Promise.all(
-        subfolders.map(async (sf) => {
-          const files = await listFolderFiles(sf.id)
-          return {
-            id: sf.id,
-            name: sf.name,
-            file_count: files.length,
-            files: files.map((f) => ({
-              id: f.id,
-              name: f.name,
-              mimeType: f.mimeType,
-              modifiedTime: f.modifiedTime,
-              size: f.size,
-            })),
-          }
-        })
-      )
+      // Full Drive listing — recursive to handle nested folders (max 3 levels)
+      async function listFolderRecursive(parentId: string, depth: number = 0): Promise<Array<Record<string, unknown>>> {
+        if (depth > 3) return [] // Safety limit
+        const subs = await listSubfolders(parentId)
+        const files = await listFolderFiles(parentId)
+        return Promise.all(
+          subs.map(async (sf) => {
+            const childFiles = await listFolderFiles(sf.id)
+            const childSubfolders = await listFolderRecursive(sf.id, depth + 1)
+            return {
+              id: sf.id,
+              name: sf.name,
+              file_count: childFiles.length,
+              files: childFiles.map((f) => ({
+                id: f.id,
+                name: f.name,
+                mimeType: f.mimeType,
+                modifiedTime: f.modifiedTime,
+                size: f.size,
+              })),
+              subfolders: childSubfolders,
+            }
+          })
+        )
+      }
+
+      const subfolderDetails = await listFolderRecursive(folderId)
 
       const rootFiles = await listFolderFiles(folderId)
 
