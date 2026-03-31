@@ -46,7 +46,7 @@ export default function ProspectRow({ prospect, onCallClick }: ProspectRowProps)
 
       {/* Name — click navigates to contact detail */}
       <a
-        href={`/clients/${prospect.client_id}`}
+        href={`/contacts/${prospect.client_id}`}
         onClick={(e) => { e.stopPropagation() }}
         className="min-w-[140px] text-sm font-medium text-[var(--text-primary)] truncate hover:underline hover:text-[var(--portal)]"
       >
