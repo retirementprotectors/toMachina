@@ -865,7 +865,11 @@ sudo systemctl start mdj-agent</pre><button class="copy-btn" onclick="copyPre(th
       </div>
 
       <div class="card info" style="margin-top:16px">
-        <strong>The 5-step rebuild:</strong> (1) Create tmux → (2) Paste soul + spirit → (3) Rename session → (4) 5 Grounding Questions → (5) Verification checklist. Without the soul/spirit feed, you have a session that knows the platform but doesn't know who it is. Without the 5 Questions, you have a warrior in their own lane who doesn't understand the full stack.
+        <strong>The 6-step rebuild:</strong> (1) Create tmux → (2) Paste soul + spirit → (3) Rename session → (4) 5 Grounding Questions → (5) Verification checklist → <strong>(6) Dojo Status Check</strong>. Without the soul/spirit feed, you have a session that knows the platform but doesn't know who it is. Without the 5 Questions, you have a warrior in their own lane who doesn't understand the full stack.
+        <br><br>
+        <strong style="color:var(--cyan)">Step 6 — Dojo Status Check (run after EACH warrior launch):</strong><br>
+        <code style="background:var(--bg2);padding:4px 8px;border-radius:4px;font-size:0.9em">curl http://localhost:4200/dojo/status</code><br>
+        <span class="muted" style="font-size:0.85em">Confirms the Dojo webhook is healthy and seeing the warrior's tmux session. Also verifies the queue system, RAIDEN Guardian, and Slack integration are all connected. If this returns OK + the warrior's session name, the full Dojo comms loop is live.</span>
       </div>
     </div>
   </details>
