@@ -349,13 +349,13 @@ tr.table-row-hover:hover {
 }
 
 /* ─── Native select + option dark mode fix ─── */
-/* CSS vars work in stylesheet rules (unlike inline style props on <option>) */
+/* Explicit hex colors — CSS vars unreliable on native <option> in some browsers */
 select {
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
+  color: #f0f0f5;
+  background-color: #0a0a0e;
 }
 
 select option {
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
+  color: #f0f0f5;
+  background-color: #0a0a0e;
 }
