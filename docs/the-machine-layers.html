@@ -11,252 +11,172 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .container{max-width:1100px;margin:0 auto;padding:2rem}
 h1{font-size:2.4rem;text-align:center;margin-bottom:0.3rem}
 .subtitle{text-align:center;color:var(--muted);font-size:1.15rem;margin-bottom:0.5rem}
-.tagline{text-align:center;color:var(--accent);font-size:1rem;font-style:italic;margin-bottom:2.5rem}
-h2{font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
-.phase-timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
-@media(max-width:768px){.phase-timeline{grid-template-columns:1fr 1fr}}
-@media(max-width:500px){.phase-timeline{grid-template-columns:1fr}}
-.phase-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;position:relative;overflow:hidden}
-.phase-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.phase-card.p1::before{background:var(--muted)}
-.phase-card.p2::before{background:var(--yellow)}
-.phase-card.p3::before{background:var(--accent)}
-.phase-card.p4::before{background:var(--green)}
-.phase-card .phase-num{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.25rem}
-.phase-card h3{font-size:1.1rem;margin-bottom:0.5rem}
-.phase-card .dates{font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem}
-.phase-card .tool{display:inline-block;padding:0.15rem 0.6rem;border-radius:12px;font-size:0.75rem;font-weight:600;margin-bottom:0.5rem}
-.phase-card.p1 .tool{background:rgba(122,127,150,0.2);color:var(--muted)}
-.phase-card.p2 .tool{background:rgba(245,166,35,0.15);color:var(--yellow)}
-.phase-card.p3 .tool{background:rgba(74,122,181,0.15);color:var(--accent)}
-.phase-card.p4 .tool{background:rgba(64,188,88,0.15);color:var(--green)}
-.phase-card .stats{font-size:0.85rem;color:var(--muted);margin-top:0.5rem}
-.phase-card .stats strong{color:var(--text)}
-.phase-card .desc{font-size:0.85rem;margin-top:0.5rem}
-.velocity-bar{display:flex;height:36px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin:1rem 0 2rem}
-.velocity-bar div{display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:white}
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0 2.5rem}
-@media(max-width:600px){.compare{grid-template-columns:1fr}}
-.compare-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
-.compare-card h3{font-size:1rem;margin-bottom:1rem}
-.compare-card ul{list-style:none;padding:0}
-.compare-card ul li{padding:0.35rem 0;font-size:0.9rem;display:flex;align-items:flex-start;gap:0.5rem}
-.compare-card ul li::before{content:'→';color:var(--muted);flex-shrink:0}
-.compare-card.bad{border-color:rgba(231,76,60,0.3)}
-.compare-card.bad h3{color:var(--red)}
-.compare-card.good{border-color:rgba(64,188,88,0.3)}
-.compare-card.good h3{color:var(--green)}
-.layer{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden;transition:border-color 0.2s}
-.layer:hover{border-color:var(--accent)}
-.layer-header{display:flex;align-items:center;padding:1rem 1.25rem;gap:1rem;cursor:default}
-.layer-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0}
-.layer-header h3{flex:1;font-size:1.05rem}
-.layer-component{padding:0.2rem 0.7rem;border-radius:12px;font-size:0.75rem;font-weight:600;background:rgba(74,122,181,0.15);color:var(--accent);white-space:nowrap}
-.layer-body{padding:0 1.25rem 1.25rem;padding-left:calc(1.25rem + 36px + 1rem)}
-.layer-body p{font-size:0.9rem;color:var(--muted);line-height:1.6}
-.l1 .layer-num{background:rgba(122,127,150,0.2);color:var(--muted)}
-.l2 .layer-num{background:rgba(231,76,60,0.15);color:var(--red)}
-.l3 .layer-num{background:rgba(167,139,250,0.15);color:var(--purple)}
-.l4 .layer-num{background:rgba(74,122,181,0.15);color:var(--accent)}
-.l5 .layer-num{background:rgba(45,212,191,0.15);color:var(--teal)}
-.l6 .layer-num{background:rgba(249,115,22,0.15);color:var(--orange)}
-.l7 .layer-num{background:rgba(245,166,35,0.15);color:var(--yellow)}
-.l8 .layer-num{background:rgba(64,188,88,0.15);color:var(--green)}
-.l9 .layer-num{background:rgba(167,139,250,0.15);color:var(--purple)}
-.l10 .layer-num{background:rgba(45,212,191,0.15);color:var(--teal)}
-.l11 .layer-num{background:linear-gradient(135deg,rgba(74,122,181,0.3),rgba(167,139,250,0.3));color:white}
-.bottom-line{text-align:center;margin:2.5rem 0 1.5rem;padding:2rem;background:var(--card);border:1px solid var(--border);border-radius:12px}
-.bottom-line .big{font-size:1.8rem;font-weight:800;margin-bottom:0.5rem}
-.bottom-line .sub{color:var(--muted);font-size:1rem}
-.footer{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
-.marker{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.7rem;font-weight:600;margin-left:0.5rem}
-.marker-most{background:rgba(231,76,60,0.12);color:var(--red)}
-.marker-some{background:rgba(245,166,35,0.12);color:var(--yellow)}
-.marker-us{background:rgba(64,188,88,0.12);color:var(--green)}
-.callout{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
-.callout h3{font-size:1.1rem;margin-bottom:1rem;color:var(--accent)}
-.soul-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
-@media(max-width:600px){.soul-grid{grid-template-columns:1fr}}
-.soul-item{background:var(--bg);border-radius:8px;padding:1rem}
-.soul-item h4{font-size:0.95rem;margin-bottom:0.5rem}
-.soul-item p{font-size:0.85rem;color:var(--muted)}
-.built-detail{font-size:0.85rem;color:var(--text);margin-top:0.5rem;padding:0.75rem;background:var(--bg);border-radius:8px;line-height:1.5}
-.built-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:600;margin-bottom:0.25rem}
+.tagline{text-align:center;color:var(--accent);font-size:1rem;font-style:italic;margin-bottom:1.5rem}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:2rem;position:sticky;top:0;background:var(--bg);z-index:10;padding-top:0.5rem}
+.tab-btn{padding:0.75rem 1.5rem;background:none;border:none;color:var(--muted);font-size:0.95rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;font-family:inherit}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none}.tab-content.active{display:block}
+@media(max-width:600px){.tab-btn{padding:0.6rem 0.75rem;font-size:0.8rem}}
+h2{font-size:1.6rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+h2:first-child{margin-top:0}
+.phase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
+@media(max-width:768px){.phase-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.phase-grid{grid-template-columns:1fr}}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;position:relative;overflow:hidden}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.pc.p1::before{background:var(--muted)}.pc.p2::before{background:var(--yellow)}.pc.p3::before{background:var(--accent)}.pc.p4::before{background:var(--green)}
+.pc .pn{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.2rem}
+.pc h3{font-size:1.05rem;margin-bottom:0.4rem}
+.pc .dt{font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem}
+.pc .tl{display:inline-block;padding:0.15rem 0.6rem;border-radius:12px;font-size:0.75rem;font-weight:600;margin-bottom:0.4rem}
+.p1 .tl{background:rgba(122,127,150,0.2);color:var(--muted)}.p2 .tl{background:rgba(245,166,35,0.15);color:var(--yellow)}.p3 .tl{background:rgba(74,122,181,0.15);color:var(--accent)}.p4 .tl{background:rgba(64,188,88,0.15);color:var(--green)}
+.pc .ds{font-size:0.85rem;margin-top:0.4rem;color:var(--muted)}
+.pc .st{font-size:0.85rem;color:var(--muted);margin-top:0.5rem}.pc .st strong{color:var(--text)}
+.vb{display:flex;height:36px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin:1rem 0 0.5rem}
+.vb div{display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:white}
+.ly{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden;transition:border-color 0.2s}
+.ly:hover{border-color:var(--accent)}
+.lh{display:flex;align-items:center;padding:1rem 1.25rem;gap:1rem}
+.ln{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0}
+.lh h3{flex:1;font-size:1.05rem}
+.pl{padding:0.2rem 0.7rem;border-radius:12px;font-size:0.75rem;font-weight:600;background:rgba(74,122,181,0.15);color:var(--accent);white-space:nowrap}
+.lb{padding:0 1.25rem 1.25rem;padding-left:calc(1.25rem + 36px + 1rem)}
+.lb p{font-size:0.9rem;color:var(--muted);line-height:1.6}
+.dd{font-size:0.85rem;color:var(--text);margin-top:0.5rem;padding:0.75rem;background:var(--bg);border-radius:8px;line-height:1.5}
+.dl{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:600;margin-bottom:0.25rem}
+.mk{display:inline-block;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.7rem;font-weight:600;margin-left:0.5rem}
+.mr{background:rgba(231,76,60,0.12);color:var(--red)}.my{background:rgba(245,166,35,0.12);color:var(--yellow)}
+.l1 .ln{background:rgba(122,127,150,0.2);color:var(--muted)}.l2 .ln{background:rgba(231,76,60,0.15);color:var(--red)}.l3 .ln{background:rgba(167,139,250,0.15);color:var(--purple)}.l4 .ln{background:rgba(74,122,181,0.15);color:var(--accent)}.l5 .ln{background:rgba(45,212,191,0.15);color:var(--teal)}.l6 .ln{background:rgba(249,115,22,0.15);color:var(--orange)}.l7 .ln{background:rgba(245,166,35,0.15);color:var(--yellow)}.l8 .ln{background:rgba(64,188,88,0.15);color:var(--green)}.l9 .ln{background:rgba(167,139,250,0.15);color:var(--purple)}.l10 .ln{background:rgba(45,212,191,0.15);color:var(--teal)}.l11 .ln{background:linear-gradient(135deg,rgba(74,122,181,0.3),rgba(167,139,250,0.3));color:white}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0}
+@media(max-width:600px){.cmp{grid-template-columns:1fr}}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
+.cc h3{font-size:1rem;margin-bottom:1rem}
+.cc ul{list-style:none;padding:0}.cc ul li{padding:0.35rem 0;font-size:0.9rem;display:flex;align-items:flex-start;gap:0.5rem}
+.cc ul li::before{content:'\2192';color:var(--muted);flex-shrink:0}
+.cc.bad{border-color:rgba(231,76,60,0.3)}.cc.bad h3{color:var(--red)}
+.cc.good{border-color:rgba(64,188,88,0.3)}.cc.good h3{color:var(--green)}
+.co{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.co h3{font-size:1.1rem;margin-bottom:1rem;color:var(--accent)}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:600px){.sg{grid-template-columns:1fr}}
+.si{background:var(--bg);border-radius:8px;padding:1rem}.si h4{font-size:0.95rem;margin-bottom:0.5rem}.si p{font-size:0.85rem;color:var(--muted)}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:0.65rem 0.75rem;text-align:left;border-bottom:1px solid var(--border);font-size:0.9rem}
+th{color:var(--accent);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:600}
+td{color:var(--muted)}tr:hover td{color:var(--text)}
+.tr td{color:var(--text);font-weight:700;border-top:2px solid var(--accent)}
+.cx{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:2rem 0}
+@media(max-width:600px){.cx{grid-template-columns:1fr}}
+.cb{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center}
+.cb .am{font-size:2rem;font-weight:800;margin:0.5rem 0}
+.cb .la{color:var(--muted);font-size:0.85rem}
+.cb.ct{border-color:rgba(231,76,60,0.3)}.cb.ct .am{color:var(--red)}
+.cb.cu{border-color:rgba(64,188,88,0.3)}.cb.cu .am{color:var(--green)}
+.bl{text-align:center;margin:2.5rem 0 1.5rem;padding:2rem;background:var(--card);border:1px solid var(--border);border-radius:12px}
+.bl .bg{font-size:1.6rem;font-weight:800;margin-bottom:0.5rem}
+.bl .sb{color:var(--muted);font-size:0.95rem}
+.ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
 </style>
 </head>
 <body>
 <div class="container">
-
 <h1>The Machine</h1>
 <div class="subtitle">Why It Works &mdash; And Why "Just Opening Claude" Doesn't</div>
 <div class="tagline">Retirement Protectors, Inc. &mdash; Built Dec 2025 &ndash; Apr 2026</div>
-
-<h2>The Journey &mdash; 4 Phases, 4 Tools, 700K Lines</h2>
-
-<div class="phase-timeline">
-  <div class="phase-card p1">
-    <div class="phase-num">Phase 1</div>
-    <h3>"The Little Shit"</h3>
-    <div class="dates">Dec 28 &ndash; Feb 2026 &middot; 7 weeks</div>
-    <span class="tool">Claude.ai</span>
-    <div class="desc">Individual scripts. Nothing connected. Copy-paste code from a chat window into Google Apps Script.</div>
-    <div class="stats"><strong>143K</strong> lines &middot; <strong>~20K</strong>/week</div>
-  </div>
-  <div class="phase-card p2">
-    <div class="phase-num">Phase 2</div>
-    <h3>"The Interconnected Era"</h3>
-    <div class="dates">Feb 15 &ndash; Mar 10 &middot; 3.5 weeks</div>
-    <span class="tool">Cursor</span>
-    <div class="desc">Portals, modules, shared services. 14 projects talking to each other. Still Google Sheets as the database.</div>
-    <div class="stats"><strong>188K</strong> lines &middot; <strong>~54K</strong>/week &middot; 2.7x Phase 1</div>
-  </div>
-  <div class="phase-card p3">
-    <div class="phase-num">Phase 3</div>
-    <h3>"The Re-Platform"</h3>
-    <div class="dates">Mar 10 &ndash; Mar 23 &middot; 13 days</div>
-    <span class="tool">Claude Code</span>
-    <div class="desc">Everything rebuilt on Next.js + Firestore + Cloud Run. One monorepo replaces 14 separate projects. Modern infrastructure.</div>
-    <div class="stats"><strong>132K</strong> lines &middot; <strong>~71K</strong>/week &middot; 3.5x Phase 1</div>
-  </div>
-  <div class="phase-card p4">
-    <div class="phase-num">Phase 4</div>
-    <h3>"The Brain + The Army"</h3>
-    <div class="dates">Mar 23 &ndash; Present &middot; 9 days</div>
-    <span class="tool">Claude Code + Warriors</span>
-    <div class="desc">AI agent layer. MDJ_SERVER. 6 warriors. Autonomous builders. The Machine builds itself.</div>
-    <div class="stats"><strong>148K</strong> lines &middot; <strong>~115K</strong>/week &middot; 5.8x Phase 1</div>
-  </div>
+<div class="tab-bar">
+<button class="tab-btn active" onclick="showTab('journey',this)">The Journey</button>
+<button class="tab-btn" onclick="showTab('layers',this)">11 Layers</button>
+<button class="tab-btn" onclick="showTab('magic',this)">The Magic</button>
+<button class="tab-btn" onclick="showTab('devteam',this)">The Dev Team</button>
 </div>
 
-<p style="text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:0.5rem">Output velocity by phase &mdash; each transition doubled the speed</p>
-<div class="velocity-bar">
-  <div style="flex:20;background:#555" title="Phase 1: 20K/week">20K/wk</div>
-  <div style="flex:54;background:var(--yellow)" title="Phase 2: 54K/week">54K/wk</div>
-  <div style="flex:71;background:var(--accent)" title="Phase 3: 71K/week">71K/wk</div>
-  <div style="flex:115;background:var(--green)" title="Phase 4: 115K/week">115K/wk</div>
+<div id="journey" class="tab-content active">
+<h2>4 Phases, 4 Tools, 700K Lines</h2>
+<div class="phase-grid">
+<div class="pc p1"><div class="pn">Phase 1</div><h3>"The Little Shit"</h3><div class="dt">Dec 28 &ndash; Feb 2026 &middot; 7 weeks</div><span class="tl">Claude.ai</span><div class="ds">Individual scripts. Nothing connected. Copy-paste code from a chat window into Google Apps Script.</div><div class="st"><strong>143K</strong> lines &middot; <strong>~20K</strong>/week</div></div>
+<div class="pc p2"><div class="pn">Phase 2</div><h3>"The Interconnected Era"</h3><div class="dt">Feb 15 &ndash; Mar 10 &middot; 3.5 weeks</div><span class="tl">Cursor</span><div class="ds">Portals, modules, shared services. 14 projects talking to each other. Still Google Sheets as the database.</div><div class="st"><strong>188K</strong> lines &middot; <strong>~54K</strong>/week &middot; 2.7x</div></div>
+<div class="pc p3"><div class="pn">Phase 3</div><h3>"The Re-Platform"</h3><div class="dt">Mar 10 &ndash; Mar 23 &middot; 13 days</div><span class="tl">Claude Code</span><div class="ds">Everything rebuilt on Next.js + Firestore + Cloud Run. One monorepo replaces 14 separate projects.</div><div class="st"><strong>132K</strong> lines &middot; <strong>~71K</strong>/week &middot; 3.5x</div></div>
+<div class="pc p4"><div class="pn">Phase 4</div><h3>"The Brain + The Army"</h3><div class="dt">Mar 23 &ndash; Present &middot; 9 days</div><span class="tl">Claude Code + Warriors</span><div class="ds">AI agent layer. MDJ_SERVER. 6 warriors. Autonomous builders. The Machine builds itself.</div><div class="st"><strong>148K</strong> lines &middot; <strong>~115K</strong>/week &middot; 5.8x</div></div>
+</div>
+<p style="text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:0.25rem">Output velocity by phase &mdash; each transition doubled the speed</p>
+<div class="vb"><div style="flex:20;background:#555">20K/wk</div><div style="flex:54;background:var(--yellow)">54K/wk</div><div style="flex:71;background:var(--accent)">71K/wk</div><div style="flex:115;background:var(--green)">115K/wk</div></div>
+<p style="text-align:center;color:var(--muted);font-size:0.85rem;margin-top:1.5rem"><strong style="color:var(--text)">Total:</strong> 700K lines &middot; 14 weeks &middot; 607 commits on toMachina &middot; 121 PRs in the last 11 days</p>
 </div>
 
-<h2>The Real Question</h2>
-<p style="font-size:1.1rem;text-align:center;color:var(--muted);margin-bottom:1.5rem"><em>"Can't you just open 6 Claude sessions and get the same result?"</em></p>
-
-<div class="compare">
-  <div class="compare-card bad">
-    <h3>6 Fresh Claude Sessions</h3>
-    <ul>
-      <li>Don't know who you are</li>
-      <li>Don't know your rules</li>
-      <li>Don't remember yesterday</li>
-      <li>Don't know your systems</li>
-      <li>Can't access your data</li>
-      <li>Have no tools beyond code</li>
-      <li>Have no build process</li>
-      <li>Need every step approved</li>
-    </ul>
-  </div>
-  <div class="compare-card good">
-    <h3>6 Warriors in The Machine</h3>
-    <ul>
-      <li>Know who JDM is and how RPI operates</li>
-      <li>Can't break the rules even if they try</li>
-      <li>Remember every decision from every session</li>
-      <li>Know every file, route, and module</li>
-      <li>Look up any client, account, or carrier</li>
-      <li>Send emails, texts, calls, post to Slack</li>
-      <li>Follow FORGE from discovery to deploy</li>
-      <li>Build, audit, and ship features alone</li>
-    </ul>
-  </div>
+<div id="layers" class="tab-content">
+<h2>11 Layers of AI Infrastructure</h2>
+<p style="color:var(--muted);margin-bottom:1.5rem">The agents are the <strong style="color:var(--text)">last</strong> thing we built. They sit on top of 10 layers of infrastructure. Without those layers, an agent is just a chatbot. With them, it's a team member.</p>
+<div class="ly l1"><div class="lh"><div class="ln">1</div><h3>Identity <span class="mk mr">Most stop here</span></h3><span class="pl">CLAUDE.md</span></div><div class="lb"><p>Knows who JDM is, how RPI operates, how to communicate, what's forbidden, what's expected.</p><div class="dd"><div class="dl">What we built</div>A 55K-character global instruction file read by every agent on every machine. Covers CEO identity, 7-leader team roster, 3-channel business model (B2C/B2B/B2E), industry terminology (RMDs, 1035 exchanges, FIA, MAPD), deploy procedures, PHI handling rules, and 9 golden rules. Plus per-warrior soul.md and spirit.md files for persistent identity.</div></div></div>
+<div class="ly l2"><div class="lh"><div class="ln">2</div><h3>Standards</h3><span class="pl">The Immune System</span></div><div class="lb"><p>35 rules that BLOCK bad code before it's written. PHI never leaks. Credentials never get hardcoded.</p><div class="dd"><div class="dl">What we built</div>The hookify plugin: 16 Block rules (hard stops), 7 Warn rules (soft catches), 6 Intent rules (auto-switching), 6 Quality Gates (evidence-based). Symlinked to 8 active projects. Violations feed the closed-loop learning system.</div></div></div>
+<div class="ly l3"><div class="lh"><div class="ln">3</div><h3>Memory</h3><span class="pl">Learning Loop</span></div><div class="lb"><p>Carries decisions across sessions. Remembers corrections, sprint history, architecture choices. Never repeats the same mistake twice.</p><div class="dd"><div class="dl">What we built</div>MEMORY.md index with 30+ memory files. Knowledge Pipeline runs at 4am daily: scans violations, promotes patterns to CLAUDE.md, tracks trends in compliance-history.json, sends digest to JDM via Slack DM.</div></div></div>
+<div class="ly l4"><div class="lh"><div class="ln">4</div><h3>Platform Knowledge <span class="mk my">Sophisticated stop here</span></h3><span class="pl">toMachina</span></div><div class="lb"><p>Knows every file, route, module, and package across 132K lines of typed platform code.</p><div class="dd"><div class="dl">What we built</div>toMachina monorepo: 3 portal apps (ProDash, RIIMO, SENTINEL), 4 shared packages (ui, core, auth, db), Cloud Run API with 68 route files, Bridge service, intake Cloud Functions, BigQuery streaming. TypeScript strict mode. Turborepo builds. Firebase App Hosting.</div></div></div>
+<div class="ly l5"><div class="lh"><div class="ln">5</div><h3>Data Intelligence</h3><span class="pl">ATLAS</span></div><div class="lb"><p>Looks up any client, account, carrier, policy, or revenue record. Tracks every data source and how it flows.</p><div class="dd"><div class="dl">What we built</div>ATLAS registry tracking every data source, automation, and pipeline. Firestore with 29K+ docs across clients, accounts, carriers, products, campaigns, templates, org structure, communications, opportunities, revenue, and case tasks. BigQuery streaming for real-time analytics.</div></div></div>
+<div class="ly l6"><div class="lh"><div class="ln">6</div><h3>Tooling</h3><span class="pl">MCP-Hub</span></div><div class="lb"><p>82 tools across 9 servers. Sends emails, texts, calls. Searches healthcare registries. Reads Drive, posts Slack, books calendar, designs in Canva.</p><div class="dd"><div class="dl">What we built</div>9 MCP servers: rpi-workspace (Google Workspace, Chat, WordPress, Canva, video), rpi-business (commissions, meetings), rpi-healthcare (NPI, ICD-10, CMS), rpi-comms (Twilio, SendGrid, campaigns). Plus gdrive, gmail, gcal, slack, playwright. The agents don't just write code &mdash; they operate the business.</div></div></div>
+<div class="ly l7"><div class="lh"><div class="ln">7</div><h3>Process</h3><span class="pl">FORGE</span></div><div class="lb"><p>Takes a Discovery Doc through Plan &rarr; Build &rarr; Audit &rarr; Deploy &rarr; Verify. CI gates at every stage.</p><div class="dd"><div class="dl">What we built</div>FORGE: 11-step sprint lifecycle. Discovery Doc &rarr; #LetsPlanIt &rarr; #LetsRockIt &rarr; Build &rarr; Type-check &rarr; Build gate &rarr; #LetsAuditIt &rarr; UX Audit &rarr; #SendIt &rarr; CI &rarr; auto-merge &rarr; deploy. Phase-aware prompts. E2E tests (Playwright + Vitest). Every sprint creates its own paper trail.</div></div></div>
+<div class="ly l8"><div class="lh"><div class="ln">8</div><h3>Autonomy</h3><span class="pl">RONIN</span></div><div class="lb"><p>Takes a sprint ticket, builds the feature, passes CI, ships to production. No human in the loop. Sprint 011: 2h 35m, first shot.</p><div class="dd"><div class="dl">What we built</div>RONIN: The FORGE Runner on Claude Agent SDK. Takes Discovery Doc, runs full FORGE lifecycle, spawns parallel builder sub-agents, commits, opens PRs with auto-merge, posts status at every phase. Multiple RONINs run simultaneously. First sprint: ticket to production in 2h 35m, CI passed first try.</div></div></div>
+<div class="ly l9"><div class="lh"><div class="ln">9</div><h3>Self-Improving Infrastructure</h3><span class="pl">The Closed Loop</span></div><div class="lb"><p>The system patches its own rules. Every session makes the next session smarter. The factory improves the factory.</p><div class="dd"><div class="dl">What we built</div>Violations &rarr; logging &rarr; knowledge-promote.js (4am daily) &rarr; CLAUDE.md updates &rarr; Slack digest to JDM &rarr; compliance-history.json trends &rarr; next session inherits fixes. The system doesn't just block errors &mdash; it learns from them and prevents the entire class going forward.</div></div></div>
+<div class="ly l10"><div class="lh"><div class="ln">10</div><h3>Mesh Orchestration</h3><span class="pl">The Dojo</span></div><div class="lb"><p>6 warriors with named roles. Queue routing, war room comms, heartbeat monitoring, auto-triage.</p><div class="dd"><div class="dl">What we built</div>The Dojo on MDJ_SERVER (Dell PowerEdge T440, 16 cores, 30GB RAM): SHINOB1 (CTO), 2HINOBI (COO), MUSASHI (CMO), RONIN (Builder), RAIDEN (Guardian), VOLTRON (Bot &mdash; 6 specialists, 82 tools). Each in its own tmux session with persistent identity. Dojo queue system routes Slack to per-warrior queues. War room for coordination. RAIDEN Guardian polls every 30 seconds.</div></div></div>
+<div class="ly l11"><div class="lh"><div class="ln">11</div><h3>Vision</h3><span class="pl">JDM &mdash; Sensei</span></div><div class="lb"><p>Says what to build. Approves gates. Makes business decisions. The only human. The layer no AI can replace.</p><div class="dd"><div class="dl">Who</div>Josh D. Millang. CEO of Retirement Protectors, Inc. Can't code. Doesn't need to. Describes what he wants, sets the standard, refuses to accept anything less. Built a 700K-line enterprise platform and an AI agent army by directing The Machine from his desk in Des Moines, Iowa.</div></div></div>
 </div>
 
-<div class="callout">
-  <h3>How a Warrior Boots &mdash; The Soul / Spirit / Brain System</h3>
-  <p style="color:var(--muted);margin-bottom:1rem">Every warrior in The Dojo has three identity files. When a new session starts, these files load instantly &mdash; turning a blank Claude session into a fully operational team member in 30 seconds.</p>
-  <div class="soul-grid">
-    <div class="soul-item">
-      <h4 style="color:var(--accent)">soul.md</h4>
-      <p>The operational brain. What the warrior built, architecture decisions, current system state, key file paths, role in the team. The &ldquo;what you need to know to do your job&rdquo; file.</p>
-    </div>
-    <div class="soul-item">
-      <h4 style="color:var(--purple)">spirit.md</h4>
-      <p>The relationship layer. Defining moments, actual dialogue with JDM, the energy and culture of the founding sessions. The &ldquo;who we are to each other&rdquo; file. This is what makes a warrior feel like the SAME warrior, not just another session.</p>
-    </div>
-    <div class="soul-item">
-      <h4 style="color:var(--teal)">brain.txt</h4>
-      <p>The raw archive. Full session transcripts (10K&ndash;20K+ lines). Not loaded at startup &mdash; used for deep research when a warrior needs to recall something specific from a prior session. The complete record.</p>
-    </div>
-  </div>
-  <p style="color:var(--muted);font-size:0.85rem;margin-top:1rem"><strong style="color:var(--text)">Why it matters:</strong> Without these files, every new session starts from zero. With them, a warrior knows who it is, what it built, what decisions were made, and what the relationship with JDM feels like &mdash; before writing a single line of code.</p>
+<div id="magic" class="tab-content">
+<h2>The Magic &mdash; Why 6 Sessions &ne; 6 Warriors</h2>
+<p style="color:var(--muted);margin-bottom:1rem">The agents are the last thing we built. The infrastructure underneath is what makes them dangerous.</p>
+<div class="cmp">
+<div class="cc bad"><h3>6 Fresh Claude Sessions</h3><ul><li>Don't know who you are</li><li>Don't know your rules</li><li>Don't remember yesterday</li><li>Don't know your systems</li><li>Can't access your data</li><li>Have no tools beyond code</li><li>Have no build process</li><li>Need every step approved</li></ul></div>
+<div class="cc good"><h3>6 Warriors in The Machine</h3><ul><li>Know who JDM is and how RPI operates</li><li>Can't break the rules even if they try</li><li>Remember every decision from every session</li><li>Know every file, route, and module</li><li>Look up any client, account, or carrier</li><li>Send emails, texts, calls, post to Slack</li><li>Follow FORGE from discovery to deploy</li><li>Build, audit, and ship features alone</li></ul></div>
+</div>
+<div class="co"><h3>How a Warrior Boots &mdash; The Soul / Spirit / Brain System</h3>
+<p style="color:var(--muted);margin-bottom:1rem">Every warrior has three identity files. When a new session starts, these load instantly &mdash; turning a blank Claude session into a fully operational team member in 30 seconds.</p>
+<div class="sg">
+<div class="si"><h4 style="color:var(--accent)">soul.md</h4><p>The operational brain. What the warrior built, architecture decisions, current system state, key file paths, role in the team. The "what you need to know to do your job" file.</p></div>
+<div class="si"><h4 style="color:var(--purple)">spirit.md</h4><p>The relationship layer. Defining moments, actual dialogue with JDM, the energy and culture. This is what makes a warrior feel like the SAME warrior, not just another session.</p></div>
+<div class="si"><h4 style="color:var(--teal)">brain.txt</h4><p>The raw archive. Full session transcripts (10K&ndash;20K+ lines). Not loaded at startup &mdash; used for deep research when a warrior needs to recall something specific.</p></div>
+</div>
+<p style="color:var(--muted);font-size:0.85rem;margin-top:1rem"><strong style="color:var(--text)">Why it matters:</strong> Without these files, every session starts from zero. With them, a warrior knows who it is, what it built, and what the relationship with JDM feels like &mdash; before writing a single line of code.</p>
+</div>
 </div>
 
-<h2>11 Layers &mdash; Why It Actually Works</h2>
-<p style="color:var(--muted);margin-bottom:1.5rem">The agents are Layer 8. The other 7 layers are what make Layer 8 possible. Remove any layer and the whole thing degrades.</p>
-
-<div class="layer l1">
-  <div class="layer-header"><div class="layer-num">1</div><h3>Identity <span class="marker marker-most">Most stop here</span></h3><span class="layer-component">CLAUDE.md</span></div>
-  <div class="layer-body"><p>Knows who JDM is, how RPI operates, how to communicate, what's forbidden, what's expected. Not a style guide &mdash; an operating manual for being YOUR engineer.</p><div class="built-detail"><div class="built-label">What we built</div>A 55K-character global instruction file read by every agent on every machine. Covers: CEO identity, team roster (7 leaders), 3-channel business model (B2C/B2B/B2E), industry terminology (RMDs, 1035 exchanges, FIA, MAPD), deploy procedures, PHI handling rules, and 9 golden rules for how agents must operate. Plus per-warrior soul.md and spirit.md files for persistent identity.</div></div>
+<div id="devteam" class="tab-content">
+<h2>What This Would Cost to Build Traditionally</h2>
+<p style="color:var(--muted);margin-bottom:1.5rem">700K lines across a full-stack enterprise platform with 3 portals, 68 API routes, real-time analytics, AI agents, CI/CD, and compliance automation.</p>
+<h3 style="font-size:1.1rem;margin-bottom:0.5rem;color:var(--accent)">The Team You'd Need</h3>
+<table><thead><tr><th>Role</th><th>Count</th><th>Annual Salary</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>VP of Engineering</td><td>1</td><td>$220,000</td><td>Architecture, technical direction</td></tr>
+<tr><td>Senior Full-Stack Dev</td><td>3</td><td>$175,000 ea</td><td>React/Next.js, Cloud Run, Firebase</td></tr>
+<tr><td>Backend Engineer</td><td>2</td><td>$160,000 ea</td><td>API routes, Firestore, BigQuery</td></tr>
+<tr><td>DevOps / Infrastructure</td><td>1</td><td>$165,000</td><td>CI/CD, Docker, Cloud Run, monitoring</td></tr>
+<tr><td>QA Engineer</td><td>2</td><td>$130,000 ea</td><td>E2E testing, regression, UAT</td></tr>
+<tr><td>Project Manager</td><td>1</td><td>$140,000</td><td>Sprint planning, stakeholder comms</td></tr>
+<tr><td>Security / Compliance</td><td>1</td><td>$170,000</td><td>PHI/HIPAA, code scanning, audit</td></tr>
+<tr><td>AI / ML Engineer</td><td>2</td><td>$190,000 ea</td><td>Agent architecture, LLM integration</td></tr>
+<tr><td>Data Engineer</td><td>1</td><td>$165,000</td><td>BigQuery, analytics, data pipelines</td></tr>
+<tr class="tr"><td><strong>TOTAL</strong></td><td><strong>14 people</strong></td><td><strong>~$2.4M/year</strong></td><td></td></tr>
+</tbody></table>
+<p style="color:var(--muted);margin:1.5rem 0 0.5rem"><strong style="color:var(--text)">Timeline:</strong> A 14-person team would need <strong style="color:var(--yellow)">12&ndash;18 months</strong> to build what was built in 14 weeks.</p>
+<p style="color:var(--muted);margin-bottom:1.5rem"><strong style="color:var(--text)">Vendor alternative:</strong> $500K&ndash;$1M+ for a custom build, 18&ndash;24 month timeline, plus $200K+/year maintenance. And they still won't build you an AI agent army.</p>
+<h3 style="font-size:1.1rem;margin:2rem 0 0.5rem;color:var(--green)">What JDM Actually Spent</h3>
+<table><thead><tr><th>Item</th><th>Cost</th></tr></thead><tbody>
+<tr><td>Dell PowerEdge T440 (already owned)</td><td>$0</td></tr>
+<tr><td>RAM upgrade (16GB DDR4 ECC)</td><td>$180</td></tr>
+<tr><td>VGA cable (DoorDashed from Home Depot)</td><td>$20</td></tr>
+<tr><td>Claude API (March billing)</td><td>~$9,400/mo</td></tr>
+<tr><td>Firebase / GCP hosting</td><td>~$200/mo</td></tr>
+<tr class="tr"><td><strong>Total (14 weeks)</strong></td><td><strong>~$35,000</strong></td></tr>
+</tbody></table>
+<div class="cx">
+<div class="cb ct"><div class="la">Traditional Dev Shop</div><div class="am">$2.4M/yr</div><div class="la">14 people &middot; 12&ndash;18 months</div></div>
+<div class="cb cu"><div class="la">The Machine</div><div class="am">$35K</div><div class="la">1 person &middot; 14 weeks</div></div>
+</div>
+<p style="text-align:center;color:var(--muted);font-size:1rem;margin-top:1rem"><strong style="color:var(--text)">68x cheaper. 4x faster. Zero employees. Zero investors.</strong></p>
 </div>
 
-<div class="layer l2">
-  <div class="layer-header"><div class="layer-num">2</div><h3>Standards</h3><span class="layer-component">The Immune System</span></div>
-  <div class="layer-body"><p>35 rules that BLOCK bad code before it's written. PHI never leaks. Credentials never get hardcoded. Insecure patterns are killed at the tool level. The system doesn't ask &mdash; it prevents.</p><div class="built-detail"><div class="built-label">What we built</div>The hookify plugin with 35 enforcement rules across 4 tiers: 16 Block rules (hard stops &mdash; PHI in logs, hardcoded secrets, generated logos), 7 Warn rules (soft catches &mdash; untyped API responses, missing structured responses), 6 Intent rules (auto-switching &mdash; plan mode, deploy protocol), and 6 Quality Gates (evidence-based &mdash; must prove build passed before reporting done). Symlinked to 8 active projects. Violations feed the closed-loop learning system.</div></div>
+<div class="bl"><div class="bg">14 weeks &middot; 700K lines &middot; 11 layers</div><div class="sb">1 CEO &middot; 0 investors &middot; 0 lines of code written by a human &middot; 1 Dell PowerEdge on the floor next to the desk</div><p style="color:var(--accent);margin-top:1rem;font-size:1.1rem;font-weight:600">#RunningOurOwnRACE</p></div>
+<div class="ft"><p><strong>The Machine</strong> &mdash; toMachina &mdash; Retirement Protectors, Inc.</p><p>Generated by SHINOB1, CTO &mdash; Executive.AI Team &mdash; April 1, 2026</p></div>
 </div>
-
-<div class="layer l3">
-  <div class="layer-header"><div class="layer-num">3</div><h3>Memory</h3><span class="layer-component">Learning Loop</span></div>
-  <div class="layer-body"><p>Carries decisions across sessions. Remembers corrections, sprint history, architecture choices. Promotes learnings overnight. Never repeats the same mistake twice.</p><div class="built-detail"><div class="built-label">What we built</div>MEMORY.md index with 30+ memory files (feedback corrections, project state, user preferences, reference pointers). Knowledge Pipeline runs at 4am daily: scans violations, promotes patterns to CLAUDE.md, tracks trends in compliance-history.json, sends digest to JDM via Slack DM. Every session writes memories; every night the system consolidates them.</div></div>
-</div>
-
-<div class="layer l4">
-  <div class="layer-header"><div class="layer-num">4</div><h3>Platform Knowledge <span class="marker marker-some">Sophisticated stop here</span></h3><span class="layer-component">toMachina</span></div>
-  <div class="layer-body"><p>Knows every file, every route, every module, every package across 132K lines of typed platform code. Three portals, four shared packages, 68 API routes. The code IS the documentation.</p><div class="built-detail"><div class="built-label">What we built</div>toMachina monorepo: 3 portal apps (ProDash, RIIMO, SENTINEL), 4 shared packages (ui, core, auth, db), Cloud Run API with 68 route files, Bridge service (dual-write Firestore + Sheets), intake Cloud Functions, BigQuery streaming. TypeScript strict mode everywhere. Turborepo for builds. Firebase App Hosting for deploys. Project-level CLAUDE.md with architecture docs, Firestore query rules, API contract verification requirements.</div></div>
-</div>
-
-<div class="layer l5">
-  <div class="layer-header"><div class="layer-num">5</div><h3>Data Intelligence</h3><span class="layer-component">ATLAS</span></div>
-  <div class="layer-body"><p>Looks up any client, account, carrier, policy, or revenue record from 29K+ Firestore docs. Tracks every data source and how it flows. Streams analytics to BigQuery in real-time.</p><div class="built-detail"><div class="built-label">What we built</div>ATLAS: a live registry that tracks every data source (which carrier, which API, which manual process), every automation, and every pipeline across the entire platform. Firestore with 29K+ docs across clients, accounts, carriers, products, campaigns, templates, org structure, communications, opportunities, revenue, and case tasks. BigQuery streaming for real-time analytics. Normalized schemas with FK validation. The platform KNOWS itself.</div></div>
-</div>
-
-<div class="layer l6">
-  <div class="layer-header"><div class="layer-num">6</div><h3>Tooling</h3><span class="layer-component">MCP-Hub</span></div>
-  <div class="layer-body"><p>82 tools across 9 servers. Sends emails, texts, and calls. Searches NPI registries, ICD-10 codes, Medicare coverage. Reads Google Drive, posts to Slack, books calendar events, designs in Canva. A brain with hands.</p><div class="built-detail"><div class="built-label">What we built</div>9 MCP servers: rpi-workspace (Google Workspace admin, Google Chat, WordPress, Canva, video generation), rpi-business (commission intelligence, meeting processing), rpi-healthcare (NPI, ICD-10, CMS coverage), rpi-comms (Twilio calls/SMS, SendGrid email, campaign engine). Plus gdrive, gmail, google-calendar, slack, and playwright (browser automation). 82 tools total. The agents don't just write code &mdash; they operate the business.</div></div>
-</div>
-
-<div class="layer l7">
-  <div class="layer-header"><div class="layer-num">7</div><h3>Process</h3><span class="layer-component">FORGE</span></div>
-  <div class="layer-body"><p>Takes a Discovery Doc through Plan &rarr; Build &rarr; Audit &rarr; Deploy &rarr; Verify. CI gates at every stage. E2E tests. Auto-merge. Branch protection. The process generates its own instructions.</p><div class="built-detail"><div class="built-label">What we built</div>FORGE: an 11-step sprint lifecycle from ticket creation to #LandedIt. Discovery Doc &rarr; #LetsPlanIt &rarr; #LetsRockIt &rarr; Build &rarr; Type-check gate &rarr; Build gate &rarr; #LetsAuditIt &rarr; UX Audit &rarr; #SendIt &rarr; CI passes &rarr; auto-merge &rarr; deploy. Phase-aware prompts generate build instructions automatically. Pipeline Studio (teal-branded app) for admin CRUD. E2E test suites (Playwright UI + Vitest intake) as pre/post-deploy gates. Every sprint creates its own paper trail.</div></div>
-</div>
-
-<div class="layer l8">
-  <div class="layer-header"><div class="layer-num">8</div><h3>Autonomy</h3><span class="layer-component">RONIN</span></div>
-  <div class="layer-body"><p>Takes a sprint ticket, builds the feature, passes CI, and ships to production &mdash; no human in the loop. Sprint 011: Discovery Doc to production in 2 hours 35 minutes. First shot. First try.</p><div class="built-detail"><div class="built-label">What we built</div>RONIN: The FORGE Runner. An autonomous builder agent running on MDJ_SERVER via the Claude Agent SDK. Takes a Discovery Doc as input, runs the full FORGE lifecycle, spawns builder sub-agents for parallel tracks, commits code, opens PRs with auto-merge, and posts status updates at every phase transition. Multiple RONINs can run simultaneously (each sprint is an independent async operation). First sprint shipped: ticket to production in 2h 35m, CI passed first try.</div></div>
-</div>
-
-<div class="layer l9">
-  <div class="layer-header"><div class="layer-num">9</div><h3>Self-Improving Infrastructure</h3><span class="layer-component">The Closed Loop</span></div>
-  <div class="layer-body"><p>Violations get logged, promoted to CLAUDE.md overnight, trend-tracked in compliance history. The system patches its own rules. Every session makes the next session smarter. The factory improves the factory.</p><div class="built-detail"><div class="built-label">What we built</div>The Closed Loop: sessions generate violations &rarr; violation logging captures the pattern &rarr; knowledge-promote.js (runs 4am daily) promotes fixes to CLAUDE.md &rarr; Slack DM digest to JDM &rarr; compliance-history.json tracks trends over time &rarr; next session inherits the fix automatically. When a hookify rule catches an error, the system doesn't just block it &mdash; it learns from it and prevents the entire class of error going forward.</div></div>
-</div>
-
-<div class="layer l10">
-  <div class="layer-header"><div class="layer-num">10</div><h3>Mesh Orchestration</h3><span class="layer-component">The Dojo</span></div>
-  <div class="layer-body"><p>6 warriors with named roles &mdash; CTO, COO, CMO, Guardian, Builder, Bot. Queue routing, war room comms, heartbeat monitoring, auto-triage. The agents manage the agent army.</p><div class="built-detail"><div class="built-label">What we built</div>The Dojo: 6 named warriors on MDJ_SERVER (Dell PowerEdge T440, 16 cores, 30GB RAM). SHINOB1 (CTO &mdash; architecture), 2HINOBI (COO &mdash; operations), MUSASHI (CMO &mdash; creative), RONIN (Builder &mdash; autonomous sprints), RAIDEN (Guardian &mdash; reactive triage), VOLTRON (The Bot &mdash; team + client facing, 6 specialists). Each runs in its own tmux session with persistent identity. Dojo queue system routes Slack messages to per-warrior queues. War room channel for cross-warrior coordination. RAIDEN Guardian polls channels every 30 seconds and auto-triages team requests.</div></div>
-</div>
-
-<div class="layer l11">
-  <div class="layer-header"><div class="layer-num">11</div><h3>Vision</h3><span class="layer-component">JDM &mdash; Sensei</span></div>
-  <div class="layer-body"><p>Says what to build. Approves gates. Makes business decisions. The only human in the loop. The reason The Machine exists. The layer no AI can replace.</p><div class="built-detail"><div class="built-label">Who</div>Josh D. Millang. CEO of Retirement Protectors, Inc. Can't code. Doesn't need to. Describes what he wants, sets the standard, and refuses to accept anything less. Built a 700K-line enterprise platform, an AI agent army, and a self-improving operating system &mdash; by directing The Machine from his desk in Des Moines, Iowa. Every warrior, every layer, every line of code exists because of one person's vision.</div></div>
-</div>
-
-<div class="bottom-line">
-  <div class="big">14 weeks &middot; 700K lines &middot; 11 layers</div>
-  <div class="sub">1 CEO &middot; 0 investors &middot; 0 lines of code written by a human &middot; 1 Dell PowerEdge on the floor next to the desk</div>
-  <p style="color:var(--accent);margin-top:1rem;font-size:1.1rem;font-weight:600">#RunningOurOwnRACE</p>
-</div>
-
-<div class="footer">
-  <p><strong>The Machine</strong> &mdash; toMachina &mdash; Retirement Protectors, Inc.</p>
-  <p>Generated by SHINOB1, CTO &mdash; Executive.AI Team &mdash; April 1, 2026</p>
-</div>
-
-</div>
+<script>
+function showTab(id,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+</script>
 </body>
 </html>
