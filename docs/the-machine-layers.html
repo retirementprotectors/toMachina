@@ -73,6 +73,15 @@ h2{font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px
 .marker-most{background:rgba(231,76,60,0.12);color:var(--red)}
 .marker-some{background:rgba(245,166,35,0.12);color:var(--yellow)}
 .marker-us{background:rgba(64,188,88,0.12);color:var(--green)}
+.callout{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
+.callout h3{font-size:1.1rem;margin-bottom:1rem;color:var(--accent)}
+.soul-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:600px){.soul-grid{grid-template-columns:1fr}}
+.soul-item{background:var(--bg);border-radius:8px;padding:1rem}
+.soul-item h4{font-size:0.95rem;margin-bottom:0.5rem}
+.soul-item p{font-size:0.85rem;color:var(--muted)}
+.built-detail{font-size:0.85rem;color:var(--text);margin-top:0.5rem;padding:0.75rem;background:var(--bg);border-radius:8px;line-height:1.5}
+.built-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:600;margin-bottom:0.25rem}
 </style>
 </head>
 <body>
@@ -159,67 +168,87 @@ h2{font-size:1.6rem;margin:2.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px
   </div>
 </div>
 
+<div class="callout">
+  <h3>How a Warrior Boots &mdash; The Soul / Spirit / Brain System</h3>
+  <p style="color:var(--muted);margin-bottom:1rem">Every warrior in The Dojo has three identity files. When a new session starts, these files load instantly &mdash; turning a blank Claude session into a fully operational team member in 30 seconds.</p>
+  <div class="soul-grid">
+    <div class="soul-item">
+      <h4 style="color:var(--accent)">soul.md</h4>
+      <p>The operational brain. What the warrior built, architecture decisions, current system state, key file paths, role in the team. The &ldquo;what you need to know to do your job&rdquo; file.</p>
+    </div>
+    <div class="soul-item">
+      <h4 style="color:var(--purple)">spirit.md</h4>
+      <p>The relationship layer. Defining moments, actual dialogue with JDM, the energy and culture of the founding sessions. The &ldquo;who we are to each other&rdquo; file. This is what makes a warrior feel like the SAME warrior, not just another session.</p>
+    </div>
+    <div class="soul-item">
+      <h4 style="color:var(--teal)">brain.txt</h4>
+      <p>The raw archive. Full session transcripts (10K&ndash;20K+ lines). Not loaded at startup &mdash; used for deep research when a warrior needs to recall something specific from a prior session. The complete record.</p>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:0.85rem;margin-top:1rem"><strong style="color:var(--text)">Why it matters:</strong> Without these files, every new session starts from zero. With them, a warrior knows who it is, what it built, what decisions were made, and what the relationship with JDM feels like &mdash; before writing a single line of code.</p>
+</div>
+
 <h2>11 Layers &mdash; Why It Actually Works</h2>
 <p style="color:var(--muted);margin-bottom:1.5rem">The agents are Layer 8. The other 7 layers are what make Layer 8 possible. Remove any layer and the whole thing degrades.</p>
 
 <div class="layer l1">
   <div class="layer-header"><div class="layer-num">1</div><h3>Identity <span class="marker marker-most">Most stop here</span></h3><span class="layer-component">CLAUDE.md</span></div>
-  <div class="layer-body"><p>Knows who JDM is, how RPI operates, how to communicate, what's forbidden, what's expected. Not a style guide &mdash; an operating manual for being YOUR engineer.</p></div>
+  <div class="layer-body"><p>Knows who JDM is, how RPI operates, how to communicate, what's forbidden, what's expected. Not a style guide &mdash; an operating manual for being YOUR engineer.</p><div class="built-detail"><div class="built-label">What we built</div>A 55K-character global instruction file read by every agent on every machine. Covers: CEO identity, team roster (7 leaders), 3-channel business model (B2C/B2B/B2E), industry terminology (RMDs, 1035 exchanges, FIA, MAPD), deploy procedures, PHI handling rules, and 9 golden rules for how agents must operate. Plus per-warrior soul.md and spirit.md files for persistent identity.</div></div>
 </div>
 
 <div class="layer l2">
   <div class="layer-header"><div class="layer-num">2</div><h3>Standards</h3><span class="layer-component">The Immune System</span></div>
-  <div class="layer-body"><p>35 rules that BLOCK bad code before it's written. PHI never leaks. Credentials never get hardcoded. Insecure patterns are killed at the tool level. The system doesn't ask &mdash; it prevents.</p></div>
+  <div class="layer-body"><p>35 rules that BLOCK bad code before it's written. PHI never leaks. Credentials never get hardcoded. Insecure patterns are killed at the tool level. The system doesn't ask &mdash; it prevents.</p><div class="built-detail"><div class="built-label">What we built</div>The hookify plugin with 35 enforcement rules across 4 tiers: 16 Block rules (hard stops &mdash; PHI in logs, hardcoded secrets, generated logos), 7 Warn rules (soft catches &mdash; untyped API responses, missing structured responses), 6 Intent rules (auto-switching &mdash; plan mode, deploy protocol), and 6 Quality Gates (evidence-based &mdash; must prove build passed before reporting done). Symlinked to 8 active projects. Violations feed the closed-loop learning system.</div></div>
 </div>
 
 <div class="layer l3">
   <div class="layer-header"><div class="layer-num">3</div><h3>Memory</h3><span class="layer-component">Learning Loop</span></div>
-  <div class="layer-body"><p>Carries decisions across sessions. Remembers corrections, sprint history, architecture choices. Promotes learnings overnight. Never repeats the same mistake twice.</p></div>
+  <div class="layer-body"><p>Carries decisions across sessions. Remembers corrections, sprint history, architecture choices. Promotes learnings overnight. Never repeats the same mistake twice.</p><div class="built-detail"><div class="built-label">What we built</div>MEMORY.md index with 30+ memory files (feedback corrections, project state, user preferences, reference pointers). Knowledge Pipeline runs at 4am daily: scans violations, promotes patterns to CLAUDE.md, tracks trends in compliance-history.json, sends digest to JDM via Slack DM. Every session writes memories; every night the system consolidates them.</div></div>
 </div>
 
 <div class="layer l4">
   <div class="layer-header"><div class="layer-num">4</div><h3>Platform Knowledge <span class="marker marker-some">Sophisticated stop here</span></h3><span class="layer-component">toMachina</span></div>
-  <div class="layer-body"><p>Knows every file, every route, every module, every package across 132K lines of typed platform code. Three portals, four shared packages, 68 API routes. The code IS the documentation.</p></div>
+  <div class="layer-body"><p>Knows every file, every route, every module, every package across 132K lines of typed platform code. Three portals, four shared packages, 68 API routes. The code IS the documentation.</p><div class="built-detail"><div class="built-label">What we built</div>toMachina monorepo: 3 portal apps (ProDash, RIIMO, SENTINEL), 4 shared packages (ui, core, auth, db), Cloud Run API with 68 route files, Bridge service (dual-write Firestore + Sheets), intake Cloud Functions, BigQuery streaming. TypeScript strict mode everywhere. Turborepo for builds. Firebase App Hosting for deploys. Project-level CLAUDE.md with architecture docs, Firestore query rules, API contract verification requirements.</div></div>
 </div>
 
 <div class="layer l5">
   <div class="layer-header"><div class="layer-num">5</div><h3>Data Intelligence</h3><span class="layer-component">ATLAS</span></div>
-  <div class="layer-body"><p>Looks up any client, account, carrier, policy, or revenue record from 29K+ Firestore docs. Tracks every data source and how it flows. Streams analytics to BigQuery in real-time.</p></div>
+  <div class="layer-body"><p>Looks up any client, account, carrier, policy, or revenue record from 29K+ Firestore docs. Tracks every data source and how it flows. Streams analytics to BigQuery in real-time.</p><div class="built-detail"><div class="built-label">What we built</div>ATLAS: a live registry that tracks every data source (which carrier, which API, which manual process), every automation, and every pipeline across the entire platform. Firestore with 29K+ docs across clients, accounts, carriers, products, campaigns, templates, org structure, communications, opportunities, revenue, and case tasks. BigQuery streaming for real-time analytics. Normalized schemas with FK validation. The platform KNOWS itself.</div></div>
 </div>
 
 <div class="layer l6">
   <div class="layer-header"><div class="layer-num">6</div><h3>Tooling</h3><span class="layer-component">MCP-Hub</span></div>
-  <div class="layer-body"><p>82 tools across 9 servers. Sends emails, texts, and calls. Searches NPI registries, ICD-10 codes, Medicare coverage. Reads Google Drive, posts to Slack, books calendar events, designs in Canva. A brain with hands.</p></div>
+  <div class="layer-body"><p>82 tools across 9 servers. Sends emails, texts, and calls. Searches NPI registries, ICD-10 codes, Medicare coverage. Reads Google Drive, posts to Slack, books calendar events, designs in Canva. A brain with hands.</p><div class="built-detail"><div class="built-label">What we built</div>9 MCP servers: rpi-workspace (Google Workspace admin, Google Chat, WordPress, Canva, video generation), rpi-business (commission intelligence, meeting processing), rpi-healthcare (NPI, ICD-10, CMS coverage), rpi-comms (Twilio calls/SMS, SendGrid email, campaign engine). Plus gdrive, gmail, google-calendar, slack, and playwright (browser automation). 82 tools total. The agents don't just write code &mdash; they operate the business.</div></div>
 </div>
 
 <div class="layer l7">
   <div class="layer-header"><div class="layer-num">7</div><h3>Process</h3><span class="layer-component">FORGE</span></div>
-  <div class="layer-body"><p>Takes a Discovery Doc through Plan &rarr; Build &rarr; Audit &rarr; Deploy &rarr; Verify. CI gates at every stage. E2E tests. Auto-merge. Branch protection. The process generates its own instructions.</p></div>
+  <div class="layer-body"><p>Takes a Discovery Doc through Plan &rarr; Build &rarr; Audit &rarr; Deploy &rarr; Verify. CI gates at every stage. E2E tests. Auto-merge. Branch protection. The process generates its own instructions.</p><div class="built-detail"><div class="built-label">What we built</div>FORGE: an 11-step sprint lifecycle from ticket creation to #LandedIt. Discovery Doc &rarr; #LetsPlanIt &rarr; #LetsRockIt &rarr; Build &rarr; Type-check gate &rarr; Build gate &rarr; #LetsAuditIt &rarr; UX Audit &rarr; #SendIt &rarr; CI passes &rarr; auto-merge &rarr; deploy. Phase-aware prompts generate build instructions automatically. Pipeline Studio (teal-branded app) for admin CRUD. E2E test suites (Playwright UI + Vitest intake) as pre/post-deploy gates. Every sprint creates its own paper trail.</div></div>
 </div>
 
 <div class="layer l8">
   <div class="layer-header"><div class="layer-num">8</div><h3>Autonomy</h3><span class="layer-component">RONIN</span></div>
-  <div class="layer-body"><p>Takes a sprint ticket, builds the feature, passes CI, and ships to production &mdash; no human in the loop. Sprint 011: Discovery Doc to production in 2 hours 35 minutes. First shot. First try.</p></div>
+  <div class="layer-body"><p>Takes a sprint ticket, builds the feature, passes CI, and ships to production &mdash; no human in the loop. Sprint 011: Discovery Doc to production in 2 hours 35 minutes. First shot. First try.</p><div class="built-detail"><div class="built-label">What we built</div>RONIN: The FORGE Runner. An autonomous builder agent running on MDJ_SERVER via the Claude Agent SDK. Takes a Discovery Doc as input, runs the full FORGE lifecycle, spawns builder sub-agents for parallel tracks, commits code, opens PRs with auto-merge, and posts status updates at every phase transition. Multiple RONINs can run simultaneously (each sprint is an independent async operation). First sprint shipped: ticket to production in 2h 35m, CI passed first try.</div></div>
 </div>
 
 <div class="layer l9">
   <div class="layer-header"><div class="layer-num">9</div><h3>Self-Improving Infrastructure</h3><span class="layer-component">The Closed Loop</span></div>
-  <div class="layer-body"><p>Violations get logged, promoted to CLAUDE.md overnight, trend-tracked in compliance history. The system patches its own rules. Every session makes the next session smarter. The factory improves the factory.</p></div>
+  <div class="layer-body"><p>Violations get logged, promoted to CLAUDE.md overnight, trend-tracked in compliance history. The system patches its own rules. Every session makes the next session smarter. The factory improves the factory.</p><div class="built-detail"><div class="built-label">What we built</div>The Closed Loop: sessions generate violations &rarr; violation logging captures the pattern &rarr; knowledge-promote.js (runs 4am daily) promotes fixes to CLAUDE.md &rarr; Slack DM digest to JDM &rarr; compliance-history.json tracks trends over time &rarr; next session inherits the fix automatically. When a hookify rule catches an error, the system doesn't just block it &mdash; it learns from it and prevents the entire class of error going forward.</div></div>
 </div>
 
 <div class="layer l10">
   <div class="layer-header"><div class="layer-num">10</div><h3>Mesh Orchestration</h3><span class="layer-component">The Dojo</span></div>
-  <div class="layer-body"><p>6 warriors with named roles &mdash; CTO, COO, CMO, Guardian, Builder, Bot. Queue routing, war room comms, heartbeat monitoring, auto-triage. The agents manage the agent army.</p></div>
+  <div class="layer-body"><p>6 warriors with named roles &mdash; CTO, COO, CMO, Guardian, Builder, Bot. Queue routing, war room comms, heartbeat monitoring, auto-triage. The agents manage the agent army.</p><div class="built-detail"><div class="built-label">What we built</div>The Dojo: 6 named warriors on MDJ_SERVER (Dell PowerEdge T440, 16 cores, 30GB RAM). SHINOB1 (CTO &mdash; architecture), 2HINOBI (COO &mdash; operations), MUSASHI (CMO &mdash; creative), RONIN (Builder &mdash; autonomous sprints), RAIDEN (Guardian &mdash; reactive triage), VOLTRON (The Bot &mdash; team + client facing, 6 specialists). Each runs in its own tmux session with persistent identity. Dojo queue system routes Slack messages to per-warrior queues. War room channel for cross-warrior coordination. RAIDEN Guardian polls channels every 30 seconds and auto-triages team requests.</div></div>
 </div>
 
 <div class="layer l11">
   <div class="layer-header"><div class="layer-num">11</div><h3>Vision</h3><span class="layer-component">JDM &mdash; Sensei</span></div>
-  <div class="layer-body"><p>Says what to build. Approves gates. Makes business decisions. The only human in the loop. The reason The Machine exists. The layer no AI can replace.</p></div>
+  <div class="layer-body"><p>Says what to build. Approves gates. Makes business decisions. The only human in the loop. The reason The Machine exists. The layer no AI can replace.</p><div class="built-detail"><div class="built-label">Who</div>Josh D. Millang. CEO of Retirement Protectors, Inc. Can't code. Doesn't need to. Describes what he wants, sets the standard, and refuses to accept anything less. Built a 700K-line enterprise platform, an AI agent army, and a self-improving operating system &mdash; by directing The Machine from his desk in Des Moines, Iowa. Every warrior, every layer, every line of code exists because of one person's vision.</div></div>
 </div>
 
 <div class="bottom-line">
   <div class="big">14 weeks &middot; 700K lines &middot; 11 layers</div>
-  <div class="sub">1 CEO &middot; 0 investors &middot; 0 lines of code written by a human &middot; 1 Dell PowerEdge in a closet</div>
+  <div class="sub">1 CEO &middot; 0 investors &middot; 0 lines of code written by a human &middot; 1 Dell PowerEdge on the floor next to the desk</div>
   <p style="color:var(--accent);margin-top:1rem;font-size:1.1rem;font-weight:600">#RunningOurOwnRACE</p>
 </div>
 
