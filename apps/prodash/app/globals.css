@@ -349,13 +349,20 @@ tr.table-row-hover:hover {
 }
 
 /* ─── Native select + option dark mode fix ─── */
-/* Explicit hex colors — CSS vars unreliable on native <option> in some browsers */
-select {
-  color: #f0f0f5;
-  background-color: #0a0a0e;
+/* Must use !important to override Tailwind utility classes */
+/* Must use explicit hex — CSS vars don't resolve in OS-rendered option popups */
+select option {
+  color: #f0f0f5 !important;
+  background-color: #1a1d27 !important;
 }
 
-select option {
-  color: #f0f0f5;
-  background-color: #0a0a0e;
+select option:hover,
+select option:checked {
+  color: #ffffff !important;
+  background-color: #4a7ab5 !important;
+}
+
+/* Force dark appearance on the select element itself */
+select {
+  color-scheme: dark;
 }
