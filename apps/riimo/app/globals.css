@@ -78,3 +78,14 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ─── Native select + option dark mode fix ─── */
+select option {
+  color: #f0f0f5 !important;
+  background-color: #1a1d27 !important;
+}
+select option:hover, select option:checked {
+  color: #ffffff !important;
+  background-color: #4a7ab5 !important;
+}
+select { color-scheme: dark; }
