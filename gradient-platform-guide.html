@@ -538,13 +538,14 @@
       <tr><td class="field-name">Client Account Form (CAF)</td><td class="field-ok">✓ GS CAF</td><td class="field-ok">✓ RBC CAF (different form!)</td></tr>
       <tr><td class="field-name">Transaction Analysis Form (TAF)</td><td class="field-ok">✓ GWM TAF</td><td class="field-ok">✓ RBC Reg BI/DOL TAF (different form!)</td></tr>
       <tr><td class="field-name">COMRA</td><td class="field-ok">✓ Required</td><td class="field-ok">✓ Required</td></tr>
-      <tr><td class="field-name">Investment Advisory Agreement (IAA)</td><td class="field-ok">✓ GWM IAA</td><td class="field-nigo">✗ Not used</td></tr>
+      <tr><td class="field-name">Investment Advisory Agreement (IAA)</td><td class="field-ok">✓ GWM IAA</td><td class="field-ok">✓ Required (RBC IAA version)</td></tr>
       <tr><td class="field-name">GI Investment Proposal & Contract (IPC)</td><td class="field-ok">✓ Required + Schedules A-D</td><td class="field-nigo">✗ Not used</td></tr>
       <tr><td class="field-name">GI Disclosure Statement</td><td class="field-ok">✓ Required</td><td class="field-nigo">✗ Not used</td></tr>
       <tr><td class="field-name">Schwab Account Forms</td><td class="field-ok">✓ Per account type (LPOA, IRA App, ACAT, etc.)</td><td class="field-nigo">✗ Not used</td></tr>
       <tr><td class="field-name">RBC Opening Kit (IRA Adoption Agreement)</td><td class="field-nigo">✗ Not used</td><td class="field-ok">✓ Required for IRA accounts</td></tr>
       <tr><td class="field-name">RBC Account Transfer Form (UACT)</td><td class="field-nigo">✗ Not used</td><td class="field-ok">✓ Required for transfers</td></tr>
       <tr><td class="field-name">RBC Client Fee Listing</td><td class="field-nigo">✗ Not used</td><td class="field-ok">✓ Required disclosure</td></tr>
+      <tr><td class="field-name">AdvisoryLink Proposal</td><td class="field-nigo">✗ Not used</td><td class="field-ok">✓ Supporting doc (RBC cases)</td></tr>
       <tr><td class="field-name">To Roll or Not to Roll</td><td class="field-ok">✓ IRA rollovers</td><td class="field-ok">✓ IRA rollovers</td></tr>
       <tr><td class="field-name">GS Client Relationship Summary (CRS)</td><td class="field-ok">✓ Every new client</td><td class="field-ok">✓ Every new client</td></tr>
       <tr><td class="field-name">Trusted Contact Person form</td><td class="field-ok">✓ Every client</td><td class="field-ok">✓ Every client</td></tr>
@@ -922,6 +923,19 @@
     <p><strong>GS MUST APPROVE ALL PAPERWORK BEFORE:</strong> submitting to GI, Schwab, or RBC — transferring any funds — having clients sign (unless GS grants an exception). Violation = automatic NIGO + potential compliance issue.</p>
   </div>
 
+  <div class="rule-box info" style="margin-top:16px;">
+    <div class="rule-title">🤖 Automated System Checks — ProDashX Enforces These</div>
+    <p style="margin-bottom:8px;">The NBX Investments pipeline in ProDashX has built-in system checks that <strong>automatically block case progression</strong> if these fail. They run at the Suitability and QC Review stages:</p>
+    <ul>
+      <li><strong>FIELD_PRESENT</strong> — blocks if net worth, annual income, risk tolerance, or investment objective is blank on CAF</li>
+      <li><strong>LNW_LIMIT</strong> — automated check: liquid net worth within buffered product limits (15%/45% rules)</li>
+      <li><strong>BI_UNIQUE</strong> — detects copy-pasted Best Interest rationale. If it matches another case, it fails automatically.</li>
+      <li><strong>CORRECT_CUSTODIAN</strong> — flags if GWM forms reference RBC, or RBC forms reference Schwab/GI</li>
+      <li><strong>AMOUNTS_MATCH</strong> — catches mismatched dollar amounts across forms (e.g., $226K on TAF vs $224K on UACT)</li>
+    </ul>
+    <p style="margin-top:8px; font-size:12px; color:#64748b;">These are the same errors that caused the Stirratt and Clark NIGOs — now they're automated gates. You still need to catch them before upload, but the pipeline will flag them too.</p>
+  </div>
+
   <div class="workflow-steps" style="margin-top:24px;">
 
     <div class="workflow-step">
@@ -994,11 +1008,14 @@
         <div class="step-line"></div>
       </div>
       <div class="step-content">
-        <div class="step-title">Submit to GS for Pre-Approval</div>
+        <div class="step-title">Generate DEX Kit + Submit to GS</div>
         <span class="step-who who-angelique">ANGELIQUE</span>
         <ul class="step-items">
-          <li>Upload complete packet to Business Central</li>
-          <li>Include ALL forms — GS, GI, Schwab/RBC</li>
+          <li>In ProDashX → DEX app → Kit Builder: select client, platform (GWM or RBC), registration type, action</li>
+          <li>DEX generates the correct form kit automatically based on the 5-layer rule engine</li>
+          <li>Generate PDF → DEX merges all forms and pre-fills client data</li>
+          <li>Upload complete packet to Business Central for GS pre-approval</li>
+          <li>Include ALL forms — GS, GI, Schwab/RBC (DEX handles this list)</li>
           <li class="critical">WAIT for GS approval before any next steps</li>
           <li class="critical">Do NOT submit to GI, Schwab, or RBC yet</li>
           <li class="critical">Do NOT transfer any funds yet</li>
@@ -1030,11 +1047,12 @@
         <div class="step-line"></div>
       </div>
       <div class="step-content">
-        <div class="step-title">Client Signatures</div>
+        <div class="step-title">Client Signatures via DocuSign</div>
         <span class="step-who who-angelique">ANGELIQUE</span>
         <ul class="step-items">
           <li>Only after GS pre-approval (or GS-granted exception in writing)</li>
-          <li>Send clean, approved documents to client via DocuSign</li>
+          <li>In DEX app → Send DocuSign — delivers the approved packet for e-signature</li>
+          <li>DEX tracks envelope status (SENT → VIEWED → SIGNED) in the Pipeline tab</li>
           <li class="critical">If anything needs to change after client signs: NEW documents, NEW signatures</li>
           <li class="critical">Do NOT alter any signed document for any reason</li>
         </ul>
