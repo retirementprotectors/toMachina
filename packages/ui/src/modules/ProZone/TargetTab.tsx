@@ -18,6 +18,10 @@ interface TargetTabProps {
   portal: string
   specialistId: string | null
   onCallClick?: (prospect: ProspectWithInventory) => void
+  /** TRK-PC-006: Callback when "Start Call Session" is clicked with selected prospects */
+  onStartSession?: (prospects: ProspectWithInventory[]) => void
+  /** Whether a call session is currently active (hides session button) */
+  sessionActive?: boolean
 }
 
 // ─── Flat prospect: zone info attached ───
@@ -79,13 +83,16 @@ const BRAND = 'var(--app-prozone, #0ea5e9)'
 // ─── Page sizes ───
 const PAGE_SIZES = [25, 50, 100] as const
 
-export default function TargetTab({ portal: _portal, specialistId, onCallClick }: TargetTabProps) {
+export default function TargetTab({ portal: _portal, specialistId, onCallClick, onStartSession, sessionActive }: TargetTabProps) {
   // ─── Data state ───
   const [zones, setZones] = useState<ZoneWithProspects[]>([])
   const [totalProspects, setTotalProspects] = useState(0)
   const [totalFlagged, setTotalFlagged] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // ─── TRK-PC-006: Multi-select state ───
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // ─── Filter state ───
   const [search, setSearch] = useState('')
@@ -357,6 +364,32 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
 
   const col = useCallback((key: ColumnKey) => visibleColumns.has(key), [visibleColumns])
 
+  // ─── TRK-PC-006: Multi-select handlers ───
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === paged.length) return new Set()
+      return new Set(paged.map((p) => p.client_id))
+    })
+  }, [paged])
+
+  const handleStartSession = useCallback(() => {
+    if (!onStartSession || selectedIds.size === 0) return
+    const selected = sorted.filter((p) => selectedIds.has(p.client_id) && p.phone)
+    if (selected.length > 0) {
+      onStartSession(selected)
+      setSelectedIds(new Set())
+    }
+  }, [onStartSession, selectedIds, sorted])
+
   // ─── Loading state ───
   if (loading) {
     return (
@@ -604,6 +637,18 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
         <span className="rounded-full bg-[var(--bg-surface)] px-2.5 py-0.5 text-[10px] font-medium tabular-nums text-[var(--text-muted)]">
           {sorted.length.toLocaleString()} of {totalProspects.toLocaleString()}
         </span>
+
+        {/* TRK-PC-006: Start Call Session button */}
+        {onStartSession && !sessionActive && selectedIds.size > 0 && (
+          <button
+            type="button"
+            onClick={handleStartSession}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>phone_in_talk</span>
+            Start Session &mdash; {selectedIds.size} Prospect{selectedIds.size !== 1 ? 's' : ''}
+          </button>
+        )}
       </div>
 
       {/* ─── Grid View ─── */}
@@ -626,6 +671,17 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
               <table className="w-full text-sm">
                 <thead className="bg-[var(--bg-surface)]">
                   <tr>
+                    {/* TRK-PC-006: Select-all checkbox */}
+                    {onStartSession && !sessionActive && (
+                      <th className="w-10 px-3 py-2.5">
+                        <input
+                          type="checkbox"
+                          checked={paged.length > 0 && selectedIds.size === paged.length}
+                          onChange={toggleSelectAll}
+                          className="h-3.5 w-3.5 rounded border-[var(--border-subtle)] accent-sky-500"
+                        />
+                      </th>
+                    )}
                     {col('name') && (
                       <SortHeader
                         label="Name"
@@ -708,6 +764,18 @@ export default function TargetTab({ portal: _portal, specialistId, onCallClick }
                         onClick={() => handleRowClick(prospect)}
                         className="cursor-pointer border-t border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-surface)]"
                       >
+                        {/* TRK-PC-006: Row checkbox */}
+                        {onStartSession && !sessionActive && (
+                          <td className="w-10 px-3 py-2.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(prospect.client_id)}
+                              onChange={(e) => { e.stopPropagation(); toggleSelect(prospect.client_id) }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="h-3.5 w-3.5 rounded border-[var(--border-subtle)] accent-sky-500"
+                            />
+                          </td>
+                        )}
                         {/* Name */}
                         {col('name') && (
                           <td className="px-3 py-2.5">

@@ -34,6 +34,10 @@ export function SendSmsDialog({ open, onClose, client, onSent }: SendSmsDialogPr
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
 
+  // TRK-PC-012: File attachment state for MMS
+  const [attachedFile, setAttachedFile] = useState<File | null>(null)
+  const [attachPreview, setAttachPreview] = useState<string | null>(null)
+
   if (open && !selectedPhone && defaultPhone) {
     setSelectedPhone(defaultPhone)
   }
@@ -48,18 +52,72 @@ export function SendSmsDialog({ open, onClose, client, onSent }: SendSmsDialogPr
     return 'text-red-400'
   }
 
+  // TRK-PC-012: Handle file selection
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // 5MB size guard
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('File must be under 5MB for MMS', 'error')
+      e.target.value = ''
+      return
+    }
+    setAttachedFile(file)
+    // Generate preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = () => setAttachPreview(reader.result as string)
+      reader.readAsDataURL(file)
+    } else {
+      setAttachPreview(null)
+    }
+  }
+
+  function clearAttachment() {
+    setAttachedFile(null)
+    setAttachPreview(null)
+  }
+
   async function handleSend() {
     if (!selectedPhone || !body.trim()) return
     setSending(true)
     try {
+      // TRK-PC-013: Upload file to Cloud Storage if attached
+      let mediaUrl: string | undefined
+      if (attachedFile) {
+        try {
+          const formData = new FormData()
+          formData.append('file', attachedFile)
+          formData.append('client_id', client.client_id)
+          const uploadRes = await fetch('/api/comms/upload-media', {
+            method: 'POST',
+            body: formData,
+          })
+          const uploadData = await uploadRes.json()
+          if (uploadData.success && uploadData.data?.url) {
+            mediaUrl = uploadData.data.url
+          } else {
+            showToast('Failed to upload attachment', 'error')
+            setSending(false)
+            return
+          }
+        } catch {
+          showToast('Failed to upload attachment', 'error')
+          setSending(false)
+          return
+        }
+      }
+
       const result = await apiPost('/api/comms/send-sms', {
         to: selectedPhone,
         body: body.trim(),
         client_id: client.client_id,
+        ...(mediaUrl && { mediaUrl }),
       })
       if (result.success) {
-        showToast('SMS sent', 'success')
+        showToast(attachedFile ? 'MMS sent' : 'SMS sent', 'success')
         setBody('')
+        clearAttachment()
         onSent?.()
         onClose()
       } else {
@@ -126,6 +184,47 @@ export function SendSmsDialog({ open, onClose, client, onSent }: SendSmsDialogPr
             </span>
             <span className="text-[10px] text-[var(--text-muted)]">via Twilio</span>
           </div>
+
+          {/* TRK-PC-012: File attachment */}
+          <div className="mt-3 flex items-center gap-2">
+            <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]">
+              <span className="material-icons-outlined" style={{ fontSize: '14px' }}>attach_file</span>
+              Attach File
+              <input
+                type="file"
+                accept="image/jpeg,image/png,application/pdf"
+                onChange={handleFileSelect}
+                disabled={sending}
+                className="hidden"
+              />
+            </label>
+            <span className="text-[10px] text-[var(--text-muted)]">JPEG, PNG, PDF &middot; Max 5MB</span>
+          </div>
+
+          {/* Attachment preview */}
+          {attachedFile && (
+            <div className="mt-2 flex items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2">
+              {attachPreview ? (
+                <img src={attachPreview} alt="Preview" className="h-10 w-10 rounded object-cover" />
+              ) : (
+                <span className="flex h-10 w-10 items-center justify-center rounded bg-red-500/10">
+                  <span className="material-icons-outlined text-red-400" style={{ fontSize: '18px' }}>picture_as_pdf</span>
+                </span>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-xs font-medium text-[var(--text-primary)]">{attachedFile.name}</p>
+                <p className="text-[10px] text-[var(--text-muted)]">{(attachedFile.size / 1024).toFixed(0)} KB</p>
+              </div>
+              <button
+                type="button"
+                onClick={clearAttachment}
+                disabled={sending}
+                className="flex h-6 w-6 items-center justify-center rounded transition-colors hover:bg-red-500/10"
+              >
+                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>close</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Modal>

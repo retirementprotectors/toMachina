@@ -2,14 +2,27 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { fetchValidated } from '../fetchValidated'
+import { useTwilioDevice } from '../CommsModule/TwilioDeviceProvider'
 
 // ============================================================================
 // CallPanel — Slide-over panel for prospect calling + disposition
+// TRK-PC-002: Switched from REST fire-and-forget to TwilioDeviceProvider
+//             browser SDK for real call state tracking (connect/disconnect events)
+// TRK-PC-003: Disposition is now mandatory — panel cannot close without outcome
+// TRK-PC-004: Added left_voicemail + follow_up_needed outcomes
 // ============================================================================
+
+export type CallOutcome =
+  | 'booked'
+  | 'callback'
+  | 'no_answer'
+  | 'not_interested'
+  | 'left_voicemail'
+  | 'follow_up_needed'
 
 export interface CallDisposition {
   client_id: string
-  outcome: 'booked' | 'callback' | 'no_answer' | 'not_interested'
+  outcome: CallOutcome
   notes: string
   duration: number
 }
@@ -25,21 +38,25 @@ interface CallPanelProps {
   } | null
   onClose: () => void
   onDispositioned: (disposition: CallDisposition) => void
+  /** When true, disposition fires onDispositioned without closing (power dialer mode) */
+  queueMode?: boolean
 }
 
-type CallState = 'pre_call' | 'calling' | 'disposition'
+type CallState = 'pre_call' | 'ringing' | 'calling' | 'disposition'
 
 const OUTCOME_OPTIONS: Array<{
-  value: CallDisposition['outcome']
+  value: CallOutcome
   label: string
   bg: string
   text: string
   ring: string
 }> = [
-  { value: 'booked',         label: 'Booked',         bg: 'bg-emerald-500/10', text: 'text-emerald-400', ring: 'ring-emerald-500/30' },
-  { value: 'callback',       label: 'Callback',       bg: 'bg-sky-500/10',     text: 'text-sky-400',     ring: 'ring-sky-500/30' },
-  { value: 'no_answer',      label: 'No Answer',      bg: 'bg-amber-500/10',   text: 'text-amber-400',   ring: 'ring-amber-500/30' },
-  { value: 'not_interested', label: 'Not Interested', bg: 'bg-neutral-500/10', text: 'text-neutral-400', ring: 'ring-neutral-500/30' },
+  { value: 'booked',           label: 'Booked',           bg: 'bg-emerald-500/10', text: 'text-emerald-400', ring: 'ring-emerald-500/30' },
+  { value: 'callback',         label: 'Callback',         bg: 'bg-sky-500/10',     text: 'text-sky-400',     ring: 'ring-sky-500/30' },
+  { value: 'no_answer',        label: 'No Answer',        bg: 'bg-amber-500/10',   text: 'text-amber-400',   ring: 'ring-amber-500/30' },
+  { value: 'left_voicemail',   label: 'Left Voicemail',   bg: 'bg-violet-500/10',  text: 'text-violet-400',  ring: 'ring-violet-500/30' },
+  { value: 'follow_up_needed', label: 'Follow Up Needed', bg: 'bg-orange-500/10',  text: 'text-orange-400',  ring: 'ring-orange-500/30' },
+  { value: 'not_interested',   label: 'Not Interested',   bg: 'bg-neutral-500/10', text: 'text-neutral-400', ring: 'ring-neutral-500/30' },
 ]
 
 function formatTimer(seconds: number): string {
@@ -48,13 +65,17 @@ function formatTimer(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-export default function CallPanel({ prospect, onClose, onDispositioned }: CallPanelProps) {
+export default function CallPanel({ prospect, onClose, onDispositioned, queueMode }: CallPanelProps) {
   const [callState, setCallState] = useState<CallState>('pre_call')
   const [elapsed, setElapsed] = useState(0)
-  const [outcome, setOutcome] = useState<CallDisposition['outcome'] | null>(null)
+  const [outcome, setOutcome] = useState<CallOutcome | null>(null)
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const callRef = useRef<unknown>(null)
+
+  // TRK-PC-002: Use browser SDK for real call state events
+  const { makeCall, hangup, isReady } = useTwilioDevice()
 
   // Reset state when prospect changes
   useEffect(() => {
@@ -63,6 +84,7 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
     setOutcome(null)
     setNotes('')
     setSaving(false)
+    callRef.current = null
     if (timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null
@@ -76,39 +98,96 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
     }
   }, [])
 
-  const startCall = useCallback(async () => {
-    if (!prospect) return
-    setCallState('calling')
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
     setElapsed(0)
-
-    // Start timer
     timerRef.current = setInterval(() => {
       setElapsed((prev) => prev + 1)
     }, 1000)
+  }, [])
 
-    // Fire and forget — initiate the call via Twilio
-    try {
-      await fetchValidated('/api/comms/send-voice', {
-        method: 'POST',
-        body: JSON.stringify({
-          to: prospect.phone,
-          from: '+18886208587',
-          twiml: `<Response><Dial>${prospect.phone}</Dial></Response>`,
-          client_id: prospect.client_id,
-        }),
-      })
-    } catch {
-      // Call initiation failure is non-blocking — agent can still log disposition
-    }
-  }, [prospect])
-
-  const endCall = useCallback(() => {
+  const stopTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null
     }
-    setCallState('disposition')
   }, [])
+
+  const startCall = useCallback(async () => {
+    if (!prospect) return
+
+    // TRK-PC-002: Use browser SDK when available, fall back to REST
+    if (isReady) {
+      setCallState('ringing')
+      try {
+        const call = await makeCall(prospect.phone)
+        if (!call) {
+          // SDK call failed — fall back to manual flow
+          setCallState('calling')
+          startTimer()
+          return
+        }
+        callRef.current = call
+
+        // SDK events drive state transitions automatically
+        call.on('accept', () => {
+          setCallState('calling')
+          startTimer()
+        })
+
+        call.on('disconnect', () => {
+          stopTimer()
+          callRef.current = null
+          setCallState('disposition')
+        })
+
+        call.on('error', () => {
+          stopTimer()
+          callRef.current = null
+          // On error, still allow disposition (log what happened)
+          setCallState('disposition')
+        })
+
+        call.on('cancel', () => {
+          stopTimer()
+          callRef.current = null
+          setCallState('disposition')
+        })
+      } catch {
+        // SDK failed — fall back to manual flow
+        setCallState('calling')
+        startTimer()
+      }
+    } else {
+      // Fallback: REST fire-and-forget (original behavior)
+      setCallState('calling')
+      startTimer()
+      try {
+        await fetchValidated('/api/comms/send-voice', {
+          method: 'POST',
+          body: JSON.stringify({
+            to: prospect.phone,
+            from: '+18886208587',
+            twiml: `<Response><Dial>${prospect.phone}</Dial></Response>`,
+            client_id: prospect.client_id,
+          }),
+        })
+      } catch {
+        // Call initiation failure is non-blocking — agent can still log disposition
+      }
+    }
+  }, [prospect, isReady, makeCall, startTimer, stopTimer])
+
+  const endCall = useCallback(() => {
+    // If SDK call is active, disconnect it (triggers onDisconnect → disposition)
+    if (callRef.current) {
+      hangup()
+      return // onDisconnect handler will transition to disposition
+    }
+    // Manual fallback (REST mode)
+    stopTimer()
+    setCallState('disposition')
+  }, [hangup, stopTimer])
 
   const handleSave = useCallback(async () => {
     if (!prospect || !outcome) return
@@ -182,16 +261,19 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
     })
 
     setSaving(false)
+
+    // In queue mode, don't close — parent handles advance
+    // In single mode, panel closes via onDispositioned callback
   }, [prospect, outcome, notes, elapsed, onDispositioned])
 
   if (!prospect) return null
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — TRK-PC-003: block close during disposition (mandatory) */}
       <div
         className="fixed inset-0 bg-black/30 z-40"
-        onClick={onClose}
+        onClick={callState === 'disposition' ? undefined : onClose}
         aria-hidden="true"
       />
 
@@ -214,15 +296,18 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--bg-surface)]"
-          >
-            <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '20px' }}>
-              close
-            </span>
-          </button>
+          {/* TRK-PC-003: Hide close button during disposition — must pick an outcome */}
+          {callState !== 'disposition' && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--bg-surface)]"
+            >
+              <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '20px' }}>
+                close
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -250,6 +335,31 @@ export default function CallPanel({ prospect, onClose, onDispositioned }: CallPa
               >
                 <span className="material-icons-outlined" style={{ fontSize: '20px' }}>call</span>
                 Start Call
+              </button>
+            </div>
+          )}
+
+          {/* ── Ringing state (SDK only) ── */}
+          {callState === 'ringing' && (
+            <div className="flex flex-col items-center gap-6 pt-8">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-sky-500/20 animate-pulse">
+                <span className="material-icons-outlined text-sky-400" style={{ fontSize: '32px' }}>
+                  ring_volume
+                </span>
+              </span>
+              <div className="text-center">
+                <p className="text-sm text-[var(--text-muted)]">Ringing...</p>
+                <p className="mt-1 text-lg font-semibold text-[var(--text-primary)]">
+                  {prospect.first_name} {prospect.last_name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={endCall}
+                className="flex items-center gap-2 rounded-xl bg-red-600 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-500"
+              >
+                <span className="material-icons-outlined" style={{ fontSize: '20px' }}>call_end</span>
+                Cancel
               </button>
             </div>
           )}

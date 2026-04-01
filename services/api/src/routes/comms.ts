@@ -252,14 +252,18 @@ commsRoutes.post('/send-sms', async (req: Request, res: Response) => {
 
     const payload: Record<string, string> = { To: to, From: from, Body: messageBody }
     if (body.statusCallback) payload.StatusCallback = String(body.statusCallback)
+    // TRK-PC-014: MMS support — pass MediaUrl to Twilio if provided
+    if (body.mediaUrl) payload.MediaUrl = String(body.mediaUrl)
 
     const result = await twilioRequest('POST', 'Messages.json', payload)
+    const mediaUrls = body.mediaUrl ? [String(body.mediaUrl)] : undefined
     const commId = await logCommunication({
       channel: 'sms', direction: 'outbound', recipient: to,
       body: messageBody, status: String(result.status || 'queued'),
       message_sid: String(result.sid || ''),
       sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
         client_id: body.client_id || null,
+        ...(mediaUrls && { media_urls: mediaUrls }),
     })
     res.status(201).json(successResponse<CommsSendSmsResult>({
       messageSid: result.sid, to: result.to, from: result.from,
