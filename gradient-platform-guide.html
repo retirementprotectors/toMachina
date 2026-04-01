@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gradient Platform Training Guide — RPI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #111827 0%, #0f1a2e 100%);
+      border-bottom: 1px solid #1e3a5f;
+      padding: 28px 40px 24px;
+    }
+    .header-title h1 { font-size: 24px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; }
+    .header-title p { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+    .badge-blue { background: #1e3a5f; color: #60a5fa; border: 1px solid #2563eb33; }
+    .badge-orange { background: #431407; color: #fb923c; border: 1px solid #ea580c33; }
+    .badge-green { background: #052e16; color: #4ade80; border: 1px solid #16a34a33; }
+    .badge-red { background: #450a0a; color: #f87171; border: 1px solid #dc262633; }
+    .badge-purple { background: #2e1065; color: #c084fc; border: 1px solid #9333ea33; }
+
+    /* ── TABS ── */
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      background: #111827;
+      border-bottom: 1px solid #1e293b;
+      padding: 0 40px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 14px 18px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover { color: #94a3b8; }
+    .tab-btn.active { color: #60a5fa; border-bottom-color: #3b82f6; }
+
+    .tab-panel { display: none; padding: 32px 40px; max-width: 1200px; }
+    .tab-panel.active { display: block; }
+
+    /* ── SECTION HEADERS ── */
+    .section-header {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #1e293b;
+    }
+    .sub-header {
+      font-size: 14px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 24px 0 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── PATHWAY CARDS ── */
+    .path-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .path-card {
+      border-radius: 10px;
+      padding: 24px;
+      border: 1px solid;
+    }
+    .path-card.blue { background: #0f1e38; border-color: #1e3a5f; }
+    .path-card.orange { background: #1a0e05; border-color: #431407; }
+    .path-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .path-card.blue h3 { color: #60a5fa; }
+    .path-card.orange h3 { color: #fb923c; }
+    .path-card p { font-size: 12px; color: #94a3b8; margin-bottom: 14px; }
+    .path-card ul { list-style: none; }
+    .path-card ul li { font-size: 13px; color: #cbd5e1; padding: 3px 0; padding-left: 16px; position: relative; }
+    .path-card ul li::before { content: '→'; position: absolute; left: 0; color: #475569; }
+    .path-card .path-label {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .path-card.blue .path-label { background: #1e3a5f; color: #93c5fd; }
+    .path-card.orange .path-label { background: #431407; color: #fdba74; }
+
+    /* ── RULE CALLOUTS ── */
+    .rule-box {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-left: 4px solid;
+    }
+    .rule-box.critical { background: #450a0a22; border-color: #dc2626; }
+    .rule-box.warning { background: #431407; border-color: #ea580c; }
+    .rule-box.info { background: #0f1e38; border-color: #3b82f6; }
+    .rule-box.success { background: #052e1622; border-color: #16a34a; }
+    .rule-box .rule-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .rule-box.critical .rule-title { color: #f87171; }
+    .rule-box.warning .rule-title { color: #fb923c; }
+    .rule-box.info .rule-title { color: #60a5fa; }
+    .rule-box.success .rule-title { color: #4ade80; }
+    .rule-box p, .rule-box li { font-size: 13px; color: #cbd5e1; }
+    .rule-box ul { list-style: none; padding-left: 4px; }
+    .rule-box ul li { padding: 2px 0; padding-left: 14px; position: relative; }
+    .rule-box ul li::before { content: '•'; position: absolute; left: 0; }
+
+    /* ── DECISION TREE ── */
+    .decision-tree { background: #0f1623; border: 1px solid #1e293b; border-radius: 10px; padding: 24px; margin: 20px 0; }
+    .decision-node {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 8px 0;
+    }
+    .decision-question { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+    .decision-answers { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+    .decision-answer {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: default;
+    }
+    .answer-yes { background: #1e3a5f; color: #93c5fd; }
+    .answer-no { background: #431407; color: #fdba74; }
+    .answer-result-blue { background: #1e3a5f; color: #60a5fa; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+    .answer-result-orange { background: #431407; color: #fb923c; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+
+    /* ── PRODUCT TABLE ── */
+    .product-section { margin-bottom: 24px; }
+    .product-tier-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #111827;
+      border-radius: 8px 8px 0 0;
+      border: 1px solid #1e293b;
+      border-bottom: none;
+    }
+    .tier-badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    table { width: 100%; border-collapse: collapse; border: 1px solid #1e293b; }
+    thead th {
+      background: #0f1623;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
+    tbody tr { border-bottom: 1px solid #161f2e; }
+    tbody tr:hover { background: #0f1f33; }
+    tbody td { padding: 10px 12px; font-size: 13px; color: #cbd5e1; }
+    .code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: #60a5fa; font-weight: 600; }
+    .fee-cell { color: #fbbf24; font-weight: 600; }
+    .min-cell { color: #94a3b8; font-size: 12px; }
+    .buffer-row td { background: #1a0e0522; }
+    .buffer-tag { background: #431407; color: #fb923c; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; margin-left: 6px; }
+    .nigo-flag { background: #450a0a; color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+
+    /* ── ACCORDIONS ── */
+    .accordion { border: 1px solid #1e293b; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: #111827;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .accordion-header:hover { background: #1a2332; }
+    .accordion-header h4 { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+    .accordion-header .acc-meta { display: flex; align-items: center; gap: 8px; }
+    .acc-tag { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .acc-tag-both { background: #1e2a1e; color: #4ade80; }
+    .acc-tag-gi { background: #1e3a5f; color: #60a5fa; }
+    .acc-tag-rbc { background: #431407; color: #fb923c; }
+    .acc-chevron { color: #475569; transition: transform 0.2s; font-size: 16px; }
+    .accordion.open .acc-chevron { transform: rotate(180deg); }
+    .accordion-body { display: none; padding: 20px 18px; background: #0d1117; border-top: 1px solid #1e293b; }
+    .accordion.open .accordion-body { display: block; }
+
+    /* ── FORM FIELDS ── */
+    .field-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    .field-table th {
+      background: #0f1623;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
+    .field-table td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #161f2e; vertical-align: top; }
+    .field-table tr:hover td { background: #0f1f33; }
+    .field-name { color: #e2e8f0; font-weight: 500; }
+    .field-value { color: #94a3b8; }
+    .field-nigo { color: #f87171; }
+    .field-ok { color: #4ade80; }
+
+    /* ── WORKFLOW ── */
+    .workflow-steps { display: flex; flex-direction: column; gap: 0; }
+    .workflow-step {
+      display: flex;
+      gap: 0;
+      align-items: stretch;
+    }
+    .step-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 40px;
+      flex-shrink: 0;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .step-line { width: 2px; background: #1e293b; flex: 1; margin-top: 4px; min-height: 20px; }
+    .workflow-step:last-child .step-line { display: none; }
+    .step-content { padding: 4px 0 28px 16px; flex: 1; }
+    .step-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .step-who {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .who-josh { background: #1e3a5f; color: #93c5fd; }
+    .who-angelique { background: #2e1065; color: #c084fc; }
+    .who-gs { background: #052e16; color: #4ade80; }
+    .who-both { background: #1a1a2e; color: #a5b4fc; }
+    .step-items { list-style: none; }
+    .step-items li { font-size: 13px; color: #94a3b8; padding: 3px 0; padding-left: 16px; position: relative; }
+    .step-items li::before { content: '→'; position: absolute; left: 0; color: #475569; }
+    .step-items li.critical { color: #f87171; }
+    .step-items li.critical::before { color: #dc2626; }
+
+    /* ── NIGO TABLE ── */
+    .nigo-list { display: flex; flex-direction: column; gap: 8px; }
+    .nigo-item {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-left: 4px solid #dc2626;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+    }
+    .nigo-item h4 { font-size: 13px; font-weight: 700; color: #f87171; margin-bottom: 4px; }
+    .nigo-item .from-case { font-size: 11px; color: #475569; margin-bottom: 6px; }
+    .nigo-item p { font-size: 13px; color: #94a3b8; }
+    .nigo-item .fix { font-size: 12px; color: #4ade80; margin-top: 6px; }
+    .nigo-item .fix::before { content: '✓ FIX: '; font-weight: 700; }
+
+    /* ── CONTACTS ── */
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .contact-card {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .contact-card h4 { font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 2px; }
+    .contact-card .role { font-size: 12px; color: #60a5fa; margin-bottom: 10px; }
+    .contact-detail { font-size: 13px; color: #94a3b8; padding: 2px 0; }
+    .contact-detail a { color: #60a5fa; text-decoration: none; }
+
+    /* ── SUMMARY TABLE ── */
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .summary-card {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .summary-card .num { font-size: 28px; font-weight: 800; color: #60a5fa; }
+    .summary-card .label { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    /* ── CLIENT TABLE ── */
+    .status-signed { color: #4ade80; font-weight: 600; }
+    .status-sent { color: #fbbf24; font-weight: 600; }
+    .status-flag { color: #f87171; font-weight: 700; }
+    .status-none { color: #475569; }
+    .aum-large { color: #a78bfa; font-weight: 600; }
+    .aum-med { color: #60a5fa; }
+    .aum-small { color: #64748b; }
+
+    /* ── MISC ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .mono { font-family: 'SF Mono', monospace; font-size: 12px; background: #161f2e; padding: 2px 6px; border-radius: 4px; color: #93c5fd; }
+    hr { border: none; border-top: 1px solid #1e293b; margin: 24px 0; }
+    .note { font-size: 12px; color: #475569; font-style: italic; margin-top: 8px; }
+
+    @media (max-width: 768px) {
+      .path-grid, .two-col, .summary-grid { grid-template-columns: 1fr; }
+      header, .tab-panel { padding: 20px; }
+      .tab-nav { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ HEADER -->
+<header>
+  <div class="header-title">
+    <h1>Gradient Platform Training Guide</h1>
+    <p>Retirement Protectors, Inc. — Signal → Gradient Transition | Updated April 2026</p>
+  </div>
+  <div class="badge-row">
+    <span class="badge badge-blue">GI / Schwab Path</span>
+    <span class="badge badge-orange">BD / RBC Path</span>
+    <span class="badge badge-green">41 Products</span>
+    <span class="badge badge-purple">50 Clients in Pipeline</span>
+    <span class="badge badge-red">3 Compliance Flags</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ TAB NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('overview')">Platform Overview</button>
+  <button class="tab-btn" onclick="showTab('which-path')">Which Path?</button>
+  <button class="tab-btn" onclick="showTab('products')">Product Library</button>
+  <button class="tab-btn" onclick="showTab('forms')">Forms Library</button>
+  <button class="tab-btn" onclick="showTab('workflow')">7-Step Workflow</button>
+  <button class="tab-btn" onclick="showTab('nigo')">NIGO Prevention</button>
+  <button class="tab-btn" onclick="showTab('clients')">Client Pipeline</button>
+  <button class="tab-btn" onclick="showTab('contacts')">Key Contacts</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: OVERVIEW -->
+<div id="tab-overview" class="tab-panel active">
+  <div class="section-header">The RPI Platform — Old vs New</div>
+
+  <div class="two-col" style="margin-bottom:24px;">
+    <div class="rule-box warning">
+      <div class="rule-title">⚠ OLD: Signal Wealth Management</div>
+      <ul>
+        <li>Investment Advisory only (RIA)</li>
+        <li>Custodian: Charles Schwab / Pershing</li>
+        <li>Capacity: IAR (Investment Advisor Representative)</li>
+        <li>Products: Signal APTUS models</li>
+        <li>Fees: ~1.64–1.83% advisory</li>
+        <li>Status: <strong>ARCHIVED — no new business</strong></li>
+      </ul>
+    </div>
+    <div class="rule-box info">
+      <div class="rule-title">✓ NEW: Gradient Securities / GWM</div>
+      <ul>
+        <li>Dual-registered: BD <em>and</em> RIA</li>
+        <li>Two paths → two different custodians</li>
+        <li>Products: 41 GI strategies + TAMPs + RBC brokerage</li>
+        <li>Process: GS pre-approval required before client signs</li>
+        <li>Supervisor: Mark Grams (Field Supervising Principal)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="path-grid">
+    <div class="path-card blue">
+      <span class="path-label">PATH A — ADVISORY</span>
+      <h3>Gradient Wealth Management (GWM)</h3>
+      <p>Investment advisory accounts. Josh acts as IAR. All managed portfolios and buffered strategies go here.</p>
+      <ul>
+        <li>Custodian: <strong>Charles Schwab</strong></li>
+        <li>Capacity: GWM Investment Advisor Representative</li>
+        <li>Products: All 41 GI portfolios (TAMP + Buffer)</li>
+        <li>Also available: Orion, AssetMark TAMPs</li>
+        <li>Fees: 1.40% standard (1.00% RPI + 0.40% GI)</li>
+        <li>Forms: GWM TAF + GWM IAA + GI IPC + Schwab forms</li>
+        <li>Submit via: Business Central → GS → GI → Schwab</li>
+      </ul>
+    </div>
+    <div class="path-card orange">
+      <span class="path-label">PATH B — BROKERAGE</span>
+      <h3>Gradient Securities (BD / RBC)</h3>
+      <p>Brokerage accounts, variable annuities, mutual funds, commission-based products.</p>
+      <ul>
+        <li>Custodian: <strong>RBC Capital Markets</strong></li>
+        <li>Capacity: GS Series 7 General Securities Rep</li>
+        <li>Products: Variable Annuities, Mutual Funds, brokerage securities</li>
+        <li>Note: GI portfolios are NOT available through RBC</li>
+        <li>Forms: RBC TAF + RBC CAF + RBC Opening Kit</li>
+        <li>Submit via: Business Central → GS → RBC → Carrier</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="rule-box critical" style="margin-top:0;">
+    <div class="rule-title">🚨 The #1 Rule — Read This First</div>
+    <ul>
+      <li><strong>GI products (ETF Endowment, BIP, etc.) ONLY go through Schwab (Path A)</strong></li>
+      <li><strong>NEVER put GI products on RBC paperwork</strong> — this is the Stirratt NIGO</li>
+      <li><strong>If a client needs both advisory (GI) AND brokerage (RBC)</strong> → these are TWO SEPARATE CASES with TWO SEPARATE PACKETS</li>
+      <li><strong>GS MUST approve all paperwork BEFORE clients sign anything</strong></li>
+    </ul>
+  </div>
+
+  <div class="sub-header">Entity Structure</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>What It Is</th>
+        <th>When You Use It</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="field-name">Gradient Securities, LLC</td>
+        <td>The BD — broker/dealer registered with FINRA</td>
+        <td>All new business flows through GS for pre-approval</td>
+      </tr>
+      <tr>
+        <td class="field-name">Gradient Wealth Management (GWM)</td>
+        <td>The RIA arm of Gradient Securities</td>
+        <td>Advisory accounts at Schwab. Josh acts as IAR.</td>
+      </tr>
+      <tr>
+        <td class="field-name">Gradient Investments (GI)</td>
+        <td>The investment management firm (TPMM)</td>
+        <td>The actual portfolio manager for all 41 strategies</td>
+      </tr>
+      <tr>
+        <td class="field-name">RBC Capital Markets</td>
+        <td>BD custodian for brokerage accounts</td>
+        <td>Path B cases only — VAs, MFs, brokerage</td>
+      </tr>
+      <tr>
+        <td class="field-name">Charles Schwab</td>
+        <td>RIA custodian for advisory accounts</td>
+        <td>Path A (GWM/GI) cases only</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: WHICH PATH -->
+<div id="tab-which-path" class="tab-panel">
+  <div class="section-header">Which Path Does This Case Go On?</div>
+
+  <div class="decision-tree">
+    <div style="font-size:12px; color:#64748b; margin-bottom:16px; text-transform:uppercase; letter-spacing:0.5px;">Decision Tree — Use This For Every New Case</div>
+
+    <div class="decision-node">
+      <div class="decision-question">Is the client going into a managed portfolio model? (ETF Endowment, Buffered, Tactical, etc.)</div>
+      <div class="decision-answers">
+        <span class="answer-yes">YES →</span>
+        <span class="answer-result-blue">PATH A: GWM / GI / Schwab</span>
+      </div>
+    </div>
+
+    <div class="decision-node">
+      <div class="decision-question">Is the client buying a Variable Annuity, Mutual Fund, or standard brokerage product?</div>
+      <div class="decision-answers">
+        <span class="answer-yes">YES →</span>
+        <span class="answer-result-orange">PATH B: BD / RBC</span>
+      </div>
+    </div>
+
+    <div class="decision-node">
+      <div class="decision-question">Is this a transfer from Signal/Pershing to a GI portfolio?</div>
+      <div class="decision-answers">
+        <span class="answer-yes">YES →</span>
+        <span class="answer-result-blue">PATH A: GWM / GI / Schwab (new Schwab account + ACAT from Pershing)</span>
+      </div>
+    </div>
+
+    <div class="decision-node">
+      <div class="decision-question">Does the client need BOTH a managed portfolio AND a brokerage product?</div>
+      <div class="decision-answers">
+        <span class="answer-yes">YES →</span>
+        <span style="background:#2e1065; color:#c084fc; padding:6px 14px; border-radius:6px; font-weight:700; font-size:12px;">TWO SEPARATE CASES — separate packets, separate TAFs</span>
+      </div>
+    </div>
+
+    <div class="decision-node" style="border-color: #dc2626;">
+      <div class="decision-question" style="color:#f87171;">❌ NEVER DO THIS</div>
+      <div class="decision-answers">
+        <span style="background:#450a0a; color:#f87171; padding:6px 14px; border-radius:6px; font-size:12px;">Putting GI portfolio on RBC paperwork</span>
+        <span style="background:#450a0a; color:#f87171; padding:6px 14px; border-radius:6px; font-size:12px;">Using GWM TAF for an RBC brokerage case</span>
+        <span style="background:#450a0a; color:#f87171; padding:6px 14px; border-radius:6px; font-size:12px;">Listing "Gradient Investments" as vendor on RBC TAF</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-header">At-a-Glance: Which Forms for Which Path</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Form</th>
+        <th>Path A (GI/Schwab)</th>
+        <th>Path B (RBC/BD)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="field-name">Client Account Form (CAF)</td><td class="field-ok">✓ GS CAF</td><td class="field-ok">✓ RBC CAF (different form!)</td></tr>
+      <tr><td class="field-name">Transaction Analysis Form (TAF)</td><td class="field-ok">✓ GWM TAF</td><td class="field-ok">✓ RBC Reg BI/DOL TAF (different form!)</td></tr>
+      <tr><td class="field-name">COMRA</td><td class="field-ok">✓ Required</td><td class="field-ok">✓ Required</td></tr>
+      <tr><td class="field-name">Investment Advisory Agreement (IAA)</td><td class="field-ok">✓ GWM IAA</td><td class="field-nigo">✗ Not used</td></tr>
+      <tr><td class="field-name">GI Investment Proposal & Contract (IPC)</td><td class="field-ok">✓ Required + Schedules A-D</td><td class="field-nigo">✗ Not used</td></tr>
+      <tr><td class="field-name">GI Disclosure Statement</td><td class="field-ok">✓ Required</td><td class="field-nigo">✗ Not used</td></tr>
+      <tr><td class="field-name">Schwab Account Forms</td><td class="field-ok">✓ Per account type (LPOA, IRA App, ACAT, etc.)</td><td class="field-nigo">✗ Not used</td></tr>
+      <tr><td class="field-name">RBC Opening Kit (IRA Adoption Agreement)</td><td class="field-nigo">✗ Not used</td><td class="field-ok">✓ Required for IRA accounts</td></tr>
+      <tr><td class="field-name">RBC Account Transfer Form (UACT)</td><td class="field-nigo">✗ Not used</td><td class="field-ok">✓ Required for transfers</td></tr>
+      <tr><td class="field-name">RBC Client Fee Listing</td><td class="field-nigo">✗ Not used</td><td class="field-ok">✓ Required disclosure</td></tr>
+      <tr><td class="field-name">To Roll or Not to Roll</td><td class="field-ok">✓ IRA rollovers</td><td class="field-ok">✓ IRA rollovers</td></tr>
+      <tr><td class="field-name">GS Client Relationship Summary (CRS)</td><td class="field-ok">✓ Every new client</td><td class="field-ok">✓ Every new client</td></tr>
+      <tr><td class="field-name">Trusted Contact Person form</td><td class="field-ok">✓ Every client</td><td class="field-ok">✓ Every client</td></tr>
+    </tbody>
+  </table>
+
+  <div class="rule-box info" style="margin-top:20px;">
+    <div class="rule-title">📋 Disclosures — Deliver to EVERY New Client (Both Paths)</div>
+    <ul>
+      <li>GS Client Relationship Summary (Form CRS)</li>
+      <li>GI Form CRS</li>
+      <li>GI Form ADV Part 2A and 2B</li>
+      <li>GWM Brochure (ADV Part 2A and 2B) — give to client, do NOT send in with paperwork</li>
+      <li>GI Privacy Policy</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: PRODUCTS -->
+<div id="tab-products" class="tab-panel">
+  <div class="section-header">RPI Product Library — Powered by Gradient Investments</div>
+
+  <div class="rule-box info">
+    <div class="rule-title">How to Use This Table</div>
+    <p>All products below are GI-managed and go through <strong>Path A (GI/Schwab)</strong>. The COMRA score determines the risk category. Match the client's COMRA category to the appropriate tier. Josh selects the specific portfolio — Angelique fills forms.</p>
+  </div>
+
+  <div class="rule-box warning" style="margin-top:12px;">
+    <div class="rule-title">⚠ Buffered Product Suitability Gate — Check Before Preparing ANY Buffered Case</div>
+    <ul>
+      <li>Minimum investment: <strong>$25,000</strong></li>
+      <li>Max per buffered strategy: <strong>15% of client's liquid net worth</strong></li>
+      <li>Max across ALL buffered strategies combined: <strong>45% of liquid net worth</strong></li>
+      <li>Liquid net worth MUST be on the CAF — if blank, STOP and get it</li>
+      <li>Example: Liquid NW = $300K → max per strategy = $45K → max all buffered = $135K</li>
+    </ul>
+  </div>
+
+  <!-- FI Tier -->
+  <div class="product-section" style="margin-top:24px;">
+    <div class="product-tier-header">
+      <span class="tier-badge" style="background:#0f1e38; color:#60a5fa;">FI — Preservation & Income</span>
+      <span style="font-size:12px; color:#64748b;">100% Bond / 0% Stock | COMRA: Conservative Investor (1–20)</span>
+    </div>
+    <table>
+      <thead><tr><th>Code</th><th>Name</th><th>Min</th><th>Client Fee</th><th>All-In</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="code">SV</td><td>Stable Value</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.45%</td><td class="field-value">Cash ballast. Liquidity + stability.</td></tr>
+        <tr><td class="code">LI-2R</td><td>Laddered Income — 2 Year</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.45%</td><td class="field-value">Defined maturity bond ETF ladder.</td></tr>
+        <tr><td class="code">LI-3R</td><td>Laddered Income — 3 Year</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.45%</td><td class="field-value">3-year bond ladder.</td></tr>
+        <tr><td class="code">LI-4R</td><td>Laddered Income — 4 Year</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.45%</td><td class="field-value">4-year bond ladder.</td></tr>
+        <tr><td class="code">LI-5R</td><td>Laddered Income — 5 Year</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.45%</td><td class="field-value">5-year bond ladder.</td></tr>
+        <tr><td class="code">FI-TR</td><td>Fixed Income — Total Return</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Actively managed. Diversified bond ETFs.</td></tr>
+        <tr><td class="code">FI-NM</td><td>Fixed Income — National Muni</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Tax-efficient. Best for non-qualified accounts.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Conservative Tier -->
+  <div class="product-section">
+    <div class="product-tier-header">
+      <span class="tier-badge" style="background:#0f2a1e; color:#4ade80;">A — Conservative</span>
+      <span style="font-size:12px; color:#64748b;">80% Bond / 20% Stock | COMRA: 1–20</span>
+    </div>
+    <table>
+      <thead><tr><th>Code</th><th>Name</th><th>Min</th><th>Client Fee</th><th>All-In</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="code">ETF-A</td><td>ETF Endowment Series A</td><td class="min-cell">$1,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Core conservative managed ETF model. Low minimum.</td></tr>
+        <tr><td class="code">Tilt-Cons</td><td>Conservative Tilt</td><td class="min-cell">$200,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">GI portfolios as underlying with tactical tilts.</td></tr>
+        <tr><td class="code">Tax-Con</td><td>Conservative Tax Advantaged</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Tax loss harvesting. Municipal bonds. Non-qualified accounts.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Conservative Growth Tier -->
+  <div class="product-section">
+    <div class="product-tier-header">
+      <span class="tier-badge" style="background:#0f2420; color:#34d399;">B — Conservative Growth</span>
+      <span style="font-size:12px; color:#64748b;">60% Bond / 40% Stock | COMRA: 21–40</span>
+    </div>
+    <table>
+      <thead><tr><th>Code</th><th>Name</th><th>Min</th><th>Client Fee</th><th>All-In</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="code">ETF-B</td><td>ETF Endowment Series B</td><td class="min-cell">$1,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Conservative growth model. Correct for COMRA 21–40.</td></tr>
+        <tr><td class="code">GTR-30</td><td>Gradient Tactical Rotation — 30</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Rules-based. Geographic + price momentum. 30% equity.</td></tr>
+        <tr><td class="code">SR-30</td><td>Socially Responsible — 30</td><td class="min-cell">$25,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">ESG-screened ETF. 30% equity.</td></tr>
+        <tr><td class="code">AIE</td><td>Private Wealth — Income Edge</td><td class="min-cell">$100,000</td><td class="fee-cell">1.50%</td><td class="fee-cell">1.80%</td><td class="field-value" style="color:#f87171;">Private alternatives. QUALIFIED CLIENTS ONLY.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Balanced Tier -->
+  <div class="product-section">
+    <div class="product-tier-header">
+      <span class="tier-badge" style="background:#1a1a2e; color:#a5b4fc;">C — Balanced</span>
+      <span style="font-size:12px; color:#64748b;">40% Bond / 60% Stock | COMRA: 41–60</span>
+    </div>
+    <table>
+      <thead><tr><th>Code</th><th>Name</th><th>Min</th><th>Client Fee</th><th>All-In</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="code">ETF-C</td><td>ETF Endowment Series C</td><td class="min-cell">$1,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Balanced model. 60/40 in stocks' favor.</td></tr>
+        <tr><td class="code">G50-C</td><td>Gradient 50 — Balanced</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">50 equally weighted US dividend stocks.</td></tr>
+        <tr><td class="code">AY</td><td>Absolute Yield</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.70%</td><td class="field-value">Global mix: bonds, dividend stocks, REITs, MLPs.</td></tr>
+        <tr><td class="code">GTR-60</td><td>Gradient Tactical Rotation — 60</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Rules-based tactical. 60% equity variant.</td></tr>
+        <tr><td class="code">SR-60</td><td>Socially Responsible — 60</td><td class="min-cell">$25,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">ESG. 60% equity.</td></tr>
+        <tr><td class="code">Tilt-Bal</td><td>Balanced Tilt</td><td class="min-cell">$200,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Tilt series balanced variant.</td></tr>
+        <tr><td class="code">Tax-Bal</td><td>Balanced Tax Advantaged</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Tax loss harvesting. Balanced variant.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Moderate Growth Tier + Buffers -->
+  <div class="product-section">
+    <div class="product-tier-header">
+      <span class="tier-badge" style="background:#1e1a0a; color:#fbbf24;">D — Moderate Growth + Buffered</span>
+      <span style="font-size:12px; color:#64748b;">20% Bond / 80% Stock | COMRA: 61–80</span>
+    </div>
+    <table>
+      <thead><tr><th>Code</th><th>Name</th><th>Min</th><th>Client Fee</th><th>All-In</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="code">ETF-D</td><td>ETF Endowment Series D</td><td class="min-cell">$1,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Moderate growth model.</td></tr>
+        <tr><td class="code">G50-D</td><td>Gradient 50 — Moderate Growth</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">G50 moderate growth variant.</td></tr>
+        <tr><td class="code">Tilt-MGR</td><td>Moderate Growth Tilt</td><td class="min-cell">$200,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Tilt series moderate growth variant.</td></tr>
+        <tr><td class="code">Tax-MGR</td><td>Moderate Growth Tax Advantaged</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Tax loss harvesting. Moderate growth variant.</td></tr>
+        <tr class="buffer-row"><td class="code">BIP <span class="buffer-tag">BUFFER</span></td><td>Buffered Index Portfolio</td><td class="min-cell">$25,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.40%</td><td class="field-value" style="color:#fb923c;">Structured notes. Upside cap + defined downside buffer. 15% liquid NW limit per strategy.</td></tr>
+        <tr class="buffer-row"><td class="code">BOP <span class="buffer-tag">BUFFER</span></td><td>Buffered Outcomes ETF</td><td class="min-cell">$25,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">2.14%</td><td class="field-value" style="color:#fb923c;">Defined outcome ETFs. Higher internal ETF cost.</td></tr>
+        <tr class="buffer-row"><td class="code">DD <span class="buffer-tag">BUFFER</span></td><td>Dual Directional Buffered Index</td><td class="min-cell">$25,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.40%</td><td class="field-value" style="color:#fb923c;">Can gain even in negative markets. Point-to-point.</td></tr>
+        <tr class="buffer-row"><td class="code">DIP <span class="buffer-tag">BUFFER</span></td><td>Designed Income Portfolio</td><td class="min-cell">$25,000</td><td class="fee-cell">1.70%</td><td class="fee-cell">1.70%</td><td class="field-value" style="color:#fb923c;">Structured notes for recurring income. Stated coupon.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Growth Tier -->
+  <div class="product-section">
+    <div class="product-tier-header">
+      <span class="tier-badge" style="background:#1a0f0f; color:#f87171;">E — Growth</span>
+      <span style="font-size:12px; color:#64748b;">0% Bond / 100% Stock | COMRA: 81–100</span>
+    </div>
+    <table>
+      <thead><tr><th>Code</th><th>Name</th><th>Min</th><th>Client Fee</th><th>All-In</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="code">ETF-E</td><td>ETF Endowment Series E</td><td class="min-cell">$1,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Growth model.</td></tr>
+        <tr><td class="code">G50-E</td><td>Gradient 50 — Growth</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">G50 growth variant.</td></tr>
+        <tr><td class="code">G40I</td><td>Gradient 40 International</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">40 international dividend stocks.</td></tr>
+        <tr><td class="code">G33</td><td>Gradient 33</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">33 growth stocks. Multi-cap, sector diversified.</td></tr>
+        <tr><td class="code">GTR-100</td><td>Gradient Tactical Rotation — 100</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Rules-based. 100% equity.</td></tr>
+        <tr><td class="code">Tax-GR</td><td>Growth Tax Advantaged</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Tax loss harvesting. Growth variant.</td></tr>
+        <tr><td class="code">SR-100</td><td>Socially Responsible — 100</td><td class="min-cell">$25,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">ESG. 100% equity.</td></tr>
+        <tr><td class="code">CS</td><td>Core Select</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">US mid-to-large cap. Value + growth blend.</td></tr>
+        <tr><td class="code">CC</td><td>Contrarian Choice</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">Temporarily dislocated stocks. Rebound plays.</td></tr>
+        <tr><td class="code">DIG</td><td>Digital Discovery</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">AI, crypto, blockchain, metaverse ETFs.</td></tr>
+        <tr><td class="code">SMID</td><td>SMID Cap Select</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">Small/mid-cap innovators and disruptors.</td></tr>
+        <tr><td class="code">ES</td><td>Energy Sector Focus</td><td class="min-cell">$50,000</td><td class="fee-cell">2.00%</td><td class="fee-cell">2.00%</td><td class="field-value">Actively managed energy sector stocks.</td></tr>
+        <tr><td class="code">PM</td><td>Precious Metals</td><td class="min-cell">$10,000</td><td class="fee-cell">1.40%</td><td class="fee-cell">1.65%</td><td class="field-value">Gold, silver, platinum, palladium ETFs.</td></tr>
+        <tr><td class="code">AH</td><td>Private Wealth — Horizon</td><td class="min-cell">$250,000</td><td class="fee-cell">1.50%</td><td class="fee-cell">1.75%</td><td class="field-value" style="color:#f87171;">Private alternatives. Max growth. QUALIFIED CLIENTS ONLY.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">Current BIP structured note offerings rotate quarterly. See GS for current terms. March 2026 notes include Barclays 18mo (100% protected), Goldman 24mo (19.30% cap, 20% buffer), JPMorgan 24mo (30% buffer), and others.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: FORMS -->
+<div id="tab-forms" class="tab-panel">
+  <div class="section-header">Forms Library — Field-by-Field Guidance</div>
+
+  <div class="rule-box critical">
+    <div class="rule-title">🚨 Golden Rules — Apply to Every Form</div>
+    <ul>
+      <li><strong>NO whiteout. NO corrections. NO overwriting.</strong> If you make an error: reprint the form and start over.</li>
+      <li><strong>No copy/paste between clients.</strong> Every form is specific to that client.</li>
+      <li><strong>Angelique fills forms. Josh writes Best Interest rationale.</strong> Never the other way around.</li>
+      <li><strong>Liquid net worth MUST be on every CAF.</strong> If it's blank, stop and get it.</li>
+    </ul>
+  </div>
+
+  <!-- ACCORDION: CAF -->
+  <div class="accordion open">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h4>Client Account Form (CAF)</h4>
+      <div class="acc-meta">
+        <span class="acc-tag acc-tag-both">Both Paths</span>
+        <span style="color:#64748b;font-size:12px;">GS CAF for advisory | RBC CAF for brokerage — different forms!</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body">
+      <table class="field-table">
+        <thead><tr><th>Section</th><th>Field</th><th>What to Put</th><th>Common Error</th></tr></thead>
+        <tbody>
+          <tr><td>Header</td><td class="field-name">Account Type</td><td>Check the correct account type (IRA, Roth, Individual, etc.)</td><td class="field-nigo">Wrong account type checked</td></tr>
+          <tr><td>Header</td><td class="field-name">Action</td><td>Rollover for transfers from other accounts. New Account for new money.</td><td class="field-nigo">Blank or wrong action</td></tr>
+          <tr><td>Sec 1</td><td class="field-name">Name / DOB / SSN</td><td>From fact-finder. Must match ID exactly.</td><td></td></tr>
+          <tr><td>Sec 1</td><td class="field-name">Marital Status</td><td>Current status. Widowed = NOT married = check "not married" box on IRA Adoption Agreement.</td><td class="field-nigo">Using old marital status</td></tr>
+          <tr><td>Sec 2</td><td class="field-name">Employment</td><td>Retired for most transition clients.</td><td></td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Checking/Savings/CDs</td><td>Client's liquid savings balance</td><td class="field-nigo">This ≠ the IRA amount. Do NOT use on TAF Source of Funds.</td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Retirement Accounts</td><td>Total value of ALL retirement accounts (IRA, 401k, etc.)</td><td></td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Primary Residence Value</td><td class="field-nigo">MUST NOT be blank. Get from client. Net worth calculation will not work without it.</td><td class="field-nigo">Left blank — causes net worth discrepancy</td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Liabilities</td><td class="field-nigo">MUST be filled. Use 0 only if confirmed debt-free.</td><td class="field-nigo">Left blank</td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Net Worth</td><td>= Total Assets + Residence – Liabilities. Verify the math.</td><td class="field-nigo">Math doesn't add up</td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Liquid Net Worth</td><td class="field-nigo">REQUIRED for any buffered product. = Net Worth minus illiquid assets (home, annuities, etc.)</td><td class="field-nigo">Blank when client has a buffered portfolio</td></tr>
+          <tr><td>Sec 4</td><td class="field-name">COMRA on File</td><td>YES. Put the date and score.</td><td class="field-nigo">Blank COMRA date</td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Investment Objectives</td><td>Check the ONE that matches COMRA. Do not check contradictory objectives.</td><td class="field-nigo">Both "Preservation of Capital" AND "Growth and Income" checked</td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Time Horizon</td><td>From client fact-finder. Must match TAF.</td><td></td></tr>
+          <tr><td>Trusted Contact</td><td class="field-name">Contact Name + Phone</td><td>Fill in — important for compliance. Daughter, spouse, trusted person.</td><td class="field-nigo">Left blank</td></tr>
+          <tr><td>Acknowledgements</td><td class="field-name">Josh's Signature + Date</td><td>Josh signs and dates as GS Representative.</td><td class="field-nigo">Signed but undated</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCORDION: COMRA -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h4>Color of Money Risk Analysis (COMRA)</h4>
+      <div class="acc-meta">
+        <span class="acc-tag acc-tag-both">Both Paths</span>
+        <span style="color:#64748b;font-size:12px;">Must be completed fresh for each case</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body">
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>What to Put</th><th>Common Error</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">Questions 1–11</td><td>Client answers. Do NOT pre-fill or copy from another client.</td><td class="field-nigo">Copy/pasting answers from prior COMRA</td></tr>
+          <tr><td class="field-name">Total Score</td><td>Add up all the numbers. Range 1–100.</td><td></td></tr>
+          <tr><td class="field-name">Score Ranges</td><td>1–20: Conservative | 21–40: Conservative Growth | 41–60: Balanced | 61–80: Moderate Growth | 81–100: Growth</td><td class="field-nigo">Recommending Balanced (ETF-C) for a COMRA 35 (Cons. Growth) client</td></tr>
+          <tr><td class="field-name">Client Signature + Date</td><td class="field-nigo">MUST be signed and dated. Blank = NIGO.</td><td class="field-nigo">Forgot to get signature</td></tr>
+          <tr><td class="field-name">Date on TAF/CAF</td><td>COMRA date must match the date recorded on CAF and TAF. All three must be consistent.</td><td class="field-nigo">CAF says 02/17, TAF says 03/17</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCORDION: GWM TAF -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h4>GWM Transaction Analysis Form (TAF)</h4>
+      <div class="acc-meta">
+        <span class="acc-tag acc-tag-gi">Path A Only (GI/Schwab)</span>
+        <span style="color:#64748b;font-size:12px;">Advisory accounts only. NOT used for RBC cases.</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body">
+      <table class="field-table">
+        <thead><tr><th>Section</th><th>Field</th><th>What to Put</th><th>Common Error</th></tr></thead>
+        <tbody>
+          <tr><td>Header</td><td class="field-name">Account Title</td><td>Client name + account type (e.g., "Jane Smith IRA")</td><td></td></tr>
+          <tr><td>Header</td><td class="field-name">Triggering Event</td><td>Check the correct box: Rollover, New Account, or Advisory Agreement.</td><td class="field-nigo">Wrong event checked</td></tr>
+          <tr><td>Source of Funds</td><td class="field-name">Product/Vendor</td><td>The DELIVERING firm — where the money is coming FROM (e.g., "Charles Schwab" or "Pershing")</td><td class="field-nigo">Putting "Gradient Investments" here — wrong. GI is the RECEIVING manager.</td></tr>
+          <tr><td>Source of Funds</td><td class="field-name">Amount</td><td>The specific ACCOUNT BALANCE being transferred — NOT the total retirement assets, NOT the checking balance</td><td class="field-nigo">Using checking balance ($226K) instead of IRA balance ($224K) — actual Stirratt error</td></tr>
+          <tr><td>Sec 2 — Best Interest</td><td class="field-name">Best Interest Narrative</td><td class="field-nigo">JOSH WRITES THIS. Angelique does NOT write this section. Must be specific to this client. Cannot be copied.</td><td class="field-nigo">Generic or copied from another client</td></tr>
+          <tr><td>Sec 2 — Best Interest</td><td class="field-name">Alternatives Considered</td><td>Must reference CURRENT alternatives: GWM, GI, AssetMark, Orion, RBC brokerage, no-action. Do NOT reference Signal Wealth.</td><td class="field-nigo">Referencing Signal Wealth (no longer available)</td></tr>
+          <tr><td>Sec 3 — Fees</td><td class="field-name">GWM Advisory Fee %</td><td>The advisory fee percentage (e.g., 1.00% for standard GWM)</td><td class="field-nigo">Blank</td></tr>
+          <tr><td>Sec 3 — Fees</td><td class="field-name">TPMM Fee %</td><td>GI's portfolio management fee (e.g., 0.40% for ETF Endowment). Note: internal ETF expenses (0.13-0.25%) are NOT advisory fees — do not add them to the stated fee.</td><td class="field-nigo">Adding ETF expense ratio to stated advisory fee (1.53% instead of 1.40%)</td></tr>
+          <tr><td>Rep Ack</td><td class="field-name">CAF Date Reference</td><td>Must match the actual CAF date exactly</td><td class="field-nigo">02/17/2026 vs 03/17/2026 mismatch</td></tr>
+          <tr><td>Rep Ack</td><td class="field-name">Acting Capacity</td><td>GWM IAR for advisory cases</td><td class="field-nigo">Using Series 7 on a GWM advisory case</td></tr>
+          <tr><td>Client Ack</td><td class="field-name">CAF Date Reference</td><td>Must match Rep Acknowledgements date exactly</td><td class="field-nigo">Different date than Rep Ack page</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCORDION: RBC TAF -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h4>RBC Reg BI/DOL Transaction Analysis Form (TAF)</h4>
+      <div class="acc-meta">
+        <span class="acc-tag acc-tag-rbc">Path B Only (RBC/BD)</span>
+        <span style="color:#64748b;font-size:12px;">Brokerage cases only. NOT the same as GWM TAF.</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body">
+      <div class="rule-box warning" style="margin-bottom:14px;">
+        <div class="rule-title">⚠ This is a DIFFERENT form from the GWM TAF</div>
+        <p>The RBC TAF is for brokerage/BD cases only. It has different sections and different requirements. Acting capacity is GS Series 7, not GWM IAR.</p>
+      </div>
+      <table class="field-table">
+        <thead><tr><th>Section</th><th>Field</th><th>What to Put</th><th>Common Error</th></tr></thead>
+        <tbody>
+          <tr><td>Source of Funds</td><td class="field-name">Product/Vendor/Check</td><td>The DELIVERING firm — e.g., "Charles Schwab" for transfers from Schwab</td><td class="field-nigo">"Brokerage RBC" — RBC is the receiver, not the source!</td></tr>
+          <tr><td>Source of Funds</td><td class="field-name">Amount</td><td>The specific account balance being transferred (e.g., the IRA balance at Schwab)</td><td class="field-nigo">Using checking account balance instead of IRA balance</td></tr>
+          <tr><td>Sec 4 — Source</td><td class="field-name">Qualified Assets / Rollover IRA</td><td>The IRA balance being transferred</td><td class="field-nigo">Putting checking balance here</td></tr>
+          <tr><td>Rollover Section</td><td class="field-name">Current Plan Value</td><td>Value of the SPECIFIC IRA being rolled, not total net worth</td><td class="field-nigo">Net worth ($1.4M) instead of IRA value ($224K)</td></tr>
+          <tr><td>Acting Capacity</td><td class="field-name">Capacity</td><td>GS Series 7 — General Securities Rep</td><td class="field-nigo">GWM IAR on an RBC case</td></tr>
+          <tr><td>Rep Ack</td><td class="field-name">CAF Date</td><td>Must match the RBC CAF date exactly</td><td class="field-nigo">Date mismatch between Rep Ack and Client Ack pages</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCORDION: RBC IRA Adoption Agreement -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h4>RBC IRA Adoption Agreement</h4>
+      <div class="acc-meta">
+        <span class="acc-tag acc-tag-rbc">Path B Only (RBC/BD)</span>
+        <span style="color:#64748b;font-size:12px;">Required for new RBC IRA accounts</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body">
+      <table class="field-table">
+        <thead><tr><th>Section</th><th>Field</th><th>What to Put</th><th>Common Error</th></tr></thead>
+        <tbody>
+          <tr><td>Sec 1</td><td class="field-name">Client Info</td><td>Name, DOB, SSN, address — must match CAF exactly</td><td></td></tr>
+          <tr><td>Sec 2</td><td class="field-name">Type of Contribution</td><td>For IRA-to-IRA transfers: check "IR IRA". For 401k/403b rollovers: check "IR Rollover from Qualified Plan".</td><td class="field-nigo">Wrong type checked for source of funds</td></tr>
+          <tr><td>Sec 3</td><td class="field-name">Beneficiary Designation</td><td class="field-nigo">MUST be filled. Primary beneficiary at minimum. Get from client. Never leave blank — defaults to estate without it.</td><td class="field-nigo">Blank beneficiary — every single case</td></tr>
+          <tr><td>Sec 3</td><td class="field-name">Relationship + SSN</td><td>Beneficiary's relationship (Daughter, Son, Spouse, etc.) and their SSN</td><td></td></tr>
+          <tr><td>Sec 4</td><td class="field-name">Consent of Spouse</td><td>If widowed/single: check "I certify I am not married". Leave spouse section blank.</td><td class="field-nigo">Client name auto-filling spouse signature field</td></tr>
+          <tr><td>Sec 5</td><td class="field-name">Client Signature + Date</td><td>Client signs after GS approval. Date is the signing date, not the meeting date.</td><td class="field-nigo">Signed before GS approval</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCORDION: RBC UACT -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h4>RBC Account Transfer Form (UACT)</h4>
+      <div class="acc-meta">
+        <span class="acc-tag acc-tag-rbc">Path B Only (RBC/BD)</span>
+        <span style="color:#64748b;font-size:12px;">Required for transferring assets to RBC</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body">
+      <table class="field-table">
+        <thead><tr><th>Field</th><th>What to Put</th><th>Common Error</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">RBC CM Account Title</td><td>Client name as it will appear at RBC</td><td></td></tr>
+          <tr><td class="field-name">SSN/EIN</td><td>Client's SSN</td><td></td></tr>
+          <tr><td class="field-name">Delivering Firm Account Number</td><td>The account number at the SENDING firm (e.g., Schwab account #31846959)</td><td class="field-nigo">Blank or wrong account number</td></tr>
+          <tr><td class="field-name">Delivering Firm Name</td><td>Name of sending firm (e.g., "Charles Schwab")</td><td class="field-nigo">"Gradient Investments" — wrong</td></tr>
+          <tr><td class="field-name">Account Type (Retirement)</td><td>Check IRA or SEP. Check Rollover if applicable.</td><td></td></tr>
+          <tr><td class="field-name">Client Signature + Date</td><td>Client signs after GS approval. Successor Custodian (RBC) signs separately.</td><td class="field-nigo">Unsigned — must be wet signature</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCORDION: GI IPC -->
+  <div class="accordion">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      <h4>GI Investment Proposal & Contract (IPC) + Schedules A-D</h4>
+      <div class="acc-meta">
+        <span class="acc-tag acc-tag-gi">Path A Only (GI/Schwab)</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+    </div>
+    <div class="accordion-body">
+      <table class="field-table">
+        <thead><tr><th>Schedule</th><th>Purpose</th><th>What Angelique Does</th></tr></thead>
+        <tbody>
+          <tr><td class="field-name">Schedule A</td><td>Authorized Persons</td><td>List Josh as authorized IAR. Add any other authorized persons if applicable.</td></tr>
+          <tr><td class="field-name">Schedule B</td><td>Custodian Identification</td><td>Charles Schwab as custodian. Account number.</td></tr>
+          <tr><td class="field-name">Schedule C</td><td>Account Info & Allocation</td><td>Each account gets its own row. Account number, strategy selected (e.g., ETF-B), amount. <span class="field-nigo">Amount must be actual account balance — not estimated.</span></td></tr>
+          <tr><td class="field-name">Schedule D</td><td>Fee Schedule</td><td>GWM fee + GI fee. Must match what's on the TAF page 3. <span class="field-nigo">Fee mismatch between IPC and TAF = NIGO.</span></td></tr>
+          <tr><td class="field-name">Account Minimums</td><td>—</td><td>Preservation: $25K min | Allocation: $50K min | Strategic/Tactical: $100K min. GI may waive at discretion. <span class="field-nigo">Do not proceed if below minimum without written waiver from GI.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: WORKFLOW -->
+<div id="tab-workflow" class="tab-panel">
+  <div class="section-header">7-Step Submission Workflow</div>
+
+  <div class="rule-box critical">
+    <div class="rule-title">🚨 THE GOLDEN RULE</div>
+    <p><strong>GS MUST APPROVE ALL PAPERWORK BEFORE:</strong> submitting to GI, Schwab, or RBC — transferring any funds — having clients sign (unless GS grants an exception). Violation = automatic NIGO + potential compliance issue.</p>
+  </div>
+
+  <div class="workflow-steps" style="margin-top:24px;">
+
+    <div class="workflow-step">
+      <div class="step-connector">
+        <div class="step-num" style="background:#1e3a5f; color:#60a5fa;">1</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Client Meeting</div>
+        <span class="step-who who-josh">JOSH</span>
+        <ul class="step-items">
+          <li>Complete COMRA with client (answers must be client's own)</li>
+          <li>Determine risk category (A = Conservative through E = Growth)</li>
+          <li>Select RPI Portfolio from Product Grid (match COMRA score to tier)</li>
+          <li>Document WHY this specific portfolio for THIS specific client</li>
+          <li>If buffered product: verify liquid net worth and run suitability check (15%/45% limits)</li>
+          <li>Determine: Is this GI/Schwab, RBC, or both?</li>
+          <li>If both: plan TWO separate cases with two separate packets</li>
+          <li class="critical">Josh writes the Best Interest rationale — Angelique NEVER writes this</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-connector">
+        <div class="step-num" style="background:#2e1065; color:#c084fc;">2</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Paperwork Preparation</div>
+        <span class="step-who who-angelique">ANGELIQUE</span>
+        <ul class="step-items">
+          <li>Pull correct form kit from Paperwork Matrix v9 based on case type</li>
+          <li>Fill out ALL required forms using client data Josh provides</li>
+          <li>For GI/Schwab: GWM TAF + GWM IAA + GI IPC Schedules A-D + Schwab forms</li>
+          <li>For RBC: RBC TAF + RBC CAF + RBC Opening Kit + carrier forms if applicable</li>
+          <li>Source of Funds = DELIVERING firm + ACCOUNT BALANCE (not checking balance)</li>
+          <li>Best Interest narrative = Josh provides, Angelique types it verbatim</li>
+          <li>Products Considered = current alternatives only (not Signal)</li>
+          <li class="critical">Zero tolerance: no whiteout, no corrections, no copy/paste across clients</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-connector">
+        <div class="step-num" style="background:#1e3a5f; color:#60a5fa;">3</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Internal QC Review</div>
+        <span class="step-who who-josh">JOSH</span>
+        <ul class="step-items">
+          <li>Review every page against the QC Checklist (Pre-Submission Review)</li>
+          <li>Verify Best Interest rationale is client-specific (not generic or copied)</li>
+          <li>Verify alternatives are current (not Signal Wealth)</li>
+          <li>Verify TAF page 3 has all fees (advisory + TPMM)</li>
+          <li>Verify CAF has net worth AND liquid net worth</li>
+          <li>Verify GI suitability limits if buffered (15%/45% of liquid NW)</li>
+          <li>Verify correct custodian (Schwab for GI, RBC for BD)</li>
+          <li>Verify ALL required forms are present</li>
+          <li>Sign off on QC Checklist before Angelique submits</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-connector">
+        <div class="step-num" style="background:#2e1065; color:#c084fc;">4</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Submit to GS for Pre-Approval</div>
+        <span class="step-who who-angelique">ANGELIQUE</span>
+        <ul class="step-items">
+          <li>Upload complete packet to Business Central</li>
+          <li>Include ALL forms — GS, GI, Schwab/RBC</li>
+          <li class="critical">WAIT for GS approval before any next steps</li>
+          <li class="critical">Do NOT submit to GI, Schwab, or RBC yet</li>
+          <li class="critical">Do NOT transfer any funds yet</li>
+          <li class="critical">Do NOT have clients sign yet</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-connector">
+        <div class="step-num" style="background:#052e16; color:#4ade80;">5</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">GS Review</div>
+        <span class="step-who who-gs">GS (Heidi + Morgan)</span>
+        <ul class="step-items">
+          <li>GS reviews paperwork — Heidi Losinski (Ops) + Morgan Smick (Ops Principal)</li>
+          <li>If NIGO: GS sends back issues. Fix and resubmit. Do NOT proceed.</li>
+          <li>If approved: GS notifies you to proceed to Step 6</li>
+          <li>Do not contact GI, Schwab, or RBC until you have approval</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-connector">
+        <div class="step-num" style="background:#2e1065; color:#c084fc;">6</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Client Signatures</div>
+        <span class="step-who who-angelique">ANGELIQUE</span>
+        <ul class="step-items">
+          <li>Only after GS pre-approval (or GS-granted exception in writing)</li>
+          <li>Send clean, approved documents to client via DocuSign</li>
+          <li class="critical">If anything needs to change after client signs: NEW documents, NEW signatures</li>
+          <li class="critical">Do NOT alter any signed document for any reason</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-connector">
+        <div class="step-num" style="background:#052e16; color:#4ade80;">7</div>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Final Submission + Fund Transfer</div>
+        <span class="step-who who-both">ANGELIQUE + JOSH</span>
+        <ul class="step-items">
+          <li>Submit signed documents to GI and/or Schwab and/or RBC</li>
+          <li class="critical">Fund transfer ONLY after ALL approvals are confirmed</li>
+          <li>Confirm receipt with GI/Schwab/RBC</li>
+          <li>Update case status in tracker</li>
+          <li>File all documents per case folder structure</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: NIGO -->
+<div id="tab-nigo" class="tab-panel">
+  <div class="section-header">NIGO Prevention — Real Errors from Real Cases</div>
+
+  <div class="rule-box critical">
+    <div class="rule-title">These Are Not Hypothetical — These Errors Already Happened at RPI</div>
+    <p>Every item below caused an actual NIGO or compliance flag. Mark Grams and Morgan Smick have flagged RPI cases for all of these. Learn them.</p>
+  </div>
+
+  <div class="nigo-list" style="margin-top:20px;">
+
+    <div class="nigo-item">
+      <h4>1. GI Paperwork Used on an RBC Case</h4>
+      <div class="from-case">From case: STIRRATT (original NIGO — Case #571086, flagged by Morgan Smick)</div>
+      <p>Submitted GI/Schwab advisory forms for a client going into an RBC brokerage account. Wrong forms for the wrong path.</p>
+      <div class="fix">For RBC brokerage cases, use only RBC forms: RBC CAF, RBC TAF, RBC IRA Adoption Agreement, RBC UACT, RBC Client Fee Listing. GI forms (IPC, IAA, GI Disclosure) are NOT used for RBC cases.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>2. Wrong Dollar Amount on TAF Source of Funds</h4>
+      <div class="from-case">From case: STIRRATT (current packet error)</div>
+      <p>TAF shows $226,424.38 as the source amount. That is the client's CHECKING balance (from CAF Section 4). The actual IRA being transferred is $223,955 at Schwab account #31846959. These are completely different accounts.</p>
+      <div class="fix">The Source of Funds amount = the SPECIFIC ACCOUNT BALANCE being transferred. Find the correct account statement. Use that number. Not the checking balance, not the total retirement assets, not net worth.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>3. Wrong Vendor on TAF Source of Funds</h4>
+      <div class="from-case">From case: STIRRATT (current packet error)</div>
+      <p>TAF says "Brokerage RBC" as the vendor/source. RBC is the RECEIVING firm, not the delivering firm. The money is coming FROM Charles Schwab.</p>
+      <div class="fix">Vendor = DELIVERING firm. The firm where the money currently sits. For Schwab transfers: "Charles Schwab." For Pershing transfers: "Pershing LLC." For direct rollovers from employer plans: plan name.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>4. Blank Beneficiary Designation on IRA Adoption Agreement</h4>
+      <div class="from-case">From case: STIRRATT (current packet gap)</div>
+      <p>IRA Adoption Agreement Section 3 is completely blank. An IRA without a named beneficiary defaults to the estate — creating potential probate issues and tax problems for the heirs.</p>
+      <div class="fix">ALWAYS get beneficiary information before preparing the IRA Adoption Agreement. At minimum: Primary beneficiary name, relationship, SSN, DOB, percentage. If client doesn't know — don't leave it blank. Flag it and get an answer before sending to GS.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>5. Primary Residence Value Missing from CAF</h4>
+      <div class="from-case">From case: STIRRATT (current packet gap)</div>
+      <p>CAF shows Primary Residence Value as blank, but Net Worth shows $1,412,898. The math only works if the residence value is ~$706K — but it's not written anywhere on the form. GS will flag this as an incomplete financial picture.</p>
+      <div class="fix">Get the residence value from the client during fact-finding. Verify the net worth math: Total Investable Assets + Residence Value − Liabilities = Net Worth. All three must be filled in and must add up correctly.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>6. Date Mismatch Across Forms</h4>
+      <div class="from-case">From case: STIRRATT (current packet error)</div>
+      <p>Rep Acknowledgements page says CAF dated 03/17/2026. Client Acknowledgements page says CAF dated 02/17/2026. The client is acknowledging the wrong document date. GS will catch this.</p>
+      <div class="fix">After completing a packet, read every date on every page. All references to the CAF date must match. All references to the COMRA date must match. Use find-and-replace in your mind: search for every date box and verify consistency.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>7. Document Alteration (Whiteout)</h4>
+      <div class="from-case">From case: CLARK — actual compliance flag, LPOA revoked (Case #570593)</div>
+      <p>Whiteout was detected on a signed document. This triggered a compliance hold. In a FINRA-regulated environment, even well-intentioned corrections to signed documents create audit flags and can be interpreted as document fraud.</p>
+      <div class="fix">Zero tolerance. No whiteout. No correction tape. No overwriting. If you make an error before signing: reprint and start over. If client has already signed and a correction is needed: new form, new client signature.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>8. Funds Transferred Before Approval</h4>
+      <div class="from-case">From cases: CLARK + BUDD — both flagged by Mark Grams</div>
+      <p>$14,470 was transferred for Clark without GS approval. $100K sat uninvested for 27+ days for Budd because paperwork was incomplete. Transferring funds without completed, approved paperwork is a direct compliance violation.</p>
+      <div class="fix">No money moves until: (1) GS has approved the paperwork, (2) client has signed, (3) final submission is made. The order is fixed. No exceptions without written approval from Mark Grams.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>9. Contradictory Investment Objectives on CAF</h4>
+      <div class="from-case">From case: STIRRATT (current packet issue)</div>
+      <p>Both "Preservation of Capital" AND "Growth and Income" are checked on the CAF. These are contradictory for the same client. A suitability reviewer will ask why a 68-year-old retiree with COMRA 35 has growth objectives.</p>
+      <div class="fix">Check ONLY the investment objective that matches the COMRA category and the Best Interest narrative. COMRA 35 = Conservative Growth. Appropriate objective: Preservation of Capital or Balanced Growth. Pick one. Remove the contradictory one.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>10. Fee Inconsistency Across Forms</h4>
+      <div class="from-case">From cases: CLARK + STIRRATT</div>
+      <p>IAA/IPC shows one fee, TAF Best Interest narrative shows a different fee. For Clark, the TAF said 1.53% (incorrectly including ETF expenses) when the correct advisory fee is 1.40% (GWM 1.00% + GI 0.40%).</p>
+      <div class="fix">Standard fee formula: GWM Advisory (1.00%) + GI TPMM (0.40%) = 1.40% stated advisory fee. Internal ETF expenses (0.13–0.25%) are below-the-line costs, not advisory fees — do not add them to the stated fee. This number must be identical on: TAF Best Interest section, TAF page 3, IAA Schedule D, IPC Schedule D.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>11. Generic / Copy-Pasted Best Interest Rationale</h4>
+      <div class="from-case">Ongoing — flagged by Mark Grams as systemic issue</div>
+      <p>Best Interest rationale that says something like "Agent Moving Hierarchy, Client moving to remain client" (actual text from Stirratt TAF) is insufficient. It does not describe WHY this specific product is in THIS specific client's best interest.</p>
+      <div class="fix">Josh provides a client-specific narrative that includes: (1) client's specific risk tolerance and investment objectives, (2) why THIS portfolio fits, (3) what alternatives were considered and rejected, (4) fee comparison. Minimum 3-4 sentences. Never copied from another client.</div>
+    </div>
+
+    <div class="nigo-item">
+      <h4>12. GI Suitability Limits Exceeded for Buffered Products</h4>
+      <div class="from-case">From case: CLARK — BIP 30% Buffer below minimum ($8,895 vs $25K min)</div>
+      <p>Allocated client to BIP 30% Buffer strategy with only $8,895 per account. GI's minimum for Preservation portfolios is $25,000. Even if GI waives the minimum, there are also liquid net worth concentration limits (15% per strategy, 45% all buffered).</p>
+      <div class="fix">Before building ANY buffered portfolio: (1) verify account minimum ($25K), (2) get liquid net worth from CAF, (3) calculate 15% and 45% limits, (4) confirm proposed allocation passes both tests. Do this BEFORE building the packet.</div>
+    </div>
+
+  </div>
+
+  <div class="sub-header" style="margin-top:28px;">Pre-Submission Checklist (Run This Before Every GS Upload)</div>
+  <div class="rule-box success">
+    <div class="rule-title">✓ Clearance Checklist</div>
+    <ul>
+      <li>Correct path identified (GI/Schwab vs RBC) and correct forms pulled</li>
+      <li>CAF: net worth filled, liquid net worth filled, single investment objective</li>
+      <li>COMRA: signed and dated, score matches portfolio tier</li>
+      <li>TAF: Best Interest written by Josh, current alternatives listed, fees consistent</li>
+      <li>TAF Source of Funds: correct delivering firm name, correct account balance</li>
+      <li>IRA cases: beneficiary designated, account type correct, client not married box checked if widowed/single</li>
+      <li>All dates consistent across all forms</li>
+      <li>No whiteout, no corrections</li>
+      <li>GI minimum account size verified (if applicable)</li>
+      <li>GI buffered suitability check run (if buffered product)</li>
+      <li>Josh has reviewed and signed off before upload</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: CLIENTS -->
+<div id="tab-clients" class="tab-panel">
+  <div class="section-header">Client Pipeline — Signal → Gradient</div>
+
+  <div class="summary-grid">
+    <div class="summary-card"><div class="num">~50</div><div class="label">Total Households</div></div>
+    <div class="summary-card"><div class="num">7</div><div class="label">Signed Packets</div></div>
+    <div class="summary-card"><div class="num">3</div><div class="label">Compliance Flags</div></div>
+    <div class="summary-card"><div class="num">~8</div><div class="label">No Folder Yet</div></div>
+  </div>
+
+  <div class="rule-box critical">
+    <div class="rule-title">🚨 Three Active Compliance Flags — Josh Owns These</div>
+    <ul>
+      <li><strong>Clark, Sheila</strong> (Case #570593) — LPOA revoked, whiteout detected, $14,470 transferred without approval. Decision made: rebuild packet as 100% ETF-B. HTML change log live at <span class="mono">retirementprotectors.github.io/toMachina/clark-packet-changes.html</span></li>
+      <li><strong>Budd, Barbara</strong> — $100K uninvested 27+ days. Missing GI Investment Proposal & Contract.</li>
+      <li><strong>Stirratt, Cynthia</strong> (Case #571086) — Original NIGO fixed (correct RBC forms). Current packet has 5 errors: wrong dollar amount, wrong vendor, blank beneficiary, date mismatch, contradictory investment objectives.</li>
+    </ul>
+  </div>
+
+  <div class="sub-header">Full Client List</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>AUM</th>
+        <th>Portfolio</th>
+        <th>Path</th>
+        <th>Folder</th>
+        <th>Signed?</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Fisette, Paula & Robert</td><td class="aum-large">$1,804,766</td><td>TBD</td><td>GI/Schwab</td><td class="status-flag">NO FOLDER</td><td class="status-none">—</td><td class="status-flag">PRIORITY — Largest client, not in pipeline</td></tr>
+      <tr><td>Langstraat, John</td><td class="aum-large">$824,042</td><td>Moderate Blend</td><td>GI/Schwab</td><td class="status-flag">NO FOLDER</td><td class="status-none">—</td><td class="status-flag">No folder. Largest GI client.</td></tr>
+      <tr><td>Bottenfield, Jerry & Sondra</td><td class="aum-large">$665,264</td><td>TBD/Moderate</td><td>GI/Schwab + RBC</td><td class="status-flag">BD ✓</td><td class="status-signed">SIGNED ✓</td><td>BD signed packet exists</td></tr>
+      <tr><td>Gade, Beverly</td><td class="aum-med">$561,592</td><td>Moderate Blend</td><td>GI/Schwab</td><td>GWM (in Client Forms)</td><td class="status-none">—</td><td>Needs next steps</td></tr>
+      <tr><td>Garoutte, Sharon</td><td class="aum-med">$496,002</td><td>Moderate Blend</td><td>GI/Schwab</td><td class="status-signed">GWM ✓</td><td class="status-signed">SIGNED ✓</td><td class="status-signed">COMPLETE</td></tr>
+      <tr><td>Anderson, Cindy & Roxanne</td><td class="aum-med">$494,269</td><td>Moderate/Mod Cons</td><td>GI/Schwab</td><td>GWM (in Client Forms)</td><td class="status-none">—</td><td>Needs next steps</td></tr>
+      <tr><td>Llewellyn, Susan</td><td class="aum-med">$445,711</td><td>Moderate Blend</td><td>GI/Schwab</td><td class="status-flag">NO FOLDER</td><td class="status-none">—</td><td class="status-flag">No folder</td></tr>
+      <tr><td>Vandervort, Dean & Colleen</td><td class="aum-med">$431,818</td><td>Mod Aggressive</td><td>GI/Schwab + RBC</td><td class="status-signed">BD ✓</td><td class="status-signed">SIGNED ✓</td><td class="status-signed">COMPLETE</td></tr>
+      <tr><td>Stirratt, Cynthia</td><td class="aum-med">$223,955</td><td>Moderate Blend</td><td>RBC</td><td class="status-signed">BD ✓</td><td class="status-none">—</td><td class="status-flag">NIGO — 5 form errors, needs rebuild</td></tr>
+      <tr><td>Hiller, Melissa</td><td class="aum-med">$217,883</td><td>Mod Conservative</td><td>GI/Schwab</td><td>BD stmt only</td><td class="status-none">—</td><td>Needs GWM packet</td></tr>
+      <tr><td>Mineart, Stephen & Joyce</td><td class="aum-med">$328,382</td><td>Moderate Blend</td><td>GI/Schwab + RBC</td><td>Partial</td><td class="status-none">—</td><td>Needs completion</td></tr>
+      <tr><td>Aswegan, James & Robbie</td><td class="aum-med">$302,945</td><td>Mod Agg/Mod Cons</td><td>GI/Schwab + RBC</td><td class="status-signed">GWM ✓ (Robbie)</td><td class="status-none">—</td><td>Partial — Robbie has folder</td></tr>
+      <tr><td>Baumert, Joseph & Dennis</td><td class="aum-med">$292,369</td><td>Mod Agg/Moderate</td><td>GI/Schwab + RBC</td><td>BD (CLI RBC) ✓</td><td class="status-none">—</td><td>BD folder exists</td></tr>
+      <tr><td>Stulpin, Robert & Susan</td><td class="aum-med">$258,281</td><td>Mod Aggressive</td><td>GI/Schwab</td><td>BD stmt only</td><td class="status-none">—</td><td>BD stmt only</td></tr>
+      <tr><td>Hogue, Brian & Jacalyn</td><td class="aum-small">$136,879</td><td>Moderate Blend</td><td>GI/Schwab</td><td>—</td><td class="status-signed">SIGNED ✓</td><td class="status-signed">SIGNED</td></tr>
+      <tr><td>Blind, Kerry & Jeaninne</td><td class="aum-small">$157,330</td><td>TBD</td><td>RBC</td><td>CLI RBC ✓</td><td class="status-none">—</td><td>RBC folders exist</td></tr>
+      <tr><td>Rempe, Donna</td><td class="aum-small">$116,120</td><td>TBD</td><td>GI/Schwab</td><td class="status-flag">NO FOLDER</td><td class="status-none">—</td><td class="status-flag">No folder</td></tr>
+      <tr><td>Budd, Barbara</td><td class="aum-small">$97,466</td><td>TBD</td><td>GI/Schwab</td><td>—</td><td class="status-sent">SIGNED ✓</td><td class="status-flag">COMPLIANCE FLAG — $100K uninvested 27+ days</td></tr>
+      <tr><td>Clark, Sheila</td><td class="aum-small">$14,585</td><td>ETF-B (100%)</td><td>GI/Schwab</td><td class="status-signed">GWM ✓</td><td class="status-sent">SENT ✓</td><td class="status-flag">COMPLIANCE FLAG — packet rebuild required</td></tr>
+      <tr><td>Arrowsmith, Mary</td><td class="aum-small">$60,641</td><td>Moderate Blend</td><td>GI/Schwab + RBC</td><td>BD ✓</td><td class="status-signed">SIGNED ✓</td><td class="status-signed">COMPLETE</td></tr>
+      <tr><td>Strub, Nancy</td><td class="aum-small">$57,502</td><td>Moderate Blend</td><td>GI/Schwab + RBC</td><td>BD (Sent) ✓</td><td class="status-sent">SENT ✓</td><td class="status-sent">Out for signature</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px;">Showing top 21 by AUM. Full list of 50 households in the RPI Case Cross-Reference sheet on Drive.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TAB: CONTACTS -->
+<div id="tab-contacts" class="tab-panel">
+  <div class="section-header">Key Contacts — Gradient Securities</div>
+
+  <div class="rule-box info" style="margin-bottom:20px;">
+    <div class="rule-title">Who Does What</div>
+    <ul>
+      <li><strong>Mark Grams</strong> — Your supervisor. All escalations, compliance questions, exceptions. All cases ON HOLD until this process is followed — he put the hold in place.</li>
+      <li><strong>Heidi Losinski</strong> — Day-to-day ops questions. Paperwork processing. First call for NIGO questions.</li>
+      <li><strong>Morgan Smick</strong> — Operations oversight and case review. Has already flagged Clark (#570593) and Stirratt (#571086).</li>
+      <li><strong>Spencer Peterson</strong> — Registration, affiliation, disclosure questions.</li>
+      <li><strong>Pat Kulzer</strong> — Compliance officer. Compliance-specific questions only.</li>
+    </ul>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-card">
+      <h4>Mark Grams</h4>
+      <div class="role">Field Supervising Principal — Your Direct Supervisor</div>
+      <div class="contact-detail">📞 <a href="tel:6512023501">651-202-3501</a></div>
+      <div class="contact-detail">✉ <a href="mailto:mgrams@gradientsecurities.com">mgrams@gradientsecurities.com</a></div>
+      <div style="margin-top:8px; font-size:12px; color:#f87171;">All escalations go here. He issued the compliance hold.</div>
+    </div>
+    <div class="contact-card">
+      <h4>Heidi Losinski</h4>
+      <div class="role">Operations Coordinator</div>
+      <div class="contact-detail">📞 <a href="tel:6516218871">651-621-8871</a></div>
+      <div class="contact-detail">✉ <a href="mailto:hlosinski@gradientsecurities.com">hlosinski@gradientsecurities.com</a></div>
+      <div style="margin-top:8px; font-size:12px; color:#60a5fa;">Primary contact for paperwork questions + Business Central submissions.</div>
+    </div>
+    <div class="contact-card">
+      <h4>Morgan Smick</h4>
+      <div class="role">Operations Principal</div>
+      <div class="contact-detail">✉ <a href="mailto:msmick@gradientsecurities.com">msmick@gradientsecurities.com</a></div>
+      <div style="margin-top:8px; font-size:12px; color:#fb923c;">Case review oversight. Has flagged Clark + Stirratt cases.</div>
+    </div>
+    <div class="contact-card">
+      <h4>Spencer Peterson</h4>
+      <div class="role">Affiliation Coordinator</div>
+      <div class="contact-detail">📞 <a href="tel:6516218873">651-621-8873</a></div>
+      <div class="contact-detail">✉ <a href="mailto:speterson1@gradientsecurities.com">speterson1@gradientsecurities.com</a></div>
+      <div style="margin-top:8px; font-size:12px; color:#64748b;">Registration, disclosures, affiliation questions.</div>
+    </div>
+    <div class="contact-card">
+      <h4>Pat Kulzer</h4>
+      <div class="role">Compliance Officer</div>
+      <div class="contact-detail">✉ <a href="mailto:pkulzer@gradientsecurities.com">pkulzer@gradientsecurities.com</a></div>
+      <div style="margin-top:8px; font-size:12px; color:#64748b;">Compliance-specific questions only.</div>
+    </div>
+    <div class="contact-card">
+      <h4>Jamie Jochum</h4>
+      <div class="role">GS Operations</div>
+      <div class="contact-detail">✉ <a href="mailto:jjochum@gradientsecurities.com">jjochum@gradientsecurities.com</a></div>
+      <div style="margin-top:8px; font-size:12px; color:#64748b;">CC on operational email threads.</div>
+    </div>
+    <div class="contact-card">
+      <h4>GS General / Compliance Inquiries</h4>
+      <div class="role">Gradient Securities Main Line</div>
+      <div class="contact-detail">📞 <a href="tel:8669911539">(866) 991-1539</a></div>
+      <div class="contact-detail">📠 (651) 379-8040</div>
+      <div class="contact-detail">🌐 newbusiness@gradientsecurities.com</div>
+      <div style="margin-top:4px; font-size:12px; color:#64748b;">4105 Lexington Ave N, Suite 380, Arden Hills, MN 55126</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function toggleAccordion(header) {
+    const acc = header.parentElement;
+    acc.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
