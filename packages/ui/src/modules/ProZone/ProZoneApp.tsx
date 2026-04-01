@@ -5,6 +5,9 @@ import { fetchValidated } from '../fetchValidated'
 import ProZoneScorecard from './ProZoneScorecard'
 import CallPanel from './CallPanel'
 import type { CallDisposition } from './CallPanel'
+import CallSession from './CallSession'
+import { useCallSession } from './useCallSession'
+import type { SessionProspect } from './useCallSession'
 import TeamTab from './TeamTab'
 import MarketTab from './MarketTab'
 import TargetTab from './TargetTab'
@@ -47,6 +50,9 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
   // ─── Call panel state ───
   const [callTarget, setCallTarget] = useState<ProspectWithInventory | null>(null)
 
+  // ─── TRK-PC-007/008: Call session (power dialer) state ───
+  const session = useCallSession()
+
   // ─── Fetch specialist configs on mount ───
   useEffect(() => {
     let cancelled = false
@@ -83,6 +89,23 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
   const handleCallDispositioned = useCallback((_disposition: CallDisposition) => {
     setCallTarget(null)
   }, [])
+
+  // TRK-PC-006: Start a call session from selected prospects
+  const handleStartSession = useCallback((prospects: SessionProspect[]) => {
+    setCallTarget(null) // Close single-call panel if open
+    session.startSession(prospects)
+  }, [session])
+
+  // TRK-PC-009: Session disposition → log + auto-advance
+  const handleSessionDisposition = useCallback((disposition: CallDisposition) => {
+    session.logDisposition(disposition.outcome, disposition.notes, disposition.duration)
+  }, [session])
+
+  // TRK-PC-011: Session done → batch log + reset
+  const handleSessionDone = useCallback(async () => {
+    await session.writeBatchLog()
+    session.resetSession()
+  }, [session])
 
   const selected = specialists.find((s) => s.config_id === selectedId) || null
 
@@ -213,19 +236,47 @@ export default function ProZoneApp({ portal }: ProZoneProps) {
           <div className="min-h-[200px]">
             {activeTab === 'team' && <TeamTab portal={portal} specialistId={selectedId} />}
             {activeTab === 'market' && <MarketTab portal={portal} territoryId={selected?.territory_id} />}
-            {activeTab === 'target' && <TargetTab portal={portal} specialistId={selectedId} onCallClick={setCallTarget} />}
+            {activeTab === 'target' && (
+              <TargetTab
+                portal={portal}
+                specialistId={selectedId}
+                onCallClick={session.status === 'idle' ? setCallTarget : undefined}
+                onStartSession={handleStartSession}
+                sessionActive={session.status !== 'idle'}
+              />
+            )}
             {activeTab === 'flow' && <FlowTab portal={portal} specialistId={selectedId} />}
             {activeTab === 'inventory' && <InventoryTab portal={portal} specialists={specialists} selectedId={selectedId} />}
           </div>
         </>
       )}
 
-      {/* ─── Call Panel ─── */}
-      <CallPanel
-        prospect={callTarget}
-        onClose={() => setCallTarget(null)}
-        onDispositioned={handleCallDispositioned}
-      />
+      {/* ─── Call Session (power dialer) ─── */}
+      {session.status !== 'idle' && (
+        <CallSession
+          queue={session.queue}
+          currentIndex={session.currentIndex}
+          currentProspect={session.currentProspect}
+          status={session.status}
+          stats={session.stats}
+          remaining={session.remaining}
+          onDisposition={handleSessionDisposition}
+          onSkip={session.skipProspect}
+          onPause={session.pauseSession}
+          onResume={session.resumeSession}
+          onEnd={session.endSession}
+          onDone={handleSessionDone}
+        />
+      )}
+
+      {/* ─── Single Call Panel (only when no session active) ─── */}
+      {session.status === 'idle' && (
+        <CallPanel
+          prospect={callTarget}
+          onClose={() => setCallTarget(null)}
+          onDispositioned={handleCallDispositioned}
+        />
+      )}
     </div>
   )
 }

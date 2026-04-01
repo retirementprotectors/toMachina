@@ -18,6 +18,8 @@ export interface CommRecord {
   created_at: string
   duration?: number | null
   call_type?: string | null
+  /** TRK-PC-015: MMS media attachment URLs */
+  media_urls?: string[] | null
 }
 
 interface CommsTimelineProps {
@@ -215,6 +217,41 @@ function CommRow({ comm }: { comm: CommRecord }) {
                 <p className="mt-1 text-xs text-[var(--text-muted)] line-clamp-1">
                   {truncate(comm.subject || comm.body || '', 100)}
                 </p>
+              )}
+              {/* TRK-PC-015: MMS attachment thumbnails */}
+              {comm.media_urls && comm.media_urls.length > 0 && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {comm.media_urls.map((url, idx) => {
+                    const isPdf = url.toLowerCase().endsWith('.pdf')
+                    return isPdf ? (
+                      <a
+                        key={idx}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[10px] text-[var(--text-muted)] transition-colors hover:border-[var(--portal)] hover:text-[var(--portal)]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: '12px' }}>picture_as_pdf</span>
+                        PDF
+                      </a>
+                    ) : (
+                      <a
+                        key={idx}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img
+                          src={url}
+                          alt="MMS attachment"
+                          className="h-8 w-8 rounded border border-[var(--border-subtle)] object-cover transition-opacity hover:opacity-80"
+                        />
+                      </a>
+                    )
+                  })}
+                </div>
               )}
               {comm.channel === 'voice' && comm.duration != null && (
                 <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">Duration: {comm.duration} min</p>
