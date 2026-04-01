@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>toMachina — Q1 Sprint Inventory (3/21 — 4/1)</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e4e4e7;
+    --muted: #8b8fa3;
+    --accent: #4a7ab5;
+    --green: #40bc58;
+    --yellow: #f5a623;
+    --red: #e74c3c;
+    --purple: #a78bfa;
+    --teal: #2dd4bf;
+    --orange: #f97316;
+    --pink: #ec4899;
+    --cyan: #22d3ee;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem;
+    line-height: 1.5;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  .header .subtitle { color: var(--muted); font-size: 1.1rem; }
+  .header .stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .big-stat {
+    text-align: center;
+    padding: 1rem 1.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-width: 140px;
+  }
+  .big-stat .number { font-size: 2.5rem; font-weight: 800; }
+  .big-stat .label { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .big-stat.merged .number { color: var(--green); }
+  .big-stat.open .number { color: var(--yellow); }
+  .big-stat.days .number { color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .project-card:hover { border-color: var(--accent); }
+  .project-card .card-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .project-card .card-header .icon { font-size: 1.5rem; }
+  .project-card .card-header h3 { font-size: 1.1rem; flex: 1; }
+  .project-card .card-header .count {
+    background: var(--bg);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .pr-list { padding: 0.5rem 0; max-height: 400px; overflow-y: auto; }
+  .pr-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.5rem 1.25rem;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(42,45,58,0.5);
+  }
+  .pr-item:last-child { border-bottom: none; }
+  .pr-item .pr-num {
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 40px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .pr-item .pr-date { color: var(--muted); min-width: 50px; font-size: 0.8rem; font-family: monospace; }
+  .pr-item .pr-title { flex: 1; }
+  .pr-item .pr-type {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .type-feat { background: rgba(64,188,88,0.15); color: var(--green); }
+  .type-fix { background: rgba(245,166,35,0.15); color: var(--yellow); }
+  .type-docs { background: rgba(74,122,181,0.15); color: var(--accent); }
+  .type-test { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .type-infra { background: rgba(249,115,22,0.15); color: var(--orange); }
+  .section-title {
+    font-size: 1.4rem;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .open-prs { margin-top: 2rem; }
+  .open-pr {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
+  }
+  .open-pr .action {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .action-close { background: rgba(231,76,60,0.15); color: var(--red); }
+  .action-review { background: rgba(245,166,35,0.15); color: var(--yellow); }
+  .action-merge { background: rgba(64,188,88,0.15); color: var(--green); }
+  .machine-status {
+    display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;
+  }
+  .machine {
+    flex: 1; min-width: 200px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.25rem;
+  }
+  .machine h4 { margin-bottom: 0.5rem; }
+  .status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .badge-clean { background: rgba(64,188,88,0.15); color: var(--green); }
+  .badge-dirty { background: rgba(245,166,35,0.15); color: var(--yellow); }
+  .timeline-bar {
+    display: flex; height: 40px; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .timeline-segment {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 600; color: white;
+    cursor: default;
+  }
+  .timeline-segment:hover { opacity: 0.85; }
+  .footer {
+    text-align: center; margin-top: 3rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem;
+  }
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    .grid { grid-template-columns: 1fr; }
+    .header .stat-row { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>toMachina — Sprint Inventory</h1>
+  <div class="subtitle">Q1 Final Report — March 21 – April 1, 2026</div>
+  <div class="stat-row">
+    <div class="big-stat merged"><div class="number">119</div><div class="label">PRs Merged</div></div>
+    <div class="big-stat open"><div class="number">5</div><div class="label">PRs Open</div></div>
+    <div class="big-stat days"><div class="number">11</div><div class="label">Days</div></div>
+    <div class="big-stat" style="border-color: var(--purple);"><div class="number" style="color: var(--purple);">14</div><div class="label">Projects</div></div>
+    <div class="big-stat" style="border-color: var(--teal);"><div class="number" style="color: var(--teal);">6</div><div class="label">Warriors</div></div>
+  </div>
+</div>
+
+<h2 class="section-title">PR Volume by Day</h2>
+<div class="timeline-bar">
+  <div class="timeline-segment" style="flex:2; background:#1e3a5f;" title="3/21-23: 2 PRs">3/21</div>
+  <div class="timeline-segment" style="flex:20; background:#2d6a4f;" title="3/24: 20 PRs">3/24: 20</div>
+  <div class="timeline-segment" style="flex:10; background:#40916c;" title="3/25: 10 PRs">3/25: 10</div>
+  <div class="timeline-segment" style="flex:6; background:#52b788;" title="3/26: 6 PRs">3/26: 6</div>
+  <div class="timeline-segment" style="flex:7; background:#74c69d;" title="3/27: 7 PRs">3/27: 7</div>
+  <div class="timeline-segment" style="flex:4; background:#95d5b2;" title="3/28: 4 PRs">3/28</div>
+  <div class="timeline-segment" style="flex:7; background:#b7e4c7;" title="3/29: 7 PRs">3/29: 7</div>
+  <div class="timeline-segment" style="flex:33; background:#4a7ab5;" title="3/30: 33 PRs">3/30: 33</div>
+  <div class="timeline-segment" style="flex:13; background:#6b9fd4;" title="3/31: 13 PRs">3/31: 13</div>
+  <div class="timeline-segment" style="flex:2; background:#a78bfa;" title="4/1: 2 PRs">4/1</div>
+</div>
+
+<h2 class="section-title">By Project</h2>
+<div class="grid">
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">&#129302;</span><h3>VOLTRON / MDJ</h3><span class="count" style="color: var(--green);">31 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#205</span><span class="pr-date">04/01</span><span class="pr-title">Specialists Phase I + CMO Brochure Discovery</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#186</span><span class="pr-date">03/30</span><span class="pr-title">Icon concept directions</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#175</span><span class="pr-date">03/30</span><span class="pr-title">Rename in module registry + admin</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#172</span><span class="pr-date">03/30</span><span class="pr-title">Rename + FORGE dedup guard</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#167</span><span class="pr-date">03/30</span><span class="pr-title">MDJ → VOLTRON rename (codebase-wide)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#159</span><span class="pr-date">03/29</span><span class="pr-title">Sprint 001 — deploy + smoke test</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#150</span><span class="pr-date">03/28</span><span class="pr-title">Action Engine v2 (RONIN)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#148</span><span class="pr-date">03/28</span><span class="pr-title">Action Engine (RONIN)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#147</span><span class="pr-date">03/27</span><span class="pr-title">voltron_registry Firestore + API</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#145</span><span class="pr-date">03/27</span><span class="pr-title">Docker sovereignty — own base images</span><span class="pr-type type-infra">infra</span></div>
+      <div class="pr-item"><span class="pr-num">#144</span><span class="pr-date">03/27</span><span class="pr-title">Foundation (RONIN)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#143</span><span class="pr-date">03/27</span><span class="pr-title">Foundation (RONIN)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#140</span><span class="pr-date">03/27</span><span class="pr-title">Foundation — prod deploy + smoke test</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#116</span><span class="pr-date">03/24</span><span class="pr-title">Panel fixed width</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#115</span><span class="pr-date">03/24</span><span class="pr-title">Agent auth bypass for tools</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#113</span><span class="pr-date">03/24</span><span class="pr-title">Conversation history + knowledge base</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#111</span><span class="pr-date">03/24</span><span class="pr-title">MDJ-ALPHA Phases 2-4 (tools, specialists, memory)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#107</span><span class="pr-date">03/24</span><span class="pr-title">TRK-NaN counter poison hotfix</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#106</span><span class="pr-date">03/24</span><span class="pr-title">Funnel URL for Cloud Run</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#105</span><span class="pr-date">03/24</span><span class="pr-title">Cloud Run crash — lazy Firestore init</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#104</span><span class="pr-date">03/24</span><span class="pr-title">Wire portal to MDJ1 via Tailscale</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#103</span><span class="pr-date">03/24</span><span class="pr-title">Wire into Admin panels</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#101</span><span class="pr-date">03/24</span><span class="pr-title">Panel auth token</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#96</span><span class="pr-date">03/24</span><span class="pr-title">MDJPanel widget + portal integration</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#95</span><span class="pr-date">03/24</span><span class="pr-title">Seed 6 specialist prompts</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#94</span><span class="pr-date">03/24</span><span class="pr-title">MDJ1 URL → Tailscale Funnel</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#93</span><span class="pr-date">03/24</span><span class="pr-title">Mobile prod API proxy</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#92</span><span class="pr-date">03/24</span><span class="pr-title">Trigger deploy-api for Mobile</span><span class="pr-type type-infra">infra</span></div>
+      <div class="pr-item"><span class="pr-num">#91</span><span class="pr-date">03/24</span><span class="pr-title">Mobile prod wiring (APIs, hosting, icons)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#90</span><span class="pr-date">03/24</span><span class="pr-title">Mobile prod wiring</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#89</span><span class="pr-date">03/24</span><span class="pr-title">MDJ Mobile — PWA phone app</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">⚡</span><h3>ProZone (Sales Team)</h3><span class="count" style="color: var(--yellow);">6 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#206</span><span class="pr-date">04/01</span><span class="pr-title">Sprint 011 — ProZone COMMS (auto-dial, disposition, MMS)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#204</span><span class="pr-date">03/31</span><span class="pr-title">Sprint 011 Discovery Doc</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#202</span><span class="pr-date">03/31</span><span class="pr-title">Client name links — /clients/ → /contacts/</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#201</span><span class="pr-date">03/31</span><span class="pr-title">County/City alphabetical sort</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#200</span><span class="pr-date">03/31</span><span class="pr-title">Add PROZONE to PRODASH role templates</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#179</span><span class="pr-date">03/30</span><span class="pr-title">4 critical fixes for Vince</span><span class="pr-type type-fix">fix</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">📞</span><h3>Carrier Dropdown</h3><span class="count">5 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#203</span><span class="pr-date">03/31</span><span class="pr-title">Text visible — stylesheet CSS</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#195</span><span class="pr-date">03/31</span><span class="pr-title">Text visibility dark mode</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#192</span><span class="pr-date">03/30</span><span class="pr-title">Sort uses 'name' field</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#191</span><span class="pr-date">03/30</span><span class="pr-title">Field name mismatch</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#190</span><span class="pr-date">03/30</span><span class="pr-title">Carrier seed endpoint</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🥋</span><h3>DOJO + FORGE</h3><span class="count" style="color: var(--teal);">9 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#199</span><span class="pr-date">03/31</span><span class="pr-title">Sprint 010 DOJO 2.0 Discovery Doc</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#198</span><span class="pr-date">03/31</span><span class="pr-title">Dojo Status Check in User Guide</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#163</span><span class="pr-date">03/30</span><span class="pr-title">DOJO v10 (RONIN)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#162</span><span class="pr-date">03/29</span><span class="pr-title">Rescue RONIN 002/004 partial builds</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#161</span><span class="pr-date">03/29</span><span class="pr-title">Rescue RONIN partials + barrel exports</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#138</span><span class="pr-date">03/27</span><span class="pr-title">FORGE stage labels + audit prompts</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#137</span><span class="pr-date">03/26</span><span class="pr-title">Add ux_audited stage + #LetsAuditTheUX</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#136</span><span class="pr-date">03/26</span><span class="pr-title">FORGE uses unseeded as starting stage</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#135</span><span class="pr-date">03/26</span><span class="pr-title">Add #LetsSeedTheDiscovery stage</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">📂</span><h3>DEX (Document Engine)</h3><span class="count" style="color: var(--orange);">7 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#134</span><span class="pr-date">03/26</span><span class="pr-title">DEX pipeline fully seeded + operational</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#131</span><span class="pr-date">03/25</span><span class="pr-title">ACF scheduler auth + DEX taxonomy</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#126</span><span class="pr-date">03/25</span><span class="pr-title">Firestore rules for form library</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#125</span><span class="pr-date">03/25</span><span class="pr-title">Firestore rules for form library collections</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#112</span><span class="pr-date">03/24</span><span class="pr-title">DEX-LIVE — seed + flow + portal UI [22 tickets]</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#110</span><span class="pr-date">03/24</span><span class="pr-title">DEX-LIVE plan audit fixes</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#102</span><span class="pr-date">03/24</span><span class="pr-title">DEX-LIVE full sprint [14 tickets]</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🛤️</span><h3>RSP Pipeline</h3><span class="count" style="color: var(--cyan);">5 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#185</span><span class="pr-date">03/30</span><span class="pr-title">Add to sidebar nav + module registry</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#184</span><span class="pr-date">03/30</span><span class="pr-title">Instance detail page + 5-stage routing</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#181</span><span class="pr-date">03/30</span><span class="pr-title">Page route at /modules/rsp</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#173</span><span class="pr-date">03/30</span><span class="pr-title">Export all 9 components from barrel</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#171</span><span class="pr-date">03/30</span><span class="pr-title">Sprint 006 — config + gates + 6 UI</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🎓</span><h3>SENSEI</h3><span class="count">3 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#188</span><span class="pr-date">03/30</span><span class="pr-title">Wire toggle into ProDash header</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#183</span><span class="pr-date">03/30</span><span class="pr-title">5 remaining tickets (RONIN-C)</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#169</span><span class="pr-date">03/30</span><span class="pr-title">Sprint 007 — training intelligence (10/13)</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🛡️</span><h3>RAIDEN (Guardian)</h3><span class="count">3 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#197</span><span class="pr-date">03/31</span><span class="pr-title">RAIDEN v3 — ticket lifecycle + notify + dedup</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#165</span><span class="pr-date">03/30</span><span class="pr-title">Port RAIDEN engine from MDJ_SERVER</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#149</span><span class="pr-date">03/28</span><span class="pr-title">Reactive Guardian v2 (RONIN)</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🔮</span><h3>MYST.AI</h3><span class="count">3 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#187</span><span class="pr-date">03/30</span><span class="pr-title">Sync grid icons with detail page</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#182</span><span class="pr-date">03/30</span><span class="pr-title">Add SHINOB1 + 3-tier layout</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#164</span><span class="pr-date">03/30</span><span class="pr-title">Header icon + route</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">💬</span><h3>COMMS</h3><span class="count">4 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#123</span><span class="pr-date">03/25</span><span class="pr-title">FORGE reporter + New Account + webhook fix</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#120</span><span class="pr-date">03/25</span><span class="pr-title">Bridge Twilio incoming call to Answer/Decline</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#97</span><span class="pr-date">03/24</span><span class="pr-title">COMMS-POLISH — Production-Ready</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#88</span><span class="pr-date">03/24</span><span class="pr-title">Twilio webhook routes (bypass Cloud Run IAM)</span><span class="pr-type type-fix">fix</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🔥</span><h3>Auth / Client / ACF</h3><span class="count" style="color: var(--red);">6 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#194</span><span class="pr-date">03/31</span><span class="pr-title">ACF recursive folder traversal (3 levels)</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#189</span><span class="pr-date">03/30</span><span class="pr-title">Client search supports first name</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#180</span><span class="pr-date">03/30</span><span class="pr-title">Force Firebase token refresh</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#122</span><span class="pr-date">03/25</span><span class="pr-title">ProDash launch-day hotfixes — nav + auth</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#119</span><span class="pr-date">03/25</span><span class="pr-title">Mission Control MDJ health check</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#117</span><span class="pr-date">03/25</span><span class="pr-title">Mission Control — MDJ_SERVER dashboard</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🔧</span><h3>Platform / Infra</h3><span class="count">4 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#109</span><span class="pr-date">03/24</span><span class="pr-title">IMPORT-KILL: Zero GAS — 4 ports + ATLAS [15 tickets]</span><span class="pr-type type-feat">feat</span></div>
+      <div class="pr-item"><span class="pr-num">#108</span><span class="pr-date">03/25</span><span class="pr-title">ReportButton attachment bug + DEX naming</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#99</span><span class="pr-date">03/24</span><span class="pr-title">Unblock deploys — webhook auth + CI</span><span class="pr-type type-fix">fix</span></div>
+      <div class="pr-item"><span class="pr-num">#98</span><span class="pr-date">03/24</span><span class="pr-title">PLATFORM-POLISH — 13 tickets, 8 work areas</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">📄</span><h3>Docs + Discovery</h3><span class="count">11 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#168</span><span class="pr-date">03/30</span><span class="pr-title">CMO Creative Roadmap</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#160</span><span class="pr-date">03/29</span><span class="pr-title">Cloud Run Burst executive summary</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#158</span><span class="pr-date">03/29</span><span class="pr-title">Executive.AI Team + polish tickets</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#157</span><span class="pr-date">03/29</span><span class="pr-title">Executive.AI Team + soul+spirit Discovery Docs</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#156</span><span class="pr-date">03/29</span><span class="pr-title">AI Computing Guide — Mesh Layer + Context</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#155</span><span class="pr-date">03/29</span><span class="pr-title">AI Computing Guide for MDJ1</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#152</span><span class="pr-date">03/28</span><span class="pr-title">MDJ_SERVER User Guide</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#151</span><span class="pr-date">03/28</span><span class="pr-title">Sync: AIR local commits + MDJ scripts</span><span class="pr-type type-infra">sync</span></div>
+      <div class="pr-item"><span class="pr-num">#139</span><span class="pr-date">03/27</span><span class="pr-title">Claude Code Insights report</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#133</span><span class="pr-date">03/26</span><span class="pr-title">Sprint 004 RAIDEN Discovery Doc</span><span class="pr-type type-docs">docs</span></div>
+      <div class="pr-item"><span class="pr-num">#132</span><span class="pr-date">03/26</span><span class="pr-title">Sprint 001/002/003 RONIN Discovery Docs</span><span class="pr-type type-docs">docs</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🧠</span><h3>Learning Loop</h3><span class="count">1 PR</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#170</span><span class="pr-date">03/30</span><span class="pr-title">Sprint 003 — pipeline scripts (8/20)</span><span class="pr-type type-feat">feat</span></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="card-header"><span class="icon">🧪</span><h3>Testing + CI</h3><span class="count">2 PRs</span></div>
+    <div class="pr-list">
+      <div class="pr-item"><span class="pr-num">#174</span><span class="pr-date">03/30</span><span class="pr-title">MYST.AI + SENSEI E2E specs</span><span class="pr-type type-test">test</span></div>
+      <div class="pr-item"><span class="pr-num">#153</span><span class="pr-date">03/30</span><span class="pr-title">Skip heavy jobs for docs-only changes</span><span class="pr-type type-infra">ci</span></div>
+    </div>
+  </div>
+
+</div>
+
+<h2 class="section-title">Open PRs — Action Needed</h2>
+<div class="open-prs">
+  <div class="open-pr"><span style="color: var(--accent); font-weight: 600; min-width: 40px;">#196</span><span style="flex:1;">Carrier dropdown text + barrel leak</span><span class="action action-close">CLOSE (dup)</span></div>
+  <div class="open-pr"><span style="color: var(--accent); font-weight: 600; min-width: 40px;">#193</span><span style="flex:1;">Account edit/delete buttons + API DELETE route</span><span class="action action-review">REVIEW</span></div>
+  <div class="open-pr"><span style="color: var(--accent); font-weight: 600; min-width: 40px;">#178</span><span style="flex:1;">Dependabot: typescript 5.9 → 6.0</span><span class="action action-merge">MERGE</span></div>
+  <div class="open-pr"><span style="color: var(--accent); font-weight: 600; min-width: 40px;">#177</span><span style="flex:1;">Dependabot: lucide-react 0.577 → 1.7</span><span class="action action-merge">MERGE</span></div>
+  <div class="open-pr"><span style="color: var(--accent); font-weight: 600; min-width: 40px;">#176</span><span style="flex:1;">Dependabot: minor-and-patch group</span><span class="action action-merge">MERGE</span></div>
+</div>
+
+<h2 class="section-title">Machine Status</h2>
+<div class="machine-status">
+  <div class="machine"><h4>💻 AIR (MacBook Air)</h4><span class="status-badge badge-clean">CLEAN</span><p style="color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem;">Zero uncommitted files</p></div>
+  <div class="machine"><h4>💻 PRO (MacBook Pro)</h4><span class="status-badge badge-clean">CLEAN</span><p style="color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem;">Zero uncommitted files</p></div>
+  <div class="machine"><h4>⚙️ MDJ_SERVER (Dell T440)</h4><span class="status-badge badge-dirty">4 FILES</span><p style="color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem;">wiring-status.json (modified)<br>acf-guardrails.ts (new)<br>link-acf-folders.ts (new)<br>seed-sprint.ts (new)</p></div>
+</div>
+
+<div class="footer">
+  <p><strong>toMachina</strong> — The Machine — Retirement Protectors, Inc.</p>
+  <p>Generated by SHINOB1 (CTO, Executive.AI Team) — April 1, 2026</p>
+  <p style="margin-top: 0.5rem;">119 PRs · 11 Days · 14 Projects · 6 Warriors · #RunningOurOwnRACE</p>
+</div>
+
+</body>
+</html>
