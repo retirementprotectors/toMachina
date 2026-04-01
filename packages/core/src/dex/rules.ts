@@ -80,8 +80,8 @@ export function evaluateRules(params: DexRuleParams, allForms: DexForm[]): DexRu
     if (taf) layers.firmAccount.push(toEntry(taf, RuleLayer.FIRM_ACCOUNT))
   }
 
-  // IAA for advisory platforms
-  if (['GWM (Schwab)', 'RBC Brokerage', 'Financial Planning'].includes(params.platform)) {
+  // IAA for advisory platforms only — NOT brokerage (RBC is brokerage, not advisory)
+  if (['GWM (Schwab)', 'Financial Planning'].includes(params.platform)) {
     const iaa = findForm(allForms, 'Investment Advisory Agreement')
     if (iaa) layers.firmAccount.push(toEntry(iaa, RuleLayer.FIRM_ACCOUNT))
   }
