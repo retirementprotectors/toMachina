@@ -13,6 +13,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 interface Carrier {
   id: string
+  display_name: string
   carrier_name: string
   name: string
 }
@@ -21,6 +22,7 @@ interface Advisor {
   email: string
   first_name: string
   last_name: string
+  is_licensed?: boolean
   is_rr?: boolean
   is_iar?: boolean
 }
@@ -90,7 +92,7 @@ export default function PipelineKanbanPage() {
         if (cancelled) return
         const json = await res.json() as { success: boolean; data?: Carrier[] }
         if (!cancelled && json.success && json.data) {
-          setCarriers([...json.data].sort((a, b) => (a.name || a.carrier_name || '').localeCompare(b.name || b.carrier_name || '')))
+          setCarriers([...json.data].sort((a, b) => (a.display_name || a.name || a.carrier_name || '').localeCompare(b.display_name || b.name || b.carrier_name || '')))
         }
       } catch { /* non-fatal */ }
     }
@@ -102,7 +104,7 @@ export default function PipelineKanbanPage() {
         const json = await res.json() as { success: boolean; data?: Advisor[] }
         if (!cancelled && json.success && json.data) {
           const qualified = json.data.filter(
-            (u) => u.is_rr || u.is_iar
+            (u) => u.is_licensed || u.is_rr || u.is_iar
           ).sort((a, b) => a.first_name.localeCompare(b.first_name))
           setAdvisors(qualified)
         }
@@ -363,7 +365,7 @@ export default function PipelineKanbanPage() {
                       setForm((prev) => ({
                         ...prev,
                         carrier_id: e.target.value,
-                        carrier_name: selected?.name || selected?.carrier_name || '',
+                        carrier_name: selected?.display_name || selected?.name || selected?.carrier_name || '',
                       }))
                     }}
                     className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--portal)]"
@@ -373,16 +375,16 @@ export default function PipelineKanbanPage() {
                       {carriersLoading ? 'Loading carriers...' : 'Select carrier...'}
                     </option>
                     {carriers.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name || c.carrier_name}</option>
+                      <option key={c.id} value={c.id}>{c.display_name || c.name || c.carrier_name || c.id}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* Assigned Advisor */}
+              {/* Assigned Agent */}
               <div>
                 <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
-                  Assigned Advisor <span className="text-[var(--error)]">*</span>
+                  Assigned Agent <span className="text-[var(--error)]">*</span>
                 </label>
                 <select
                   value={form.assigned_to}
