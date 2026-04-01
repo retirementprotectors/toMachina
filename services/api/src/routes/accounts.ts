@@ -174,3 +174,39 @@ accountRoutes.patch('/:clientId/:accountId', async (req: Request, res: Response)
     res.status(500).json(errorResponse(String(err)))
   }
 })
+
+/**
+ * DELETE /api/accounts/:clientId/:accountId
+ * Soft-delete: sets status to 'deleted' + deleted_at timestamp
+ */
+accountRoutes.delete('/:clientId/:accountId', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const cId = param(req.params.clientId)
+    const aId = param(req.params.accountId)
+    const ref = db.collection('clients').doc(cId).collection('accounts').doc(aId)
+
+    const snap = await ref.get()
+    if (!snap.exists) {
+      res.status(404).json(errorResponse('Account not found'))
+      return
+    }
+
+    const updates = {
+      status: 'deleted',
+      deleted_at: new Date().toISOString(),
+      _deleted_by: (req as any).user?.email || 'api',
+      updated_at: new Date().toISOString(),
+    }
+
+    const bridgeResult = await writeThroughBridge('accounts', 'update', aId, updates)
+    if (!bridgeResult.success) {
+      await ref.update(updates)
+    }
+
+    res.json(successResponse({ deleted: true, id: aId }))
+  } catch (err) {
+    console.error('DELETE /api/accounts error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})

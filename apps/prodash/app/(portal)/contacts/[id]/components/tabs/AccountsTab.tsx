@@ -4,11 +4,18 @@ import { useState, useMemo, useCallback } from 'react'
 import type { Account } from '@tomachina/core'
 import { formatCurrency, formatDate, str } from '../../lib/formatters'
 import { EmptyState } from '../../lib/ui-helpers'
+async function apiFetch(path: string, opts?: RequestInit) {
+  const res = await fetch(path, { credentials: 'include', ...opts, headers: { 'Content-Type': 'application/json', ...opts?.headers } })
+  return res.json()
+}
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 interface AccountsTabProps {
   accounts: Account[]
   loading: boolean
   clientId: string
+  onAccountUpdated?: () => void
 }
 
 type CategoryKey = 'annuity' | 'life' | 'medicare' | 'investments'
@@ -52,7 +59,7 @@ const CATEGORY_CONFIG: Record<CategoryKey, { label: string; icon: string; color:
 
 type FilterKey = 'all' | CategoryKey
 
-export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
+export function AccountsTab({ accounts, loading, clientId, onAccountUpdated }: AccountsTabProps) {
   const [showInactive, setShowInactive] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
@@ -256,6 +263,7 @@ export function AccountsTab({ accounts, loading, clientId }: AccountsTabProps) {
                       isDdup={ddupAccountIds.has(acctId)}
                       isSelected={selected.has(acctId)}
                       onToggleSelect={handleToggleSelect}
+                      onAccountUpdated={onAccountUpdated}
                     />
                   )
                 })}
@@ -288,6 +296,7 @@ function AccountSummaryCard({
   isDdup,
   isSelected,
   onToggleSelect,
+  onAccountUpdated,
 }: {
   account: Account
   category: CategoryKey
@@ -295,7 +304,11 @@ function AccountSummaryCard({
   isDdup: boolean
   isSelected: boolean
   onToggleSelect: (accountId: string) => void
+  onAccountUpdated?: () => void
 }) {
+  const [editing, setEditing] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [saving, setSaving] = useState(false)
   const statusColor = getStatusColor(str(account.status))
   const acctId = str(account.account_id) || str((account as Record<string, unknown>)._id)
   const policyNum = str(account.policy_number) || str(account.account_number)
@@ -320,6 +333,26 @@ function AccountSummaryCard({
     // Prevent card navigation when interacting with checkbox
     e.stopPropagation()
   }, [])
+
+  const handleDelete = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setDeleting(true)
+  }, [])
+
+  const handleDeleteConfirm = useCallback(async () => {
+    setSaving(true)
+    try {
+      await apiFetch(`${API_BASE}/accounts/${clientId}/${acctId}`, { method: 'DELETE' })
+      onAccountUpdated?.()
+    } catch { /* non-fatal */ }
+    setSaving(false)
+    setDeleting(false)
+  }, [clientId, acctId, onAccountUpdated])
+
+  const handleEdit = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    window.location.href = `/accounts/${clientId}/${acctId}?edit=true`
+  }, [clientId, acctId])
 
   // Build border/bg classes based on ddup status
   const cardBorderBg = isDdup
@@ -372,10 +405,41 @@ function AccountSummaryCard({
             </p>
           )}
         </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
-          {str(account.status) || 'Unknown'}
-        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={handleEdit}
+            className="inline-flex items-center justify-center h-7 w-7 rounded text-[var(--text-muted)] hover:text-[var(--portal)] hover:bg-[var(--bg-surface)] transition-all"
+            title="Edit account"
+          >
+            <span className="material-icons-outlined text-[16px]">edit</span>
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={deleting || saving}
+            className="inline-flex items-center justify-center h-7 w-7 rounded text-[var(--text-muted)] hover:text-red-400 hover:bg-red-500/10 transition-all"
+            title="Delete account"
+          >
+            <span className="material-icons-outlined text-[16px]">{deleting ? 'hourglass_empty' : 'delete_outline'}</span>
+          </button>
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
+            {str(account.status) || 'Unknown'}
+          </span>
+        </div>
       </div>
+
+      {/* Delete confirmation */}
+      {deleting && (
+        <div className="mx-6 mb-3 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2">
+          <span className="material-icons-outlined text-[16px] text-red-400">warning</span>
+          <p className="flex-1 text-xs text-red-400">Delete this account? This marks it as deleted.</p>
+          <button onClick={handleDeleteConfirm} disabled={saving} className="rounded bg-red-500 px-3 py-1 text-xs font-medium text-white hover:bg-red-600 transition-all">
+            {saving ? 'Deleting...' : 'Delete'}
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); setDeleting(false) }} className="rounded border border-[var(--border)] px-3 py-1 text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all">
+            Cancel
+          </button>
+        </div>
+      )}
 
       {/* Summary fields — 6 per card, specific to product type */}
       <div className="grid grid-cols-3 gap-x-4 gap-y-2 pl-6">
