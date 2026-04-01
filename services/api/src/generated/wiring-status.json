@@ -62,7 +62,7 @@
       "status": "backend_only",
       "backend": "access.ts",
       "frontend": "",
-      "backend_endpoints": 240,
+      "backend_endpoints": 249,
       "hardcoded": false,
       "sub_collection": true,
       "backend_routes": [
@@ -114,8 +114,19 @@
           ]
         },
         {
+          "file": "carriers.ts",
+          "endpoints": 7,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        },
+        {
           "file": "clients.ts",
-          "endpoints": 21,
+          "endpoints": 23,
           "reads": true,
           "writes": true,
           "operations": [
@@ -356,7 +367,7 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 81,
+      "backend_endpoints": 83,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -408,7 +419,7 @@
         },
         {
           "file": "clients.ts",
-          "endpoints": 21,
+          "endpoints": 23,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2223,7 +2234,7 @@
       "status": "backend_only",
       "backend": "intake.ts",
       "frontend": "",
-      "backend_endpoints": 32,
+      "backend_endpoints": 37,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2240,7 +2251,7 @@
         },
         {
           "file": "tracker.ts",
-          "endpoints": 27,
+          "endpoints": 32,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2355,13 +2366,13 @@
       "status": "backend_only",
       "backend": "clients.ts",
       "frontend": "",
-      "backend_endpoints": 21,
+      "backend_endpoints": 23,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "clients.ts",
-          "endpoints": 21,
+          "endpoints": 23,
           "reads": true,
           "writes": true,
           "operations": [
@@ -3145,12 +3156,15 @@
     },
     "carriers.ts": {
       "file": "carriers.ts",
-      "endpoints": 4,
+      "endpoints": 7,
       "operations": [
         "list",
-        "get"
+        "get",
+        "create"
       ],
-      "collections": [],
+      "collections": [
+        "accounts"
+      ],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -3169,7 +3183,7 @@
     },
     "clients.ts": {
       "file": "clients.ts",
-      "endpoints": 21,
+      "endpoints": 23,
       "operations": [
         "list",
         "get",
@@ -3754,7 +3768,7 @@
     },
     "sensei-content.ts": {
       "file": "sensei-content.ts",
-      "endpoints": 11,
+      "endpoints": 13,
       "operations": [
         "list",
         "get",
@@ -3872,7 +3886,7 @@
     },
     "tracker.ts": {
       "file": "tracker.ts",
-      "endpoints": 27,
+      "endpoints": 32,
       "operations": [
         "list",
         "get",
@@ -4820,13 +4834,13 @@
   ],
   "scan_stats": {
     "route_files": 75,
-    "ui_files": 162,
-    "portal_pages": 163,
+    "ui_files": 164,
+    "portal_pages": 165,
     "collections_found": 70,
     "api_routes_found": 75,
     "cloud_functions_found": 14,
     "env_vars_found": 40,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-03-30T13:47:56.464Z"
+    "scanned_at": "2026-04-01T00:52:32.522Z"
   }
 }
