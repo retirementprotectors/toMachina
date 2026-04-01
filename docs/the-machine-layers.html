@@ -77,6 +77,13 @@ td{color:var(--muted)}tr:hover td{color:var(--text)}
 .bl .bg{font-size:1.6rem;font-weight:800;margin-bottom:0.5rem}
 .bl .sb{color:var(--muted);font-size:0.95rem}
 .ft{text-align:center;padding:2rem 0 1rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:2rem}
+.cx{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+@media(max-width:600px){.cx{grid-template-columns:1fr}}
+.cb{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center}
+.cb .am{font-size:1.8rem;font-weight:800;margin:0.4rem 0}.cb .la{color:var(--muted);font-size:0.8rem}
+.cb.c1{border-color:rgba(231,76,60,0.3)}.cb.c1 .am{color:var(--red)}
+.cb.c2{border-color:rgba(245,166,35,0.3)}.cb.c2 .am{color:var(--yellow)}
+.cb.c3{border-color:rgba(64,188,88,0.3)}.cb.c3 .am{color:var(--green)}
 </style>
 </head>
 <body>
@@ -139,9 +146,14 @@ td{color:var(--muted)}tr:hover td{color:var(--text)}
 </div>
 
 <div id="devteam" class="tab-content">
-<h2>What This Would Cost to Build Traditionally</h2>
+<h2>What This Would Cost &mdash; Three Ways</h2>
 <p style="color:var(--muted);margin-bottom:1.5rem">700K lines across a full-stack enterprise platform with 3 portals, 68 API routes, real-time analytics, AI agents, CI/CD, and compliance automation.</p>
-<h3 style="font-size:1.1rem;margin-bottom:0.5rem;color:var(--accent)">The Team You'd Need</h3>
+<div class="cx">
+<div class="cb c1"><div class="la">Enterprise Dev Firm</div><div class="am">$5&ndash;8M</div><div class="la">Accenture / Deloitte tier<br>18&ndash;24 month timeline</div></div>
+<div class="cb c2"><div class="la">Mid-Tier Boutique Shop</div><div class="am">$2&ndash;3M</div><div class="la">14 people, 12&ndash;18 months<br>Still no AI agents</div></div>
+<div class="cb c3"><div class="la">The Machine</div><div class="am">~$19K</div><div class="la">1 person &middot; 14 weeks<br>AI army included</div></div>
+</div>
+<h3 style="font-size:1.1rem;margin-bottom:0.5rem;color:var(--accent)">The Team a Boutique Firm Would Staff</h3>
 <table><thead><tr><th>Role</th><th>Count</th><th>Annual Salary</th><th>Purpose</th></tr></thead><tbody>
 <tr><td>VP of Engineering</td><td>1</td><td>$220,000</td><td>Architecture, technical direction</td></tr>
 <tr><td>Senior Full-Stack Dev</td><td>3</td><td>$175,000 ea</td><td>React/Next.js, Cloud Run, Firebase</td></tr>
@@ -158,18 +170,22 @@ td{color:var(--muted)}tr:hover td{color:var(--text)}
 <p style="color:var(--muted);margin-bottom:1.5rem"><strong style="color:var(--text)">Vendor alternative:</strong> $500K&ndash;$1M+ for a custom build, 18&ndash;24 month timeline, plus $200K+/year maintenance. And they still won't build you an AI agent army.</p>
 <h3 style="font-size:1.1rem;margin:2rem 0 0.5rem;color:var(--green)">What JDM Actually Spent</h3>
 <table><thead><tr><th>Item</th><th>Cost</th></tr></thead><tbody>
+<tr><td>Claude API (December 2025)</td><td>~$2,500</td></tr>
+<tr><td>Claude API (January &ndash; February 2026)</td><td>~$5,500</td></tr>
+<tr><td>Claude API (March 2026)</td><td>~$9,400</td></tr>
+<tr><td>Firebase / GCP hosting (3 months)</td><td>~$600</td></tr>
 <tr><td>Dell PowerEdge T440 (already owned)</td><td>$0</td></tr>
 <tr><td>RAM upgrade (16GB DDR4 ECC)</td><td>$180</td></tr>
+<tr><td>RAM upgrade (32GB Samsung, inbound)</td><td>$300</td></tr>
+<tr><td>Nvidia GPU (inbound)</td><td>$400</td></tr>
 <tr><td>VGA cable (DoorDashed from Home Depot)</td><td>$20</td></tr>
-<tr><td>Claude API (March billing)</td><td>~$9,400/mo</td></tr>
-<tr><td>Firebase / GCP hosting</td><td>~$200/mo</td></tr>
-<tr class="tr"><td><strong>Total (14 weeks)</strong></td><td><strong>~$35,000</strong></td></tr>
+<tr class="tr"><td><strong>Total (14 weeks)</strong></td><td><strong>~$19,000</strong></td></tr>
 </tbody></table>
 <div class="cx">
-<div class="cb ct"><div class="la">Traditional Dev Shop</div><div class="am">$2.4M/yr</div><div class="la">14 people &middot; 12&ndash;18 months</div></div>
-<div class="cb cu"><div class="la">The Machine</div><div class="am">$35K</div><div class="la">1 person &middot; 14 weeks</div></div>
+<div class="cb ct"><div class="la">Traditional Dev Shop</div><div class="am">$5&ndash;8M</div><div class="la">14 people &middot; 18&ndash;24 months</div></div>
+<div class="cb cu"><div class="la">The Machine</div><div class="am">~$19K</div><div class="la">1 person &middot; 14 weeks</div></div>
 </div>
-<p style="text-align:center;color:var(--muted);font-size:1rem;margin-top:1rem"><strong style="color:var(--text)">68x cheaper. 4x faster. Zero employees. Zero investors.</strong></p>
+<p style="text-align:center;color:var(--muted);font-size:1rem;margin-top:1rem"><strong style="color:var(--text)">250x+ cheaper. 4x faster. Zero employees. Zero investors.</strong></p>
 </div>
 
 <div class="bl"><div class="bg">14 weeks &middot; 700K lines &middot; 11 layers</div><div class="sb">1 CEO &middot; 0 investors &middot; 0 lines of code written by a human &middot; 1 Dell PowerEdge on the floor next to the desk</div><p style="color:var(--accent);margin-top:1rem;font-size:1.1rem;font-weight:600">#RunningOurOwnRACE</p></div>
