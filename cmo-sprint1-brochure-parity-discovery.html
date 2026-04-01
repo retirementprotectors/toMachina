@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMO Sprint 1 — Brochure Parity Discovery</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #d4a44c;
+    --accent-glow: rgba(212, 164, 76, 0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239, 68, 68, 0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+    --health: #3b82f6;
+    --wealth: #22c55e;
+    --legacy: #a855f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #0f0a00 0%, #0f0f0f 30%, #0a0a1a 60%, #0f0f0f 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(212,164,76,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(212,164,76,0.04) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #d4a44c 0%, #f59e0b 50%, #d4a44c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); background: var(--gold-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--gold); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--gold); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--gold); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.blue { border-top-color: var(--blue); }
+  .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card.health { border-top-color: var(--health); }
+  .spec-card.wealth { border-top-color: var(--wealth); }
+  .spec-card.legacy { border-top-color: var(--legacy); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .spec-card .label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .label-health { color: var(--health); }
+  .label-wealth { color: var(--wealth); }
+  .label-legacy { color: var(--legacy); }
+  .label-gold { color: var(--gold); }
+  .label-new { color: var(--orange); }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--gold); background: var(--gold-glow); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.red { border-left-color: var(--red); background: rgba(239,68,68,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar.cyan { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .gate-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.design { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .pill.content { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .pill.health { background: rgba(59,130,246,0.15); color: var(--health); }
+  .pill.wealth { background: rgba(34,197,94,0.15); color: var(--wealth); }
+  .pill.legacy { background: rgba(168,85,247,0.15); color: var(--legacy); }
+  .exists-tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+  .exists-tag.has { background: rgba(34,197,94,0.15); color: var(--green); }
+  .exists-tag.new { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .exists-tag.partial { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+  .channel-chip { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; border-top: 2px solid var(--gold); }
+  .channel-chip .ch-num { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
+  .channel-chip .ch-name { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .pipeline-row { display: flex; gap: 0; margin: 16px 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .pipeline-stage { flex: 1; padding: 14px 10px; text-align: center; font-size: 0.78rem; font-weight: 600; }
+  .stage-orange { background: rgba(245,158,11,0.15); color: var(--orange); border-right: 1px solid var(--border); }
+  .stage-blue { background: rgba(59,130,246,0.15); color: var(--blue); border-right: 1px solid var(--border); }
+  .stage-yellow { background: rgba(212,164,76,0.15); color: var(--gold); border-right: 1px solid var(--border); }
+  .stage-green { background: rgba(34,197,94,0.15); color: var(--green); border-right: 1px solid var(--border); }
+  .stage-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  .stage-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.75; margin-bottom: 4px; }
+  .stage-material { font-size: 0.72rem; margin-top: 6px; opacity: 0.85; }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+  .footer strong { color: var(--gold); }
+  .big-stat { text-align: center; padding: 24px; }
+  .big-stat .num { font-size: 3.5rem; font-weight: 800; color: var(--gold); line-height: 1; }
+  .big-stat .lbl { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-top: 6px; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: var(--border); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+  .stat-cell { background: var(--bg-card); padding: 20px; text-align: center; }
+  .stat-cell .n { font-size: 2rem; font-weight: 800; color: var(--gold); }
+  .stat-cell .l { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .q-row { border-bottom: 1px solid var(--border); }
+  .q-row:last-child { border-bottom: none; }
+  .q-num { display: inline-block; width: 28px; height: 28px; border-radius: 50%; background: var(--gold-glow); border: 1px solid rgba(212,164,76,0.3); color: var(--gold); font-size: 0.75rem; font-weight: 700; text-align: center; line-height: 28px; margin-right: 8px; flex-shrink: 0; }
+  .q-answer { background: rgba(212,164,76,0.05); border-left: 3px solid var(--gold); padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 0.85rem; color: var(--text); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">CMO Sprint 1 &mdash; FORGE Discovery Document</div>
+  <h1>Brochure Parity</h1>
+  <div class="subtitle">Paper &rarr; Digital &mdash; One Template, Five Products, Seven Channels</div>
+  <div class="header-badges">
+    <span class="badge badge-gold">CMO Sprint 1</span>
+    <span class="badge badge-gold">~18 Tickets</span>
+    <span class="badge badge-purple">Creative + Design</span>
+    <span class="badge badge-cyan">MUSASHI Executes</span>
+  </div>
+  <div class="ronin-meta">sprint: CMO-BROCHURE-PARITY &bull; TRK-CMO-001 &rarr; TRK-CMO-018 &bull; discovery_url: cmo-sprint1-brochure-parity-discovery.html</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="mission">The Mission</div>
+    <div class="tab" data-tab="answers">The 9 Answers</div>
+    <div class="tab" data-tab="inventory">Product Inventory</div>
+    <div class="tab" data-tab="template">Template Architecture</div>
+    <div class="tab" data-tab="pipeline">Pipeline Integration</div>
+    <div class="tab" data-tab="myst">MYST.IRL Update</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: THE MISSION -->
+<div class="tab-panel active" id="mission">
+
+  <div class="gate-callout">
+    <h4>Sprint Gate — Get This Right First</h4>
+    <p>This sprint creates the template that ALL future RPI materials follow. Get this right = everything after is a layup. One master Canva template becomes the new brand standard. JDM approves before Phase 2 begins.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Directive — JDM's Answer to Q9</h2>
+    <p style="font-size:1.15rem;color:var(--text);font-weight:600;padding:12px 0;">
+      "Start FRESH as new brand standard. Pull content/feel from website + structure from Shared Drive. This becomes the new template."
+    </p>
+    <p>The existing print brochures are the source material — not the destination. We audit them, extract the bones, then rebuild in Canva as the definitive RPI brand standard. Every piece of collateral that follows this sprint inherits the template.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Doctrine</h2>
+    <p style="font-size:1.3rem;color:var(--gold);font-weight:700;text-align:center;padding:16px 0;letter-spacing:-0.3px;">
+      Build once. Works everywhere.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-cell">
+        <div class="n">1</div>
+        <div class="l">Master Template</div>
+      </div>
+      <div class="stat-cell">
+        <div class="n">5</div>
+        <div class="l">Product Variants</div>
+      </div>
+      <div class="stat-cell">
+        <div class="n">7</div>
+        <div class="l">Channels</div>
+      </div>
+      <div class="stat-cell">
+        <div class="n">3</div>
+        <div class="l">Markets</div>
+      </div>
+      <div class="stat-cell">
+        <div class="n">18</div>
+        <div class="l">Tickets</div>
+      </div>
+    </div>
+
+    <div class="channel-grid" style="margin-top:20px;">
+      <div class="channel-chip"><div class="ch-num">1</div><div class="ch-name">Print</div></div>
+      <div class="channel-chip"><div class="ch-num">2</div><div class="ch-name">Digital / Portal</div></div>
+      <div class="channel-chip"><div class="ch-num">3</div><div class="ch-name">Email</div></div>
+      <div class="channel-chip"><div class="ch-num">4</div><div class="ch-name">SMS</div></div>
+      <div class="channel-chip"><div class="ch-num">5</div><div class="ch-name">Web</div></div>
+      <div class="channel-chip"><div class="ch-num">6</div><div class="ch-name">Social / Video</div></div>
+      <div class="channel-chip"><div class="ch-num">7</div><div class="ch-name">Conversational</div></div>
+    </div>
+  </div>
+
+  <div class="spec-grid">
+    <div class="spec-card gold">
+      <div class="label label-gold">Purpose (Q4)</div>
+      <h4>Dual-Purpose by Design</h4>
+      <p>Every brochure works as a client-facing education piece AND an agent selling tool. The same document serves the prospect sitting across the table and the agent preparing for the meeting.</p>
+    </div>
+    <div class="spec-card gold">
+      <div class="label label-gold">Tone (Q3)</div>
+      <h4>Warm + Professional</h4>
+      <p>"We're Your People" energy. RPI isn't a cold financial institution. Every piece of collateral should feel like it came from a trusted advisor who genuinely gives a damn.</p>
+    </div>
+    <div class="spec-card gold">
+      <div class="label label-gold">Starting Point (Q9)</div>
+      <h4>Fresh Build, Informed by What Exists</h4>
+      <p>Website provides the content and feel. Shared Drive provides the structure reference. The output is something better than both — a true brand standard.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: THE 9 ANSWERS -->
+<div class="tab-panel" id="answers">
+
+  <div class="card">
+    <h2>Q&A Resolved — All 9 Blockers Cleared</h2>
+    <p>JDM answered every open question from the CMO Creative Roadmap Tab 8. Nothing is ambiguous. MUSASHI executes.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Answers</h2>
+
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">1</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Template Strategy</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Build the template once — all 5 products use the same structure. Variable slots for product name, product-specific content, and compliance footer. One master, five variants.</div>
+          <div class="q-answer">Build template once &rarr; all 5 products use same structure</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">2</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Format</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Both print and digital. Letter size (8.5x11) for print. Responsive/PDF-optimized for digital. Same design, different output specs.</div>
+          <div class="q-answer">Both print + digital</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">3</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Tone</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Warm + Professional. "We're Your People" energy. Not cold and institutional. Human, trusted, authoritative without being intimidating.</div>
+          <div class="q-answer">Warm + Professional — "We're Your People" energy</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">4</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Audience</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Dual-purpose. The brochure works as a client-facing education piece AND an agent selling tool. Designed for the prospect in the meeting AND the agent preparing for it.</div>
+          <div class="q-answer">Dual-purpose — client-facing AND agent selling tool</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">5</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Compliance Review</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">JDM reviews first. Medicare and Investment products need carrier-specific compliance sign-off before distribution. Health = blue gate, Wealth = separate carrier review flow.</div>
+          <div class="q-answer">JDM initial review; Medicare + Investment need carrier-specific compliance</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">6</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Imagery Style</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Combo: clean/minimal design + stock photography. Pull from existing Shared Drive assets first. Supplement with stock where gaps exist. Consistent warm palette across all pieces.</div>
+          <div class="q-answer">Combo clean/minimal + stock photography; pull from Shared Drive assets</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">7</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Distribution Scope</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Universal. Every channel. Print for F2F meetings, email for drip campaigns, portal for client downloads, website for SEO, conversational for VOLTRON references.</div>
+          <div class="q-answer">UNIVERSAL — print, email, portal, website, F2F kit</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid var(--border);">
+        <span class="q-num">8</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Web Placement</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Both: RetirementProtectors.com landing pages (WordPress) AND ProDash portal downloads (ACF/Documents module). Same PDF, two access points — one public, one authenticated.</div>
+          <div class="q-answer">Both RetirementProtectors.com landing pages + ProDash portal downloads</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;">
+        <span class="q-num">9</span>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Starting Point</div>
+          <div style="font-size:0.9rem;color:var(--text);margin-bottom:8px;">Start fresh as new brand standard. Pull content and feel from website, structure from Shared Drive. The output becomes the template. Don't polish the old — build the new.</div>
+          <div class="q-answer">Start FRESH as new brand standard. Pull content/feel from website + structure from Shared Drive. This becomes the new template.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: PRODUCT INVENTORY -->
+<div class="tab-panel" id="inventory">
+
+  <div class="card">
+    <h2>What Exists vs. What's Needed</h2>
+    <p>Audit of the full collateral landscape across all three markets. Color-coded by status: green = exists, orange = new build, blue = partial (carrier PDF needs RPI wrapper).</p>
+  </div>
+
+  <div class="card">
+    <h2>Health Market</h2>
+    <div class="spec-grid">
+      <div class="spec-card health">
+        <div class="label label-health">Health Market</div>
+        <h4>Medicare POS Brochure</h4>
+        <p>Print version exists in Shared Drive. Needs digital conversion: PDF export, portal upload, email version, website landing page.</p>
+        <div style="margin-top:10px;"><span class="exists-tag has">Print Exists</span> <span class="exists-tag new">Digital Needed</span></div>
+      </div>
+      <div class="spec-card health">
+        <div class="label label-health">Health Market</div>
+        <h4>Med Supp vs MA Explainer</h4>
+        <p>No content exists. New build from scratch. One of the highest-demand educational pieces in the Medicare market. Side-by-side comparison format.</p>
+        <div style="margin-top:10px;"><span class="exists-tag new">New Build</span></div>
+      </div>
+      <div class="spec-card health">
+        <div class="label label-health">Health Market</div>
+        <h4>MAPD Plan Comparison Sheet</h4>
+        <p>Carrier PDFs exist. Needs RPI wrapper: our branding, our contact info, our call-to-action. Transforms carrier data into an RPI-branded client tool.</p>
+        <div style="margin-top:10px;"><span class="exists-tag partial">Carrier PDFs Exist</span> <span class="exists-tag new">RPI Wrapper Needed</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Wealth Market</h2>
+    <div class="spec-grid">
+      <div class="spec-card wealth">
+        <div class="label label-wealth">Wealth Market</div>
+        <h4>FIA Product Overview</h4>
+        <p>Print version exists. One of RPI's core wealth products. Digital conversion: PDF, portal download, website page, F2F kit inclusion at Blue Gate stage.</p>
+        <div style="margin-top:10px;"><span class="exists-tag has">Print Exists</span> <span class="exists-tag new">Digital Needed</span></div>
+      </div>
+      <div class="spec-card wealth">
+        <div class="label label-wealth">Wealth Market</div>
+        <h4>IRA Basics Brochure</h4>
+        <p>Print exists: <code>RPI- IRA Basics Brochure.pdf</code>. Digital conversion needed. High educational value — relevant to virtually every wealth client over 60.</p>
+        <div style="margin-top:10px;"><span class="exists-tag has">Print Exists</span> <span class="exists-tag new">Digital Needed</span></div>
+      </div>
+      <div class="spec-card wealth">
+        <div class="label label-wealth">Wealth Market</div>
+        <h4>RMD Explainer</h4>
+        <p>No content exists. New build. Critical piece — Required Minimum Distributions affect virtually every IRA client at 73+. High urgency, high demand.</p>
+        <div style="margin-top:10px;"><span class="exists-tag new">New Build</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Legacy Market — Dr. Aprille's Lane</h2>
+    <div class="spec-grid">
+      <div class="spec-card legacy">
+        <div class="label label-legacy">Legacy Market</div>
+        <h4>Life Insurance Brochure</h4>
+        <p>Print exists: <code>RPI Life Ins Brochure.pdf</code>. Digital conversion needed. Dr. Aprille review required before final publish.</p>
+        <div style="margin-top:10px;"><span class="exists-tag has">Print Exists</span> <span class="exists-tag new">Digital Needed</span></div>
+      </div>
+      <div class="spec-card legacy">
+        <div class="label label-legacy">Legacy Market</div>
+        <h4>Final Expense Guide</h4>
+        <p>No content exists. New build. Dr. Aprille review required. Sensitive topic — tone must be exceptionally warm and human. "We're Your People" energy at maximum.</p>
+        <div style="margin-top:10px;"><span class="exists-tag new">New Build</span></div>
+      </div>
+      <div class="spec-card legacy">
+        <div class="label label-legacy">Legacy Market</div>
+        <h4>Estate Planning Primer</h4>
+        <p>No content exists. New build. Dr. Aprille review required. Pairs with Legacy Review Presentation as a two-piece educational sequence.</p>
+        <div style="margin-top:10px;"><span class="exists-tag new">New Build</span></div>
+      </div>
+      <div class="spec-card legacy">
+        <div class="label label-legacy">Legacy Market</div>
+        <h4>Legacy Review Presentation</h4>
+        <p>No content exists. New build. The full F2F meeting deck for Legacy Market conversations. Dr. Aprille review required.</p>
+        <div style="margin-top:10px;"><span class="exists-tag new">New Build</span></div>
+      </div>
+      <div class="spec-card legacy">
+        <div class="label label-legacy">Legacy Market</div>
+        <h4>Beneficiary Checklist</h4>
+        <p>No content exists. New build. A practical tool — not educational, operational. Clients fill it out during service conversations. Dr. Aprille review required.</p>
+        <div style="margin-top:10px;"><span class="exists-tag new">New Build</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Inventory Summary</h2>
+    <table>
+      <tr><th>Market</th><th>Total Pieces</th><th>Print Exists</th><th>New Builds</th><th>Notes</th></tr>
+      <tr><td>Health</td><td>3</td><td>1 (Medicare POS)</td><td>1 (Med Supp vs MA) + 1 wrapper (MAPD)</td><td>Carrier compliance required for MAPD</td></tr>
+      <tr><td>Wealth</td><td>3</td><td>2 (FIA, IRA Basics)</td><td>1 (RMD Explainer)</td><td>Carrier compliance required for FIA</td></tr>
+      <tr><td>Legacy</td><td>5</td><td>1 (Life Insurance)</td><td>4 (Final Expense, Estate, Legacy Review, Beneficiary)</td><td>All require Dr. Aprille review</td></tr>
+      <tr><td style="color:var(--gold);font-weight:700;">Total</td><td style="color:var(--gold);font-weight:700;">11</td><td style="color:var(--green);">4</td><td style="color:var(--orange);">7</td><td>&mdash;</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 4: TEMPLATE ARCHITECTURE -->
+<div class="tab-panel" id="template">
+
+  <div class="card">
+    <h2>Master Canva Template Spec</h2>
+
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <div class="label label-gold">Size</div>
+        <h4>Letter Size Primary</h4>
+        <p>8.5" x 11" for print output. Same design scaled to PDF for digital. Canva handles both export paths from one master.</p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label label-gold">Layout</div>
+        <h4>7-Section Structure</h4>
+        <p>Cover &rarr; Problem/Pain &rarr; Solution &rarr; How It Works &rarr; Why RPI &rarr; CTA &rarr; Contact. Consistent across all 5 product variants.</p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label label-gold">Brand Elements</div>
+        <h4>RPI Blue + Warm Imagery</h4>
+        <p>RPI Blue (#4a7ab5), "We're Your People&trade;", warm human photography. No cold stock photos. People who look like our clients.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <div class="diagram">MASTER CANVA TEMPLATE — VARIABLE SLOT MAP
+
+┌─────────────────────────────────────────────┐
+│  COVER                                       │
+│  ┌─────────────────────────────────────────┐ │
+│  │  [PRODUCT_NAME]                         │ │
+│  │  Subtitle: What this protects for you   │ │
+│  │  RPI Logo + "We're Your People™"        │ │
+│  └─────────────────────────────────────────┘ │
+├─────────────────────────────────────────────┤
+│  PROBLEM / PAIN                              │
+│  Fixed section — shared across variants      │
+│  "Without the right plan, here's what        │
+│   can go wrong..."                           │
+├─────────────────────────────────────────────┤
+│  SOLUTION                                    │
+│  [PRODUCT_SPECIFIC_CONTENT]                  │
+│  Swapped per variant                         │
+├─────────────────────────────────────────────┤
+│  HOW IT WORKS                                │
+│  [PRODUCT_MECHANISM]                         │
+│  3–4 step visual breakdown                   │
+├─────────────────────────────────────────────┤
+│  WHY RPI                                     │
+│  Fixed section — shared across variants      │
+│  Our credentials, our promise, our people    │
+├─────────────────────────────────────────────┤
+│  CALL TO ACTION                              │
+│  [CTA_VARIANT] — varies by channel           │
+│  Print: "Call us" / Digital: "Click here"   │
+├─────────────────────────────────────────────┤
+│  CONTACT + COMPLIANCE FOOTER                 │
+│  [CARRIER_LOGOS] (if applicable)             │
+│  [COMPLIANCE_FOOTER] — carrier-specific      │
+│  RPI contact block (fixed)                   │
+└─────────────────────────────────────────────┘
+
+VARIABLE SLOTS:
+  - [PRODUCT_NAME]
+  - [PRODUCT_SPECIFIC_CONTENT]
+  - [PRODUCT_MECHANISM]
+  - [CTA_VARIANT]
+  - [CARRIER_LOGOS]
+  - [COMPLIANCE_FOOTER]</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Output Specs by Channel</h2>
+    <table>
+      <tr><th>Channel</th><th>Format</th><th>Specs</th><th>Delivery Path</th></tr>
+      <tr>
+        <td><span class="pill design">Print</span></td>
+        <td>High-res PDF</td>
+        <td>Bleed marks, CMYK, 300dpi</td>
+        <td>Canva export &rarr; Shared Drive &rarr; print vendor</td>
+      </tr>
+      <tr>
+        <td><span class="pill feat">Portal</span></td>
+        <td>PDF download</td>
+        <td>RGB, compressed, web-optimized</td>
+        <td>Shared Drive &rarr; ProDash ACF/Documents module</td>
+      </tr>
+      <tr>
+        <td><span class="pill content">Email</span></td>
+        <td>PDF attachment + inline preview</td>
+        <td>Under 5MB, compressed</td>
+        <td>SendGrid via C3 content blocks</td>
+      </tr>
+      <tr>
+        <td><span class="pill infra">Website</span></td>
+        <td>Landing page + PDF download</td>
+        <td>WordPress page + embedded PDF viewer</td>
+        <td>rpi-workspace MCP &rarr; wordpress_update_page</td>
+      </tr>
+      <tr>
+        <td><span class="pill chore">F2F Kit</span></td>
+        <td>PDF in meeting packet</td>
+        <td>Included in RSP Pipeline Blue Gate materials</td>
+        <td>RSP-PIPELINE Sprint 006 integration</td>
+      </tr>
+      <tr>
+        <td><span class="pill feat">Social / Video</span></td>
+        <td>Cover image + Veo 3.1 explainer</td>
+        <td>16:9 cover, 60s video variant</td>
+        <td>rpi-workspace MCP &rarr; generate_video</td>
+      </tr>
+      <tr>
+        <td><span class="pill content">Conversational</span></td>
+        <td>VOLTRON reference + link</td>
+        <td>VOLTRON knows each brochure exists and can send</td>
+        <td>VOLTRON tool: send_brochure_link</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 5: PIPELINE INTEGRATION -->
+<div class="tab-panel" id="pipeline">
+
+  <div class="card">
+    <h2>RSP Pipeline Stage Mapping</h2>
+    <p>Every piece of collateral maps to a specific RSP Pipeline stage. The right brochure reaches the client at the right moment in their journey. No guessing — the pipeline triggers the material.</p>
+
+    <div class="pipeline-row" style="margin-top:20px;">
+      <div class="pipeline-stage stage-orange">
+        <div class="stage-label">Orange</div>
+        <strong>Discovery</strong>
+        <div class="stage-material">Medicare POS Brochure<br>Product Overviews<br>IRA Basics</div>
+      </div>
+      <div class="pipeline-stage stage-blue">
+        <div class="stage-label">Blue</div>
+        <strong>Analysis</strong>
+        <div class="stage-material">Med Supp vs MA<br>FIA Overview<br>MAPD Comparison</div>
+      </div>
+      <div class="pipeline-stage stage-yellow">
+        <div class="stage-label">Yellow</div>
+        <strong>Presentation</strong>
+        <div class="stage-material">Full Product Deck<br>Legacy Review Presentation<br>Estate Planning Primer</div>
+      </div>
+      <div class="pipeline-stage stage-green">
+        <div class="stage-label">Green</div>
+        <strong>Implementation</strong>
+        <div class="stage-material">Application Guides<br>Carrier Forms<br>RMD Explainer</div>
+      </div>
+      <div class="pipeline-stage stage-red">
+        <div class="stage-label">Red</div>
+        <strong>Service</strong>
+        <div class="stage-material">Beneficiary Checklist<br>Annual Review Materials<br>Final Expense Guide</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>F2F Kit Generator</h2>
+    <p>The RSP-PIPELINE Sprint 006 integration. When an agent advances a prospect to Blue Gate (Analysis), the system auto-assembles a meeting packet: product overview + comparison sheet + RPI contact info. One click, ready to print or email.</p>
+
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <div class="label" style="color:var(--blue);">RSP-PIPELINE Tie-In</div>
+        <h4>Blue Gate Trigger</h4>
+        <p>Opportunity moves to Blue Gate &rarr; system packages the relevant brochures for that product category &rarr; agent gets a download link in ProDash.</p>
+      </div>
+      <div class="spec-card green">
+        <div class="label" style="color:var(--green);">ProDash Integration</div>
+        <h4>Client ACF Folder</h4>
+        <p>After implementation (Green Gate), client-specific brochures are attached to their ACF folder in ProDash. Available forever in their client record.</p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label label-gold">VOLTRON Access</div>
+        <h4>Conversational Delivery</h4>
+        <p>VOLTRON knows all brochures. Any specialist can reference, explain, or send a brochure link during a conversation. "Here's our Medicare overview — want me to send it to your email?"</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Distribution Matrix</h2>
+    <table>
+      <tr><th>Brochure</th><th>Pipeline Stage</th><th>Portal Path</th><th>Website Path</th><th>C3 Campaign</th></tr>
+      <tr><td>Medicare POS</td><td>Orange — Discovery</td><td>ACF/Documents &rarr; Health</td><td>/medicare-overview</td><td>Medicare AEP sequence</td></tr>
+      <tr><td>Med Supp vs MA</td><td>Blue — Analysis</td><td>ACF/Documents &rarr; Health</td><td>/medsup-vs-ma</td><td>Turn 65 (T65) sequence</td></tr>
+      <tr><td>MAPD Comparison</td><td>Blue — Analysis</td><td>ACF/Documents &rarr; Health</td><td>/mapd-plans</td><td>AEP comparison campaign</td></tr>
+      <tr><td>FIA Overview</td><td>Blue — Analysis</td><td>ACF/Documents &rarr; Wealth</td><td>/fixed-index-annuity</td><td>Wealth intake sequence</td></tr>
+      <tr><td>IRA Basics</td><td>Orange — Discovery</td><td>ACF/Documents &rarr; Wealth</td><td>/ira-basics</td><td>Retirement education drip</td></tr>
+      <tr><td>RMD Explainer</td><td>Green — Implementation</td><td>ACF/Documents &rarr; Wealth</td><td>/rmd-guide</td><td>RMD Center integration</td></tr>
+      <tr><td>Life Insurance</td><td>Blue — Analysis</td><td>ACF/Documents &rarr; Legacy</td><td>/life-insurance</td><td>Legacy review sequence</td></tr>
+      <tr><td>Final Expense</td><td>Red — Service</td><td>ACF/Documents &rarr; Legacy</td><td>/final-expense</td><td>Late-stage service campaign</td></tr>
+      <tr><td>Beneficiary Checklist</td><td>Red — Service</td><td>ACF/Documents &rarr; Legacy</td><td>/beneficiary-checklist</td><td>Annual review trigger</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 6: MYST.IRL UPDATE -->
+<div class="tab-panel" id="myst">
+
+  <div class="card">
+    <h2>MYST.IRL — The Human Team Page</h2>
+    <p>MYST has two layers: <strong>MYST.AI</strong> (the AI team — built in Sprint 008) and <strong>MYST.IRL</strong> (the human team — the real people behind the machine). This sprint refreshes MYST.IRL to match the new brand standard.</p>
+
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <div class="label label-gold">Current State</div>
+        <h4>retireprotected.com/myst</h4>
+        <p>Page exists but needs a refresh. Team photos may be outdated, roster has changed, "We're Your People" positioning wasn't fully baked when it was first built.</p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label label-gold">Target State</div>
+        <h4>Updated + On-Brand</h4>
+        <p>Current team roster, professional circular headshots (same format as MYST.AI bots), "We're Your People" positioning front and center, warm brand treatment throughout.</p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label label-gold">Tool</div>
+        <h4>rpi-workspace MCP</h4>
+        <p><code>wordpress_update_page</code> to push content changes. Same approach used across all WordPress updates on retireprotected.com.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>MYST.AI + MYST.IRL Side by Side</h2>
+    <table>
+      <tr><th>Layer</th><th>Content</th><th>Format</th><th>Status</th><th>Sprint</th></tr>
+      <tr>
+        <td><strong style="color:var(--cyan);">MYST.AI</strong></td>
+        <td>AI team — VOLTRON, RONIN, RAIDEN, SENSEI, MUSASHI, SHINOBI</td>
+        <td>Circular avatars, names, titles, bio cards</td>
+        <td><span class="exists-tag has">Built in Sprint 008</span></td>
+        <td>Sprint 008 — DOJO</td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--gold);">MYST.IRL</strong></td>
+        <td>Human team — JDM, John Behn, Nikki, Vince, Matt, Dr. Aprille, Shane</td>
+        <td>Same circular headshot format, name, role, division</td>
+        <td><span class="exists-tag partial">Exists, needs refresh</span></td>
+        <td>CMO Sprint 1 — TRK-CMO-017</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>MYST.IRL Update Spec — TRK-CMO-017</h2>
+
+    <div class="level-bar gold">
+      <h4>Team Roster Audit</h4>
+      <p>Confirm current team: JDM, John Behn, Shane Parmenter, Nikki Gray, Vince Vazquez, Matt McCormick, Dr. Aprille Trupiano. Verify roles are accurate. Check for any additions or changes since last update.</p>
+    </div>
+
+    <div class="level-bar gold">
+      <h4>Photo Format</h4>
+      <p>Circular headshots, same visual treatment as MYST.AI bots. Warm color grading, consistent sizing. Photos sourced from team — no AI-generated images. Existing photos preferred if they meet quality bar.</p>
+    </div>
+
+    <div class="level-bar gold">
+      <h4>Positioning Copy</h4>
+      <p>"We're Your People" as the lead message. Each team member gets a one-liner that captures their role in the client's life. Not a job description — a promise. "Nikki makes sure nothing falls through the cracks."</p>
+    </div>
+
+    <div class="level-bar gold">
+      <h4>WordPress Delivery</h4>
+      <p>rpi-workspace MCP &rarr; <code>wordpress_update_page</code> on retireprotected.com. Same pattern as all WordPress content updates in the platform. Page URL: retireprotected.com/myst (or /our-team — confirm current slug).</p>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 7: FILES -->
+<div class="tab-panel" id="files">
+
+  <div class="card">
+    <h2>Tools + Platforms</h2>
+    <table>
+      <tr><th>Tool / Platform</th><th>MCP / Path</th><th>Used For</th></tr>
+      <tr>
+        <td><strong>Canva</strong></td>
+        <td><code>rpi-workspace MCP</code> &rarr; <code>canva_*</code> tools</td>
+        <td>Master template design, brand kit, export to PDF, generate design variants</td>
+      </tr>
+      <tr>
+        <td><strong>WordPress</strong></td>
+        <td><code>rpi-workspace MCP</code> &rarr; <code>wordpress_*</code> tools</td>
+        <td>RetirementProtectors.com landing pages, MYST.IRL update, product pages</td>
+      </tr>
+      <tr>
+        <td><strong>Google Drive</strong></td>
+        <td><code>gdrive MCP</code> &rarr; <code>listFolder</code>, <code>search</code></td>
+        <td>Source brochures, team photos, brand assets, brochure storage post-production</td>
+      </tr>
+      <tr>
+        <td><strong>ProDash Portal</strong></td>
+        <td>ACF module &rarr; Documents subcollection</td>
+        <td>Client-facing brochure downloads, authenticated access</td>
+      </tr>
+      <tr>
+        <td><strong>GitHub Pages</strong></td>
+        <td><code>retirementprotectors.github.io/toMachina/</code></td>
+        <td>This discovery doc, external-shareable assets</td>
+      </tr>
+      <tr>
+        <td><strong>PDF_SERVICE</strong></td>
+        <td><code>services/PDF_SERVICE/</code></td>
+        <td>Server-side PDF generation if needed for dynamic brochures</td>
+      </tr>
+      <tr>
+        <td><strong>C3</strong></td>
+        <td><code>services/api/src/routes/</code> C3 routes</td>
+        <td>Content blocks for brochure-linked email templates, campaign integration</td>
+      </tr>
+      <tr>
+        <td><strong>Veo 3.1</strong></td>
+        <td><code>rpi-workspace MCP</code> &rarr; <code>generate_video</code></td>
+        <td>Social/Video channel — 60-second explainer variants per product</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Shared Drive — Key Locations</h2>
+    <table>
+      <tr><th>Path</th><th>Contents</th><th>Action</th></tr>
+      <tr>
+        <td><code>RPI | B2C Division &rarr; Brochures/</code></td>
+        <td>Existing print PDFs: IRA Basics, Life Insurance, Medicare POS</td>
+        <td>TRK-CMO-001: Audit + quality check</td>
+      </tr>
+      <tr>
+        <td><code>RPI | B2C Division &rarr; Brand Assets/</code></td>
+        <td>RPI Blue color palette, logos, photography assets</td>
+        <td>Pull imagery for Canva template</td>
+      </tr>
+      <tr>
+        <td><code>RPI | B2C Division &rarr; Team Photos/</code></td>
+        <td>Headshots for MYST.IRL update</td>
+        <td>TRK-CMO-017: Audit, curate, format to circular</td>
+      </tr>
+      <tr>
+        <td><code>RPI | Operations &rarr; Carrier Materials/</code></td>
+        <td>MAPD carrier PDFs, FIA carrier supplements</td>
+        <td>Source material for RPI wrapper brochures</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Key File References</h2>
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <div class="label label-gold">Existing Brochures</div>
+        <h4>Print PDFs on Drive</h4>
+        <p><code>RPI- IRA Basics Brochure.pdf</code><br><code>RPI Life Ins Brochure.pdf</code><br>Medicare POS (confirm filename via Drive audit)</p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label label-gold">This Doc</div>
+        <h4>Discovery Document</h4>
+        <p><code>/home/jdm/Projects/toMachina/cmo-sprint1-brochure-parity-discovery.html</code></p>
+      </div>
+      <div class="spec-card gold">
+        <div class="label label-gold">CMO Roadmap</div>
+        <h4>Source Roadmap</h4>
+        <p><code>/home/jdm/Projects/toMachina/docs/cmo-creative-roadmap.html</code><br>Tab 8 Q&A is what this sprint answers.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 8: SPRINT PLAN -->
+<div class="tab-panel" id="sprint">
+
+  <div class="gate-callout">
+    <h4>Gate — Template Approval Before Phase 2</h4>
+    <p>JDM approves the master Canva template (TRK-CMO-002) before Phase 2 begins. The template is the foundation. Everything else inherits it. Getting it wrong compounds across all 11 brochures. Get it right once.</p>
+  </div>
+
+  <div class="card">
+    <h2>Phase 1 — Template Foundation</h2>
+    <p style="color:var(--text-muted);margin-bottom:16px;">4 tickets &mdash; Parallel execution. Build the bones before the content.</p>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Acceptance Criteria</th></tr>
+      <tr>
+        <td><code>TRK-CMO-001</code></td>
+        <td>Audit existing print brochures on Shared Drive</td>
+        <td><span class="pill chore">chore</span></td>
+        <td>Full inventory: file name, location, quality rating (print-ready vs. needs redesign), content completeness. Output: audit spreadsheet in Drive.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-002</code></td>
+        <td>Design master Canva template</td>
+        <td><span class="pill design">design</span></td>
+        <td>Letter size, 7-section layout, all variable slots defined, RPI brand elements applied, brand kit linked. JDM approval required before Phase 2 begins. <strong>GATE.</strong></td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-003</code></td>
+        <td>Create brand style guide page</td>
+        <td><span class="pill design">design</span></td>
+        <td>Colors (RPI Blue #4a7ab5, warm palette), fonts (defined), imagery rules (warm, human, real), voice guide ("We're Your People" energy defined). Stored in Drive as brand reference.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-004</code></td>
+        <td>Build output pipeline</td>
+        <td><span class="pill infra">infra</span></td>
+        <td>Canva &rarr; PDF export &rarr; Drive upload &rarr; ProDash link. End-to-end tested with a sample brochure. Documented so MUSASHI can run it for each variant.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 2 — Health Market Brochures</h2>
+    <p style="color:var(--text-muted);margin-bottom:16px;">5 tickets &mdash; Depends on Phase 1 completion + JDM template approval.</p>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Acceptance Criteria</th></tr>
+      <tr>
+        <td><code>TRK-CMO-005</code></td>
+        <td>Medicare POS Brochure (digital from existing print)</td>
+        <td><span class="pill design">design</span></td>
+        <td>Print PDF converted to master template format. Digital PDF exported, uploaded to Drive and ProDash. Content validated against current Medicare rules.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-006</code></td>
+        <td>Med Supp vs MA Explainer (new content)</td>
+        <td><span class="pill content">content</span></td>
+        <td>Side-by-side comparison of Medicare Supplement vs Medicare Advantage. New content written, designed in template, PDF exported, compliance reviewed by JDM before publish.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-007</code></td>
+        <td>MAPD Plan Comparison Sheet (RPI wrapper on carrier data)</td>
+        <td><span class="pill design">design</span></td>
+        <td>Carrier PDFs sourced from Drive. RPI branding wrapper applied. Contact info + CTA added. Carrier compliance footer verified. PDF exported.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-008</code></td>
+        <td>Medicare landing page on RetirementProtectors.com</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>WordPress page created via rpi-workspace MCP. Embeds Medicare POS and Med Supp vs MA brochures. PDF download links work. Page is findable and live.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-009</code></td>
+        <td>Health market F2F Kit assembly (Orange + Blue stage materials)</td>
+        <td><span class="pill chore">chore</span></td>
+        <td>F2F meeting packet assembled: Medicare POS + MAPD Comparison + Med Supp vs MA + RPI contact card. Single downloadable ZIP in Drive. Linked from RSP Pipeline Blue Gate.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 3 — Wealth + Legacy Market Brochures</h2>
+    <p style="color:var(--text-muted);margin-bottom:16px;">5 tickets &mdash; Parallel where possible. Dr. Aprille review required for all Legacy pieces.</p>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Acceptance Criteria</th></tr>
+      <tr>
+        <td><code>TRK-CMO-010</code></td>
+        <td>FIA Product Overview (digital from existing print)</td>
+        <td><span class="pill design">design</span></td>
+        <td>Existing print converted to template. Carrier compliance footer added. Digital PDF exported, uploaded to Drive and ProDash. JDM compliance sign-off before publish.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-011</code></td>
+        <td>IRA Basics Brochure (digital from existing print)</td>
+        <td><span class="pill design">design</span></td>
+        <td><code>RPI- IRA Basics Brochure.pdf</code> sourced from Drive. Rebuilt in master template. Digital PDF exported, Drive upload, ProDash link created.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-012</code></td>
+        <td>RMD Explainer (new content)</td>
+        <td><span class="pill content">content</span></td>
+        <td>New content: what RMDs are, when they start, how RPI helps manage them. Ties into RMD Center in ProDash. PDF exported, Drive upload, ProDash link. JDM review before publish.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-013</code></td>
+        <td>Life Insurance Brochure (digital from existing print)</td>
+        <td><span class="pill design">design</span></td>
+        <td><code>RPI Life Ins Brochure.pdf</code> sourced from Drive. Rebuilt in master template. Dr. Aprille review required before publish. Digital PDF exported, Drive upload, ProDash link.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-014</code></td>
+        <td>Final Expense + Estate Planning materials (Dr. Aprille review required)</td>
+        <td><span class="pill content">content</span></td>
+        <td>New content for Final Expense Guide + Estate Planning Primer. Tone: exceptionally warm. Dr. Aprille review and approval before any distribution. PDFs exported, Drive upload.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 4 — Distribution + MYST.IRL</h2>
+    <p style="color:var(--text-muted);margin-bottom:16px;">4 tickets &mdash; Final mile. Get everything live and connected.</p>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Acceptance Criteria</th></tr>
+      <tr>
+        <td><code>TRK-CMO-015</code></td>
+        <td>Upload all brochures to ProDash portal (ACF/Documents path)</td>
+        <td><span class="pill infra">infra</span></td>
+        <td>All 9+ brochures uploaded to ProDash ACF module under correct client document categories (Health, Wealth, Legacy). Download links verified. Accessible from client record.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-016</code></td>
+        <td>Create website landing pages (Health, Wealth, Legacy sections)</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>3 landing pages created on RetirementProtectors.com via rpi-workspace MCP. Each market gets its own page. Brochure PDF downloads embedded. Pages are live and findable.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-017</code></td>
+        <td>MYST.IRL page refresh (team photos, roster, "We're Your People")</td>
+        <td><span class="pill design">design</span></td>
+        <td>retireprotected.com/myst updated: current team roster, circular headshots, "We're Your People" positioning. Same visual treatment as MYST.AI. WordPress update via rpi-workspace MCP.</td>
+      </tr>
+      <tr>
+        <td><code>TRK-CMO-018</code></td>
+        <td>C3 content blocks — brochure-linked email templates for each product</td>
+        <td><span class="pill feat">feat</span></td>
+        <td>C3 content blocks created for each brochure: preview image + headline + PDF download CTA. Blocks available in C3 campaign builder. At least one test email sent and verified.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <div class="gate-callout">
+      <h4>The Standard</h4>
+      <p style="font-size:1rem;color:var(--text);font-weight:500;">"Every RPI product has a professional digital brochure that works as a print handout, email attachment, portal download, website page, and F2F meeting material. One template, five products, seven channels."</p>
+    </div>
+
+    <table>
+      <tr><th>Criterion</th><th>Verification</th></tr>
+      <tr><td>Master template approved by JDM</td><td>JDM has reviewed TRK-CMO-002 and given explicit approval before Phase 2 begins</td></tr>
+      <tr><td>All existing print brochures digitized</td><td>4 PDFs rebuilt in master template format, exported, uploaded to Drive</td></tr>
+      <tr><td>All new content pieces completed</td><td>5 new brochures written, designed, reviewed (Dr. Aprille for Legacy), exported</td></tr>
+      <tr><td>ProDash integration live</td><td>All 9 brochures accessible from client ACF records in ProDash</td></tr>
+      <tr><td>Website landing pages live</td><td>3 market pages on RetirementProtectors.com with PDF downloads</td></tr>
+      <tr><td>MYST.IRL updated</td><td>Current roster, circular headshots, "We're Your People" positioning live on site</td></tr>
+      <tr><td>C3 content blocks created</td><td>Email templates exist for each product in C3 campaign builder</td></tr>
+      <tr><td>F2F Kits assembled</td><td>Meeting packets per market downloadable from ProDash and RSP Pipeline</td></tr>
+      <tr><td>VOLTRON can reference brochures</td><td>At least 3 specialists can respond to "send me the brochure" with correct material</td></tr>
+    </table>
+
+    <div class="level-bar gold" style="margin-top:20px;">
+      <h4>Phase Sequencing</h4>
+      <p><strong>Phase 1</strong> (parallel) &rarr; <strong>JDM gate on TRK-CMO-002</strong> &rarr; <strong>Phases 2 + 3</strong> (parallel where possible, Dr. Aprille async for Legacy) &rarr; <strong>Phase 4</strong> (after all brochures complete)</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <strong>Discovery by MUSASHI, ARTxBLADE &mdash; VP/CMO, Executive.AI Team</strong> &bull; CMO Sprint 1 &bull; 2026-04-01<br>
+  <span style="margin-top:8px;display:block;font-size:0.85rem;color:var(--gold);">Build once, works everywhere. #RunningOurOwnRACE</span>
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
