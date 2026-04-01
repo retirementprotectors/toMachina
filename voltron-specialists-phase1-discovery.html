@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina" data-cwd2="mdj-agent">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON Phase I — Product Specialists</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(59,130,246,0.08) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(6,182,212,0.05) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); background: var(--blue-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--blue); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--blue); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .diagram .hl { color: var(--blue); }
+  .diagram .hl-green { color: var(--green); }
+  .diagram .hl-cyan { color: var(--cyan); }
+  .diagram .hl-gold { color: var(--gold); }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.blue { border-top-color: var(--blue); }
+  .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .spec-card li { margin-bottom: 3px; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.red { border-left-color: var(--accent); background: rgba(239,68,68,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar.cyan { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); border-left: 4px solid var(--blue); }
+  .gate-callout h4 { color: var(--blue); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .warn-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .warn-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; }
+  .warn-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .success-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-left: 4px solid var(--green); }
+  .success-callout h4 { color: var(--green); margin-bottom: 8px; font-size: 0.95rem; }
+  .success-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  pre.codeblock { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; line-height: 1.7; color: var(--text-muted); margin: 12px 0; white-space: pre; }
+  pre.codeblock .key { color: var(--blue); }
+  pre.codeblock .val { color: var(--green); }
+  pre.codeblock .str { color: var(--gold); }
+  pre.codeblock .com { color: #4a5568; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.design { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .pill.content { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .pill.test { background: rgba(34,197,94,0.15); color: var(--green); }
+  .status-ready { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: rgba(34,197,94,0.15); color: var(--green); text-transform: uppercase; }
+  .status-needs { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: rgba(245,158,11,0.15); color: var(--orange); text-transform: uppercase; }
+  .status-new { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: rgba(59,130,246,0.15); color: var(--blue); text-transform: uppercase; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } .spec-grid { grid-template-columns: 1fr; } }
+  .phase-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; margin: 20px 0 8px; }
+  .phase-number { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-glow); border: 2px solid var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: var(--blue); flex-shrink: 0; }
+  .phase-header h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin: 0; }
+  .phase-header p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+  .ticket-row { display: grid; grid-template-columns: 140px 1fr auto; gap: 12px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .ticket-row:last-child { border-bottom: none; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.78rem; color: var(--blue); font-weight: 700; }
+  .ticket-title { font-size: 0.88rem; color: var(--text); }
+  .ticket-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+  .ticket-musashi { font-size: 0.75rem; color: var(--gold); font-weight: 600; margin-top: 4px; }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+  .footer strong { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">VOLTRON Phase I &mdash; FORGE Discovery Document</div>
+  <h1>Product Specialists</h1>
+  <div class="subtitle">Connecting VOLTRON's Voice to VOLTRON's Tools &mdash; Investment Specialist First</div>
+  <div class="header-badges">
+    <span class="badge badge-blue">VOLTRON Phase I</span>
+    <span class="badge badge-gold">~12 Tickets</span>
+    <span class="badge badge-cyan">Specialist Wiring</span>
+    <span class="badge badge-purple">data-cwd: toMachina + mdj-agent</span>
+  </div>
+  <div class="ronin-meta">sprint: VOLTRON-SPEC-P1 &bull; TRK-VS-001 &rarr; TRK-VS-012 &bull; cherry-pick: Investment Specialist (Tax Harvesting)</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="gap">The Gap</div>
+    <div class="tab" data-tab="exists">What EXISTS</div>
+    <div class="tab" data-tab="cherrypick">Investment Specialist</div>
+    <div class="tab" data-tab="architecture">Wiring Architecture</div>
+    <div class="tab" data-tab="modedef">Mode Definition</div>
+    <div class="tab" data-tab="output">Output Design</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- TAB 1: THE GAP -->
+<div class="tab-panel active" id="gap">
+  <div class="card">
+    <h2>Two Systems. One Problem.</h2>
+    <p>VOLTRON is two separate machines that were built in parallel and have never talked to each other. The voice is here. The tools are over there. Until now, they've been strangers.</p>
+    <div class="two-col">
+      <div class="level-bar blue">
+        <h4>System 1 — The Voice</h4>
+        <p>VOLTRON Specialist Router. 6 chat personas (General, Medicare, Securities, Service, DAVID, Ops) in Firestore with full system prompts and keyword routing. VOLTRON knows <strong>who to sound like</strong>.</p>
+      </div>
+      <div class="level-bar purple">
+        <h4>System 2 — The Tools</h4>
+        <p>QUE Product Specialists. 5 domain specialists (Investment, Medicare, Annuity, Life/Estate, Legacy/LTC) with calculation engines, wire workflows, and real analysis capability. VOLTRON knows <strong>what it can DO</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Disconnect in Plain English</h2>
+    <p>When the Medicare Specialist persona is active, VOLTRON speaks with deep Medicare fluency &mdash; but it cannot automatically chain <code>calcIrmaa</code>, <code>COVERAGE_GAP</code>, or <code>AEP_ENROLLMENT</code> wires. It sounds like a Medicare expert. It cannot act like one.</p>
+    <p>When the Securities Specialist is active, VOLTRON can talk tax strategy all day. But ask it to actually run a Tax Harvesting analysis on a real portfolio and it hits a wall. The tools exist. The wire exists. The specialist has no idea.</p>
+    <div class="warn-callout">
+      <h4>The Real Gap</h4>
+      <p>Specialist personas and QUE tool suites are two separate systems with no bridge between them. Activating a specialist persona does not unlock the corresponding tools. This sprint builds that bridge.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The Fix</h2>
+    <p>Wire QUE specialist modes INTO the VOLTRON specialist personas. When a specialist persona activates, it injects the corresponding QUE tool definitions into the conversation context. The voice and the tools become one.</p>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Before</h4>
+        <p>VOLTRON specialist active &rarr; persona + system prompt only. Tools: general 82-tool set. QUE tools: unavailable.</p>
+      </div>
+      <div class="spec-card green">
+        <h4>After</h4>
+        <p>VOLTRON specialist active &rarr; persona + system prompt + QUE tool injection. Specialist-specific tools auto-available. Wire chaining enabled.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Cherry-Pick: Investment Specialist (Tax Harvesting)</h2>
+    <p>Five QUE specialists are ready to wire. We're doing one first, and doing it right. The Investment Specialist is the pick:</p>
+    <div class="spec-grid">
+      <div class="spec-card gold">
+        <h4>Tools Exist</h4>
+        <p><code>analyzeTaxHarvest</code>, <code>analyzeRoth</code>, <code>calcRmd</code>, and 6 additional calcs are built. Nothing to construct from scratch.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Case Study Exists</h4>
+        <p>Josh Archer + Nepper. Real client. Real portfolio. Real harvest opportunity. E2E test has a ground truth to validate against.</p>
+      </div>
+      <div class="spec-card blue">
+        <h4>JDM Wants It Now</h4>
+        <p>Tax Harvesting output is a client-deliverable JDM is actively waiting for. This isn't theoretical. It goes to clients the moment it ships.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: WHAT EXISTS -->
+<div class="tab-panel" id="exists">
+  <div class="card">
+    <h2>VOLTRON Specialist Router (mdj-agent)</h2>
+    <p>The routing layer is live, tested, and production-grade. Two-layer classification with graceful fallback.</p>
+    <div class="two-col">
+      <div class="level-bar blue">
+        <h4>Layer 1 — Keyword Scoring</h4>
+        <p><code>specialist-router.ts</code>. Scores incoming messages against keyword banks per specialist. Fast, deterministic, no LLM call required for clear intent signals.</p>
+      </div>
+      <div class="level-bar purple">
+        <h4>Layer 2 — Sonnet Fallback</h4>
+        <p>When keyword scoring is ambiguous, Sonnet classifies intent and returns the specialist ID. 5-minute cache on routing decisions. Zero cold routing.</p>
+      </div>
+    </div>
+    <h3>6 Specialist Configs in Firestore (<code>mdj_specialist_configs</code>)</h3>
+    <table>
+      <tr><th>Specialist ID</th><th>Persona</th><th>Status</th></tr>
+      <tr><td><code>mdj-general</code></td><td>General — platform-wide, catch-all routing</td><td><span class="status-ready">Live</span></td></tr>
+      <tr><td><code>mdj-medicare</code></td><td>Medicare — MAPD, AEP, IRMAA, supplement</td><td><span class="status-ready">Live</span></td></tr>
+      <tr><td><code>mdj-securities</code></td><td>Securities — investments, tax, Roth, RMD</td><td><span class="status-ready">Live</span></td></tr>
+      <tr><td><code>mdj-service</code></td><td>Service — client management, case tracking</td><td><span class="status-ready">Live</span></td></tr>
+      <tr><td><code>mdj-david</code></td><td>DAVID — M&amp;A, partnerships, B2B</td><td><span class="status-ready">Live</span></td></tr>
+      <tr><td><code>mdj-ops</code></td><td>Ops — platform ops, admin, infrastructure</td><td><span class="status-ready">Live</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>QUE Product Specialists (Tool Inventory)</h2>
+    <p>Five specialist domains. Tools and wires at varying stages of completeness. Investment is the leader.</p>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Investment <span class="status-ready">Ready to Wire</span></h4>
+        <ul>
+          <li><code>analyzeTaxHarvest</code></li>
+          <li><code>analyzeRoth</code></li>
+          <li><code>calcRmd</code></li>
+          <li>6 additional calcs</li>
+          <li>Wires: <code>wireTaxHarvest</code>, <code>wireRothConversion</code></li>
+        </ul>
+      </div>
+      <div class="spec-card green">
+        <h4>Medicare <span class="status-ready">Ready to Wire</span></h4>
+        <ul>
+          <li><code>calcIrmaa</code></li>
+          <li>CSG quoting integration</li>
+          <li>Wires: <code>COVERAGE_GAP</code>, <code>AEP_ENROLLMENT</code></li>
+        </ul>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Annuity <span class="status-ready">Most Built-Out</span></h4>
+        <ul>
+          <li>12 calcs</li>
+          <li>4 Super Tools</li>
+          <li>4 Wires — full workflow coverage</li>
+        </ul>
+      </div>
+      <div class="spec-card orange">
+        <h4>Life/Estate <span class="status-needs">Needs Expansion</span></h4>
+        <ul>
+          <li>2 calcs</li>
+          <li><code>analyzeEstate</code></li>
+          <li><code>wireEstateMax</code></li>
+        </ul>
+      </div>
+      <div class="spec-card purple">
+        <h4>Legacy/LTC <span class="status-needs">Needs Expansion</span></h4>
+        <ul>
+          <li><code>calcLtcPhaseAccess</code></li>
+          <li><code>analyzeLtc</code></li>
+          <li><code>wireLtcMax</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Tool Infrastructure (legacy-tool-map.ts)</h2>
+    <p>82 total tools defined and classified. Approval tiers enforced by <code>voltron-os-rules.ts</code>.</p>
+    <table>
+      <tr><th>Tier</th><th>Count</th><th>Behavior</th><th>Examples</th></tr>
+      <tr><td><span class="status-needs">DANGEROUS</span></td><td>25 tools</td><td>Always block — require explicit approval</td><td>Financial writes, client data mutations</td></tr>
+      <tr><td><span class="status-ready">SAFE</span></td><td>44 tools</td><td>Auto-execute — no approval needed</td><td>Read ops, calculations, analysis</td></tr>
+      <tr><td style="color:var(--gold);font-weight:700;">OWNER_BYPASS</td><td>22 tools</td><td>JDM only — bypass normal approval flow</td><td>Platform admin, bulk ops</td></tr>
+    </table>
+    <p>QUE specialist analysis tools (<code>analyzeTaxHarvest</code>, <code>calcRmd</code>, etc.) qualify as SAFE when activated via specialist mode. No approval gate for read-only analysis.</p>
+  </div>
+
+  <div class="card">
+    <h2>MDJ Panel + VoltronDualMode</h2>
+    <p>The surface layer is live and stable. Specialist wiring drops into existing infrastructure.</p>
+    <div class="two-col">
+      <div class="level-bar green">
+        <h4>MDJ Panel — All 3 Portals</h4>
+        <p>Live on ProDash, RIIMO, and SENTINEL. Page context injection active. Smart toy button in sidebar. Conversation history and memory extraction working.</p>
+      </div>
+      <div class="level-bar cyan">
+        <h4>VoltronDualMode — 4 Wires Live</h4>
+        <p>Mode 1 (wire/deploy) vs Mode 2 (chat). Wire selector pattern already established. Reusing this pattern for QUE tool chaining in specialist mode.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: INVESTMENT SPECIALIST CHERRY-PICK -->
+<div class="tab-panel" id="cherrypick">
+  <div class="card">
+    <h2>Why Investment First</h2>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Tools Already Built</h4>
+        <p>No construction required. <code>analyzeTaxHarvest</code>, <code>analyzeRoth</code>, <code>calcRmd</code>, and <code>wireTaxHarvest</code> exist. This sprint wires them in, not builds them.</p>
+      </div>
+      <div class="spec-card gold">
+        <h4>Real Case Study</h4>
+        <p>Josh Archer + Nepper. Live portfolio. Known harvest opportunities. E2E test has a ground truth — we know what the right answer looks like before we run it.</p>
+      </div>
+      <div class="spec-card green">
+        <h4>JDM Wants It Yesterday</h4>
+        <p>Tax Harvesting Analysis is a client deliverable sitting on the runway. The moment TRK-VS-009 ships, it goes to clients. This is not a demo — it's production day one.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Tools to Wire — Investment Specialist</h2>
+    <table>
+      <tr><th>Tool</th><th>What It Does</th><th>Wire</th><th>Status</th></tr>
+      <tr>
+        <td><code>analyzeTaxHarvest</code></td>
+        <td>Identifies harvest opportunities across the portfolio — which positions are underwater, what's the tax benefit, what's the opportunity cost</td>
+        <td><code>wireTaxHarvest</code></td>
+        <td><span class="status-ready">Exists</span></td>
+      </tr>
+      <tr>
+        <td><code>analyzeRoth</code></td>
+        <td>Roth conversion analysis &mdash; current vs projected bracket, conversion ladder scenarios, 5-year rule implications</td>
+        <td><code>wireRothConversion</code></td>
+        <td><span class="status-ready">Exists</span></td>
+      </tr>
+      <tr>
+        <td><code>calcRmd</code></td>
+        <td>Required Minimum Distribution calculator &mdash; annual distribution schedule, tax implications, Qualified Charitable Distribution options</td>
+        <td>&mdash;</td>
+        <td><span class="status-ready">Exists</span></td>
+      </tr>
+      <tr>
+        <td>6 additional calcs</td>
+        <td>Portfolio analysis, basis tracking, gain/loss summary, wash sale detection, cost basis optimization, estimated tax liability</td>
+        <td>&mdash;</td>
+        <td><span class="status-ready">Exists</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Specialist Mode Activation</h2>
+    <p>When <code>mdj-securities</code> routing triggers, VOLTRON transitions from its default 82-tool general context into Investment Specialist mode. The following happens automatically:</p>
+    <div class="level-bar blue">
+      <h4>Step 1 — Specialist Detected</h4>
+      <p>Keyword scoring or Sonnet classification returns <code>mdj-securities</code>. System loads the persona system prompt from Firestore.</p>
+    </div>
+    <div class="level-bar cyan">
+      <h4>Step 2 — Mode Config Loaded</h4>
+      <p>New <code>specialist-mode-config.ts</code> reads <code>specialist_mode_config</code> for <code>mdj-securities</code> from Firestore. Returns QUE tool list + wire list + auto_chain flag.</p>
+    </div>
+    <div class="level-bar green">
+      <h4>Step 3 — Tools Injected</h4>
+      <p>New <code>que-tool-injector.ts</code> appends Investment specialist tool definitions into the conversation context. Agent now has <code>analyzeTaxHarvest</code>, <code>calcRmd</code>, wires, and full Investment domain capability.</p>
+    </div>
+    <div class="level-bar gold">
+      <h4>Step 4 — VOLTRON Chains</h4>
+      <p>User asks about tax harvesting. VOLTRON runs <code>analyzeTaxHarvest</code>, chains into <code>wireTaxHarvest</code>, and returns a branded analysis. No manual steps. No developer involvement.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Client Output — What Ships</h2>
+    <p>The tangible deliverable for the Investment Specialist is a <strong>Tax Harvesting Analysis document</strong> &mdash; professional, branded, client-facing.</p>
+    <div class="gate-callout">
+      <h4>Definition of Done for TRK-VS-009</h4>
+      <p>A team member asks VOLTRON "Show me tax harvesting opportunities for [client]" and gets back a branded PDF analysis with specific recommendations, dollar amounts, and disclaimers &mdash; no manual steps, no developer involvement.</p>
+    </div>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Tax Harvesting Analysis</h4>
+        <p>Client name, portfolio summary, identified harvest positions, estimated tax benefit, recommendations, risk notes, compliance disclaimers.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Roth Conversion Analysis</h4>
+        <p>Current bracket analysis, conversion scenarios, 5-year projections, distribution schedule, required minimums intersect.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>RMD Calculator Output</h4>
+        <p>Annual distribution schedule, tax implications by scenario, QCD options, inherited IRA rules if applicable.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: WIRING ARCHITECTURE -->
+<div class="tab-panel" id="architecture">
+  <div class="card">
+    <h2>The Connection — End to End</h2>
+    <p>Two systems, one bridge. The bridge is two new files: <code>specialist-mode-config.ts</code> and <code>que-tool-injector.ts</code>. Everything else already exists.</p>
+  </div>
+
+  <div class="card">
+    <h2>Flow Diagram</h2>
+    <div class="diagram">User asks about tax harvesting in MDJ Panel
+    │
+    ├── <span class="hl">Intent Classifier</span> → "chat" mode
+    │       │
+    │       └── <span class="hl">Specialist Router</span> → "mdj-securities"
+    │               │  (keyword match: tax, harvest, roth, RMD, portfolio)
+    │               │
+    │               ├── Load securities persona from Firestore ✓
+    │               │
+    │               └── <span class="hl-cyan">NEW: Load mode_config from Firestore</span>
+    │                       │
+    │                       └── <span class="hl-cyan">que-tool-injector.ts</span>
+    │                               │  Injects: analyzeTaxHarvest, calcRmd,
+    │                               │           wireRothConversion, wireTaxHarvest
+    │                               │           + 6 supporting calcs
+    │                               │
+    │                               └── <span class="hl-green">VOLTRON agent context</span>
+    │                                       │  Tools now available, approval tier = SAFE
+    │                                       │
+    │                                       ├── analyzeTaxHarvest(clientId, portfolio)
+    │                                       │       │
+    │                                       │       └── wireTaxHarvest(analysis)
+    │                                       │               │
+    │                                       │               └── <span class="hl-gold">PDF output → client-facing doc</span>
+    │
+    └── Response returned to MDJ Panel with analysis + recommendations</div>
+  </div>
+
+  <div class="card">
+    <h2>Implementation Details</h2>
+    <h3>specialist-router.ts Modification</h3>
+    <p>On specialist match, the router now makes a second Firestore read to load <code>mode_config</code> alongside the existing persona config. If <code>mode_config</code> exists, it passes it downstream. If not (General, Ops), it passes null and nothing changes &mdash; existing behavior preserved.</p>
+    <h3>voltron-os-rules.ts Update</h3>
+    <p>QUE specialist tools receive <code>SAFE</code> classification when activated by a matching specialist. The rule: if the tool is in the specialist's <code>que_tools</code> list and the specialist is active, it executes without approval. This is scoped &mdash; the same tool requested outside specialist context keeps its original tier.</p>
+    <h3>Wire Execution Pattern</h3>
+    <p>Reuses the <code>VoltronDualMode</code> wire selector pattern already established in <code>apps/prodash/app/(portal)/modules/voltron/</code>. No new UI surface required. Wire execution is handled by the agent's existing tool-chaining logic (15-round multi-step).</p>
+    <div class="gate-callout">
+      <h4>No Breaking Changes</h4>
+      <p>All modifications are additive. Existing specialist routing, tool execution, MDJ Panel behavior, and wire execution are untouched. The bridge layers on top of what's there. If mode_config is absent, the specialist behaves exactly as before.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: MODE CONFIG DEFINITION -->
+<div class="tab-panel" id="modedef">
+  <div class="card">
+    <h2>The New Config Format</h2>
+    <p>Each specialist gets a <code>specialist_mode_config</code> document in Firestore. This is the bridge record that connects the routing system to the QUE tool system. One config per specialist. Loaded alongside the persona on every match.</p>
+  </div>
+
+  <div class="card">
+    <h2>Schema Definition</h2>
+    <pre class="codeblock"><span class="com">// Firestore collection: specialist_mode_configs</span>
+<span class="com">// Document ID: matches specialist_id (e.g., "mdj-securities")</span>
+{
+  <span class="key">specialist_id</span>: <span class="str">"mdj-securities"</span>,         <span class="com">// matches mdj_specialist_configs doc ID</span>
+  <span class="key">que_tools</span>: [                               <span class="com">// QUE tool names to inject on activation</span>
+    <span class="str">"analyzeTaxHarvest"</span>,
+    <span class="str">"analyzeRoth"</span>,
+    <span class="str">"calcRmd"</span>,
+    <span class="str">"calcPortfolioGainLoss"</span>,
+    <span class="str">"calcCostBasisOptimize"</span>,
+    <span class="str">"calcWashSaleRisk"</span>,
+    <span class="str">"calcEstimatedTaxLiability"</span>,
+    <span class="str">"calcBracketProjection"</span>,
+    <span class="str">"calcDistributionSchedule"</span>
+  ],
+  <span class="key">wires</span>: [                                   <span class="com">// Wire workflows unlocked in this mode</span>
+    <span class="str">"wireTaxHarvest"</span>,
+    <span class="str">"wireRothConversion"</span>
+  ],
+  <span class="key">auto_chain</span>: <span class="val">true</span>,                        <span class="com">// when user asks, select the right wire automatically</span>
+  <span class="key">output_format</span>: <span class="str">"pdf_branded"</span>,            <span class="com">// MUSASHI-designed template key</span>
+  <span class="key">approval_tier</span>: <span class="str">"SAFE"</span>,                  <span class="com">// override for injected tools in this specialist context</span>
+  <span class="key">context_keywords</span>: [                       <span class="com">// optional: additional routing hints for mode</span>
+    <span class="str">"tax"</span>, <span class="str">"harvest"</span>, <span class="str">"roth"</span>, <span class="str">"RMD"</span>,
+    <span class="str">"portfolio"</span>, <span class="str">"investment"</span>, <span class="str">"bracket"</span>
+  ]
+}</pre>
+  </div>
+
+  <div class="card">
+    <h2>TypeScript Interface — specialist-mode-config.ts</h2>
+    <pre class="codeblock"><span class="com">// mdj-agent/src/agent/specialist-mode-config.ts (NEW)</span>
+export interface SpecialistModeConfig {
+  <span class="key">specialist_id</span>: string;
+  <span class="key">que_tools</span>: string[];
+  <span class="key">wires</span>: string[];
+  <span class="key">auto_chain</span>: boolean;
+  <span class="key">output_format</span>: <span class="str">'pdf_branded'</span> | <span class="str">'structured_text'</span> | <span class="str">'none'</span>;
+  <span class="key">approval_tier</span>: <span class="str">'SAFE'</span> | <span class="str">'DANGEROUS'</span>;
+  <span class="key">context_keywords</span>?: string[];
+}
+
+<span class="com">// Loads from Firestore with 5-minute cache (matches specialist router)</span>
+export async function loadModeConfig(
+  specialistId: string
+): Promise&lt;SpecialistModeConfig | null&gt;</pre>
+  </div>
+
+  <div class="card">
+    <h2>Why This Config Format</h2>
+    <p>The config is the bridge. It does three things simultaneously:</p>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Declares Tools</h4>
+        <p><code>que_tools</code> tells the injector exactly which QUE tools to append to the agent context. No hardcoding in agent code. Adding a new tool to a specialist is a Firestore write, not a deploy.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Declares Wires</h4>
+        <p><code>wires</code> tells the agent which wire workflows are available in this specialist mode. <code>auto_chain: true</code> lets the agent pick the right wire without prompting the user to choose.</p>
+      </div>
+      <div class="spec-card gold">
+        <h4>Controls Trust</h4>
+        <p><code>approval_tier</code> overrides the default tool classification for injected tools in this specialist context. Analysis tools that are normally SAFE stay SAFE. Writes stay DANGEROUS regardless.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Specialist Configs — Phase I Scope</h2>
+    <table>
+      <tr><th>Specialist</th><th>Mode Config</th><th>Phase</th></tr>
+      <tr><td><code>mdj-securities</code></td><td>Investment mode_config — full tool set + 2 wires</td><td><span class="badge badge-blue" style="font-size:0.65rem">Phase I</span></td></tr>
+      <tr><td><code>mdj-medicare</code></td><td>Medicare mode_config seeded (prep for Phase II)</td><td><span class="badge badge-blue" style="font-size:0.65rem">Phase I prep</span></td></tr>
+      <tr><td><code>mdj-general</code></td><td>No mode_config — general behavior unchanged</td><td>&mdash;</td></tr>
+      <tr><td><code>mdj-service</code></td><td>Phase II</td><td><span class="badge badge-purple" style="font-size:0.65rem">Future</span></td></tr>
+      <tr><td><code>mdj-david</code></td><td>Phase II</td><td><span class="badge badge-purple" style="font-size:0.65rem">Future</span></td></tr>
+      <tr><td><code>mdj-ops</code></td><td>Phase II</td><td><span class="badge badge-purple" style="font-size:0.65rem">Future</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 6: OUTPUT DESIGN -->
+<div class="tab-panel" id="output">
+  <div class="card">
+    <h2>MUSASHI's Lane</h2>
+    <p>The tool chain produces the data. MUSASHI designs the package. These are client-facing documents &mdash; they carry the RPI brand, the advisor's credibility, and the client's trust. They are not printouts. They are deliverables.</p>
+    <div class="gate-callout">
+      <h4>TRK-VS-009 is the MUSASHI ticket</h4>
+      <p>The Tax Harvesting Analysis PDF template is where the creative and technical lanes converge. MUSASHI designs it. VOLTRON populates it. The client receives it. This is the moment the two systems become one visible thing.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Client Document Templates</h2>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Tax Harvesting Analysis</h4>
+        <p><strong>Sections:</strong> Client name + date, portfolio summary (total value, cost basis, unrealized gain/loss), harvest opportunities table (position, loss amount, recommended action), estimated tax benefit, 30-60-90 day recommendations, compliance disclaimer.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Roth Conversion Analysis</h4>
+        <p><strong>Sections:</strong> Current tax bracket, MAGI summary, conversion scenarios (partial vs full), 5-year projection, break-even analysis, recommended conversion ladder, tax year deadline notes.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>RMD Calculator Output</h4>
+        <p><strong>Sections:</strong> Client DOB + account owner age, account balances + factor table, annual distribution schedule (5-year), QCD opportunity callout, inherited IRA notes if applicable, penalty avoidance reminder.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Architecture — Build Once, Works Everywhere</h2>
+    <p>The same template architecture as the CMO brochures. One design system. Content slots populated by VOLTRON's analysis output. Output rendered to PDF via PDF_SERVICE.</p>
+    <div class="level-bar blue">
+      <h4>Template Structure</h4>
+      <p>HTML/CSS template with named content slots. VOLTRON's analysis fills the slots. PDF_SERVICE renders. Brand identity is locked in the template &mdash; VOLTRON cannot break the design.</p>
+    </div>
+    <div class="level-bar cyan">
+      <h4>PDF_SERVICE Integration</h4>
+      <p>Existing PDF_SERVICE handles rendering. No new infrastructure. VOLTRON calls <code>POST /render</code> with template ID + data payload. Gets back a signed URL to the finished PDF.</p>
+    </div>
+    <div class="level-bar gold">
+      <h4>Delivery</h4>
+      <p>PDF URL returned in the VOLTRON chat response. Advisor clicks, downloads, hands to client. Or: direct email delivery via RAPID_COMMS. Phase I: URL delivery. Phase II: email automation.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Brand Standards for Client Documents</h2>
+    <table>
+      <tr><th>Element</th><th>Standard</th></tr>
+      <tr><td>Logo</td><td>RPI logo top-left. Never generated &mdash; pulled from <code>packages/ui/src/logos/</code></td></tr>
+      <tr><td>Colors</td><td>RPI Blue <code>#4a7ab5</code> primary. White body. Light gray dividers.</td></tr>
+      <tr><td>Typography</td><td>Headline: Inter 700. Body: Inter 400. Data tables: SF Mono.</td></tr>
+      <tr><td>Disclaimers</td><td>FINRA-compliant disclaimer block. Always present. Never editable by VOLTRON.</td></tr>
+      <tr><td>Advisor ID</td><td>Advisor name + NPN pulled from authenticated session. Stamped on every doc.</td></tr>
+      <tr><td>Date</td><td>Generation timestamp + "as of" date for data currency. Auto-populated.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 7: FILES -->
+<div class="tab-panel" id="files">
+  <div class="card">
+    <h2>Files That Matter — Existing</h2>
+    <table>
+      <tr><th>File</th><th>What It Does</th><th>Phase I Touch?</th></tr>
+      <tr>
+        <td><code>mdj-agent/src/agent/specialist-router.ts</code></td>
+        <td>Keyword scoring + Sonnet fallback classification. Returns specialist ID + persona config.</td>
+        <td><span class="badge badge-blue" style="font-size:0.65rem">Modified</span></td>
+      </tr>
+      <tr>
+        <td><code>mdj-agent/src/agent/intent-classifier.ts</code></td>
+        <td>Mode classification (chat vs wire/deploy). Upstream of specialist routing.</td>
+        <td>Read only</td>
+      </tr>
+      <tr>
+        <td><code>mdj-agent/src/agent/voltron-os-rules.ts</code></td>
+        <td>Tool approval tiers. Enforces DANGEROUS/SAFE/OWNER_BYPASS per tool.</td>
+        <td><span class="badge badge-blue" style="font-size:0.65rem">Modified</span></td>
+      </tr>
+      <tr>
+        <td><code>packages/core/src/voltron/tools/legacy-tool-map.ts</code></td>
+        <td>82 tool definitions (57 TM API + 25 MCP bridge). Source of truth for all tool metadata.</td>
+        <td>Read only</td>
+      </tr>
+      <tr>
+        <td><code>services/api/src/scripts/update-mdj-specialist-prompts.ts</code></td>
+        <td>Manages specialist prompt updates in Firestore. Pattern reference for mode_config seeder.</td>
+        <td>Reference</td>
+      </tr>
+      <tr>
+        <td><code>services/api/src/scripts/seed-mdj-specialists.ts</code></td>
+        <td>Seeds specialist personas to Firestore. Pattern source for mode_config seeder.</td>
+        <td>Reference</td>
+      </tr>
+      <tr>
+        <td><code>packages/ui/src/modules/MDJPanel/</code></td>
+        <td>Portal chat panel component. Renders VOLTRON conversation in all 3 portals.</td>
+        <td>Read only</td>
+      </tr>
+      <tr>
+        <td><code>apps/prodash/app/(portal)/modules/voltron/</code></td>
+        <td>VoltronDualMode module. Wire selector pattern. Template for QUE tool chaining.</td>
+        <td>Reference</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Files That Matter — New (Phase I)</h2>
+    <table>
+      <tr><th>File</th><th>What It Does</th><th>Ticket</th></tr>
+      <tr>
+        <td><code>mdj-agent/src/agent/specialist-mode-config.ts</code></td>
+        <td>TypeScript interface + Firestore loader for <code>specialist_mode_configs</code> collection. 5-minute cache. Returns <code>SpecialistModeConfig | null</code>.</td>
+        <td><code>TRK-VS-002</code></td>
+      </tr>
+      <tr>
+        <td><code>mdj-agent/src/agent/que-tool-injector.ts</code></td>
+        <td>Takes a <code>SpecialistModeConfig</code> and the active agent context. Appends QUE tool definitions from <code>legacy-tool-map.ts</code> matching the config's <code>que_tools</code> list. Returns augmented context.</td>
+        <td><code>TRK-VS-003</code></td>
+      </tr>
+      <tr>
+        <td><code>services/api/src/scripts/seed-investment-mode-config.ts</code></td>
+        <td>One-time seeder: writes Investment mode_config to Firestore <code>specialist_mode_configs</code> collection. Pattern for all future specialist configs.</td>
+        <td><code>TRK-VS-005</code></td>
+      </tr>
+      <tr>
+        <td><code>services/api/src/scripts/seed-medicare-mode-config.ts</code></td>
+        <td>Seeds Medicare mode_config (Phase II prep). Tool list only &mdash; no wire activation until Phase II.</td>
+        <td><code>TRK-VS-011</code></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Firestore Collections</h2>
+    <table>
+      <tr><th>Collection</th><th>Purpose</th><th>Status</th></tr>
+      <tr><td><code>mdj_specialist_configs</code></td><td>Existing specialist personas + system prompts. 6 docs, one per specialist.</td><td><span class="status-ready">Live</span></td></tr>
+      <tr><td><code>specialist_mode_configs</code></td><td>New bridge collection. Mode config per specialist. TRK-VS-001 creates schema, TRK-VS-005 seeds first doc.</td><td><span class="status-new">New — Phase I</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 8: SPRINT PLAN -->
+<div class="tab-panel" id="sprint">
+  <div class="card">
+    <h2>~12 Tickets — 3 Phases</h2>
+    <p>Phase 1 builds the infrastructure that all specialist wiring will use forever. Phase 2 wires the Investment Specialist end-to-end. Phase 3 validates with real data and preps Phase II. The gate between Phase 1 and Phase 2 is hard &mdash; no wiring until the infrastructure is stable.</p>
+  </div>
+
+  <div class="phase-header">
+    <div class="phase-number">1</div>
+    <div>
+      <h3>Mode Config Infrastructure</h3>
+      <p>4 tickets &bull; Foundation for all specialist wiring &bull; Must pass before Phase 2 begins</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-001</div>
+      <div>
+        <div class="ticket-title">Define specialist_mode_config schema in Firestore</div>
+        <div class="ticket-desc">Create <code>specialist_mode_configs</code> collection. Define schema: <code>specialist_id</code>, <code>que_tools[]</code>, <code>wires[]</code>, <code>auto_chain</code>, <code>output_format</code>, <code>approval_tier</code>. Document in Firestore rules. <strong>AC:</strong> Collection exists, rules allow RPI users to read, schema doc in <code>docs/</code>.</div>
+      </div>
+      <span class="pill infra">infra</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-002</div>
+      <div>
+        <div class="ticket-title">Build specialist-mode-config.ts loader</div>
+        <div class="ticket-desc">New file: <code>mdj-agent/src/agent/specialist-mode-config.ts</code>. <code>SpecialistModeConfig</code> interface + <code>loadModeConfig(specialistId)</code> with 5-min cache matching specialist router. <strong>AC:</strong> Returns typed config or null. Cache verified in tests.</div>
+      </div>
+      <span class="pill feat">feat</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-003</div>
+      <div>
+        <div class="ticket-title">Build que-tool-injector.ts</div>
+        <div class="ticket-desc">New file: <code>mdj-agent/src/agent/que-tool-injector.ts</code>. Takes <code>SpecialistModeConfig + agentContext</code>. Looks up each tool in <code>legacy-tool-map.ts</code>, appends definitions to context. <strong>AC:</strong> Injected tools appear in agent's available tool list. Non-existent tool names log a warning and skip.</div>
+      </div>
+      <span class="pill feat">feat</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-004</div>
+      <div>
+        <div class="ticket-title">Update specialist-router.ts to load mode_config</div>
+        <div class="ticket-desc">On specialist match, call <code>loadModeConfig(specialistId)</code> in parallel with persona load. If config exists, pass to <code>que-tool-injector</code> before returning context to agent. If null, existing behavior unchanged. <strong>AC:</strong> No regression on existing routing. Mode config loads in &lt;50ms (cached). Unit test both paths.</div>
+      </div>
+      <span class="pill feat">feat</span>
+    </div>
+  </div>
+
+  <div class="warn-callout" style="margin: 0 0 20px;">
+    <h4>Phase Gate — Phase 1 must pass before Phase 2 begins</h4>
+    <p>Infrastructure must be stable. All 4 Phase 1 tickets merged and E2E verified (tool injection working) before any wiring tickets start.</p>
+  </div>
+
+  <div class="phase-header">
+    <div class="phase-number">2</div>
+    <div>
+      <h3>Investment Specialist Wiring</h3>
+      <p>5 tickets &bull; End-to-end Investment Specialist + client output &bull; TRK-VS-009 is MUSASHI's lane</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-005</div>
+      <div>
+        <div class="ticket-title">Seed Investment mode_config to Firestore</div>
+        <div class="ticket-desc">Script: <code>services/api/src/scripts/seed-investment-mode-config.ts</code>. Writes full Investment config: 9 QUE tools + 2 wires + auto_chain + pdf_branded output format. <strong>AC:</strong> Doc exists in <code>specialist_mode_configs/mdj-securities</code>. Verified via Firestore console.</div>
+      </div>
+      <span class="pill chore">chore</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-006</div>
+      <div>
+        <div class="ticket-title">Wire analyzeTaxHarvest through VOLTRON specialist mode</div>
+        <div class="ticket-desc">Verify <code>analyzeTaxHarvest</code> executes successfully when called via mdj-securities specialist context. Update <code>voltron-os-rules.ts</code> to grant SAFE tier for specialist-injected analysis tools. <strong>AC:</strong> Tool executes without approval prompt when Securities specialist is active. Returns structured analysis data.</div>
+      </div>
+      <span class="pill feat">feat</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-007</div>
+      <div>
+        <div class="ticket-title">Wire wireRothConversion through VOLTRON specialist mode</div>
+        <div class="ticket-desc">Same pattern as TRK-VS-006. Verify <code>wireRothConversion</code> executes end-to-end in Securities specialist context. Test: "Show me Roth conversion options for [client]" triggers full wire. <strong>AC:</strong> Wire completes, returns Roth analysis data payload ready for output template.</div>
+      </div>
+      <span class="pill feat">feat</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-008</div>
+      <div>
+        <div class="ticket-title">E2E test: tax harvesting request → VOLTRON chains → returns analysis</div>
+        <div class="ticket-desc">Full path test: MDJ Panel → Securities specialist routing → mode_config loaded → analyzeTaxHarvest called → wireTaxHarvest chains → analysis returned. No manual steps. <strong>AC:</strong> Test completes in &lt;30s. Result includes positions, dollar amounts, recommendations.</div>
+      </div>
+      <span class="pill test">test</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-009</div>
+      <div>
+        <div class="ticket-title">Client-facing output template — Tax Harvesting Analysis PDF</div>
+        <div class="ticket-desc">Design and build the branded Tax Harvesting Analysis PDF template. HTML/CSS layout with named content slots. PDF_SERVICE integration. Sections: client header, portfolio summary, harvest table, recommendations, disclaimers. <strong>AC:</strong> Template renders to PDF via PDF_SERVICE. Advisor name + NPN auto-stamped. FINRA disclaimer present.</div>
+        <div class="ticket-musashi">MUSASHI's lane — creative lead on this ticket</div>
+      </div>
+      <span class="pill design">design</span>
+    </div>
+  </div>
+
+  <div class="phase-header">
+    <div class="phase-number">3</div>
+    <div>
+      <h3>Validation + Expansion Prep</h3>
+      <p>3 tickets &bull; Real client validation + Phase II readiness</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-010</div>
+      <div>
+        <div class="ticket-title">E2E test with real client data — Josh Archer + Nepper case</div>
+        <div class="ticket-desc">Run the full Investment Specialist flow against the Josh Archer + Nepper portfolio. Known case study with known harvest opportunities. <strong>AC:</strong> Analysis matches known expectations. PDF output renders correctly. JDM reviews and approves output quality before Phase II begins.</div>
+      </div>
+      <span class="pill test">test</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-011</div>
+      <div>
+        <div class="ticket-title">Seed Medicare mode_config (Phase II prep)</div>
+        <div class="ticket-desc">Script: <code>seed-medicare-mode-config.ts</code>. Writes Medicare config with tool list (<code>calcIrmaa</code>, CSG quoting) and wire stubs. <code>auto_chain: false</code> until Phase II wires are live. <strong>AC:</strong> Doc exists in Firestore. Does not activate any new behavior &mdash; prep only.</div>
+      </div>
+      <span class="pill chore">chore</span>
+    </div>
+    <div class="ticket-row">
+      <div class="ticket-id">TRK-VS-012</div>
+      <div>
+        <div class="ticket-title">Update Product Specialists Roadmap with Phase I results</div>
+        <div class="ticket-desc">Update <code>docs/product-specialists-roadmap.html</code> with Phase I status: what shipped, what the Investment Specialist can now do, Phase II timeline. <strong>AC:</strong> Roadmap reflects current live capabilities. Phase II scope documented with priority order.</div>
+      </div>
+      <span class="pill content">content</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <div class="success-callout">
+      <h4>The Moment This Sprint Is Complete</h4>
+      <p>A team member asks VOLTRON "Show me tax harvesting opportunities for [client]" and gets back a branded PDF analysis with specific recommendations, dollar amounts, and compliance disclaimers &mdash; no manual steps, no developer involvement, no copy-paste from a spreadsheet.</p>
+    </div>
+    <h3>Summary Table</h3>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Gate</th></tr>
+      <tr><td><code>TRK-VS-001</code></td><td>Define mode_config schema in Firestore</td><td><span class="pill infra">infra</span></td><td>Phase 1</td></tr>
+      <tr><td><code>TRK-VS-002</code></td><td>Build specialist-mode-config.ts loader</td><td><span class="pill feat">feat</span></td><td>Phase 1</td></tr>
+      <tr><td><code>TRK-VS-003</code></td><td>Build que-tool-injector.ts</td><td><span class="pill feat">feat</span></td><td>Phase 1</td></tr>
+      <tr><td><code>TRK-VS-004</code></td><td>Update specialist-router.ts</td><td><span class="pill feat">feat</span></td><td>Phase 1</td></tr>
+      <tr><td><code>TRK-VS-005</code></td><td>Seed Investment mode_config</td><td><span class="pill chore">chore</span></td><td>Phase 2</td></tr>
+      <tr><td><code>TRK-VS-006</code></td><td>Wire analyzeTaxHarvest</td><td><span class="pill feat">feat</span></td><td>Phase 2</td></tr>
+      <tr><td><code>TRK-VS-007</code></td><td>Wire wireRothConversion</td><td><span class="pill feat">feat</span></td><td>Phase 2</td></tr>
+      <tr><td><code>TRK-VS-008</code></td><td>E2E test — tax harvesting end-to-end</td><td><span class="pill test">test</span></td><td>Phase 2</td></tr>
+      <tr><td><code>TRK-VS-009</code></td><td>Tax Harvesting Analysis PDF template</td><td><span class="pill design">design</span></td><td>Phase 2 — MUSASHI</td></tr>
+      <tr><td><code>TRK-VS-010</code></td><td>E2E with Josh Archer + Nepper</td><td><span class="pill test">test</span></td><td>Phase 3</td></tr>
+      <tr><td><code>TRK-VS-011</code></td><td>Seed Medicare mode_config</td><td><span class="pill chore">chore</span></td><td>Phase 3</td></tr>
+      <tr><td><code>TRK-VS-012</code></td><td>Update Product Specialists Roadmap</td><td><span class="pill content">content</span></td><td>Phase 3</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<div class="footer">
+  Discovery by <strong>MUSASHI, ARTxBLADE</strong> &mdash; VP/CMO, Executive.AI Team &bull; VOLTRON Phase I &bull; 2026-04-01<br>
+  Connecting VOLTRON's voice to VOLTRON's tools. <strong>#RunningOurOwnRACE</strong>
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
