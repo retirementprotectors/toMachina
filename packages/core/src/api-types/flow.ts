@@ -56,6 +56,8 @@ export interface FlowInstanceDetailData {
   tasks: Array<FlowTaskInstanceData & { id: string }>
   activity: Array<FlowActivityData & { id: string }>
   stages: Array<FlowStageDef & { id: string }>
+  gateResult?: { pass: boolean; reasons: string[] } | null
+  isAtFinalStage?: boolean
 }
 
 /** POST /api/flow/instances — create a new instance */
