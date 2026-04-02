@@ -9,6 +9,7 @@ import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse, param } from '../lib/helpers.js'
 import type { IntakeWireResult, IntakeApproveResult, IntakeRejectResult } from '@tomachina/core'
 import { resumeWireAfterApproval } from './wire.js'
+import { buildAcfCallbacks } from '../lib/acf-callbacks.js'
 
 export const intakeRoutes = Router()
 
@@ -49,14 +50,23 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
     }
 
     const db = getFirestore()
+    const meta = (input._meta || {}) as Record<string, unknown>
 
-    // Build wire context
+    // Build wire context — includes ACF callbacks so ACF_FINALIZE can
+    // look up client folders, move files, and update document_index.
     const context = {
       wire_id,
       user_email: 'system@retireprotected.com',
       source_file_ids: (input.file_ids as string[]) || [],
       dry_run: false,
       approval_required: true,
+      // Metadata from intake queue — carried through to super tools
+      client_id: (meta.client_id as string) || undefined,
+      source: (meta.source as string) || undefined,
+      file_id: (input.file_id as string) || undefined,
+      source_folder_id: (meta.source_folder_id as string) || undefined,
+      // Drive + Firestore callbacks for ACF_FINALIZE
+      ...buildAcfCallbacks(),
     }
 
     // Build wire input
@@ -99,7 +109,6 @@ intakeRoutes.post('/execute-wire', async (req: Request, res: Response) => {
     }
 
     // TRK-528: Wire completion summary → Notifications DATA tab
-    const meta = (input._meta || {}) as Record<string, unknown>
     const stageNames = (result.stages || []).map((s: { stage: string; status: string }) => `${s.stage}: ${s.status}`)
     await db.collection('notifications').add({
       type: 'wire_completion',
