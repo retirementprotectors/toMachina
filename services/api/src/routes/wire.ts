@@ -18,6 +18,7 @@ import {
   param,
 } from '../lib/helpers.js'
 import type { WireExecutionResult, WireStatusData, WireResumeData } from '@tomachina/core'
+import { buildAcfCallbacks } from '../lib/acf-callbacks.js'
 
 export const wireRoutes = Router()
 
@@ -84,6 +85,9 @@ wireRoutes.post('/execute', async (req: Request, res: Response) => {
       source_file_ids: file_ids || (file_id ? [file_id] : []),
       dry_run: dry_run || false,
       approval_required: !dry_run,
+      file_id,
+      // Drive + Firestore callbacks for ACF_FINALIZE
+      ...buildAcfCallbacks(),
     }
 
     const result = await executeWire(wire_id, input, context)
@@ -193,6 +197,12 @@ export async function resumeWireAfterApproval(
       approval_required: false,
       resume_from_stage: 'SUPER_WRITE',
       execution_id: wireExecutionId,
+      // Restore metadata + ACF callbacks for ACF_FINALIZE (runs post-approval)
+      client_id: execData.client_id as string | undefined,
+      source: execData.source as string | undefined,
+      file_id: execData.file_id as string | undefined,
+      source_folder_id: execData.source_folder_id as string | undefined,
+      ...buildAcfCallbacks(),
     }
 
     const result = await executeWire(execData.wire_id as string, input, context)

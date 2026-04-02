@@ -22,6 +22,8 @@ export interface WireContext {
   source_file_ids: string[]
   dry_run: boolean
   approval_required: boolean
+  /** Allow callers to inject callbacks and metadata that pass through to SuperToolContext */
+  [key: string]: unknown
 }
 
 export interface StageResult {
@@ -129,11 +131,15 @@ export async function executeWire(
   let approvalBatchId: string | undefined
   let currentOutput: unknown = input
 
-  // Build SuperTool context from wire context
+  // Build SuperTool context from wire context — spread all context fields
+  // so caller-injected callbacks (getClientAcfFolder, moveFile, etc.) and
+  // metadata (client_id, source, acf_subfolder) pass through to super tools.
+  const { wire_id: _wid, user_email, source_file_ids: _sfi, dry_run: _dr, approval_required: _ar, ...contextExtras } = context
   const superToolContext: SuperToolContext = {
-    triggered_by: context.user_email,
+    triggered_by: user_email,
     target_collection: undefined,
     target_category: undefined,
+    ...contextExtras,
   }
 
   // Execute each SuperTool sequentially
@@ -398,6 +404,11 @@ function buildAuditDoc(
     source_file_ids: context.source_file_ids,
     dry_run: context.dry_run,
     approval_required: context.approval_required,
+    // Persist metadata so resume path can restore context after approval pause
+    client_id: context.client_id || null,
+    source: context.source || null,
+    file_id: context.file_id || null,
+    source_folder_id: context.source_folder_id || null,
     stages: stages.map((s) => ({
       stage: s.stage,
       status: s.status,
