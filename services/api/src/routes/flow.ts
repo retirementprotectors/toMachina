@@ -256,7 +256,28 @@ flowRoutes.get('/instances/:id', async (req: Request, res: Response) => {
     const activity = activitySnap.docs.map(d => ({ id: d.id, ...d.data() }))
     const stages = stagesSnap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-    res.json(successResponse<FlowInstanceDetailData>({ instance: stripInternalFields(instance), tasks, activity, stages } as unknown as FlowInstanceDetailData))
+    // Compute gate result for current stage so the UI can disable Advance when blocked
+    let gateResult: { pass: boolean; reasons: string[] } | null = null
+    const currentStage = stages.find((s: any) => s.stage_id === instance.current_stage) as any
+    if (currentStage?.gate_enforced) {
+      const currentTasks = tasks as any[]
+      const stageTasks = currentTasks.filter((t: any) => t.stage_id === currentStage.stage_id)
+      const statusBlockers = stageTasks
+        .filter((t: any) => t.is_required && !['completed', 'skipped'].includes(String(t.status)))
+      const checkBlockers = stageTasks
+        .filter((t: any) => t.is_system_check && t.status === 'completed' && t.check_result && t.check_result !== 'PASS')
+      const reasons = [
+        ...statusBlockers.map((t: any) => `"${t.task_name}" is ${t.status}`),
+        ...checkBlockers.map((t: any) => `"${t.task_name}" check returned ${t.check_result}`),
+      ]
+      gateResult = { pass: reasons.length === 0, reasons }
+    }
+
+    // Check if at final stage
+    const currentIdx = stages.findIndex((s: any) => s.stage_id === instance.current_stage)
+    const isAtFinalStage = currentIdx >= 0 && currentIdx >= stages.length - 1
+
+    res.json(successResponse<FlowInstanceDetailData>({ instance: stripInternalFields(instance), tasks, activity, stages, gateResult, isAtFinalStage } as unknown as FlowInstanceDetailData))
   } catch (err) {
     console.error('GET /api/flow/instances/:id error:', err)
     res.status(500).json(errorResponse(String(err)))
@@ -311,7 +332,13 @@ flowRoutes.post('/instances', async (req: Request, res: Response) => {
       updated_at: now,
     }
 
-    // Write through bridge (falls back to direct Firestore)
+    // Generate tasks FIRST so a failure doesn't leave orphaned instances
+    let tasksGenerated = 0
+    if (firstStage.has_workflow) {
+      tasksGenerated = await generateStageTasks(db, instanceId, pipelineKey, String(firstStage.stage_id), String(body.assigned_to))
+    }
+
+    // Write instance only after tasks succeed (or none needed)
     const bridgeResult = await writeThroughBridge(INSTANCES, 'insert', instanceId, instance)
     if (!bridgeResult.success) {
       await db.collection(INSTANCES).doc(instanceId).set(instance)
@@ -331,12 +358,6 @@ flowRoutes.post('/instances', async (req: Request, res: Response) => {
       notes: '',
     }
     await db.collection(ACTIVITY).doc(activityId).set(activity)
-
-    // Generate tasks if stage has workflow
-    let tasksGenerated = 0
-    if (firstStage.has_workflow) {
-      tasksGenerated = await generateStageTasks(db, instanceId, pipelineKey, String(firstStage.stage_id), String(body.assigned_to))
-    }
 
     res.status(201).json(successResponse<FlowInstanceCreateResult>({
       instance_id: instanceId,

@@ -1,13 +1,16 @@
 'use client'
 
-import type { GateResult } from '@tomachina/core'
-
 // ============================================================================
 // GateStatus — gate pass/fail visualization with blocker details
 // ============================================================================
 
+export interface ApiGateResult {
+  pass: boolean
+  reasons: string[]
+}
+
 export interface GateStatusProps {
-  gateResult: GateResult | null
+  gateResult: ApiGateResult | null
   stageName: string
 }
 
@@ -32,7 +35,7 @@ export function GateStatus({ gateResult, stageName }: GateStatusProps) {
     )
   }
 
-  // Gate fails — show blockers
+  // Gate fails — show reasons
   return (
     <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3">
       <div className="flex items-center gap-3">
@@ -42,36 +45,25 @@ export function GateStatus({ gateResult, stageName }: GateStatusProps) {
         <div>
           <p className="text-sm font-medium text-red-400">Blocked</p>
           <p className="text-[10px] text-[var(--text-muted)]">
-            {gateResult.blockers.length} blocker{gateResult.blockers.length !== 1 ? 's' : ''} preventing
+            {gateResult.reasons.length} blocker{gateResult.reasons.length !== 1 ? 's' : ''} preventing
             advance from {stageName}
           </p>
         </div>
       </div>
 
-      {/* Blocker list */}
-      {gateResult.blockers.length > 0 && (
+      {gateResult.reasons.length > 0 && (
         <div className="mt-3 space-y-1.5 pl-8">
-          {gateResult.blockers.map((blocker, idx) => (
+          {gateResult.reasons.map((reason, idx) => (
             <div
-              key={`${blocker.task_id}-${idx}`}
+              key={idx}
               className="flex items-start gap-2 rounded-lg bg-[var(--bg-card)] px-3 py-2"
             >
               <span className="material-icons-outlined mt-0.5 text-red-400" style={{ fontSize: '14px' }}>
                 error_outline
               </span>
-              <div className="flex-1">
-                <p className="text-xs font-medium text-[var(--text-primary)]">
-                  {blocker.task_name}
-                </p>
-                <p className="text-[10px] text-[var(--text-muted)]">
-                  {blocker.reason}
-                </p>
-                {blocker.check_result && (
-                  <span className="mt-0.5 inline-block rounded-full bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-400">
-                    {blocker.check_result}
-                  </span>
-                )}
-              </div>
+              <p className="flex-1 text-xs text-[var(--text-primary)]">
+                {reason}
+              </p>
             </div>
           ))}
         </div>

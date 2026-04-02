@@ -4,20 +4,21 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 10,
+      "backend_endpoints": 12,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "accounts.ts",
-          "endpoints": 10,
+          "endpoints": 12,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         }
       ],
@@ -62,7 +63,7 @@
       "status": "backend_only",
       "backend": "access.ts",
       "frontend": "",
-      "backend_endpoints": 249,
+      "backend_endpoints": 251,
       "hardcoded": false,
       "sub_collection": true,
       "backend_routes": [
@@ -81,14 +82,15 @@
         },
         {
           "file": "accounts.ts",
-          "endpoints": 10,
+          "endpoints": 12,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         {
@@ -1010,20 +1012,21 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 384,
+      "backend_endpoints": 386,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "accounts.ts",
-          "endpoints": 10,
+          "endpoints": 12,
           "reads": true,
           "writes": true,
           "operations": [
             "list",
             "get",
             "create",
-            "update"
+            "update",
+            "delete"
           ]
         },
         {
@@ -2917,12 +2920,13 @@
     },
     "accounts.ts": {
       "file": "accounts.ts",
-      "endpoints": 10,
+      "endpoints": 12,
       "operations": [
         "list",
         "get",
         "create",
-        "update"
+        "update",
+        "delete"
       ],
       "collections": [
         "accounts",
@@ -4841,6 +4845,6 @@
     "cloud_functions_found": 14,
     "env_vars_found": 40,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-04-01T00:52:32.522Z"
+    "scanned_at": "2026-04-02T16:17:58.781Z"
   }
 }

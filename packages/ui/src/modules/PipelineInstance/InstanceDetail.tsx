@@ -35,7 +35,8 @@ interface InstanceDetailResponse {
     tasks: FlowTaskInstanceData[]
     activity: FlowActivityData[]
     stages: FlowStageDef[]
-    gateResult?: GateResult | null
+    gateResult?: { pass: boolean; reasons: string[] } | null
+    isAtFinalStage?: boolean
   }
   error?: string
 }
@@ -70,7 +71,8 @@ export default function InstanceDetail({
   const [tasks, setTasks] = useState<FlowTaskInstanceData[]>([])
   const [activity, setActivity] = useState<FlowActivityData[]>([])
   const [stages, setStages] = useState<FlowStageDef[]>([])
-  const [gateResult, setGateResult] = useState<GateResult | null>(null)
+  const [gateResult, setGateResult] = useState<{ pass: boolean; reasons: string[] } | null>(null)
+  const [isAtFinalStage, setIsAtFinalStage] = useState(false)
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -98,6 +100,7 @@ export default function InstanceDetail({
       setActivity(result.data.activity || [])
       setStages(result.data.stages || [])
       setGateResult(result.data.gateResult ?? null)
+      setIsAtFinalStage(result.data.isAtFinalStage ?? false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Network error')
     } finally {
@@ -136,6 +139,7 @@ export default function InstanceDetail({
   )
 
   const handleAdvance = () => performAction('advance')
+  const handleComplete = () => performAction('complete')
 
   const handleCompleteTask = useCallback(
     async (taskId: string) => {
@@ -200,7 +204,7 @@ export default function InstanceDetail({
 
   const currentStageDef = stages.find((s) => s.stage_id === instance?.current_stage)
   const currentStageName = currentStageDef?.stage_name || instance?.current_stage || 'Unknown'
-  const canAdvance = gateResult === null || gateResult.pass
+  const canAdvance = !isAtFinalStage && (gateResult === null || gateResult.pass)
   const priorityConfig = PRIORITY_CONFIG[instance?.priority || 'MEDIUM'] || PRIORITY_CONFIG.MEDIUM
 
   /* ─── Loading state ─── */
@@ -388,22 +392,41 @@ export default function InstanceDetail({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3">
-        <button
-          onClick={handleAdvance}
-          disabled={!canAdvance || actionLoading}
-          className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
-          style={{ backgroundColor: 'var(--portal)' }}
-          title={!canAdvance ? 'Gate requirements not met' : 'Advance to next stage'}
-        >
-          {actionLoading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-          ) : (
-            <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
-              arrow_forward
-            </span>
-          )}
-          Advance Stage
-        </button>
+        {isAtFinalStage ? (
+          <button
+            onClick={handleComplete}
+            disabled={actionLoading || instance?.stage_status === 'complete'}
+            className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
+            style={{ backgroundColor: 'var(--success, #22c55e)' }}
+            title={instance?.stage_status === 'complete' ? 'Already completed' : 'Complete this case'}
+          >
+            {actionLoading ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
+                check_circle
+              </span>
+            )}
+            Complete Case
+          </button>
+        ) : (
+          <button
+            onClick={handleAdvance}
+            disabled={!canAdvance || actionLoading}
+            className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50"
+            style={{ backgroundColor: 'var(--portal)' }}
+            title={!canAdvance && gateResult ? `Gate blocked: ${gateResult.reasons.join('; ')}` : 'Advance to next stage'}
+          >
+            {actionLoading ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <span className="material-icons-outlined" style={{ fontSize: '18px' }}>
+                arrow_forward
+              </span>
+            )}
+            Advance Stage
+          </button>
+        )}
 
         <button
           onClick={() => setShowReassign((v) => !v)}
