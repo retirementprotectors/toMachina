@@ -32,6 +32,8 @@ interface ActiveCallScreenProps {
   onEndCall: (callId: string) => void
   /** Send DTMF digits */
   onSendDigits: (digits: string) => void
+  /** COMMS-V2-003: Bubble notes up so they survive call end */
+  onNotesChange?: (notes: string) => void
 }
 
 /* ─── Duration Timer Hook ─── */
@@ -84,7 +86,7 @@ function DtmfKeypad({ onSendDigits, onClose }: { onSendDigits: (d: string) => vo
 
 /* ─── Component ─── */
 
-export function ActiveCallScreen({ call, isMuted, onToggleMute, onEndCall, onSendDigits }: ActiveCallScreenProps) {
+export function ActiveCallScreen({ call, isMuted, onToggleMute, onEndCall, onSendDigits, onNotesChange }: ActiveCallScreenProps) {
   const duration = useCallTimer()
   const [showKeypad, setShowKeypad] = useState(false)
   const [notes, setNotes] = useState('')
@@ -183,7 +185,7 @@ export function ActiveCallScreen({ call, isMuted, onToggleMute, onEndCall, onSen
           <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">Call Notes</label>
           <textarea
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => { setNotes(e.target.value); onNotesChange?.(e.target.value) }}
             placeholder="Type notes during the call..."
             rows={3}
             className="w-full resize-none rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"

@@ -71,6 +71,11 @@ export default function CallPanel({ prospect, onClose, onDispositioned, queueMod
   const [outcome, setOutcome] = useState<CallOutcome | null>(null)
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
+  // COMMS-V2-007: Capture call_sid for dedup
+  const [callSid, setCallSid] = useState<string | null>(null)
+  // COMMS-V2-004: Follow-up scheduling
+  const [followUpDate, setFollowUpDate] = useState('')
+  const [followUpTime, setFollowUpTime] = useState('09:00')
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const callRef = useRef<unknown>(null)
 
@@ -84,6 +89,9 @@ export default function CallPanel({ prospect, onClose, onDispositioned, queueMod
     setOutcome(null)
     setNotes('')
     setSaving(false)
+    setCallSid(null)
+    setFollowUpDate('')
+    setFollowUpTime('09:00')
     callRef.current = null
     if (timerRef.current) {
       clearInterval(timerRef.current)
@@ -128,6 +136,12 @@ export default function CallPanel({ prospect, onClose, onDispositioned, queueMod
           return
         }
         callRef.current = call
+
+        // COMMS-V2-007: Capture CallSid for dedup
+        try {
+          const params = (call as unknown as Record<string, unknown>).parameters as Record<string, string> | undefined
+          if (params?.CallSid) setCallSid(params.CallSid)
+        } catch { /* non-blocking */ }
 
         // SDK events drive state transitions automatically
         call.on('accept', () => {
@@ -202,6 +216,7 @@ export default function CallPanel({ prospect, onClose, onDispositioned, queueMod
           outcome,
           notes,
           duration: elapsed,
+          ...(callSid ? { call_sid: callSid } : {}),
         }),
       })
     } catch {
@@ -253,6 +268,27 @@ export default function CallPanel({ prospect, onClose, onDispositioned, queueMod
       // Pipeline operations are non-blocking
     }
 
+    // COMMS-V2-004: Create follow-up task if callback/follow_up_needed with date
+    if ((outcome === 'callback' || outcome === 'follow_up_needed') && followUpDate) {
+      try {
+        await fetchValidated('/api/case-tasks', {
+          method: 'POST',
+          body: JSON.stringify({
+            task_type: 'follow_up',
+            title: `Follow up: ${prospect.first_name} ${prospect.last_name}`,
+            description: notes || `${outcome} — scheduled follow-up`,
+            due_date: `${followUpDate}T${followUpTime}:00.000Z`,
+            client_id: prospect.client_id,
+            assigned_to: 'self',
+            status: 'pending',
+            priority: outcome === 'callback' ? 'high' : 'normal',
+          }),
+        })
+      } catch {
+        // Task creation failure is non-blocking
+      }
+    }
+
     onDispositioned({
       client_id: prospect.client_id,
       outcome,
@@ -264,7 +300,7 @@ export default function CallPanel({ prospect, onClose, onDispositioned, queueMod
 
     // In queue mode, don't close — parent handles advance
     // In single mode, panel closes via onDispositioned callback
-  }, [prospect, outcome, notes, elapsed, onDispositioned])
+  }, [prospect, outcome, notes, elapsed, onDispositioned, callSid, followUpDate, followUpTime])
 
   if (!prospect) return null
 
@@ -438,6 +474,29 @@ export default function CallPanel({ prospect, onClose, onDispositioned, queueMod
                   className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--portal)] resize-none"
                 />
               </div>
+
+              {/* COMMS-V2-004: Follow-up scheduling for callback/follow_up_needed */}
+              {(outcome === 'callback' || outcome === 'follow_up_needed') && (
+                <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
+                  <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-amber-400">
+                    Schedule Follow-Up
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="date"
+                      value={followUpDate}
+                      onChange={(e) => setFollowUpDate(e.target.value)}
+                      className="flex-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                    />
+                    <input
+                      type="time"
+                      value={followUpTime}
+                      onChange={(e) => setFollowUpTime(e.target.value)}
+                      className="w-28 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Save */}
               <button

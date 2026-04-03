@@ -29,6 +29,14 @@ export async function resolveCallRouting(fromNumber: string): Promise<string> {
     if (!clientDoc) return fallbackId
 
     const client = clientDoc.data()
+
+    // COMMS-V2-005: Priority 1 — last_contacted_by (most recent rep, already an email)
+    const lastContactedBy = client.last_contacted_by
+    if (lastContactedBy && typeof lastContactedBy === 'string' && lastContactedBy.includes('@')) {
+      return lastContactedBy
+    }
+
+    // Priority 2 — assigned_agent (display name, needs user lookup)
     const agent = client.assigned_agent || client.agent_name || ''
     if (!agent) return fallbackId
 
