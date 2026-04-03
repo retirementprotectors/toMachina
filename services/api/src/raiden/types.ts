@@ -6,6 +6,8 @@ export interface SlackItem {
   text: string
   channel: string
   thread_ts?: string
+  tracker_doc_id?: string
+  tracker_item_id?: string
 }
 
 export interface ForgeItem {

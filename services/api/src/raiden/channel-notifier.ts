@@ -185,6 +185,36 @@ export async function postThreadReply(
 }
 
 // ---------------------------------------------------------------------------
+// INTAKE Pipeline: Two-Phase Auto-Reply (CEO Action Queue)
+// Phase 1: Immediate acknowledgement — "Received. On it."
+// Phase 2: After triage — "Assigned RDN-004, classified as Fix (P2)"
+// ---------------------------------------------------------------------------
+
+export async function postIntakeReceived(
+  threadTs?: string,
+): Promise<{ success: boolean; ts?: string; error?: string }> {
+  const text = 'Received. On it. -- The Dojo Team'
+  console.log('[raiden-channel] Posting INTAKE Phase 1: received')
+  return slackPost(DOJO_FIXES_CHANNEL, text, threadTs)
+}
+
+export async function postIntakeClassified(
+  trkId: string,
+  recommendation: string,
+  priority: string,
+  warrior: string,
+  threadTs?: string,
+): Promise<{ success: boolean; ts?: string; error?: string }> {
+  const text = `Assigned ${trkId}, classified as ${recommendation} (${priority}). Updates incoming. -- ${warrior}`
+  console.log(`[raiden-channel] Posting INTAKE Phase 2: ${trkId} classified`)
+  const result = await slackPost(DOJO_FIXES_CHANNEL, text, threadTs)
+  if (result.success) {
+    logEvent({ type: 'intake_classified', trk_id: trkId, title: `${recommendation} (${priority})`, posted_at: new Date().toISOString() })
+  }
+  return result
+}
+
+// ---------------------------------------------------------------------------
 // Exported constants for other modules
 // ---------------------------------------------------------------------------
 
