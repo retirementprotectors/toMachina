@@ -45,7 +45,13 @@ trackerRoutes.get('/', async (req: Request, res: Response) => {
     }
 
     // Sort newest first (queue/new items always visible)
-    data.sort((a, b) => ((b.created_at as string) || '').localeCompare((a.created_at as string) || ''))
+    // Handle both string and Firestore Timestamp objects for created_at
+    const toSortable = (v: unknown): string => {
+      if (typeof v === 'string') return v
+      if (v && typeof v === 'object' && 'toDate' in v) return (v as { toDate: () => Date }).toDate().toISOString()
+      return ''
+    }
+    data.sort((a, b) => toSortable(b.created_at).localeCompare(toSortable(a.created_at)))
 
     // Apply limit if requested (dataset is small — default high)
     const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 1000, 1), 1000)
