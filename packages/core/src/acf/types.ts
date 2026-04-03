@@ -119,6 +119,7 @@ export interface ACFSubfolderDetail {
   name: string
   file_count: number
   files: ACFDriveFile[]
+  subfolders?: ACFSubfolderDetail[]
 }
 
 /** Full ACF detail response (GET /api/acf/:clientId) */
