@@ -68,11 +68,24 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   confirmed:       { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Confirmed' },
   deployed:        { color: 'rgb(16,185,129)', bg: 'rgba(16,185,129,0.15)', label: 'Deployed' },
   closed:          { color: 'rgb(107,114,128)', bg: 'rgba(107,114,128,0.15)', label: 'Closed' },
-  // RAIDEN reactive statuses
-  new:             { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'New' },
-  triaging:        { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Triaging' },
-  fixing:          { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Fixing' },
-  verifying:       { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Verifying' },
+  // RAIDEN reactive statuses (RDN- prefix)
+  'RDN-new':       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'New' },
+  'RDN-triaging':  { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Triaging' },
+  'RDN-fixing':    { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Fixing' },
+  'RDN-verifying': { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Verifying' },
+  'RDN-deploy':    { color: 'rgb(6,182,212)', bg: 'rgba(6,182,212,0.15)', label: 'Deploy' },
+  'RDN-reported':  { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Reported' },
+  // RONIN pipeline statuses (RON- prefix)
+  'RON-new':           { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'New' },
+  'RON-researching':   { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Researching' },
+  'RON-strategizing':  { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Strategizing' },
+  'RON-discovery':     { color: 'rgb(212,164,76)', bg: 'rgba(212,164,76,0.15)', label: 'Discovery Doc' },
+  'RON-seeded':        { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Seeded' },
+  'RON-planned':       { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Plan' },
+  'RON-built':         { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Build' },
+  'RON-deployed':      { color: 'rgb(6,182,212)', bg: 'rgba(6,182,212,0.15)', label: 'Deploy' },
+  'RON-reported':      { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Reported' },
+  // Legacy (kept for old items not yet migrated)
   done:            { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Done' },
   escalated:       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Escalated' },
   // Terminal statuses
@@ -97,7 +110,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 const TYPES = ['broken', 'idea', 'improve', 'question', 'feat', 'bug', 'enhancement', 'test'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
-const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed', 'closed', 'new', 'triaging', 'fixing', 'verifying', 'done', 'escalated', 'deferred', 'wont_fix', 'backlog', 'blocked'] as const
+const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed', 'closed', 'RDN-new', 'RDN-triaging', 'RDN-fixing', 'RDN-verifying', 'RDN-deploy', 'RDN-reported', 'RON-new', 'RON-researching', 'RON-strategizing', 'RON-discovery', 'RON-seeded', 'RON-planned', 'RON-built', 'RON-deployed', 'RON-reported', 'done', 'escalated', 'deferred', 'wont_fix', 'backlog', 'blocked'] as const
 
 const API_BASE = '/api'
 
@@ -315,12 +328,9 @@ function ForgeInner({ portal }: ForgeProps) {
     try {
       const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?limit=1000`)
       if (result.success) {
-        // Filter to RAIDEN items (agent=raiden) or items with RAIDEN-specific statuses
+        // Filter to RAIDEN items by RDN- status prefix — no ambiguity
         const all = result.data || []
-        const raiden = all.filter(i =>
-          (i as unknown as Record<string, unknown>).agent === 'raiden' ||
-          ['new', 'triaging', 'fixing', 'verifying', 'deploy', 'reported'].includes(i.status)
-        )
+        const raiden = all.filter(i => i.status.startsWith('RDN-'))
         setRaidenItems(raiden)
       }
     } catch { /* silent */ }
@@ -366,12 +376,12 @@ function ForgeInner({ portal }: ForgeProps) {
           priority: quickSubmitForm.priority,
           agent: 'raiden',
           source: 'dojo_board',
-          status: 'new',
+          status: 'RDN-new',
           portal: portal.toUpperCase(),
         }),
       })
       if (result.success) {
-        showToast(`Submitted: ${result.data?.item_id || 'item'} — RAIDEN is triaging`, 'success')
+        showToast(`Submitted: ${result.data?.item_id || 'item'} — RAIDEN is on it`, 'success')
         setShowQuickSubmit(false)
         await loadRaidenItems()
         await loadItems()
@@ -407,7 +417,7 @@ function ForgeInner({ portal }: ForgeProps) {
     try {
       const result = await fetchValidated<Record<string, unknown>>(`${API_BASE}/sprints/auto`, {
         method: 'POST',
-        body: JSON.stringify({ scope: 'raiden', status: 'new', groupBy: 'component' }),
+        body: JSON.stringify({ scope: 'raiden', status: 'RDN-new', groupBy: 'component' }),
       })
       if (result.success) {
         setAutoTriageResult(result.data || {})
@@ -562,8 +572,11 @@ function ForgeInner({ portal }: ForgeProps) {
     queue: 0, not_touched: 1, in_sprint: 2, seeded: 3, disc_audited: 4, planned: 5,
     plan_audited: 6, built: 7, audited: 8, deployed: 9, ux_audited: 10, confirmed: 11,
     closed: 11,
-    // RAIDEN statuses map to sprint-equivalent ranks
-    new: 0, triaging: 1, fixing: 5, verifying: 7, done: 11, escalated: 0,
+    // RAIDEN statuses (RDN- prefix) map to sprint-equivalent ranks
+    'RDN-new': 0, 'RDN-triaging': 1, 'RDN-fixing': 5, 'RDN-verifying': 7, 'RDN-deploy': 9, 'RDN-reported': 11,
+    // RONIN statuses (RON- prefix)
+    'RON-new': 0, 'RON-researching': 1, 'RON-strategizing': 2, 'RON-discovery': 3, 'RON-seeded': 3, 'RON-planned': 5, 'RON-built': 7, 'RON-deployed': 9, 'RON-reported': 11,
+    done: 11, escalated: 0,
     backlog: 0, blocked: 0,
   }
   // Fallback for truly unknown statuses: treat as mid-pipeline (planned) rather than
@@ -1349,12 +1362,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
               <div style={{ display: 'flex', gap: 12, height: '100%', minWidth: 900 }}>
                 {([
-                  { status: 'new', label: 'NEW', color: 'rgb(239,68,68)' },
-                  { status: 'triaging', label: 'TRIAGING', color: 'rgb(251,191,36)' },
-                  { status: 'fixing', label: 'FIXING', color: 'rgb(245,158,11)' },
-                  { status: 'verifying', label: 'VERIFYING', color: 'rgb(99,102,241)' },
-                  { status: 'deploy', label: 'DEPLOY', color: 'rgb(6,182,212)' },
-                  { status: 'reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
+                  { status: 'RDN-new', label: 'NEW', color: 'rgb(239,68,68)' },
+                  { status: 'RDN-triaging', label: 'TRIAGING', color: 'rgb(251,191,36)' },
+                  { status: 'RDN-fixing', label: 'FIXING', color: 'rgb(245,158,11)' },
+                  { status: 'RDN-verifying', label: 'VERIFYING', color: 'rgb(99,102,241)' },
+                  { status: 'RDN-deploy', label: 'DEPLOY', color: 'rgb(6,182,212)' },
+                  { status: 'RDN-reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
                 ] as const).map(col => {
                   // Filter items for this column and sort by priority (P0 first)
                   const colItems = raidenItems
@@ -2802,11 +2815,11 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             </div>
             <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
               {([
-                { status: 'new', label: 'NEW', color: 'rgb(239,68,68)' },
-                { status: 'researching', label: 'RESEARCHING', color: 'rgb(168,85,247)' },
-                { status: 'strategizing', label: 'STRATEGIZING', color: 'rgb(245,158,11)' },
+                { status: 'RON-new', label: 'NEW', color: 'rgb(239,68,68)' },
+                { status: 'RON-researching', label: 'RESEARCHING', color: 'rgb(168,85,247)' },
+                { status: 'RON-strategizing', label: 'STRATEGIZING', color: 'rgb(245,158,11)' },
               ]).map(col => {
-                const colItems = (items || []).filter(i => i.status === col.status && ((i as unknown as Record<string,unknown>).pipeline === 'assessment'))
+                const colItems = (items || []).filter(i => i.status === col.status)
                 return (
                   <div key={`assess-${col.status}`} style={{
                     flex: 1, minWidth: 180, display: 'flex', flexDirection: 'column',
@@ -2848,14 +2861,14 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             </div>
             <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
               {([
-                { status: 'discovery_doc', label: 'DISCOVERY DOC', color: 'rgb(212,164,76)' },
-                { status: 'seeded', label: 'SEEDED', color: 'rgb(168,85,247)' },
-                { status: 'planned', label: 'PLAN', color: 'rgb(99,102,241)' },
-                { status: 'built', label: 'BUILD', color: 'rgb(245,158,11)' },
-                { status: 'deployed', label: 'DEPLOY', color: 'rgb(6,182,212)' },
-                { status: 'reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
+                { status: 'RON-discovery', label: 'DISCOVERY DOC', color: 'rgb(212,164,76)' },
+                { status: 'RON-seeded', label: 'SEEDED', color: 'rgb(168,85,247)' },
+                { status: 'RON-planned', label: 'PLAN', color: 'rgb(99,102,241)' },
+                { status: 'RON-built', label: 'BUILD', color: 'rgb(245,158,11)' },
+                { status: 'RON-deployed', label: 'DEPLOY', color: 'rgb(6,182,212)' },
+                { status: 'RON-reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
               ]).map(col => {
-                const colItems = (items || []).filter(i => i.status === col.status && ((i as unknown as Record<string,unknown>).pipeline !== 'assessment'))
+                const colItems = (items || []).filter(i => i.status === col.status)
                 return (
                   <div key={`dev-${col.status}`} style={{
                     flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column',

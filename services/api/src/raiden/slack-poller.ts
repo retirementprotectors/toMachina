@@ -41,7 +41,7 @@ export async function pollSlackChannel(): Promise<SlackItem[]> {
                 title: text.slice(0, 120),
                 description: text,
                 type: 'bug',
-                status: 'new',
+                status: 'RDN-new',
                 agent: 'raiden',
                 source: 'slack',
                 priority: 'P2',
@@ -52,7 +52,7 @@ export async function pollSlackChannel(): Promise<SlackItem[]> {
               const created = await createRes.json() as { data?: { item_id?: string; id?: string } }
               const trkId = created.data?.item_id || 'TRK-???'
               // Reply in-thread confirming ticket creation (TRK-14239 AC)
-              await postThreadReply(msg.ts, trkId, 'new').catch((e: unknown) => {
+              await postThreadReply(msg.ts, trkId, 'RDN-new').catch((e: unknown) => {
                 console.error('[RAIDEN] Thread reply failed:', e)
               })
               console.log(`[RAIDEN] Slack message → tracker item ${trkId} (source=slack)`)

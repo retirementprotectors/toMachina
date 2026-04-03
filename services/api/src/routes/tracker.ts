@@ -500,9 +500,9 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
       if (oldData.agent === 'raiden') {
         const trkId = (oldData.item_id as string) || id
         const title = (oldData.title as string) || 'Unknown'
-        if (req.body.status === 'fixing') {
+        if (req.body.status === 'RDN-fixing') {
           postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
-        } else if (req.body.status === 'done') {
+        } else if (req.body.status === 'RDN-reported') {
           postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
         }
       }
@@ -569,9 +569,9 @@ trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
     if (currentData.agent === 'raiden') {
       const trkId = (currentData.item_id as string) || id
       const title = (currentData.title as string) || 'Unknown'
-      if (newStatus === 'investigating') {
+      if (newStatus === 'RDN-triaging' || newStatus === 'RDN-fixing') {
         postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
-      } else if (newStatus === 'fix_shipped' || newStatus === 'verified_closed') {
+      } else if (newStatus === 'RDN-deploy' || newStatus === 'RDN-reported') {
         postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
       }
     }

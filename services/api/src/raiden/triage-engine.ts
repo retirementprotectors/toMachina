@@ -35,7 +35,7 @@ function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
 export async function detectDuplicate(text: string): Promise<DuplicateMatch | null> {
   try {
     const snap = await getDb().collection('forge_tracker')
-      .where('status', 'in', ['open', 'in_progress', 'fixing', 'triaging', 'verifying'])
+      .where('status', 'in', ['RDN-new', 'RDN-triaging', 'RDN-fixing', 'RDN-verifying'])
       .orderBy('created_at', 'desc')
       .limit(50)
       .get()

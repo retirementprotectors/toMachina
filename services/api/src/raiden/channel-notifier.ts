@@ -146,13 +146,13 @@ function formatStatus(status: string): string {
     built: 'Built',
     audited: 'Audited',
     confirmed: 'Done',
-    // RAIDEN-specific statuses
-    NEW: 'New',
-    TRIAGING: 'Triaging',
-    FIXING: 'Fixing',
-    VERIFYING: 'Verifying',
-    DONE: 'Done',
-    ESCALATED: 'Escalated',
+    // RAIDEN-specific statuses (RDN- prefix)
+    'RDN-new': 'New',
+    'RDN-triaging': 'Triaging',
+    'RDN-fixing': 'Fixing',
+    'RDN-verifying': 'Verifying',
+    'RDN-deploy': 'Deploy',
+    'RDN-reported': 'Reported',
   }
   return labels[status] || status
 }
