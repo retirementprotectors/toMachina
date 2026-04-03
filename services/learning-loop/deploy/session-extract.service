@@ -1,0 +1,19 @@
+# systemd service for session extraction — MDJ_SERVER
+# Sprint 003 Learning Loop 2.0 — TRK-14168
+#
+# Deploy to: /etc/systemd/system/session-extract.service
+# Then: sudo systemctl daemon-reload && sudo systemctl enable session-extract.timer
+
+[Unit]
+Description=RPI Session Extract to GCS
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=jdm
+Environment="MACHINE_NAME=mdj1"
+ExecStart=/bin/bash -c '/usr/bin/gcloud storage rsync /home/jdm/.claude/projects/ gs://rpi-session-intelligence/mdj1/ --recursive --quiet'
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=300

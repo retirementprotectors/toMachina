@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.rpi.session-extract — Weekly GCS sync for Claude sessions
+  Sprint 003 Learning Loop 2.0 — TRK-14166 (AIR) / TRK-14167 (PRO)
+
+  Deploy:
+    1. Copy to ~/Library/LaunchAgents/com.rpi.session-extract.plist
+    2. Edit MACHINE_NAME value below (air or pro)
+    3. launchctl load ~/Library/LaunchAgents/com.rpi.session-extract.plist
+    4. launchctl start com.rpi.session-extract  (test immediately)
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.rpi.session-extract</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-c</string>
+    <string>export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"; export MACHINE_NAME="CHANGEME"; gcloud storage rsync "$HOME/.claude/projects/" "gs://rpi-session-intelligence/${MACHINE_NAME}/" --recursive --quiet</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Weekday</key>
+    <integer>6</integer>
+    <key>Hour</key>
+    <integer>23</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/com.rpi.session-extract.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/com.rpi.session-extract.err</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

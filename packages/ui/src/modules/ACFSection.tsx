@@ -433,10 +433,18 @@ export function ACFSection({ clientId }: ACFSectionProps) {
     ? new Set(filteredSubfolders.filter(sf => sf.files.length > 0).map(sf => sf.id))
     : null
 
-  // Grid view: flat file list from all subfolders + root (TRK-578)
+  // Grid view: flat file list from all subfolders + root (TRK-578, TM-S13-05: recurse into nested subfolders)
+  function flattenSubfolderFiles(sfs: NonNullable<typeof detail>['subfolders'], prefix = ''): Array<ACFDriveFile & { subfolder: string }> {
+    return sfs.flatMap(sf => {
+      const path = prefix ? `${prefix}/${sf.name}` : sf.name
+      const own = sf.files.map(f => ({ ...f, subfolder: path }))
+      const nested = sf.subfolders ? flattenSubfolderFiles(sf.subfolders, path) : []
+      return [...own, ...nested]
+    })
+  }
   const allFiles = [
     ...(detail.root_files || []).map(f => ({ ...f, subfolder: '(root)' })),
-    ...detail.subfolders.flatMap(sf => sf.files.map(f => ({ ...f, subfolder: sf.name }))),
+    ...flattenSubfolderFiles(detail.subfolders),
   ]
   const filteredAllFiles = sq
     ? allFiles.filter(f => f.name.toLowerCase().includes(sq))
@@ -684,8 +692,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
               </div>
             </button>
 
-            {/* Expanded file list */}
-            {isExpanded && sf.files.length > 0 && (
+            {/* Expanded file list + nested subfolders (TM-S13-05) */}
+            {isExpanded && (sf.files.length > 0 || (sf.subfolders && sf.subfolders.length > 0)) && (
               <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-base)]">
                 {sf.files.map((f) => (
                   <div
@@ -739,10 +747,49 @@ export function ACFSection({ clientId }: ACFSectionProps) {
                     </div>
                   </div>
                 ))}
+                {/* Nested subfolders — indented tree rendering */}
+                {sf.subfolders && sf.subfolders.map((child) => (
+                  <details key={child.id} className="border-b border-[var(--border-subtle)] last:border-b-0">
+                    <summary className="flex items-center gap-2 px-4 py-2 pl-8 text-xs cursor-pointer hover:bg-[var(--bg-surface)] transition-colors">
+                      <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>folder</span>
+                      <span className="font-medium text-[var(--text-secondary)]">{child.name}</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">({child.file_count})</span>
+                    </summary>
+                    <div className="bg-[var(--bg-base)]">
+                      {child.files.map((cf) => (
+                        <div key={cf.id} className="flex items-center gap-3 px-4 py-1.5 pl-12 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] transition-colors group">
+                          <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>{mimeIcon(cf.mimeType)}</span>
+                          <button onClick={() => setPreviewFile({ id: cf.id, name: cf.name, mimeType: cf.mimeType })} className="flex-1 truncate text-left hover:text-[var(--portal)] transition-colors">{cf.name}</button>
+                          <span className="text-[var(--text-muted)] shrink-0">{formatSize(cf.size)}</span>
+                          <span className="text-[var(--text-muted)] shrink-0">{new Date(cf.modifiedTime).toLocaleDateString()}</span>
+                        </div>
+                      ))}
+                      {child.subfolders && child.subfolders.map((grandchild) => (
+                        <details key={grandchild.id} className="border-t border-[var(--border-subtle)]">
+                          <summary className="flex items-center gap-2 px-4 py-1.5 pl-16 text-xs cursor-pointer hover:bg-[var(--bg-surface)] transition-colors">
+                            <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>folder</span>
+                            <span className="font-medium text-[var(--text-secondary)]">{grandchild.name}</span>
+                            <span className="text-[10px] text-[var(--text-muted)]">({grandchild.file_count})</span>
+                          </summary>
+                          <div className="bg-[var(--bg-base)]">
+                            {grandchild.files.map((gf) => (
+                              <div key={gf.id} className="flex items-center gap-3 px-4 py-1.5 pl-20 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] transition-colors group">
+                                <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '14px' }}>{mimeIcon(gf.mimeType)}</span>
+                                <button onClick={() => setPreviewFile({ id: gf.id, name: gf.name, mimeType: gf.mimeType })} className="flex-1 truncate text-left hover:text-[var(--portal)] transition-colors">{gf.name}</button>
+                                <span className="text-[var(--text-muted)] shrink-0">{formatSize(gf.size)}</span>
+                                <span className="text-[var(--text-muted)] shrink-0">{new Date(gf.modifiedTime).toLocaleDateString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      ))}
+                    </div>
+                  </details>
+                ))}
               </div>
             )}
 
-            {isExpanded && isEmpty && (
+            {isExpanded && sf.files.length === 0 && (!sf.subfolders || sf.subfolders.length === 0) && (
               <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-base)] px-4 py-3 text-xs text-[var(--text-muted)] italic">
                 No files in this subfolder
               </div>
