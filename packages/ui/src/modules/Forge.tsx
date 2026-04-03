@@ -275,7 +275,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const [sortField, setSortField] = useState<string>('item_id')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [bulkStatus, setBulkStatus] = useState('')
-  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'sprint-detail' | 'dedup'>('grid')
+  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'sprint-detail' | 'dedup' | 'pipeline'>('grid')
   const [dedupGroups, setDedupGroups] = useState<Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }>>([])
   const [dedupLoading, setDedupLoading] = useState(false)
   const [reopeningSprintId, setReopeningSprintId] = useState<string | null>(null)
@@ -297,11 +297,11 @@ function ForgeInner({ portal }: ForgeProps) {
 
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
-  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden'>(() => {
+  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron'>(() => {
     if (typeof window === 'undefined') return 'ronin'
-    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden') || 'ronin' } catch { return 'ronin' }
+    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron') || 'ronin' } catch { return 'ronin' }
   })
-  const switchDojoTab = (tab: 'ronin' | 'raiden') => {
+  const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron') => {
     setDojoTab(tab)
     try { localStorage.setItem(DOJO_TAB_KEY, tab) } catch { /* noop */ }
   }
@@ -319,7 +319,7 @@ function ForgeInner({ portal }: ForgeProps) {
         const all = result.data || []
         const raiden = all.filter(i =>
           (i as unknown as Record<string, unknown>).agent === 'raiden' ||
-          ['new', 'triaging', 'fixing', 'verifying', 'done', 'escalated'].includes(i.status)
+          ['new', 'triaging', 'fixing', 'verifying', 'deploy', 'reported'].includes(i.status)
         )
         setRaidenItems(raiden)
       }
@@ -1285,6 +1285,21 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'raiden' ? 'rgb(239,68,68)' : s.textMuted }}>bolt</span>
           RAIDEN
         </button>
+        {/* Tab: VOLTRON */}
+        <button
+          onClick={() => switchDojoTab('voltron')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'voltron' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'voltron' ? 600 : 400,
+            borderBottom: dojoTab === 'voltron' ? '2px solid rgb(59,130,246)' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'voltron' ? 'rgb(59,130,246)' : s.textMuted }}>smart_toy</span>
+          VOLTRON
+        </button>
       </div>
 
       {/* ─── TRK-14234: RAIDEN tab content ─── */}
@@ -1338,8 +1353,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                   { status: 'triaging', label: 'TRIAGING', color: 'rgb(251,191,36)' },
                   { status: 'fixing', label: 'FIXING', color: 'rgb(245,158,11)' },
                   { status: 'verifying', label: 'VERIFYING', color: 'rgb(99,102,241)' },
-                  { status: 'done', label: 'DONE', color: 'rgb(34,197,94)' },
-                  { status: 'escalated', label: 'ESCALATED', color: 'rgb(239,68,68)' },
+                  { status: 'deploy', label: 'DEPLOY', color: 'rgb(6,182,212)' },
+                  { status: 'reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
                 ] as const).map(col => {
                   // Filter items for this column and sort by priority (P0 first)
                   const colItems = raidenItems
@@ -1576,6 +1591,118 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </div>
       )}
 
+      {/* ─── Sprint 010: VOLTRON tab content ─── */}
+      {dojoTab === 'voltron' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+          {/* VOLTRON header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
+            <span style={{ fontSize: 13, color: s.textSecondary }}>
+              Team BFF — CCSDK portal conversations + tmux autonomous projects
+            </span>
+          </div>
+          {/* Dual-mode status cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            {/* CCSDK Mode */}
+            <div style={{
+              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+              padding: 20, borderTop: '3px solid rgb(59,130,246)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(59,130,246)' }}>cloud</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>CCSDK Mode</span>
+                <span style={{
+                  marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                  borderRadius: 10, background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)',
+                }}>ONLINE</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>ACTIVE CONVERSATIONS</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>SPECIALISTS ACTIVE</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>6</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>TOOL CALLS / HR</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>UPTIME</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: 'rgb(34,197,94)' }}>99.2%</div>
+                </div>
+              </div>
+            </div>
+            {/* tmux Mode */}
+            <div style={{
+              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+              padding: 20, borderTop: '3px solid rgb(34,197,94)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(34,197,94)' }}>terminal</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>tmux Mode</span>
+                <span style={{
+                  marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                  borderRadius: 10, background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)',
+                }}>ONLINE</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>CURRENT PROJECT</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text }}>toMachina</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>QUEUE DEPTH</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>SESSION</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text, fontFamily: 'monospace' }}>dojo:voltron</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>LAST WAR ROOM POST</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text }}>—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Specialist routing breakdown */}
+          <div style={{
+            background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+            padding: 20,
+          }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: s.text, marginBottom: 16 }}>Specialist Roster</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+              {[
+                { name: 'Medicare', icon: 'health_and_safety', color: 'rgb(34,197,94)' },
+                { name: 'Securities', icon: 'trending_up', color: 'rgb(99,102,241)' },
+                { name: 'Service', icon: 'support_agent', color: 'rgb(245,158,11)' },
+                { name: 'DAVID', icon: 'handshake', color: 'rgb(34,197,94)' },
+                { name: 'Ops', icon: 'settings', color: 'rgb(6,182,212)' },
+                { name: 'General', icon: 'smart_toy', color: 'rgb(59,130,246)' },
+              ].map(spec => (
+                <div key={spec.name} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                  background: s.bg, borderRadius: 8, border: `1px solid ${s.border}`,
+                }}>
+                  <span className="material-icons-outlined" style={{ fontSize: 18, color: spec.color }}>{spec.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: s.text }}>{spec.name}</div>
+                    <div style={{ fontSize: 10, color: s.textMuted }}>Active</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginTop: 16, padding: 16, background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`, textAlign: 'center' }}>
+            <span style={{ fontSize: 12, color: s.textMuted }}>
+              Live metrics wiring in Sprint 011 — data from <code style={{ fontSize: 11, background: 'rgba(255,255,255,0.06)', padding: '1px 5px', borderRadius: 3, color: 'rgb(6,182,212)' }}>GET /dojo/heartbeats?warrior=voltron</code>
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* ─── TRK-14235: RONIN tab content (existing Forge content) ─── */}
       {dojoTab === 'ronin' && <>
 
@@ -1629,6 +1756,17 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             title="Sprint View"
           >
             <Icon name="bolt" size={18} />
+          </button>
+          <button
+            onClick={() => setView('pipeline')}
+            style={{
+              padding: '6px 10px', border: 'none', cursor: 'pointer',
+              background: view === 'pipeline' ? s.surface : 'transparent',
+              color: view === 'pipeline' ? s.text : s.textMuted,
+            }}
+            title="Pipeline View"
+          >
+            <Icon name="account_tree" size={18} />
           </button>
           <button
             onClick={() => { setView('dedup'); loadDedup() }}
@@ -2649,6 +2787,107 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       {view === 'workflow' && (
         <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
           <KanbanBoard columns={kanbanColumns} emptyMessage="No items match your filters" onCardMove={handleCardMove} />
+        </div>
+      )}
+
+      {/* ─── Sprint 012: RONIN Pipeline View (Assessment + Development) ─── */}
+      {view === 'pipeline' && (
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Assessment Pipeline */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(168,85,247)' }}>psychology</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>Assessment Pipeline</span>
+              <span style={{ fontSize: 11, color: s.textMuted }}>Research + Strategy</span>
+            </div>
+            <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
+              {([
+                { status: 'new', label: 'NEW', color: 'rgb(239,68,68)' },
+                { status: 'researching', label: 'RESEARCHING', color: 'rgb(168,85,247)' },
+                { status: 'strategizing', label: 'STRATEGIZING', color: 'rgb(245,158,11)' },
+              ]).map(col => {
+                const colItems = (items || []).filter(i => i.status === col.status && ((i as unknown as Record<string,unknown>).pipeline === 'assessment'))
+                return (
+                  <div key={`assess-${col.status}`} style={{
+                    flex: 1, minWidth: 180, display: 'flex', flexDirection: 'column',
+                    background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
+                  }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                      borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                    }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                      <span style={{
+                        marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                        borderRadius: 10, background: `${col.color}30`, color: col.color,
+                      }}>{colItems.length}</span>
+                    </div>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {colItems.length === 0 ? (
+                        <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                      ) : colItems.map(item => (
+                        <div key={item.id} onClick={() => openEdit(item)} style={{
+                          background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`, padding: '8px 10px', cursor: 'pointer',
+                        }}>
+                          <div style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace', marginBottom: 2 }}>{item.item_id}</div>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: s.text }}>{item.title}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          {/* Development Pipeline */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(245,158,11)' }}>precision_manufacturing</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>Development Pipeline</span>
+              <span style={{ fontSize: 11, color: s.textMuted }}>FORGE lifecycle — Discovery to Deploy</span>
+            </div>
+            <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
+              {([
+                { status: 'discovery_doc', label: 'DISCOVERY DOC', color: 'rgb(212,164,76)' },
+                { status: 'seeded', label: 'SEEDED', color: 'rgb(168,85,247)' },
+                { status: 'planned', label: 'PLAN', color: 'rgb(99,102,241)' },
+                { status: 'built', label: 'BUILD', color: 'rgb(245,158,11)' },
+                { status: 'deployed', label: 'DEPLOY', color: 'rgb(6,182,212)' },
+                { status: 'reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
+              ]).map(col => {
+                const colItems = (items || []).filter(i => i.status === col.status && ((i as unknown as Record<string,unknown>).pipeline !== 'assessment'))
+                return (
+                  <div key={`dev-${col.status}`} style={{
+                    flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column',
+                    background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
+                  }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                      borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                    }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                      <span style={{
+                        marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                        borderRadius: 10, background: `${col.color}30`, color: col.color,
+                      }}>{colItems.length}</span>
+                    </div>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {colItems.length === 0 ? (
+                        <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                      ) : colItems.map(item => (
+                        <div key={item.id} onClick={() => openEdit(item)} style={{
+                          background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`, padding: '8px 10px', cursor: 'pointer',
+                        }}>
+                          <div style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace', marginBottom: 2 }}>{item.item_id}</div>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: s.text }}>{item.title}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       )}
 
