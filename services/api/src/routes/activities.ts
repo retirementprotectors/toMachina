@@ -107,6 +107,11 @@ activityRoutes.post('/', async (req: Request, res: Response) => {
         ...activity,
         client_id,
       })
+      // CCX-008: Denormalize last activity timestamp on client doc
+      await db.collection('clients').doc(client_id).update({
+        last_activity_at: now,
+        last_activity_type: activity_type,
+      }).catch(() => {}) // fire-and-forget
     }
 
     res.status(201).json(successResponse<ActivityDTO>(activity as unknown as ActivityDTO))
