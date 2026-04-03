@@ -11,9 +11,32 @@ import {
   param,
 } from '../lib/helpers.js'
 import type { OpportunityDTO, OpportunityDeleteResult } from '@tomachina/core'
+import { PIPELINE_FIELD_SCHEMAS, getFieldSchema } from '@tomachina/core'
 
 export const opportunityRoutes = Router()
 const COLLECTION = 'opportunities'
+
+// GET /api/opportunities/field-schemas — all pipeline custom field schemas
+opportunityRoutes.get('/field-schemas', async (_req: Request, res: Response) => {
+  try {
+    res.json(successResponse(PIPELINE_FIELD_SCHEMAS))
+  } catch (err) {
+    console.error('GET /api/opportunities/field-schemas error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// GET /api/opportunities/field-schemas/:pipelineKey — single pipeline schema
+opportunityRoutes.get('/field-schemas/:pipelineKey', async (req: Request, res: Response) => {
+  try {
+    const schema = getFieldSchema(param(req.params.pipelineKey))
+    if (!schema) { res.status(404).json(errorResponse('No field schema found for this pipeline')); return }
+    res.json(successResponse(schema))
+  } catch (err) {
+    console.error('GET /api/opportunities/field-schemas/:key error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
 
 opportunityRoutes.get('/', async (req: Request, res: Response) => {
   try {
@@ -26,6 +49,7 @@ opportunityRoutes.get('/', async (req: Request, res: Response) => {
     if (req.query.stage) query = query.where('stage', '==', req.query.stage)
     if (req.query.client_id) query = query.where('client_id', '==', req.query.client_id)
     if (req.query.agent_id) query = query.where('agent_id', '==', req.query.agent_id)
+    if (req.query.assignee_id) query = query.where('assignee_id', '==', req.query.assignee_id)
 
     const result = await paginatedQuery(query, COLLECTION, params)
     const data = result.data.map((d) => stripInternalFields(d))

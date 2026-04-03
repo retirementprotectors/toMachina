@@ -89,10 +89,14 @@ export interface Opportunity {
   opportunity_id: string
   client_id?: string
   agent_id?: string
+  /** Admin staff processing this opportunity (separate from agent_id who wrote the policy) */
+  assignee_id?: string
   stage: string
   pipeline: string
   value: number
   source: string
+  /** Pipeline-specific data fields (e.g. policy_number, premium, tax_status) */
+  custom_fields?: Record<string, unknown>
   created_at: string
   updated_at: string
   [key: string]: unknown
