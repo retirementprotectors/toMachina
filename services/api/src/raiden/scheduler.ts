@@ -10,7 +10,13 @@ import {
 } from './notifier.js'
 import { logRaidenRun } from './logger.js'
 import { setLastRun } from './index.js'
-import type { SlackItem, ForgeItem, FixRecord, RouteRecord } from './types.js'
+import { postIntakeReceived, postIntakeClassified } from './channel-notifier.js'
+import { getFirestore } from 'firebase-admin/firestore'
+import type { SlackItem, ForgeItem, FixRecord, RouteRecord, TriageResult } from './types.js'
+
+const REC_TO_WARRIOR: Record<string, string> = {
+  FIX: 'RAIDEN', FEATURE: 'RONIN', FILE: 'VOLTRON', TRAIN: 'VOLTRON',
+}
 
 const POLL_INTERVAL = 15 * 60 * 1000
 
@@ -49,6 +55,10 @@ export async function runCycle(): Promise<void> {
         await postNewSubmission(title, trkId, submitter, itemType, itemPriority)
         channelPosted = true
 
+        // INTAKE Phase 1: Immediate ack in thread
+        const threadTs = 'thread_ts' in item ? (item as SlackItem).thread_ts : undefined
+        await postIntakeReceived(threadTs).catch(() => {})
+
         const result = await triageItem(item)
         if (result.p0) {
           await sendP0Alert(title, result.reasoning, 'Review immediately')
@@ -80,7 +90,17 @@ export async function runCycle(): Promise<void> {
             jdmNotified = true
             break
           }
-          case 'QUEUE': outcomes.queue++; break
+          case 'QUEUE': {
+            outcomes.queue++
+            // Update tracker item to INT-classified with triage recommendation
+            await updateTrackerIntakeStatus(item, result)
+            // INTAKE Phase 2: Post classification in thread
+            const recLabel = result.p0 ? 'FIX' : 'FIX'
+            const warrior = REC_TO_WARRIOR[recLabel] || 'RAIDEN'
+            const itemTrkId = 'tracker_item_id' in item ? (item as SlackItem).tracker_item_id || trkId : trkId
+            await postIntakeClassified(itemTrkId, recLabel, itemPriority, warrior, threadTs).catch(() => {})
+            break
+          }
         }
       } catch (e) { console.error('[RAIDEN] Item error:', e) }
     }
@@ -90,4 +110,54 @@ export async function runCycle(): Promise<void> {
       jdm_notified: jdmNotified, channel_posted: channelPosted })
     setLastRun(new Date().toISOString())
   } catch (err) { console.error('[RAIDEN] Cycle error:', err) }
+}
+
+/**
+ * Update a tracker item from INT-new → INT-classified with triage recommendation.
+ * Maps triage outcome to a recommendation the CEO can approve/reclassify in /q.
+ */
+async function updateTrackerIntakeStatus(
+  item: SlackItem | ForgeItem,
+  triageResult: TriageResult,
+): Promise<void> {
+  // Get tracker doc ID — SlackItem carries it from slack-poller, ForgeItem uses trk_id
+  let docId: string | undefined
+  if ('tracker_doc_id' in item) {
+    docId = (item as SlackItem).tracker_doc_id
+  }
+  if (!docId && 'trk_id' in item) {
+    // ForgeItem — look up by item_id
+    try {
+      const db = getFirestore()
+      const snap = await db.collection('tracker_items')
+        .where('item_id', '==', (item as ForgeItem).trk_id)
+        .limit(1)
+        .get()
+      if (!snap.empty) docId = snap.docs[0].id
+    } catch { /* silent */ }
+  }
+  if (!docId) {
+    console.warn('[RAIDEN] Cannot update intake status — no tracker doc ID')
+    return
+  }
+
+  // Map triage outcome to recommendation
+  const recMap: Record<string, string> = {
+    FIX: 'FIX', ROUTE: 'FEATURE', TRAIN: 'TRAIN', QUEUE: 'FIX',
+  }
+
+  try {
+    const db = getFirestore()
+    await db.collection('tracker_items').doc(docId).update({
+      status: 'INT-classified',
+      triage_recommendation: recMap[triageResult.outcome] || 'FIX',
+      triage_reasoning: triageResult.reasoning,
+      triage_p0: triageResult.p0,
+      updated_at: new Date().toISOString(),
+      _updated_by: 'raiden-scheduler',
+    })
+    console.log(`[RAIDEN] ${docId} → INT-classified (rec: ${recMap[triageResult.outcome]})`)
+  } catch (err) {
+    console.error('[RAIDEN] Failed to update intake status:', err)
+  }
 }

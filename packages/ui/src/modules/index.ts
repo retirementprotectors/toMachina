@@ -27,6 +27,7 @@ export { QueRegistry } from './QueRegistry'
 export { QueWorkbench } from './QueWorkbench'
 export { Guardian } from './Guardian'
 export { IntakeQueue } from './IntakeQueue'
+export { ActionQueue } from './ActionQueue'
 
 export { NotificationsModule, UnreadBadge } from './Notifications'
 
