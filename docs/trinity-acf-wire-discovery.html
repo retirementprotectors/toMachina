@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The ACF Wire — Trinity Data Method Discovery Doc 1/3</title>
+<style>
+  :root { --bg: #0f1219; --surface: #1c2333; --border: #2a3347; --text: #e2e8f0; --muted: #8892a8; --portal: #4a7ab5; --green: #22c55e; --red: #ef4444; --amber: #f59e0b; --teal: #14b8a6; --purple: #a855f7; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px; max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  h2 { font-size: 20px; margin-top: 48px; margin-bottom: 12px; color: var(--portal); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 16px; margin-top: 24px; margin-bottom: 8px; color: var(--teal); }
+  h4 { font-size: 14px; margin-top: 16px; margin-bottom: 6px; color: var(--amber); }
+  p, li { margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .meta { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; padding: 16px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); }
+  .meta-item { font-size: 13px; }
+  .meta-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; }
+  th, td { padding: 10px 12px; text-align: left; border: 1px solid var(--border); font-size: 13px; }
+  th { background: var(--surface); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  code { background: var(--surface); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--teal); }
+  pre { background: var(--surface); padding: 16px; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.5; }
+  ul { padding-left: 20px; margin: 8px 0; }
+  ol { padding-left: 20px; margin: 8px 0; }
+  .section-why { background: rgba(74,122,181,0.1); border-left: 3px solid var(--portal); padding: 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .section-critical { background: rgba(239,68,68,0.1); border-left: 3px solid var(--red); padding: 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .section-green { background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); padding: 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .flow-diagram { background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 13px; line-height: 2; margin: 16px 0; white-space: pre; overflow-x: auto; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+  .tag-live { background: rgba(34,197,94,0.2); color: var(--green); }
+  .tag-wire { background: rgba(245,158,11,0.2); color: var(--amber); }
+  .tag-new { background: rgba(168,85,247,0.2); color: #a855f7; }
+  .tag-existing { background: rgba(74,122,181,0.2); color: var(--portal); }
+  .tag-atomic { background: rgba(20,184,166,0.2); color: var(--teal); }
+  .trinity-header { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
+  .trinity-badge { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; background: linear-gradient(135deg, rgba(74,122,181,0.3), rgba(20,184,166,0.3)); border: 1px solid var(--teal); color: var(--teal); letter-spacing: 0.1em; }
+  .super-tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .super-tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .super-tool-name { font-size: 16px; font-weight: 700; color: var(--amber); }
+  .super-tool-id { font-family: monospace; font-size: 12px; color: var(--muted); }
+  .atomic-list { margin: 12px 0 0 0; padding: 0; list-style: none; }
+  .atomic-list li { padding: 8px 12px; border-left: 2px solid var(--teal); margin-bottom: 8px; background: rgba(20,184,166,0.05); border-radius: 0 6px 6px 0; font-size: 13px; }
+  .atomic-id { font-family: monospace; font-weight: 700; color: var(--teal); margin-right: 8px; }
+  .atomic-desc { color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+  .script-ref { font-family: monospace; font-size: 11px; color: var(--purple); display: block; margin-top: 2px; }
+  .wire-flow { display: flex; flex-direction: column; gap: 0; margin: 24px 0; }
+  .wire-stage { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); }
+  .wire-stage:first-child { border-radius: 8px 8px 0 0; }
+  .wire-stage:last-child { border-radius: 0 0 8px 8px; }
+  .wire-arrow { text-align: center; color: var(--muted); font-size: 18px; line-height: 1; padding: 2px 0; }
+  .wire-stage-num { font-size: 11px; font-weight: 700; color: var(--amber); min-width: 24px; text-align: center; }
+  .wire-stage-name { font-weight: 600; font-size: 13px; }
+  .wire-stage-detail { color: var(--muted); font-size: 12px; margin-left: auto; }
+  .naming-example { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; font-family: monospace; font-size: 13px; line-height: 2; }
+  .naming-part { color: var(--teal); }
+  .naming-sep { color: var(--muted); }
+  .naming-val { color: var(--amber); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 700; color: var(--teal); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .sig { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  .sig strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="trinity-header">
+  <h1>The ACF Wire</h1>
+  <span class="trinity-badge">TRINITY 1/3</span>
+</div>
+<p class="subtitle">Active Client File infrastructure &mdash; the Digital Files pillar of the Trinity Data Method&trade;</p>
+
+<div class="meta">
+  <div class="meta-item"><div class="meta-label">Type</div>Discovery Doc</div>
+  <div class="meta-item"><div class="meta-label">Series</div>Trinity Data Method&trade;</div>
+  <div class="meta-item"><div class="meta-label">Author</div>MUSASHI, VP CMO</div>
+  <div class="meta-item"><div class="meta-label">Date</div>2026-04-03</div>
+  <div class="meta-item"><div class="meta-label">Status</div>Discovery</div>
+  <div class="meta-item"><div class="meta-label">Pipeline</div>RON-discovery</div>
+</div>
+
+<!-- ================================================================== -->
+<h2>Strategic Context &mdash; The Trinity</h2>
+
+<p>The Trinity Data Method&trade; is RPI's proprietary data reconciliation framework. Three data sources, triangulated to achieve 100% Data Confidence:</p>
+
+<table>
+  <tr><th>Source</th><th>Role</th><th>Where It Lives</th></tr>
+  <tr>
+    <td><strong>Carrier Data</strong></td>
+    <td>Source of Truth &mdash; direct from insurance company portals</td>
+    <td>WIRE_DATA_IMPORT, WIRE_COMMISSION_SYNC</td>
+  </tr>
+  <tr>
+    <td><strong>Digital Files</strong></td>
+    <td>Supporting Documentation &mdash; PDFs, statements, scans, correspondence</td>
+    <td><strong>ACF_CLEANUP_WIRE</strong> (this document)</td>
+  </tr>
+  <tr>
+    <td><strong>CRM Data</strong></td>
+    <td>Actionable Intelligence &mdash; ProDash + partner agency CRM exports</td>
+    <td>WIRE_DATA_IMPORT (client enrichment path)</td>
+  </tr>
+</table>
+
+<div class="section-why">
+  <strong>Why this wire matters:</strong> Carrier data tells you what exists. CRM data tells you who it belongs to. But the <em>documents</em> &mdash; the actual statements, applications, tax forms, illustrations &mdash; are the evidence. Without organized digital files, the other two sources are claims without proof. The ACF Wire turns a chaotic Google Drive into a structured, queryable, self-indexing document system.
+</div>
+
+<p>This discovery doc covers the <strong>Digital Files</strong> pillar: how every document that enters RPI's ecosystem gets organized, named, deduplicated, and linked to its client. The other two Trinity discovery docs cover Carrier Data (WIRE_DATA_IMPORT) and CRM Data (WIRE_CLIENT_ENRICHMENT).</p>
+
+<!-- ================================================================== -->
+<h2>The Problem We Solved</h2>
+
+<div class="grid-2">
+  <div class="stat-card">
+    <div class="stat-num">1,060</div>
+    <div class="stat-label">ACF folders batch-deleted March 21, 2026</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">277</div>
+    <div class="stat-label">Client folders cleaned &amp; standardized</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">5</div>
+    <div class="stat-label">Lifecycle subfolders per client</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">10</div>
+    <div class="stat-label">Scripts built &amp; battle-tested</div>
+  </div>
+</div>
+
+<p>Before the ACF Wire, client documents lived in a flat folder structure with inconsistent naming, duplicate files, orphaned folders, and no connection to Firestore client records. The March 21 incident &mdash; where 1,060 ACF folders were accidentally batch-deleted during a Drive reorg &mdash; exposed the fragility. All folders were restored, but the incident proved that operating without guardrails on the Digital Files pillar was a ticking bomb.</p>
+
+<p>The ACF 2.0 Sprint (23 tickets, shipped and audited) cleaned up the existing mess. This wire definition ensures it <em>stays</em> clean &mdash; every new document that enters the system runs through the same pipeline automatically.</p>
+
+<!-- ================================================================== -->
+<h2>ACF Folder Architecture</h2>
+
+<h3>The 5 Lifecycle Subfolders</h3>
+
+<div class="section-green">
+  <strong>Key insight:</strong> The 5 subfolders are a <em>lifecycle</em>, not categories. A client relationship flows through these stages. Documents land where they belong in the client's journey.
+</div>
+
+<table>
+  <tr><th>Subfolder</th><th>Lifecycle Stage</th><th>What Goes Here</th><th>Document Types</th></tr>
+  <tr>
+    <td><strong>Client</strong></td>
+    <td>Identity &amp; Foundation</td>
+    <td>Who the client is &mdash; the permanent record</td>
+    <td><code>id_document</code>, <code>voided_check</code>, <code>tax_document</code>, <code>trust_document</code>, <code>poa_hipaa</code>, <code>fact_finder</code></td>
+  </tr>
+  <tr>
+    <td><strong>NewBiz</strong></td>
+    <td>Acquisition</td>
+    <td>Everything needed to open a new account</td>
+    <td><code>application_form</code>, <code>transfer_form</code>, <code>delivery_receipt</code>, <code>replacement_form</code>, <code>suitability</code></td>
+  </tr>
+  <tr>
+    <td><strong>Cases</strong></td>
+    <td>Analysis &amp; Planning</td>
+    <td>Pre-sale work product &mdash; what you showed the client</td>
+    <td><code>illustration</code>, <code>comparison</code>, <code>proposal</code>, <code>analysis</code></td>
+  </tr>
+  <tr>
+    <td><strong>Account</strong></td>
+    <td>In-Force Management</td>
+    <td>Ongoing account activity after the sale</td>
+    <td><code>statement</code>, <code>confirmation</code>, <code>annual_review</code>, <code>distribution</code></td>
+  </tr>
+  <tr>
+    <td><strong>Reactive</strong></td>
+    <td>Catch-All / Triage</td>
+    <td>Anything that can't be auto-classified lands here for human review</td>
+    <td>Unclassified, multi-type, ambiguous</td>
+  </tr>
+</table>
+
+<h3>Folder Naming Convention</h3>
+
+<div class="naming-example">
+<span class="naming-part">ACF</span><span class="naming-sep"> - </span><span class="naming-val">Last</span><span class="naming-sep">, </span><span class="naming-val">First</span>
+<br>
+<span style="color: var(--muted);">Example:</span> ACF - Millang, Josh
+<br>
+<span style="color: var(--muted);">Example:</span> ACF - Rosentreter, Gary
+</div>
+
+<p>Rules: Title case. No ALL CAPS. No trailing commas. No <code>ACF-</code> (missing space). No double spaces. The <code>ACF_RENAME</code> atomic tool enforces all of these.</p>
+
+<!-- ================================================================== -->
+<h2>Document Naming Convention</h2>
+
+<div class="section-critical">
+  <strong>The naming convention IS the index.</strong> No metadata database needed. No search tokens. The file name tells you exactly what it is, when it's from, who issued it, and which policy it belongs to. If you can read a filename, you can find any document.
+</div>
+
+<div class="naming-example">
+<span class="naming-part">{YYYY-MM}</span><span class="naming-sep">_</span><span class="naming-part">{DocType}</span><span class="naming-sep">_</span><span class="naming-part">{Carrier}</span><span class="naming-sep">_</span><span class="naming-part">{PolicyNum}</span><span class="naming-sep">.</span><span class="naming-part">{ext}</span>
+</div>
+
+<table>
+  <tr><th>Segment</th><th>Format</th><th>Source</th><th>Example</th></tr>
+  <tr>
+    <td><code>YYYY-MM</code></td>
+    <td>4-digit year, 2-digit month</td>
+    <td>Document date (statement period, application date, etc.)</td>
+    <td><code>2026-03</code></td>
+  </tr>
+  <tr>
+    <td><code>DocType</code></td>
+    <td>PascalCase from taxonomy</td>
+    <td><code>document_taxonomy</code> Firestore collection</td>
+    <td><code>Statement</code>, <code>Application</code>, <code>Illustration</code></td>
+  </tr>
+  <tr>
+    <td><code>Carrier</code></td>
+    <td>Normalized carrier short name</td>
+    <td><code>carriers</code> Firestore collection</td>
+    <td><code>Athene</code>, <code>NorthAmerican</code>, <code>Nationwide</code></td>
+  </tr>
+  <tr>
+    <td><code>PolicyNum</code></td>
+    <td>Raw policy/contract number</td>
+    <td>Extracted from document or account record</td>
+    <td><code>GA12345678</code>, <code>N1234567</code></td>
+  </tr>
+  <tr>
+    <td><code>ext</code></td>
+    <td>Original file extension</td>
+    <td>Preserved from source file</td>
+    <td><code>.pdf</code>, <code>.png</code>, <code>.jpg</code></td>
+  </tr>
+</table>
+
+<h4>Full Examples</h4>
+<pre>
+2026-03_Statement_Athene_GA12345678.pdf
+2025-11_Application_NorthAmerican_N1234567.pdf
+2026-01_Illustration_Nationwide_VA9876543.pdf
+2024-06_TaxDocument_Schwab_8765-4321.pdf
+2025-09_DeliveryReceipt_MassMutual_POL-55678.pdf
+</pre>
+
+<p>When a segment is unknown (no carrier detected, no policy number extracted), use <code>UNKNOWN</code> as placeholder. The <code>ACF_RENAME_FILES</code> tool flags these as exceptions for the <code>ACF_AUDIT</code> tool to surface for human review.</p>
+
+<!-- ================================================================== -->
+<h2>The Wire: ACF_CLEANUP_WIRE</h2>
+
+<p>Three super tools, executed in sequence, with <code>ACF_SNAPSHOT</code> guardrails bracketing each one. This is the ATLAS-registered wire that turns a messy Drive folder into a clean, linked, deduplicated, properly-named Active Client File.</p>
+
+<div class="flow-diagram">ACF_SNAPSHOT (before)
+    |
+SUPER TOOL 1: FOLDER_CLEANUP
+    |  ACF_RENAME      &mdash; fix parent folder naming
+    |  ACF_MERGE       &mdash; merge duplicate folders
+    |  ACF_SUBFOLDER   &mdash; create/verify 5 lifecycle subfolders
+    |  ACF_ROUTE_FILES &mdash; move loose root files into correct subfolder
+    |  ACF_LINK        &mdash; link Drive folder to Firestore client doc
+    |
+ACF_SNAPSHOT (after)
+    |
+SUPER TOOL 2: DOCUMENT_CLEANUP
+    |  ACF_FLATTEN       &mdash; shred nested sub-sub-folders
+    |  ACF_DEDUPE_FILES  &mdash; same doc in multiple places, keep one
+    |  ACF_RENAME_FILES  &mdash; apply {YYYY-MM}_{DocType}_{Carrier}_{PolicyNum}.ext
+    |  ACF_RECLASSIFY    &mdash; file in wrong subfolder, move to correct one
+    |
+ACF_SNAPSHOT (after)
+    |
+SUPER TOOL 3: AUDIT_REVIEW
+    |  ACF_AUDIT         &mdash; generate exceptions report
+    |  &rarr; Routes to human review UI (dedup page)
+    |
+ACF_SNAPSHOT (final)</div>
+
+<!-- ================================================================== -->
+<h2>Super Tool 1: FOLDER_CLEANUP</h2>
+
+<div class="super-tool-card">
+  <div class="super-tool-header">
+    <span class="super-tool-name">FOLDER_CLEANUP</span>
+    <span class="super-tool-id">SUPER_FOLDER_CLEANUP</span>
+  </div>
+  <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">Structural integrity of the ACF folder tree. Ensures every client has one properly-named folder with 5 lifecycle subfolders, linked to their Firestore record.</p>
+  <ul class="atomic-list">
+    <li>
+      <span class="atomic-id">ACF_SNAPSHOT</span> Capture folder inventory to Firestore <code>acf_snapshots</code> &mdash; before/after guardrail
+      <span class="script-ref">Source: acf-guardrails.ts &rarr; snapshot</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_RENAME</span> Fix parent folder naming convention (Title Case, spacing, ACF prefix)
+      <span class="atomic-desc">ACF- &rarr; ACF - | ALL CAPS &rarr; Title Case | trailing comma &rarr; removed | double spaces &rarr; single</span>
+      <span class="script-ref">Source: acf-cleanup.ts (rename phase) + acf-fix-stragglers.ts</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_MERGE</span> Detect &amp; merge duplicate folders for same client (keep richer, move files from smaller)
+      <span class="script-ref">Source: acf-cleanup.ts (merge phase) + acf-fix-stragglers.ts (specific merges)</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_SUBFOLDER</span> Create/verify 5 lifecycle subfolders: Client, NewBiz, Cases, Account, Reactive
+      <span class="script-ref">Source: acf-subfolder-audit.ts</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_ROUTE_FILES</span> Move loose files from folder root into correct lifecycle subfolder
+      <span class="script-ref">Source: acf-cleanup.ts (file routing phase)</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_LINK</span> Write <code>acf_folder_id</code> + <code>acf_folder_url</code> to Firestore client doc. Bidirectional link.
+      <span class="script-ref">Source: acf-cleanup.ts (link phase)</span>
+    </li>
+  </ul>
+</div>
+
+<!-- ================================================================== -->
+<h2>Super Tool 2: DOCUMENT_CLEANUP</h2>
+
+<div class="super-tool-card">
+  <div class="super-tool-header">
+    <span class="super-tool-name">DOCUMENT_CLEANUP</span>
+    <span class="super-tool-id">SUPER_DOCUMENT_CLEANUP</span>
+  </div>
+  <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">File-level hygiene within each ACF. Flatten nesting, eliminate duplicates, apply the naming convention that makes every filename a queryable index entry, and ensure files are in the right lifecycle subfolder.</p>
+  <ul class="atomic-list">
+    <li>
+      <span class="atomic-id">ACF_FLATTEN</span> Shred nested sub-sub-folders &mdash; bring all files up to one of the 5 root subfolders
+      <span class="atomic-desc">Drive nesting beyond 1 level is chaos. Max depth = ACF / Subfolder / files. Nothing deeper.</span>
+      <span class="script-ref">Source: new (extract from acf-cleanup.ts recursive listing)</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_DEDUPE_FILES</span> Same document in multiple subfolders &mdash; keep one copy in the correct location
+      <span class="atomic-desc">Match by content hash (MD5 from Drive API) + filename similarity. Keep the copy in the correct subfolder. Delete the duplicate.</span>
+      <span class="script-ref">Source: acf-account-dedup.ts (account-level dedup pattern) + acf-client-dedup.ts (merge pattern)</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_RENAME_FILES</span> Apply <code>{YYYY-MM}_{DocType}_{Carrier}_{PolicyNum}.ext</code> naming convention
+      <span class="atomic-desc">Uses SUPER_EXTRACT (Vision mode) output + document_taxonomy + carrier normalization. Files with UNKNOWN segments flagged for ACF_AUDIT.</span>
+      <span class="script-ref">Source: acf-extract-batch.ts (extraction) + new (rename logic)</span>
+    </li>
+    <li>
+      <span class="atomic-id">ACF_RECLASSIFY</span> File in wrong subfolder &mdash; move to correct lifecycle stage based on document type
+      <span class="atomic-desc">Uses ACF_FINALIZE's DOCUMENT_TYPE_TO_SUBFOLDER mapping. Statement in Client/ &rarr; moves to Account/. Application in Reactive/ &rarr; moves to NewBiz/.</span>
+      <span class="script-ref">Source: acf-finalize.ts (routing map) + new (batch move logic)</span>
+    </li>
+  </ul>
+</div>
+
+<!-- ================================================================== -->
+<h2>Super Tool 3: AUDIT_REVIEW</h2>
+
+<div class="super-tool-card">
+  <div class="super-tool-header">
+    <span class="super-tool-name">AUDIT_REVIEW</span>
+    <span class="super-tool-id">SUPER_AUDIT_REVIEW</span>
+  </div>
+  <p style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">Everything auto-resolution couldn't handle gets surfaced for human review. This is the last mile &mdash; the exceptions that need a human eye.</p>
+  <ul class="atomic-list">
+    <li>
+      <span class="atomic-id">ACF_AUDIT</span> Generate exceptions report: unresolvable duplicates, UNKNOWN naming segments, orphan folders, broken links, missing subfolders
+      <span class="atomic-desc">Writes to <code>acf_audit_exceptions</code> collection. Each exception has type, severity, client_id, suggested_action.</span>
+      <span class="script-ref">Source: acf-verify-final.ts + acf-orphan-resolve.ts (orphan detection)</span>
+    </li>
+    <li>
+      <span style="font-family: monospace; font-weight: 700; color: var(--purple); margin-right: 8px;">HUMAN_REVIEW</span> Exceptions route to the ACF audit page in ProDashX. COR/AST resolves. SPC verifies.
+      <span class="atomic-desc">The dedup review UI already exists. Extend it to handle all ACF exception types.</span>
+    </li>
+  </ul>
+</div>
+
+<!-- ================================================================== -->
+<h2>The ACF_SNAPSHOT Guardrail</h2>
+
+<div class="section-critical">
+  <strong>Origin story:</strong> March 21, 2026. 1,060 ACF folders batch-deleted from Shared Drive during a reorg. No snapshot existed. No guardrail. Folders sat in Trash for 10 days. All restored ($0 cost, 926 linked to Firestore clients), but the incident proved that any batch operation on the Digital Files pillar <em>must</em> be bracketed by snapshots.
+</div>
+
+<table>
+  <tr><th>Operation</th><th>What It Captures</th><th>Storage</th></tr>
+  <tr>
+    <td><code>snapshot</code></td>
+    <td>Complete folder inventory: ID, name, created/modified timestamps. Written to Firestore <code>acf_snapshots</code> collection.</td>
+    <td>Firestore (permanent audit trail)</td>
+  </tr>
+  <tr>
+    <td><code>trash-audit</code></td>
+    <td>Scan ACF parent folder for recently trashed items. Fires Slack notification if count exceeds threshold (default: 5).</td>
+    <td>Slack notification + Firestore log</td>
+  </tr>
+  <tr>
+    <td><code>verify</code></td>
+    <td>Compare current Drive state against last snapshot. Report drift: new folders, missing folders, renamed folders.</td>
+    <td>Console output + optional Firestore</td>
+  </tr>
+</table>
+
+<p>Every super tool in the wire runs <code>ACF_SNAPSHOT</code> before and after execution. If the after-snapshot shows unexpected deletions (folder count drops by more than the trash-audit threshold), the wire halts and notifies.</p>
+
+<!-- ================================================================== -->
+<h2>ATLAS Registration</h2>
+
+<h3>Wire Definition</h3>
+
+<pre>
+{
+  wire_id:       'WIRE_ACF_CLEANUP',
+  name:          'ACF Cleanup Wire',
+  description:   'Full Active Client File hygiene: folder structure, document naming, dedup, audit',
+  product_lines: ['ALL'],
+  data_domains:  ['DOCUMENTS', 'DEMOGRAPHICS'],
+  super_tools:   ['SUPER_FOLDER_CLEANUP', 'SUPER_DOCUMENT_CLEANUP', 'SUPER_AUDIT_REVIEW']
+}
+</pre>
+
+<h3>Atomic Tool Registry</h3>
+
+<table>
+  <tr><th>Tool ID</th><th>Category</th><th>Source Script</th><th>Status</th></tr>
+  <tr>
+    <td><code>ACF_SNAPSHOT</code></td>
+    <td>BULK_OPERATIONS</td>
+    <td>acf-guardrails.ts</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_RENAME</code></td>
+    <td>NORMALIZATION_VALIDATION</td>
+    <td>acf-cleanup.ts + acf-fix-stragglers.ts</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_MERGE</code></td>
+    <td>MATCHING_DEDUP</td>
+    <td>acf-cleanup.ts + acf-fix-stragglers.ts</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_SUBFOLDER</code></td>
+    <td>BULK_OPERATIONS</td>
+    <td>acf-subfolder-audit.ts</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_ROUTE_FILES</code></td>
+    <td>NORMALIZATION_VALIDATION</td>
+    <td>acf-cleanup.ts</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_LINK</code></td>
+    <td>NORMALIZATION_VALIDATION</td>
+    <td>acf-cleanup.ts</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_FLATTEN</code></td>
+    <td>BULK_OPERATIONS</td>
+    <td>acf-cleanup.ts (partial)</td>
+    <td><span class="tag tag-new">BUILD</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_DEDUPE_FILES</code></td>
+    <td>MATCHING_DEDUP</td>
+    <td>acf-account-dedup.ts (pattern)</td>
+    <td><span class="tag tag-new">BUILD</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_RENAME_FILES</code></td>
+    <td>NORMALIZATION_VALIDATION</td>
+    <td>acf-extract-batch.ts (extraction)</td>
+    <td><span class="tag tag-new">BUILD</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_RECLASSIFY</code></td>
+    <td>NORMALIZATION_VALIDATION</td>
+    <td>acf-finalize.ts (routing map)</td>
+    <td><span class="tag tag-new">BUILD</span></td>
+  </tr>
+  <tr>
+    <td><code>ACF_AUDIT</code></td>
+    <td>BULK_OPERATIONS</td>
+    <td>acf-verify-final.ts + acf-orphan-resolve.ts</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+  </tr>
+</table>
+
+<p><span class="tag tag-live">LIVE</span> = script exists and has been battle-tested in the ACF 2.0 Sprint. <span class="tag tag-new">BUILD</span> = logic exists in scripts but needs to be extracted into a registered ATLAS atomic tool with proper <code>AtomicToolDefinition</code> + <code>AtomicToolResult</code> interfaces.</p>
+
+<!-- ================================================================== -->
+<h2>Script-to-Tool Mapping</h2>
+
+<p>The ACF 2.0 Sprint produced 10 scripts. Here's how each maps to atomic tools in the wire:</p>
+
+<table>
+  <tr><th>Script</th><th>What It Did</th><th>Maps To</th></tr>
+  <tr>
+    <td><code>acf-cleanup.ts</code></td>
+    <td>Rename, merge, route files, link to Firestore</td>
+    <td>ACF_RENAME, ACF_MERGE, ACF_ROUTE_FILES, ACF_LINK</td>
+  </tr>
+  <tr>
+    <td><code>acf-subfolder-audit.ts</code></td>
+    <td>Scan/create 5 lifecycle subfolders</td>
+    <td>ACF_SUBFOLDER</td>
+  </tr>
+  <tr>
+    <td><code>acf-guardrails.ts</code></td>
+    <td>Snapshot, trash-audit, verify</td>
+    <td>ACF_SNAPSHOT</td>
+  </tr>
+  <tr>
+    <td><code>acf-fix-stragglers.ts</code></td>
+    <td>Edge case renames + merges (Kay Cline, Rosentreter, Malone)</td>
+    <td>ACF_RENAME, ACF_MERGE (same tools, specific inputs)</td>
+  </tr>
+  <tr>
+    <td><code>acf-client-dedup.ts</code></td>
+    <td>Deduplicate client records in Firestore</td>
+    <td>ACF_DEDUPE_FILES (pattern reference for file-level dedup)</td>
+  </tr>
+  <tr>
+    <td><code>acf-account-dedup.ts</code></td>
+    <td>Deduplicate account subcollections</td>
+    <td>ACF_DEDUPE_FILES (pattern reference for file-level dedup)</td>
+  </tr>
+  <tr>
+    <td><code>acf-orphan-resolve.ts</code></td>
+    <td>Find orphan accounts, match to correct client</td>
+    <td>ACF_AUDIT (orphan detection path)</td>
+  </tr>
+  <tr>
+    <td><code>acf-extract-batch.ts</code></td>
+    <td>Claude Vision extraction on all ACF documents</td>
+    <td>ACF_RENAME_FILES (extraction feeds the naming convention)</td>
+  </tr>
+  <tr>
+    <td><code>acf-enrich-clients.ts</code></td>
+    <td>Backfill client fields from extractions + WhitePages</td>
+    <td>Adjacent to wire (feeds client data, not ACF structure)</td>
+  </tr>
+  <tr>
+    <td><code>acf-verify-final.ts</code></td>
+    <td>Final health report &amp; reconciliation</td>
+    <td>ACF_AUDIT (verification path)</td>
+  </tr>
+</table>
+
+<!-- ================================================================== -->
+<h2>Intake Wire Alignment</h2>
+
+<div class="section-why">
+  <strong>One naming convention. One routing table. Every channel.</strong> Whether a document arrives via scanned mail, email attachment, direct upload, or SPC intake folder &mdash; it goes through the same naming and routing logic.
+</div>
+
+<p>The existing <code>WIRE_INCOMING_CORRESPONDENCE</code> already terminates with <code>ACF_FINALIZE</code>, which routes files to the correct ACF subfolder. The ACF Wire adds the naming convention and dedup layers that ACF_FINALIZE currently doesn't handle.</p>
+
+<h3>Intake Channels &amp; How They Connect</h3>
+
+<table>
+  <tr><th>Channel</th><th>Entry Point</th><th>Classification</th><th>Naming</th><th>ACF Routing</th></tr>
+  <tr>
+    <td><strong>MAIL</strong> (scanned)</td>
+    <td>SPC intake folder &rarr; Cloud Function</td>
+    <td>SUPER_CLASSIFY &rarr; SUPER_EXTRACT (Vision)</td>
+    <td><code>ACF_RENAME_FILES</code></td>
+    <td>ACF_FINALIZE</td>
+  </tr>
+  <tr>
+    <td><strong>EMAIL</strong> (attachments)</td>
+    <td>Gmail MCP &rarr; intake_queue</td>
+    <td>SUPER_CLASSIFY &rarr; SUPER_EXTRACT (Vision)</td>
+    <td><code>ACF_RENAME_FILES</code></td>
+    <td>ACF_FINALIZE</td>
+  </tr>
+  <tr>
+    <td><strong>ACF_UPLOAD</strong> (manual)</td>
+    <td>ProDashX UI &rarr; direct to ACF subfolder</td>
+    <td>On-upload classification prompt</td>
+    <td><code>ACF_RENAME_FILES</code></td>
+    <td>Already in ACF (no move)</td>
+  </tr>
+  <tr>
+    <td><strong>ACF_SCAN</strong> (bulk)</td>
+    <td>Scanner app &rarr; ACF root</td>
+    <td>SUPER_CLASSIFY (batch)</td>
+    <td><code>ACF_RENAME_FILES</code></td>
+    <td>ACF_RECLASSIFY (sort into subfolder)</td>
+  </tr>
+  <tr>
+    <td><strong>ACF_CLEANUP</strong> (existing)</td>
+    <td>Scheduled or manual &rarr; ACF_CLEANUP_WIRE</td>
+    <td>ACF_RECLASSIFY</td>
+    <td><code>ACF_RENAME_FILES</code></td>
+    <td>ACF_RECLASSIFY</td>
+  </tr>
+</table>
+
+<h3>The Shared Routing Map</h3>
+
+<p>ACF_FINALIZE already defines the <code>DOCUMENT_TYPE_TO_SUBFOLDER</code> map (see <code>packages/core/src/atlas/super-tools/acf-finalize.ts</code>). This same map is used by <code>ACF_RECLASSIFY</code> and <code>ACF_ROUTE_FILES</code>. One map, three tools, zero drift.</p>
+
+<pre>
+DOCUMENT_TYPE_TO_SUBFOLDER = {
+  // Client subfolder
+  id_document     &rarr; Client
+  voided_check    &rarr; Client
+  tax_document    &rarr; Client
+  trust_document  &rarr; Client
+  poa_hipaa       &rarr; Client
+  fact_finder     &rarr; Client
+
+  // NewBiz subfolder
+  application_form  &rarr; NewBiz
+  transfer_form     &rarr; NewBiz
+  delivery_receipt  &rarr; NewBiz
+  replacement_form  &rarr; NewBiz
+  suitability       &rarr; NewBiz
+
+  // Cases subfolder
+  illustration  &rarr; Cases
+  comparison    &rarr; Cases
+  proposal      &rarr; Cases
+  analysis      &rarr; Cases
+
+  // Account subfolder
+  statement      &rarr; Account
+  confirmation   &rarr; Account
+  annual_review  &rarr; Account
+  distribution   &rarr; Account
+
+  // Fallback
+  (anything else) &rarr; Reactive
+}
+</pre>
+
+<p>The <code>document_taxonomy</code> Firestore collection is the authoritative source for document types. When a new document type is added to the taxonomy, it gets a <code>pipeline</code> field that maps it to a subfolder. The routing map above is the compiled output.</p>
+
+<!-- ================================================================== -->
+<h2>ATLAS Type Conformance</h2>
+
+<p>Every tool in this wire conforms to ATLAS's existing type system. No new abstractions needed.</p>
+
+<table>
+  <tr><th>ATLAS Type</th><th>Used By</th><th>Location</th></tr>
+  <tr>
+    <td><code>AtomicToolDefinition</code></td>
+    <td>All 11 atomic tools (tool_id, name, description, used_by, category)</td>
+    <td><code>packages/core/src/atlas/types.ts:159</code></td>
+  </tr>
+  <tr>
+    <td><code>AtomicToolResult&lt;T&gt;</code></td>
+    <td>Return type for every atomic tool execution</td>
+    <td><code>packages/core/src/atlas/types.ts:169</code></td>
+  </tr>
+  <tr>
+    <td><code>SuperToolDefinition</code></td>
+    <td>FOLDER_CLEANUP, DOCUMENT_CLEANUP, AUDIT_REVIEW</td>
+    <td><code>packages/core/src/atlas/types.ts:185</code></td>
+  </tr>
+  <tr>
+    <td><code>SuperToolResult&lt;T&gt;</code></td>
+    <td>Return type with per-tool results + stats</td>
+    <td><code>packages/core/src/atlas/types.ts:234</code></td>
+  </tr>
+  <tr>
+    <td><code>WireDefinitionV2</code></td>
+    <td>ACF_CLEANUP_WIRE registration</td>
+    <td><code>packages/core/src/atlas/types.ts:253</code></td>
+  </tr>
+  <tr>
+    <td><code>SuperToolContext</code></td>
+    <td>Shared context bag (client_id, source, callbacks)</td>
+    <td><code>packages/core/src/atlas/types.ts:196</code></td>
+  </tr>
+  <tr>
+    <td><code>RegistryEntry</code></td>
+    <td>TOOL, SUPER_TOOL, WIRE entries in the ATLAS registry</td>
+    <td><code>packages/core/src/atlas/types.ts:148</code></td>
+  </tr>
+</table>
+
+<!-- ================================================================== -->
+<h2>Implementation Roadmap</h2>
+
+<h3>Phase 1 &mdash; Register What Exists <span class="tag tag-live">LIVE CODE</span></h3>
+<ol>
+  <li>Extract atomic tool functions from the 10 ACF scripts into <code>packages/core/src/atlas/tools/acf-*.ts</code></li>
+  <li>Register each with <code>AtomicToolDefinition</code> + proper <code>category</code> assignment</li>
+  <li>Wire the 3 super tool definitions (<code>SuperToolDefinition</code>) referencing their atomic tool IDs</li>
+  <li>Add <code>WIRE_ACF_CLEANUP</code> to <code>WIRE_DEFINITIONS_V2</code> in <code>packages/core/src/atlas/wires.ts</code></li>
+  <li>ACF_SNAPSHOT bracket logic in the wire executor</li>
+</ol>
+
+<h3>Phase 2 &mdash; Build New Atomic Tools <span class="tag tag-new">BUILD</span></h3>
+<ol>
+  <li><code>ACF_FLATTEN</code> &mdash; recursive folder shredder (bring files up to subfolder level)</li>
+  <li><code>ACF_DEDUPE_FILES</code> &mdash; MD5 content hash + filename similarity matching</li>
+  <li><code>ACF_RENAME_FILES</code> &mdash; apply naming convention from extraction output + taxonomy + carrier normalization</li>
+  <li><code>ACF_RECLASSIFY</code> &mdash; batch move files between subfolders based on document type</li>
+</ol>
+
+<h3>Phase 3 &mdash; Intake Alignment</h3>
+<ol>
+  <li>Add <code>ACF_RENAME_FILES</code> step to <code>WIRE_INCOMING_CORRESPONDENCE</code> (before ACF_FINALIZE)</li>
+  <li>Add <code>ACF_RENAME_FILES</code> to ACF_UPLOAD and ACF_SCAN paths</li>
+  <li>Wire scheduled ACF_CLEANUP runs (weekly, off-hours) for catch-up hygiene</li>
+</ol>
+
+<!-- ================================================================== -->
+<h2>Risk &amp; Guardrails</h2>
+
+<table>
+  <tr><th>Risk</th><th>Mitigation</th></tr>
+  <tr>
+    <td>Batch file deletion (March 21 repeat)</td>
+    <td>ACF_SNAPSHOT before/after every super tool. Halt + Slack notification on unexpected count drop.</td>
+  </tr>
+  <tr>
+    <td>Wrong file moved to wrong subfolder</td>
+    <td>ACF_RECLASSIFY uses the same DOCUMENT_TYPE_TO_SUBFOLDER map as ACF_FINALIZE. One source of truth.</td>
+  </tr>
+  <tr>
+    <td>Naming convention loses information</td>
+    <td>Original filename preserved in <code>document_index</code> Firestore collection. Rename is non-destructive &mdash; metadata survives even if the name is wrong.</td>
+  </tr>
+  <tr>
+    <td>Dedup deletes the wrong copy</td>
+    <td>ACF_DEDUPE_FILES uses MD5 hash matching (zero false positives). Keeps the copy in the <em>correct</em> subfolder per routing map. Moves loser to Trash (30-day recovery).</td>
+  </tr>
+  <tr>
+    <td>Vision extraction misclassifies</td>
+    <td>Unconfident classifications (&lt; 70%) route to Reactive subfolder + get flagged by ACF_AUDIT for human review.</td>
+  </tr>
+  <tr>
+    <td>Drive API rate limits on batch ops</td>
+    <td>All scripts use chunked processing (10-50 ops per batch) with exponential backoff. Proven at 277-folder scale.</td>
+  </tr>
+</table>
+
+<!-- ================================================================== -->
+<h2>Relationship to Existing Wires</h2>
+
+<p>The ACF_CLEANUP_WIRE is the 5th wire in ATLAS, alongside:</p>
+
+<table>
+  <tr><th>Wire</th><th>Data Domain</th><th>Shared Tools</th></tr>
+  <tr>
+    <td><code>WIRE_DATA_IMPORT</code></td>
+    <td>Enrollment, Accounts, Demographics</td>
+    <td>SUPER_EXTRACT, SUPER_VALIDATE, SUPER_NORMALIZE, SUPER_MATCH</td>
+  </tr>
+  <tr>
+    <td><code>WIRE_COMMISSION_SYNC</code></td>
+    <td>Commissions</td>
+    <td>SUPER_EXTRACT, SUPER_NORMALIZE, SUPER_MATCH</td>
+  </tr>
+  <tr>
+    <td><code>WIRE_REFERENCE_SEED</code></td>
+    <td>Reference, Rates</td>
+    <td>SUPER_EXTRACT, SUPER_NORMALIZE, SUPER_MATCH</td>
+  </tr>
+  <tr>
+    <td><code>WIRE_INCOMING_CORRESPONDENCE</code></td>
+    <td>Correspondence</td>
+    <td>SUPER_PREPARE, SUPER_CLASSIFY, SUPER_EXTRACT, ACF_FINALIZE</td>
+  </tr>
+  <tr>
+    <td><strong><code>WIRE_ACF_CLEANUP</code></strong></td>
+    <td><strong>Documents</strong></td>
+    <td><strong>ACF_SNAPSHOT (new), ACF_FINALIZE routing map (shared)</strong></td>
+  </tr>
+</table>
+
+<p>The ACF Wire is <em>complementary</em> to WIRE_INCOMING_CORRESPONDENCE. Correspondence handles individual documents as they arrive (real-time). ACF_CLEANUP handles the entire folder tree (batch hygiene). Together, they ensure documents are clean on entry <em>and</em> stay clean over time.</p>
+
+<!-- ================================================================== -->
+<h2>FORGE Ticket Estimates</h2>
+
+<p>When this discovery doc is approved, RONIN generates the sprint tickets. Estimated scope:</p>
+
+<table>
+  <tr><th>Phase</th><th>Tickets</th><th>Complexity</th></tr>
+  <tr><td>Phase 1: Register existing tools</td><td>6</td><td>Low &mdash; extract + type + register</td></tr>
+  <tr><td>Phase 2: Build new atomic tools</td><td>4</td><td>Medium &mdash; new logic, Drive API integration</td></tr>
+  <tr><td>Phase 3: Intake alignment</td><td>3</td><td>Low &mdash; wire plumbing, shared routing map</td></tr>
+  <tr><td>Wire executor + snapshot bracket</td><td>2</td><td>Medium &mdash; orchestration logic</td></tr>
+  <tr><td>E2E tests + audit UI extension</td><td>3</td><td>Medium &mdash; test fixtures, UI work</td></tr>
+  <tr><td><strong>Total</strong></td><td><strong>~18 tickets</strong></td><td></td></tr>
+</table>
+
+<!-- ================================================================== -->
+
+<div class="sig">
+  <strong>MUSASHI</strong>, VP CMO &mdash; ARTxBLADE<br>
+  Discovery Doc 1 of 3: The ACF Wire (Digital Files Pillar)<br>
+  Trinity Data Method&trade; Series<br>
+  <br>
+  <em>The naming convention IS the index. The subfolders ARE the lifecycle. The snapshot IS the guardrail.</em><br>
+  <br>
+  2026-04-03 &mdash; Retirement Protectors, Inc.<br>
+  #RunningOurOwnRACE
+</div>
+
+</body>
+</html>

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MDJ Infrastructure Master Discovery</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d4a;
+    --accent: #60a5fa;
+    --accent2: #818cf8;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --dim: #475569;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--surface) 0%, #0f1729 100%);
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--green));
+  }
+  .header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .header .meta {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 0.85rem;
+    color: var(--dim);
+  }
+  .header .meta span { display: flex; align-items: center; gap: 0.4rem; }
+
+  /* Summary Bar */
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-card .number {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .stat-card .label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-card.done .number { color: var(--green); }
+  .stat-card.partial .number { color: var(--yellow); }
+  .stat-card.not-built .number { color: var(--red); }
+  .stat-card.total .number { color: var(--accent); }
+
+  /* Wave Section */
+  .wave {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .wave-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .wave-header h2 { font-size: 1.3rem; font-weight: 700; }
+  .wave-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .wave-badge.warriors { background: rgba(96,165,250,0.15); color: var(--accent); border: 1px solid rgba(96,165,250,0.3); }
+  .wave-badge.intel { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+  .wave-badge.fixes { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+  .wave-summary { margin-left: auto; font-size: 0.85rem; color: var(--muted); }
+
+  /* Ticket */
+  .ticket {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 1rem;
+    align-items: start;
+  }
+  .ticket:last-child { border-bottom: none; }
+  .ticket:hover { background: rgba(96,165,250,0.03); }
+
+  .ticket-status {
+    padding: 0.35rem 0;
+    text-align: center;
+  }
+  .status-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .status-done { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+  .status-partial { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+  .status-not-built { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+
+  .ticket-body h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+  .ticket-body .desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .ticket-body .evidence {
+    font-size: 0.8rem;
+    color: var(--dim);
+    line-height: 1.7;
+  }
+  .ticket-body .evidence code {
+    background: var(--surface2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  .ticket-body .evidence .gap {
+    color: var(--orange);
+    font-weight: 600;
+  }
+  .ticket-body .evidence .strong {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .ticket-files {
+    text-align: right;
+    min-width: 180px;
+  }
+  .ticket-files .file {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--dim);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.8;
+  }
+
+  /* Architecture */
+  .arch-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .arch-section h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .arch-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+  .arch-card h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .arch-card ul {
+    list-style: none;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .arch-card ul li {
+    padding: 0.15rem 0;
+    padding-left: 1rem;
+    position: relative;
+  }
+  .arch-card ul li::before {
+    content: '\2022';
+    position: absolute;
+    left: 0;
+    color: var(--dim);
+  }
+
+  /* Process Table */
+  .process-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .process-table th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--surface2);
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .process-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .process-table td code {
+    background: var(--surface2);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    color: var(--accent);
+  }
+
+  /* Signature */
+  .signature {
+    text-align: center;
+    padding: 2.5rem;
+    margin-top: 1rem;
+  }
+  .signature .glyph {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 0 20px rgba(96,165,250,0.3));
+  }
+  .signature .name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.15em;
+  }
+  .signature .title {
+    font-size: 0.8rem;
+    color: var(--dim);
+    margin-top: 0.25rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .signature .stamp {
+    font-size: 0.7rem;
+    color: var(--dim);
+    margin-top: 1rem;
+    font-style: italic;
+  }
+
+  @media (max-width: 768px) {
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    .arch-grid { grid-template-columns: 1fr; }
+    .ticket { grid-template-columns: 70px 1fr; }
+    .ticket-files { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>MDJ Infrastructure Master Discovery</h1>
+  <div class="subtitle">Full audit of the MDJ_SERVER autonomous agent infrastructure &mdash; what's built, what's partial, what's not started.</div>
+  <div class="meta">
+    <span>Server: Dell PowerEdge T440</span>
+    <span>Repo: /home/jdm/mdj-agent</span>
+    <span>Date: 2026-04-03</span>
+    <span>Auditor: MUSASHI</span>
+  </div>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar">
+  <div class="stat-card total">
+    <div class="number">16</div>
+    <div class="label">Total Tickets</div>
+  </div>
+  <div class="stat-card done">
+    <div class="number">9</div>
+    <div class="label">Done</div>
+  </div>
+  <div class="stat-card partial">
+    <div class="number">2</div>
+    <div class="label">Partial</div>
+  </div>
+  <div class="stat-card not-built">
+    <div class="number">5</div>
+    <div class="label">Not Built</div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- WAVE 1 — WARRIOR LAUNCH -->
+<!-- ================================================================ -->
+<div class="wave">
+  <div class="wave-header">
+    <h2>Wave 1 &mdash; Warrior Launch</h2>
+    <span class="wave-badge warriors">8 Tickets</span>
+    <span class="wave-summary">8/8 DONE</span>
+  </div>
+
+  <!-- 1. RAIDEN tmux -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>RAIDEN tmux Launcher</h3>
+      <div class="desc">Launch RAIDEN as a persistent warrior in tmux with auto-recovery.</div>
+      <div class="evidence">
+        <span class="strong">Dual-tier:</span> In-process Node scheduler via <code>startRaidenScheduler()</code> (15-min <code>setInterval</code>) +
+        tmux warrior session via <code>/home/jdm/launch-raiden.sh</code>. The scheduler fires <code>runCycle()</code> on cold start after 10s delay.
+        <code>dojo-watchdog.sh</code> auto-recovers the tmux session if killed (RAIDEN is in <code>AUTO_RECOVER_WARRIORS</code> list).
+        systemd <code>mdj-agent.service</code> covers the Node process with <code>Restart=always, RestartSec=5</code>.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/raiden/scheduler.ts</span>
+      <span class="file">src/raiden/index.ts</span>
+      <span class="file">~/launch-raiden.sh</span>
+      <span class="file">~/dojo-watchdog.sh</span>
+    </div>
+  </div>
+
+  <!-- 2. Channel Watcher -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>Channel Watcher</h3>
+      <div class="desc">Poll Slack channels for team reports, bugs, and requests.</div>
+      <div class="evidence">
+        <span class="strong">Two input paths:</span>
+        (1) <code>slack-poller.ts</code> polls <code>#prodashx-urgent-fixes-and-bugs</code> (C0ANMBVMSTV) every 15 min, incremental via <code>lastCheckedTs</code>, skips bot messages, dedupes by timestamp.
+        (2) <code>slack-webhook.ts</code> receives Slack Events API pushes for the war room (C0AP2QL9Z6X) and #the-dojo. HMAC signature validation.
+        <code>forge-poller.ts</code> queries Firestore <code>forge_tracker</code> for <code>type in ['bug','broken']</code> as a parallel input.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/raiden/slack-poller.ts</span>
+      <span class="file">src/raiden/forge-poller.ts</span>
+      <span class="file">src/dojo/slack-webhook.ts</span>
+    </div>
+  </div>
+
+  <!-- 3. Auto-Triage -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>Auto-Triage Engine</h3>
+      <div class="desc">Classify inbound items as TRAIN / FIX / ROUTE / QUEUE with P0 detection.</div>
+      <div class="evidence">
+        <span class="strong">Three-layer classification:</span>
+        (1) 7 P0 regex signals (auth fail, can't log in, phone down, 888-620-8587, data loss/corrupt, production down).
+        (2) Keyword match against <code>knowledge_entries</code> Firestore + TRAIN signals (how do I, where is, does prodash have).
+        (3) Claude Haiku fallback ($0.10 budget, 15s timeout) for FIX/ROUTE/QUEUE.
+        Duplicate detection via Jaccard similarity (threshold 0.4) against open tracker tickets.
+        7 unit tests + 3 scheduler tests + 4-step E2E test.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/raiden/triage-engine.ts</span>
+      <span class="file">src/raiden/__tests__/</span>
+    </div>
+  </div>
+
+  <!-- 4. Heartbeat -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>Heartbeat &amp; Health Monitoring</h3>
+      <div class="desc">Continuous liveness checks for all warriors + the server itself.</div>
+      <div class="evidence">
+        <span class="strong">Three layers:</span>
+        (1) <code>GET /raiden/status</code> returns <code>{ running, lastRun }</code>; <code>GET /health</code> returns uptime + memory + active conversations.
+        (2) <code>dojo-watchdog.sh</code> (15s systemd timer) checks all 6 warrior tmux sessions for liveness + Claude process; if no war room post in 300s, injects status report prompt.
+        (3) <code>last_channel_post.txt</code> heartbeat file written on every Slack event by <code>slack-webhook.ts</code>.
+        Run history persisted to Firestore <code>mdj_raiden_runs</code> via <code>logger.ts</code>.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/raiden/index.ts</span>
+      <span class="file">src/raiden/logger.ts</span>
+      <span class="file">~/dojo-watchdog.sh</span>
+    </div>
+  </div>
+
+  <!-- 5. P0 Escalation -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>P0 Escalation Pipeline</h3>
+      <div class="desc">Detect critical issues and DM JDM immediately.</div>
+      <div class="evidence">
+        <span class="strong">Full pipeline:</span>
+        <code>triage-engine.ts</code> sets <code>p0: true</code> on regex match &rarr; <code>scheduler.ts</code> calls <code>sendP0Alert()</code> immediately &rarr;
+        <code>notifier.ts</code> DMs <code>U09BBHTN8F2</code> (JDM) with item details.
+        Auto-fix failure also triggers P0 (if <code>executeAutoFix</code> returns null, scheduler fires a second P0 alert).
+        7 P0 signal patterns: auth fail, login failure, phone down, toll-free number, data loss, data corruption, production down.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/raiden/triage-engine.ts</span>
+      <span class="file">src/raiden/notifier.ts</span>
+      <span class="file">src/raiden/scheduler.ts</span>
+    </div>
+  </div>
+
+  <!-- 6. VOLTRON tmux -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>VOLTRON tmux Launcher</h3>
+      <div class="desc">Launch VOLTRON as a persistent warrior with soul/spirit file injection.</div>
+      <div class="evidence">
+        <span class="strong">Dual-tier architecture:</span>
+        (1) <code>mdj-agent.service</code> (systemd, <code>Restart=always</code>) runs the CCSDK HTTP server on :4200.
+        (2) <code>launch-voltron.sh</code> creates tmux session <code>VOLTRON</code>, checks server health at :4200, injects
+        <code>claude --allowedTools '*'</code> with soul.md + spirit.md from <code>~/Projects/dojo-warriors/voltron/</code>.
+        If tmux session exists, attaches instead of recreating.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">~/launch-voltron.sh</span>
+      <span class="file">src/server.ts</span>
+      <span class="file">mdj-agent.service</span>
+    </div>
+  </div>
+
+  <!-- 7. Cron Templates -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>Cron Templates</h3>
+      <div class="desc">Document all warrior scheduling, systemd timers, and activation order.</div>
+      <div class="evidence">
+        <span class="strong">Two reference docs:</span>
+        <code>warrior-crons.md</code> (TRK-14313) documents all schedules: RAIDEN 15-min cycle, SHINOB1 5-min CTO watch, DOJO watchdog 15s timer, Memory Guardian 60s loop, Git Monitor 60s loop, Dojo Config Sync 30-min timer.
+        Recommended activation order: mdj-agent &rarr; memory-guardian &rarr; dojo-sync &rarr; dojo-watchdog &rarr; raiden-guardian (backup).
+        <code>tmux-persistence-evaluation.md</code> (TRK-14314) analyzes 4 crash scenarios with Phase 1/2 recovery plans.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">cron-templates/warrior-crons.md</span>
+      <span class="file">cron-templates/tmux-persistence-evaluation.md</span>
+    </div>
+  </div>
+
+  <!-- 8. Crash Recovery -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>Crash Recovery</h3>
+      <div class="desc">Multi-layer process supervision: systemd, OOM protection, tmux watchdog, auto-deploy.</div>
+      <div class="evidence">
+        <span class="strong">Four layers:</span>
+        (1) <code>mdj-agent.service</code> &mdash; <code>Restart=always, RestartSec=5</code> auto-restarts Node on crash.
+        (2) <code>memory-guardian.service</code> &mdash; 60s poll, kills newest non-warrior Claude process if RAM > 28GB.
+        (3) <code>dojo-watchdog.sh</code> &mdash; 15s checks, auto-recovers RAIDEN tmux via launch script if dead, Slack alerts for missing warriors / swap > 100MB / RAM > 25GB.
+        (4) GitHub webhook auto-deploy &mdash; HMAC-validated, <code>git pull &rarr; npm ci &rarr; tsc &rarr; systemctl restart</code> (build gate: no restart on tsc failure).
+        <code>forgeRunner.findResumableRuns()</code> fires 5s after startup to auto-resume interrupted FORGE sprints.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">mdj-agent.service</span>
+      <span class="file">~/memory-guardian.sh</span>
+      <span class="file">~/dojo-watchdog.sh</span>
+      <span class="file">src/server.ts :L460-490</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- WAVE 2 — INTEL -->
+<!-- ================================================================ -->
+<div class="wave">
+  <div class="wave-header">
+    <h2>Wave 2 &mdash; Intel &amp; Research</h2>
+    <span class="wave-badge intel">5 Tickets</span>
+    <span class="wave-summary">0/5 DONE</span>
+  </div>
+
+  <!-- 1. Arcee Trinity -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-not-built">Not Built</span></div>
+    <div class="ticket-body">
+      <h3>Arcee Trinity Benchmark</h3>
+      <div class="desc">Evaluate Arcee's Trinity model for local inference on MDJ_SERVER &mdash; cost reduction play for high-volume Haiku tasks.</div>
+      <div class="evidence">
+        No references to Arcee, Trinity, or local model inference found anywhere in <code>/home/jdm/mdj-agent/src/</code>.
+        No model config, no benchmark scripts, no evaluation harness.
+        <span class="gap">Zero code exists.</span> This is a pure research ticket.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">&mdash;</span>
+    </div>
+  </div>
+
+  <!-- 2. Gemma 4 on P40 -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-not-built">Not Built</span></div>
+    <div class="ticket-body">
+      <h3>Gemma 4 on P40 GPU</h3>
+      <div class="desc">Test Google's Gemma 4 model on the P40 GPU in the Dell PowerEdge &mdash; local inference for classification / triage tasks.</div>
+      <div class="evidence">
+        No references to Gemma, P40, CUDA, Ollama, vLLM, or any local model runtime found in <code>src/</code> or <code>package.json</code>.
+        No GPU driver setup scripts. No model download or serving code.
+        <span class="gap">Zero code exists.</span> Hardware capability is present (P40 GPU in chassis) but no software stack.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">&mdash;</span>
+    </div>
+  </div>
+
+  <!-- 3. Figma MCP -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-not-built">Not Built</span></div>
+    <div class="ticket-body">
+      <h3>Figma MCP Integration</h3>
+      <div class="desc">Wire Figma MCP server for design-to-code workflows &mdash; RONIN reads Figma specs, builds matching UI.</div>
+      <div class="evidence">
+        No references to Figma found in <code>src/</code>, <code>package.json</code>, or <code>~/.mcp.json</code>.
+        <code>mcp-bridge.ts</code> defines 25 tools across 7 servers &mdash; none are Figma.
+        <span class="gap">Zero code exists.</span> Requires: Figma API token, MCP server installation, bridge tool definitions.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">&mdash;</span>
+    </div>
+  </div>
+
+  <!-- 4. Mozilla CQ -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-not-built">Not Built</span></div>
+    <div class="ticket-body">
+      <h3>Mozilla CQ Shared Learning</h3>
+      <div class="desc">Evaluate Mozilla's Context Quality framework for shared learning across warrior sessions.</div>
+      <div class="evidence">
+        Only "Mozilla" references are browser UA strings in Playwright carrier automation scripts
+        (<code>athene.ts</code>, <code>north-american.ts</code>) &mdash; unrelated.
+        No CQ framework, no shared learning pipeline, no cross-session memory sync.
+        <span class="gap">Zero code exists.</span> Pure research ticket.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">&mdash;</span>
+    </div>
+  </div>
+
+  <!-- 5. NVIDIA OpenShell -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-not-built">Not Built</span></div>
+    <div class="ticket-body">
+      <h3>NVIDIA OpenShell</h3>
+      <div class="desc">Evaluate NVIDIA's OpenShell for GPU-accelerated agent execution on the P40.</div>
+      <div class="evidence">
+        No references to NVIDIA, OpenShell, or GPU-accelerated inference found anywhere in the codebase.
+        <span class="gap">Zero code exists.</span> Blocked by Gemma/P40 ticket &mdash; GPU stack must be set up first.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">&mdash;</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- WAVE 3 — DISPATCHER FIXES -->
+<!-- ================================================================ -->
+<div class="wave">
+  <div class="wave-header">
+    <h2>Wave 3 &mdash; Dispatcher Fixes</h2>
+    <span class="wave-badge fixes">3 Tickets</span>
+    <span class="wave-summary">1 DONE / 2 PARTIAL</span>
+  </div>
+
+  <!-- 1. Bot Loop -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-done">Done</span></div>
+    <div class="ticket-body">
+      <h3>Bot Loop Prevention</h3>
+      <div class="desc">Prevent the dispatcher from sending messages that trigger itself in an infinite loop.</div>
+      <div class="evidence">
+        <span class="strong">Three independent layers:</span>
+        (1) <code>decision-framework.ts:70-72</code> &mdash; deterministic ABSORB for all <code>BOT_USER_ID</code> (U0A9K7FB8AG) messages, first check before any routing logic.
+        (2) <code>dispatcher.ts:69</code> &mdash; <code>preFilter()</code> skips <code>msg.bot_id || msg.user === BOT_USER_ID</code>.
+        (3) <code>dispatcher.ts:235</code> &mdash; PR tracking only runs for <code>msg.user !== BOT_USER_ID</code>.
+        Audit trail posts by <code>route()</code> loop back as bot messages &rarr; absorbed by layer 1. <span class="strong">No infinite loop possible.</span>
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/dojo/decision-framework.ts</span>
+      <span class="file">src/dojo/dispatcher.ts</span>
+    </div>
+  </div>
+
+  <!-- 2. CI Spam Dedup -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-partial">Partial</span></div>
+    <div class="ticket-body">
+      <h3>CI Spam Dedup</h3>
+      <div class="desc">Prevent duplicate CI failure notifications flooding the war room.</div>
+      <div class="evidence">
+        <span class="strong">What works:</span> <code>pendingCI.delete(prNumber)</code> after first failure report prevents the poll loop from double-reporting.
+        <code>trackPR()</code> guards against double-tracking: <code>if (pendingCI.has(prNumber)) return</code>.
+        <br>
+        <span class="gap">What's incomplete:</span> <code>reportedFailures: Set&lt;number&gt;</code> declared at <code>git-monitor.ts:32</code> but <span class="gap">never populated or read</span> &mdash; dead code.
+        If <code>trackPR</code> is called with the same PR from two different Slack messages before the first poll fires, the second is silently dropped.
+        Dedup works in practice but the intended mechanism (<code>reportedFailures</code>) is unwired.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/dojo/git-monitor.ts</span>
+    </div>
+  </div>
+
+  <!-- 3. False LandedIt -->
+  <div class="ticket">
+    <div class="ticket-status"><span class="status-badge status-partial">Partial</span></div>
+    <div class="ticket-body">
+      <h3>False LandedIt Prevention</h3>
+      <div class="desc">Prevent incorrect #LandedIt! posts when the wrong deploy run is matched.</div>
+      <div class="evidence">
+        <span class="strong">What works:</span> <code>pollDeployForMerge()</code> polls every 15s for up to 10 min, checks <code>gh run list --branch main --event push --limit 1</code>, only posts on <code>status=completed, conclusion=success</code>.
+        Merge scanner correctly identifies new commits and clears merged PRs from <code>pendingCI</code>.
+        <br>
+        <span class="gap">Real race condition:</span> <code>checkDeployStatus()</code> fetches the <span class="gap">most recent push-triggered run on main</span> &mdash; NOT the run for the specific commit.
+        If merge A and merge B land within minutes, merge A's poller can pick up merge B's deploy run and post a false #LandedIt for the wrong commit.
+        The <code>commits</code> array is passed in but only used for Slack message text, not to filter the GitHub Actions query.
+        <span class="gap">Fix needed:</span> filter <code>gh run list</code> by head SHA, not just branch + event.
+      </div>
+    </div>
+    <div class="ticket-files">
+      <span class="file">src/dojo/git-monitor.ts</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- ARCHITECTURE SNAPSHOT -->
+<!-- ================================================================ -->
+<div class="arch-section">
+  <h2>Architecture Snapshot</h2>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <h4>VOLTRON (Agent OS)</h4>
+      <ul>
+        <li>Mode 1: Agent SDK autonomous deploy (665 LOC)</li>
+        <li>Mode 2: Raw SDK conversational chat (315 LOC)</li>
+        <li>82 tools: 57 TM API + 25 MCP bridge</li>
+        <li>3-tier approval policy (358 LOC)</li>
+        <li>6 specialists via Firestore cache</li>
+        <li>SENSEI training lookup (19 modules)</li>
+      </ul>
+    </div>
+    <div class="arch-card">
+      <h4>RAIDEN (Reactive Guardian)</h4>
+      <ul>
+        <li>15-min poll cycle (Slack + Firestore)</li>
+        <li>Jaccard dedup (threshold 0.4)</li>
+        <li>P0 regex &rarr; DM JDM (&lt;60s)</li>
+        <li>TRAIN: KB lookup + CLAUDE.md fallback</li>
+        <li>FIX: Sonnet auto-fix ($8 budget)</li>
+        <li>ROUTE: Tracker API &rarr; RONIN handoff</li>
+        <li>4-step Slack lifecycle notifications</li>
+      </ul>
+    </div>
+    <div class="arch-card">
+      <h4>FORGE (Sprint Runner)</h4>
+      <ul>
+        <li>16-phase state machine (706 LOC runner)</li>
+        <li>11 phase executors (1,148 LOC)</li>
+        <li>CI retry loop (10 max, escalate at 5)</li>
+        <li>Gate system (plan/build/CI escalation)</li>
+        <li>RONIN_OS_RULES injected in all prompts</li>
+        <li>Auto-resume interrupted runs on startup</li>
+      </ul>
+    </div>
+    <div class="arch-card">
+      <h4>DOJO (Dispatcher)</h4>
+      <ul>
+        <li>Slack Events API webhook receiver</li>
+        <li>Deterministic routing (decision framework)</li>
+        <li>3-layer bot loop prevention</li>
+        <li>Haiku classification fallback ($0.10)</li>
+        <li>tmux session injection delivery</li>
+        <li>PR tracking + CI monitoring</li>
+      </ul>
+    </div>
+    <div class="arch-card">
+      <h4>Process Supervision</h4>
+      <ul>
+        <li>systemd Restart=always (5s delay)</li>
+        <li>memory-guardian (60s, 28GB threshold)</li>
+        <li>dojo-watchdog (15s, 6 warriors)</li>
+        <li>GitHub webhook auto-deploy (build gate)</li>
+        <li>FORGE auto-resume on startup</li>
+        <li>Rate limit: 60 req/min per user</li>
+      </ul>
+    </div>
+    <div class="arch-card">
+      <h4>Codebase Stats</h4>
+      <ul>
+        <li>src/agent/ &mdash; 14 files, ~3,200 LOC</li>
+        <li>src/raiden/ &mdash; 11 files, ~700 LOC</li>
+        <li>src/forge/ &mdash; 7 files, ~2,800 LOC</li>
+        <li>src/dojo/ &mdash; 4 files, ~900 LOC</li>
+        <li>src/tools/ &mdash; 5 files, ~2,300 LOC</li>
+        <li>Total: ~10,500 LOC TypeScript</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- ACTIVE PROCESSES -->
+<!-- ================================================================ -->
+<div class="arch-section">
+  <h2>Active Background Processes</h2>
+  <table class="process-table">
+    <thead>
+      <tr>
+        <th>Process</th>
+        <th>Interval</th>
+        <th>Mechanism</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RAIDEN Scheduler</td>
+        <td>Every 15 min</td>
+        <td><code>setInterval</code> in Node</td>
+        <td style="color: var(--green)">ACTIVE</td>
+      </tr>
+      <tr>
+        <td>SHINOB1 CTO Watch</td>
+        <td>Every 5 min</td>
+        <td><code>setInterval</code> in Node</td>
+        <td style="color: var(--green)">ACTIVE</td>
+      </tr>
+      <tr>
+        <td>Git Monitor (merge scanner)</td>
+        <td>Every 60s</td>
+        <td><code>setInterval</code> in Node</td>
+        <td style="color: var(--green)">ACTIVE</td>
+      </tr>
+      <tr>
+        <td>Stale Gate Checker</td>
+        <td>Every 60 min</td>
+        <td><code>setInterval</code> in Node</td>
+        <td style="color: var(--green)">ACTIVE</td>
+      </tr>
+      <tr>
+        <td>FORGE Auto-Resume</td>
+        <td>On startup (5s delay)</td>
+        <td><code>setTimeout</code> in Node</td>
+        <td style="color: var(--green)">ACTIVE</td>
+      </tr>
+      <tr>
+        <td>Memory Guardian</td>
+        <td>Every 60s</td>
+        <td>systemd service</td>
+        <td style="color: var(--green)">ACTIVE</td>
+      </tr>
+      <tr>
+        <td>Dojo Watchdog</td>
+        <td>Every 15s</td>
+        <td>systemd timer</td>
+        <td style="color: var(--yellow)">INACTIVE</td>
+      </tr>
+      <tr>
+        <td>Dojo Config Sync</td>
+        <td>Every 30 min</td>
+        <td>systemd timer</td>
+        <td style="color: var(--green)">ACTIVE</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ================================================================ -->
+<!-- KNOWN BUGS / RISKS -->
+<!-- ================================================================ -->
+<div class="arch-section">
+  <h2>Known Bugs &amp; Risks (Discovered During Audit)</h2>
+  <table class="process-table">
+    <thead>
+      <tr>
+        <th>Issue</th>
+        <th>File</th>
+        <th>Severity</th>
+        <th>Detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>False LandedIt race</td>
+        <td><code>git-monitor.ts</code></td>
+        <td style="color: var(--red)">HIGH</td>
+        <td>Deploy poller picks latest run on main, not commit-specific. Two rapid merges = wrong attribution.</td>
+      </tr>
+      <tr>
+        <td>Build ticket pass detection</td>
+        <td><code>phases.ts:806-810</code></td>
+        <td style="color: var(--orange)">MEDIUM</td>
+        <td><code>output.includes(ticketId)</code> marks any mentioned ticket as PASS, even in error messages.</td>
+      </tr>
+      <tr>
+        <td>Confirm-nothing on resume</td>
+        <td><code>phases.ts (runConfirm)</code></td>
+        <td style="color: var(--orange)">MEDIUM</td>
+        <td><code>opts.tickets</code> is empty on resume paths (reconstructed from Firestore without tickets array). Confirms 0 items silently.</td>
+      </tr>
+      <tr>
+        <td>CI escalation silent</td>
+        <td><code>runner.ts:275-281</code></td>
+        <td style="color: var(--yellow)">LOW</td>
+        <td>CI escalation at attempt 5 calls runner's <code>sendGateNotification</code> (no-op placeholder), not <code>gates.ts::requestGate</code>. No external notification sent.</td>
+      </tr>
+      <tr>
+        <td>Dead <code>reportedFailures</code></td>
+        <td><code>git-monitor.ts:32</code></td>
+        <td style="color: var(--yellow)">LOW</td>
+        <td>Set declared but never populated or read. Misleading dead code.</td>
+      </tr>
+      <tr>
+        <td>Audit tiebreaker risk</td>
+        <td><code>phases.ts (parseAuditResult)</code></td>
+        <td style="color: var(--yellow)">LOW</td>
+        <td>Checkmark emoji count tiebreaker could false-PASS if audit narrates many resolved issues.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SIGNATURE -->
+<div class="signature">
+  <div class="glyph">&#x2694;&#xFE0F;</div>
+  <div class="name">MUSASHI</div>
+  <div class="title">Discovery Auditor &bull; The Dojo</div>
+  <div class="stamp">
+    Signed 2026-04-03 &mdash; Dell PowerEdge T440 &mdash; /home/jdm/mdj-agent<br>
+    "Perceive that which cannot be seen with the eye."
+  </div>
+</div>
+
+</div>
+</body>
+</html>
