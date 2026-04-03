@@ -1,200 +1,209 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { collection, orderBy, query, limit } from 'firebase/firestore'
-import { useCollection, getDb } from '@tomachina/db'
-import type { Activity } from '@tomachina/core'
-import { formatDate, str } from '../../lib/formatters'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { fetchWithAuth } from '@tomachina/ui/src/modules/fetchWithAuth'
 import { EmptyState } from '../../lib/ui-helpers'
 
 interface ActivityTabProps {
   clientId: string
 }
 
-type FilterKey = 'all' | 'calls' | 'emails' | 'sms' | 'status_changes' | 'notes'
+type FilterKey = 'all' | 'calls' | 'sms' | 'emails' | 'activities' | 'opportunities'
+
+interface TimelineEntry {
+  id: string
+  source: string
+  type: string
+  title: string
+  description?: string
+  performed_by?: string
+  created_at: string
+  meta?: Record<string, unknown>
+}
+
+interface TimelineResponse {
+  entries: TimelineEntry[]
+  counts: Record<string, number>
+}
+
+const ICON_MAP: Record<string, string> = {
+  voice: 'phone',
+  sms: 'message',
+  email: 'mail',
+  activity: 'event_note',
+  opportunity: 'work',
+}
+
+const COLOR_MAP: Record<string, string> = {
+  voice: 'text-green-500',
+  sms: 'text-blue-400',
+  email: 'text-purple-400',
+  activity: 'text-amber-500',
+  opportunity: 'text-teal-400',
+}
+
+function formatDate(dateStr: string): string {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  const now = new Date()
+  const diff = now.getTime() - d.getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days < 7) return `${days}d ago`
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined })
+}
 
 export function ActivityTab({ clientId }: ActivityTabProps) {
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
+  const [entries, setEntries] = useState<TimelineEntry[]>([])
+  const [counts, setCounts] = useState<Record<string, number>>({})
+  const [loading, setLoading] = useState(true)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
-  // Query activities subcollection
-  const activitiesQuery = useMemo(() => {
-    if (!clientId) return null
-    return query(
-      collection(getDb(), 'clients', clientId, 'activities'),
-      orderBy('created_at', 'desc'),
-      limit(50)
-    )
-  }, [clientId])
-
-  const { data: activities, loading } = useCollection<Activity>(activitiesQuery, `activities-${clientId}`)
-
-  // Filter by active filter pill
-  const filtered = useMemo(() => {
-    return activities.filter((a) => {
-      const t = str(a.activity_type).toLowerCase()
-      switch (activeFilter) {
-        case 'all':
-          return true
-        case 'calls':
-          return t.includes('call') || t.includes('phone') || t.includes('dial')
-        case 'emails':
-          return t.includes('email') || t.includes('send') || t.includes('mail')
-        case 'sms':
-          return t.includes('sms') || t.includes('text') || t.includes('message')
-        case 'status_changes':
-          return t.includes('status') || t.includes('change') || t.includes('update') || t.includes('transition')
-        case 'notes':
-          return t.includes('note') || t.includes('comment') || t.includes('memo')
-        default:
-          return true
+  const loadTimeline = useCallback(async () => {
+    setLoading(true)
+    try {
+      const typeParam = activeFilter === 'all' ? '' : `&type=${activeFilter}`
+      const res = await fetchWithAuth(`/api/clients/${clientId}/timeline?limit=100${typeParam}`)
+      if (res.ok) {
+        const json = await res.json()
+        if (json.success) {
+          const data = json.data as TimelineResponse
+          setEntries(data.entries || [])
+          setCounts(data.counts || {})
+        }
       }
-    })
-  }, [activities, activeFilter])
+    } catch { /* silent */ }
+    setLoading(false)
+  }, [clientId, activeFilter])
 
-  if (loading) {
-    return (
-      <div className="space-y-3 animate-pulse">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex gap-4">
-            <div className="h-10 w-10 shrink-0 rounded-full bg-[var(--bg-card)]" />
-            <div className="flex-1 space-y-2">
-              <div className="h-4 w-48 rounded bg-[var(--bg-card)]" />
-              <div className="h-3 w-72 rounded bg-[var(--bg-card)]" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
+  useEffect(() => { loadTimeline() }, [loadTimeline])
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
 
-  // Count activities per filter type for badges
-  const filterCounts = useMemo(() => {
-    const counts: Record<FilterKey, number> = { all: activities.length, calls: 0, emails: 0, sms: 0, status_changes: 0, notes: 0 }
-    for (const a of activities) {
-      const t = str(a.activity_type).toLowerCase()
-      if (t.includes('call') || t.includes('phone') || t.includes('dial')) counts.calls++
-      if (t.includes('email') || t.includes('send') || t.includes('mail')) counts.emails++
-      if (t.includes('sms') || t.includes('text') || t.includes('message')) counts.sms++
-      if (t.includes('status') || t.includes('change') || t.includes('update') || t.includes('transition')) counts.status_changes++
-      if (t.includes('note') || t.includes('comment') || t.includes('memo')) counts.notes++
-    }
-    return counts
-  }, [activities])
+  const filters: { key: FilterKey; label: string; icon: string }[] = [
+    { key: 'all', label: 'All', icon: 'list' },
+    { key: 'calls', label: 'Calls', icon: 'phone' },
+    { key: 'sms', label: 'SMS', icon: 'message' },
+    { key: 'emails', label: 'Emails', icon: 'mail' },
+    { key: 'activities', label: 'Activity', icon: 'event_note' },
+    { key: 'opportunities', label: 'Opps', icon: 'work' },
+  ]
 
   return (
     <div className="space-y-4">
       {/* Filter pills */}
-      <div className="flex flex-wrap gap-1.5">
-        {([
-          { key: 'all', label: 'All', icon: 'list' },
-          { key: 'calls', label: 'Calls', icon: 'phone' },
-          { key: 'emails', label: 'Emails', icon: 'email' },
-          { key: 'sms', label: 'SMS', icon: 'sms' },
-          { key: 'status_changes', label: 'Status Changes', icon: 'swap_horiz' },
-          { key: 'notes', label: 'Notes', icon: 'sticky_note_2' },
-        ] as const).map((pill) => (
-          <button
-            key={pill.key}
-            onClick={() => setActiveFilter(pill.key)}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-              activeFilter === pill.key
-                ? 'bg-[var(--portal)] text-white shadow-sm'
-                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-            }`}
-          >
-            <span className="material-icons-outlined text-[14px]">{pill.icon}</span>
-            {pill.label}
-            {filterCounts[pill.key] > 0 && (
-              <span className={`ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold leading-none ${
-                activeFilter === pill.key
-                  ? 'bg-white/20 text-white'
-                  : 'bg-[var(--bg-card)] text-[var(--text-muted)]'
-              }`}>
-                {filterCounts[pill.key]}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-2">
+        {filters.map(f => {
+          const count = counts[f.key] ?? 0
+          const isActive = activeFilter === f.key
+          return (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                isActive
+                  ? 'bg-[var(--portal)] text-white'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <span className="material-icons-outlined text-[14px]">{f.icon}</span>
+              {f.label}
+              {count > 0 && (
+                <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  isActive ? 'bg-white/20' : 'bg-[var(--border-subtle)]'
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Activity list */}
-      {filtered.length === 0 ? (
-        <EmptyState
-          icon="history"
-          message={activeFilter === 'all' ? 'No activity recorded yet.' : `No ${activeFilter.replace('_', ' ')} activity recorded yet.`}
-        />
+      {/* Timeline */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--portal)] border-t-transparent" />
+          <span className="ml-3 text-sm text-[var(--text-muted)]">Loading timeline...</span>
+        </div>
+      ) : entries.length === 0 ? (
+        <EmptyState icon="history" message="No activity recorded yet" />
       ) : (
-        <div className="relative">
-          <div className="absolute left-5 top-0 bottom-0 w-px bg-[var(--border-subtle)]" />
-          <div className="space-y-0">
-            {filtered.map((activity, index) => (
-              <ActivityRow key={activity.activity_id || index} activity={activity} />
-            ))}
-          </div>
+        <div className="space-y-1">
+          {entries.map(entry => {
+            const icon = ICON_MAP[entry.type] || ICON_MAP[entry.source] || 'event_note'
+            const color = COLOR_MAP[entry.type] || COLOR_MAP[entry.source] || 'text-[var(--text-muted)]'
+            const expanded = expandedIds.has(entry.id)
+            const hasDetail = !!(entry.description || entry.meta?.recording_url || entry.meta?.media_urls)
+
+            return (
+              <div
+                key={entry.id}
+                className="flex gap-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors hover:border-[var(--border-subtle)] hover:bg-[var(--bg-surface)]"
+              >
+                {/* Icon */}
+                <span className={`material-icons-outlined mt-0.5 text-[18px] ${color}`}>{icon}</span>
+
+                {/* Content */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">{entry.title}</span>
+                      {entry.performed_by && (
+                        <span className="ml-2 text-xs text-[var(--text-muted)]">by {entry.performed_by}</span>
+                      )}
+                    </div>
+                    <span className="flex-shrink-0 text-xs text-[var(--text-muted)]">{formatDate(entry.created_at)}</span>
+                  </div>
+
+                  {/* Expandable detail */}
+                  {hasDetail && (
+                    <button
+                      onClick={() => toggleExpand(entry.id)}
+                      className="mt-1 text-xs text-[var(--portal)] hover:underline"
+                    >
+                      {expanded ? 'Hide details' : 'Show details'}
+                    </button>
+                  )}
+                  {expanded && entry.description ? (
+                    <p className="mt-1.5 text-xs text-[var(--text-secondary)] leading-relaxed">{String(entry.description)}</p>
+                  ) : null}
+                  {expanded && entry.meta?.recording_url ? (
+                    <audio controls className="mt-2 h-8 w-full max-w-xs" src={entry.meta.recording_url as string} />
+                  ) : null}
+                  {expanded && entry.meta ? (() => {
+                    const meta = entry.meta as Record<string, unknown>
+                    const parts: React.ReactNode[] = []
+                    if (meta.duration_sec) {
+                      const sec = Number(meta.duration_sec)
+                      parts.push(<span key="dur" className="mt-1 inline-block text-xs text-[var(--text-muted)]">
+                        Duration: {Math.floor(sec / 60)}:{String(sec % 60).padStart(2, '0')}
+                      </span>)
+                    }
+                    if (meta.disposition) {
+                      parts.push(<span key="disp" className="ml-3 mt-1 inline-block rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-xs text-[var(--text-muted)]">
+                        {String(meta.disposition).replace(/_/g, ' ')}
+                      </span>)
+                    }
+                    return parts.length > 0 ? <>{parts}</> : null
+                  })() : null}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
   )
-}
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-function ActivityRow({ activity }: { activity: Activity }) {
-  const typeInfo = getActivityTypeInfo(str(activity.activity_type))
-
-  return (
-    <div className="relative flex gap-4 py-3">
-      <div className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${typeInfo.bgColor}`}>
-        <span className={`material-icons-outlined text-[18px] ${typeInfo.iconColor}`}>
-          {typeInfo.icon}
-        </span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-[var(--text-primary)]">
-              {str(activity.activity_type) || 'Activity'}
-            </p>
-            <p className="mt-0.5 text-sm text-[var(--text-secondary)] break-words">
-              {str(activity.description) || 'No description'}
-            </p>
-          </div>
-          <p className="shrink-0 text-xs text-[var(--text-muted)] whitespace-nowrap">
-            {formatDate(activity.created_at)}
-          </p>
-        </div>
-        {str(activity.performed_by || activity.user || activity.agent_name) && (
-          <p className="mt-1.5 text-xs text-[var(--text-muted)]">
-            <span className="material-icons-outlined text-[12px] align-middle mr-1">person</span>
-            {str(activity.performed_by || activity.user || activity.agent_name)}
-          </p>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function getActivityTypeInfo(type: string): { icon: string; bgColor: string; iconColor: string } {
-  const t = type.toLowerCase()
-  if (t.includes('create') || t.includes('add') || t.includes('new'))
-    return { icon: 'add_circle', bgColor: 'bg-emerald-500/15', iconColor: 'text-emerald-400' }
-  if (t.includes('update') || t.includes('edit') || t.includes('change') || t.includes('modify'))
-    return { icon: 'edit', bgColor: 'bg-blue-500/15', iconColor: 'text-blue-400' }
-  if (t.includes('delete') || t.includes('remove'))
-    return { icon: 'remove_circle', bgColor: 'bg-red-500/15', iconColor: 'text-red-400' }
-  if (t.includes('email') || t.includes('send'))
-    return { icon: 'email', bgColor: 'bg-purple-500/15', iconColor: 'text-purple-400' }
-  if (t.includes('call') || t.includes('phone'))
-    return { icon: 'phone', bgColor: 'bg-amber-500/15', iconColor: 'text-amber-400' }
-  if (t.includes('note') || t.includes('comment'))
-    return { icon: 'sticky_note_2', bgColor: 'bg-cyan-500/15', iconColor: 'text-cyan-400' }
-  if (t.includes('import') || t.includes('migrate'))
-    return { icon: 'cloud_download', bgColor: 'bg-indigo-500/15', iconColor: 'text-indigo-400' }
-  if (t.includes('status'))
-    return { icon: 'swap_horiz', bgColor: 'bg-orange-500/15', iconColor: 'text-orange-400' }
-  if (t.includes('account') || t.includes('policy'))
-    return { icon: 'account_balance', bgColor: 'bg-violet-500/15', iconColor: 'text-violet-400' }
-  return { icon: 'radio_button_checked', bgColor: 'bg-[var(--bg-surface)]', iconColor: 'text-[var(--text-muted)]' }
 }
