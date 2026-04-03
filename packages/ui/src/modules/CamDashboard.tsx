@@ -68,6 +68,15 @@ interface DiscrepancyRecord {
   created_at?: string
 }
 
+interface UserRecord {
+  _id: string
+  user_id?: string
+  first_name?: string
+  last_name?: string
+  email?: string
+  is_agent?: boolean
+}
+
 type TabKey = 'overview' | 'carriers' | 'agents' | 'comp-grids' | 'projections' | 'reconciliation' | 'pipeline'
 
 // ============================================================================
@@ -211,6 +220,21 @@ export function CamDashboard({ portal }: CamDashboardProps) {
   const { data: compGrids, loading: cgLoading } = useCollection<CompGridRecord>(compGridQ, 'cam-comp-grids')
   const { data: discrepancies } = useCollection<DiscrepancyRecord>(discrepancyQ, 'cam-discrepancies')
 
+  const usersQ = useMemo<Query<DocumentData>>(() => query(collection(getDb(), 'users')), [])
+  const { data: users } = useCollection<UserRecord>(usersQ, 'cam-users')
+
+  // Build userId/email -> display name map for agent resolution
+  const userNameMap = useMemo(() => {
+    const m = new Map<string, string>()
+    users.forEach((u) => {
+      const uid = u.user_id || u._id
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ')
+      if (name && uid) m.set(uid, name)
+      if (name && u.email) m.set(u.email, name)
+    })
+    return m
+  }, [users])
+
   // ─── Aggregations ───
   const stats = useMemo(() => {
     if (revLoading) return null
@@ -238,7 +262,10 @@ export function CamDashboard({ portal }: CamDashboardProps) {
       else if (rt.includes('renewal') || rt.includes('ren')) byCarrier[carrier].renewal += amount
 
       const ak = str(r.agent_id) || 'unknown'
-      if (!byAgent[ak]) byAgent[ak] = { total: 0, count: 0, name: str(r.agent_name || r.writing_agent) || ak }
+      if (!byAgent[ak]) {
+        const resolvedName = userNameMap.get(ak) || str(r.agent_name || r.writing_agent) || ak
+        byAgent[ak] = { total: 0, count: 0, name: resolvedName }
+      }
       byAgent[ak].total += amount
       byAgent[ak].count += 1
 
@@ -254,7 +281,7 @@ export function CamDashboard({ portal }: CamDashboardProps) {
       else if (mk === prevMK) prevMonthTotal += amount
     })
     return { totalAmount, totalRecords: revenue.length, carrierCount: Object.keys(byCarrier).length, agentCount: Object.keys(byAgent).length, byCarrier, byAgent, byType, byPeriod, byMonth, currMonthTotal, prevMonthTotal }
-  }, [revenue, revLoading])
+  }, [revenue, revLoading, userNameMap])
 
   const topCarriers = useMemo(() => stats ? Object.entries(stats.byCarrier).sort((a, b) => b[1].total - a[1].total) : [], [stats])
   const topAgents = useMemo(() => stats ? Object.entries(stats.byAgent).sort((a, b) => b[1].total - a[1].total) : [], [stats])
@@ -468,7 +495,7 @@ export function CamDashboard({ portal }: CamDashboardProps) {
                 <div className="rounded-lg bg-[var(--bg-surface)] p-3"><p className="text-xs text-[var(--text-muted)]">Total Revenue</p><p className="text-lg font-bold text-[var(--text-primary)]">{fmt(stats.byAgent[selectedAgent].total)}</p></div>
                 <div className="rounded-lg bg-[var(--bg-surface)] p-3"><p className="text-xs text-[var(--text-muted)]">Policies</p><p className="text-lg font-bold text-[var(--text-primary)]">{stats.byAgent[selectedAgent].count}</p></div>
               </div>
-              <p className="mt-3 text-xs text-[var(--text-muted)]">Agent ID: {selectedAgent}</p>
+              <p className="mt-3 text-xs text-[var(--text-muted)]">Agent: {userNameMap.get(selectedAgent) || selectedAgent}</p>
               <p className="mt-1 text-xs text-[var(--text-muted)]">Revenue share: {pctStr(stats.byAgent[selectedAgent].total, stats.totalAmount)}</p>
             </div>
           )}
