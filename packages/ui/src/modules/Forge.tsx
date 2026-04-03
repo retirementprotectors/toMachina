@@ -315,8 +315,8 @@ function ForgeInner({ portal }: ForgeProps) {
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
   const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron' | 'intake'>(() => {
-    if (typeof window === 'undefined') return 'ronin'
-    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron' | 'intake') || 'ronin' } catch { return 'ronin' }
+    if (typeof window === 'undefined') return 'intake'
+    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron' | 'intake') || 'intake' } catch { return 'intake' }
   })
   const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron' | 'intake') => {
     setDojoTab(tab)
@@ -1297,52 +1297,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span className="material-icons-outlined" style={{ fontSize: 22, color: '#e07c3e' }}>temple_buddhist</span>
           <span style={{ fontSize: 16, fontWeight: 700, color: s.text, letterSpacing: '-0.01em' }}>The Dojo</span>
         </div>
-        {/* Tab: RONIN */}
-        <button
-          onClick={() => switchDojoTab('ronin')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '10px 18px', border: 'none', cursor: 'pointer',
-            background: 'transparent', color: dojoTab === 'ronin' ? s.text : s.textMuted,
-            fontSize: 13, fontWeight: dojoTab === 'ronin' ? 600 : 400,
-            borderBottom: dojoTab === 'ronin' ? `2px solid ${s.portal}` : '2px solid transparent',
-            marginBottom: -1, transition: 'all 0.15s',
-          }}
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
-          RONIN
-        </button>
-        {/* Tab: RAIDEN */}
-        <button
-          onClick={() => switchDojoTab('raiden')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '10px 18px', border: 'none', cursor: 'pointer',
-            background: 'transparent', color: dojoTab === 'raiden' ? s.text : s.textMuted,
-            fontSize: 13, fontWeight: dojoTab === 'raiden' ? 600 : 400,
-            borderBottom: dojoTab === 'raiden' ? '2px solid rgb(239,68,68)' : '2px solid transparent',
-            marginBottom: -1, transition: 'all 0.15s',
-          }}
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'raiden' ? 'rgb(239,68,68)' : s.textMuted }}>bolt</span>
-          RAIDEN
-        </button>
-        {/* Tab: VOLTRON */}
-        <button
-          onClick={() => switchDojoTab('voltron')}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '10px 18px', border: 'none', cursor: 'pointer',
-            background: 'transparent', color: dojoTab === 'voltron' ? s.text : s.textMuted,
-            fontSize: 13, fontWeight: dojoTab === 'voltron' ? 600 : 400,
-            borderBottom: dojoTab === 'voltron' ? '2px solid rgb(59,130,246)' : '2px solid transparent',
-            marginBottom: -1, transition: 'all 0.15s',
-          }}
-        >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'voltron' ? 'rgb(59,130,246)' : s.textMuted }}>smart_toy</span>
-          VOLTRON
-        </button>
-        {/* Tab: INTAKE */}
+        {/* Tab: INTAKE (first — CEO triage queue) */}
         <button
           onClick={() => switchDojoTab('intake')}
           style={{
@@ -1364,6 +1319,51 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               {intakeItems.length}
             </span>
           )}
+        </button>
+        {/* Tab: RAIDEN */}
+        <button
+          onClick={() => switchDojoTab('raiden')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'raiden' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'raiden' ? 600 : 400,
+            borderBottom: dojoTab === 'raiden' ? '2px solid rgb(239,68,68)' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'raiden' ? 'rgb(239,68,68)' : s.textMuted }}>bolt</span>
+          RAIDEN
+        </button>
+        {/* Tab: RONIN */}
+        <button
+          onClick={() => switchDojoTab('ronin')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'ronin' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'ronin' ? 600 : 400,
+            borderBottom: dojoTab === 'ronin' ? `2px solid ${s.portal}` : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
+          RONIN
+        </button>
+        {/* Tab: VOLTRON */}
+        <button
+          onClick={() => switchDojoTab('voltron')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'voltron' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'voltron' ? 600 : 400,
+            borderBottom: dojoTab === 'voltron' ? '2px solid rgb(59,130,246)' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'voltron' ? 'rgb(59,130,246)' : s.textMuted }}>smart_toy</span>
+          VOLTRON
         </button>
       </div>
 
