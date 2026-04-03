@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trinity Data Method&trade; &mdash; The B2B Product | Discovery Doc</title>
+<style>
+  :root { --bg: #0f1219; --surface: #1c2333; --border: #2a3347; --text: #e2e8f0; --muted: #8892a8; --david: #40bc58; --green: #22c55e; --red: #ef4444; --amber: #f59e0b; --teal: #14b8a6; --portal: #4a7ab5; --purple: #a78bfa; --gold: #eab308; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; padding: 24px; max-width: 940px; margin: 0 auto; }
+  h1 { font-size: 32px; margin-bottom: 6px; letter-spacing: -0.02em; }
+  h2 { font-size: 20px; margin-top: 48px; margin-bottom: 14px; color: var(--david); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 16px; margin-top: 28px; margin-bottom: 8px; color: var(--teal); }
+  h4 { font-size: 14px; margin-top: 20px; margin-bottom: 6px; color: var(--amber); text-transform: uppercase; letter-spacing: 0.04em; }
+  p, li { margin-bottom: 8px; font-size: 14px; }
+  .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 24px; font-style: italic; }
+  .meta { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 36px; padding: 16px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); }
+  .meta-item { font-size: 13px; }
+  .meta-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 24px; }
+  th, td { padding: 10px 14px; text-align: left; border: 1px solid var(--border); font-size: 13px; }
+  th { background: var(--surface); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  code { background: var(--surface); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--teal); }
+  pre { background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; margin: 14px 0; font-size: 13px; line-height: 1.8; white-space: pre; font-family: 'SF Mono', 'Fira Code', monospace; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  .callout { background: rgba(64,188,88,0.08); border-left: 3px solid var(--david); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+  .callout-amber { background: rgba(245,158,11,0.08); border-left: 3px solid var(--amber); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+  .callout-blue { background: rgba(74,122,181,0.08); border-left: 3px solid var(--portal); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+  .callout-red { background: rgba(239,68,68,0.08); border-left: 3px solid var(--red); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; }
+  .trinity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .trinity-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+  .trinity-card .num { font-size: 36px; font-weight: 800; margin-bottom: 4px; }
+  .trinity-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+  .trinity-card .desc { font-size: 12px; color: var(--text); line-height: 1.5; }
+  .weapon-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; gap: 16px; align-items: flex-start; }
+  .weapon-num { font-size: 28px; font-weight: 800; min-width: 40px; text-align: center; line-height: 1; padding-top: 2px; }
+  .weapon-body { flex: 1; }
+  .weapon-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .weapon-sub { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .weapon-desc { font-size: 13px; line-height: 1.5; }
+  .level-bar { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .level-fill { height: 8px; border-radius: 4px; }
+  .level-label { font-size: 12px; min-width: 50px; color: var(--muted); }
+  .level-score { font-size: 12px; font-weight: 700; min-width: 36px; text-align: right; }
+  .stage-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin: 20px 0; }
+  .stage-box { text-align: center; padding: 16px 8px; border-radius: 8px; }
+  .stage-num { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.7; margin-bottom: 4px; }
+  .stage-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .stage-sub { font-size: 11px; opacity: 0.8; }
+  .stage-arrow { display: none; }
+  .revenue-card { background: linear-gradient(135deg, rgba(64,188,88,0.12), rgba(20,184,166,0.08)); border: 1px solid rgba(64,188,88,0.3); border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center; }
+  .revenue-range { font-size: 40px; font-weight: 800; background: linear-gradient(135deg, var(--david), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 4px; }
+  .revenue-unit { font-size: 14px; color: var(--muted); }
+  .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .scenario { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .scenario-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 600; }
+  .scenario-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .scenario-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .quote { font-size: 16px; font-style: italic; color: var(--text); padding: 20px 24px; margin: 20px 0; border-left: 3px solid var(--gold); background: rgba(234,179,8,0.05); border-radius: 0 8px 8px 0; }
+  .quote-attr { font-size: 12px; color: var(--muted); margin-top: 8px; font-style: normal; }
+  .pipeline-flow { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; line-height: 2.2; white-space: pre; overflow-x: auto; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+  .badge-david { background: rgba(64,188,88,0.2); color: var(--david); }
+  .badge-revenue { background: rgba(234,179,8,0.2); color: var(--gold); }
+  .badge-product { background: rgba(20,184,166,0.2); color: var(--teal); }
+  .badge-live { background: rgba(34,197,94,0.2); color: var(--green); }
+  .badge-wire { background: rgba(245,158,11,0.2); color: var(--amber); }
+  .badge-build { background: rgba(168,85,247,0.2); color: var(--purple); }
+  .sig { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; line-height: 1.8; }
+  .doc-series { margin: 24px 0; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+  .doc-series-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px; }
+  .doc-series-items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .doc-series-item { font-size: 12px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); }
+  .doc-series-item.active { border-color: var(--david); background: rgba(64,188,88,0.08); color: var(--david); font-weight: 600; }
+  .doc-series-item.pending { opacity: 0.5; }
+  @media (max-width: 640px) {
+    body { padding: 16px; }
+    h1 { font-size: 24px; }
+    .trinity-grid { grid-template-columns: 1fr; }
+    .stage-flow { grid-template-columns: 1fr 1fr; }
+    .scenario-grid { grid-template-columns: 1fr; }
+    .doc-series-items { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Trinity Data Method&trade;</h1>
+<p class="subtitle">The B2B Product &mdash; Agency Digitization as a Service</p>
+
+<div class="meta">
+  <div class="meta-item"><div class="meta-label">Type</div>Discovery Doc</div>
+  <div class="meta-item"><div class="meta-label">Series</div>Trinity &mdash; 3 of 3</div>
+  <div class="meta-item"><div class="meta-label">Author</div>MUSASHI, VP CMO</div>
+  <div class="meta-item"><div class="meta-label">Date</div>2026-04-03</div>
+  <div class="meta-item"><div class="meta-label">Status</div>Discovery</div>
+  <div class="meta-item"><div class="meta-label">Channel</div><span class="badge badge-david">B2B / DAVID</span></div>
+</div>
+
+<div class="doc-series">
+  <div class="doc-series-title">Trinity Discovery Series</div>
+  <div class="doc-series-items">
+    <div class="doc-series-item pending">1 &mdash; ACF Wire Architecture</div>
+    <div class="doc-series-item pending">2 &mdash; The Third Pillar (CRM)</div>
+    <div class="doc-series-item active">3 &mdash; The B2B Product &laquo; you are here</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>The Premise</h2>
+
+<p>Every independent insurance agency in America has the same disease: <strong>data chaos.</strong></p>
+
+<p>A 60-year-old agency owner sits behind 12 filing cabinets, 3 outdated CRMs, a pile of carrier login credentials taped to a monitor, and 50 years of paper correspondence. They can't tell you how many clients they have. They can't tell you which policies are lapsing. They can't tell you what their book is worth.</p>
+
+<p>They are sitting on a goldmine and they are mining it with a pickaxe.</p>
+
+<div class="quote">
+  &ldquo;We modernize your agency. If you want to sell after, great. If not, you just entered the 21st century.&rdquo;
+  <div class="quote-attr">&mdash; The Pitch</div>
+</div>
+
+<p>The Trinity Data Method&trade; is the product that does this. It is agency digitization as a service &mdash; and it is the DAVID Division's primary weapon.</p>
+
+<!-- ============================================================ -->
+<h2>The Trinity &mdash; Three Data Sources</h2>
+
+<p>Data confidence requires <strong>three independent sources reconciled against each other.</strong> No single source is complete. No single source is trustworthy alone. Together, they produce truth.</p>
+
+<div class="trinity-grid">
+  <div class="trinity-card" style="border-top: 3px solid var(--david);">
+    <div class="num" style="color: var(--david);">1</div>
+    <div class="label">Carrier Data</div>
+    <div class="desc"><strong>Source of Truth.</strong> Direct from insurance company portals and feeds. Policy numbers, in-force status, premium amounts, beneficiaries. The carrier knows what exists.</div>
+  </div>
+  <div class="trinity-card" style="border-top: 3px solid var(--amber);">
+    <div class="num" style="color: var(--amber);">2</div>
+    <div class="label">Digital Files</div>
+    <div class="desc"><strong>Supporting Documentation.</strong> PDFs, statements, scans, applications, correspondence. 50 years of filing cabinets converted to structured, searchable data.</div>
+  </div>
+  <div class="trinity-card" style="border-top: 3px solid var(--teal);">
+    <div class="num" style="color: var(--teal);">3</div>
+    <div class="label">CRM Data</div>
+    <div class="desc"><strong>Actionable Intelligence.</strong> ProDash client records + partner agency CRM exports. Contact info, service history, notes, relationships. The human context.</div>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Why three?</strong> Carrier data tells you what policies exist but not what the client said in a meeting. Digital files tell you what was signed but not whether the policy is still in-force. CRM data tells you the relationship context but not the contractual reality. Each fills gaps the others can't. Reconciled together: 100% data confidence.
+</div>
+
+<!-- ============================================================ -->
+<h2>The Agency Digitization Play</h2>
+
+<h3>From Filing Cabinet to Platform in One Day</h3>
+
+<p>This is the operational sequence. It is designed to be <strong>fast enough to demonstrate in a single engagement</strong> and thorough enough to be permanent.</p>
+
+<table>
+  <tr><th>Step</th><th>Action</th><th>Duration</th><th>Detail</th></tr>
+  <tr>
+    <td><strong>1</strong></td>
+    <td>Physical Ingest</td>
+    <td>1&ndash;3 days</td>
+    <td>Filing cabinets &rarr; bankers boxes &rarr; UPS Store. Everything scanned. Every document digitized. Incoming correspondence wire catches new mail as it arrives.</td>
+  </tr>
+  <tr>
+    <td><strong>2</strong></td>
+    <td>ACF Wire Processing</td>
+    <td>&lt;1 day</td>
+    <td>Scanned documents flow through the ACF Wire. AI classifies each document by type, extracts structured data (names, policy numbers, dates, amounts), matches to existing client/account records, routes to the correct ACF subfolder in the lifecycle.</td>
+  </tr>
+  <tr>
+    <td><strong>3</strong></td>
+    <td>Carrier Data Pull</td>
+    <td>1&ndash;2 days</td>
+    <td>Execute NDA. Pull carrier portal data &mdash; the SSOT. Map products, verify in-force status, capture every policy the agency has on the books. Carrier data doesn't lie.</td>
+  </tr>
+  <tr>
+    <td><strong>4</strong></td>
+    <td>CRM Export + Normalize</td>
+    <td>&lt;1 day</td>
+    <td>Export their existing CRM (or spreadsheet, or Post-it notes). Standardize to ProDash master format. Align fields, deduplicate, resolve conflicts against carrier SSOT.</td>
+  </tr>
+  <tr>
+    <td><strong>5</strong></td>
+    <td>Trinity Reconciliation</td>
+    <td>1 day</td>
+    <td>Three sources reconciled. Carrier confirms what exists. Files confirm what was signed. CRM confirms who the human is. Conflicts flagged. Gaps identified. Score calculated.</td>
+  </tr>
+</table>
+
+<div class="callout-amber">
+  <strong>The Janet Woods Example:</strong> CoF (Catholic Order of Foresters) client. Carrier data gives us the SSOT on her policies. Account data from the CoF portal gives us premium schedules and beneficiary designations. And 50 years of correspondence &mdash; letters, annual statements, handwritten notes from her original agent &mdash; all digitized in one afternoon. From a filing cabinet in Des Moines to a fully structured, searchable, actionable client record on ProDash. That's the Trinity.
+</div>
+
+<!-- ============================================================ -->
+<h2>The Empire Model &mdash; Level System</h2>
+
+<p>Every agency has a data integrity score. Most don't know theirs. We show them.</p>
+
+<h3>The Six Levels</h3>
+
+<table>
+  <tr><th>Level</th><th>Name</th><th>Integrity</th><th>What It Looks Like</th></tr>
+  <tr><td style="font-weight:800; color:var(--red);">0</td><td>Chaos</td><td>0&ndash;12%</td><td>Filing cabinets. Yellow legal pads. &ldquo;I think we have about 200 clients.&rdquo;</td></tr>
+  <tr><td style="font-weight:800; color:var(--amber);">1</td><td>Aware</td><td>13&ndash;30%</td><td>One CRM with partial data. Some carrier logins. No reconciliation.</td></tr>
+  <tr><td style="font-weight:800; color:var(--amber);">2</td><td>Organized</td><td>31&ndash;55%</td><td>CRM populated. Some digital files. Carrier data not yet integrated.</td></tr>
+  <tr><td style="font-weight:800; color:var(--gold);">3</td><td>Integrated</td><td>56&ndash;75%</td><td>Two of three Trinity sources connected. Gaps visible but not yet closed.</td></tr>
+  <tr><td style="font-weight:800; color:var(--teal);">4</td><td>Optimized</td><td>76&ndash;90%</td><td>All three sources reconciled. Automated monitoring. Proactive service.</td></tr>
+  <tr><td style="font-weight:800; color:var(--david);">5</td><td>Dominant</td><td>91&ndash;100%</td><td>Full Trinity. Real-time sync. Predictive analytics. Campaign engine live. This is RPI.</td></tr>
+</table>
+
+<h3>The Pitch: Their Score vs. Ours</h3>
+
+<div style="display: flex; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
+  <div style="flex:1; min-width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin-bottom:12px;">Typical Agency</div>
+    <div class="level-bar">
+      <div class="level-label">Score</div>
+      <div style="flex:1; background: rgba(239,68,68,0.15); border-radius: 4px; overflow:hidden;">
+        <div class="level-fill" style="width:12%; background: var(--red);"></div>
+      </div>
+      <div class="level-score" style="color:var(--red);">~12%</div>
+    </div>
+    <div style="font-size:12px; color:var(--muted); margin-top:8px;">Level 0 &mdash; Chaos. They can't even see what they're missing.</div>
+  </div>
+  <div style="flex:1; min-width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin-bottom:12px;">RPI (Target State)</div>
+    <div class="level-bar">
+      <div class="level-label">Score</div>
+      <div style="flex:1; background: rgba(64,188,88,0.15); border-radius: 4px; overflow:hidden;">
+        <div class="level-fill" style="width:95%; background: var(--david);"></div>
+      </div>
+      <div class="level-score" style="color:var(--david);">95%+</div>
+    </div>
+    <div style="font-size:12px; color:var(--muted); margin-top:8px;">Level 5 &mdash; Dominant. Full Trinity. Real-time. Predictive.</div>
+  </div>
+</div>
+
+<div class="quote">
+  &ldquo;Once they see Level 5, they can&rsquo;t go back to chaos.&rdquo;
+  <div class="quote-attr">&mdash; The Lock-In</div>
+</div>
+
+<p>The gap between 12% and 95% is the entire sale. You don't argue. You don't persuade. You show them the dashboard. Their number is on the left. Ours is on the right. The conversation is over.</p>
+
+<!-- ============================================================ -->
+<h2>The Three Weapons</h2>
+
+<p>Trinity Data Method is Weapon 1 of 3. Together they form the <strong>Empire Model</strong> &mdash; a complete lock-in strategy that controls an agency's foundation, operations, and growth.</p>
+
+<div class="weapon-card" style="border-left: 3px solid var(--david);">
+  <div class="weapon-num" style="color: var(--david);">1</div>
+  <div class="weapon-body">
+    <div class="weapon-title">Trinity Data Method&trade;</div>
+    <div class="weapon-sub">Controls: Their Foundation</div>
+    <div class="weapon-desc">Data acquisition, normalization, and scoring. Three sources reconciled to 100% confidence. Without this, nothing else works. This is the prerequisite for everything.</div>
+  </div>
+</div>
+
+<div class="weapon-card" style="border-left: 3px solid var(--teal);">
+  <div class="weapon-num" style="color: var(--teal);">2</div>
+  <div class="weapon-body">
+    <div class="weapon-title">Proactive Service Model&trade;</div>
+    <div class="weapon-sub">Controls: Their Operations</div>
+    <div class="weapon-desc">Once data is clean, service becomes predictable. RMD notifications, policy reviews, beneficiary updates, lapse prevention &mdash; all automated, all proactive. Their clients start getting service they've never seen. The agency can't deliver this alone.</div>
+  </div>
+</div>
+
+<div class="weapon-card" style="border-left: 3px solid var(--gold);">
+  <div class="weapon-num" style="color: var(--gold);">3</div>
+  <div class="weapon-body">
+    <div class="weapon-title">EngAGE Ecosystem&trade;</div>
+    <div class="weapon-sub">Controls: Their Growth</div>
+    <div class="weapon-desc">Structured data + proactive service = campaign-ready population. Cross-sell, upsell, retention campaigns, T65 outreach, AEP enrollment &mdash; all running on data the agency didn't even know they had. Revenue they weren't generating, powered by infrastructure they can't replicate.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Four-Stage Value Creation</h2>
+
+<p>The Three Weapons deploy in sequence. Each stage deepens dependency and increases value &mdash; for them and for us.</p>
+
+<div class="stage-flow">
+  <div class="stage-box" style="background: rgba(64,188,88,0.12);">
+    <div class="stage-num">Stage 1</div>
+    <div class="stage-name" style="color: var(--david);">Foundation</div>
+    <div class="stage-sub">Trinity Data Method</div>
+  </div>
+  <div class="stage-box" style="background: rgba(20,184,166,0.12);">
+    <div class="stage-num">Stage 2</div>
+    <div class="stage-name" style="color: var(--teal);">Operations</div>
+    <div class="stage-sub">Proactive Service Model</div>
+  </div>
+  <div class="stage-box" style="background: rgba(234,179,8,0.12);">
+    <div class="stage-num">Stage 3</div>
+    <div class="stage-name" style="color: var(--gold);">Revenue</div>
+    <div class="stage-sub">EngAGE Ecosystem</div>
+  </div>
+  <div class="stage-box" style="background: rgba(168,85,247,0.12);">
+    <div class="stage-num">Stage 4</div>
+    <div class="stage-name" style="color: var(--purple);">Acquisition</div>
+    <div class="stage-sub">Full M&amp;A</div>
+  </div>
+</div>
+
+<div class="callout-blue">
+  <strong>The Flywheel:</strong> Every stage makes the next stage inevitable. Clean data enables proactive service. Proactive service earns trust. Trust enables campaigns. Campaigns generate revenue they can't replicate alone. Revenue dependency creates acquisition leverage. By Stage 3, they're already ours operationally &mdash; Stage 4 is just making it official.
+</div>
+
+<!-- ============================================================ -->
+<h2>Revenue Model</h2>
+
+<div class="revenue-card">
+  <div class="revenue-range">$10K &ndash; $50K</div>
+  <div class="revenue-unit">per month &middot; per agency &middot; recurring</div>
+</div>
+
+<h3>Revenue Streams per Engagement</h3>
+
+<table>
+  <tr><th>Stream</th><th>Type</th><th>Detail</th></tr>
+  <tr>
+    <td><strong>Digitization Fee</strong></td>
+    <td><span class="badge badge-revenue">One-time</span></td>
+    <td>Physical scan + ACF Wire processing + Trinity reconciliation. Paid regardless of outcome. Even if they never sell, they paid us to modernize.</td>
+  </tr>
+  <tr>
+    <td><strong>Platform Access</strong></td>
+    <td><span class="badge badge-revenue">Monthly</span></td>
+    <td>ProDash subaccount. Clean data environment. Ongoing carrier sync. The dashboard they can't live without.</td>
+  </tr>
+  <tr>
+    <td><strong>Service Delivery</strong></td>
+    <td><span class="badge badge-revenue">Monthly</span></td>
+    <td>Proactive Service Model execution. RMD processing, policy reviews, beneficiary updates. We do the work their team can't.</td>
+  </tr>
+  <tr>
+    <td><strong>Campaign Revenue</strong></td>
+    <td><span class="badge badge-revenue">Per-campaign</span></td>
+    <td>EngAGE campaigns run on their book. Cross-sell, AEP enrollment, T65 outreach. Revenue share on production.</td>
+  </tr>
+  <tr>
+    <td><strong>Acquisition Premium</strong></td>
+    <td><span class="badge badge-revenue">M&amp;A Event</span></td>
+    <td>If they sell: full book acquisition at known valuation (because we already have 100% data). If they don't sell: we keep collecting monthly.</td>
+  </tr>
+</table>
+
+<h3>The Double Value Play</h3>
+
+<div class="scenario-grid">
+  <div class="scenario">
+    <div class="scenario-label" style="color: var(--david);">Scenario A &mdash; They Sell</div>
+    <div class="scenario-title">M&amp;A Acquisition</div>
+    <div class="scenario-desc">Agency sells to RPI. Book is already digitized, scored, and platform-ready. No post-acquisition data cleanup. Day-one integration. The acquisition premium is reduced because <em>we already did the work.</em> We paid ourselves to prepare for the deal.</div>
+  </div>
+  <div class="scenario">
+    <div class="scenario-label" style="color: var(--teal);">Scenario B &mdash; They Don't Sell</div>
+    <div class="scenario-title">Permanent Partnership</div>
+    <div class="scenario-desc">Agency keeps operating. They're paying $10&ndash;50K/month for platform access, service delivery, and campaign execution. They are functionally an RPI satellite office. Their clients get Level 5 service. We collect recurring revenue indefinitely.</div>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>There is no bad outcome.</strong> Worst case: they paid us to digitize their agency and now they're a monthly revenue stream. Best case: we acquire a fully-prepared book at a discount. Both paths generate revenue. Both paths grow The Machine.
+</div>
+
+<!-- ============================================================ -->
+<h2>SENTINEL Pipeline Integration</h2>
+
+<p>The Trinity Data Method is not a standalone product. It is wired directly into the DAVID Division's acquisition pipeline on SENTINEL.</p>
+
+<div class="pipeline-flow">SPARK / Gradient Distribution
+        |
+        v
+   Lead Intake ──── SENTINEL receives agency lead
+        |
+        v
+   Qualifying ───── Trinity Level Assessment
+        |             (show them 12% vs 95%)
+        |             (full data package before human touch)
+        v
+   Stage 1 ──────── Foundation: Trinity digitization begins
+        |
+        v
+   Stage 2 ──────── Operations: PSM deployed on clean data
+        |
+        v
+   Stage 3 ──────── Revenue: EngAGE campaigns activated
+        |
+        ├────── 10-25% RETAINED ──── Full M&A acquisition
+        |
+        └────── 75-90% PASSED BACK ── With full Trinity applied
+                                        (partner agencies, now Level 4+)</div>
+
+<h3>Lead Flow Economics</h3>
+
+<div class="callout-amber">
+  <strong>The DAVID math:</strong> SPARK and Gradient push distribution leads into SENTINEL. Of those, 10&ndash;25% are M&amp;A candidates we retain. The other 75&ndash;90% are passed back to the distribution network &mdash; but now with the full Trinity applied. Their data is clean. Their agencies are modernized. They're running on our platform. Even the ones we pass back are revenue-generating partners. We get paid on 100% of the flow.
+</div>
+
+<!-- ============================================================ -->
+<h2>The Product Offering</h2>
+
+<p>What DAVID sells. What the market sees.</p>
+
+<h4>The Headline</h4>
+
+<div class="quote" style="border-left-color: var(--david); background: rgba(64,188,88,0.05); font-size: 18px;">
+  Agency Digitization as a Service
+</div>
+
+<h4>The Positioning</h4>
+
+<table>
+  <tr><th>Audience</th><th>Message</th></tr>
+  <tr>
+    <td><strong>Agency Owner</strong></td>
+    <td>&ldquo;We take your filing cabinets, your carrier data, and your client records &mdash; and in one day, you have a modern, digital agency. If you want to sell after, great. If not, welcome to the 21st century.&rdquo;</td>
+  </tr>
+  <tr>
+    <td><strong>Distribution Partner</strong></td>
+    <td>&ldquo;Send us your agencies. We digitize them, score them, and send them back running on our platform. You keep the relationship. We keep the infrastructure. Everyone gets paid.&rdquo;</td>
+  </tr>
+  <tr>
+    <td><strong>Investor</strong></td>
+    <td>&ldquo;Recurring SaaS revenue from agency digitization, plus an M&amp;A pipeline where we've already done the due diligence &mdash; because the due diligence IS the product.&rdquo;</td>
+  </tr>
+</table>
+
+<h4>Competitive Moat</h4>
+
+<p>Nobody else has this stack. The individual components exist &mdash; scanning services, CRM platforms, carrier aggregators &mdash; but nobody has built the <strong>reconciliation engine</strong> that turns three independent sources into a single truth. That's the Trinity. That's the IP.</p>
+
+<table>
+  <tr><th>Competitor Approach</th><th>What's Missing</th></tr>
+  <tr><td>Generic scanning service</td><td>No AI classification. No carrier reconciliation. Paper becomes digital paper.</td></tr>
+  <tr><td>CRM platform (Salesforce, AgencyBloc)</td><td>One source only. No carrier SSOT. No document intelligence. Garbage in, organized garbage out.</td></tr>
+  <tr><td>Carrier aggregator (Ebix, iPipeline)</td><td>Carrier data only. No client context. No document history. Numbers without narrative.</td></tr>
+  <tr><td><strong>Trinity Data Method</strong></td><td><strong>Nothing.</strong> Three sources. AI reconciliation. Level scoring. Service delivery. Campaign engine. M&amp;A pipeline. End to end.</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>The Technology Stack</h2>
+
+<p>Every component of the Trinity runs on infrastructure RPI already owns and operates.</p>
+
+<table>
+  <tr><th>Component</th><th>Platform Asset</th><th>Status</th></tr>
+  <tr>
+    <td>Document Intake + Classification</td>
+    <td>ACF Wire (packages/core)</td>
+    <td><span class="badge badge-live">Live</span></td>
+  </tr>
+  <tr>
+    <td>Client/Account Data Store</td>
+    <td>Firestore (clients, accounts, access_items)</td>
+    <td><span class="badge badge-live">Live</span></td>
+  </tr>
+  <tr>
+    <td>Carrier Data Integration</td>
+    <td>ATLAS Registry + Intake Wires</td>
+    <td><span class="badge badge-live">Live</span></td>
+  </tr>
+  <tr>
+    <td>CRM Import + Normalization</td>
+    <td>RAPID_IMPORT + Bridge Service</td>
+    <td><span class="badge badge-live">Live</span></td>
+  </tr>
+  <tr>
+    <td>Level Scoring Dashboard</td>
+    <td>BigQuery + SENTINEL Analytics</td>
+    <td><span class="badge badge-wire">Wire</span></td>
+  </tr>
+  <tr>
+    <td>Partner Subaccount Provisioning</td>
+    <td>ProDash Multi-tenant</td>
+    <td><span class="badge badge-build">Build</span></td>
+  </tr>
+  <tr>
+    <td>Campaign Execution</td>
+    <td>C3 / EngAGE (services/api)</td>
+    <td><span class="badge badge-live">Live</span></td>
+  </tr>
+  <tr>
+    <td>Pipeline Management</td>
+    <td>SENTINEL + Pipeline Studio</td>
+    <td><span class="badge badge-live">Live</span></td>
+  </tr>
+  <tr>
+    <td>Document Storage + Lifecycle</td>
+    <td>Google Drive ACF Structure</td>
+    <td><span class="badge badge-live">Live</span></td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>The punchline:</strong> This is not a product we need to build. This is a product we need to <em>package.</em> The technology exists. The infrastructure is running. The Trinity Data Method is what happens when we point The Machine at someone else's agency instead of our own.
+</div>
+
+<!-- ============================================================ -->
+<h2>Operational Process &mdash; The Five Phases</h2>
+
+<table>
+  <tr><th>Phase</th><th>Name</th><th>Duration</th><th>Deliverable</th></tr>
+  <tr>
+    <td style="font-weight:800; color:var(--david);">1</td>
+    <td>Data Acquisition &amp; Audit</td>
+    <td>1&ndash;3 days</td>
+    <td>All three sources collected. NDA executed. Products mapped. Initial Level score calculated.</td>
+  </tr>
+  <tr>
+    <td style="font-weight:800; color:var(--david);">2</td>
+    <td>Data Normalization &amp; Formatting</td>
+    <td>2&ndash;3 days</td>
+    <td>Standardized to ProDash master format. Fields aligned. Deduplication complete. Conflicts flagged.</td>
+  </tr>
+  <tr>
+    <td style="font-weight:800; color:var(--david);">3</td>
+    <td>ProDash Environment Setup</td>
+    <td>1&ndash;2 days</td>
+    <td>Partner subaccount cloned from template. Agency branding applied. Team access configured.</td>
+  </tr>
+  <tr>
+    <td style="font-weight:800; color:var(--david);">4</td>
+    <td>Data Integration</td>
+    <td>&lt;1 day</td>
+    <td>Clients imported. Accounts married to client codes. ACF subfolders populated. Trinity reconciliation complete.</td>
+  </tr>
+  <tr>
+    <td style="font-weight:800; color:var(--david);">5</td>
+    <td>Campaign Activation</td>
+    <td>1 day</td>
+    <td>&ldquo;Meet Your Service Team&rdquo; campaign deployed. First proactive touches sent. The agency is live.</td>
+  </tr>
+</table>
+
+<p><strong>Total elapsed time: 5&ndash;10 business days.</strong> From filing cabinets to a Level 4+ digital agency. In two weeks, they are operating on infrastructure most firms spend years trying to build.</p>
+
+<!-- ============================================================ -->
+<h2>Why This Wins</h2>
+
+<div style="margin: 20px 0;">
+
+<h4>For the Agency Owner</h4>
+<ul>
+  <li><strong>Instant modernization.</strong> 50 years of paper, digitized and structured, without hiring a single person.</li>
+  <li><strong>Revenue they weren't getting.</strong> Cross-sell campaigns on dormant clients they forgot they had.</li>
+  <li><strong>Service quality they can't match.</strong> Proactive RMD processing, lapse prevention, beneficiary updates &mdash; automated.</li>
+  <li><strong>Exit optionality.</strong> When they're ready to sell, the book is already valued, verified, and platform-ready.</li>
+</ul>
+
+<h4>For RPI / DAVID Division</h4>
+<ul>
+  <li><strong>Revenue on day one.</strong> Digitization fee covers cost. Monthly platform fee is pure margin.</li>
+  <li><strong>M&amp;A pipeline on autopilot.</strong> Every digitized agency is a pre-qualified acquisition target.</li>
+  <li><strong>Data moat.</strong> Every agency we touch increases our data density, carrier relationships, and market intelligence.</li>
+  <li><strong>100% win rate on outcomes.</strong> They sell &rarr; we acquire. They don't &rarr; they pay monthly. No losing hand.</li>
+</ul>
+
+<h4>For The Machine</h4>
+<ul>
+  <li><strong>Scales infinitely.</strong> The technology stack is built. Each new agency is a configuration, not a build.</li>
+  <li><strong>Compounds.</strong> Every agency's data enriches the model. Carrier relationships deepen. Operational playbooks sharpen.</li>
+  <li><strong>Defensible.</strong> The Trinity reconciliation engine is proprietary. The level scoring is proprietary. The full-stack integration is proprietary. Nobody can copy the stack because nobody else has The Machine.</li>
+</ul>
+
+</div>
+
+<!-- ============================================================ -->
+<h2>The One-Liner</h2>
+
+<div class="quote" style="font-size: 18px; border-left-color: var(--david); background: rgba(64,188,88,0.06);">
+  &ldquo;We don't sell software. We sell the gap between 12% and 95%. And once they see it, they can't unsee it.&rdquo;
+</div>
+
+<!-- ============================================================ -->
+<h2>Open Questions for SHINOB1</h2>
+
+<table>
+  <tr><th>#</th><th>Question</th><th>Impact</th></tr>
+  <tr><td>1</td><td>Level scoring algorithm &mdash; weighted formula across the three sources, or ML-derived? Needs definition before the SENTINEL dashboard can be wired.</td><td><span class="badge badge-wire">Wire</span> Level dashboard</td></tr>
+  <tr><td>2</td><td>Partner subaccount provisioning &mdash; full multi-tenancy in ProDash, or isolated Firestore collections per agency? Architecture decision drives Sprint scope.</td><td><span class="badge badge-build">Build</span> ProDash multi-tenant</td></tr>
+  <tr><td>3</td><td>Pricing tiers &mdash; flat monthly vs. tiered by book size vs. per-client? Revenue model needs to be productized before DAVID can quote.</td><td><span class="badge badge-david">DAVID</span> Sales collateral</td></tr>
+  <tr><td>4</td><td>First pilot agency &mdash; who? Janet Woods / CoF book is referenced as the example. Is that the live pilot or a proof-of-concept?</td><td><span class="badge badge-david">DAVID</span> Pipeline</td></tr>
+  <tr><td>5</td><td>Carrier data automation timeline &mdash; manual portal pulls vs. DTCC feed integration? The difference between 1&ndash;3 days and 1 hour on Phase 1.</td><td><span class="badge badge-wire">Wire</span> ATLAS registry</td></tr>
+</table>
+
+<!-- ============================================================ -->
+
+<div class="sig">
+  <strong>MUSASHI</strong>, VP CMO &mdash; ARTxBLADE<br>
+  Trinity Discovery Series &mdash; Document 3 of 3: The B2B Product<br>
+  Contract: SHINOB1 (CTO)<br>
+  <br>
+  <em>&ldquo;The filing cabinet is the enemy. The Machine is the weapon. The Trinity is the ammunition.&rdquo;</em><br>
+  <br>
+  #We'reWithDAVID &middot; #RunningOurOwnRACE
+</div>
+
+</body>
+</html>

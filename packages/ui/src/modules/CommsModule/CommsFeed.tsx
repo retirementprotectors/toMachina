@@ -151,6 +151,9 @@ export function CommsFeed({ clientId, onReply, onViewClient }: CommsFeedProps) {
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>('all')
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  // COMMS-V2-009: Cursor pagination
+  const PAGE_SIZE = 50
+  const [loadedPages, setLoadedPages] = useState(1)
 
   /** TODO: Replace with real auth context user name */
   const { user } = useAuth()
@@ -162,13 +165,13 @@ export function CommsFeed({ clientId, onReply, onViewClient }: CommsFeedProps) {
     try {
       const db = getDb()
       const constraints = clientId
-        ? [where('client_id', '==', clientId), orderBy('created_at', 'desc'), limit(50)]
-        : [orderBy('created_at', 'desc'), limit(50)]
+        ? [where('client_id', '==', clientId), orderBy('created_at', 'desc'), limit(PAGE_SIZE * loadedPages)]
+        : [orderBy('created_at', 'desc'), limit(PAGE_SIZE * loadedPages)]
       return query(collection(db, 'communications'), ...constraints)
     } catch {
       return null
     }
-  }, [clientId])
+  }, [clientId, loadedPages, PAGE_SIZE])
 
   const { data: rawDocs, loading: commsLoading } = useCollection<CommDoc>(commsQuery, 'comms-feed')
 
@@ -413,10 +416,15 @@ export function CommsFeed({ clientId, onReply, onViewClient }: CommsFeedProps) {
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-[var(--border-subtle)] px-4 py-3">
         <span className="text-xs text-[var(--text-muted)]">{filteredComms.length} of {allComms.length} entries</span>
-        <button className="flex items-center gap-1 text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]">
-          Load More
-          <span className="material-icons-outlined" style={{ fontSize: '14px' }}>expand_more</span>
-        </button>
+        {allComms.length >= PAGE_SIZE * loadedPages && (
+          <button
+            onClick={() => setLoadedPages((p) => p + 1)}
+            className="flex items-center gap-1 text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--text-secondary)]"
+          >
+            Load More
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>expand_more</span>
+          </button>
+        )}
       </div>
     </div>
   )
