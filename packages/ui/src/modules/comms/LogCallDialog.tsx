@@ -39,7 +39,7 @@ export function LogCallDialog({ open, onClose, clientId, clientName, onSaved }: 
         client_id: clientId,
         direction,
         outcome,
-        duration: duration ? Number(duration) : null,
+        duration: duration ? Number(duration) * 60 : null,  // Convert minutes to seconds
         notes: notes.trim(),
       })
       if (result.success) {

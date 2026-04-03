@@ -47,6 +47,8 @@ const PANEL_RESPONSIVE_CLASSES = [
 export function CommsModule({ open, onClose, activeContact, initialTab }: CommsModuleProps) {
   const [activeTab, setActiveTab] = useState<CommsTab>('call')
   const [activeCall, setActiveCall] = useState<ActiveCallData | null>(null)
+  // COMMS-V2-003: Track live call notes so they survive call end
+  const [liveCallNotes, setLiveCallNotes] = useState('')
 
   /* CP06: Reply pre-fill state */
   const [replyContact, setReplyContact] = useState<ClientResult | null>(null)
@@ -122,15 +124,32 @@ export function CommsModule({ open, onClose, activeContact, initialTab }: CommsM
   const handleEndCall = useCallback(() => {
     const call = window.__activeTwilioCall as { disconnect?: () => void } | undefined
     if (call?.disconnect) call.disconnect()
+
+    // COMMS-V2-003: Auto-log call with notes before clearing state
+    if (activeCall && liveCallNotes.trim()) {
+      fetch('/api/comms/log-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: activeCall.callId,
+          direction: 'inbound',
+          outcome: 'connected',
+          notes: liveCallNotes.trim(),
+        }),
+      }).catch(() => {})
+    }
+
     setActiveCall(null)
+    setLiveCallNotes('')
     window.__activeTwilioCall = undefined
-  }, [])
+  }, [activeCall, liveCallNotes])
 
   /* Active call overlay — rendered outside the panel so it covers the full screen */
   if (activeCall) {
     return (
       <ActiveCallScreen
         call={activeCall}
+        onNotesChange={setLiveCallNotes}
         onEndCall={handleEndCall}
         isMuted={false}
         onToggleMute={() => {

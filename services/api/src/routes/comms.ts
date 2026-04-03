@@ -135,14 +135,61 @@ async function sendgridRequest(
 // Firestore logging helper
 // ============================================================================
 
+/**
+ * COMMS-V2-002: Fan-out activity shadow doc to activities + client subcollection.
+ * Fire-and-forget — failures must never break the primary comms write.
+ */
+async function fanOutActivity(data: Record<string, unknown>, commDocId: string) {
+  const channel = String(data.channel || 'unknown')
+  const direction = String(data.direction || 'unknown')
+  const clientId = data.client_id ? String(data.client_id) : null
+  const bodyText = data.body ? String(data.body) : ''
+  const sentBy = data.sent_by ? String(data.sent_by) : 'system'
+  const now = new Date().toISOString()
+  const activity: Record<string, unknown> = {
+    activity_type: `${channel}_${direction}`,
+    description: bodyText ? bodyText.slice(0, 120) : `${channel} ${direction}`,
+    entity_type: 'client',
+    entity_id: clientId || '',
+    related_id: commDocId,
+    related_collection: 'communications',
+    performed_by: sentBy,
+    created_at: now,
+  }
+  try {
+    const db = getFirestore()
+    await db.collection('activities').add(activity)
+    if (clientId) {
+      await db.collection('clients').doc(clientId).collection('activities').add({
+        ...activity,
+        client_id: clientId,
+      })
+    }
+  } catch {
+    // Fan-out failure is non-blocking
+  }
+}
+
 async function logCommunication(data: Record<string, unknown>) {
   const db = getFirestore()
   const id = crypto.randomUUID()
+  const now = new Date().toISOString()
   await db.collection(COLLECTION).doc(id).set({
     comm_id: id,
     ...data,
-    created_at: new Date().toISOString(),
+    created_at: now,
   })
+  // COMMS-V2-002: Fan-out to activities collection
+  fanOutActivity(data, id).catch(() => {})
+  // COMMS-V2-005: Update last_contacted_by on client for outbound comms
+  const clientId = data.client_id ? String(data.client_id) : null
+  const direction = String(data.direction || '')
+  if (clientId && direction === 'outbound') {
+    db.collection('clients').doc(clientId).update({
+      last_contacted_by: data.sent_by ? String(data.sent_by) : 'system',
+      last_contacted_at: now,
+    }).catch(() => {})
+  }
   return id
 }
 
@@ -253,7 +300,9 @@ commsRoutes.post('/send-sms', async (req: Request, res: Response) => {
     }
 
     const payload: Record<string, string> = { To: to, From: from, Body: messageBody }
-    if (body.statusCallback) payload.StatusCallback = String(body.statusCallback)
+    // COMMS-V2-001: Always send StatusCallback for delivery tracking
+    const smsStatusUrl = 'https://tm-api-365181509090.us-central1.run.app/api/comms/webhook/sms-status'
+    payload.StatusCallback = body.statusCallback ? String(body.statusCallback) : smsStatusUrl
     // TRK-PC-014: MMS support — pass MediaUrl to Twilio if provided
     if (body.mediaUrl) payload.MediaUrl = String(body.mediaUrl)
 
@@ -588,6 +637,28 @@ commsRoutes.post('/webhook/sms-incoming', async (req: Request, res: Response) =>
       client_id: clientId,
     })
 
+    // COMMS-V2-005: Notify assigned rep of inbound SMS
+    if (clientId) {
+      try {
+        const db = getFirestore()
+        const clientDoc = await db.collection('clients').doc(clientId).get()
+        const clientData = clientDoc.data()
+        const targetUser = clientData?.last_contacted_by || clientData?.assigned_agent || null
+        createNotification({
+          type: 'info',
+          category: 'contact',
+          title: `Inbound SMS from ${from}`,
+          body: msgBody.slice(0, 80),
+          link: `/contacts/${clientId}`,
+          portal: 'all',
+          _created_by: 'system',
+          ...(targetUser ? { target_user: String(targetUser) } : {}),
+        }).catch(() => {/* fire-and-forget */})
+      } catch {
+        // Notification failure is non-blocking
+      }
+    }
+
     // Empty TwiML — no auto-reply
     res.set('Content-Type', 'text/xml')
     res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
@@ -595,6 +666,36 @@ commsRoutes.post('/webhook/sms-incoming', async (req: Request, res: Response) =>
     console.error('POST /api/comms/webhook/sms-incoming error:', err)
     res.set('Content-Type', 'text/xml')
     res.send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+  }
+})
+
+/**
+ * POST /api/comms/webhook/sms-status
+ * COMMS-V2-001: SMS delivery status callback from Twilio.
+ * Auth bypass: Twilio calls this directly, no Firebase token.
+ */
+commsRoutes.post('/webhook/sms-status', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, string>
+    const messageSid = body.MessageSid || ''
+    const messageStatus = body.MessageStatus || ''
+    const errorCode = body.ErrorCode || ''
+    if (messageSid && messageStatus) {
+      const db = getFirestore()
+      const snap = await db.collection(COLLECTION).where('message_sid', '==', messageSid).limit(1).get()
+      if (!snap.empty) {
+        const update: Record<string, unknown> = {
+          status: messageStatus,
+          updated_at: new Date().toISOString(),
+        }
+        if (errorCode) update.error_code = errorCode
+        await snap.docs[0].ref.update(update)
+      }
+    }
+    res.status(204).send()
+  } catch (err) {
+    console.error('POST /api/comms/webhook/sms-status error:', err)
+    res.status(204).send()
   }
 })
 
@@ -683,35 +784,81 @@ commsRoutes.post('/webhook/call-status', async (req: Request, res: Response) => 
 
 /**
  * POST /api/comms/log-call
- * Manually log a phone call (inbound or outbound) to Firestore.
+ * COMMS-V2-007: If call_sid provided, upsert existing SDK doc instead of creating duplicate.
  */
 commsRoutes.post('/log-call', async (req: Request, res: Response) => {
   try {
     const body = req.body as Record<string, unknown>
     const err = validateRequired(body, ['client_id'])
     if (err) { res.status(400).json(errorResponse(err)); return }
-
     const direction = String(body.direction || 'outbound')
     const outcome = String(body.outcome || 'connected')
     const notes = body.notes ? String(body.notes) : ''
     const duration = body.duration ? Number(body.duration) : null
     const clientId = String(body.client_id)
-
-    const commId = await logCommunication({
-      channel: 'voice',
-      direction,
-      recipient: body.recipient ? String(body.recipient) : null,
-      status: outcome,
-      body: notes,
-      duration,
-      client_id: clientId,
-      sent_by: (req as unknown as { user?: { email?: string } }).user?.email || 'api',
-      call_type: 'manual_log',
-    })
-
+    const callSid = body.call_sid ? String(body.call_sid) : null
+    const userEmail = (req as unknown as { user?: { email?: string } }).user?.email || 'api'
+    let commId: string
+    if (callSid) {
+      const db = getFirestore()
+      const snap = await db.collection(COLLECTION).where('call_sid', '==', callSid).limit(1).get()
+      if (!snap.empty) {
+        const existingDoc = snap.docs[0]
+        commId = existingDoc.id
+        await existingDoc.ref.update({
+          client_id: clientId, status: outcome, body: notes,
+          duration, direction, sent_by: userEmail,
+          call_type: 'browser_sdk', updated_at: new Date().toISOString(),
+        })
+        fanOutActivity({ channel: 'voice', direction, client_id: clientId, sent_by: userEmail, body: notes }, commId).catch(() => {})
+        if (direction === 'outbound') {
+          db.collection('clients').doc(clientId).update({
+            last_contacted_by: userEmail, last_contacted_at: new Date().toISOString(),
+          }).catch(() => {})
+        }
+      } else {
+        commId = await logCommunication({
+          channel: 'voice', direction, recipient: body.recipient ? String(body.recipient) : null,
+          status: outcome, body: notes, duration, client_id: clientId,
+          sent_by: userEmail, call_type: 'browser_sdk', call_sid: callSid,
+        })
+      }
+    } else {
+      commId = await logCommunication({
+        channel: 'voice', direction, recipient: body.recipient ? String(body.recipient) : null,
+        status: outcome, body: notes, duration, client_id: clientId,
+        sent_by: userEmail, call_type: 'manual_log',
+      })
+    }
     res.status(201).json(successResponse<CommsLogCallResult>({ commId, direction, outcome, duration, notes } as unknown as CommsLogCallResult))
   } catch (err) {
     console.error('POST /api/comms/log-call error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/comms/log-session
+ * COMMS-V2-006: Store power dialer session summary to call_sessions collection.
+ */
+commsRoutes.post('/log-session', async (req: Request, res: Response) => {
+  try {
+    const body = req.body as Record<string, unknown>
+    const userEmail = (req as unknown as { user?: { email?: string } }).user?.email || 'api'
+    const now = new Date().toISOString()
+    const sessionDoc = {
+      agent_email: userEmail,
+      started_at: body.started_at || now,
+      ended_at: body.ended_at || now,
+      stats: body.stats || {},
+      results: body.results || [],
+      created_at: now,
+    }
+    const db = getFirestore()
+    const ref = await db.collection('call_sessions').add(sessionDoc)
+    res.status(201).json(successResponse({ session_id: ref.id }))
+  } catch (err) {
+    console.error('POST /api/comms/log-session error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

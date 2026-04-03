@@ -369,7 +369,7 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 83,
+      "backend_endpoints": 108,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -431,13 +431,26 @@
             "update",
             "delete"
           ]
+        },
+        {
+          "file": "comms.ts",
+          "endpoints": 25,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
         }
       ],
       "frontend_components": [],
       "portals": [
         "prodash"
       ],
-      "fk_to": [],
+      "fk_to": [
+        "clients"
+      ],
       "fk_from": [],
       "flow_paths": []
     },
@@ -731,6 +744,34 @@
       "fk_from": [],
       "flow_paths": []
     },
+    "call_sessions": {
+      "status": "backend_only",
+      "backend": "comms.ts",
+      "frontend": "",
+      "backend_endpoints": 25,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "comms.ts",
+          "endpoints": 25,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [
+        "clients"
+      ],
+      "fk_from": [],
+      "flow_paths": []
+    },
     "campaign_delivery_events": {
       "status": "backend_only",
       "backend": "campaign-send.ts",
@@ -1012,7 +1053,7 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 387,
+      "backend_endpoints": 392,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1110,7 +1151,7 @@
         },
         {
           "file": "comms.ts",
-          "endpoints": 20,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1259,9 +1300,11 @@
         "accounts",
         "accounts_investments",
         "accounts_life",
+        "activities",
         "agents",
         "approval_queue",
         "artifacts",
+        "call_sessions",
         "case_tasks",
         "commission_discrepancies",
         "communications",
@@ -1349,13 +1392,13 @@
       "status": "backend_only",
       "backend": "comms.ts",
       "frontend": "",
-      "backend_endpoints": 57,
+      "backend_endpoints": 62,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "comms.ts",
-          "endpoints": 20,
+          "endpoints": 25,
           "reads": true,
           "writes": true,
           "operations": [
@@ -3220,15 +3263,17 @@
     },
     "comms.ts": {
       "file": "comms.ts",
-      "endpoints": 20,
+      "endpoints": 25,
       "operations": [
         "list",
         "get",
         "create"
       ],
       "collections": [
+        "activities",
+        "clients",
         "communications",
-        "clients"
+        "call_sessions"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -4859,13 +4904,13 @@
   ],
   "scan_stats": {
     "route_files": 76,
-    "ui_files": 165,
-    "portal_pages": 166,
-    "collections_found": 70,
+    "ui_files": 166,
+    "portal_pages": 170,
+    "collections_found": 71,
     "api_routes_found": 76,
     "cloud_functions_found": 14,
     "env_vars_found": 41,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-04-03T08:38:55.032Z"
+    "scanned_at": "2026-04-03T09:49:21.604Z"
   }
 }

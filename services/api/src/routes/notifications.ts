@@ -23,6 +23,8 @@ interface NotificationDoc {
   read: boolean
   created_at: string
   _created_by: string
+  /** COMMS-V2-005: Optional target user email for directed notifications */
+  target_user?: string
 }
 
 /* ─── Helper: Create notification (used by other route files) ─── */
@@ -30,7 +32,7 @@ interface NotificationDoc {
 export async function createNotification(data: Partial<NotificationDoc> & { title: string }) {
   const db = getFirestore()
   const now = new Date().toISOString()
-  const doc = {
+  const doc: Record<string, unknown> = {
     type: data.type || 'info',
     title: data.title,
     body: data.body || '',
@@ -41,6 +43,7 @@ export async function createNotification(data: Partial<NotificationDoc> & { titl
     created_at: now,
     _created_by: data._created_by || 'system',
   }
+  if (data.target_user) doc.target_user = data.target_user
   const ref = await db.collection(COLLECTION).add(doc)
   return { id: ref.id, ...doc }
 }

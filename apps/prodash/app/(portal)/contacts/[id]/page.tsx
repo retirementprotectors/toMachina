@@ -15,6 +15,8 @@ import { ConnectedTab } from './components/tabs/ConnectedTab'
 import { ActivityTab } from './components/tabs/ActivityTab'
 import { AccessTab } from './components/tabs/AccessTab'
 import { PossibleDuplicates } from './components/PossibleDuplicates'
+import { QuickCommsBar } from './components/QuickCommsBar'
+import { QualityScoreCard } from './components/QualityScoreCard'
 import { ACFSection } from '@tomachina/ui/src/modules/ACFSection'
 import { ClientDocuments } from '@tomachina/ui/src/modules/ClientDocuments'
 
@@ -141,6 +143,10 @@ export default function Client360Page({
           }))
         }}
       />
+      {/* CCX-005: Quick-Action Comms Bar */}
+      <QuickCommsBar client={client} clientId={id} />
+      {/* CCX-007: Quality Score Card */}
+      <QualityScoreCard clientId={id} />
       <PossibleDuplicates client={client} clientId={id} />
       <ClientDocuments clientId={id} />
       <ClientTabs activeTab={activeTab} onTabChange={setActiveTab} />

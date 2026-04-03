@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchValidated } from '../fetchValidated'
+import { useMmsUpload } from '../comms/useMmsUpload'
 import { ActiveCallScreen } from './ActiveCallScreen'
 import type { ActiveCallData } from './ActiveCallScreen'
 import { useTwilioDevice } from './TwilioDeviceProvider'
@@ -343,6 +344,9 @@ export function CommsCompose({ onBack, presetChannel, presetContact, replySubjec
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /* TRK-095/096/097: Send/call states */
+  // COMMS-V2-008: MMS attachment support for SMS tab
+  const mms = useMmsUpload()
+
   const [smsSendState, setSmsSendState] = useState<StubSendState>('idle')
   const [emailSendState, setEmailSendState] = useState<StubSendState>('idle')
   const [callState, setCallState] = useState<'idle' | 'connecting' | 'active'>('idle')
@@ -470,16 +474,23 @@ export function CommsCompose({ onBack, presetChannel, presetContact, replySubjec
     setSmsSendState('sending')
     setSendError(null)
     try {
+      // COMMS-V2-008: Upload MMS attachment if present
+      let mediaUrl: string | undefined
+      if (mms.file && selectedClient.id) {
+        mediaUrl = (await mms.upload(selectedClient.id)) || undefined
+      }
       const res = await fetchValidated('/api/comms/send-sms', {
         method: 'POST',
         body: JSON.stringify({
           to: selectedClient.phone.replace(/[^0-9+]/g, ''),
           body: message.trim(),
           client_id: selectedClient.id,
+          ...(mediaUrl ? { mediaUrl } : {}),
         }),
       })
       if (!res.success) throw new Error(res.error || 'SMS send failed')
       setSmsSendState('sent')
+      mms.clear()
       setTimeout(() => { setSmsSendState('idle'); setMessage('') }, 2000)
     } catch (err) {
       setSendError(err instanceof Error ? err.message : 'SMS send failed')
@@ -718,10 +729,44 @@ export function CommsCompose({ onBack, presetChannel, presetContact, replySubjec
                 rows={6}
                 className="w-full resize-none rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--portal)]"
               />
-              <div className="mt-1 flex justify-between text-xs text-[var(--text-muted)]">
-                <span>{message.length} / 160 characters</span>
-                {message.length > 160 && <span className="text-[#f59e0b]">{Math.ceil(message.length / 160)} segments</span>}
+              <div className="mt-1 flex items-center justify-between text-xs text-[var(--text-muted)]">
+                <div className="flex items-center gap-2">
+                  <span>{message.length} / 160 characters</span>
+                  {message.length > 160 && <span className="text-[#f59e0b]">{Math.ceil(message.length / 160)} segments</span>}
+                </div>
+                {/* COMMS-V2-008: MMS attach button */}
+                <label className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-0.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--portal)]">
+                  <span className="material-icons-outlined" style={{ fontSize: '16px' }}>attach_file</span>
+                  <span className="text-[10px]">Attach</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,application/pdf"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] || null
+                      if (f) {
+                        const err = mms.selectFile(f)
+                        if (err) setSendError(err)
+                      }
+                      e.target.value = ''
+                    }}
+                    className="hidden"
+                  />
+                </label>
               </div>
+              {/* MMS attachment preview */}
+              {mms.file && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2">
+                  {mms.preview ? (
+                    <img src={mms.preview} alt="Preview" className="h-8 w-8 rounded object-cover" />
+                  ) : (
+                    <span className="material-icons-outlined text-[var(--text-muted)]" style={{ fontSize: '18px' }}>picture_as_pdf</span>
+                  )}
+                  <span className="flex-1 truncate text-xs text-[var(--text-primary)]">{mms.file.name}</span>
+                  <button onClick={() => mms.clear()} className="text-[var(--text-muted)] hover:text-[var(--error,#ef4444)]">
+                    <span className="material-icons-outlined" style={{ fontSize: '14px' }}>close</span>
+                  </button>
+                </div>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">From</label>
