@@ -433,10 +433,18 @@ export function ACFSection({ clientId }: ACFSectionProps) {
     ? new Set(filteredSubfolders.filter(sf => sf.files.length > 0).map(sf => sf.id))
     : null
 
-  // Grid view: flat file list from all subfolders + root (TRK-578)
+  // Grid view: flat file list from all subfolders + root (TRK-578, TM-S13-05)
+  function flattenSubfolderFiles(sfs: ACFSubfolderDetail[], prefix = ''): Array<ACFDriveFile & { subfolder: string }> {
+    return sfs.flatMap(sf => {
+      const path = prefix ? `${prefix}/${sf.name}` : sf.name
+      const own = sf.files.map(f => ({ ...f, subfolder: path }))
+      const nested = sf.subfolders ? flattenSubfolderFiles(sf.subfolders, path) : []
+      return [...own, ...nested]
+    })
+  }
   const allFiles = [
     ...(detail.root_files || []).map(f => ({ ...f, subfolder: '(root)' })),
-    ...detail.subfolders.flatMap(sf => sf.files.map(f => ({ ...f, subfolder: sf.name }))),
+    ...flattenSubfolderFiles(detail.subfolders),
   ]
   const filteredAllFiles = sq
     ? allFiles.filter(f => f.name.toLowerCase().includes(sq))
