@@ -1,0 +1,1863 @@
+{
+  "generated": "2026-04-03T16:33:04.282Z",
+  "potential_aliases": {
+    "face_amount": [
+      "face_value"
+    ],
+    "face_value": [
+      "face_amount"
+    ],
+    "policy_number": [
+      "account_number",
+      "contract_number"
+    ],
+    "account_number": [
+      "policy_number",
+      "contract_number"
+    ],
+    "dob": [
+      "date_of_birth",
+      "insured_dob"
+    ],
+    "date_of_birth": [
+      "dob",
+      "insured_dob"
+    ],
+    "insured_dob": [
+      "dob",
+      "date_of_birth"
+    ],
+    "address": [
+      "address_street",
+      "address_standardized"
+    ],
+    "address_street": [
+      "address"
+    ],
+    "zip": [
+      "address_zip"
+    ],
+    "address_zip": [
+      "zip"
+    ],
+    "city": [
+      "address_city"
+    ],
+    "address_city": [
+      "city"
+    ],
+    "state": [
+      "address_state"
+    ],
+    "address_state": [
+      "state"
+    ],
+    "county": [
+      "address_county"
+    ],
+    "address_county": [
+      "county"
+    ],
+    "carrier_name": [
+      "carrier",
+      "carrier_charter",
+      "parent_carrier"
+    ],
+    "carrier_charter": [
+      "underwriting_charter",
+      "carrier_name"
+    ],
+    "underwriting_charter": [
+      "carrier_charter"
+    ],
+    "parent_carrier": [
+      "carrier_name"
+    ],
+    "premium": [
+      "annual_premium",
+      "modal_premium",
+      "monthly_premium",
+      "scheduled_premium",
+      "commissionable_premium",
+      "planned_premium",
+      "annualized_premium"
+    ],
+    "annual_premium": [
+      "premium",
+      "annualized_premium"
+    ],
+    "modal_premium": [
+      "premium",
+      "monthly_premium"
+    ],
+    "monthly_premium": [
+      "modal_premium",
+      "premium"
+    ],
+    "cash_value": [
+      "net_csv",
+      "base_cash_value",
+      "surrender_value"
+    ],
+    "surrender_value": [
+      "cash_value",
+      "net_surrender_value",
+      "net_csv"
+    ],
+    "account_value": [
+      "fund_value",
+      "annuity_balance"
+    ],
+    "fund_value": [
+      "account_value",
+      "annuity_balance"
+    ],
+    "annuity_balance": [
+      "account_value",
+      "fund_value"
+    ],
+    "writing_agent_id": [
+      "agent_npn",
+      "agent_writing_number",
+      "agent_name"
+    ],
+    "agent_npn": [
+      "writing_agent_id"
+    ],
+    "insured_name": [
+      "insured",
+      "policy_owner",
+      "account_owner"
+    ],
+    "policy_owner": [
+      "insured_name",
+      "account_owner"
+    ],
+    "account_owner": [
+      "policy_owner",
+      "insured_name"
+    ],
+    "member_id": [
+      "medicare_id",
+      "medicare_beneficiary_id",
+      "cof_member_id"
+    ],
+    "medicare_id": [
+      "member_id",
+      "medicare_beneficiary_id"
+    ]
+  },
+  "contacts": {
+    "total": 1000,
+    "fields": {
+      "country": {
+        "count": 937,
+        "sample": "US"
+      },
+      "gender": {
+        "count": 559,
+        "sample": "Male"
+      },
+      "phone_valid": {
+        "count": 953,
+        "sample": "Unknown"
+      },
+      "city": {
+        "count": 841,
+        "sample": "Garner"
+      },
+      "cof_member_id": {
+        "count": 240,
+        "sample": "80332"
+      },
+      "address_standardized": {
+        "count": 630,
+        "sample": "TRUE"
+      },
+      "client_id": {
+        "count": 989,
+        "sample": "001210db-1117-4eed-8581-df8279e71676"
+      },
+      "book_of_business": {
+        "count": 975,
+        "sample": "Janet Woods - CoF"
+      },
+      "state": {
+        "count": 846,
+        "sample": "IA"
+      },
+      "first_name": {
+        "count": 1000,
+        "sample": "Michael"
+      },
+      "zip": {
+        "count": 844,
+        "sample": "50438"
+      },
+      "address": {
+        "count": 715,
+        "sample": "303 Fairway Cir"
+      },
+      "last_name": {
+        "count": 1000,
+        "sample": "Vanoort"
+      },
+      "email_valid": {
+        "count": 953,
+        "sample": "not_checked"
+      },
+      "contact_quality_score": {
+        "count": 953,
+        "sample": "yellow"
+      },
+      "middle_name": {
+        "count": 296,
+        "sample": "J"
+      },
+      "last_validated_date": {
+        "count": 953,
+        "sample": "3/7/2026"
+      },
+      "dob": {
+        "count": 826,
+        "sample": "1965-10-06"
+      },
+      "import_source": {
+        "count": 954,
+        "sample": "cof_members_q126"
+      },
+      "status": {
+        "count": 1000,
+        "sample": "Active"
+      },
+      "phone": {
+        "count": 775,
+        "sample": "6418601185"
+      },
+      "created_at": {
+        "count": 989,
+        "sample": "2026-02-13"
+      },
+      "cell_phone": {
+        "count": 19,
+        "sample": "6418601185"
+      },
+      "client_classification": {
+        "count": 954,
+        "sample": "Client"
+      },
+      "client_status": {
+        "count": 1000,
+        "sample": "Active"
+      },
+      "assigned_user_id": {
+        "count": 881,
+        "sample": "92fd3964-cef4-4771-9afe-53e4e0fe4e26"
+      },
+      "updated_at": {
+        "count": 989,
+        "sample": "2026-03-17T16:05:38.715Z"
+      },
+      "county": {
+        "count": 813,
+        "sample": "Hancock"
+      },
+      "zone_id": {
+        "count": 446,
+        "sample": "T1-Z1"
+      },
+      "territory_id": {
+        "count": 446,
+        "sample": "T1"
+      },
+      "ghl_updated_at": {
+        "count": 709,
+        "sample": "2025-10-26T22:35:18.103Z"
+      },
+      "phone_type": {
+        "count": 203,
+        "sample": "Mobile"
+      },
+      "marital_status": {
+        "count": 231,
+        "sample": "Married"
+      },
+      "ghl_contact_id": {
+        "count": 746,
+        "sample": "6RV7p0v0sYh2xO15CwS9"
+      },
+      "ghl_last_activity": {
+        "count": 681,
+        "sample": "Apr 22 2025 11:33 AM"
+      },
+      "timezone": {
+        "count": 733,
+        "sample": "GMT-6 America/Chicago (CST)"
+      },
+      "address_state": {
+        "count": 571,
+        "sample": "IA"
+      },
+      "address_city": {
+        "count": 565,
+        "sample": "South English"
+      },
+      "tags": {
+        "count": 733,
+        "sample": "line-type-cell, textable-yes"
+      },
+      "address_county": {
+        "count": 277,
+        "sample": "Keokuk"
+      },
+      "ghl_created_at": {
+        "count": 746,
+        "sample": "2024-11-22T14:48:33-06:00"
+      },
+      "address_street": {
+        "count": 572,
+        "sample": "17192 300th Ave"
+      },
+      "address_zip": {
+        "count": 574,
+        "sample": "52335"
+      },
+      "ssn": {
+        "count": 338,
+        "sample": "480561885"
+      },
+      "gdrive_folder_url": {
+        "count": 288,
+        "sample": "https://drive.google.com/drive/folders/1FEXXDo8iXx_I7soIwLvQrb6MmAtc0jE9"
+      },
+      "medicare_number": {
+        "count": 279,
+        "sample": "3Y56TD4WT68"
+      },
+      "jira_key": {
+        "count": 392,
+        "sample": "PPL-1140"
+      },
+      "date_of_birth": {
+        "count": 558,
+        "sample": "1948-02-07"
+      },
+      "acf_folder_id": {
+        "count": 314,
+        "sample": "1FEXXDo8iXx_I7soIwLvQrb6MmAtc0jE9"
+      },
+      "acf_folder_url": {
+        "count": 314,
+        "sample": "https://drive.google.com/drive/folders/1FEXXDo8iXx_I7soIwLvQrb6MmAtc0jE9"
+      },
+      "do_not_contact": {
+        "count": 125,
+        "sample": "FALSE"
+      },
+      "email": {
+        "count": 356,
+        "sample": "oaktreehomesinc@yahoo.com"
+      },
+      "alt_phone_type": {
+        "count": 34,
+        "sample": "Mobile"
+      },
+      "alternate_phone": {
+        "count": 27,
+        "sample": "9132088415"
+      },
+      "ghl_opportunities": {
+        "count": 191,
+        "sample": "won NewBiz | BD/ RIA Build/edit BOB"
+      },
+      "address_2": {
+        "count": 10,
+        "sample": "PO Box 293"
+      },
+      "last_import_source": {
+        "count": 115,
+        "sample": "atlas-wire-aetna-humana-bob-20260317"
+      },
+      "source": {
+        "count": 3,
+        "sample": "Millang Financial Group"
+      },
+      "family_member_of": {
+        "count": 2,
+        "sample": "e80dc606-daae-4179-80e8-a6ffe01947f8"
+      },
+      "family_relationship": {
+        "count": 2,
+        "sample": "parent"
+      },
+      "household_id": {
+        "count": 2,
+        "sample": "BA7aGtQ06IGcNpOUJxmL"
+      },
+      "connected_contacts": {
+        "count": 6,
+        "sample": "[{\"id\":\"0eedb4c6-34ed-4b52-a70c-226f784f3bdb\",\"name\":\"Josh Millang\",\"relationshi"
+      },
+      "mailing_same_as_primary": {
+        "count": 42,
+        "sample": "YES"
+      },
+      "has_trust": {
+        "count": 1,
+        "sample": "No"
+      },
+      "mailing_city": {
+        "count": 16,
+        "sample": "Manly"
+      },
+      "mailing_state": {
+        "count": 14,
+        "sample": "IA"
+      },
+      "mailing_zip": {
+        "count": 13,
+        "sample": "50456"
+      },
+      "mailing_address": {
+        "count": 22,
+        "sample": "Po Box 143"
+      },
+      "secondary_email": {
+        "count": 20,
+        "sample": "mariellen.jacobs@gmail.com"
+      },
+      "preferred_name": {
+        "count": 38,
+        "sample": "Ron"
+      },
+      "address_street2": {
+        "count": 15,
+        "sample": "#119"
+      },
+      "ghl_assigned_to": {
+        "count": 9,
+        "sample": "Alex Haase- Dubosc"
+      },
+      "employment_status": {
+        "count": 2,
+        "sample": "retired"
+      },
+      "mailing_county": {
+        "count": 13,
+        "sample": "Black Hawk County"
+      },
+      "child_1_name": {
+        "count": 1,
+        "sample": "Talan R Millang"
+      },
+      "carrier_name": {
+        "count": 1,
+        "sample": "Catholic Order of Foresters"
+      },
+      "employer_info": {
+        "count": 2,
+        "sample": "{}"
+      },
+      "former_occupation": {
+        "count": 1,
+        "sample": "OTHER [Notify Data Team!]"
+      },
+      "recent_health_concerns": {
+        "count": 1,
+        "sample": "none at this time"
+      },
+      "county_fips": {
+        "count": 1,
+        "sample": "19153"
+      },
+      "spouse_name": {
+        "count": 3,
+        "sample": "Tony Woods"
+      },
+      "spouse_dob": {
+        "count": 1,
+        "sample": "1952-01-30"
+      },
+      "company": {
+        "count": 1,
+        "sample": "MedMutual Protect"
+      },
+      "dnc_sms": {
+        "count": 1,
+        "sample": "true"
+      },
+      "lead_source": {
+        "count": 1,
+        "sample": "Trust Evaluation Meeting With Aprille Trupiano - 60 Mins"
+      },
+      "height": {
+        "count": 2,
+        "sample": "5'10\""
+      },
+      "weight": {
+        "count": 2,
+        "sample": "190-199"
+      },
+      "tobacco_type": {
+        "count": 1,
+        "sample": "marijuana"
+      },
+      "tobacco_user": {
+        "count": 1,
+        "sample": "yes"
+      },
+      "risk_score": {
+        "count": 1,
+        "sample": "65"
+      },
+      "investable_assets": {
+        "count": 1,
+        "sample": "500000"
+      },
+      "net_worth": {
+        "count": 1,
+        "sample": "850000"
+      }
+    }
+  },
+  "account_types": {
+    "life": {
+      "count": 1905,
+      "fields": {
+        "life_id": {
+          "count": 1898,
+          "sample": "96d0e1d7-258c-4a6c-8fcc-c120dd84361c"
+        },
+        "created_at": {
+          "count": 1905,
+          "sample": "2026-02-13T22:10:05.626Z"
+        },
+        "account_type_category": {
+          "count": 1905,
+          "sample": "life"
+        },
+        "client_id": {
+          "count": 1905,
+          "sample": "001210db-1117-4eed-8581-df8279e71676"
+        },
+        "market": {
+          "count": 1537,
+          "sample": "internal"
+        },
+        "account_id": {
+          "count": 1863,
+          "sample": "235787e6-0949-44cf-8d02-10e1786433ed"
+        },
+        "policy_number": {
+          "count": 1905,
+          "sample": "1283404"
+        },
+        "book_of_business": {
+          "count": 1525,
+          "sample": "Janet Woods - CoF"
+        },
+        "import_source": {
+          "count": 1898,
+          "sample": "cof_members_q126"
+        },
+        "carrier_name": {
+          "count": 1870,
+          "sample": "Catholic Order of Foresters"
+        },
+        "status": {
+          "count": 1905,
+          "sample": "Active"
+        },
+        "billing_mode": {
+          "count": 791,
+          "sample": "Annual"
+        },
+        "issue_date": {
+          "count": 1024,
+          "sample": "2000-04-01"
+        },
+        "modal_premium": {
+          "count": 556,
+          "sample": "9.32"
+        },
+        "cash_value": {
+          "count": 707,
+          "sample": "1642.38"
+        },
+        "face_value": {
+          "count": 704,
+          "sample": "25000"
+        },
+        "product_name": {
+          "count": 1204,
+          "sample": "Forester Life"
+        },
+        "annual_premium": {
+          "count": 772,
+          "sample": "106.5"
+        },
+        "paid_to_date": {
+          "count": 791,
+          "sample": "2026-03-01"
+        },
+        "carrier_id": {
+          "count": 1870,
+          "sample": "cof"
+        },
+        "parent_carrier": {
+          "count": 1870,
+          "sample": "Catholic Order of Foresters"
+        },
+        "updated_at": {
+          "count": 1905,
+          "sample": "2026-03-16T17:24:26.161Z"
+        },
+        "insured_gender": {
+          "count": 349,
+          "sample": "M"
+        },
+        "insured_name": {
+          "count": 349,
+          "sample": "Michael Vanoort"
+        },
+        "commission_split": {
+          "count": 186,
+          "sample": "NCP"
+        },
+        "premium_mode": {
+          "count": 436,
+          "sample": "Monthly"
+        },
+        "writing_agent_id": {
+          "count": 349,
+          "sample": "1346"
+        },
+        "data_source": {
+          "count": 396,
+          "sample": "CoF Carrier Inforce Dump 2026"
+        },
+        "policy_type": {
+          "count": 736,
+          "sample": "Term Life"
+        },
+        "insured_dob": {
+          "count": 349,
+          "sample": "1965-10-06"
+        },
+        "health_class": {
+          "count": 350,
+          "sample": "5"
+        },
+        "face_amount": {
+          "count": 377,
+          "sample": "500000"
+        },
+        "surrender_value": {
+          "count": 404,
+          "sample": "26.95"
+        },
+        "scheduled_premium": {
+          "count": 332,
+          "sample": "67.38"
+        },
+        "dividend_option_1": {
+          "count": 175,
+          "sample": "Buy PUA"
+        },
+        "prior_year_dividend": {
+          "count": 94,
+          "sample": "12.1"
+        },
+        "current_year_dividend": {
+          "count": 100,
+          "sample": "0.04"
+        },
+        "ghl_object_id": {
+          "count": 399,
+          "sample": "6853b7e0b50b263ca552f618"
+        },
+        "ghl_contact_id": {
+          "count": 420,
+          "sample": "XkWr1hJRqO3nSELzkxzS"
+        },
+        "product_type": {
+          "count": 393,
+          "sample": "Life"
+        },
+        "account_number": {
+          "count": 387,
+          "sample": "66030"
+        },
+        "policy_owner": {
+          "count": 253,
+          "sample": "TRUDY BREITBACH"
+        },
+        "loan_interest_balance": {
+          "count": 47,
+          "sample": "1.08"
+        },
+        "loan_balance": {
+          "count": 87,
+          "sample": "61.56"
+        },
+        "death_benefit": {
+          "count": 132,
+          "sample": "50000"
+        },
+        "total_premiums_paid": {
+          "count": 69,
+          "sample": "14.1"
+        },
+        "fund_value": {
+          "count": 113,
+          "sample": "381.94"
+        },
+        "annuity_balance": {
+          "count": 113,
+          "sample": "366.93"
+        },
+        "net_csv": {
+          "count": 29,
+          "sample": "4970"
+        },
+        "annualized_premium": {
+          "count": 14,
+          "sample": "768"
+        },
+        "db_option": {
+          "count": 29,
+          "sample": "A (Level)"
+        },
+        "mec": {
+          "count": 21,
+          "sample": "No"
+        },
+        "risk_class": {
+          "count": 41,
+          "sample": "NONSMOKER"
+        },
+        "net_loan_amount": {
+          "count": 39,
+          "sample": "1780.86"
+        },
+        "plan_code": {
+          "count": 41,
+          "sample": "FLXWTH07C"
+        },
+        "maturity_date": {
+          "count": 40,
+          "sample": "2077-12-01"
+        },
+        "plan_name": {
+          "count": 40,
+          "sample": "FLEX WEALTH ADVANTAGE"
+        },
+        "last_transaction_date": {
+          "count": 32,
+          "sample": "2026-03-02"
+        },
+        "issue_age": {
+          "count": 41,
+          "sample": "62"
+        },
+        "premium": {
+          "count": 41,
+          "sample": "44.31"
+        },
+        "beneficiary": {
+          "count": 41,
+          "sample": "P-STACIE WILSON-CHILD; P-TERRY FORRETT-CHILD; P-TODD FORRETT-CHILD"
+        },
+        "total_transactions": {
+          "count": 32,
+          "sample": "27"
+        },
+        "effective_date": {
+          "count": 41,
+          "sample": "2018-12-01"
+        },
+        "billing_status": {
+          "count": 33,
+          "sample": "On Schedule"
+        },
+        "account_value": {
+          "count": 39,
+          "sample": "2430.78"
+        },
+        "guideline_single_premium": {
+          "count": 32,
+          "sample": "7971.5"
+        },
+        "acf_link": {
+          "count": 37,
+          "sample": "https://drive.google.com/drive/folders/1UdB4VfywaBtGIK4E-ecs6RRmeAtO0sCZ"
+        },
+        "death_benefit_option": {
+          "count": 36,
+          "sample": "A (Level)"
+        },
+        "underwriting_status": {
+          "count": 20,
+          "sample": "Full UW OK"
+        },
+        "as_of_date": {
+          "count": 20,
+          "sample": "2025-08-27"
+        },
+        "is_mec": {
+          "count": 26,
+          "sample": "Yes"
+        },
+        "ltc_benefit": {
+          "count": 4,
+          "sample": "$200000"
+        },
+        "insured": {
+          "count": 12,
+          "sample": "Jo L Schwerzler"
+        },
+        "draft_date": {
+          "count": 2,
+          "sample": "2001-08-01"
+        },
+        "primary_beneficiary_pct": {
+          "count": 1,
+          "sample": "100"
+        },
+        "primary_beneficiary": {
+          "count": 1,
+          "sample": "Randel Sprenger"
+        },
+        "premium_frequency": {
+          "count": 2,
+          "sample": "0"
+        },
+        "beneficiaries": {
+          "count": 1,
+          "sample": "Primary: Diane V Delagardelle 100%, Contingent: Joe D Delagardelle 33%, Kathleen"
+        },
+        "loan_interest_rate": {
+          "count": 1,
+          "sample": "8"
+        },
+        "dividend_balance": {
+          "count": 1,
+          "sample": "136.27"
+        }
+      }
+    },
+    "medicare": {
+      "count": 2047,
+      "fields": {
+        "created_at": {
+          "count": 2047,
+          "sample": "3/9/2026 2:25:15"
+        },
+        "account_type_category": {
+          "count": 2047,
+          "sample": "medicare"
+        },
+        "client_id": {
+          "count": 2047,
+          "sample": "0013fb65-52f1-40a4-b9f1-e003fe45142d"
+        },
+        "plan_name": {
+          "count": 1492,
+          "sample": "Part D"
+        },
+        "core_product_type": {
+          "count": 1775,
+          "sample": "PDP"
+        },
+        "policy_number": {
+          "count": 1718,
+          "sample": "2573109"
+        },
+        "book_of_business": {
+          "count": 1956,
+          "sample": "Retirement Protectors"
+        },
+        "medicare_id": {
+          "count": 2025,
+          "sample": "74255d4e-9721-4654-8c45-31792382a6f0"
+        },
+        "import_source": {
+          "count": 2025,
+          "sample": "consolidated_bob_20250621"
+        },
+        "carrier_name": {
+          "count": 1984,
+          "sample": "Aetna"
+        },
+        "status": {
+          "count": 2047,
+          "sample": "Active"
+        },
+        "carrier_id": {
+          "count": 1995,
+          "sample": "aetna-cvs"
+        },
+        "parent_carrier": {
+          "count": 1995,
+          "sample": "Aetna / CVS Health"
+        },
+        "updated_at": {
+          "count": 2047,
+          "sample": "2026-03-16T17:24:26.444Z"
+        },
+        "carrier_charter": {
+          "count": 1994,
+          "sample": "Aetna Health Insurance Company"
+        },
+        "charter_code": {
+          "count": 1994,
+          "sample": "AHIC"
+        },
+        "naic_code": {
+          "count": 1598,
+          "sample": "72052"
+        },
+        "ghl_object_id": {
+          "count": 1547,
+          "sample": "68442701d4034a54b085b5f9"
+        },
+        "account_id": {
+          "count": 1673,
+          "sample": "6e04fedf-4abf-44db-b188-6842b27690d8"
+        },
+        "ghl_contact_id": {
+          "count": 1499,
+          "sample": "6RV7p0v0sYh2xO15CwS9"
+        },
+        "product_type": {
+          "count": 1525,
+          "sample": "Medicare"
+        },
+        "monthly_premium": {
+          "count": 194,
+          "sample": "0"
+        },
+        "account_number": {
+          "count": 1432,
+          "sample": "CVGA2573109M (Aetna PDP)"
+        },
+        "ancillary_type": {
+          "count": 1014,
+          "sample": "PDP (Prescription Drug Plan)"
+        },
+        "effective_date": {
+          "count": 829,
+          "sample": "2022-01-01"
+        },
+        "acf_link": {
+          "count": 271,
+          "sample": "https://drive.google.com/drive/folders/1FEXXDo8iXx_I7soIwLvQrb6MmAtc0jE9"
+        },
+        "plan_letter": {
+          "count": 413,
+          "sample": "F (T65 <1.1.20)"
+        },
+        "premium_mode": {
+          "count": 206,
+          "sample": "Monthly (EFT)"
+        },
+        "planned_premium": {
+          "count": 158,
+          "sample": "318.8"
+        },
+        "commissionable_premium": {
+          "count": 177,
+          "sample": "3825.6"
+        },
+        "market": {
+          "count": 1119,
+          "sample": "Internal"
+        },
+        "product_name": {
+          "count": 309,
+          "sample": "AARP Medicare Advantage Extras from UHC KC-5"
+        },
+        "mapd_type": {
+          "count": 261,
+          "sample": "PPO"
+        },
+        "cms_plan_code": {
+          "count": 366,
+          "sample": "H8768-039"
+        },
+        "writing_agent_id": {
+          "count": 120,
+          "sample": "7384626"
+        },
+        "medicare_beneficiary_id": {
+          "count": 189,
+          "sample": "3HR0AC5MM01"
+        },
+        "election_type": {
+          "count": 120,
+          "sample": "New"
+        },
+        "annual_premium": {
+          "count": 75,
+          "sample": "348.05"
+        },
+        "annualized_premium": {
+          "count": 35,
+          "sample": "1886.04"
+        },
+        "underwriting_charter": {
+          "count": 763,
+          "sample": "Accendo Insurance Company"
+        },
+        "submitted_date": {
+          "count": 57,
+          "sample": "2025-10-17"
+        },
+        "agent_writing_number": {
+          "count": 56,
+          "sample": "7384626"
+        },
+        "carrier_application_status": {
+          "count": 53,
+          "sample": "ENROLLED-ACTIVE"
+        },
+        "carrier_sales_type": {
+          "count": 57,
+          "sample": "Enrollment"
+        },
+        "cumulative_rate_increase": {
+          "count": 1,
+          "sample": "1540.44"
+        },
+        "termination_reason": {
+          "count": 3,
+          "sample": "Other"
+        },
+        "term_date": {
+          "count": 24,
+          "sample": "2025-12-31"
+        },
+        "contract_id": {
+          "count": 2,
+          "sample": "H0169"
+        },
+        "enrollment_period": {
+          "count": 2,
+          "sample": "SEP"
+        },
+        "part_b_giveback": {
+          "count": 1,
+          "sample": "184.7"
+        }
+      }
+    },
+    "Unknown": {
+      "count": 170,
+      "fields": {
+        "carrier_id": {
+          "count": 170,
+          "sample": "wellmark_bcbs"
+        },
+        "carrier_name": {
+          "count": 170,
+          "sample": "Wellmark BCBS of Iowa"
+        },
+        "account_category": {
+          "count": 170,
+          "sample": "medicare"
+        },
+        "member_id": {
+          "count": 19,
+          "sample": "W00141020"
+        },
+        "product_type": {
+          "count": 29,
+          "sample": "Over 65"
+        },
+        "effective_date": {
+          "count": 109,
+          "sample": "01OCT2015"
+        },
+        "premium": {
+          "count": 102,
+          "sample": "355.8"
+        },
+        "status": {
+          "count": 170,
+          "sample": "Active"
+        },
+        "policy_number": {
+          "count": 151,
+          "sample": "2825399"
+        },
+        "death_benefit": {
+          "count": 71,
+          "sample": "25000"
+        },
+        "masked_id_last4": {
+          "count": 88,
+          "sample": "3806"
+        },
+        "plan_code": {
+          "count": 102,
+          "sample": "NOVA07C"
+        },
+        "maturity_date": {
+          "count": 80,
+          "sample": "2074-01-01"
+        },
+        "face_amount": {
+          "count": 80,
+          "sample": "25000"
+        },
+        "issue_age": {
+          "count": 90,
+          "sample": "66"
+        },
+        "surrender_value": {
+          "count": 82,
+          "sample": "5038.84"
+        },
+        "total_transactions": {
+          "count": 90,
+          "sample": "26"
+        },
+        "billing_status": {
+          "count": 69,
+          "sample": "On Schedule"
+        },
+        "account_value": {
+          "count": 79,
+          "sample": "6033.33"
+        },
+        "total_premiums_paid": {
+          "count": 75,
+          "sample": "8078.98"
+        },
+        "risk_class": {
+          "count": 78,
+          "sample": "NONSMOKER"
+        },
+        "loan_balance": {
+          "count": 81,
+          "sample": "0"
+        },
+        "premium_mode": {
+          "count": 90,
+          "sample": "Monthly"
+        },
+        "net_loan_amount": {
+          "count": 81,
+          "sample": "4732.27"
+        },
+        "guideline_accumulation_level": {
+          "count": 66,
+          "sample": "0"
+        },
+        "cash_value": {
+          "count": 83,
+          "sample": "6033.33"
+        },
+        "plan_name": {
+          "count": 91,
+          "sample": "SUPER NOVA"
+        },
+        "last_transaction_date": {
+          "count": 78,
+          "sample": "2026-03-13"
+        },
+        "policy_type": {
+          "count": 92,
+          "sample": "Universal Life"
+        },
+        "beneficiary": {
+          "count": 92,
+          "sample": "P-PHIL MYERS-HUSBAND"
+        },
+        "plan_option": {
+          "count": 66,
+          "sample": "A"
+        },
+        "guideline_single_premium": {
+          "count": 66,
+          "sample": "14705.51"
+        },
+        "dividend_value": {
+          "count": 7,
+          "sample": "0"
+        },
+        "net_surrender_value": {
+          "count": 9,
+          "sample": "0"
+        },
+        "base_cash_value": {
+          "count": 9,
+          "sample": "0"
+        }
+      }
+    },
+    "annuity": {
+      "count": 498,
+      "fields": {
+        "account_number": {
+          "count": 475,
+          "sample": "1018545884"
+        },
+        "created_at": {
+          "count": 498,
+          "sample": "2026-02-01T23:52:15.720Z"
+        },
+        "product_name": {
+          "count": 472,
+          "sample": "Perspective II"
+        },
+        "account_type_category": {
+          "count": 498,
+          "sample": "annuity"
+        },
+        "client_id": {
+          "count": 498,
+          "sample": "00abef9f-5bde-40cb-b112-7ac51aabbe17"
+        },
+        "ghl_object_id": {
+          "count": 393,
+          "sample": "6844073a5e0dad3310fc5acb"
+        },
+        "account_id": {
+          "count": 427,
+          "sample": "1c3b7e4e-a7c9-4f3a-9526-d7c312bb1b5d"
+        },
+        "ghl_contact_id": {
+          "count": 438,
+          "sample": "vcNCNAJiIOpS5Zfz8JjP"
+        },
+        "product_type": {
+          "count": 394,
+          "sample": "Annuity"
+        },
+        "issue_date": {
+          "count": 362,
+          "sample": "2016-03-06"
+        },
+        "import_source": {
+          "count": 498,
+          "sample": "GHL_BULK"
+        },
+        "annuity_id": {
+          "count": 498,
+          "sample": "accde153-9a19-4d33-8971-837994265563"
+        },
+        "carrier_name": {
+          "count": 492,
+          "sample": "Jackson National Life"
+        },
+        "status": {
+          "count": 498,
+          "sample": "Active"
+        },
+        "net_deposits": {
+          "count": 187,
+          "sample": "0"
+        },
+        "account_type": {
+          "count": 438,
+          "sample": "VARIABLE"
+        },
+        "carrier_id": {
+          "count": 492,
+          "sample": "jackson-national"
+        },
+        "parent_carrier": {
+          "count": 492,
+          "sample": "Jackson National Life"
+        },
+        "updated_at": {
+          "count": 498,
+          "sample": "2026-03-16T17:24:27.963Z"
+        },
+        "underwriting_charter": {
+          "count": 94,
+          "sample": "Brighthouse Life Insurance Company (fka MetLife)"
+        },
+        "acf_link": {
+          "count": 151,
+          "sample": "https://drive.google.com/drive/folders/1l0wz86_QCXMSvc018F0dVQcw86eJ1wD8"
+        },
+        "account_owner": {
+          "count": 106,
+          "sample": "SHERLYN SILVERS"
+        },
+        "surrender_value": {
+          "count": 216,
+          "sample": "55094"
+        },
+        "death_benefit": {
+          "count": 166,
+          "sample": "63323.8"
+        },
+        "account_value": {
+          "count": 263,
+          "sample": "61847"
+        },
+        "market": {
+          "count": 187,
+          "sample": "Internal"
+        },
+        "as_of_date": {
+          "count": 229,
+          "sample": "2025-11-21"
+        },
+        "tax_status": {
+          "count": 250,
+          "sample": "IRA"
+        },
+        "book_of_business": {
+          "count": 184,
+          "sample": "Millang Financial Group / Josh Millang"
+        },
+        "data_source": {
+          "count": 185,
+          "sample": "Carrier- Portal"
+        },
+        "income_benefit": {
+          "count": 128,
+          "sample": "$5904"
+        },
+        "underwriting_status": {
+          "count": 45,
+          "sample": "Invested"
+        },
+        "benefit_base": {
+          "count": 35,
+          "sample": "26555.51"
+        },
+        "return_cumulative": {
+          "count": 7,
+          "sample": "2.6"
+        },
+        "ltc_benefit": {
+          "count": 2,
+          "sample": "$514,259"
+        },
+        "return_annualized": {
+          "count": 6,
+          "sample": "0.866"
+        },
+        "fixed_rate": {
+          "count": 16,
+          "sample": "3.5"
+        },
+        "writing_agent_id": {
+          "count": 16,
+          "sample": "1346"
+        },
+        "contract_number": {
+          "count": 16,
+          "sample": "1299163"
+        },
+        "annuitant": {
+          "count": 16,
+          "sample": "Carolyn J Walker"
+        },
+        "commission_split": {
+          "count": 5,
+          "sample": "NCP"
+        },
+        "rmd_calculated": {
+          "count": 9,
+          "sample": "0"
+        },
+        "rmd_remaining": {
+          "count": 8,
+          "sample": "0"
+        },
+        "prior_year_fmv": {
+          "count": 6,
+          "sample": "43719.24"
+        },
+        "issue_age": {
+          "count": 8,
+          "sample": "72"
+        },
+        "beneficiary": {
+          "count": 8,
+          "sample": "P-JON HAMANN-SON"
+        },
+        "premium_mode": {
+          "count": 8,
+          "sample": "Monthly"
+        },
+        "total_transactions": {
+          "count": 8,
+          "sample": "14"
+        },
+        "effective_date": {
+          "count": 8,
+          "sample": "2014-03-18"
+        },
+        "plan_code": {
+          "count": 8,
+          "sample": "SPIA04LQ"
+        },
+        "plan_name": {
+          "count": 8,
+          "sample": "SPIA - LIFE QUALIFIED"
+        },
+        "last_transaction_date": {
+          "count": 8,
+          "sample": "2026-02-18"
+        },
+        "billing_status": {
+          "count": 1,
+          "sample": "CERTAIN AND LIFE"
+        },
+        "total_premiums_paid": {
+          "count": 6,
+          "sample": "25818.78"
+        },
+        "contingent_beneficiary_pct": {
+          "count": 2,
+          "sample": "34%, 33%, 33%"
+        },
+        "contingent_beneficiary": {
+          "count": 2,
+          "sample": "Ross Woods, Randy Woods, Anthony Woods"
+        },
+        "primary_beneficiary_pct": {
+          "count": 2,
+          "sample": "100"
+        },
+        "primary_beneficiary": {
+          "count": 2,
+          "sample": "Tony Woods"
+        },
+        "policy_number": {
+          "count": 2,
+          "sample": "28227700"
+        },
+        "premium": {
+          "count": 6,
+          "sample": "42,738.41"
+        },
+        "loan_balance": {
+          "count": 4,
+          "sample": "0"
+        },
+        "net_loan_amount": {
+          "count": 4,
+          "sample": "0"
+        },
+        "cash_value": {
+          "count": 4,
+          "sample": "8605.16"
+        },
+        "maturity_date": {
+          "count": 7,
+          "sample": "2072-11-06"
+        },
+        "myga_rate": {
+          "count": 1,
+          "sample": "5.25"
+        },
+        "myga_period": {
+          "count": 1,
+          "sample": "10"
+        },
+        "has_income_rider": {
+          "count": 5,
+          "sample": "0"
+        },
+        "gmib_amount": {
+          "count": 2,
+          "sample": "69527"
+        },
+        "transfer_notes": {
+          "count": 1,
+          "sample": "AIG Power 10 Protector+ liquidated to fund Nassau Income Accelerator along with "
+        },
+        "transfer_date": {
+          "count": 1,
+          "sample": "2025-10-02"
+        },
+        "transfer_destination": {
+          "count": 1,
+          "sample": "Nassau Income Accelerator - 28253487"
+        },
+        "total_guaranteed_value": {
+          "count": 1,
+          "sample": "1602713.56"
+        },
+        "allocation": {
+          "count": 1,
+          "sample": "50/50 — 1-Year S&P 500 Cap (4%) / 1-Year S&P 500 Par (18%)"
+        },
+        "plan_type": {
+          "count": 1,
+          "sample": "408(b) Individual Retirement Annuity"
+        },
+        "life_option": {
+          "count": 1,
+          "sample": "Spousal"
+        },
+        "surrender_charge": {
+          "count": 1,
+          "sample": "206646.03"
+        },
+        "contract_date": {
+          "count": 1,
+          "sample": "2025-10-02"
+        },
+        "rider_activated": {
+          "count": 1,
+          "sample": "false"
+        },
+        "rider_type": {
+          "count": 1,
+          "sample": "Income Horizon: Early Spsl"
+        },
+        "beneficiary_primary": {
+          "count": 1,
+          "sample": "Joyce Mineart"
+        },
+        "admin_rider_fees": {
+          "count": 1,
+          "sample": "8391.6"
+        },
+        "beneficiary_contingent": {
+          "count": 1,
+          "sample": "Sara Long, Julie Haverly, Mark Mineart"
+        },
+        "joint_owner": {
+          "count": 3,
+          "sample": "JOYCE  MINEART"
+        },
+        "joint_annuitant": {
+          "count": 1,
+          "sample": "Joyce Minart"
+        },
+        "income_frequency": {
+          "count": 2,
+          "sample": "monthly"
+        },
+        "rider_name": {
+          "count": 1,
+          "sample": "Guaranteed Living Withdrawal Benefit"
+        },
+        "withdrawal_percentage": {
+          "count": 1,
+          "sample": "7.21"
+        },
+        "income_gross": {
+          "count": 1,
+          "sample": "2504.27"
+        },
+        "beneficiaries": {
+          "count": 1,
+          "sample": "Josh Millang (Spouse)"
+        },
+        "guaranteed_minimum": {
+          "count": 1,
+          "sample": "14282.46"
+        },
+        "rider_fee": {
+          "count": 2,
+          "sample": "836"
+        }
+      }
+    },
+    "investment": {
+      "count": 120,
+      "fields": {
+        "account_number": {
+          "count": 114,
+          "sample": "20099989"
+        },
+        "account_type_category": {
+          "count": 120,
+          "sample": "investment"
+        },
+        "tax_status": {
+          "count": 65,
+          "sample": "IRA"
+        },
+        "status": {
+          "count": 120,
+          "sample": "Terminated"
+        },
+        "ghl_object_id": {
+          "count": 113,
+          "sample": "68a4a5ce86268d12440a2cb9"
+        },
+        "updated_at": {
+          "count": 120,
+          "sample": "2026-03-16T14:23:42.294Z"
+        },
+        "client_id": {
+          "count": 120,
+          "sample": "00c8768d-b263-47c9-b43d-4dc785ba7050"
+        },
+        "account_id": {
+          "count": 120,
+          "sample": "5fdc0298-5ae4-45d0-9035-3188915fb03c"
+        },
+        "created_at": {
+          "count": 120,
+          "sample": "2026-03-16T14:23:42.395Z"
+        },
+        "account_type": {
+          "count": 52,
+          "sample": "Advisory (Fee-Based)"
+        },
+        "account_registration": {
+          "count": 52,
+          "sample": "IRA [Traditional]"
+        },
+        "book_of_business": {
+          "count": 58,
+          "sample": "Millang Financial Group / Josh Millang"
+        },
+        "market": {
+          "count": 56,
+          "sample": "Internal"
+        },
+        "custodian": {
+          "count": 52,
+          "sample": "Charles Schwab"
+        },
+        "carrier_name": {
+          "count": 6,
+          "sample": "Catholic Order of Foresters"
+        },
+        "policy_number": {
+          "count": 6,
+          "sample": "000003000650"
+        },
+        "product_type": {
+          "count": 6,
+          "sample": "Investment"
+        },
+        "product_name": {
+          "count": 6,
+          "sample": "Supplemental Contract"
+        },
+        "issue_date": {
+          "count": 6,
+          "sample": "2023-06-14"
+        },
+        "paid_to_date": {
+          "count": 0,
+          "sample": null
+        },
+        "face_value": {
+          "count": 6,
+          "sample": "0"
+        },
+        "annual_premium": {
+          "count": 6,
+          "sample": "0"
+        },
+        "modal_premium": {
+          "count": 6,
+          "sample": "0"
+        },
+        "billing_mode": {
+          "count": 0,
+          "sample": null
+        },
+        "cash_value": {
+          "count": 6,
+          "sample": "0"
+        },
+        "fund_value": {
+          "count": 6,
+          "sample": "0"
+        },
+        "annuity_balance": {
+          "count": 6,
+          "sample": "0"
+        },
+        "loan_balance": {
+          "count": 6,
+          "sample": "0"
+        },
+        "loan_interest_balance": {
+          "count": 6,
+          "sample": "0"
+        },
+        "death_benefit": {
+          "count": 6,
+          "sample": "0"
+        },
+        "source": {
+          "count": 6,
+          "sample": "cof_bob_import"
+        },
+        "import_source": {
+          "count": 6,
+          "sample": "cof_bob_import"
+        },
+        "carrier_id": {
+          "count": 6,
+          "sample": "cof"
+        },
+        "parent_carrier": {
+          "count": 6,
+          "sample": "Catholic Order of Foresters"
+        },
+        "data_source": {
+          "count": 11,
+          "sample": "Carrier- Portal"
+        },
+        "account_value": {
+          "count": 12,
+          "sample": "107823.95"
+        },
+        "as_of_date": {
+          "count": 11,
+          "sample": "2025-11-21"
+        },
+        "advisory_fee_pct": {
+          "count": 1,
+          "sample": "1.5"
+        },
+        "acf_link": {
+          "count": 1,
+          "sample": "https://drive.google.com/drive/u/0/folders/1L5zQS6LMgTNT33tyL4vX1B_KbFE6VDaB"
+        },
+        "risk_level": {
+          "count": 1,
+          "sample": "Moderate"
+        },
+        "net_deposits": {
+          "count": 3,
+          "sample": "12149"
+        },
+        "bd_ria_firm": {
+          "count": 6,
+          "sample": "Morgan Stanley"
+        },
+        "advisor_of_record": {
+          "count": 5,
+          "sample": "52807 Branch"
+        },
+        "advisory_fees": {
+          "count": 2,
+          "sample": "0.12"
+        }
+      }
+    },
+    "Medicare": {
+      "count": 260,
+      "fields": {
+        "account_id": {
+          "count": 260,
+          "sample": "334a159b5ee7a7c28cef74d2"
+        },
+        "client_id": {
+          "count": 260,
+          "sample": "014d3f0b-7d10-460a-b2f4-ec8a01af3d7c"
+        },
+        "carrier_name": {
+          "count": 260,
+          "sample": "Aetna"
+        },
+        "account_type_category": {
+          "count": 260,
+          "sample": "Medicare"
+        },
+        "plan_name": {
+          "count": 260,
+          "sample": "Aetna Medicare Signature (HMO-POS)"
+        },
+        "product_type": {
+          "count": 63,
+          "sample": "Lppo"
+        },
+        "member_id": {
+          "count": 260,
+          "sample": "NG101190754200"
+        },
+        "medicare_id": {
+          "count": 260,
+          "sample": "8TW4DU8RD78"
+        },
+        "effective_date": {
+          "count": 260,
+          "sample": "2022-01-01"
+        },
+        "termination_date": {
+          "count": 197,
+          "sample": "3000-01-01"
+        },
+        "status": {
+          "count": 260,
+          "sample": "Active"
+        },
+        "monthly_premium": {
+          "count": 260,
+          "sample": "0"
+        },
+        "cms_plan_code": {
+          "count": 260,
+          "sample": "001"
+        },
+        "election_type": {
+          "count": 61,
+          "sample": "AEP"
+        },
+        "agent_npn": {
+          "count": 260,
+          "sample": "16896424"
+        },
+        "agent_name": {
+          "count": 63,
+          "sample": "YOURPLANCHOICE LLC"
+        },
+        "submitted_date": {
+          "count": 260,
+          "sample": "2021-11-21"
+        },
+        "book_of_business": {
+          "count": 0,
+          "sample": null
+        },
+        "import_source": {
+          "count": 260,
+          "sample": "atlas-wire-aetna-humana-bob-20260317"
+        },
+        "updated_at": {
+          "count": 260,
+          "sample": "{\"_seconds\":1773770978,\"_nanoseconds\":252000000}"
+        },
+        "created_at": {
+          "count": 260,
+          "sample": "{\"_seconds\":1773770978,\"_nanoseconds\":252000000}"
+        },
+        "carrier_id": {
+          "count": 260,
+          "sample": "aetna-cvs"
+        },
+        "carrier_charter": {
+          "count": 260,
+          "sample": "Aetna Health Insurance Company"
+        },
+        "policy_number": {
+          "count": 260,
+          "sample": "NG101190754200"
+        },
+        "charter_code": {
+          "count": 260,
+          "sample": "AHIC"
+        },
+        "parent_carrier": {
+          "count": 260,
+          "sample": "Aetna"
+        },
+        "naic_code": {
+          "count": 260,
+          "sample": "72052"
+        }
+      }
+    }
+  }
+}
