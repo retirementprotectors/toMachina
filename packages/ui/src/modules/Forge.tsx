@@ -85,6 +85,10 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   'RON-built':         { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Build' },
   'RON-deployed':      { color: 'rgb(6,182,212)', bg: 'rgba(6,182,212,0.15)', label: 'Deploy' },
   'RON-reported':      { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Reported' },
+  // INTAKE pipeline statuses (INT- prefix)
+  'INT-new':         { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Intake: New' },
+  'INT-classified':  { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Intake: Classified' },
+  'INT-declined':    { color: 'rgb(107,114,128)', bg: 'rgba(107,114,128,0.15)', label: 'Intake: Declined' },
   // Legacy (kept for old items not yet migrated)
   done:            { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Done' },
   escalated:       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Escalated' },
@@ -310,11 +314,11 @@ function ForgeInner({ portal }: ForgeProps) {
 
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
-  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron'>(() => {
-    if (typeof window === 'undefined') return 'ronin'
-    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron') || 'ronin' } catch { return 'ronin' }
+  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron' | 'intake'>(() => {
+    if (typeof window === 'undefined') return 'intake'
+    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron' | 'intake') || 'intake' } catch { return 'intake' }
   })
-  const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron') => {
+  const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron' | 'intake') => {
     setDojoTab(tab)
     try { localStorage.setItem(DOJO_TAB_KEY, tab) } catch { /* noop */ }
   }
@@ -347,6 +351,31 @@ function ForgeInner({ portal }: ForgeProps) {
     const interval = setInterval(() => loadRaidenItems(), 30000)
     return () => clearInterval(interval)
   }, [dojoTab, loadRaidenItems])
+
+  // ─── INTAKE tab state (INT- prefixed items) ───
+  const [intakeItems, setIntakeItems] = useState<TrackerItem[]>([])
+  const [intakeLoading, setIntakeLoading] = useState(false)
+
+  const loadIntakeItems = useCallback(async () => {
+    setIntakeLoading(true)
+    try {
+      const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/queue`)
+      if (result.success) {
+        setIntakeItems(result.data || [])
+      }
+    } catch { /* silent */ }
+    setIntakeLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (dojoTab === 'intake') loadIntakeItems()
+  }, [dojoTab, loadIntakeItems])
+
+  useEffect(() => {
+    if (dojoTab !== 'intake') return
+    const interval = setInterval(() => loadIntakeItems(), 30000)
+    return () => clearInterval(interval)
+  }, [dojoTab, loadIntakeItems])
 
   // ─── TRK-14238: Quick Submit modal state ───
   const [showQuickSubmit, setShowQuickSubmit] = useState(false)
@@ -1268,20 +1297,28 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span className="material-icons-outlined" style={{ fontSize: 22, color: '#e07c3e' }}>temple_buddhist</span>
           <span style={{ fontSize: 16, fontWeight: 700, color: s.text, letterSpacing: '-0.01em' }}>The Dojo</span>
         </div>
-        {/* Tab: RONIN */}
+        {/* Tab: INTAKE (first — CEO triage queue) */}
         <button
-          onClick={() => switchDojoTab('ronin')}
+          onClick={() => switchDojoTab('intake')}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '10px 18px', border: 'none', cursor: 'pointer',
-            background: 'transparent', color: dojoTab === 'ronin' ? s.text : s.textMuted,
-            fontSize: 13, fontWeight: dojoTab === 'ronin' ? 600 : 400,
-            borderBottom: dojoTab === 'ronin' ? `2px solid ${s.portal}` : '2px solid transparent',
+            background: 'transparent', color: dojoTab === 'intake' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'intake' ? 600 : 400,
+            borderBottom: dojoTab === 'intake' ? '2px solid rgb(245,158,11)' : '2px solid transparent',
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
-          RONIN
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'intake' ? 'rgb(245,158,11)' : s.textMuted }}>inbox</span>
+          INTAKE
+          {intakeItems.length > 0 && (
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+              background: 'rgba(245,158,11,0.2)', color: 'rgb(245,158,11)', marginLeft: 2,
+            }}>
+              {intakeItems.length}
+            </span>
+          )}
         </button>
         {/* Tab: RAIDEN */}
         <button
@@ -1297,6 +1334,21 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         >
           <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'raiden' ? 'rgb(239,68,68)' : s.textMuted }}>bolt</span>
           RAIDEN
+        </button>
+        {/* Tab: RONIN */}
+        <button
+          onClick={() => switchDojoTab('ronin')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'ronin' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'ronin' ? 600 : 400,
+            borderBottom: dojoTab === 'ronin' ? `2px solid ${s.portal}` : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
+          RONIN
         </button>
         {/* Tab: VOLTRON */}
         <button
@@ -1713,6 +1765,85 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               Live metrics wiring in Sprint 011 — data from <code style={{ fontSize: 11, background: 'rgba(255,255,255,0.06)', padding: '1px 5px', borderRadius: 3, color: 'rgb(6,182,212)' }}>GET /dojo/heartbeats?warrior=voltron</code>
             </span>
           </div>
+        </div>
+      )}
+
+      {/* ─── INTAKE tab content — CEO Action Queue inside the Dojo ─── */}
+      {dojoTab === 'intake' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'auto' }}>
+          {/* INTAKE header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
+            <span style={{ fontSize: 13, color: s.textSecondary }}>
+              Incoming items awaiting triage — approve, decline, or reclassify
+            </span>
+            <div style={{ flex: 1 }} />
+            <a
+              href="/q"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, textDecoration: 'none',
+                background: 'rgba(245,158,11,0.15)', color: 'rgb(245,158,11)', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="phone_iphone" size={16} color="rgb(245,158,11)" />
+              Open /q (mobile)
+            </a>
+          </div>
+
+          {intakeLoading ? (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.textMuted }}>
+              <span className="material-icons-outlined" style={{ fontSize: 24, animation: 'spin 1s linear infinite' }}>refresh</span>
+              <span style={{ marginLeft: 8 }}>Loading intake queue...</span>
+            </div>
+          ) : intakeItems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: s.textMuted }}>
+              <span className="material-icons-outlined" style={{ fontSize: 36, marginBottom: 8, display: 'block', opacity: 0.5 }}>check_circle</span>
+              <div style={{ fontSize: 14, fontWeight: 600, color: s.text, marginBottom: 4 }}>Queue clear</div>
+              <div style={{ fontSize: 12 }}>No items waiting for triage.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {intakeItems.map(item => {
+                const priority = ((item as unknown as Record<string,unknown>).priority as string || 'P2').toUpperCase()
+                const rec = (item as unknown as Record<string,unknown>).triage_recommendation as string || 'FIX'
+                const confidence = (item as unknown as Record<string,unknown>).triage_confidence as number | undefined
+                const recLabels: Record<string, string> = { FIX: 'Fix (RAIDEN)', FEATURE: 'Feature (RONIN)', FILE: 'File (VOLTRON)', TRAIN: 'Train (VOLTRON)' }
+                const recColors: Record<string, string> = { FIX: 'rgb(239,68,68)', FEATURE: s.portal, FILE: 'rgb(59,130,246)', TRAIN: 'rgb(59,130,246)' }
+                return (
+                  <div key={item.id} style={{
+                    background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: 16,
+                    borderLeft: `3px solid ${recColors[rec] || 'rgb(245,158,11)'}`,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <span style={{ fontFamily: 'monospace', fontSize: 12, color: s.textMuted }}>{item.item_id}</span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8,
+                        background: priority === 'P0' ? 'rgba(239,68,68,0.2)' : priority === 'P1' ? 'rgba(245,158,11,0.2)' : 'rgba(251,191,36,0.2)',
+                        color: priority === 'P0' ? 'rgb(239,68,68)' : priority === 'P1' ? 'rgb(245,158,11)' : 'rgb(251,191,36)',
+                      }}>{priority}</span>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: s.text, marginBottom: 4 }}>{item.title}</div>
+                    <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 10 }}>
+                      {(item as unknown as Record<string,unknown>).reporter_name as string || ''}
+                      {(item as unknown as Record<string,unknown>).division ? ` · ${(item as unknown as Record<string,unknown>).division}` : ''}
+                    </div>
+                    <div style={{
+                      fontSize: 11, padding: '4px 8px', borderRadius: 6, display: 'inline-block',
+                      background: 'rgba(20,184,166,0.12)', color: 'rgb(20,184,166)', marginBottom: 10,
+                    }}>
+                      Recommendation: <strong>{recLabels[rec] || rec}</strong>
+                      {confidence != null ? ` (${Math.round(confidence * 100)}%)` : ''}
+                    </div>
+                    <div style={{ fontSize: 11, color: s.textMuted }}>
+                      Status: <span style={{ color: item.status === 'INT-classified' ? 'rgb(245,158,11)' : 'rgb(156,163,175)' }}>{item.status}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 

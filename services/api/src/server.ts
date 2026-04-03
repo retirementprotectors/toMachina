@@ -77,6 +77,7 @@ import { voltronDeployRoutes } from './routes/voltron-deploy.js'
 import { auditMiddleware } from './middleware/audit.js'
 import { raidenRoutes } from './raiden/index.js'
 import { startRaidenScheduler } from './raiden/scheduler.js'
+import { startIntakeDigest } from './dojo/intake-digest.js'
 import { shinobiRoutes } from './shinobi/routes.js'
 import { runCheck } from './shinobi/shinobi-check.js'
 import { registerCheckHandler } from '@tomachina/core'
@@ -88,6 +89,7 @@ import { rspRoutes } from './routes/rsp.js'
 import { senseiAnalyticsRoutes } from './routes/sensei-analytics.js'
 import { senseiContentRoutes } from './routes/sensei-content.js'
 import { senseiGeneratorRoutes } from './routes/sensei-generator.js'
+import { queueRoutes } from './routes/queue.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -202,6 +204,9 @@ app.use('/api/myst-ai', mystAiRoutes)
 app.use('/api/admin/warriors', adminWarriorRoutes)
 app.use('/api/rsp', normalizeBody, rspRoutes)
 
+// CEO Action Queue — Sprint 012
+app.use('/api/queue', normalizeBody, queueRoutes)
+
 // SENSEI Analytics — TRK-14146
 app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)
 // SENSEI Content CRUD — TRK-SNS-003
@@ -231,6 +236,7 @@ const PORT = parseInt(process.env.PORT || '8080', 10)
 app.listen(PORT, () => {
   console.log(`toMachina API listening on port ${PORT}`)
   startRaidenScheduler()
+  startIntakeDigest()
 
   // Shinobi cron: run check every 5 minutes (TRK-13788)
   const SHINOBI_CHECK_INTERVAL = 5 * 60 * 1000 // 5 minutes

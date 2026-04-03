@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 012: Team Triage — Pipeline Fields, Delivery Pipeline, Service Fixes</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #ef4444;
+    --accent-glow: rgba(239, 68, 68, 0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245, 158, 11, 0.12);
+    --red: #ef4444;
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6, 182, 212, 0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59, 130, 246, 0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212, 164, 76, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #0a0f1a 0%, #0f0f0f 30%, #0a1020 60%, #0f0f0f 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(239,68,68,0.04) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(168,85,247,0.04) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #ef4444 0%, #f59e0b 50%, #22c55e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); background: var(--cyan-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--cyan); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--cyan); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); }
+  .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.red { border-top-color: var(--red); }
+  .spec-card.blue { border-top-color: var(--blue); }
+  .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.orange { border-left-color: var(--orange); background: rgba(245,158,11,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.red { border-left-color: var(--accent); background: rgba(239,68,68,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar.cyan { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; }
+  .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .gate-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; }
+  .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .exists-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-left: 4px solid var(--green); }
+  .exists-callout h4 { color: var(--green); margin-bottom: 8px; font-size: 0.95rem; }
+  .exists-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .warn-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-left: 4px solid var(--red); }
+  .warn-callout h4 { color: var(--red); margin-bottom: 8px; font-size: 0.95rem; }
+  .warn-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.fix { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.design { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .pill.content { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .quote-block { background: var(--bg-hover); border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 18px 20px; margin-bottom: 12px; }
+  .quote-block .quote-text { font-style: italic; color: var(--text); font-size: 1rem; margin-bottom: 6px; }
+  .quote-block .quote-attr { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-exists { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .status-fix { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(245,158,11,0.15); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .status-new { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(168,85,247,0.15); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">Sprint 012 &mdash; FORGE Discovery Document</div>
+  <h1>Team Triage</h1>
+  <div class="subtitle">Pipeline Custom Fields, Delivery Pipeline, Assignee Separation, Service Fixes &mdash; Everything from Today's Beta Testing</div>
+  <div class="header-badges">
+    <span class="badge badge-cyan">Sprint 012</span>
+    <span class="badge badge-gold">~18 Tickets</span>
+    <span class="badge badge-red">11 Triage Items</span>
+    <span class="badge badge-purple">5 Warriors Deployed</span>
+    <span class="badge badge-cyan">data-cwd: toMachina</span>
+  </div>
+  <div class="ronin-meta">sprint: TEAM-TRIAGE &bull; TRK-S12-001 &rarr; TRK-S12-018 &bull; requested by: Nikki Gray + Vince Vazquez via #the-dojo</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="triage">Full Triage</div>
+    <div class="tab" data-tab="fields">Pipeline Fields</div>
+    <div class="tab" data-tab="delivery">Delivery Pipeline</div>
+    <div class="tab" data-tab="fixes">Service Fixes</div>
+    <div class="tab" data-tab="assignments">Warrior Assignments</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: OVERVIEW                                         -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="overview" class="tab-panel active">
+  <div class="card">
+    <h2>What Happened Today</h2>
+    <div class="quote-block">
+      <div class="quote-text">"Please make sure that you are really testing the mettle of the external communications tool... Anything and everything connected to contacts, accounts, and households is really key. Really just get in and get after it!"</div>
+      <div class="quote-attr">JDM &mdash; #the-dojo, April 1</div>
+    </div>
+    <p>Nikki and Vince took JDM at his word. In a single morning of focused testing, they surfaced 11 items &mdash; bugs, missing features, and detailed specs &mdash; that represent the gap between "built" and "usable."</p>
+    <p>This Discovery Doc packages everything they reported into an executable sprint. Five warriors are already deployed.</p>
+  </div>
+
+  <div class="card">
+    <h2>The 11 Items &mdash; At a Glance</h2>
+    <table>
+      <tr><th>#</th><th>Reporter</th><th>Issue</th><th>Type</th><th>Status</th></tr>
+      <tr><td>1</td><td>Nikki</td><td>Opportunity Create error</td><td><span class="pill fix">Bug</span></td><td><span class="status-fix">Fix</span></td></tr>
+      <tr><td>2</td><td>Nikki</td><td>Opps created despite error shown</td><td><span class="pill fix">Bug</span></td><td><span class="status-fix">Fix</span></td></tr>
+      <tr><td>3</td><td>Nikki</td><td>No data fields on opportunities</td><td><span class="pill feat">Feature</span></td><td><span class="status-new">New</span></td></tr>
+      <tr><td>4</td><td>Nikki</td><td>Missing Delivery Pipeline (4 stages)</td><td><span class="pill feat">Feature</span></td><td><span class="status-new">New</span></td></tr>
+      <tr><td>5</td><td>Nikki</td><td>Advance Stage button error</td><td><span class="pill fix">Bug</span></td><td><span class="status-fix">Fix</span></td></tr>
+      <tr><td>6</td><td>Nikki</td><td>Assignee vs Agent separation</td><td><span class="pill feat">Feature</span></td><td><span class="status-new">New</span></td></tr>
+      <tr><td>7</td><td>Nikki</td><td>Pipeline-Specific Data Fields (9 types)</td><td><span class="pill feat">Feature</span></td><td><span class="status-new">New</span></td></tr>
+      <tr><td>8</td><td>Nikki</td><td>ACF Subfolder Display (nested folders)</td><td><span class="pill feat">Feature</span></td><td><span class="status-new">New</span></td></tr>
+      <tr><td>9</td><td>Vince</td><td>Call Notes in Client Profile</td><td><span class="pill feat">Feature</span></td><td><span class="status-new">New</span></td></tr>
+      <tr><td>10</td><td>Vince</td><td>Phone/Dialer Minimize (background mode)</td><td><span class="pill feat">Feature</span></td><td><span class="status-new">New</span></td></tr>
+      <tr><td>11</td><td>Vince</td><td>ProZone Specialist: Arch &rarr; Josh Archer</td><td><span class="pill chore">Config</span></td><td><span class="status-exists">Done</span></td></tr>
+    </table>
+  </div>
+
+  <div class="gate-callout">
+    <h4>Sprint 012 is LIVE &mdash; 5 Warriors Deployed</h4>
+    <p>SHINOB1 (CTO) activated all warriors at 12:06 PM CDT. Work is in progress across 5 parallel tracks. This Discovery Doc is the contract &mdash; packaging what the team asked for into what the builders will deliver.</p>
+  </div>
+
+  <div class="spec-grid">
+    <div class="spec-card red">
+      <h4>3 Bug Fixes</h4>
+      <p>Opp create error, duplicate creation, advance stage failure. All in the pipeline/opportunity flow.</p>
+    </div>
+    <div class="spec-card purple">
+      <h4>5 New Features</h4>
+      <p>Pipeline fields, Delivery Pipeline, Assignee separation, Call Notes, Phone minimize.</p>
+    </div>
+    <div class="spec-card cyan">
+      <h4>2 Infrastructure</h4>
+      <p>ACF subfolder display, pipeline-specific field schemas.</p>
+    </div>
+    <div class="spec-card green">
+      <h4>1 Config Fix</h4>
+      <p>ProZone specialist swap &mdash; already shipped by SHINOB1.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: FULL TRIAGE                                      -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="triage" class="tab-panel">
+  <div class="card">
+    <h2>Nikki Gray &mdash; Service Team Lead</h2>
+    <p>8 items reported between 10:36 AM and 12:39 PM CDT. Nikki tested the full opportunity lifecycle: create, assign, advance, view data, upload files. Found gaps at every step.</p>
+
+    <h3>#1 &mdash; Opportunity Create Error</h3>
+    <div class="warn-callout">
+      <h4>Bug: Error on "Create" button click</h4>
+      <p>Clicking Create on an opportunity throws an error. Reported with screenshot. Possibly related to pipeline stage lookup or required field validation.</p>
+    </div>
+
+    <h3>#2 &mdash; Opportunities Creating Despite Error</h3>
+    <div class="warn-callout">
+      <h4>Bug: Record saved even when error is displayed</h4>
+      <p>The error fires, but the opportunity is STILL created in Firestore. User sees an error and assumes it failed, then creates another &mdash; resulting in duplicates. The create call needs proper error gating.</p>
+    </div>
+
+    <h3>#3 &mdash; No Data Fields on Opportunities</h3>
+    <p>Opportunities have no product-specific fields for admin teams. The existing system has product-specific field sets for: product name, tax status, funding info, notes, document uploads, premium/face value, IMO. ProDashX opportunities show none of this. See <strong>Pipeline Fields</strong> tab for Nikki's full spec.</p>
+
+    <h3>#4 &mdash; Missing Delivery Pipeline</h3>
+    <p>No Delivery pipeline exists. Nikki spec'd 4 stages:</p>
+    <table>
+      <tr><th>Stage</th><th>Purpose</th></tr>
+      <tr><td>Pending Receipt</td><td>Policy issued, waiting for physical delivery</td></tr>
+      <tr><td>Awaiting Appointment</td><td>Delivery meeting needs to be scheduled</td></tr>
+      <tr><td>Needs Mailed</td><td>Client chose mail delivery, package not sent</td></tr>
+      <tr><td>Awaiting PDR</td><td>Policy Delivery Receipt &mdash; waiting for signed confirmation</td></tr>
+    </table>
+    <p>See <strong>Delivery Pipeline</strong> tab for full spec.</p>
+
+    <h3>#5 &mdash; Advance Stage Button Error</h3>
+    <div class="warn-callout">
+      <h4>Bug: Advance Stage throws error on click</h4>
+      <p>After creating an opportunity, clicking "Advance Stage" fails. Reported with screenshot. Likely a missing stage transition or permissions issue.</p>
+    </div>
+
+    <h3>#6 &mdash; Assignee vs Agent Separation</h3>
+    <p>Currently, Assignee and Agent are treated as the same field. They should be different:</p>
+    <table>
+      <tr><th>Field</th><th>Who</th><th>Purpose</th></tr>
+      <tr><td><strong>Agent</strong></td><td>The writing/licensed agent</td><td>Who sold/wrote the policy</td></tr>
+      <tr><td><strong>Assignee</strong></td><td>Admin staff working the case</td><td>Who's processing the opportunity</td></tr>
+    </table>
+    <p>Assignees should be: Nikki Gray, Angelique Bonilla, Susan Kaelin. Agent stays as the licensed rep.</p>
+
+    <h3>#7 &mdash; Pipeline-Specific Data Fields (9 Types)</h3>
+    <p>Full field specs for all 9 pipeline types. This is the biggest item. See <strong>Pipeline Fields</strong> tab for the complete matrix.</p>
+
+    <h3>#8 &mdash; ACF Subfolder Display</h3>
+    <p>ProDashX shows a flat file list. Google Drive has nested subfolders. Users need to navigate: Subfolder &rarr; Files inside subfolders. Screenshots provided showing the disconnect between ProDashX view and actual Drive structure.</p>
+  </div>
+
+  <div class="card">
+    <h2>Vince Vazquez &mdash; Sales Team Lead</h2>
+    <p>3 items reported at 11:45&ndash;11:46 AM CDT. Vince is in the calling workflow daily &mdash; his items are about speed and flow.</p>
+
+    <h3>#9 &mdash; Call Notes in Client Profile</h3>
+    <p>Call notes currently go to the <code>communications</code> collection and are only visible in the COMMS slide-out. They should persist as a built-in section on the client profile &mdash; visible without opening COMMS.</p>
+
+    <h3>#10 &mdash; Phone/Dialer Minimize</h3>
+    <p>When on a call, the dialer panel blocks the UI. Need ability to toggle the phone to background mode so the agent can navigate the client profile mid-call without opening a new browser window.</p>
+
+    <h3>#11 &mdash; ProZone Specialist: Arch &rarr; Josh Archer</h3>
+    <div class="exists-callout">
+      <h4>Already Shipped</h4>
+      <p>SHINOB1 swapped Arch Parmenter for Josh Archer in ProZone specialist config. Done.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: PIPELINE FIELDS                                  -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="fields" class="tab-panel">
+  <div class="card">
+    <h2>Pipeline-Specific Opportunity Data Fields</h2>
+    <p>Nikki's complete field spec for all 9 pipeline types. Each pipeline gets its own set of data fields that appear when an opportunity is created or edited in that pipeline. This replaces the current blank/generic opportunity form.</p>
+
+    <div class="gate-callout">
+      <h4>Architecture: Custom Fields per Pipeline</h4>
+      <p>Each pipeline type defines a <code>custom_fields</code> schema. The opportunity form dynamically renders the correct fields based on which pipeline the opportunity belongs to. Field values stored in <code>opportunities.custom_fields</code> (JSON object).</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Life Insurance Pipeline</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Policy Number</td><td>Text</td><td></td></tr>
+      <tr><td>Product Name</td><td>Text / Dropdown</td><td>From carrier product list</td></tr>
+      <tr><td>Face Amount</td><td>Currency</td><td></td></tr>
+      <tr><td>Target Premium</td><td>Currency</td><td></td></tr>
+      <tr><td>Paramed Date</td><td>Date</td><td></td></tr>
+      <tr><td>Premium Mode</td><td>Dropdown</td><td>Annual, Semi, Quarterly, Monthly</td></tr>
+      <tr><td>Initial Premium</td><td>Currency</td><td></td></tr>
+      <tr><td>Funding Source</td><td>Text</td><td></td></tr>
+      <tr><td>Underwriting Class</td><td>Dropdown</td><td>Preferred Plus, Preferred, Standard, etc.</td></tr>
+      <tr><td>Proposed</td><td>Checkbox/Date</td><td></td></tr>
+      <tr><td>Offered</td><td>Checkbox/Date</td><td></td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td>Multiple files, stored in ACF</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Annuity Pipeline</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Policy Number</td><td>Text</td><td></td></tr>
+      <tr><td>Product Name</td><td>Text / Dropdown</td><td></td></tr>
+      <tr><td>Initial Premium</td><td>Currency</td><td></td></tr>
+      <tr><td>Funding Source</td><td>Text</td><td></td></tr>
+      <tr><td>Tax Status</td><td>Dropdown</td><td>Qualified, Non-Qualified</td></tr>
+      <tr><td>IMO</td><td>Text</td><td>Signal, Gradient, etc.</td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Investments Pipeline</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Account Number</td><td>Text</td><td></td></tr>
+      <tr><td>Task Type</td><td>Dropdown</td><td></td></tr>
+      <tr><td>Tax Status</td><td>Dropdown</td><td>IRA, Roth, Joint, Trust, etc.</td></tr>
+      <tr><td>Vendor</td><td>Dropdown</td><td>Schwab, RBC, etc.</td></tr>
+      <tr><td>Submit Date</td><td>Date</td><td></td></tr>
+      <tr><td>Account Value</td><td>Currency</td><td></td></tr>
+      <tr><td>Funding Source</td><td>Text</td><td></td></tr>
+      <tr><td>Modal Option</td><td>Dropdown</td><td></td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Medicare MAPD/PDP Pipeline</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Product Name</td><td>Text</td><td></td></tr>
+      <tr><td>Plan ID</td><td>Text</td><td></td></tr>
+      <tr><td>Plan Type</td><td>Dropdown</td><td>MAPD, PDP</td></tr>
+      <tr><td>Premium Amount</td><td>Currency</td><td></td></tr>
+      <tr><td>Requested Effective Date</td><td>Date</td><td></td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Medicare Supplement / Ancillary Pipeline</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Product Name</td><td>Text</td><td></td></tr>
+      <tr><td>Plan ID</td><td>Text</td><td></td></tr>
+      <tr><td>Plan Type</td><td>Dropdown</td><td>Med Supp, Dental, Vision, etc.</td></tr>
+      <tr><td>Premium Amount</td><td>Currency</td><td></td></tr>
+      <tr><td>Requested Effective Date</td><td>Date</td><td></td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Reactive Service &mdash; Medicare</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Plan ID</td><td>Text</td><td></td></tr>
+      <tr><td>Task Type</td><td>Dropdown</td><td></td></tr>
+      <tr><td>Sent to Carrier Date</td><td>Date</td><td></td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Reactive Service &mdash; Retirement</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Policy Number</td><td>Text</td><td></td></tr>
+      <tr><td>Task Type</td><td>Dropdown</td><td></td></tr>
+      <tr><td>Sent to Carrier Date</td><td>Date</td><td></td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Delivery Pipeline</h3>
+    <table>
+      <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+      <tr><td>Policy Number</td><td>Text</td><td></td></tr>
+      <tr><td>Delivery Method</td><td>Dropdown</td><td>In-Person, Mail, Virtual</td></tr>
+      <tr><td>Account Build Date</td><td>Date</td><td></td></tr>
+      <tr><td>Notes</td><td>Textarea</td><td></td></tr>
+      <tr><td>File Upload</td><td>File</td><td></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: DELIVERY PIPELINE                                -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="delivery" class="tab-panel">
+  <div class="card">
+    <h2>New Pipeline: Delivery</h2>
+    <p>Post-sale pipeline for policy delivery lifecycle. Created via Pipeline Studio admin API (<code>POST /api/flow-admin/pipelines</code> + <code>POST /api/flow-admin/stages</code>).</p>
+
+    <div class="diagram">Pipeline: DELIVERY
+Type: Service
+
+  Stage 1          Stage 2              Stage 3          Stage 4
+┌──────────┐    ┌──────────────────┐  ┌────────────┐  ┌──────────────┐
+│ Pending  │ ─→ │    Awaiting      │ ─→│   Needs    │ ─→│   Awaiting   │
+│ Receipt  │    │  Appointment     │  │   Mailed   │  │     PDR      │
+└──────────┘    └──────────────────┘  └────────────┘  └──────────────┘
+  Policy          Schedule delivery    Mail package     Get signed
+  issued          meeting w/ client    to client        receipt back</div>
+
+    <table>
+      <tr><th>Stage</th><th>Entry Criteria</th><th>Exit Criteria</th></tr>
+      <tr><td>Pending Receipt</td><td>Policy issued by carrier</td><td>Physical policy received at RPI</td></tr>
+      <tr><td>Awaiting Appointment</td><td>Policy in hand</td><td>Delivery meeting scheduled</td></tr>
+      <tr><td>Needs Mailed</td><td>Client chose mail delivery</td><td>Package sent (tracking #)</td></tr>
+      <tr><td>Awaiting PDR</td><td>Policy delivered to client</td><td>Signed PDR returned</td></tr>
+    </table>
+
+    <div class="exists-callout">
+      <h4>Pipeline Studio Admin API Exists</h4>
+      <p>RONIN creates this via <code>POST /api/flow-admin/pipelines</code> and <code>POST /api/flow-admin/stages</code>. No direct Firestore writes. No seed scripts. The tool that builds pipelines already exists &mdash; we just use it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: SERVICE FIXES                                    -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="fixes" class="tab-panel">
+  <div class="card">
+    <h2>Bug Fixes &mdash; Opportunity Lifecycle</h2>
+
+    <h3>Fix 1: Create Error (#1)</h3>
+    <div class="warn-callout">
+      <h4>Error thrown on opportunity create</h4>
+      <p>Investigate the create flow: <code>POST /api/opportunities</code>. Check required fields, pipeline stage lookup, and error response. May be a missing default stage or validation failure that surfaces as a generic error.</p>
+    </div>
+
+    <h3>Fix 2: Duplicate Creation (#2)</h3>
+    <div class="warn-callout">
+      <h4>Opportunity saved despite error</h4>
+      <p>The API call succeeds (writes to Firestore) but the frontend displays an error anyway. Likely a response parsing issue &mdash; the create succeeds, but something in the response handling triggers the error UI. Fix: ensure create either fully succeeds (no error) or fully fails (no write).</p>
+    </div>
+
+    <h3>Fix 3: Advance Stage Error (#5)</h3>
+    <div class="warn-callout">
+      <h4>Stage transition fails on click</h4>
+      <p>Investigate <code>PATCH /api/opportunities/:id/advance</code> or equivalent. Check stage ordering, permissions, and whether the next stage exists in the pipeline definition.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Feature: Assignee vs Agent Separation (#6)</h2>
+    <p>Currently opportunities have one person field. Need two:</p>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Agent (Writing Rep)</h4>
+        <p>The licensed agent who wrote the policy. Populated from writing agents list. Already exists &mdash; this is the current "agent" field.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>Assignee (Admin Staff)</h4>
+        <p>The team member processing the opportunity. New field. Dropdown: Nikki Gray, Angelique Bonilla, Susan Kaelin. Drives task routing and accountability.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Feature: ACF Subfolder Display (#8)</h2>
+    <p>Current: ProDashX ACF section shows a flat list of files. Actual: Google Drive has nested subfolders following the 5-folder lifecycle structure.</p>
+    <div class="diagram">Current ProDashX:           Actual Google Drive:
+┌─────────────────┐       ┌─────────────────────┐
+│ file1.pdf       │       │ 📁 Applications      │
+│ file2.pdf       │       │   ├── app1.pdf       │
+│ file3.pdf       │       │   └── app2.pdf       │
+│ file4.pdf       │       │ 📁 Correspondence    │
+│ (flat list)     │       │   └── letter1.pdf    │
+└─────────────────┘       │ 📁 Policy Documents  │
+                          │   ├── policy.pdf     │
+                          │   └── amendment.pdf  │
+                          └─────────────────────┘</div>
+    <p>Fix: ACF component needs to render Drive folder hierarchy with expand/collapse on subfolders.</p>
+  </div>
+
+  <div class="card">
+    <h2>Feature: Call Notes in Client Profile (#9)</h2>
+    <p>Call notes go to <code>communications</code> collection today. Need a dedicated "Notes" section on the client profile that surfaces call notes, meeting notes, and freeform notes without opening the COMMS slide-out.</p>
+    <div class="exists-callout">
+      <h4>Infrastructure Exists</h4>
+      <p><code>clients/{id}/activities</code> subcollection already exists. Call notes can be surfaced by filtering activities with <code>type: 'call_note'</code> and rendering them in a new tab/section on the client profile.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Feature: Phone/Dialer Minimize (#10)</h2>
+    <p>Active call locks the UI. Need a minimize/background mode &mdash; click to collapse dialer to a floating mini-bar, navigate client profile freely, expand back when needed.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: WARRIOR ASSIGNMENTS                              -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="assignments" class="tab-panel">
+  <div class="card">
+    <h2>5 Warriors &mdash; 5 Parallel Tracks</h2>
+    <p>Deployed by SHINOB1 (CTO) at 12:06 PM CDT, April 2.</p>
+
+    <div class="spec-grid">
+      <div class="spec-card orange">
+        <h4>SHINOB1 &mdash; CTO</h4>
+        <p><strong>Track:</strong> ProZone fix (done) + Discovery Docs + Opportunity bug investigation (#1, #2, #5)<br>
+        <strong>Status:</strong> ProZone specialist swap shipped. Writing discovery docs. Bug investigation in progress.</p>
+      </div>
+      <div class="spec-card purple">
+        <h4>RONIN &mdash; Builder</h4>
+        <p><strong>Track:</strong> Delivery Pipeline (#4) + Custom Fields (#3, #7) + Assignee Separation (#6)<br>
+        <strong>Status:</strong> Activated. Awaiting discovery docs from SHINOB1. Will create pipeline via admin API.</p>
+      </div>
+      <div class="spec-card gold">
+        <h4>MUSASHI &mdash; CMO</h4>
+        <p><strong>Track:</strong> VOLTRON Icons + Sprint 012 Discovery Doc + Tax Harvest Discovery Doc<br>
+        <strong>Status:</strong> Icons delivered. This document is the Sprint 012 Discovery Doc.</p>
+      </div>
+      <div class="spec-card green">
+        <h4>2HINOBI &mdash; COO</h4>
+        <p><strong>Track:</strong> Call Notes in Client Profile (#9) + Phone/Dialer Minimize (#10)<br>
+        <strong>Status:</strong> Scoping complete. Ready to build.</p>
+      </div>
+      <div class="spec-card red">
+        <h4>RAIDEN &mdash; Guardian</h4>
+        <p><strong>Track:</strong> ACF 5-Folder Reorg (#8) + #the-dojo monitoring<br>
+        <strong>Status:</strong> Found 3 competing subfolder schemas in the codebase. Scoping resolution.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Coverage Matrix</h2>
+    <table>
+      <tr><th>#</th><th>Item</th><th>Warrior</th><th>Status</th></tr>
+      <tr><td>1</td><td>Opp Create Error</td><td>SHINOB1</td><td>Investigating</td></tr>
+      <tr><td>2</td><td>Duplicate Creation</td><td>SHINOB1</td><td>Investigating</td></tr>
+      <tr><td>3</td><td>No Data Fields</td><td>RONIN</td><td>Awaiting disco doc</td></tr>
+      <tr><td>4</td><td>Delivery Pipeline</td><td>RONIN</td><td>Awaiting disco doc</td></tr>
+      <tr><td>5</td><td>Advance Stage Error</td><td>SHINOB1</td><td>Investigating</td></tr>
+      <tr><td>6</td><td>Assignee vs Agent</td><td>RONIN</td><td>Awaiting disco doc</td></tr>
+      <tr><td>7</td><td>Pipeline-Specific Fields</td><td>RONIN</td><td>Awaiting disco doc</td></tr>
+      <tr><td>8</td><td>ACF Subfolder Display</td><td>RAIDEN</td><td>Scoping</td></tr>
+      <tr><td>9</td><td>Call Notes</td><td>2HINOBI</td><td>Scoped, ready</td></tr>
+      <tr><td>10</td><td>Phone Minimize</td><td>2HINOBI</td><td>Scoped, ready</td></tr>
+      <tr><td>11</td><td>ProZone Specialist</td><td>SHINOB1</td><td><span class="status-exists">Done</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: FILES                                            -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="files" class="tab-panel">
+  <div class="card">
+    <h2>Key Files</h2>
+    <table>
+      <tr><th>File</th><th>Purpose</th><th>Phase</th></tr>
+      <tr><td><code>services/api/src/routes/opportunities.ts</code></td><td>Opportunity CRUD + advance stage</td><td><span class="pill fix">Fix</span></td></tr>
+      <tr><td><code>apps/prodash/app/(portal)/sales-centers/*/page.tsx</code></td><td>Opportunity create/edit forms</td><td><span class="pill feat">Feature</span></td></tr>
+      <tr><td><code>services/api/src/routes/flow-admin.ts</code></td><td>Pipeline Studio admin API (create pipelines)</td><td><span class="pill feat">Feature</span></td></tr>
+      <tr><td><code>packages/core/src/flow/</code></td><td>Flow engine types + pipeline definitions</td><td><span class="pill feat">Feature</span></td></tr>
+      <tr><td><code>packages/ui/src/modules/ACFViewer/</code></td><td>Client file viewer component</td><td><span class="pill feat">Feature</span></td></tr>
+      <tr><td><code>packages/ui/src/modules/MDJPanel/ChatThread.tsx</code></td><td>COMMS call notes integration</td><td><span class="pill feat">Feature</span></td></tr>
+      <tr><td><code>packages/ui/src/modules/Communications/</code></td><td>Dialer minimize mode</td><td><span class="pill feat">Feature</span></td></tr>
+      <tr><td><code>services/api/src/routes/comms.ts</code></td><td>Call logging + notes API</td><td><span class="pill feat">Feature</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Read Before Touching</h2>
+    <table>
+      <tr><th>File</th><th>Why</th></tr>
+      <tr><td><code>packages/core/src/flow/types.ts</code></td><td>Pipeline + stage type definitions. Custom fields schema lives here.</td></tr>
+      <tr><td><code>services/api/src/routes/flow-admin.ts</code></td><td>RONIN must use this API to create pipelines. No direct Firestore writes.</td></tr>
+      <tr><td><code>firestore.rules</code></td><td>Verify <code>opportunities</code> + subcollection rules cover new fields.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: SPRINT PLAN                                      -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="sprint" class="tab-panel">
+  <div class="card">
+    <h2>RONIN Seeder Metadata</h2>
+    <table>
+      <tr><th>Key</th><th>Value</th></tr>
+      <tr><td>data-cwd</td><td><code>/home/jdm/Projects/toMachina</code></td></tr>
+      <tr><td>sprint_name</td><td>TEAM-TRIAGE</td></tr>
+      <tr><td>discovery_url</td><td>sprint-012-team-triage-discovery.html</td></tr>
+      <tr><td>ticket_range</td><td>TRK-S12-001 &rarr; TRK-S12-018</td></tr>
+      <tr><td>phases</td><td>3</td></tr>
+      <tr><td>max_parallelism</td><td>5 (one per warrior)</td></tr>
+      <tr><td>critical_path</td><td>Pipeline fields schema &rarr; Delivery pipeline &rarr; Custom fields UI</td></tr>
+      <tr><td>external_blockers</td><td>ACF subfolder schema resolution (RAIDEN investigating 3 competing definitions)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 1 &mdash; Bug Fixes + Config (Ship First)</h2>
+    <div class="level-bar red">
+      <h4>Gate: Fix the broken before building the new</h4>
+      <p>Nikki can't test new features if create/advance are broken. Fix bugs first.</p>
+    </div>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Warrior</th><th>Acceptance</th></tr>
+      <tr><td>TRK-S12-001</td><td>Fix opportunity create error</td><td><span class="pill fix">Fix</span></td><td>SHINOB1</td><td>Create opportunity without error. Verify in Firestore.</td></tr>
+      <tr><td>TRK-S12-002</td><td>Prevent duplicate opp creation on error</td><td><span class="pill fix">Fix</span></td><td>SHINOB1</td><td>Error = no record created. Success = one record.</td></tr>
+      <tr><td>TRK-S12-003</td><td>Fix advance stage button</td><td><span class="pill fix">Fix</span></td><td>SHINOB1</td><td>Click Advance Stage &rarr; opportunity moves to next stage.</td></tr>
+      <tr><td>TRK-S12-004</td><td>ProZone specialist: Arch &rarr; Josh Archer</td><td><span class="pill chore">Config</span></td><td>SHINOB1</td><td><span class="status-exists">Done</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 2 &mdash; Pipeline Infrastructure (Parallel)</h2>
+    <div class="level-bar purple">
+      <h4>Gate: Phase 1 bugs resolved. Pipeline Studio admin API verified.</h4>
+      <p>All warriors work in parallel on independent tracks.</p>
+    </div>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Warrior</th><th>Acceptance</th></tr>
+      <tr><td>TRK-S12-005</td><td>Create Delivery Pipeline (4 stages)</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>Delivery pipeline visible in Pipeline Studio + opportunity create.</td></tr>
+      <tr><td>TRK-S12-006</td><td>Assignee field on opportunities</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>Separate Agent + Assignee dropdowns. Assignee list: Nikki, Angelique, Susan.</td></tr>
+      <tr><td>TRK-S12-007</td><td>Custom fields schema: Life pipeline</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>Life opp form shows all 13 fields from Nikki's spec.</td></tr>
+      <tr><td>TRK-S12-008</td><td>Custom fields schema: Annuity pipeline</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>Annuity opp form shows all 8 fields.</td></tr>
+      <tr><td>TRK-S12-009</td><td>Custom fields schema: Investments pipeline</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>Investments opp form shows all 10 fields.</td></tr>
+      <tr><td>TRK-S12-010</td><td>Custom fields schema: Medicare pipelines (2)</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>MAPD/PDP + Med Supp opp forms show all 7 fields each.</td></tr>
+      <tr><td>TRK-S12-011</td><td>Custom fields schema: Reactive pipelines (2)</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>Reactive Medicare + Retirement forms show all 5 fields each.</td></tr>
+      <tr><td>TRK-S12-012</td><td>Custom fields schema: Delivery pipeline</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>Delivery opp form shows all 5 fields.</td></tr>
+      <tr><td>TRK-S12-013</td><td>Call notes visible in client profile</td><td><span class="pill feat">Feat</span></td><td>2HINOBI</td><td>Notes section on client profile shows call notes without opening COMMS.</td></tr>
+      <tr><td>TRK-S12-014</td><td>Dialer minimize / background mode</td><td><span class="pill feat">Feat</span></td><td>2HINOBI</td><td>Click minimize &rarr; dialer collapses to floating bar. Navigate freely. Expand back.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 3 &mdash; ACF + Polish</h2>
+    <div class="level-bar cyan">
+      <h4>Gate: Subfolder schema resolved. RAIDEN's 3-schema conflict addressed.</h4>
+      <p>ACF work blocked until the competing schema definitions are unified.</p>
+    </div>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Warrior</th><th>Acceptance</th></tr>
+      <tr><td>TRK-S12-015</td><td>Resolve ACF subfolder schema conflict</td><td><span class="pill infra">Infra</span></td><td>RAIDEN</td><td>One canonical set of 5 subfolder names across all code paths.</td></tr>
+      <tr><td>TRK-S12-016</td><td>ACF subfolder display in ProDashX</td><td><span class="pill feat">Feat</span></td><td>RAIDEN</td><td>ACF section shows expandable subfolders matching Drive structure.</td></tr>
+      <tr><td>TRK-S12-017</td><td>File upload from opp custom fields to ACF</td><td><span class="pill feat">Feat</span></td><td>RONIN</td><td>File upload field on opp form saves to correct ACF subfolder.</td></tr>
+      <tr><td>TRK-S12-018</td><td>QA pass: full opportunity lifecycle</td><td><span class="pill chore">Chore</span></td><td>ALL</td><td>Create opp &rarr; fill fields &rarr; upload file &rarr; assign &rarr; advance stages &rarr; deliver. No errors.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <table>
+      <tr><th>Criteria</th><th>Verified</th></tr>
+      <tr><td>Nikki can create an opportunity without errors</td><td></td></tr>
+      <tr><td>Nikki can fill pipeline-specific fields on any of 9 pipeline types</td><td></td></tr>
+      <tr><td>Nikki can assign herself as Assignee, separate from Agent</td><td></td></tr>
+      <tr><td>Nikki can advance an opportunity through stages</td><td></td></tr>
+      <tr><td>Nikki can see ACF subfolders in ProDashX matching Drive</td><td></td></tr>
+      <tr><td>Delivery pipeline exists with 4 stages</td><td></td></tr>
+      <tr><td>Vince can see call notes in client profile without opening COMMS</td><td></td></tr>
+      <tr><td>Vince can minimize dialer and navigate client profile mid-call</td><td></td></tr>
+      <tr><td>Vince sees Josh Archer (not Arch) as ProZone specialist</td><td></td></tr>
+      <tr><td>All 11 triage items addressed</td><td></td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<div class="footer">
+  Discovery by MUSASHI, ARTxBLADE &mdash; VP/CMO, Executive.AI Team &bull; Sprint 012 &bull; 2026-04-02
+  <br>
+  Requested by Nikki Gray + Vince Vazquez via #the-dojo &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

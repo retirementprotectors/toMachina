@@ -41,3 +41,6 @@ export * from './aibot-brand'
 
 // RAIDEN — Reactive service desk lifecycle constants
 export * from './raiden'
+
+// Opportunities — pipeline-specific custom field schemas
+export * from './opportunities'

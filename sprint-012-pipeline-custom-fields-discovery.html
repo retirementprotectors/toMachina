@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 012: Pipeline Custom Fields — 8 Pipelines, Unique Field Sets</title>
+<style>
+  :root {
+    --bg: #0a0e17; --bg-card: #111827; --bg-hover: #1a2236; --border: #1e293b;
+    --text: #e2e8f0; --text-muted: #94a3b8;
+    --accent: #ef4444; --accent-glow: rgba(239,68,68,0.12);
+    --green: #22c55e; --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b; --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444; --purple: #a855f7; --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4; --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6; --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c; --gold-glow: rgba(212,164,76,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #0a0f1a 0%, #0f0f0f 30%, #0a1020 60%, #0f0f0f 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(168,85,247,0.04) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(6,182,212,0.04) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-red { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); background: var(--cyan-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; } .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--cyan); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--cyan); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); } .spec-card.orange { border-top-color: var(--orange); }
+  .spec-card.cyan { border-top-color: var(--cyan); } .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card.blue { border-top-color: var(--blue); } .spec-card.gold { border-top-color: var(--gold); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; } .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.purple { border-left-color: var(--purple); background: rgba(168,85,247,0.08); }
+  .level-bar.cyan { border-left-color: var(--cyan); background: rgba(6,182,212,0.08); }
+  .level-bar.gold { border-left-color: var(--gold); background: rgba(212,164,76,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; } .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .gate-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; } .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .exists-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-left: 4px solid var(--green); }
+  .exists-callout h4 { color: var(--green); margin-bottom: 8px; font-size: 0.95rem; } .exists-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .warn-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-left: 4px solid var(--red); }
+  .warn-callout h4 { color: var(--red); margin-bottom: 8px; font-size: 0.95rem; } .warn-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.fix { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill.infra { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .quote-block { background: var(--bg-hover); border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 18px 20px; margin-bottom: 12px; }
+  .quote-block .quote-text { font-style: italic; color: var(--text); font-size: 1rem; margin-bottom: 6px; }
+  .quote-block .quote-attr { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">Sprint 012 &mdash; FORGE Discovery Document</div>
+  <h1>Pipeline Custom Fields</h1>
+  <div class="subtitle">8 Pipeline Types, Unique Field Sets Per Nikki's Spec &mdash; Dynamic Opportunity Forms</div>
+  <div class="header-badges">
+    <span class="badge badge-cyan">Sprint 012</span>
+    <span class="badge badge-gold">~8 Tickets</span>
+    <span class="badge badge-purple">RONIN Build</span>
+    <span class="badge badge-cyan">data-cwd: toMachina</span>
+  </div>
+  <div class="ronin-meta">sprint: PIPELINE-FIELDS &bull; TRK-PF-001 &rarr; TRK-PF-008 &bull; requested by: Nikki Gray via #the-dojo</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="exists">What EXISTS</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="schemas">Field Schemas</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ══════════════ OVERVIEW ══════════════ -->
+<div id="overview" class="tab-panel active">
+  <div class="card">
+    <h2>The Problem</h2>
+    <div class="quote-block">
+      <div class="quote-text">"Opportunities do not have any information/data fields for use by admin teams. Existing system has product specific sets of data fields for information retention: product, tax status, funding information, notes field, document section, premium/face value, IMO."</div>
+      <div class="quote-attr">Nikki Gray &mdash; #the-dojo, April 2</div>
+    </div>
+    <p>Opportunity forms are blank. When Nikki creates a Life opportunity, there's no place to enter the policy number, face amount, or paramed date. When she creates an Annuity opportunity, there's no tax status or IMO field. Each pipeline type needs its own set of fields.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Solution</h2>
+    <p>Define a <code>custom_field_schema</code> per pipeline. The opportunity create/edit form dynamically renders the correct fields based on which pipeline the opportunity belongs to. Field values stored on the opportunity document.</p>
+    <div class="spec-grid">
+      <div class="spec-card purple">
+        <h4>8 Pipeline Schemas</h4>
+        <p>Life (13 fields), Annuity (8), Investments (10), MAPD/PDP (7), Med Supp (7), Reactive Medicare (5), Reactive Retirement (5), Delivery (5).</p>
+      </div>
+      <div class="spec-card green">
+        <h4>Zero New Collections</h4>
+        <p>Schema stored on the pipeline document. Values stored on the opportunity document. Both already accept arbitrary fields via index signatures.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>1 New UI Component</h4>
+        <p>Dynamic field renderer that reads the schema and generates the form. Text, currency, date, dropdown, textarea, file upload.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ WHAT EXISTS ══════════════ -->
+<div id="exists" class="tab-panel">
+  <div class="card">
+    <h2>Infrastructure Already Built</h2>
+
+    <div class="exists-callout">
+      <h4>Opportunity type accepts any field</h4>
+      <p><code>packages/core/src/types/index.ts</code> line 88: <code>Opportunity</code> has <code>[key: string]: unknown</code> index signature. POST <code>/api/opportunities</code> does <code>{ ...req.body }</code> &mdash; any field in the request body is stored verbatim in Firestore. No schema changes needed on the API.</p>
+    </div>
+
+    <div class="exists-callout">
+      <h4>FlowPipelineDef accepts custom_field_schema</h4>
+      <p><code>packages/core/src/flow/types.ts</code> line 48: <code>FlowPipelineDef</code> has <code>[key: string]: unknown</code>. We can add a <code>custom_field_schema</code> field to any pipeline document via <code>PUT /api/flow-admin/pipelines/:key</code> without type changes.</p>
+    </div>
+
+    <div class="exists-callout">
+      <h4>custom_fields pattern exists on FlowInstanceData</h4>
+      <p><code>types.ts</code> line 139: <code>custom_fields?: string | Record&lt;string, unknown&gt;</code>. The pattern of per-pipeline custom data is already established in the flow engine. We're extending it to opportunities.</p>
+    </div>
+
+    <table>
+      <tr><th>Pipeline Key</th><th>Nikki's Name</th><th>Status</th></tr>
+      <tr><td><code>NBX_LIFE</code></td><td>Life</td><td>Exists &mdash; needs schema</td></tr>
+      <tr><td><code>NBX_ANNUITY</code></td><td>Annuity</td><td>Exists &mdash; needs schema</td></tr>
+      <tr><td><code>NBX_INVESTMENTS</code></td><td>Investments</td><td>Exists &mdash; needs schema</td></tr>
+      <tr><td><code>NBX_MEDICARE_MAPD</code></td><td>Medicare MAPD/PDP</td><td>Exists &mdash; needs schema</td></tr>
+      <tr><td><code>NBX_MEDICARE_MEDSUP</code></td><td>Medicare Supplement/Ancillary</td><td>Exists &mdash; needs schema</td></tr>
+      <tr><td><code>REACTIVE_MEDICARE</code></td><td>Reactive Service Medicare</td><td>Exists &mdash; needs schema</td></tr>
+      <tr><td><code>REACTIVE_RETIREMENT</code></td><td>Reactive Service Retirement</td><td>Exists &mdash; needs schema</td></tr>
+      <tr><td><code>DELIVERY</code></td><td>Delivery</td><td>NEW &mdash; create pipeline + schema</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ ARCHITECTURE ══════════════ -->
+<div id="architecture" class="tab-panel">
+  <div class="card">
+    <h2>Data Flow</h2>
+    <div class="diagram">1. SCHEMA DEFINITION (one-time setup per pipeline)
+   PUT /api/flow-admin/pipelines/NBX_LIFE
+   Body: { custom_field_schema: [ ...field definitions... ] }
+   Stored on: flow_pipelines/NBX_LIFE.custom_field_schema
+
+2. FORM RENDERING (every time user opens create/edit opp)
+   Frontend reads: GET /api/flow-admin/pipelines/:key
+   Extracts: pipeline.custom_field_schema
+   Renders: Dynamic form fields based on schema
+
+3. VALUE STORAGE (on opportunity save)
+   POST /api/opportunities
+   Body: { pipeline: "NBX_LIFE", stage: "new", custom_fields: { policy_number: "...", face_amount: 500000, ... } }
+   Stored on: opportunities/{id}.custom_fields (JSON object)
+
+4. VALUE DISPLAY (on opportunity detail view)
+   Frontend reads: GET /api/opportunities/:id
+   Reads: opportunity.custom_fields
+   Renders: Field values using the pipeline's schema for labels + types</div>
+  </div>
+
+  <div class="card">
+    <h2>Schema Format</h2>
+    <p>Each pipeline's <code>custom_field_schema</code> is an array of field definitions:</p>
+    <div class="diagram">{
+  "custom_field_schema": [
+    {
+      "key": "policy_number",      // Firestore field key
+      "label": "Policy Number",     // Display label
+      "type": "text",               // text | currency | date | dropdown | textarea | file
+      "required": false,            // Validation
+      "options": null,              // For dropdowns: ["Option A", "Option B"]
+      "order": 1                    // Display order
+    },
+    {
+      "key": "face_amount",
+      "label": "Face Amount",
+      "type": "currency",
+      "required": false,
+      "options": null,
+      "order": 2
+    }
+  ]
+}</div>
+
+    <h3>Field Types</h3>
+    <table>
+      <tr><th>Type</th><th>Renders As</th><th>Stored As</th></tr>
+      <tr><td><code>text</code></td><td>Text input</td><td>string</td></tr>
+      <tr><td><code>currency</code></td><td>Number input with $ prefix</td><td>number</td></tr>
+      <tr><td><code>date</code></td><td>Date picker</td><td>ISO string</td></tr>
+      <tr><td><code>dropdown</code></td><td>Select from <code>options[]</code></td><td>string</td></tr>
+      <tr><td><code>textarea</code></td><td>Multi-line text area</td><td>string</td></tr>
+      <tr><td><code>file</code></td><td>File upload (links to ACF)</td><td>string (Drive file ID)</td></tr>
+      <tr><td><code>checkbox</code></td><td>Checkbox / toggle</td><td>boolean</td></tr>
+    </table>
+  </div>
+
+  <div class="gate-callout">
+    <h4>Key Decision: Values on Opportunity, Not Flow Instance</h4>
+    <p>Flow instances already have <code>custom_fields</code> but those are for pipeline engine metadata. Opportunity custom fields are business data (policy numbers, premiums). Store them on the opportunity document in a <code>custom_fields</code> object. The opportunity API already passes through any field via the index signature.</p>
+  </div>
+</div>
+
+<!-- ══════════════ FIELD SCHEMAS ══════════════ -->
+<div id="schemas" class="tab-panel">
+  <div class="card">
+    <h2>NBX_LIFE &mdash; Life Insurance (13 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>policy_number</code></td><td>Policy Number</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>product_name</code></td><td>Product Name</td><td>text</td><td></td></tr>
+      <tr><td>3</td><td><code>face_amount</code></td><td>Face Amount</td><td>currency</td><td></td></tr>
+      <tr><td>4</td><td><code>target_premium</code></td><td>Target Premium</td><td>currency</td><td></td></tr>
+      <tr><td>5</td><td><code>paramed_date</code></td><td>Paramed Date</td><td>date</td><td></td></tr>
+      <tr><td>6</td><td><code>premium_mode</code></td><td>Premium Mode</td><td>dropdown</td><td>Annual, Semi-Annual, Quarterly, Monthly</td></tr>
+      <tr><td>7</td><td><code>initial_premium</code></td><td>Initial Premium</td><td>currency</td><td></td></tr>
+      <tr><td>8</td><td><code>funding_source</code></td><td>Funding Source</td><td>text</td><td></td></tr>
+      <tr><td>9</td><td><code>underwriting_class</code></td><td>Underwriting Class</td><td>dropdown</td><td>Preferred Plus, Preferred, Standard Plus, Standard, Substandard</td></tr>
+      <tr><td>10</td><td><code>proposed</code></td><td>Proposed</td><td>checkbox</td><td></td></tr>
+      <tr><td>11</td><td><code>offered</code></td><td>Offered</td><td>checkbox</td><td></td></tr>
+      <tr><td>12</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>13</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>NBX_ANNUITY &mdash; Annuity (8 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>policy_number</code></td><td>Policy Number</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>product_name</code></td><td>Product Name</td><td>text</td><td></td></tr>
+      <tr><td>3</td><td><code>initial_premium</code></td><td>Initial Premium</td><td>currency</td><td></td></tr>
+      <tr><td>4</td><td><code>funding_source</code></td><td>Funding Source</td><td>text</td><td></td></tr>
+      <tr><td>5</td><td><code>tax_status</code></td><td>Tax Status</td><td>dropdown</td><td>Qualified, Non-Qualified</td></tr>
+      <tr><td>6</td><td><code>imo</code></td><td>IMO</td><td>text</td><td></td></tr>
+      <tr><td>7</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>8</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>NBX_INVESTMENTS &mdash; Investments (10 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>account_number</code></td><td>Account Number</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>task_type</code></td><td>Task Type</td><td>dropdown</td><td></td></tr>
+      <tr><td>3</td><td><code>tax_status</code></td><td>Tax Status</td><td>dropdown</td><td>IRA, Roth IRA, Joint, Trust, Individual, SEP, SIMPLE</td></tr>
+      <tr><td>4</td><td><code>vendor</code></td><td>Vendor</td><td>dropdown</td><td>Schwab, RBC</td></tr>
+      <tr><td>5</td><td><code>submit_date</code></td><td>Submit Date</td><td>date</td><td></td></tr>
+      <tr><td>6</td><td><code>account_value</code></td><td>Account Value</td><td>currency</td><td></td></tr>
+      <tr><td>7</td><td><code>funding_source</code></td><td>Funding Source</td><td>text</td><td></td></tr>
+      <tr><td>8</td><td><code>modal_option</code></td><td>Modal Option</td><td>dropdown</td><td></td></tr>
+      <tr><td>9</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>10</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>NBX_MEDICARE_MAPD &mdash; Medicare MAPD/PDP (7 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>product_name</code></td><td>Product Name</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>plan_id</code></td><td>Plan ID</td><td>text</td><td></td></tr>
+      <tr><td>3</td><td><code>plan_type</code></td><td>Plan Type</td><td>dropdown</td><td>MAPD, PDP</td></tr>
+      <tr><td>4</td><td><code>premium_amount</code></td><td>Premium Amount</td><td>currency</td><td></td></tr>
+      <tr><td>5</td><td><code>requested_effective_date</code></td><td>Requested Effective Date</td><td>date</td><td></td></tr>
+      <tr><td>6</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>7</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>NBX_MEDICARE_MEDSUP &mdash; Medicare Supplement/Ancillary (7 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>product_name</code></td><td>Product Name</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>plan_id</code></td><td>Plan ID</td><td>text</td><td></td></tr>
+      <tr><td>3</td><td><code>plan_type</code></td><td>Plan Type</td><td>dropdown</td><td>Med Supp, Dental, Vision, Hospital Indemnity</td></tr>
+      <tr><td>4</td><td><code>premium_amount</code></td><td>Premium Amount</td><td>currency</td><td></td></tr>
+      <tr><td>5</td><td><code>requested_effective_date</code></td><td>Requested Effective Date</td><td>date</td><td></td></tr>
+      <tr><td>6</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>7</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>REACTIVE_MEDICARE &mdash; Reactive Service Medicare (5 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>plan_id</code></td><td>Plan ID</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>task_type</code></td><td>Task Type</td><td>dropdown</td><td></td></tr>
+      <tr><td>3</td><td><code>sent_to_carrier_date</code></td><td>Sent to Carrier Date</td><td>date</td><td></td></tr>
+      <tr><td>4</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>5</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>REACTIVE_RETIREMENT &mdash; Reactive Service Retirement (5 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>policy_number</code></td><td>Policy Number</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>task_type</code></td><td>Task Type</td><td>dropdown</td><td></td></tr>
+      <tr><td>3</td><td><code>sent_to_carrier_date</code></td><td>Sent to Carrier Date</td><td>date</td><td></td></tr>
+      <tr><td>4</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>5</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>DELIVERY &mdash; Delivery Pipeline (5 fields)</h2>
+    <table>
+      <tr><th>#</th><th>Key</th><th>Label</th><th>Type</th><th>Options</th></tr>
+      <tr><td>1</td><td><code>policy_number</code></td><td>Policy Number</td><td>text</td><td></td></tr>
+      <tr><td>2</td><td><code>delivery_method</code></td><td>Delivery Method</td><td>dropdown</td><td>In-Person, Mail, Virtual</td></tr>
+      <tr><td>3</td><td><code>account_build_date</code></td><td>Account Build Date</td><td>date</td><td></td></tr>
+      <tr><td>4</td><td><code>notes</code></td><td>Notes</td><td>textarea</td><td></td></tr>
+      <tr><td>5</td><td><code>file_upload</code></td><td>File Upload</td><td>file</td><td></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ FILES ══════════════ -->
+<div id="files" class="tab-panel">
+  <div class="card">
+    <h2>Files to Modify</h2>
+    <table>
+      <tr><th>File</th><th>What to Do</th></tr>
+      <tr><td><code>services/api/src/routes/flow-admin.ts</code></td><td>Already accepts arbitrary fields on PUT. Use it to set <code>custom_field_schema</code> on each pipeline. No code changes needed.</td></tr>
+      <tr><td><code>services/api/src/routes/opportunities.ts</code></td><td>Already passes through all fields. Ensure <code>custom_fields</code> object is preserved on create and update. No code changes needed.</td></tr>
+      <tr><td><code>apps/prodash/app/(portal)/sales-centers/*/page.tsx</code></td><td>Opportunity create/edit forms. Add dynamic field renderer that reads pipeline schema.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Files to Create</h2>
+    <table>
+      <tr><th>File</th><th>Purpose</th></tr>
+      <tr><td><code>packages/ui/src/modules/Opportunities/CustomFieldRenderer.tsx</code></td><td>Dynamic form component. Reads schema array, renders correct input for each field type.</td></tr>
+      <tr><td><code>packages/core/src/flow/custom-field-schemas.ts</code></td><td>Typed schema definitions for all 8 pipelines. Source of truth for field configs. Used by seed script and frontend.</td></tr>
+      <tr><td><code>services/api/src/scripts/seed-pipeline-schemas.ts</code></td><td>One-time seed: writes <code>custom_field_schema</code> to each pipeline document via Firestore admin.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Read Before Touching</h2>
+    <table>
+      <tr><th>File</th><th>Why</th></tr>
+      <tr><td><code>packages/core/src/types/index.ts</code></td><td>Opportunity type definition. Verify index signature is still <code>[key: string]: unknown</code>.</td></tr>
+      <tr><td><code>packages/core/src/flow/types.ts</code></td><td>FlowPipelineDef type. Verify index signature accepts custom_field_schema.</td></tr>
+      <tr><td><code>services/api/src/routes/flow-admin.ts</code></td><td>Pipeline CRUD API. Read the PUT /pipelines/:key endpoint &mdash; it has an allowedFields whitelist. You MUST add <code>custom_field_schema</code> to it.</td></tr>
+    </table>
+
+    <div class="warn-callout">
+      <h4>Critical: flow-admin.ts allowedFields whitelist</h4>
+      <p>Line 147: <code>const allowedFields = ['pipeline_name', 'description', 'portal', 'domain', 'icon', 'status', ...]</code>. You MUST add <code>'custom_field_schema'</code> to this array or PUT will silently strip it. This is the only backend code change needed.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SPRINT PLAN ══════════════ -->
+<div id="sprint" class="tab-panel">
+  <div class="card">
+    <h2>RONIN Seeder Metadata</h2>
+    <table>
+      <tr><th>Key</th><th>Value</th></tr>
+      <tr><td>data-cwd</td><td><code>/home/jdm/Projects/toMachina</code></td></tr>
+      <tr><td>sprint_name</td><td>PIPELINE-FIELDS</td></tr>
+      <tr><td>discovery_url</td><td>sprint-012-pipeline-custom-fields-discovery.html</td></tr>
+      <tr><td>ticket_range</td><td>TRK-PF-001 &rarr; TRK-PF-008</td></tr>
+      <tr><td>phases</td><td>2</td></tr>
+      <tr><td>max_parallelism</td><td>1 (sequential &mdash; schema before UI)</td></tr>
+      <tr><td>critical_path</td><td>Schema definition &rarr; Seed &rarr; CustomFieldRenderer &rarr; Wire into opp forms</td></tr>
+      <tr><td>external_blockers</td><td>DELIVERY pipeline must exist (separate disco doc)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 1 &mdash; Schema + Backend</h2>
+    <div class="level-bar purple">
+      <h4>Gate: Schemas defined and seeded before any UI work</h4>
+      <p>Get the data right first.</p>
+    </div>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Acceptance</th></tr>
+      <tr><td>TRK-PF-001</td><td>Define custom field schema type + all 8 pipeline schemas in <code>custom-field-schemas.ts</code></td><td><span class="pill infra">Infra</span></td><td>Typed schema array for each of the 8 pipelines. Field keys, labels, types, options match Nikki's spec exactly.</td></tr>
+      <tr><td>TRK-PF-002</td><td>Add <code>custom_field_schema</code> to flow-admin PUT allowedFields</td><td><span class="pill fix">Fix</span></td><td>Line 147 of flow-admin.ts includes <code>'custom_field_schema'</code>. PUT /pipelines/:key can now accept schema data.</td></tr>
+      <tr><td>TRK-PF-003</td><td>Seed script: write schemas to all 8 pipeline documents</td><td><span class="pill infra">Infra</span></td><td>Run script &rarr; each pipeline doc in Firestore has <code>custom_field_schema</code> array matching the typed definitions.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 2 &mdash; UI</h2>
+    <div class="level-bar cyan">
+      <h4>Gate: Phase 1 complete. Schemas visible in Firestore.</h4>
+      <p>Now wire the frontend.</p>
+    </div>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Acceptance</th></tr>
+      <tr><td>TRK-PF-004</td><td>Build <code>CustomFieldRenderer</code> component</td><td><span class="pill feat">Feat</span></td><td>Given a schema array, renders: text inputs, currency inputs ($), date pickers, dropdowns with options, textareas, file upload, checkboxes. Returns values as <code>Record&lt;string, unknown&gt;</code>.</td></tr>
+      <tr><td>TRK-PF-005</td><td>Wire CustomFieldRenderer into opportunity create form</td><td><span class="pill feat">Feat</span></td><td>When user selects a pipeline, form fetches that pipeline's schema and renders the custom fields below the standard fields. On save, custom field values stored in <code>opportunity.custom_fields</code>.</td></tr>
+      <tr><td>TRK-PF-006</td><td>Wire CustomFieldRenderer into opportunity edit/detail view</td><td><span class="pill feat">Feat</span></td><td>Existing opportunity's custom_fields displayed and editable. On save, updated values persisted.</td></tr>
+      <tr><td>TRK-PF-007</td><td>Custom fields visible in opportunity list/board view</td><td><span class="pill feat">Feat</span></td><td>Key fields (policy_number, product_name, value fields) shown as columns or card metadata.</td></tr>
+      <tr><td>TRK-PF-008</td><td>QA: Create opp in each of 8 pipelines, verify all fields save + display</td><td><span class="pill chore">Chore</span></td><td>Create one opp per pipeline type. Fill all custom fields. Reload. All values persisted and displayed correctly.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <table>
+      <tr><th>Criteria</th></tr>
+      <tr><td>Nikki creates a Life opp and sees all 13 fields from her spec</td></tr>
+      <tr><td>Nikki creates an Annuity opp and sees tax status, IMO, funding source</td></tr>
+      <tr><td>Nikki creates an Investments opp and sees account number, vendor, submit date</td></tr>
+      <tr><td>All 8 pipeline types render their unique field sets</td></tr>
+      <tr><td>Field values persist across page reloads</td></tr>
+      <tr><td>File upload field links to ACF (or stores Drive reference)</td></tr>
+      <tr><td>Dropdown options match Nikki's spec exactly</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Discovery by MUSASHI, ARTxBLADE &mdash; VP/CMO, Executive.AI Team &bull; Sprint 012 &bull; 2026-04-02
+  <br>
+  RONIN Contract &mdash; Requested by Nikki Gray via #the-dojo &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

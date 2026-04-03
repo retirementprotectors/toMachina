@@ -87,6 +87,44 @@ export function isRoninStatus(value: string): value is RoninStatus {
 }
 
 /**
+ * INTAKE Pipeline Statuses — INT-prefixed
+ *
+ * Items arrive from #the-dojo Slack, get auto-classified by triage engine,
+ * then land in /q for CEO approval → routed to warrior pipeline.
+ *
+ * Lifecycle:
+ *   INT-new → INT-classified → (approved) RDN-new / RON-new / VLT-new
+ *                             → (declined) INT-declined
+ */
+export const INT_PIPELINE_STATUSES = [
+  'INT-new',
+  'INT-classified',
+  'INT-declined',
+] as const
+
+export type IntPipelineStatus = (typeof INT_PIPELINE_STATUSES)[number]
+
+const INT_TRANSITIONS: Record<IntPipelineStatus, string[]> = {
+  'INT-new': ['INT-classified'],
+  'INT-classified': ['RDN-new', 'RON-new', 'VLT-new', 'INT-declined'],
+  'INT-declined': [],
+}
+
+export function isIntPipelineStatus(value: string): value is IntPipelineStatus {
+  return (INT_PIPELINE_STATUSES as readonly string[]).includes(value)
+}
+
+export function isValidIntTransition(from: string, to: string): boolean {
+  const allowed = INT_TRANSITIONS[from as IntPipelineStatus]
+  if (!allowed) return false
+  return allowed.includes(to)
+}
+
+export function getNextIntStatuses(current: string): string[] {
+  return INT_TRANSITIONS[current as IntPipelineStatus] ?? []
+}
+
+/**
  * VOLTRON Statuses — VLT-prefixed (placeholder for future use)
  */
 export const VOLTRON_STATUSES = [

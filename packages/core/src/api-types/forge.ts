@@ -318,3 +318,63 @@ export interface SparkWebhookResult {
   spark_contact_id: string
   result: Record<string, unknown>
 }
+
+// ============================================================================
+// CEO ACTION QUEUE — services/api/src/routes/queue.ts
+// ============================================================================
+
+/** Queue item as returned by GET /api/queue — tracker item + triage metadata */
+export interface QueueItemDTO {
+  id: string
+  item_id: string
+  title: string
+  description?: string
+  status: string
+  type?: string
+  priority?: string
+  portal?: string
+  source_channel?: string
+  source_thread_ts?: string
+  reporter?: string
+  reporter_name?: string
+  division?: string
+  division_leader?: string
+  triage_recommendation?: 'FIX' | 'FEATURE' | 'FILE' | 'TRAIN'
+  triage_confidence?: number
+  triage_reasoning?: string
+  auto_approved?: boolean
+  created_at: string
+  updated_at: string
+}
+
+/** GET /api/queue — list of items awaiting CEO decision */
+export type QueueListDTO = QueueItemDTO[]
+
+/** POST /api/queue/:id/approve — approved item moved to warrior pipeline */
+export interface QueueApproveResult {
+  item: QueueItemDTO
+  routed_to: string
+  new_status: string
+}
+
+/** POST /api/queue/:id/decline — declined item */
+export interface QueueDeclineResult {
+  item: QueueItemDTO
+  reason: string
+}
+
+/** POST /api/queue/:id/reclassify — reclassified item */
+export interface QueueReclassifyResult {
+  item: QueueItemDTO
+  old_recommendation: string
+  new_recommendation: string
+  new_status: string
+}
+
+/** POST /api/queue/:id/comment — comment sent to Slack DM */
+export interface QueueCommentResult {
+  sent: boolean
+  recipient: string
+  channel?: string
+  ts?: string
+}
