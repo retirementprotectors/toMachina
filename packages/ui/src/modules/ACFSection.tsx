@@ -433,8 +433,8 @@ export function ACFSection({ clientId }: ACFSectionProps) {
     ? new Set(filteredSubfolders.filter(sf => sf.files.length > 0).map(sf => sf.id))
     : null
 
-  // Grid view: flat file list from all subfolders + root (TRK-578, TM-S13-05: recurse into nested subfolders)
-  function flattenSubfolderFiles(sfs: NonNullable<typeof detail>['subfolders'], prefix = ''): Array<ACFDriveFile & { subfolder: string }> {
+  // Grid view: flat file list from all subfolders + root (TRK-578, TM-S13-05)
+  function flattenSubfolderFiles(sfs: ACFSubfolderDetail[], prefix = ''): Array<ACFDriveFile & { subfolder: string }> {
     return sfs.flatMap(sf => {
       const path = prefix ? `${prefix}/${sf.name}` : sf.name
       const own = sf.files.map(f => ({ ...f, subfolder: path }))
