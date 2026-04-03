@@ -98,7 +98,7 @@ queueRoutes.get('/', async (_req: Request, res: Response) => {
       return ''
     }
     const items = snapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .map(doc => ({ id: doc.id, ...doc.data() } as Record<string, unknown>))
       .sort((a, b) => toSortable(b.created_at).localeCompare(toSortable(a.created_at)))
 
     res.json(successResponse<QueueListDTO>(items as unknown as QueueListDTO))
