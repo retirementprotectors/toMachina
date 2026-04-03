@@ -640,7 +640,7 @@ function KitBuilderTab() {
 
     setSearching(true)
     try {
-      const res = await fetch(`/api/clients?search=${encodeURIComponent(searchValue)}&limit=10`)
+      const res = await fetch(`/api/clients?q=${encodeURIComponent(searchValue)}&limit=10`)
       const data = await res.json()
       if (data.success && Array.isArray(data.data)) {
         setSearchResults(data.data.map((c: Record<string, unknown>) => ({ _id: String(c.id || c._id || ''), ...c } as ClientRecord)))

@@ -56,6 +56,19 @@ import type {
 
 export const camRoutes = Router()
 
+/** Build userId/email → display name map from users collection */
+async function buildUserNameMap(): Promise<Map<string, string>> {
+  const snap = await getFirestore().collection('users').get()
+  const m = new Map<string, string>()
+  snap.docs.forEach((doc) => {
+    const u = doc.data()
+    const uid = String(u.user_id || doc.id)
+    const name = `${u.first_name || ''} ${u.last_name || ''}`.trim()
+    if (name) { m.set(uid, name); if (u.email) m.set(String(u.email), name) }
+  })
+  return m
+}
+
 // ============================================================================
 // REVENUE ANALYTICS
 // ============================================================================
@@ -203,14 +216,18 @@ camRoutes.get('/revenue/by-agent', async (req: Request, res: Response) => {
     let query: Query<DocumentData> = db.collection('revenue')
     if (req.query.period) query = query.where('period', '==', req.query.period)
 
+    const userMap = await buildUserNameMap()
     const snap = await query.get()
-    const byAgent: Record<string, { agent_id: string; total: number; count: number }> = {}
+    const byAgent: Record<string, { agent_id: string; name: string; total: number; count: number }> = {}
 
     snap.docs.forEach((doc) => {
       const d = doc.data()
       const amount = parseFloat(String(d.amount)) || 0
       const agentId = String(d.agent_id || 'unknown')
-      if (!byAgent[agentId]) byAgent[agentId] = { agent_id: agentId, total: 0, count: 0 }
+      if (!byAgent[agentId]) {
+        const resolvedName = userMap.get(agentId) || String(d.agent_name || d.writing_agent || agentId)
+        byAgent[agentId] = { agent_id: agentId, name: resolvedName, total: 0, count: 0 }
+      }
       byAgent[agentId].total += amount
       byAgent[agentId].count += 1
     })
@@ -916,9 +933,9 @@ camRoutes.get('/agent/:agentId/statement', async (req: Request, res: Response) =
     const agentId = param(req.params.agentId)
     const period = req.query.period as string || new Date().toISOString().slice(0, 7)
 
-    // Get agent info
-    const agentSnap = await db.collection('agents').where('agent_id', '==', agentId).limit(1).get()
-    const agentData = agentSnap.empty ? null : agentSnap.docs[0].data()
+    // Get agent info from users collection (agents collection was removed in migration)
+    const userMap = await buildUserNameMap()
+    const agentName = userMap.get(agentId) || agentId
 
     // Get revenue for this period
     const revSnap = await db.collection('revenue')
@@ -943,7 +960,7 @@ camRoutes.get('/agent/:agentId/statement', async (req: Request, res: Response) =
     res.json(successResponse<AgentStatementData>({
       statement: {
         agent_id: agentId,
-        agent_name: agentData ? `${agentData.first_name || ''} ${agentData.last_name || ''}`.trim() : agentId,
+        agent_name: agentName,
         period,
         generated_at: new Date().toISOString(),
         line_items: lineItems,
