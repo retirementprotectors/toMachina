@@ -10,6 +10,7 @@ import { getFirestore } from 'firebase-admin/firestore'
 import {
   successResponse,
   errorResponse,
+  param,
 } from '../lib/helpers.js'
 import type {
   QueueListDTO,
@@ -126,7 +127,7 @@ queueRoutes.get('/count', async (_req: Request, res: Response) => {
 queueRoutes.post('/:id/approve', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const docRef = db.collection(COLLECTION).doc(req.params.id)
+    const docRef = db.collection(COLLECTION).doc(param(req.params.id))
     const doc = await docRef.get()
 
     if (!doc.exists) {
@@ -174,7 +175,7 @@ queueRoutes.post('/:id/approve', async (req: Request, res: Response) => {
 queueRoutes.post('/:id/decline', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const docRef = db.collection(COLLECTION).doc(req.params.id)
+    const docRef = db.collection(COLLECTION).doc(param(req.params.id))
     const doc = await docRef.get()
 
     if (!doc.exists) {
@@ -215,7 +216,7 @@ queueRoutes.post('/:id/decline', async (req: Request, res: Response) => {
 queueRoutes.post('/:id/reclassify', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const docRef = db.collection(COLLECTION).doc(req.params.id)
+    const docRef = db.collection(COLLECTION).doc(param(req.params.id))
     const doc = await docRef.get()
 
     if (!doc.exists) {
@@ -272,7 +273,7 @@ queueRoutes.post('/:id/reclassify', async (req: Request, res: Response) => {
 queueRoutes.post('/:id/comment', async (req: Request, res: Response) => {
   try {
     const db = getFirestore()
-    const docRef = db.collection(COLLECTION).doc(req.params.id)
+    const docRef = db.collection(COLLECTION).doc(param(req.params.id))
     const doc = await docRef.get()
 
     if (!doc.exists) {
