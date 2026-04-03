@@ -80,6 +80,18 @@ export interface Account {
   parent_carrier?: string
   /** Carrier doc ID in Firestore carriers collection */
   carrier_id?: string
+  rider_name?: string
+  rider_activated?: boolean
+  income_base?: number
+  income_amount?: number
+  payment_mode?: string
+  rider_fee?: number
+  payout_rate?: number
+  rollup_rate?: number
+  death_benefit?: number
+  cash_value?: number
+  surrender_value?: number
+  account_value?: number
   created_at: string
   updated_at: string
   [key: string]: unknown

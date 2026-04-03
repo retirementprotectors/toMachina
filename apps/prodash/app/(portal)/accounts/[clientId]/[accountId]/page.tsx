@@ -307,9 +307,9 @@ function buildProductSections(account: Account, clientId: string, accountId: str
 
   // Detect category
   let category = 'generic'
-  if (cat === 'annuity' || t.includes('annuity') || t.includes('fia') || t.includes('myga')) category = 'annuity'
-  else if (cat === 'life' || t.includes('life')) category = 'life'
-  else if (cat === 'medicare' || t.includes('medicare') || t.includes('mapd')) category = 'medicare'
+  if (cat === 'annuity' || /annuity|fia|myga|spia|dia|rila/.test(t)) category = 'annuity'
+  else if (cat === 'life' || /life|iul|vul|gul|term|whole/.test(t)) category = 'life'
+  else if (cat === 'medicare' || /medicare|mapd|pdp|supplement|medigap/.test(t)) category = 'medicare'
   else if (cat === 'investments' || cat === 'investment' || cat === 'bdria' || cat === 'bd_ria' || t.includes('advisory') || t.includes('brokerage')) category = 'investments'
 
   switch (category) {
@@ -326,7 +326,9 @@ function f(label: string, fieldKey: string, val: unknown, opts?: Partial<FieldDe
 }
 
 function buildAnnuitySections(a: Account): SectionDef[] {
-  return [
+  const showContractNumber = a.contract_number && a.contract_number !== a.policy_number
+  const policyLabel = showContractNumber ? 'Policy Number' : 'Policy / Contract Number'
+  const sections: SectionDef[] = [
     {
       title: 'Contract Details', icon: 'savings',
       fields: [
@@ -335,8 +337,10 @@ function buildAnnuitySections(a: Account): SectionDef[] {
         f('Account Type', 'account_type', a.account_type),
         f('Tax Status', 'tax_status', a.tax_status, { type: 'select', options: ['IRA','Roth IRA','Non-Qualified','401(k)','403(b)','SEP IRA','SIMPLE IRA','Inherited IRA'].map(v => ({ label: v, value: v })) }),
         f('Market', 'market', a.market),
-        f('Policy Number', 'policy_number', a.policy_number, { mono: true }),
-        f('Contract Number', 'contract_number', a.contract_number, { mono: true }),
+        f(policyLabel, 'policy_number', a.policy_number, { mono: true }),
+        ...(showContractNumber ? [f('Contract Number', 'contract_number', a.contract_number, { mono: true })] : []),
+        f('NAIC Code', 'naic_code', a.naic_code, { mono: true }),
+        f('Charter Code', 'charter_code', a.charter_code, { mono: true }),
       ],
     },
     {
@@ -346,6 +350,8 @@ function buildAnnuitySections(a: Account): SectionDef[] {
         f('Surrender Value', 'surrender_value', a.surrender_value, { formatDisplay: formatCurrency }),
         f('Premium', 'premium', a.premium, { formatDisplay: formatCurrency }),
         f('Annual Premium', 'annual_premium', a.annual_premium, { formatDisplay: formatCurrency }),
+        f('Death Benefit', 'death_benefit', a.death_benefit, { formatDisplay: formatCurrency }),
+        f('Cash Value', 'cash_value', a.cash_value, { formatDisplay: formatCurrency }),
         f('Guaranteed Rate', 'guaranteed_rate', a.guaranteed_rate, { formatDisplay: formatPercent }),
         f('Current Rate', 'current_rate', a.current_rate, { formatDisplay: formatPercent }),
       ],
@@ -368,6 +374,21 @@ function buildAnnuitySections(a: Account): SectionDef[] {
       ],
     },
   ]
+  const hasRider = a.rider_name || a.income_base || a.rider_activated
+  if (hasRider) {
+    const riderStatus = a.rider_activated ? 'TRIGGERED' : 'DORMANT'
+    const riderFields: FieldDef[] = [
+      f('Rider Name', 'rider_name', a.rider_name),
+      f('Status', 'rider_activated', riderStatus),
+      f('Income Base', 'income_base', a.income_base, { formatDisplay: formatCurrency }),
+      ...(a.rider_activated ? [f('Income Amount', 'income_amount', a.income_amount, { formatDisplay: formatCurrency })] : [f('Rollup Rate', 'rollup_rate', a.rollup_rate, { formatDisplay: formatPercent })]),
+      f('Payment Mode', 'payment_mode', a.payment_mode),
+      f('Rider Fee', 'rider_fee', a.rider_fee, { formatDisplay: formatPercent }),
+      f('Payout Rate', 'payout_rate', a.payout_rate, { formatDisplay: formatPercent }),
+    ]
+    sections.splice(2, 0, { title: 'Income Rider', icon: 'trending_up', fields: riderFields })
+  }
+  return sections
 }
 
 function buildLifeSections(a: Account): SectionDef[] {
