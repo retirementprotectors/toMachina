@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CEO Action Queue - The /q Pattern | Discovery Doc</title>
+<style>
+  :root { --bg: #0f1219; --surface: #1c2333; --border: #2a3347; --text: #e2e8f0; --muted: #8892a8; --portal: #4a7ab5; --green: #22c55e; --red: #ef4444; --amber: #f59e0b; --teal: #14b8a6; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 24px; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  h2 { font-size: 20px; margin-top: 40px; margin-bottom: 12px; color: var(--portal); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 16px; margin-top: 24px; margin-bottom: 8px; color: var(--teal); }
+  p, li { margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .meta { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; padding: 16px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); }
+  .meta-item { font-size: 13px; }
+  .meta-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; }
+  th, td { padding: 10px 12px; text-align: left; border: 1px solid var(--border); font-size: 13px; }
+  th { background: var(--surface); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  code { background: var(--surface); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--teal); }
+  pre { background: var(--surface); padding: 16px; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; margin: 12px 0; font-size: 13px; line-height: 1.5; }
+  .card-mock { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 16px 0; max-width: 380px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .card-id { font-family: monospace; font-size: 12px; color: var(--muted); }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card-meta { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+  .card-rec { font-size: 12px; padding: 6px 10px; background: rgba(20,184,166,0.15); border-radius: 6px; color: var(--teal); margin-bottom: 16px; }
+  .card-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; display: inline-block; }
+  .btn-approve { background: var(--green); color: #fff; }
+  .btn-decline { background: var(--red); color: #fff; }
+  .btn-reclass { background: var(--surface); color: var(--amber); border: 1px solid var(--amber); }
+  .btn-detail { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+  .btn-comment { background: var(--surface); color: var(--portal); border: 1px solid var(--portal); }
+  ul { padding-left: 20px; margin: 8px 0; }
+  .section-why { background: rgba(74,122,181,0.1); border-left: 3px solid var(--portal); padding: 16px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .flow-diagram { background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 13px; line-height: 2; margin: 16px 0; white-space: pre; overflow-x: auto; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+  .tag-live { background: rgba(34,197,94,0.2); color: var(--green); }
+  .tag-wire { background: rgba(245,158,11,0.2); color: var(--amber); }
+  .tag-new { background: rgba(168,85,247,0.2); color: #a855f7; }
+  .sig { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>CEO Action Queue &mdash; The /q Pattern</h1>
+<p class="subtitle">Mobile-first decision queue for JDM. One thumb. Airplane mode. Big buttons.</p>
+
+<div class="meta">
+  <div class="meta-item"><div class="meta-label">Type</div>Discovery Doc</div>
+  <div class="meta-item"><div class="meta-label">Sprint</div>012</div>
+  <div class="meta-item"><div class="meta-label">Author</div>SHINOB1, CTO</div>
+  <div class="meta-item"><div class="meta-label">Date</div>2026-04-03</div>
+  <div class="meta-item"><div class="meta-label">Status</div>Discovery</div>
+  <div class="meta-item"><div class="meta-label">Pipeline</div>RON-discovery</div>
+</div>
+
+<h2>The Problem</h2>
+<p>JDM is the approval bottleneck for the entire platform. Bugs, features, case files, sprint gates &mdash; everything needs a CEO decision at some point. Right now those decisions happen via:</p>
+<ul>
+  <li>Slack messages buried in channel history</li>
+  <li>tmux sessions that can't be copy-pasted</li>
+  <li>Google Sheets nobody checks</li>
+  <li>Verbal conversations that aren't tracked</li>
+</ul>
+<div class="section-why">
+  <strong>The Vision:</strong> Any decision that needs JDM's eyes lands in a single queue. He opens one URL on his phone &mdash; from an airplane, a client meeting, anywhere &mdash; and goes approve, decline, approve, reclassify, done. 60 seconds. The Machine moves forward.
+</div>
+
+<h2>The Solution: /q</h2>
+<p>A dedicated route at <code>prodash.tomachina.com/q</code> &mdash; a mobile-first decision queue. Cards stack vertically. Huge tap targets. No nav, no sidebar, no resizing. Just the queue.</p>
+
+<h3>Card Mockup</h3>
+<div class="card-mock">
+  <div class="card-header">
+    <span class="card-id">RDN-004</span>
+    <span class="btn" style="background: rgba(245,158,11,0.2); color: #f59e0b; padding: 2px 8px; font-size: 11px;">P2</span>
+  </div>
+  <div class="card-title">Income card showing wrong numbers</div>
+  <div class="card-meta">from: Nikki Gray &middot; Service &middot; 2hr ago</div>
+  <div class="card-rec">RAIDEN recommends: <strong>FIX</strong> (92% confidence)</div>
+  <div class="card-buttons">
+    <span class="btn btn-approve">Approve</span>
+    <span class="btn btn-decline">Decline</span>
+    <span class="btn btn-reclass">Reclassify</span>
+  </div>
+  <div class="card-buttons" style="margin-top: 8px;">
+    <span class="btn btn-detail">View Ticket</span>
+    <span class="btn btn-comment">Nikki Gray</span>
+  </div>
+</div>
+
+<h3>Card Actions</h3>
+<table>
+  <tr><th>Action</th><th>What Happens</th></tr>
+  <tr><td><strong>Approve</strong></td><td>Item moves from <code>INT-classified</code> to warrior pipeline (<code>RDN-new</code> / <code>RON-new</code> / <code>VLT-new</code>). Team gets notified in #the-dojo.</td></tr>
+  <tr><td><strong>Decline</strong></td><td>Item closed with reason. Team gets notified.</td></tr>
+  <tr><td><strong>Reclassify</strong></td><td>Dropdown: Fix / Feature / File. Changes the prefix and re-routes to correct warrior.</td></tr>
+  <tr><td><strong>View Ticket</strong></td><td>Opens full tracker item detail (or discovery doc if feature). See description, attachments, triage reasoning.</td></tr>
+  <tr><td><strong>Comment</strong></td><td>Pre-filled with division leader. Type comment, send as Slack DM + attach to ticket as note.</td></tr>
+</table>
+
+<h2>The INTAKE Pipeline</h2>
+
+<div class="flow-diagram">#the-dojo post (Slack)
+    |
+Dispatcher: "Received. On it. -- The Dojo Team"        &lt;-- immediate ack
+    |
+Triage engine auto-classifies: FIX / FEATURE / FILE
+    |
+INT-new --&gt; INT-classified                             &lt;-- seconds, automatic
+    |
+Card appears in /q with recommendation
+    |
+Hourly Slack DM: "4 items in INTAKE"                   &lt;-- only if count &gt; 0
+    |
+JDM opens /q --&gt; Approve / Decline / Reclassify
+    |
+Approved --&gt; RDN-new / RON-new / VLT-new              &lt;-- warrior picks it up
+    |
+Warrior notifies #the-dojo:
+"RDN-004 classified as Fix (P2). On it. -- RAIDEN"</div>
+
+<h3>Status Prefix Flow</h3>
+<table>
+  <tr><th>Stage</th><th>Status</th><th>Where It Lives</th></tr>
+  <tr><td>Arrives</td><td><code>INT-new</code></td><td>INTAKE tab (Dojo App) + /q</td></tr>
+  <tr><td>Classified</td><td><code>INT-classified</code></td><td>INTAKE tab + /q with recommendation badge</td></tr>
+  <tr><td>Approved as Fix</td><td><code>RDN-new</code></td><td>RAIDEN tab</td></tr>
+  <tr><td>Approved as Feature</td><td><code>RON-new</code></td><td>RONIN tab</td></tr>
+  <tr><td>Approved as File</td><td><code>VLT-new</code></td><td>VOLTRON tab</td></tr>
+</table>
+
+<h2>Auto-Approve Rules</h2>
+<p>Not everything needs JDM. High-confidence items skip the queue:</p>
+<table>
+  <tr><th>Signal</th><th>Confidence</th><th>Auto-Approve?</th><th>Why</th></tr>
+  <tr><td>P0 (auth down, data loss, production broken)</td><td>Regex match</td><td>YES &rarr; <code>RDN-triaging</code></td><td>Can't wait. Fix first.</td></tr>
+  <tr><td>TRAIN (how do I, where is, show me)</td><td>Regex + KB hit</td><td>YES &rarr; <code>VLT-new</code></td><td>It's a question, not work.</td></tr>
+  <tr><td>Exact duplicate (&gt;70% similarity)</td><td>Jaccard score</td><td>YES &rarr; ABSORB</td><td>Already reported.</td></tr>
+  <tr><td>FIX + stack trace attached</td><td>Haiku + evidence</td><td>YES &rarr; <code>RDN-new</code></td><td>Clear bug with evidence.</td></tr>
+  <tr><td>Everything else</td><td>Ambiguous</td><td>NO &rarr; <code>INT-classified</code></td><td>Needs human eyes.</td></tr>
+</table>
+
+<h2>Division Leader Routing</h2>
+<table>
+  <tr><th>Source</th><th>Division</th><th>Default Leader</th></tr>
+  <tr><td>AI team / warriors / #the-dojo</td><td>B2E (RAPID)</td><td>SHINOB1</td></tr>
+  <tr><td>Service team / Nikki / Angelique</td><td>Service</td><td>Nikki Gray</td></tr>
+  <tr><td>Sales team / Vince</td><td>Sales</td><td>Vince Vazquez</td></tr>
+  <tr><td>B2B / Matt / DAVID</td><td>B2B (DAVID)</td><td>Matt McCormick</td></tr>
+  <tr><td>Legacy / Aprille</td><td>Legacy</td><td>Dr. Aprille Trupiano</td></tr>
+  <tr><td>JDM / unknown / cross-division</td><td>Executive</td><td>SHINOB1</td></tr>
+</table>
+
+<h2>Two-Phase Auto-Reply in #the-dojo</h2>
+<table>
+  <tr><th>Phase</th><th>When</th><th>Message</th><th>Signed By</th></tr>
+  <tr><td>Phase 1 &mdash; Immediate</td><td>Seconds after post</td><td>"Received. On it."</td><td>The Dojo Team</td></tr>
+  <tr><td>Phase 2 &mdash; After triage</td><td>30-60 seconds</td><td>"Assigned RDN-004, classified as Fix (P2). Updates incoming."</td><td>RAIDEN / RONIN / VOLTRON</td></tr>
+  <tr><td>Status updates</td><td>On each transition</td><td>"RDN-004 is being worked" / "RDN-004 COMPLETE"</td><td>Assigned warrior</td></tr>
+</table>
+
+<h2>Hourly Slack DM Digest</h2>
+<p>MDJ_SERVER cron job. Only fires if items are waiting.</p>
+<pre>
+INTAKE: 4 items waiting for triage
+
+3 Fixes (1x P1, 2x P2)
+1 Feature (P3)
+
+https://prodash.tomachina.com/q
+</pre>
+
+<h2>Future Queues (Same UI, Different Filter)</h2>
+<table>
+  <tr><th>Queue</th><th>What Shows Up</th><th>When</th></tr>
+  <tr><td>Intake triage</td><td>New items needing Fix/Feature/File approval</td><td>Hourly digest</td></tr>
+  <tr><td>Sprint gates</td><td>#LetsAuditTheBuild / #LetsRockIt decisions</td><td>When RONIN hits a gate</td></tr>
+  <tr><td>P0 review</td><td>Auto-fixed P0s needing confirmation</td><td>After auto-fix ships</td></tr>
+  <tr><td>Feature prioritization</td><td>Discovery docs ready for scope decision</td><td>When doc is complete</td></tr>
+  <tr><td>Ask-JDM</td><td>Any team member submits a decision request</td><td>On demand</td></tr>
+</table>
+
+<h2>Existing Engines (USE -- Do Not Rebuild)</h2>
+<table>
+  <tr><th>Engine</th><th>File</th><th>Status</th><th>What It Does</th></tr>
+  <tr><td>Triage Engine</td><td><code>raiden/triage-engine.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>FIX/ROUTE/TRAIN/QUEUE classification. P0 regex. Haiku fallback.</td></tr>
+  <tr><td>Duplicate Guard</td><td><code>raiden/duplicate-guard.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>Jaccard similarity dedup. 40% threshold.</td></tr>
+  <tr><td>Auto-Fixer</td><td><code>raiden/auto-fixer.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>P0 auto-fix via MDJ_SERVER claudeInvoke.</td></tr>
+  <tr><td>RONIN Router</td><td><code>raiden/ronin-router.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>Routes features to RONIN pipeline.</td></tr>
+  <tr><td>Trainer</td><td><code>raiden/trainer.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>Knowledge base + CLAUDE.md answers.</td></tr>
+  <tr><td>Channel Notifier</td><td><code>raiden/channel-notifier.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>Thread replies, status posts, duplicate notices.</td></tr>
+  <tr><td>Decision Framework</td><td><code>dojo/decision-framework.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>WARRIOR_PIPELINES with Fix/Feature/File.</td></tr>
+  <tr><td>Git Monitor</td><td><code>dojo/git-monitor.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>60s merge scan + auto-close to *-reported.</td></tr>
+  <tr><td>Status Prefixes</td><td><code>core/raiden/status.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>RDN-/RON-/VLT- namespaced. PR #223.</td></tr>
+  <tr><td>Intent Classifier</td><td><code>agent/intent-classifier.ts</code></td><td><span class="tag tag-live">LIVE</span></td><td>Keyword + Haiku for deploy vs chat.</td></tr>
+</table>
+
+<h2>What Needs to Be Built</h2>
+<table>
+  <tr><th>#</th><th>Component</th><th>Type</th><th>Location</th><th>Effort</th></tr>
+  <tr><td>1</td><td>ActionQueue component</td><td><span class="tag tag-new">NEW</span></td><td><code>packages/ui/src/modules/ActionQueue.tsx</code></td><td>M</td></tr>
+  <tr><td>2</td><td>/q page route</td><td><span class="tag tag-new">NEW</span></td><td><code>apps/prodash/app/(portal)/q/page.tsx</code></td><td>S</td></tr>
+  <tr><td>3</td><td>GET /api/queue + approve/decline endpoints</td><td><span class="tag tag-new">NEW</span></td><td><code>services/api/src/routes/queue.ts</code></td><td>S</td></tr>
+  <tr><td>4</td><td>INTAKE tab in Dojo App</td><td><span class="tag tag-wire">WIRE</span></td><td><code>packages/ui/src/modules/Forge.tsx</code></td><td>M</td></tr>
+  <tr><td>5</td><td>INT- status prefix + transitions</td><td><span class="tag tag-wire">WIRE</span></td><td><code>packages/core/src/raiden/status.ts</code></td><td>S</td></tr>
+  <tr><td>6</td><td>Triage result into INT-classified + recommendation</td><td><span class="tag tag-wire">WIRE</span></td><td><code>raiden/scheduler.ts</code> + <code>triage-engine.ts</code></td><td>S</td></tr>
+  <tr><td>7</td><td>Two-phase auto-reply in #the-dojo</td><td><span class="tag tag-wire">WIRE</span></td><td><code>dojo/slack-webhook.ts</code> + <code>channel-notifier.ts</code></td><td>S</td></tr>
+  <tr><td>8</td><td>Hourly DM digest cron</td><td><span class="tag tag-new">NEW</span></td><td><code>dojo/intake-digest.ts</code> on MDJ_SERVER</td><td>S</td></tr>
+  <tr><td>9</td><td>Comment routing to Slack DM</td><td><span class="tag tag-wire">WIRE</span></td><td><code>services/api/src/routes/queue.ts</code></td><td>S</td></tr>
+</table>
+<p><strong>5 wiring jobs + 4 new components. Zero new engines.</strong></p>
+
+<h2>JDM's Involvement</h2>
+<table>
+  <tr><th>#</th><th>When</th><th>What</th><th>Where</th><th>Time</th></tr>
+  <tr><td>1</td><td>Hourly DM (or morning check)</td><td>Open /q, approve batch, reclassify misfires, decline junk</td><td>/q on phone</td><td>60 seconds</td></tr>
+  <tr><td>2</td><td>P0 hits your DM</td><td>Acknowledge. RAIDEN already auto-fixing.</td><td>Slack DM</td><td>10 seconds</td></tr>
+  <tr><td>3</td><td>Feature prioritization</td><td>RON-strategizing items. Worth a sprint?</td><td>Dojo App RONIN tab</td><td>5 min/feature</td></tr>
+  <tr><td>4</td><td>Discovery doc review</td><td>Read doc, approve scope. #LetsRockIt</td><td>War room or /q</td><td>10-15 min/doc</td></tr>
+  <tr><td>5</td><td>Everything else</td><td>Nothing. The Machine handles it.</td><td>&mdash;</td><td>Zero</td></tr>
+</table>
+
+<div class="sig">
+  <p><strong>&mdash; SHINOB1</strong>, CTO<br>
+  Executive.AI Team, Retirement Protectors Inc.<br>
+  <em>The OG Ninja</em></p>
+  <p style="margin-top: 12px; font-size: 12px;">#RunningOurOwnRACE</p>
+</div>
+
+</body>
+</html>

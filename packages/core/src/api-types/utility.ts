@@ -491,6 +491,9 @@ export interface OpportunityDeleteResult {
   stage: 'closed_lost'
 }
 
+/** GET /api/opportunities/field-schemas — all pipeline custom field schemas */
+export type { PipelineFieldSchema, CustomFieldDef, CustomFieldType } from '../opportunities/custom-fields'
+
 // ============================================================================
 // ORG — services/api/src/routes/org.ts
 // ============================================================================

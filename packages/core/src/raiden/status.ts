@@ -1,21 +1,20 @@
 /**
- * RAIDEN Ticket Status Lifecycle
+ * RAIDEN Ticket Status Lifecycle — RDN-prefixed
  *
- * Defines the valid statuses and allowed transitions for RAIDEN-submitted
- * tracker items (bugs, UX issues, enhancements reported via #dojo-fixes).
+ * All RAIDEN statuses use the RDN- prefix so warrior tabs can filter
+ * by prefix alone: status.startsWith('RDN-')
  *
  * Lifecycle:
- *   new → investigating → fix_shipped → ux_testing → verified_closed
- *
- * Note: transitions are one-way — no backwards movement without explicit re-open.
+ *   RDN-new → RDN-triaging → RDN-fixing → RDN-verifying → RDN-deploy → RDN-reported
  */
 
 export const RAIDEN_STATUSES = [
-  'new',
-  'investigating',
-  'fix_shipped',
-  'ux_testing',
-  'verified_closed',
+  'RDN-new',
+  'RDN-triaging',
+  'RDN-fixing',
+  'RDN-verifying',
+  'RDN-deploy',
+  'RDN-reported',
 ] as const
 
 export type RaidenStatus = (typeof RAIDEN_STATUSES)[number]
@@ -25,21 +24,22 @@ export type RaidenStatus = (typeof RAIDEN_STATUSES)[number]
  * A status not in this map has no valid forward transitions (terminal).
  */
 const VALID_TRANSITIONS: Record<RaidenStatus, RaidenStatus[]> = {
-  new: ['investigating'],
-  investigating: ['fix_shipped'],
-  fix_shipped: ['ux_testing'],
-  ux_testing: ['verified_closed'],
-  verified_closed: [],
+  'RDN-new': ['RDN-triaging'],
+  'RDN-triaging': ['RDN-fixing'],
+  'RDN-fixing': ['RDN-verifying'],
+  'RDN-verifying': ['RDN-deploy'],
+  'RDN-deploy': ['RDN-reported'],
+  'RDN-reported': [],
 }
 
 /**
  * Returns true if transitioning from `from` → `to` is a valid lifecycle move.
- * Also returns true if `from` is `verified_closed` and `to` is `new`
+ * Also returns true if `from` is `RDN-reported` and `to` is `RDN-new`
  * (re-open path — a closed issue that has re-surfaced).
  */
 export function isValidTransition(from: string, to: string): boolean {
-  // Re-open: verified_closed → new (issue re-surfaced after closure)
-  if (from === 'verified_closed' && to === 'new') return true
+  // Re-open: RDN-reported → RDN-new (issue re-surfaced after closure)
+  if (from === 'RDN-reported' && to === 'RDN-new') return true
 
   const allowed = VALID_TRANSITIONS[from as RaidenStatus]
   if (!allowed) return false
@@ -48,10 +48,10 @@ export function isValidTransition(from: string, to: string): boolean {
 
 /**
  * Returns the list of valid next statuses from the current status.
- * Includes 'new' as an option when re-opening a verified_closed ticket.
+ * Includes 'RDN-new' as an option when re-opening a reported ticket.
  */
 export function getNextStatuses(current: string): RaidenStatus[] {
-  if (current === 'verified_closed') return ['new']
+  if (current === 'RDN-reported') return ['RDN-new']
   return VALID_TRANSITIONS[current as RaidenStatus] ?? []
 }
 
@@ -61,3 +61,76 @@ export function getNextStatuses(current: string): RaidenStatus[] {
 export function isRaidenStatus(value: string): value is RaidenStatus {
   return (RAIDEN_STATUSES as readonly string[]).includes(value)
 }
+
+/**
+ * RONIN Pipeline Statuses — RON-prefixed
+ *
+ * Assessment: RON-new → RON-researching → RON-strategizing
+ * Development: RON-discovery → RON-seeded → RON-planned → RON-built → RON-deployed → RON-reported
+ */
+export const RONIN_STATUSES = [
+  'RON-new',
+  'RON-researching',
+  'RON-strategizing',
+  'RON-discovery',
+  'RON-seeded',
+  'RON-planned',
+  'RON-built',
+  'RON-deployed',
+  'RON-reported',
+] as const
+
+export type RoninStatus = (typeof RONIN_STATUSES)[number]
+
+export function isRoninStatus(value: string): value is RoninStatus {
+  return (RONIN_STATUSES as readonly string[]).includes(value)
+}
+
+/**
+ * INTAKE Pipeline Statuses — INT-prefixed
+ *
+ * Items arrive from #the-dojo Slack, get auto-classified by triage engine,
+ * then land in /q for CEO approval → routed to warrior pipeline.
+ *
+ * Lifecycle:
+ *   INT-new → INT-classified → (approved) RDN-new / RON-new / VLT-new
+ *                             → (declined) INT-declined
+ */
+export const INT_PIPELINE_STATUSES = [
+  'INT-new',
+  'INT-classified',
+  'INT-declined',
+] as const
+
+export type IntPipelineStatus = (typeof INT_PIPELINE_STATUSES)[number]
+
+const INT_TRANSITIONS: Record<IntPipelineStatus, string[]> = {
+  'INT-new': ['INT-classified'],
+  'INT-classified': ['RDN-new', 'RON-new', 'VLT-new', 'INT-declined'],
+  'INT-declined': [],
+}
+
+export function isIntPipelineStatus(value: string): value is IntPipelineStatus {
+  return (INT_PIPELINE_STATUSES as readonly string[]).includes(value)
+}
+
+export function isValidIntTransition(from: string, to: string): boolean {
+  const allowed = INT_TRANSITIONS[from as IntPipelineStatus]
+  if (!allowed) return false
+  return allowed.includes(to)
+}
+
+export function getNextIntStatuses(current: string): string[] {
+  return INT_TRANSITIONS[current as IntPipelineStatus] ?? []
+}
+
+/**
+ * VOLTRON Statuses — VLT-prefixed (placeholder for future use)
+ */
+export const VOLTRON_STATUSES = [
+  'VLT-active',
+  'VLT-idle',
+  'VLT-error',
+] as const
+
+export type VoltronStatus = (typeof VOLTRON_STATUSES)[number]

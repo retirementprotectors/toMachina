@@ -68,11 +68,28 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   confirmed:       { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Confirmed' },
   deployed:        { color: 'rgb(16,185,129)', bg: 'rgba(16,185,129,0.15)', label: 'Deployed' },
   closed:          { color: 'rgb(107,114,128)', bg: 'rgba(107,114,128,0.15)', label: 'Closed' },
-  // RAIDEN reactive statuses
-  new:             { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'New' },
-  triaging:        { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Triaging' },
-  fixing:          { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Fixing' },
-  verifying:       { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Verifying' },
+  // RAIDEN reactive statuses (RDN- prefix)
+  'RDN-new':       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'New' },
+  'RDN-triaging':  { color: 'rgb(251,191,36)', bg: 'rgba(251,191,36,0.15)', label: 'Triaging' },
+  'RDN-fixing':    { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Fixing' },
+  'RDN-verifying': { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Verifying' },
+  'RDN-deploy':    { color: 'rgb(6,182,212)', bg: 'rgba(6,182,212,0.15)', label: 'Deploy' },
+  'RDN-reported':  { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Reported' },
+  // RONIN pipeline statuses (RON- prefix)
+  'RON-new':           { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'New' },
+  'RON-researching':   { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Researching' },
+  'RON-strategizing':  { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Strategizing' },
+  'RON-discovery':     { color: 'rgb(212,164,76)', bg: 'rgba(212,164,76,0.15)', label: 'Discovery Doc' },
+  'RON-seeded':        { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Seeded' },
+  'RON-planned':       { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Plan' },
+  'RON-built':         { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Build' },
+  'RON-deployed':      { color: 'rgb(6,182,212)', bg: 'rgba(6,182,212,0.15)', label: 'Deploy' },
+  'RON-reported':      { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Reported' },
+  // INTAKE pipeline statuses (INT- prefix)
+  'INT-new':         { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Intake: New' },
+  'INT-classified':  { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Intake: Classified' },
+  'INT-declined':    { color: 'rgb(107,114,128)', bg: 'rgba(107,114,128,0.15)', label: 'Intake: Declined' },
+  // Legacy (kept for old items not yet migrated)
   done:            { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Done' },
   escalated:       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Escalated' },
   // Terminal statuses
@@ -97,7 +114,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 const TYPES = ['broken', 'idea', 'improve', 'question', 'feat', 'bug', 'enhancement', 'test'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
-const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed', 'closed', 'new', 'triaging', 'fixing', 'verifying', 'done', 'escalated', 'deferred', 'wont_fix', 'backlog', 'blocked'] as const
+const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed', 'closed', 'RDN-new', 'RDN-triaging', 'RDN-fixing', 'RDN-verifying', 'RDN-deploy', 'RDN-reported', 'RON-new', 'RON-researching', 'RON-strategizing', 'RON-discovery', 'RON-seeded', 'RON-planned', 'RON-built', 'RON-deployed', 'RON-reported', 'done', 'escalated', 'deferred', 'wont_fix', 'backlog', 'blocked'] as const
 
 const API_BASE = '/api'
 
@@ -275,7 +292,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const [sortField, setSortField] = useState<string>('item_id')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [bulkStatus, setBulkStatus] = useState('')
-  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'sprint-detail' | 'dedup'>('grid')
+  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'sprint-detail' | 'dedup' | 'pipeline'>('grid')
   const [dedupGroups, setDedupGroups] = useState<Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }>>([])
   const [dedupLoading, setDedupLoading] = useState(false)
   const [reopeningSprintId, setReopeningSprintId] = useState<string | null>(null)
@@ -297,11 +314,11 @@ function ForgeInner({ portal }: ForgeProps) {
 
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
-  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden'>(() => {
-    if (typeof window === 'undefined') return 'ronin'
-    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden') || 'ronin' } catch { return 'ronin' }
+  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron' | 'intake'>(() => {
+    if (typeof window === 'undefined') return 'intake'
+    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron' | 'intake') || 'intake' } catch { return 'intake' }
   })
-  const switchDojoTab = (tab: 'ronin' | 'raiden') => {
+  const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron' | 'intake') => {
     setDojoTab(tab)
     try { localStorage.setItem(DOJO_TAB_KEY, tab) } catch { /* noop */ }
   }
@@ -315,12 +332,9 @@ function ForgeInner({ portal }: ForgeProps) {
     try {
       const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?limit=1000`)
       if (result.success) {
-        // Filter to RAIDEN items (agent=raiden) or items with RAIDEN-specific statuses
+        // Filter to RAIDEN items by RDN- status prefix — no ambiguity
         const all = result.data || []
-        const raiden = all.filter(i =>
-          (i as unknown as Record<string, unknown>).agent === 'raiden' ||
-          ['new', 'triaging', 'fixing', 'verifying', 'done', 'escalated'].includes(i.status)
-        )
+        const raiden = all.filter(i => i.status.startsWith('RDN-'))
         setRaidenItems(raiden)
       }
     } catch { /* silent */ }
@@ -337,6 +351,31 @@ function ForgeInner({ portal }: ForgeProps) {
     const interval = setInterval(() => loadRaidenItems(), 30000)
     return () => clearInterval(interval)
   }, [dojoTab, loadRaidenItems])
+
+  // ─── INTAKE tab state (INT- prefixed items) ───
+  const [intakeItems, setIntakeItems] = useState<TrackerItem[]>([])
+  const [intakeLoading, setIntakeLoading] = useState(false)
+
+  const loadIntakeItems = useCallback(async () => {
+    setIntakeLoading(true)
+    try {
+      const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/queue`)
+      if (result.success) {
+        setIntakeItems(result.data || [])
+      }
+    } catch { /* silent */ }
+    setIntakeLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (dojoTab === 'intake') loadIntakeItems()
+  }, [dojoTab, loadIntakeItems])
+
+  useEffect(() => {
+    if (dojoTab !== 'intake') return
+    const interval = setInterval(() => loadIntakeItems(), 30000)
+    return () => clearInterval(interval)
+  }, [dojoTab, loadIntakeItems])
 
   // ─── TRK-14238: Quick Submit modal state ───
   const [showQuickSubmit, setShowQuickSubmit] = useState(false)
@@ -366,12 +405,12 @@ function ForgeInner({ portal }: ForgeProps) {
           priority: quickSubmitForm.priority,
           agent: 'raiden',
           source: 'dojo_board',
-          status: 'new',
+          status: 'RDN-new',
           portal: portal.toUpperCase(),
         }),
       })
       if (result.success) {
-        showToast(`Submitted: ${result.data?.item_id || 'item'} — RAIDEN is triaging`, 'success')
+        showToast(`Submitted: ${result.data?.item_id || 'item'} — RAIDEN is on it`, 'success')
         setShowQuickSubmit(false)
         await loadRaidenItems()
         await loadItems()
@@ -407,7 +446,7 @@ function ForgeInner({ portal }: ForgeProps) {
     try {
       const result = await fetchValidated<Record<string, unknown>>(`${API_BASE}/sprints/auto`, {
         method: 'POST',
-        body: JSON.stringify({ scope: 'raiden', status: 'new', groupBy: 'component' }),
+        body: JSON.stringify({ scope: 'raiden', status: 'RDN-new', groupBy: 'component' }),
       })
       if (result.success) {
         setAutoTriageResult(result.data || {})
@@ -562,8 +601,11 @@ function ForgeInner({ portal }: ForgeProps) {
     queue: 0, not_touched: 1, in_sprint: 2, seeded: 3, disc_audited: 4, planned: 5,
     plan_audited: 6, built: 7, audited: 8, deployed: 9, ux_audited: 10, confirmed: 11,
     closed: 11,
-    // RAIDEN statuses map to sprint-equivalent ranks
-    new: 0, triaging: 1, fixing: 5, verifying: 7, done: 11, escalated: 0,
+    // RAIDEN statuses (RDN- prefix) map to sprint-equivalent ranks
+    'RDN-new': 0, 'RDN-triaging': 1, 'RDN-fixing': 5, 'RDN-verifying': 7, 'RDN-deploy': 9, 'RDN-reported': 11,
+    // RONIN statuses (RON- prefix)
+    'RON-new': 0, 'RON-researching': 1, 'RON-strategizing': 2, 'RON-discovery': 3, 'RON-seeded': 3, 'RON-planned': 5, 'RON-built': 7, 'RON-deployed': 9, 'RON-reported': 11,
+    done: 11, escalated: 0,
     backlog: 0, blocked: 0,
   }
   // Fallback for truly unknown statuses: treat as mid-pipeline (planned) rather than
@@ -1255,20 +1297,28 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span className="material-icons-outlined" style={{ fontSize: 22, color: '#e07c3e' }}>temple_buddhist</span>
           <span style={{ fontSize: 16, fontWeight: 700, color: s.text, letterSpacing: '-0.01em' }}>The Dojo</span>
         </div>
-        {/* Tab: RONIN */}
+        {/* Tab: INTAKE (first — CEO triage queue) */}
         <button
-          onClick={() => switchDojoTab('ronin')}
+          onClick={() => switchDojoTab('intake')}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '10px 18px', border: 'none', cursor: 'pointer',
-            background: 'transparent', color: dojoTab === 'ronin' ? s.text : s.textMuted,
-            fontSize: 13, fontWeight: dojoTab === 'ronin' ? 600 : 400,
-            borderBottom: dojoTab === 'ronin' ? `2px solid ${s.portal}` : '2px solid transparent',
+            background: 'transparent', color: dojoTab === 'intake' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'intake' ? 600 : 400,
+            borderBottom: dojoTab === 'intake' ? '2px solid rgb(245,158,11)' : '2px solid transparent',
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
-          RONIN
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'intake' ? 'rgb(245,158,11)' : s.textMuted }}>inbox</span>
+          INTAKE
+          {intakeItems.length > 0 && (
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+              background: 'rgba(245,158,11,0.2)', color: 'rgb(245,158,11)', marginLeft: 2,
+            }}>
+              {intakeItems.length}
+            </span>
+          )}
         </button>
         {/* Tab: RAIDEN */}
         <button
@@ -1284,6 +1334,36 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         >
           <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'raiden' ? 'rgb(239,68,68)' : s.textMuted }}>bolt</span>
           RAIDEN
+        </button>
+        {/* Tab: RONIN */}
+        <button
+          onClick={() => switchDojoTab('ronin')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'ronin' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'ronin' ? 600 : 400,
+            borderBottom: dojoTab === 'ronin' ? `2px solid ${s.portal}` : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
+          RONIN
+        </button>
+        {/* Tab: VOLTRON */}
+        <button
+          onClick={() => switchDojoTab('voltron')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'voltron' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'voltron' ? 600 : 400,
+            borderBottom: dojoTab === 'voltron' ? '2px solid rgb(59,130,246)' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'voltron' ? 'rgb(59,130,246)' : s.textMuted }}>smart_toy</span>
+          VOLTRON
         </button>
       </div>
 
@@ -1334,12 +1414,12 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
               <div style={{ display: 'flex', gap: 12, height: '100%', minWidth: 900 }}>
                 {([
-                  { status: 'new', label: 'NEW', color: 'rgb(239,68,68)' },
-                  { status: 'triaging', label: 'TRIAGING', color: 'rgb(251,191,36)' },
-                  { status: 'fixing', label: 'FIXING', color: 'rgb(245,158,11)' },
-                  { status: 'verifying', label: 'VERIFYING', color: 'rgb(99,102,241)' },
-                  { status: 'done', label: 'DONE', color: 'rgb(34,197,94)' },
-                  { status: 'escalated', label: 'ESCALATED', color: 'rgb(239,68,68)' },
+                  { status: 'RDN-new', label: 'NEW', color: 'rgb(239,68,68)' },
+                  { status: 'RDN-triaging', label: 'TRIAGING', color: 'rgb(251,191,36)' },
+                  { status: 'RDN-fixing', label: 'FIXING', color: 'rgb(245,158,11)' },
+                  { status: 'RDN-verifying', label: 'VERIFYING', color: 'rgb(99,102,241)' },
+                  { status: 'RDN-deploy', label: 'DEPLOY', color: 'rgb(6,182,212)' },
+                  { status: 'RDN-reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
                 ] as const).map(col => {
                   // Filter items for this column and sort by priority (P0 first)
                   const colItems = raidenItems
@@ -1576,6 +1656,197 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </div>
       )}
 
+      {/* ─── Sprint 010: VOLTRON tab content ─── */}
+      {dojoTab === 'voltron' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+          {/* VOLTRON header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
+            <span style={{ fontSize: 13, color: s.textSecondary }}>
+              Team BFF — CCSDK portal conversations + tmux autonomous projects
+            </span>
+          </div>
+          {/* Dual-mode status cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+            {/* CCSDK Mode */}
+            <div style={{
+              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+              padding: 20, borderTop: '3px solid rgb(59,130,246)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(59,130,246)' }}>cloud</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>CCSDK Mode</span>
+                <span style={{
+                  marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                  borderRadius: 10, background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)',
+                }}>ONLINE</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>ACTIVE CONVERSATIONS</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>SPECIALISTS ACTIVE</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>6</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>TOOL CALLS / HR</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>UPTIME</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: 'rgb(34,197,94)' }}>99.2%</div>
+                </div>
+              </div>
+            </div>
+            {/* tmux Mode */}
+            <div style={{
+              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+              padding: 20, borderTop: '3px solid rgb(34,197,94)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(34,197,94)' }}>terminal</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>tmux Mode</span>
+                <span style={{
+                  marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
+                  borderRadius: 10, background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)',
+                }}>ONLINE</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>CURRENT PROJECT</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text }}>toMachina</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>QUEUE DEPTH</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>SESSION</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text, fontFamily: 'monospace' }}>dojo:voltron</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>LAST WAR ROOM POST</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text }}>—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Specialist routing breakdown */}
+          <div style={{
+            background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
+            padding: 20,
+          }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: s.text, marginBottom: 16 }}>Specialist Roster</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+              {[
+                { name: 'Medicare', icon: 'health_and_safety', color: 'rgb(34,197,94)' },
+                { name: 'Securities', icon: 'trending_up', color: 'rgb(99,102,241)' },
+                { name: 'Service', icon: 'support_agent', color: 'rgb(245,158,11)' },
+                { name: 'DAVID', icon: 'handshake', color: 'rgb(34,197,94)' },
+                { name: 'Ops', icon: 'settings', color: 'rgb(6,182,212)' },
+                { name: 'General', icon: 'smart_toy', color: 'rgb(59,130,246)' },
+              ].map(spec => (
+                <div key={spec.name} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                  background: s.bg, borderRadius: 8, border: `1px solid ${s.border}`,
+                }}>
+                  <span className="material-icons-outlined" style={{ fontSize: 18, color: spec.color }}>{spec.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: s.text }}>{spec.name}</div>
+                    <div style={{ fontSize: 10, color: s.textMuted }}>Active</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginTop: 16, padding: 16, background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`, textAlign: 'center' }}>
+            <span style={{ fontSize: 12, color: s.textMuted }}>
+              Live metrics wiring in Sprint 011 — data from <code style={{ fontSize: 11, background: 'rgba(255,255,255,0.06)', padding: '1px 5px', borderRadius: 3, color: 'rgb(6,182,212)' }}>GET /dojo/heartbeats?warrior=voltron</code>
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ─── INTAKE tab content — CEO Action Queue inside the Dojo ─── */}
+      {dojoTab === 'intake' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'auto' }}>
+          {/* INTAKE header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
+            <span style={{ fontSize: 13, color: s.textSecondary }}>
+              Incoming items awaiting triage — approve, decline, or reclassify
+            </span>
+            <div style={{ flex: 1 }} />
+            <a
+              href="/q"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, textDecoration: 'none',
+                background: 'rgba(245,158,11,0.15)', color: 'rgb(245,158,11)', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="phone_iphone" size={16} color="rgb(245,158,11)" />
+              Open /q (mobile)
+            </a>
+          </div>
+
+          {intakeLoading ? (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.textMuted }}>
+              <span className="material-icons-outlined" style={{ fontSize: 24, animation: 'spin 1s linear infinite' }}>refresh</span>
+              <span style={{ marginLeft: 8 }}>Loading intake queue...</span>
+            </div>
+          ) : intakeItems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: s.textMuted }}>
+              <span className="material-icons-outlined" style={{ fontSize: 36, marginBottom: 8, display: 'block', opacity: 0.5 }}>check_circle</span>
+              <div style={{ fontSize: 14, fontWeight: 600, color: s.text, marginBottom: 4 }}>Queue clear</div>
+              <div style={{ fontSize: 12 }}>No items waiting for triage.</div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {intakeItems.map(item => {
+                const priority = ((item as unknown as Record<string,unknown>).priority as string || 'P2').toUpperCase()
+                const rec = (item as unknown as Record<string,unknown>).triage_recommendation as string || 'FIX'
+                const confidence = (item as unknown as Record<string,unknown>).triage_confidence as number | undefined
+                const recLabels: Record<string, string> = { FIX: 'Fix (RAIDEN)', FEATURE: 'Feature (RONIN)', FILE: 'File (VOLTRON)', TRAIN: 'Train (VOLTRON)' }
+                const recColors: Record<string, string> = { FIX: 'rgb(239,68,68)', FEATURE: s.portal, FILE: 'rgb(59,130,246)', TRAIN: 'rgb(59,130,246)' }
+                return (
+                  <div key={item.id} style={{
+                    background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: 16,
+                    borderLeft: `3px solid ${recColors[rec] || 'rgb(245,158,11)'}`,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <span style={{ fontFamily: 'monospace', fontSize: 12, color: s.textMuted }}>{item.item_id}</span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8,
+                        background: priority === 'P0' ? 'rgba(239,68,68,0.2)' : priority === 'P1' ? 'rgba(245,158,11,0.2)' : 'rgba(251,191,36,0.2)',
+                        color: priority === 'P0' ? 'rgb(239,68,68)' : priority === 'P1' ? 'rgb(245,158,11)' : 'rgb(251,191,36)',
+                      }}>{priority}</span>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: s.text, marginBottom: 4 }}>{item.title}</div>
+                    <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 10 }}>
+                      {(item as unknown as Record<string,unknown>).reporter_name as string || ''}
+                      {(item as unknown as Record<string,unknown>).division ? ` · ${(item as unknown as Record<string,unknown>).division}` : ''}
+                    </div>
+                    <div style={{
+                      fontSize: 11, padding: '4px 8px', borderRadius: 6, display: 'inline-block',
+                      background: 'rgba(20,184,166,0.12)', color: 'rgb(20,184,166)', marginBottom: 10,
+                    }}>
+                      Recommendation: <strong>{recLabels[rec] || rec}</strong>
+                      {confidence != null ? ` (${Math.round(confidence * 100)}%)` : ''}
+                    </div>
+                    <div style={{ fontSize: 11, color: s.textMuted }}>
+                      Status: <span style={{ color: item.status === 'INT-classified' ? 'rgb(245,158,11)' : 'rgb(156,163,175)' }}>{item.status}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ─── TRK-14235: RONIN tab content (existing Forge content) ─── */}
       {dojoTab === 'ronin' && <>
 
@@ -1629,6 +1900,17 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             title="Sprint View"
           >
             <Icon name="bolt" size={18} />
+          </button>
+          <button
+            onClick={() => setView('pipeline')}
+            style={{
+              padding: '6px 10px', border: 'none', cursor: 'pointer',
+              background: view === 'pipeline' ? s.surface : 'transparent',
+              color: view === 'pipeline' ? s.text : s.textMuted,
+            }}
+            title="Pipeline View"
+          >
+            <Icon name="account_tree" size={18} />
           </button>
           <button
             onClick={() => { setView('dedup'); loadDedup() }}
@@ -2649,6 +2931,107 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       {view === 'workflow' && (
         <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
           <KanbanBoard columns={kanbanColumns} emptyMessage="No items match your filters" onCardMove={handleCardMove} />
+        </div>
+      )}
+
+      {/* ─── Sprint 012: RONIN Pipeline View (Assessment + Development) ─── */}
+      {view === 'pipeline' && (
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {/* Assessment Pipeline */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(168,85,247)' }}>psychology</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>Assessment Pipeline</span>
+              <span style={{ fontSize: 11, color: s.textMuted }}>Research + Strategy</span>
+            </div>
+            <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
+              {([
+                { status: 'RON-new', label: 'NEW', color: 'rgb(239,68,68)' },
+                { status: 'RON-researching', label: 'RESEARCHING', color: 'rgb(168,85,247)' },
+                { status: 'RON-strategizing', label: 'STRATEGIZING', color: 'rgb(245,158,11)' },
+              ]).map(col => {
+                const colItems = (items || []).filter(i => i.status === col.status)
+                return (
+                  <div key={`assess-${col.status}`} style={{
+                    flex: 1, minWidth: 180, display: 'flex', flexDirection: 'column',
+                    background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
+                  }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                      borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                    }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                      <span style={{
+                        marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                        borderRadius: 10, background: `${col.color}30`, color: col.color,
+                      }}>{colItems.length}</span>
+                    </div>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {colItems.length === 0 ? (
+                        <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                      ) : colItems.map(item => (
+                        <div key={item.id} onClick={() => openEdit(item)} style={{
+                          background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`, padding: '8px 10px', cursor: 'pointer',
+                        }}>
+                          <div style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace', marginBottom: 2 }}>{item.item_id}</div>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: s.text }}>{item.title}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          {/* Development Pipeline */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(245,158,11)' }}>precision_manufacturing</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>Development Pipeline</span>
+              <span style={{ fontSize: 11, color: s.textMuted }}>FORGE lifecycle — Discovery to Deploy</span>
+            </div>
+            <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
+              {([
+                { status: 'RON-discovery', label: 'DISCOVERY DOC', color: 'rgb(212,164,76)' },
+                { status: 'RON-seeded', label: 'SEEDED', color: 'rgb(168,85,247)' },
+                { status: 'RON-planned', label: 'PLAN', color: 'rgb(99,102,241)' },
+                { status: 'RON-built', label: 'BUILD', color: 'rgb(245,158,11)' },
+                { status: 'RON-deployed', label: 'DEPLOY', color: 'rgb(6,182,212)' },
+                { status: 'RON-reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
+              ]).map(col => {
+                const colItems = (items || []).filter(i => i.status === col.status)
+                return (
+                  <div key={`dev-${col.status}`} style={{
+                    flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column',
+                    background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
+                  }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                      borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                    }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                      <span style={{
+                        marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                        borderRadius: 10, background: `${col.color}30`, color: col.color,
+                      }}>{colItems.length}</span>
+                    </div>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {colItems.length === 0 ? (
+                        <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                      ) : colItems.map(item => (
+                        <div key={item.id} onClick={() => openEdit(item)} style={{
+                          background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`, padding: '8px 10px', cursor: 'pointer',
+                        }}>
+                          <div style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace', marginBottom: 2 }}>{item.item_id}</div>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: s.text }}>{item.title}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
       )}
 

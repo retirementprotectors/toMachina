@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" data-cwd="/home/jdm/Projects/toMachina">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 012: Assignee vs Agent Separation</title>
+<style>
+  :root {
+    --bg: #0a0e17; --bg-card: #111827; --bg-hover: #1a2236; --border: #1e293b;
+    --text: #e2e8f0; --text-muted: #94a3b8;
+    --accent: #ef4444; --accent-glow: rgba(239,68,68,0.12);
+    --green: #22c55e; --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b; --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444; --purple: #a855f7; --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4; --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6; --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c; --gold-glow: rgba(212,164,76,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #0a0f1a 0%, #0f0f0f 30%, #0a1020 60%, #0f0f0f 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(59,130,246,0.04) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(34,197,94,0.04) 0%, transparent 60%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #22c55e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--cyan); border-bottom-color: var(--cyan); background: var(--cyan-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .tab-panel { display: none; } .tab-panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--cyan); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--cyan); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top-color: var(--green); } .spec-card.cyan { border-top-color: var(--cyan); }
+  .spec-card.blue { border-top-color: var(--blue); } .spec-card.purple { border-top-color: var(--purple); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; } .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .exists-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-left: 4px solid var(--green); }
+  .exists-callout h4 { color: var(--green); margin-bottom: 8px; font-size: 0.95rem; } .exists-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .warn-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-left: 4px solid var(--red); }
+  .warn-callout h4 { color: var(--red); margin-bottom: 8px; font-size: 0.95rem; } .warn-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .gate-callout { padding: 20px; border-radius: 10px; margin-bottom: 16px; background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.25); border-left: 4px solid var(--gold); }
+  .gate-callout h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; } .gate-callout p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  code { font-family: 'SF Mono', monospace; font-size: 0.8rem; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.feat { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill.fix { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.chore { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .quote-block { background: var(--bg-hover); border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 18px 20px; margin-bottom: 12px; }
+  .quote-block .quote-text { font-style: italic; color: var(--text); font-size: 1rem; margin-bottom: 6px; }
+  .quote-block .quote-attr { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .level-bar { padding: 16px; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid var(--accent); }
+  .level-bar.green { border-left-color: var(--green); background: rgba(34,197,94,0.08); }
+  .level-bar.blue { border-left-color: var(--blue); background: rgba(59,130,246,0.08); }
+  .level-bar h4 { font-size: 0.95rem; margin-bottom: 4px; } .level-bar p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .footer { text-align: center; padding: 32px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">Sprint 012 &mdash; FORGE Discovery Document</div>
+  <h1>Assignee vs Agent</h1>
+  <div class="subtitle">Separate Admin Staff (Assignees) from Writing Agents on Opportunities</div>
+  <div class="header-badges">
+    <span class="badge badge-cyan">Sprint 012</span>
+    <span class="badge badge-gold">~4 Tickets</span>
+    <span class="badge badge-purple">RONIN Build</span>
+    <span class="badge badge-cyan">data-cwd: toMachina</span>
+  </div>
+  <div class="ronin-meta">sprint: ASSIGNEE-AGENT &bull; TRK-AA-001 &rarr; TRK-AA-004 &bull; requested by: Nikki Gray via #the-dojo</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">Overview</div>
+    <div class="tab" data-tab="exists">What EXISTS</div>
+    <div class="tab" data-tab="architecture">Architecture</div>
+    <div class="tab" data-tab="files">Files</div>
+    <div class="tab" data-tab="sprint">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ══════════════ OVERVIEW ══════════════ -->
+<div id="overview" class="tab-panel active">
+  <div class="card">
+    <h2>The Problem</h2>
+    <div class="quote-block">
+      <div class="quote-text">"In an opportunity: The assignee and the agent should not be the same person. Assignees should be the administrative staff working the opportunity: Nikki Gray, Angelique Bonilla, Susan Kaelin."</div>
+      <div class="quote-attr">Nikki Gray &mdash; #the-dojo, April 2</div>
+    </div>
+    <p>Today, opportunities have one person field: <code>agent_id</code>. This is the licensed writing agent. But Nikki, Angelique, and Susan are the ones actually processing opportunities day-to-day. They need to be tracked as the <strong>assignee</strong> &mdash; the person responsible for moving the opportunity through its stages.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Two Roles</h2>
+    <div class="spec-grid">
+      <div class="spec-card blue">
+        <h4>Agent (Writing Rep)</h4>
+        <p><strong>Who:</strong> Josh Archer, Shane Parmenter, Matt McCormick, Josh Millang, Lucas Dexter, Angelique Bonilla<br>
+        <strong>Purpose:</strong> Licensed agent who wrote/sold the policy<br>
+        <strong>Field:</strong> <code>agent_id</code> (already exists)<br>
+        <strong>Populated from:</strong> Users with <code>is_licensed: true</code></p>
+      </div>
+      <div class="spec-card green">
+        <h4>Assignee (Admin Staff)</h4>
+        <p><strong>Who:</strong> Nikki Gray, Angelique Bonilla, Susan Kaelin<br>
+        <strong>Purpose:</strong> Team member processing/tracking the opportunity<br>
+        <strong>Field:</strong> <code>assignee_id</code> (NEW)<br>
+        <strong>Populated from:</strong> Users with admin/service roles</p>
+      </div>
+    </div>
+
+    <div class="gate-callout">
+      <h4>Note: Angelique appears in BOTH lists</h4>
+      <p>Angelique Bonilla is both a licensed writing agent AND an admin staff member. She can be selected as either Agent or Assignee. This is correct &mdash; she wears both hats.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ WHAT EXISTS ══════════════ -->
+<div id="exists" class="tab-panel">
+  <div class="card">
+    <h2>Current State</h2>
+
+    <div class="exists-callout">
+      <h4>Opportunity type accepts assignee_id already</h4>
+      <p><code>packages/core/src/types/index.ts</code>: <code>Opportunity</code> has <code>[key: string]: unknown</code> index signature. Adding <code>assignee_id</code> requires zero type changes. The POST endpoint passes through all fields.</p>
+    </div>
+
+    <div class="exists-callout">
+      <h4>Users collection has role data</h4>
+      <p>The <code>users</code> collection already stores <code>role</code>, <code>is_licensed</code>, and <code>display_name</code> for all RPI team members. Agent dropdown filters by <code>is_licensed: true</code>. Assignee dropdown can filter by service/admin roles.</p>
+    </div>
+
+    <div class="exists-callout">
+      <h4>FlowInstanceData has assigned_to</h4>
+      <p><code>packages/core/src/flow/types.ts</code> line 130: <code>assigned_to?: string</code> exists on flow instances. The opportunity's <code>assignee_id</code> should map to the flow instance's <code>assigned_to</code> when an instance is created.</p>
+    </div>
+
+    <table>
+      <tr><th>What</th><th>Status</th></tr>
+      <tr><td><code>agent_id</code> field on Opportunity</td><td>Exists &mdash; no changes needed</td></tr>
+      <tr><td>Agent dropdown (licensed users)</td><td>Exists &mdash; already filters by <code>is_licensed</code></td></tr>
+      <tr><td><code>assignee_id</code> field on Opportunity</td><td>NEW &mdash; add to create/edit forms</td></tr>
+      <tr><td>Assignee dropdown (admin staff)</td><td>NEW &mdash; filter users by service roles</td></tr>
+      <tr><td>Backend acceptance of <code>assignee_id</code></td><td>Already works (index signature pass-through)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ ARCHITECTURE ══════════════ -->
+<div id="architecture" class="tab-panel">
+  <div class="card">
+    <h2>Data Model</h2>
+    <div class="diagram">Opportunity Document (Firestore: opportunities/{id})
+{
+  opportunity_id: "opp_abc123",
+  client_id: "client_xyz",
+  pipeline: "NBX_LIFE",
+  stage: "new",
+
+  agent_id: "josh.archer@retireprotected.com",     // WHO SOLD IT (licensed rep)
+  assignee_id: "nikki.gray@retireprotected.com",    // WHO'S PROCESSING IT (admin)
+
+  value: 500000,
+  custom_fields: { ... },                           // Pipeline-specific data
+  created_at: "2026-04-02T...",
+  updated_at: "2026-04-02T..."
+}</div>
+  </div>
+
+  <div class="card">
+    <h2>Assignee Selection Logic</h2>
+    <p>The assignee dropdown should show admin/service team members. Two approaches:</p>
+
+    <div class="spec-grid">
+      <div class="spec-card green">
+        <h4>Option A: Hardcoded list (fast, simple)</h4>
+        <p>Nikki Gray, Angelique Bonilla, Susan Kaelin. Hardcode the 3 emails. Update when the team changes. Shipping in minutes.</p>
+      </div>
+      <div class="spec-card cyan">
+        <h4>Option B: Role-based query (scalable)</h4>
+        <p>Query <code>users</code> where role is not OWNER/EXECUTIVE (admin staff). More maintainable. Automatically adapts as team grows.</p>
+      </div>
+    </div>
+
+    <div class="gate-callout">
+      <h4>Recommendation: Option B with a fallback</h4>
+      <p>Query users with service/admin roles. If fewer than expected results, fall back to showing all non-owner users. The <code>users</code> collection already has <code>role</code> field &mdash; just needs the right filter. For the initial version, filter by: <code>role NOT IN ['OWNER', 'EXECUTIVE']</code> OR a specific <code>can_be_assignee: true</code> flag.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>UI Changes</h2>
+    <div class="diagram">Opportunity Create/Edit Form (current):
+┌────────────────────────────────┐
+│ Pipeline:  [NBX_LIFE     ▼]   │
+│ Stage:     [New          ▼]   │
+│ Agent:     [Josh Archer  ▼]   │  ← This is agent_id (licensed reps)
+│ Client:    [Jane Smith   ▼]   │
+│ Value:     [$500,000       ]   │
+└────────────────────────────────┘
+
+Opportunity Create/Edit Form (after):
+┌────────────────────────────────┐
+│ Pipeline:  [NBX_LIFE     ▼]   │
+│ Stage:     [New          ▼]   │
+│ Agent:     [Josh Archer  ▼]   │  ← agent_id (licensed reps)
+│ Assignee:  [Nikki Gray   ▼]   │  ← assignee_id (admin staff) — NEW
+│ Client:    [Jane Smith   ▼]   │
+│ Value:     [$500,000       ]   │
+│                                │
+│ ── Custom Fields ──            │  ← From Pipeline Custom Fields disco doc
+│ Policy Number: [PLY-12345  ]   │
+│ Face Amount:   [$500,000   ]   │
+│ ...                            │
+└────────────────────────────────┘</div>
+  </div>
+</div>
+
+<!-- ══════════════ FILES ══════════════ -->
+<div id="files" class="tab-panel">
+  <div class="card">
+    <h2>Files to Modify</h2>
+    <table>
+      <tr><th>File</th><th>What to Do</th></tr>
+      <tr><td><code>apps/prodash/app/(portal)/sales-centers/*/page.tsx</code></td><td>Add Assignee dropdown next to Agent dropdown on opportunity create/edit forms.</td></tr>
+      <tr><td><code>services/api/src/routes/opportunities.ts</code></td><td>No changes needed &mdash; <code>assignee_id</code> passes through. But verify the list/search endpoints return <code>assignee_id</code> in responses.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Read Before Touching</h2>
+    <table>
+      <tr><th>File</th><th>Why</th></tr>
+      <tr><td><code>packages/core/src/types/index.ts</code></td><td>Verify <code>Opportunity</code> type. Consider adding explicit <code>assignee_id?: string</code> for type safety even though the index signature works.</td></tr>
+      <tr><td><code>services/api/src/routes/opportunities.ts</code></td><td>Read the GET/list endpoints. Make sure <code>assignee_id</code> is included in query results. Check if there's a field whitelist on responses.</td></tr>
+      <tr><td><code>packages/core/src/flow/types.ts</code></td><td><code>assigned_to</code> on FlowInstanceData. When creating a flow instance from an opportunity, map <code>assignee_id</code> to <code>assigned_to</code>.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ SPRINT PLAN ══════════════ -->
+<div id="sprint" class="tab-panel">
+  <div class="card">
+    <h2>RONIN Seeder Metadata</h2>
+    <table>
+      <tr><th>Key</th><th>Value</th></tr>
+      <tr><td>data-cwd</td><td><code>/home/jdm/Projects/toMachina</code></td></tr>
+      <tr><td>sprint_name</td><td>ASSIGNEE-AGENT</td></tr>
+      <tr><td>discovery_url</td><td>sprint-012-assignee-agent-discovery.html</td></tr>
+      <tr><td>ticket_range</td><td>TRK-AA-001 &rarr; TRK-AA-004</td></tr>
+      <tr><td>phases</td><td>1</td></tr>
+      <tr><td>max_parallelism</td><td>1</td></tr>
+      <tr><td>critical_path</td><td>Type update &rarr; Assignee dropdown &rarr; Wire into forms &rarr; Verify</td></tr>
+      <tr><td>external_blockers</td><td>None</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Phase 1 &mdash; Build + Ship</h2>
+    <div class="level-bar green">
+      <h4>No gates. No dependencies. Small scope. Ship it.</h4>
+      <p>4 tickets. One phase. RONIN can knock this out fast.</p>
+    </div>
+    <table>
+      <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Acceptance</th></tr>
+      <tr><td>TRK-AA-001</td><td>Add <code>assignee_id?: string</code> to Opportunity type</td><td><span class="pill feat">Feat</span></td><td><code>Opportunity</code> type in <code>packages/core/src/types/index.ts</code> has explicit <code>assignee_id</code> field. TypeScript-safe.</td></tr>
+      <tr><td>TRK-AA-002</td><td>Build Assignee dropdown component</td><td><span class="pill feat">Feat</span></td><td>Dropdown queries <code>users</code> collection for admin/service staff. Shows: Nikki Gray, Angelique Bonilla, Susan Kaelin (at minimum). Stores email as <code>assignee_id</code>.</td></tr>
+      <tr><td>TRK-AA-003</td><td>Wire Assignee dropdown into opportunity create/edit forms</td><td><span class="pill feat">Feat</span></td><td>Assignee dropdown appears below Agent on all opportunity forms. Value saved as <code>assignee_id</code> on the opportunity document. Existing <code>agent_id</code> unchanged.</td></tr>
+      <tr><td>TRK-AA-004</td><td>Show Assignee in opportunity list/board views</td><td><span class="pill feat">Feat</span></td><td>Assignee name visible on opportunity cards in board view and in list columns. Filterable by assignee.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Definition of Done</h2>
+    <table>
+      <tr><th>Criteria</th></tr>
+      <tr><td>Nikki can select herself as Assignee on any opportunity</td></tr>
+      <tr><td>Agent field still shows licensed writing agents (unchanged)</td></tr>
+      <tr><td>Assignee dropdown shows: Nikki Gray, Angelique Bonilla, Susan Kaelin</td></tr>
+      <tr><td>Angelique appears in BOTH Agent and Assignee dropdowns</td></tr>
+      <tr><td>Assignee value persists on save and displays on reload</td></tr>
+      <tr><td>Board view shows assignee on opportunity cards</td></tr>
+      <tr><td>Nikki can filter opportunities by assignee</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Discovery by MUSASHI, ARTxBLADE &mdash; VP/CMO, Executive.AI Team &bull; Sprint 012 &bull; 2026-04-02
+  <br>
+  RONIN Contract &mdash; Requested by Nikki Gray via #the-dojo &bull; #RunningOurOwnRACE
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

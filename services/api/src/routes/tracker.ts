@@ -45,7 +45,13 @@ trackerRoutes.get('/', async (req: Request, res: Response) => {
     }
 
     // Sort newest first (queue/new items always visible)
-    data.sort((a, b) => ((b.created_at as string) || '').localeCompare((a.created_at as string) || ''))
+    // Handle both string and Firestore Timestamp objects for created_at
+    const toSortable = (v: unknown): string => {
+      if (typeof v === 'string') return v
+      if (v && typeof v === 'object' && 'toDate' in v) return (v as { toDate: () => Date }).toDate().toISOString()
+      return ''
+    }
+    data.sort((a, b) => toSortable(b.created_at).localeCompare(toSortable(a.created_at)))
 
     // Apply limit if requested (dataset is small — default high)
     const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 1000, 1), 1000)
@@ -500,9 +506,9 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
       if (oldData.agent === 'raiden') {
         const trkId = (oldData.item_id as string) || id
         const title = (oldData.title as string) || 'Unknown'
-        if (req.body.status === 'fixing') {
+        if (req.body.status === 'RDN-fixing') {
           postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
-        } else if (req.body.status === 'done') {
+        } else if (req.body.status === 'RDN-reported') {
           postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
         }
       }
@@ -569,9 +575,9 @@ trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
     if (currentData.agent === 'raiden') {
       const trkId = (currentData.item_id as string) || id
       const title = (currentData.title as string) || 'Unknown'
-      if (newStatus === 'investigating') {
+      if (newStatus === 'RDN-triaging' || newStatus === 'RDN-fixing') {
         postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
-      } else if (newStatus === 'fix_shipped' || newStatus === 'verified_closed') {
+      } else if (newStatus === 'RDN-deploy' || newStatus === 'RDN-reported') {
         postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
       }
     }

@@ -33,7 +33,7 @@ export async function pollSlackChannel(): Promise<SlackItem[]> {
         try {
           const dupResult = await checkForDuplicate(text.slice(0, 80))
           if (!dupResult.isDuplicate) {
-            // Create tracker item with source=slack
+            // Create tracker item with INT-new status (intake pipeline)
             const createRes = await fetch(`${TRACKER_API}/tracker`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'X-MDJ-Auth': MDJ_AUTH },
@@ -41,21 +41,28 @@ export async function pollSlackChannel(): Promise<SlackItem[]> {
                 title: text.slice(0, 120),
                 description: text,
                 type: 'bug',
-                status: 'new',
+                status: 'INT-new',
                 agent: 'raiden',
                 source: 'slack',
                 priority: 'P2',
                 portal: 'SHARED',
+                source_channel: CHANNEL_ID,
+                source_thread_ts: msg.ts,
+                reporter: msg.user || 'unknown',
               }),
             })
             if (createRes.ok) {
               const created = await createRes.json() as { data?: { item_id?: string; id?: string } }
               const trkId = created.data?.item_id || 'TRK-???'
-              // Reply in-thread confirming ticket creation (TRK-14239 AC)
-              await postThreadReply(msg.ts, trkId, 'new').catch((e: unknown) => {
+              const docId = created.data?.id || ''
+              // Store tracker IDs on the SlackItem for scheduler to update after triage
+              ;(msg as Record<string, unknown>)._tracker_doc_id = docId
+              ;(msg as Record<string, unknown>)._tracker_item_id = trkId
+              // Reply in-thread confirming receipt
+              await postThreadReply(msg.ts, trkId, 'INT-new').catch((e: unknown) => {
                 console.error('[RAIDEN] Thread reply failed:', e)
               })
-              console.log(`[RAIDEN] Slack message → tracker item ${trkId} (source=slack)`)
+              console.log(`[RAIDEN] Slack message → tracker item ${trkId} (status=INT-new)`)
             }
           }
         } catch (e) {
@@ -65,7 +72,9 @@ export async function pollSlackChannel(): Promise<SlackItem[]> {
 
       seen.add(msg.ts)
       items.push({ message_ts: msg.ts, user: msg.user || 'unknown',
-        text, channel: CHANNEL_ID, thread_ts: msg.thread_ts })
+        text, channel: CHANNEL_ID, thread_ts: msg.thread_ts,
+        tracker_doc_id: (msg as Record<string, unknown>)._tracker_doc_id as string | undefined,
+        tracker_item_id: (msg as Record<string, unknown>)._tracker_item_id as string | undefined })
     }
     if (messages.length > 0) lastCheckedTs = messages[0].ts
     return items
