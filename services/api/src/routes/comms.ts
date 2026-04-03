@@ -6,6 +6,8 @@
 
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
+import { getStorage } from 'firebase-admin/storage'
+import multer from 'multer'
 import AccessToken from 'twilio/lib/jwt/AccessToken.js'
 import { successResponse, errorResponse, validateRequired, param } from '../lib/helpers.js'
 import { createNotification } from './notifications.js'
@@ -755,6 +757,50 @@ commsRoutes.get('/status/:sid', async (req: Request, res: Response) => {
     } as unknown as CommsMessageStatusData | CommsCallStatusData))
   } catch (err) {
     console.error('GET /api/comms/status/:sid error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+// ============================================================================
+// MMS Media Upload (TRK-14345 / TRK-PC-013)
+// ============================================================================
+
+const mediaUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB — Twilio MMS limit
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
+    cb(null, allowed.includes(file.mimetype))
+  },
+})
+
+/**
+ * POST /api/comms/upload-media — Upload file for MMS attachment
+ * Returns a public URL that Twilio can fetch for MediaUrl.
+ */
+commsRoutes.post('/upload-media', mediaUpload.single('file'), async (req: Request, res: Response) => {
+  try {
+    const file = (req as unknown as { file?: Express.Multer.File }).file
+    if (!file) { res.status(400).json(errorResponse('file is required (JPEG, PNG, GIF, or PDF, max 5MB)')); return }
+
+    const bucket = getStorage().bucket()
+    const timestamp = Date.now()
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const clientId = (req.body as Record<string, unknown>).client_id || 'unknown'
+    const filePath = `comms-media/${clientId}/${timestamp}-${safeName}`
+    const token = crypto.randomUUID()
+
+    await bucket.file(filePath).save(file.buffer, {
+      contentType: file.mimetype,
+      metadata: { metadata: { firebaseStorageDownloadTokens: token } },
+    })
+
+    const encodedPath = encodeURIComponent(filePath)
+    const url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodedPath}?alt=media&token=${token}`
+
+    res.status(201).json(successResponse({ url, path: filePath, size: file.size, content_type: file.mimetype }))
+  } catch (err) {
+    console.error('POST /api/comms/upload-media error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

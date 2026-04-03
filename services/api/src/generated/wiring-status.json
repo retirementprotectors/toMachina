@@ -1012,7 +1012,7 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 386,
+      "backend_endpoints": 387,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1110,7 +1110,7 @@
         },
         {
           "file": "comms.ts",
-          "endpoints": 19,
+          "endpoints": 20,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1349,13 +1349,13 @@
       "status": "backend_only",
       "backend": "comms.ts",
       "frontend": "",
-      "backend_endpoints": 56,
+      "backend_endpoints": 57,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "comms.ts",
-          "endpoints": 19,
+          "endpoints": 20,
           "reads": true,
           "writes": true,
           "operations": [
@@ -3220,7 +3220,7 @@
     },
     "comms.ts": {
       "file": "comms.ts",
-      "endpoints": 19,
+      "endpoints": 20,
       "operations": [
         "list",
         "get",
@@ -4860,12 +4860,12 @@
   "scan_stats": {
     "route_files": 76,
     "ui_files": 165,
-    "portal_pages": 165,
+    "portal_pages": 166,
     "collections_found": 70,
     "api_routes_found": 76,
     "cloud_functions_found": 14,
     "env_vars_found": 41,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-04-03T07:43:28.001Z"
+    "scanned_at": "2026-04-03T08:38:55.032Z"
   }
 }
