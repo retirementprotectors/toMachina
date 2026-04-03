@@ -176,22 +176,28 @@ export function ActivityTab({ clientId }: ActivityTabProps) {
                       {expanded ? 'Hide details' : 'Show details'}
                     </button>
                   )}
-                  {expanded && entry.description && (
-                    <p className="mt-1.5 text-xs text-[var(--text-secondary)] leading-relaxed">{entry.description}</p>
-                  )}
-                  {expanded && entry.meta?.recording_url && (
+                  {expanded && entry.description ? (
+                    <p className="mt-1.5 text-xs text-[var(--text-secondary)] leading-relaxed">{String(entry.description)}</p>
+                  ) : null}
+                  {expanded && entry.meta?.recording_url ? (
                     <audio controls className="mt-2 h-8 w-full max-w-xs" src={entry.meta.recording_url as string} />
-                  )}
-                  {expanded && entry.meta?.duration_sec && (
-                    <span className="mt-1 inline-block text-xs text-[var(--text-muted)]">
-                      Duration: {Math.floor(Number(entry.meta.duration_sec) / 60)}:{String(Number(entry.meta.duration_sec) % 60).padStart(2, '0')}
-                    </span>
-                  )}
-                  {expanded && entry.meta?.disposition && (
-                    <span className="ml-3 mt-1 inline-block rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-xs text-[var(--text-muted)]">
-                      {String(entry.meta.disposition).replace(/_/g, ' ')}
-                    </span>
-                  )}
+                  ) : null}
+                  {expanded && entry.meta ? (() => {
+                    const meta = entry.meta as Record<string, unknown>
+                    const parts: React.ReactNode[] = []
+                    if (meta.duration_sec) {
+                      const sec = Number(meta.duration_sec)
+                      parts.push(<span key="dur" className="mt-1 inline-block text-xs text-[var(--text-muted)]">
+                        Duration: {Math.floor(sec / 60)}:{String(sec % 60).padStart(2, '0')}
+                      </span>)
+                    }
+                    if (meta.disposition) {
+                      parts.push(<span key="disp" className="ml-3 mt-1 inline-block rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-xs text-[var(--text-muted)]">
+                        {String(meta.disposition).replace(/_/g, ' ')}
+                      </span>)
+                    }
+                    return parts.length > 0 ? <>{parts}</> : null
+                  })() : null}
                 </div>
               </div>
             )
