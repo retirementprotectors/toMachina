@@ -9,6 +9,8 @@ import type { Client, User, Household } from '@tomachina/core'
 import { ClientFilters } from './components/ClientFilters'
 import { ClientAvatar } from './components/ClientAvatar'
 import { StatusBadge } from './components/StatusBadge'
+import { AccountTypePills } from './components/AccountTypePills'
+import { ClientHoverCard } from './components/ClientHoverCard'
 import { ColumnSelector, getDefaultVisibleColumns, getDefaultColumnOrder, ALL_COLUMNS } from './components/ColumnSelector'
 
 // ---------------------------------------------------------------------------
@@ -32,7 +34,7 @@ function getAge(dob: unknown): number | null {
   return age >= 0 ? age : null
 }
 
-/** Strip all quote characters from a name (e.g., Carol "jane" Groff → Carol jane Groff) */
+/** Strip all quote characters from a name */
 function cleanName(name: string): string {
   return name.replace(/["']/g, '').replace(/\s+/g, ' ').trim()
 }
@@ -54,6 +56,7 @@ interface UserDoc extends User {
 interface ClientRow extends Client {
   _id: string
   account_types?: string[]
+  account_type_categories?: string[]
   book_of_business?: string
   agent_id?: string
   assigned_user_id?: string
@@ -62,6 +65,7 @@ interface ClientRow extends Client {
   acf_folder_id?: string
   household_id?: string
   household_name?: string
+  last_activity_at?: unknown
 }
 
 /** Statuses that are always excluded from the grid (not toggleable via status dropdown) */
@@ -90,10 +94,6 @@ export default function ClientsPage() {
     return map
   }, [rawHouseholds])
 
-  // Build user lookup maps:
-  // - userMap: user_id (UUID) -> "First Last" (all users, for resolving assigned_user_id)
-  // - userDocIdMap: doc _id (email) -> "First Last" (fallback for legacy agent_id values that might be emails)
-  // - agentUsers: users where is_agent: true (for the filter dropdown)
   const { userMap, userDocIdMap, agentUsers } = useMemo(() => {
     const byUserId = new Map<string, string>()
     const byDocId = new Map<string, string>()
@@ -101,9 +101,7 @@ export default function ClientsPage() {
     for (const u of rawUsers) {
       const name = `${u.first_name || ''} ${u.last_name || ''}`.trim()
       if (!name) continue
-      // Map by user_id UUID (primary key for assigned_user_id)
       if (u.user_id) byUserId.set(u.user_id, name)
-      // Map by doc ID (email) as fallback
       if (u._id) byDocId.set(u._id, name)
       if (u.is_agent) agents.push({ userId: u.user_id || u._id, name })
     }
@@ -129,8 +127,10 @@ export default function ClientsPage() {
   const [groupByHousehold, setGroupByHousehold] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  // Resolve agent names on each client row
-  // Priority: assigned_user_id (new) -> agent_id (legacy row_N or email) -> agent_name (raw field)
+  // CCX-010: Hover card state
+  const [hoverClient, setHoverClient] = useState<ClientRow | null>(null)
+  const [hoverAnchor, setHoverAnchor] = useState<HTMLElement | null>(null)
+
   const clients = useMemo((): ClientRow[] => {
     return rawClients.map((c) => {
       const assignedId = String(c.assigned_user_id || '')
@@ -145,7 +145,6 @@ export default function ClientsPage() {
     })
   }, [rawClients, userMap, userDocIdMap, householdMap])
 
-  // Extract unique books from data; agents come from users where is_agent: true
   const { books, agents } = useMemo(() => {
     const bookSet = new Set<string>()
     for (const c of clients) {
@@ -158,12 +157,9 @@ export default function ClientsPage() {
     }
   }, [clients, agentUsers])
 
-  // Filter logic
   const filtered = useMemo(() => {
-    // Exclude merged records — they've been absorbed into another record
     let result = clients.filter((c) => !HARD_EXCLUDED_STATUSES.includes((c.status || '').toLowerCase()) && !(c as Record<string, unknown>)._merged_into)
 
-    // Search filter
     if (search) {
       const q = search.toLowerCase()
       result = result.filter((c) => {
@@ -180,31 +176,21 @@ export default function ClientsPage() {
       })
     }
 
-    // Status filter
     if (statusFilter !== 'All') {
-      result = result.filter(
-        (c) => (c.status || '').toLowerCase() === statusFilter.toLowerCase()
-      )
+      result = result.filter((c) => (c.status || '').toLowerCase() === statusFilter.toLowerCase())
     }
 
-    // Book filter
     if (bookFilter !== 'All') {
-      result = result.filter(
-        (c) => String(c.book_of_business || '').trim() === bookFilter
-      )
+      result = result.filter((c) => String(c.book_of_business || '').trim() === bookFilter)
     }
 
-    // Agent filter
     if (agentFilter !== 'All') {
-      result = result.filter(
-        (c) => String(c.agent_name || '').trim() === agentFilter
-      )
+      result = result.filter((c) => String(c.agent_name || '').trim() === agentFilter)
     }
 
     return result
   }, [clients, search, statusFilter, bookFilter, agentFilter])
 
-  // Sort logic
   const sorted = useMemo(() => {
     if (!sortKey) return filtered
 
@@ -242,13 +228,11 @@ export default function ClientsPage() {
     })
   }, [filtered, sortKey, sortDir])
 
-  // Pagination
   const totalPages = Math.ceil(sorted.length / PAGE_SIZE)
   const paged = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
   const showingStart = sorted.length > 0 ? page * PAGE_SIZE + 1 : 0
   const showingEnd = Math.min((page + 1) * PAGE_SIZE, sorted.length)
 
-  // Household grouping (applied to paged results)
   const groupedRows = useMemo(() => {
     if (!groupByHousehold) return null
     const groups = new Map<string, { name: string; householdId: string; members: ClientRow[] }>()
@@ -265,16 +249,13 @@ export default function ClientsPage() {
     return order.map(key => groups.get(key)!)
   }, [groupByHousehold, paged])
 
-  // Ordered list of visible column keys (excluding 'name' which is always first)
   const orderedVisibleKeys = useMemo(
     () => columnOrder.filter((k) => k !== 'name' && visibleColumns.has(k)),
     [columnOrder, visibleColumns]
   )
 
-  // Count visible columns for colSpan on group headers
   const visibleColCount = useMemo(() => 2 + orderedVisibleKeys.length, [orderedVisibleKeys])
 
-  // DeDup: detect potential duplicates in current loaded set (TRK-13679)
   const dupeIds = useMemo(() => {
     const ids = new Set<string>()
     const emailMap = new Map<string, string[]>()
@@ -302,7 +283,6 @@ export default function ClientsPage() {
     return ids
   }, [clients])
 
-  // Handlers — reset page on filter change
   const resetPage = useCallback(() => setPage(0), [])
   const handleSearchChange = useCallback((v: string) => { setSearch(v); resetPage() }, [resetPage])
   const handleStatusChange = useCallback((v: string) => { setStatusFilter(v); resetPage() }, [resetPage])
@@ -340,10 +320,20 @@ export default function ClientsPage() {
     []
   )
 
-  // Shorthand: is column visible?
+  // CCX-010: Open hover card
+  const handleOpenHoverCard = useCallback((e: React.MouseEvent<HTMLButtonElement>, client: ClientRow) => {
+    e.stopPropagation()
+    setHoverClient(client)
+    setHoverAnchor(e.currentTarget)
+  }, [])
+
+  const handleCloseHoverCard = useCallback(() => {
+    setHoverClient(null)
+    setHoverAnchor(null)
+  }, [])
+
   const col = useCallback((key: string) => visibleColumns.has(key), [visibleColumns])
 
-  // Column header helper
   const renderSortHeader = (label: string, key: SortKey, className?: string) => (
     <th
       onClick={() => handleSort(key)}
@@ -364,7 +354,6 @@ export default function ClientsPage() {
     </th>
   )
 
-  // Column header config for dynamic ordering
   const HEADER_MAP: Record<string, React.ReactNode> = {
     location: renderSortHeader('City/State', 'location'),
     phone: renderStaticHeader('Phone'),
@@ -372,6 +361,7 @@ export default function ClientsPage() {
     agent: renderSortHeader('Agent', 'agent_name'),
     status: renderSortHeader('Status', 'status'),
     household: renderSortHeader('Household', 'household'),
+    accounts: renderStaticHeader('Accounts'),
     age: renderStaticHeader('Age'),
     dob: renderStaticHeader('DOB'),
     ssn: renderStaticHeader('SSN'),
@@ -381,7 +371,6 @@ export default function ClientsPage() {
     employment: renderStaticHeader('Employment'),
   }
 
-  // Column cell renderer for dynamic ordering
   const renderCell = (key: string, client: ClientRow, age: number | null) => {
     const dash = <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
     switch (key) {
@@ -391,6 +380,7 @@ export default function ClientsPage() {
       case 'agent': return client.agent_name ? <span className="text-[var(--text-secondary)] text-xs">{String(client.agent_name)}</span> : dash
       case 'status': return <StatusBadge status={client.status} />
       case 'household': return client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash
+      case 'accounts': return <AccountTypePills accountTypes={client.account_type_categories || []} />
       case 'age': return age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash
       case 'dob': return client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash
       case 'ssn': return client.ssn_last4 ? <span className="text-[var(--text-secondary)] text-xs">***-**-{String(client.ssn_last4)}</span> : dash
@@ -402,7 +392,6 @@ export default function ClientsPage() {
     }
   }
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex flex-col gap-6">
@@ -419,7 +408,6 @@ export default function ClientsPage() {
     )
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex flex-col gap-6">
@@ -445,7 +433,6 @@ export default function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Filters */}
       <div className="space-y-2">
       <ClientFilters
         search={search}
@@ -483,7 +470,6 @@ export default function ClientsPage() {
         }
       />
 
-      {/* DeDup button — shown when 2+ clients selected */}
       {selectedIds.size >= 2 && (
         <div className="flex items-center gap-2 mt-3">
           <button
@@ -503,7 +489,6 @@ export default function ClientsPage() {
       )}
       </div>
 
-      {/* No results */}
       {sorted.length === 0 && (
         <div className="flex items-center justify-center py-16">
           <div className="flex flex-col items-center gap-3 text-center">
@@ -517,7 +502,6 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Table */}
       {sorted.length > 0 && (
         <>
           <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--bg-card)]">
@@ -539,9 +523,7 @@ export default function ClientsPage() {
                       }}
                     />
                   </th>
-                  {/* name is always first */}
                   {renderSortHeader('Contact', 'name')}
-                  {/* Remaining columns in user-defined order */}
                   {orderedVisibleKeys.map((key) => (
                     <React.Fragment key={key}>{HEADER_MAP[key]}</React.Fragment>
                   ))}
@@ -549,7 +531,6 @@ export default function ClientsPage() {
               </thead>
               <tbody>
                 {groupedRows ? (
-                  /* Grouped by household rendering */
                   groupedRows.map((group) => (
                     <React.Fragment key={`group-${group.name}`}>
                       <tr className="border-t border-[var(--border)] bg-[var(--bg-surface)]">
@@ -576,12 +557,11 @@ export default function ClientsPage() {
                       </tr>
                       {group.members.map((client) => {
                         const age = getAge(client.dob)
-                        const dash = <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
                         return (
                           <tr
                             key={client._id || client.client_id}
                             onClick={() => handleRowClick(client)}
-                            className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
+                            className="group cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
                           >
                             <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                               <input type="checkbox" checked={selectedIds.has(client._id || client.client_id)} onChange={() => toggleClientSelect(client._id || client.client_id)} className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]" />
@@ -590,7 +570,17 @@ export default function ClientsPage() {
                               <div className="flex items-center gap-3">
                                 <ClientAvatar firstName={client.first_name} lastName={client.last_name} />
                                 <div className="min-w-0">
-                                  <p className="truncate font-medium text-[var(--text-primary)]">{cleanName(String(client.preferred_name || client.first_name || ''))}{' '}{cleanName(String(client.last_name || ''))}</p>
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="truncate font-medium text-[var(--text-primary)]">{cleanName(String(client.preferred_name || client.first_name || ''))}{' '}{cleanName(String(client.last_name || ''))}</p>
+                                    <button
+                                      onClick={(e) => handleOpenHoverCard(e, client)}
+                                      className="shrink-0 rounded p-0.5 text-[var(--text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:text-[var(--portal)] focus:opacity-100"
+                                      title="Quick view"
+                                      aria-label="Quick view"
+                                    >
+                                      <span className="material-icons-outlined text-[15px]">info_outline</span>
+                                    </button>
+                                  </div>
                                   {age != null && <p className="text-xs text-[var(--text-muted)]">Age {age}</p>}
                                   {dupeIds.has(client._id || client.client_id) && <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400"><span className="material-icons-outlined" style={{fontSize: 11}}>warning</span>Dupe</span>}
                                 </div>
@@ -605,17 +595,14 @@ export default function ClientsPage() {
                     </React.Fragment>
                   ))
                 ) : (
-                  /* Flat (ungrouped) rendering */
                   paged.map((client) => {
                   const age = getAge(client.dob)
-                  const dash = <span className="text-xs text-[var(--text-muted)]">&mdash;</span>
                   return (
                     <tr
                       key={client._id || client.client_id}
                       onClick={() => handleRowClick(client)}
-                      className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
+                      className="group cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--bg-hover)]"
                     >
-                      {/* Checkbox */}
                       <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
@@ -624,7 +611,6 @@ export default function ClientsPage() {
                           className="h-4 w-4 rounded border-[var(--border)] accent-[var(--portal)]"
                         />
                       </td>
-                      {/* Contact: Name + Age below — always visible */}
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-3">
                           <ClientAvatar
@@ -632,18 +618,33 @@ export default function ClientsPage() {
                             lastName={client.last_name}
                           />
                           <div className="min-w-0">
-                            <p className="truncate font-medium text-[var(--text-primary)]">
-                              {cleanName(String(client.preferred_name || client.first_name || ''))}{' '}
-                              {cleanName(String(client.last_name || ''))}
-                            </p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="truncate font-medium text-[var(--text-primary)]">
+                                {cleanName(String(client.preferred_name || client.first_name || ''))}{' '}
+                                {cleanName(String(client.last_name || ''))}
+                              </p>
+                              <button
+                                onClick={(e) => handleOpenHoverCard(e, client)}
+                                className="shrink-0 rounded p-0.5 text-[var(--text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:text-[var(--portal)] focus:opacity-100"
+                                title="Quick view"
+                                aria-label="Quick view"
+                              >
+                                <span className="material-icons-outlined text-[15px]">info_outline</span>
+                              </button>
+                            </div>
                             {age != null && (
                               <p className="text-xs text-[var(--text-muted)]">Age {age}</p>
+                            )}
+                            {dupeIds.has(client._id || client.client_id) && (
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-400">
+                                <span className="material-icons-outlined" style={{fontSize: 11}}>warning</span>
+                                Dupe
+                              </span>
                             )}
                           </div>
                         </div>
                       </td>
 
-                      {/* Dynamic columns in user-defined order */}
                       {orderedVisibleKeys.map((key) => (
                         <td key={key} className="px-3 py-3">{renderCell(key, client, age)}</td>
                       ))}
@@ -655,7 +656,6 @@ export default function ClientsPage() {
             </table>
           </div>
 
-          {/* Pagination */}
           <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
             <span>
               Showing {showingStart}&ndash;{showingEnd} of {sorted.length.toLocaleString()}
@@ -683,6 +683,15 @@ export default function ClientsPage() {
             </div>
           </div>
         </>
+      )}
+
+      {/* CCX-010: Client Quick-View Hover Card */}
+      {hoverClient && (
+        <ClientHoverCard
+          client={hoverClient as unknown as Record<string, unknown>}
+          anchorEl={hoverAnchor}
+          onClose={handleCloseHoverCard}
+        />
       )}
     </div>
   )
