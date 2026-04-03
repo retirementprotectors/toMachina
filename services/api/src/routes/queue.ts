@@ -89,13 +89,17 @@ queueRoutes.get('/', async (_req: Request, res: Response) => {
     const snapshot = await db
       .collection(COLLECTION)
       .where('status', 'in', ['INT-new', 'INT-classified'])
-      .orderBy('created_at', 'desc')
       .get()
 
-    const items = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
+    // Sort in memory — avoids composite index requirement
+    const toSortable = (v: unknown): string => {
+      if (typeof v === 'string') return v
+      if (v && typeof v === 'object' && 'toDate' in v) return (v as { toDate: () => Date }).toDate().toISOString()
+      return ''
+    }
+    const items = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => toSortable(b.created_at).localeCompare(toSortable(a.created_at)))
 
     res.json(successResponse<QueueListDTO>(items as unknown as QueueListDTO))
   } catch (err) {
