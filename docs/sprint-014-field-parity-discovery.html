@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint 014 — Firestore Field Parity Discovery</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a26;
+    --surface-3: #22222e;
+    --border: #2a2a3a;
+    --text: #e4e4ef;
+    --text-muted: #8888a0;
+    --accent: #7c5cfc;
+    --accent-glow: rgba(124, 92, 252, 0.15);
+    --green: #40bc58;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --blue: #3b82f6;
+    --teal: #14b8a6;
+    --pink: #ec4899;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, #12121a 0%, #1a1028 50%, #12121a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  .hero .subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+  .hero .meta {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero .meta span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    padding: 0.35rem 1rem;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Content ── */
+  .content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ── Executive Summary ── */
+  .exec-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+  }
+  .exec-summary h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+  .stat-card .number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .stat-card .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Sections ── */
+  .section {
+    margin-bottom: 3rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--accent);
+  }
+  .section-number {
+    background: var(--accent);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.88rem;
+  }
+  th, td {
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+  }
+  tr:hover td { background: var(--surface-2); }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge-keep { background: rgba(64, 188, 88, 0.15); color: var(--green); border: 1px solid rgba(64, 188, 88, 0.3); }
+  .badge-merge { background: rgba(234, 179, 8, 0.15); color: var(--yellow); border: 1px solid rgba(234, 179, 8, 0.3); }
+  .badge-deprecate { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+  .badge-both { background: rgba(59, 130, 246, 0.15); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.3); }
+  .badge-yes { background: rgba(64, 188, 88, 0.15); color: var(--green); }
+  .badge-no { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+  .badge-partial { background: rgba(234, 179, 8, 0.15); color: var(--yellow); }
+  .badge-missing { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+  .badge-rendered { background: rgba(64, 188, 88, 0.15); color: var(--green); }
+  .badge-new { background: rgba(124, 92, 252, 0.15); color: var(--accent); border: 1px solid rgba(124, 92, 252, 0.3); }
+  .badge-p1 { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+  .badge-p2 { background: rgba(249, 115, 22, 0.15); color: var(--orange); }
+  .badge-p3 { background: rgba(234, 179, 8, 0.15); color: var(--yellow); }
+  .badge-p4 { background: rgba(136, 136, 160, 0.15); color: var(--text-muted); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+  .card h4 {
+    font-size: 0.95rem;
+    margin: 1rem 0 0.5rem;
+    color: var(--accent);
+  }
+
+  /* ── Layout Cards ── */
+  .layout-mockup {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin: 1rem 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+  }
+  .layout-mockup .field-name {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .layout-mockup .card-label {
+    color: var(--green);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  /* ── Collapsible ── */
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  details summary {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  details summary:hover { background: var(--surface-2); }
+  details[open] summary { border-bottom: 1px solid var(--border); }
+  details .detail-body { padding: 1.5rem; }
+
+  .note {
+    background: var(--accent-glow);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+  }
+  .note-warning {
+    background: rgba(234, 179, 8, 0.08);
+    border-left-color: var(--yellow);
+  }
+  .note-danger {
+    background: rgba(239, 68, 68, 0.08);
+    border-left-color: var(--red);
+  }
+
+  code {
+    background: var(--surface-3);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  pre {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 1rem 0;
+  }
+  pre code { background: none; padding: 0; }
+
+  .pop-rate {
+    display: inline-block;
+    min-width: 55px;
+    text-align: right;
+  }
+  .pop-high { color: var(--green); font-weight: 600; }
+  .pop-mid { color: var(--yellow); }
+  .pop-low { color: var(--text-muted); }
+
+  /* ── Flow diagram ── */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  .flow-box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .flow-arrow { color: var(--text-muted); font-size: 1.2rem; }
+
+  .signature {
+    text-align: center;
+    padding: 3rem 0;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+  .signature .name {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .signature .title { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 1.8rem; }
+    .content { padding: 1rem; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    table { font-size: 0.78rem; }
+    th, td { padding: 0.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ HERO ═══ -->
+<div class="hero">
+  <h1>Firestore Field Parity</h1>
+  <div class="subtitle">Sprint 014 Master Discovery Document</div>
+  <div class="meta">
+    <span>Sprint 014</span>
+    <span>92 Contact Fields</span>
+    <span>6 Account Types</span>
+    <span>5,000+ Account Docs</span>
+    <span>April 2026</span>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════════════════════════ EXEC SUMMARY ═══ -->
+<div class="exec-summary">
+  <h2>Executive Summary</h2>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="number">92</div>
+      <div class="label">Contact Fields in Firestore</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">~65</div>
+      <div class="label">Rendered in UI Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">19</div>
+      <div class="label">Alias Pairs to Resolve</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">27</div>
+      <div class="label">Contact Fields NOT in UI</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">5,000</div>
+      <div class="label">Account Documents</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">47</div>
+      <div class="label">Account Fields NOT Rendered</div>
+    </div>
+  </div>
+  <p style="color: var(--text-muted); font-size: 0.9rem;">
+    This document is the master reference for Sprint 014: Firestore Field Parity. It maps every field in the <code>clients</code>
+    and <code>accounts</code> collections to its TypeScript type, its UI render location, and every downstream consumer that reads it.
+    <strong>No code should be written until this audit is reviewed and the alias resolutions are approved.</strong>
+  </p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SECTION 1 ═══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">1</div>
+    <h2>Field Alias Audit</h2>
+  </div>
+
+  <div class="note note-danger">
+    <strong>CRITICAL:</strong> Before adding ANY new fields to the UI, these alias conflicts MUST be resolved.
+    Adding UI for both <code>face_amount</code> and <code>face_value</code> when they represent the same data
+    creates confusion for the team and double-maintenance forever.
+  </div>
+
+  <p style="margin-bottom: 1rem;">
+    The field inventory identified 19 alias groups where multiple Firestore fields may represent the same data.
+    For each pair, the table shows population counts, which systems use them, and the recommended resolution.
+  </p>
+
+  <!-- ── Contact-Level Aliases ── -->
+  <h3 style="margin: 1.5rem 0 0.75rem; color: var(--accent);">Contact-Level Aliases</h3>
+  <div style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Field A</th>
+        <th>Pop.</th>
+        <th>Field B</th>
+        <th>Pop.</th>
+        <th>Same Data?</th>
+        <th>Recommendation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>dob</code></td>
+        <td><span class="pop-rate pop-high">826</span></td>
+        <td><code>date_of_birth</code></td>
+        <td><span class="pop-rate pop-mid">558</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>dob</code></span> &mdash; merge <code>date_of_birth</code> values into <code>dob</code>, delete field. <code>dob</code> is the canonical name everywhere: types, normalizer, ProZone, campaign engine.</td>
+      </tr>
+      <tr>
+        <td><code>address</code></td>
+        <td><span class="pop-rate pop-high">715</span></td>
+        <td><code>address_street</code></td>
+        <td><span class="pop-rate pop-mid">572</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>address</code></span> &mdash; merge. GHL imports wrote <code>address_street</code>; normalizer and types use <code>address</code>.</td>
+      </tr>
+      <tr>
+        <td><code>city</code></td>
+        <td><span class="pop-rate pop-high">841</span></td>
+        <td><code>address_city</code></td>
+        <td><span class="pop-rate pop-mid">565</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>city</code></span> &mdash; merge. Same pattern as address.</td>
+      </tr>
+      <tr>
+        <td><code>state</code></td>
+        <td><span class="pop-rate pop-high">846</span></td>
+        <td><code>address_state</code></td>
+        <td><span class="pop-rate pop-mid">571</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>state</code></span> &mdash; merge. ProZone, campaign engine, normalizer all use <code>state</code>.</td>
+      </tr>
+      <tr>
+        <td><code>zip</code></td>
+        <td><span class="pop-rate pop-high">844</span></td>
+        <td><code>address_zip</code></td>
+        <td><span class="pop-rate pop-mid">574</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>zip</code></span> &mdash; merge.</td>
+      </tr>
+      <tr>
+        <td><code>county</code></td>
+        <td><span class="pop-rate pop-high">813</span></td>
+        <td><code>address_county</code></td>
+        <td><span class="pop-rate pop-mid">277</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>county</code></span> &mdash; merge. ProZone uses <code>county</code>.</td>
+      </tr>
+      <tr>
+        <td><code>status</code></td>
+        <td><span class="pop-rate pop-high">1000</span></td>
+        <td><code>client_status</code></td>
+        <td><span class="pop-rate pop-high">1000</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>status</code></span> &mdash; <code>client_status</code> was a GHL import artifact. Both 100% populated with same values. Dedup to <code>status</code> per the <code>Client</code> interface.</td>
+      </tr>
+      <tr>
+        <td><code>ssn</code></td>
+        <td><span class="pop-rate pop-mid">338</span></td>
+        <td><code>ssn_last4</code></td>
+        <td><span class="pop-rate pop-low">0*</span></td>
+        <td><span class="badge badge-both">DIFFERENT</span></td>
+        <td><span class="badge badge-deprecate">Migrate <code>ssn</code> &rarr; <code>ssn_last4</code></span> &mdash; full SSNs should NOT be stored in Firestore (PHI risk). Write a migration that extracts last-4 into <code>ssn_last4</code>, then purge <code>ssn</code>. The UI already shows masked.</td>
+      </tr>
+      <tr>
+        <td><code>medicare_number</code></td>
+        <td><span class="pop-rate pop-mid">279</span></td>
+        <td><code>medicare_beneficiary_id</code></td>
+        <td><span class="pop-rate pop-low">~189*</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>medicare_number</code></span> on contact &mdash; the client-level MBI. <code>medicare_beneficiary_id</code> appears on accounts (189 medicare accounts). Different scope &mdash; contact vs. account. Keep both in their respective locations.</td>
+      </tr>
+      <tr>
+        <td><code>phone</code></td>
+        <td><span class="pop-rate pop-high">775</span></td>
+        <td><code>cell_phone</code></td>
+        <td><span class="pop-rate pop-low">19</span></td>
+        <td><span class="badge badge-both">DIFFERENT</span></td>
+        <td><span class="badge badge-keep">Keep both</span> &mdash; <code>phone</code> is primary (any type), <code>cell_phone</code> is specifically mobile. The 19 <code>cell_phone</code> values are distinct numbers. UI already renders both.</td>
+      </tr>
+      <tr>
+        <td><code>alternate_phone</code></td>
+        <td><span class="pop-rate pop-low">27</span></td>
+        <td><code>alt_phone</code></td>
+        <td><span class="pop-rate pop-low">0*</span></td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>alternate_phone</code></span> &mdash; the normalizer uses this name. UI displays as "Alt Phone". Standardize label.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size: 0.8rem; color: var(--text-muted);">* Pop. counts marked 0 or with asterisk indicate the field exists in the TS interface but has 0 records in the sampled 1,000 clients.</p>
+
+  <!-- ── Account-Level Aliases ── -->
+  <h3 style="margin: 1.5rem 0 0.75rem; color: var(--accent);">Account-Level Aliases</h3>
+  <div style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Field A</th>
+        <th>Where</th>
+        <th>Field B</th>
+        <th>Where</th>
+        <th>Same Data?</th>
+        <th>Recommendation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>face_amount</code></td>
+        <td>Life: 377, Unknown: 80</td>
+        <td><code>face_value</code></td>
+        <td>Life: 704, Inv: 6</td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>face_amount</code></span> &mdash; canonical name in TS types, normalizer, AI3, households route. <code>face_value</code> came from CoF import format. Migrate <code>face_value</code> &rarr; <code>face_amount</code> (704 life accounts affected).</td>
+      </tr>
+      <tr>
+        <td><code>policy_number</code></td>
+        <td>All types, ~4,000+</td>
+        <td><code>account_number</code></td>
+        <td>Life: 387, Medicare: 1,432, Annuity: 475, Inv: 114</td>
+        <td><span class="badge badge-both">OVERLAPPING</span></td>
+        <td><span class="badge badge-keep">Keep both</span> &mdash; <code>policy_number</code> = insurer's number, <code>account_number</code> = internal/custodial reference. Many records have both with different values. UI should show both when populated.</td>
+      </tr>
+      <tr>
+        <td><code>carrier_name</code></td>
+        <td>All types</td>
+        <td><code>carrier_charter</code></td>
+        <td>Medicare: 1,994+260</td>
+        <td><span class="badge badge-both">DIFFERENT</span></td>
+        <td><span class="badge badge-keep">Keep both</span> &mdash; <code>carrier_name</code> = display name (e.g., "Aetna"), <code>carrier_charter</code> = legal underwriting entity (e.g., "Aetna Health Insurance Company"). Both meaningful.</td>
+      </tr>
+      <tr>
+        <td><code>carrier_charter</code></td>
+        <td>Medicare: 2,254</td>
+        <td><code>underwriting_charter</code></td>
+        <td>Medicare: 763, Annuity: 94</td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>carrier_charter</code></span> &mdash; merge <code>underwriting_charter</code> into it. <code>carrier_charter</code> is in the Account TS interface. Same concept, different import sources.</td>
+      </tr>
+      <tr>
+        <td><code>premium</code></td>
+        <td>Life: 41, Annuity: 6, Unknown: 102</td>
+        <td><code>annual_premium</code></td>
+        <td>Life: 772, Medicare: 75, Inv: 6</td>
+        <td><span class="badge badge-both">RELATED</span></td>
+        <td><span class="badge badge-keep">Keep both</span> &mdash; <code>premium</code> is the generic/modal premium (could be monthly). <code>annual_premium</code> is annualized. <code>monthly_premium</code> (Medicare: 454) is a third variant. Keep all three with clear semantics: <code>premium</code> = stated premium, <code>annual_premium</code> = annualized, <code>monthly_premium</code> = monthly.</td>
+      </tr>
+      <tr>
+        <td><code>cash_value</code></td>
+        <td>Life: 707+83, Annuity: 4</td>
+        <td><code>surrender_value</code></td>
+        <td>Life: 404, Annuity: 216, Unknown: 82</td>
+        <td><span class="badge badge-both">DIFFERENT</span></td>
+        <td><span class="badge badge-keep">Keep both</span> &mdash; cash value and surrender value are different financial concepts. Cash value = accumulation. Surrender value = cash value minus surrender charges. Both belong on the detail page.</td>
+      </tr>
+      <tr>
+        <td><code>account_value</code></td>
+        <td>Life: 39, Annuity: 263, Unknown: 79, Inv: 12</td>
+        <td><code>fund_value</code> / <code>annuity_balance</code></td>
+        <td>Life: 113/113, Inv: 6/6</td>
+        <td><span class="badge badge-merge">YES</span></td>
+        <td><span class="badge badge-keep">Keep <code>account_value</code></span> &mdash; canonical in TS types. <code>fund_value</code> and <code>annuity_balance</code> are CoF-specific names for the same concept. Migrate both &rarr; <code>account_value</code>.</td>
+      </tr>
+      <tr>
+        <td><code>medicare_id</code></td>
+        <td>Medicare: 2,285</td>
+        <td><code>member_id</code></td>
+        <td>Medicare: 279, Unknown: 19</td>
+        <td><span class="badge badge-both">OVERLAPPING</span></td>
+        <td><span class="badge badge-keep">Keep <code>medicare_id</code></span> on accounts as canonical Medicare identifier. <code>member_id</code> is a carrier-specific member number (e.g., Wellmark, Humana). Keep <code>member_id</code> when it's a distinct carrier ID, merge when it's MBI.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note">
+    <strong>Migration Script Required:</strong> Before any UI work, run a one-time migration to:
+    <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
+      <li>Merge <code>date_of_birth</code> &rarr; <code>dob</code> (558 contacts)</li>
+      <li>Merge <code>address_street</code> &rarr; <code>address</code>, <code>address_city</code> &rarr; <code>city</code>, etc. (571 contacts)</li>
+      <li>Merge <code>face_value</code> &rarr; <code>face_amount</code> (704 life accounts)</li>
+      <li>Merge <code>underwriting_charter</code> &rarr; <code>carrier_charter</code> (857 accounts)</li>
+      <li>Merge <code>fund_value</code>/<code>annuity_balance</code> &rarr; <code>account_value</code> (113 life accounts)</li>
+      <li>Extract <code>ssn</code> last-4 &rarr; <code>ssn_last4</code>, then purge <code>ssn</code> (338 contacts &mdash; PHI remediation)</li>
+      <li>Dedup <code>client_status</code> &rarr; <code>status</code> (1,000 contacts)</li>
+    </ol>
+    Estimated: ~4,000 document writes. Run as a batched Cloud Function with dry-run mode.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SECTION 2 ═══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">2</div>
+    <h2>Contact Detail Page Redesign</h2>
+  </div>
+
+  <p style="margin-bottom: 1rem;">
+    Of the 92 contact fields in Firestore, approximately 65 are rendered in the current tabbed detail page.
+    The following fields are <strong>NOT currently rendered</strong> anywhere in the UI.
+    Fields are grouped by the tab they should be added to, prioritized by population rate.
+  </p>
+
+  <!-- ── Contact Tab Additions ── -->
+  <details>
+    <summary>Contact Tab &mdash; 6 missing fields</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Population</th><th>Priority</th><th>Placement</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>phone_valid</code></td>
+            <td><span class="pop-rate pop-high">953/1000</span></td>
+            <td><span class="badge badge-p1">P1</span></td>
+            <td>Phone number validity badge next to each phone field (green/yellow/red dot)</td>
+          </tr>
+          <tr>
+            <td><code>email_valid</code></td>
+            <td><span class="pop-rate pop-high">953/1000</span></td>
+            <td><span class="badge badge-p1">P1</span></td>
+            <td>Email validity badge next to email field (same pattern as phone_valid)</td>
+          </tr>
+          <tr>
+            <td><code>contact_quality_score</code></td>
+            <td><span class="pop-rate pop-high">953/1000</span></td>
+            <td><span class="badge badge-p1">P1</span></td>
+            <td>Quality badge in ClientHeader strip (green/yellow/red pill). Computed from phone_valid + email_valid + address_standardized.</td>
+          </tr>
+          <tr>
+            <td><code>do_not_contact</code></td>
+            <td><span class="pop-rate pop-low">125/1000</span></td>
+            <td><span class="badge badge-p2">P2</span></td>
+            <td>Merge into the existing DNC row (dnc_all/dnc_phone/etc.). If <code>do_not_contact</code> = TRUE, set <code>dnc_all</code> = true as a master switch.</td>
+          </tr>
+          <tr>
+            <td><code>mailing_same_as_primary</code></td>
+            <td><span class="pop-rate pop-low">42/1000</span></td>
+            <td><span class="badge badge-p3">P3</span></td>
+            <td>Checkbox above Mailing Address section: "Same as primary address". When checked, hide mailing fields.</td>
+          </tr>
+          <tr>
+            <td><code>mailing_county</code></td>
+            <td><span class="pop-rate pop-low">13/1000</span></td>
+            <td><span class="badge badge-p4">P4</span></td>
+            <td>Add to Mailing Address section after mailing_zip.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="layout-mockup"><span class="card-label">[CONTACT TAB — Phone Numbers Card]</span>
+  <span class="field-name">Cell Phone</span>  641-860-1185  <span style="color: var(--green);">[Valid]</span>   &larr; phone_valid badge
+  <span class="field-name">Alt Phone</span>   913-208-8415  <span style="color: var(--yellow);">[Unknown]</span>
+  <span class="field-name">Phone Type</span>  Mobile
+
+<span class="card-label">[CONTACT TAB — Email Card]</span>
+  <span class="field-name">Primary</span>     josh@rpi.com  <span style="color: var(--green);">[Valid]</span>   &larr; email_valid badge
+  <span class="field-name">Secondary</span>   jdm@gmail.com
+
+<span class="card-label">[CLIENT HEADER — After Status Badge]</span>
+  Active  <span style="color: var(--green);">[Quality: Green]</span>  Age 60  Des Moines, IA  CST   &larr; contact_quality_score pill</div>
+    </div>
+  </details>
+
+  <!-- ── Personal Tab Additions ── -->
+  <details>
+    <summary>Personal Tab &mdash; 3 missing fields</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Population</th><th>Priority</th><th>Placement</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>gender</code></td>
+            <td><span class="pop-rate pop-mid">559/1000</span></td>
+            <td><span class="badge badge-p1">P1</span></td>
+            <td>Personal Details card, after <code>marital_status</code>. Already in PersonalTab.tsx as a select &mdash; verify rendering.</td>
+          </tr>
+          <tr>
+            <td><code>country</code></td>
+            <td><span class="pop-rate pop-high">937/1000</span></td>
+            <td><span class="badge badge-p3">P3</span></td>
+            <td>Primary Address section, after zip. Almost all "US" &mdash; only show if non-US.</td>
+          </tr>
+          <tr>
+            <td><code>address_standardized</code></td>
+            <td><span class="pop-rate pop-mid">630/1000</span></td>
+            <td><span class="badge badge-p3">P3</span></td>
+            <td>Small "Verified" badge next to address (USPS standardization flag). Green checkmark if TRUE.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── Integrations Tab Additions ── -->
+  <details>
+    <summary>Integrations Tab &mdash; 10 missing fields</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Population</th><th>Priority</th><th>Placement</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>import_source</code></td>
+            <td><span class="pop-rate pop-high">954/1000</span></td>
+            <td><span class="badge badge-p1">P1</span></td>
+            <td>Data Source section. Already partially rendered &mdash; verify it shows.</td>
+          </tr>
+          <tr>
+            <td><code>last_import_source</code></td>
+            <td><span class="pop-rate pop-low">115/1000</span></td>
+            <td><span class="badge badge-p2">P2</span></td>
+            <td>Data Source section, below import_source. Shows most recent import wire.</td>
+          </tr>
+          <tr>
+            <td><code>last_validated_date</code></td>
+            <td><span class="pop-rate pop-high">953/1000</span></td>
+            <td><span class="badge badge-p2">P2</span></td>
+            <td>Data Source section. When contact info was last validated.</td>
+          </tr>
+          <tr>
+            <td><code>book_of_business</code></td>
+            <td><span class="pop-rate pop-high">975/1000</span></td>
+            <td><span class="badge badge-p1">P1</span></td>
+            <td>Already in ContactTab as RPI Relationship &rarr; book_of_business select. Verify rendering.</td>
+          </tr>
+          <tr>
+            <td><code>client_classification</code></td>
+            <td><span class="pop-rate pop-high">954/1000</span></td>
+            <td><span class="badge badge-p1">P1</span></td>
+            <td>RPI Relationship section in ContactTab (Client/Prospect/etc.). May overlap with <code>rpi_relationship</code> &mdash; check if they're the same concept.</td>
+          </tr>
+          <tr>
+            <td><code>tags</code></td>
+            <td><span class="pop-rate pop-mid">733/1000</span></td>
+            <td><span class="badge badge-p2">P2</span></td>
+            <td>New "Tags" pill row below ClientHeader. Campaign engine uses these for audience targeting.</td>
+          </tr>
+          <tr>
+            <td><code>jira_key</code></td>
+            <td><span class="pop-rate pop-mid">392/1000</span></td>
+            <td><span class="badge badge-p3">P3</span></td>
+            <td>Integrations tab, Platform IDs section. Legacy reference.</td>
+          </tr>
+          <tr>
+            <td><code>ghl_last_activity</code></td>
+            <td><span class="pop-rate pop-mid">681/1000</span></td>
+            <td><span class="badge badge-p3">P3</span></td>
+            <td>Integrations tab, GoHighLevel section.</td>
+          </tr>
+          <tr>
+            <td><code>ghl_opportunities</code></td>
+            <td><span class="pop-rate pop-low">191/1000</span></td>
+            <td><span class="badge badge-p3">P3</span></td>
+            <td>Integrations tab, GoHighLevel section. Legacy GHL pipeline summary.</td>
+          </tr>
+          <tr>
+            <td><code>ghl_assigned_to</code></td>
+            <td><span class="pop-rate pop-low">9/1000</span></td>
+            <td><span class="badge badge-p4">P4</span></td>
+            <td>Integrations tab, GoHighLevel section.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── ProZone / Territory Fields ── -->
+  <details>
+    <summary>ProZone Fields &mdash; 2 missing from UI (rendered by ProZone, not contact page)</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Population</th><th>Priority</th><th>Placement</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>zone_id</code></td>
+            <td><span class="pop-rate pop-mid">446/1000</span></td>
+            <td><span class="badge badge-p2">P2</span></td>
+            <td>Contact tab, below county. Read-only display: "Zone T1-Z1". Computed by ProZone, not editable.</td>
+          </tr>
+          <tr>
+            <td><code>territory_id</code></td>
+            <td><span class="pop-rate pop-mid">446/1000</span></td>
+            <td><span class="badge badge-p2">P2</span></td>
+            <td>Contact tab, next to zone_id: "Territory T1". Read-only.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── Health / Estate Tab Sparse Fields ── -->
+  <details>
+    <summary>Health &amp; Estate Tabs &mdash; Extremely sparse (1-3 records)</summary>
+    <div class="detail-body">
+      <p style="margin-bottom: 1rem; color: var(--text-muted);">These fields exist in Firestore but have almost no data. The tabs already render the UI elements for them. No new UI work needed &mdash; the fields just need to be populated over time through team intake.</p>
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>Tab</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><code>tobacco_user</code></td><td>1</td><td>Health</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>tobacco_type</code></td><td>1</td><td>Health</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>height</code></td><td>2</td><td>Health</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>weight</code></td><td>2</td><td>Health</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>risk_score</code></td><td>1</td><td>Financial</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>investable_assets</code></td><td>1</td><td>Financial</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>net_worth</code></td><td>1</td><td>Financial</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>has_trust</code></td><td>1</td><td>Estate</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>recent_health_concerns</code></td><td>1</td><td>Health</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>employment_status</code></td><td>2</td><td>Personal</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+          <tr><td><code>former_occupation</code></td><td>1</td><td>Personal</td><td><span class="badge badge-rendered">Already Rendered</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── Fields NOT to render ── -->
+  <details>
+    <summary>Fields deliberately NOT rendered (internal / computed / legacy)</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td><code>address_standardized</code></td><td>Boolean flag &mdash; render as badge, not editable field</td></tr>
+          <tr><td><code>county_fips</code></td><td>Internal FIPS code for geo &mdash; not user-facing (1 record)</td></tr>
+          <tr><td><code>family_member_of</code></td><td>Legacy field &mdash; replaced by <code>connected_contacts</code> array (2 records)</td></tr>
+          <tr><td><code>family_relationship</code></td><td>Legacy field &mdash; replaced by <code>connected_contacts</code> (2 records)</td></tr>
+          <tr><td><code>carrier_name</code> (on contact)</td><td>Orphaned field &mdash; carrier belongs on accounts, not contacts (1 record)</td></tr>
+          <tr><td><code>company</code></td><td>GHL import artifact (1 record) &mdash; not meaningful</td></tr>
+          <tr><td><code>lead_source</code></td><td>GHL import &mdash; subsumed by <code>source</code> + <code>tags</code></td></tr>
+          <tr><td><code>employer_info</code></td><td>Empty JSON object (2 records) &mdash; use <code>employer</code> + <code>occupation</code> instead</td></tr>
+          <tr><td><code>address_street2</code></td><td>Merge into <code>address_2</code> during alias migration (15 records)</td></tr>
+          <tr><td><code>spouse_name</code>, <code>spouse_dob</code></td><td>Legacy &mdash; replaced by <code>connected_contacts</code> (3 records / 1 record)</td></tr>
+          <tr><td><code>child_1_name</code></td><td>Legacy &mdash; replaced by <code>connected_contacts</code> (1 record)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SECTION 3 ═══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">3</div>
+    <h2>Account Detail Page &mdash; By Type</h2>
+  </div>
+
+  <p style="margin-bottom: 1.5rem;">
+    For each account type, this section maps every Firestore field to whether it's currently rendered on the account detail page,
+    and where new fields should go. Fields are grouped by logical section.
+  </p>
+
+  <!-- ── LIFE ── -->
+  <details open>
+    <summary style="color: var(--pink);"><strong>Life Insurance</strong> &mdash; 1,905 accounts, 56 unique fields</summary>
+    <div class="detail-body">
+      <h4>Policy Info</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>carrier_name</code></td><td>1,870</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>product_name</code></td><td>1,204</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>policy_number</code></td><td>1,905</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>account_number</code></td><td>387</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>policy_type</code></td><td>736</td><td><span class="badge badge-yes">Yes</span></td><td>Rendered as <code>product_type</code></td></tr>
+          <tr><td><code>plan_name</code></td><td>40</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Policy Info section, below product_name</td></tr>
+          <tr><td><code>plan_code</code></td><td>41</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Policy Info, beside plan_name (internal ref)</td></tr>
+          <tr><td><code>status</code></td><td>1,905</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>issue_date</code></td><td>1,024</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>effective_date</code></td><td>41</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>maturity_date</code></td><td>40</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>paid_to_date</code></td><td>791</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Dates section &mdash; critical for lapse risk</td></tr>
+          <tr><td><code>issue_age</code></td><td>41</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Policy Info, after issue_date</td></tr>
+          <tr><td><code>risk_class</code></td><td>41</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Policy Info (e.g., "NONSMOKER")</td></tr>
+          <tr><td><code>health_class</code></td><td>350</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Policy Info, beside risk_class</td></tr>
+          <tr><td><code>mec</code> / <code>is_mec</code></td><td>21/26</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> MEC badge (Modified Endowment Contract) &mdash; tax implications</td></tr>
+          <tr><td><code>db_option</code> / <code>death_benefit_option</code></td><td>29/36</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Coverage section (A=Level, B=Increasing)</td></tr>
+          <tr><td><code>underwriting_status</code></td><td>20</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> badge on Policy Info card</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Financial Values</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>face_amount</code></td><td>377</td><td><span class="badge badge-yes">Yes</span></td><td>Post-migration: will contain merged face_value data (1,081 total)</td></tr>
+          <tr><td><code>cash_value</code></td><td>707+83</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>surrender_value</code></td><td>404</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>death_benefit</code></td><td>132</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>account_value</code></td><td>39</td><td><span class="badge badge-yes">Yes</span></td><td>Post-migration: will contain fund_value/annuity_balance data</td></tr>
+          <tr><td><code>annual_premium</code></td><td>772</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>modal_premium</code></td><td>556</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section (premium per billing cycle)</td></tr>
+          <tr><td><code>scheduled_premium</code></td><td>332</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>premium_mode</code></td><td>436</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>billing_mode</code></td><td>791</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; may be same as premium_mode, verify</td></tr>
+          <tr><td><code>billing_status</code></td><td>33</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> badge (On Schedule / Lapsed / etc.)</td></tr>
+          <tr><td><code>total_premiums_paid</code></td><td>69</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>loan_balance</code></td><td>87</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> new "Loans" subsection</td></tr>
+          <tr><td><code>net_loan_amount</code></td><td>39</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Loans subsection</td></tr>
+          <tr><td><code>loan_interest_balance</code></td><td>47</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Loans subsection</td></tr>
+          <tr><td><code>loan_interest_rate</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Loans subsection</td></tr>
+          <tr><td><code>net_csv</code></td><td>29</td><td><span class="badge badge-no">No</span></td><td>Alias for net cash surrender value &mdash; show as "Net CSV" in Financial</td></tr>
+          <tr><td><code>guideline_single_premium</code></td><td>32</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial (7702 test reference)</td></tr>
+          <tr><td><code>annualized_premium</code></td><td>14</td><td><span class="badge badge-no">No</span></td><td>Alias for annual_premium &mdash; merge in migration</td></tr>
+          <tr><td><code>ltc_benefit</code></td><td>4</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> as "LTC Rider Benefit" when present</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Dividends (Whole Life / Par Policies)</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>dividend_option_1</code></td><td>175</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> new "Dividends" card (Buy PUA, Cash, Reduce Premium, etc.)</td></tr>
+          <tr><td><code>prior_year_dividend</code></td><td>94</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Dividends card</td></tr>
+          <tr><td><code>current_year_dividend</code></td><td>100</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Dividends card</td></tr>
+          <tr><td><code>dividend_balance</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Dividends card</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Ownership &amp; Beneficiary</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>insured_name</code></td><td>349</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>insured</code></td><td>12</td><td><span class="badge badge-no">No</span></td><td>Merge into <code>insured_name</code> during migration</td></tr>
+          <tr><td><code>policy_owner</code></td><td>253</td><td><span class="badge badge-yes">Yes</span></td><td>Rendered as <code>owner_name</code></td></tr>
+          <tr><td><code>insured_gender</code></td><td>349</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> next to insured_name</td></tr>
+          <tr><td><code>insured_dob</code></td><td>349</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> next to insured_name, with computed age</td></tr>
+          <tr><td><code>beneficiary</code></td><td>41</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> new "Beneficiaries" card &mdash; parsed display</td></tr>
+          <tr><td><code>beneficiaries</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td>Merge with <code>beneficiary</code> (same concept, different format)</td></tr>
+          <tr><td><code>primary_beneficiary</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Beneficiaries card</td></tr>
+          <tr><td><code>primary_beneficiary_pct</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> with primary_beneficiary</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Agent / Writing Info</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>writing_agent_id</code></td><td>349</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> new "Agent Info" card</td></tr>
+          <tr><td><code>commission_split</code></td><td>186</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info card</td></tr>
+          <tr><td><code>market</code></td><td>1,537</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info (Internal/External)</td></tr>
+          <tr><td><code>book_of_business</code></td><td>1,525</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Metadata / Tracking</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>data_source</code></td><td>396</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to metadata footer or admin-only view</td></tr>
+          <tr><td><code>last_transaction_date</code></td><td>32</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Status/Dates section</td></tr>
+          <tr><td><code>total_transactions</code></td><td>32</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to metadata</td></tr>
+          <tr><td><code>as_of_date</code></td><td>20</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> "Values as of: [date]" header on Financial card</td></tr>
+        </tbody>
+      </table>
+
+      <div class="layout-mockup"><span class="card-label">[LIFE ACCOUNT DETAIL — Proposed Layout]</span>
+
+<span class="card-label">[Header Stat Cards]</span>
+  Face Amount | Annual Premium | Policy # | Issue Date
+
+<span class="card-label">[Policy Info Card]</span>
+  Carrier Name    Product Name    Plan Name    Plan Code
+  Policy Type     Status Badge    Issue Age    Risk Class / Health Class
+  MEC Badge       UW Status       Death Benefit Option
+
+<span class="card-label">[Financial Card]</span>
+  Values as of: [as_of_date]
+  Face Amount       Cash Value        Surrender Value     Account Value
+  Death Benefit     Net CSV           Annual Premium      Modal Premium
+  Scheduled Premium Billing Mode      Billing Status      Total Premiums Paid
+  Guideline Single Premium
+
+<span class="card-label">[Loans Card]</span>  (show only if loan_balance > 0)
+  Loan Balance     Net Loan Amount    Interest Balance    Interest Rate
+
+<span class="card-label">[Dividends Card]</span>  (show only if dividend_option_1 exists)
+  Dividend Option    Prior Year    Current Year    Dividend Balance
+
+<span class="card-label">[Ownership &amp; Beneficiary Card]</span>
+  Insured: Name (Gender, Age from insured_dob)    Policy Owner: Name
+  Primary Beneficiary: Name (100%)
+  Contingent Beneficiary: Name (%)
+
+<span class="card-label">[Agent Info Card]</span>
+  Writing Agent ID    Commission Split    Market    Book of Business
+
+<span class="card-label">[Dates / Status Card]</span>
+  Issue Date    Effective Date    Maturity Date    Paid-To Date
+  Last Transaction    Total Transactions</div>
+    </div>
+  </details>
+
+  <!-- ── MEDICARE ── -->
+  <details>
+    <summary style="color: var(--blue);"><strong>Medicare</strong> &mdash; 2,307 accounts (2,047 + 260), 38 unique fields</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>carrier_name</code></td><td>2,244</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>plan_name</code></td><td>1,752</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>core_product_type</code></td><td>1,775</td><td><span class="badge badge-partial">Partial</span></td><td>Rendered as plan_type in some paths</td></tr>
+          <tr><td><code>ancillary_type</code></td><td>1,014</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; PDP/MedSup/MAPD breakdown. Critical for plan identification.</td></tr>
+          <tr><td><code>mapd_type</code></td><td>261</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; HMO/PPO/PFFS distinction for MAPD plans</td></tr>
+          <tr><td><code>plan_letter</code></td><td>413</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; MedSup plan letter (F, G, N, etc.). Critical.</td></tr>
+          <tr><td><code>cms_plan_code</code></td><td>626</td><td><span class="badge badge-partial">Partial</span></td><td>Sometimes shown &mdash; ensure consistent rendering</td></tr>
+          <tr><td><code>carrier_charter</code></td><td>2,254</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; legal entity name under carrier_name</td></tr>
+          <tr><td><code>charter_code</code></td><td>2,254</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> beside carrier_charter (admin view)</td></tr>
+          <tr><td><code>naic_code</code></td><td>1,858</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to admin/detail view</td></tr>
+          <tr><td><code>medicare_id</code></td><td>2,285</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>member_id</code></td><td>279</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; carrier member ID (distinct from medicare_id)</td></tr>
+          <tr><td><code>medicare_beneficiary_id</code></td><td>189</td><td><span class="badge badge-partial">Partial</span></td><td>PersonalTab shows this &mdash; also show on account when present</td></tr>
+          <tr><td><code>effective_date</code></td><td>1,089</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>term_date</code></td><td>24</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Dates section</td></tr>
+          <tr><td><code>termination_date</code></td><td>197</td><td><span class="badge badge-no">No</span></td><td>Merge with <code>term_date</code> (same concept)</td></tr>
+          <tr><td><code>termination_reason</code></td><td>3</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> when term_date present</td></tr>
+          <tr><td><code>monthly_premium</code></td><td>454</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>commissionable_premium</code></td><td>177</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section (agent-facing)</td></tr>
+          <tr><td><code>planned_premium</code></td><td>158</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>premium_mode</code></td><td>206</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>election_type</code></td><td>181</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; AEP/SEP/IEP/OEP (enrollment period type)</td></tr>
+          <tr><td><code>submitted_date</code></td><td>317</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Dates section</td></tr>
+          <tr><td><code>writing_agent_id</code></td><td>120</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info</td></tr>
+          <tr><td><code>agent_writing_number</code></td><td>56</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info</td></tr>
+          <tr><td><code>agent_npn</code></td><td>260</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info (NPN of writing agent)</td></tr>
+          <tr><td><code>agent_name</code></td><td>63</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info</td></tr>
+          <tr><td><code>carrier_application_status</code></td><td>53</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> badge next to status</td></tr>
+          <tr><td><code>carrier_sales_type</code></td><td>57</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> (Enrollment/Replacement/etc.)</td></tr>
+          <tr><td><code>enrollment_period</code></td><td>2</td><td><span class="badge badge-no">No</span></td><td>Merge with election_type (same concept)</td></tr>
+          <tr><td><code>contract_id</code></td><td>2</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Plan Details</td></tr>
+          <tr><td><code>part_b_giveback</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial &mdash; Part B giveback amount</td></tr>
+          <tr><td><code>market</code></td><td>1,119</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Agent Info</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── ANNUITY ── -->
+  <details>
+    <summary style="color: var(--orange);"><strong>Annuity</strong> &mdash; 498 accounts, 52 unique fields</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>carrier_name</code></td><td>492</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>product_name</code></td><td>472</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>account_number</code></td><td>475</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>account_type</code></td><td>438</td><td><span class="badge badge-yes">Yes</span></td><td>VARIABLE/FIXED/FIA</td></tr>
+          <tr><td><code>tax_status</code></td><td>250</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>account_value</code></td><td>263</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>surrender_value</code></td><td>216</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>death_benefit</code></td><td>166</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>issue_date</code></td><td>362</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>account_owner</code></td><td>106</td><td><span class="badge badge-yes">Yes</span></td><td>Rendered as owner_name</td></tr>
+          <tr><td><code>annuitant</code></td><td>16</td><td><span class="badge badge-yes">Yes</span></td><td>Rendered as annuitant_name</td></tr>
+          <tr><td><code>income_benefit</code></td><td>128</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Income Rider section &mdash; guaranteed annual income</td></tr>
+          <tr><td><code>benefit_base</code></td><td>35</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Income Rider section</td></tr>
+          <tr><td><code>net_deposits</code></td><td>187</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>as_of_date</code></td><td>229</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> "Values as of" header</td></tr>
+          <tr><td><code>fixed_rate</code></td><td>16</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial (MYGA/Fixed rate)</td></tr>
+          <tr><td><code>myga_rate</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; show as "Guaranteed Rate" with myga_period</td></tr>
+          <tr><td><code>myga_period</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> beside myga_rate</td></tr>
+          <tr><td><code>has_income_rider</code></td><td>5</td><td><span class="badge badge-no">No</span></td><td>Controls rider section visibility (boolean)</td></tr>
+          <tr><td><code>gmib_amount</code></td><td>2</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Rider section (GMIB benefit)</td></tr>
+          <tr><td><code>withdrawal_percentage</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Rider section</td></tr>
+          <tr><td><code>income_gross</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Rider section</td></tr>
+          <tr><td><code>income_frequency</code></td><td>2</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Rider section</td></tr>
+          <tr><td><code>joint_owner</code></td><td>3</td><td><span class="badge badge-yes">Yes</span></td><td>Rendered as joint_owner_name</td></tr>
+          <tr><td><code>joint_annuitant</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Ownership card</td></tr>
+          <tr><td><code>beneficiary_primary</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> Beneficiaries card</td></tr>
+          <tr><td><code>beneficiary_contingent</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Beneficiaries card</td></tr>
+          <tr><td><code>surrender_charge</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>allocation</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; index allocation strategy</td></tr>
+          <tr><td><code>transfer_date</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Transfer History section</td></tr>
+          <tr><td><code>transfer_destination</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Transfer History</td></tr>
+          <tr><td><code>transfer_notes</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Transfer History</td></tr>
+          <tr><td><code>rmd_calculated</code></td><td>9</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> new "RMD" card</td></tr>
+          <tr><td><code>rmd_remaining</code></td><td>8</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to RMD card</td></tr>
+          <tr><td><code>prior_year_fmv</code></td><td>6</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to RMD card</td></tr>
+          <tr><td><code>return_cumulative</code></td><td>7</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Performance section</td></tr>
+          <tr><td><code>return_annualized</code></td><td>6</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Performance section</td></tr>
+          <tr><td><code>admin_rider_fees</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Rider section</td></tr>
+          <tr><td><code>life_option</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Rider section (payout type)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── INVESTMENT ── -->
+  <details>
+    <summary style="color: var(--teal);"><strong>Investment</strong> &mdash; 120 accounts, 26 unique fields</summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field</th><th>Pop.</th><th>In UI?</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><code>account_number</code></td><td>114</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>custodian</code></td><td>52</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>account_type</code></td><td>52</td><td><span class="badge badge-yes">Yes</span></td><td>Advisory (Fee-Based)</td></tr>
+          <tr><td><code>tax_status</code></td><td>65</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Account Details (IRA/Roth/Joint/etc.)</td></tr>
+          <tr><td><code>account_registration</code></td><td>52</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; legal registration type (distinct from tax_status)</td></tr>
+          <tr><td><code>account_value</code></td><td>12</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>advisory_fee_pct</code></td><td>1</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>advisory_fees</code></td><td>2</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>risk_level</code></td><td>1</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>bd_ria_firm</code></td><td>6</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; BD/RIA firm name (Morgan Stanley, Schwab, etc.)</td></tr>
+          <tr><td><code>advisor_of_record</code></td><td>5</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> &mdash; advisor/branch info</td></tr>
+          <tr><td><code>net_deposits</code></td><td>3</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> to Financial section</td></tr>
+          <tr><td><code>as_of_date</code></td><td>11</td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-new">Add</span> "Values as of" header</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── UNKNOWN ── -->
+  <details>
+    <summary style="color: var(--text-muted);"><strong>Unknown (Untyped)</strong> &mdash; 170 accounts</summary>
+    <div class="detail-body">
+      <div class="note note-warning">
+        <strong>Data Quality Issue:</strong> 170 accounts have <code>account_type_category</code> = "Unknown" but contain fields like
+        <code>death_benefit</code>, <code>face_amount</code>, <code>policy_type</code> = "Universal Life" &mdash; these are clearly
+        <strong>Life insurance accounts</strong> that weren't categorized during import. Also includes 19 Wellmark records with <code>account_category</code> = "medicare".
+        <br><br>
+        <strong>Sprint Task:</strong> Write a re-classification script that assigns correct <code>account_type_category</code> based on field presence:
+        <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+          <li>Has <code>face_amount</code>/<code>death_benefit</code> + <code>policy_type</code> contains "Life" &rarr; <code>life</code></li>
+          <li>Has <code>account_category</code> = "medicare" &rarr; <code>medicare</code></li>
+          <li>Remaining: manual review (should be ~0 after reclassification)</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SECTION 4 ═══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">4</div>
+    <h2>Downstream Consumers</h2>
+  </div>
+
+  <p style="margin-bottom: 1.5rem;">
+    Every system that reads client/account fields is mapped here. A gap means data isn't flowing correctly.
+  </p>
+
+  <!-- ── AI3 ── -->
+  <details open>
+    <summary><strong>AI3 Document Generation</strong></summary>
+    <div class="detail-body">
+      <p>AI3 generates client summary PDFs and the ACF overview document. It reads from two paths:</p>
+      <div class="flow-diagram">
+        <div class="flow-box">Firestore: clients/{id}</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-box">API: /api/ai3/:clientId</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-box">AI3Report.tsx</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-box">PDF</div>
+      </div>
+      <table>
+        <thead><tr><th>System Field</th><th>In Firestore?</th><th>In TS Type?</th><th>In UI?</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><code>first_name</code>, <code>last_name</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>dob</code> / <code>age</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>phone</code>, <code>email</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>address</code>, <code>city</code>, <code>state</code>, <code>zip</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>timezone</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-missing">Not in Client type</span></td></tr>
+          <tr><td><code>status</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>connected_contacts</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-missing">Not in Client type</span></td></tr>
+          <tr><td><code>acct.face_amount</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td>AI3 sums this &mdash; but 704 life accounts store it as <code>face_value</code> (invisible to AI3 sum)</td></tr>
+          <tr><td><code>acct.premium</code></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>acct.primary_beneficiary</code></td><td><span class="badge badge-partial">Partial</span></td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-no">No</span></td><td><span class="badge badge-missing">AI3 checks this for completeness but only 1-2 records have it. Most bene data is in <code>beneficiary</code> (unparsed string).</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="note note-warning">
+        <strong>Key AI3 Gap:</strong> The <code>face_amount</code> sum in AI3 is undercounting by ~704 life accounts because those records
+        store the value as <code>face_value</code>. The alias migration in Section 1 fixes this automatically.
+      </div>
+    </div>
+  </details>
+
+  <!-- ── Campaign Engine ── -->
+  <details>
+    <summary><strong>Campaign Engine (C3)</strong></summary>
+    <div class="detail-body">
+      <p>The campaign assembler builds merge context for email/SMS templates:</p>
+      <table>
+        <thead><tr><th>Merge Field</th><th>Source</th><th>In Firestore?</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><code>first_name</code></td><td>clients collection</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>last_name</code></td><td>clients collection</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>full_name</code></td><td>Computed</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>email</code></td><td>clients collection</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>phone</code></td><td>clients collection</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>agent_name</code></td><td>users collection</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>agent_email</code></td><td>users collection</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>agent_phone</code></td><td>users collection</td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>company</code></td><td>Hardcoded or config</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>calendar_link</code></td><td>users collection</td><td><span class="badge badge-partial">Partial</span></td><td>Requires <code>calendar_booking_url</code> on user record</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 1rem;">Campaign send filters use:</p>
+      <table>
+        <thead><tr><th>Filter Field</th><th>In Firestore?</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><code>status</code></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>state</code></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>dob</code></td><td><span class="badge badge-yes">Yes</span></td><td>558 contacts have <code>date_of_birth</code> instead &mdash; invisible to age filter</td></tr>
+          <tr><td><code>tags</code></td><td><span class="badge badge-yes">Yes</span></td><td>&mdash;</td></tr>
+          <tr><td><code>dnd_all</code>, <code>dnd_email</code>, <code>dnd_sms</code></td><td><span class="badge badge-partial">Partial</span></td><td>Firestore has <code>do_not_contact</code> (125) and <code>dnc_sms</code> (1). The campaign engine checks <code>dnd_*</code> prefix. Field name mismatch: <code>dnc_*</code> vs <code>dnd_*</code>.</td></tr>
+        </tbody>
+      </table>
+      <div class="note note-danger">
+        <strong>Critical Bug:</strong> The campaign engine checks <code>dnd_all</code>, <code>dnd_email</code>, <code>dnd_sms</code>
+        but the UI writes <code>dnc_all</code>, <code>dnc_email</code>, <code>dnc_sms</code>. This means DNC preferences set in the UI
+        are NOT being respected by the campaign engine. Fix: standardize on one prefix and update both sides.
+      </div>
+    </div>
+  </details>
+
+  <!-- ── Comms (SMS/Call) ── -->
+  <details>
+    <summary><strong>Communications (SMS/Call Routing)</strong></summary>
+    <div class="detail-body">
+      <p>Inbound SMS lookup queries:</p>
+      <table>
+        <thead><tr><th>Query Field</th><th>In Firestore?</th><th>Population</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><code>cell_phone</code></td><td><span class="badge badge-yes">Yes</span></td><td>19/1,000</td><td><span class="badge badge-missing">Only 1.9% populated</span> &mdash; most inbound SMS won't match</td></tr>
+          <tr><td><code>phone</code> (fallback)</td><td><span class="badge badge-yes">Yes</span></td><td>775/1,000</td><td>Better coverage but may not be a cell number</td></tr>
+        </tbody>
+      </table>
+      <div class="note note-warning">
+        <strong>Coverage Gap:</strong> With only 19 <code>cell_phone</code> entries, inbound SMS matching will fail for ~98% of contacts.
+        Consider also checking <code>alternate_phone</code> (27 records) as a tertiary fallback, or running a phone-type classification
+        to populate <code>cell_phone</code> from <code>phone</code> where phone_type = "Mobile".
+      </div>
+    </div>
+  </details>
+
+  <!-- ── Opportunities ── -->
+  <details>
+    <summary><strong>Opportunities / Pipeline Custom Fields</strong></summary>
+    <div class="detail-body">
+      <p>Each pipeline defines its own <code>custom_fields</code> schema. These reference account-level field names:</p>
+      <table>
+        <thead><tr><th>Pipeline</th><th>Custom Field</th><th>Maps to Account Field</th><th>Aligned?</th></tr></thead>
+        <tbody>
+          <tr><td>NBX_LIFE</td><td><code>face_amount</code></td><td><code>face_amount</code></td><td><span class="badge badge-yes">Yes</span></td></tr>
+          <tr><td>NBX_LIFE</td><td><code>target_premium</code></td><td><code>premium</code></td><td><span class="badge badge-partial">Partial</span> &mdash; different name, same concept</td></tr>
+          <tr><td>NBX_ANNUITY</td><td><code>initial_premium</code></td><td><code>premium</code></td><td><span class="badge badge-partial">Partial</span></td></tr>
+          <tr><td>NBX_ANNUITY</td><td><code>tax_status</code></td><td><code>tax_status</code></td><td><span class="badge badge-yes">Yes</span></td></tr>
+          <tr><td>NBX_INVESTMENTS</td><td><code>account_number</code></td><td><code>account_number</code></td><td><span class="badge badge-yes">Yes</span></td></tr>
+          <tr><td>NBX_INVESTMENTS</td><td><code>account_value</code></td><td><code>account_value</code></td><td><span class="badge badge-yes">Yes</span></td></tr>
+          <tr><td>NBX_MEDICARE_MAPD</td><td><code>plan_id</code></td><td><code>cms_plan_code</code></td><td><span class="badge badge-missing">Misaligned</span> &mdash; different names</td></tr>
+          <tr><td>NBX_MEDICARE_MAPD</td><td><code>premium_amount</code></td><td><code>monthly_premium</code></td><td><span class="badge badge-missing">Misaligned</span></td></tr>
+          <tr><td>REACTIVE_MEDICARE</td><td><code>plan_id</code></td><td><code>cms_plan_code</code></td><td><span class="badge badge-missing">Misaligned</span></td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <strong>Recommendation:</strong> Rename opportunity custom fields to match account field names:
+        <code>plan_id</code> &rarr; <code>cms_plan_code</code>, <code>premium_amount</code> &rarr; <code>monthly_premium</code>.
+        This enables auto-population from account data when an opportunity is created against an existing account.
+      </div>
+    </div>
+  </details>
+
+  <!-- ── ProZone ── -->
+  <details>
+    <summary><strong>ProZone (Territory Routing)</strong></summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field Read</th><th>In Firestore?</th><th>Population</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><code>state</code></td><td><span class="badge badge-yes">Yes</span></td><td>846</td><td>571 contacts have <code>address_state</code> instead &mdash; invisible to ProZone</td></tr>
+          <tr><td><code>county</code></td><td><span class="badge badge-yes">Yes</span></td><td>813</td><td>277 have <code>address_county</code> &mdash; invisible</td></tr>
+          <tr><td><code>zip</code></td><td><span class="badge badge-yes">Yes</span></td><td>844</td><td>574 have <code>address_zip</code> &mdash; invisible</td></tr>
+          <tr><td><code>dob</code></td><td><span class="badge badge-yes">Yes</span></td><td>826</td><td>558 have <code>date_of_birth</code> &mdash; age calc fails</td></tr>
+          <tr><td><code>status</code></td><td><span class="badge badge-yes">Yes</span></td><td>1,000</td><td>&mdash;</td></tr>
+          <tr><td><code>account_types</code></td><td><span class="badge badge-partial">Partial</span></td><td>?</td><td>Computed field, may not be on all records</td></tr>
+          <tr><td><code>has_medicare</code>, <code>has_life</code>, <code>has_annuity</code></td><td><span class="badge badge-partial">Partial</span></td><td>?</td><td>Boolean flags, may not exist on all records</td></tr>
+        </tbody>
+      </table>
+      <div class="note note-danger">
+        <strong>Major Data Gap:</strong> ProZone queries <code>state</code>, <code>county</code>, <code>zip</code>, <code>dob</code> directly.
+        But 571+ contacts store these under GHL-prefixed names (<code>address_state</code>, etc.) and 558 store DOB as <code>date_of_birth</code>.
+        These contacts are <strong>invisible to ProZone</strong> until the alias migration runs.
+      </div>
+    </div>
+  </details>
+
+  <!-- ── QUE Medicare ── -->
+  <details>
+    <summary><strong>QUE Medicare Quoting</strong></summary>
+    <div class="detail-body">
+      <table>
+        <thead><tr><th>Field Used</th><th>Source</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><code>dob</code></td><td>Client record, passed as <code>date_of_birth</code> to API</td><td>Alias issue: 558 contacts use <code>date_of_birth</code></td></tr>
+          <tr><td><code>state</code></td><td>Client record</td><td>&mdash;</td></tr>
+          <tr><td><code>county</code></td><td>Client record</td><td>&mdash;</td></tr>
+          <tr><td><code>zip</code></td><td>Client record</td><td>&mdash;</td></tr>
+          <tr><td><code>medicare_number</code></td><td>Client record</td><td>Not used in quoting, but relevant for enrollment</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- ── Master Matrix ── -->
+  <h3 style="margin: 2rem 0 1rem; color: var(--accent);">Downstream Consumer Summary Matrix</h3>
+  <div style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>AI3</th>
+        <th>C3 Campaign</th>
+        <th>Comms</th>
+        <th>ProZone</th>
+        <th>QUE</th>
+        <th>Opportunities</th>
+        <th>In UI?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>first_name</code></td><td>R</td><td>R</td><td>&mdash;</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>last_name</code></td><td>R</td><td>R</td><td>&mdash;</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>dob</code></td><td>R</td><td>R</td><td>&mdash;</td><td>R</td><td>R</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>phone</code></td><td>R</td><td>R</td><td>R</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>email</code></td><td>R</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>state</code></td><td>R</td><td>R</td><td>&mdash;</td><td>R</td><td>R</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>county</code></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>R</td><td>R</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>zip</code></td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>R</td><td>R</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>status</code></td><td>R</td><td>R</td><td>&mdash;</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>tags</code></td><td>&mdash;</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td><span style="color:var(--red);">N</span></td></tr>
+      <tr><td><code>face_amount</code></td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>R</td><td>Y</td></tr>
+      <tr><td><code>premium</code></td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>R</td><td>Y</td></tr>
+      <tr><td><code>cell_phone</code></td><td>&mdash;</td><td>&mdash;</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>Y</td></tr>
+      <tr><td><code>dnc_*/dnd_*</code></td><td>&mdash;</td><td>R</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>Y</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size: 0.8rem; color: var(--text-muted);">R = Reads this field. Y/N = Rendered in UI.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SECTION 5 ═══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">5</div>
+    <h2>Field Parity Enforcement</h2>
+  </div>
+
+  <p style="margin-bottom: 1.5rem;">
+    The alias problem happened because data arrived from multiple sources (GHL, carrier imports, SPARK, manual entry)
+    with no enforcement that field names match the canonical schema. This section proposes a three-layer defense.
+  </p>
+
+  <!-- ── Layer 1: Guardian Schema Enforcement ── -->
+  <div class="card">
+    <h3>Layer 1: Guardian Schema Enforcement (Existing System)</h3>
+    <p>The Guardian data protection engine already defines <code>CollectionSchema</code>. Extend it:</p>
+    <pre><code>// packages/core/src/guardian/schemas.ts
+export const CLIENT_SCHEMA: CollectionSchema = {
+  collection: 'clients',
+  required_fields: ['client_id', 'first_name', 'last_name', 'status'],
+  canonical_fields: {
+    // Every allowed field name → its type
+    'dob': 'string',
+    'phone': 'string',
+    'state': 'string',
+    'county': 'string',
+    // ... all 92 fields
+  },
+  banned_aliases: {
+    // Maps known bad names to their canonical version
+    'date_of_birth': 'dob',
+    'address_street': 'address',
+    'address_city': 'city',
+    'address_state': 'state',
+    'address_zip': 'zip',
+    'address_county': 'county',
+    'client_status': 'status',
+    'face_value': 'face_amount',
+    'underwriting_charter': 'carrier_charter',
+    'fund_value': 'account_value',
+    'annuity_balance': 'account_value',
+  }
+};</code></pre>
+    <p style="margin-top: 0.75rem;">Guardian audit phase checks for banned aliases in new writes and flags them as findings.</p>
+  </div>
+
+  <!-- ── Layer 2: Import Normalizer ── -->
+  <div class="card">
+    <h3>Layer 2: Import Normalizer (Intake Gateway)</h3>
+    <p>The <code>FIELD_NORMALIZERS</code> in <code>packages/core/src/normalizers/field-normalizers.ts</code> already handles
+    90+ fields. Add an alias resolution step that runs <strong>before</strong> normalization:</p>
+    <pre><code>// packages/core/src/normalizers/alias-resolver.ts
+const ALIAS_MAP: Record&lt;string, string&gt; = {
+  'date_of_birth': 'dob',
+  'address_street': 'address',
+  'address_city': 'city',
+  'address_state': 'state',
+  'address_zip': 'zip',
+  'address_county': 'county',
+  'face_value': 'face_amount',
+  'fund_value': 'account_value',
+  'annuity_balance': 'account_value',
+  'underwriting_charter': 'carrier_charter',
+  'client_status': 'status',
+  'net_surrender_value': 'surrender_value',
+  'base_cash_value': 'cash_value',
+  'annualized_premium': 'annual_premium',
+  'insured': 'insured_name',
+  'account_owner': 'owner_name', // on context
+};
+
+export function resolveAliases(
+  record: Record&lt;string, unknown&gt;
+): Record&lt;string, unknown&gt; {
+  const resolved: Record&lt;string, unknown&gt; = {};
+  for (const [key, value] of Object.entries(record)) {
+    const canonical = ALIAS_MAP[key] ?? key;
+    // Only overwrite if canonical field is empty
+    if (!resolved[canonical] || resolved[canonical] === '') {
+      resolved[canonical] = value;
+    }
+  }
+  return resolved;
+}</code></pre>
+    <p style="margin-top: 0.75rem;">
+      This runs in the intake pipeline (<code>services/intake/</code>) so every new record arrives with canonical field names.
+      No aliases ever reach Firestore again.
+    </p>
+  </div>
+
+  <!-- ── Layer 3: CI Parity Check ── -->
+  <div class="card">
+    <h3>Layer 3: CI Parity Check (Automated Drift Detection)</h3>
+    <p>A script that runs on a schedule (or as a CI check) that compares three sources of truth:</p>
+
+    <div class="flow-diagram">
+      <div class="flow-box" style="border-color: var(--green);">Firestore Field Inventory<br><small>(live scan)</small></div>
+      <div class="flow-arrow">&larr; compare &rarr;</div>
+      <div class="flow-box" style="border-color: var(--blue);">TypeScript Interfaces<br><small>(packages/core/src/types)</small></div>
+      <div class="flow-arrow">&larr; compare &rarr;</div>
+      <div class="flow-box" style="border-color: var(--accent);">UI Render Map<br><small>(field-to-component map)</small></div>
+    </div>
+
+    <pre><code>// scripts/field-parity-check.ts
+// Run: npx tsx scripts/field-parity-check.ts
+//
+// 1. Scan Firestore (sample 100 docs per collection)
+//    → extract all field names + population counts
+//
+// 2. Parse TypeScript interfaces from packages/core/src/types/index.ts
+//    → extract all declared field names
+//
+// 3. Parse UI components (grep for field references in tab components)
+//    → extract all rendered field names
+//
+// Output:
+// - Fields in Firestore but NOT in TS type → "Untyped Field"
+// - Fields in TS type but NOT rendered in UI → "Dark Field"
+// - Fields in Firestore matching banned aliases → "Alias Violation"
+// - Fields in Firestore &gt;50% populated but not in UI → "High-Pop Unrendered"
+//
+// Alert: Posts to Slack #the-dojo if any violations found
+// Schedule: Weekly (launchd agent or GitHub Action cron)</code></pre>
+
+    <p style="margin-top: 0.75rem;">This creates a closed loop: new data arrives &rarr; Guardian checks it &rarr;
+    parity check catches any that slipped through &rarr; Slack alert &rarr; fix &rarr; never drifts again.</p>
+  </div>
+
+  <!-- ── Field Registry ── -->
+  <div class="card">
+    <h3>Bonus: Field Registry (Single Source of Truth)</h3>
+    <p>Long-term, create a <code>field-registry.json</code> that serves as THE canonical list of all allowed fields:</p>
+    <pre><code>{
+  "clients": {
+    "first_name": { "type": "string", "required": true, "ui_tab": "personal", "consumers": ["ai3", "c3", "prozone"] },
+    "dob": { "type": "date", "required": false, "ui_tab": "personal", "consumers": ["ai3", "c3", "prozone", "que"], "aliases": ["date_of_birth"] },
+    "face_amount": { "type": "amount", "required": false, "ui_tab": "accounts", "consumers": ["ai3", "opportunities"], "aliases": ["face_value"], "scope": "accounts" }
+  }
+}</code></pre>
+    <p style="margin-top: 0.75rem;">
+      Guardian validates against it. The normalizer resolves aliases from it. The CI check diffs against it.
+      The UI could even auto-generate field renderers from it. <strong>One file to rule them all.</strong>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ TICKET SUMMARY ═══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">+</div>
+    <h2>Sprint 014 Ticket Breakdown</h2>
+  </div>
+
+  <p style="margin-bottom: 1rem;">Recommended ticket structure for the FORGE sprint:</p>
+
+  <table>
+    <thead><tr><th>#</th><th>Ticket</th><th>Type</th><th>Scope</th><th>Depends On</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Alias Migration Script</strong> &mdash; merge all alias fields to canonical names</td><td>Data</td><td>~4,000 doc writes</td><td>&mdash;</td></tr>
+      <tr><td>2</td><td><strong>SSN Remediation</strong> &mdash; extract last-4, purge full SSN from Firestore</td><td>Security</td><td>338 contacts</td><td>&mdash;</td></tr>
+      <tr><td>3</td><td><strong>Unknown Account Reclassification</strong> &mdash; assign correct type to 170 accounts</td><td>Data</td><td>170 accounts</td><td>&mdash;</td></tr>
+      <tr><td>4</td><td><strong>DNC/DND Field Name Fix</strong> &mdash; standardize to one prefix, update campaign engine + UI</td><td>Bug Fix</td><td>Campaign + UI</td><td>&mdash;</td></tr>
+      <tr><td>5</td><td><strong>Client Interface Update</strong> &mdash; add missing fields to TS type (timezone, connected_contacts, tags, etc.)</td><td>Types</td><td>packages/core</td><td>1</td></tr>
+      <tr><td>6</td><td><strong>Account Interface Update</strong> &mdash; add all missing account fields to TS type by category</td><td>Types</td><td>packages/core</td><td>1</td></tr>
+      <tr><td>7</td><td><strong>Contact Detail: Quality Badges</strong> &mdash; phone_valid, email_valid, contact_quality_score rendering</td><td>UI</td><td>ContactTab + Header</td><td>5</td></tr>
+      <tr><td>8</td><td><strong>Contact Detail: Tags Display</strong> &mdash; render tags as pill row below header</td><td>UI</td><td>ClientHeader</td><td>5</td></tr>
+      <tr><td>9</td><td><strong>Contact Detail: Territory/Zone Display</strong> &mdash; zone_id, territory_id on contact tab</td><td>UI</td><td>ContactTab</td><td>5</td></tr>
+      <tr><td>10</td><td><strong>Contact Detail: Integration Fields</strong> &mdash; import_source, last_validated_date, last_import_source, client_classification</td><td>UI</td><td>IntegrationsTab</td><td>5</td></tr>
+      <tr><td>11</td><td><strong>Life Account: Loans Card</strong> &mdash; loan_balance, net_loan_amount, interest</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>12</td><td><strong>Life Account: Dividends Card</strong> &mdash; dividend_option, prior/current year, balance</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>13</td><td><strong>Life Account: Beneficiary Card</strong> &mdash; parsed beneficiary display with percentages</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>14</td><td><strong>Life Account: Agent Info + Metadata</strong> &mdash; writing_agent, commission_split, market, BoB, paid_to_date</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>15</td><td><strong>Medicare Account: Plan Details</strong> &mdash; ancillary_type, mapd_type, plan_letter, election_type</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>16</td><td><strong>Medicare Account: Agent + Carrier Info</strong> &mdash; carrier_charter, naic, agent_npn, submitted_date</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>17</td><td><strong>Annuity Account: Rider + RMD</strong> &mdash; income rider fields, RMD fields, performance</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>18</td><td><strong>Investment Account: Advisory Details</strong> &mdash; tax_status, registration, fees, BD/RIA firm</td><td>UI</td><td>Account Detail</td><td>6</td></tr>
+      <tr><td>19</td><td><strong>Alias Resolver Module</strong> &mdash; import-time alias resolution</td><td>Core</td><td>packages/core</td><td>1</td></tr>
+      <tr><td>20</td><td><strong>Guardian Schema Extension</strong> &mdash; banned_aliases in schema validation</td><td>Core</td><td>packages/core</td><td>19</td></tr>
+      <tr><td>21</td><td><strong>Field Parity CI Check</strong> &mdash; automated drift detection script</td><td>Infra</td><td>scripts/</td><td>5, 6</td></tr>
+      <tr><td>22</td><td><strong>Opportunity Custom Field Alignment</strong> &mdash; rename plan_id/premium_amount to match account fields</td><td>Core</td><td>packages/core + API</td><td>&mdash;</td></tr>
+      <tr><td>23</td><td><strong>cell_phone Backfill</strong> &mdash; populate from phone where phone_type = Mobile</td><td>Data</td><td>Migration script</td><td>1</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>Execution Order:</strong> Tickets 1-4 (data fixes) MUST run first &mdash; they fix the foundation.
+    Tickets 5-6 (types) unlock all UI work. Tickets 7-18 (UI) can be parallelized across agents.
+    Tickets 19-21 (enforcement) prevent regression. Ticket 22-23 are independent fixes.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SIGNATURE ═══ -->
+<div class="signature">
+  <div class="name">MUSASHI</div>
+  <div class="title">VP CMO &mdash; ARTxBLADE</div>
+  <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 1rem;">
+    Sprint 014 Field Parity Discovery &mdash; April 3, 2026<br>
+    Commissioned by SHINOBI (CTO) &bull; toMachina Platform &bull; Retirement Protectors, Inc.
+  </div>
+</div>
+
+</div><!-- .content -->
+</body>
+</html>

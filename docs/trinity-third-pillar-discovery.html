@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Third Pillar: ACF as First-Class Entity | Trinity Discovery Doc 2/3</title>
+<style>
+  :root { --bg: #0f1219; --surface: #1c2333; --border: #2a3347; --text: #e2e8f0; --muted: #8892a8; --portal: #4a7ab5; --green: #22c55e; --red: #ef4444; --amber: #f59e0b; --teal: #14b8a6; --purple: #a78bfa; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; padding: 32px 24px; max-width: 940px; margin: 0 auto; }
+  h1 { font-size: 32px; margin-bottom: 6px; letter-spacing: -0.02em; }
+  h2 { font-size: 21px; margin-top: 48px; margin-bottom: 14px; color: var(--portal); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 16px; margin-top: 28px; margin-bottom: 10px; color: var(--teal); }
+  h4 { font-size: 14px; margin-top: 20px; margin-bottom: 8px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.04em; }
+  p, li { margin-bottom: 8px; font-size: 14px; }
+  .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 4px; }
+  .subtitle-em { color: var(--teal); font-size: 13px; font-style: italic; margin-bottom: 28px; display: block; }
+  .meta { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 36px; padding: 16px 20px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); }
+  .meta-item { font-size: 13px; }
+  .meta-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 24px; }
+  th, td { padding: 10px 14px; text-align: left; border: 1px solid var(--border); font-size: 13px; }
+  th { background: var(--surface); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  td code { font-size: 12px; }
+  code { background: var(--surface); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--teal); }
+  pre { background: var(--surface); padding: 16px 20px; border-radius: 10px; border: 1px solid var(--border); overflow-x: auto; margin: 14px 0; font-size: 13px; line-height: 1.6; color: var(--text); }
+  ul, ol { padding-left: 22px; margin: 8px 0 16px; }
+  .section-why { background: rgba(74,122,181,0.08); border-left: 3px solid var(--portal); padding: 16px 20px; border-radius: 0 10px 10px 0; margin: 20px 0; }
+  .section-key { background: rgba(20,184,166,0.08); border-left: 3px solid var(--teal); padding: 16px 20px; border-radius: 0 10px 10px 0; margin: 20px 0; }
+  .section-warn { background: rgba(245,158,11,0.08); border-left: 3px solid var(--amber); padding: 16px 20px; border-radius: 0 10px 10px 0; margin: 20px 0; }
+
+  /* Trinity diagram */
+  .trinity { display: flex; justify-content: center; align-items: center; gap: 0; margin: 32px auto; max-width: 680px; }
+  .trinity-node { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 18px 22px; text-align: center; min-width: 160px; position: relative; z-index: 1; }
+  .trinity-node h5 { font-size: 16px; margin-bottom: 4px; }
+  .trinity-node p { font-size: 11px; color: var(--muted); margin: 0; }
+  .trinity-node.active { border-color: var(--amber); box-shadow: 0 0 24px rgba(245,158,11,0.15); }
+  .trinity-node.contacts { border-color: var(--portal); }
+  .trinity-node.accounts { border-color: var(--green); }
+  .trinity-link { width: 48px; height: 2px; background: var(--border); flex-shrink: 0; position: relative; }
+  .trinity-link::after { content: '\2194'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: 16px; }
+
+  /* Mockups */
+  .mock { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0; }
+  .mock-toolbar { background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+  .mock-search { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 12px; color: var(--muted); flex: 1; max-width: 260px; }
+  .mock-filter { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 11px; color: var(--muted); }
+  .mock-row { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13px; gap: 12px; transition: background 0.15s; }
+  .mock-row:hover { background: rgba(74,122,181,0.06); }
+  .mock-row:last-child { border-bottom: none; }
+  .mock-col { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mock-col.name { flex: 1.5; font-weight: 500; }
+  .mock-col.score { flex: 0.5; text-align: center; }
+  .mock-col.docs { flex: 0.6; text-align: center; }
+  .mock-col.modified { flex: 0.8; color: var(--muted); }
+  .mock-col-head { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+  .badge-dedup { display: inline-flex; align-items: center; gap: 4px; background: rgba(245,158,11,0.15); color: var(--amber); font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+  .score-bar { display: inline-block; width: 48px; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; vertical-align: middle; }
+  .score-fill { height: 100%; border-radius: 3px; }
+  .score-fill.high { background: var(--green); }
+  .score-fill.mid { background: var(--amber); }
+  .score-fill.low { background: var(--red); }
+
+  /* Detail mockup */
+  .detail-mock { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 20px 0; }
+  .detail-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; }
+  .detail-title { font-size: 18px; font-weight: 600; }
+  .detail-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .detail-links { display: flex; gap: 8px; }
+  .detail-link { font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); color: var(--portal); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+  .detail-link.green { color: var(--green); border-color: rgba(34,197,94,0.3); }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); }
+  .tab-item { padding: 10px 18px; font-size: 12px; font-weight: 500; color: var(--muted); cursor: default; border-bottom: 2px solid transparent; }
+  .tab-item.active { color: var(--amber); border-bottom-color: var(--amber); }
+  .detail-body { padding: 16px 20px; }
+  .file-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(42,51,71,0.5); font-size: 13px; gap: 10px; }
+  .file-row:last-child { border-bottom: none; }
+  .file-icon { color: var(--muted); font-size: 16px; flex-shrink: 0; }
+  .file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-date { color: var(--muted); font-size: 11px; flex-shrink: 0; }
+  .file-size { color: var(--muted); font-size: 11px; flex-shrink: 0; width: 50px; text-align: right; }
+
+  /* Dedup banner */
+  .dedup-banner { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 12px 16px; margin: 12px 20px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .dedup-banner .icon { color: var(--amber); font-size: 18px; }
+  .dedup-banner .actions { margin-left: auto; display: flex; gap: 6px; }
+  .dedup-banner .btn-sm { font-size: 11px; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); cursor: default; }
+  .dedup-banner .btn-merge { background: var(--amber); color: #000; border: none; font-weight: 600; }
+  .dedup-banner .btn-dismiss { color: var(--muted); }
+  .dedup-banner .btn-jdm { color: var(--portal); border-color: rgba(74,122,181,0.4); }
+
+  /* Quick doc buttons */
+  .doc-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .doc-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); }
+  .doc-btn.found { background: rgba(74,122,181,0.12); color: var(--portal); border-color: rgba(74,122,181,0.3); cursor: pointer; }
+  .doc-btn.missing { background: transparent; color: var(--muted); opacity: 0.5; cursor: default; }
+
+  /* Account doc tabs */
+  .acct-doc-tabs { display: flex; gap: 0; margin: 16px 0 0; border-bottom: 1px solid var(--border); }
+  .acct-doc-tab { padding: 8px 16px; font-size: 12px; color: var(--muted); border-bottom: 2px solid transparent; }
+  .acct-doc-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* Flow */
+  .flow { background: var(--surface); padding: 20px; border-radius: 10px; border: 1px solid var(--border); font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; line-height: 2.2; margin: 16px 0; white-space: pre; overflow-x: auto; color: var(--text); }
+  .flow .node { color: var(--teal); }
+  .flow .arrow { color: var(--muted); }
+  .flow .label { color: var(--amber); font-style: italic; }
+
+  /* Tags */
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+  .tag-live { background: rgba(34,197,94,0.2); color: var(--green); }
+  .tag-build { background: rgba(74,122,181,0.2); color: var(--portal); }
+  .tag-new { background: rgba(168,85,247,0.2); color: #a855f7; }
+  .tag-wire { background: rgba(245,158,11,0.2); color: var(--amber); }
+
+  .sig { margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; line-height: 1.8; }
+  .sig strong { color: var(--text); }
+
+  @media (max-width: 640px) {
+    body { padding: 16px; }
+    h1 { font-size: 24px; }
+    .trinity { flex-direction: column; gap: 12px; }
+    .trinity-link { width: 2px; height: 24px; }
+    .meta { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>The Third Pillar</h1>
+<p class="subtitle">ACF as First-Class Entity &mdash; Completing the Holy Trinity</p>
+<span class="subtitle-em">Trinity Discovery Doc 2 of 3</span>
+
+<div class="meta">
+  <div class="meta-item"><div class="meta-label">Type</div>Discovery Doc</div>
+  <div class="meta-item"><div class="meta-label">Series</div>Trinity Data Method&trade; 2/3</div>
+  <div class="meta-item"><div class="meta-label">Author</div>MUSASHI, VP CMO</div>
+  <div class="meta-item"><div class="meta-label">Contract</div>SHINOB1 (CTO)</div>
+  <div class="meta-item"><div class="meta-label">Date</div>2026-04-03</div>
+  <div class="meta-item"><div class="meta-label">Status</div><span class="tag tag-new">Discovery</span></div>
+</div>
+
+<!-- ================================================================== -->
+<h2>The Holy Trinity</h2>
+
+<p>The Trinity Data Method&trade; reconciles three data sources to achieve 100% Data Confidence. On the platform, that trinity maps to three equal pillars:</p>
+
+<div class="trinity">
+  <div class="trinity-node contacts">
+    <h5 style="color: var(--portal);">Contacts</h5>
+    <p>CRM Data</p>
+    <p style="font-size: 10px; margin-top: 4px;">Actionable Intelligence</p>
+  </div>
+  <div class="trinity-link"></div>
+  <div class="trinity-node accounts">
+    <h5 style="color: var(--green);">Accounts</h5>
+    <p>Carrier Data</p>
+    <p style="font-size: 10px; margin-top: 4px;">Source of Truth</p>
+  </div>
+  <div class="trinity-link"></div>
+  <div class="trinity-node active">
+    <h5 style="color: var(--amber);">ACF</h5>
+    <p>Digital Files</p>
+    <p style="font-size: 10px; margin-top: 4px;">Supporting Documentation</p>
+  </div>
+</div>
+
+<div class="section-why">
+  <strong>The gap today:</strong> Contacts and Accounts are first-class entities with their own grids, detail views, search, filters, dedup, and cross-links. ACF is still a tab on the Contact detail page &mdash; a subordinate. The Trinity isn't complete until ACF stands on equal footing. Three grids. Three detail views. Fully integrated. Fully deduped. Fully cross-linked.
+</div>
+
+<p>What the Trinity Data Method&trade; calls <strong>Supporting Documentation</strong> &mdash; the PDFs, statements, scans, and files that prove the data is real &mdash; lives in Google Drive as Active Client Files. Each ACF is a structured folder: 5 subfolders that form a lifecycle from onboarding through reactive service. This document defines how ACF graduates from "a tab" to "a pillar."</p>
+
+<!-- ================================================================== -->
+<h2>What Exists Today</h2>
+
+<table>
+  <tr><th>Component</th><th>Status</th><th>Location</th></tr>
+  <tr>
+    <td>ACF types</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>packages/core/src/acf/types.ts</code></td>
+  </tr>
+  <tr>
+    <td>ACFSection (Contact detail tab)</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>packages/ui/src/modules/ACFSection.tsx</code></td>
+  </tr>
+  <tr>
+    <td>ACF API routes (CRUD, audit, rebuild, route)</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>services/api/src/routes/acf.ts</code></td>
+  </tr>
+  <tr>
+    <td>Document index API</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>services/api/src/routes/document-index.ts</code></td>
+  </tr>
+  <tr>
+    <td>AccountDocuments checklist</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>packages/ui/src/modules/AccountDocuments.tsx</code></td>
+  </tr>
+  <tr>
+    <td>File classification rules</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>ACFSection.tsx:classifyFileName()</code></td>
+  </tr>
+  <tr>
+    <td>Dedup engine (7 entity types)</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>packages/core/src/matching/dedup.ts</code></td>
+  </tr>
+  <tr>
+    <td>SUPER_MATCH (tags DUPLICATE, SPOUSE_PROSPECT, etc.)</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>packages/core/src/atlas/super-tools/match.ts</code></td>
+  </tr>
+  <tr>
+    <td>PossibleDuplicates banner (Contacts)</td>
+    <td><span class="tag tag-live">LIVE</span></td>
+    <td><code>contacts/[id]/components/PossibleDuplicates.tsx</code></td>
+  </tr>
+  <tr>
+    <td>ACF Grid page</td>
+    <td><span class="tag tag-new">NEW</span></td>
+    <td>&mdash;</td>
+  </tr>
+  <tr>
+    <td>ACF Detail page</td>
+    <td><span class="tag tag-new">NEW</span></td>
+    <td>&mdash;</td>
+  </tr>
+  <tr>
+    <td>ACF dedup (grid badges + detail banner)</td>
+    <td><span class="tag tag-new">NEW</span></td>
+    <td>&mdash;</td>
+  </tr>
+  <tr>
+    <td>Account Detail document tabs</td>
+    <td><span class="tag tag-new">NEW</span></td>
+    <td>&mdash;</td>
+  </tr>
+  <tr>
+    <td>One-click doc buttons on summary cards</td>
+    <td><span class="tag tag-new">NEW</span></td>
+    <td>&mdash;</td>
+  </tr>
+  <tr>
+    <td>AI3 Assembly (meeting prep)</td>
+    <td><span class="tag tag-wire">WIRE</span></td>
+    <td>&mdash;</td>
+  </tr>
+</table>
+
+<div class="section-key">
+  <strong>Key insight:</strong> The hard infrastructure already exists &mdash; types, API routes, classification rules, dedup engine. This sprint is about <em>surfacing</em> that infrastructure as a first-class experience, not building new engines.
+</div>
+
+<!-- ================================================================== -->
+<h2>1. ACF Grid</h2>
+
+<p>A dedicated grid page at <code>/acf</code>, matching the Contacts and Accounts grid UX pattern. Same search bar, same filter controls, same pagination (25 per page), same column-sort behavior.</p>
+
+<h3>Grid Mockup</h3>
+
+<div class="mock">
+  <div class="mock-toolbar">
+    <div class="mock-search">Search ACFs by client name...</div>
+    <div class="mock-filter">Completeness &darr;</div>
+    <div class="mock-filter">Last Modified &darr;</div>
+    <div class="mock-filter">Has Duplicates</div>
+  </div>
+  <!-- Header row -->
+  <div class="mock-row" style="background: rgba(255,255,255,0.02);">
+    <div class="mock-col name mock-col-head">Client</div>
+    <div class="mock-col score mock-col-head">Complete</div>
+    <div class="mock-col docs mock-col-head">Docs</div>
+    <div class="mock-col mock-col-head">Subfolders</div>
+    <div class="mock-col modified mock-col-head">Last Modified</div>
+    <div class="mock-col mock-col-head" style="flex: 0.5;"></div>
+  </div>
+  <!-- Data rows -->
+  <div class="mock-row">
+    <div class="mock-col name">Woods, Janet &amp; Robert <span class="badge-dedup">3 possible dupes</span></div>
+    <div class="mock-col score"><span class="score-bar"><span class="score-fill high" style="width: 92%;"></span></span> 92%</div>
+    <div class="mock-col docs">47</div>
+    <div class="mock-col">5/5</div>
+    <div class="mock-col modified">Apr 1, 2026</div>
+    <div class="mock-col" style="flex: 0.5; color: var(--portal);">&rarr;</div>
+  </div>
+  <div class="mock-row">
+    <div class="mock-col name">Henderson, Michael</div>
+    <div class="mock-col score"><span class="score-bar"><span class="score-fill high" style="width: 85%;"></span></span> 85%</div>
+    <div class="mock-col docs">31</div>
+    <div class="mock-col">5/5</div>
+    <div class="mock-col modified">Mar 28, 2026</div>
+    <div class="mock-col" style="flex: 0.5; color: var(--portal);">&rarr;</div>
+  </div>
+  <div class="mock-row">
+    <div class="mock-col name">Sprenger, Barbara <span class="badge-dedup">1 possible dupe</span></div>
+    <div class="mock-col score"><span class="score-bar"><span class="score-fill mid" style="width: 60%;"></span></span> 60%</div>
+    <div class="mock-col docs">12</div>
+    <div class="mock-col">3/5</div>
+    <div class="mock-col modified">Mar 15, 2026</div>
+    <div class="mock-col" style="flex: 0.5; color: var(--portal);">&rarr;</div>
+  </div>
+  <div class="mock-row">
+    <div class="mock-col name">Martinez, Carlos</div>
+    <div class="mock-col score"><span class="score-bar"><span class="score-fill low" style="width: 20%;"></span></span> 20%</div>
+    <div class="mock-col docs">3</div>
+    <div class="mock-col">1/5</div>
+    <div class="mock-col modified">Feb 22, 2026</div>
+    <div class="mock-col" style="flex: 0.5; color: var(--portal);">&rarr;</div>
+  </div>
+</div>
+
+<h3>Data Source</h3>
+<p>The grid queries the existing <code>GET /api/acf/audit</code> endpoint (bulk) combined with Firestore <code>clients</code> collection to join client names. Each row represents one ACF folder in Google Drive, enriched with:</p>
+<ul>
+  <li><strong>Completeness score</strong> &mdash; <code>(subfolder_count / 5) * weight + (document_count / expected_docs) * weight</code></li>
+  <li><strong>Document count</strong> &mdash; total files across all subfolders (from <code>ACFDetail.subfolders[].file_count</code>)</li>
+  <li><strong>Dedup badge count</strong> &mdash; potential duplicate ACFs (same client name, different folder IDs)</li>
+  <li><strong>Last modified</strong> &mdash; most recent <code>modifiedTime</code> across all files in the ACF</li>
+</ul>
+
+<h3>Filters &amp; Sort</h3>
+<table>
+  <tr><th>Filter/Sort</th><th>Behavior</th></tr>
+  <tr><td>Search</td><td>Client name (first, last, household). Title-case normalized before query.</td></tr>
+  <tr><td>Completeness</td><td>Sort asc/desc by computed score. Filter: <code>&lt;50%</code>, <code>50-80%</code>, <code>&gt;80%</code></td></tr>
+  <tr><td>Last Modified</td><td>Sort by most recent file modification in any subfolder</td></tr>
+  <tr><td>Has Duplicates</td><td>Toggle: show only ACFs with &ge;1 potential duplicate</td></tr>
+  <tr><td>Missing Subfolders</td><td>Toggle: show only ACFs with &lt;5 subfolders</td></tr>
+</table>
+
+<h3>Row Click</h3>
+<p>Navigates to <code>/acf/{clientId}</code> &mdash; the ACF Detail View.</p>
+
+<!-- ================================================================== -->
+<h2>2. ACF Detail View</h2>
+
+<p>A dedicated detail page at <code>/acf/{clientId}</code>. Same layout cadence as Contact detail and Account detail &mdash; header with cross-links, then tabbed content.</p>
+
+<h3>Detail Mockup</h3>
+
+<div class="detail-mock">
+  <!-- Dedup banner -->
+  <div class="dedup-banner">
+    <span class="icon">&#9888;</span>
+    <span>This may be the same ACF as <strong>Janet M. Woods</strong> (3 shared file names)</span>
+    <div class="actions">
+      <span class="btn-sm btn-merge">Merge</span>
+      <span class="btn-sm btn-dismiss">Dismiss</span>
+      <span class="btn-sm btn-jdm">Check with JDM</span>
+    </div>
+  </div>
+  <!-- Header -->
+  <div class="detail-header">
+    <div>
+      <div class="detail-title">ACF &mdash; Woods, Janet &amp; Robert</div>
+      <div class="detail-subtitle">47 documents &middot; 5/5 subfolders &middot; Last modified Apr 1, 2026</div>
+    </div>
+    <div class="detail-links">
+      <span class="detail-link">&#128100; Contact</span>
+      <span class="detail-link green">&#128196; Accounts (4)</span>
+      <span class="detail-link" style="color: var(--muted); border-color: var(--border);">&#128194; Open in Drive</span>
+    </div>
+  </div>
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <div class="tab-item active">Client</div>
+    <div class="tab-item">NewBiz</div>
+    <div class="tab-item">Cases</div>
+    <div class="tab-item">Account</div>
+    <div class="tab-item">Reactive</div>
+  </div>
+  <!-- Body -->
+  <div class="detail-body">
+    <div class="file-row">
+      <span class="file-icon">&#128196;</span>
+      <span class="file-name">Woods_Janet_Medicare_Card.pdf</span>
+      <span class="file-date">Mar 15, 2026</span>
+      <span class="file-size">142 KB</span>
+    </div>
+    <div class="file-row">
+      <span class="file-icon">&#128196;</span>
+      <span class="file-name">Woods_Janet_DL_Front.jpg</span>
+      <span class="file-date">Jan 8, 2026</span>
+      <span class="file-size">1.2 MB</span>
+    </div>
+    <div class="file-row">
+      <span class="file-icon">&#128196;</span>
+      <span class="file-name">Woods_Janet_AI3_2026.pdf</span>
+      <span class="file-date">Mar 28, 2026</span>
+      <span class="file-size">89 KB</span>
+    </div>
+    <div class="file-row">
+      <span class="file-icon">&#128196;</span>
+      <span class="file-name">Woods_Robert_Medicare_Card.pdf</span>
+      <span class="file-date">Mar 15, 2026</span>
+      <span class="file-size">138 KB</span>
+    </div>
+    <div class="file-row">
+      <span class="file-icon">&#128196;</span>
+      <span class="file-name">Woods_Household_HIPAA_Auth.pdf</span>
+      <span class="file-date">Dec 2, 2025</span>
+      <span class="file-size">64 KB</span>
+    </div>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 12px; text-align: center;">5 files in Client subfolder</p>
+  </div>
+</div>
+
+<h3>The 5 Subfolder Tabs</h3>
+<p>These are NOT categories &mdash; they are a <strong>lifecycle</strong>. Documents flow through them as a client relationship evolves.</p>
+
+<table>
+  <tr><th>Tab</th><th>Contains</th><th>Lifecycle Stage</th></tr>
+  <tr>
+    <td style="color: var(--portal); font-weight: 600;">Client</td>
+    <td>Medicare card, driver's license, SSN card, AI3, HIPAA auth, tax returns, POA, birth cert, passport</td>
+    <td>Foundation &mdash; static identity documents that rarely change</td>
+  </tr>
+  <tr>
+    <td style="color: var(--teal); font-weight: 600;">NewBiz</td>
+    <td>Applications (signed), 1035 exchange forms, transfer/TOA/ACAT, delivery receipts, replacement forms, enrollment docs</td>
+    <td>Onboarding &mdash; documents from when a policy or account is first established</td>
+  </tr>
+  <tr>
+    <td style="color: var(--purple); font-weight: 600;">Cases</td>
+    <td>Comparisons, illustrations, analysis docs, quotes, proposals, discovery meeting notes</td>
+    <td>Active work &mdash; the analytical work behind a recommendation</td>
+  </tr>
+  <tr>
+    <td style="color: var(--green); font-weight: 600;">Account</td>
+    <td>Statements, confirmations, annual reviews, account summaries, performance reports, distribution records</td>
+    <td>Ongoing &mdash; recurring documents tied to active accounts</td>
+  </tr>
+  <tr>
+    <td style="color: var(--amber); font-weight: 600;">Reactive</td>
+    <td>Everything that doesn't match the above patterns &mdash; correspondence, misc uploads, unclassified documents</td>
+    <td>Catch-all &mdash; auto-routed here by default, manually reclassified as needed</td>
+  </tr>
+</table>
+
+<h3>File Classification</h3>
+<p>The existing <code>classifyFileName()</code> function in <code>ACFSection.tsx</code> handles auto-routing. Same rules apply here. Files dropped into the detail view get classified and routed to the right tab automatically. The <code>ACFRoutingRule[]</code> in <code>ACFConfig</code> allows admin-configurable overrides.</p>
+
+<h3>Cross-Links</h3>
+<p>The header always shows:</p>
+<ul>
+  <li><strong>Contact</strong> &mdash; <code>/contacts/{clientId}</code> (jump to the person)</li>
+  <li><strong>Accounts (N)</strong> &mdash; filtered view of <code>/accounts?client={clientId}</code> (jump to their accounts)</li>
+  <li><strong>Open in Drive</strong> &mdash; <code>folder_url</code> from the ACF record (direct Drive link)</li>
+</ul>
+
+<!-- ================================================================== -->
+<h2>3. Account Detail &mdash; Document Tabs (Bottom-Up)</h2>
+
+<p>The Account detail page (<code>/accounts/{clientId}/{accountId}</code>) gains document tabs at the bottom of the view. These show ACF files filtered to <strong>only documents relevant to THAT specific account</strong>.</p>
+
+<h3>Account Document Tabs</h3>
+
+<div class="mock" style="max-width: 560px;">
+  <div style="padding: 12px 16px; font-size: 14px; font-weight: 600; border-bottom: 1px solid var(--border);">
+    Athene &mdash; FIA &middot; Policy #FA-2847291
+  </div>
+  <div class="acct-doc-tabs">
+    <div class="acct-doc-tab active">NewBiz (2)</div>
+    <div class="acct-doc-tab">Active (5)</div>
+    <div class="acct-doc-tab">Cases (1)</div>
+    <div class="acct-doc-tab">Reactive (0)</div>
+  </div>
+  <div style="padding: 12px 16px;">
+    <div class="file-row">
+      <span class="file-icon">&#128196;</span>
+      <span class="file-name">Woods_Janet_Athene_FA-2847291_Application_Signed.pdf</span>
+      <span class="file-date">Jan 12, 2026</span>
+    </div>
+    <div class="file-row">
+      <span class="file-icon">&#128196;</span>
+      <span class="file-name">Woods_Janet_Athene_FA-2847291_Delivery_Receipt.pdf</span>
+      <span class="file-date">Feb 3, 2026</span>
+    </div>
+  </div>
+</div>
+
+<h3>The Filter: File Name Is the Index</h3>
+
+<div class="section-key">
+  <strong>Zero tokens. Zero AI. Pure path lookup.</strong>
+  <pre style="margin: 8px 0 0; background: transparent; border: none; padding: 0; color: var(--teal);">acfFiles.filter(f => f.name.includes(policyNumber))</pre>
+  <p style="margin-top: 8px; font-size: 13px;">The naming convention IS the database. If a file contains the policy number in its name, it belongs to that account. No search index. No metadata query. <code>String.includes()</code>.</p>
+</div>
+
+<p>This works because ACF naming conventions embed the policy/account number: <code>{LastName}_{FirstName}_{Carrier}_{PolicyNumber}_{DocType}.pdf</code>. The file name IS the index.</p>
+
+<h4>Tab Mapping</h4>
+<table>
+  <tr><th>Account Doc Tab</th><th>ACF Subfolder Source</th><th>What Shows</th></tr>
+  <tr><td>NewBiz</td><td><code>NewBiz/</code></td><td>Applications, 1035s, transfers for this policy number</td></tr>
+  <tr><td>Active</td><td><code>Account/</code></td><td>Statements, confirmations, reviews for this policy number</td></tr>
+  <tr><td>Cases</td><td><code>Cases/</code></td><td>Illustrations, proposals for this policy number</td></tr>
+  <tr><td>Reactive</td><td><code>Reactive/</code></td><td>Any unclassified docs mentioning this policy number</td></tr>
+</table>
+
+<p>Note: <code>Client/</code> subfolder is not shown here &mdash; those are person-level documents (Medicare card, DL), not account-level. They surface on the Contact card instead.</p>
+
+<!-- ================================================================== -->
+<h2>4. One-Click Document Buttons</h2>
+
+<p>Summary cards on Contact and Account detail pages get document quick-access buttons. These follow the existing <code>AccountDocuments</code> checklist pattern &mdash; buttons are <strong>blue when found</strong>, <strong>gray when missing</strong>. One click opens the file. Zero searching.</p>
+
+<h3>Contact Card Buttons</h3>
+<div class="doc-buttons">
+  <span class="doc-btn found">&#128196; Medicare Card</span>
+  <span class="doc-btn found">&#128196; Driver's License</span>
+  <span class="doc-btn found">&#128196; AI3</span>
+  <span class="doc-btn missing">&#128196; HIPAA Auth</span>
+  <span class="doc-btn missing">&#128196; POA</span>
+</div>
+<p>Source: <code>Client/</code> subfolder. Pattern match on file name keywords.</p>
+
+<h3>Account Card Buttons</h3>
+<div class="doc-buttons">
+  <span class="doc-btn found">&#128196; Latest Statement</span>
+  <span class="doc-btn found">&#128196; Policy Doc</span>
+  <span class="doc-btn missing">&#128196; Application</span>
+  <span class="doc-btn found">&#128196; Annual Review</span>
+</div>
+<p>Source: ACF subfolders filtered by policy number. Most recent match per doc type wins.</p>
+
+<h3>Resolution Logic</h3>
+<pre>
+// Contact card: Medicare Card
+const medicare = clientFiles.find(f =>
+  /medicare.*(card|id)|cms.card/i.test(f.name)
+)
+// button = medicare ? BLUE (onClick opens preview) : GRAY
+
+// Account card: Latest Statement
+const statements = acfFiles
+  .filter(f => f.name.includes(policyNumber))
+  .filter(f => /statement|confirm/i.test(f.name))
+  .sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime))
+// button = statements[0] ? BLUE : GRAY
+</pre>
+
+<div class="section-warn">
+  <strong>No AI involved.</strong> This is string matching on file names that already follow a naming convention. The <code>classifyFileName()</code> rules that exist in ACFSection.tsx handle the pattern matching. The buttons just reflect what's already there. If a file exists and matches &mdash; blue. If not &mdash; gray. Zero tokens consumed.
+</div>
+
+<!-- ================================================================== -->
+<h2>5. Dedup at Every Level</h2>
+
+<p>ACF dedup follows the exact same pattern already live on Contacts (via <code>PossibleDuplicates.tsx</code>). Three surfaces, three actions.</p>
+
+<h3>Level 1: Grid Badge</h3>
+<p>On the ACF grid, rows with potential duplicates show an amber badge: <span class="badge-dedup">3 possible dupes</span>. Detection: multiple ACF folders with similar client names (via the existing <code>calculateNameScore()</code> from <code>dedup.ts</code>).</p>
+
+<h3>Level 2: Detail Banner</h3>
+<p>On the ACF detail view, a collapsible banner (same UX as Contact PossibleDuplicates) with three action buttons:</p>
+<ul>
+  <li><strong>Merge</strong> &mdash; opens the dedup merge workflow (<code>/ddup?ids={id1},{id2}&type=acf</code>)</li>
+  <li><strong>Dismiss</strong> &mdash; marks this pair as not-duplicate (persisted, won't resurface)</li>
+  <li><strong>Check with JDM</strong> &mdash; creates a <code>/q</code> item for CEO review (classification: <code>ACF_DEDUP</code>)</li>
+</ul>
+
+<h3>Level 3: Dedicated Dedup Page</h3>
+<p>At <code>/acf/dedup</code> &mdash; a batch processing view showing all ACF duplicate pairs sorted by confidence score. Same layout as the existing contact dedup page. Bulk select, bulk merge, bulk dismiss.</p>
+
+<h3>ACF Dedup Signals</h3>
+<table>
+  <tr><th>Signal</th><th>Confidence</th><th>Detection Method</th></tr>
+  <tr><td>Identical client name, different folder ID</td><td>95%</td><td>Exact name match across ACF folder names</td></tr>
+  <tr><td>Similar name (fuzzy &ge;85), different folder</td><td>85%</td><td><code>calculateNameScore()</code> from <code>dedup.ts</code></td></tr>
+  <tr><td>Shared file names across folders</td><td>90%</td><td>Intersection of file names between two ACFs</td></tr>
+  <tr><td>Same household, separate ACFs</td><td>75%</td><td>Household ID match with distinct ACF folders</td></tr>
+</table>
+
+<!-- ================================================================== -->
+<h2>6. Cross-Integration Map</h2>
+
+<p>Every entity links to every other entity. One click between any of the three. Always.</p>
+
+<div class="flow"><span class="node">CONTACTS</span> <span class="arrow">&rarr;</span> see Accounts <span class="arrow">+</span> see ACF
+<span class="node">ACCOUNTS</span> <span class="arrow">&rarr;</span> see Client <span class="arrow">+</span> see ACF <span class="arrow">+</span> see account-specific docs
+<span class="node">ACF</span>      <span class="arrow">&rarr;</span> see Client <span class="arrow">+</span> see Accounts
+
+<span class="label">From any pillar, one click to either of the other two.</span></div>
+
+<h3>Navigation Matrix</h3>
+<table>
+  <tr><th>From</th><th>To Contact</th><th>To Accounts</th><th>To ACF</th></tr>
+  <tr>
+    <td style="font-weight: 600; color: var(--portal);">Contact Detail</td>
+    <td style="color: var(--muted);">&mdash;</td>
+    <td>AccountsTab (existing)</td>
+    <td>ACF tab (existing) + link to <code>/acf/{id}</code></td>
+  </tr>
+  <tr>
+    <td style="font-weight: 600; color: var(--green);">Account Detail</td>
+    <td>Client name link in header</td>
+    <td style="color: var(--muted);">&mdash;</td>
+    <td>Document tabs (bottom) + link to <code>/acf/{clientId}</code></td>
+  </tr>
+  <tr>
+    <td style="font-weight: 600; color: var(--amber);">ACF Detail</td>
+    <td>Contact link in header</td>
+    <td>Accounts link in header</td>
+    <td style="color: var(--muted);">&mdash;</td>
+  </tr>
+  <tr>
+    <td style="font-weight: 600; color: var(--portal);">Contact Grid</td>
+    <td>Row click</td>
+    <td>Account pills on row</td>
+    <td>ACF icon on row (if exists)</td>
+  </tr>
+  <tr>
+    <td style="font-weight: 600; color: var(--green);">Account Grid</td>
+    <td>Client name column</td>
+    <td>Row click</td>
+    <td>&mdash; (too many per row)</td>
+  </tr>
+  <tr>
+    <td style="font-weight: 600; color: var(--amber);">ACF Grid</td>
+    <td>Client name column</td>
+    <td>&mdash; (too many per row)</td>
+    <td>Row click</td>
+  </tr>
+</table>
+
+<!-- ================================================================== -->
+<h2>7. AI3 Assembly &mdash; Meeting Prep</h2>
+
+<p>"Generate Meeting Prep" is the payoff of the entire ACF structure. Because files are named consistently and organized into lifecycle subfolders, assembly is pure path lookup &mdash; no AI classification needed at generation time.</p>
+
+<h3>Assembly Recipe</h3>
+<pre>
+1. Client/ subfolder:
+   &rarr; Medicare card (most recent)
+   &rarr; AI3 form (most recent)
+   &rarr; HIPAA authorization
+
+2. Account/ subfolder (per active account):
+   &rarr; Most recent statement (sorted by modifiedTime)
+   &rarr; Annual review (if exists)
+
+3. Cases/ subfolder:
+   &rarr; Active proposals (modified in last 90 days)
+   &rarr; Most recent illustration per carrier
+
+4. NewBiz/ subfolder:
+   &rarr; Pending applications (modified in last 30 days)
+</pre>
+
+<p>Output: a single assembled PDF or a Drive folder link with the meeting-ready documents. One button on the Contact detail or ACF detail page. The button queries ACF subfolders by naming convention, pulls the most recent match per category, and either generates a merged PDF (via <code>PDF_SERVICE</code>) or creates a temporary Drive folder with shortcuts.</p>
+
+<!-- ================================================================== -->
+<h2>8. Technical Architecture</h2>
+
+<h3>New Routes</h3>
+<table>
+  <tr><th>Route</th><th>Page</th><th>Data Source</th></tr>
+  <tr><td><code>/acf</code></td><td>ACF Grid</td><td><code>GET /api/acf/audit</code> + Firestore <code>clients</code></td></tr>
+  <tr><td><code>/acf/{clientId}</code></td><td>ACF Detail</td><td><code>GET /api/acf/{clientId}</code> (existing)</td></tr>
+  <tr><td><code>/acf/dedup</code></td><td>ACF Dedup batch</td><td><code>GET /api/acf/duplicates</code> (new endpoint)</td></tr>
+</table>
+
+<h3>New API Endpoints</h3>
+<table>
+  <tr><th>Endpoint</th><th>Purpose</th></tr>
+  <tr><td><code>GET /api/acf/list</code></td><td>Paginated ACF list with completeness scores and dedup flags</td></tr>
+  <tr><td><code>GET /api/acf/duplicates</code></td><td>All ACF duplicate pairs with confidence scores</td></tr>
+  <tr><td><code>POST /api/acf/{clientId}/dismiss-duplicate</code></td><td>Dismiss a duplicate pair (persisted)</td></tr>
+  <tr><td><code>GET /api/acf/{clientId}/files-by-policy/{policyNumber}</code></td><td>Files from ACF filtered by policy number in filename</td></tr>
+  <tr><td><code>POST /api/acf/{clientId}/meeting-prep</code></td><td>Assemble AI3 meeting prep documents</td></tr>
+</table>
+
+<h3>New Components</h3>
+<table>
+  <tr><th>Component</th><th>Location</th><th>Reuses</th></tr>
+  <tr><td><code>ACFGrid</code></td><td><code>apps/prodash/app/(portal)/acf/page.tsx</code></td><td>Grid pattern from <code>contacts/page.tsx</code></td></tr>
+  <tr><td><code>ACFDetail</code></td><td><code>apps/prodash/app/(portal)/acf/[clientId]/page.tsx</code></td><td>Layout pattern from <code>contacts/[id]/page.tsx</code></td></tr>
+  <tr><td><code>ACFDuplicates</code></td><td><code>apps/prodash/app/(portal)/acf/dedup/page.tsx</code></td><td><code>PossibleDuplicates.tsx</code> pattern</td></tr>
+  <tr><td><code>AccountDocTabs</code></td><td><code>packages/ui/src/modules/AccountDocTabs.tsx</code></td><td><code>AccountDocuments.tsx</code> + tab pattern</td></tr>
+  <tr><td><code>QuickDocButtons</code></td><td><code>packages/ui/src/modules/QuickDocButtons.tsx</code></td><td><code>AccountDocuments.tsx</code> button pattern</td></tr>
+</table>
+
+<h3>Data Flow</h3>
+<div class="flow"><span class="node">Google Drive</span> <span class="arrow">&rarr;</span> ACF folders (5 subfolders each)
+       <span class="arrow">|</span>
+       <span class="arrow">v</span>
+<span class="node">tm-api</span> <span class="arrow">&rarr;</span> /api/acf/* routes <span class="arrow">&rarr;</span> Drive API (list files, read metadata)
+       <span class="arrow">|</span>
+       <span class="arrow">v</span>
+<span class="node">Firestore</span> clients.acf_folder_id <span class="arrow">&rarr;</span> links client to their ACF Drive folder
+       <span class="arrow">|</span>
+       <span class="arrow">v</span>
+<span class="node">Portal</span> <span class="arrow">&rarr;</span> ACF Grid (list) | ACF Detail (files) | Account Doc Tabs (filtered)
+       <span class="arrow">|</span>                                           <span class="arrow">|</span>
+  <span class="label">dedup engine</span>                              <span class="label">file name is the index</span></div>
+
+<!-- ================================================================== -->
+<h2>9. Ticket Estimate</h2>
+
+<table>
+  <tr><th>#</th><th>Ticket</th><th>Size</th><th>Dependencies</th></tr>
+  <tr><td>1</td><td>ACF Grid page + <code>/api/acf/list</code> endpoint</td><td>L</td><td>None (existing audit API)</td></tr>
+  <tr><td>2</td><td>ACF Detail page (standalone route, 5-tab layout)</td><td>L</td><td>Existing <code>GET /api/acf/{clientId}</code></td></tr>
+  <tr><td>3</td><td>ACF Grid dedup badges + <code>/api/acf/duplicates</code></td><td>M</td><td>Ticket 1</td></tr>
+  <tr><td>4</td><td>ACF Detail dedup banner + dismiss/merge/JDM actions</td><td>M</td><td>Ticket 2, Ticket 3</td></tr>
+  <tr><td>5</td><td>ACF Dedup batch page (<code>/acf/dedup</code>)</td><td>M</td><td>Ticket 3</td></tr>
+  <tr><td>6</td><td>Account Detail document tabs (<code>AccountDocTabs</code>)</td><td>M</td><td><code>/api/acf/{clientId}/files-by-policy</code></td></tr>
+  <tr><td>7</td><td>Quick-doc buttons on Contact card</td><td>S</td><td>Existing ACF detail API</td></tr>
+  <tr><td>8</td><td>Quick-doc buttons on Account card</td><td>S</td><td>Ticket 6 endpoint</td></tr>
+  <tr><td>9</td><td>Cross-links: ACF &harr; Contact &harr; Account navigation</td><td>S</td><td>Tickets 1, 2</td></tr>
+  <tr><td>10</td><td>Contact grid: ACF indicator column</td><td>S</td><td>Ticket 1 data</td></tr>
+  <tr><td>11</td><td>AI3 Assembly endpoint + button</td><td>L</td><td>Tickets 2, 6</td></tr>
+  <tr><td>12</td><td>ACF section on Contact detail: "View Full ACF" link to <code>/acf/{id}</code></td><td>S</td><td>Ticket 2</td></tr>
+</table>
+
+<p><strong>Total: 12 tickets</strong> (3L + 4M + 5S). Parallelizable: tickets 1, 2, 6, 7 can start simultaneously. Tickets 3-5 form the dedup track. Ticket 11 (AI3 Assembly) is independent once the detail page exists.</p>
+
+<!-- ================================================================== -->
+<h2>10. What This Unlocks</h2>
+
+<div class="section-why">
+  <strong>For the Trinity Data Method&trade; sales pitch:</strong> "This is your Level 5. Three screens. Every client, every account, every document &mdash; cross-linked, deduped, one click between any of them. Your agency is at Level 1 &mdash; a Google Drive with 47,000 files and no structure. We took you to Level 5 in 72 hours."
+</div>
+
+<ul>
+  <li><strong>B2B/DAVID:</strong> The ACF Grid becomes the visual proof of Level 5 data integrity during partner demos. "Here are your files. Organized. Indexed. Deduped. Ready."</li>
+  <li><strong>Service team:</strong> One-click doc buttons eliminate the #1 time sink &mdash; finding the right statement for the right account. Zero Drive searching. Zero tokens.</li>
+  <li><strong>Compliance:</strong> AI3 Assembly pulls the right documents for every meeting automatically. No more "I forgot to pull the latest statement."</li>
+  <li><strong>Dedup:</strong> Duplicate ACFs get caught at three levels instead of zero. Merge workflows reduce folder sprawl. CEO review queue handles edge cases.</li>
+  <li><strong>Trinity completeness:</strong> When all three pillars stand equal, every data quality metric improves. Carrier data (Accounts) validates against digital files (ACF) validates against CRM data (Contacts). The triangle closes.</li>
+</ul>
+
+<!-- ================================================================== -->
+
+<div class="sig">
+  <strong>MUSASHI</strong> &mdash; VP CMO, ARTxBLADE<br>
+  Contract: SHINOB1 (CTO)<br>
+  Trinity Discovery Doc 2 of 3<br>
+  <br>
+  <em>1/3: The Trinity Data Method&trade; (strategic framework)</em><br>
+  <em><strong>2/3: The Third Pillar &mdash; ACF as First-Class Entity (this document)</strong></em><br>
+  <em>3/3: TBD</em><br>
+  <br>
+  #RunningOurOwnRACE
+</div>
+
+</body>
+</html>
