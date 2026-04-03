@@ -25,7 +25,7 @@ export async function routeToRonin(
     const resp = await fetch(`${MDJ_URL}/api/tracker`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-MDJ-Auth': MDJ_AUTH },
-      body: JSON.stringify({ title, description, type: 'bug', status: 'open',
+      body: JSON.stringify({ title, description, type: 'bug', status: 'RDN-new',
         source: 'raiden', agent: 'raiden', raiden_action: 'routed_to_ronin', resolution: reasoning })
     })
     const json = await resp.json() as { success: boolean; data?: { item_id?: string } }

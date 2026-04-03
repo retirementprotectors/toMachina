@@ -139,8 +139,8 @@ export async function checkForDuplicate(
     if (bestMatch) {
       // Re-open path: if the matched duplicate is already 'verified_closed', allow
       // a new ticket — the issue has re-surfaced after being resolved.
-      if (bestMatch.status === 'verified_closed') {
-        console.log(`[raiden-guard] Duplicate of ${bestMatch.item_id} found but original was verified_closed — allowing new ticket (re-opened issue)`)
+      if (bestMatch.status === 'RDN-reported') {
+        console.log(`[raiden-guard] Duplicate of ${bestMatch.item_id} found but original was RDN-reported — allowing new ticket (re-opened issue)`)
         return noMatch
       }
 
