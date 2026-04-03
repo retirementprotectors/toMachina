@@ -25,6 +25,9 @@ export { PROSPECT_HOUSEHOLD_CONFIG } from './prospect-household'
 export { REACTIVE_RETIREMENT_CONFIG } from './reactive-retirement'
 export { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
 
+// Delivery pipeline (Sprint 012 — TRK-S12-005)
+export { DELIVERY_CONFIG } from './delivery'
+
 // Session Agent Workflow (engineering ops)
 export { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
 
@@ -43,6 +46,7 @@ import { PROSPECT_LEGACY_CONFIG } from './prospect-legacy'
 import { PROSPECT_HOUSEHOLD_CONFIG } from './prospect-household'
 import { REACTIVE_RETIREMENT_CONFIG } from './reactive-retirement'
 import { REACTIVE_MEDICARE_CONFIG } from './reactive-medicare'
+import { DELIVERY_CONFIG } from './delivery'
 import { SESSION_AGENT_WORKFLOW_CONFIG } from './session-agent-workflow'
 
 export const ALL_PIPELINE_CONFIGS = {
@@ -60,6 +64,7 @@ export const ALL_PIPELINE_CONFIGS = {
   PROSPECT_HOUSEHOLD: PROSPECT_HOUSEHOLD_CONFIG,
   REACTIVE_RETIREMENT: REACTIVE_RETIREMENT_CONFIG,
   REACTIVE_MEDICARE: REACTIVE_MEDICARE_CONFIG,
+  DELIVERY: DELIVERY_CONFIG,
   SESSION_AGENT_WORKFLOW: SESSION_AGENT_WORKFLOW_CONFIG,
 } as const
 
