@@ -241,9 +241,9 @@ interface SpecialistDef {
 
 const SPECIALISTS: SpecialistDef[] = [
   {
-    config_id: 'SC-ARCH',
-    user_id: 'arch-parmenter',
-    specialist_name: 'Arch Parmenter',
+    config_id: 'SC-JARCHER',
+    user_id: 'bc7b0041-f09e-415e-b28c-abe55a862f98',
+    specialist_name: 'Josh Archer',
     territory_id: 'T3',
     origin_zip: '52577',
     office_days: ['Monday', 'Friday'],
