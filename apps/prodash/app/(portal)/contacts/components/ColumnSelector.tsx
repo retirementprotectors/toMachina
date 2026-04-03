@@ -21,7 +21,6 @@ export const ALL_COLUMNS: ColumnDef[] = [
   { key: 'status', label: 'Status', defaultVisible: true },
   { key: 'household', label: 'Household', defaultVisible: true },
   { key: 'accounts', label: 'Accounts', defaultVisible: false },
-  { key: 'last_activity', label: 'Last Activity', defaultVisible: true },
   { key: 'age', label: 'Age', defaultVisible: false },
   { key: 'dob', label: 'Date of Birth', defaultVisible: false },
   { key: 'ssn', label: 'SSN (Last 4)', defaultVisible: false },

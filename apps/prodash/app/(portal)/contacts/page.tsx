@@ -362,7 +362,6 @@ export default function ClientsPage() {
     status: renderSortHeader('Status', 'status'),
     household: renderSortHeader('Household', 'household'),
     accounts: renderStaticHeader('Accounts'),
-    last_activity: renderSortHeader('Last Activity', 'last_activity_at'),
     age: renderStaticHeader('Age'),
     dob: renderStaticHeader('DOB'),
     ssn: renderStaticHeader('SSN'),
@@ -382,15 +381,6 @@ export default function ClientsPage() {
       case 'status': return <StatusBadge status={client.status} />
       case 'household': return client.household_name ? <a href={`/households/${client.household_id}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-[var(--portal)] hover:underline">{String(client.household_name)}</a> : dash
       case 'accounts': return <AccountTypePills accountTypes={client.account_type_categories || []} />
-      case 'last_activity': {
-        const la = client.last_activity_at as string | undefined
-        if (!la) return dash
-        const diff = Date.now() - new Date(la).getTime()
-        const days = Math.floor(diff / 86400000)
-        const label = days < 1 ? 'Today' : days === 1 ? '1d ago' : days < 7 ? `${days}d ago` : days < 30 ? `${Math.floor(days / 7)}w ago` : `${Math.floor(days / 30)}mo ago`
-        const colorClass = days < 7 ? 'text-green-500' : days < 30 ? 'text-amber-500' : 'text-red-400'
-        return <span className={`text-xs font-medium ${colorClass}`}>{label}</span>
-      }
       case 'age': return age != null ? <span className="text-[var(--text-secondary)] text-xs">{age}</span> : dash
       case 'dob': return client.dob ? <span className="text-[var(--text-secondary)] text-xs whitespace-nowrap">{new Date(String(client.dob)).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span> : dash
       case 'ssn': return client.ssn_last4 ? <span className="text-[var(--text-secondary)] text-xs">***-**-{String(client.ssn_last4)}</span> : dash
