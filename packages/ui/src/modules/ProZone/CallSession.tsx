@@ -132,10 +132,20 @@ function SessionSummary({ stats, onDone }: { stats: SessionStats; onDone: () => 
   )
 }
 
+const summaryColorMap: Record<string, { bg: string; border: string; text: string }> = {
+  emerald: { bg: 'bg-emerald-500/5', border: 'border-emerald-500/20', text: 'text-emerald-400' },
+  sky:     { bg: 'bg-sky-500/5',     border: 'border-sky-500/20',     text: 'text-sky-400' },
+  amber:   { bg: 'bg-amber-500/5',   border: 'border-amber-500/20',   text: 'text-amber-400' },
+  violet:  { bg: 'bg-violet-500/5',  border: 'border-violet-500/20',  text: 'text-violet-400' },
+  orange:  { bg: 'bg-orange-500/5',  border: 'border-orange-500/20',  text: 'text-orange-400' },
+  neutral: { bg: 'bg-neutral-500/5', border: 'border-neutral-500/20', text: 'text-neutral-400' },
+}
+
 function SummaryCard({ label, value, color }: { label: string; value: number; color: string }) {
+  const c = summaryColorMap[color] ?? summaryColorMap.neutral
   return (
-    <div className={`rounded-lg bg-${color}-500/5 border border-${color}-500/20 px-3 py-2 text-center`}>
-      <span className={`text-lg font-bold tabular-nums text-${color}-400`}>{value}</span>
+    <div className={`rounded-lg ${c.bg} border ${c.border} px-3 py-2 text-center`}>
+      <span className={`text-lg font-bold tabular-nums ${c.text}`}>{value}</span>
       <p className="text-[9px] uppercase tracking-wider text-[var(--text-muted)]">{label}</p>
     </div>
   )
