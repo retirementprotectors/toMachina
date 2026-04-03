@@ -127,6 +127,7 @@ export type CamRevenueByAgentDTO = CamAgentBucket[]
 
 export interface CamAgentBucket {
   agent_id: string
+  name: string
   total: number
   count: number
 }
