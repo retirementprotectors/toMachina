@@ -172,6 +172,9 @@ service cloud.firestore {
     match /communications/{commId} {
       allow read, write: if isRPIUser();
     }
+    match /call_sessions/{sessionId} {
+      allow read, write: if isRPIUser();
+    }
 
     // ----------------------------------------------------------------
     // Revenue, carriers, products — leader+ writes
@@ -187,6 +190,18 @@ service cloud.firestore {
     match /products/{productId} {
       allow read: if isRPIUser();
       allow write: if isLeaderOrAbove();
+    }
+
+    // ----------------------------------------------------------------
+    // Learning Loop — Session Intelligence (Sprint 003)
+    // ----------------------------------------------------------------
+    match /knowledge_entries/{entryId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
+    }
+    match /dojo_warriors/{warriorId} {
+      allow read: if isRPIUser();
+      allow write: if isExecutiveOrAbove();
     }
 
     // ----------------------------------------------------------------

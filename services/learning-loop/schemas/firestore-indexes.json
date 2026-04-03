@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "knowledge_entries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "promoted_to_claude_md", "order": "ASCENDING" },
+        { "fieldPath": "confidence", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "knowledge_entries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "knowledge_entries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tags", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "confidence", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

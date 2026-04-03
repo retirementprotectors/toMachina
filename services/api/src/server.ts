@@ -85,6 +85,7 @@ import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
 import { webhookDeployRoutes } from './routes/webhook-deploy.js'
 import { mystAiRoutes } from './routes/myst-ai.js'
 import { adminWarriorRoutes } from './routes/admin-warriors.js'
+import { adminLearningLoopRoutes } from './routes/admin-learning-loop.js'
 import { rspRoutes } from './routes/rsp.js'
 import { senseiAnalyticsRoutes } from './routes/sensei-analytics.js'
 import { senseiContentRoutes } from './routes/sensei-content.js'
@@ -202,6 +203,7 @@ app.use('/api/voltron', normalizeBody, voltronDeployRoutes)
 
 app.use('/api/myst-ai', mystAiRoutes)
 app.use('/api/admin/warriors', adminWarriorRoutes)
+app.use('/api/admin/learning-loop', adminLearningLoopRoutes)
 app.use('/api/rsp', normalizeBody, rspRoutes)
 
 // CEO Action Queue — Sprint 012
