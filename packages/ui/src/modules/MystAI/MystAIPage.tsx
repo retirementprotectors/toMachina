@@ -100,7 +100,7 @@ const BOT_TIERS: BotTier[] = [
         name: 'VOLTRON',
         title: 'The BFF',
         signatureLine: 'Let me help.',
-        icon: '🔋',
+        icon: '🦁',
         accentColor: '#3b82f6',
       },
     ],

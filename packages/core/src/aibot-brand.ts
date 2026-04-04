@@ -29,6 +29,8 @@ export interface AiBotCharacter {
   primaryChannel: string
   funFacts: string[]
   avatarUrl?: string
+  signoffEmoji?: string  // Slack emoji code (e.g. ':crossed_swords:')
+  signoffIcon?: string   // Material icon name (e.g. 'temple_buddhist')
 }
 
 export interface AiBotProfile {
