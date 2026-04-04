@@ -341,6 +341,10 @@ function buildAnnuitySections(a: Account): SectionDef[] {
         ...(showContractNumber ? [f('Contract Number', 'contract_number', a.contract_number, { mono: true })] : []),
         f('NAIC Code', 'naic_code', a.naic_code, { mono: true }),
         f('Charter Code', 'charter_code', a.charter_code, { mono: true }),
+        f('Plan Name', 'plan_name', a.plan_name),
+        f('Plan Code', 'plan_code', a.plan_code, { mono: true }),
+        f('Data Source', 'data_source', a.data_source),
+        f('Book of Business', 'book_of_business', a.book_of_business),
       ],
     },
     {
@@ -352,6 +356,10 @@ function buildAnnuitySections(a: Account): SectionDef[] {
         f('Annual Premium', 'annual_premium', a.annual_premium, { formatDisplay: formatCurrency }),
         f('Death Benefit', 'death_benefit', a.death_benefit, { formatDisplay: formatCurrency }),
         f('Cash Value', 'cash_value', a.cash_value, { formatDisplay: formatCurrency }),
+        f('Income Benefit', 'income_benefit', a.income_benefit, { formatDisplay: formatCurrency }),
+        f('Benefit Base', 'benefit_base', a.benefit_base, { formatDisplay: formatCurrency }),
+        f('Net Deposits', 'net_deposits', a.net_deposits, { formatDisplay: formatCurrency }),
+        f('Total Premiums Paid', 'total_premiums_paid', a.total_premiums_paid, { formatDisplay: formatCurrency }),
         f('Guaranteed Rate', 'guaranteed_rate', a.guaranteed_rate, { formatDisplay: formatPercent }),
         f('Current Rate', 'current_rate', a.current_rate, { formatDisplay: formatPercent }),
       ],
@@ -363,6 +371,8 @@ function buildAnnuitySections(a: Account): SectionDef[] {
         f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
         f('Maturity Date', 'maturity_date', a.maturity_date, { type: 'date', formatDisplay: formatDate }),
         f('Surrender End Date', 'surrender_end_date', a.surrender_end_date, { type: 'date', formatDisplay: formatDate }),
+        f('As Of Date', 'as_of_date', a.as_of_date, { type: 'date', formatDisplay: formatDate }),
+        f('Last Transaction', 'last_transaction_date', a.last_transaction_date, { type: 'date', formatDisplay: formatDate }),
       ],
     },
     {
@@ -371,9 +381,25 @@ function buildAnnuitySections(a: Account): SectionDef[] {
         f('Owner', 'owner_name', a.owner_name),
         f('Annuitant', 'annuitant_name', a.annuitant_name),
         f('Joint Owner', 'joint_owner_name', a.joint_owner_name),
+        f('Joint Owner', 'joint_owner', a.joint_owner),
+        f('Annuitant', 'annuitant', a.annuitant),
+        f('Beneficiary', 'beneficiary', a.beneficiary),
       ],
     },
   ]
+  const hasRmd = a.rmd_calculated || a.rmd_remaining || a.prior_year_fmv
+  if (hasRmd) {
+    const valIdx = sections.findIndex(s => s.title === 'Values')
+    sections.splice(valIdx + 1, 0, {
+      title: 'RMD Info', icon: 'calculate',
+      fields: [
+        f('RMD Calculated', 'rmd_calculated', a.rmd_calculated, { formatDisplay: formatCurrency }),
+        f('RMD Remaining', 'rmd_remaining', a.rmd_remaining, { formatDisplay: formatCurrency }),
+        f('Prior Year FMV', 'prior_year_fmv', a.prior_year_fmv, { formatDisplay: formatCurrency }),
+        f('Issue Age', 'issue_age', a.issue_age),
+      ],
+    })
+  }
   const hasRider = a.rider_name || a.income_base || a.rider_activated
   if (hasRider) {
     const riderStatus = a.rider_activated ? 'TRIGGERED' : 'DORMANT'
@@ -400,7 +426,11 @@ function buildLifeSections(a: Account): SectionDef[] {
         f('Product', 'product_name', a.product_name),
         f('Policy Type', 'product_type', a.product_type),
         f('Policy Number', 'policy_number', a.policy_number, { mono: true }),
+        f('Account Number', 'account_number', a.account_number, { mono: true }),
         f('Status', 'status', a.status),
+        f('Plan Name', 'plan_name', a.plan_name),
+        f('Plan Code', 'plan_code', a.plan_code, { mono: true }),
+        f('Market', 'market', a.market),
       ],
     },
     {
@@ -408,9 +438,23 @@ function buildLifeSections(a: Account): SectionDef[] {
       fields: [
         f('Face Amount', 'face_amount', a.face_amount, { formatDisplay: formatCurrency }),
         f('Premium', 'premium', a.premium, { formatDisplay: formatCurrency }),
+        f('Annual Premium', 'annual_premium', a.annual_premium, { formatDisplay: formatCurrency }),
         f('Cash Value', 'cash_value', a.cash_value, { formatDisplay: formatCurrency }),
+        f('Surrender Value', 'surrender_value', a.surrender_value, { formatDisplay: formatCurrency }),
         f('Death Benefit', 'death_benefit', a.death_benefit, { formatDisplay: formatCurrency }),
+        f('Account Value', 'account_value', a.account_value, { formatDisplay: formatCurrency }),
+        f('Loan Balance', 'loan_balance', a.loan_balance, { formatDisplay: formatCurrency }),
         f('Premium Mode', 'premium_mode', a.premium_mode),
+      ],
+    },
+    {
+      title: 'Underwriting', icon: 'verified_user',
+      fields: [
+        f('Health Class', 'health_class', a.health_class),
+        f('Risk Class', 'risk_class', a.risk_class),
+        f('Issue Age', 'issue_age', a.issue_age),
+        f('MEC', 'mec', a.mec || a.is_mec),
+        f('DB Option', 'death_benefit_option', a.death_benefit_option || a.db_option),
       ],
     },
     {
@@ -419,6 +463,9 @@ function buildLifeSections(a: Account): SectionDef[] {
         f('Issue Date', 'issue_date', a.issue_date, { type: 'date', formatDisplay: formatDate }),
         f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
         f('Expiration Date', 'expiration_date', a.expiration_date, { type: 'date', formatDisplay: formatDate }),
+        f('Maturity Date', 'maturity_date', a.maturity_date, { type: 'date', formatDisplay: formatDate }),
+        f('Paid To Date', 'paid_to_date', a.paid_to_date, { type: 'date', formatDisplay: formatDate }),
+        f('Last Transaction', 'last_transaction_date', a.last_transaction_date, { type: 'date', formatDisplay: formatDate }),
       ],
     },
     {
@@ -427,6 +474,14 @@ function buildLifeSections(a: Account): SectionDef[] {
         f('Owner', 'owner_name', a.owner_name),
         f('Insured', 'insured_name', a.insured_name),
         f('Joint Insured', 'joint_insured_name', a.joint_insured_name),
+      ],
+    },
+    {
+      title: 'Beneficiaries', icon: 'family_restroom',
+      fields: [
+        f('Beneficiary', 'beneficiary', a.beneficiary),
+        f('Primary Beneficiary', 'primary_beneficiary', a.primary_beneficiary),
+        f('Primary %', 'primary_beneficiary_pct', a.primary_beneficiary_pct, { formatDisplay: formatPercent }),
       ],
     },
   ]
@@ -443,6 +498,12 @@ function buildMedicareSections(a: Account): SectionDef[] {
         f('Plan ID', 'plan_id', a.plan_id || a.policy_number, { mono: true }),
         f('Coverage Type', 'coverage_type', a.coverage_type),
         f('Status', 'status', a.status),
+        f('Core Product Type', 'core_product_type', a.core_product_type),
+        f('Ancillary Type', 'ancillary_type', a.ancillary_type),
+        f('MAPD Type', 'mapd_type', a.mapd_type),
+        f('Plan Letter', 'plan_letter', a.plan_letter),
+        f('CMS Plan Code', 'cms_plan_code', a.cms_plan_code, { mono: true }),
+        f('Carrier Charter', 'carrier_charter', a.carrier_charter),
       ],
     },
     {
@@ -452,6 +513,9 @@ function buildMedicareSections(a: Account): SectionDef[] {
         f('Deductible', 'deductible', a.deductible, { formatDisplay: formatCurrency }),
         f('Max Out of Pocket', 'max_oop', a.max_oop, { formatDisplay: formatCurrency }),
         f('Drug Deductible', 'drug_deductible', a.drug_deductible, { formatDisplay: formatCurrency }),
+        f('Annual Premium', 'annual_premium', a.annual_premium, { formatDisplay: formatCurrency }),
+        f('Commissionable Premium', 'commissionable_premium', a.commissionable_premium, { formatDisplay: formatCurrency }),
+        f('Planned Premium', 'planned_premium', a.planned_premium, { formatDisplay: formatCurrency }),
       ],
     },
     {
@@ -459,6 +523,19 @@ function buildMedicareSections(a: Account): SectionDef[] {
       fields: [
         f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
         f('Disenrollment Date', 'disenrollment_date', a.disenrollment_date, { type: 'date', formatDisplay: formatDate }),
+        f('Term Date', 'term_date', a.term_date, { type: 'date', formatDisplay: formatDate }),
+        f('Submitted Date', 'submitted_date', a.submitted_date, { type: 'date', formatDisplay: formatDate }),
+      ],
+    },
+    {
+      title: 'Enrollment', icon: 'how_to_reg',
+      fields: [
+        f('Election Type', 'election_type', a.election_type),
+        f('Writing Agent', 'writing_agent_id', a.writing_agent_id, { mono: true }),
+        f('Carrier Status', 'carrier_application_status', a.carrier_application_status),
+        f('Sales Type', 'carrier_sales_type', a.carrier_sales_type),
+        f('Medicare Beneficiary ID', 'medicare_beneficiary_id', a.medicare_beneficiary_id, { mono: true }),
+        f('Member ID', 'member_id', a.member_id, { mono: true }),
       ],
     },
   ]
@@ -474,6 +551,12 @@ function buildInvestmentSections(a: Account): SectionDef[] {
         f('Account Number', 'account_number', a.account_number || a.policy_number, { mono: true }),
         f('Advisor', 'advisor', a.advisor),
         f('Status', 'status', a.status),
+        f('Account Registration', 'account_registration', a.account_registration),
+        f('Tax Status', 'tax_status', a.tax_status),
+        f('BD/RIA Firm', 'bd_ria_firm', a.bd_ria_firm),
+        f('Advisor of Record', 'advisor_of_record', a.advisor_of_record),
+        f('Book of Business', 'book_of_business', a.book_of_business),
+        f('Market', 'market', a.market),
       ],
     },
     {
@@ -483,6 +566,10 @@ function buildInvestmentSections(a: Account): SectionDef[] {
         f('Model', 'model', a.model),
         f('Risk Level', 'risk_level', a.risk_level),
         f('Fee Schedule', 'fee_schedule', a.fee_schedule, { formatDisplay: formatPercent }),
+        f('Net Deposits', 'net_deposits', a.net_deposits, { formatDisplay: formatCurrency }),
+        f('Advisory Fee %', 'advisory_fee_pct', a.advisory_fee_pct, { formatDisplay: formatPercent }),
+        f('Advisory Fees', 'advisory_fees', a.advisory_fees, { formatDisplay: formatCurrency }),
+        f('Death Benefit', 'death_benefit', a.death_benefit, { formatDisplay: formatCurrency }),
       ],
     },
     {
@@ -490,6 +577,8 @@ function buildInvestmentSections(a: Account): SectionDef[] {
       fields: [
         f('Effective Date', 'effective_date', a.effective_date, { type: 'date', formatDisplay: formatDate }),
         f('Rebalance Date', 'rebalance_date', a.rebalance_date, { type: 'date', formatDisplay: formatDate }),
+        f('As Of Date', 'as_of_date', a.as_of_date, { type: 'date', formatDisplay: formatDate }),
+        f('Issue Date', 'issue_date', a.issue_date, { type: 'date', formatDisplay: formatDate }),
       ],
     },
     {
