@@ -179,6 +179,56 @@
   .job-timing { margin-left: auto; font-size: 10px; color: var(--text-muted); }
 
   /* ─── Section labels ─── */
+  /* ─── Class Toggle ─── */
+  .class-toggle {
+    display: flex; align-items: center; gap: 4px; margin-bottom: 18px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 4px; width: fit-content;
+  }
+  .class-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 12px; font-weight: 600; transition: all 0.15s;
+    background: transparent; color: var(--text-muted);
+  }
+  .class-btn:hover { color: var(--text-secondary); }
+  .class-btn.active { background: var(--bg-surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .class-btn .material-icons-outlined { font-size: 16px; }
+  .class-btn .dot {
+    width: 7px; height: 7px; border-radius: 50%; margin-left: 4px;
+  }
+  .class-btn .dot.green { background: var(--green); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  .class-btn .dot.amber { background: var(--amber); box-shadow: 0 0 6px rgba(245,158,11,0.4); animation: pulse 1.5s ease-in-out infinite; }
+
+  /* ─── MDJ Service Cards ─── */
+  .service-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px; padding: 12px 14px;
+  }
+  .service-card {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; transition: all 0.15s;
+  }
+  .service-card:hover { border-color: var(--text-muted); }
+  .service-card-top {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  }
+  .service-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .service-type {
+    font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .service-meta { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+  .uptime-bar {
+    display: flex; gap: 1px; margin-top: 6px; height: 14px; border-radius: 3px; overflow: hidden;
+  }
+  .uptime-block {
+    flex: 1; border-radius: 1px;
+  }
+  .uptime-block.up { background: rgba(34,197,94,0.3); }
+  .uptime-block.down { background: rgba(239,68,68,0.3); }
+  .uptime-block.partial { background: rgba(245,158,11,0.3); }
+
   .section-note {
     margin-top: 32px; padding: 16px; background: var(--bg-card);
     border: 1px dashed var(--border); border-radius: 8px;
@@ -224,6 +274,25 @@
   </div>
 </div>
 
+<!-- ─── Class Toggle ─── -->
+<div class="class-toggle">
+  <button class="class-btn active" onclick="showClass('github')">
+    <span class="material-icons-outlined">cloud</span>
+    GitHub Actions
+    <span class="dot amber"></span>
+  </button>
+  <button class="class-btn" onclick="showClass('mdj')">
+    <span class="material-icons-outlined">dns</span>
+    MDJ_SERVER
+    <span class="dot green"></span>
+  </button>
+  <button class="class-btn" onclick="showClass('all')">
+    <span class="material-icons-outlined">dashboard</span>
+    All
+  </button>
+</div>
+
+<div id="github-section">
 <!-- ─── Summary Strip ─── -->
 <div class="summary-strip">
   <div class="summary-status in-progress">
@@ -540,6 +609,310 @@
   </div>
 </div>
 
+</div><!-- end #github-section -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- ─── MDJ_SERVER Section ─── -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="mdj-section" style="display: none;">
+
+<!-- MDJ Summary Strip -->
+<div class="summary-strip">
+  <div class="summary-status all-green" style="color: var(--green);">
+    <span class="summary-dot green"></span>
+    MDJ_SERVER Online
+  </div>
+  <span style="color: var(--border);">|</span>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--green);">
+      <span class="material-icons-outlined" style="font-size: 14px;">check_circle</span> 5 services
+    </span>
+    <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--green);">
+      <span class="material-icons-outlined" style="font-size: 14px;">check_circle</span> 3 warriors
+    </span>
+    <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted);">
+      <span class="material-icons-outlined" style="font-size: 14px;">memory</span> 14.2 / 30 GB
+    </span>
+    <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted);">
+      <span class="material-icons-outlined" style="font-size: 14px;">storage</span> 76 GB free
+    </span>
+  </div>
+  <div class="summary-meta">
+    Uptime: <strong>11d 4h</strong> &nbsp;|&nbsp; <strong style="color: var(--green);">100.99.181.57</strong>
+  </div>
+</div>
+
+<!-- Row 1: Systemd Services -->
+<div class="pipeline-row">
+  <div class="pipeline-header">
+    <div class="pipeline-icon" style="background: var(--teal);">
+      <span class="material-icons-outlined">settings_suggest</span>
+    </div>
+    <div>
+      <div class="pipeline-name">Systemd Services</div>
+      <div class="pipeline-desc">Always-on processes managed by systemd</div>
+    </div>
+    <div class="pipeline-latest success">
+      <span class="material-icons-outlined" style="font-size: 16px;">check_circle</span>
+      5/5 running
+    </div>
+  </div>
+  <div class="service-grid">
+    <!-- VOLTRON -->
+    <div class="service-card">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--green);">check_circle</span>
+        <span class="service-name">mdj-agent.service</span>
+        <span class="service-type" style="background: rgba(124,58,237,0.12); color: rgb(124,58,237);">VOLTRON</span>
+      </div>
+      <div class="service-meta">
+        Port 4200 &nbsp;|&nbsp; PID 1247 &nbsp;|&nbsp; Up 11d 4h<br>
+        Last restart: Mar 24, 2:15 AM &nbsp;|&nbsp; Memory: 892 MB
+      </div>
+      <div class="uptime-bar">
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block partial"></div><div class="uptime-block up"></div>
+      </div>
+    </div>
+    <!-- Git Monitor -->
+    <div class="service-card">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--green);">check_circle</span>
+        <span class="service-name">git-monitor.service</span>
+        <span class="service-type" style="background: rgba(59,130,246,0.12); color: rgb(59,130,246);">DISPATCHER</span>
+      </div>
+      <div class="service-meta">
+        Polls every 60s &nbsp;|&nbsp; PID 1283 &nbsp;|&nbsp; Up 11d 4h<br>
+        Last event: 4m ago (PR #237 merged)
+      </div>
+      <div class="uptime-bar">
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div>
+      </div>
+    </div>
+    <!-- Intake Dispatcher -->
+    <div class="service-card">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--green);">check_circle</span>
+        <span class="service-name">intake-dispatch.service</span>
+        <span class="service-type" style="background: rgba(59,130,246,0.12); color: rgb(59,130,246);">DISPATCHER</span>
+      </div>
+      <div class="service-meta">
+        Polls #the-dojo &nbsp;|&nbsp; PID 1301 &nbsp;|&nbsp; Up 11d 4h<br>
+        Last intake: 22m ago &nbsp;|&nbsp; 63 items in queue
+      </div>
+      <div class="uptime-bar">
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div>
+      </div>
+    </div>
+    <!-- Dojo Dispatcher -->
+    <div class="service-card">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--green);">check_circle</span>
+        <span class="service-name">dojo-dispatch.service</span>
+        <span class="service-type" style="background: rgba(59,130,246,0.12); color: rgb(59,130,246);">DISPATCHER</span>
+      </div>
+      <div class="service-meta">
+        Warrior routing &nbsp;|&nbsp; PID 1315 &nbsp;|&nbsp; Up 11d 4h<br>
+        Last route: 8m ago (RON-14501 to RONIN)
+      </div>
+      <div class="uptime-bar">
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div>
+      </div>
+    </div>
+    <!-- Digest Dispatcher -->
+    <div class="service-card">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--green);">check_circle</span>
+        <span class="service-name">digest-dispatch.service</span>
+        <span class="service-type" style="background: rgba(59,130,246,0.12); color: rgb(59,130,246);">DISPATCHER</span>
+      </div>
+      <div class="service-meta">
+        Hourly /q digest &nbsp;|&nbsp; PID 1329 &nbsp;|&nbsp; Up 11d 4h<br>
+        Next digest: 42m &nbsp;|&nbsp; Last: 18m ago (3 items)
+      </div>
+      <div class="uptime-bar">
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div><div class="uptime-block up"></div>
+        <div class="uptime-block up"></div><div class="uptime-block up"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Row 2: Active Warriors (tmux sessions) -->
+<div class="pipeline-row">
+  <div class="pipeline-header">
+    <div class="pipeline-icon" style="background: var(--dojo);">
+      <span class="material-icons-outlined">temple_buddhist</span>
+    </div>
+    <div>
+      <div class="pipeline-name">Active Warriors</div>
+      <div class="pipeline-desc">tmux sessions running on MDJ_SERVER</div>
+    </div>
+    <div class="pipeline-latest success">
+      <span class="material-icons-outlined" style="font-size: 16px;">check_circle</span>
+      3 active
+    </div>
+  </div>
+  <div class="service-grid">
+    <!-- SHINOB1 -->
+    <div class="service-card" style="border-left: 3px solid var(--dojo);">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--green);">radio_button_checked</span>
+        <span class="service-name">SHINOB1</span>
+        <span class="service-type" style="background: rgba(224,124,62,0.12); color: var(--dojo);">CTO</span>
+        <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(34,197,94,0.12); color: var(--green); font-weight: 700;">ACTIVE</span>
+      </div>
+      <div class="service-meta">
+        tmux: <code style="font-size: 10px; padding: 1px 4px; background: rgba(255,255,255,0.06); border-radius: 3px;">shinob1-session</code><br>
+        Task: RONIN Pipeline Rebuild + STATUS tab<br>
+        Session: 2h 14m &nbsp;|&nbsp; Project: toMachina
+      </div>
+    </div>
+    <!-- 2HINOBI -->
+    <div class="service-card" style="border-left: 3px solid var(--purple);">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--amber);">radio_button_checked</span>
+        <span class="service-name">2HINOBI</span>
+        <span class="service-type" style="background: rgba(167,139,250,0.12); color: var(--purple);">COO</span>
+        <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(245,158,11,0.12); color: var(--amber); font-weight: 700;">IDLE</span>
+      </div>
+      <div class="service-meta">
+        tmux: <code style="font-size: 10px; padding: 1px 4px; background: rgba(255,255,255,0.06); border-radius: 3px;">2hinobi-session</code><br>
+        Last task: Dojo Comms Protocol update<br>
+        Idle: 6h 22m &nbsp;|&nbsp; Project: toMachina
+      </div>
+    </div>
+    <!-- RONIN Builder -->
+    <div class="service-card" style="border-left: 3px solid var(--blue);">
+      <div class="service-card-top">
+        <span class="material-icons-outlined" style="font-size: 16px; color: var(--green); animation: spin 1.5s linear infinite;">sync</span>
+        <span class="service-name">RONIN-4</span>
+        <span class="service-type" style="background: rgba(59,130,246,0.12); color: var(--blue);">BUILDER</span>
+        <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(59,130,246,0.12); color: var(--blue); font-weight: 700;">BUILDING</span>
+      </div>
+      <div class="service-meta">
+        tmux: <code style="font-size: 10px; padding: 1px 4px; background: rgba(255,255,255,0.06); border-radius: 3px;">forge-sprint-016</code><br>
+        Sprint: Medicare Specialist Wire &nbsp;|&nbsp; Phase: BUILD<br>
+        Running: 1h 48m &nbsp;|&nbsp; 8/12 tickets complete
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Row 3: FORGE Sprints Running -->
+<div class="pipeline-row">
+  <div class="pipeline-header">
+    <div class="pipeline-icon" style="background: rgb(245,158,11);">
+      <span class="material-icons-outlined">precision_manufacturing</span>
+    </div>
+    <div>
+      <div class="pipeline-name">FORGE Sprints</div>
+      <div class="pipeline-desc">Active autonomous build sprints on MDJ_SERVER</div>
+    </div>
+    <div class="pipeline-latest in-progress">
+      <span class="material-icons-outlined" style="font-size: 16px; animation: spin 1.5s linear infinite;">sync</span>
+      1 running
+    </div>
+  </div>
+  <div class="runs-row">
+    <!-- Active sprint -->
+    <div class="run-card active">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon in-progress">sync</span>
+        <span style="font-size: 10px; font-weight: 700; color: var(--text);">Sprint-016</span>
+        <span style="font-size: 10px; color: var(--amber); font-weight: 600; margin-left: auto;">BUILD PHASE</span>
+      </div>
+      <div class="run-commit">Medicare Specialist Wire — 16 healthcare tools</div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">schedule</span>
+          1h 48m...
+        </span>
+        <span>RONIN-4</span>
+        <span>8/12 tickets</span>
+      </div>
+      <div class="jobs-detail">
+        <div class="job-row success"><span class="material-icons-outlined">check_circle</span> Discovery <span class="job-timing">12m</span></div>
+        <div class="job-row success"><span class="material-icons-outlined">check_circle</span> Seed <span class="job-timing">8m</span></div>
+        <div class="job-row success"><span class="material-icons-outlined">check_circle</span> Plan Audit <span class="job-timing">15m</span></div>
+        <div class="job-row in-progress"><span class="material-icons-outlined">sync</span> Build (8/12) <span class="job-timing">1h 13m...</span></div>
+        <div class="job-row queued"><span class="material-icons-outlined">hourglass_empty</span> Code Audit <span class="job-timing">waiting</span></div>
+        <div class="job-row queued"><span class="material-icons-outlined">hourglass_empty</span> Deploy <span class="job-timing">waiting</span></div>
+        <div class="job-row queued"><span class="material-icons-outlined">hourglass_empty</span> UX Review <span class="job-timing">waiting</span></div>
+      </div>
+    </div>
+    <!-- Completed sprint -->
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span style="font-size: 10px; font-weight: 700; color: var(--text);">Sprint-015</span>
+      </div>
+      <div class="run-commit">Field Parity + /q Filters + Trinity Foundation</div>
+      <div class="run-meta">
+        <span class="run-timing"><span class="material-icons-outlined" style="font-size: 12px;">timer</span> 4h 22m</span>
+        <span>5 tracks</span>
+        <span>13 PRs</span>
+      </div>
+    </div>
+    <!-- Completed sprint -->
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span style="font-size: 10px; font-weight: 700; color: var(--text);">Sprint-014</span>
+      </div>
+      <div class="run-commit">ACF 2.0 — 23 tickets shipped</div>
+      <div class="run-meta">
+        <span class="run-timing"><span class="material-icons-outlined" style="font-size: 12px;">timer</span> 3h 15m</span>
+        <span>RONIN-3</span>
+        <span>23 tickets</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #mdj-section -->
+
+<script>
+function showClass(cls) {
+  const gh = document.getElementById('github-section')
+  const mdj = document.getElementById('mdj-section')
+  const btns = document.querySelectorAll('.class-btn')
+  btns.forEach(b => b.classList.remove('active'))
+
+  if (cls === 'github') {
+    gh.style.display = 'block'
+    mdj.style.display = 'none'
+    btns[0].classList.add('active')
+  } else if (cls === 'mdj') {
+    gh.style.display = 'none'
+    mdj.style.display = 'block'
+    btns[1].classList.add('active')
+  } else {
+    gh.style.display = 'block'
+    mdj.style.display = 'block'
+    btns[2].classList.add('active')
+  }
+}
+</script>
+
 <!-- ─── Notes ─── -->
 <div class="section-note">
   <strong>How it works:</strong><br>
@@ -557,7 +930,16 @@
   - Portals show CI status (this tab)<br>
   - Dispatcher reads deploy state without polling GitHub<br>
   - RAIDEN can auto-create fix tickets when CI fails<br>
-  - Historical data for velocity tracking<br>
+  - Historical data for velocity tracking<br><br>
+
+  <strong>MDJ_SERVER class tracks:</strong><br>
+  - <strong>Systemd services</strong> — VOLTRON agent, 4 dispatchers. Health via <code>GET /health</code> on port 4200 + systemctl status.<br>
+  - <strong>Active warriors</strong> — tmux sessions. Detected via <code>tmux list-sessions</code>. Shows warrior name, task, duration, idle time.<br>
+  - <strong>FORGE sprints</strong> — Active autonomous builds. Read from ForgeRunState in Firestore. Shows phase progression, ticket count, builder assignment.<br>
+  - <strong>System resources</strong> — RAM, disk, CPU. Sampled via <code>/proc/meminfo</code> and <code>df</code>.<br>
+  - Uptime bars show 14-day history (one block per day). Green = 100% up, amber = partial, red = down.<br><br>
+
+  <strong>Toggle</strong> at the top switches between GitHub Actions (cloud CI/CD) and MDJ_SERVER (on-prem processes). "All" shows both stacked.<br>
 </div>
 
 </body>
