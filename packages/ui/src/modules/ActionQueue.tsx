@@ -111,6 +111,7 @@ export function ActionQueue({ portal }: ActionQueueProps) {
   const [reclassifyId, setReclassifyId] = useState<string | null>(null)
   const [commentId, setCommentId] = useState<string | null>(null)
   const [commentText, setCommentText] = useState('')
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [portalFilter, setPortalFilter] = useState<string>('all')
 
@@ -459,14 +460,16 @@ export function ActionQueue({ portal }: ActionQueueProps) {
               {/* Secondary actions — View Ticket + Comment */}
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
-                  onClick={() => window.open(`/modules/forge?item=${item.item_id}`, '_blank')}
+                  onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
                   style={{
                     flex: 1, padding: '10px 0', borderRadius: 8, cursor: 'pointer',
-                    fontSize: 12, fontWeight: 500, background: s.surface, color: s.textMuted,
-                    border: `1px solid ${s.border}`, minHeight: 40, touchAction: 'manipulation',
+                    fontSize: 12, fontWeight: 500, background: s.surface,
+                    color: expandedId === item.id ? s.portal : s.textMuted,
+                    border: `1px solid ${expandedId === item.id ? s.portal : s.border}`,
+                    minHeight: 40, touchAction: 'manipulation',
                   }}
                 >
-                  View Ticket
+                  {expandedId === item.id ? 'Hide Detail' : 'View Ticket'}
                 </button>
                 <button
                   onClick={() => { setCommentId(isCommenting ? null : item.id); setCommentText('') }}
@@ -507,6 +510,53 @@ export function ActionQueue({ portal }: ActionQueueProps) {
                   >
                     Send
                   </button>
+                </div>
+              )}
+
+              {/* Expanded ticket detail */}
+              {expandedId === item.id && (
+                <div style={{
+                  marginTop: 12, padding: 14, borderRadius: 10,
+                  background: s.bg, border: `1px solid ${s.border}`,
+                }}>
+                  {item.description && (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: s.textMuted, marginBottom: 4, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>Description</div>
+                      <div style={{ fontSize: 13, color: s.text, lineHeight: 1.5, whiteSpace: 'pre-wrap' as const }}>{item.description}</div>
+                    </div>
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 2 }}>Type</div>
+                      <div style={{ fontSize: 13, color: s.text, fontWeight: 500 }}>{item.type || '—'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 2 }}>Status</div>
+                      <div style={{ fontSize: 13, color: s.text, fontWeight: 500 }}>{item.status}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 2 }}>Portal</div>
+                      <div style={{ fontSize: 13, color: s.text, fontWeight: 500 }}>{item.portal || '—'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 2 }}>Reporter</div>
+                      <div style={{ fontSize: 13, color: s.text, fontWeight: 500 }}>{item.reporter_name || item.reporter || '—'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 2 }}>Created</div>
+                      <div style={{ fontSize: 13, color: s.text, fontWeight: 500 }}>{item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 2 }}>Division</div>
+                      <div style={{ fontSize: 13, color: s.text, fontWeight: 500 }}>{item.division || '—'}</div>
+                    </div>
+                  </div>
+                  {item.triage_reasoning && (
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 6, background: 'rgba(20,184,166,0.08)' }}>
+                      <div style={{ fontSize: 11, color: s.teal, fontWeight: 600, marginBottom: 2 }}>Triage Reasoning</div>
+                      <div style={{ fontSize: 12, color: s.textMuted, lineHeight: 1.4 }}>{item.triage_reasoning}</div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
