@@ -10,6 +10,81 @@ if (getApps().length === 0) {
 const db = getFirestore()
 const COLLECTION = 'communications'
 const app = express()
+// CI webhook needs raw body for HMAC validation — must be before json parser
+app.post('/webhook/ci', express.raw({ type: '*/*' }), async (req, res) => {
+  const secret = process.env.GITHUB_WEBHOOK_SECRET
+  if (!secret) { res.status(500).json({ success: false, error: 'Webhook secret not configured' }); return }
+
+  const signature = req.headers['x-hub-signature-256'] as string | undefined
+  if (!signature) { res.status(401).json({ success: false, error: 'Missing signature' }); return }
+
+  const rawBody = req.body as Buffer
+  if (!rawBody || !Buffer.isBuffer(rawBody)) { res.status(400).json({ success: false, error: 'Missing raw body' }); return }
+
+  const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
+  const sigBuf = Buffer.from(signature)
+  const expBuf = Buffer.from(expected)
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+    res.status(401).json({ success: false, error: 'Invalid signature' }); return
+  }
+
+  let payload: Record<string, unknown>
+  try { payload = JSON.parse(rawBody.toString('utf8')) } catch { res.status(400).json({ success: false, error: 'Invalid JSON' }); return }
+
+  const event = req.headers['x-github-event'] as string
+  if (event !== 'workflow_run') { res.json({ success: true, action: 'ignored', event }); return }
+
+  const action = payload.action as string
+  const run = payload.workflow_run as Record<string, unknown>
+  if (!run) { res.status(400).json({ success: false, error: 'Missing workflow_run' }); return }
+
+  const runId = String(run.id)
+  const headCommit = (run.head_commit as Record<string, unknown>) || {}
+  const pullRequests = (run.pull_requests as Array<Record<string, unknown>>) || []
+  const pr = pullRequests[0] || null
+  const now = new Date().toISOString()
+  const startedAt = (run.run_started_at as string) || (run.created_at as string) || now
+  const completedAt = (run.updated_at as string) || null
+
+  let durationSeconds: number | null = null
+  if (action === 'completed' && startedAt && completedAt) {
+    durationSeconds = Math.round((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000)
+  }
+
+  const workflowName = (run.name as string) || 'Unknown'
+  const workflow = workflowName === 'CI' ? 'CI'
+    : workflowName === 'CodeQL' ? 'CodeQL'
+    : workflowName.includes('deploy') ? 'Deploy'
+    : workflowName.includes('pages') ? 'Pages'
+    : workflowName
+
+  const ciRun = {
+    run_id: Number(run.id),
+    workflow,
+    workflow_name: workflowName,
+    status: (run.status as string) || 'queued',
+    conclusion: (run.conclusion as string) || null,
+    branch: (run.head_branch as string) || '',
+    commit_sha: (run.head_sha as string) || '',
+    commit_message: ((headCommit.message as string) || '').split('\n')[0].slice(0, 120),
+    pr_number: pr ? (pr.number as number) : null,
+    actor: ((run.actor as Record<string, unknown>)?.login as string) || '',
+    started_at: startedAt,
+    completed_at: action === 'completed' ? completedAt : null,
+    duration_seconds: durationSeconds,
+    html_url: (run.html_url as string) || '',
+    updated_at: now,
+  }
+
+  try {
+    await db.collection('ci_runs').doc(runId).set(ciRun, { merge: true })
+    res.json({ success: true, action, run_id: runId, workflow })
+  } catch (err) {
+    console.error('[ci-webhook] write failed:', err)
+    res.status(500).json({ success: false, error: 'Failed to store CI run' })
+  }
+})
+
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
