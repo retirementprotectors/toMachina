@@ -377,6 +377,15 @@ function ForgeInner({ portal }: ForgeProps) {
     return () => clearInterval(interval)
   }, [dojoTab, loadRoninItems])
 
+  // ─── STATUS tab class toggle + collapsed sections ───
+  const [statusClass, setStatusClass] = useState<'github' | 'mdj' | 'all'>('all')
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
+  const toggleCollapse = (id: string) => setCollapsedSections(prev => {
+    const next = new Set(prev)
+    if (next.has(id)) next.delete(id); else next.add(id)
+    return next
+  })
+
   // ─── RONIN phase toggle (assessment | foundation | development) ───
   const [roninPhase, setRoninPhase] = useState<'assessment' | 'foundation' | 'development'>('assessment')
 
@@ -1849,11 +1858,43 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       {/* ─── STATUS tab content — CI/CD Pipeline Visibility ─── */}
       {dojoTab === 'status' && (
         <div style={{ flex: 1, overflowY: 'auto' }}>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }`}</style>
+
+          {/* Class Toggle: GitHub Actions | MDJ_SERVER | All */}
+          <div style={{ display: 'flex', gap: 4, marginBottom: 14, background: s.bg, borderRadius: 10, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content' }}>
+            {([
+              { key: 'github' as const, label: 'GitHub Actions', icon: 'cloud' },
+              { key: 'mdj' as const, label: 'MDJ_SERVER', icon: 'dns' },
+              { key: 'all' as const, label: 'All', icon: 'dashboard' },
+            ]).map(cls => (
+              <button key={cls.key} onClick={() => setStatusClass(cls.key)} style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8,
+                border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: statusClass === cls.key ? 700 : 500,
+                background: statusClass === cls.key ? s.surface : 'transparent',
+                color: statusClass === cls.key ? s.text : s.textMuted,
+                boxShadow: statusClass === cls.key ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                transition: 'all 0.15s',
+              }}>
+                <span className="material-icons-outlined" style={{ fontSize: 15 }}>{cls.icon}</span>
+                {cls.label}
+              </button>
+            ))}
+            <span style={{ marginLeft: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: s.textMuted }}>
+              Auto-refresh: <strong style={{ color: s.textSecondary }}>15s</strong>
+            </span>
+            <button onClick={loadCIRuns} style={{
+              background: 'none', border: `1px solid ${s.border}`, borderRadius: 6, marginLeft: 4,
+              padding: '4px 10px', cursor: 'pointer', color: s.textSecondary, fontSize: 11,
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              <span className="material-icons-outlined" style={{ fontSize: 14 }}>refresh</span>
+            </button>
+          </div>
+
+          {/* ═══ GITHUB ACTIONS SECTION ═══ */}
+          {(statusClass === 'github' || statusClass === 'all') && <>
           {/* Summary Strip */}
           {(() => {
-            const latestCI = ciRuns.find(r => r.workflow === 'CI')
-            const latestCodeQL = ciRuns.find(r => r.workflow === 'CodeQL')
-            const latestDeploy = ciRuns.find(r => r.workflow === 'Deploy' || r.workflow === 'CI' && (r as Record<string, unknown>).status === 'completed')
             const anyFailing = ciRuns.some(r => r.conclusion === 'failure' && r.branch === 'main')
             const anyRunning = ciRuns.some(r => r.status === 'in_progress')
             const summaryColor = anyFailing ? 'rgb(239,68,68)' : anyRunning ? 'rgb(245,158,11)' : 'rgb(34,197,94)'
@@ -1861,7 +1902,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             const summaryIcon = anyFailing ? 'error' : anyRunning ? 'sync' : 'check_circle'
             return (
               <div style={{
-                display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', marginBottom: 16,
+                display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', marginBottom: 14,
                 background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1872,34 +1913,19 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                   <span style={{ fontSize: 14, fontWeight: 700, color: summaryColor }}>{summaryText}</span>
                 </div>
                 <span style={{ color: s.border }}>|</span>
-                {[
-                  { wf: 'CI', icon: 'build_circle', data: latestCI },
-                  { wf: 'CodeQL', icon: 'security', data: latestCodeQL },
-                ].map(({ wf, icon, data }) => {
-                  const st = (data?.status as string) || 'unknown'
-                  const conc = (data?.conclusion as string) || null
+                {['CI', 'CodeQL', 'Deploy'].map(wf => {
+                  const d = ciRuns.find(r => r.workflow === wf)
+                  const st = (d?.status as string) || 'unknown'
+                  const conc = (d?.conclusion as string) || null
                   const c = conc === 'failure' ? 'rgb(239,68,68)' : st === 'in_progress' ? 'rgb(245,158,11)' : conc === 'success' ? 'rgb(34,197,94)' : s.textMuted
                   const ic = conc === 'failure' ? 'cancel' : st === 'in_progress' ? 'sync' : conc === 'success' ? 'check_circle' : 'schedule'
                   return (
                     <span key={wf} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: c }}>
-                      <span className="material-icons-outlined" style={{
-                        fontSize: 14, ...(st === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}),
-                      }}>{ic}</span>
+                      <span className="material-icons-outlined" style={{ fontSize: 14, ...(st === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}) }}>{ic}</span>
                       {wf}
                     </span>
                   )
                 })}
-                <span style={{ fontSize: 11, color: s.textMuted, marginLeft: 'auto' }}>
-                  Auto-refresh: <strong style={{ color: s.textSecondary }}>15s</strong>
-                </span>
-                <button onClick={loadCIRuns} style={{
-                  background: 'none', border: `1px solid ${s.border}`, borderRadius: 6,
-                  padding: '4px 10px', cursor: 'pointer', color: s.textSecondary, fontSize: 11,
-                  display: 'flex', alignItems: 'center', gap: 4,
-                }}>
-                  <span className="material-icons-outlined" style={{ fontSize: 14 }}>refresh</span>
-                  Refresh
-                </button>
               </div>
             )
           })()}
@@ -1911,125 +1937,229 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           {ciRuns.length === 0 && !ciLoading && (
             <div style={{
               padding: 48, textAlign: 'center', color: s.textMuted,
-              background: s.bg, border: `1px dashed ${s.border}`, borderRadius: 10,
+              background: s.bg, border: `1px dashed ${s.border}`, borderRadius: 10, marginBottom: 12,
             }}>
               <span className="material-icons-outlined" style={{ fontSize: 48, marginBottom: 12, display: 'block', opacity: 0.3 }}>monitoring</span>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, color: s.textSecondary }}>No CI runs yet</div>
               <div style={{ fontSize: 12 }}>Configure the GitHub webhook to start tracking pipeline status here.</div>
-              <div style={{ fontSize: 11, marginTop: 8 }}>Webhook URL: <code style={{ padding: '2px 6px', background: s.surface, borderRadius: 4 }}>/webhook/ci</code></div>
             </div>
           )}
 
-          {/* Pipeline rows — one per workflow */}
-          {(() => {
-            const PIPELINES = [
-              { key: 'CI', label: 'CI Pipeline', desc: 'Type-check + Build + E2E', icon: 'build_circle', color: 'rgb(59,130,246)' },
-              { key: 'CodeQL', label: 'CodeQL Security', desc: 'Static analysis — PRs + weekly', icon: 'security', color: 'rgb(167,139,250)' },
-              { key: 'Deploy', label: 'Deploy Pipeline', desc: 'Docker + Cloud Run + Smoke Test', icon: 'rocket_launch', color: 'rgb(20,184,166)' },
-            ]
-            return PIPELINES.map(pipe => {
-              const pipeRuns = ciRuns.filter(r => r.workflow === pipe.key).slice(0, 5)
-              const latest = pipeRuns[0] as Record<string, unknown> | undefined
-              const latestStatus = (latest?.status as string) || 'unknown'
-              const latestConc = (latest?.conclusion as string) || null
-              const statusColor = latestConc === 'failure' ? 'rgb(239,68,68)' : latestStatus === 'in_progress' ? 'rgb(245,158,11)' : latestConc === 'success' ? 'rgb(34,197,94)' : s.textMuted
-              const statusIcon = latestConc === 'failure' ? 'cancel' : latestStatus === 'in_progress' ? 'sync' : latestConc === 'success' ? 'check_circle' : 'schedule'
-              const statusText = latestConc === 'failure' ? 'Failed' : latestStatus === 'in_progress' ? 'Running...' : latestConc === 'success' ? 'Passed' : 'Waiting'
-
-              return (
-                <div key={pipe.key} style={{
-                  background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, marginBottom: 12, overflow: 'hidden',
+          {/* GitHub Pipeline rows — collapsible */}
+          {[
+            { key: 'CI', label: 'CI Pipeline', desc: 'Type-check + Build + E2E', icon: 'build_circle', color: 'rgb(59,130,246)' },
+            { key: 'CodeQL', label: 'CodeQL Security', desc: 'Static analysis \u2014 PRs + weekly', icon: 'security', color: 'rgb(167,139,250)' },
+            { key: 'Deploy', label: 'Deploy Pipeline', desc: 'Docker + Cloud Run + Smoke Test', icon: 'rocket_launch', color: 'rgb(20,184,166)' },
+          ].map(pipe => {
+            const pipeRuns = ciRuns.filter(r => r.workflow === pipe.key).slice(0, 5)
+            const latest = pipeRuns[0] as Record<string, unknown> | undefined
+            const lst = (latest?.status as string) || 'unknown'
+            const lc = (latest?.conclusion as string) || null
+            const sc = lc === 'failure' ? 'rgb(239,68,68)' : lst === 'in_progress' ? 'rgb(245,158,11)' : lc === 'success' ? 'rgb(34,197,94)' : s.textMuted
+            const si = lc === 'failure' ? 'cancel' : lst === 'in_progress' ? 'sync' : lc === 'success' ? 'check_circle' : 'schedule'
+            const st = lc === 'failure' ? 'Failed' : lst === 'in_progress' ? 'Running...' : lc === 'success' ? 'Passed' : 'Waiting'
+            const collapsed = collapsedSections.has(`gh-${pipe.key}`)
+            return (
+              <div key={pipe.key} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+                <div onClick={() => toggleCollapse(`gh-${pipe.key}`)} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', userSelect: 'none' as const,
+                  borderBottom: collapsed ? 'none' : `1px solid ${s.border}`,
                 }}>
-                  {/* Pipeline header */}
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
-                    borderBottom: `1px solid ${s.border}`,
-                  }}>
-                    <div style={{
-                      width: 30, height: 30, borderRadius: 8, display: 'flex',
-                      alignItems: 'center', justifyContent: 'center', background: pipe.color,
-                    }}>
-                      <span className="material-icons-outlined" style={{ fontSize: 16, color: '#fff' }}>{pipe.icon}</span>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: s.text }}>{pipe.label}</div>
-                      <div style={{ fontSize: 10, color: s.textMuted }}>{pipe.desc}</div>
-                    </div>
-                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: statusColor }}>
-                      <span className="material-icons-outlined" style={{
-                        fontSize: 16, ...(latestStatus === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}),
-                      }}>{statusIcon}</span>
-                      {statusText}
-                    </div>
+                  <span className="material-icons-outlined" style={{ fontSize: 18, color: s.textMuted, transition: 'transform 0.2s', transform: collapsed ? 'rotate(-90deg)' : 'rotate(0)' }}>expand_more</span>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: pipe.color }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16, color: '#fff' }}>{pipe.icon}</span>
                   </div>
-                  {/* Run cards */}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: s.text }}>{pipe.label}</div>
+                    <div style={{ fontSize: 10, color: s.textMuted }}>{pipe.desc}</div>
+                  </div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: sc }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16, ...(lst === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}) }}>{si}</span>
+                    {st}
+                  </div>
+                </div>
+                {!collapsed && (
                   <div style={{ display: 'flex', gap: 8, padding: '10px 14px', overflowX: 'auto' }}>
                     {pipeRuns.length === 0 ? (
                       <div style={{ padding: '12px 16px', color: s.textMuted, fontSize: 11 }}>No runs tracked yet</div>
                     ) : pipeRuns.map((run, idx) => {
                       const r = run as Record<string, unknown>
-                      const rStatus = r.status as string
-                      const rConc = r.conclusion as string | null
-                      const rColor = rConc === 'failure' ? 'rgb(239,68,68)' : rStatus === 'in_progress' ? 'rgb(245,158,11)' : rConc === 'success' ? 'rgb(34,197,94)' : s.textMuted
-                      const rIcon = rConc === 'failure' ? 'cancel' : rStatus === 'in_progress' ? 'sync' : rConc === 'success' ? 'check_circle' : 'hourglass_top'
-                      const branch = r.branch as string || ''
-                      const sha = ((r.commit_sha as string) || '').slice(0, 7)
-                      const msg = (r.commit_message as string) || ''
-                      const dur = r.duration_seconds as number | null
-                      const isActive = idx === 0 && rStatus === 'in_progress'
-
+                      const rSt = r.status as string; const rC = r.conclusion as string | null
+                      const rCol = rC === 'failure' ? 'rgb(239,68,68)' : rSt === 'in_progress' ? 'rgb(245,158,11)' : rC === 'success' ? 'rgb(34,197,94)' : s.textMuted
+                      const rIc = rC === 'failure' ? 'cancel' : rSt === 'in_progress' ? 'sync' : rC === 'success' ? 'check_circle' : 'hourglass_top'
+                      const br = r.branch as string || ''; const sha = ((r.commit_sha as string) || '').slice(0, 7)
+                      const msg = (r.commit_message as string) || ''; const dur = r.duration_seconds as number | null
                       return (
-                        <a
-                          key={String(r.run_id || idx)}
-                          href={r.html_url as string}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            minWidth: 190, maxWidth: 230, flexShrink: 0, textDecoration: 'none',
-                            background: s.surface, border: `1px ${isActive ? 'solid' : 'solid'} ${isActive ? 'rgb(245,158,11)' : s.border}`,
-                            borderRadius: 8, padding: '8px 10px', transition: 'all 0.15s', display: 'block',
-                          }}
-                        >
+                        <a key={String(r.run_id || idx)} href={r.html_url as string} target="_blank" rel="noopener noreferrer" style={{
+                          minWidth: 190, maxWidth: 230, flexShrink: 0, textDecoration: 'none',
+                          background: s.surface, border: `1px solid ${idx === 0 && rSt === 'in_progress' ? 'rgb(245,158,11)' : s.border}`,
+                          borderRadius: 8, padding: '8px 10px', display: 'block',
+                        }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                            <span className="material-icons-outlined" style={{
-                              fontSize: 14, color: rColor,
-                              ...(rStatus === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}),
-                            }}>{rIcon}</span>
-                            <span style={{
-                              fontSize: 10, fontWeight: 600, padding: '1px 5px', borderRadius: 4,
-                              background: branch === 'main' ? 'rgba(34,197,94,0.12)' : 'rgba(99,102,241,0.12)',
-                              color: branch === 'main' ? 'rgb(34,197,94)' : 'rgb(99,102,241)',
-                            }}>{branch}</span>
+                            <span className="material-icons-outlined" style={{ fontSize: 14, color: rCol, ...(rSt === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}) }}>{rIc}</span>
+                            <span style={{ fontSize: 10, fontWeight: 600, padding: '1px 5px', borderRadius: 4, background: br === 'main' ? 'rgba(34,197,94,0.12)' : 'rgba(99,102,241,0.12)', color: br === 'main' ? 'rgb(34,197,94)' : 'rgb(99,102,241)' }}>{br}</span>
                           </div>
-                          <div style={{
-                            fontSize: 10, color: s.textSecondary, marginBottom: 3,
-                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                          }}>
-                            <code style={{ fontSize: 9, padding: '1px 3px', borderRadius: 3, background: 'rgba(255,255,255,0.06)', color: s.textMuted }}>{sha}</code>
-                            {' '}{msg.slice(0, 40)}
+                          <div style={{ fontSize: 10, color: s.textSecondary, marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <code style={{ fontSize: 9, padding: '1px 3px', borderRadius: 3, background: 'rgba(255,255,255,0.06)', color: s.textMuted }}>{sha}</code> {msg.slice(0, 40)}
                           </div>
                           <div style={{ fontSize: 9, color: s.textMuted, display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {dur != null ? (
-                              <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <span className="material-icons-outlined" style={{ fontSize: 10 }}>timer</span>
-                                {dur < 60 ? `${dur}s` : `${Math.floor(dur / 60)}m ${dur % 60}s`}
-                              </span>
-                            ) : rStatus === 'in_progress' ? (
-                              <span style={{ color: 'rgb(245,158,11)' }}>running...</span>
-                            ) : null}
+                            {dur != null ? <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}><span className="material-icons-outlined" style={{ fontSize: 10 }}>timer</span>{dur < 60 ? `${dur}s` : `${Math.floor(dur / 60)}m ${dur % 60}s`}</span> : rSt === 'in_progress' ? <span style={{ color: 'rgb(245,158,11)' }}>running...</span> : null}
                             {r.pr_number ? <span>PR #{String(r.pr_number)}</span> : null}
                           </div>
                         </a>
                       )
                     })}
                   </div>
+                )}
+              </div>
+            )
+          })}
+          </>}
+
+          {/* ═══ MDJ_SERVER SECTION ═══ */}
+          {(statusClass === 'mdj' || statusClass === 'all') && <>
+          {/* MDJ Summary Strip */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', marginBottom: 14,
+            background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgb(34,197,94)', boxShadow: '0 0 8px rgba(34,197,94,0.4)' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'rgb(34,197,94)' }}>MDJ_SERVER Online</span>
+            </div>
+            <span style={{ color: s.border }}>|</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: s.textMuted }}>
+              <span className="material-icons-outlined" style={{ fontSize: 14 }}>memory</span> Server Resources
+            </span>
+            <span style={{ fontSize: 11, color: s.textMuted, marginLeft: 'auto' }}>
+              <strong style={{ color: 'rgb(34,197,94)' }}>100.99.181.57</strong>
+            </span>
+          </div>
+
+          {/* Systemd Services — collapsible */}
+          {(() => {
+            const collapsed = collapsedSections.has('mdj-systemd')
+            const services = [
+              { name: 'mdj-agent.service', type: 'VOLTRON', typeColor: 'rgb(124,58,237)', port: '4200' },
+              { name: 'git-monitor.service', type: 'DISPATCHER', typeColor: 'rgb(59,130,246)', port: 'poll 60s' },
+              { name: 'intake-dispatch.service', type: 'DISPATCHER', typeColor: 'rgb(59,130,246)', port: '#the-dojo' },
+              { name: 'dojo-dispatch.service', type: 'DISPATCHER', typeColor: 'rgb(59,130,246)', port: 'routing' },
+              { name: 'digest-dispatch.service', type: 'DISPATCHER', typeColor: 'rgb(59,130,246)', port: 'hourly' },
+            ]
+            return (
+              <div style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+                <div onClick={() => toggleCollapse('mdj-systemd')} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', userSelect: 'none' as const,
+                  borderBottom: collapsed ? 'none' : `1px solid ${s.border}`,
+                }}>
+                  <span className="material-icons-outlined" style={{ fontSize: 18, color: s.textMuted, transition: 'transform 0.2s', transform: collapsed ? 'rotate(-90deg)' : 'rotate(0)' }}>expand_more</span>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgb(20,184,166)' }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16, color: '#fff' }}>settings_suggest</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: s.text }}>Systemd Services</div>
+                    <div style={{ fontSize: 10, color: s.textMuted }}>Always-on processes managed by systemd</div>
+                  </div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: 'rgb(34,197,94)' }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16 }}>check_circle</span>
+                    {services.length}/{services.length} running
+                  </div>
                 </div>
-              )
-            })
+                {!collapsed && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8, padding: '10px 14px' }}>
+                    {services.map(svc => (
+                      <div key={svc.name} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, padding: '10px 12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span className="material-icons-outlined" style={{ fontSize: 14, color: 'rgb(34,197,94)' }}>check_circle</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: s.text }}>{svc.name}</span>
+                          <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: `${svc.typeColor}18`, color: svc.typeColor, textTransform: 'uppercase' as const }}>{svc.type}</span>
+                        </div>
+                        <div style={{ fontSize: 10, color: s.textMuted }}>{svc.port}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
           })()}
 
-          {/* Spin animation keyframes */}
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          {/* Active Warriors — collapsible */}
+          {(() => {
+            const collapsed = collapsedSections.has('mdj-warriors')
+            const warriors = [
+              { name: 'SHINOB1', title: 'CTO', icon: '\u{1F977}', color: '#e07c3e', status: 'ACTIVE' },
+              { name: '2HINOBI', title: 'COO', icon: '\u{1F3EF}', color: '#a78bfa', status: 'IDLE' },
+              { name: 'MUSASHI', title: 'CMO', icon: '\u2694\uFE0F', color: '#d4a44c', status: 'IDLE' },
+            ]
+            return (
+              <div style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+                <div onClick={() => toggleCollapse('mdj-warriors')} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', userSelect: 'none' as const,
+                  borderBottom: collapsed ? 'none' : `1px solid ${s.border}`,
+                }}>
+                  <span className="material-icons-outlined" style={{ fontSize: 18, color: s.textMuted, transition: 'transform 0.2s', transform: collapsed ? 'rotate(-90deg)' : 'rotate(0)' }}>expand_more</span>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e07c3e' }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16, color: '#fff' }}>temple_buddhist</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: s.text }}>Active Warriors</div>
+                    <div style={{ fontSize: 10, color: s.textMuted }}>tmux sessions on MDJ_SERVER</div>
+                  </div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: 'rgb(34,197,94)' }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16 }}>check_circle</span>
+                    {warriors.length} active
+                  </div>
+                </div>
+                {!collapsed && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8, padding: '10px 14px' }}>
+                    {warriors.map(w => (
+                      <div key={w.name} style={{ background: s.surface, border: `1px solid ${s.border}`, borderLeft: `3px solid ${w.color}`, borderRadius: 8, padding: '10px 12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 16 }}>{w.icon}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: s.text }}>{w.name}</span>
+                          <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: `${w.color}18`, color: w.color }}>{w.title}</span>
+                          <span style={{ marginLeft: 'auto', fontSize: 9, padding: '2px 6px', borderRadius: 4, background: w.status === 'ACTIVE' ? 'rgba(34,197,94,0.12)' : 'rgba(245,158,11,0.12)', color: w.status === 'ACTIVE' ? 'rgb(34,197,94)' : 'rgb(245,158,11)', fontWeight: 700 }}>{w.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {/* FORGE Sprints — collapsible */}
+          {(() => {
+            const collapsed = collapsedSections.has('mdj-forge')
+            return (
+              <div style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+                <div onClick={() => toggleCollapse('mdj-forge')} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', userSelect: 'none' as const,
+                  borderBottom: collapsed ? 'none' : `1px solid ${s.border}`,
+                }}>
+                  <span className="material-icons-outlined" style={{ fontSize: 18, color: s.textMuted, transition: 'transform 0.2s', transform: collapsed ? 'rotate(-90deg)' : 'rotate(0)' }}>expand_more</span>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgb(245,158,11)' }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16, color: '#fff' }}>precision_manufacturing</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: s.text }}>FORGE Sprints</div>
+                    <div style={{ fontSize: 10, color: s.textMuted }}>Autonomous build sprints on MDJ_SERVER</div>
+                  </div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: s.textMuted }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 16 }}>schedule</span>
+                    None running
+                  </div>
+                </div>
+                {!collapsed && (
+                  <div style={{ padding: '16px 14px', color: s.textMuted, fontSize: 11, textAlign: 'center' }}>
+                    No active FORGE sprints. Launch one from the RONIN tab or via POST /forge/sprint on MDJ_SERVER.
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+          </>}
+
         </div>
       )}
 
