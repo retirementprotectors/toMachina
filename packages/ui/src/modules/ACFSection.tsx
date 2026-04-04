@@ -542,6 +542,14 @@ export function ACFSection({ clientId }: ACFSectionProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* View Full ACF link */}
+          <a
+            href={`/acf/${clientId}`}
+            className="flex items-center gap-1 rounded-md border border-[var(--border-subtle)] px-2.5 py-1.5 text-xs font-medium text-[var(--portal)] transition-colors hover:bg-[var(--bg-hover)]"
+          >
+            <span className="material-icons-outlined" style={{ fontSize: '14px' }}>open_in_new</span>
+            View Full ACF
+          </a>
           {/* Search */}
           <div className="relative">
             <span className="material-icons-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" style={{ fontSize: '14px' }}>search</span>
