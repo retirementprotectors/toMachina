@@ -99,8 +99,17 @@
   }
   .pipeline-header {
     display: flex; align-items: center; gap: 10px; padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
+    transition: background 0.15s;
   }
+  .pipeline-header:hover { background: rgba(255,255,255,0.02); }
+  .pipeline-header .collapse-icon {
+    font-size: 18px; color: var(--text-muted); transition: transform 0.2s;
+    margin-left: -2px; margin-right: -4px;
+  }
+  .pipeline-header .collapse-icon.collapsed { transform: rotate(-90deg); }
+  .pipeline-body { transition: max-height 0.3s ease, opacity 0.2s ease; overflow: hidden; }
+  .pipeline-body.collapsed { max-height: 0 !important; opacity: 0; }
   .pipeline-icon {
     width: 32px; height: 32px; border-radius: 8px; display: flex;
     align-items: center; justify-content: center;
@@ -318,7 +327,8 @@
 
 <!-- ─── Pipeline 1: CI ─── -->
 <div class="pipeline-row">
-  <div class="pipeline-header">
+  <div class="pipeline-header" onclick="toggleSection('ci-body')">
+    <span class="material-icons-outlined collapse-icon" data-collapse="ci-body">expand_more</span>
     <div class="pipeline-icon ci">
       <span class="material-icons-outlined">build_circle</span>
     </div>
@@ -331,6 +341,7 @@
       Running on main...
     </div>
   </div>
+  <div id="ci-body" class="pipeline-body" style="max-height: 2000px;">
   <div class="runs-row">
     <!-- Run 1: Currently running -->
     <div class="run-card active">
@@ -451,11 +462,13 @@
       </div>
     </div>
   </div>
+  </div><!-- end ci-body -->
 </div>
 
 <!-- ─── Pipeline 2: CodeQL ─── -->
 <div class="pipeline-row">
-  <div class="pipeline-header">
+  <div class="pipeline-header" onclick="toggleSection('codeql-body')">
+    <span class="material-icons-outlined collapse-icon" data-collapse="codeql-body">expand_more</span>
     <div class="pipeline-icon codeql">
       <span class="material-icons-outlined">security</span>
     </div>
@@ -468,6 +481,7 @@
       All clear
     </div>
   </div>
+  <div id="codeql-body" class="pipeline-body" style="max-height: 2000px;">
   <div class="runs-row">
     <div class="run-card">
       <div class="run-card-top">
@@ -509,11 +523,13 @@
       </div>
     </div>
   </div>
+  </div><!-- end codeql-body -->
 </div>
 
 <!-- ─── Pipeline 3: Deploy ─── -->
 <div class="pipeline-row">
-  <div class="pipeline-header">
+  <div class="pipeline-header" onclick="toggleSection('deploy-body')">
+    <span class="material-icons-outlined collapse-icon" data-collapse="deploy-body">expand_more</span>
     <div class="pipeline-icon deploy">
       <span class="material-icons-outlined">rocket_launch</span>
     </div>
@@ -526,6 +542,7 @@
       Waiting for CI...
     </div>
   </div>
+  <div id="deploy-body" class="pipeline-body" style="max-height: 2000px;">
   <div class="runs-row">
     <!-- Deploy pending -->
     <div class="run-card" style="border-style: dashed; border-color: var(--amber);">
@@ -607,6 +624,7 @@
       </div>
     </div>
   </div>
+  </div><!-- end deploy-body -->
 </div>
 
 </div><!-- end #github-section -->
@@ -644,7 +662,8 @@
 
 <!-- Row 1: Systemd Services -->
 <div class="pipeline-row">
-  <div class="pipeline-header">
+  <div class="pipeline-header" onclick="toggleSection('systemd-body')">
+    <span class="material-icons-outlined collapse-icon" data-collapse="systemd-body">expand_more</span>
     <div class="pipeline-icon" style="background: var(--teal);">
       <span class="material-icons-outlined">settings_suggest</span>
     </div>
@@ -657,6 +676,7 @@
       5/5 running
     </div>
   </div>
+  <div id="systemd-body" class="pipeline-body" style="max-height: 2000px;">
   <div class="service-grid">
     <!-- VOLTRON -->
     <div class="service-card">
@@ -754,11 +774,13 @@
       </div>
     </div>
   </div>
+  </div><!-- end systemd-body -->
 </div>
 
 <!-- Row 2: Active Warriors (tmux sessions) -->
 <div class="pipeline-row">
-  <div class="pipeline-header">
+  <div class="pipeline-header" onclick="toggleSection('warriors-body')">
+    <span class="material-icons-outlined collapse-icon" data-collapse="warriors-body">expand_more</span>
     <div class="pipeline-icon" style="background: var(--dojo);">
       <span class="material-icons-outlined">temple_buddhist</span>
     </div>
@@ -771,6 +793,7 @@
       3 active
     </div>
   </div>
+  <div id="warriors-body" class="pipeline-body" style="max-height: 2000px;">
   <div class="service-grid">
     <!-- SHINOB1 -->
     <div class="service-card" style="border-left: 3px solid var(--dojo);">
@@ -815,11 +838,13 @@
       </div>
     </div>
   </div>
+  </div><!-- end warriors-body -->
 </div>
 
 <!-- Row 3: FORGE Sprints Running -->
 <div class="pipeline-row">
-  <div class="pipeline-header">
+  <div class="pipeline-header" onclick="toggleSection('forge-body')">
+    <span class="material-icons-outlined collapse-icon" data-collapse="forge-body">expand_more</span>
     <div class="pipeline-icon" style="background: rgb(245,158,11);">
       <span class="material-icons-outlined">precision_manufacturing</span>
     </div>
@@ -832,6 +857,7 @@
       1 running
     </div>
   </div>
+  <div id="forge-body" class="pipeline-body" style="max-height: 2000px;">
   <div class="runs-row">
     <!-- Active sprint -->
     <div class="run-card active">
@@ -886,11 +912,26 @@
       </div>
     </div>
   </div>
+  </div><!-- end forge-body -->
 </div>
 
 </div><!-- end #mdj-section -->
 
 <script>
+function toggleSection(id) {
+  const body = document.getElementById(id)
+  const icon = document.querySelector(`[data-collapse="${id}"]`)
+  if (body.classList.contains('collapsed')) {
+    body.classList.remove('collapsed')
+    body.style.maxHeight = body.scrollHeight + 'px'
+    if (icon) icon.classList.remove('collapsed')
+  } else {
+    body.style.maxHeight = body.scrollHeight + 'px'
+    requestAnimationFrame(() => { body.classList.add('collapsed'); body.style.maxHeight = '0px' })
+    if (icon) icon.classList.add('collapsed')
+  }
+}
+
 function showClass(cls) {
   const gh = document.getElementById('github-section')
   const mdj = document.getElementById('mdj-section')
