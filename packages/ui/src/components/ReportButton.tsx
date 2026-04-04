@@ -306,7 +306,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
           scope: autoFields.scope || 'Platform',
           component: autoFields.component || '',
           section: autoFields.section || '',
-          status: 'queue',
+          status: 'INT-new',
           notes: `Reported by ${user?.email || 'unknown'}\nURL: ${autoFields.url}`,
         }),
       })
@@ -438,7 +438,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
               className="material-icons-outlined text-white transition-all duration-200"
               style={{ fontSize: 22, opacity: fabHover ? 0 : 1, position: 'absolute' }}
             >
-              construction
+              temple_buddhist
             </span>
             {/* Red recording dot — on hover */}
             <span
@@ -540,7 +540,7 @@ export function ReportButton({ portal }: ReportButtonProps) {
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
                 style={{ background: 'rgba(224,124,62,0.15)' }}
               >
-                <span className="material-icons-outlined" style={{ fontSize: 22, color: '#e07c3e' }}>construction</span>
+                <span className="material-icons-outlined" style={{ fontSize: 22, color: '#e07c3e' }}>temple_buddhist</span>
               </div>
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary, #e2e8f0)' }}>

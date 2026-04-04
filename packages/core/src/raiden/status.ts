@@ -65,8 +65,9 @@ export function isRaidenStatus(value: string): value is RaidenStatus {
 /**
  * RONIN Pipeline Statuses — RON-prefixed
  *
- * Assessment: RON-new → RON-researching → RON-strategizing
- * Development: RON-discovery → RON-seeded → RON-planned → RON-built → RON-deployed → RON-reported
+ * Assessment:  RON-new → RON-researching → RON-strategizing
+ * Foundation:  RON-discovery → RON-seeded → RON-planned → RON-plan-audited
+ * Development: RON-built → RON-code-audited → RON-deployed → RON-ux-reviewed → RON-reported
  */
 export const RONIN_STATUSES = [
   'RON-new',
@@ -75,15 +76,60 @@ export const RONIN_STATUSES = [
   'RON-discovery',
   'RON-seeded',
   'RON-planned',
+  'RON-plan-audited',
   'RON-built',
+  'RON-code-audited',
   'RON-deployed',
+  'RON-ux-reviewed',
   'RON-reported',
 ] as const
 
 export type RoninStatus = (typeof RONIN_STATUSES)[number]
 
+export const RONIN_PHASES = {
+  assessment: ['RON-new', 'RON-researching', 'RON-strategizing'] as const,
+  foundation: ['RON-discovery', 'RON-seeded', 'RON-planned', 'RON-plan-audited'] as const,
+  development: ['RON-built', 'RON-code-audited', 'RON-deployed', 'RON-ux-reviewed', 'RON-reported'] as const,
+} as const
+
+export type RoninPhase = keyof typeof RONIN_PHASES
+
+const RONIN_TRANSITIONS: Record<RoninStatus, RoninStatus[]> = {
+  'RON-new': ['RON-researching'],
+  'RON-researching': ['RON-strategizing'],
+  'RON-strategizing': ['RON-discovery'],
+  'RON-discovery': ['RON-seeded'],
+  'RON-seeded': ['RON-planned'],
+  'RON-planned': ['RON-plan-audited'],
+  'RON-plan-audited': ['RON-built'],
+  'RON-built': ['RON-code-audited'],
+  'RON-code-audited': ['RON-deployed'],
+  'RON-deployed': ['RON-ux-reviewed'],
+  'RON-ux-reviewed': ['RON-reported'],
+  'RON-reported': [],
+}
+
 export function isRoninStatus(value: string): value is RoninStatus {
   return (RONIN_STATUSES as readonly string[]).includes(value)
+}
+
+export function isValidRoninTransition(from: string, to: string): boolean {
+  if (from === 'RON-reported' && to === 'RON-new') return true
+  const allowed = RONIN_TRANSITIONS[from as RoninStatus]
+  if (!allowed) return false
+  return allowed.includes(to as RoninStatus)
+}
+
+export function getNextRoninStatuses(current: string): RoninStatus[] {
+  if (current === 'RON-reported') return ['RON-new']
+  return RONIN_TRANSITIONS[current as RoninStatus] ?? []
+}
+
+export function getRoninPhase(status: string): RoninPhase | null {
+  for (const [phase, statuses] of Object.entries(RONIN_PHASES)) {
+    if ((statuses as readonly string[]).includes(status)) return phase as RoninPhase
+  }
+  return null
 }
 
 /**

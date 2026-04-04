@@ -12,7 +12,7 @@ import {
   param,
 } from '../lib/helpers.js'
 import type { TrackerItemDTO, TrackerBulkUpdateResult, DedupScanData, DedupMergeResult, TrackerDeleteResult, TrackerAttachmentDTO, AttachmentDeleteResult, RaidenStatusTransitionResult, RaidenNotifyResult } from '@tomachina/core'
-import { isValidTransition, getNextStatuses } from '@tomachina/core'
+import { isValidTransition, getNextStatuses, isValidRoninTransition, getNextRoninStatuses, isRoninStatus } from '@tomachina/core'
 import { createNotification } from './notifications.js'
 import { checkForDuplicate } from '../raiden/duplicate-guard.js'
 import { postNewSubmission, postFixed, postInProgress } from '../raiden/channel-notifier.js'
@@ -372,15 +372,17 @@ trackerRoutes.post('/', async (req: Request, res: Response) => {
     const db = getFirestore()
     const now = new Date().toISOString()
 
-    // TRK-14236: Determine item_id prefix
-    // RAIDEN items use type-specific prefix (BUG-/FIX-/UX-), RONIN items use TRK-
-    const isRaiden = (req.body.agent as string) === 'raiden'
+    // Determine item_id prefix by warrior agent
+    // RAIDEN items use type-specific prefix (BUG-/FIX-/UX-), RONIN items use RON-, others TRK-
+    const agentField = (req.body.agent as string) || ''
+    const isRaidenAgent = agentField === 'raiden'
+    const isRoninAgent = agentField === 'ronin'
     const itemType = (req.body.type as string) || ''
     const raidenPrefix = itemType === 'bug' || itemType === 'broken' ? 'BUG'
       : itemType === 'improve' || itemType === 'enhancement' ? 'FIX'
       : itemType === 'improve' || itemType === 'ux' ? 'UX'
       : null
-    const prefix = isRaiden && raidenPrefix ? raidenPrefix : 'TRK'
+    const prefix = isRaidenAgent && raidenPrefix ? raidenPrefix : isRoninAgent ? 'RON' : 'TRK'
     const prefixPattern = `${prefix}-`
 
     // Auto-generate item_id (scan all docs to find true max for this prefix, skip NaN poison)
@@ -522,8 +524,8 @@ trackerRoutes.patch('/:id', async (req: Request, res: Response) => {
   }
 })
 
-// PATCH /:id/status — RAIDEN ticket lifecycle transition
-// Valid lifecycle: new → investigating → fix_shipped → ux_testing → verified_closed
+// PATCH /:id/status — Warrior ticket lifecycle transition
+// Supports RDN- (RAIDEN) and RON- (RONIN) prefixed statuses.
 // When transitioning to ux_testing, returns reporter context for Slack notification.
 trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
   try {
@@ -543,7 +545,17 @@ trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
     const currentData = doc.data() as Record<string, unknown>
     const currentStatus = (currentData.status as string) || 'new'
 
-    if (!isValidTransition(currentStatus, newStatus)) {
+    // Route validation through the correct warrior transition map
+    const isRonin = currentStatus.startsWith('RON-') || newStatus.startsWith('RON-')
+    if (isRonin) {
+      if (!isValidRoninTransition(currentStatus, newStatus)) {
+        res.status(422).json(errorResponse(
+          `Invalid RONIN transition: ${currentStatus} → ${newStatus}. ` +
+          `Valid next statuses: ${getNextRoninStatuses(currentStatus).join(', ') || 'none (terminal)'}`
+        ))
+        return
+      }
+    } else if (!isValidTransition(currentStatus, newStatus)) {
       res.status(422).json(errorResponse(
         `Invalid status transition: ${currentStatus} → ${newStatus}. ` +
         `Valid next statuses: ${getNextStatuses(currentStatus).join(', ') || 'none (terminal)'}`
@@ -579,6 +591,17 @@ trackerRoutes.patch('/:id/status', async (req: Request, res: Response) => {
         postInProgress(trkId, title).catch((e: unknown) => console.error('[raiden-channel] IN PROGRESS post failed:', e))
       } else if (newStatus === 'RDN-deploy' || newStatus === 'RDN-reported') {
         postFixed(trkId, title).catch((e: unknown) => console.error('[raiden-channel] FIXED post failed:', e))
+      }
+    }
+
+    // Post RONIN channel event for key lifecycle transitions
+    if (isRoninStatus(currentStatus) || isRoninStatus(newStatus)) {
+      const trkId = (currentData.item_id as string) || id
+      const title = (currentData.title as string) || 'Unknown'
+      if (newStatus === 'RON-built') {
+        postInProgress(trkId, title).catch(() => {/* fire-and-forget */})
+      } else if (newStatus === 'RON-deployed') {
+        postFixed(trkId, title).catch(() => {/* fire-and-forget */})
       }
     }
 
