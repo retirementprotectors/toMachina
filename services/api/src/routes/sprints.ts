@@ -104,7 +104,13 @@ sprintRoutes.post('/auto', async (req: Request, res: Response) => {
     const snap = await db.collection(TRACKER_COLLECTION).orderBy('item_id', 'asc').get()
     const unassigned = snap.docs
       .map(doc => ({ id: doc.id, ...doc.data() } as Record<string, unknown>))
-      .filter(d => !d.sprint_id && ['queue', 'not_touched'].includes(d.status as string))
+      .filter(d => {
+        if (d.sprint_id) return false
+        const scope = (req.body.scope as string) || ''
+        if (scope === 'ronin') return d.status === 'RON-new'
+        if (scope === 'raiden') return d.status === 'RDN-new'
+        return ['queue', 'not_touched'].includes(d.status as string)
+      })
 
     if (unassigned.length === 0) {
       res.status(400).json(errorResponse('No unassigned items available for a sprint'))

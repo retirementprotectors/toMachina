@@ -114,7 +114,7 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string }> 
 const TYPES = ['broken', 'idea', 'improve', 'question', 'feat', 'bug', 'enhancement', 'test'] as const
 const PORTALS = ['PRODASHX', 'RIIMO', 'SENTINEL', 'SHARED', 'INFRA', 'DATA'] as const
 const SCOPES = ['Module', 'App', 'Platform', 'Data'] as const
-const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed', 'closed', 'RDN-new', 'RDN-triaging', 'RDN-fixing', 'RDN-verifying', 'RDN-deploy', 'RDN-reported', 'RON-new', 'RON-researching', 'RON-strategizing', 'RON-discovery', 'RON-seeded', 'RON-planned', 'RON-built', 'RON-deployed', 'RON-reported', 'done', 'escalated', 'deferred', 'wont_fix', 'backlog', 'blocked'] as const
+const STATUSES = ['queue', 'not_touched', 'in_sprint', 'seeded', 'disc_audited', 'planned', 'plan_audited', 'built', 'audited', 'deployed', 'ux_audited', 'confirmed', 'closed', 'RDN-new', 'RDN-triaging', 'RDN-fixing', 'RDN-verifying', 'RDN-deploy', 'RDN-reported', 'RON-new', 'RON-researching', 'RON-strategizing', 'RON-discovery', 'RON-seeded', 'RON-planned', 'RON-plan-audited', 'RON-built', 'RON-code-audited', 'RON-deployed', 'RON-ux-reviewed', 'RON-reported', 'done', 'escalated', 'deferred', 'wont_fix', 'backlog', 'blocked'] as const
 
 const API_BASE = '/api'
 
@@ -292,7 +292,7 @@ function ForgeInner({ portal }: ForgeProps) {
   const [sortField, setSortField] = useState<string>('item_id')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [bulkStatus, setBulkStatus] = useState('')
-  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'sprint-detail' | 'dedup' | 'pipeline'>('grid')
+  const [view, setView] = useState<'grid' | 'workflow' | 'sprints' | 'sprint-detail' | 'dedup' | 'pipeline'>('pipeline')
   const [dedupGroups, setDedupGroups] = useState<Array<{ winner: TrackerItem; duplicates: TrackerItem[]; reason: string }>>([])
   const [dedupLoading, setDedupLoading] = useState(false)
   const [reopeningSprintId, setReopeningSprintId] = useState<string | null>(null)
@@ -352,6 +352,31 @@ function ForgeInner({ portal }: ForgeProps) {
     return () => clearInterval(interval)
   }, [dojoTab, loadRaidenItems])
 
+  // ─── RONIN Pipeline state ───
+  const [roninItems, setRoninItems] = useState<TrackerItem[]>([])
+  const [roninLoading, setRoninLoading] = useState(false)
+
+  const loadRoninItems = useCallback(async () => {
+    setRoninLoading(true)
+    try {
+      const result = await fetchValidated<TrackerItem[]>(`${API_BASE}/tracker?limit=2000`)
+      if (result.success) {
+        setRoninItems((result.data || []).filter(i => i.status.startsWith('RON-')))
+      }
+    } catch { /* silent */ }
+    setRoninLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (dojoTab === 'ronin') loadRoninItems()
+  }, [dojoTab, loadRoninItems])
+
+  useEffect(() => {
+    if (dojoTab !== 'ronin') return
+    const interval = setInterval(() => loadRoninItems(), 30000)
+    return () => clearInterval(interval)
+  }, [dojoTab, loadRoninItems])
+
   // ─── INTAKE tab state (INT- prefixed items) ───
   const [intakeItems, setIntakeItems] = useState<TrackerItem[]>([])
   const [intakeLoading, setIntakeLoading] = useState(false)
@@ -403,16 +428,17 @@ function ForgeInner({ portal }: ForgeProps) {
           title: quickSubmitForm.title.trim(),
           type: quickSubmitForm.type,
           priority: quickSubmitForm.priority,
-          agent: 'raiden',
+          agent: dojoTab === 'ronin' ? 'ronin' : 'raiden',
           source: 'dojo_board',
-          status: 'RDN-new',
+          status: dojoTab === 'ronin' ? 'RON-new' : 'RDN-new',
           portal: portal.toUpperCase(),
         }),
       })
       if (result.success) {
-        showToast(`Submitted: ${result.data?.item_id || 'item'} — RAIDEN is on it`, 'success')
+        showToast(`Submitted: ${result.data?.item_id || 'item'} — ${dojoTab === 'ronin' ? 'RONIN' : 'RAIDEN'} is on it`, 'success')
         setShowQuickSubmit(false)
-        await loadRaidenItems()
+        if (dojoTab === 'ronin') await loadRoninItems()
+        else await loadRaidenItems()
         await loadItems()
       } else {
         setQuickSubmitError((result as unknown as Record<string, unknown>).error as string || 'Submit failed')
@@ -426,7 +452,7 @@ function ForgeInner({ portal }: ForgeProps) {
   // Keyboard shortcut Ctrl+N for Quick Submit
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'n' && dojoTab === 'raiden') {
+      if (e.ctrlKey && e.key === 'n' && (dojoTab === 'raiden' || dojoTab === 'ronin')) {
         e.preventDefault()
         openQuickSubmit()
       }
@@ -446,7 +472,11 @@ function ForgeInner({ portal }: ForgeProps) {
     try {
       const result = await fetchValidated<Record<string, unknown>>(`${API_BASE}/sprints/auto`, {
         method: 'POST',
-        body: JSON.stringify({ scope: 'raiden', status: 'RDN-new', groupBy: 'component' }),
+        body: JSON.stringify({
+          scope: dojoTab === 'ronin' ? 'ronin' : 'raiden',
+          status: dojoTab === 'ronin' ? 'RON-new' : 'RDN-new',
+          groupBy: 'component',
+        }),
       })
       if (result.success) {
         setAutoTriageResult(result.data || {})
@@ -462,10 +492,11 @@ function ForgeInner({ portal }: ForgeProps) {
   }
 
   const confirmAutoTriage = async () => {
-    showToast('RAIDEN queue sorted and grouped', 'success')
+    showToast(`${dojoTab === 'ronin' ? 'RONIN' : 'RAIDEN'} queue sorted and grouped`, 'success')
     setShowAutoTriage(false)
     setAutoTriageResult(null)
-    await loadRaidenItems()
+    if (dojoTab === 'ronin') await loadRoninItems()
+    else await loadRaidenItems()
   }
 
   /* ─── Data Loading ─── */
@@ -603,8 +634,10 @@ function ForgeInner({ portal }: ForgeProps) {
     closed: 11,
     // RAIDEN statuses (RDN- prefix) map to sprint-equivalent ranks
     'RDN-new': 0, 'RDN-triaging': 1, 'RDN-fixing': 5, 'RDN-verifying': 7, 'RDN-deploy': 9, 'RDN-reported': 11,
-    // RONIN statuses (RON- prefix)
-    'RON-new': 0, 'RON-researching': 1, 'RON-strategizing': 2, 'RON-discovery': 3, 'RON-seeded': 3, 'RON-planned': 5, 'RON-built': 7, 'RON-deployed': 9, 'RON-reported': 11,
+    // RONIN statuses (RON- prefix) — 12 statuses across 3 phases
+    'RON-new': 0, 'RON-researching': 1, 'RON-strategizing': 2,
+    'RON-discovery': 3, 'RON-seeded': 4, 'RON-planned': 5, 'RON-plan-audited': 6,
+    'RON-built': 7, 'RON-code-audited': 8, 'RON-deployed': 9, 'RON-ux-reviewed': 10, 'RON-reported': 11,
     done: 11, escalated: 0,
     backlog: 0, blocked: 0,
   }
@@ -1869,6 +1902,17 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         {/* View Toggle */}
         <div style={{ display: 'flex', borderRadius: 6, border: `1px solid ${s.border}`, overflow: 'hidden' }}>
           <button
+            onClick={() => setView('pipeline')}
+            style={{
+              padding: '6px 10px', border: 'none', cursor: 'pointer',
+              background: view === 'pipeline' ? s.surface : 'transparent',
+              color: view === 'pipeline' ? s.text : s.textMuted,
+            }}
+            title="Pipeline View"
+          >
+            <Icon name="account_tree" size={18} />
+          </button>
+          <button
             onClick={() => setView('grid')}
             style={{
               padding: '6px 10px', border: 'none', cursor: 'pointer',
@@ -1878,17 +1922,6 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             title="Grid View"
           >
             <Icon name="view_list" size={18} />
-          </button>
-          <button
-            onClick={() => setView('workflow')}
-            style={{
-              padding: '6px 10px', border: 'none', cursor: 'pointer',
-              background: view === 'workflow' ? s.surface : 'transparent',
-              color: view === 'workflow' ? s.text : s.textMuted,
-            }}
-            title="Workflow View"
-          >
-            <Icon name="view_kanban" size={18} />
           </button>
           <button
             onClick={() => setView('sprints')}
@@ -1901,29 +1934,30 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           >
             <Icon name="bolt" size={18} />
           </button>
-          <button
-            onClick={() => setView('pipeline')}
-            style={{
-              padding: '6px 10px', border: 'none', cursor: 'pointer',
-              background: view === 'pipeline' ? s.surface : 'transparent',
-              color: view === 'pipeline' ? s.text : s.textMuted,
-            }}
-            title="Pipeline View"
-          >
-            <Icon name="account_tree" size={18} />
-          </button>
-          <button
-            onClick={() => { setView('dedup'); loadDedup() }}
-            style={{
-              padding: '6px 10px', border: 'none', cursor: 'pointer',
-              background: view === 'dedup' ? s.surface : 'transparent',
-              color: view === 'dedup' ? s.text : s.textMuted,
-            }}
-            title="DeDup"
-          >
-            <Icon name="compare_arrows" size={18} />
-          </button>
         </div>
+        {/* RONIN Quick Submit */}
+        <button
+          onClick={openQuickSubmit}
+          style={{
+            padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+            background: s.portal, color: '#fff', fontSize: 12, fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          <Icon name="add" size={15} color="#fff" /> Quick Submit
+          <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 4 }}>Ctrl+N</span>
+        </button>
+        {/* RONIN Auto-Triage */}
+        <button
+          onClick={() => { setShowAutoTriage(true); runAutoTriage() }}
+          style={{
+            padding: '6px 14px', borderRadius: 6, border: `1px solid ${s.border}`, cursor: 'pointer',
+            background: 'transparent', color: s.textSecondary, fontSize: 12, fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          <Icon name="auto_fix_high" size={15} /> Auto-Triage
+        </button>
         {/* Confirm Walkthrough link */}
         <a
           href="/modules/forge/confirm"
@@ -1983,21 +2017,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         >
           <Icon name="auto_fix_high" size={16} /> Auto Sprint
         </button>
-        <button
-          onClick={openRoadmap}
-          style={{
-            padding: '8px 14px', borderRadius: 6, border: `1px solid ${s.border}`, cursor: 'pointer',
-            background: 'transparent', color: s.textSecondary, fontSize: 13, fontWeight: 500,
-            display: 'flex', alignItems: 'center', gap: 6,
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = s.border; e.currentTarget.style.color = s.textSecondary }}
-          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.96)'; e.currentTarget.style.background = '#e07c3e'; e.currentTarget.style.borderColor = '#e07c3e'; e.currentTarget.style.color = '#fff' }}
-          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
-        >
-          <Icon name="map" size={16} /> Roadmap
-        </button>
+        {/* Roadmap removed — not being used */}
       </div>
 
       {/* Back to Sprints breadcrumb when sprint-filtered */}
@@ -2935,105 +2955,133 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       )}
 
       {/* ─── Sprint 012: RONIN Pipeline View (Assessment + Development) ─── */}
-      {view === 'pipeline' && (
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {/* Assessment Pipeline */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(168,85,247)' }}>psychology</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>Assessment Pipeline</span>
-              <span style={{ fontSize: 11, color: s.textMuted }}>Research + Strategy</span>
-            </div>
-            <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
-              {([
-                { status: 'RON-new', label: 'NEW', color: 'rgb(239,68,68)' },
-                { status: 'RON-researching', label: 'RESEARCHING', color: 'rgb(168,85,247)' },
-                { status: 'RON-strategizing', label: 'STRATEGIZING', color: 'rgb(245,158,11)' },
-              ]).map(col => {
-                const colItems = (items || []).filter(i => i.status === col.status)
-                return (
-                  <div key={`assess-${col.status}`} style={{
-                    flex: 1, minWidth: 180, display: 'flex', flexDirection: 'column',
-                    background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
-                  }}>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
-                      borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
-                    }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
-                      <span style={{
-                        marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
-                        borderRadius: 10, background: `${col.color}30`, color: col.color,
-                      }}>{colItems.length}</span>
-                    </div>
-                    <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {colItems.length === 0 ? (
-                        <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
-                      ) : colItems.map(item => (
-                        <div key={item.id} onClick={() => openEdit(item)} style={{
-                          background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`, padding: '8px 10px', cursor: 'pointer',
-                        }}>
-                          <div style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace', marginBottom: 2 }}>{item.item_id}</div>
-                          <div style={{ fontSize: 12, fontWeight: 500, color: s.text }}>{item.title}</div>
-                        </div>
-                      ))}
-                    </div>
+      {view === 'pipeline' && (() => {
+        const RONIN_PIPELINE_PHASES = [
+          {
+            key: 'assessment', label: 'ASSESSMENT', icon: 'psychology', color: 'rgb(168,85,247)',
+            subtitle: 'Research + Strategy',
+            columns: [
+              { status: 'RON-new', label: 'NEW', color: 'rgb(239,68,68)' },
+              { status: 'RON-researching', label: 'RESEARCHING', color: 'rgb(168,85,247)' },
+              { status: 'RON-strategizing', label: 'STRATEGIZING', color: 'rgb(245,158,11)' },
+            ],
+          },
+          {
+            key: 'foundation', label: 'FOUNDATION', icon: 'architecture', color: 'rgb(99,102,241)',
+            subtitle: 'Discovery + Planning',
+            columns: [
+              { status: 'RON-discovery', label: 'DISCOVERY', color: 'rgb(212,164,76)' },
+              { status: 'RON-seeded', label: 'SEEDED', color: 'rgb(168,85,247)' },
+              { status: 'RON-planned', label: 'PLANNED', color: 'rgb(99,102,241)' },
+              { status: 'RON-plan-audited', label: 'PLAN AUDITED', color: 'rgb(16,185,129)' },
+            ],
+          },
+          {
+            key: 'development', label: 'DEVELOPMENT', icon: 'precision_manufacturing', color: 'rgb(245,158,11)',
+            subtitle: 'Build + Ship',
+            columns: [
+              { status: 'RON-built', label: 'BUILD', color: 'rgb(245,158,11)' },
+              { status: 'RON-code-audited', label: 'CODE AUDITED', color: 'rgb(20,184,166)' },
+              { status: 'RON-deployed', label: 'DEPLOYED', color: 'rgb(6,182,212)' },
+              { status: 'RON-ux-reviewed', label: 'UX REVIEWED', color: 'rgb(168,85,247)' },
+              { status: 'RON-reported', label: 'COMPLETE', color: 'rgb(34,197,94)' },
+            ],
+          },
+        ]
+        const TYPE_COLORS: Record<string, string> = {
+          broken: 'rgb(239,68,68)', bug: 'rgb(239,68,68)', improve: 'rgb(99,102,241)',
+          enhancement: 'rgb(99,102,241)', feat: 'rgb(34,197,94)', idea: 'rgb(245,158,11)',
+          question: 'rgb(156,163,175)', test: 'rgb(6,182,212)',
+        }
+        return (
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {roninLoading && roninItems.length === 0 && (
+              <div style={{ padding: 32, textAlign: 'center', color: s.textMuted }}>Loading RONIN pipeline...</div>
+            )}
+            {RONIN_PIPELINE_PHASES.map(phase => {
+              const phaseItems = roninItems.filter(i => phase.columns.some(c => c.status === i.status))
+              const activeCols = phase.columns.filter(c => roninItems.some(i => i.status === c.status))
+              return (
+                <div key={phase.key}>
+                  {/* Phase header */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 18, color: phase.color }}>{phase.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: phase.color, letterSpacing: '0.08em' }}>{phase.label}</span>
+                    <span style={{ fontSize: 11, color: s.textMuted }}>{phase.subtitle}</span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 10,
+                      background: `${phase.color}20`, color: phase.color, marginLeft: 4,
+                    }}>{phaseItems.length}</span>
                   </div>
-                )
-              })}
-            </div>
-          </div>
-          {/* Development Pipeline */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(245,158,11)' }}>precision_manufacturing</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>Development Pipeline</span>
-              <span style={{ fontSize: 11, color: s.textMuted }}>FORGE lifecycle — Discovery to Deploy</span>
-            </div>
-            <div style={{ display: 'flex', gap: 12, minHeight: 200, overflowX: 'auto' }}>
-              {([
-                { status: 'RON-discovery', label: 'DISCOVERY DOC', color: 'rgb(212,164,76)' },
-                { status: 'RON-seeded', label: 'SEEDED', color: 'rgb(168,85,247)' },
-                { status: 'RON-planned', label: 'PLAN', color: 'rgb(99,102,241)' },
-                { status: 'RON-built', label: 'BUILD', color: 'rgb(245,158,11)' },
-                { status: 'RON-deployed', label: 'DEPLOY', color: 'rgb(6,182,212)' },
-                { status: 'RON-reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
-              ]).map(col => {
-                const colItems = (items || []).filter(i => i.status === col.status)
-                return (
-                  <div key={`dev-${col.status}`} style={{
-                    flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column',
-                    background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
-                  }}>
+                  {/* Dynamic columns — only show columns with items */}
+                  {activeCols.length === 0 ? (
                     <div style={{
-                      display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
-                      borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
-                    }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
-                      <span style={{
-                        marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
-                        borderRadius: 10, background: `${col.color}30`, color: col.color,
-                      }}>{colItems.length}</span>
+                      padding: '12px 16px', borderRadius: 8, border: `1px dashed ${s.border}`,
+                      color: s.textMuted, fontSize: 12, textAlign: 'center',
+                    }}>No items in {phase.label.toLowerCase()}</div>
+                  ) : (
+                    <div style={{ display: 'flex', gap: 10, overflowX: 'auto' }}>
+                      {activeCols.map(col => {
+                        const colItems = roninItems.filter(i => i.status === col.status)
+                        return (
+                          <div key={col.status} style={{
+                            flex: 1, minWidth: 160, maxWidth: 240, display: 'flex', flexDirection: 'column',
+                            background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
+                          }}>
+                            <div style={{
+                              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px',
+                              borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                            }}>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                              <span style={{
+                                marginLeft: 'auto', fontSize: 9, fontWeight: 700, padding: '1px 6px',
+                                borderRadius: 10, background: `${col.color}30`, color: col.color,
+                              }}>{colItems.length}</span>
+                            </div>
+                            <div style={{ flex: 1, overflowY: 'auto', padding: 6, display: 'flex', flexDirection: 'column', gap: 5, maxHeight: 360 }}>
+                              {colItems.map(item => {
+                                const itemType = (item as unknown as Record<string, unknown>).type as string || ''
+                                const itemPortal = (item as unknown as Record<string, unknown>).portal as string || ''
+                                return (
+                                  <div key={item.id} onClick={() => openEdit(item)} style={{
+                                    background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
+                                    padding: '7px 9px', cursor: 'pointer', transition: 'border-color 0.15s',
+                                  }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border }}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                                      <span style={{ fontSize: 9, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
+                                      {itemType && (
+                                        <span style={{
+                                          fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 6,
+                                          background: `${TYPE_COLORS[itemType] || s.textMuted}18`,
+                                          color: TYPE_COLORS[itemType] || s.textMuted, textTransform: 'uppercase',
+                                        }}>{itemType}</span>
+                                      )}
+                                      {itemPortal && (
+                                        <span style={{
+                                          fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6,
+                                          background: 'rgba(99,102,241,0.1)', color: 'rgb(99,102,241)',
+                                        }}>{itemPortal}</span>
+                                      )}
+                                    </div>
+                                    <div style={{ fontSize: 11, fontWeight: 500, color: s.text, lineHeight: 1.3 }}>{item.title}</div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
-                    <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {colItems.length === 0 ? (
-                        <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
-                      ) : colItems.map(item => (
-                        <div key={item.id} onClick={() => openEdit(item)} style={{
-                          background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`, padding: '8px 10px', cursor: 'pointer',
-                        }}>
-                          <div style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace', marginBottom: 2 }}>{item.item_id}</div>
-                          <div style={{ fontSize: 12, fontWeight: 500, color: s.text }}>{item.title}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* ─── Grid View ─── */}
       {view === 'grid' && <>
