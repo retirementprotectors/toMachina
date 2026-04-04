@@ -47,7 +47,7 @@ const BOT_TIERS: BotTier[] = [
     label: 'Your Ninja Warriors',
     bots: [
       { name: 'SENSEI', title: 'Patient Teacher', signatureLine: 'Let me show you.', icon: '🔥', accentColor: '#f59e0b' },
-      { name: 'VOLTRON', title: 'The BFF', signatureLine: 'Let me help.', icon: '🔋', accentColor: '#3b82f6' },
+      { name: 'VOLTRON', title: 'The BFF', signatureLine: 'Let me help.', icon: '🦁', accentColor: '#3b82f6' },
     ],
   },
 ]
