@@ -73,6 +73,27 @@ export function IntegrationsTab({ client }: IntegrationsTabProps) {
         </FieldGrid>
       </SectionCard>
 
+      {/* Tags & References */}
+      {(str(client.tags) || str(client.jira_key)) && (
+        <SectionCard title="Tags & References" icon="label">
+          {str(client.tags) && (
+            <div className="mb-3">
+              <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-2">Tags</dt>
+              <dd className="flex flex-wrap gap-1.5">
+                {String(client.tags).split(',').map((t: string) => t.trim()).filter(Boolean).map((tag: string) => (
+                  <span key={tag} className="inline-block rounded-full bg-[var(--portal)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--portal)]">
+                    {tag}
+                  </span>
+                ))}
+              </dd>
+            </div>
+          )}
+          {str(client.jira_key) && (
+            <CopyableField label="Jira Key (Legacy)" value={str(client.jira_key)} />
+          )}
+        </SectionCard>
+      )}
+
       {/* Import Source */}
       {importSource && (
         <SectionCard title="Data Source" icon="cloud_download">
@@ -80,6 +101,9 @@ export function IntegrationsTab({ client }: IntegrationsTabProps) {
             <DetailField label="Import Source" value={importSource} />
             <DetailField label="Import Date" value={formatDate(client.import_date || client.created_at)} />
             <DetailField label="Last Sync" value={formatDate(client.last_sync || client.updated_at)} />
+            {str(client.last_import_source) && <DetailField label="Last Import" value={str(client.last_import_source)} />}
+            {str(client.last_validated_date) && <DetailField label="Last Validated" value={formatDate(client.last_validated_date)} />}
+            {str(client.client_classification) && <DetailField label="Classification" value={str(client.client_classification)} />}
           </FieldGrid>
         </SectionCard>
       )}
@@ -91,7 +115,15 @@ export function IntegrationsTab({ client }: IntegrationsTabProps) {
             <CopyableField label="GHL Contact ID" value={ghlId} />
             <DetailField label="GHL Created" value={formatDate(ghlCreated)} />
             <DetailField label="GHL Updated" value={formatDate(ghlUpdated)} />
+            {str(client.ghl_last_activity) && <DetailField label="Last Activity" value={formatDate(client.ghl_last_activity)} />}
+            {str(client.ghl_assigned_to) && <DetailField label="Assigned To" value={str(client.ghl_assigned_to)} />}
           </FieldGrid>
+          {str(client.ghl_opportunities) && (
+            <div className="mt-3">
+              <dt className="text-xs uppercase tracking-wide text-[var(--text-muted)]">GHL Opportunities</dt>
+              <dd className="mt-1 text-sm text-[var(--text-primary)] whitespace-pre-wrap">{str(client.ghl_opportunities)}</dd>
+            </div>
+          )}
         </SectionCard>
       )}
 

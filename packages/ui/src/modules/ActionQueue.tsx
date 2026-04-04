@@ -44,6 +44,49 @@ const REC_LABELS: Record<string, string> = {
   TRAIN: 'Train (VOLTRON)',
 }
 
+const TYPE_FILTERS = [
+  { key: 'all', label: 'All', icon: 'apps' },
+  { key: 'fix', label: 'Fixes', icon: 'build' },
+  { key: 'feature', label: 'Features', icon: 'add_circle' },
+  { key: 'infra', label: 'Infra', icon: 'dns' },
+  { key: 'content', label: 'Content', icon: 'article' },
+  { key: 'test', label: 'Tests', icon: 'science' },
+] as const
+
+const PORTAL_FILTERS = [
+  { key: 'all', label: 'All Portals', color: '' },
+  { key: 'prodash', label: 'PRODASHX', color: '#4a7ab5' },
+  { key: 'riimo', label: 'RIIMO', color: '#a78bfa' },
+  { key: 'sentinel', label: 'SENTINEL', color: '#40bc58' },
+] as const
+
+/* ─── Filter helpers ─── */
+function matchesTypeFilter(item: QueueItem, filter: string): boolean {
+  if (filter === 'all') return true
+  const t = ((item.type || '') + ' ' + (item.triage_recommendation || '') + ' ' + (item.item_id || '') + ' ' + (item.title || '')).toLowerCase()
+  switch (filter) {
+    case 'fix': return t.includes('fix') || t.includes('bug')
+    case 'feature': return t.includes('feat') || t.includes('feature')
+    case 'infra': return t.includes('infra') || t.includes('infrastructure') || t.includes('deploy')
+    case 'content': return t.includes('content') || t.includes('doc')
+    case 'test': return t.includes('test') || t.includes('e2e')
+    default: return true
+  }
+}
+
+function matchesPortalFilter(item: QueueItem, filter: string): boolean {
+  if (filter === 'all') return true
+  const p = ((item.portal || '') + ' ' + (item.title || '')).toLowerCase()
+  return p.includes(filter)
+}
+
+function humanizeTitle(title: string): string {
+  const stripped = title.replace(/^[A-Z]+-\d+:\s*/, '')
+  return stripped
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase())
+}
+
 /* ─── Relative time helper ─── */
 function timeAgo(dateStr: string): string {
   const now = Date.now()
@@ -67,6 +110,8 @@ export function ActionQueue({ portal }: ActionQueueProps) {
   const [reclassifyId, setReclassifyId] = useState<string | null>(null)
   const [commentId, setCommentId] = useState<string | null>(null)
   const [commentText, setCommentText] = useState('')
+  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [portalFilter, setPortalFilter] = useState<string>('all')
 
   const loadQueue = useCallback(async () => {
     const result = await fetchValidated<QueueItem[]>('/api/queue')
@@ -154,6 +199,10 @@ export function ActionQueue({ portal }: ActionQueueProps) {
     setActing(null)
   }
 
+  const filteredItems = items.filter(item =>
+    matchesTypeFilter(item, typeFilter) && matchesPortalFilter(item, portalFilter)
+  )
+
   // Styles — mobile-first, no sidebar, dark theme
   const s = {
     bg: 'var(--bg, #0f1219)',
@@ -187,17 +236,25 @@ export function ActionQueue({ portal }: ActionQueueProps) {
     }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, padding: '0 4px' }}>
-        <div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: s.text, letterSpacing: '-0.02em' }}>/q</div>
-          <div style={{ fontSize: 12, color: s.textMuted }}>CEO Action Queue</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => window.history.back()}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: s.textMuted, display: 'flex', alignItems: 'center' }}
+          >
+            <span className="material-icons-outlined" style={{ fontSize: 20 }}>arrow_back</span>
+          </button>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: s.text, letterSpacing: '-0.02em' }}>/q</div>
+            <div style={{ fontSize: 12, color: s.textMuted }}>CEO Action Queue</div>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{
             fontSize: 13, fontWeight: 600, padding: '4px 10px', borderRadius: 20,
-            background: items.length > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(34,197,94,0.2)',
-            color: items.length > 0 ? s.amber : s.green,
+            background: filteredItems.length > 0 ? 'rgba(245,158,11,0.2)' : 'rgba(34,197,94,0.2)',
+            color: filteredItems.length > 0 ? s.amber : s.green,
           }}>
-            {items.length} {items.length === 1 ? 'item' : 'items'}
+            {filteredItems.length}{filteredItems.length !== items.length ? `/${items.length}` : ''} {filteredItems.length === 1 ? 'item' : 'items'}
           </span>
           <button
             onClick={() => { setLoading(true); loadQueue() }}
@@ -211,8 +268,67 @@ export function ActionQueue({ portal }: ActionQueueProps) {
         </div>
       </div>
 
-      {/* Empty state */}
-      {items.length === 0 && (
+      {/* Type Filters */}
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 10, padding: '0 4px' }}>
+        {TYPE_FILTERS.map(tf => {
+          const count = items.filter(i => matchesTypeFilter(i, tf.key) && matchesPortalFilter(i, portalFilter)).length
+          const active = typeFilter === tf.key
+          return (
+            <button
+              key={tf.key}
+              onClick={() => setTypeFilter(tf.key)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' as const,
+                minHeight: 44, touchAction: 'manipulation' as const,
+                background: active ? s.portal : s.surface,
+                color: active ? '#fff' : s.textMuted,
+                transition: 'all 0.15s',
+              }}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: 16 }}>{tf.icon}</span>
+              {tf.label}
+              <span style={{
+                fontSize: 11, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+                background: active ? 'rgba(255,255,255,0.2)' : 'rgba(136,146,168,0.2)',
+                color: active ? '#fff' : s.textMuted,
+              }}>{count}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Portal Filters */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, padding: '0 4px' }}>
+        {PORTAL_FILTERS.map(pf => {
+          const count = items.filter(i => matchesTypeFilter(i, typeFilter) && matchesPortalFilter(i, pf.key)).length
+          const active = portalFilter === pf.key
+          const c = pf.color || s.textMuted
+          return (
+            <button
+              key={pf.key}
+              onClick={() => setPortalFilter(pf.key)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '6px 12px', borderRadius: 16, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' as const,
+                minHeight: 36, touchAction: 'manipulation' as const,
+                background: active ? (pf.color ? `${pf.color}22` : s.surface) : 'transparent',
+                color: active ? c : s.textMuted,
+                border: `1px solid ${active ? c : s.border}`,
+                transition: 'all 0.15s',
+              }}
+            >
+              {pf.label}
+              <span style={{ fontSize: 10, opacity: 0.7 }}>({count})</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Empty state — queue truly clear */}
+      {filteredItems.length === 0 && items.length === 0 && (
         <div style={{
           textAlign: 'center', padding: '60px 20px', color: s.textMuted,
         }}>
@@ -222,9 +338,20 @@ export function ActionQueue({ portal }: ActionQueueProps) {
         </div>
       )}
 
+      {/* Empty state — no filter matches */}
+      {filteredItems.length === 0 && items.length > 0 && (
+        <div style={{
+          textAlign: 'center', padding: '40px 20px', color: s.textMuted,
+        }}>
+          <span className="material-icons-outlined" style={{ fontSize: 40, marginBottom: 8, display: 'block', opacity: 0.5 }}>filter_list</span>
+          <div style={{ fontSize: 14, fontWeight: 600, color: s.text, marginBottom: 4 }}>No matches</div>
+          <div style={{ fontSize: 13 }}>{items.length} items in queue, none match current filters.</div>
+        </div>
+      )}
+
       {/* Card stack */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {items.map(item => {
+        {filteredItems.map(item => {
           const priority = (item.priority || 'P2').toUpperCase()
           const pStyle = PRIORITY_STYLES[priority] || PRIORITY_STYLES['P2']
           const rec = item.triage_recommendation || 'FIX'
@@ -251,7 +378,7 @@ export function ActionQueue({ portal }: ActionQueueProps) {
 
               {/* Title */}
               <div style={{ fontSize: 15, fontWeight: 600, color: s.text, marginBottom: 4, lineHeight: 1.3 }}>
-                {item.title}
+                {humanizeTitle(item.title)}
               </div>
 
               {/* Meta */}

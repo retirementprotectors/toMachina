@@ -298,6 +298,246 @@ acfRoutes.put('/config', async (req: Request, res: Response) => {
 })
 
 // ---------------------------------------------------------------------------
+// GET /api/acf/list — paginated ACF list with completeness + dedup flags
+// ---------------------------------------------------------------------------
+acfRoutes.get('/list', async (req: Request, res: Response) => {
+  try {
+    const store = getFirestore()
+    const clientsColl = store.collection('clients')
+    const page = Math.max(1, parseInt(req.query.page as string) || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 25))
+    const search = (req.query.search as string || '').trim()
+    const sort = (req.query.sort as string) || 'name'
+    const order = (req.query.order as string) === 'desc' ? 'desc' : 'asc'
+    const hasdupes = req.query.hasdupes === 'true'
+    const incomplete = req.query.incomplete === 'true'
+
+    // Fetch all clients with ACF folders
+    const snap = await clientsColl
+      .where('acf_folder_id', '!=', null)
+      .select(
+        'first_name', 'last_name', 'acf_folder_id', 'acf_folder_url',
+        'acf_completeness', 'acf_doc_count', 'acf_subfolder_count',
+        'acf_last_modified', 'acf_dedup_count', 'status'
+      )
+      .get()
+
+    // Build items, filtering out merged/deleted
+    let items = snap.docs
+      .filter((d) => {
+        const data = d.data()
+        if (['merged', 'deleted'].includes(data.status as string)) return false
+        return true
+      })
+      .map((d) => {
+        const data = d.data()
+        const lastName = (data.last_name as string) || ''
+        const firstName = (data.first_name as string) || ''
+        return {
+          client_id: d.id,
+          client_name: `${lastName}, ${firstName}`.trim().replace(/^,\s*/, ''),
+          first_name: firstName,
+          last_name: lastName,
+          folder_id: data.acf_folder_id as string,
+          folder_url: (data.acf_folder_url as string) || `https://drive.google.com/drive/folders/${data.acf_folder_id}`,
+          completeness: (data.acf_completeness as number) ?? Math.round(((data.acf_subfolder_count as number) || 0) / 5 * 100),
+          document_count: (data.acf_doc_count as number) || 0,
+          subfolder_count: (data.acf_subfolder_count as number) || 0,
+          last_modified: (data.acf_last_modified as string) || null,
+          dedup_count: (data.acf_dedup_count as number) || 0,
+        }
+      })
+
+    // Search filter
+    if (search) {
+      const normalized = search.toLowerCase()
+      items = items.filter(
+        (i) =>
+          i.last_name.toLowerCase().includes(normalized) ||
+          i.first_name.toLowerCase().includes(normalized)
+      )
+    }
+
+    // Boolean filters
+    if (hasdupes) {
+      items = items.filter((i) => i.dedup_count > 0)
+    }
+    if (incomplete) {
+      items = items.filter((i) => i.subfolder_count < 5)
+    }
+
+    // Sort
+    items.sort((a, b) => {
+      let cmp = 0
+      switch (sort) {
+        case 'completeness':
+          cmp = a.completeness - b.completeness
+          break
+        case 'modified':
+          cmp = (a.last_modified || '').localeCompare(b.last_modified || '')
+          break
+        case 'doc_count':
+          cmp = a.document_count - b.document_count
+          break
+        default: // name
+          cmp = a.last_name.localeCompare(b.last_name) || a.first_name.localeCompare(b.first_name)
+      }
+      return order === 'desc' ? -cmp : cmp
+    })
+
+    const total = items.length
+    const startIdx = (page - 1) * limit
+    const paged = items.slice(startIdx, startIdx + limit)
+
+    res.json(successResponse({ items: paged, total, page, limit }))
+  } catch (err) {
+    console.error('GET /api/acf/list error:', err)
+    res.status(500).json(errorResponse('Failed to list ACFs'))
+  }
+})
+
+// ---------------------------------------------------------------------------
+// GET /api/acf/duplicates — all ACF duplicate pairs with confidence
+// ---------------------------------------------------------------------------
+acfRoutes.get('/duplicates', async (_req: Request, res: Response) => {
+  try {
+    const store = getFirestore()
+    const clientsColl = store.collection('clients')
+
+    // Fetch all clients with ACF folders
+    const snap = await clientsColl
+      .where('acf_folder_id', '!=', null)
+      .select('first_name', 'last_name', 'acf_folder_id', 'dob', 'email', 'phone')
+      .get()
+
+    interface AcfClient {
+      id: string
+      first_name: string
+      last_name: string
+      acf_folder_id: string
+      dob?: string
+      email?: string
+      phone?: string
+    }
+
+    const clients: AcfClient[] = snap.docs
+      .filter((d) => !['merged', 'deleted'].includes(d.data().status as string || ''))
+      .map((d) => {
+        const data = d.data()
+        return {
+          id: d.id,
+          first_name: (data.first_name as string) || '',
+          last_name: (data.last_name as string) || '',
+          acf_folder_id: (data.acf_folder_id as string) || '',
+          dob: data.dob as string | undefined,
+          email: data.email as string | undefined,
+          phone: data.phone as string | undefined,
+        }
+      })
+
+    // Load dismissed pairs
+    const dismissedSnap = await store.collection('acf_dismissed_duplicates').get()
+    const dismissedSet = new Set(
+      dismissedSnap.docs.map((d) => {
+        const data = d.data()
+        return `${data.client_a}::${data.client_b}`
+      })
+    )
+
+    // Group by last_name to limit O(n^2)
+    const byLastName: Record<string, typeof clients> = {}
+    for (const c of clients) {
+      const ln = ((c.last_name as string) || '').toLowerCase().trim()
+      if (!ln) continue
+      if (!byLastName[ln]) byLastName[ln] = []
+      byLastName[ln].push(c)
+    }
+
+    interface DuplicatePair {
+      client_a: { client_id: string; name: string; folder_id: string }
+      client_b: { client_id: string; name: string; folder_id: string }
+      confidence: number
+      reasons: string[]
+      dismissed: boolean
+    }
+
+    const pairs: DuplicatePair[] = []
+
+    for (const group of Object.values(byLastName)) {
+      if (group.length < 2) continue
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          const a = group[i]
+          const b = group[j]
+          const reasons: string[] = []
+          let confidence = 0
+
+          // Exact last name match (they're in the same group)
+          const fnA = ((a.first_name as string) || '').toLowerCase()
+          const fnB = ((b.first_name as string) || '').toLowerCase()
+
+          if (fnA === fnB && fnA) {
+            confidence = 95
+            reasons.push('Identical name')
+          } else if (fnA && fnB) {
+            // Simple first-name similarity
+            const shorter = fnA.length <= fnB.length ? fnA : fnB
+            const longer = fnA.length > fnB.length ? fnA : fnB
+            if (longer.startsWith(shorter)) {
+              confidence = 85
+              reasons.push('Similar first name')
+            } else {
+              confidence = 75
+              reasons.push('Same last name')
+            }
+          } else {
+            confidence = 75
+            reasons.push('Same last name')
+          }
+
+          // Boost for matching DOB
+          if (a.dob && b.dob && a.dob === b.dob) {
+            confidence = Math.min(99, confidence + 10)
+            reasons.push('Same DOB')
+          }
+
+          // Boost for matching email
+          if (a.email && b.email && a.email === b.email) {
+            confidence = Math.min(99, confidence + 5)
+            reasons.push('Same email')
+          }
+
+          if (confidence >= 75) {
+            const key1 = `${a.id}::${b.id}`
+            const key2 = `${b.id}::${a.id}`
+            const dismissed = dismissedSet.has(key1) || dismissedSet.has(key2)
+
+            const nameA = `${a.last_name || ''}, ${a.first_name || ''}`.trim()
+            const nameB = `${b.last_name || ''}, ${b.first_name || ''}`.trim()
+
+            pairs.push({
+              client_a: { client_id: a.id, name: nameA, folder_id: a.acf_folder_id as string },
+              client_b: { client_id: b.id, name: nameB, folder_id: b.acf_folder_id as string },
+              confidence,
+              reasons,
+              dismissed,
+            })
+          }
+        }
+      }
+    }
+
+    // Sort by confidence descending
+    pairs.sort((a, b) => b.confidence - a.confidence)
+
+    res.json(successResponse(pairs))
+  } catch (err) {
+    console.error('GET /api/acf/duplicates error:', err)
+    res.status(500).json(errorResponse('Failed to get ACF duplicates'))
+  }
+})
+
+// ---------------------------------------------------------------------------
 // POST /api/acf/audit — audit all clients for ACF completeness
 // ---------------------------------------------------------------------------
 acfRoutes.post('/audit', async (_req: Request, res: Response) => {
@@ -622,6 +862,92 @@ acfRoutes.get('/:clientId', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('GET /api/acf/:clientId error:', err)
     res.status(500).json(errorResponse('Failed to get ACF details'))
+  }
+})
+
+// ---------------------------------------------------------------------------
+// POST /api/acf/:clientId/dismiss-duplicate — dismiss an ACF duplicate pair
+// ---------------------------------------------------------------------------
+acfRoutes.post('/:clientId/dismiss-duplicate', async (req: Request, res: Response) => {
+  try {
+    const clientId = param(req.params.clientId)
+    const { match_client_id } = req.body as { match_client_id?: string }
+
+    if (!match_client_id) {
+      res.status(400).json(errorResponse('match_client_id is required'))
+      return
+    }
+
+    const store = getFirestore()
+    const dismissedColl = store.collection('acf_dismissed_duplicates')
+    await dismissedColl.add({
+      client_a: clientId,
+      client_b: match_client_id,
+      dismissed_by: (req as unknown as { user?: { email?: string } }).user?.email || 'unknown',
+      dismissed_at: new Date().toISOString(),
+    })
+
+    res.json(successResponse({ dismissed: true }))
+  } catch (err) {
+    console.error('POST /api/acf/:clientId/dismiss-duplicate error:', err)
+    res.status(500).json(errorResponse('Failed to dismiss duplicate'))
+  }
+})
+
+// ---------------------------------------------------------------------------
+// GET /api/acf/:clientId/files-by-policy/:policyNumber — ACF files filtered by policy
+// ---------------------------------------------------------------------------
+acfRoutes.get('/:clientId/files-by-policy/:policyNumber', async (req: Request, res: Response) => {
+  try {
+    const clientId = param(req.params.clientId)
+    const policyNumber = param(req.params.policyNumber)
+    const store = getFirestore()
+    const clientsColl = store.collection('clients')
+    const clientDoc = await clientsColl.doc(clientId).get()
+
+    if (!clientDoc.exists) {
+      res.status(404).json(errorResponse('Client not found'))
+      return
+    }
+
+    const data = clientDoc.data()!
+    const folderId = data.acf_folder_id as string | undefined
+    if (!folderId) {
+      res.json(successResponse({ files: [] }))
+      return
+    }
+
+    // List all subfolders and their files
+    const subfolders = await listSubfolders(folderId)
+    interface GroupedFiles {
+      subfolder: string
+      files: Array<{ id: string; name: string; mimeType: string; modifiedTime: string; size?: string }>
+    }
+
+    const result: GroupedFiles[] = []
+    const policyLower = policyNumber.toLowerCase()
+
+    for (const sf of subfolders) {
+      const files = await listFolderFiles(sf.id)
+      const matched = files.filter((f) => f.name.toLowerCase().includes(policyLower))
+      if (matched.length > 0) {
+        result.push({
+          subfolder: sf.name,
+          files: matched.map((f) => ({
+            id: f.id,
+            name: f.name,
+            mimeType: f.mimeType,
+            modifiedTime: f.modifiedTime,
+            size: f.size != null ? String(f.size) : undefined,
+          })),
+        })
+      }
+    }
+
+    res.json(successResponse({ files: result }))
+  } catch (err) {
+    console.error('GET /api/acf/:clientId/files-by-policy error:', err)
+    res.status(500).json(errorResponse('Failed to get files by policy'))
   }
 })
 

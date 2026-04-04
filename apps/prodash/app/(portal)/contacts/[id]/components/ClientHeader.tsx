@@ -258,6 +258,16 @@ export function ClientHeader({ client, clientId: _clientId, onCommsAction }: Cli
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-[var(--text-primary)]">{displayName}</h1>
               <StatusBadge status={status} />
+              {String(client.contact_quality_score || '') && (
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                  String(client.contact_quality_score) === 'green' ? 'bg-emerald-500/15 text-emerald-400' :
+                  String(client.contact_quality_score) === 'yellow' ? 'bg-amber-500/15 text-amber-400' :
+                  'bg-red-500/15 text-red-400'
+                }`}>
+                  {String(client.contact_quality_score) === 'green' ? 'High Quality' :
+                   String(client.contact_quality_score) === 'yellow' ? 'Medium Quality' : 'Low Quality'}
+                </span>
+              )}
               {client.household_id && (
                 <Link
                   href={`/households/${client.household_id}`}

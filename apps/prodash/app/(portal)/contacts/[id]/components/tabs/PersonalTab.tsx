@@ -70,6 +70,12 @@ export function PersonalTab({ client, clientId }: PersonalTabProps) {
           />
           {/* SSN — masked, read-only */}
           <ReadOnlyField label="SSN (Last 4)" value={maskSSN(client.ssn || client.ssn_last4)} mono />
+          {str(client.country) && str(client.country) !== 'US' && str(client.country) !== 'USA' && (
+            <ReadOnlyField label="Country" value={str(client.country)} />
+          )}
+          {str(client.address_standardized) === 'TRUE' && (
+            <ReadOnlyField label="Address Verified" value="USPS Standardized" />
+          )}
         </FieldGrid>
       </InlineSection>
 

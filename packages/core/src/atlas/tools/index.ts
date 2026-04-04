@@ -42,10 +42,56 @@ export type { SplitPdfInput, SplitPdfOutput, SplitFile } from './split-pdf'
 export type { LabelDocumentInput, LabelDocumentOutput } from './label-document'
 export type { SlackCaseInput, SlackSplitInput, SlackAlertInput } from './notify-slack'
 
+// ACF tools — definitions are browser-safe; execute functions are stubs.
+// For full ACF tool implementations, see services/api/src/scripts/acf-*.ts
+export {
+  acfSnapshotDefinition,
+  acfRenameDefinition,
+  acfMergeDefinition,
+  acfSubfolderDefinition,
+  acfRouteFilesDefinition,
+  acfLinkDefinition,
+  acfFlattenDefinition,
+  acfDedupeFilesDefinition,
+  acfRenameFilesDefinition,
+  acfReclassifyDefinition,
+  acfAuditDefinition,
+  getAcfToolDefinitions,
+  ACF_REQUIRED_SUBFOLDERS,
+  DOCUMENT_TYPE_TO_SUBFOLDER,
+  resolveSubfolder,
+} from './acf-tools'
+export type {
+  AcfSnapshotInput,
+  AcfSnapshotOutput,
+  AcfRenameInput,
+  AcfRenameOutput,
+  AcfMergeInput,
+  AcfMergeOutput,
+  AcfSubfolderInput,
+  AcfSubfolderOutput,
+  AcfRouteFilesInput,
+  AcfRouteFilesOutput,
+  AcfLinkInput,
+  AcfLinkOutput,
+  AcfFlattenInput,
+  AcfFlattenOutput,
+  AcfDedupeFilesInput,
+  AcfDedupeFilesOutput,
+  AcfRenameFilesInput,
+  AcfRenameFilesOutput,
+  AcfReclassifyInput,
+  AcfReclassifyOutput,
+  AcfAuditInput,
+  AcfAuditOutput,
+  AcfAuditException,
+} from './acf-tools'
+
 import { definition as _validateRecordDef } from './validate-record'
 import { definition as _normalizeBoBDef } from './normalize-book-of-business'
 import { definition as _normalizeStatusDef } from './normalize-status'
 import { definition as _routeToCollectionDef } from './route-to-collection'
+import { getAcfToolDefinitions as _getAcfDefs } from './acf-tools'
 
 /**
  * All atomic tool definitions for registry purposes.
@@ -57,5 +103,6 @@ export function getAtomicToolDefinitions() {
     _normalizeBoBDef,
     _normalizeStatusDef,
     _routeToCollectionDef,
+    ..._getAcfDefs(),
   ]
 }

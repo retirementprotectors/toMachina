@@ -32,6 +32,14 @@ const RELATIONSHIP_OPTIONS = [
 // Item 3 (FIX-8): BoB options are fetched dynamically from Firestore
 // instead of being hardcoded. See useEffect in ContactTab below.
 
+const CLASSIFICATION_OPTIONS = [
+  { label: 'Client', value: 'Client' },
+  { label: 'Prospect', value: 'Prospect' },
+  { label: 'Lead', value: 'Lead' },
+  { label: 'Affiliate', value: 'Affiliate' },
+  { label: 'Other', value: 'Other' },
+]
+
 const SOURCE_OPTIONS = [
   { label: 'Referral', value: 'Referral' },
   { label: 'Marketing', value: 'Marketing' },
@@ -56,6 +64,16 @@ const DNC_PILLS: DncPillConfig[] = [
   { label: 'Email', fieldKey: 'dnc_email', icon: 'unsubscribe' },
   { label: 'Mail', fieldKey: 'dnc_mail', icon: 'markunread_mailbox' },
 ]
+
+function ValidationDot({ status }: { status: string }) {
+  if (!status) return null
+  const s = status.toLowerCase()
+  const color = s === 'valid' ? 'bg-emerald-400' : s === 'invalid' ? 'bg-red-400' : 'bg-amber-400'
+  const label = s === 'valid' ? 'Valid' : s === 'invalid' ? 'Invalid' : 'Unknown'
+  return (
+    <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${color}`} title={label} />
+  )
+}
 
 function DncPill({
   label,
@@ -254,14 +272,19 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             type="select"
             options={PHONE_TYPE_OPTIONS}
           />
-          <InlineField
-            label="Primary Phone"
-            value={str(client.phone)}
-            fieldKey="phone"
-            docPath={docPath}
-            type="tel"
-            formatDisplay={formatPhone}
-          />
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <InlineField
+                label="Primary Phone"
+                value={str(client.phone)}
+                fieldKey="phone"
+                docPath={docPath}
+                type="tel"
+                formatDisplay={formatPhone}
+              />
+            </div>
+            <ValidationDot status={str(client.phone_valid)} />
+          </div>
           <InlineField
             label="Alt Phone Type"
             value={str(client.alt_phone_type)}
@@ -276,13 +299,18 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
       {/* Email */}
       <InlineSection title="Email" icon="email">
         <FieldGrid cols={2}>
-          <InlineField
-            label="Primary Email"
-            value={str(client.email)}
-            fieldKey="email"
-            docPath={docPath}
-            type="email"
-          />
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <InlineField
+                label="Primary Email"
+                value={str(client.email)}
+                fieldKey="email"
+                docPath={docPath}
+                type="email"
+              />
+            </div>
+            <ValidationDot status={str(client.email_valid)} />
+          </div>
           <InlineField
             label="Secondary Email"
             value={str(client.secondary_email)}
@@ -307,6 +335,12 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
               <InlineField label="ZIP" value={str(client.zip)} fieldKey="zip" docPath={docPath} />
               <InlineField label="County" value={str(client.county)} fieldKey="county" docPath={docPath} />
             </FieldGrid>
+            {(str(client.zone_id) || str(client.territory_id)) && (
+              <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
+                {str(client.territory_id) && <span>Territory: <strong className="text-[var(--text-primary)]">{str(client.territory_id)}</strong></span>}
+                {str(client.zone_id) && <span>Zone: <strong className="text-[var(--text-primary)]">{str(client.zone_id)}</strong></span>}
+              </div>
+            )}
           </div>
         </InlineSection>
 
@@ -319,6 +353,7 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
               <InlineField label="State" value={str(client.mailing_state)} fieldKey="mailing_state" docPath={docPath} />
             </FieldGrid>
             <InlineField label="ZIP" value={str(client.mailing_zip)} fieldKey="mailing_zip" docPath={docPath} />
+            <InlineField label="County" value={str(client.mailing_county)} fieldKey="mailing_county" docPath={docPath} />
           </div>
         </InlineSection>
       </div>
@@ -368,6 +403,14 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             docPath={docPath}
             type="select"
             options={SOURCE_OPTIONS}
+          />
+          <InlineField
+            label="Classification"
+            value={str(client.client_classification)}
+            fieldKey="client_classification"
+            docPath={docPath}
+            type="select"
+            options={CLASSIFICATION_OPTIONS}
           />
         </FieldGrid>
       </InlineSection>
