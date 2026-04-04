@@ -83,6 +83,7 @@ import { runCheck } from './shinobi/shinobi-check.js'
 import { registerCheckHandler } from '@tomachina/core'
 import { handleDexKitGenerate, handleDexDocuSign } from './lib/dex-handlers.js'
 import { webhookDeployRoutes } from './routes/webhook-deploy.js'
+import { ciWebhookRoutes, ciRoutes } from './routes/ci.js'
 import { mystAiRoutes } from './routes/myst-ai.js'
 import { adminWarriorRoutes } from './routes/admin-warriors.js'
 import { adminLearningLoopRoutes } from './routes/admin-learning-loop.js'
@@ -112,11 +113,16 @@ const app = express()
 app.use(cors({ origin: true }))
 
 // GitHub webhook deploy — raw body needed for HMAC-SHA256 validation (TRK-13862)
-// Mounted BEFORE express.json() to capture raw buffer
+// Mounted BEFORE express.json() to capture raw buffer for HMAC validation
 app.use('/webhook/deploy', express.raw({ type: '*/*' }), (req, _res, next) => {
   ;(req as typeof req & { rawBody: Buffer }).rawBody = req.body as Buffer
   next()
 }, webhookDeployRoutes)
+
+app.use('/webhook/ci', express.raw({ type: '*/*' }), (req, _res, next) => {
+  ;(req as typeof req & { rawBody: Buffer }).rawBody = req.body as Buffer
+  next()
+}, ciWebhookRoutes)
 
 app.use(express.json({ limit: '10mb' }))
 
@@ -176,6 +182,7 @@ app.use('/api/access', normalizeBody, accessRoutes)
 app.use('/api/activities', normalizeBody, activityRoutes)
 app.use('/api/ai3', ai3Routes)
 app.use('/api/tracker', normalizeBody, trackerRoutes)
+app.use('/api/ci', ciRoutes)
 app.use('/api/sprints', normalizeBody, sprintRoutes)
 app.use('/api/unit-defaults', unitDefaultRoutes)
 app.use('/api/households', normalizeBody, householdRoutes)
