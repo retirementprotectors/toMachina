@@ -412,6 +412,21 @@ export function ContactTab({ client, clientId }: ContactTabProps) {
             type="select"
             options={CLASSIFICATION_OPTIONS}
           />
+          <InlineField
+            label="Country"
+            value={str(client.country)}
+            fieldKey="country"
+            docPath={docPath}
+          />
+          {str(client.cof_member_id) && (
+            <InlineField
+              label="CoF Member ID"
+              value={str(client.cof_member_id)}
+              fieldKey="cof_member_id"
+              docPath={docPath}
+              mono
+            />
+          )}
         </FieldGrid>
       </InlineSection>
 
