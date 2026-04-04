@@ -81,10 +81,11 @@ function matchesPortalFilter(item: QueueItem, filter: string): boolean {
 }
 
 function humanizeTitle(title: string): string {
+  // Strip item-id prefixes like "INT-0042: ", "FP-015: "
   const stripped = title.replace(/^[A-Z]+-\d+:\s*/, '')
   return stripped
     .replace(/_/g, ' ')
-    .replace(/\b\w/g, c => c.toUpperCase())
+    .replace(/\b[a-z]/g, c => c.toUpperCase())
 }
 
 /* ─── Relative time helper ─── */

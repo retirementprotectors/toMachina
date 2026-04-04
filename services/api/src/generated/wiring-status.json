@@ -236,7 +236,8 @@
         "comp_grid_history",
         "comp_grids",
         "pipelines",
-        "revenue"
+        "revenue",
+        "users"
       ],
       "flow_paths": []
     },
@@ -314,13 +315,43 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 25,
+      "backend_endpoints": 33,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 25,
+          "endpoints": 33,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [
+        "prodash"
+      ],
+      "fk_to": [],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "acf_dismissed_duplicates": {
+      "status": "backend_only",
+      "backend": "acf.ts",
+      "frontend": "",
+      "backend_endpoints": 33,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "acf.ts",
+          "endpoints": 33,
           "reads": true,
           "writes": true,
           "operations": [
@@ -369,13 +400,13 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 108,
+      "backend_endpoints": 116,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 25,
+          "endpoints": 33,
           "reads": true,
           "writes": true,
           "operations": [
@@ -458,25 +489,13 @@
       "status": "backend_only",
       "backend": "approval.ts",
       "frontend": "",
-      "backend_endpoints": 156,
+      "backend_endpoints": 110,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "approval.ts",
           "endpoints": 18,
-          "reads": true,
-          "writes": true,
-          "operations": [
-            "list",
-            "get",
-            "create",
-            "update"
-          ]
-        },
-        {
-          "file": "cam.ts",
-          "endpoints": 46,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1053,7 +1072,7 @@
       "status": "backend_only",
       "backend": "accounts.ts",
       "frontend": "",
-      "backend_endpoints": 392,
+      "backend_endpoints": 400,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -1072,7 +1091,7 @@
         },
         {
           "file": "acf.ts",
-          "endpoints": 25,
+          "endpoints": 33,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1324,13 +1343,13 @@
       "status": "backend_only",
       "backend": "cam.ts",
       "frontend": "",
-      "backend_endpoints": 107,
+      "backend_endpoints": 109,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "cam.ts",
-          "endpoints": 46,
+          "endpoints": 48,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1444,13 +1463,13 @@
       "status": "backend_only",
       "backend": "cam.ts",
       "frontend": "",
-      "backend_endpoints": 46,
+      "backend_endpoints": 48,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "cam.ts",
-          "endpoints": 46,
+          "endpoints": 48,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1474,13 +1493,13 @@
       "status": "backend_only",
       "backend": "cam.ts",
       "frontend": "",
-      "backend_endpoints": 107,
+      "backend_endpoints": 109,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "cam.ts",
-          "endpoints": 46,
+          "endpoints": 48,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1736,13 +1755,13 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 52,
+      "backend_endpoints": 60,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 25,
+          "endpoints": 33,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1772,6 +1791,31 @@
       "fk_to": [
         "clients"
       ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "dojo_warriors": {
+      "status": "backend_only",
+      "backend": "admin-learning-loop.ts",
+      "frontend": "",
+      "backend_endpoints": 5,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "admin-learning-loop.ts",
+          "endpoints": 5,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
       "fk_from": [],
       "flow_paths": []
     },
@@ -1999,13 +2043,13 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 103,
+      "backend_endpoints": 111,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 25,
+          "endpoints": 33,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2064,13 +2108,13 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 119,
+      "backend_endpoints": 127,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "acf.ts",
-          "endpoints": 25,
+          "endpoints": 33,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2164,6 +2208,31 @@
         "notifications",
         "tracker_items"
       ],
+      "flow_paths": []
+    },
+    "knowledge_entries": {
+      "status": "backend_only",
+      "backend": "admin-learning-loop.ts",
+      "frontend": "",
+      "backend_endpoints": 5,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "admin-learning-loop.ts",
+          "endpoints": 5,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
+      "fk_from": [],
       "flow_paths": []
     },
     "learning_library": {
@@ -2348,13 +2417,13 @@
       "status": "backend_only",
       "backend": "cam.ts",
       "frontend": "",
-      "backend_endpoints": 46,
+      "backend_endpoints": 48,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "cam.ts",
-          "endpoints": 46,
+          "endpoints": 48,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2440,7 +2509,7 @@
       "status": "backend_only",
       "backend": "approval.ts",
       "frontend": "",
-      "backend_endpoints": 142,
+      "backend_endpoints": 144,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2458,7 +2527,7 @@
         },
         {
           "file": "cam.ts",
-          "endpoints": 46,
+          "endpoints": 48,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2735,12 +2804,22 @@
     },
     "users": {
       "status": "backend_only",
-      "backend": "admin-warriors.ts",
+      "backend": "admin-learning-loop.ts",
       "frontend": "",
-      "backend_endpoints": 204,
+      "backend_endpoints": 257,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
+        {
+          "file": "admin-learning-loop.ts",
+          "endpoints": 5,
+          "reads": true,
+          "writes": false,
+          "operations": [
+            "list",
+            "get"
+          ]
+        },
         {
           "file": "admin-warriors.ts",
           "endpoints": 3,
@@ -2760,6 +2839,18 @@
             "list",
             "get",
             "create"
+          ]
+        },
+        {
+          "file": "cam.ts",
+          "endpoints": 48,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update"
           ]
         },
         {
@@ -2860,6 +2951,7 @@
         "prodash"
       ],
       "fk_to": [
+        "accounts",
         "agents",
         "clients"
       ],
@@ -2981,7 +3073,7 @@
     },
     "acf.ts": {
       "file": "acf.ts",
-      "endpoints": 25,
+      "endpoints": 33,
       "operations": [
         "list",
         "get",
@@ -2994,6 +3086,7 @@
         "clients",
         "households",
         "activities",
+        "acf_dismissed_duplicates",
         "document_taxonomy",
         "intake_queue"
       ],
@@ -3012,6 +3105,21 @@
         "activities",
         "clients",
         "households"
+      ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "admin-learning-loop.ts": {
+      "file": "admin-learning-loop.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [
+        "users",
+        "knowledge_entries",
+        "dojo_warriors"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -3129,7 +3237,7 @@
     },
     "cam.ts": {
       "file": "cam.ts",
-      "endpoints": 46,
+      "endpoints": 48,
       "operations": [
         "list",
         "get",
@@ -3137,12 +3245,12 @@
         "update"
       ],
       "collections": [
+        "users",
         "revenue",
         "comp_grids",
         "pipelines",
         "commission_discrepancies",
-        "comp_grid_history",
-        "agents"
+        "comp_grid_history"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -4903,14 +5011,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 76,
-    "ui_files": 166,
-    "portal_pages": 170,
-    "collections_found": 71,
-    "api_routes_found": 76,
+    "route_files": 77,
+    "ui_files": 168,
+    "portal_pages": 172,
+    "collections_found": 74,
+    "api_routes_found": 77,
     "cloud_functions_found": 14,
     "env_vars_found": 41,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-04-03T09:49:21.604Z"
+    "scanned_at": "2026-04-04T03:18:31.960Z"
   }
 }
