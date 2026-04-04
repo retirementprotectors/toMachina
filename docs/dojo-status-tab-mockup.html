@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dojo STATUS Tab — Mockup</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1219;
+    --bg-card: #161b26;
+    --bg-surface: #1c2333;
+    --border: #2a3347;
+    --text: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --portal: #4a7ab5;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --blue: #3b82f6;
+    --purple: #a78bfa;
+    --teal: #14b8a6;
+    --dojo: #e07c3e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; }
+
+  .mockup-badge {
+    position: fixed; top: 12px; right: 12px; background: var(--dojo); color: #fff;
+    padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.05em; z-index: 100;
+  }
+
+  /* ─── Dojo Header ─── */
+  .dojo-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+    padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  }
+  .dojo-title {
+    font-size: 20px; font-weight: 800; color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .dojo-title .material-icons-outlined { font-size: 24px; color: var(--dojo); }
+
+  /* ─── Tab Bar ─── */
+  .tab-bar {
+    display: flex; gap: 2px; margin-bottom: 24px;
+    border-bottom: 1px solid var(--border); padding-bottom: 0;
+  }
+  .tab {
+    display: flex; align-items: center; gap: 6px; padding: 10px 16px;
+    font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.15s;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tab:hover { color: var(--text-secondary); }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+  .tab .material-icons-outlined { font-size: 18px; }
+  .tab .badge {
+    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+    background: rgba(34,197,94,0.15); color: var(--green);
+  }
+
+  /* ─── Summary Strip ─── */
+  .summary-strip {
+    display: flex; align-items: center; gap: 16px; padding: 12px 16px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  .summary-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700;
+  }
+  .summary-status.all-green { color: var(--green); }
+  .summary-status.in-progress { color: var(--amber); }
+  .summary-status.failing { color: var(--red); }
+  .summary-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .summary-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  .summary-dot.amber { background: var(--amber); box-shadow: 0 0 8px rgba(245,158,11,0.4); animation: pulse 1.5s ease-in-out infinite; }
+  .summary-dot.red { background: var(--red); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+  .summary-meta { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+  .summary-meta strong { color: var(--text-secondary); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ─── Pipeline Row ─── */
+  .pipeline-row {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 14px; overflow: hidden;
+  }
+  .pipeline-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pipeline-icon {
+    width: 32px; height: 32px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center;
+  }
+  .pipeline-icon .material-icons-outlined { font-size: 18px; color: #fff; }
+  .pipeline-icon.ci { background: var(--blue); }
+  .pipeline-icon.codeql { background: var(--purple); }
+  .pipeline-icon.deploy { background: var(--teal); }
+  .pipeline-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .pipeline-desc { font-size: 11px; color: var(--text-muted); }
+  .pipeline-latest {
+    margin-left: auto; display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600;
+  }
+  .pipeline-latest.success { color: var(--green); }
+  .pipeline-latest.in-progress { color: var(--amber); }
+  .pipeline-latest.failure { color: var(--red); }
+
+  /* ─── Run Cards Row ─── */
+  .runs-row {
+    display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto;
+  }
+
+  .run-card {
+    min-width: 200px; max-width: 240px; flex-shrink: 0;
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; cursor: pointer; transition: all 0.15s;
+    position: relative;
+  }
+  .run-card:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+  .run-card.active { border-color: var(--amber); }
+
+  .run-card-top {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  }
+  .status-icon { font-size: 16px; }
+  .status-icon.success { color: var(--green); }
+  .status-icon.failure { color: var(--red); }
+  .status-icon.in-progress { color: var(--amber); animation: spin 1.5s linear infinite; }
+  .status-icon.queued { color: var(--text-muted); }
+
+  .run-branch {
+    font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 4px;
+    background: rgba(99,102,241,0.12); color: rgb(99,102,241);
+  }
+  .run-branch.main { background: rgba(34,197,94,0.12); color: var(--green); }
+
+  .run-commit {
+    font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .run-commit code {
+    font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px;
+    padding: 1px 4px; border-radius: 3px;
+    background: rgba(255,255,255,0.06); color: var(--text-muted);
+  }
+
+  .run-meta {
+    display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--text-muted);
+  }
+  .run-timing { display: flex; align-items: center; gap: 3px; }
+
+  /* ─── Job Steps (expanded detail) ─── */
+  .jobs-detail {
+    border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px;
+  }
+  .job-row {
+    display: flex; align-items: center; gap: 6px; padding: 3px 0;
+    font-size: 11px; color: var(--text-secondary);
+  }
+  .job-row .material-icons-outlined { font-size: 14px; }
+  .job-row.success .material-icons-outlined { color: var(--green); }
+  .job-row.failure .material-icons-outlined { color: var(--red); }
+  .job-row.in-progress .material-icons-outlined { color: var(--amber); animation: spin 1.5s linear infinite; }
+  .job-row.queued .material-icons-outlined { color: var(--text-muted); }
+  .job-timing { margin-left: auto; font-size: 10px; color: var(--text-muted); }
+
+  /* ─── Section labels ─── */
+  .section-note {
+    margin-top: 32px; padding: 16px; background: var(--bg-card);
+    border: 1px dashed var(--border); border-radius: 8px;
+    font-size: 12px; color: var(--text-muted); line-height: 1.6;
+  }
+  .section-note strong { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<div class="mockup-badge">MOCKUP — Dojo STATUS Tab</div>
+
+<!-- ─── Dojo Header ─── -->
+<div class="dojo-header">
+  <div class="dojo-title">
+    <span class="material-icons-outlined">temple_buddhist</span>
+    The Dojo
+  </div>
+</div>
+
+<!-- ─── Tab Bar ─── -->
+<div class="tab-bar">
+  <div class="tab">
+    <span class="material-icons-outlined">inbox</span>
+    INTAKE
+  </div>
+  <div class="tab">
+    <span class="material-icons-outlined">bolt</span>
+    RAIDEN
+  </div>
+  <div class="tab">
+    <span class="material-icons-outlined">precision_manufacturing</span>
+    RONIN
+  </div>
+  <div class="tab">
+    <span class="material-icons-outlined">smart_toy</span>
+    VOLTRON
+  </div>
+  <div class="tab active">
+    <span class="material-icons-outlined">monitoring</span>
+    STATUS
+    <span class="badge">LIVE</span>
+  </div>
+</div>
+
+<!-- ─── Summary Strip ─── -->
+<div class="summary-strip">
+  <div class="summary-status in-progress">
+    <span class="summary-dot amber"></span>
+    CI Running
+  </div>
+  <span style="color: var(--border);">|</span>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--green);">
+      <span class="material-icons-outlined" style="font-size: 14px;">check_circle</span> CodeQL
+    </span>
+    <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--amber);">
+      <span class="material-icons-outlined" style="font-size: 14px; animation: spin 1.5s linear infinite;">sync</span> CI
+    </span>
+    <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted);">
+      <span class="material-icons-outlined" style="font-size: 14px;">schedule</span> Deploy
+    </span>
+  </div>
+  <div class="summary-meta">
+    Last update: <strong>just now</strong> &nbsp;|&nbsp; Auto-refresh: <strong>15s</strong>
+  </div>
+</div>
+
+<!-- ─── Pipeline 1: CI ─── -->
+<div class="pipeline-row">
+  <div class="pipeline-header">
+    <div class="pipeline-icon ci">
+      <span class="material-icons-outlined">build_circle</span>
+    </div>
+    <div>
+      <div class="pipeline-name">CI Pipeline</div>
+      <div class="pipeline-desc">Type-check + Build + E2E Pure</div>
+    </div>
+    <div class="pipeline-latest in-progress">
+      <span class="material-icons-outlined" style="font-size: 16px; animation: spin 1.5s linear infinite;">sync</span>
+      Running on main...
+    </div>
+  </div>
+  <div class="runs-row">
+    <!-- Run 1: Currently running -->
+    <div class="run-card active">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon in-progress">sync</span>
+        <span class="run-branch main">main</span>
+        <span style="font-size: 10px; color: var(--amber); font-weight: 600; margin-left: auto;">IN PROGRESS</span>
+      </div>
+      <div class="run-commit">
+        <code>07d4e4d</code> RONIN Pipeline Rebuild
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">schedule</span>
+          2m 14s...
+        </span>
+        <span>PR #237</span>
+      </div>
+      <!-- Expanded job detail for active run -->
+      <div class="jobs-detail">
+        <div class="job-row success">
+          <span class="material-icons-outlined">check_circle</span>
+          changes
+          <span class="job-timing">2s</span>
+        </div>
+        <div class="job-row in-progress">
+          <span class="material-icons-outlined">sync</span>
+          check (type-check + build)
+          <span class="job-timing">2m 12s...</span>
+        </div>
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          e2e-pure
+          <span class="job-timing">waiting</span>
+        </div>
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          deploy-api
+          <span class="job-timing">waiting</span>
+        </div>
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          e2e-intake
+          <span class="job-timing">waiting</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Run 2: Branch CI (passed) -->
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch">feat/ronin-pipeline-rebuild</span>
+      </div>
+      <div class="run-commit">
+        <code>8185b6e</code> RONIN Pipeline Rebuild
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">timer</span>
+          4m 48s
+        </span>
+        <span>PR #237</span>
+      </div>
+    </div>
+
+    <!-- Run 3: Previous main (passed) -->
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch main">main</span>
+      </div>
+      <div class="run-commit">
+        <code>851bd3b</code> /q View Ticket inline detail
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">timer</span>
+          9m 53s
+        </span>
+        <span>PR #236</span>
+      </div>
+    </div>
+
+    <!-- Run 4: Older -->
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch main">main</span>
+      </div>
+      <div class="run-commit">
+        <code>40a6488</code> Field Parity + /q Filters
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">timer</span>
+          8m 31s
+        </span>
+        <span>PR #235</span>
+      </div>
+    </div>
+
+    <!-- Run 5: Even older -->
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch main">main</span>
+      </div>
+      <div class="run-commit">
+        <code>fb211ce</code> ProZone CallSession colors
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">timer</span>
+          7m 45s
+        </span>
+        <span>PR #233</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Pipeline 2: CodeQL ─── -->
+<div class="pipeline-row">
+  <div class="pipeline-header">
+    <div class="pipeline-icon codeql">
+      <span class="material-icons-outlined">security</span>
+    </div>
+    <div>
+      <div class="pipeline-name">CodeQL Security Analysis</div>
+      <div class="pipeline-desc">Static analysis — PRs + weekly scan</div>
+    </div>
+    <div class="pipeline-latest success">
+      <span class="material-icons-outlined" style="font-size: 16px;">check_circle</span>
+      All clear
+    </div>
+  </div>
+  <div class="runs-row">
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch main">main</span>
+        <span style="font-size: 10px; color: var(--green); font-weight: 600; margin-left: auto;">2m 52s</span>
+      </div>
+      <div class="run-commit">
+        <code>07d4e4d</code> RONIN Pipeline Rebuild
+      </div>
+      <div class="run-meta">
+        <span>Apr 4, 10:07 AM</span>
+      </div>
+    </div>
+
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch">feat/ronin-pipeline-rebuild</span>
+      </div>
+      <div class="run-commit">
+        <code>8185b6e</code> RONIN Pipeline Rebuild
+      </div>
+      <div class="run-meta">
+        <span>Apr 4, 10:03 AM</span>
+      </div>
+    </div>
+
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch main">main</span>
+      </div>
+      <div class="run-commit">
+        <code>851bd3b</code> /q View Ticket inline detail
+      </div>
+      <div class="run-meta">
+        <span>Apr 4, 12:49 AM</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Pipeline 3: Deploy ─── -->
+<div class="pipeline-row">
+  <div class="pipeline-header">
+    <div class="pipeline-icon deploy">
+      <span class="material-icons-outlined">rocket_launch</span>
+    </div>
+    <div>
+      <div class="pipeline-name">Deploy Pipeline</div>
+      <div class="pipeline-desc">Docker + Cloud Run + Smoke Test + E2E</div>
+    </div>
+    <div class="pipeline-latest" style="color: var(--text-muted);">
+      <span class="material-icons-outlined" style="font-size: 16px;">schedule</span>
+      Waiting for CI...
+    </div>
+  </div>
+  <div class="runs-row">
+    <!-- Deploy pending -->
+    <div class="run-card" style="border-style: dashed; border-color: var(--amber);">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon queued" style="color: var(--amber);">hourglass_top</span>
+        <span class="run-branch main">main</span>
+        <span style="font-size: 10px; color: var(--amber); font-weight: 600; margin-left: auto;">PENDING</span>
+      </div>
+      <div class="run-commit">
+        <code>07d4e4d</code> RONIN Pipeline Rebuild
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">schedule</span>
+          Queued — waiting for CI check
+        </span>
+      </div>
+      <div class="jobs-detail">
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          docker-build (tm-api)
+          <span class="job-timing">waiting</span>
+        </div>
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          docker-build (tm-bridge)
+          <span class="job-timing">waiting</span>
+        </div>
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          cloud-run-deploy
+          <span class="job-timing">waiting</span>
+        </div>
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          smoke-test
+          <span class="job-timing">waiting</span>
+        </div>
+        <div class="job-row queued">
+          <span class="material-icons-outlined">hourglass_empty</span>
+          e2e-intake
+          <span class="job-timing">waiting</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Previous successful deploy -->
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch main">main</span>
+      </div>
+      <div class="run-commit">
+        <code>851bd3b</code> /q View Ticket inline detail
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">timer</span>
+          6m 12s
+        </span>
+        <span>Apr 4, 12:53 AM</span>
+      </div>
+    </div>
+
+    <div class="run-card">
+      <div class="run-card-top">
+        <span class="material-icons-outlined status-icon success">check_circle</span>
+        <span class="run-branch main">main</span>
+      </div>
+      <div class="run-commit">
+        <code>40a6488</code> Field Parity + /q Filters
+      </div>
+      <div class="run-meta">
+        <span class="run-timing">
+          <span class="material-icons-outlined" style="font-size: 12px;">timer</span>
+          5m 48s
+        </span>
+        <span>Apr 3, 11:30 PM</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Notes ─── -->
+<div class="section-note">
+  <strong>How it works:</strong><br>
+  1. GitHub fires <code>workflow_run</code> webhooks to our API on every status change<br>
+  2. API writes to Firestore <code>ci_runs</code> collection (one doc per run)<br>
+  3. STATUS tab reads from Firestore via <code>GET /api/ci</code> — auto-refreshes every 15 seconds<br>
+  4. The dispatcher on MDJ_SERVER reads the same Firestore data — no GitHub dependency<br>
+  5. Click any card to open the GitHub Actions run page<br><br>
+
+  <strong>Summary strip</strong> at the top gives instant health: "All Green", "CI Running", "Deploy Failed" etc.<br>
+  <strong>Active run</strong> (amber border) auto-expands to show per-job breakdown with live timing.<br>
+  <strong>Deploy pipeline</strong> shows "Waiting for CI" when CI is still running — updates to "Deploying" once CI passes.<br><br>
+
+  <strong>Data stored in Firestore means:</strong><br>
+  - Portals show CI status (this tab)<br>
+  - Dispatcher reads deploy state without polling GitHub<br>
+  - RAIDEN can auto-create fix tickets when CI fails<br>
+  - Historical data for velocity tracking<br>
+</div>
+
+</body>
+</html>
