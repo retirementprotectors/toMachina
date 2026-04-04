@@ -132,6 +132,25 @@ export const WIRE_DEFINITIONS_V2: WireDefinitionV2[] = [
       { type: 'NOTIFICATION', name: 'Slack + In-App', detail: 'Notifications Module DATA tab' },
     ],
   },
+  {
+    wire_id: 'WIRE_ACF_CLEANUP',
+    name: 'ACF Cleanup Wire',
+    description:
+      'Full Active Client File hygiene: folder structure, document naming, dedup, audit. The Digital Files pillar of the Trinity Data Method.',
+    product_lines: ['ALL'],
+    data_domains: ['DOCUMENTS', 'DEMOGRAPHICS'],
+    super_tools: ['SUPER_FOLDER_CLEANUP', 'SUPER_DOCUMENT_CLEANUP', 'SUPER_AUDIT_REVIEW'],
+    stages: [
+      { type: 'SCRIPT', name: 'ACF_SNAPSHOT', project: 'packages/core', detail: 'Before snapshot — capture folder inventory' },
+      { type: 'SCRIPT', name: 'SUPER_FOLDER_CLEANUP', project: 'packages/core', detail: 'Rename, merge, subfolder, route, link' },
+      { type: 'SCRIPT', name: 'ACF_SNAPSHOT', project: 'packages/core', detail: 'After snapshot — verify structural changes' },
+      { type: 'SCRIPT', name: 'SUPER_DOCUMENT_CLEANUP', project: 'packages/core', detail: 'Flatten, dedupe, rename, reclassify' },
+      { type: 'SCRIPT', name: 'ACF_SNAPSHOT', project: 'packages/core', detail: 'After snapshot — verify document changes' },
+      { type: 'SCRIPT', name: 'SUPER_AUDIT_REVIEW', project: 'packages/core', detail: 'Generate exceptions report for human review' },
+      { type: 'SCRIPT', name: 'ACF_SNAPSHOT', project: 'packages/core', detail: 'Final snapshot — audit trail' },
+      { type: 'FRONTEND', name: 'ACF Grid', platform: 'ProDashX', view: '/acf', detail: 'Dedup review + exceptions in ACF module' },
+    ],
+  },
 ]
 
 // ---------------------------------------------------------------------------

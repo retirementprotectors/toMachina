@@ -53,6 +53,13 @@ export {
   writeDefinition,
   executeWrite,
   getSuperToolDefinitions,
+  // ACF Wire super tools (Trinity Digital Files pillar)
+  folderCleanupDefinition,
+  executeFolderCleanup,
+  documentCleanupDefinition,
+  executeDocumentCleanup,
+  auditReviewDefinition,
+  executeAuditReview,
 } from './super-tools'
 
 // Wire executor — NOT exported from barrel.

@@ -31,6 +31,18 @@ export type { PrepareInput, PrepareOutput } from './prepare'
 export { definition as finalizeDefinition, execute as executeFinalize } from './acf-finalize'
 export type { FinalizeInput, FinalizeOutput } from './acf-finalize'
 
+// SUPER_FOLDER_CLEANUP — ACF folder structure hygiene (Trinity Digital Files pillar)
+export { definition as folderCleanupDefinition, execute as executeFolderCleanup } from './acf-folder-cleanup'
+export type { FolderCleanupInput, FolderCleanupOutput } from './acf-folder-cleanup'
+
+// SUPER_DOCUMENT_CLEANUP — ACF file-level hygiene (Trinity Digital Files pillar)
+export { definition as documentCleanupDefinition, execute as executeDocumentCleanup } from './acf-document-cleanup'
+export type { DocumentCleanupInput, DocumentCleanupOutput } from './acf-document-cleanup'
+
+// SUPER_AUDIT_REVIEW — ACF exceptions for human review (Trinity Digital Files pillar)
+export { definition as auditReviewDefinition, execute as executeAuditReview } from './acf-audit-review'
+export type { AuditReviewInput, AuditReviewOutput } from './acf-audit-review'
+
 // SUPER_CLASSIFY — NOT exported from barrel (imports server-only tools: fs, child_process).
 // Backend services import directly:
 //   import { execute as executeClassify } from '@tomachina/core/src/atlas/super-tools/classify'
@@ -44,6 +56,9 @@ import { definition as normalizeDef } from './normalize'
 import { definition as matchDef } from './match'
 import { definition as writeDef } from './write'
 import { definition as finalizeDef } from './acf-finalize'
+import { definition as folderCleanupDef } from './acf-folder-cleanup'
+import { definition as documentCleanupDef } from './acf-document-cleanup'
+import { definition as auditReviewDef } from './acf-audit-review'
 
 /**
  * All super tool definitions for registry purposes.
@@ -58,5 +73,8 @@ export function getSuperToolDefinitions() {
     matchDef,
     writeDef,
     finalizeDef,
+    folderCleanupDef,
+    documentCleanupDef,
+    auditReviewDef,
   ]
 }
