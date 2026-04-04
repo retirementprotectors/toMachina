@@ -377,6 +377,9 @@ function ForgeInner({ portal }: ForgeProps) {
     return () => clearInterval(interval)
   }, [dojoTab, loadRoninItems])
 
+  // ─── RONIN phase toggle (assessment | foundation | development) ───
+  const [roninPhase, setRoninPhase] = useState<'assessment' | 'foundation' | 'development'>('assessment')
+
   // ─── STATUS tab state (CI/CD pipeline runs) ───
   const [ciRuns, setCIRuns] = useState<Array<Record<string, unknown>>>([])
   const [ciLoading, setCILoading] = useState(false)
@@ -747,6 +750,8 @@ function ForgeInner({ portal }: ForgeProps) {
       if (result.success) {
         closeEdit()
         await loadItems()
+        if (dojoTab === 'raiden') await loadRaidenItems()
+        if (dojoTab === 'ronin') await loadRoninItems()
       }
     } catch { /* silent */ }
   }
@@ -2276,7 +2281,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         <Select
           value={filters.status}
           onChange={(v) => { setFilters(f => ({ ...f, status: v })); setPage(0) }}
-          options={STATUSES.map(st => ({ value: st, label: STATUS_CONFIG[st]?.label || st }))}
+          options={STATUSES.filter(st => st.startsWith('RON-')).map(st => ({ value: st, label: (STATUS_CONFIG[st]?.label || st).replace('RON-', '') }))}
           placeholder="All Statuses"
         />
         <Select
@@ -2284,12 +2289,6 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           onChange={(v) => { setFilters(f => ({ ...f, portal: v })); setPage(0) }}
           options={PORTALS.map(p => ({ value: p, label: p }))}
           placeholder="All Portals"
-        />
-        <Select
-          value={filters.scope}
-          onChange={(v) => { setFilters(f => ({ ...f, scope: v })); setPage(0) }}
-          options={SCOPES.map(sc => ({ value: sc, label: sc }))}
-          placeholder="All Scopes"
         />
         <Select
           value={filters.component}
@@ -3182,21 +3181,19 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </div>
       )}
 
-      {/* ─── Sprint 012: RONIN Pipeline View (Assessment + Development) ─── */}
+      {/* ─── RONIN Pipeline View — Phase Toggle (Assessment | Foundation | Development) ─── */}
       {view === 'pipeline' && (() => {
-        const RONIN_PIPELINE_PHASES = [
-          {
-            key: 'assessment', label: 'ASSESSMENT', icon: 'psychology', color: 'rgb(168,85,247)',
-            subtitle: 'Research + Strategy',
+        const RONIN_PIPELINE_PHASES: Record<string, { label: string; icon: string; color: string; subtitle: string; columns: Array<{ status: string; label: string; color: string }> }> = {
+          assessment: {
+            label: 'ASSESSMENT', icon: 'psychology', color: 'rgb(168,85,247)', subtitle: 'Research + Strategy',
             columns: [
               { status: 'RON-new', label: 'NEW', color: 'rgb(239,68,68)' },
               { status: 'RON-researching', label: 'RESEARCHING', color: 'rgb(168,85,247)' },
               { status: 'RON-strategizing', label: 'STRATEGIZING', color: 'rgb(245,158,11)' },
             ],
           },
-          {
-            key: 'foundation', label: 'FOUNDATION', icon: 'architecture', color: 'rgb(99,102,241)',
-            subtitle: 'Discovery + Planning',
+          foundation: {
+            label: 'FOUNDATION', icon: 'architecture', color: 'rgb(99,102,241)', subtitle: 'Discovery + Planning',
             columns: [
               { status: 'RON-discovery', label: 'DISCOVERY', color: 'rgb(212,164,76)' },
               { status: 'RON-seeded', label: 'SEEDED', color: 'rgb(168,85,247)' },
@@ -3204,9 +3201,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               { status: 'RON-plan-audited', label: 'PLAN AUDITED', color: 'rgb(16,185,129)' },
             ],
           },
-          {
-            key: 'development', label: 'DEVELOPMENT', icon: 'precision_manufacturing', color: 'rgb(245,158,11)',
-            subtitle: 'Build + Ship',
+          development: {
+            label: 'DEVELOPMENT', icon: 'precision_manufacturing', color: 'rgb(245,158,11)', subtitle: 'Build + Ship',
             columns: [
               { status: 'RON-built', label: 'BUILD', color: 'rgb(245,158,11)' },
               { status: 'RON-code-audited', label: 'CODE AUDITED', color: 'rgb(20,184,166)' },
@@ -3215,98 +3211,104 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               { status: 'RON-reported', label: 'COMPLETE', color: 'rgb(34,197,94)' },
             ],
           },
-        ]
+        }
         const TYPE_COLORS: Record<string, string> = {
           broken: 'rgb(239,68,68)', bug: 'rgb(239,68,68)', improve: 'rgb(99,102,241)',
           enhancement: 'rgb(99,102,241)', feat: 'rgb(34,197,94)', idea: 'rgb(245,158,11)',
           question: 'rgb(156,163,175)', test: 'rgb(6,182,212)',
         }
+        const phase = RONIN_PIPELINE_PHASES[roninPhase]
+        const phaseItems = roninItems.filter(i => phase.columns.some(c => c.status === i.status))
+        const phaseCounts = Object.fromEntries(Object.entries(RONIN_PIPELINE_PHASES).map(([k, p]) => [k, roninItems.filter(i => p.columns.some(c => c.status === i.status)).length]))
         return (
-          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {/* Phase Toggle Bar */}
+            <div style={{ display: 'flex', gap: 2, marginBottom: 14, background: s.bg, borderRadius: 8, border: `1px solid ${s.border}`, padding: 3 }}>
+              {Object.entries(RONIN_PIPELINE_PHASES).map(([key, p]) => (
+                <button
+                  key={key}
+                  onClick={() => setRoninPhase(key as 'assessment' | 'foundation' | 'development')}
+                  style={{
+                    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    padding: '8px 12px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                    background: roninPhase === key ? s.surface : 'transparent',
+                    color: roninPhase === key ? p.color : s.textMuted,
+                    fontSize: 11, fontWeight: roninPhase === key ? 700 : 500,
+                    transition: 'all 0.15s', letterSpacing: '0.04em',
+                    boxShadow: roninPhase === key ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                  }}
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: 15 }}>{p.icon}</span>
+                  {p.label}
+                  <span style={{
+                    fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+                    background: roninPhase === key ? `${p.color}25` : 'rgba(255,255,255,0.06)',
+                    color: roninPhase === key ? p.color : s.textMuted,
+                  }}>{phaseCounts[key]}</span>
+                </button>
+              ))}
+            </div>
             {roninLoading && roninItems.length === 0 && (
               <div style={{ padding: 32, textAlign: 'center', color: s.textMuted }}>Loading RONIN pipeline...</div>
             )}
-            {RONIN_PIPELINE_PHASES.map(phase => {
-              const phaseItems = roninItems.filter(i => phase.columns.some(c => c.status === i.status))
-              const activeCols = phase.columns.filter(c => roninItems.some(i => i.status === c.status))
-              return (
-                <div key={phase.key}>
-                  {/* Phase header */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                    <span className="material-icons-outlined" style={{ fontSize: 18, color: phase.color }}>{phase.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: phase.color, letterSpacing: '0.08em' }}>{phase.label}</span>
-                    <span style={{ fontSize: 11, color: s.textMuted }}>{phase.subtitle}</span>
-                    <span style={{
-                      fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 10,
-                      background: `${phase.color}20`, color: phase.color, marginLeft: 4,
-                    }}>{phaseItems.length}</span>
-                  </div>
-                  {/* Dynamic columns — only show columns with items */}
-                  {activeCols.length === 0 ? (
+            {/* Active phase columns — full width, no vertical scroll */}
+            <div style={{ flex: 1, display: 'flex', gap: 10, overflowX: 'auto' }}>
+              {phase.columns.map(col => {
+                const colItems = roninItems.filter(i => i.status === col.status)
+                return (
+                  <div key={col.status} style={{
+                    flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column',
+                    background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
+                  }}>
                     <div style={{
-                      padding: '12px 16px', borderRadius: 8, border: `1px dashed ${s.border}`,
-                      color: s.textMuted, fontSize: 12, textAlign: 'center',
-                    }}>No items in {phase.label.toLowerCase()}</div>
-                  ) : (
-                    <div style={{ display: 'flex', gap: 10, overflowX: 'auto' }}>
-                      {activeCols.map(col => {
-                        const colItems = roninItems.filter(i => i.status === col.status)
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px',
+                      borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                    }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                      <span style={{
+                        marginLeft: 'auto', fontSize: 9, fontWeight: 700, padding: '1px 6px',
+                        borderRadius: 10, background: `${col.color}30`, color: col.color,
+                      }}>{colItems.length}</span>
+                    </div>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: 6, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      {colItems.length === 0 ? (
+                        <div style={{ padding: '16px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>No items</div>
+                      ) : colItems.map(item => {
+                        const itemType = (item as unknown as Record<string, unknown>).type as string || ''
+                        const itemPortal = (item as unknown as Record<string, unknown>).portal as string || ''
                         return (
-                          <div key={col.status} style={{
-                            flex: 1, minWidth: 160, maxWidth: 240, display: 'flex', flexDirection: 'column',
-                            background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`,
-                          }}>
-                            <div style={{
-                              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px',
-                              borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
-                            }}>
-                              <span style={{ fontSize: 10, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
-                              <span style={{
-                                marginLeft: 'auto', fontSize: 9, fontWeight: 700, padding: '1px 6px',
-                                borderRadius: 10, background: `${col.color}30`, color: col.color,
-                              }}>{colItems.length}</span>
+                          <div key={item.id} onClick={() => openEdit(item)} style={{
+                            background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
+                            padding: '7px 9px', cursor: 'pointer', transition: 'border-color 0.15s',
+                          }}
+                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color }}
+                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                              <span style={{ fontSize: 9, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
+                              {itemType && (
+                                <span style={{
+                                  fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 6,
+                                  background: `${TYPE_COLORS[itemType] || s.textMuted}18`,
+                                  color: TYPE_COLORS[itemType] || s.textMuted, textTransform: 'uppercase',
+                                }}>{itemType}</span>
+                              )}
+                              {itemPortal && (
+                                <span style={{
+                                  fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6,
+                                  background: 'rgba(99,102,241,0.1)', color: 'rgb(99,102,241)',
+                                }}>{itemPortal}</span>
+                              )}
                             </div>
-                            <div style={{ flex: 1, overflowY: 'auto', padding: 6, display: 'flex', flexDirection: 'column', gap: 5, maxHeight: 360 }}>
-                              {colItems.map(item => {
-                                const itemType = (item as unknown as Record<string, unknown>).type as string || ''
-                                const itemPortal = (item as unknown as Record<string, unknown>).portal as string || ''
-                                return (
-                                  <div key={item.id} onClick={() => openEdit(item)} style={{
-                                    background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
-                                    padding: '7px 9px', cursor: 'pointer', transition: 'border-color 0.15s',
-                                  }}
-                                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color }}
-                                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border }}
-                                  >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                                      <span style={{ fontSize: 9, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
-                                      {itemType && (
-                                        <span style={{
-                                          fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 6,
-                                          background: `${TYPE_COLORS[itemType] || s.textMuted}18`,
-                                          color: TYPE_COLORS[itemType] || s.textMuted, textTransform: 'uppercase',
-                                        }}>{itemType}</span>
-                                      )}
-                                      {itemPortal && (
-                                        <span style={{
-                                          fontSize: 8, fontWeight: 600, padding: '1px 5px', borderRadius: 6,
-                                          background: 'rgba(99,102,241,0.1)', color: 'rgb(99,102,241)',
-                                        }}>{itemPortal}</span>
-                                      )}
-                                    </div>
-                                    <div style={{ fontSize: 11, fontWeight: 500, color: s.text, lineHeight: 1.3 }}>{item.title}</div>
-                                  </div>
-                                )
-                              })}
-                            </div>
+                            <div style={{ fontSize: 11, fontWeight: 500, color: s.text, lineHeight: 1.3 }}>{item.title}</div>
                           </div>
                         )
                       })}
                     </div>
-                  )}
-                </div>
-              )
-            })}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )
       })()}
@@ -3454,8 +3456,10 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </div>
       </div>
       </>}
+      {/* End RONIN tab */}
+      </>}
 
-      {/* ─── Edit Slide-Out ─── */}
+      {/* ─── Edit Slide-Out (tab-independent — works on RAIDEN, RONIN, etc.) ─── */}
       {editItem && (
         <>
           <div
@@ -3936,8 +3940,6 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           </div>
         </>
       )}
-      {/* End RONIN tab */}
-      </>}
     </div>
   )
 }
