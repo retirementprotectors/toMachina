@@ -314,11 +314,12 @@ function ForgeInner({ portal }: ForgeProps) {
 
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
-  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron' | 'intake' | 'status'>(() => {
+  type DojoTab = 'intake' | 'raiden' | 'ronin' | 'voltron' | 'musashi' | 'tbd1' | 'tbd2' | 'status' | 'roadmap'
+  const [dojoTab, setDojoTab] = useState<DojoTab>(() => {
     if (typeof window === 'undefined') return 'intake'
-    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron' | 'intake' | 'status') || 'intake' } catch { return 'intake' }
+    try { return (localStorage.getItem(DOJO_TAB_KEY) as DojoTab) || 'intake' } catch { return 'intake' }
   })
-  const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron' | 'intake' | 'status') => {
+  const switchDojoTab = (tab: DojoTab) => {
     setDojoTab(tab)
     try { localStorage.setItem(DOJO_TAB_KEY, tab) } catch { /* noop */ }
   }
@@ -389,6 +390,21 @@ function ForgeInner({ portal }: ForgeProps) {
   // ─── RONIN phase toggle (assessment | foundation | development) ───
   const [roninPhase, setRoninPhase] = useState<'assessment' | 'foundation' | 'development'>('assessment')
 
+  // ─── RAIDEN phase + card type toggles ───
+  const [raidenPhase, setRaidenPhase] = useState<'developing' | 'deploying'>('developing')
+  const [raidenCardType, setRaidenCardType] = useState<'tickets' | 'bundles'>('tickets')
+  const [raidenSearch, setRaidenSearch] = useState('')
+
+  // ─── VOLTRON phase + card type toggles ───
+  const [voltronPhase, setVoltronPhase] = useState<'phase1' | 'phase2' | 'phase3'>('phase1')
+  const [voltronCardType, setVoltronCardType] = useState<'spc' | 'file'>('spc')
+  const [voltronSearch, setVoltronSearch] = useState('')
+
+  // ─── MUSASHI phase + card type toggles ───
+  const [musashiPhase, setMusashiPhase] = useState<'phase1' | 'phase2' | 'phase3'>('phase1')
+  const [musashiCardType, setMusashiCardType] = useState<'tbd1' | 'tbd2'>('tbd1')
+  const [musashiSearch, setMusashiSearch] = useState('')
+
   // ─── STATUS tab state (CI/CD pipeline runs) ───
   const [ciRuns, setCIRuns] = useState<Array<Record<string, unknown>>>([])
   const [ciLoading, setCILoading] = useState(false)
@@ -413,6 +429,40 @@ function ForgeInner({ portal }: ForgeProps) {
     const interval = setInterval(() => loadCIRuns(), 15000)
     return () => clearInterval(interval)
   }, [dojoTab, loadCIRuns])
+
+  // ─── STATUS tab: Active Warriors from Firestore (dojo_warriors collection) ───
+  const [warriors, setWarriors] = useState<Array<{ id: string; display_name: string; executive_role: string; personality: string; status: string; type: string; machine: string; tmux_session: string | null }>>([])
+  const [warriorsLoading, setWarriorsLoading] = useState(false)
+
+  const loadWarriors = useCallback(async () => {
+    setWarriorsLoading(true)
+    try {
+      const result = await fetchValidated<Array<Record<string, unknown>>>(`${API_BASE}/admin/warriors`)
+      if (result.success && result.data) {
+        setWarriors(result.data.map(w => ({
+          id: String(w.id || ''),
+          display_name: String(w.display_name || w.name || ''),
+          executive_role: String(w.executive_role || ''),
+          personality: String(w.personality || ''),
+          status: String(w.status || 'dormant'),
+          type: String(w.type || 'tmux'),
+          machine: String(w.machine || ''),
+          tmux_session: w.tmux_session ? String(w.tmux_session) : null,
+        })))
+      }
+    } catch { /* silent */ }
+    setWarriorsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (dojoTab === 'status') loadWarriors()
+  }, [dojoTab, loadWarriors])
+
+  useEffect(() => {
+    if (dojoTab !== 'status') return
+    const interval = setInterval(() => loadWarriors(), 30000)
+    return () => clearInterval(interval)
+  }, [dojoTab, loadWarriors])
 
   // ─── INTAKE tab state (INT- prefixed items) ───
   const [intakeItems, setIntakeItems] = useState<TrackerItem[]>([])
@@ -1404,7 +1454,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'raiden' ? 'rgb(239,68,68)' : s.textMuted }}>bolt</span>
+          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
           RAIDEN
         </button>
         {/* Tab: RONIN */}
@@ -1419,7 +1469,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'ronin' ? s.portal : s.textMuted }}>precision_manufacturing</span>
+          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
           RONIN
         </button>
         {/* Tab: VOLTRON */}
@@ -1430,12 +1480,57 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             padding: '10px 18px', border: 'none', cursor: 'pointer',
             background: 'transparent', color: dojoTab === 'voltron' ? s.text : s.textMuted,
             fontSize: 13, fontWeight: dojoTab === 'voltron' ? 600 : 400,
-            borderBottom: dojoTab === 'voltron' ? '2px solid rgb(59,130,246)' : '2px solid transparent',
+            borderBottom: dojoTab === 'voltron' ? '2px solid rgb(34,197,94)' : '2px solid transparent',
             marginBottom: -1, transition: 'all 0.15s',
           }}
         >
-          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'voltron' ? 'rgb(59,130,246)' : s.textMuted }}>smart_toy</span>
+          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
           VOLTRON
+        </button>
+        {/* Tab: MUSASHI */}
+        <button
+          onClick={() => switchDojoTab('musashi')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'musashi' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'musashi' ? 600 : 400,
+            borderBottom: dojoTab === 'musashi' ? '2px solid #d4a44c' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
+          MUSASHI
+        </button>
+        {/* Tab: TBD 1 */}
+        <button
+          onClick={() => switchDojoTab('tbd1')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'tbd1' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'tbd1' ? 600 : 400,
+            borderBottom: dojoTab === 'tbd1' ? `2px solid ${s.textMuted}` : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s', opacity: 0.6,
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: s.textMuted }}>help_outline</span>
+          TBD
+        </button>
+        {/* Tab: TBD 2 */}
+        <button
+          onClick={() => switchDojoTab('tbd2')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'tbd2' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'tbd2' ? 600 : 400,
+            borderBottom: dojoTab === 'tbd2' ? `2px solid ${s.textMuted}` : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s', opacity: 0.6,
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: s.textMuted }}>help_outline</span>
+          TBD
         </button>
         {/* Tab: STATUS */}
         <button
@@ -1452,18 +1547,51 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'status' ? 'rgb(34,197,94)' : s.textMuted }}>monitoring</span>
           STATUS
         </button>
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+        {/* Tab: ROADMAP (far right) */}
+        <button
+          onClick={() => switchDojoTab('roadmap')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: dojoTab === 'roadmap' ? 'rgba(224,124,62,0.1)' : 'transparent',
+            color: dojoTab === 'roadmap' ? '#e07c3e' : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'roadmap' ? 600 : 400,
+            borderBottom: dojoTab === 'roadmap' ? '2px solid #e07c3e' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'roadmap' ? '#e07c3e' : s.textMuted }}>map</span>
+          ROADMAP
+        </button>
       </div>
 
       {/* ─── TRK-14234: RAIDEN tab content ─── */}
       {dojoTab === 'raiden' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
           {/* RAIDEN header row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
-            <span style={{ fontSize: 13, color: s.textSecondary }}>
-              Reactive fix queue — RAIDEN monitors, triages, and ships
-            </span>
-            <div style={{ flex: 1 }} />
-            {/* TRK-14237: Auto-Triage button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexShrink: 0, flexWrap: 'wrap' }}>
+            {/* Card Type Toggle: TICKETS | BUNDLES */}
+            <div style={{ display: 'flex', gap: 4, background: s.bg, borderRadius: 10, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content' }}>
+              {(['tickets', 'bundles'] as const).map(ct => (
+                <button
+                  key={ct}
+                  onClick={() => setRaidenCardType(ct)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8,
+                    border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: raidenCardType === ct ? 700 : 500,
+                    background: raidenCardType === ct ? 'rgba(239,68,68,0.15)' : 'transparent',
+                    color: raidenCardType === ct ? 'rgb(239,68,68)' : s.textMuted,
+                    boxShadow: raidenCardType === ct ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                    transition: 'all 0.15s', letterSpacing: '0.05em',
+                  }}
+                >
+                  {ct === 'tickets' ? 'TICKETS' : 'BUNDLES'}
+                </button>
+              ))}
+            </div>
+            {/* Auto-Triage button */}
             <button
               onClick={() => { setShowAutoTriage(true); runAutoTriage() }}
               style={{
@@ -1475,7 +1603,36 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               <Icon name="auto_fix_high" size={16} color="rgb(239,68,68)" />
               Auto-Triage
             </button>
-            {/* TRK-14238: Quick Submit button */}
+            {/* Confirm Walkthrough link */}
+            <a
+              href="/modules/forge/confirm"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '7px 14px', borderRadius: 6, textDecoration: 'none',
+                background: 'rgba(239,68,68,0.08)', color: 'rgb(239,68,68)', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="checklist" size={16} color="rgb(239,68,68)" />
+              Confirm Walkthrough
+            </a>
+            {/* Search input */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 160, maxWidth: 280 }}>
+              <Icon name="search" size={16} color={s.textMuted} />
+              <input
+                type="text"
+                placeholder="Search RAIDEN..."
+                value={raidenSearch}
+                onChange={(e) => setRaidenSearch(e.target.value)}
+                style={{ border: 'none', background: 'transparent', outline: 'none', color: s.text, fontSize: 13, width: '100%' }}
+              />
+              {raidenSearch && (
+                <button onClick={() => setRaidenSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                  <Icon name="close" size={14} color={s.textMuted} />
+                </button>
+              )}
+            </div>
+            <div style={{ flex: 1 }} />
+            {/* Quick Submit button */}
             <button
               onClick={openQuickSubmit}
               style={{
@@ -1491,103 +1648,168 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             </button>
           </div>
 
-          {/* RAIDEN Kanban: 6 columns */}
-          {raidenLoading ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.textMuted }}>
-              <span className="material-icons-outlined" style={{ fontSize: 24, animation: 'spin 1s linear infinite' }}>refresh</span>
-              <span style={{ marginLeft: 8 }}>Loading RAIDEN queue...</span>
-            </div>
-          ) : (
-            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
-              <div style={{ display: 'flex', gap: 12, height: '100%', minWidth: 900 }}>
-                {([
+          {/* ─── Phase Toggle Bar ─── */}
+          {(() => {
+            const RAIDEN_PHASES = {
+              developing: {
+                label: 'DEVELOPING', icon: 'build', color: 'rgb(239,68,68)', subtitle: 'Triage + Fix',
+                columns: [
                   { status: 'RDN-new', label: 'NEW', color: 'rgb(239,68,68)' },
                   { status: 'RDN-triaging', label: 'TRIAGING', color: 'rgb(251,191,36)' },
                   { status: 'RDN-fixing', label: 'FIXING', color: 'rgb(245,158,11)' },
+                ],
+              },
+              deploying: {
+                label: 'DEPLOYING', icon: 'rocket_launch', color: 'rgb(6,182,212)', subtitle: 'Verify + Ship',
+                columns: [
                   { status: 'RDN-verifying', label: 'VERIFYING', color: 'rgb(99,102,241)' },
                   { status: 'RDN-deploy', label: 'DEPLOY', color: 'rgb(6,182,212)' },
                   { status: 'RDN-reported', label: 'REPORTED', color: 'rgb(34,197,94)' },
-                ] as const).map(col => {
-                  // Filter items for this column and sort by priority (P0 first)
-                  const colItems = raidenItems
-                    .filter(i => i.status === col.status)
-                    .sort((a, b) => {
-                      const pa = parseInt(((a as unknown as Record<string,unknown>).priority as string || 'P2').replace('P', ''), 10)
-                      const pb = parseInt(((b as unknown as Record<string,unknown>).priority as string || 'P2').replace('P', ''), 10)
-                      return pa - pb // P0 first
-                    })
-                  return (
-                    <div
-                      key={col.status}
-                      style={{
-                        flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column',
-                        background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`, overflow: 'hidden',
-                      }}
-                    >
-                      {/* Column header */}
-                      <div style={{
-                        display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
-                        borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
-                      }}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                ],
+              },
+            } as const
+
+            const filteredItems = raidenSearch.trim()
+              ? raidenItems.filter(i => i.title.toLowerCase().includes(raidenSearch.toLowerCase()))
+              : raidenItems
+
+            const devCount = filteredItems.filter(i => ['RDN-new','RDN-triaging','RDN-fixing'].includes(i.status)).length
+            const depCount = filteredItems.filter(i => ['RDN-verifying','RDN-deploy','RDN-reported'].includes(i.status)).length
+
+            const activePhase = RAIDEN_PHASES[raidenPhase]
+
+            return (
+              <>
+                {/* Phase toggle */}
+                <div style={{ display: 'flex', gap: 4, background: s.bg, borderRadius: 8, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content', marginBottom: 12, flexShrink: 0 }}>
+                  {(['developing', 'deploying'] as const).map(phase => {
+                    const ph = RAIDEN_PHASES[phase]
+                    const count = phase === 'developing' ? devCount : depCount
+                    const isActive = raidenPhase === phase
+                    return (
+                      <button
+                        key={phase}
+                        onClick={() => setRaidenPhase(phase)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8,
+                          border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: isActive ? 700 : 500,
+                          background: isActive ? s.surface : 'transparent',
+                          color: isActive ? ph.color : s.textMuted,
+                          boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                          transition: 'all 0.15s', letterSpacing: '0.05em',
+                        }}
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: 14 }}>{ph.icon}</span>
+                        {ph.label}
                         <span style={{
-                          marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
-                          borderRadius: 10, background: `${col.color}30`, color: col.color,
-                        }}>{colItems.length}</span>
-                      </div>
-                      {/* Cards */}
-                      <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {colItems.length === 0 ? (
-                          <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
-                        ) : colItems.map(item => {
-                          const priority = ((item as unknown as Record<string,unknown>).priority as string) || 'P2'
-                          const priorityColors: Record<string, string> = {
-                            P0: 'rgb(239,68,68)', P1: 'rgb(245,158,11)', P2: 'rgb(99,102,241)', P3: 'rgb(148,163,184)'
-                          }
-                          const pColor = priorityColors[priority] || priorityColors.P2
-                          return (
-                            <div
-                              key={item.id}
-                              onClick={() => openEdit(item)}
-                              style={{
-                                background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
-                                padding: '8px 10px', cursor: 'pointer',
-                                transition: 'all 0.15s',
-                              }}
-                              onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color; e.currentTarget.style.background = `${col.color}0a` }}
-                              onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border; e.currentTarget.style.background = s.bg }}
-                            >
-                              {/* Priority + ID row */}
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                                <span style={{
-                                  fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
-                                  background: `${pColor}20`, color: pColor, letterSpacing: '0.04em',
-                                }}>{priority}</span>
-                                <span style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
-                              </div>
-                              {/* Title */}
-                              <div style={{ fontSize: 12, fontWeight: 500, color: s.text, lineHeight: 1.4 }}>
-                                {item.title}
-                              </div>
-                              {/* Type badge */}
-                              {item.type && TYPE_CONFIG[item.type] && (
-                                <div style={{ marginTop: 4 }}>
-                                  <span style={{
-                                    fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 10,
-                                    background: TYPE_CONFIG[item.type].bg, color: TYPE_CONFIG[item.type].color,
-                                  }}>{TYPE_CONFIG[item.type].label}</span>
-                                </div>
-                              )}
+                          fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+                          background: isActive ? `${ph.color}25` : `${s.border}`,
+                          color: isActive ? ph.color : s.textMuted,
+                        }}>{count}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* RAIDEN Kanban */}
+                {raidenLoading ? (
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.textMuted }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 24, animation: 'spin 1s linear infinite' }}>refresh</span>
+                    <span style={{ marginLeft: 8 }}>Loading RAIDEN queue...</span>
+                  </div>
+                ) : raidenCardType === 'bundles' ? (
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8, color: s.textMuted }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 32 }}>inventory_2</span>
+                    <span style={{ fontSize: 14, fontWeight: 500 }}>Bundles view coming soon</span>
+                    <span style={{ fontSize: 12 }}>Group tickets by PR or sprint</span>
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
+                    <div style={{ display: 'flex', gap: 12, height: '100%', minWidth: 500 }}>
+                      {activePhase.columns.map(col => {
+                        // Filter items for this column, apply search, sort by priority (P0 first)
+                        const colItems = filteredItems
+                          .filter(i => i.status === col.status)
+                          .sort((a, b) => {
+                            const pa = parseInt(((a as unknown as Record<string,unknown>).priority as string || 'P2').replace('P', ''), 10)
+                            const pb = parseInt(((b as unknown as Record<string,unknown>).priority as string || 'P2').replace('P', ''), 10)
+                            return pa - pb // P0 first
+                          })
+                        return (
+                          <div
+                            key={col.status}
+                            style={{
+                              flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column',
+                              background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`, overflow: 'hidden',
+                            }}
+                          >
+                            {/* Column header */}
+                            <div style={{
+                              display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                              borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                            }}>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                              <span style={{
+                                marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                                borderRadius: 10, background: `${col.color}30`, color: col.color,
+                              }}>{colItems.length}</span>
                             </div>
-                          )
-                        })}
-                      </div>
+                            {/* Cards */}
+                            <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {colItems.length === 0 ? (
+                                <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                              ) : colItems.map(item => {
+                                const priority = ((item as unknown as Record<string,unknown>).priority as string) || 'P2'
+                                const priorityColors: Record<string, string> = {
+                                  P0: 'rgb(239,68,68)', P1: 'rgb(245,158,11)', P2: 'rgb(99,102,241)', P3: 'rgb(148,163,184)'
+                                }
+                                const pColor = priorityColors[priority] || priorityColors.P2
+                                return (
+                                  <div
+                                    key={item.id}
+                                    onClick={() => openEdit(item)}
+                                    style={{
+                                      background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
+                                      padding: '8px 10px', cursor: 'pointer',
+                                      transition: 'all 0.15s',
+                                    }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color; e.currentTarget.style.background = `${col.color}0a` }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border; e.currentTarget.style.background = s.bg }}
+                                  >
+                                    {/* Priority + ID row */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                      <span style={{
+                                        fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                                        background: `${pColor}20`, color: pColor, letterSpacing: '0.04em',
+                                      }}>{priority}</span>
+                                      <span style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
+                                    </div>
+                                    {/* Title */}
+                                    <div style={{ fontSize: 12, fontWeight: 500, color: s.text, lineHeight: 1.4 }}>
+                                      {item.title}
+                                    </div>
+                                    {/* Type badge */}
+                                    {item.type && TYPE_CONFIG[item.type] && (
+                                      <div style={{ marginTop: 4 }}>
+                                        <span style={{
+                                          fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 10,
+                                          background: TYPE_CONFIG[item.type].bg, color: TYPE_CONFIG[item.type].color,
+                                        }}>{TYPE_CONFIG[item.type].label}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+                  </div>
+                )}
+              </>
+            )
+          })()}
 
           {/* ─── TRK-14238: Quick Submit Modal ─── */}
           {showQuickSubmit && (
@@ -1746,112 +1968,243 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
       {/* ─── Sprint 010: VOLTRON tab content ─── */}
       {dojoTab === 'voltron' && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
-          {/* VOLTRON header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
-            <span style={{ fontSize: 13, color: s.textSecondary }}>
-              Team BFF — CCSDK portal conversations + tmux autonomous projects
-            </span>
-          </div>
-          {/* Dual-mode status cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-            {/* CCSDK Mode */}
-            <div style={{
-              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
-              padding: 20, borderTop: '3px solid rgb(59,130,246)',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(59,130,246)' }}>cloud</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>CCSDK Mode</span>
-                <span style={{
-                  marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
-                  borderRadius: 10, background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)',
-                }}>ONLINE</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>ACTIVE CONVERSATIONS</div>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>SPECIALISTS ACTIVE</div>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>6</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>TOOL CALLS / HR</div>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>UPTIME</div>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: 'rgb(34,197,94)' }}>99.2%</div>
-                </div>
-              </div>
-            </div>
-            {/* tmux Mode */}
-            <div style={{
-              background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
-              padding: 20, borderTop: '3px solid rgb(34,197,94)',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <span className="material-icons-outlined" style={{ fontSize: 18, color: 'rgb(34,197,94)' }}>terminal</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>tmux Mode</span>
-                <span style={{
-                  marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px',
-                  borderRadius: 10, background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)',
-                }}>ONLINE</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>CURRENT PROJECT</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text }}>toMachina</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>QUEUE DEPTH</div>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: s.text }}>—</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>SESSION</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text, fontFamily: 'monospace' }}>dojo:voltron</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, color: s.textMuted, fontWeight: 600, letterSpacing: '0.05em', marginBottom: 4 }}>LAST WAR ROOM POST</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: s.text }}>—</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Specialist routing breakdown */}
-          <div style={{
-            background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`,
-            padding: 20,
-          }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: s.text, marginBottom: 16 }}>Specialist Roster</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-              {[
-                { name: 'Medicare', icon: 'health_and_safety', color: 'rgb(34,197,94)' },
-                { name: 'Securities', icon: 'trending_up', color: 'rgb(99,102,241)' },
-                { name: 'Service', icon: 'support_agent', color: 'rgb(245,158,11)' },
-                { name: 'DAVID', icon: 'handshake', color: 'rgb(34,197,94)' },
-                { name: 'Ops', icon: 'settings', color: 'rgb(6,182,212)' },
-                { name: 'General', icon: 'smart_toy', color: 'rgb(59,130,246)' },
-              ].map(spec => (
-                <div key={spec.name} style={{
-                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-                  background: s.bg, borderRadius: 8, border: `1px solid ${s.border}`,
-                }}>
-                  <span className="material-icons-outlined" style={{ fontSize: 18, color: spec.color }}>{spec.icon}</span>
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: s.text }}>{spec.name}</div>
-                    <div style={{ fontSize: 10, color: s.textMuted }}>Active</div>
-                  </div>
-                </div>
+          {/* VOLTRON header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexShrink: 0, flexWrap: 'wrap' }}>
+            {/* Card Type Toggle: SPC | FILE */}
+            <div style={{ display: 'flex', gap: 4, background: s.bg, borderRadius: 10, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content' }}>
+              {(['spc', 'file'] as const).map(ct => (
+                <button
+                  key={ct}
+                  onClick={() => setVoltronCardType(ct)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8,
+                    border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: voltronCardType === ct ? 700 : 500,
+                    background: voltronCardType === ct ? 'rgba(34,197,94,0.15)' : 'transparent',
+                    color: voltronCardType === ct ? 'rgb(34,197,94)' : s.textMuted,
+                    boxShadow: voltronCardType === ct ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                    transition: 'all 0.15s', letterSpacing: '0.05em',
+                  }}
+                >
+                  {ct === 'spc' ? 'SPC' : 'FILE'}
+                </button>
               ))}
             </div>
+            {/* Auto-Sprint button */}
+            <button
+              onClick={() => { setShowAutoTriage(true); runAutoTriage() }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: 'rgba(34,197,94,0.15)', color: 'rgb(34,197,94)', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="auto_fix_high" size={16} color="rgb(34,197,94)" />
+              Auto-Sprint
+            </button>
+            {/* Confirm Walkthrough link */}
+            <a
+              href="/modules/forge/confirm"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '7px 14px', borderRadius: 6, textDecoration: 'none',
+                background: 'rgba(34,197,94,0.08)', color: 'rgb(34,197,94)', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="checklist" size={16} color="rgb(34,197,94)" />
+              Confirm Walkthrough
+            </a>
+            {/* Search input */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 160, maxWidth: 280 }}>
+              <Icon name="search" size={16} color={s.textMuted} />
+              <input
+                type="text"
+                placeholder="Search VOLTRON..."
+                value={voltronSearch}
+                onChange={(e) => setVoltronSearch(e.target.value)}
+                style={{ border: 'none', background: 'transparent', outline: 'none', color: s.text, fontSize: 13, width: '100%' }}
+              />
+              {voltronSearch && (
+                <button onClick={() => setVoltronSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                  <Icon name="close" size={14} color={s.textMuted} />
+                </button>
+              )}
+            </div>
+            <div style={{ flex: 1 }} />
+            {/* Quick Submit button */}
+            <button
+              onClick={openQuickSubmit}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: 'rgb(34,197,94)', color: '#fff', fontSize: 13, fontWeight: 600,
+              }}
+              title="Submit an item"
+            >
+              <Icon name="add" size={16} color="#fff" />
+              Quick Submit
+            </button>
           </div>
-          <div style={{ marginTop: 16, padding: 16, background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`, textAlign: 'center' }}>
-            <span style={{ fontSize: 12, color: s.textMuted }}>
-              Live metrics wiring in Sprint 011 — data from <code style={{ fontSize: 11, background: 'rgba(255,255,255,0.06)', padding: '1px 5px', borderRadius: 3, color: 'rgb(6,182,212)' }}>GET /dojo/heartbeats?warrior=voltron</code>
-            </span>
-          </div>
+
+          {/* ─── VOLTRON Phase Toggle + Kanban ─── */}
+          {(() => {
+            const VOLTRON_PHASES = {
+              phase1: {
+                label: 'PHASE 1', icon: 'inbox', color: 'rgb(34,197,94)', subtitle: 'TBD',
+                columns: [
+                  { status: 'VOL-new', label: 'NEW', color: 'rgb(34,197,94)' },
+                  { status: 'VOL-assigned', label: 'ASSIGNED', color: 'rgb(245,158,11)' },
+                ],
+              },
+              phase2: {
+                label: 'PHASE 2', icon: 'engineering', color: 'rgb(59,130,246)', subtitle: 'TBD',
+                columns: [
+                  { status: 'VOL-in-progress', label: 'IN PROGRESS', color: 'rgb(99,102,241)' },
+                  { status: 'VOL-review', label: 'REVIEW', color: 'rgb(168,85,247)' },
+                ],
+              },
+              phase3: {
+                label: 'PHASE 3', icon: 'check_circle', color: 'rgb(20,184,166)', subtitle: 'TBD',
+                columns: [
+                  { status: 'VOL-complete', label: 'COMPLETE', color: 'rgb(34,197,94)' },
+                  { status: 'VOL-closed', label: 'CLOSED', color: 'rgb(107,114,128)' },
+                ],
+              },
+            } as const
+
+            const phase1Statuses = ['VOL-new', 'VOL-assigned']
+            const phase2Statuses = ['VOL-in-progress', 'VOL-review']
+            const phase3Statuses = ['VOL-complete', 'VOL-closed']
+
+            const filteredItems = voltronSearch.trim()
+              ? allItems.filter(i => i.title.toLowerCase().includes(voltronSearch.toLowerCase()) && (i.status.startsWith('VOL-')))
+              : allItems.filter(i => i.status.startsWith('VOL-'))
+
+            const p1Count = filteredItems.filter(i => phase1Statuses.includes(i.status)).length
+            const p2Count = filteredItems.filter(i => phase2Statuses.includes(i.status)).length
+            const p3Count = filteredItems.filter(i => phase3Statuses.includes(i.status)).length
+            const phaseCounts = { phase1: p1Count, phase2: p2Count, phase3: p3Count }
+
+            const activePhase = VOLTRON_PHASES[voltronPhase]
+
+            return (
+              <>
+                {/* Phase toggle */}
+                <div style={{ display: 'flex', gap: 4, background: s.bg, borderRadius: 8, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content', marginBottom: 12, flexShrink: 0 }}>
+                  {(['phase1', 'phase2', 'phase3'] as const).map(phase => {
+                    const ph = VOLTRON_PHASES[phase]
+                    const count = phaseCounts[phase]
+                    const isActive = voltronPhase === phase
+                    return (
+                      <button
+                        key={phase}
+                        onClick={() => setVoltronPhase(phase)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8,
+                          border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: isActive ? 700 : 500,
+                          background: isActive ? s.surface : 'transparent',
+                          color: isActive ? ph.color : s.textMuted,
+                          boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                          transition: 'all 0.15s', letterSpacing: '0.05em',
+                        }}
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: 14 }}>{ph.icon}</span>
+                        {ph.label}
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+                          background: isActive ? `${ph.color}25` : `${s.border}`,
+                          color: isActive ? ph.color : s.textMuted,
+                        }}>{count}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* VOLTRON Kanban */}
+                <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
+                  <div style={{ display: 'flex', gap: 12, height: '100%', minWidth: 400 }}>
+                    {activePhase.columns.map(col => {
+                      const colItems = filteredItems.filter(i => i.status === col.status)
+                      return (
+                        <div
+                          key={col.status}
+                          style={{
+                            flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column',
+                            background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`, overflow: 'hidden',
+                          }}
+                        >
+                          {/* Column header */}
+                          <div style={{
+                            display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                            borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                          }}>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                            <span style={{
+                              marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                              borderRadius: 10, background: `${col.color}30`, color: col.color,
+                            }}>{colItems.length}</span>
+                          </div>
+                          {/* Cards */}
+                          <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {colItems.length === 0 ? (
+                              <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                            ) : colItems.map(item => {
+                              const priority = ((item as unknown as Record<string,unknown>).priority as string) || 'P2'
+                              const priorityColors: Record<string, string> = {
+                                P0: 'rgb(239,68,68)', P1: 'rgb(245,158,11)', P2: 'rgb(99,102,241)', P3: 'rgb(148,163,184)'
+                              }
+                              const pColor = priorityColors[priority] || priorityColors.P2
+                              return (
+                                <div
+                                  key={item.id}
+                                  onClick={() => openEdit(item)}
+                                  style={{
+                                    background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
+                                    padding: '8px 10px', cursor: 'pointer', transition: 'all 0.15s',
+                                  }}
+                                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color; e.currentTarget.style.background = `${col.color}0a` }}
+                                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border; e.currentTarget.style.background = s.bg }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                    <span style={{
+                                      fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                                      background: `${pColor}20`, color: pColor, letterSpacing: '0.04em',
+                                    }}>{priority}</span>
+                                    <span style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
+                                  </div>
+                                  <div style={{ fontSize: 12, fontWeight: 500, color: s.text, lineHeight: 1.4 }}>{item.title}</div>
+                                  {item.type && TYPE_CONFIG[item.type] && (
+                                    <div style={{ marginTop: 4 }}>
+                                      <span style={{
+                                        fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 10,
+                                        background: TYPE_CONFIG[item.type].bg, color: TYPE_CONFIG[item.type].color,
+                                      }}>{TYPE_CONFIG[item.type].label}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {/* Empty state — centered in kanban area when all columns are empty */}
+                    {filteredItems.length === 0 && (
+                      <div style={{
+                        position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
+                      }}>
+                        <span className="material-icons-outlined" style={{ fontSize: 40, color: 'rgb(34,197,94)', opacity: 0.25, marginBottom: 10 }}>smart_toy</span>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: s.textSecondary, marginBottom: 4 }}>No VOLTRON tickets yet</div>
+                        <div style={{ fontSize: 12, color: s.textMuted, textAlign: 'center', maxWidth: 320 }}>
+                          Submit via Quick Submit or the FORGE Reporter FAB
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )
+          })()}
         </div>
       )}
 
@@ -2083,14 +2436,15 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             )
           })()}
 
-          {/* Active Warriors — collapsible */}
+          {/* Active Warriors — LIVE from Firestore dojo_warriors collection */}
           {(() => {
             const collapsed = collapsedSections.has('mdj-warriors')
-            const warriors = [
-              { name: 'SHINOB1', title: 'CTO', icon: '\u{1F977}', color: '#e07c3e', status: 'ACTIVE' },
-              { name: '2HINOBI', title: 'COO', icon: '\u{1F3EF}', color: '#a78bfa', status: 'IDLE' },
-              { name: 'MUSASHI', title: 'CMO', icon: '\u2694\uFE0F', color: '#d4a44c', status: 'IDLE' },
-            ]
+            const WARRIOR_COLORS: Record<string, string> = {
+              SHINOB1: '#a78bfa', '2HINOBI': '#22c55e', MUSASHI: '#d4a44c',
+              RONIN: '#f97316', RAIDEN: '#ef4444', VOLTRON: '#3b82f6', SENSEI: '#f59e0b',
+            }
+            const activeCount = warriors.filter(w => w.status === 'active').length
+            const tmuxWarriors = warriors.filter(w => w.type === 'tmux')
             return (
               <div style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
                 <div onClick={() => toggleCollapse('mdj-warriors')} style={{
@@ -2105,23 +2459,36 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
                     <div style={{ fontSize: 13, fontWeight: 700, color: s.text }}>Active Warriors</div>
                     <div style={{ fontSize: 10, color: s.textMuted }}>tmux sessions on MDJ_SERVER</div>
                   </div>
-                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: 'rgb(34,197,94)' }}>
-                    <span className="material-icons-outlined" style={{ fontSize: 16 }}>check_circle</span>
-                    {warriors.length} active
+                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: activeCount > 0 ? 'rgb(34,197,94)' : s.textMuted }}>
+                    {warriorsLoading ? (
+                      <span className="material-icons-outlined" style={{ fontSize: 16, animation: 'spin 1s linear infinite' }}>refresh</span>
+                    ) : (
+                      <span className="material-icons-outlined" style={{ fontSize: 16 }}>{activeCount > 0 ? 'check_circle' : 'radio_button_unchecked'}</span>
+                    )}
+                    {activeCount} active
                   </div>
                 </div>
                 {!collapsed && (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8, padding: '10px 14px' }}>
-                    {warriors.map(w => (
-                      <div key={w.name} style={{ background: s.surface, border: `1px solid ${s.border}`, borderLeft: `3px solid ${w.color}`, borderRadius: 8, padding: '10px 12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                          <span style={{ fontSize: 16 }}>{w.icon}</span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: s.text }}>{w.name}</span>
-                          <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: `${w.color}18`, color: w.color }}>{w.title}</span>
-                          <span style={{ marginLeft: 'auto', fontSize: 9, padding: '2px 6px', borderRadius: 4, background: w.status === 'ACTIVE' ? 'rgba(34,197,94,0.12)' : 'rgba(245,158,11,0.12)', color: w.status === 'ACTIVE' ? 'rgb(34,197,94)' : 'rgb(245,158,11)', fontWeight: 700 }}>{w.status}</span>
+                    {tmuxWarriors.length === 0 && !warriorsLoading && (
+                      <div style={{ padding: '12px 16px', color: s.textMuted, fontSize: 11 }}>No warrior data — check dojo_warriors collection</div>
+                    )}
+                    {tmuxWarriors.map(w => {
+                      const wColor = WARRIOR_COLORS[w.display_name] || s.textMuted
+                      const isActive = w.status === 'active'
+                      return (
+                        <div key={w.id} style={{ background: s.surface, border: `1px solid ${s.border}`, borderLeft: `3px solid ${wColor}`, borderRadius: 8, padding: '10px 12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: s.text }}>{w.display_name}</span>
+                            <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: `${wColor}18`, color: wColor }}>{w.executive_role || w.personality}</span>
+                            {w.tmux_session && (
+                              <span style={{ fontSize: 9, color: s.textMuted, fontFamily: 'monospace' }}>{w.tmux_session}</span>
+                            )}
+                            <span style={{ marginLeft: 'auto', fontSize: 9, padding: '2px 6px', borderRadius: 4, background: isActive ? 'rgba(34,197,94,0.12)' : w.status === 'dormant' ? 'rgba(107,114,128,0.12)' : 'rgba(245,158,11,0.12)', color: isActive ? 'rgb(34,197,94)' : w.status === 'dormant' ? 'rgb(107,114,128)' : 'rgb(245,158,11)', fontWeight: 700, textTransform: 'uppercase' as const }}>{w.status}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -2160,6 +2527,355 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           })()}
           </>}
 
+        </div>
+      )}
+
+      {/* ─── MUSASHI tab content — CMO Pipeline (stubbed) ─── */}
+      {dojoTab === 'musashi' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+          {/* MUSASHI header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexShrink: 0, flexWrap: 'wrap' }}>
+            {/* Card Type Toggle: TBD | TBD */}
+            <div style={{ display: 'flex', gap: 4, background: s.bg, borderRadius: 10, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content' }}>
+              {(['tbd1', 'tbd2'] as const).map(ct => (
+                <button
+                  key={ct}
+                  onClick={() => setMusashiCardType(ct)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8,
+                    border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: musashiCardType === ct ? 700 : 500,
+                    background: musashiCardType === ct ? 'rgba(212,164,76,0.15)' : 'transparent',
+                    color: musashiCardType === ct ? '#d4a44c' : s.textMuted,
+                    boxShadow: musashiCardType === ct ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                    transition: 'all 0.15s', letterSpacing: '0.05em',
+                  }}
+                >
+                  TBD
+                </button>
+              ))}
+            </div>
+            {/* Auto-Sprint button */}
+            <button
+              onClick={() => { setShowAutoTriage(true); runAutoTriage() }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: 'rgba(212,164,76,0.15)', color: '#d4a44c', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="auto_fix_high" size={16} color="#d4a44c" />
+              Auto-Sprint
+            </button>
+            {/* Confirm Walkthrough link */}
+            <a
+              href="/modules/forge/confirm"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '7px 14px', borderRadius: 6, textDecoration: 'none',
+                background: 'rgba(212,164,76,0.08)', color: '#d4a44c', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <Icon name="checklist" size={16} color="#d4a44c" />
+              Confirm Walkthrough
+            </a>
+            {/* Search input */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 160, maxWidth: 280 }}>
+              <Icon name="search" size={16} color={s.textMuted} />
+              <input
+                type="text"
+                placeholder="Search MUSASHI..."
+                value={musashiSearch}
+                onChange={(e) => setMusashiSearch(e.target.value)}
+                style={{ border: 'none', background: 'transparent', outline: 'none', color: s.text, fontSize: 13, width: '100%' }}
+              />
+              {musashiSearch && (
+                <button onClick={() => setMusashiSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+                  <Icon name="close" size={14} color={s.textMuted} />
+                </button>
+              )}
+            </div>
+            <div style={{ flex: 1 }} />
+            {/* Quick Submit button */}
+            <button
+              onClick={openQuickSubmit}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: '#d4a44c', color: '#fff', fontSize: 13, fontWeight: 600,
+              }}
+              title="Submit an item"
+            >
+              <Icon name="add" size={16} color="#fff" />
+              Quick Submit
+            </button>
+          </div>
+
+          {/* ─── MUSASHI Phase Toggle + Kanban ─── */}
+          {(() => {
+            const MUSASHI_PHASES = {
+              phase1: {
+                label: 'PHASE 1', icon: 'palette', color: '#d4a44c', subtitle: 'TBD',
+                columns: [
+                  { status: 'MUS-new', label: 'NEW', color: '#d4a44c' },
+                  { status: 'MUS-drafting', label: 'DRAFTING', color: 'rgb(245,158,11)' },
+                ],
+              },
+              phase2: {
+                label: 'PHASE 2', icon: 'brush', color: 'rgb(168,85,247)', subtitle: 'TBD',
+                columns: [
+                  { status: 'MUS-review', label: 'REVIEW', color: 'rgb(168,85,247)' },
+                  { status: 'MUS-refining', label: 'REFINING', color: 'rgb(99,102,241)' },
+                ],
+              },
+              phase3: {
+                label: 'PHASE 3', icon: 'verified', color: 'rgb(34,197,94)', subtitle: 'TBD',
+                columns: [
+                  { status: 'MUS-shipped', label: 'SHIPPED', color: 'rgb(34,197,94)' },
+                  { status: 'MUS-closed', label: 'CLOSED', color: 'rgb(107,114,128)' },
+                ],
+              },
+            } as const
+
+            const phase1Statuses = ['MUS-new', 'MUS-drafting']
+            const phase2Statuses = ['MUS-review', 'MUS-refining']
+            const phase3Statuses = ['MUS-shipped', 'MUS-closed']
+
+            const filteredItems = musashiSearch.trim()
+              ? allItems.filter(i => i.title.toLowerCase().includes(musashiSearch.toLowerCase()) && i.status.startsWith('MUS-'))
+              : allItems.filter(i => i.status.startsWith('MUS-'))
+
+            const p1Count = filteredItems.filter(i => phase1Statuses.includes(i.status)).length
+            const p2Count = filteredItems.filter(i => phase2Statuses.includes(i.status)).length
+            const p3Count = filteredItems.filter(i => phase3Statuses.includes(i.status)).length
+            const phaseCounts = { phase1: p1Count, phase2: p2Count, phase3: p3Count }
+
+            const activePhase = MUSASHI_PHASES[musashiPhase]
+
+            return (
+              <>
+                {/* Phase toggle */}
+                <div style={{ display: 'flex', gap: 4, background: s.bg, borderRadius: 8, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content', marginBottom: 12, flexShrink: 0 }}>
+                  {(['phase1', 'phase2', 'phase3'] as const).map(phase => {
+                    const ph = MUSASHI_PHASES[phase]
+                    const count = phaseCounts[phase]
+                    const isActive = musashiPhase === phase
+                    return (
+                      <button
+                        key={phase}
+                        onClick={() => setMusashiPhase(phase)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8,
+                          border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: isActive ? 700 : 500,
+                          background: isActive ? s.surface : 'transparent',
+                          color: isActive ? ph.color : s.textMuted,
+                          boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                          transition: 'all 0.15s', letterSpacing: '0.05em',
+                        }}
+                      >
+                        <span className="material-icons-outlined" style={{ fontSize: 14 }}>{ph.icon}</span>
+                        {ph.label}
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10,
+                          background: isActive ? `${ph.color}25` : `${s.border}`,
+                          color: isActive ? ph.color : s.textMuted,
+                        }}>{count}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* MUSASHI Kanban */}
+                <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
+                  <div style={{ display: 'flex', gap: 12, height: '100%', minWidth: 400 }}>
+                    {activePhase.columns.map(col => {
+                      const colItems = filteredItems.filter(i => i.status === col.status)
+                      return (
+                        <div
+                          key={col.status}
+                          style={{
+                            flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column',
+                            background: s.surface, borderRadius: 8, border: `1px solid ${s.border}`, overflow: 'hidden',
+                          }}
+                        >
+                          {/* Column header */}
+                          <div style={{
+                            display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px',
+                            borderBottom: `2px solid ${col.color}`, background: `${col.color}18`,
+                          }}>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: col.color, letterSpacing: '0.06em' }}>{col.label}</span>
+                            <span style={{
+                              marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '1px 7px',
+                              borderRadius: 10, background: `${col.color}30`, color: col.color,
+                            }}>{colItems.length}</span>
+                          </div>
+                          {/* Cards */}
+                          <div style={{ flex: 1, overflowY: 'auto', padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {colItems.length === 0 ? (
+                              <div style={{ padding: '12px 8px', textAlign: 'center', color: s.textMuted, fontSize: 11 }}>—</div>
+                            ) : colItems.map(item => {
+                              const priority = ((item as unknown as Record<string,unknown>).priority as string) || 'P2'
+                              const priorityColors: Record<string, string> = {
+                                P0: 'rgb(239,68,68)', P1: 'rgb(245,158,11)', P2: 'rgb(99,102,241)', P3: 'rgb(148,163,184)'
+                              }
+                              const pColor = priorityColors[priority] || priorityColors.P2
+                              return (
+                                <div
+                                  key={item.id}
+                                  onClick={() => openEdit(item)}
+                                  style={{
+                                    background: s.bg, borderRadius: 6, border: `1px solid ${s.border}`,
+                                    padding: '8px 10px', cursor: 'pointer', transition: 'all 0.15s',
+                                  }}
+                                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = col.color; e.currentTarget.style.background = `${col.color}0a` }}
+                                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border; e.currentTarget.style.background = s.bg }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                    <span style={{
+                                      fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                                      background: `${pColor}20`, color: pColor, letterSpacing: '0.04em',
+                                    }}>{priority}</span>
+                                    <span style={{ fontSize: 10, color: s.textMuted, fontFamily: 'monospace' }}>{item.item_id}</span>
+                                  </div>
+                                  <div style={{ fontSize: 12, fontWeight: 500, color: s.text, lineHeight: 1.4 }}>{item.title}</div>
+                                  {item.type && TYPE_CONFIG[item.type] && (
+                                    <div style={{ marginTop: 4 }}>
+                                      <span style={{
+                                        fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 10,
+                                        background: TYPE_CONFIG[item.type].bg, color: TYPE_CONFIG[item.type].color,
+                                      }}>{TYPE_CONFIG[item.type].label}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {/* Empty state — centered in kanban area when all columns are empty */}
+                    {filteredItems.length === 0 && (
+                      <div style={{
+                        position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
+                      }}>
+                        <span className="material-icons-outlined" style={{ fontSize: 40, color: '#d4a44c', opacity: 0.25, marginBottom: 10 }}>brush</span>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: s.textSecondary, marginBottom: 4 }}>MUSASHI pipeline coming soon</div>
+                        <div style={{ fontSize: 12, color: s.textMuted, textAlign: 'center', maxWidth: 360 }}>
+                          CMO creative pipeline for Discovery Docs, brand assets, and design sprints
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )
+          })()}
+        </div>
+      )}
+
+      {/* ─── TBD tabs — placeholder warriors ─── */}
+      {(dojoTab === 'tbd1' || dojoTab === 'tbd2') && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+          <span className="material-icons-outlined" style={{ fontSize: 48, color: s.textMuted, opacity: 0.2, marginBottom: 12 }}>construction</span>
+          <div style={{ fontSize: 16, fontWeight: 700, color: s.text, marginBottom: 6 }}>New Warrior Incoming</div>
+          <div style={{ fontSize: 12, color: s.textMuted, textAlign: 'center', maxWidth: 400 }}>
+            A new warrior is being forged. Stay tuned.
+          </div>
+        </div>
+      )}
+
+      {/* ─── ROADMAP tab — Sprint summary + Discovery Doc links ─── */}
+      {dojoTab === 'roadmap' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexShrink: 0 }}>
+            <span style={{ fontSize: 13, color: s.textSecondary }}>
+              Platform roadmap — where we are and where we are going
+            </span>
+            <div style={{ flex: 1 }} />
+            <button
+              onClick={() => window.open('/api/sprints/roadmap', '_blank')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: 'rgba(224,124,62,0.15)', color: '#e07c3e', fontSize: 13, fontWeight: 600,
+              }}
+            >
+              <span className="material-icons-outlined" style={{ fontSize: 16 }}>open_in_new</span>
+              Full Roadmap
+            </button>
+          </div>
+          {/* Roadmap content — enhanced in Track 5 */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14,
+          }}>
+            {[
+              { warrior: 'RONIN', color: '#f97316', desc: 'Build sprints + feature pipeline', icon: 'precision_manufacturing', prefix: 'RON-' },
+              { warrior: 'RAIDEN', color: '#ef4444', desc: 'Reactive fix queue + triage', icon: 'bolt', prefix: 'RDN-' },
+              { warrior: 'VOLTRON', color: '#22c55e', desc: 'Team + client-facing AI', icon: 'smart_toy', prefix: 'VOL-' },
+              { warrior: 'MUSASHI', color: '#d4a44c', desc: 'Creative + brand pipeline', icon: 'brush', prefix: 'MUS-' },
+            ].map(w => {
+              const count = w.prefix === 'RON-' ? roninItems.length : w.prefix === 'RDN-' ? raidenItems.length : 0
+              return (
+                <div key={w.warrior} style={{
+                  background: s.surface, border: `1px solid ${s.border}`, borderTop: `3px solid ${w.color}`,
+                  borderRadius: 10, padding: 16,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <span className="material-icons-outlined" style={{ fontSize: 20, color: w.color }}>{w.icon}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: s.text }}>{w.warrior}</span>
+                    {count > 0 && (
+                      <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: `${w.color}18`, color: w.color }}>{count}</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 11, color: s.textMuted, marginBottom: 12 }}>{w.desc}</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button
+                      onClick={() => switchDojoTab(w.warrior.toLowerCase() as DojoTab)}
+                      style={{
+                        flex: 1, padding: '6px 10px', borderRadius: 6, border: `1px solid ${s.border}`,
+                        background: 'transparent', color: s.textSecondary, fontSize: 11, cursor: 'pointer',
+                      }}
+                    >
+                      View Pipeline
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {/* Sprint Library — links to all Discovery Docs */}
+          <div style={{ marginTop: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: s.text, marginBottom: 12 }}>Sprint Library</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 10 }}>
+              {sprints.filter(sp => sp.discovery_url).map(sp => (
+                <a
+                  key={sp.id}
+                  href={sp.discovery_url!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
+                    background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8,
+                    textDecoration: 'none', transition: 'border-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#e07c3e' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = s.border }}
+                >
+                  <span className="material-icons-outlined" style={{ fontSize: 16, color: '#e07c3e' }}>description</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: s.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sp.name}</div>
+                    <div style={{ fontSize: 10, color: s.textMuted }}>
+                      {sp.status === 'confirmed' ? 'Complete' : sp.phase || sp.status}
+                    </div>
+                  </div>
+                  <span className="material-icons-outlined" style={{ fontSize: 14, color: s.textMuted }}>open_in_new</span>
+                </a>
+              ))}
+              {sprints.filter(sp => sp.discovery_url).length === 0 && (
+                <div style={{ padding: '16px', color: s.textMuted, fontSize: 11 }}>No sprints with Discovery Docs yet</div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -2247,6 +2963,55 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
 
       {/* Row 1: Toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        {/* Card Type Toggle: TICKETS | SPRINTS */}
+        <div style={{ display: 'flex', gap: 4, background: s.bg, borderRadius: 10, border: `1px solid ${s.border}`, padding: 3, width: 'fit-content', flexShrink: 0 }}>
+          {([
+            { key: 'pipeline' as const, label: 'TICKETS', icon: 'account_tree' },
+            { key: 'sprints' as const, label: 'SPRINTS', icon: 'bolt' },
+          ]).map(opt => {
+            const isActive = view === opt.key
+            return (
+              <button key={opt.key} onClick={() => setView(opt.key)} style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8,
+                border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: isActive ? 700 : 500,
+                background: isActive ? s.portal : 'transparent',
+                color: isActive ? '#fff' : s.textMuted,
+                boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                transition: 'all 0.15s',
+              }}>
+                <span className="material-icons-outlined" style={{ fontSize: 14 }}>{opt.icon}</span>
+                {opt.label}
+              </button>
+            )
+          })}
+        </div>
+        {/* Auto-Sprint */}
+        <button
+          onClick={() => { setShowAutoTriage(true); runAutoTriage() }}
+          style={{
+            padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+            background: `color-mix(in srgb, ${s.portal} 15%, transparent)`,
+            color: s.portal, fontSize: 12, fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+          }}
+        >
+          <Icon name="auto_fix_high" size={15} color={s.portal} /> Auto-Sprint
+        </button>
+        {/* Confirm Walkthrough link */}
+        <a
+          href="/modules/forge/confirm"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '6px 14px', borderRadius: 6, border: 'none',
+            background: `color-mix(in srgb, ${s.portal} 15%, transparent)`,
+            color: s.portal, fontSize: 12,
+            fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+          }}
+        >
+          <Icon name="verified" size={15} color={s.portal} />
+          Confirm Walkthrough
+        </a>
+        {/* Search */}
         <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
           <Icon name="search" size={18} color={s.textMuted} />
           <input
@@ -2261,82 +3026,21 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             }}
           />
         </div>
-        {/* View Toggle */}
-        <div style={{ display: 'flex', borderRadius: 6, border: `1px solid ${s.border}`, overflow: 'hidden' }}>
-          <button
-            onClick={() => setView('pipeline')}
-            style={{
-              padding: '6px 10px', border: 'none', cursor: 'pointer',
-              background: view === 'pipeline' ? s.surface : 'transparent',
-              color: view === 'pipeline' ? s.text : s.textMuted,
-            }}
-            title="Pipeline View"
-          >
-            <Icon name="account_tree" size={18} />
-          </button>
-          <button
-            onClick={() => setView('grid')}
-            style={{
-              padding: '6px 10px', border: 'none', cursor: 'pointer',
-              background: view === 'grid' ? s.surface : 'transparent',
-              color: view === 'grid' ? s.text : s.textMuted,
-            }}
-            title="Grid View"
-          >
-            <Icon name="view_list" size={18} />
-          </button>
-          <button
-            onClick={() => setView('sprints')}
-            style={{
-              padding: '6px 10px', border: 'none', cursor: 'pointer',
-              background: view === 'sprints' ? s.surface : 'transparent',
-              color: view === 'sprints' ? s.text : s.textMuted,
-            }}
-            title="Sprint View"
-          >
-            <Icon name="bolt" size={18} />
-          </button>
-        </div>
         {/* RONIN Quick Submit */}
         <button
           onClick={openQuickSubmit}
           style={{
             padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
             background: s.portal, color: '#fff', fontSize: 12, fontWeight: 600,
-            display: 'flex', alignItems: 'center', gap: 6,
+            display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
           }}
         >
           <Icon name="add" size={15} color="#fff" /> Quick Submit
           <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 4 }}>Ctrl+N</span>
         </button>
-        {/* RONIN Auto-Triage */}
-        <button
-          onClick={() => { setShowAutoTriage(true); runAutoTriage() }}
-          style={{
-            padding: '6px 14px', borderRadius: 6, border: `1px solid ${s.border}`, cursor: 'pointer',
-            background: 'transparent', color: s.textSecondary, fontSize: 12, fontWeight: 600,
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}
-        >
-          <Icon name="auto_fix_high" size={15} /> Auto-Triage
-        </button>
-        {/* Confirm Walkthrough link */}
-        <a
-          href="/modules/forge/confirm"
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '6px 14px', borderRadius: 6, border: 'none',
-            background: 'rgba(224,124,62,0.15)', color: '#e07c3e', fontSize: 12,
-            fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
-          }}
-        >
-          <Icon name="verified" size={15} color="#e07c3e" />
-          Confirm Walkthrough
-        </a>
         <div style={{ flex: 1 }} />
-        {/* Bulk actions + Auto Sprint — only in grid/sprints views */}
-        {(view === 'grid' || view === 'sprints') && <>
-        {selectedIds.size > 0 && (
+        {/* Bulk actions — only in sprints view with selection */}
+        {view === 'sprints' && selectedIds.size > 0 && (
           <>
             <Select
               value={bulkStatus}
@@ -2366,22 +3070,6 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             </button>
           </>
         )}
-        <button
-          onClick={autoCreateSprint}
-          style={{
-            padding: '8px 14px', borderRadius: 6, border: `1px solid ${s.border}`, cursor: 'pointer',
-            background: 'transparent', color: s.textSecondary, fontSize: 13, fontWeight: 500,
-            display: 'flex', alignItems: 'center', gap: 6,
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = s.border; e.currentTarget.style.color = s.textSecondary }}
-          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.96)'; e.currentTarget.style.background = '#e07c3e'; e.currentTarget.style.borderColor = '#e07c3e'; e.currentTarget.style.color = '#fff' }}
-          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = s.surface; e.currentTarget.style.borderColor = s.textMuted; e.currentTarget.style.color = s.text }}
-        >
-          <Icon name="auto_fix_high" size={16} /> Auto Sprint
-        </button>
-        </>}
       </div>
 
       {/* Back to Sprints breadcrumb when sprint-filtered */}
@@ -2398,203 +3086,6 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         >
           <Icon name="arrow_back" size={16} /> Back to Sprints
         </button>
-      )}
-
-      {/* Row 2: Filters — only in grid view */}
-      {view === 'grid' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-        <Select
-          value={filters.type}
-          onChange={(v) => { setFilters(f => ({ ...f, type: v })); setPage(0) }}
-          options={TYPES.map(t => ({ value: t, label: TYPE_CONFIG[t]?.label || t }))}
-          placeholder="All Types"
-        />
-        <Select
-          value={filters.status}
-          onChange={(v) => { setFilters(f => ({ ...f, status: v })); setPage(0) }}
-          options={STATUSES.filter(st => st.startsWith('RON-')).map(st => ({ value: st, label: (STATUS_CONFIG[st]?.label || st).replace('RON-', '') }))}
-          placeholder="All Statuses"
-        />
-        <Select
-          value={filters.portal}
-          onChange={(v) => { setFilters(f => ({ ...f, portal: v })); setPage(0) }}
-          options={PORTALS.map(p => ({ value: p, label: p }))}
-          placeholder="All Portals"
-        />
-        <Select
-          value={filters.component}
-          onChange={(v) => { setFilters(f => ({ ...f, component: v })); setPage(0) }}
-          options={components.map(c => ({ value: c, label: c }))}
-          placeholder="All Components"
-        />
-        <Select
-          value={filters.sprint_id}
-          onChange={(v) => { setFilters(f => ({ ...f, sprint_id: v })); setPage(0) }}
-          options={sprints.map(sp => ({ value: sp.id, label: sp.name }))}
-          placeholder="All Sprints"
-        />
-        <Select
-          value={filters.reporter}
-          onChange={(v) => { setFilters(f => ({ ...f, reporter: v })); setPage(0) }}
-          options={reporters.map(r => ({ value: r, label: r }))}
-          placeholder="All Reporters"
-        />
-        {(filters.status || filters.portal || filters.scope || filters.component || filters.sprint_id || filters.type || filters.reporter || search) && (
-          <button
-            onClick={() => { setFilters({ status: '', portal: '', scope: '', component: '', sprint_id: '', type: '', reporter: '' }); setSearch(''); setPage(0) }}
-            style={{
-              padding: '6px 12px', borderRadius: 6, border: `1px solid ${s.border}`,
-              background: 'transparent', color: s.textSecondary, fontSize: 12, cursor: 'pointer',
-            }}
-          >
-            Clear Filters
-          </button>
-        )}
-      </div>}
-
-      {/* ─── DeDup View — REMOVED ─── */}
-      {view === 'dedup' && (
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          {dedupLoading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>Scanning for duplicates...</div>
-          ) : dedupGroups.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>
-              <Icon name="check_circle" size={32} color="rgb(34,197,94)" />
-              <div style={{ marginTop: 8 }}>No duplicates detected</div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 13, color: s.textSecondary, marginBottom: 4 }}>
-                {dedupGroups.length} potential duplicate group{dedupGroups.length !== 1 ? 's' : ''} found
-              </div>
-              {dedupGroups.map((group, gi) => {
-                const reasonLabel = { exact_match: 'Exact Match', substring_match: 'Substring Match', jaccard_similarity: 'Similar Words' }[group.reason] || group.reason
-                const reasonColor = { exact_match: 'rgb(239,68,68)', substring_match: 'rgb(245,158,11)', jaccard_similarity: 'rgb(59,130,246)' }[group.reason] || s.textMuted
-                return (
-                  <div key={gi} style={{ background: s.surface, borderRadius: 10, border: `1px solid ${s.border}`, overflow: 'hidden' }}>
-                    {/* Header */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderBottom: `1px solid ${s.border}` }}>
-                      <Icon name="compare_arrows" size={16} color={reasonColor} />
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: `${reasonColor}20`, color: reasonColor }}>{reasonLabel}</span>
-                      <div style={{ flex: 1 }} />
-                      <button
-                        onClick={() => mergeDedup(gi, group.winner.id, group.duplicates.map(d => d.id), [group.winner, ...group.duplicates])}
-                        style={{
-                          padding: '4px 14px', borderRadius: 6, border: 'none',
-                          background: 'rgb(34,197,94)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                          display: 'flex', alignItems: 'center', gap: 4,
-                          transition: 'all 0.15s',
-                        }}
-                        onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.96)' }}
-                        onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
-                      >
-                        <Icon name="merge" size={14} color="#fff" /> Merge
-                      </button>
-                    </div>
-
-                    {/* Field-by-field comparison table */}
-                    {(() => {
-                      const allItems = [group.winner, ...group.duplicates]
-                      const fields: { key: string; label: string }[] = [
-                        { key: 'item_id', label: 'ID' },
-                        { key: 'title', label: 'Title' },
-                        { key: 'description', label: 'Description' },
-                        { key: 'type', label: 'Type' },
-                        { key: 'status', label: 'Status' },
-                        { key: 'portal', label: 'Portal' },
-                        { key: 'scope', label: 'Scope' },
-                        { key: 'component', label: 'Component' },
-                        { key: 'section', label: 'Section' },
-                        { key: 'sprint_id', label: 'Sprint' },
-                        { key: 'notes', label: 'Notes' },
-                        { key: 'created_by', label: 'Created By' },
-                        { key: 'created_at', label: 'Created' },
-                      ]
-                      return (
-                        <div style={{ overflowX: 'auto' }}>
-                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-                            <thead>
-                              <tr>
-                                <th style={{ padding: '8px 12px', textAlign: 'left', color: s.textMuted, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: `1px solid ${s.border}`, width: 100 }}>Field</th>
-                                {allItems.map((item, idx) => (
-                                  <th key={idx} style={{ padding: '8px 12px', textAlign: 'left', borderBottom: `1px solid ${s.border}`, minWidth: 180 }}>
-                                    <span style={{
-                                      fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 8,
-                                      background: idx === 0 ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                                      color: idx === 0 ? 'rgb(34,197,94)' : 'rgb(239,68,68)',
-                                    }}>{idx === 0 ? 'WINNER' : 'DUPLICATE'}</span>
-                                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: s.textMuted, marginLeft: 8 }}>{item.item_id}</span>
-                                  </th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {fields.map(field => {
-                                const values = allItems.map(item => {
-                                  const val = (item as unknown as Record<string, unknown>)[field.key]
-                                  if (field.key === 'status') return val as string
-                                  if (field.key === 'type') {
-                                    const tc = TYPE_CONFIG[val as string]
-                                    return tc ? tc.label : (val as string) || '—'
-                                  }
-                                  if (field.key === 'sprint_id') {
-                                    const sp = sprints.find(sp2 => sp2.id === val)
-                                    return sp ? sp.name : (val ? String(val) : '—')
-                                  }
-                                  if (field.key === 'created_at') return formatDate(val as string)
-                                  return val ? String(val) : '—'
-                                })
-                                const allSame = values.every(v => v === values[0])
-                                return (
-                                  <tr key={field.key} style={{ background: allSame ? 'transparent' : 'rgba(245,158,11,0.04)' }}>
-                                    <td style={{ padding: '6px 12px', color: s.textMuted, fontSize: 11, fontWeight: 600, borderBottom: `1px solid ${s.border}`, whiteSpace: 'nowrap' }}>{field.label}</td>
-                                    {values.map((val, idx) => {
-                                      const isSelectable = idx > 0 && !allSame && !['item_id', 'created_at', 'created_by'].includes(field.key)
-                                      const selectedIdx = (dedupSelections[gi] || {})[field.key]
-                                      const isSelected = selectedIdx === idx
-                                      const isWinnerDefault = selectedIdx === undefined && idx === 0 && !allSame && !['item_id', 'created_at', 'created_by'].includes(field.key)
-                                      return (
-                                        <td
-                                          key={idx}
-                                          onClick={isSelectable ? () => {
-                                            setDedupSelections(prev => ({
-                                              ...prev,
-                                              [gi]: { ...(prev[gi] || {}), [field.key]: idx },
-                                            }))
-                                          } : idx === 0 && !allSame && !['item_id', 'created_at', 'created_by'].includes(field.key) ? () => {
-                                            setDedupSelections(prev => {
-                                              const next = { ...prev, [gi]: { ...(prev[gi] || {}) } }
-                                              delete next[gi][field.key]
-                                              return next
-                                            })
-                                          } : undefined}
-                                          style={{
-                                            padding: '6px 12px', borderBottom: `1px solid ${s.border}`,
-                                            color: idx === 0 ? s.text : s.textSecondary,
-                                            maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis',
-                                            cursor: (!allSame && !['item_id', 'created_at', 'created_by'].includes(field.key)) ? 'pointer' : 'default',
-                                            background: isSelected ? 'rgba(224,124,62,0.15)' : isWinnerDefault ? 'rgba(34,197,94,0.06)' : 'transparent',
-                                            borderLeft: isSelected ? '3px solid #e07c3e' : isWinnerDefault ? '3px solid rgba(34,197,94,0.3)' : '3px solid transparent',
-                                            transition: 'all 0.1s',
-                                          }}
-                                        >
-                                          {field.key === 'status' ? <StatusBadge status={val} /> : val}
-                                        </td>
-                                      )
-                                    })}
-                                  </tr>
-                                )
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      )
-                    })()}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
       )}
 
       {/* ─── Sprint Detail View ─── */}
@@ -3443,149 +3934,6 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         )
       })()}
 
-      {/* ─── Grid View ─── */}
-      {view === 'grid' && <>
-      <div style={{ flex: 1, overflowY: 'auto', borderRadius: 8, border: `1px solid ${s.border}` }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-          <thead>
-            <tr style={{ background: s.surface, position: 'sticky', top: 0, zIndex: 5 }}>
-              <th style={{ padding: '10px 8px', width: 40, textAlign: 'center' }}>
-                <input
-                  type="checkbox"
-                  checked={pagedItems.length > 0 && selectedIds.size === pagedItems.length}
-                  onChange={toggleSelectAll}
-                  style={{ cursor: 'pointer' }}
-                />
-              </th>
-              {[
-                { key: 'item_id', label: 'ID' },
-                { key: 'type', label: 'Type' },
-                { key: 'title', label: 'Title' },
-                { key: 'component', label: 'Component' },
-                { key: 'section', label: 'Section' },
-                { key: 'portal', label: 'Portal' },
-                { key: 'status', label: 'Status' },
-                { key: 'sprint_id', label: 'Sprint' },
-              ].map(col => (
-                <th
-                  key={col.key}
-                  onClick={() => {
-                    if (sortField === col.key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
-                    else { setSortField(col.key); setSortDir('asc') }
-                    setPage(0)
-                  }}
-                  style={{
-                    padding: '10px 12px', textAlign: 'left', fontWeight: 600, fontSize: 11,
-                    textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer',
-                    color: sortField === col.key ? s.text : s.textSecondary,
-                    userSelect: 'none',
-                  }}
-                >
-                  {col.label} {sortField === col.key ? (sortDir === 'asc' ? '▲' : '▼') : ''}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={9} style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>Loading...</td></tr>
-            ) : pagedItems.length === 0 ? (
-              <tr><td colSpan={9} style={{ padding: 40, textAlign: 'center', color: s.textMuted }}>
-                <Icon name="inventory_2" size={32} color={s.textMuted} />
-                <div style={{ marginTop: 8 }}>No items found</div>
-              </td></tr>
-            ) : pagedItems.map((item) => {
-              const statusCfg = STATUS_CONFIG[item.status]
-              const borderColor = statusCfg ? statusCfg.color : s.textMuted
-              const selected = selectedIds.has(item.id)
-              const sprintName = sprints.find(sp => sp.id === item.sprint_id)?.name || '—'
-              return (
-                <tr
-                  key={item.id}
-                  onClick={() => openEdit(item)}
-                  style={{
-                    cursor: 'pointer',
-                    borderLeft: `3px solid ${borderColor}`,
-                    background: selected ? 'rgba(74,122,181,0.08)' : 'transparent',
-                    borderBottom: `1px solid ${s.border}`,
-                  }}
-                  onMouseEnter={(e) => { if (!selected) (e.currentTarget.style.background = s.hover) }}
-                  onMouseLeave={(e) => { if (!selected) (e.currentTarget.style.background = 'transparent') }}
-                >
-                  <td style={{ padding: '8px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selected}
-                      onChange={() => toggleSelect(item.id)}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  </td>
-                  <td style={{ padding: '8px 12px', color: s.textMuted, fontFamily: 'monospace', fontSize: 11 }}>{item.item_id}</td>
-                  <td style={{ padding: '8px 12px' }}>{(() => {
-                    const tc = TYPE_CONFIG[item.type]
-                    return tc ? <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: 12, fontSize: 10, fontWeight: 600, background: tc.bg, color: tc.color, whiteSpace: 'nowrap' }}>{tc.label}</span> : <span style={{ color: s.textMuted, fontSize: 11 }}>—</span>
-                  })()}</td>
-                  <td style={{ padding: '8px 12px', fontWeight: 500 }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                      {item.title}
-                      {item.discovery_url && (
-                        <a href={item.discovery_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} title="Discovery URL">
-                          <Icon name="link" size={14} color={s.portal} />
-                        </a>
-                      )}
-                      {item.plan_link && (
-                        <a href={item.plan_link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} title="Plan Link">
-                          <Icon name="description" size={14} color="rgb(245,158,11)" />
-                        </a>
-                      )}
-                    </span>
-                  </td>
-                  <td style={{ padding: '8px 12px', color: s.textSecondary }}>{safeStr(item.component) || '—'}</td>
-                  <td style={{ padding: '8px 12px', color: s.textSecondary }}>{safeStr(item.section) || '—'}</td>
-                  <td style={{ padding: '8px 12px', color: s.textSecondary, fontSize: 11 }}>{safeStr(item.portal) || '—'}</td>
-                  <td style={{ padding: '8px 12px' }}><StatusBadge status={item.status} /></td>
-                  <td style={{ padding: '8px 12px', color: s.textSecondary, fontSize: 12 }}>{sprintName}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '10px 0', fontSize: 12, color: s.textSecondary,
-      }}>
-        <span>
-          Showing {items.length === 0 ? 0 : page * pageSize + 1}–{Math.min((page + 1) * pageSize, items.length)} of {items.length}
-        </span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={() => setPage(p => Math.max(0, p - 1))}
-            disabled={page === 0}
-            style={{
-              padding: '4px 12px', borderRadius: 6, border: `1px solid ${s.border}`,
-              background: 'transparent', color: page === 0 ? s.textMuted : s.textSecondary,
-              cursor: page === 0 ? 'default' : 'pointer', fontSize: 12,
-            }}
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-            disabled={page >= totalPages - 1}
-            style={{
-              padding: '4px 12px', borderRadius: 6, border: `1px solid ${s.border}`,
-              background: 'transparent', color: page >= totalPages - 1 ? s.textMuted : s.textSecondary,
-              cursor: page >= totalPages - 1 ? 'default' : 'pointer', fontSize: 12,
-            }}
-          >
-            Next
-          </button>
-        </div>
-      </div>
-      </>}
       {/* End RONIN tab */}
       </>}
 
