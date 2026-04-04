@@ -2199,6 +2199,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           Confirm Walkthrough
         </a>
         <div style={{ flex: 1 }} />
+        {/* Bulk actions + Auto Sprint — only in grid/sprints views */}
+        {(view === 'grid' || view === 'sprints') && <>
         {selectedIds.size > 0 && (
           <>
             <Select
@@ -2244,7 +2246,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         >
           <Icon name="auto_fix_high" size={16} /> Auto Sprint
         </button>
-        {/* Roadmap removed — not being used */}
+        </>}
       </div>
 
       {/* Back to Sprints breadcrumb when sprint-filtered */}
@@ -2263,8 +2265,8 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </button>
       )}
 
-      {/* Row 2: Filters */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+      {/* Row 2: Filters — only in grid view */}
+      {view === 'grid' && <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
         <Select
           value={filters.type}
           onChange={(v) => { setFilters(f => ({ ...f, type: v })); setPage(0) }}
@@ -2318,10 +2320,9 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             Clear Filters
           </button>
         )}
-      </div>
+      </div>}
 
-
-      {/* ─── DeDup View ─── */}
+      {/* ─── DeDup View — REMOVED ─── */}
       {view === 'dedup' && (
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {dedupLoading ? (
