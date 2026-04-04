@@ -314,11 +314,11 @@ function ForgeInner({ portal }: ForgeProps) {
 
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
-  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron' | 'intake'>(() => {
+  const [dojoTab, setDojoTab] = useState<'ronin' | 'raiden' | 'voltron' | 'intake' | 'status'>(() => {
     if (typeof window === 'undefined') return 'intake'
-    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron' | 'intake') || 'intake' } catch { return 'intake' }
+    try { return (localStorage.getItem(DOJO_TAB_KEY) as 'ronin' | 'raiden' | 'voltron' | 'intake' | 'status') || 'intake' } catch { return 'intake' }
   })
-  const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron' | 'intake') => {
+  const switchDojoTab = (tab: 'ronin' | 'raiden' | 'voltron' | 'intake' | 'status') => {
     setDojoTab(tab)
     try { localStorage.setItem(DOJO_TAB_KEY, tab) } catch { /* noop */ }
   }
@@ -376,6 +376,31 @@ function ForgeInner({ portal }: ForgeProps) {
     const interval = setInterval(() => loadRoninItems(), 30000)
     return () => clearInterval(interval)
   }, [dojoTab, loadRoninItems])
+
+  // ─── STATUS tab state (CI/CD pipeline runs) ───
+  const [ciRuns, setCIRuns] = useState<Array<Record<string, unknown>>>([])
+  const [ciLoading, setCILoading] = useState(false)
+
+  const loadCIRuns = useCallback(async () => {
+    setCILoading(true)
+    try {
+      const result = await fetchValidated<{ runs: Array<Record<string, unknown>>; grouped: Record<string, Array<Record<string, unknown>>> }>(`${API_BASE}/ci?limit=30`)
+      if (result.success && result.data) {
+        setCIRuns(result.data.runs || [])
+      }
+    } catch { /* silent */ }
+    setCILoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (dojoTab === 'status') loadCIRuns()
+  }, [dojoTab, loadCIRuns])
+
+  useEffect(() => {
+    if (dojoTab !== 'status') return
+    const interval = setInterval(() => loadCIRuns(), 15000)
+    return () => clearInterval(interval)
+  }, [dojoTab, loadCIRuns])
 
   // ─── INTAKE tab state (INT- prefixed items) ───
   const [intakeItems, setIntakeItems] = useState<TrackerItem[]>([])
@@ -1398,6 +1423,21 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'voltron' ? 'rgb(59,130,246)' : s.textMuted }}>smart_toy</span>
           VOLTRON
         </button>
+        {/* Tab: STATUS */}
+        <button
+          onClick={() => switchDojoTab('status')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'status' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'status' ? 600 : 400,
+            borderBottom: dojoTab === 'status' ? '2px solid rgb(34,197,94)' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span className="material-icons-outlined" style={{ fontSize: 16, color: dojoTab === 'status' ? 'rgb(34,197,94)' : s.textMuted }}>monitoring</span>
+          STATUS
+        </button>
       </div>
 
       {/* ─── TRK-14234: RAIDEN tab content ─── */}
@@ -1798,6 +1838,193 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               Live metrics wiring in Sprint 011 — data from <code style={{ fontSize: 11, background: 'rgba(255,255,255,0.06)', padding: '1px 5px', borderRadius: 3, color: 'rgb(6,182,212)' }}>GET /dojo/heartbeats?warrior=voltron</code>
             </span>
           </div>
+        </div>
+      )}
+
+      {/* ─── STATUS tab content — CI/CD Pipeline Visibility ─── */}
+      {dojoTab === 'status' && (
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {/* Summary Strip */}
+          {(() => {
+            const latestCI = ciRuns.find(r => r.workflow === 'CI')
+            const latestCodeQL = ciRuns.find(r => r.workflow === 'CodeQL')
+            const latestDeploy = ciRuns.find(r => r.workflow === 'Deploy' || r.workflow === 'CI' && (r as Record<string, unknown>).status === 'completed')
+            const anyFailing = ciRuns.some(r => r.conclusion === 'failure' && r.branch === 'main')
+            const anyRunning = ciRuns.some(r => r.status === 'in_progress')
+            const summaryColor = anyFailing ? 'rgb(239,68,68)' : anyRunning ? 'rgb(245,158,11)' : 'rgb(34,197,94)'
+            const summaryText = anyFailing ? 'CI Failing' : anyRunning ? 'Pipeline Running' : 'All Green'
+            const summaryIcon = anyFailing ? 'error' : anyRunning ? 'sync' : 'check_circle'
+            return (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', marginBottom: 16,
+                background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="material-icons-outlined" style={{
+                    fontSize: 18, color: summaryColor,
+                    ...(anyRunning ? { animation: 'spin 1.5s linear infinite' } : {}),
+                  }}>{summaryIcon}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: summaryColor }}>{summaryText}</span>
+                </div>
+                <span style={{ color: s.border }}>|</span>
+                {[
+                  { wf: 'CI', icon: 'build_circle', data: latestCI },
+                  { wf: 'CodeQL', icon: 'security', data: latestCodeQL },
+                ].map(({ wf, icon, data }) => {
+                  const st = (data?.status as string) || 'unknown'
+                  const conc = (data?.conclusion as string) || null
+                  const c = conc === 'failure' ? 'rgb(239,68,68)' : st === 'in_progress' ? 'rgb(245,158,11)' : conc === 'success' ? 'rgb(34,197,94)' : s.textMuted
+                  const ic = conc === 'failure' ? 'cancel' : st === 'in_progress' ? 'sync' : conc === 'success' ? 'check_circle' : 'schedule'
+                  return (
+                    <span key={wf} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: c }}>
+                      <span className="material-icons-outlined" style={{
+                        fontSize: 14, ...(st === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}),
+                      }}>{ic}</span>
+                      {wf}
+                    </span>
+                  )
+                })}
+                <span style={{ fontSize: 11, color: s.textMuted, marginLeft: 'auto' }}>
+                  Auto-refresh: <strong style={{ color: s.textSecondary }}>15s</strong>
+                </span>
+                <button onClick={loadCIRuns} style={{
+                  background: 'none', border: `1px solid ${s.border}`, borderRadius: 6,
+                  padding: '4px 10px', cursor: 'pointer', color: s.textSecondary, fontSize: 11,
+                  display: 'flex', alignItems: 'center', gap: 4,
+                }}>
+                  <span className="material-icons-outlined" style={{ fontSize: 14 }}>refresh</span>
+                  Refresh
+                </button>
+              </div>
+            )
+          })()}
+
+          {ciLoading && ciRuns.length === 0 && (
+            <div style={{ padding: 32, textAlign: 'center', color: s.textMuted }}>Loading CI pipeline status...</div>
+          )}
+
+          {ciRuns.length === 0 && !ciLoading && (
+            <div style={{
+              padding: 48, textAlign: 'center', color: s.textMuted,
+              background: s.bg, border: `1px dashed ${s.border}`, borderRadius: 10,
+            }}>
+              <span className="material-icons-outlined" style={{ fontSize: 48, marginBottom: 12, display: 'block', opacity: 0.3 }}>monitoring</span>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, color: s.textSecondary }}>No CI runs yet</div>
+              <div style={{ fontSize: 12 }}>Configure the GitHub webhook to start tracking pipeline status here.</div>
+              <div style={{ fontSize: 11, marginTop: 8 }}>Webhook URL: <code style={{ padding: '2px 6px', background: s.surface, borderRadius: 4 }}>/webhook/ci</code></div>
+            </div>
+          )}
+
+          {/* Pipeline rows — one per workflow */}
+          {(() => {
+            const PIPELINES = [
+              { key: 'CI', label: 'CI Pipeline', desc: 'Type-check + Build + E2E', icon: 'build_circle', color: 'rgb(59,130,246)' },
+              { key: 'CodeQL', label: 'CodeQL Security', desc: 'Static analysis — PRs + weekly', icon: 'security', color: 'rgb(167,139,250)' },
+              { key: 'Deploy', label: 'Deploy Pipeline', desc: 'Docker + Cloud Run + Smoke Test', icon: 'rocket_launch', color: 'rgb(20,184,166)' },
+            ]
+            return PIPELINES.map(pipe => {
+              const pipeRuns = ciRuns.filter(r => r.workflow === pipe.key).slice(0, 5)
+              const latest = pipeRuns[0] as Record<string, unknown> | undefined
+              const latestStatus = (latest?.status as string) || 'unknown'
+              const latestConc = (latest?.conclusion as string) || null
+              const statusColor = latestConc === 'failure' ? 'rgb(239,68,68)' : latestStatus === 'in_progress' ? 'rgb(245,158,11)' : latestConc === 'success' ? 'rgb(34,197,94)' : s.textMuted
+              const statusIcon = latestConc === 'failure' ? 'cancel' : latestStatus === 'in_progress' ? 'sync' : latestConc === 'success' ? 'check_circle' : 'schedule'
+              const statusText = latestConc === 'failure' ? 'Failed' : latestStatus === 'in_progress' ? 'Running...' : latestConc === 'success' ? 'Passed' : 'Waiting'
+
+              return (
+                <div key={pipe.key} style={{
+                  background: s.bg, border: `1px solid ${s.border}`, borderRadius: 10, marginBottom: 12, overflow: 'hidden',
+                }}>
+                  {/* Pipeline header */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
+                    borderBottom: `1px solid ${s.border}`,
+                  }}>
+                    <div style={{
+                      width: 30, height: 30, borderRadius: 8, display: 'flex',
+                      alignItems: 'center', justifyContent: 'center', background: pipe.color,
+                    }}>
+                      <span className="material-icons-outlined" style={{ fontSize: 16, color: '#fff' }}>{pipe.icon}</span>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: s.text }}>{pipe.label}</div>
+                      <div style={{ fontSize: 10, color: s.textMuted }}>{pipe.desc}</div>
+                    </div>
+                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: statusColor }}>
+                      <span className="material-icons-outlined" style={{
+                        fontSize: 16, ...(latestStatus === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}),
+                      }}>{statusIcon}</span>
+                      {statusText}
+                    </div>
+                  </div>
+                  {/* Run cards */}
+                  <div style={{ display: 'flex', gap: 8, padding: '10px 14px', overflowX: 'auto' }}>
+                    {pipeRuns.length === 0 ? (
+                      <div style={{ padding: '12px 16px', color: s.textMuted, fontSize: 11 }}>No runs tracked yet</div>
+                    ) : pipeRuns.map((run, idx) => {
+                      const r = run as Record<string, unknown>
+                      const rStatus = r.status as string
+                      const rConc = r.conclusion as string | null
+                      const rColor = rConc === 'failure' ? 'rgb(239,68,68)' : rStatus === 'in_progress' ? 'rgb(245,158,11)' : rConc === 'success' ? 'rgb(34,197,94)' : s.textMuted
+                      const rIcon = rConc === 'failure' ? 'cancel' : rStatus === 'in_progress' ? 'sync' : rConc === 'success' ? 'check_circle' : 'hourglass_top'
+                      const branch = r.branch as string || ''
+                      const sha = ((r.commit_sha as string) || '').slice(0, 7)
+                      const msg = (r.commit_message as string) || ''
+                      const dur = r.duration_seconds as number | null
+                      const isActive = idx === 0 && rStatus === 'in_progress'
+
+                      return (
+                        <a
+                          key={String(r.run_id || idx)}
+                          href={r.html_url as string}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            minWidth: 190, maxWidth: 230, flexShrink: 0, textDecoration: 'none',
+                            background: s.surface, border: `1px ${isActive ? 'solid' : 'solid'} ${isActive ? 'rgb(245,158,11)' : s.border}`,
+                            borderRadius: 8, padding: '8px 10px', transition: 'all 0.15s', display: 'block',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                            <span className="material-icons-outlined" style={{
+                              fontSize: 14, color: rColor,
+                              ...(rStatus === 'in_progress' ? { animation: 'spin 1.5s linear infinite' } : {}),
+                            }}>{rIcon}</span>
+                            <span style={{
+                              fontSize: 10, fontWeight: 600, padding: '1px 5px', borderRadius: 4,
+                              background: branch === 'main' ? 'rgba(34,197,94,0.12)' : 'rgba(99,102,241,0.12)',
+                              color: branch === 'main' ? 'rgb(34,197,94)' : 'rgb(99,102,241)',
+                            }}>{branch}</span>
+                          </div>
+                          <div style={{
+                            fontSize: 10, color: s.textSecondary, marginBottom: 3,
+                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                          }}>
+                            <code style={{ fontSize: 9, padding: '1px 3px', borderRadius: 3, background: 'rgba(255,255,255,0.06)', color: s.textMuted }}>{sha}</code>
+                            {' '}{msg.slice(0, 40)}
+                          </div>
+                          <div style={{ fontSize: 9, color: s.textMuted, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {dur != null ? (
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <span className="material-icons-outlined" style={{ fontSize: 10 }}>timer</span>
+                                {dur < 60 ? `${dur}s` : `${Math.floor(dur / 60)}m ${dur % 60}s`}
+                              </span>
+                            ) : rStatus === 'in_progress' ? (
+                              <span style={{ color: 'rgb(245,158,11)' }}>running...</span>
+                            ) : null}
+                            {r.pr_number ? <span>PR #{String(r.pr_number)}</span> : null}
+                          </div>
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })
+          })()}
+
+          {/* Spin animation keyframes */}
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
 
