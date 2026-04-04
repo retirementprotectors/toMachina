@@ -13,6 +13,7 @@ const PIPELINE_KEY_TO_SLUG: Record<string, string> = {
   PROSPECT_LEGACY: 'prospect-legacy',
   REACTIVE_RETIREMENT: 'reactive-retirement',
   REACTIVE_MEDICARE: 'reactive-medicare',
+  PROSPECT_HOUSEHOLD: 'prospect-household',
 }
 
 // Derive the inverse map programmatically
