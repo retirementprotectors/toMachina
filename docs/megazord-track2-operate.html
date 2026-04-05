@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEGAZORD Track 2 — OPERATE Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.08) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--mecha-green); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981 0%, #06b6d4 35%, #10b981 70%, #22c55e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-mecha { background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--mecha-green); border-bottom-color: var(--mecha-green); background: var(--mecha-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--mecha-green); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul, .card ol { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--mecha-green); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.cyan { border-top: 3px solid var(--cyan); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--mecha-green); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-new { color: var(--cyan); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-gap { color: var(--red); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--mecha-green); border-radius: 0 12px 12px 0; padding: 24px; margin-bottom: 20px; }
+  .ticket.phase2 { border-left-color: var(--blue); }
+  .ticket.phase3 { border-left-color: var(--cyan); }
+  .ticket-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--mecha-green); background: var(--mecha-glow); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.25); }
+  .ticket-id.phase2 { color: var(--blue); background: var(--blue-glow); border-color: rgba(59,130,246,0.25); }
+  .ticket-id.phase3 { color: var(--cyan); background: var(--cyan-glow); border-color: rgba(6,182,212,0.25); }
+  .ticket-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+  .ticket h3 { font-size: 0.9rem; font-weight: 600; margin: 14px 0 6px; color: var(--mecha-green); text-transform: uppercase; letter-spacing: 0.5px; }
+  .ticket p { color: var(--text-muted); margin-bottom: 8px; font-size: 0.9rem; }
+  .ticket ul, .ticket ol { color: var(--text-muted); margin: 0 0 12px 20px; font-size: 0.9rem; }
+  .ticket li { margin-bottom: 4px; }
+  .ticket code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); }
+  .ticket .file-list { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin: 8px 0 12px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--cyan); white-space: pre; overflow-x: auto; }
+  .ac-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .ac-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .ac-list li::before { content: '\2713'; position: absolute; left: 4px; color: var(--green); font-weight: 700; }
+  .dep-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .dep-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .dep-list li::before { content: '\2192'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--mecha-green); }
+  .phase-header.p2 { border-bottom-color: var(--blue); }
+  .phase-header.p3 { border-bottom-color: var(--cyan); }
+  .phase-number { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); flex-shrink: 0; }
+  .phase-number.p2 { background: var(--blue-glow); color: var(--blue); border-color: rgba(59,130,246,0.3); }
+  .phase-number.p3 { background: var(--cyan-glow); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+  .phase-title { font-size: 1.3rem; font-weight: 700; }
+  .phase-desc { font-size: 0.85rem; color: var(--text-muted); }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-box .number { font-size: 2rem; font-weight: 800; color: var(--mecha-green); line-height: 1; }
+  .stat-box .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  .footer .signoff { color: var(--mecha-green); font-weight: 700; font-size: 1rem; margin-top: 12px; }
+  .footer .race { color: var(--mecha-green); font-weight: 700; letter-spacing: 1px; margin-top: 8px; }
+  @media (max-width: 768px) { .header h1 { font-size: 2rem; } .spec-grid { grid-template-columns: 1fr; } .stat-row { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">TRACK DISCOVERY DOC &mdash; OPERATE</div>
+  <h1>MEGAZORD Track 2</h1>
+  <p class="subtitle">Deploy the Rangers. Wire the mesh. Establish the intake funnel. MEGAZORD becomes operational &mdash; the CIO that runs itself.</p>
+  <div class="header-badges">
+    <span class="badge badge-mecha">MEGAZORD &mdash; CIO</span>
+    <span class="badge badge-mecha">TRACK 2: OPERATE</span>
+    <span class="badge badge-accent">14 TICKETS</span>
+    <span class="badge badge-blue">RANGERS MESH</span>
+    <span class="badge badge-cyan">INTAKE FUNNEL</span>
+  </div>
+  <div class="ronin-meta">authored: MUSASHI, ARTxBLADE &bull; 2026-04-05 &bull; CXO track discovery for MEGAZORD</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">Overview</div>
+    <div class="tab" onclick="showTab('tickets')">Tickets</div>
+    <div class="tab" onclick="showTab('files')">Files</div>
+    <div class="tab" onclick="showTab('tests')">Test Plan</div>
+    <div class="tab" onclick="showTab('deps')">Dependencies</div>
+    <div class="tab" onclick="showTab('sprint')">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- TAB: OVERVIEW -->
+  <div class="panel active" id="tab-overview">
+    <div class="card">
+      <h2>Why OPERATE Is Track 2</h2>
+      <div class="quote">"The wires are the nervous system. The Rangers are the hands. OPERATE connects the brain to the body."</div>
+      <p>Track 1 (CONSUME) gave MEGAZORD ownership of ATLAS &mdash; the registry is claimed, the Command Center is rebranded, the identity is established. But ownership without execution is just a title. OPERATE turns MEGAZORD from an identity into an <strong>operator</strong>.</p>
+      <p>All 5 wires already exist and are tested. The Rangers are not building new functionality &mdash; they're <strong>automating the execution</strong> of pipelines that are already proven. This makes MEGAZORD's mesh the most ready-to-deploy of any CXO.</p>
+    </div>
+
+    <div class="card">
+      <h2>What OPERATE Delivers</h2>
+      <div class="stat-row">
+        <div class="stat-box"><div class="number">5</div><div class="label">Rangers</div></div>
+        <div class="stat-box"><div class="number">5</div><div class="label">Wires Audited</div></div>
+        <div class="stat-box"><div class="number">3</div><div class="label">Intake Channels</div></div>
+        <div class="stat-box"><div class="number">1</div><div class="label">Mesh View UI</div></div>
+        <div class="stat-box"><div class="number">1</div><div class="label">Orchestration API</div></div>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-card mecha">
+          <h4>5 CCSDK Rangers</h4>
+          <p>One Ranger per ATLAS wire. Each reads its wire definition and executes steps sequentially. No reasoning &mdash; the wire IS the task list.</p>
+          <ul>
+            <li>ranger-acf (3 stages &mdash; proves pattern)</li>
+            <li>ranger-import (5 stages &mdash; highest value)</li>
+            <li>ranger-commission (5 stages &mdash; revenue)</li>
+            <li>ranger-reference (4 stages &mdash; foundation)</li>
+            <li>ranger-correspondence (8 stages &mdash; most complex)</li>
+          </ul>
+        </div>
+        <div class="spec-card blue">
+          <h4>Wire Library Audit</h4>
+          <p>Every wire executed end-to-end with real test data. Known edge cases documented. E2E tests verified passing.</p>
+          <ul><li>5 wires verified</li><li>Edge cases cataloged</li><li>8 E2E test files green</li></ul>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Intake Funnel</h4>
+          <p>Three automated intake channels + existing manual trigger. Data work arrives at MEGAZORD without anyone filing a ticket.</p>
+          <ul><li>Drive folder watch (auto-trigger)</li><li>Slack command (#megazord-intake)</li><li>Email forward (intake@)</li><li>Manual UI trigger (exists)</li></ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>CXO Self-Authoring</h4>
+          <p>MEGAZORD writes his own Discovery Docs. Pre-loaded template with ATLAS context, registry state, wire inventory. The CTO reviews as mentor, not auditor.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Title</th><th>Phase</th><th>Effort</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ZRD-O01</strong></td><td>Ranger Agent Base Template</td><td>P1</td><td>L</td></tr>
+          <tr><td><strong>ZRD-O02</strong></td><td>Ranger: ACF Cleanup</td><td>P1</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O03</strong></td><td>Ranger: Data Import</td><td>P1</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O04</strong></td><td>Ranger: Commission Sync</td><td>P1</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O05</strong></td><td>Ranger: Reference Seed</td><td>P2</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O06</strong></td><td>Ranger: Correspondence</td><td>P2</td><td>L</td></tr>
+          <tr><td><strong>ZRD-O07</strong></td><td>Wire Library E2E Audit</td><td>P2</td><td>L</td></tr>
+          <tr><td><strong>ZRD-O08</strong></td><td>Ranger Orchestration API</td><td>P2</td><td>L</td></tr>
+          <tr><td><strong>ZRD-O09</strong></td><td>Command Center Mesh View</td><td>P2</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O10</strong></td><td>Intake: Drive Folder Watch</td><td>P3</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O11</strong></td><td>Intake: Slack Command</td><td>P3</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O12</strong></td><td>Intake: Email Forward</td><td>P3</td><td>M</td></tr>
+          <tr><td><strong>ZRD-O13</strong></td><td>Self-Authoring Template</td><td>P3</td><td>S</td></tr>
+          <tr><td><strong>ZRD-O14</strong></td><td>Ranger E2E Test Suite</td><td>P3</td><td>L</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Architecture &mdash; Target State</h2>
+      <div class="diagram"><span class="hl-mecha">MEGAZORD</span> (tmux, CIO brain)
+    |
+    |  "Which wire do I need for this data problem?"
+    |  "Check ATLAS first &mdash; does a wire already exist?"
+    |
+    ├── <span class="hl-mecha">ranger-acf</span> (CCSDK)           &larr; WIRE_ACF_CLEANUP (3 stages)
+    ├── <span class="hl-mecha">ranger-import</span> (CCSDK)        &larr; WIRE_DATA_IMPORT (5 stages)
+    ├── <span class="hl-mecha">ranger-commission</span> (CCSDK)    &larr; WIRE_COMMISSION_SYNC (5 stages)
+    ├── <span class="hl-mecha">ranger-reference</span> (CCSDK)     &larr; WIRE_REFERENCE_SEED (4 stages)
+    └── <span class="hl-mecha">ranger-correspondence</span> (CCSDK) &larr; WIRE_INCOMING_CORRESPONDENCE (8 stages)
+
+    ┌─────────────── Intake Funnel ───────────────┐
+    │  <span class="hl-cyan">Drive Watch</span>  │  <span class="hl-cyan">Slack Cmd</span>  │  <span class="hl-cyan">Email Fwd</span>  │  <span class="hl-green">Manual UI</span>  │
+    └──────────────────────────────────────────────┘
+              |
+         <span class="hl">Orchestration API</span> (dispatch + status + history)
+              |
+         <span class="hl-mecha">Command Center</span> &mdash; Mesh View (Ranger status dashboard)</div>
+    </div>
+  </div>
+
+  <!-- TAB: TICKETS -->
+  <div class="panel" id="tab-tickets">
+
+    <!-- PHASE 1 -->
+    <div class="phase-header">
+      <div class="phase-number">1</div>
+      <div><div class="phase-title">Ranger Pattern + First Deploy</div><div class="phase-desc">Build the base template, then deploy first 3 Rangers. O01 first, then O02-O04 in parallel.</div></div>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-O01</span><span class="ticket-title">Ranger Agent Base Template</span></div>
+      <p>Foundational CCSDK agent config template. A Ranger reads a wire definition, executes each Super Tool step in order, handles errors per step, reports progress. No reasoning &mdash; the wire IS the task list.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/rangers/types.ts           &mdash; NEW
+services/api/src/rangers/ranger-base.ts      &mdash; NEW
+services/api/src/rangers/index.ts            &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>RangerConfig</code>: rangerId, wireId, systemPrompt, wireDefinition (from atlas/wires.ts), model ('sonnet' | 'haiku'), maxRetries</li>
+        <li><code>RangerStatus</code>: 'idle' | 'running' | 'completed' | 'failed' | 'paused'</li>
+        <li><code>RangerExecutionResult</code>: rangerId, wireId, startedAt, completedAt, steps[] with per-step status/duration/error</li>
+        <li><code>createRanger(config)</code> factory returns callable executor</li>
+        <li>Step executor reads wire stages, calls each Super Tool via existing API endpoints</li>
+        <li>Per-step retry up to maxRetries, then halt (no silent continuation)</li>
+        <li>Progress to Firestore <code>ranger_runs/{runId}/steps/{stepId}</code></li>
+        <li>Model defaults to 'haiku' (pennies per run)</li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p>Wire definitions: <code>packages/core/src/atlas/wires.ts</code> (240 lines). Wire executor: <code>wire-executor.ts</code> (425 lines). Ranger wraps this with CCSDK orchestration + Firestore persistence.</p>
+      <h3>Test Plan</h3>
+      <ul><li><code>createRanger()</code> returns callable executor</li><li>Executor iterates stages in order</li><li>Failed step halts execution</li><li>Result persisted to Firestore with accurate step durations</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 1 CONSUME complete</li><li>atlas/wires.ts wire definitions (exist)</li><li>wire-executor.ts runtime (exists)</li></ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-O02</span><span class="ticket-title">Ranger: ACF Cleanup</span></div>
+      <p>First Ranger. Proves the pattern. <code>WIRE_ACF_CLEANUP</code> &mdash; shortest wire (3 stages), most tested (ACF 2.0 shipped 23 tickets), lowest risk.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/rangers/ranger-acf.ts       &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Extends <code>createRanger()</code> with wireId <code>WIRE_ACF_CLEANUP</code></li>
+        <li>3 stages: SUPER_FOLDER_CLEANUP &rarr; SUPER_DOCUMENT_CLEANUP &rarr; SUPER_AUDIT_REVIEW</li>
+        <li>Audit report persisted to <code>atlas_audit</code></li>
+        <li>Full result in <code>ranger_runs</code> with 3 step entries</li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p>ACF API: <code>services/api/src/routes/acf.ts</code> (1,366 lines). E2E: <code>cluster8-acf-lifecycle.test.ts</code>.</p>
+      <h3>Test Plan</h3>
+      <ul><li>Dispatch with test client folder &mdash; 3 stages complete</li><li>Audit report generated</li><li>Error in stage 2 halts pipeline</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O01 (base template)</li><li>ACF API endpoints (exist)</li></ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-O03</span><span class="ticket-title">Ranger: Data Import</span></div>
+      <p>Highest business value. Every carrier onboard starts here. Universal CSV/file ingestion pipeline.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/rangers/ranger-import.ts     &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>wireId: <code>WIRE_DATA_IMPORT</code></li>
+        <li>5 stages: SUPER_EXTRACT &rarr; SUPER_VALIDATE &rarr; SUPER_NORMALIZE &rarr; SUPER_MATCH &rarr; SUPER_WRITE</li>
+        <li>Introspection engine auto-maps columns via SUPER_EXTRACT</li>
+        <li>Accepts Drive file ID or upload path as input</li>
+        <li>Reports: records processed, created, updated, skipped, failed</li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p>Import API: <code>services/api/src/routes/import.ts</code> (2,753 lines). Introspection: <code>introspect.ts</code> (425 lines).</p>
+      <h3>Test Plan</h3>
+      <ul><li>Import 10-row CSV &mdash; 10 records created</li><li>Re-import &mdash; SUPER_MATCH deduplicates, 0 new</li><li>Import with 2 invalid rows &mdash; 8 created, 2 rejected</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O01</li><li>Import API endpoints (exist)</li></ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-O04</span><span class="ticket-title">Ranger: Commission Sync</span></div>
+      <p>Revenue pipeline. Carrier commission statements &rarr; revenue records. Accuracy to the penny.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/rangers/ranger-commission.ts  &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>wireId: <code>WIRE_COMMISSION_SYNC</code></li>
+        <li>5 stages: SUPER_EXTRACT &rarr; SUPER_VALIDATE &rarr; SUPER_NORMALIZE &rarr; SUPER_MATCH &rarr; SUPER_WRITE</li>
+        <li>Commission-specific normalizers (gross_commission, net_commission, override_amount, policy_number)</li>
+        <li>SUPER_MATCH matches to existing accounts + producers</li>
+        <li>Reports: statements processed, matched, unmatched, total revenue</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Process 5-line statement &mdash; 5 revenue records, amounts match to penny</li><li>1 unmatched policy &mdash; reported, not silently dropped</li><li>Re-process &mdash; dedup prevents duplicates</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O01</li><li>Commission normalizers (exist)</li></ul>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-header p2">
+      <div class="phase-number p2">2</div>
+      <div><div class="phase-title">Full Mesh + Wire Audit</div><div class="phase-desc">Complete remaining Rangers, audit wire library, build orchestration layer, surface in Command Center.</div></div>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-O05</span><span class="ticket-title">Ranger: Reference Seed</span></div>
+      <p>Foundation data. Carriers, products, NAIC codes, rate tables. Other Rangers depend on this data being accurate.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/rangers/ranger-reference.ts   &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>wireId: <code>WIRE_REFERENCE_SEED</code></li>
+        <li>4 stages: SUPER_EXTRACT &rarr; SUPER_NORMALIZE &rarr; SUPER_MATCH &rarr; SUPER_WRITE (skips VALIDATE)</li>
+        <li>Targets <code>carriers</code>, <code>products</code> collections</li>
+        <li>Idempotent &mdash; re-seed updates existing, creates zero duplicates</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Seed 3 carriers &mdash; verified in Firestore</li><li>Re-seed &mdash; 0 new, 3 updated</li><li>Seed 1 new + 2 existing &mdash; 1 created, 2 updated</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O01</li><li>Phase 1 proven</li></ul>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-O06</span><span class="ticket-title">Ranger: Correspondence</span></div>
+      <p>Most complex Ranger. 8-stage wire. Server-only (SUPER_PREPARE + SUPER_CLASSIFY need fs access). Physical mail scan &rarr; classify &rarr; extract &rarr; route to ACF.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/rangers/ranger-correspondence.ts  &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>wireId: <code>WIRE_INCOMING_CORRESPONDENCE</code></li>
+        <li>8 stages: SUPER_PREPARE &rarr; SUPER_CLASSIFY &rarr; SUPER_EXTRACT &rarr; SUPER_VALIDATE &rarr; SUPER_NORMALIZE &rarr; SUPER_MATCH &rarr; SUPER_WRITE &rarr; ACF_FINALIZE</li>
+        <li>SUPER_PREPARE: Download from Drive, PDF &rarr; page images (server-only)</li>
+        <li>SUPER_CLASSIFY: Claude Vision document classification</li>
+        <li>ACF_FINALIZE: Route to correct ACF subfolder + update document_index</li>
+        <li>Must run on MDJ_SERVER (fs access required)</li>
+        <li>Reports: docs received, pages processed, docs classified, files routed</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Process 3-page multi-doc PDF &mdash; all 8 stages complete</li><li>Documents correctly classified</li><li>Files routed to correct ACF subfolders</li><li>Error in CLASSIFY halts (no unclassified docs routed)</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O01</li><li>MDJ_SERVER filesystem</li><li>Claude Vision API</li><li>Phase 1 proven</li></ul>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-O07</span><span class="ticket-title">Wire Library E2E Audit</span></div>
+      <p>Comprehensive audit of all 5 wires. Not just "do tests pass?" but "do wires produce correct results with real-world-shaped data?"</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/__tests__/e2e/cluster2-intake.test.ts        &mdash; VERIFY
+services/api/src/__tests__/e2e/cluster3-atlas.test.ts         &mdash; VERIFY
+services/api/src/__tests__/e2e/cluster4-data-sync.test.ts     &mdash; VERIFY
+services/api/src/__tests__/e2e/cluster8-acf-lifecycle.test.ts  &mdash; VERIFY
+services/api/src/__tests__/e2e/acf-scan.test.ts               &mdash; VERIFY
+services/api/src/__tests__/e2e/acf-upload.test.ts             &mdash; VERIFY
+services/api/src/__tests__/e2e/mail-intake.test.ts            &mdash; VERIFY
+services/api/src/__tests__/e2e/spc-intake.test.ts             &mdash; VERIFY
+docs/wire-edge-cases.md                                        &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>All 8 E2E test files pass</li>
+        <li>Each wire tested with 2+ carrier formats</li>
+        <li>Edge cases documented: date formats, encoding, empty rows, merged cells</li>
+        <li>Known carrier quirks cataloged</li>
+        <li>Failures have corresponding fix tickets (ZRD-)</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li><code>npm run test:e2e:local</code> &mdash; all pass</li><li>Manual review for false-pass scenarios</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>All 5 Rangers deployed (O02-O06)</li></ul>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-O08</span><span class="ticket-title">Ranger Orchestration API</span></div>
+      <p>REST API control plane for the Ranger mesh. This is a <strong>Cloud Run Express route module</strong> &mdash; NOT a CCSDK agent, NOT a standalone service. It follows the same pattern as <code>wire.ts</code> and <code>atlas.ts</code>: Express router mounted at <code>/api/rangers/*</code> inside the existing <code>tm-api</code> Cloud Run service.</p>
+
+      <h3>Architecture Decision</h3>
+      <p><strong>What the "dispatcher" is:</strong> A synchronous Express route handler that (1) looks up the Ranger class from <code>registry.ts</code> by <code>rangerId</code>, (2) instantiates it with the provided params, (3) kicks off <code>ranger.execute()</code> as a background task, (4) writes a <code>ranger_runs/{runId}</code> Firestore doc with status <code>running</code>, and (5) returns <code>{ success: true, data: { runId } }</code> immediately. The Ranger itself updates its Firestore run doc as it progresses through steps. No queue, no pub/sub, no CCSDK &mdash; direct in-process execution on Cloud Run.</p>
+      <p><strong>Why not CCSDK:</strong> Rangers are deterministic multi-step pipelines (read file &rarr; normalize &rarr; validate &rarr; write). They don't need LLM reasoning. CCSDK agents are for conversational AI (VOLTRON, Specialists). Different tool, different job.</p>
+      <p><strong>Why not a separate service:</strong> Rangers share the same Firestore client, Firebase Auth middleware, and ATLAS registry access as the existing API. A separate service would duplicate all of that for no benefit. If load requires it later, Rangers can be split to their own Cloud Run service &mdash; but that's a scaling decision, not a v1 decision.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/routes/rangers.ts             &mdash; NEW: Express router (dispatch, status, history, cancel, registry endpoints)
+services/api/src/rangers/registry.ts           &mdash; NEW: Map&lt;rangerId, RangerClass&gt; + lookup + validation
+services/api/src/rangers/types.ts              &mdash; REFERENCE (from ZRD-O01): RangerRun, RangerStep, RangerStatus types</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>POST /api/rangers/dispatch</code> &mdash; validates rangerId against registry, creates <code>ranger_runs/{runId}</code> Firestore doc, starts execution, returns <code>{ success: true, data: { runId } }</code></li>
+        <li><code>GET /api/rangers/:runId/status</code> &mdash; reads <code>ranger_runs/{runId}</code>, returns step-level progress with timestamps</li>
+        <li><code>GET /api/rangers/history</code> &mdash; paginated query on <code>ranger_runs</code> collection, filterable by rangerId + status + date range</li>
+        <li><code>POST /api/rangers/:runId/cancel</code> &mdash; sets <code>status: 'cancelled'</code> on Firestore doc; Ranger checks this flag between steps and halts</li>
+        <li><code>GET /api/rangers/registry</code> &mdash; returns all registered Rangers with wire bindings, step definitions, and current idle/running status</li>
+        <li><code>registry.ts</code> exports <code>getRanger(rangerId): RangerClass | null</code> and <code>listRangers(): RangerMeta[]</code></li>
+        <li>Firebase Auth required (EXECUTIVE+ entitlement)</li>
+        <li>Response format: <code>{ success, data?, error? }</code></li>
+        <li>Firestore collection: <code>ranger_runs</code> &mdash; one doc per execution with fields: <code>runId, rangerId, status, steps[], startedAt, completedAt, triggeredBy, input, output, error</code></li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p><code>services/api/src/routes/wire.ts</code> (230 lines) for the Express router + background execution pattern. <code>services/api/src/routes/atlas.ts</code> for the registry-read pattern.</p>
+      <h3>Test Plan</h3>
+      <ul><li>Dispatch ranger-acf &mdash; returns runId, Firestore doc created with status <code>running</code></li><li>Status endpoint shows step-level progress as Ranger executes</li><li>Cancel mid-execution: Ranger halts at next step boundary, status becomes <code>cancelled</code></li><li>Unauthorized user gets 403</li><li>Invalid rangerId returns <code>{ success: false, error: "Unknown ranger: {id}" }</code></li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O01 (types + base template)</li><li>At least ZRD-O02 (one Ranger to test dispatch against)</li></ul>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-O09</span><span class="ticket-title">Command Center Mesh View</span></div>
+      <p>UI panel in MEGAZORD Command Center: Ranger status cards, active execution timeline, run history, dispatch dialog.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">packages/ui/src/modules/AtlasRegistry.tsx    &mdash; MODIFY (add Mesh section)
+packages/ui/src/modules/MegazordMeshView.tsx &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>New "Mesh" section in Command Center</li>
+        <li>5 Ranger status cards: idle/running/completed/failed indicators</li>
+        <li>Active execution timeline with real-time step progress</li>
+        <li>Run history table (last 50 runs)</li>
+        <li>"Dispatch Ranger" button per card</li>
+        <li>Auto-refresh running Rangers every 5 seconds</li>
+        <li>Mecha-green accent for Ranger indicators</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Mesh View loads with 5 cards</li><li>Dispatch from UI updates card to 'running'</li><li>Playwright E2E: Mesh View renders without errors</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O08 (Orchestration API)</li><li>Track 1 complete (Command Center exists)</li></ul>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-header p3">
+      <div class="phase-number p3">3</div>
+      <div><div class="phase-title">Intake + Self-Authoring</div><div class="phase-desc">Automated intake channels + CXO self-authoring capability. Data work arrives at MEGAZORD without tickets.</div></div>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-O10</span><span class="ticket-title">Intake: Drive Folder Watch</span></div>
+      <p>Files dropped in designated Drive folder auto-trigger the appropriate wire. Zero tickets, zero manual dispatch.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/intake/src/drive-watcher.ts           &mdash; NEW
+services/intake/src/wire-router.ts             &mdash; NEW
+services/api/src/routes/intake.ts              &mdash; MODIFY</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Designated intake folder on Shared Drive monitored</li>
+        <li>New file &rarr; SUPER_INTROSPECT identifies format &rarr; routes to correct Ranger</li>
+        <li>Commission CSV &rarr; ranger-commission. Client CSV &rarr; ranger-import. Reference &rarr; ranger-reference.</li>
+        <li>Unrecognized format queued for manual review</li>
+        <li>Processed files moved to "Processed" subfolder with timestamp</li>
+        <li>Failed files moved to "Failed" subfolder with error log</li>
+        <li>Slack notification on success/failure</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Drop commission CSV &mdash; ranger-commission triggered within 5 min</li><li>Unknown format &mdash; queued, not auto-processed</li><li>Corrupted file &mdash; moved to Failed</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O08 (Orchestration API)</li><li>Rangers deployed (O02-O06)</li><li>Shared Drive folder created (JDM)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-O11</span><span class="ticket-title">Intake: Slack Command</span></div>
+      <p>Team posts to #megazord-intake with file attachment. MEGAZORD acknowledges, routes to Ranger, posts results back.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/intake/src/slack-intake.ts            &mdash; NEW
+services/api/src/routes/intake.ts              &mdash; MODIFY</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Dedicated #megazord-intake Slack channel</li>
+        <li>Acknowledgment: "Received. Routing to ranger-commission. Run ID: {id}"</li>
+        <li>File downloaded &rarr; SUPER_INTROSPECT &rarr; Ranger dispatched</li>
+        <li>Completion notification with results summary</li>
+        <li>Supports CSV, XLSX, PDF</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Post CSV &mdash; acknowledgment within 30 seconds</li><li>Results summary posted on completion</li><li>Unsupported format &mdash; helpful error</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O08</li><li>Slack MCP (exists)</li><li>Channel created (JDM)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-O12</span><span class="ticket-title">Intake: Email Forward</span></div>
+      <p>Carrier statements forwarded to intake email. MEGAZORD processes attachment, replies with results.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/intake/src/email-intake.ts            &mdash; NEW
+services/api/src/routes/intake.ts              &mdash; MODIFY</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Intake email address monitored</li>
+        <li>Attachment extracted &rarr; SUPER_INTROSPECT &rarr; Ranger dispatched</li>
+        <li>Subject/body parsed for context hints (carrier name, data type)</li>
+        <li>Receipt reply + completion reply with results</li>
+        <li>Unrecognized attachments queued for review</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Forward test CSV &mdash; processed within 10 min</li><li>Receipt reply sent</li><li>No attachment &mdash; polite error reply</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O08</li><li>Gmail MCP (exists)</li><li>Email address configured (JDM)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-O13</span><span class="ticket-title">Self-Authoring Template</span></div>
+      <p>Discovery Doc templates pre-loaded with ATLAS context. MEGAZORD writes his own DiscoDocs for new wires/tools.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">~/Projects/dojo-warriors/megazord/templates/discovery-template.md  &mdash; NEW
+~/Projects/dojo-warriors/megazord/templates/wire-spec-template.md  &mdash; NEW
+~/Projects/dojo-warriors/megazord/templates/ranger-spec-template.md &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Discovery Doc template with 8 standard tabs + ATLAS context</li>
+        <li>Wire spec: wireId, stages, Super Tools, input/output schemas, test fixtures</li>
+        <li>Ranger spec: rangerId, wire binding, system prompt, model, dispatch params</li>
+        <li>Templates reference current ATLAS inventory</li>
+        <li>Output is RONIN-executable</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>MEGAZORD fills template for hypothetical wire &mdash; produces valid DiscoDoc</li><li>RONIN confirms output is executable</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 1 (soul.md established)</li><li>ZRD-O07 (Wire Audit provides context)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-O14</span><span class="ticket-title">Ranger E2E Test Suite</span></div>
+      <p>Automated tests for each Ranger: dispatch, execute, verify results. Runs in CI as deploy gate.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/__tests__/e2e/rangers-acf.test.ts            &mdash; NEW
+services/api/src/__tests__/e2e/rangers-import.test.ts         &mdash; NEW
+services/api/src/__tests__/e2e/rangers-commission.test.ts     &mdash; NEW
+services/api/src/__tests__/e2e/rangers-reference.test.ts      &mdash; NEW
+services/api/src/__tests__/e2e/rangers-correspondence.test.ts &mdash; NEW
+services/api/src/__tests__/e2e/rangers-orchestration.test.ts  &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Dedicated E2E file per Ranger</li>
+        <li>Tests dispatch via Orchestration API, wait, verify results</li>
+        <li>Test data uses <code>e2e-test-</code> prefix</li>
+        <li>All pass in CI (added to e2e-intake workflow)</li>
+        <li>60-second timeout per Ranger</li>
+        <li>Cleanup: no test artifacts remain</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li><code>npm run test:e2e:local</code> &mdash; all Ranger tests pass</li><li>No e2e-test- artifacts in Firestore after run</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-O01 through O06 (all Rangers)</li><li>ZRD-O08 (Orchestration API)</li></ul>
+    </div>
+  </div>
+
+  <!-- TAB: FILES -->
+  <div class="panel" id="tab-files">
+    <div class="card">
+      <h2>New Files (16)</h2>
+      <table>
+        <tr><th>File</th><th>Ticket</th><th>Purpose</th></tr>
+        <tr><td><code>services/api/src/rangers/types.ts</code></td><td>O01</td><td>Ranger types</td></tr>
+        <tr><td><code>services/api/src/rangers/ranger-base.ts</code></td><td>O01</td><td>Factory + step executor</td></tr>
+        <tr><td><code>services/api/src/rangers/index.ts</code></td><td>O01</td><td>Barrel exports</td></tr>
+        <tr><td><code>services/api/src/rangers/registry.ts</code></td><td>O08</td><td>Ranger registry</td></tr>
+        <tr><td><code>services/api/src/rangers/ranger-acf.ts</code></td><td>O02</td><td>ACF Cleanup Ranger</td></tr>
+        <tr><td><code>services/api/src/rangers/ranger-import.ts</code></td><td>O03</td><td>Data Import Ranger</td></tr>
+        <tr><td><code>services/api/src/rangers/ranger-commission.ts</code></td><td>O04</td><td>Commission Sync Ranger</td></tr>
+        <tr><td><code>services/api/src/rangers/ranger-reference.ts</code></td><td>O05</td><td>Reference Seed Ranger</td></tr>
+        <tr><td><code>services/api/src/rangers/ranger-correspondence.ts</code></td><td>O06</td><td>Correspondence Ranger</td></tr>
+        <tr><td><code>services/api/src/routes/rangers.ts</code></td><td>O08</td><td>Orchestration API</td></tr>
+        <tr><td><code>packages/ui/src/modules/MegazordMeshView.tsx</code></td><td>O09</td><td>Mesh View UI</td></tr>
+        <tr><td><code>services/intake/src/drive-watcher.ts</code></td><td>O10</td><td>Drive folder watch</td></tr>
+        <tr><td><code>services/intake/src/wire-router.ts</code></td><td>O10</td><td>File &rarr; wire routing</td></tr>
+        <tr><td><code>services/intake/src/slack-intake.ts</code></td><td>O11</td><td>Slack intake</td></tr>
+        <tr><td><code>services/intake/src/email-intake.ts</code></td><td>O12</td><td>Email intake</td></tr>
+        <tr><td><code>docs/wire-edge-cases.md</code></td><td>O07</td><td>Edge case catalog</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Modified Files (2)</h2>
+      <table>
+        <tr><th>File</th><th>Ticket</th><th>Change</th></tr>
+        <tr><td><code>packages/ui/src/modules/AtlasRegistry.tsx</code></td><td>O09</td><td>Add Mesh section</td></tr>
+        <tr><td><code>services/api/src/routes/intake.ts</code></td><td>O10-O12</td><td>Add intake triggers</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Firestore Collections</h2>
+      <table>
+        <tr><th>Collection</th><th>Purpose</th></tr>
+        <tr><td><code>ranger_runs</code></td><td>Execution history</td></tr>
+        <tr><td><code>ranger_runs/{runId}/steps</code></td><td>Per-step progress</td></tr>
+        <tr><td><code>ranger_registry</code></td><td>Ranger configs + wire bindings</td></tr>
+      </table>
+    </div>
+    <div class="callout red">
+      <p><strong>READ-ONLY:</strong> ATLAS core package (<code>packages/core/src/atlas/</code>) is not modified in Track 2. Rangers consume existing wire definitions &mdash; they don't change them.</p>
+    </div>
+  </div>
+
+  <!-- TAB: TEST PLAN -->
+  <div class="panel" id="tab-tests">
+    <div class="card">
+      <h2>Test Strategy</h2>
+      <p>Prove each Ranger individually, then prove the mesh as a system. 5 Rangers + 5 wires + 3 intake channels + 1 orchestration API.</p>
+    </div>
+    <div class="card">
+      <h2>Automated Tests</h2>
+      <table>
+        <tr><th>Test</th><th>Type</th><th>Verifies</th><th>CI?</th></tr>
+        <tr><td>Ranger ACF</td><td>E2E</td><td>3 stages complete, audit report</td><td>Yes</td></tr>
+        <tr><td>Ranger Import</td><td>E2E</td><td>CSV &rarr; Firestore records</td><td>Yes</td></tr>
+        <tr><td>Ranger Commission</td><td>E2E</td><td>Statement &rarr; revenue records</td><td>Yes</td></tr>
+        <tr><td>Ranger Reference</td><td>E2E</td><td>Seed &rarr; carriers/products</td><td>Yes</td></tr>
+        <tr><td>Ranger Correspondence</td><td>E2E</td><td>PDF &rarr; classify &rarr; ACF</td><td>Yes</td></tr>
+        <tr><td>Orchestration API</td><td>Integration</td><td>Dispatch/status/cancel/history</td><td>Yes</td></tr>
+        <tr><td>Wire Library (existing 8)</td><td>E2E</td><td>No regressions</td><td>Yes</td></tr>
+        <tr><td>Mesh View UI</td><td>Playwright</td><td>Renders, cards display</td><td>Yes</td></tr>
+        <tr><td>Drive Intake</td><td>Integration</td><td>File triggers correct Ranger</td><td>Manual</td></tr>
+        <tr><td>Slack Intake</td><td>Integration</td><td>Message triggers, reply posted</td><td>Manual</td></tr>
+        <tr><td>Email Intake</td><td>Integration</td><td>Forward triggers, reply sent</td><td>Manual</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Failure Modes</h2>
+      <div class="callout red"><p><strong>Silent step failure:</strong> Each step MUST check previous step status before proceeding. Wire executor already has this &mdash; verify Rangers don't bypass it.</p></div>
+      <div class="callout red"><p><strong>Orphaned runs:</strong> Ranger crashes, status stays 'running' forever. Timeout: >15 min with no step progress = auto-mark 'failed'.</p></div>
+      <div class="callout red"><p><strong>Intake misroute:</strong> SUPER_INTROSPECT misidentifies format. Confidence &lt;80% = queue for manual review.</p></div>
+    </div>
+  </div>
+
+  <!-- TAB: DEPENDENCIES -->
+  <div class="panel" id="tab-deps">
+    <div class="card">
+      <h2>Dependency Map</h2>
+      <div class="diagram">Phase 1: <span class="hl-mecha">O01</span> &rarr; [<span class="hl-mecha">O02</span> + <span class="hl-mecha">O03</span> + <span class="hl-mecha">O04</span>] (parallel)
+
+Phase 2: [<span class="hl-blue">O05</span> + <span class="hl-blue">O06</span> + <span class="hl-blue">O08</span>] (parallel)
+          &rarr; <span class="hl-blue">O07</span> (needs all Rangers)
+          &rarr; <span class="hl-blue">O09</span> (needs O08)
+
+Phase 3: [<span class="hl-cyan">O10</span> + <span class="hl-cyan">O11</span> + <span class="hl-cyan">O12</span> + <span class="hl-cyan">O13</span>] (parallel)
+          &rarr; <span class="hl-cyan">O14</span> (needs everything)</div>
+    </div>
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <tr><th>Dependency</th><th>Status</th><th>Action</th></tr>
+        <tr><td>Track 1 CONSUME complete</td><td><span class="status-planned">Gate</span></td><td>Command Center must exist</td></tr>
+        <tr><td>ATLAS wire definitions</td><td><span class="status-live">Exist</span></td><td>wires.ts (240 lines)</td></tr>
+        <tr><td>Wire executor runtime</td><td><span class="status-live">Exists</span></td><td>wire-executor.ts (425 lines)</td></tr>
+        <tr><td>MDJ_SERVER filesystem</td><td><span class="status-live">Live</span></td><td>For Correspondence Ranger</td></tr>
+        <tr><td>Shared Drive intake folder</td><td><span class="status-gap">Needs Creation</span></td><td>JDM creates folder</td></tr>
+        <tr><td>#megazord-intake channel</td><td><span class="status-gap">Needs Creation</span></td><td>JDM creates channel</td></tr>
+        <tr><td>Intake email address</td><td><span class="status-gap">Needs Config</span></td><td>JDM configures alias</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: SPRINT PLAN -->
+  <div class="panel" id="tab-sprint">
+    <div class="card">
+      <h2>Execution Timeline</h2>
+      <table>
+        <tr><th>ID</th><th>Title</th><th>Phase</th><th>Effort</th><th>Depends On</th><th>Parallel?</th></tr>
+        <tr><td><strong>O01</strong></td><td>Base Template</td><td>P1</td><td>L</td><td>Track 1</td><td>Sequential first</td></tr>
+        <tr><td><strong>O02</strong></td><td>ACF Ranger</td><td>P1</td><td>M</td><td>O01</td><td>|| O03, O04</td></tr>
+        <tr><td><strong>O03</strong></td><td>Import Ranger</td><td>P1</td><td>M</td><td>O01</td><td>|| O02, O04</td></tr>
+        <tr><td><strong>O04</strong></td><td>Commission Ranger</td><td>P1</td><td>M</td><td>O01</td><td>|| O02, O03</td></tr>
+        <tr><td><strong>O05</strong></td><td>Reference Ranger</td><td>P2</td><td>M</td><td>P1</td><td>|| O06</td></tr>
+        <tr><td><strong>O06</strong></td><td>Correspondence Ranger</td><td>P2</td><td>L</td><td>P1</td><td>|| O05</td></tr>
+        <tr><td><strong>O07</strong></td><td>Wire Audit</td><td>P2</td><td>L</td><td>O02-O06</td><td>Sequential</td></tr>
+        <tr><td><strong>O08</strong></td><td>Orchestration API</td><td>P2</td><td>L</td><td>O01+O02</td><td>|| O05-O07</td></tr>
+        <tr><td><strong>O09</strong></td><td>Mesh View</td><td>P2</td><td>M</td><td>O08</td><td>After O08</td></tr>
+        <tr><td><strong>O10</strong></td><td>Drive Watch</td><td>P3</td><td>M</td><td>O08</td><td>|| O11-O12</td></tr>
+        <tr><td><strong>O11</strong></td><td>Slack Intake</td><td>P3</td><td>M</td><td>O08</td><td>|| O10, O12</td></tr>
+        <tr><td><strong>O12</strong></td><td>Email Intake</td><td>P3</td><td>M</td><td>O08</td><td>|| O10, O11</td></tr>
+        <tr><td><strong>O13</strong></td><td>Self-Authoring</td><td>P3</td><td>S</td><td>T1+O07</td><td>Independent</td></tr>
+        <tr><td><strong>O14</strong></td><td>E2E Test Suite</td><td>P3</td><td>L</td><td>O02-O08</td><td>After mesh</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Definition of Done &mdash; OPERATE Gate</h2>
+      <div class="callout"><p><strong>All must be true before Track 3 (DEVOUR):</strong></p></div>
+      <ul>
+        <li>5/5 Rangers deployed and individually tested</li>
+        <li>Wire Library Audit complete &mdash; 5/5 wires verified</li>
+        <li>Orchestration API live &mdash; dispatch, status, cancel, history</li>
+        <li>Mesh View in Command Center showing real-time status</li>
+        <li>At least 1 automated intake channel live</li>
+        <li>MEGAZORD self-authored at least 1 Discovery Doc</li>
+        <li>Ranger E2E suite passing in CI</li>
+        <li>Zero regressions in existing 8 E2E files</li>
+        <li><code>npm run build</code> passes (11/11)</li>
+        <li><code>npm run type-check</code> passes (13/13)</li>
+      </ul>
+      <div class="quote">"The mesh is not built until it runs without the CTO watching. MEGAZORD operates. That's the whole point." &mdash; SHINOB1</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>MEGAZORD Track 2: OPERATE &bull; authored by MUSASHI, ARTxBLADE &bull; 2026-04-05</p>
+  <div class="signoff">&#9876;&#65039; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

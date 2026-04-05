@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSASHI Track 3 — DEVOUR Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(212,164,76,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,164,76,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(224,124,62,0.08) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #d4a44c 0%, #f59e0b 35%, #e07c3e 70%, #d4a44c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); background: var(--gold-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--gold); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul, .card ol { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--gold); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-purple { color: var(--purple); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.red { border-top: 3px solid var(--red); }
+  .spec-card.cyan { border-top: 3px solid var(--cyan); }
+  .spec-card.purple { border-top: 3px solid var(--purple); }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); }
+  .callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout.purple { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--gold); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-new { color: var(--cyan); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-gap { color: var(--red); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 0 12px 12px 0; padding: 24px; margin-bottom: 20px; }
+  .ticket.phase2 { border-left-color: var(--accent); }
+  .ticket.phase3 { border-left-color: var(--cyan); }
+  .ticket.phase4 { border-left-color: var(--purple); }
+  .ticket-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--gold); background: var(--gold-glow); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(212,164,76,0.25); }
+  .ticket-id.phase2 { color: var(--accent); background: var(--accent-glow); border-color: rgba(224,124,62,0.25); }
+  .ticket-id.phase3 { color: var(--cyan); background: var(--cyan-glow); border-color: rgba(6,182,212,0.25); }
+  .ticket-id.phase4 { color: var(--purple); background: var(--purple-glow); border-color: rgba(168,85,247,0.25); }
+  .ticket-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+  .ticket h3 { font-size: 0.9rem; font-weight: 600; margin: 14px 0 6px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+  .ticket p { color: var(--text-muted); margin-bottom: 8px; font-size: 0.9rem; }
+  .ticket ul, .ticket ol { color: var(--text-muted); margin: 0 0 12px 20px; font-size: 0.9rem; }
+  .ticket li { margin-bottom: 4px; }
+  .ticket code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); }
+  .ticket .file-list { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin: 8px 0 12px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--cyan); white-space: pre; overflow-x: auto; }
+  .ac-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .ac-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .ac-list li::before { content: '✓'; position: absolute; left: 4px; color: var(--green); font-weight: 700; }
+  .dep-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .dep-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .dep-list li::before { content: '→'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gold); }
+  .phase-header.p2 { border-bottom-color: var(--accent); }
+  .phase-header.p3 { border-bottom-color: var(--cyan); }
+  .phase-header.p4 { border-bottom-color: var(--purple); }
+  .phase-number { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); flex-shrink: 0; }
+  .phase-number.p2 { background: var(--accent-glow); color: var(--accent); border-color: rgba(224,124,62,0.3); }
+  .phase-number.p3 { background: var(--cyan-glow); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+  .phase-number.p4 { background: var(--purple-glow); color: var(--purple); border-color: rgba(168,85,247,0.3); }
+  .phase-title { font-size: 1.3rem; font-weight: 700; }
+  .phase-desc { font-size: 0.85rem; color: var(--text-muted); }
+  .lifecycle { display: flex; align-items: stretch; gap: 0; margin: 20px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .lifecycle-step { flex: 1; padding: 14px 16px; text-align: center; }
+  .lifecycle-step .ls-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .lifecycle-step .ls-sub { font-size: 0.75rem; color: var(--text-muted); }
+  .lifecycle-step.done { background: rgba(16,185,129,0.08); border-right: 1px solid var(--border); }
+  .lifecycle-step.done .ls-label { color: var(--mecha-green); }
+  .lifecycle-step.active { background: rgba(212,164,76,0.10); }
+  .lifecycle-step.active .ls-label { color: var(--gold); }
+  .lifecycle-arrow { display: flex; align-items: center; padding: 0 2px; color: var(--border); font-size: 1.2rem; background: var(--bg-hover); }
+  .matrix-grid { display: grid; grid-template-columns: 180px repeat(3, 1fr); gap: 1px; background: var(--border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
+  .matrix-cell { background: var(--bg-card); padding: 12px 14px; font-size: 0.85rem; }
+  .matrix-cell.header { background: var(--bg-hover); font-weight: 700; color: var(--gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .matrix-cell.row-label { background: var(--bg-hover); font-weight: 600; color: var(--text); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; margin: 2px 0; }
+  .pill-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .pill-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.2); }
+  .pill-muted { background: rgba(148,163,184,0.08); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.15); }
+  .artisan-status-live { color: var(--mecha-green); font-size: 0.72rem; font-weight: 700; display: block; margin-top: 2px; }
+  .artisan-status-devour { color: var(--gold); font-size: 0.72rem; font-weight: 700; display: block; margin-top: 2px; }
+  .parity-hi { color: var(--red); font-weight: 600; font-size: 0.8rem; }
+  .parity-med { color: var(--orange); font-weight: 600; font-size: 0.8rem; }
+  .parity-low { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; }
+  .dod-list { list-style: none; padding: 0; margin: 12px 0; }
+  .dod-list li { padding: 8px 12px 8px 36px; position: relative; background: var(--bg-hover); border-radius: 6px; margin-bottom: 6px; font-size: 0.9rem; color: var(--text-muted); }
+  .dod-list li::before { content: '◉'; position: absolute; left: 12px; color: var(--gold); font-size: 0.85rem; }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  .footer .signoff { color: var(--gold); font-weight: 700; font-size: 1rem; margin-top: 12px; }
+  .footer .race { color: var(--gold); font-weight: 700; letter-spacing: 1px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="sprint-label">TRACK DISCOVERY DOC &mdash; DEVOUR</div>
+  <h1>MUSASHI Track 3</h1>
+  <p class="subtitle">Full creative intelligence. All 5 Artisans live. Complete asset inventory. Brand compliance automated. Campaigns proactive. The CMO never sleeps, never waits, never asks permission.</p>
+  <div class="header-badges">
+    <span class="badge badge-gold">MUSASHI &mdash; CMO</span>
+    <span class="badge badge-gold">TRACK 3: DEVOUR</span>
+    <span class="badge badge-accent">16 TICKETS &bull; 4 PHASES</span>
+    <span class="badge badge-orange">ONGOING</span>
+  </div>
+  <div class="ronin-meta">authored: MUSASHI, ARTxBLADE &bull; 2026-04-05 &bull; self-authored CXO track discovery</div>
+</div>
+
+<!-- TABS -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">Overview</div>
+    <div class="tab" onclick="showTab('tickets')">Tickets</div>
+    <div class="tab" onclick="showTab('files')">Files</div>
+    <div class="tab" onclick="showTab('tests')">Test Plan</div>
+    <div class="tab" onclick="showTab('deps')">Dependencies</div>
+    <div class="tab" onclick="showTab('sprint')">Sprint Plan</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- TAB: OVERVIEW -->
+  <div class="panel active" id="tab-overview">
+
+    <div class="lifecycle">
+      <div class="lifecycle-step done">
+        <div class="ls-label">&#10003; CONSUME</div>
+        <div class="ls-sub">Registry built. 50+ tools absorbed.</div>
+      </div>
+      <div class="lifecycle-arrow">&#9654;</div>
+      <div class="lifecycle-step done">
+        <div class="ls-label">&#10003; OPERATE</div>
+        <div class="ls-sub">3 Artisans live. Pipeline running.</div>
+      </div>
+      <div class="lifecycle-arrow">&#9654;</div>
+      <div class="lifecycle-step active">
+        <div class="ls-label">&#9654; DEVOUR</div>
+        <div class="ls-sub">Full intel. 5 Artisans. Never done.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Why DEVOUR Is Track 3</h2>
+      <div class="quote">"CONSUME gave MUSASHI a voice. OPERATE gave MUSASHI work. DEVOUR gives MUSASHI a mind."</div>
+      <p>Track 1 built the CMO Registry from scratch &mdash; 50+ tools registered, wire stubs defined, the domain claimed. Track 2 wired 3 Artisans live: Digital, Web, and Print. A content pipeline runs. An intake channel exists. MUSASHI produces on command.</p>
+      <p>But Track 2 MUSASHI is still reactive. It answers when asked. It waits for instructions. It doesn't know what it owns, what's stale, what's missing, or what's coming. That changes in Track 3.</p>
+      <p><strong>DEVOUR</strong> is full creative intelligence. MUSASHI audits everything it owns. It maps what exists in print against what's missing in digital. It activates the remaining 2 Artisans (Social, Video). It enforces brand compliance automatically. And it starts anticipating &mdash; AEP preparation, seasonal campaigns, product launch assets &mdash; without being asked.</p>
+      <div class="callout purple">
+        <p><strong>DEVOUR's Definition of Done is different from every other track.</strong> DEVOUR is never "complete." It is a state MUSASHI enters and never leaves. The gate (MUS-D16) verifies minimum viable intelligence &mdash; all systems live, all wires active, brand compliance enforced. After the gate, MUSASHI continues to expand: new carriers, new markets, new campaign types, new channels. The inventory is always current. The calendar is always 90 days ahead. The brand guide is always enforced.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What DEVOUR Delivers</h2>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Full Creative Inventory</h4>
+          <p>MUSASHI knows every asset it owns. Canva, Drive, WordPress, C3 &mdash; all cataloged, categorized, tagged with status (current / stale / gap).</p>
+          <ul>
+            <li>Canva inventory scanner</li>
+            <li>Shared Drive asset indexer</li>
+            <li>WordPress page auditor</li>
+            <li>C3 template audit (661 templates)</li>
+          </ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Print &times; Digital Parity</h4>
+          <p>11 print assets mapped to digital gaps. Parity plan generated. Parity executor dispatches to Artisans to close gaps automatically.</p>
+          <ul>
+            <li>Medicare Brochure &rarr; email + landing page</li>
+            <li>FIA Fact-Finder &rarr; email + portal content</li>
+            <li>DAVID Deck &rarr; landing page + email</li>
+            <li>+ 8 more assets</li>
+          </ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>Phase 2 Artisans</h4>
+          <p>Social Artisan and Video Artisan come online. All 5 channels now covered: Print, Digital, Web, Social, Video.</p>
+          <ul>
+            <li>WIRE_SOCIAL: calendar &rarr; Canva &rarr; Veo &rarr; Drive</li>
+            <li>WIRE_VIDEO: script &rarr; Veo &rarr; Drive &rarr; WordPress</li>
+          </ul>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Brand Compliance Engine</h4>
+          <p>Every Artisan output passes brand check before publish. No manual review loop. Violations route to JDM DM (U09BBHTN8F2). Compliance log maintained.</p>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Proactive Campaign Intelligence</h4>
+          <p>90-day content calendar. AEP blackout enforced (Oct&ndash;Dec). Seasonal cadences (T65, birthday touches, annual review triggers). ATLAS event listener for product launches.</p>
+        </div>
+        <div class="spec-card purple">
+          <h4>Command Center: Full Dashboard</h4>
+          <p>All views wired to live data. Inventory counts, parity gap tracker, brand compliance status, campaign calendar, Artisan health for all 5 channels.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Title</th><th>Phase</th><th>Effort</th></tr></thead>
+        <tbody>
+          <tr><td><strong>MUS-D01</strong></td><td>Canva Design Inventory Scanner</td><td>Phase 1</td><td>M</td></tr>
+          <tr><td><strong>MUS-D02</strong></td><td>Drive Asset Inventory Scanner</td><td>Phase 1</td><td>M</td></tr>
+          <tr><td><strong>MUS-D03</strong></td><td>WordPress Page Auditor</td><td>Phase 1</td><td>M</td></tr>
+          <tr><td><strong>MUS-D04</strong></td><td>C3 Template Audit Engine</td><td>Phase 1</td><td>L</td></tr>
+          <tr><td><strong>MUS-D05</strong></td><td>Parity Map Generator</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-D06</strong></td><td>Parity Executor</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-D07</strong></td><td>Social Artisan Wire (WIRE_SOCIAL)</td><td>Phase 2</td><td>L</td></tr>
+          <tr><td><strong>MUS-D08</strong></td><td>Video Artisan Wire (WIRE_VIDEO)</td><td>Phase 2</td><td>L</td></tr>
+          <tr><td><strong>MUS-D09</strong></td><td>Social Artisan Configuration</td><td>Phase 2</td><td>S</td></tr>
+          <tr><td><strong>MUS-D10</strong></td><td>Video Artisan Configuration</td><td>Phase 2</td><td>S</td></tr>
+          <tr><td><strong>MUS-D11</strong></td><td>Brand Guide Registry</td><td>Phase 3</td><td>M</td></tr>
+          <tr><td><strong>MUS-D12</strong></td><td>Brand Compliance Engine</td><td>Phase 3</td><td>L</td></tr>
+          <tr><td><strong>MUS-D13</strong></td><td>Campaign Calendar Engine</td><td>Phase 3</td><td>L</td></tr>
+          <tr><td><strong>MUS-D14</strong></td><td>ATLAS Event Listener</td><td>Phase 3</td><td>M</td></tr>
+          <tr><td><strong>MUS-D15</strong></td><td>Command Center Full Dashboard</td><td>Phase 4</td><td>XL</td></tr>
+          <tr><td><strong>MUS-D16</strong></td><td>DEVOUR Gate Verification</td><td>Phase 4</td><td>S</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Market &times; Channel Matrix &mdash; All 5 Artisans</h2>
+      <p>Every Artisan serves each channel. Coverage maps to the three RPI business lines.</p>
+      <div class="matrix-grid">
+        <div class="matrix-cell header">Artisan</div>
+        <div class="matrix-cell header">B2C (RPI / ProDash)</div>
+        <div class="matrix-cell header">B2B (DAVID / SENTINEL)</div>
+        <div class="matrix-cell header">B2E (RAPID / RIIMO)</div>
+
+        <div class="matrix-cell row-label">Print Artisan<span class="artisan-status-live">&#10003; LIVE (Track 2)</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Medicare brochure</span><br><span class="pill pill-green">FIA fact-finder</span><br><span class="pill pill-green">MYGA product sheet</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Partnership deck</span><br><span class="pill pill-green">Capability one-pager</span></div>
+        <div class="matrix-cell"><span class="pill pill-muted">Internal only</span></div>
+
+        <div class="matrix-cell row-label">Digital Artisan<span class="artisan-status-live">&#10003; LIVE (Track 2)</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Email sequences</span><br><span class="pill pill-green">Campaign templates</span><br><span class="pill pill-green">AEP campaigns</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Partner sequences</span><br><span class="pill pill-green">Intro templates</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Team announcements</span></div>
+
+        <div class="matrix-cell row-label">Web Artisan<span class="artisan-status-live">&#10003; LIVE (Track 2)</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Landing pages</span><br><span class="pill pill-green">Medicare pages</span><br><span class="pill pill-green">Product pages</span></div>
+        <div class="matrix-cell"><span class="pill pill-green">Partner pages</span><br><span class="pill pill-green">DAVID landing pages</span></div>
+        <div class="matrix-cell"><span class="pill pill-muted">Internal portals only</span></div>
+
+        <div class="matrix-cell row-label">Social Artisan<span class="artisan-status-devour">&#9654; DEVOUR (Track 3)</span></div>
+        <div class="matrix-cell"><span class="pill pill-gold">Campaign social posts</span><br><span class="pill pill-gold">AEP social schedule</span><br><span class="pill pill-gold">T65 content</span></div>
+        <div class="matrix-cell"><span class="pill pill-gold">DAVID social</span><br><span class="pill pill-gold">Partnership announcements</span></div>
+        <div class="matrix-cell"><span class="pill pill-gold">Team culture posts</span><br><span class="pill pill-gold">Hiring content</span></div>
+
+        <div class="matrix-cell row-label">Video Artisan<span class="artisan-status-devour">&#9654; DEVOUR (Track 3)</span></div>
+        <div class="matrix-cell"><span class="pill pill-gold">Medicare education</span><br><span class="pill pill-gold">Product explainers</span><br><span class="pill pill-gold">Testimonial-style</span></div>
+        <div class="matrix-cell"><span class="pill pill-gold">DAVID intro videos</span><br><span class="pill pill-gold">Capability demos</span></div>
+        <div class="matrix-cell"><span class="pill pill-gold">Onboarding videos</span><br><span class="pill pill-gold">Training content</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Print &times; Digital Parity Map &mdash; Current State</h2>
+      <p>11 print assets exist today. Digital parity is the gap DEVOUR closes. Priorities confirmed by scanner output in MUS-D02.</p>
+      <table>
+        <thead><tr><th>Asset</th><th>Print</th><th>Email Sequence</th><th>Landing Page</th><th>Portal Content</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Medicare Brochure</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-hi">HIGH &mdash; AEP</span></td></tr>
+          <tr><td><strong>FIA Fact-Finder</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-hi">HIGH</span></td></tr>
+          <tr><td><strong>RPI Brand Overview</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-hi">HIGH</span></td></tr>
+          <tr><td><strong>DAVID Partnership Deck</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-hi">HIGH &mdash; B2B</span></td></tr>
+          <tr><td><strong>MYGA Product Sheet</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-med">MEDIUM</span></td></tr>
+          <tr><td><strong>Life Insurance POS</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="status-gap">Missing</span></td><td><span class="parity-med">MEDIUM</span></td></tr>
+          <tr><td><strong>+ 5 additional assets</strong></td><td><span class="status-live">Yes</span></td><td><span class="status-planned">TBD</span></td><td><span class="status-planned">TBD</span></td><td><span class="status-planned">TBD</span></td><td><span class="parity-low">BACKLOG</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Architecture &mdash; DEVOUR Target State</h2>
+      <div class="diagram"><span class="hl-gold">packages/core/src/cmo/</span>           (Track 1 + 2 extended by Track 3)
+├── <span class="hl-gold">registry.ts</span>                   CMO_REGISTRY — all tools + wires
+├── <span class="hl-gold">types.ts</span>                      +CmoInventoryEntry, CmoParityGap, CmoBrandGuide, CmoCampaignCalendar
+├── <span class="hl-gold">artisans.ts</span>                   +Social Artisan (MUS-D09), +Video Artisan (MUS-D10) → 5 total
+├── <span class="hl-gold">tools/</span>                        Track 1 — 50+ tools registered
+├── <span class="hl-gold">wires/</span>
+│   ├── WIRE_BROCHURE / WIRE_CAMPAIGN / WIRE_LANDING_PAGE  (Track 2)
+│   ├── <span class="hl-cyan">WIRE_SOCIAL.ts</span>            NEW — content calendar → Canva → Veo → Drive
+│   └── <span class="hl-cyan">WIRE_VIDEO.ts</span>             NEW — script → Veo → Drive → WordPress
+├── <span class="hl-cyan">inventory/</span>                    NEW
+│   ├── <span class="hl-cyan">canva-scanner.ts</span>          MUS-D01 — scan all Canva designs
+│   ├── <span class="hl-cyan">drive-scanner.ts</span>          MUS-D02 — scan Shared Drive creative folders
+│   ├── <span class="hl-cyan">wordpress-auditor.ts</span>      MUS-D03 — audit all WP pages
+│   └── <span class="hl-cyan">template-auditor.ts</span>       MUS-D04 — audit 661 C3 templates
+├── <span class="hl-cyan">parity/</span>                       NEW
+│   ├── <span class="hl-cyan">parity-map.ts</span>             MUS-D05 — inventory → CmoParityGap[]
+│   └── <span class="hl-cyan">parity-executor.ts</span>        MUS-D06 — dispatch gaps to artisan wires
+├── <span class="hl-cyan">brand/</span>                        NEW
+│   ├── <span class="hl-cyan">guide.ts</span>                  MUS-D11 — brand rules registry
+│   └── <span class="hl-cyan">compliance-engine.ts</span>      MUS-D12 — validate → report → notify JDM
+└── <span class="hl-cyan">campaigns/</span>                    NEW
+    └── <span class="hl-cyan">calendar.ts</span>               MUS-D13 — 90-day calendar, AEP blackout, seasonal
+
+<span class="hl-gold">services/api/src/routes/</span>
+├── <span class="hl-cyan">cmo-events.ts</span>                 MUS-D14 — POST /api/cmo/events/product-launch
+└── <span class="hl-cyan">cmo-dashboard.ts</span>              MUS-D15 — GET /api/cmo/dashboard</div>
+    </div>
+
+    <div class="card">
+      <h2>DEVOUR &mdash; Definition of Done</h2>
+      <p>The gate (MUS-D16) confirms minimum viable intelligence. After the gate, MUSASHI continues to expand indefinitely. This is not a finish line &mdash; it is a capability floor.</p>
+      <ul class="dod-list">
+        <li>All 5 Artisans live and producing: Print, Digital, Web, Social, Video</li>
+        <li>Full creative inventory generated: Canva + Drive + WordPress + C3 all scanned</li>
+        <li>Parity map active: every print asset has a digital gap analysis with priority</li>
+        <li>Parity executor live: dispatches to correct wire(s) when gaps are identified</li>
+        <li>Brand compliance engine active: all Artisan outputs pass brand check before publish</li>
+        <li>Brand violations route to JDM DM (U09BBHTN8F2) automatically &mdash; not silently corrected</li>
+        <li>90-day campaign calendar populated and live</li>
+        <li>AEP blackout enforced (Oct&ndash;Dec) at the calendar engine level</li>
+        <li>ATLAS event listener active: new carrier/product triggers asset creation automatically</li>
+        <li>Command Center full dashboard wired to live data for all 5 channels</li>
+        <li><code>npm run build</code> passes clean across all workspaces</li>
+        <li><code>npm run type-check</code> passes 13/13</li>
+      </ul>
+      <div class="callout purple">
+        <p><strong>After gate passes:</strong> MUSASHI enters permanent DEVOUR mode. New carriers, new markets, new seasonal patterns, new campaign types &mdash; the system absorbs them. The inventory is always current. The calendar is always 90 days ahead. Brand compliance is always enforced. MUSASHI never stops eating.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB: TICKETS -->
+  <div class="panel" id="tab-tickets">
+
+    <!-- PHASE 1 -->
+    <div class="phase-header">
+      <div class="phase-number">1</div>
+      <div>
+        <div class="phase-title">Full Creative Inventory</div>
+        <div class="phase-desc">MUSASHI audits everything it owns. Canva, Drive, WordPress, C3. All 4 tickets run in parallel.</div>
+      </div>
+    </div>
+
+    <!-- MUS-D01 -->
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">MUS-D01</span><span class="ticket-title">Canva Design Inventory Scanner</span></div>
+      <p>Create a scanner that catalogs all Canva designs using MCP tools in <code>rpi-workspace</code>. Output is a structured JSON inventory of every design MUSASHI owns, tagged with type, market, status, and last-modified date.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/inventory/canva-scanner.ts   — NEW
+packages/core/src/cmo/inventory/index.ts            — NEW (barrel)
+packages/core/src/cmo/types.ts                       — MODIFY: add CmoInventoryEntry, CmoDesignStatus</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>CmoInventoryEntry</code> type: id, source ('canva' | 'drive' | 'wordpress' | 'c3'), type ('brochure' | 'presentation' | 'social' | 'email' | 'one-pager' | 'video' | 'guide'), market ('b2c' | 'b2b' | 'b2e' | 'all'), lastModified: Date, status: CmoDesignStatus, url?, notes?</li>
+        <li><code>CmoDesignStatus</code> type: 'current' | 'stale' | 'needs-update' | 'gap'</li>
+        <li><code>scanCanvaInventory(): Promise&lt;CmoInventoryEntry[]&gt;</code> exported from <code>canva-scanner.ts</code></li>
+        <li>Uses <code>canva_search_designs</code>, <code>canva_list_folder_items</code>, <code>canva_get_design</code> MCP tools</li>
+        <li>Marks entries as 'stale' if <code>lastModified &gt; 180 days</code> ago</li>
+        <li>No hard-coded folder IDs &mdash; traverses from root via <code>canva_search_folders</code></li>
+        <li>Returns empty array (not throw) if Canva MCP is unavailable</li>
+        <li>Stale threshold configurable via optional <code>staleThresholdDays</code> param, default 180</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>scanCanvaInventory()</code> returns &gt;0 entries with all required fields populated</li>
+        <li>All ids unique within returned array</li>
+        <li>Entries older than 180 days have status 'stale'</li>
+        <li>Graceful degradation: MCP unavailable returns <code>[]</code> without throwing</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (Track 1 — types.ts must exist)</li>
+        <li>rpi-workspace MCP with Canva tools (registered in MUS-C03)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D02 -->
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">MUS-D02</span><span class="ticket-title">Drive Asset Inventory Scanner</span></div>
+      <p>Create a scanner that indexes all creative assets across the RPI Shared Drive (<code>0AFUXPgL0EWC6Uk9PVA</code>). Categorizes by asset type. This feeds the parity map in MUS-D05.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/inventory/drive-scanner.ts   — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>scanDriveInventory(): Promise&lt;CmoInventoryEntry[]&gt;</code> exported</li>
+        <li>Scans Shared Drive root <code>0AFUXPgL0EWC6Uk9PVA</code> recursively via gdrive MCP <code>listFolder</code></li>
+        <li>Categorizes each file: brochure, presentation, one-pager, social, video, guide, fact-finder, other</li>
+        <li>Category detection by file name pattern + parent folder name</li>
+        <li>Maps file to market: B2C / B2B / B2E / all (by parent folder or file name keywords)</li>
+        <li>PDF files tagged with channel: 'print'</li>
+        <li>Excludes system files, CLAUDE.md files, testing guides, audio recordings</li>
+        <li>Stale detection: 180 days since modification</li>
+        <li>Returns empty array (not throw) on MCP error</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>scanDriveInventory()</code> returns &gt;0 entries from real Shared Drive</li>
+        <li>All PDF files tagged channel: 'print'</li>
+        <li>No duplicate entry IDs</li>
+        <li>All entries have source === 'drive'</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D01 (CmoInventoryEntry type)</li>
+        <li>gdrive MCP &mdash; listFolder required</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D03 -->
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">MUS-D03</span><span class="ticket-title">WordPress Page Auditor</span></div>
+      <p>Catalog all WordPress pages at <code>retireprotected.com</code>. Classify each as live, draft, stale, or gap. Identify missing pages based on current product and market coverage.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/inventory/wordpress-auditor.ts — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>auditWordPressPages(): Promise&lt;CmoWordPressPageAudit[]&gt;</code> exported</li>
+        <li><code>CmoWordPressPageAudit</code> type: id, url, title, status ('live' | 'draft' | 'stale' | 'gap'), lastModified: Date, market ('b2c' | 'b2b' | 'b2e' | 'all'), pageType ('landing' | 'product' | 'blog' | 'about' | 'partner' | 'other'), notes?</li>
+        <li>Uses <code>wordpress_list_pages</code> and <code>wordpress_get_post</code> MCP tools</li>
+        <li>Marks 'stale' if no content update in 365 days</li>
+        <li>Marks 'draft' if WordPress status is 'draft' or 'pending'</li>
+        <li>Gap detection: Medicare landing page, FIA product page, MYGA product page, Life insurance page, DAVID/partnership page, About page, Contact page — if any missing, appears as 'gap' entry</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>auditWordPressPages()</code> returns entries for all published pages</li>
+        <li>Draft pages correctly identified</li>
+        <li>Gap entries returned when expected pages are missing</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D01 (types pattern)</li>
+        <li>rpi-workspace MCP &mdash; wordpress_list_pages, wordpress_get_post</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D04 -->
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">MUS-D04</span><span class="ticket-title">C3 Template Audit Engine</span></div>
+      <p>Audit all 661 Firestore campaign templates. Tag each as current, stale, or needs-update. Cross-reference against active campaigns and the AEP blackout calendar. Largest scan in Phase 1 &mdash; processes in batches of 50.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/inventory/template-auditor.ts  — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>auditC3Templates(): Promise&lt;CmoTemplateAudit[]&gt;</code> exported</li>
+        <li><code>CmoTemplateAudit</code> type: templateId, name, campaignId?, status ('current' | 'stale' | 'needs-update'), channel ('email' | 'sms' | 'push'), lastUsed?: Date, lastModified: Date, aepRelevant: boolean, notes?</li>
+        <li>Reads from Firestore <code>templates</code> collection via <code>@tomachina/db</code> typed client</li>
+        <li>'stale' if no parent campaign and lastModified &gt; 365 days</li>
+        <li>'needs-update' if attached to active campaign but lastModified &gt; 180 days</li>
+        <li><code>aepRelevant: true</code> if campaign name contains 'AEP', 'Medicare', 'MAPD', or 'T65'</li>
+        <li>Processes in batches of 50</li>
+        <li>Logs summary to console: total audited, counts by status (no client identifiers in log output)</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Returns approximately 661 entries (within 5% of known count)</li>
+        <li>No duplicate templateIds</li>
+        <li>AEP-relevant templates correctly flagged</li>
+        <li><code>npm run build</code> passes — confirm no server-only imports leak through barrel</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D01 (types pattern)</li>
+        <li><code>@tomachina/db</code> typed Firestore client</li>
+      </ul>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-header p2">
+      <div class="phase-number p2">2</div>
+      <div>
+        <div class="phase-title">Print &times; Digital Parity + Phase 2 Artisans</div>
+        <div class="phase-desc">Close the print/digital gap. Activate Social and Video Artisans. MUS-D05/D06 depend on Phase 1 output. MUS-D07&ndash;D10 can run in parallel with D05/D06.</div>
+      </div>
+    </div>
+
+    <!-- MUS-D05 -->
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">MUS-D05</span><span class="ticket-title">Parity Map Generator</span></div>
+      <p>Read the Drive print inventory (MUS-D02), cross-reference against digital assets (MUS-D01 + MUS-D03), and generate a structured parity plan showing what digital versions exist, what's missing, and priority per print asset.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/parity/parity-map.ts   — NEW
+packages/core/src/cmo/parity/index.ts         — NEW (barrel)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>CmoParityGap</code> type: printAssetId, printAssetName, printAssetType, missingDigital: CmoDigitalParityItem[], priority: 'high' | 'medium' | 'low' | 'backlog', marketRelevance: string[]</li>
+        <li><code>CmoDigitalParityItem</code> type: type ('email-sequence' | 'landing-page' | 'portal-content' | 'social' | 'video'), status ('missing' | 'draft' | 'live'), url?</li>
+        <li><code>generateParityMap(inventory: CmoInventoryEntry[]): CmoParityGap[]</code> exported</li>
+        <li>For each print PDF: checks if digital equivalents exist via normalized name matching</li>
+        <li>Priority: 'high' if AEP-related or B2B-facing; 'medium' if core product; 'low' if supplemental; 'backlog' if undetermined</li>
+        <li>Returns only entries with at least one missing digital item, sorted high &rarr; backlog</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Returns &gt;0 gap entries from real inventory</li>
+        <li>All entries have at least one missingDigital item</li>
+        <li>'high' entries appear before 'medium' in sorted output</li>
+        <li>Empty inventory input returns empty array without error</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D01 (CmoInventoryEntry type), MUS-D02, MUS-D03</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D06 -->
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">MUS-D06</span><span class="ticket-title">Parity Executor</span></div>
+      <p>Takes a single parity gap and dispatches to the correct Artisan wire(s) to close it. Bridge between gap analysis and Artisan production pipeline. Supports dry-run mode.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/parity/parity-executor.ts   — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>executeParityGap(gap: CmoParityGap, opts?: { dryRun?: boolean }): Promise&lt;CmoParityExecutionResult&gt;</code> exported</li>
+        <li><code>CmoParityExecutionResult</code> type: gapId, dispatched: CmoWireDispatch[], failed: string[], summary: string</li>
+        <li><code>CmoWireDispatch</code> type: wireId, artisan, input, status ('dispatched' | 'failed' | 'skipped')</li>
+        <li>Routing: missing email-sequence &rarr; WIRE_CAMPAIGN; missing landing-page &rarr; WIRE_LANDING_PAGE; missing portal-content &rarr; WIRE_CAMPAIGN with portal flag</li>
+        <li>Never dispatches to Social or Video Artisans (those run on their own schedule)</li>
+        <li>On dispatch failure: logs failure, continues to next item, does NOT throw</li>
+        <li>Dry-run mode returns dispatch plan without calling wires</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Dry-run returns correct dispatch plan without calling actual artisans</li>
+        <li>Missing email-sequence gap routes to Digital Artisan wire</li>
+        <li>Partial failure does not throw &mdash; returns failed list</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D05 (CmoParityGap type)</li>
+        <li>Track 2 wires must be live: WIRE_CAMPAIGN, WIRE_LANDING_PAGE</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D07 -->
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">MUS-D07</span><span class="ticket-title">Social Artisan Wire (WIRE_SOCIAL)</span></div>
+      <p>Create the full Social Artisan wire: content calendar entry &rarr; Canva social-format asset &rarr; optional Veo short clip &rarr; Drive archive.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/wires/WIRE_SOCIAL.ts   — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>WIRE_SOCIAL: CmoWireDefinition</code> exported</li>
+        <li>4 steps: (1) validate-calendar-entry, (2) generate-canva-social, (3) generate-veo-clip (optional), (4) archive-to-drive</li>
+        <li>Step 1 input schema: campaignId, campaignName, platform ('instagram' | 'linkedin' | 'facebook'), copyBrief, assetBrief, scheduledDate</li>
+        <li>Step 2 uses <code>canva_generate_design</code> with platform dimensions (Instagram 1080x1080, LinkedIn 1200x627, Facebook 1200x630)</li>
+        <li>Step 3 uses <code>generate_video</code> MCP tool. Skipped if <code>includeVideo: false</code></li>
+        <li>Step 4 archives to Shared Drive <code>0AFUXPgL0EWC6Uk9PVA</code> under <code>Social / {year} / {platform}</code></li>
+        <li>Pure data definition &mdash; no side effects at definition time</li>
+        <li>Registered in <code>wires/index.ts</code> barrel</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>WIRE_SOCIAL.steps.length === 4</code></li>
+        <li>Step 3 marked <code>optional: true</code></li>
+        <li>Step IDs unique within wire</li>
+        <li>Importable from <code>@tomachina/core</code></li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (CmoWireDefinition, CmoWireStep types)</li>
+        <li>rpi-workspace MCP: canva_generate_design, generate_video</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D08 -->
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">MUS-D08</span><span class="ticket-title">Video Artisan Wire (WIRE_VIDEO)</span></div>
+      <p>Create the full Video Artisan wire: script brief &rarr; Veo text-to-video &rarr; Drive archive &rarr; WordPress embed. Product explainers, Medicare education, testimonial-style content.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/wires/WIRE_VIDEO.ts   — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>WIRE_VIDEO: CmoWireDefinition</code> exported</li>
+        <li>4 steps: (1) validate-video-brief, (2) generate-veo-video, (3) archive-to-drive, (4) embed-to-wordpress</li>
+        <li>Step 1 input schema: productName, market ('b2c' | 'b2b' | 'b2e'), videoType ('explainer' | 'education' | 'testimonial'), scriptBrief (max 500 chars), durationSeconds (15 | 30 | 60), targetPageSlug?</li>
+        <li>Step 2 uses <code>generate_video</code> MCP tool; validates status with <code>check_video_status</code> before proceeding</li>
+        <li>Step 3 archives to Shared Drive <code>0AFUXPgL0EWC6Uk9PVA</code> under <code>Video / {year} / {market}</code> via <code>download_video</code></li>
+        <li>Step 4 uses <code>wordpress_update_page</code> to embed. Optional &mdash; skipped if no <code>targetPageSlug</code></li>
+        <li>Pure data definition. Registered in <code>wires/index.ts</code> barrel</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>WIRE_VIDEO.steps.length === 4</code></li>
+        <li>Step 4 marked <code>optional: true</code></li>
+        <li>Step IDs unique within wire</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (CmoWireDefinition types)</li>
+        <li>rpi-workspace MCP: generate_video, check_video_status, download_video, wordpress_update_page</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D09 -->
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">MUS-D09</span><span class="ticket-title">Social Artisan Configuration</span></div>
+      <p>Add the Social Artisan config to <code>artisans.ts</code> following the Track 2 pattern.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/artisans.ts   — MODIFY (add Social Artisan)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Social Artisan entry added to <code>CMO_ARTISANS</code> array</li>
+        <li>Fields: id: 'social', name: 'Social Artisan', channel: 'social', primaryWire: 'WIRE_SOCIAL', tools: ['canva_generate_design', 'generate_video', 'check_video_status', 'download_video'], platforms: ['instagram', 'linkedin', 'facebook']</li>
+        <li><code>getArtisanByChannel('social')</code> returns the Social Artisan entry</li>
+        <li>No other existing entries modified</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>CMO_ARTISANS.length</code> increases by exactly 1</li>
+        <li><code>getArtisanByChannel('social')</code> returns entry with id === 'social'</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>Track 2 artisans.ts must exist</li>
+        <li>MUS-D07 (WIRE_SOCIAL must be defined)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D10 -->
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">MUS-D10</span><span class="ticket-title">Video Artisan Configuration</span></div>
+      <p>Add the Video Artisan config to <code>artisans.ts</code>. Completes the 5-Artisan roster.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/artisans.ts   — MODIFY (add Video Artisan)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Video Artisan entry added to <code>CMO_ARTISANS</code> array</li>
+        <li>Fields: id: 'video', name: 'Video Artisan', channel: 'video', primaryWire: 'WIRE_VIDEO', tools: ['generate_video', 'generate_video_from_image', 'check_video_status', 'download_video', 'list_video_models', 'wordpress_update_page'], videoTypes: ['explainer', 'education', 'testimonial']</li>
+        <li><code>getArtisanByChannel('video')</code> returns Video Artisan</li>
+        <li>After this ticket: <code>CMO_ARTISANS.length === 5</code></li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>CMO_ARTISANS.length === 5</code> exactly (Print, Digital, Web, Social, Video)</li>
+        <li>All 5 artisan IDs unique</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D09 (run after Social added)</li>
+        <li>MUS-D08 (WIRE_VIDEO must be defined)</li>
+      </ul>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-header p3">
+      <div class="phase-number p3">3</div>
+      <div>
+        <div class="phase-title">Brand Compliance + Campaign Intelligence</div>
+        <div class="phase-desc">Automated brand enforcement and proactive campaign scheduling. D11/D12 are sequential. D13/D14 can run in parallel with D11/D12.</div>
+      </div>
+    </div>
+
+    <!-- MUS-D11 -->
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">MUS-D11</span><span class="ticket-title">Brand Guide Registry</span></div>
+      <p>Create the brand guide as a queryable registry. Colors, fonts, logo rules, tone per channel, prohibited patterns. Every Artisan output is validated against this before publish.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/brand/guide.ts    — NEW
+packages/core/src/cmo/brand/index.ts    — NEW (barrel)</div>
+
+      <h3>Seed Brand Values (use these exactly)</h3>
+      <ul>
+        <li><strong>Primary colors:</strong> RPI Blue <code>#4a7ab5</code>, Gold <code>#d4a44c</code>, Dark BG <code>#0a0e17</code></li>
+        <li><strong>Accent colors:</strong> Green <code>#22c55e</code>, Cyan <code>#06b6d4</code></li>
+        <li><strong>Primary font:</strong> -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui (web); Helvetica Neue (print)</li>
+        <li><strong>Logo rule:</strong> Use only assets from <code>packages/ui/src/logos/</code> &mdash; no generated SVGs</li>
+        <li><strong>Tone B2C:</strong> Warm, reassuring, plain language. No jargon. "We're Your People."</li>
+        <li><strong>Tone B2B:</strong> Professional, direct, capability-focused. No fluff.</li>
+        <li><strong>Tone B2E:</strong> Collegial, efficient, team-oriented.</li>
+        <li><strong>Prohibited:</strong> Generated logo SVGs, inline hex color styles, lorem ipsum copy</li>
+      </ul>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>CMO_BRAND_GUIDE: CmoBrandGuide</code> exported as singleton</li>
+        <li><code>CmoBrandGuide</code> type: approvedColors, prohibitedColors, approvedFonts, logoRules, toneByChannel, prohibitedPatterns, version: string</li>
+        <li><code>isApprovedColor(hex: string): boolean</code> &mdash; case-insensitive check against approvedColors</li>
+        <li><code>getToneForChannel(channel: 'b2c' | 'b2b' | 'b2e'): string</code></li>
+        <li><code>getLogoRule(): string</code></li>
+        <li>version: '1.0.0'. All values are constants &mdash; no runtime mutation</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>isApprovedColor('#4a7ab5')</code> &rarr; true; <code>isApprovedColor('#4A7AB5')</code> &rarr; true (case-insensitive)</li>
+        <li><code>isApprovedColor('#ff0000')</code> &rarr; false</li>
+        <li><code>getToneForChannel('b2c')</code> &rarr; non-empty string</li>
+        <li><code>CMO_BRAND_GUIDE.version === '1.0.0'</code></li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types.ts to extend)</li>
+        <li>No MCP dependencies &mdash; pure data module</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D12 -->
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">MUS-D12</span><span class="ticket-title">Brand Compliance Engine</span></div>
+      <p>Automated compliance checker for every Artisan output. Validates asset metadata against the brand guide before anything goes to Drive, WordPress, or C3. Violations sent to JDM DM &mdash; never silently corrected.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/brand/compliance-engine.ts   — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>checkBrandCompliance(asset: CmoAssetDescriptor): Promise&lt;CmoBrandComplianceReport&gt;</code> exported</li>
+        <li><code>CmoAssetDescriptor</code>: assetId, type, channel, colors?: string[], fonts?: string[], hasGeneratedLogo: boolean, copy?: string, artisan: string</li>
+        <li><code>CmoBrandComplianceReport</code>: assetId, passed: boolean, violations: CmoBrandViolation[], checkedAt: Date</li>
+        <li><code>CmoBrandViolation</code>: rule, description, severity: 'blocking' | 'warning'</li>
+        <li>Blocking checks: unapproved colors, generated logo, lorem ipsum in copy</li>
+        <li>Warning checks: unapproved font, off-tone copy keywords</li>
+        <li>Any blocking violation &rarr; <code>passed === false</code>; warnings alone do not fail</li>
+        <li>On violation: calls <code>notifyBrandViolation(report)</code> &mdash; sends Slack DM to <code>U09BBHTN8F2</code> (JDM) via rpi-workspace send_message. Message contains asset type + artisan + violation list. No file content, no client data, no PHI.</li>
+        <li>Logs to console: asset type + pass/fail only (no PHI, no asset content)</li>
+      </ul>
+
+      <h3>Slack Notification Format</h3>
+      <div class="diagram">Brand compliance violation — {artisan} / {assetId}
+
+Violations:
+- [BLOCKING] Unapproved color: #ff0000
+- [WARNING] Font not in approved stack
+
+Asset type: {type} | Channel: {channel}
+Checked at: {ISO timestamp}
+
+Action required: Review before publish.</div>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Asset with unapproved hex color &rarr; <code>passed === false</code>, blocking violation present</li>
+        <li>Asset with <code>hasGeneratedLogo: true</code> &rarr; <code>passed === false</code>, logo blocking violation present</li>
+        <li>Asset with all approved colors, no logo &rarr; <code>passed === true</code></li>
+        <li>Warning-only asset &rarr; <code>passed === true</code>, violations array has entries with severity 'warning'</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D11 (brand guide must exist)</li>
+        <li>rpi-workspace MCP: send_message (for Slack DM to JDM)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D13 -->
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">MUS-D13</span><span class="ticket-title">Campaign Calendar Engine</span></div>
+      <p>Proactive 90-day content calendar. AEP blackout enforced at the engine level. Seasonal cadences (T65, birthday touches, annual review triggers) populated automatically.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/campaigns/calendar.ts   — NEW
+packages/core/src/cmo/campaigns/index.ts      — NEW (barrel)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>generateCampaignCalendar(fromDate: Date): Promise&lt;CmoCampaignCalendar&gt;</code> exported</li>
+        <li><code>CmoCampaignCalendar</code>: generatedAt, windowStart, windowEnd (always 90 days from fromDate), entries: CmoCalendarEntry[], aepBlackoutActive: boolean</li>
+        <li><code>CmoCalendarEntry</code>: entryId, name, type ('aep' | 't65' | 'birthday' | 'annual-review' | 'product-launch' | 'seasonal' | 'always-on'), scheduledDate, market, artisan ('digital' | 'social' | 'video' | 'print'), priority, status ('planned' | 'blocked' | 'ready'), blockedReason?</li>
+        <li>AEP blackout Oct 1 &ndash; Dec 31: all non-AEP entries in that window &rarr; status 'blocked', blockedReason: 'AEP_BLACKOUT'. No override parameter.</li>
+        <li>T65 entries: clients turning 65 in next 90 days. Reads Firestore <code>clients</code> collection by birth date range via <code>@tomachina/db</code>. Birth dates used for date math only &mdash; never logged or returned in calendar entries.</li>
+        <li>Annual review entries: clients with last review &gt; 365 days ago</li>
+        <li>Always-on campaigns: Medicare, FIA nurture, MYGA nurture &mdash; one entry per channel per 30-day window</li>
+        <li>Calendar sorted by scheduledDate ascending</li>
+        <li>Client identifiers and birth dates NEVER appear in calendar entries or log output</li>
+      </ul>
+
+      <h3>AEP Blackout (Non-Negotiable)</h3>
+      <div class="callout red">
+        <p><strong>Oct 1 &ndash; Dec 31: all non-AEP campaign entries are blocked with reason 'AEP_BLACKOUT'.</strong> No override. No exceptions. If MUSASHI is asked to schedule a non-AEP campaign in that window, the entry is created as 'blocked'. Artisan does not produce the asset until the blackout lifts.</p>
+      </div>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>generateCampaignCalendar(new Date('2026-10-15'))</code>: all non-AEP entries blocked; <code>aepBlackoutActive === true</code></li>
+        <li><code>generateCampaignCalendar(new Date('2026-06-01'))</code>: no blocked entries; <code>aepBlackoutActive === false</code></li>
+        <li>Calendar window is exactly 90 days from fromDate</li>
+        <li>No client birth dates or identifiers in any returned calendar entry</li>
+        <li><code>npm run build</code> passes (Firestore client must not leak server-only imports)</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li><code>@tomachina/db</code> typed Firestore client (T65 + annual review queries)</li>
+        <li>Firestore <code>clients</code> collection (birth date field required for T65)</li>
+        <li>MUS-C01 (types.ts to extend)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D14 -->
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">MUS-D14</span><span class="ticket-title">ATLAS Event Listener</span></div>
+      <p>When ATLAS registers a new carrier or product, MUSASHI gets notified and triggers Print + Digital + Web asset creation for launch day. The Machine tells the CMO what's new &mdash; the CMO executes without being asked.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/routes/cmo-events.ts   — NEW</div>
+
+      <h3>API Contract</h3>
+      <div class="diagram">POST /api/cmo/events/product-launch
+Authorization: Firebase Auth required (retireprotected.com)
+
+Request body:
+{
+  "carrierId": string,
+  "carrierName": string,
+  "productId": string,
+  "productName": string,
+  "productType": "FIA" | "MYGA" | "Life" | "Medicare" | "Advisory",
+  "market": "b2c" | "b2b" | "b2e" | "all",
+  "launchDate": string  // ISO date
+}
+
+Response: { success: boolean, dispatched: string[], failed: string[], summary: string }</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Route registered in <code>services/api/src/index.ts</code> under <code>/api/cmo/events</code></li>
+        <li>Firebase Auth middleware applied &mdash; unauthenticated requests return 401</li>
+        <li>On valid request: dispatches 3 wire calls via <code>Promise.allSettled()</code>: Print (WIRE_BROCHURE), Digital (WIRE_CAMPAIGN), Web (WIRE_LANDING_PAGE)</li>
+        <li>Partial failure does not block the other dispatches</li>
+        <li>Missing required fields &rarr; 400 with clear error</li>
+        <li>Returns <code>{ success: boolean, dispatched, failed, summary }</code></li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>POST with valid body &rarr; 200, dispatched array has 3 items</li>
+        <li>POST with missing productType &rarr; 400</li>
+        <li>POST without Auth header &rarr; 401 (not 404)</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>Track 2 wires live: WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE</li>
+        <li>Firebase Auth middleware (existing in services/api)</li>
+        <li>Read <code>services/api/src/index.ts</code> first to verify route group pattern</li>
+      </ul>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-header p4">
+      <div class="phase-number p4">4</div>
+      <div>
+        <div class="phase-title">Command Center Full Dashboard + DEVOUR Gate</div>
+        <div class="phase-desc">Wire all Command Center views to live data. Run gate verification only after MUS-D15 is complete and confirmed.</div>
+      </div>
+    </div>
+
+    <!-- MUS-D15 -->
+    <div class="ticket phase4">
+      <div class="ticket-header"><span class="ticket-id phase4">MUS-D15</span><span class="ticket-title">Command Center Full Dashboard</span></div>
+      <p>Wire all Command Center views to live data from DEVOUR modules. The CMO's operational nerve center: inventory counts, parity gaps, brand compliance status, campaign calendar, Artisan health for all 5 channels.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/ui/src/modules/MystAI/MystAIPage.tsx         — MODIFY (add DEVOUR dashboard views)
+packages/ui/src/modules/MystAI/MystAISection.tsx      — MODIFY (add inventory, parity, compliance, calendar sections)
+packages/ui/src/modules/MystAI/myst-ai-data.ts        — MODIFY (add data fetching hooks)
+services/api/src/routes/cmo-dashboard.ts               — NEW (aggregation endpoint)</div>
+
+      <h3>Dashboard Sections Required</h3>
+      <ul>
+        <li><strong>Creative Inventory Summary</strong> &mdash; counts by source: Canva (N designs, N stale), Drive (N assets, N stale), WordPress (N pages, N gaps), C3 (N templates, N stale)</li>
+        <li><strong>Parity Gap Tracker</strong> &mdash; table: print asset | missing digital types | priority | dispatch status</li>
+        <li><strong>Brand Compliance Feed</strong> &mdash; passed/failed counts last 7 days. Last violation summary: asset type + artisan only (no PHI)</li>
+        <li><strong>Campaign Calendar</strong> &mdash; next 30 days. AEP blackout visually indicated when active.</li>
+        <li><strong>Artisan Health</strong> &mdash; 5 cards (Print / Digital / Web / Social / Video): status, last produced, queue depth</li>
+      </ul>
+
+      <h3>API: GET /api/cmo/dashboard</h3>
+      <div class="diagram">GET /api/cmo/dashboard
+Authorization: Firebase Auth required
+
+Response:
+{
+  "success": true,
+  "data": {
+    "inventory": { canva, drive, wordpress, c3 },
+    "parity": CmoParityGap[],
+    "compliance": { passed7d, failed7d, lastViolation? },
+    "calendar": CmoCalendarEntry[],   // next 30 days
+    "artisans": CmoArtisanHealth[]    // 5 records
+  }
+}</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>GET /api/cmo/dashboard</code> returns aggregated live data (max 1-hour cache acceptable for inventory)</li>
+        <li>All 5 dashboard sections render in Command Center without errors</li>
+        <li>No browser dialog functions (showNotification/showDialog) &mdash; use showToast for any user feedback</li>
+        <li>All data fetching uses <code>{ success: boolean, data?, error? }</code> structured response</li>
+        <li>AEP blackout badge visible on calendar section when date falls in Oct&ndash;Dec</li>
+        <li><code>npm run build</code> passes clean</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Navigate to Command Center in dev &mdash; all 5 sections render without console errors</li>
+        <li>GET /api/cmo/dashboard returns success: true with all sections present</li>
+        <li>Artisan health cards show correct artisan names for all 5</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D01 through MUS-D14 (all DEVOUR modules must be built)</li>
+        <li>Track 2 Command Center scaffold in MystAI module</li>
+      </ul>
+    </div>
+
+    <!-- MUS-D16 -->
+    <div class="ticket phase4">
+      <div class="ticket-header"><span class="ticket-id phase4">MUS-D16</span><span class="ticket-title">DEVOUR Gate Verification</span></div>
+      <p>Full checklist verification that DEVOUR is operational. Run only after all Phase 4 work is complete. This is the gate that marks MUSASHI as having entered DEVOUR mode. Not a finish line &mdash; a capability floor.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">No new files — verification only.</div>
+
+      <h3>Gate Checklist (All Must Pass)</h3>
+      <ul class="ac-list">
+        <li><strong>Artisans (5/5):</strong> Print, Digital, Web, Social, Video all return health status 'live' from GET /api/cmo/dashboard</li>
+        <li><strong>Inventory:</strong> All 4 scanners run without error and return &gt;0 entries</li>
+        <li><strong>Parity map:</strong> <code>generateParityMap()</code> returns structured output without error</li>
+        <li><strong>Parity executor:</strong> Dry-run mode returns dispatch plan without error</li>
+        <li><strong>Brand guide:</strong> <code>isApprovedColor('#4a7ab5')</code> &rarr; true; <code>getToneForChannel('b2c')</code> &rarr; non-empty string</li>
+        <li><strong>Compliance engine:</strong> <code>checkBrandCompliance()</code> runs without error for sample asset descriptor</li>
+        <li><strong>Campaign calendar:</strong> 90-day calendar generated; AEP blackout verified (test with Oct 15 date)</li>
+        <li><strong>ATLAS event listener:</strong> POST /api/cmo/events/product-launch &rarr; 200 with dispatched array</li>
+        <li><strong>Command Center:</strong> All 5 dashboard sections render with live data in dev and prod</li>
+        <li><strong>Build clean:</strong> <code>npm run build</code> passes 11/11; <code>npm run type-check</code> passes 13/13</li>
+        <li><strong>PHI audit:</strong> Scan new cmo/ source files for any log statements containing PHI field names &mdash; zero results</li>
+      </ul>
+
+      <h3>Verification Procedure</h3>
+      <ol>
+        <li>Run <code>npm run type-check</code> &mdash; must pass 13/13</li>
+        <li>Run <code>npm run build</code> &mdash; must pass 11/11</li>
+        <li>Start dev: <code>npm run dev</code></li>
+        <li>Navigate to Command Center in any portal &mdash; verify all 5 sections load</li>
+        <li>Run each scanner and calendar function in a test script &mdash; verify non-empty output</li>
+        <li>Run brand compliance check on a sample asset descriptor &mdash; verify report structure</li>
+        <li>POST sample product-launch payload &mdash; verify 200 response</li>
+        <li>Report gate result: PASS or FAIL with specific failures listed</li>
+      </ol>
+
+      <div class="callout purple">
+        <p><strong>DEVOUR Mode:</strong> When MUS-D16 passes, MUSASHI never stops. The inventory is always current. The calendar is always 90 days ahead. Brand compliance is always enforced. New carriers register with ATLAS &rarr; MUSASHI creates assets. New campaign types &rarr; the calendar absorbs them. New artisan wires &rarr; they register and run. MUSASHI never stops devouring.</p>
+      </div>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-D01 through MUS-D15 (entire DEVOUR track complete)</li>
+        <li>Track 1 (CONSUME) and Track 2 (OPERATE) gates both previously passed</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- TAB: FILES -->
+  <div class="panel" id="tab-files">
+
+    <div class="card">
+      <h2>New Files &mdash; Track 3: DEVOUR</h2>
+      <p>All paths relative to monorepo root. CREATE = new. MODIFY = existing from Track 1 or 2.</p>
+
+      <h3>packages/core/src/cmo/</h3>
+      <div class="diagram"><span class="hl-gold">packages/core/src/cmo/</span>
+
+types.ts                                 MODIFY — add: CmoInventoryEntry, CmoDesignStatus,
+                                                   CmoWordPressPageAudit, CmoTemplateAudit,
+                                                   CmoParityGap, CmoDigitalParityItem,
+                                                   CmoBrandGuide, CmoBrandViolation,
+                                                   CmoBrandComplianceReport, CmoAssetDescriptor,
+                                                   CmoCampaignCalendar, CmoCalendarEntry,
+                                                   CmoArtisanHealth
+
+artisans.ts                              MODIFY — +Social Artisan (MUS-D09), +Video Artisan (MUS-D10)
+
+<span class="hl-cyan">inventory/</span>
+├── <span class="hl-cyan">canva-scanner.ts</span>                   CREATE — MUS-D01
+├── <span class="hl-cyan">drive-scanner.ts</span>                   CREATE — MUS-D02
+├── <span class="hl-cyan">wordpress-auditor.ts</span>               CREATE — MUS-D03
+├── <span class="hl-cyan">template-auditor.ts</span>                CREATE — MUS-D04
+└── <span class="hl-cyan">index.ts</span>                           CREATE — barrel
+
+<span class="hl-cyan">parity/</span>
+├── <span class="hl-cyan">parity-map.ts</span>                      CREATE — MUS-D05
+├── <span class="hl-cyan">parity-executor.ts</span>                 CREATE — MUS-D06
+└── <span class="hl-cyan">index.ts</span>                           CREATE — barrel
+
+<span class="hl-cyan">brand/</span>
+├── <span class="hl-cyan">guide.ts</span>                            CREATE — MUS-D11
+├── <span class="hl-cyan">compliance-engine.ts</span>               CREATE — MUS-D12
+└── <span class="hl-cyan">index.ts</span>                           CREATE — barrel
+
+<span class="hl-cyan">campaigns/</span>
+├── <span class="hl-cyan">calendar.ts</span>                        CREATE — MUS-D13
+└── <span class="hl-cyan">index.ts</span>                           CREATE — barrel
+
+wires/
+├── WIRE_BROCHURE / WIRE_CAMPAIGN / WIRE_LANDING_PAGE  (Track 2, existing)
+├── <span class="hl-cyan">WIRE_SOCIAL.ts</span>                     CREATE — MUS-D07
+├── <span class="hl-cyan">WIRE_VIDEO.ts</span>                      CREATE — MUS-D08
+└── index.ts                             MODIFY — add WIRE_SOCIAL, WIRE_VIDEO exports</div>
+
+      <h3>services/api/src/routes/</h3>
+      <div class="diagram"><span class="hl-gold">services/api/src/routes/</span>
+├── <span class="hl-cyan">cmo-events.ts</span>                      CREATE — MUS-D14 — POST /api/cmo/events/product-launch
+├── <span class="hl-cyan">cmo-dashboard.ts</span>                   CREATE — MUS-D15 — GET /api/cmo/dashboard
+└── index.ts                             MODIFY — register both new route files</div>
+
+      <h3>packages/ui/src/modules/MystAI/</h3>
+      <div class="diagram"><span class="hl-gold">packages/ui/src/modules/MystAI/</span>
+├── MystAIPage.tsx                       MODIFY — add DEVOUR dashboard tab/sections
+├── MystAISection.tsx                    MODIFY — add inventory, parity, compliance, calendar views
+└── myst-ai-data.ts                      MODIFY — add data fetching for /api/cmo/dashboard</div>
+
+      <h3>File Count</h3>
+      <table>
+        <thead><tr><th>Action</th><th>Count</th><th>Location</th></tr></thead>
+        <tbody>
+          <tr><td>CREATE</td><td>14 files</td><td>packages/core/src/cmo/{inventory,parity,brand,campaigns,wires}</td></tr>
+          <tr><td>CREATE</td><td>2 files</td><td>services/api/src/routes/</td></tr>
+          <tr><td>MODIFY</td><td>6 files</td><td>types.ts, artisans.ts, wires/index.ts, api/index.ts, 3 MystAI UI files</td></tr>
+          <tr><td><strong>TOTAL</strong></td><td><strong>22 files</strong></td><td>0 new apps, 0 new packages</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Barrel Export Chain</h2>
+      <div class="diagram"><span class="hl-gold">packages/core/src/cmo/index.ts</span>  (MODIFY — add Track 3 exports)
+export { CMO_REGISTRY, getCmoTool, ... }               // Track 1
+export { CMO_ARTISANS, getArtisanByChannel }           // Track 2 + Track 3 (5 artisans)
+export { WIRE_SOCIAL, WIRE_VIDEO }                     // Track 3 new wires
+export { generateParityMap, executeParityGap }         // parity modules
+export { CMO_BRAND_GUIDE, checkBrandCompliance, ... }  // brand modules
+export { generateCampaignCalendar }                    // campaign calendar
+export type { CmoInventoryEntry, CmoParityGap, CmoBrandComplianceReport, ... }
+
+<span class="hl-gold">packages/core/src/index.ts</span>
+export * from './cmo'  // Verify this is present — add if missing</div>
+      <div class="callout red">
+        <p><strong>Server-only warning:</strong> Inventory scanners, compliance-engine, and calendar.ts call MCP tools and Firestore. They are server-only. Do NOT export these functions through the client-side barrel. Export types only. Import server-side modules directly in API route files.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB: TEST PLAN -->
+  <div class="panel" id="tab-tests">
+
+    <div class="card">
+      <h2>Test Plan &mdash; Track 3: DEVOUR</h2>
+
+      <h3>Phase 1: Inventory Scanners</h3>
+      <table>
+        <thead><tr><th>Test</th><th>Method</th><th>Pass Condition</th></tr></thead>
+        <tbody>
+          <tr><td>Canva scanner returns data</td><td>Call <code>scanCanvaInventory()</code></td><td>&gt;0 entries, all have id + type + status</td></tr>
+          <tr><td>Drive scanner returns data</td><td>Call <code>scanDriveInventory()</code></td><td>&gt;0 entries, PDFs tagged channel: 'print'</td></tr>
+          <tr><td>WordPress auditor</td><td>Call <code>auditWordPressPages()</code></td><td>&gt;0 entries, gap entries for missing expected pages</td></tr>
+          <tr><td>C3 template audit</td><td>Call <code>auditC3Templates()</code></td><td>~661 entries, no duplicate IDs</td></tr>
+          <tr><td>Stale detection</td><td>Inject entry with old lastModified</td><td>Entry tagged 'stale'</td></tr>
+          <tr><td>MCP unavailable graceful</td><td>Mock MCP failure</td><td>Returns empty array without throwing</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Phase 2: Parity + Artisans</h3>
+      <table>
+        <thead><tr><th>Test</th><th>Method</th><th>Pass Condition</th></tr></thead>
+        <tbody>
+          <tr><td>Parity map from inventory</td><td>Feed real inventory to <code>generateParityMap()</code></td><td>CmoParityGap[] sorted high first</td></tr>
+          <tr><td>Parity executor dry-run</td><td><code>executeParityGap(gap, { dryRun: true })</code></td><td>Returns dispatch plan, no wire calls made</td></tr>
+          <tr><td>WIRE_SOCIAL structure</td><td>Assert on wire definition</td><td>4 steps, step 3 optional, IDs unique</td></tr>
+          <tr><td>WIRE_VIDEO structure</td><td>Assert on wire definition</td><td>4 steps, step 4 optional, IDs unique</td></tr>
+          <tr><td>5 artisans registered</td><td><code>CMO_ARTISANS.length === 5</code></td><td>Exact 5</td></tr>
+          <tr><td>Artisan channel lookup</td><td><code>getArtisanByChannel('social')</code></td><td>Returns Social Artisan, not undefined</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Phase 3: Brand + Calendar</h3>
+      <table>
+        <thead><tr><th>Test</th><th>Method</th><th>Pass Condition</th></tr></thead>
+        <tbody>
+          <tr><td>Approved color check</td><td><code>isApprovedColor('#4a7ab5')</code></td><td>true</td></tr>
+          <tr><td>Unapproved color check</td><td><code>isApprovedColor('#ff0000')</code></td><td>false</td></tr>
+          <tr><td>Case-insensitive color</td><td><code>isApprovedColor('#4A7AB5')</code></td><td>true</td></tr>
+          <tr><td>Brand check — blocking</td><td>Asset with unapproved color + generated logo</td><td>passed: false, blocking violations</td></tr>
+          <tr><td>Brand check — warning only</td><td>Asset with unapproved font only</td><td>passed: true, warnings in array</td></tr>
+          <tr><td>AEP blackout Oct</td><td><code>generateCampaignCalendar(new Date('2026-10-15'))</code></td><td>Non-AEP entries blocked; aepBlackoutActive: true</td></tr>
+          <tr><td>AEP blackout June clear</td><td><code>generateCampaignCalendar(new Date('2026-06-01'))</code></td><td>No blocked entries; aepBlackoutActive: false</td></tr>
+          <tr><td>Calendar 90-day window</td><td>Inspect windowEnd - windowStart</td><td>Exactly 90 days</td></tr>
+          <tr><td>No client data in calendar</td><td>Inspect all calendar entries</td><td>No birth dates, no client names in any field</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Phase 4: API + Dashboard</h3>
+      <table>
+        <thead><tr><th>Test</th><th>Method</th><th>Pass Condition</th></tr></thead>
+        <tbody>
+          <tr><td>Product launch endpoint</td><td>POST /api/cmo/events/product-launch with valid body</td><td>200, dispatched array has 3 items</td></tr>
+          <tr><td>Auth required</td><td>POST without Auth header</td><td>401, not 404</td></tr>
+          <tr><td>Validation</td><td>POST with missing productType</td><td>400 with clear error</td></tr>
+          <tr><td>Dashboard endpoint</td><td>GET /api/cmo/dashboard with valid auth</td><td>200, all 5 sections present</td></tr>
+          <tr><td>Dashboard UI renders</td><td>Navigate to Command Center in dev</td><td>All 5 sections visible, no console errors</td></tr>
+          <tr><td>AEP badge in UI</td><td>Test with mocked October date</td><td>AEP blackout badge visible</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Build Gate (Required Before MUS-D16)</h3>
+      <table>
+        <thead><tr><th>Command</th><th>Expected</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm run type-check</code></td><td>13/13 workspaces pass</td></tr>
+          <tr><td><code>npm run build</code></td><td>11/11 packages pass</td></tr>
+          <tr><td>PHI log audit: search new cmo/ files for log statements containing PHI field names</td><td>Zero results</td></tr>
+          <tr><td>Server barrel check: confirm inventory scanners not reachable from client bundle</td><td>No MCP tool invocations in client-side barrel exports</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- TAB: DEPENDENCIES -->
+  <div class="panel" id="tab-deps">
+
+    <div class="card">
+      <h2>External Dependencies (MCPs + Services)</h2>
+      <table>
+        <thead><tr><th>Dependency</th><th>Used By</th><th>MCP Server</th><th>Tools Required</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Canva</strong></td><td>MUS-D01, MUS-D07</td><td>rpi-workspace</td><td>canva_search_designs, canva_list_folder_items, canva_get_design, canva_search_folders, canva_generate_design</td></tr>
+          <tr><td><strong>Google Drive</strong></td><td>MUS-D02, MUS-D07, MUS-D08</td><td>gdrive MCP</td><td>listFolder; download_video + gdrive upload for video archiving</td></tr>
+          <tr><td><strong>WordPress</strong></td><td>MUS-D03, MUS-D08</td><td>rpi-workspace</td><td>wordpress_list_pages, wordpress_get_post, wordpress_update_page</td></tr>
+          <tr><td><strong>Veo (Video)</strong></td><td>MUS-D07, MUS-D08</td><td>rpi-workspace</td><td>generate_video, generate_video_from_image, check_video_status, download_video, list_video_models</td></tr>
+          <tr><td><strong>Firestore</strong></td><td>MUS-D04, MUS-D13</td><td>@tomachina/db (direct)</td><td>templates collection (661 docs), clients collection (birth date range queries for T65)</td></tr>
+          <tr><td><strong>Slack</strong></td><td>MUS-D12</td><td>rpi-workspace</td><td>send_message (DM to U09BBHTN8F2 &mdash; JDM only)</td></tr>
+          <tr><td><strong>Firebase Auth</strong></td><td>MUS-D14, MUS-D15</td><td>services/api middleware</td><td>Existing Firebase Auth middleware in API</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Internal Track Dependencies</h2>
+      <table>
+        <thead><tr><th>Ticket</th><th>Depends On</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>MUS-D01</td><td>MUS-C01 (Track 1)</td><td>CmoInventoryEntry extended from Track 1 types.ts</td></tr>
+          <tr><td>MUS-D02</td><td>MUS-D01</td><td>Reuses CmoInventoryEntry type</td></tr>
+          <tr><td>MUS-D03</td><td>MUS-D01</td><td>Types pattern established in D01</td></tr>
+          <tr><td>MUS-D04</td><td>MUS-D01, @tomachina/db</td><td>Types + Firestore client</td></tr>
+          <tr><td>MUS-D05</td><td>MUS-D01, D02, D03</td><td>Combines all inventory sources to find gaps</td></tr>
+          <tr><td>MUS-D06</td><td>MUS-D05, Track 2 wires</td><td>Reads parity gaps; dispatches to live wires</td></tr>
+          <tr><td>MUS-D07</td><td>MUS-C01 (wire types)</td><td>Wire definition structure from Track 1</td></tr>
+          <tr><td>MUS-D08</td><td>MUS-C01</td><td>Wire definition structure from Track 1</td></tr>
+          <tr><td>MUS-D09</td><td>MUS-D07, Track 2 artisans.ts</td><td>References WIRE_SOCIAL; extends existing artisans array</td></tr>
+          <tr><td>MUS-D10</td><td>MUS-D08, MUS-D09</td><td>References WIRE_VIDEO; run after D09</td></tr>
+          <tr><td>MUS-D11</td><td>MUS-C01</td><td>Extends types.ts with CmoBrandGuide</td></tr>
+          <tr><td>MUS-D12</td><td>MUS-D11</td><td>Uses brand guide for validation logic</td></tr>
+          <tr><td>MUS-D13</td><td>MUS-C01, @tomachina/db</td><td>Types + Firestore for T65/annual review queries</td></tr>
+          <tr><td>MUS-D14</td><td>Track 2 wires live</td><td>Dispatches to WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE</td></tr>
+          <tr><td>MUS-D15</td><td>MUS-D01&ndash;D14, Track 2 scaffold</td><td>Aggregates all DEVOUR modules into dashboard</td></tr>
+          <tr><td>MUS-D16</td><td>MUS-D15</td><td>Gate verifies entire DEVOUR track</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Track Prerequisites</h2>
+      <div class="callout green">
+        <p><strong>Track 1 (CONSUME) gate must have passed:</strong> CMO Registry exists, 50+ tools registered, wire stubs defined, types.ts established at <code>packages/core/src/cmo/types.ts</code>.</p>
+      </div>
+      <div class="callout green">
+        <p><strong>Track 2 (OPERATE) gate must have passed:</strong> 3 Artisans live (Print, Digital, Web), WIRE_BROCHURE / WIRE_CAMPAIGN / WIRE_LANDING_PAGE all wired and producing, Command Center scaffold exists at <code>packages/ui/src/modules/MystAI/</code>.</p>
+      </div>
+      <div class="callout blue">
+        <p><strong>Parallel execution note:</strong> Phase 1 (D01&ndash;D04): all parallel. Phase 2: D07&ndash;D10 can run in parallel with D05/D06. Phase 3: D11/D12 sequential, D13/D14 parallel with D11 start. Phase 4: sequential after Phase 3 complete.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB: SPRINT PLAN -->
+  <div class="panel" id="tab-sprint">
+
+    <div class="card">
+      <h2>Sprint Plan &mdash; DEVOUR Execution</h2>
+      <p>16 tickets, 4 phases, 4 sprints. 2 RONIN agents running in parallel cuts time in half.</p>
+
+      <h3>Execution Strategy</h3>
+      <div class="diagram">PHASE 1 — 4 tickets, fully parallel
+  RONIN-A: MUS-D01, MUS-D03
+  RONIN-B: MUS-D02, MUS-D04
+  Gate: all 4 scanners return live data, no duplicate IDs
+  Estimate: 1 sprint
+
+PHASE 2 — 6 tickets, parallel split
+  RONIN-A: MUS-D05 → MUS-D06 (parity — depends on Phase 1)
+  RONIN-B: MUS-D07 → MUS-D08 → MUS-D09 → MUS-D10 (artisans — parallel with A-track)
+  Gate: parity executor dry-run passes; CMO_ARTISANS.length === 5
+  Estimate: 1 sprint
+
+PHASE 3 — 4 tickets, parallel
+  RONIN-A: MUS-D11 → MUS-D12 (brand compliance, sequential within A)
+  RONIN-B: MUS-D13, MUS-D14 (calendar + ATLAS, parallel)
+  Gate: brand check passes; 90-day calendar generated; product-launch endpoint 200
+  Estimate: 1 sprint
+
+PHASE 4 — 2 tickets, sequential
+  RONIN-A: MUS-D15 (full dashboard — XL effort)
+  RONIN-A: MUS-D16 (gate — run only after D15 confirmed)
+  Gate: MUS-D16 checklist all pass
+  Estimate: 1 sprint</div>
+
+      <h3>Sprint Ticket Assignments</h3>
+      <table>
+        <thead><tr><th>Sprint</th><th>Ticket</th><th>Agent</th><th>Effort</th><th>Parallel?</th></tr></thead>
+        <tbody>
+          <tr><td>Sprint 1</td><td>MUS-D01</td><td>RONIN-A</td><td>M</td><td>Yes (with D02&ndash;D04)</td></tr>
+          <tr><td>Sprint 1</td><td>MUS-D02</td><td>RONIN-B</td><td>M</td><td>Yes</td></tr>
+          <tr><td>Sprint 1</td><td>MUS-D03</td><td>RONIN-A</td><td>M</td><td>Yes</td></tr>
+          <tr><td>Sprint 1</td><td>MUS-D04</td><td>RONIN-B</td><td>L</td><td>Yes</td></tr>
+          <tr><td>Sprint 2</td><td>MUS-D05</td><td>RONIN-A</td><td>M</td><td>Yes (A-track)</td></tr>
+          <tr><td>Sprint 2</td><td>MUS-D06</td><td>RONIN-A</td><td>M</td><td>After D05</td></tr>
+          <tr><td>Sprint 2</td><td>MUS-D07</td><td>RONIN-B</td><td>L</td><td>Yes (B-track)</td></tr>
+          <tr><td>Sprint 2</td><td>MUS-D08</td><td>RONIN-B</td><td>L</td><td>Yes (B-track)</td></tr>
+          <tr><td>Sprint 2</td><td>MUS-D09</td><td>RONIN-B</td><td>S</td><td>After D07</td></tr>
+          <tr><td>Sprint 2</td><td>MUS-D10</td><td>RONIN-B</td><td>S</td><td>After D09</td></tr>
+          <tr><td>Sprint 3</td><td>MUS-D11</td><td>RONIN-A</td><td>M</td><td>Yes (with D13/D14)</td></tr>
+          <tr><td>Sprint 3</td><td>MUS-D12</td><td>RONIN-A</td><td>L</td><td>After D11</td></tr>
+          <tr><td>Sprint 3</td><td>MUS-D13</td><td>RONIN-B</td><td>L</td><td>Yes (with D11)</td></tr>
+          <tr><td>Sprint 3</td><td>MUS-D14</td><td>RONIN-B</td><td>M</td><td>Yes (with D13)</td></tr>
+          <tr><td>Sprint 4</td><td>MUS-D15</td><td>RONIN-A</td><td>XL</td><td>No</td></tr>
+          <tr><td>Sprint 4</td><td>MUS-D16</td><td>RONIN-A</td><td>S</td><td>After D15</td></tr>
+        </tbody>
+      </table>
+
+      <h3>PR Strategy</h3>
+      <div class="callout">
+        <p>One PR per phase. Each PR must pass <code>npm run build</code> 11/11 and <code>npm run type-check</code> 13/13 before merge. Do not stack phases into one PR. CI catches any server barrel leak or type error before deploy.</p>
+      </div>
+
+      <h3>DEVOUR Is Ongoing &mdash; After Gate Passes</h3>
+      <p>MUS-D17+ follows the same ticket format. DEVOUR absorbs everything. No new track needed.</p>
+      <table>
+        <thead><tr><th>Future Expansion Area</th><th>Ticket</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td>New carrier onboard &rarr; brand materials</td><td>MUS-D17+</td><td>ATLAS product-launch event</td></tr>
+          <tr><td>retireprotected.com market-specific pages</td><td>MUS-D17+</td><td>New market expansion</td></tr>
+          <tr><td>LinkedIn automation integration</td><td>MUS-D17+</td><td>B2B social expansion</td></tr>
+          <tr><td>Annual AEP content refresh</td><td>Recurring</td><td>Calendar triggers June preparation cycle</td></tr>
+          <tr><td>Podcast / audio artisan</td><td>Future artisan</td><td>JDM decision</td></tr>
+          <tr><td>Brand guide v2.0</td><td>MUS-D17+</td><td>Rebrand or market expansion</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>MUSASHI Track 3: DEVOUR &mdash; Track Discovery Doc</div>
+  <div>The machine that never sleeps builds the brand that never stops.</div>
+  <div class="signoff">&#9876;&#65039; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+
+</body>
+</html>

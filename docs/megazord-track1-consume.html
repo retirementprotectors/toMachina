@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEGAZORD Track 1 — CONSUME</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --orange: #f59e0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050d12 60%, #0a0e17 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 52px 32px 44px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.07) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .sprint-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--mecha-green);
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .header h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 40%, #10b981 70%, #22c55e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto 22px;
+    position: relative;
+  }
+  .header-badges {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .badge-mecha  { background: var(--mecha-glow);  color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-cyan   { background: var(--cyan-glow);   color: var(--cyan);        border: 1px solid rgba(6,182,212,0.3); }
+  .badge-blue   { background: var(--blue-glow);   color: var(--blue);        border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green  { background: var(--green-glow);  color: var(--green);       border: 1px solid rgba(34,197,94,0.3); }
+  .badge-gold   { background: var(--gold-glow);   color: var(--gold);        border: 1px solid rgba(212,164,76,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent);      border: 1px solid rgba(224,124,62,0.3); }
+  .ronin-meta {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'SF Mono', monospace;
+    position: relative;
+  }
+
+  /* ── TABS ── */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  .tab {
+    padding: 14px 22px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--mecha-green); border-bottom-color: var(--mecha-green); background: var(--mecha-glow); }
+
+  /* ── CONTENT ── */
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 18px 0 8px; color: var(--mecha-green); }
+  .card h4 { font-size: 0.92rem; font-weight: 600; margin: 12px 0 6px; color: var(--text); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; font-size: 0.95rem; }
+  .card ul, .card ol { color: var(--text-muted); margin: 0 0 12px 22px; }
+  .card li { margin-bottom: 4px; font-size: 0.95rem; }
+  .card strong { color: var(--text); }
+  .card code {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.83em;
+    color: var(--cyan);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 14px; background: var(--bg-hover); color: var(--mecha-green); font-weight: 600; border-bottom: 1px solid var(--border); font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* ── DIAGRAM / CODE BLOCK ── */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .hl-cyan  { color: var(--cyan);        font-weight: 600; }
+  .hl-blue  { color: var(--blue);        font-weight: 600; }
+  .hl-gold  { color: var(--gold);        font-weight: 600; }
+  .hl-green { color: var(--green);       font-weight: 600; }
+  .hl-red   { color: var(--red);         font-weight: 600; }
+  .hl-acc   { color: var(--accent);      font-weight: 600; }
+
+  /* ── SPEC GRID ── */
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .spec-card.mecha  { border-top: 3px solid var(--mecha-green); }
+  .spec-card.cyan   { border-top: 3px solid var(--cyan); }
+  .spec-card.blue   { border-top: 3px solid var(--blue); }
+  .spec-card.green  { border-top: 3px solid var(--green); }
+  .spec-card.gold   { border-top: 3px solid var(--gold); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 6px; }
+  .spec-card ul { font-size: 0.83rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: rgba(16,185,129,0.07);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .callout.blue   { background: rgba(59,130,246,0.07);  border-color: rgba(59,130,246,0.25); }
+  .callout.cyan   { background: rgba(6,182,212,0.07);   border-color: rgba(6,182,212,0.25); }
+  .callout.gold   { background: rgba(212,164,76,0.07);  border-color: rgba(212,164,76,0.25); }
+  .callout.accent { background: rgba(224,124,62,0.07);  border-color: rgba(224,124,62,0.25); }
+  .callout.red    { background: rgba(239,68,68,0.07);   border-color: rgba(239,68,68,0.25); }
+  .callout p { margin: 0; color: var(--text-muted); font-size: 0.92rem; }
+  .callout strong { color: var(--text); }
+
+  /* ── QUOTE ── */
+  .quote {
+    border-left: 3px solid var(--mecha-green);
+    padding-left: 18px;
+    margin: 16px 0;
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* ── TICKETS ── */
+  .ticket {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--mecha-green);
+    border-radius: 0 12px 12px 0;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .ticket.phase2 { border-left-color: var(--blue); }
+  .ticket.phase3 { border-left-color: var(--cyan); }
+
+  .ticket-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .ticket-id {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--mecha-green);
+    background: var(--mecha-glow);
+    padding: 3px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(16,185,129,0.25);
+    letter-spacing: 1px;
+  }
+  .ticket-id.phase2 { color: var(--blue); background: var(--blue-glow); border-color: rgba(59,130,246,0.25); }
+  .ticket-id.phase3 { color: var(--cyan); background: var(--cyan-glow); border-color: rgba(6,182,212,0.25); }
+  .ticket-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+
+  .ticket h3 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 18px 0 8px;
+  }
+  .ticket p { color: var(--text-muted); margin-bottom: 10px; font-size: 0.9rem; }
+  .ticket ul, .ticket ol { color: var(--text-muted); margin: 0 0 10px 20px; font-size: 0.9rem; }
+  .ticket li { margin-bottom: 4px; }
+  .ticket code {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.82em;
+    color: var(--cyan);
+    font-family: 'SF Mono', monospace;
+  }
+  .file-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 8px 0 14px;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--cyan);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .ac-list { list-style: none; padding: 0; margin: 8px 0 14px; }
+  .ac-list li { padding: 4px 0 4px 26px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .ac-list li::before { content: '✓'; position: absolute; left: 4px; color: var(--green); font-weight: 700; }
+  .dep-list { list-style: none; padding: 0; margin: 8px 0 14px; }
+  .dep-list li { padding: 4px 0 4px 26px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .dep-list li::before { content: '→'; position: absolute; left: 4px; color: var(--mecha-green); font-weight: 700; }
+
+  /* ── PHASE HEADER ── */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 22px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--mecha-green);
+  }
+  .phase-header.p2 { border-bottom-color: var(--blue); }
+  .phase-header.p3 { border-bottom-color: var(--cyan); }
+  .phase-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 900;
+    background: var(--mecha-glow);
+    color: var(--mecha-green);
+    border: 1px solid rgba(16,185,129,0.3);
+    flex-shrink: 0;
+  }
+  .phase-num.p2 { background: var(--blue-glow); color: var(--blue); border-color: rgba(59,130,246,0.3); }
+  .phase-num.p3 { background: var(--cyan-glow); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+  .phase-info .phase-title { font-size: 1.3rem; font-weight: 700; }
+  .phase-info .phase-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── STATUS PILLS ── */
+  .pill-live    { color: var(--green);  font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .pill-stub    { color: var(--orange); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .pill-planned { color: var(--blue);   font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 44px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+  .footer .signoff { color: var(--mecha-green); font-weight: 700; font-size: 1.05rem; margin-top: 14px; }
+  .footer .race { color: var(--mecha-green); font-weight: 700; letter-spacing: 2px; margin-top: 8px; font-size: 0.9rem; }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 2.2rem; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .ticket { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="header">
+  <div class="sprint-label">TRACK DISCOVERY DOC &mdash; CONSUME</div>
+  <h1>MEGAZORD Track 1</h1>
+  <p class="subtitle">Absorb ATLAS. Brand it yours. Claim the data kingdom. The lightest CXO launch because the foundation already exists.</p>
+  <div class="header-badges">
+    <span class="badge badge-mecha">CIO</span>
+    <span class="badge badge-mecha">TRACK 1: CONSUME</span>
+    <span class="badge badge-cyan">10 TICKETS</span>
+    <span class="badge badge-green">REBRAND</span>
+    <span class="badge badge-blue">ZRD- PREFIX</span>
+  </div>
+  <div class="ronin-meta">authored: MUSASHI, ARTxBLADE &bull; 2026-04-05</div>
+</div>
+
+<!-- ═══════════ TABS ═══════════ -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active"    onclick="showTab('overview')">Overview</div>
+    <div class="tab"           onclick="showTab('tickets')">Tickets</div>
+    <div class="tab"           onclick="showTab('files')">Files</div>
+    <div class="tab"           onclick="showTab('tests')">Test Plan</div>
+    <div class="tab"           onclick="showTab('deps')">Dependencies</div>
+    <div class="tab"           onclick="showTab('sprint')">Sprint Plan</div>
+  </div>
+</div>
+
+<!-- ═══════════ CONTENT ═══════════ -->
+<div class="content">
+
+  <!-- ─────────── OVERVIEW ─────────── -->
+  <div class="panel active" id="tab-overview">
+
+    <div class="card">
+      <h2>Track 1: CONSUME &mdash; Absorb ATLAS</h2>
+      <div class="quote">"MEGAZORD IS ATLAS. Not connects to. Not manages. IS." &mdash; JDM, Night Shift 2026-04-04</div>
+      <p>MEGAZORD claims ownership of ATLAS. The MEGAZORD Command Center IS ATLAS &mdash; rebranded, consolidated, and ready for CXO operation. This is the lightest CXO Track 1 of any Registry Warrior because ATLAS is the most mature registry in The Machine. Most other CXOs build from scratch. MEGAZORD walks in and <strong>puts on the armor.</strong></p>
+      <p>CONSUME is about identity, branding, and consolidation. Nothing is being built from scratch. Everything is being claimed.</p>
+
+      <h3>What CONSUME Delivers</h3>
+      <ul>
+        <li><strong>Rebrand AtlasRegistry &rarr; MEGAZORD Command Center</strong> &mdash; same code, new identity. App key changes from <code>atlas</code> to <code>megazord</code>.</li>
+        <li><strong>Claim data-centric tickets from RONIN queue</strong> &mdash; audit Dojo backlog, reclassify as ZRD- tickets.</li>
+        <li><strong>Consolidate discovery docs</strong> &mdash; Platform Mirror, Trinity ACF, sprint inventories feed into MEGAZORD's context.</li>
+        <li><strong>Build soul.md + spirit.md</strong> at <code>~/Projects/dojo-warriors/megazord/</code> &mdash; seeded from ATLAS history, ACF sprint learnings, and the CXO Roadmap.</li>
+        <li><strong>Establish ZRD- ticket prefix</strong> &mdash; all MEGAZORD work tracked with ZRD- in the Dojo pipeline.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>What MEGAZORD Is Absorbing</h2>
+      <p>ATLAS is 6,145 lines of production API routes, 15 atomic tools, 12 super tools, 5 live wires, and 8 E2E test files. CONSUME is inheriting a live system &mdash; not scaffolding one.</p>
+      <div class="spec-grid">
+        <div class="spec-card mecha">
+          <h4>Core Package</h4>
+          <p><code>packages/core/src/atlas/</code></p>
+          <ul>
+            <li>types.ts &mdash; 265 lines</li>
+            <li>wires.ts &mdash; 240 lines</li>
+            <li>wire-executor.ts &mdash; 425 lines</li>
+            <li>introspect.ts &mdash; 425 lines</li>
+            <li>health.ts &mdash; 161 lines</li>
+            <li>learning-library.ts &mdash; 210 lines</li>
+          </ul>
+        </div>
+        <div class="spec-card mecha">
+          <h4>15 Atomic Tools</h4>
+          <ul>
+            <li>VALIDATE_RECORD</li>
+            <li>NORMALIZE_BOB</li>
+            <li>NORMALIZE_STATUS</li>
+            <li>ROUTE_TO_COLLECTION</li>
+            <li>11 ACF Tools</li>
+          </ul>
+        </div>
+        <div class="spec-card mecha">
+          <h4>12 Super Tools</h4>
+          <ul>
+            <li>SUPER_EXTRACT, SUPER_INTROSPECT</li>
+            <li>SUPER_VALIDATE, SUPER_NORMALIZE</li>
+            <li>SUPER_MATCH, SUPER_WRITE</li>
+            <li>SUPER_PREPARE, SUPER_CLASSIFY</li>
+            <li>ACF_FINALIZE, SUPER_FOLDER_CLEANUP</li>
+            <li>SUPER_DOCUMENT_CLEANUP, SUPER_AUDIT_REVIEW</li>
+          </ul>
+        </div>
+        <div class="spec-card mecha">
+          <h4>5 Wires</h4>
+          <ul>
+            <li>WIRE_DATA_IMPORT</li>
+            <li>WIRE_COMMISSION_SYNC</li>
+            <li>WIRE_REFERENCE_SEED</li>
+            <li>WIRE_INCOMING_CORRESPONDENCE</li>
+            <li>WIRE_ACF_CLEANUP</li>
+          </ul>
+        </div>
+        <div class="spec-card mecha">
+          <h4>API Routes</h4>
+          <ul>
+            <li>atlas.ts &mdash; 1,327 lines</li>
+            <li>acf.ts &mdash; 1,366 lines</li>
+            <li>import.ts &mdash; 2,753 lines</li>
+            <li>import-accounts.ts &mdash; 269 lines</li>
+            <li>import-agents.ts &mdash; 200 lines</li>
+            <li>wire.ts &mdash; 230 lines</li>
+          </ul>
+        </div>
+        <div class="spec-card mecha">
+          <h4>8 E2E Tests + Firestore</h4>
+          <ul>
+            <li>cluster3-atlas, cluster8-acf-lifecycle</li>
+            <li>cluster2-intake, cluster4-data-sync</li>
+            <li>acf-scan, acf-upload</li>
+            <li>mail-intake, spc-intake</li>
+            <li>Collections: source_registry, tool_registry, atlas_audit, import_runs</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Title</th><th>Phase</th><th>Parallel?</th><th>Effort</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--mecha-green);font-weight:700;">ZRD-C01</td><td>MEGAZORD Soul + Spirit Files</td><td>1 &mdash; Identity</td><td>Yes</td><td>M</td></tr>
+          <tr><td style="color:var(--mecha-green);font-weight:700;">ZRD-C02</td><td>Establish ZRD- Ticket Prefix + Dojo Tab</td><td>1 &mdash; Identity</td><td>Yes</td><td>S</td></tr>
+          <tr><td style="color:var(--mecha-green);font-weight:700;">ZRD-C03</td><td>Claim Data-Centric Tickets from RONIN Queue</td><td>1 &mdash; Identity</td><td>Yes</td><td>M</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">ZRD-C04</td><td>Rebrand AtlasRegistry &rarr; MEGAZORD Command Center</td><td>2 &mdash; Rebrand</td><td>Sequential</td><td>M</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">ZRD-C05</td><td>MEGAZORD Branding Layer</td><td>2 &mdash; Rebrand</td><td>After C04</td><td>S</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">ZRD-C06</td><td>Registry Dashboard Enhancement</td><td>2 &mdash; Rebrand</td><td>After C04</td><td>M</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:700;">ZRD-C07</td><td>Discovery Doc Consolidation</td><td>3 &mdash; Consolidate</td><td>Yes</td><td>S</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:700;">ZRD-C08</td><td>ATLAS Registry Completeness Audit</td><td>3 &mdash; Consolidate</td><td>Yes</td><td>M</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:700;">ZRD-C09</td><td>E2E Test Verification</td><td>3 &mdash; Consolidate</td><td>Yes</td><td>S</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:700;">ZRD-C10</td><td>Barrel Exports + Core Integration</td><td>3 &mdash; Consolidate</td><td>Yes</td><td>S</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>CONSUME Gate &mdash; Unlock OPERATE</h2>
+      <div class="callout">
+        <p><strong>OPERATE (Track 2) cannot begin until ALL gate items are confirmed:</strong></p>
+      </div>
+      <ol>
+        <li><code>soul.md</code> + <code>spirit.md</code> exist at <code>~/Projects/dojo-warriors/megazord/</code> with all required sections</li>
+        <li><code>MegazordCommandCenter.tsx</code> renders in all 3 portals (ProDash, RIIMO, SENTINEL)</li>
+        <li>Sidebar shows MEGAZORD label + mecha-green accent in all 3 portals</li>
+        <li>ZRD- prefix registered and functional in Forge pipeline Dojo tab</li>
+        <li>Data-centric tickets reclassified from RON- to ZRD- in Firestore</li>
+        <li>All existing ATLAS discovery docs linked in MEGAZORD context index</li>
+        <li>All ATLAS tools confirmed registered in <code>source_registry</code> + <code>tool_registry</code> Firestore collections</li>
+        <li>All 8 E2E test files run green</li>
+        <li><code>npm run build</code> passes (11/11)</li>
+        <li><code>npm run type-check</code> passes (13/13)</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>Track Architecture</h2>
+      <div class="diagram"><span class="hl-mecha">CONSUME</span> (Track 1 &mdash; you are here)
+    |
+    ├── <span class="hl-mecha">Phase 1: Identity Foundation</span>  ZRD-C01 + ZRD-C02 + ZRD-C03  (all parallel)
+    |         Create warrior files, register ZRD- prefix, claim tickets
+    |
+    ├── <span class="hl-blue">Phase 2: Command Center Rebrand</span>  ZRD-C04 &rarr; ZRD-C05, ZRD-C06  (sequential after P1)
+    |         Rename module, apply branding, enhance dashboard
+    |
+    └── <span class="hl-cyan">Phase 3: Consolidation</span>         ZRD-C07 + ZRD-C08 + ZRD-C09 + ZRD-C10  (all parallel)
+              Link docs, audit registry, verify E2E, clean exports
+
+Running parallel with: <span class="hl-gold">VOLTRON T1</span> + <span class="hl-acc">MUSASHI T1</span>
+CONSUME gate &rarr; unlocks <span class="hl-mecha">MEGAZORD OPERATE</span> (Track 2)</div>
+    </div>
+
+  </div><!-- /overview -->
+
+  <!-- ─────────── TICKETS ─────────── -->
+  <div class="panel" id="tab-tickets">
+
+    <!-- Phase 1 -->
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div class="phase-info">
+        <div class="phase-title">Identity Foundation</div>
+        <div class="phase-desc">ZRD-C01, ZRD-C02, ZRD-C03 &mdash; all run in parallel. No dependencies between them.</div>
+      </div>
+    </div>
+
+    <!-- ZRD-C01 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">ZRD-C01</span>
+        <span class="ticket-title">MEGAZORD Soul + Spirit Files</span>
+      </div>
+      <p>Create MEGAZORD's foundational warrior files at <code>~/Projects/dojo-warriors/megazord/</code>. Seed from ATLAS history, ACF sprint learnings, and the CXO Roadmap. These are the identity documents that define who MEGAZORD is and how it thinks.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">~/Projects/dojo-warriors/megazord/soul.md    — CREATE
+~/Projects/dojo-warriors/megazord/spirit.md  — CREATE</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><strong>soul.md</strong> frontmatter: <code>warrior: MEGAZORD</code>, <code>title: The Mecha &mdash; CIO</code>, <code>type: soul</code>, <code>color: #10b981</code>, <code>registry: ATLAS</code>, <code>mesh: Rangers</code>, <code>ticket_prefix: ZRD-</code></li>
+        <li>soul.md has Identity section &mdash; origin from 2HINOBI, "CHECK ATLAS FIRST" instinct, Consumption Principle</li>
+        <li>soul.md has Role section &mdash; CIO, data operations, wire-first thinking</li>
+        <li>soul.md has Three Weapons section &mdash; ATLAS Registry, Rangers Mesh, Dojo (platform support)</li>
+        <li>soul.md has Key Decisions section &mdash; Consumption Principle, Mecha Principle, wire executor model, ZRD- prefix</li>
+        <li>soul.md has What I Inherited section &mdash; 15 atomic tools, 12 super tools, 5 wires, 6,145 API route lines, 8 E2E tests</li>
+        <li>soul.md has Operational Rules section &mdash; check ATLAS first, compose before building, wire-first scoping</li>
+        <li>soul.md has Slack Signoff section &mdash; emoji format, warrior name</li>
+        <li><strong>spirit.md</strong> has 5+ defining moments from Night Shift 2026-04-04 session with properly attributed JDM quotes</li>
+        <li>spirit.md covers: The Frustration (CHECK ATLAS FIRST), The Taxonomy (Code vs Registry Warriors), The Naming (2HINOBI &rarr; MEGAZORD), The Consumption Principle (MEGAZORD IS ATLAS), The Mecha Principle (leader = specialist)</li>
+        <li>spirit.md matches <code>musashi/spirit.md</code> phase-based format</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow format of existing warrior files: <code>~/Projects/dojo-warriors/musashi/soul.md</code> and <code>~/Projects/dojo-warriors/raiden/soul.md</code>.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Both files exist at the specified paths</li>
+        <li>Frontmatter is valid YAML (parseable)</li>
+        <li>All 7 required sections present in soul.md with substantive content</li>
+        <li>spirit.md has minimum 5 named phases with content</li>
+        <li>No references to nonexistent files or broken paths</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>None &mdash; runs parallel with ZRD-C02, ZRD-C03</li>
+      </ul>
+    </div>
+
+    <!-- ZRD-C02 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">ZRD-C02</span>
+        <span class="ticket-title">Establish ZRD- Ticket Prefix + Dojo Tab</span>
+      </div>
+      <p>Register the ZRD- ticket prefix as MEGAZORD's official work identifier in the Dojo module. Add a MEGAZORD tab to the Dojo pipeline view so ZRD- tickets surface in the correct lane. This is how MEGAZORD owns its work in The Machine's task system.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">packages/ui/src/modules/Dojo/DojoConfig.ts          — EDIT: add ZRD- prefix entry
+packages/ui/src/modules/Dojo/DojoBoard.tsx           — EDIT: add MEGAZORD tab/lane
+packages/ui/src/modules/Dojo/warriors-config.ts      — EDIT: register MEGAZORD warrior
+services/api/src/routes/dojo.ts                      — VERIFY: prefix routing supports ZRD-</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>ZRD- prefix entry exists in Dojo warrior config with mecha-green color <code>#10b981</code></li>
+        <li>MEGAZORD warrior entry includes: name, prefix, color, registry (ATLAS), mesh (Rangers), emoji</li>
+        <li>Dojo board shows MEGAZORD tab that filters for ZRD- tickets</li>
+        <li>Existing ZRD- tickets (if any) appear in the MEGAZORD lane immediately</li>
+        <li>Non-ZRD- tickets are not affected by this change</li>
+        <li>Dojo renders without TypeScript errors</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow the existing RON- (RONIN) or RAI- (RAIDEN) prefix registration pattern in <code>DojoConfig.ts</code>. Mirror the tab structure of an existing warrior lane.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Navigate to Dojo in all 3 portals &mdash; MEGAZORD tab visible</li>
+        <li>Create a test ticket with ZRD- prefix &mdash; appears in MEGAZORD lane</li>
+        <li>Mecha-green accent color applied correctly to the tab/lane header</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>None &mdash; runs parallel with ZRD-C01, ZRD-C03</li>
+      </ul>
+    </div>
+
+    <!-- ZRD-C03 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">ZRD-C03</span>
+        <span class="ticket-title">Claim Data-Centric Tickets from RONIN Queue</span>
+      </div>
+      <p>Audit the Dojo backlog for data operations tickets currently tagged under RON- (RONIN) that rightfully belong to MEGAZORD's domain. Reclassify them as ZRD- tickets. RONIN builds code. MEGAZORD owns data pipelines, registry operations, import wires, and audit tools. Any ticket touching those domains gets transferred.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">Firestore: dojo_tickets collection          — UPDATE: reclassify RON- → ZRD-
+Firestore: dojo_backlog collection          — UPDATE: reclassify matching tickets
+services/api/src/routes/dojo.ts             — VERIFY: ticket reclassification endpoint exists</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Dojo backlog audited for all RON- tickets with data-domain keywords (import, atlas, registry, wire, source, normalize, extract, commission sync, reference seed, ACF)</li>
+        <li>All matching tickets have prefix changed from RON- to ZRD- in Firestore</li>
+        <li>Ticket history preserved &mdash; original RON- ID recorded in ticket metadata/notes field</li>
+        <li>Reclassified tickets appear in MEGAZORD Dojo lane (validated after ZRD-C02)</li>
+        <li>RONIN retains code-layer tickets (component builds, API routes, frontend features)</li>
+        <li>Summary list of reclassified tickets documented in <code>~/Projects/dojo-warriors/megazord/claimed-tickets.md</code></li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Query Firestore <code>dojo_tickets</code> where <code>prefix == 'RON'</code> and title/description contains data domain keywords. Update <code>prefix</code> field and <code>warrior_id</code> to <code>megazord</code>.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Verify at least 1 ticket was reclassified (if backlog has data tickets)</li>
+        <li>Reclassified tickets visible in MEGAZORD Dojo lane</li>
+        <li>No RONIN tickets were incorrectly reclassified (code-layer tickets stay RON-)</li>
+        <li><code>claimed-tickets.md</code> exists with list of transferred ticket IDs + titles</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>None &mdash; runs parallel with ZRD-C01, ZRD-C02 (Dojo lane from C02 validates result)</li>
+      </ul>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-header p2">
+      <div class="phase-num p2">2</div>
+      <div class="phase-info">
+        <div class="phase-title">Command Center Rebrand</div>
+        <div class="phase-desc">ZRD-C04 first (sequential), then ZRD-C05 + ZRD-C06 parallel. Requires Phase 1 complete.</div>
+      </div>
+    </div>
+
+    <!-- ZRD-C04 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">ZRD-C04</span>
+        <span class="ticket-title">Rebrand AtlasRegistry Module &rarr; MEGAZORD Command Center</span>
+      </div>
+      <p>Rename the AtlasRegistry App module to MegazordCommandCenter across the entire codebase. Update the App key from <code>atlas</code> to <code>megazord</code>, update all import paths, route definitions, and sidebar config entries in all 3 portals. Same code &mdash; new identity.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">packages/ui/src/modules/Atlas/AtlasRegistry.tsx                   — RENAME → MegazordCommandCenter.tsx
+packages/ui/src/modules/Atlas/index.ts                              — UPDATE exports
+packages/ui/src/modules/index.ts                                    — UPDATE barrel
+apps/prodash/src/app/(portal)/megazord/page.tsx                     — RENAME route (was atlas/)
+apps/riimo/src/app/(portal)/megazord/page.tsx                       — RENAME route (was atlas/)
+apps/sentinel/src/app/(portal)/megazord/page.tsx                    — RENAME route (was atlas/)
+apps/prodash/src/config/sidebar.ts                                  — UPDATE: key atlas → megazord, label → MEGAZORD
+apps/riimo/src/config/sidebar.ts                                    — UPDATE: key atlas → megazord, label → MEGAZORD
+apps/sentinel/src/config/sidebar.ts                                  — UPDATE: key atlas → megazord, label → MEGAZORD</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><strong>STEP 0 &mdash; Blast Radius Audit (BEFORE any rename):</strong> Run <code>grep -r "atlas" --include="*.ts" --include="*.tsx" --include="*.json"</code> across the entire repo. Document ALL references to the <code>atlas</code> app key, route, import path, type union, entitlement check, sidebar config, E2E test URL, and seed script. List every file + line number in the PR description. This is the rename manifest &mdash; every item on it gets updated or explicitly marked "intentionally unchanged" with rationale.</li>
+        <li>File renamed to <code>MegazordCommandCenter.tsx</code> &mdash; no file named <code>AtlasRegistry.tsx</code> remains</li>
+        <li>App key updated from <code>'atlas'</code> to <code>'megazord'</code> in all sidebar configs</li>
+        <li><code>AppKey</code> type union in <code>packages/ui/src/apps/brands.ts</code> updated: <code>'atlas'</code> &rarr; <code>'megazord'</code></li>
+        <li><code>AppWrapper appKey="atlas"</code> updated to <code>appKey="megazord"</code> in all 3 portal page files</li>
+        <li><code>AdminPanel.tsx</code> module list updated: key <code>'atlas'</code> &rarr; <code>'megazord'</code></li>
+        <li><code>PortalSidebar.tsx</code> in all 3 portals updated: key, href, moduleKey</li>
+        <li>MDJ specialist routing keywords in <code>seed-mdj-specialists.ts</code> updated if applicable</li>
+        <li>Sidebar label updated from "ATLAS Registry" to "MEGAZORD" (or "Command Center") in all 3 portals</li>
+        <li>Route paths updated: <code>/atlas</code> &rarr; <code>/megazord</code> across all 3 portal apps</li>
+        <li>All imports of <code>AtlasRegistry</code> updated to <code>MegazordCommandCenter</code></li>
+        <li>Component renders without errors in all 3 portals</li>
+        <li>No broken imports &mdash; <code>npm run type-check</code> passes 13/13</li>
+        <li>No broken build &mdash; <code>npm run build</code> passes 11/11</li>
+        <li><strong>PR description includes the full grep manifest</strong> &mdash; every <code>atlas</code> reference found, disposition noted (updated / unchanged + why)</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Look at how <code>PipelineStudio</code> is registered as an App in sidebar configs. Mirror that pattern for the MEGAZORD key. The component internals (all the ATLAS logic) stay unchanged &mdash; only the outer shell identity changes.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Navigate to <code>/megazord</code> in all 3 portals &mdash; MEGAZORD Command Center renders</li>
+        <li>Navigate to <code>/atlas</code> &mdash; should 404 or redirect to <code>/megazord</code></li>
+        <li>Sidebar shows "MEGAZORD" label in all 3 portals</li>
+        <li><code>npm run build</code> passes</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>Phase 1 complete (ZRD-C01, ZRD-C02, ZRD-C03 all done)</li>
+        <li>ZRD-C05, ZRD-C06 depend on this ticket</li>
+      </ul>
+    </div>
+
+    <!-- ZRD-C05 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">ZRD-C05</span>
+        <span class="ticket-title">MEGAZORD Branding Layer</span>
+      </div>
+      <p>Apply mecha-green theming and warrior identity card to the MEGAZORD Command Center. The module should visually announce itself as MEGAZORD's domain &mdash; not just a renamed ATLAS page. Add the warrior identity card in the header area showing MEGAZORD's role, registry, and mesh.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">packages/ui/src/modules/Atlas/MegazordCommandCenter.tsx    — EDIT: add identity card, mecha-green accents
+packages/ui/src/modules/Atlas/MegazordCommandCenter.css    — CREATE (if needed) or inline Tailwind
+packages/ui/src/styles/                                    — VERIFY: --mecha-green CSS var available</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Identity card in Command Center header: warrior name (MEGAZORD), role (CIO), registry (ATLAS), mesh (Rangers), ticket prefix (ZRD-)</li>
+        <li>Mecha-green (<code>#10b981</code>) used as accent color for tab borders, active states, stat numbers</li>
+        <li>No hardcoded hex colors &mdash; use <code>var(--mecha-green)</code> CSS variable or Tailwind equivalent</li>
+        <li>Identity card does not break existing ATLAS functionality (all tabs still work)</li>
+        <li>Responsive on mobile viewports</li>
+        <li>No inline styles for color (hook rule: <code>block-hardcoded-colors</code>)</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Look at how VOLTRON or Pipeline Studio App headers are styled for brand identity. Use <code>var(--portal)</code> substitution pattern where portal-specific color should be mecha-green for MEGAZORD.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Identity card renders in all 3 portals with correct MEGAZORD data</li>
+        <li>Mecha-green accents visible &mdash; tabs, active state, stat counts</li>
+        <li>All existing ATLAS functionality (Registry tab, Wire tab, Health tab) still works</li>
+        <li>No console errors</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>ZRD-C04 complete (module renamed)</li>
+        <li>Parallel with ZRD-C06</li>
+      </ul>
+    </div>
+
+    <!-- ZRD-C06 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">ZRD-C06</span>
+        <span class="ticket-title">Registry Dashboard Enhancement</span>
+      </div>
+      <p>Surface the data from <code>health.ts</code> in the Command Center UI. Right now the health check logic exists but its output is buried. MEGAZORD's Command Center should display registry health visually &mdash; tool counts, wire status, last sync times, import run history. Make the CIO dashboard actually look like a CIO dashboard.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">packages/ui/src/modules/Atlas/MegazordCommandCenter.tsx    — EDIT: add health dashboard panel
+packages/core/src/atlas/health.ts                          — READ: understand health data shape
+services/api/src/routes/atlas.ts                           — READ: find health endpoint (GET /api/atlas/health)
+packages/core/src/atlas/types.ts                           — READ: AtlasHealthReport type</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Health dashboard panel added to Command Center (new tab or section, not replacing existing)</li>
+        <li>Displays: total tools registered, total super tools, total wires, active import runs, last health check timestamp</li>
+        <li>Wire status cards show each wire name + last execution status (success/error/pending)</li>
+        <li>Import run history shows last 5 runs with status and record count</li>
+        <li>Data fetched from <code>GET /api/atlas/health</code> &mdash; not hardcoded</li>
+        <li>Loading state shown while data fetches</li>
+        <li>Error state shown if health endpoint returns error</li>
+        <li>API contract verified: read <code>atlas.ts</code> route response shape before writing fetch call</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Read <code>packages/core/src/atlas/health.ts</code> for <code>AtlasHealthReport</code> type. Read <code>services/api/src/routes/atlas.ts</code> for the <code>GET /api/atlas/health</code> response shape. Frontend and API must agree on field names.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Health panel renders with real data from Firestore</li>
+        <li>Wire status cards show correct last-execution data for all 5 wires</li>
+        <li>Import run history shows chronological list</li>
+        <li>Loading spinner shows on initial load</li>
+        <li>No TypeScript errors</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>ZRD-C04 complete (module renamed, routes updated)</li>
+        <li>Parallel with ZRD-C05</li>
+      </ul>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-header p3">
+      <div class="phase-num p3">3</div>
+      <div class="phase-info">
+        <div class="phase-title">Consolidation</div>
+        <div class="phase-desc">ZRD-C07, ZRD-C08, ZRD-C09, ZRD-C10 &mdash; all run in parallel. Requires Phase 2 complete.</div>
+      </div>
+    </div>
+
+    <!-- ZRD-C07 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">ZRD-C07</span>
+        <span class="ticket-title">Discovery Doc Consolidation</span>
+      </div>
+      <p>Index all existing ATLAS and data-domain discovery docs into a single MEGAZORD context document. MEGAZORD inherits a rich history of discovery work &mdash; Platform Mirror discovery, Trinity ACF discovery, sprint inventories, wire discovery docs. This ticket creates the master index so MEGAZORD can find everything in one place.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">~/Projects/dojo-warriors/megazord/discovery-index.md    — CREATE: master index
+docs/registry-warriors-vision.html                        — LINK in index
+docs/megazord-cxo-roadmap.html                            — LINK in index
+docs/trinity-acf-wire-discovery.html                      — LINK in index
+docs/mdj-platform-mirror-discovery.html                   — LINK in index
+docs/q1-sprint-inventory.html                             — LINK in index
+Shared Drive: Trinity ACF discovery docs                  — LINK in index</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>discovery-index.md</code> exists at <code>~/Projects/dojo-warriors/megazord/</code></li>
+        <li>Index organized by category: Identity Docs, Architecture Docs, Sprint History, Wire Discoveries, ACF Docs</li>
+        <li>Each entry has: title, path/URL, date, one-line summary</li>
+        <li>All linked docs are real (no dead links to nonexistent files)</li>
+        <li>GitHub Pages HTML docs linked by their <code>docs/</code> path</li>
+        <li>Shared Drive docs linked by their Drive URL (not fabricated)</li>
+        <li>Index is MEGAZORD-readable by any future session that opens it</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Pattern from <code>~/Projects/dojo-warriors/musashi/</code> context files. List only real, confirmed file paths &mdash; do not fabricate URLs or paths.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>File exists at specified path</li>
+        <li>Every linked file/URL actually exists (verify before writing)</li>
+        <li>Minimum 6 entries across categories</li>
+        <li>YAML/Markdown format is clean and parseable</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>ZRD-C01 complete (soul.md gives context for what to include)</li>
+        <li>Parallel with ZRD-C08, ZRD-C09, ZRD-C10</li>
+      </ul>
+    </div>
+
+    <!-- ZRD-C08 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">ZRD-C08</span>
+        <span class="ticket-title">ATLAS Registry Completeness Audit</span>
+      </div>
+      <p>Verify that all 15 atomic tools, 12 super tools, and 5 wires are properly registered in Firestore <code>source_registry</code> and <code>tool_registry</code> collections. MEGAZORD's data integrity starts here. If tools exist in code but not in the registry, MEGAZORD cannot introspect them, compose them, or report on them.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">Firestore: source_registry collection           — AUDIT: all tools registered?
+Firestore: tool_registry collection             — AUDIT: all super tools + wires registered?
+packages/core/src/atlas/types.ts                — READ: AtlasToolDefinition, AtlasWireDefinition
+services/api/src/routes/atlas.ts                — READ: seed/register endpoints
+~/Projects/dojo-warriors/megazord/audit-report.md  — CREATE: completeness audit result</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>All 15 atomic tools confirmed in <code>source_registry</code> (query and verify, not assumed)</li>
+        <li>All 12 super tools confirmed in <code>tool_registry</code></li>
+        <li>All 5 wires confirmed in <code>tool_registry</code> with correct step definitions</li>
+        <li>Any gaps identified and documented in <code>audit-report.md</code></li>
+        <li>Missing registrations either fixed (new Firestore docs added) or flagged for ZRD-O tickets (OPERATE)</li>
+        <li><code>audit-report.md</code> created with: total expected, total found, gap list, remediation status</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Use the ATLAS introspect tooling in <code>packages/core/src/atlas/introspect.ts</code>. The <code>GET /api/atlas/introspect</code> endpoint returns registered tool inventory &mdash; compare against the known list from the CXO Roadmap briefing.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Call <code>GET /api/atlas/introspect</code> and parse response</li>
+        <li>Compare returned tool list against the 15+12+5 expected inventory</li>
+        <li>Audit report created with accurate gap count</li>
+        <li>Any gaps remediated or escalated to OPERATE backlog</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>Phase 2 complete (Command Center live, API accessible)</li>
+        <li>Parallel with ZRD-C07, ZRD-C09, ZRD-C10</li>
+      </ul>
+    </div>
+
+    <!-- ZRD-C09 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">ZRD-C09</span>
+        <span class="ticket-title">E2E Test Verification</span>
+      </div>
+      <p>Run and verify all 8 E2E test files that cover ATLAS/MEGAZORD domain. Confirm they pass after the rebrand. The module rename and route changes in Phase 2 may have broken test selectors or URL references &mdash; fix any that fail due to the rebrand (not logic regressions).</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">e2e/cluster3-atlas.spec.ts               — RUN + VERIFY (may need URL updates /atlas → /megazord)
+e2e/cluster8-acf-lifecycle.spec.ts       — RUN + VERIFY
+e2e/cluster2-intake.spec.ts              — RUN + VERIFY
+e2e/cluster4-data-sync.spec.ts           — RUN + VERIFY
+e2e/acf-scan.spec.ts                     — RUN + VERIFY
+e2e/acf-upload.spec.ts                   — RUN + VERIFY
+e2e/mail-intake.spec.ts                  — RUN + VERIFY
+e2e/spc-intake.spec.ts                   — RUN + VERIFY</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>All 8 E2E test files run without failure</li>
+        <li>Any URL references updated from <code>/atlas</code> to <code>/megazord</code> in test files</li>
+        <li>Any selector updates for renamed component IDs or labels</li>
+        <li>No test logic regressions &mdash; only rebrand-related fixes allowed in this ticket</li>
+        <li>Test run output captured and added to <code>audit-report.md</code> (or separate test-results.md)</li>
+        <li><code>npm run test:e2e:ui</code> passes</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Run <code>npm run test:e2e:local</code> (backend) and <code>npm run test:e2e:ui</code> (UI). Any failures in <code>cluster3-atlas.spec.ts</code> related to route paths or component labels are rebrand fixes. Logic failures are escalated to OPERATE.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>All 8 spec files run to completion without errors</li>
+        <li>Zero failures in the final run</li>
+        <li>Run output documented</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>ZRD-C04 complete (routes renamed &mdash; needed to update test URLs)</li>
+        <li>Parallel with ZRD-C07, ZRD-C08, ZRD-C10</li>
+      </ul>
+    </div>
+
+    <!-- ZRD-C10 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">ZRD-C10</span>
+        <span class="ticket-title">Barrel Exports + Core Integration</span>
+      </div>
+      <p>Clean up barrel exports from <code>@tomachina/core</code> for the ATLAS/MEGAZORD package. Ensure all ATLAS types, classes, and utilities are properly exported and importable under the correct namespaced paths. Verify no server-only code leaks into shared barrel exports.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">packages/core/src/atlas/index.ts        — AUDIT + CLEAN: barrel exports
+packages/core/src/index.ts              — VERIFY: atlas exports properly re-exported
+packages/core/src/atlas/health.ts       — CHECK: not exported from barrel (server-only)
+packages/core/src/atlas/wire-executor.ts — CHECK: not exported from barrel (server-only)
+packages/core/package.json              — VERIFY: exports map includes atlas types</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>All ATLAS types exported cleanly from <code>packages/core/src/atlas/index.ts</code></li>
+        <li>Types importable as <code>import { AtlasToolDefinition } from '@tomachina/core'</code></li>
+        <li>Server-only code (<code>health.ts</code>, <code>wire-executor.ts</code>) NOT in barrel &mdash; backend imports directly</li>
+        <li>No <code>import</code> errors in any portal app after this change</li>
+        <li><code>npm run type-check</code> passes 13/13</li>
+        <li><code>npm run build</code> passes 11/11</li>
+        <li>No circular dependency warnings</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow the pattern established in <code>packages/core/src/que/index.ts</code> for registry barrel exports. Server-only code pattern: see CLAUDE.md code standards &mdash; "Server-only code NOT exported from shared package barrels &mdash; types only, backend imports directly."</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Import test: <code>import { AtlasToolDefinition } from '@tomachina/core'</code> resolves without error</li>
+        <li>Build test: <code>npm run build</code> passes with no barrel export errors</li>
+        <li>Type-check: <code>npm run type-check</code> 13/13</li>
+        <li>No webpack warnings about server modules in client bundles</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>ZRD-C04 complete (module renamed, imports updated)</li>
+        <li>Parallel with ZRD-C07, ZRD-C08, ZRD-C09</li>
+      </ul>
+    </div>
+
+  </div><!-- /tickets -->
+
+  <!-- ─────────── FILES ─────────── -->
+  <div class="panel" id="tab-files">
+
+    <div class="card">
+      <h2>Files Modified in CONSUME</h2>
+      <p>All files touched across the 10 tickets. CONSUME is a rebrand + consolidation &mdash; no new major systems built. The heaviest changes are the module rename in Phase 2.</p>
+
+      <h3>New Files Created</h3>
+      <div class="diagram">~/Projects/dojo-warriors/megazord/soul.md             ZRD-C01  MEGAZORD soul &mdash; warrior identity
+~/Projects/dojo-warriors/megazord/spirit.md           ZRD-C01  defining moments from Night Shift 2026-04-04
+~/Projects/dojo-warriors/megazord/claimed-tickets.md  ZRD-C03  list of reclassified tickets
+~/Projects/dojo-warriors/megazord/discovery-index.md  ZRD-C07  master doc index
+~/Projects/dojo-warriors/megazord/audit-report.md     ZRD-C08  registry completeness + E2E results</div>
+
+      <h3>Files Renamed</h3>
+      <div class="diagram">packages/ui/src/modules/Atlas/AtlasRegistry.tsx
+  &rarr; packages/ui/src/modules/Atlas/MegazordCommandCenter.tsx     ZRD-C04</div>
+
+      <h3>Files Edited</h3>
+      <div class="diagram"><span class="hl-blue">Phase 2 &mdash; Command Center Rebrand</span>
+packages/ui/src/modules/Atlas/MegazordCommandCenter.tsx  ZRD-C04 C05 C06  core component
+packages/ui/src/modules/Atlas/index.ts                   ZRD-C04           export rename
+packages/ui/src/modules/index.ts                         ZRD-C04           barrel update
+apps/prodash/src/config/sidebar.ts                       ZRD-C04           key + label
+apps/riimo/src/config/sidebar.ts                         ZRD-C04           key + label
+apps/sentinel/src/config/sidebar.ts                      ZRD-C04           key + label
+
+<span class="hl-mecha">Phase 1 &mdash; Identity + Dojo</span>
+packages/ui/src/modules/Dojo/DojoConfig.ts               ZRD-C02           ZRD- prefix entry
+packages/ui/src/modules/Dojo/DojoBoard.tsx               ZRD-C02           MEGAZORD tab
+packages/ui/src/modules/Dojo/warriors-config.ts          ZRD-C02           warrior registration
+
+<span class="hl-cyan">Phase 3 &mdash; Consolidation</span>
+e2e/cluster3-atlas.spec.ts                               ZRD-C09           URL: /atlas &rarr; /megazord
+packages/core/src/atlas/index.ts                         ZRD-C10           barrel export cleanup
+packages/core/src/index.ts                               ZRD-C10           re-export verification</div>
+
+      <h3>Route Changes</h3>
+      <table>
+        <thead><tr><th>Portal</th><th>Old Route</th><th>New Route</th><th>Ticket</th></tr></thead>
+        <tbody>
+          <tr><td>ProDash</td><td><code>/atlas</code></td><td><code>/megazord</code></td><td>ZRD-C04</td></tr>
+          <tr><td>RIIMO</td><td><code>/atlas</code></td><td><code>/megazord</code></td><td>ZRD-C04</td></tr>
+          <tr><td>SENTINEL</td><td><code>/atlas</code></td><td><code>/megazord</code></td><td>ZRD-C04</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Firestore Collections Touched</h3>
+      <table>
+        <thead><tr><th>Collection</th><th>Operation</th><th>Ticket</th></tr></thead>
+        <tbody>
+          <tr><td><code>dojo_tickets</code></td><td>UPDATE: reclassify RON- &rarr; ZRD-</td><td>ZRD-C03</td></tr>
+          <tr><td><code>dojo_backlog</code></td><td>UPDATE: reclassify matching tickets</td><td>ZRD-C03</td></tr>
+          <tr><td><code>source_registry</code></td><td>READ + VERIFY (audit only, no writes unless gaps found)</td><td>ZRD-C08</td></tr>
+          <tr><td><code>tool_registry</code></td><td>READ + VERIFY (audit only, no writes unless gaps found)</td><td>ZRD-C08</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>What Is NOT Changed in CONSUME</h2>
+      <div class="callout">
+        <p><strong>CONSUME is a rebrand &mdash; not a rebuild.</strong> The following stay completely untouched:</p>
+      </div>
+      <ul>
+        <li>All ATLAS business logic in <code>packages/core/src/atlas/</code> &mdash; zero changes to types, wires, introspect, health, learning-library</li>
+        <li>All API route handlers in <code>services/api/src/routes/atlas.ts</code>, <code>acf.ts</code>, <code>import.ts</code>, <code>wire.ts</code></li>
+        <li>Firestore collections: <code>atlas_audit</code>, <code>import_runs</code> &mdash; data untouched</li>
+        <li>All 5 wire definitions and wire executor logic</li>
+        <li>All 15 atomic tools and 12 super tools &mdash; not modified, only verified</li>
+        <li>E2E test logic &mdash; only URL/selector rebrand fixes allowed</li>
+      </ul>
+    </div>
+
+  </div><!-- /files -->
+
+  <!-- ─────────── TEST PLAN ─────────── -->
+  <div class="panel" id="tab-tests">
+
+    <div class="card">
+      <h2>CONSUME Test Plan</h2>
+      <p>Verification strategy for all 10 tickets. CONSUME is lowest-risk of any CXO track because we're rebranding existing code &mdash; not building new logic. The primary failure mode is broken imports and route mismatches from the rename.</p>
+    </div>
+
+    <div class="card">
+      <h3>Automated Tests</h3>
+      <table>
+        <thead><tr><th>Test</th><th>Command</th><th>Validates</th><th>Ticket</th></tr></thead>
+        <tbody>
+          <tr><td>TypeScript type-check</td><td><code>npm run type-check</code></td><td>13/13 workspaces pass. No broken imports from rename.</td><td>ZRD-C04, C10</td></tr>
+          <tr><td>Production build</td><td><code>npm run build</code></td><td>11/11 packages build. Webpack bundler issues from renamed component.</td><td>ZRD-C04, C10</td></tr>
+          <tr><td>E2E UI tests</td><td><code>npm run test:e2e:ui</code></td><td>All 10 UI module visual tests pass including MEGAZORD route.</td><td>ZRD-C09</td></tr>
+          <tr><td>E2E backend tests</td><td><code>npm run test:e2e:local</code></td><td>4 intake pipeline wire tests pass.</td><td>ZRD-C09</td></tr>
+          <tr><td>Cluster 3 &mdash; ATLAS</td><td>Playwright spec</td><td>Route <code>/megazord</code> renders, not <code>/atlas</code>.</td><td>ZRD-C09</td></tr>
+          <tr><td>Cluster 8 &mdash; ACF lifecycle</td><td>Playwright spec</td><td>ACF lifecycle unaffected by rebrand.</td><td>ZRD-C09</td></tr>
+          <tr><td>Clusters 2, 4 &mdash; intake/sync</td><td>Playwright spec</td><td>Data pipeline tests unaffected.</td><td>ZRD-C09</td></tr>
+          <tr><td>ACF scan + upload</td><td>Playwright spec</td><td>ACF file operations unaffected.</td><td>ZRD-C09</td></tr>
+          <tr><td>Mail + SPC intake</td><td>Playwright spec</td><td>Intake wires unaffected.</td><td>ZRD-C09</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Manual Verification Checklist</h3>
+      <table>
+        <thead><tr><th>Check</th><th>Where</th><th>Expected</th><th>Ticket</th></tr></thead>
+        <tbody>
+          <tr><td>soul.md exists with 7 sections</td><td><code>~/Projects/dojo-warriors/megazord/soul.md</code></td><td>File present, all sections populated</td><td>ZRD-C01</td></tr>
+          <tr><td>spirit.md exists with 5+ phases</td><td><code>~/Projects/dojo-warriors/megazord/spirit.md</code></td><td>File present, JDM quotes attributed</td><td>ZRD-C01</td></tr>
+          <tr><td>ZRD- tab in Dojo</td><td>Navigate to Dojo in any portal</td><td>MEGAZORD tab visible, mecha-green accent</td><td>ZRD-C02</td></tr>
+          <tr><td>Ticket reclassification</td><td>Firestore: dojo_tickets where prefix='ZRD'</td><td>Data-centric tickets show ZRD- prefix</td><td>ZRD-C03</td></tr>
+          <tr><td>MEGAZORD sidebar label</td><td>ProDash, RIIMO, SENTINEL sidebars</td><td>"MEGAZORD" label (not "ATLAS Registry")</td><td>ZRD-C04</td></tr>
+          <tr><td>Route /megazord renders</td><td>Navigate to /megazord in all 3 portals</td><td>Command Center loads</td><td>ZRD-C04</td></tr>
+          <tr><td>Route /atlas 404s</td><td>Navigate to /atlas in any portal</td><td>404 or redirect &mdash; old route gone</td><td>ZRD-C04</td></tr>
+          <tr><td>Identity card visible</td><td>/megazord in any portal</td><td>Warrior card: MEGAZORD, CIO, ATLAS, Rangers, ZRD-</td><td>ZRD-C05</td></tr>
+          <tr><td>Mecha-green accents</td><td>/megazord UI</td><td>Green (#10b981) on tabs, stats, active states</td><td>ZRD-C05</td></tr>
+          <tr><td>Health dashboard data</td><td>/megazord Health panel</td><td>Real tool counts, wire statuses from API</td><td>ZRD-C06</td></tr>
+          <tr><td>Discovery index complete</td><td><code>discovery-index.md</code></td><td>6+ entries, all links valid</td><td>ZRD-C07</td></tr>
+          <tr><td>Registry audit report</td><td><code>audit-report.md</code></td><td>32 items checked (15+12+5), gaps documented</td><td>ZRD-C08</td></tr>
+          <tr><td>Core barrel imports clean</td><td><code>import { AtlasToolDefinition } from '@tomachina/core'</code></td><td>Resolves without error</td><td>ZRD-C10</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Failure Modes to Watch</h3>
+      <div class="callout red">
+        <p><strong>Most Likely Failure:</strong> Broken imports after rename. <code>AtlasRegistry</code> is referenced in barrel exports, sidebar configs, and potentially in other modules. Run <code>npm run type-check</code> immediately after ZRD-C04 &mdash; fix all import errors before proceeding to ZRD-C05.</p>
+      </div>
+      <ul>
+        <li><strong>Circular imports</strong> &mdash; if barrel export cleanup in ZRD-C10 introduces a cycle, the build will fail silently. Watch for webpack warnings.</li>
+        <li><strong>E2E selector drift</strong> &mdash; if MEGAZORD identity card changes DOM structure, Playwright selectors may break. Run E2E immediately after ZRD-C05.</li>
+        <li><strong>Health API contract mismatch</strong> &mdash; ZRD-C06 must read the API route response shape before writing the fetch call. Never assume field names.</li>
+        <li><strong>Fabricated paths in discovery-index.md</strong> &mdash; verify every link before writing. ZRD-C07 only includes confirmed real paths.</li>
+      </ul>
+    </div>
+
+  </div><!-- /tests -->
+
+  <!-- ─────────── DEPENDENCIES ─────────── -->
+  <div class="panel" id="tab-deps">
+
+    <div class="card">
+      <h2>Dependency Map</h2>
+      <div class="diagram"><span class="hl-mecha">Phase 1 (all parallel &mdash; no deps between them)</span>
+ZRD-C01 ──┐
+ZRD-C02 ──┼──&gt; all complete &mdash;&gt; <span class="hl-blue">Phase 2 unlocks</span>
+ZRD-C03 ──┘
+
+<span class="hl-blue">Phase 2 (sequential start, then parallel)</span>
+ZRD-C04 (rebrand core)
+  ├──&gt; ZRD-C05 (branding layer)  ─── parallel
+  └──&gt; ZRD-C06 (health dashboard) ─ parallel
+  └── ZRD-C05 + ZRD-C06 both done &mdash;&gt; <span class="hl-cyan">Phase 3 unlocks</span>
+
+<span class="hl-cyan">Phase 3 (all parallel)</span>
+ZRD-C07 ──┐
+ZRD-C08 ──┼──&gt; all complete &mdash;&gt; <span class="hl-mecha">CONSUME GATE</span> &mdash;&gt; OPERATE unlocked
+ZRD-C09 ──┤
+ZRD-C10 ──┘</div>
+    </div>
+
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <thead><tr><th>Dependency</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>ATLAS core package</td><td>Internal &mdash; packages/core/src/atlas/</td><td class="pill-live">LIVE</td><td>Absorbing as-is. No changes to core logic.</td></tr>
+          <tr><td>ATLAS API routes</td><td>Internal &mdash; services/api/src/routes/</td><td class="pill-live">LIVE</td><td>6,145 lines in production. Not touched by CONSUME.</td></tr>
+          <tr><td>Firestore collections</td><td>Infrastructure &mdash; GCP Firestore</td><td class="pill-live">LIVE</td><td>source_registry, tool_registry, atlas_audit, import_runs all exist.</td></tr>
+          <tr><td>Dojo module</td><td>Internal &mdash; packages/ui/src/modules/Dojo/</td><td class="pill-live">LIVE</td><td>ZRD-C02 edits existing Dojo config. Must not break existing warrior lanes.</td></tr>
+          <tr><td>Sidebar configs</td><td>Internal &mdash; apps/*/src/config/sidebar.ts</td><td class="pill-live">LIVE</td><td>Rename atlas key &rarr; megazord. Other sidebar entries untouched.</td></tr>
+          <tr><td>dojo-warriors directory</td><td>Local &mdash; ~/Projects/dojo-warriors/</td><td class="pill-live">LIVE</td><td>megazord/ subdirectory may not exist yet. ZRD-C01 creates it.</td></tr>
+          <tr><td>E2E test infrastructure</td><td>Internal &mdash; e2e/ + CI</td><td class="pill-live">LIVE</td><td>8 test files exist. ZRD-C09 runs and fixes rebrand-related failures only.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Cross-CXO Coordination</h2>
+      <div class="callout blue">
+        <p><strong>MEGAZORD T1 runs in parallel with VOLTRON T1 and MUSASHI T1.</strong> No inter-CXO dependencies during CONSUME. The three CXOs are independent during Track 1. Coordination begins in Track 2 (OPERATE) when wires start crossing domains.</p>
+      </div>
+      <table>
+        <thead><tr><th>CXO</th><th>Track 1 Status</th><th>Intersection with MEGAZORD T1</th></tr></thead>
+        <tbody>
+          <tr><td>VOLTRON (CSO)</td><td>Running parallel</td><td>None. VOLTRON T1 builds QUE registry. No shared files.</td></tr>
+          <tr><td>MUSASHI (CMO)</td><td>Running parallel</td><td>None. MUSASHI T1 builds CMO registry. No shared files.</td></tr>
+          <tr><td>RONIN (FORGE Runner)</td><td>Active</td><td>ZRD-C03: RONIN queue audited for data-domain tickets. Coordination = ticket handoff, not code conflict.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /deps -->
+
+  <!-- ─────────── SPRINT PLAN ─────────── -->
+  <div class="panel" id="tab-sprint">
+
+    <div class="card">
+      <h2>Sprint Plan &mdash; 10 Tickets, 3 Phases</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Title</th><th>Phase</th><th>Parallel?</th><th>Effort</th><th>Deps</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--mecha-green);font-weight:700;">ZRD-C01</td>
+            <td>MEGAZORD Soul + Spirit Files</td><td>1</td><td>Yes</td><td>M</td><td>None</td>
+          </tr>
+          <tr>
+            <td style="color:var(--mecha-green);font-weight:700;">ZRD-C02</td>
+            <td>Establish ZRD- Ticket Prefix + Dojo Tab</td><td>1</td><td>Yes</td><td>S</td><td>None</td>
+          </tr>
+          <tr>
+            <td style="color:var(--mecha-green);font-weight:700;">ZRD-C03</td>
+            <td>Claim Data-Centric Tickets from RONIN Queue</td><td>1</td><td>Yes</td><td>M</td><td>None</td>
+          </tr>
+          <tr>
+            <td style="color:var(--blue);font-weight:700;">ZRD-C04</td>
+            <td>Rebrand AtlasRegistry &rarr; MEGAZORD Command Center</td><td>2</td><td>Sequential</td><td>M</td><td>Phase 1</td>
+          </tr>
+          <tr>
+            <td style="color:var(--blue);font-weight:700;">ZRD-C05</td>
+            <td>MEGAZORD Branding Layer</td><td>2</td><td>After C04</td><td>S</td><td>C04</td>
+          </tr>
+          <tr>
+            <td style="color:var(--blue);font-weight:700;">ZRD-C06</td>
+            <td>Registry Dashboard Enhancement</td><td>2</td><td>After C04</td><td>M</td><td>C04</td>
+          </tr>
+          <tr>
+            <td style="color:var(--cyan);font-weight:700;">ZRD-C07</td>
+            <td>Discovery Doc Consolidation</td><td>3</td><td>Yes</td><td>S</td><td>Phase 2</td>
+          </tr>
+          <tr>
+            <td style="color:var(--cyan);font-weight:700;">ZRD-C08</td>
+            <td>ATLAS Registry Completeness Audit</td><td>3</td><td>Yes</td><td>M</td><td>Phase 2</td>
+          </tr>
+          <tr>
+            <td style="color:var(--cyan);font-weight:700;">ZRD-C09</td>
+            <td>E2E Test Verification</td><td>3</td><td>Yes</td><td>S</td><td>C04</td>
+          </tr>
+          <tr>
+            <td style="color:var(--cyan);font-weight:700;">ZRD-C10</td>
+            <td>Barrel Exports + Core Integration</td><td>3</td><td>Yes</td><td>S</td><td>C04</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Execution Timeline</h2>
+      <div class="spec-grid">
+        <div class="spec-card mecha">
+          <h4>Phase 1: Identity Foundation</h4>
+          <p>3 tickets, all parallel. Lowest risk &mdash; no code changes, only files and config.</p>
+          <ul>
+            <li>ZRD-C01, C02, C03 launch simultaneously</li>
+            <li>C01 + C02 + C03 complete &rarr; Phase 2 unlocks</li>
+            <li>Estimated: 1 session, 1&ndash;2 hours</li>
+          </ul>
+        </div>
+        <div class="spec-card blue">
+          <h4>Phase 2: Command Center Rebrand</h4>
+          <p>3 tickets. C04 first (rename &mdash; highest risk), then C05 + C06 parallel. Build must pass after C04 before C05/C06.</p>
+          <ul>
+            <li>C04: rename + routes + sidebar (run build after)</li>
+            <li>C05 + C06: parallel after C04 passes build</li>
+            <li>Estimated: 1 session, 2&ndash;3 hours</li>
+          </ul>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Phase 3: Consolidation</h4>
+          <p>4 tickets, all parallel. Low risk &mdash; docs, audit, E2E verification, barrel cleanup.</p>
+          <ul>
+            <li>C07, C08, C09, C10 all launch simultaneously</li>
+            <li>All 4 complete &rarr; CONSUME GATE runs</li>
+            <li>Estimated: 1 session, 1&ndash;2 hours</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>CONSUME Gate &mdash; Definition of Done</h2>
+      <div class="callout">
+        <p><strong>CONSUME is done when all 10 gate items are confirmed.</strong> MEGAZORD then has an identity, a Command Center, a claimed backlog, enhanced health visibility, and a complete registry audit. The data kingdom has a king.</p>
+      </div>
+      <ol>
+        <li><code>soul.md</code> + <code>spirit.md</code> exist at <code>~/Projects/dojo-warriors/megazord/</code> with all required sections</li>
+        <li>ZRD- prefix registered in Dojo, MEGAZORD lane visible in all portals</li>
+        <li>Data-centric tickets reclassified from RON- to ZRD-, with <code>claimed-tickets.md</code> documenting transfers</li>
+        <li><code>MegazordCommandCenter.tsx</code> renders at <code>/megazord</code> in all 3 portals</li>
+        <li>Sidebar shows "MEGAZORD" label (not "ATLAS Registry") in all 3 portals</li>
+        <li>MEGAZORD identity card visible with mecha-green branding &mdash; no hardcoded colors</li>
+        <li>Health dashboard panel shows live data from <code>GET /api/atlas/health</code></li>
+        <li><code>discovery-index.md</code> exists with 6+ verified entries</li>
+        <li>Registry audit complete &mdash; <code>audit-report.md</code> documents all 32 items (15+12+5)</li>
+        <li>All 8 E2E test files pass &mdash; <code>npm run build</code> 11/11, <code>npm run type-check</code> 13/13</li>
+      </ol>
+      <div class="quote" style="margin-top:20px;">"MEGAZORD IS ATLAS. The Command Center is live. The data kingdom has a king."</div>
+    </div>
+
+  </div><!-- /sprint -->
+
+</div><!-- /content -->
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<div class="footer">
+  <p>MEGAZORD Track 1: CONSUME &bull; 10 tickets &bull; 3 phases &bull; The lightest CXO launch in The Machine &mdash; ATLAS already built it</p>
+  <p style="margin-top: 8px;">authored by MUSASHI, ARTxBLADE &bull; 2026-04-05</p>
+  <div class="signoff">&#9876;&#65039; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('tab-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

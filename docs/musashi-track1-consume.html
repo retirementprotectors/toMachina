@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSASHI Track 1 — CONSUME Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(212,164,76,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,164,76,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(224,124,62,0.08) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #d4a44c 0%, #f59e0b 35%, #e07c3e 70%, #d4a44c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); background: var(--gold-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--gold); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul, .card ol { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--gold); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.red { border-top: 3px solid var(--red); }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); }
+  .callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--gold); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-new { color: var(--cyan); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-gap { color: var(--red); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 0 12px 12px 0; padding: 24px; margin-bottom: 20px; }
+  .ticket.phase2 { border-left-color: var(--accent); }
+  .ticket.phase3 { border-left-color: var(--cyan); }
+  .ticket-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--gold); background: var(--gold-glow); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(212,164,76,0.25); }
+  .ticket-id.phase2 { color: var(--accent); background: var(--accent-glow); border-color: rgba(224,124,62,0.25); }
+  .ticket-id.phase3 { color: var(--cyan); background: var(--cyan-glow); border-color: rgba(6,182,212,0.25); }
+  .ticket-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+  .ticket h3 { font-size: 0.9rem; font-weight: 600; margin: 14px 0 6px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+  .ticket p { color: var(--text-muted); margin-bottom: 8px; font-size: 0.9rem; }
+  .ticket ul, .ticket ol { color: var(--text-muted); margin: 0 0 12px 20px; font-size: 0.9rem; }
+  .ticket li { margin-bottom: 4px; }
+  .ticket code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); }
+  .ticket .file-list { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin: 8px 0 12px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--cyan); white-space: pre; overflow-x: auto; }
+  .ac-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .ac-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .ac-list li::before { content: '✓'; position: absolute; left: 4px; color: var(--green); font-weight: 700; }
+  .dep-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .dep-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .dep-list li::before { content: '→'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gold); }
+  .phase-header.p2 { border-bottom-color: var(--accent); }
+  .phase-header.p3 { border-bottom-color: var(--cyan); }
+  .phase-number { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); flex-shrink: 0; }
+  .phase-number.p2 { background: var(--accent-glow); color: var(--accent); border-color: rgba(224,124,62,0.3); }
+  .phase-number.p3 { background: var(--cyan-glow); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+  .phase-title { font-size: 1.3rem; font-weight: 700; }
+  .phase-desc { font-size: 0.85rem; color: var(--text-muted); }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  .footer .signoff { color: var(--gold); font-weight: 700; font-size: 1rem; margin-top: 12px; }
+  .footer .race { color: var(--gold); font-weight: 700; letter-spacing: 1px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="sprint-label">TRACK DISCOVERY DOC &mdash; CONSUME</div>
+  <h1>MUSASHI Track 1</h1>
+  <p class="subtitle">Build the CMO Registry from scratch. Absorb existing tools. Claim the domain. You can't register tools into a registry that doesn't exist.</p>
+  <div class="header-badges">
+    <span class="badge badge-gold">MUSASHI &mdash; CMO</span>
+    <span class="badge badge-gold">TRACK 1: CONSUME</span>
+    <span class="badge badge-accent">12 TICKETS</span>
+    <span class="badge badge-green">GREENFIELD BUILD</span>
+  </div>
+  <div class="ronin-meta">authored: MUSASHI, ARTxBLADE &bull; 2026-04-05 &bull; self-authored CXO track discovery</div>
+</div>
+
+<!-- TABS -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">Overview</div>
+    <div class="tab" onclick="showTab('tickets')">Tickets</div>
+    <div class="tab" onclick="showTab('files')">Files</div>
+    <div class="tab" onclick="showTab('tests')">Test Plan</div>
+    <div class="tab" onclick="showTab('deps')">Dependencies</div>
+    <div class="tab" onclick="showTab('sprint')">Sprint Plan</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- TAB: OVERVIEW -->
+  <div class="panel active" id="tab-overview">
+
+    <div class="card">
+      <h2>Why CONSUME Is Track 1</h2>
+      <div class="quote">"You can't register tools into a registry that doesn't exist."</div>
+      <p>MEGAZORD had ATLAS. VOLTRON had QUE. Both registries existed before their CXO Roadmaps. MUSASHI has <strong>nothing</strong>. <code>packages/core/src/cmo/</code> does not exist. The tools are scattered across 4 MCP servers, 1 plugin, and 1 standalone service. The discovery docs are scattered across Shared Drive. The FORGE tickets are seeded but unowned.</p>
+      <p>CONSUME is the heaviest track because it's building the foundation itself &mdash; not maturing an existing one. Every other track depends on what we build here.</p>
+    </div>
+
+    <div class="card">
+      <h2>What CONSUME Delivers</h2>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>CMO Registry Package</h4>
+          <p><code>packages/core/src/cmo/</code> &mdash; full registry class, types, tool registrations following the QUE/ATLAS pattern. 50+ tools registered.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Tool Consolidation</h4>
+          <p>All creative tools (Canva 21 + WordPress 17 + Veo 5 + C3 6 + PDF + Drive + frontend-design) registered under one roof.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Wire Definitions</h4>
+          <p>3 wire stubs (WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE) &mdash; step definitions ready for Track 2 wiring.</p>
+        </div>
+        <div class="spec-card accent">
+          <h4>Soul + Spirit Verified</h4>
+          <p>MUSASHI's Dojo home at <code>~/Projects/dojo-warriors/musashi/</code> verified current, consolidated with CXO context.</p>
+        </div>
+        <div class="spec-card accent">
+          <h4>Discovery Consolidation</h4>
+          <p>4 existing MUSASHI discovery docs + 55 FORGE tickets + CMO Creative Roadmap &rarr; single intake folder on Shared Drive.</p>
+        </div>
+        <div class="spec-card accent">
+          <h4>Command Center Scaffold</h4>
+          <p>App shell + nav for the CMO Command Center. Staked ground &mdash; no wiring yet. That's Track 2.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Title</th><th>Phase</th><th>Effort</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>MUS-C01</strong></td><td>CMO Registry Scaffold + Types</td><td>Phase 1</td><td>M</td></tr>
+          <tr><td><strong>MUS-C02</strong></td><td>Registry Class Implementation</td><td>Phase 1</td><td>M</td></tr>
+          <tr><td><strong>MUS-C03</strong></td><td>Register Canva Tools (21)</td><td>Phase 1</td><td>S</td></tr>
+          <tr><td><strong>MUS-C04</strong></td><td>Register WordPress Tools (17)</td><td>Phase 1</td><td>S</td></tr>
+          <tr><td><strong>MUS-C05</strong></td><td>Register Veo Tools (5)</td><td>Phase 1</td><td>S</td></tr>
+          <tr><td><strong>MUS-C06</strong></td><td>Register C3 Campaign Tools (6 routes)</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-C07</strong></td><td>Register Creative Tools (PDF + Drive + frontend-design)</td><td>Phase 2</td><td>S</td></tr>
+          <tr><td><strong>MUS-C08</strong></td><td>Wire Stub Definitions (3 wires)</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-C09</strong></td><td>Barrel Exports + Core Integration</td><td>Phase 2</td><td>S</td></tr>
+          <tr><td><strong>MUS-C10</strong></td><td>Soul/Spirit CXO Consolidation</td><td>Phase 3</td><td>S</td></tr>
+          <tr><td><strong>MUS-C11</strong></td><td>Discovery Doc + FORGE Consolidation</td><td>Phase 3</td><td>M</td></tr>
+          <tr><td><strong>MUS-C12</strong></td><td>Command Center App Scaffold</td><td>Phase 3</td><td>L</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Architecture &mdash; Target State</h2>
+      <div class="diagram"><span class="hl-gold">packages/core/src/cmo/</span>
+├── <span class="hl-gold">index.ts</span>              barrel exports (CMO_REGISTRY, CmoRegistryEntry, wire types)
+├── <span class="hl-gold">registry.ts</span>           CMORegistry class — lookup, filter, compose
+├── <span class="hl-gold">types.ts</span>              CmoRegistryEntry, CmoToolDomain, CmoWireStep, CmoChannel
+├── <span class="hl-gold">tools/</span>
+│   ├── <span class="hl-cyan">index.ts</span>          barrel: all tool arrays
+│   ├── <span class="hl-cyan">canva.ts</span>          21 Canva MCP tools registered
+│   ├── <span class="hl-cyan">wordpress.ts</span>      17 WordPress MCP tools registered
+│   ├── <span class="hl-cyan">veo.ts</span>            5 Veo MCP tools registered
+│   ├── <span class="hl-cyan">campaigns.ts</span>      6 C3 API routes registered
+│   └── <span class="hl-cyan">creative.ts</span>       PDF_SERVICE + frontend-design + Drive registered
+└── <span class="hl-gold">wires/</span>
+    ├── <span class="hl">index.ts</span>           barrel: all wire definitions
+    ├── <span class="hl">WIRE_BROCHURE.ts</span>   step definition (stub — wired in Track 2)
+    ├── <span class="hl">WIRE_CAMPAIGN.ts</span>   step definition (stub — wired in Track 2)
+    └── <span class="hl">WIRE_LANDING_PAGE.ts</span> step definition (stub — wired in Track 2)</div>
+    </div>
+
+  </div>
+
+  <!-- TAB: TICKETS -->
+  <div class="panel" id="tab-tickets">
+
+    <!-- ═══ PHASE 1: Registry Foundation ═══ -->
+    <div class="phase-header">
+      <div class="phase-number">1</div>
+      <div>
+        <div class="phase-title">Registry Foundation</div>
+        <div class="phase-desc">Scaffold the directory, define types, create the registry class. All Phase 1 tickets can run in parallel.</div>
+      </div>
+    </div>
+
+    <!-- MUS-C01 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-C01</span>
+        <span class="ticket-title">CMO Registry Scaffold + Types</span>
+      </div>
+      <p>Create the <code>packages/core/src/cmo/</code> directory structure and define all CMO types following the QUE registry pattern.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/types.ts          — NEW
+packages/core/src/cmo/tools/index.ts     — NEW (empty barrel, populated by C03-C07)
+packages/core/src/cmo/wires/index.ts     — NEW (empty barrel, populated by C08)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>CmoRegistryEntry</code> interface matches QUE pattern: id, type ('TOOL' | 'SUPER_TOOL' | 'WIRE'), domain: 'cmo', name, description, composedOf?</li>
+        <li><code>CmoChannel</code> type: 'print' | 'digital' | 'web' | 'social' | 'video'</li>
+        <li><code>CmoToolDomain</code> type: 'canva' | 'wordpress' | 'veo' | 'c3' | 'pdf' | 'drive' | 'frontend-design'</li>
+        <li><code>CmoWireStep</code> interface: stepId, toolId, description, input schema ref, output schema ref</li>
+        <li><code>CmoWireDefinition</code> interface: wireId, name, channel, steps: CmoWireStep[], description</li>
+        <li>All types exported from <code>types.ts</code></li>
+        <li>Directory structure matches target architecture diagram</li>
+        <li><strong>Empty barrels build-safe:</strong> <code>tools/index.ts</code> exports an empty typed array (<code>export const CMO_TOOLS: CmoRegistryEntry[] = []</code>) and <code>wires/index.ts</code> exports an empty typed array (<code>export const CMO_WIRES: CmoWireDefinition[] = []</code>). Both satisfy the type system with zero entries. <code>npm run type-check</code> AND <code>npm run build</code> must pass with empty barrels present &mdash; these files are the foundation that every subsequent ticket depends on.</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow <code>packages/core/src/que/registry.ts</code> lines 9&ndash;17 for <code>QueRegistryEntry</code> structure. Add <code>channel?: CmoChannel</code> and <code>toolDomain?: CmoToolDomain</code> fields unique to CMO.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>TypeScript compilation: <code>npm run type-check</code> passes with new types (13/13)</li>
+        <li>Full build: <code>npm run build</code> passes with empty barrels (11/11) &mdash; catches webpack/bundler barrel issues that type-check misses</li>
+        <li>Import test: types importable from <code>@tomachina/core</code> barrel</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>None &mdash; greenfield</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C02 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-C02</span>
+        <span class="ticket-title">Registry Class Implementation</span>
+      </div>
+      <p>Create the <code>CMORegistry</code> class that provides lookup, filter, and composition capabilities over the registered tools.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/registry.ts       — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>CMO_REGISTRY: CmoRegistryEntry[]</code> exported as the master array (populated by tool registration tickets)</li>
+        <li><code>getCmoTool(id: string)</code> &mdash; returns single entry or undefined</li>
+        <li><code>getCmoToolsByDomain(domain: CmoToolDomain)</code> &mdash; returns filtered array</li>
+        <li><code>getCmoToolsByChannel(channel: CmoChannel)</code> &mdash; returns tools relevant to channel</li>
+        <li><code>getCmoToolsByType(type: 'TOOL' | 'SUPER_TOOL' | 'WIRE')</code> &mdash; filters by registry entry type</li>
+        <li><code>getCmoWire(wireId: string)</code> &mdash; returns wire definition with composed steps</li>
+        <li>All functions are pure &mdash; no side effects, no API calls</li>
+        <li>Export both the array and the helper functions</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow QUE registry pattern at <code>packages/core/src/que/registry.ts</code>. QUE uses a flat array with filter helpers. Same pattern here. Do NOT over-engineer &mdash; no classes with state, no singletons. Flat array + pure functions.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>getCmoTool('canva-generate-design')</code> returns correct entry</li>
+        <li><code>getCmoToolsByDomain('canva')</code> returns exactly 21 entries</li>
+        <li><code>getCmoToolsByChannel('print')</code> returns Canva + PDF_SERVICE tools</li>
+        <li><code>getCmoToolsByType('WIRE')</code> returns exactly 3 wire entries</li>
+        <li><code>getCmoWire('WIRE_BROCHURE')</code> returns wire definition with steps</li>
+        <li>All helpers return empty arrays (not undefined) for no-match queries</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types must exist)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C03 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-C03</span>
+        <span class="ticket-title">Register Canva Tools (21)</span>
+      </div>
+      <p>Register all 21 Canva MCP tools from <code>rpi-workspace</code> into the CMO Registry.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/tools/canva.ts    — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>21 <code>CmoRegistryEntry</code> objects exported as <code>CANVA_TOOLS</code> array</li>
+        <li>Each entry has: id (e.g., 'canva-generate-design'), type: 'TOOL', domain: 'cmo', toolDomain: 'canva', name, description</li>
+        <li>Channel mapping: each tool tagged with applicable channels (print tools = 'print', social templates = 'social', etc.)</li>
+        <li>Tool IDs match MCP tool names exactly: generate_design, create_from_candidate, import_design, get_design, get_design_content, get_design_pages, search_designs, export_design, get_export_formats, get_presenter_notes, list_folder_items, search_folders, create_folder, move_to_folder, upload_asset, list_brand_kits, list_comments, comment_on_design, list_replies, reply_to_comment, resolve_shortlink</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>CANVA_TOOLS.length === 21</code></li>
+        <li>All entries have required fields (no undefined name/description)</li>
+        <li>All tool IDs are unique within the array</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C04 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-C04</span>
+        <span class="ticket-title">Register WordPress Tools (17)</span>
+      </div>
+      <p>Register all 17 WordPress MCP tools from <code>rpi-workspace</code> into the CMO Registry.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/tools/wordpress.ts — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>17 <code>CmoRegistryEntry</code> objects exported as <code>WORDPRESS_TOOLS</code> array</li>
+        <li>Tool IDs match MCP names: list_posts, get_post, create_post, update_post, delete_post, list_pages, create_page, update_page, delete_page, list_categories, list_media, upload_media, get_user, site_info, get_elementor_data, update_elementor_element, find_elementor_buttons</li>
+        <li>All tagged channel: 'web'</li>
+        <li>Elementor tools clearly described (layout editing, not just CRUD)</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>WORDPRESS_TOOLS.length === 17</code></li>
+        <li>All entries have channel === 'web' or channel array containing 'web'</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C05 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-C05</span>
+        <span class="ticket-title">Register Veo Tools (5)</span>
+      </div>
+      <p>Register all 5 Veo video generation tools from <code>rpi-workspace</code> into the CMO Registry.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/tools/veo.ts       — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>5 <code>CmoRegistryEntry</code> objects exported as <code>VEO_TOOLS</code> array</li>
+        <li>Tool IDs: generate_video, generate_video_from_image, check_video_status, download_video, list_video_models</li>
+        <li>All tagged channel: 'video' (generate tools also tagged 'social')</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>VEO_TOOLS.length === 5</code></li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types)</li>
+      </ul>
+    </div>
+
+    <!-- ═══ PHASE 2: Tool Registration + Wire Stubs ═══ -->
+    <div class="phase-header p2">
+      <div class="phase-number p2">2</div>
+      <div>
+        <div class="phase-title">Tool Registration + Wire Stubs</div>
+        <div class="phase-desc">Register remaining tools, define wire stubs, wire up barrel exports. Phase 2 tickets can run in parallel after Phase 1 types exist.</div>
+      </div>
+    </div>
+
+    <!-- MUS-C06 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-C06</span>
+        <span class="ticket-title">Register C3 Campaign Tools (6 routes)</span>
+      </div>
+      <p>Register the 6 C3 campaign API routes as CMO tools. These are internal API endpoints, not MCP tools &mdash; different registration pattern.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/tools/campaigns.ts — NEW
+
+Reference (read before building):
+  services/api/src/routes/campaigns.ts       — 238 lines, CRUD
+  services/api/src/routes/templates.ts       — 176 lines, template mgmt
+  services/api/src/routes/campaign-analytics.ts — 486 lines, stats
+  services/api/src/routes/campaign-send.ts   — 1,321 lines, execution
+  services/api/src/routes/content-blocks.ts  — 191 lines, content fragments
+  services/api/src/routes/sensei-content.ts  — 201 lines, AI content</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>6 <code>CmoRegistryEntry</code> objects exported as <code>C3_TOOLS</code> array</li>
+        <li>Each entry reflects the API route's actual capability (not just "CRUD" &mdash; what the route DOES)</li>
+        <li>All tagged channel: 'digital'</li>
+        <li>Include line count + key endpoints in description for builder context</li>
+        <li>Mark campaign-send.ts as the execution engine (1,321 lines &mdash; the heaviest C3 route)</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>C3_TOOLS.length === 6</code></li>
+        <li>Each tool description references the actual API route file it maps to</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types)</li>
+        <li>Read C3 API routes in <code>services/api/src/routes/</code> before registration</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C07 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-C07</span>
+        <span class="ticket-title">Register Creative Tools (PDF + Drive + frontend-design)</span>
+      </div>
+      <p>Register the standalone creative tools that don't belong to a single MCP: PDF_SERVICE, frontend-design skill, and Google Drive asset operations.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/tools/creative.ts  — NEW</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>CREATIVE_TOOLS</code> array with entries for: PDF_SERVICE (Cloud Run render), frontend-design (portal component generation), Drive asset archive, Drive asset search, Drive folder management</li>
+        <li>PDF_SERVICE tagged channels: ['print'] &mdash; it's the final render step for print</li>
+        <li>frontend-design tagged channels: ['digital', 'web'] &mdash; generates portal React components</li>
+        <li>Drive tools tagged channels: ['print', 'digital', 'web', 'social', 'video'] &mdash; universal archive</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>CREATIVE_TOOLS.length >= 5</code></li>
+        <li>PDF_SERVICE entry exists with correct Cloud Run service reference</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C08 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-C08</span>
+        <span class="ticket-title">Wire Stub Definitions (3 wires)</span>
+      </div>
+      <p>Define the three Phase 1 wire step sequences. These are stub definitions &mdash; the step-by-step plans that Track 2 will wire to actual execution. The wire IS the Artisan's brain.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/wires/WIRE_BROCHURE.ts      — NEW
+packages/core/src/cmo/wires/WIRE_CAMPAIGN.ts      — NEW
+packages/core/src/cmo/wires/WIRE_LANDING_PAGE.ts  — NEW
+packages/core/src/cmo/wires/index.ts              — NEW (barrel)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Each wire exports a <code>CmoWireDefinition</code> object with wireId, name, channel, description, and steps array</li>
+        <li><strong>WIRE_BROCHURE</strong> steps: (1) Canva generate_design from brand kit, (2) Canva export_design to PDF, (3) PDF_SERVICE render to print spec, (4) Drive archive to registered folder</li>
+        <li><strong>WIRE_CAMPAIGN</strong> steps: (1) C3 campaigns.create, (2) C3 audience targeting, (3) C3 campaign-send schedule (drip or blast), (4) C3 campaign-send execute</li>
+        <li><strong>WIRE_LANDING_PAGE</strong> steps: (1) WordPress create_page (draft), (2) Elementor update layout + elements, (3) WordPress upload_media assets, (4) WordPress publish (status: live)</li>
+        <li>Each step references a registered tool ID from the CMO Registry</li>
+        <li>Wire entries also registered as type: 'WIRE' in CMO_REGISTRY</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow ATLAS wire pattern at <code>packages/core/src/atlas/wires.ts</code>. Each wire is a sequence of super tool references. CMO wires are simpler &mdash; they compose MCP tools directly (no Super Tool layer yet).</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Each wire has exactly 4 steps</li>
+        <li>Every step's toolId exists in CMO_REGISTRY</li>
+        <li>Wire IDs are unique</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types)</li>
+        <li>MUS-C03 through MUS-C07 (tools must be registered for step references)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C09 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-C09</span>
+        <span class="ticket-title">Barrel Exports + Core Integration</span>
+      </div>
+      <p>Wire up all CMO exports through barrel files so the registry is importable from <code>@tomachina/core</code>.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/index.ts           — NEW (CMO barrel)
+packages/core/src/cmo/tools/index.ts     — UPDATE (aggregate all tool arrays)
+packages/core/src/cmo/wires/index.ts     — UPDATE (aggregate all wires)
+packages/core/src/index.ts               — UPDATE (add CMO re-export)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>import { CMO_REGISTRY, getCmoTool, getCmoToolsByDomain } from '@tomachina/core'</code> works</li>
+        <li><code>import type { CmoRegistryEntry, CmoWireDefinition } from '@tomachina/core'</code> works</li>
+        <li><code>CMO_REGISTRY</code> contains all tools from all 5 tool files + 3 wire entries = 50+ entries total</li>
+        <li>Tools barrel aggregates: CANVA_TOOLS + WORDPRESS_TOOLS + VEO_TOOLS + C3_TOOLS + CREATIVE_TOOLS</li>
+        <li>Wires barrel aggregates: WIRE_BROCHURE + WIRE_CAMPAIGN + WIRE_LANDING_PAGE</li>
+        <li><code>npm run build</code> passes (not just type-check &mdash; catches webpack/bundler barrel issues)</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>npm run type-check</code> passes (13/13 workspaces)</li>
+        <li><code>npm run build</code> passes (11/11 workspaces)</li>
+        <li>Import from <code>@tomachina/core</code> in any app resolves correctly</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 through MUS-C08 (all registry content must exist)</li>
+      </ul>
+    </div>
+
+    <!-- ═══ PHASE 3: Consolidation + Scaffold ═══ -->
+    <div class="phase-header p3">
+      <div class="phase-number p3">3</div>
+      <div>
+        <div class="phase-title">Consolidation + Scaffold</div>
+        <div class="phase-desc">Consolidate existing MUSASHI artifacts. Stake the Command Center ground. All Phase 3 tickets can run in parallel.</div>
+      </div>
+    </div>
+
+    <!-- MUS-C10 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">MUS-C10</span>
+        <span class="ticket-title">Soul/Spirit CXO Consolidation</span>
+      </div>
+      <p>MUSASHI's soul.md and spirit.md already exist at <code>~/Projects/dojo-warriors/musashi/</code>. This ticket updates them with CXO context &mdash; the Consumption Principle, the three weapons, the Artisans mesh reference.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">~/Projects/dojo-warriors/musashi/soul.md      — UPDATE
+~/Projects/dojo-warriors/musashi/spirit.md    — UPDATE (add CXO naming moment if exists)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>soul.md includes: CXO role definition (CMO), three weapons (Registry, Mesh, Dojo), Consumption Principle</li>
+        <li>soul.md includes: Artisans mesh reference (Print, Digital, Web, Social, Video)</li>
+        <li>soul.md includes: CMO Registry location (<code>packages/core/src/cmo/</code>)</li>
+        <li>soul.md includes: ticket prefix MUS- and CONSUME/OPERATE/DEVOUR lifecycle reference</li>
+        <li>Existing content preserved &mdash; CXO context is ADDED, nothing is removed</li>
+        <li>spirit.md: add the CXO promotion moment from the SHINOB1+JDM Night Shift session if transcript available</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Manual review: soul.md contains all required CXO sections</li>
+        <li>Manual review: no existing content was removed or altered</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>None &mdash; soul.md + spirit.md already exist</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C11 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">MUS-C11</span>
+        <span class="ticket-title">Discovery Doc + FORGE Consolidation</span>
+      </div>
+      <p>All existing MUSASHI artifacts &mdash; 4 discovery docs, 55 FORGE tickets, CMO Creative Roadmap, this CXO Roadmap &mdash; consolidated into one Shared Drive intake folder.</p>
+
+      <h3>Actions</h3>
+      <ol>
+        <li>Create folder: <code>Shared Drive (0AFUXPgL0EWC6Uk9PVA) / MUSASHI &mdash; CMO Registry Intake</code></li>
+        <li>Copy/move existing MUSASHI discovery docs:
+          <ul>
+            <li>RSP-PIPELINE Discovery (Sprint 006)</li>
+            <li>SENSEI Discovery (Sprint 007)</li>
+            <li>DOJO Discovery (Sprint 008)</li>
+            <li>SHINOBI-ONLINE Discovery</li>
+          </ul>
+        </li>
+        <li>Copy CMO Creative Roadmap (existing Google Doc)</li>
+        <li>Copy CXO Roadmap HTML (<code>docs/musashi-cxo-roadmap.html</code>)</li>
+        <li>Copy these 3 Track Discovery HTMLs</li>
+        <li>Create master index doc: "MUSASHI Intake &mdash; All Artifacts" with links + status</li>
+        <li>Audit 55 FORGE tickets: which are still valid? Which are superseded by CXO Roadmap? Tag accordingly.</li>
+      </ol>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Single Shared Drive folder exists with all artifacts</li>
+        <li>Master index links to every artifact with status (current / superseded / archived)</li>
+        <li>55 FORGE tickets audited: each marked current, superseded, or archived</li>
+        <li>No orphaned discovery docs &mdash; everything has a home</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Manual: folder exists and is browsable</li>
+        <li>Manual: master index links all resolve</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>None &mdash; uses existing Drive/FORGE artifacts</li>
+      </ul>
+    </div>
+
+    <!-- MUS-C12 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">MUS-C12</span>
+        <span class="ticket-title">Command Center App Scaffold</span>
+      </div>
+      <p>Stake the ground for MUSASHI's Command Center. App shell with nav tabs and gold branding. No wiring to live data &mdash; that's Track 2. This is the flag in the ground.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/ui/src/modules/MusashiCommandCenter/
+├── MusashiCommandCenter.tsx       — Main app shell with tab navigation
+├── MusashiRegistryView.tsx        — Placeholder: "CMO Registry — 50+ tools registered"
+├── MusashiPipelineView.tsx        — Placeholder: "Creative Pipeline — wiring in Track 2"
+├── MusashiMeshView.tsx            — Placeholder: "Artisans — 5 channel specialists"
+├── musashi-command-center.css     — Gold-themed styles (--gold: #d4a44c)
+└── index.ts                       — barrel export</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>App renders with MUSASHI gold header and <code>--gold: #d4a44c</code> accent throughout</li>
+        <li>Tab navigation: Registry | Pipeline | Mesh | Health (all render placeholder content)</li>
+        <li>Gold branding independent of portal theme &mdash; this is an App, not a Module</li>
+        <li>Responsive layout &mdash; works on mobile viewport</li>
+        <li>Registry tab shows static count: "50+ tools registered across 5 domains"</li>
+        <li>Pipeline tab shows static text: "Content Pipeline &mdash; market brief to published asset"</li>
+        <li>Mesh tab shows 5 Artisan cards with channel names and placeholder status</li>
+        <li>No API calls, no Firestore reads &mdash; pure static scaffold</li>
+        <li><code>npm run build</code> passes with new module included</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow ATLAS module pattern in <code>packages/ui/src/modules/Atlas/</code> for tab structure. Use App branding pattern (own colors, not portal CSS vars).</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>npm run build</code> passes</li>
+        <li>Visual: gold branding renders correctly on all 3 portals</li>
+        <li>Visual: all 4 tabs switch content correctly</li>
+        <li>Visual: mobile responsive &mdash; tabs scroll horizontally on narrow viewports</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C09 (core integration must pass build first)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- TAB: FILES -->
+  <div class="panel" id="tab-files">
+
+    <div class="card">
+      <h2>New Files Created</h2>
+      <table>
+        <thead>
+          <tr><th>File Path</th><th>Ticket</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>packages/core/src/cmo/types.ts</code></td><td>MUS-C01</td><td>Types</td><td>All CMO interfaces and type aliases</td></tr>
+          <tr><td><code>packages/core/src/cmo/registry.ts</code></td><td>MUS-C02</td><td>Logic</td><td>CMO Registry class + helper functions</td></tr>
+          <tr><td><code>packages/core/src/cmo/tools/canva.ts</code></td><td>MUS-C03</td><td>Data</td><td>21 Canva tool registrations</td></tr>
+          <tr><td><code>packages/core/src/cmo/tools/wordpress.ts</code></td><td>MUS-C04</td><td>Data</td><td>17 WordPress tool registrations</td></tr>
+          <tr><td><code>packages/core/src/cmo/tools/veo.ts</code></td><td>MUS-C05</td><td>Data</td><td>5 Veo tool registrations</td></tr>
+          <tr><td><code>packages/core/src/cmo/tools/campaigns.ts</code></td><td>MUS-C06</td><td>Data</td><td>6 C3 campaign tool registrations</td></tr>
+          <tr><td><code>packages/core/src/cmo/tools/creative.ts</code></td><td>MUS-C07</td><td>Data</td><td>PDF_SERVICE + Drive + frontend-design registrations</td></tr>
+          <tr><td><code>packages/core/src/cmo/tools/index.ts</code></td><td>MUS-C09</td><td>Barrel</td><td>Aggregates all tool arrays</td></tr>
+          <tr><td><code>packages/core/src/cmo/wires/WIRE_BROCHURE.ts</code></td><td>MUS-C08</td><td>Wire</td><td>Print Artisan wire definition (stub)</td></tr>
+          <tr><td><code>packages/core/src/cmo/wires/WIRE_CAMPAIGN.ts</code></td><td>MUS-C08</td><td>Wire</td><td>Digital Artisan wire definition (stub)</td></tr>
+          <tr><td><code>packages/core/src/cmo/wires/WIRE_LANDING_PAGE.ts</code></td><td>MUS-C08</td><td>Wire</td><td>Web Artisan wire definition (stub)</td></tr>
+          <tr><td><code>packages/core/src/cmo/wires/index.ts</code></td><td>MUS-C09</td><td>Barrel</td><td>Aggregates all wire definitions</td></tr>
+          <tr><td><code>packages/core/src/cmo/index.ts</code></td><td>MUS-C09</td><td>Barrel</td><td>CMO package barrel</td></tr>
+          <tr><td><code>packages/ui/src/modules/MusashiCommandCenter/*.tsx</code></td><td>MUS-C12</td><td>UI</td><td>Command Center scaffold (4 files)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Existing Files Modified</h2>
+      <table>
+        <thead>
+          <tr><th>File Path</th><th>Ticket</th><th>Change</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>packages/core/src/index.ts</code></td><td>MUS-C09</td><td>Add <code>export * from './cmo'</code> re-export</td></tr>
+          <tr><td><code>~/Projects/dojo-warriors/musashi/soul.md</code></td><td>MUS-C10</td><td>Add CXO context sections</td></tr>
+          <tr><td><code>~/Projects/dojo-warriors/musashi/spirit.md</code></td><td>MUS-C10</td><td>Add CXO promotion moment (if transcript available)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- TAB: TEST PLAN -->
+  <div class="panel" id="tab-tests">
+
+    <div class="card">
+      <h2>Verification Matrix</h2>
+      <table>
+        <thead>
+          <tr><th>Check</th><th>Command</th><th>Expected</th><th>Blocks</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>TypeScript compilation</td><td><code>npm run type-check</code></td><td>13/13 pass</td><td>All tickets</td></tr>
+          <tr><td>Full build</td><td><code>npm run build</code></td><td>11/11 pass</td><td>MUS-C09, MUS-C12</td></tr>
+          <tr><td>Registry count</td><td>Manual: <code>CMO_REGISTRY.length</code></td><td>&ge; 50 entries</td><td>MUS-C09</td></tr>
+          <tr><td>Tool domain coverage</td><td>Manual: unique toolDomains</td><td>7 domains (canva, wordpress, veo, c3, pdf, drive, frontend-design)</td><td>MUS-C09</td></tr>
+          <tr><td>Wire count</td><td>Manual: type === 'WIRE' filter</td><td>3 wires</td><td>MUS-C08</td></tr>
+          <tr><td>Barrel import</td><td>Manual: import from @tomachina/core</td><td>All types + registry + helpers resolve</td><td>MUS-C09</td></tr>
+          <tr><td>UI render</td><td>Visual: <code>npm run dev</code></td><td>Command Center renders gold theme, tabs work</td><td>MUS-C12</td></tr>
+          <tr><td>E2E (existing)</td><td><code>npm run test:e2e:ui</code></td><td>10/10 pass (no regressions)</td><td>Final gate</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Definition of Done</h2>
+      <ul class="ac-list">
+        <li><code>packages/core/src/cmo/</code> exists with registry, types, tools, wires</li>
+        <li>50+ tools registered across 7 domains</li>
+        <li>3 wire stubs defined with correct step sequences</li>
+        <li><code>CMO_REGISTRY</code> importable from <code>@tomachina/core</code></li>
+        <li><code>npm run type-check</code> passes 13/13</li>
+        <li><code>npm run build</code> passes 11/11</li>
+        <li>Command Center scaffold renders on all 3 portals with gold branding</li>
+        <li>soul.md updated with CXO context</li>
+        <li>All existing MUSASHI artifacts consolidated to Shared Drive</li>
+        <li>E2E tests pass (no regressions)</li>
+        <li>PR merged to main via CI pipeline</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- TAB: DEPENDENCIES -->
+  <div class="panel" id="tab-deps">
+
+    <div class="card">
+      <h2>Internal Dependencies (Within Track 1)</h2>
+      <div class="diagram"><span class="hl-gold">Phase 1</span> (parallel):  MUS-C01 ─────────────────────────────────────
+                         MUS-C03 (canva)  ─┐
+                         MUS-C04 (wordpress)├─ all need C01 types
+                         MUS-C05 (veo)    ─┘
+
+<span class="hl">Phase 2</span> (parallel):  MUS-C02 (registry) ── needs C01
+                         MUS-C06 (c3)      ── needs C01
+                         MUS-C07 (creative) ── needs C01
+                         MUS-C08 (wires)   ── needs C01 + C03-C07 tool IDs
+                         MUS-C09 (barrel)  ── needs ALL of C01-C08
+
+<span class="hl-cyan">Phase 3</span> (parallel):  MUS-C10 (soul)     ── independent
+                         MUS-C11 (consolidation) ── independent
+                         MUS-C12 (scaffold) ── needs C09 (build must pass)</div>
+    </div>
+
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <thead>
+          <tr><th>Dependency</th><th>Status</th><th>Tickets Affected</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>QUE Registry pattern (<code>packages/core/src/que/registry.ts</code>)</td>
+            <td><span class="status-live">LIVE</span> &mdash; read-only reference</td>
+            <td>MUS-C01, MUS-C02</td>
+          </tr>
+          <tr>
+            <td>ATLAS wire pattern (<code>packages/core/src/atlas/wires.ts</code>)</td>
+            <td><span class="status-live">LIVE</span> &mdash; read-only reference</td>
+            <td>MUS-C08</td>
+          </tr>
+          <tr>
+            <td>Core barrel (<code>packages/core/src/index.ts</code>)</td>
+            <td><span class="status-live">LIVE</span> &mdash; needs one-line addition</td>
+            <td>MUS-C09</td>
+          </tr>
+          <tr>
+            <td>rpi-workspace MCP (Canva + WordPress + Veo tools)</td>
+            <td><span class="status-live">LIVE</span> &mdash; tool names as reference</td>
+            <td>MUS-C03, MUS-C04, MUS-C05</td>
+          </tr>
+          <tr>
+            <td>C3 API routes (<code>services/api/src/routes/</code>)</td>
+            <td><span class="status-live">LIVE</span> &mdash; read for registration</td>
+            <td>MUS-C06</td>
+          </tr>
+          <tr>
+            <td>Shared Drive access</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>MUS-C11</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Track 2 (OPERATE) Unlock Conditions</h2>
+      <div class="callout">
+        <p><strong>Track 2 is blocked until:</strong></p>
+      </div>
+      <ul class="ac-list">
+        <li>CMO_REGISTRY is importable from @tomachina/core (MUS-C09)</li>
+        <li>All 3 wire stubs are defined with correct step sequences (MUS-C08)</li>
+        <li><code>npm run build</code> passes 11/11 (MUS-C09)</li>
+        <li>Command Center scaffold is deployed (MUS-C12)</li>
+      </ul>
+      <p>Phase 3 tickets (C10, C11) are nice-to-have before Track 2 but do NOT block it. The registry and scaffold are the gates.</p>
+    </div>
+
+  </div>
+
+  <!-- TAB: SPRINT PLAN -->
+  <div class="panel" id="tab-sprint">
+
+    <div class="card">
+      <h2>Execution Strategy</h2>
+      <p>3 phases. 12 tickets. Maximum parallelism within each phase. A RONIN builder can execute Phase 1 + 2 in a single session.</p>
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Tickets</th><th>Parallelism</th><th>Gate</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--gold);">Phase 1</strong></td>
+            <td>MUS-C01, C03, C04, C05</td>
+            <td>C03+C04+C05 in parallel after C01</td>
+            <td>types.ts exists + 3 tool files compile</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--accent);">Phase 2</strong></td>
+            <td>MUS-C02, C06, C07, C08, C09</td>
+            <td>C02+C06+C07 in parallel, then C08, then C09</td>
+            <td><code>npm run build</code> passes with full CMO package</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--cyan);">Phase 3</strong></td>
+            <td>MUS-C10, C11, C12</td>
+            <td>C10+C11 in parallel, C12 after build passes</td>
+            <td>Command Center renders, all artifacts consolidated</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>RONIN Builder Instructions</h2>
+      <div class="callout">
+        <p><strong style="color: var(--gold);">Context required:</strong> Before starting, read these files:</p>
+      </div>
+      <ol>
+        <li><code>packages/core/src/que/registry.ts</code> &mdash; the pattern you're following</li>
+        <li><code>packages/core/src/atlas/wires.ts</code> &mdash; wire definition pattern</li>
+        <li><code>packages/core/src/atlas/types.ts</code> &mdash; ATLAS type pattern</li>
+        <li><code>docs/musashi-cxo-roadmap.html</code> (REGISTRY tab) &mdash; tool inventory</li>
+        <li><code>docs/musashi-track1-consume.html</code> (this doc) &mdash; your marching orders</li>
+      </ol>
+
+      <h3>Build + Verify Sequence</h3>
+      <div class="diagram">1. <span class="hl-gold">Phase 1</span>: Create types.ts → then canva.ts + wordpress.ts + veo.ts in parallel
+2. <span class="hl">Phase 2</span>: Create registry.ts + campaigns.ts + creative.ts in parallel
+   → then wires/ (needs tool IDs)
+   → then barrel exports (needs everything)
+   → <span class="hl-green">npm run type-check</span> (13/13)
+   → <span class="hl-green">npm run build</span> (11/11)
+3. <span class="hl-cyan">Phase 3</span>: Command Center scaffold + soul.md update + Drive consolidation
+   → <span class="hl-green">npm run build</span> (final)
+   → <span class="hl-green">npm run test:e2e:ui</span> (no regressions)
+4. <span class="hl-gold">#SendIt</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Estimated Registry Contents After Track 1</h2>
+      <table>
+        <thead>
+          <tr><th>Domain</th><th>Count</th><th>Type</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Canva</td><td>21</td><td>TOOL</td></tr>
+          <tr><td>WordPress</td><td>17</td><td>TOOL</td></tr>
+          <tr><td>Veo</td><td>5</td><td>TOOL</td></tr>
+          <tr><td>C3 (campaigns)</td><td>6</td><td>TOOL</td></tr>
+          <tr><td>Creative (PDF + Drive + frontend-design)</td><td>5+</td><td>TOOL</td></tr>
+          <tr><td>Wires</td><td>3</td><td>WIRE</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>57+</strong></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>MUSASHI Track 1: CONSUME &mdash; Track Discovery Doc</div>
+  <div>The CMO writes the story that launches the machine.</div>
+  <div class="signoff">&#9876;&#65039; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+
+</body>
+</html>

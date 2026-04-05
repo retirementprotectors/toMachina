@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEGAZORD Track 3 — DEVOUR Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,164,76,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(16,185,129,0.06) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981 0%, #d4a44c 35%, #10b981 70%, #22c55e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-mecha { background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--mecha-green); border-bottom-color: var(--mecha-green); background: var(--mecha-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--mecha-green); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul, .card ol { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--mecha-green); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.cyan { border-top: 3px solid var(--cyan); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--mecha-green); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-new { color: var(--cyan); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-gap { color: var(--red); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--mecha-green); border-radius: 0 12px 12px 0; padding: 24px; margin-bottom: 20px; }
+  .ticket.phase2 { border-left-color: var(--gold); }
+  .ticket.phase3 { border-left-color: var(--cyan); }
+  .ticket-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--mecha-green); background: var(--mecha-glow); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.25); }
+  .ticket-id.phase2 { color: var(--gold); background: var(--gold-glow); border-color: rgba(212,164,76,0.25); }
+  .ticket-id.phase3 { color: var(--cyan); background: var(--cyan-glow); border-color: rgba(6,182,212,0.25); }
+  .ticket-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+  .ticket h3 { font-size: 0.9rem; font-weight: 600; margin: 14px 0 6px; color: var(--mecha-green); text-transform: uppercase; letter-spacing: 0.5px; }
+  .ticket p { color: var(--text-muted); margin-bottom: 8px; font-size: 0.9rem; }
+  .ticket ul, .ticket ol { color: var(--text-muted); margin: 0 0 12px 20px; font-size: 0.9rem; }
+  .ticket li { margin-bottom: 4px; }
+  .ticket code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); }
+  .ticket .file-list { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin: 8px 0 12px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--cyan); white-space: pre; overflow-x: auto; }
+  .ac-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .ac-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .ac-list li::before { content: '\2713'; position: absolute; left: 4px; color: var(--green); font-weight: 700; }
+  .dep-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .dep-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .dep-list li::before { content: '\2192'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--mecha-green); }
+  .phase-header.p2 { border-bottom-color: var(--gold); }
+  .phase-header.p3 { border-bottom-color: var(--cyan); }
+  .phase-number { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); flex-shrink: 0; }
+  .phase-number.p2 { background: var(--gold-glow); color: var(--gold); border-color: rgba(212,164,76,0.3); }
+  .phase-number.p3 { background: var(--cyan-glow); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+  .phase-title { font-size: 1.3rem; font-weight: 700; }
+  .phase-desc { font-size: 0.85rem; color: var(--text-muted); }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-box .number { font-size: 2rem; font-weight: 800; color: var(--mecha-green); line-height: 1; }
+  .stat-box .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  .footer .signoff { color: var(--mecha-green); font-weight: 700; font-size: 1rem; margin-top: 12px; }
+  .footer .race { color: var(--mecha-green); font-weight: 700; letter-spacing: 1px; margin-top: 8px; }
+  @media (max-width: 768px) { .header h1 { font-size: 2rem; } .spec-grid { grid-template-columns: 1fr; } .stat-row { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">TRACK DISCOVERY DOC &mdash; DEVOUR</div>
+  <h1>MEGAZORD Track 3</h1>
+  <p class="subtitle">Full inventory. Full audit. Eat everything. Every carrier registered. Every wire tested. Every gap identified. Backlog destroyed.</p>
+  <div class="header-badges">
+    <span class="badge badge-mecha">MEGAZORD &mdash; CIO</span>
+    <span class="badge badge-gold">TRACK 3: DEVOUR</span>
+    <span class="badge badge-accent">14 TICKETS</span>
+    <span class="badge badge-red">FULL SCALE</span>
+    <span class="badge badge-green">BACKLOG DESTROYED</span>
+  </div>
+  <div class="ronin-meta">authored: MUSASHI, ARTxBLADE &bull; 2026-04-05 &bull; CXO track discovery for MEGAZORD</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">Overview</div>
+    <div class="tab" onclick="showTab('tickets')">Tickets</div>
+    <div class="tab" onclick="showTab('files')">Files</div>
+    <div class="tab" onclick="showTab('tests')">Test Plan</div>
+    <div class="tab" onclick="showTab('deps')">Dependencies</div>
+    <div class="tab" onclick="showTab('sprint')">Sprint Plan</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- TAB: OVERVIEW -->
+  <div class="panel active" id="tab-overview">
+    <div class="card">
+      <h2>Why DEVOUR Is Track 3</h2>
+      <div class="quote">"CONSUME claimed the registry. OPERATE deployed the mesh. DEVOUR eats the entire data landscape and makes it ATLAS. There is no data operation outside MEGAZORD."</div>
+      <p>Track 1 gave MEGAZORD an identity. Track 2 gave MEGAZORD hands. Track 3 gives MEGAZORD <strong>appetite</strong>. Every carrier data source registered. Every scattered data process absorbed. Every wire accuracy-tested to the penny. Proactive monitoring replaces reactive firefighting. The backlog doesn't just shrink &mdash; it gets <strong>destroyed</strong>.</p>
+    </div>
+
+    <div class="card">
+      <h2>What DEVOUR Delivers</h2>
+      <div class="stat-row">
+        <div class="stat-box"><div class="number">100%</div><div class="label">Sources Registered</div></div>
+        <div class="stat-box"><div class="number">4</div><div class="label">Accuracy Suites</div></div>
+        <div class="stat-box"><div class="number">2</div><div class="label">Cron Monitors</div></div>
+        <div class="stat-box"><div class="number">1</div><div class="label">Exec Dashboard</div></div>
+        <div class="stat-box"><div class="number">0</div><div class="label">Remaining Backlog</div></div>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-card mecha">
+          <h4>Carrier Source Inventory</h4>
+          <p>Every carrier RPI works with registered in <code>source_registry</code> with GREEN / YELLOW / RED status, feed type, last refresh date, and format profile.</p>
+          <ul><li>Automated feeds = GREEN</li><li>Manual CSV export = YELLOW</li><li>No pipeline = RED</li></ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Data Accuracy E2E</h4>
+          <p>Not "did the pipeline complete?" but "is the data CORRECT?" Known-answer tests for imports, dedup, commissions, and ACF routing.</p>
+          <ul><li>Import accuracy to the field</li><li>Dedup: zero false positives</li><li>Commissions: to the penny</li><li>ACF: correct subfolder routing</li></ul>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Proactive Monitoring</h4>
+          <p>Scheduled wire runs, source staleness detection, wire execution dashboard, proactive gap identification. MEGAZORD spots problems before anyone else.</p>
+          <ul><li>ACF Cleanup weekly</li><li>Commission sync monthly</li><li>Stale source notifications</li><li>Auto-generated gap tickets</li></ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>Scattered Work Absorption</h4>
+          <p>Final sweep: every data-centric ticket in RONIN/RAIDEN queues, every manual GAS process, every orphaned script. Absorbed into ATLAS or archived.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Title</th><th>Phase</th><th>Effort</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ZRD-D01</strong></td><td>Carrier Source Registry Population</td><td>P1</td><td>L</td></tr>
+          <tr><td><strong>ZRD-D02</strong></td><td>GAS Migration Audit</td><td>P1</td><td>M</td></tr>
+          <tr><td><strong>ZRD-D03</strong></td><td>Orphaned Script Discovery</td><td>P1</td><td>M</td></tr>
+          <tr><td><strong>ZRD-D04</strong></td><td>Format Library Expansion</td><td>P1</td><td>M</td></tr>
+          <tr><td><strong>ZRD-D05</strong></td><td>Known-Answer Import Tests</td><td>P2</td><td>L</td></tr>
+          <tr><td><strong>ZRD-D06</strong></td><td>Dedup Accuracy Tests</td><td>P2</td><td>L</td></tr>
+          <tr><td><strong>ZRD-D07</strong></td><td>Commission Accuracy Tests</td><td>P2</td><td>L</td></tr>
+          <tr><td><strong>ZRD-D08</strong></td><td>ACF Routing Accuracy Tests</td><td>P2</td><td>M</td></tr>
+          <tr><td><strong>ZRD-D09</strong></td><td>Source Staleness Monitor</td><td>P3</td><td>M</td></tr>
+          <tr><td><strong>ZRD-D10</strong></td><td>Scheduled Wire Runs</td><td>P3</td><td>M</td></tr>
+          <tr><td><strong>ZRD-D11</strong></td><td>Wire Execution Dashboard</td><td>P3</td><td>L</td></tr>
+          <tr><td><strong>ZRD-D12</strong></td><td>Proactive Gap Identification</td><td>P3</td><td>L</td></tr>
+          <tr><td><strong>ZRD-D13</strong></td><td>RONIN Queue Absorption</td><td>P3</td><td>M</td></tr>
+          <tr><td><strong>ZRD-D14</strong></td><td>DEVOUR Completion Audit</td><td>P3</td><td>M</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>The DEVOUR End State</h2>
+      <div class="diagram"><span class="hl-mecha">MEGAZORD</span> &mdash; Fully Autonomous CIO
+    |
+    ├── <span class="hl-green">Source Registry</span> &mdash; 100% of carriers registered (GREEN/YELLOW/RED)
+    ├── <span class="hl-green">Format Library</span> &mdash; Every active carrier has an introspection profile
+    ├── <span class="hl-green">Wire Library</span> &mdash; All 5 wires accuracy-tested with known-answer fixtures
+    ├── <span class="hl-green">Rangers Mesh</span> &mdash; 5 Rangers executing wires on schedule + on demand
+    ├── <span class="hl-green">Intake Funnel</span> &mdash; Drive + Slack + Email (from Track 2)
+    ├── <span class="hl-cyan">Staleness Monitor</span> &mdash; Notification when any source &gt;30 days stale
+    ├── <span class="hl-cyan">Scheduled Runs</span> &mdash; ACF weekly, commission monthly
+    ├── <span class="hl-cyan">Execution Dashboard</span> &mdash; Wire frequency, success rates, error trends
+    ├── <span class="hl-cyan">Gap Identification</span> &mdash; Auto-generates ZRD- tickets for missing capabilities
+    └── <span class="hl-gold">Backlog = 0</span> &mdash; All scattered data work absorbed or archived
+
+    <span class="hl-red">No data operation exists outside MEGAZORD.</span></div>
+    </div>
+  </div>
+
+  <!-- TAB: TICKETS -->
+  <div class="panel" id="tab-tickets">
+
+    <!-- PHASE 1: Full Inventory -->
+    <div class="phase-header">
+      <div class="phase-number">1</div>
+      <div><div class="phase-title">Full Inventory</div><div class="phase-desc">Audit every data source, every GAS process, every orphaned script. Register everything in ATLAS. All 4 tickets run in parallel.</div></div>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-D01</span><span class="ticket-title">Carrier Source Registry Population</span></div>
+      <p>Audit every carrier RPI works with. Register each in Firestore <code>source_registry</code> with automation status, feed type, last refresh date, and format profile reference. This is the master data source inventory.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/routes/atlas.ts              &mdash; MODIFY (add bulk source registration endpoint)
+packages/core/src/atlas/sources/index.ts      &mdash; NEW (carrier source definitions barrel)
+packages/core/src/atlas/sources/carriers.ts   &mdash; NEW (carrier source catalog)</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Every active carrier has a <code>source_registry</code> entry in Firestore</li>
+        <li>Each entry has: carrierId, carrierName, status (GREEN | YELLOW | RED), feedType (automated | manual_csv | none), lastRefreshDate, formatProfileId, notes</li>
+        <li>GREEN = automated feed pipeline exists and runs. YELLOW = manual CSV export required. RED = no pipeline at all.</li>
+        <li>Carrier list seeded from RAPID_IMPORT carrier mapping + <code>carriers</code> Firestore collection</li>
+        <li><code>POST /api/atlas/sources/bulk-register</code> endpoint for batch registration</li>
+        <li><code>GET /api/atlas/sources/health</code> returns aggregate status (X green, Y yellow, Z red)</li>
+        <li>Source definitions in <code>packages/core</code> for type safety and reuse</li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p>Existing <code>source_registry</code> collection schema in <code>packages/core/src/atlas/types.ts</code>. Health scoring in <code>health.ts</code> (161 lines). Start with carriers from <code>~/Projects/gas/RAPID_IMPORT/</code> carrier mapping tables.</p>
+      <h3>Test Plan</h3>
+      <ul><li>Bulk register 5 carriers &mdash; all appear in source_registry</li><li>Health endpoint returns correct GREEN/YELLOW/RED counts</li><li>Re-register existing carrier &mdash; updates, no duplicate</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 2 OPERATE complete (Rangers operational for pipeline verification)</li><li><code>carriers</code> Firestore collection (exists)</li></ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-D02</span><span class="ticket-title">GAS Migration Audit</span></div>
+      <p>Inventory all data processes still running in RAPID_IMPORT GAS. Catalog what's been migrated to toMachina, what hasn't, and what the remaining gaps are. Create migration tickets for remaining processes.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">~/Projects/gas/RAPID_IMPORT/                  &mdash; READ (audit source)
+docs/gas-migration-audit.md                    &mdash; NEW (audit report)</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Complete inventory of RAPID_IMPORT functions that handle data operations</li>
+        <li>Each function categorized: MIGRATED (exists in toMachina API) | ACTIVE (still needed in GAS) | DEPRECATED (no longer needed)</li>
+        <li>For each ACTIVE function: description of what it does, which carriers/data it handles, estimated migration effort</li>
+        <li>Migration tickets created as ZRD- items for ACTIVE functions</li>
+        <li>Audit report published to docs/ directory</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Every RAPID_IMPORT function accounted for in audit</li><li>MIGRATED functions verified to exist in toMachina API routes</li><li>No duplicate coverage (same function in both GAS and toMachina)</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Access to ~/Projects/gas/RAPID_IMPORT/ (exists)</li></ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-D03</span><span class="ticket-title">Orphaned Script Discovery</span></div>
+      <p>Find one-off import scripts, undocumented carrier format handlers, manual data fix scripts scattered across the codebase and GAS projects. Register findings in ATLAS or archive them.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">~/Projects/toMachina/                         &mdash; SCAN
+~/Projects/gas/                                &mdash; SCAN
+~/Projects/services/                           &mdash; SCAN
+docs/orphaned-scripts-audit.md                 &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Grep across all projects for import/data-processing patterns (import*, seed*, migrate*, fix*, cleanup*)</li>
+        <li>Each orphaned script cataloged: location, purpose, last modified, carrier/data it handles</li>
+        <li>Decision per script: ABSORB (register in ATLAS, create wire) | ARCHIVE (move to archive/) | DELETE (confirmed unused)</li>
+        <li>Any ABSORB items get corresponding ZRD- tickets</li>
+        <li>Audit report published</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Grep results reviewed &mdash; no false negatives (scripts missed)</li><li>Every ABSORB script has a corresponding ZRD- ticket</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>None &mdash; pure research</li></ul>
+    </div>
+
+    <div class="ticket">
+      <div class="ticket-header"><span class="ticket-id">ZRD-D04</span><span class="ticket-title">Format Library Expansion</span></div>
+      <p>Run SUPER_INTROSPECT on every carrier format not yet profiled. Add fingerprints to the format library. Target: every active carrier has a recognized format profile.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/atlas/introspect.ts         &mdash; VERIFY (format fingerprinting engine)
+packages/core/src/atlas/learning-library.ts    &mdash; MODIFY (add new format profiles)
+services/api/src/routes/atlas.ts               &mdash; VERIFY (introspection endpoints)</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Every GREEN and YELLOW source in source_registry has a corresponding format profile in learning-library</li>
+        <li>New profiles added for any carrier format not yet fingerprinted</li>
+        <li>Format profiles include: column mapping, date format, encoding, header row detection, known quirks</li>
+        <li>SUPER_INTROSPECT confidence &ge;80% for all known carrier formats</li>
+        <li>RED sources documented (format unknown &mdash; needs sample data)</li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p><code>introspect.ts</code> (425 lines) for fingerprinting engine. <code>learning-library.ts</code> (210 lines) for existing profiles.</p>
+      <h3>Test Plan</h3>
+      <ul><li>Run SUPER_INTROSPECT on each carrier's sample file &mdash; confidence &ge;80%</li><li>New profiles round-trip: introspect &rarr; save &rarr; re-introspect same format &rarr; instant match</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-D01 (need source registry to know which carriers to profile)</li><li>Sample files from each carrier (some may need JDM to provide)</li></ul>
+    </div>
+
+    <!-- PHASE 2: Data Accuracy -->
+    <div class="phase-header p2">
+      <div class="phase-number p2">2</div>
+      <div><div class="phase-title">Data Accuracy</div><div class="phase-desc">Known-answer tests that verify data CORRECTNESS, not just pipeline completion. Sequential &mdash; each builds on previous fixtures.</div></div>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-D05</span><span class="ticket-title">Known-Answer Import Tests</span></div>
+      <p>Create test fixtures with known data. Import via ranger-import. Verify every field in Firestore matches expected values. Cover: clients, accounts, producers from multiple carrier formats.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/__tests__/e2e/accuracy-import.test.ts        &mdash; NEW
+services/api/src/__tests__/fixtures/known-answer-clients.csv   &mdash; NEW
+services/api/src/__tests__/fixtures/known-answer-accounts.csv  &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Test fixtures contain records with known field values (names, dates, account numbers, addresses)</li>
+        <li>Import via ranger-import, then query Firestore and compare field-by-field</li>
+        <li>Cover: first_name, last_name, dob, phone, email, address fields, account_number, product_type, carrier</li>
+        <li>Date normalization verified (input: MM/DD/YYYY &rarr; stored: ISO 8601)</li>
+        <li>Phone normalization verified (input: various formats &rarr; stored: +1XXXXXXXXXX)</li>
+        <li>Status normalization verified (input: carrier-specific &rarr; stored: standard enum)</li>
+        <li>At least 3 carrier formats tested (different column orders, different date formats)</li>
+        <li>Zero field-level mismatches = pass</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Import fixture &rarr; query Firestore &rarr; compare every field &rarr; zero mismatches</li><li>3 different carrier format fixtures</li><li>Edge cases: empty optional fields, Unicode characters in names, very long addresses</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 2 Rangers operational (ranger-import tested)</li><li>ZRD-D01 (carrier formats identified for fixture creation)</li></ul>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-D06</span><span class="ticket-title">Dedup Accuracy Tests</span></div>
+      <p>Test SUPER_MATCH with known duplicate and non-duplicate records. Verify zero false positives (different people merged) and zero missed matches (same person not matched).</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/__tests__/e2e/accuracy-dedup.test.ts         &mdash; NEW
+services/api/src/__tests__/fixtures/dedup-test-cases.json      &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Test cases cover all 3 SUPER_MATCH tiers: exact match, contact match, name-only match</li>
+        <li>Known duplicates: same person, different name spelling (Robert/Bob), different phone format</li>
+        <li>Known non-duplicates: same last name different person, similar names different DOB</li>
+        <li>Zero false positives: no two different people merged into one record</li>
+        <li>Zero missed matches: no duplicate records where one should have been matched</li>
+        <li>Confidence scores logged for each match decision</li>
+        <li>At least 20 test case pairs (10 true duplicates, 10 true non-duplicates)</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Import first batch, then second batch with known overlaps &mdash; verify match decisions</li><li>Each test case has expected outcome (match/no-match) and tier (exact/contact/name)</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-D05 (import accuracy verified first)</li></ul>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-D07</span><span class="ticket-title">Commission Accuracy Tests</span></div>
+      <p>Import known commission statements. Verify revenue records match carrier statements to the penny. Cover: multiple carriers, split commissions, override structures.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/__tests__/e2e/accuracy-commission.test.ts    &mdash; NEW
+services/api/src/__tests__/fixtures/commission-statement-a.csv &mdash; NEW
+services/api/src/__tests__/fixtures/commission-statement-b.csv &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Test fixtures contain commission statements with known dollar amounts</li>
+        <li>After import: every revenue record's gross_commission, net_commission, override_amount matches source to the penny</li>
+        <li>No floating point drift (use string comparison for currency or integer cents)</li>
+        <li>Split commissions: verify each split matches expected allocation</li>
+        <li>Override structures: verify override amounts cascade correctly</li>
+        <li>Unmatched policies reported (not silently dropped)</li>
+        <li>At least 2 different carrier formats tested</li>
+        <li>Total revenue sum matches total from source statement</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Import carrier A statement &mdash; verify each line item to the penny</li><li>Import carrier B statement &mdash; different format, same accuracy</li><li>Verify total revenue matches source total</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 2 ranger-commission operational</li><li>ZRD-D05 (import pipeline accuracy baseline)</li></ul>
+    </div>
+
+    <div class="ticket phase2">
+      <div class="ticket-header"><span class="ticket-id phase2">ZRD-D08</span><span class="ticket-title">ACF Routing Accuracy Tests</span></div>
+      <p>Upload known documents. Verify they route to correct ACF subfolders with correct names. Cover all 5 subfolder types plus edge cases.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/__tests__/e2e/accuracy-acf.test.ts           &mdash; NEW
+services/api/src/__tests__/fixtures/acf-test-documents/        &mdash; NEW (test PDFs)</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Test documents for each ACF subfolder: Client, NewBiz, Cases, Account, Reactive</li>
+        <li>Each document routes to correct subfolder based on classification</li>
+        <li>File naming convention applied correctly</li>
+        <li>document_index updated with correct metadata</li>
+        <li>Edge case: missing client folder &mdash; created automatically before routing</li>
+        <li>Edge case: ambiguous classification &mdash; queued for review, not auto-routed</li>
+        <li>Edge case: duplicate file name &mdash; suffixed, not overwritten</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Upload 5 test docs (1 per subfolder type) &mdash; verify routing</li><li>Upload ambiguous doc &mdash; verify review queue</li><li>Upload duplicate-named doc &mdash; verify suffix</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 2 ranger-acf operational</li><li>ACF 2.0 Sprint infrastructure (exists, 23 tickets shipped)</li></ul>
+    </div>
+
+    <!-- PHASE 3: Proactive Monitoring + Scale -->
+    <div class="phase-header p3">
+      <div class="phase-number p3">3</div>
+      <div><div class="phase-title">Proactive Monitoring + Scale</div><div class="phase-desc">Scheduled runs, staleness monitoring, execution dashboard, gap identification. MEGAZORD spots problems before humans do.</div></div>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-D09</span><span class="ticket-title">Source Staleness Monitor</span></div>
+      <p>Automated check: any source_registry entry not refreshed in &gt;30 days triggers Slack notification. MEGAZORD knows when data is going stale before anyone asks.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/cron/staleness-monitor.ts     &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Daily cron job (Cloud Scheduler or systemd timer on MDJ_SERVER)</li>
+        <li>Queries source_registry for entries where lastRefreshDate &gt; 30 days ago</li>
+        <li>Stale sources reported via Slack to MEGAZORD channel</li>
+        <li>Slack message includes: carrier name, last refresh date, days stale, source status</li>
+        <li>Critical staleness (&gt;60 days) escalated to JDM DM (U09BBHTN8F2)</li>
+        <li>Non-blocking: if Slack fails, log and continue (don't crash the cron)</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Set test source lastRefreshDate to 31 days ago &mdash; verify Slack notification</li><li>Set to 61 days &mdash; verify escalation to JDM DM</li><li>Set to 29 days &mdash; verify no notification</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-D01 (source registry populated)</li><li>Slack MCP (exists)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-D10</span><span class="ticket-title">Scheduled Wire Runs</span></div>
+      <p>Configure recurring wire executions. ACF Cleanup every Sunday. Commission sync monthly per carrier. The mesh runs on autopilot.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/cron/scheduled-wires.ts       &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>ACF Cleanup wire dispatched weekly (Sunday 2am CT)</li>
+        <li>Commission Sync wire dispatched monthly per carrier (1st of month, staggered by carrier)</li>
+        <li>Reference Seed wire dispatched quarterly (carrier/product data refresh)</li>
+        <li>Dispatch via Orchestration API (ZRD-O08 from Track 2)</li>
+        <li>Execution results logged to ranger_runs</li>
+        <li>Failures trigger Slack notification</li>
+        <li>Schedule configurable without code deploy (Firestore config doc or env vars)</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Manually trigger scheduled-wires cron &mdash; correct Rangers dispatched</li><li>Verify execution results in ranger_runs</li><li>Simulate failure &mdash; Slack notification sent</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 2 Rangers + Orchestration API (exist)</li><li>ZRD-D01 (source registry for carrier-specific schedules)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-D11</span><span class="ticket-title">Wire Execution Dashboard</span></div>
+      <p>Command Center UI panel showing: which wires have run, how often, success/failure rates, average duration, last error. The CIO's real-time data operations health view.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">packages/ui/src/modules/MegazordDashboard.tsx  &mdash; NEW (or extend existing Command Center)
+services/api/src/routes/atlas.ts               &mdash; MODIFY (add execution analytics endpoint)</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Wire frequency chart: runs per wire per week (last 12 weeks)</li>
+        <li>Success/failure rates per wire (last 30 days)</li>
+        <li>Average duration per wire</li>
+        <li>Last error per wire (clickable for details)</li>
+        <li>Source health summary: GREEN/YELLOW/RED counts from source_registry</li>
+        <li>Stale source warnings inline (>30 days highlighted)</li>
+        <li>Data powered by <code>ranger_runs</code> collection aggregation</li>
+        <li>Auto-refresh every 60 seconds</li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p>Existing <code>health.ts</code> (161 lines) provides health scoring logic. Aggregate from <code>ranger_runs</code> Firestore collection.</p>
+      <h3>Test Plan</h3>
+      <ul><li>Dashboard loads with historical data from ranger_runs</li><li>Frequency chart shows correct run counts</li><li>Source health matches source_registry status counts</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 2 Mesh View (exists to extend)</li><li>ZRD-D01 (source registry data)</li><li>ranger_runs collection (populated by Track 2 Rangers)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-D12</span><span class="ticket-title">Proactive Gap Identification</span></div>
+      <p>Expand health.ts to identify: missing normalizers for known carriers, untested wire paths, stale format profiles, unregistered data sources. Auto-generate ZRD- tickets for gaps.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/atlas/health.ts              &mdash; MODIFY (add gap detection)
+services/api/src/routes/atlas.ts               &mdash; MODIFY (add gap report endpoint)</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>identifyGaps()</code> function returns structured gap report</li>
+        <li>Gap types: MISSING_NORMALIZER, MISSING_FORMAT_PROFILE, STALE_FORMAT, UNTESTED_WIRE_PATH, UNREGISTERED_SOURCE</li>
+        <li>Each gap includes: type, description, severity (critical | warning | info), suggested action</li>
+        <li><code>GET /api/atlas/gaps</code> endpoint returns gap report</li>
+        <li>Gap report surfaced in Wire Execution Dashboard (ZRD-D11)</li>
+        <li>Critical gaps auto-notify via Slack</li>
+        <li>Gap-to-ticket: each gap can be converted to a ZRD- ticket with one click (or auto-generated)</li>
+      </ul>
+      <h3>Reference Pattern</h3>
+      <p>Existing <code>health.ts</code> has automation health scoring. Extend with gap detection using source_registry + tool_registry cross-reference.</p>
+      <h3>Test Plan</h3>
+      <ul><li>Register source with no format profile &mdash; gap identified as MISSING_FORMAT_PROFILE</li><li>Create carrier with no normalizer &mdash; gap identified as MISSING_NORMALIZER</li><li>Critical gap triggers Slack notification</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>ZRD-D01 (source registry)</li><li>ZRD-D04 (format library)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-D13</span><span class="ticket-title">RONIN Queue Absorption</span></div>
+      <p>Final sweep. Every remaining data-centric ticket in RONIN and RAIDEN queues gets reclassified to ZRD-. This is the "backlog destroyed" deliverable.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">Firestore: dojo_tickets collection             &mdash; MODIFY (reclassify prefix)</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Audit all RON- and RDN- tickets in Firestore for data-centric keywords (import, data, carrier, commission, ACF, cleanup, audit, format, normalize, dedup)</li>
+        <li>Data-centric tickets reclassified: prefix changed to ZRD-, assigned to MEGAZORD pipeline</li>
+        <li>Non-data tickets left in place (true code/UX tickets stay with RONIN/RAIDEN)</li>
+        <li>Report: X tickets absorbed, Y tickets remain in Dojo</li>
+        <li>Zero data-centric tickets remaining in RONIN/RAIDEN queues</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Before: count data-centric tickets in RON-/RDN-</li><li>After: zero data-centric tickets in RON-/RDN-, all moved to ZRD-</li><li>Spot-check: 5 random reclassified tickets are genuinely data-centric</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>Track 2 complete (MEGAZORD pipeline exists to receive tickets)</li></ul>
+    </div>
+
+    <div class="ticket phase3">
+      <div class="ticket-header"><span class="ticket-id phase3">ZRD-D14</span><span class="ticket-title">DEVOUR Completion Audit</span></div>
+      <p>Final verification. Every carrier registered. Every wire accuracy-tested. Every format profiled. Monitoring live. Scheduled runs configured. Backlog cleared. Generate the audit report that proves MEGAZORD is fully autonomous.</p>
+      <h3>File Paths</h3>
+      <div class="file-list">docs/megazord-devour-audit.md                  &mdash; NEW</div>
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Source registry: 100% of active carriers registered</li>
+        <li>Format library: every GREEN/YELLOW source has a format profile</li>
+        <li>Wire accuracy: all 4 accuracy test suites passing (D05-D08)</li>
+        <li>Rangers: all 5 operational and E2E tested</li>
+        <li>Monitoring: staleness monitor live, scheduled runs configured</li>
+        <li>Dashboard: execution metrics visible in Command Center</li>
+        <li>Gap detection: running, no critical gaps unaddressed</li>
+        <li>Backlog: zero data-centric tickets in RONIN/RAIDEN queues</li>
+        <li>Audit report published with evidence for each item</li>
+        <li><code>npm run build</code> passes (11/11)</li>
+        <li><code>npm run type-check</code> passes (13/13)</li>
+      </ul>
+      <h3>Test Plan</h3>
+      <ul><li>Audit checklist: every item verified with evidence (screenshot, query result, test output)</li><li>SHINOB1 (CTO) reviews and signs off</li></ul>
+      <h3>Dependencies</h3>
+      <ul class="dep-list"><li>All ZRD-D01 through D13 complete</li></ul>
+    </div>
+  </div>
+
+  <!-- TAB: FILES -->
+  <div class="panel" id="tab-files">
+    <div class="card">
+      <h2>New Files</h2>
+      <table>
+        <tr><th>File</th><th>Ticket</th><th>Purpose</th></tr>
+        <tr><td><code>packages/core/src/atlas/sources/index.ts</code></td><td>D01</td><td>Carrier source definitions barrel</td></tr>
+        <tr><td><code>packages/core/src/atlas/sources/carriers.ts</code></td><td>D01</td><td>Carrier source catalog</td></tr>
+        <tr><td><code>services/api/src/cron/staleness-monitor.ts</code></td><td>D09</td><td>Source staleness checker</td></tr>
+        <tr><td><code>services/api/src/cron/scheduled-wires.ts</code></td><td>D10</td><td>Recurring wire dispatcher</td></tr>
+        <tr><td><code>packages/ui/src/modules/MegazordDashboard.tsx</code></td><td>D11</td><td>Execution analytics dashboard</td></tr>
+        <tr><td><code>accuracy-import.test.ts</code></td><td>D05</td><td>Known-answer import tests</td></tr>
+        <tr><td><code>accuracy-dedup.test.ts</code></td><td>D06</td><td>Dedup accuracy tests</td></tr>
+        <tr><td><code>accuracy-commission.test.ts</code></td><td>D07</td><td>Commission accuracy tests</td></tr>
+        <tr><td><code>accuracy-acf.test.ts</code></td><td>D08</td><td>ACF routing accuracy tests</td></tr>
+        <tr><td><code>docs/gas-migration-audit.md</code></td><td>D02</td><td>GAS migration status</td></tr>
+        <tr><td><code>docs/orphaned-scripts-audit.md</code></td><td>D03</td><td>Orphaned script inventory</td></tr>
+        <tr><td><code>docs/megazord-devour-audit.md</code></td><td>D14</td><td>Completion audit report</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Modified Files</h2>
+      <table>
+        <tr><th>File</th><th>Ticket</th><th>Change</th></tr>
+        <tr><td><code>services/api/src/routes/atlas.ts</code></td><td>D01, D11, D12</td><td>Bulk source registration + analytics + gaps endpoints</td></tr>
+        <tr><td><code>packages/core/src/atlas/health.ts</code></td><td>D12</td><td>Gap detection functions</td></tr>
+        <tr><td><code>packages/core/src/atlas/learning-library.ts</code></td><td>D04</td><td>New format profiles</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: TEST PLAN -->
+  <div class="panel" id="tab-tests">
+    <div class="card">
+      <h2>Test Strategy</h2>
+      <p>Track 3 is the <strong>accuracy track</strong>. The question is not "does it run?" (Track 2 proved that) but "is the output CORRECT?" Every test has known expected values. Every assertion is field-level.</p>
+    </div>
+    <div class="card">
+      <h2>Accuracy Test Suite</h2>
+      <table>
+        <tr><th>Suite</th><th>Verifies</th><th>Known-Answer Fixtures</th><th>Assertions</th></tr>
+        <tr><td>Import Accuracy</td><td>Field-by-field Firestore match</td><td>3 carrier format CSVs</td><td>Every field on every record</td></tr>
+        <tr><td>Dedup Accuracy</td><td>Zero false positives + zero missed matches</td><td>20 test case pairs</td><td>Match/no-match decision per pair</td></tr>
+        <tr><td>Commission Accuracy</td><td>Revenue to the penny</td><td>2 carrier statements</td><td>Dollar amounts, splits, overrides</td></tr>
+        <tr><td>ACF Routing</td><td>Correct subfolder + naming</td><td>5 test docs + 3 edge cases</td><td>Subfolder path + file name</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Monitoring Verification</h2>
+      <table>
+        <tr><th>Monitor</th><th>Test Method</th><th>Expected Result</th></tr>
+        <tr><td>Staleness</td><td>Set source 31 days old</td><td>Slack notification within cron cycle</td></tr>
+        <tr><td>Scheduled Wires</td><td>Manual cron trigger</td><td>Correct Ranger dispatched</td></tr>
+        <tr><td>Gap Detection</td><td>Create source with no format</td><td>MISSING_FORMAT_PROFILE gap reported</td></tr>
+        <tr><td>Dashboard</td><td>Visual verification</td><td>Metrics match ranger_runs data</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Failure Modes</h2>
+      <div class="callout red"><p><strong>Floating point drift in commissions:</strong> $100.10 stored as 100.09999999. Use integer cents internally or string comparison. Never compare currency with ===.</p></div>
+      <div class="callout red"><p><strong>False dedup confidence:</strong> SUPER_MATCH too aggressive on name-only tier. "John Smith" in Des Moines matched to "John Smith" in Miami. Require additional signal (zip code, DOB) for name-only matches.</p></div>
+      <div class="callout red"><p><strong>Stale cron:</strong> Staleness monitor itself goes stale (cron stops running, no one notices). Add meta-monitor: if staleness-monitor hasn't run in 48 hours, alert.</p></div>
+    </div>
+  </div>
+
+  <!-- TAB: DEPENDENCIES -->
+  <div class="panel" id="tab-deps">
+    <div class="card">
+      <h2>Dependency Map</h2>
+      <div class="diagram">Phase 1: Full Inventory (all parallel)
+═══════════════════════════════════════
+  [<span class="hl-mecha">D01</span> + <span class="hl-mecha">D02</span> + <span class="hl-mecha">D03</span>]  (parallel)
+       |
+  <span class="hl-mecha">D04</span> (needs D01 for carrier list)
+
+Phase 2: Data Accuracy (sequential build)
+═══════════════════════════════════════
+  <span class="hl-gold">D05</span> (import accuracy baseline)
+       |
+  [<span class="hl-gold">D06</span> + <span class="hl-gold">D07</span>]  (parallel, both need D05 fixtures)
+       |
+  <span class="hl-gold">D08</span> (ACF routing &mdash; independent but shares fixtures)
+
+Phase 3: Monitoring + Scale (mostly parallel)
+═══════════════════════════════════════
+  [<span class="hl-cyan">D09</span> + <span class="hl-cyan">D10</span> + <span class="hl-cyan">D11</span> + <span class="hl-cyan">D12</span> + <span class="hl-cyan">D13</span>]  (parallel)
+       |
+  <span class="hl-cyan">D14</span> (DEVOUR Completion Audit &mdash; needs everything)</div>
+    </div>
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <tr><th>Dependency</th><th>Status</th><th>Action</th></tr>
+        <tr><td>Track 2 OPERATE complete</td><td><span class="status-planned">Gate</span></td><td>All 5 Rangers + Orchestration API</td></tr>
+        <tr><td>Carrier sample files</td><td><span class="status-gap">Needs JDM</span></td><td>Sample CSV from each active carrier</td></tr>
+        <tr><td>RAPID_IMPORT source access</td><td><span class="status-live">Exists</span></td><td>~/Projects/gas/RAPID_IMPORT/</td></tr>
+        <tr><td>Cloud Scheduler / cron</td><td><span class="status-live">Available</span></td><td>MDJ_SERVER systemd timers or GCP Scheduler</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Cross-CXO Impact</h2>
+      <ul>
+        <li><strong>VOLTRON (CSO):</strong> Every accuracy improvement in MEGAZORD's data directly improves VOLTRON's client ops. Clean data = accurate quoting = better client outcomes.</li>
+        <li><strong>MUSASHI (CMO):</strong> Source registry completeness tells MUSASHI which client segments have fresh data for targeting. Stale sources = stale campaigns.</li>
+        <li><strong>Dojo:</strong> Gap identification auto-generates RONIN tickets. MEGAZORD scopes, RONIN builds, ATLAS grows. The self-reinforcing loop.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB: SPRINT PLAN -->
+  <div class="panel" id="tab-sprint">
+    <div class="card">
+      <h2>Execution Timeline</h2>
+      <table>
+        <tr><th>ID</th><th>Title</th><th>Phase</th><th>Effort</th><th>Depends On</th><th>Parallel?</th></tr>
+        <tr><td><strong>D01</strong></td><td>Source Registry</td><td>P1</td><td>L</td><td>Track 2</td><td>|| D02, D03</td></tr>
+        <tr><td><strong>D02</strong></td><td>GAS Audit</td><td>P1</td><td>M</td><td>Track 2</td><td>|| D01, D03</td></tr>
+        <tr><td><strong>D03</strong></td><td>Orphaned Scripts</td><td>P1</td><td>M</td><td>None</td><td>|| D01, D02</td></tr>
+        <tr><td><strong>D04</strong></td><td>Format Library</td><td>P1</td><td>M</td><td>D01</td><td>After D01</td></tr>
+        <tr><td><strong>D05</strong></td><td>Import Accuracy</td><td>P2</td><td>L</td><td>P1 + Track 2</td><td>Sequential first</td></tr>
+        <tr><td><strong>D06</strong></td><td>Dedup Accuracy</td><td>P2</td><td>L</td><td>D05</td><td>|| D07</td></tr>
+        <tr><td><strong>D07</strong></td><td>Commission Accuracy</td><td>P2</td><td>L</td><td>D05</td><td>|| D06</td></tr>
+        <tr><td><strong>D08</strong></td><td>ACF Accuracy</td><td>P2</td><td>M</td><td>Track 2</td><td>|| D06, D07</td></tr>
+        <tr><td><strong>D09</strong></td><td>Staleness Monitor</td><td>P3</td><td>M</td><td>D01</td><td>|| D10-D13</td></tr>
+        <tr><td><strong>D10</strong></td><td>Scheduled Runs</td><td>P3</td><td>M</td><td>Track 2</td><td>|| D09, D11-D13</td></tr>
+        <tr><td><strong>D11</strong></td><td>Exec Dashboard</td><td>P3</td><td>L</td><td>D01</td><td>|| D09-D10, D12-D13</td></tr>
+        <tr><td><strong>D12</strong></td><td>Gap Detection</td><td>P3</td><td>L</td><td>D01, D04</td><td>|| D09-D11, D13</td></tr>
+        <tr><td><strong>D13</strong></td><td>Queue Absorption</td><td>P3</td><td>M</td><td>Track 2</td><td>|| D09-D12</td></tr>
+        <tr><td><strong>D14</strong></td><td>Completion Audit</td><td>P3</td><td>M</td><td>D01-D13</td><td>Last (needs everything)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Definition of Done &mdash; DEVOUR Gate (CXO Autonomy)</h2>
+      <div class="callout gold">
+        <p><strong>When DEVOUR is complete, MEGAZORD is fully autonomous. No data operation exists outside the CIO's domain. This is the proof of concept for the entire CXO model.</strong></p>
+      </div>
+      <ul>
+        <li>Source registry: 100% of active carriers registered (GREEN/YELLOW/RED)</li>
+        <li>Format library: every GREEN/YELLOW source has an introspection profile</li>
+        <li>GAS migration audit: complete, all ACTIVE functions have ZRD- tickets</li>
+        <li>Orphaned scripts: inventoried, absorbed or archived</li>
+        <li>Import accuracy: known-answer tests passing (3+ carrier formats)</li>
+        <li>Dedup accuracy: zero false positives, zero missed matches (20+ test cases)</li>
+        <li>Commission accuracy: to the penny (2+ carrier statements)</li>
+        <li>ACF accuracy: correct routing for all 5 subfolder types</li>
+        <li>Staleness monitor: live, notifications verified</li>
+        <li>Scheduled wire runs: configured and executing on cadence</li>
+        <li>Execution dashboard: live in Command Center</li>
+        <li>Gap detection: running, critical gaps addressed</li>
+        <li>RONIN/RAIDEN queues: zero data-centric tickets remaining</li>
+        <li>Completion audit: published, CTO signed off</li>
+        <li><code>npm run build</code> passes (11/11)</li>
+        <li><code>npm run type-check</code> passes (13/13)</li>
+      </ul>
+      <div class="quote">"Check ATLAS first" is no longer a reminder from JDM. It's the default. Because MEGAZORD IS ATLAS. And ATLAS knows everything.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>MEGAZORD Track 3: DEVOUR &bull; authored by MUSASHI, ARTxBLADE &bull; 2026-04-05</p>
+  <div class="signoff">&#9876;&#65039; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

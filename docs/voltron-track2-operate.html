@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON Track 2 — OPERATE</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(59,130,246,0.07) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.06) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; position: relative; }
+  .lifecycle-bar { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 20px; position: relative; }
+  .lifecycle-item { padding: 6px 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border: 1px solid var(--border); }
+  .lifecycle-item:first-child { border-radius: 6px 0 0 6px; }
+  .lifecycle-item:last-child { border-radius: 0 6px 6px 0; }
+  .lifecycle-item.done { background: rgba(34,197,94,0.08); color: var(--green); }
+  .lifecycle-item.active { background: var(--blue-glow); color: var(--blue); border-color: rgba(59,130,246,0.5); }
+  .lifecycle-item.inactive { background: rgba(255,255,255,0.03); color: var(--text-muted); }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 40%, #3b82f6 70%, #60a5fa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 14px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 18px; cursor: pointer; font-size: 0.82rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); background: var(--blue-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--blue); }
+  .card h3:first-of-type { margin-top: 8px; }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); font-family: 'SF Mono', monospace; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--blue); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.9; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-purple { color: var(--purple); font-weight: 600; }
+  .ws-header { display: flex; align-items: flex-start; gap: 16px; padding: 20px 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; }
+  .ws-number { font-size: 2.5rem; font-weight: 900; color: var(--blue); opacity: 0.3; line-height: 1; flex-shrink: 0; font-family: 'SF Mono', monospace; }
+  .ws-title { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .ws-sub { font-size: 0.9rem; color: var(--text-muted); }
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0; margin-bottom: 24px; overflow: hidden; }
+  .ticket-header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: rgba(59,130,246,0.05); border-bottom: 1px solid var(--border); }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--blue); background: var(--blue-glow); padding: 3px 10px; border-radius: 4px; white-space: nowrap; }
+  .ticket-title { font-size: 1rem; font-weight: 700; color: var(--text); flex: 1; }
+  .ticket-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag-ws1 { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .tag-ws2 { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .tag-ws3 { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .tag-ws4 { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .tag-ws5 { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-low { background: rgba(34,197,94,0.12); color: var(--green); }
+  .tag-medium { background: rgba(245,158,11,0.12); color: var(--orange); }
+  .tag-high { background: rgba(239,68,68,0.12); color: var(--red); }
+  .tag-ronin-yes { background: rgba(34,197,94,0.12); color: var(--green); }
+  .tag-ronin-no { background: rgba(148,163,184,0.1); color: var(--text-muted); }
+  .ticket-body { padding: 20px; }
+  .ticket-section { margin-bottom: 16px; }
+  .ticket-section:last-child { margin-bottom: 0; }
+  .ticket-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--blue); margin-bottom: 6px; }
+  .ticket-text { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; }
+  .ticket-text ul { margin: 4px 0 0 18px; }
+  .ticket-text li { margin-bottom: 3px; }
+  .ticket-text code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); font-family: 'SF Mono', monospace; }
+  .ticket-meta-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .ticket-meta-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 3px; }
+  .ticket-meta-value { font-size: 0.82rem; color: var(--text); }
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.cyan { border-top: 3px solid var(--cyan); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card.purple { border-top: 3px solid var(--purple); }
+  .spec-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  @media (max-width: 768px) { .three-col { grid-template-columns: 1fr; } .spec-grid { grid-template-columns: 1fr; } }
+  .stat-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--blue); font-family: 'SF Mono', monospace; }
+  .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .callout { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.2); }
+  .callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); }
+  .callout p { margin: 0; }
+  .phase-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .phase-label { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .phase-num { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-glow); border: 1px solid rgba(59,130,246,0.4); color: var(--blue); font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phase-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .phase-subtitle { font-size: 0.8rem; color: var(--text-muted); }
+  .phase-tickets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .phase-ticket-tag { font-family: 'SF Mono', monospace; font-size: 0.75rem; padding: 3px 10px; background: var(--blue-glow); color: var(--blue); border-radius: 4px; border: 1px solid rgba(59,130,246,0.25); }
+  .footer { margin-top: 60px; padding: 40px 32px; border-top: 1px solid var(--border); text-align: center; background: #070b12; }
+  .footer-title { font-size: 0.9rem; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+  .footer-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.8; }
+  .footer-sig { font-size: 1rem; font-weight: 700; color: var(--text); margin-top: 12px; }
+  .footer-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+  .footer-race { font-size: 0.75rem; font-weight: 700; color: var(--blue); letter-spacing: 2px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">CXO Track Discovery</div>
+  <div class="lifecycle-bar">
+    <div class="lifecycle-item done">CONSUME &#10003;</div>
+    <div class="lifecycle-item active">&#9654; OPERATE</div>
+    <div class="lifecycle-item inactive">DEVOUR</div>
+  </div>
+  <h1>VOLTRON Track 2 &mdash; OPERATE</h1>
+  <div class="subtitle">Build 5 CCSDK Lions. Wire the case pipeline. Open intake channels. Track client outcomes. Make VOLTRON self-sufficient as CSO.</div>
+  <div class="header-badges">
+    <span class="badge badge-blue">CSO &mdash; Chief Sales Officer</span>
+    <span class="badge badge-cyan">Track 2 of 3</span>
+    <span class="badge badge-gold">QUE Registry &mdash; 723 Entries</span>
+    <span class="badge badge-green">5 Lions to Build</span>
+    <span class="badge badge-accent">18 Tickets</span>
+  </div>
+  <div class="ronin-meta">Author: MUSASHI, ARTxBLADE &nbsp;|&nbsp; Date: 2026-04-05 &nbsp;|&nbsp; Status: Discovery &nbsp;|&nbsp; Pipeline: RON-discovery &nbsp;|&nbsp; Prefix: VOL-O &nbsp;|&nbsp; Prereq: Track 1 CONSUME</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">OVERVIEW</div>
+    <div class="tab" onclick="showTab('ws1')">LIONS BUILD</div>
+    <div class="tab" onclick="showTab('ws2')">CASE PIPELINE</div>
+    <div class="tab" onclick="showTab('ws3')">INTAKE CHANNELS</div>
+    <div class="tab" onclick="showTab('ws4')">OUTCOME TRACKING</div>
+    <div class="tab" onclick="showTab('ws5')">CXO SELF-SUFFICIENCY</div>
+    <div class="tab" onclick="showTab('tickets')">TICKETS</div>
+    <div class="tab" onclick="showTab('dependencies')">DEPENDENCIES</div>
+    <div class="tab" onclick="showTab('sprint')">SPRINT PLAN</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- OVERVIEW -->
+  <div id="panel-overview" class="panel active">
+    <div class="card">
+      <h2>What Is OPERATE?</h2>
+      <p><strong>OPERATE</strong> is Track 2 of the VOLTRON CXO lifecycle: <strong>CONSUME &rarr; OPERATE &rarr; DEVOUR</strong>. CONSUME built the foundation &mdash; the Command Center, the registry consolidation, the identity documents. OPERATE activates the machine. This is when Lions go live, cases start flowing, and VOLTRON stops being a concept and starts running client outcomes.</p>
+      <p>CONSUME asked: <em>"Does VOLTRON know who he is?"</em> OPERATE asks: <em>"Can VOLTRON run a client case end-to-end without human engineering support?"</em></p>
+      <p>By the end of OPERATE, 5 CCSDK Lions are deployed on MDJ_SERVER, the case pipeline tracks every wire execution in Firestore, 4 intake channels feed client work into the Lions, and VOLTRON can deploy new Lion configurations without a FORGE sprint.</p>
+      <h3>Why This Comes After CONSUME</h3>
+      <p>OPERATE requires everything CONSUME built: the Command Center (where cases and Lion status are visualized), the domain-tagged QUE registry (so Lions know which wires belong to them), the identity documents (so Lions route consistently), and the consolidated backlog (so we know what to build first). Without CONSUME, Lions would route blind.</p>
+      <h3>Why This Comes Before DEVOUR</h3>
+      <p>DEVOUR requires outcome data &mdash; which wires produce correct results, which products have coverage gaps, and where accuracy needs audit. That data only exists after Lions are executing real wires on real client scenarios. OPERATE generates the signal. DEVOUR refines it.</p>
+    </div>
+
+    <div class="card">
+      <h2>Meta</h2>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Type</td><td>Track Discovery</td></tr>
+        <tr><td>Track</td><td>2 of 3 &mdash; OPERATE</td></tr>
+        <tr><td>Lifecycle</td><td>CONSUME &rarr; OPERATE &rarr; DEVOUR</td></tr>
+        <tr><td>Agent</td><td>VOLTRON (CSO &mdash; Chief Sales Officer)</td></tr>
+        <tr><td>Registry</td><td>QUE &mdash; 723 entries, ~100 files, 7,500+ lines</td></tr>
+        <tr><td>Mesh</td><td>5 Lions (Medicare / Annuity / Investment / Life-Estate / Legacy-LTC)</td></tr>
+        <tr><td>Author</td><td>MUSASHI, ARTxBLADE</td></tr>
+        <tr><td>Date</td><td>2026-04-05</td></tr>
+        <tr><td>Status</td><td>Discovery</td></tr>
+        <tr><td>Pipeline</td><td>RON-discovery</td></tr>
+        <tr><td>Ticket Prefix</td><td>VOL-O</td></tr>
+        <tr><td>Total Tickets</td><td>18</td></tr>
+        <tr><td>RONIN-Ready</td><td>14 of 18</td></tr>
+        <tr><td>Prerequisite</td><td>Track 1 CONSUME complete</td></tr>
+      </table>
+    </div>
+
+    <div class="three-col">
+      <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Workstreams</div></div>
+      <div class="stat-card"><div class="stat-num">18</div><div class="stat-label">Tickets</div></div>
+      <div class="stat-card"><div class="stat-num">14</div><div class="stat-label">RONIN-Ready</div></div>
+      <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Lions to Build</div></div>
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Intake Channels</div></div>
+      <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Sprint Phases</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Existing Codebase Inventory</h2>
+      <p>These files exist from CONSUME and prior sprints. OPERATE builds on top of them.</p>
+      <table>
+        <tr><th>Path</th><th>Size</th><th>Role in OPERATE</th></tr>
+        <tr><td><code>packages/ui/src/modules/CommandCenter/</code></td><td>From VOL-C</td><td>Open Cases panel wired to voltron_cases. Lion Status shows live agent health.</td></tr>
+        <tr><td><code>packages/core/src/que/</code></td><td>~100 files, 7,500+ lines</td><td>Wire definitions that Lions execute. Domain-tagged in CONSUME.</td></tr>
+        <tr><td><code>packages/core/src/voltron/</code></td><td>30 files, 17,500+ lines</td><td>VOLTRON core &mdash; registry-generator.ts, specialist routing, wire executor.</td></tr>
+        <tr><td><code>services/api/src/routes/voltron-deploy.ts</code></td><td>566 lines</td><td>Agent deployment &mdash; Lions register here.</td></tr>
+        <tr><td><code>services/api/src/routes/voltron-wire.ts</code></td><td>274 lines</td><td>Wire execution &mdash; case pipeline creates voltron_cases from wire results.</td></tr>
+        <tr><td><code>services/api/src/routes/specialist-configs.ts</code></td><td>118 lines</td><td>Lion CRUD &mdash; WS-5 config UI reads/writes here.</td></tr>
+        <tr><td><code>services/api/src/routes/mdj.ts</code></td><td>318 lines</td><td>MDJ agent routing &mdash; chat-to-Lion dispatch.</td></tr>
+        <tr><td><code>~/Projects/dojo-warriors/voltron/soul.md</code></td><td>From VOL-C</td><td>VOLTRON identity &mdash; Lions read for behavioral consistency.</td></tr>
+        <tr><td><code>~/Projects/dojo-warriors/voltron/spirit.md</code></td><td>From VOL-C</td><td>VOLTRON protocols &mdash; wire rules, AEP blackout, error protocol.</td></tr>
+        <tr><td><code>mdj-agent/</code></td><td>On MDJ_SERVER</td><td>Lions deploy here. <code>mdj-agent/src/lions/</code> is the target directory.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- WS1: LIONS BUILD -->
+  <div id="panel-ws1" class="panel">
+    <div class="ws-header">
+      <div class="ws-number">01</div>
+      <div>
+        <div class="ws-title">Build 5 CCSDK Lion Agents</div>
+        <div class="ws-sub">Each Lion is a CCSDK agent on MDJ_SERVER with product-specific system prompts, QUE wire configs, and domain knowledge. Build order: Medicare &rarr; Annuity &rarr; Investment &rarr; Life/Estate &rarr; Legacy/LTC.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>What This Workstream Builds</h2>
+      <p>5 CCSDK agents, each a product-domain specialist that reads QUE wire definitions and executes end-to-end client workflows. Every Lion gets: a system prompt built from soul.md + spirit.md + domain knowledge, a list of domain-tagged QUE wires it owns, and registration in the specialist_configs Firestore collection.</p>
+      <div class="callout"><p><strong>Lions ARE the specialists.</strong> The existing 5 specialist personas in the MDJ agent become formal CCSDK agents. Same domain expertise. New execution model &mdash; each Lion runs its own QUE wires autonomously and reports results back to VOLTRON.</p></div>
+      <h3>Build Order &mdash; Priority by Client Volume</h3>
+      <table>
+        <tr><th>Priority</th><th>Lion</th><th>Domain</th><th>Primary Wires</th><th>Rationale</th></tr>
+        <tr><td><strong>1</strong></td><td>Medicare Lion</td><td><code>medicare</code></td><td>AEP_ENROLLMENT, COVERAGE_GAP, CALC_IRMAA</td><td>Highest volume. AEP prep critical. Humana + Aetna MCPs already wired.</td></tr>
+        <tr><td><strong>2</strong></td><td>Annuity Lion</td><td><code>annuity</code></td><td>WIRE_INCOME_NOW/LATER, FIA_PROJECTION, SURRENDER_CHARGE</td><td>Core revenue driver. Richest QUE wire coverage.</td></tr>
+        <tr><td><strong>3</strong></td><td>Investment Lion</td><td><code>investment</code></td><td>WIRE_GROWTH_MAX, WIRE_TAX_HARVEST, CALC_RMD</td><td>Gradient RIA/BD integration. Tax season urgency.</td></tr>
+        <tr><td><strong>4</strong></td><td>Life/Estate Lion</td><td><code>life-estate</code></td><td>WIRE_ESTATE_MAX, CALC_ESTATE_ANALYSIS</td><td>Wire exists but tooling needs expansion. Build after core 3.</td></tr>
+        <tr><td><strong>5</strong></td><td>Legacy/LTC Lion</td><td><code>legacy-ltc</code></td><td>WIRE_LTC_MAX, CALC_LTC_PHASE_ACCESS</td><td>Lowest volume. Dr. Aprille domain. Final build.</td></tr>
+      </table>
+      <h3>Per-Lion Deliverables</h3>
+      <ul>
+        <li><code>mdj-agent/src/lions/{domain}-lion.ts</code> &mdash; CCSDK agent definition with system prompt, tool list, wire configs</li>
+        <li><code>mdj-agent/src/lions/{domain}-knowledge.md</code> &mdash; Domain-specific knowledge document loaded into system prompt</li>
+        <li>Firestore <code>specialist_configs</code> entry &mdash; Lion registered with domain, status, and wire assignments</li>
+        <li>Command Center Lion Status panel shows configured + active status for this Lion</li>
+      </ul>
+      <h3>Tickets: VOL-O01 through VOL-O06</h3>
+    </div>
+  </div>
+
+  <!-- WS2: CASE PIPELINE -->
+  <div id="panel-ws2" class="panel">
+    <div class="ws-header">
+      <div class="ws-number">02</div>
+      <div>
+        <div class="ws-title">Case Pipeline</div>
+        <div class="ws-sub">Track every client case from intake to resolution in Firestore. Cases auto-created from wire execution &mdash; not manual entry. Command Center surfaces open cases per Lion domain.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Case Lifecycle</h2>
+      <div class="diagram"><span class="hl-blue">CASE LIFECYCLE</span>
+
+Wire executes &rarr; <span class="hl-cyan">intake</span>
+  |  Case doc created in voltron_cases
+  |  Fields: client_id, wire_name, lion_domain, agent_id, timestamp
+  v
+Lion processes &rarr; <span class="hl-blue">wire_running</span>
+  |  Lion executes QUE wire end-to-end
+  |  Output accumulates in case.wire_output
+  v
+Wire completes &rarr; <span class="hl-gold">output_ready</span>
+  |  Wire output written to case record
+  |  Notification sent to assigned agent
+  v
+Agent reviews &rarr; <span class="hl-green">agent_review</span>
+  |  Agent marks outcome: accepted | revised | escalated
+  |  Revision notes captured for QUE improvement backlog
+  v
+Case closed &rarr; <span class="hl-green">resolved</span>
+  Wire output accepted. Case archived. Feeds DEVOUR analytics.</div>
+
+      <h3>Firestore Schema &mdash; <code>voltron_cases</code></h3>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        <tr><td><code>case_id</code></td><td>string (auto)</td><td>Firestore document ID</td></tr>
+        <tr><td><code>client_id</code></td><td>string</td><td>Client Firestore ID</td></tr>
+        <tr><td><code>client_name</code></td><td>string</td><td>Denormalized display name (first + last)</td></tr>
+        <tr><td><code>wire_name</code></td><td>string</td><td>QUE wire executed (e.g., WIRE_INCOME_NOW)</td></tr>
+        <tr><td><code>lion_domain</code></td><td>string</td><td>medicare | annuity | investment | life-estate | legacy-ltc</td></tr>
+        <tr><td><code>agent_id</code></td><td>string</td><td>Assigned RPI agent</td></tr>
+        <tr><td><code>status</code></td><td>string</td><td>intake | wire_running | output_ready | agent_review | resolved</td></tr>
+        <tr><td><code>intake_channel</code></td><td>string</td><td>mdj_panel | slack | email | command_center</td></tr>
+        <tr><td><code>wire_output</code></td><td>object</td><td>Structured wire execution result</td></tr>
+        <tr><td><code>outcome</code></td><td>string | null</td><td>accepted | revised | escalated</td></tr>
+        <tr><td><code>revision_notes</code></td><td>string | null</td><td>Agent notes on revision/escalation</td></tr>
+        <tr><td><code>created_at</code></td><td>Timestamp</td><td>Case creation time</td></tr>
+        <tr><td><code>updated_at</code></td><td>Timestamp</td><td>Last status change</td></tr>
+        <tr><td><code>resolved_at</code></td><td>Timestamp | null</td><td>Resolution timestamp</td></tr>
+      </table>
+      <h3>Tickets: VOL-O07, VOL-O08, VOL-O09</h3>
+    </div>
+  </div>
+
+  <!-- WS3: INTAKE CHANNELS -->
+  <div id="panel-ws3" class="panel">
+    <div class="ws-header">
+      <div class="ws-number">03</div>
+      <div>
+        <div class="ws-title">Intake Channels</div>
+        <div class="ws-sub">4 entry points for client work to reach VOLTRON's Lions. Each channel creates a voltron_cases record and dispatches to the appropriate Lion.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>4 Intake Channels</h2>
+      <div class="spec-grid">
+        <div class="spec-card blue">
+          <h4>MDJ Panel (Primary)</h4>
+          <p>Existing chat interface in all 3 portals. Agent describes client situation &rarr; VOLTRON identifies product domain &rarr; dispatches to Lion &rarr; output returned to chat.</p>
+          <ul><li>Source: <code>packages/ui/src/modules/MystAI/</code></li><li>Routing: <code>services/api/src/routes/mdj.ts</code></li><li>Priority: <strong>Enhance existing</strong></li></ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Slack Channel</h4>
+          <p>Team drops client name + scenario in dedicated #voltron-cases channel &rarr; VOLTRON picks up &rarr; runs wire &rarr; posts output as threaded reply.</p>
+          <ul><li>Channel: Create <code>#voltron-cases</code></li><li>Monitoring: Cron on MDJ_SERVER, 5 min interval</li><li>Priority: <strong>New build</strong></li></ul>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Email Forward</h4>
+          <p>Forwarded client email &rarr; VOLTRON parses &rarr; identifies product type &rarr; routes to Lion &rarr; drafts response.</p>
+          <ul><li>Inbox: voltron@ alias (JDM creates)</li><li>Monitoring: Gmail MCP, 10 min interval</li><li>Priority: <strong>New build (needs JDM)</strong></li></ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>Command Center &ldquo;Run Wire&rdquo;</h4>
+          <p>Agent selects client + wire from dropdowns &rarr; Lion executes &rarr; case created. Direct-execution path for agents who know what they need.</p>
+          <ul><li>UI: New panel in Command Center</li><li>API: <code>POST /api/voltron-wire/execute</code></li><li>Priority: <strong>Extend existing</strong></li></ul>
+        </div>
+      </div>
+      <div class="callout"><p><strong>All 4 channels feed the same pipeline.</strong> Every intake creates a <code>voltron_cases</code> document with the same schema. The <code>intake_channel</code> field records origin. Command Center shows all work from all sources in a single view.</p></div>
+      <h3>Tickets: VOL-O10, VOL-O11, VOL-O12, VOL-O13</h3>
+    </div>
+  </div>
+
+  <!-- WS4: OUTCOME TRACKING -->
+  <div id="panel-ws4" class="panel">
+    <div class="ws-header">
+      <div class="ws-number">04</div>
+      <div>
+        <div class="ws-title">Client Outcome Tracking</div>
+        <div class="ws-sub">Close the loop on every Lion execution. Agent marks outcome. Revision notes feed QUE improvement. CXO dashboard shows outcome rates.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Outcome Actions</h2>
+      <table>
+        <tr><th>Outcome</th><th>Meaning</th><th>What Happens</th></tr>
+        <tr><td><strong style="color:var(--green)">Accepted</strong></td><td>Wire output was correct. Agent delivered to client.</td><td>Case resolved. No further action.</td></tr>
+        <tr><td><strong style="color:var(--orange)">Revised</strong></td><td>Output partially correct, agent modified before delivery.</td><td>Revision notes captured. Feeds QUE improvement backlog.</td></tr>
+        <tr><td><strong style="color:var(--red)">Escalated</strong></td><td>Output wrong or case too complex for the Lion.</td><td>Escalation notes captured. May trigger new tool request.</td></tr>
+      </table>
+      <h3>CXO Dashboard Metrics</h3>
+      <ul>
+        <li><strong>Acceptance Rate by Lion:</strong> % of cases per Lion where outcome = accepted. Target: &gt;85%.</li>
+        <li><strong>Acceptance Rate by Wire:</strong> Which wires produce correct results? Which need refinement?</li>
+        <li><strong>Escalation Trends:</strong> Are escalations decreasing over time?</li>
+        <li><strong>Resolution Time:</strong> Average time from intake to resolved per Lion domain.</li>
+        <li><strong>Revision Note Patterns:</strong> Common reasons &rarr; prioritized QUE improvement tickets.</li>
+      </ul>
+      <h3>Tickets: VOL-O14, VOL-O15</h3>
+    </div>
+  </div>
+
+  <!-- WS5: CXO SELF-SUFFICIENCY -->
+  <div id="panel-ws5" class="panel">
+    <div class="ws-header">
+      <div class="ws-number">05</div>
+      <div>
+        <div class="ws-title">CXO Self-Sufficiency</div>
+        <div class="ws-sub">VOLTRON as CSO should not require a FORGE sprint to manage his domain. Lion config UI, wire admin, and gap request workflow.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="callout gold"><p><strong>This is what makes VOLTRON a CXO, not just an agent.</strong> An agent uses tools. A CXO manages their own tools, monitors outcomes, and requests new capabilities &mdash; all without blocking on engineering.</p></div>
+      <div class="spec-grid">
+        <div class="spec-card blue">
+          <h4>Lion Config UI</h4>
+          <p>Admin panel in Command Center for managing Lion specialist configs. Update system prompts, wire assignments, domain knowledge, enabled/disabled status.</p>
+          <ul><li>CRUD on specialist_configs Firestore</li><li>Prompt editor with live preview</li><li>Wire assignment multi-select</li><li>Enable/disable toggle per Lion</li></ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Wire Admin Panel</h4>
+          <p>View all QUE wires by domain with execution stats: total runs, success rate, last executed. Flag wires for improvement.</p>
+          <ul><li>Wire list with execution stats</li><li>Flag for improvement (creates backlog)</li><li>Domain filter from CONSUME tagging</li></ul>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Gap Request Workflow</h4>
+          <p>When VOLTRON identifies a missing wire during case processing, create a structured gap request from Command Center. Domain, description, scenario, expected output.</p>
+          <ul><li>Firestore: voltron_gap_requests</li><li>Surfaces in War Room for CTO review</li><li>Input for MUSASHI Discovery Docs</li></ul>
+        </div>
+      </div>
+      <h3>Tickets: VOL-O16, VOL-O17, VOL-O18</h3>
+    </div>
+  </div>
+
+  <!-- TICKETS -->
+  <div id="panel-tickets" class="panel">
+    <div class="card" style="margin-bottom: 24px;">
+      <h2>All Tickets &mdash; VOL-O (18 Total)</h2>
+      <table>
+        <tr><th>ID</th><th>Title</th><th>WS</th><th>Complexity</th><th>RONIN-Ready</th></tr>
+        <tr><td><code>VOL-O01</code></td><td>Build Lion agent base class + shared infrastructure</td><td>WS1</td><td>High</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O02</code></td><td>Build Medicare Lion CCSDK agent</td><td>WS1</td><td>High</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O03</code></td><td>Build Annuity Lion CCSDK agent</td><td>WS1</td><td>High</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O04</code></td><td>Build Investment Lion CCSDK agent</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O05</code></td><td>Build Life/Estate Lion CCSDK agent</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O06</code></td><td>Build Legacy/LTC Lion CCSDK agent</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O07</code></td><td>Create voltron_cases Firestore collection + schema</td><td>WS2</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O08</code></td><td>Wire case auto-creation into voltron-wire execution</td><td>WS2</td><td>High</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O09</code></td><td>Build cases API route + Command Center integration</td><td>WS2</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O10</code></td><td>Enhance MDJ Panel with Lion dispatch + case tracking</td><td>WS3</td><td>High</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O11</code></td><td>Build Slack intake channel monitor</td><td>WS3</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O12</code></td><td>Build email intake channel monitor</td><td>WS3</td><td>Medium</td><td>No &mdash; JDM (email alias)</td></tr>
+        <tr><td><code>VOL-O13</code></td><td>Build Command Center Run Wire manual trigger</td><td>WS3</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O14</code></td><td>Build agent outcome review UI (Accept/Revise/Escalate)</td><td>WS4</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-O15</code></td><td>Build CXO outcome dashboard in Command Center</td><td>WS4</td><td>High</td><td>No &mdash; JDM (metrics)</td></tr>
+        <tr><td><code>VOL-O16</code></td><td>Build Lion Config UI in Command Center</td><td>WS5</td><td>High</td><td>No &mdash; JDM (scope)</td></tr>
+        <tr><td><code>VOL-O17</code></td><td>Build Wire Admin panel with execution stats</td><td>WS5</td><td>Medium</td><td>No &mdash; JDM (scope)</td></tr>
+        <tr><td><code>VOL-O18</code></td><td>Build Gap Request workflow</td><td>WS5</td><td>Low</td><td>Yes</td></tr>
+      </table>
+    </div>
+
+    <!-- VOL-O01 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O01</div><div class="ticket-title">Build Lion agent base class + shared infrastructure</div><div class="ticket-tags"><span class="tag tag-ws1">WS1</span><span class="tag tag-high">High</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Create shared Lion agent infrastructure on MDJ_SERVER: base Lion class all 5 domain Lions extend, shared prompt template loading (soul.md + spirit.md + domain knowledge), QUE wire registry lookup by domain, and structured result reporting back to VOLTRON. Handles: loading specialist_configs from Firestore, building system prompt, registering available tools from domain-tagged QUE registry, writing case records to voltron_cases.</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/lions/base-lion.ts</code></li><li>Create: <code>mdj-agent/src/lions/lion-types.ts</code></li><li>Create: <code>mdj-agent/src/lions/lion-registry.ts</code></li><li>Read: <code>~/Projects/dojo-warriors/voltron/soul.md</code></li><li>Read: <code>~/Projects/dojo-warriors/voltron/spirit.md</code></li><li>Read: <code>packages/core/src/voltron/voltron-registry.json</code></li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li><code>BaseLion</code> class instantiates with a domain string and loads correct specialist_config from Firestore</li><li>System prompt built from: soul.md base + spirit.md protocols + domain-specific knowledge.md</li><li>Available tools filtered from QUE registry by <code>domain</code> field matching Lion's domain</li><li><code>lion-registry.ts</code> exports function returning correct Lion class for a given domain</li><li>TypeScript types exported: <code>LionConfig</code>, <code>LionWireResult</code>, <code>CaseRecord</code></li><li>Build passes on MDJ_SERVER</li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Test Plan</div><div class="ticket-text">Instantiate BaseLion with domain "medicare". Verify: system prompt includes soul.md content, spirit.md AEP blackout, placeholder for medicare-knowledge.md. Verify tool list contains only medicare-domain tools. Build passes.</div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">Track 1 CONSUME complete</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 &mdash; Lions Build</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O02 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O02</div><div class="ticket-title">Build Medicare Lion CCSDK agent</div><div class="ticket-tags"><span class="tag tag-ws1">WS1</span><span class="tag tag-high">High</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">First and highest-priority CCSDK Lion. Extends BaseLion with Medicare-specific knowledge, AEP blackout enforcement, and Humana + Aetna healthcare MCPs. Handles: MAPD comparison, supplement quoting, IRMAA calculation, T65 eligibility, AEP enrollment gating. Enforces AEP blackout (Oct 1 &ndash; Dec 7) at wire execution level.</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/lions/medicare-lion.ts</code></li><li>Create: <code>mdj-agent/src/lions/medicare-knowledge.md</code></li><li>Modify: <code>mdj-agent/src/lions/lion-registry.ts</code></li><li>Read: <code>packages/core/src/que/calc/</code> &mdash; CALC_IRMAA</li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Loads all <code>domain == "medicare"</code> tools from QUE registry</li><li>AEP blackout: requests outside Oct 1&ndash;Dec 7 return <code>{ success: false, error: "AEP window not open", next_window: "Oct 1 20XX" }</code></li><li>Healthcare MCPs accessible: humana_get_medicare_plans, aetna_search_insurance_plans</li><li>CALC_IRMAA callable &mdash; returns correct surcharge for given MAGI</li><li>Specialist config written to Firestore: specialist_configs/medicare</li><li>Build passes on MDJ_SERVER</li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Test Plan</div><div class="ticket-text"><ul><li>"What MAPD plans for 50265?" &rarr; Medicare Lion activates, returns plan data</li><li>"Enroll client in MAPD" on Sept 30 &rarr; AEP blackout error</li><li>CALC_IRMAA with MAGI $106,001 &rarr; correct surcharge tier</li></ul></div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 &mdash; Lions Build</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O03 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O03</div><div class="ticket-title">Build Annuity Lion CCSDK agent</div><div class="ticket-tags"><span class="tag tag-ws1">WS1</span><span class="tag tag-high">High</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Extends BaseLion with annuity domain: FIA/MYGA rates, income riders, surrender schedules, 1035 exchange analysis. Richest QUE coverage. Owns WIRE_INCOME_NOW, WIRE_INCOME_LATER, and all surrender/projection calc tools.</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/lions/annuity-lion.ts</code></li><li>Create: <code>mdj-agent/src/lions/annuity-knowledge.md</code></li><li>Modify: <code>mdj-agent/src/lions/lion-registry.ts</code></li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Loads all <code>domain == "annuity"</code> tools</li><li>WIRE_INCOME_NOW executable &mdash; returns income projection</li><li>CALC_FIA_PROJECTION callable &mdash; floor/cap logic verified</li><li>CALC_SURRENDER_CHARGE callable &mdash; returns charge by year</li><li>Build passes on MDJ_SERVER</li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Test Plan</div><div class="ticket-text"><ul><li>"Project income from $200K FIA with 5% GMIB" &rarr; returns projection</li><li>"Surrender charge on 3-year-old Allianz 222?" &rarr; year-specific charge</li></ul></div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 &mdash; Lions Build</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O04 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O04</div><div class="ticket-title">Build Investment Lion CCSDK agent</div><div class="ticket-tags"><span class="tag tag-ws1">WS1</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Extends BaseLion with investment domain: RIA/BD accounts via Gradient (Schwab + RBC), tax harvesting, RMD planning, portfolio analysis. Owns WIRE_GROWTH_MAX, WIRE_TAX_HARVEST, all RMD/tax calc tools.</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/lions/investment-lion.ts</code></li><li>Create: <code>mdj-agent/src/lions/investment-knowledge.md</code></li><li>Modify: <code>mdj-agent/src/lions/lion-registry.ts</code></li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Loads all <code>domain == "investment"</code> tools</li><li>CALC_RMD: age 75 + $340K &rarr; factor 22.9, amount $14,847.54</li><li>CALC_TAX_HARVEST callable &mdash; identifies harvest opportunities</li><li>Build passes</li></ul></div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 &mdash; Lions Build</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O05 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O05</div><div class="ticket-title">Build Life/Estate Lion CCSDK agent</div><div class="ticket-tags"><span class="tag tag-ws1">WS1</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Extends BaseLion with life insurance and estate planning. Owns WIRE_ESTATE_MAX, CALC_ESTATE_ANALYSIS, CALC_HOUSEHOLD_AGGREGATE. Carrier-specific illustration tooling has known gaps &mdash; Lion operates with current tools, gaps tracked for DEVOUR.</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/lions/life-estate-lion.ts</code></li><li>Create: <code>mdj-agent/src/lions/life-estate-knowledge.md</code></li><li>Modify: <code>mdj-agent/src/lions/lion-registry.ts</code></li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Loads all <code>domain == "life-estate"</code> tools</li><li>WIRE_ESTATE_MAX executable</li><li>Known gaps documented in knowledge.md (not hidden)</li><li>Build passes</li></ul></div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 &mdash; Lions Build</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O06 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O06</div><div class="ticket-title">Build Legacy/LTC Lion CCSDK agent</div><div class="ticket-tags"><span class="tag tag-ws1">WS1</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Extends BaseLion with LTC and legacy planning. Dr. Aprille Trupiano's domain. Owns WIRE_LTC_MAX, CALC_LTC_PHASE_ACCESS. Must handle hybrid LTC product questions honestly (acknowledge limitation, not hallucinate).</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/lions/legacy-ltc-lion.ts</code></li><li>Create: <code>mdj-agent/src/lions/legacy-ltc-knowledge.md</code></li><li>Modify: <code>mdj-agent/src/lions/lion-registry.ts</code></li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Loads all <code>domain == "legacy-ltc"</code> tools</li><li>Hybrid LTC queries return honest capability assessment, not fabricated data</li><li>Build passes</li></ul></div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 &mdash; Lions Build</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O07 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O07</div><div class="ticket-title">Create voltron_cases Firestore collection + schema</div><div class="ticket-tags"><span class="tag tag-ws2">WS2</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Define voltron_cases Firestore schema in @tomachina/core. Add collection to firestore.rules under isRPIUser(). Create TypeScript interface (VoltronCase, CaseStatus, CaseOutcome). Add seed script for dev testing.</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>packages/core/src/voltron/case-types.ts</code></li><li>Modify: <code>firestore.rules</code></li><li>Modify: <code>packages/core/src/index.ts</code></li><li>Create: <code>services/api/src/scripts/seed-voltron-case.ts</code></li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>VoltronCase interface matches schema (all 14 fields typed)</li><li>CaseStatus enum: intake | wire_running | output_ready | agent_review | resolved</li><li>firestore.rules includes voltron_cases under isRPIUser()</li><li><code>npm run type-check</code> passes (13/13), <code>npm run build</code> passes (11/11)</li></ul></div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">None</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS2 &mdash; Case Pipeline</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O08 -->
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-id">VOL-O08</div><div class="ticket-title">Wire case auto-creation into voltron-wire execution</div><div class="ticket-tags"><span class="tag tag-ws2">WS2</span><span class="tag tag-high">High</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div>
+      <div class="ticket-body">
+        <div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Modify voltron-wire.ts so every wire execution auto-creates a voltron_cases doc. Status progression: intake &rarr; wire_running &rarr; output_ready. If wire fails, case still created with error in wire_output. Existing API contract unchanged.</div></div>
+        <div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Modify: <code>services/api/src/routes/voltron-wire.ts</code></li><li>Read: <code>packages/core/src/voltron/case-types.ts</code></li></ul></div></div>
+        <div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Every wire execution creates voltron_cases doc with status progression</li><li>Case includes: client_id, wire_name, lion_domain, intake_channel, timestamps</li><li>Failed wires still create case (with error output)</li><li>Existing API response shape unchanged</li><li><code>npm run type-check</code> + <code>npm run build</code> pass</li></ul></div></div>
+        <div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O07</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS2 &mdash; Case Pipeline</div></div></div>
+      </div>
+    </div>
+
+    <!-- VOL-O09 through VOL-O18 (compact format) -->
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O09</div><div class="ticket-title">Build cases API route + Command Center integration</div><div class="ticket-tags"><span class="tag tag-ws2">WS2</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Create <code>voltron-cases.ts</code> API route: GET (list, filter by status/domain/agent), GET /:id (detail), PATCH /:id (outcome + resolution). Wire Command Center Open Cases panel to real API.</div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>services/api/src/routes/voltron-cases.ts</code></li><li>Modify: <code>services/api/src/index.ts</code></li><li>Modify: <code>packages/ui/src/modules/CommandCenter/</code></li></ul></div></div><div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>GET /api/voltron-cases filterable by status, lion_domain, agent_id</li><li>PATCH accepts outcome + revision_notes</li><li>Command Center Open Cases shows live data</li><li>Build passes</li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O07, VOL-O08</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O10</div><div class="ticket-title">Enhance MDJ Panel with Lion dispatch + case tracking</div><div class="ticket-tags"><span class="tag tag-ws3">WS3</span><span class="tag tag-high">High</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Enhance MDJ Panel so VOLTRON identifies product domain, dispatches to correct Lion, shows Lion name in chat UI, and creates voltron_cases record. Non-product queries still handled directly.</div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Modify: <code>packages/ui/src/modules/MystAI/MystAIPage.tsx</code></li><li>Modify: <code>services/api/src/routes/mdj.ts</code></li></ul></div></div><div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Lion dispatch indicator in chat UI</li><li>voltron_cases record with intake_channel = "mdj_panel"</li><li>No regression in existing functionality</li><li>Build passes</li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01, VOL-O02, VOL-O08</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O11</div><div class="ticket-title">Build Slack intake channel monitor</div><div class="ticket-tags"><span class="tag tag-ws3">WS3</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Cron job on MDJ_SERVER monitoring #voltron-cases Slack channel. Parse client + scenario, dispatch to Lion, post wire output as threaded reply. Dedup via message timestamp tracking.</div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/intake/slack-monitor.ts</code></li><li>Create: <code>mdj-agent/src/intake/intake-types.ts</code></li></ul></div></div><div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>5-minute cron on MDJ_SERVER</li><li>voltron_cases with intake_channel = "slack"</li><li>Threaded Slack reply with wire output</li><li>No reprocessing of handled messages</li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01, VOL-O08</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O12</div><div class="ticket-title">Build email intake channel monitor</div><div class="ticket-tags"><span class="tag tag-ws3">WS3</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-no">Needs JDM</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Cron on MDJ_SERVER monitoring voltron@ inbox via Gmail MCP. Parse sender + body, dispatch to Lion, draft response to case record. <strong>Requires JDM to create email alias first.</strong></div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>mdj-agent/src/intake/email-monitor.ts</code></li></ul></div></div><div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>10-minute cron</li><li>voltron_cases with intake_channel = "email"</li><li>Processed emails marked as read</li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O01, VOL-O08 + JDM email alias</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--red)">No &mdash; JDM (email alias)</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O13</div><div class="ticket-title">Build Command Center Run Wire manual trigger</div><div class="ticket-tags"><span class="tag tag-ws3">WS3</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Run Wire panel in Command Center. Client search dropdown + wire selector (domain-filtered) + Execute button. Creates voltron_cases with intake_channel = "command_center".</div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>packages/ui/src/modules/CommandCenter/RunWirePanel.tsx</code></li><li>Modify: <code>packages/ui/src/modules/CommandCenter/CommandCenterPage.tsx</code></li></ul></div></div><div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Client type-ahead search (title-case normalized)</li><li>Wire selector filtered by domain</li><li>Execute calls POST /api/voltron-wire/execute</li><li>Result inline with case status</li><li>Build passes</li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O08, VOL-O09</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O14</div><div class="ticket-title">Build agent outcome review UI</div><div class="ticket-tags"><span class="tag tag-ws4">WS4</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Inline review widget for output_ready cases. Three buttons: Accept (one-click resolve) | Revise (notes + submit) | Escalate (notes + submit). Reusable in MDJ Panel and Command Center.</div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>packages/ui/src/modules/CommandCenter/CaseReviewWidget.tsx</code></li><li>Modify: <code>packages/ui/src/modules/MystAI/MystAIPage.tsx</code></li></ul></div></div><div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>Accept: status &rarr; resolved, outcome &rarr; accepted</li><li>Revise: status &rarr; resolved, outcome &rarr; revised + notes</li><li>Escalate: status &rarr; resolved, outcome &rarr; escalated + notes</li><li>Buttons disabled during API call</li><li>Build passes</li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O09</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O15</div><div class="ticket-title">Build CXO outcome dashboard</div><div class="ticket-tags"><span class="tag tag-ws4">WS4</span><span class="tag tag-high">High</span><span class="tag tag-ronin-no">Needs JDM</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Analytics panel: acceptance rate by Lion, top wires by volume, escalation trends (30-day), avg resolution time. Server-side aggregation. <strong>Needs JDM metric priorities.</strong></div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>packages/ui/src/modules/CommandCenter/OutcomeDashboard.tsx</code></li><li>Create: <code>services/api/src/routes/voltron-analytics.ts</code></li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O09, VOL-O14</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--red)">No &mdash; JDM (metric priorities)</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O16</div><div class="ticket-title">Build Lion Config UI</div><div class="ticket-tags"><span class="tag tag-ws5">WS5</span><span class="tag tag-high">High</span><span class="tag tag-ronin-no">Needs JDM</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">Admin panel: CRUD on specialist_configs. Edit system prompts, wire assignments, enable/disable toggle. No delete action (safety). <strong>Needs JDM scope approval.</strong></div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>packages/ui/src/modules/CommandCenter/LionConfigAdmin.tsx</code></li><li>Modify: <code>services/api/src/routes/specialist-configs.ts</code></li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O02 through VOL-O06</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--red)">No &mdash; JDM (config scope)</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O17</div><div class="ticket-title">Build Wire Admin panel</div><div class="ticket-tags"><span class="tag tag-ws5">WS5</span><span class="tag tag-medium">Medium</span><span class="tag tag-ronin-no">Needs JDM</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">QUE wires by domain with execution stats. Flag-for-improvement creates voltron_gap_requests doc. Read-only + flag only. <strong>Needs JDM flag workflow approval.</strong></div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>packages/ui/src/modules/CommandCenter/WireAdminPanel.tsx</code></li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-O15</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--red)">No &mdash; JDM (flag workflow)</div></div></div></div></div>
+
+    <div class="ticket"><div class="ticket-header"><div class="ticket-id">VOL-O18</div><div class="ticket-title">Build Gap Request workflow</div><div class="ticket-tags"><span class="tag tag-ws5">WS5</span><span class="tag tag-low">Low</span><span class="tag tag-ronin-yes">RONIN-Ready</span></div></div><div class="ticket-body"><div class="ticket-section"><div class="ticket-label">Description</div><div class="ticket-text">voltron_gap_requests Firestore collection + form in Command Center. Fields: domain, description, scenario, expected output, priority. Surfaces in War Room for CTO review.</div></div><div class="ticket-section"><div class="ticket-label">File Paths</div><div class="ticket-text"><ul><li>Create: <code>packages/core/src/voltron/gap-request-types.ts</code></li><li>Create: <code>services/api/src/routes/voltron-gap-requests.ts</code></li><li>Modify: <code>firestore.rules</code></li><li>Create: <code>packages/ui/src/modules/CommandCenter/GapRequestForm.tsx</code></li></ul></div></div><div class="ticket-section"><div class="ticket-label">Acceptance Criteria</div><div class="ticket-text"><ul><li>voltron_gap_requests in firestore.rules</li><li>POST + GET endpoints</li><li>Form with domain selector, description, scenario, priority</li><li>Build passes</li></ul></div></div><div class="ticket-meta-row"><div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">None</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Low</div></div><div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div></div></div></div>
+  </div>
+
+  <!-- DEPENDENCIES -->
+  <div id="panel-dependencies" class="panel">
+    <div class="card">
+      <h2>Dependency Graph</h2>
+      <div class="diagram"><span class="hl-blue">TRACK 1: CONSUME</span> (prerequisite)
+  |  Command Center scaffold, QUE domain-tagged, soul.md, spirit.md
+  v
+
+<span class="hl-blue">PHASE 1: Foundation</span> (no deps)
+  VOL-O01 (Base Lion)  |  VOL-O07 (Cases schema)  |  VOL-O18 (Gap requests)
+                           |
+<span class="hl-blue">PHASE 2: Core Lions + Pipeline</span>
+  VOL-O02 (Medicare)   |  VOL-O03 (Annuity)  |  VOL-O04 (Investment)
+  VOL-O08 (Case auto-creation)
+                           |
+<span class="hl-blue">PHASE 3: Remaining Lions + API + Intake</span>
+  VOL-O05 + 006 (Life + Legacy Lions)
+  VOL-O09 (Cases API + CC)
+  VOL-O10 (MDJ Panel enhance)  |  VOL-O11 (Slack monitor)
+                           |
+<span class="hl-blue">PHASE 4: Outcome + Manual Trigger</span>
+  VOL-O13 (Run Wire)  |  VOL-O14 (Outcome review UI)
+                           |
+<span class="hl-gold">JDM GATE</span>: VOL-O12 (email alias), 015 (metrics), 016 (config scope), 017 (flag workflow)
+                           |
+<span class="hl-blue">PHASE 5: CXO Layer + Build</span>
+  VOL-O12 + 015 + 016 + 017 (all after JDM approval)</div>
+    </div>
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <tr><th>Dependency</th><th>Owner</th><th>Blocks</th><th>Status</th></tr>
+        <tr><td>Track 1 CONSUME complete</td><td>RONIN</td><td>All VOL-O</td><td>Prerequisite</td></tr>
+        <tr><td>MDJ_SERVER running (Tailscale)</td><td>Infrastructure</td><td>All Lion builds</td><td>Live (100.99.181.57)</td></tr>
+        <tr><td>voltron@ email alias</td><td>JDM</td><td>VOL-O12</td><td>Not yet created</td></tr>
+        <tr><td>#voltron-cases Slack channel</td><td>JDM</td><td>VOL-O11</td><td>Not yet created</td></tr>
+        <tr><td>Humana + Aetna MCPs</td><td>rpi-healthcare</td><td>VOL-O02</td><td>Already configured</td></tr>
+        <tr><td>soul.md + spirit.md approved</td><td>JDM</td><td>VOL-O01</td><td>Created in CONSUME</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Cross-Track Dependencies</h2>
+      <table>
+        <tr><th>From</th><th>To</th><th>What Flows</th></tr>
+        <tr><td>VOL-C (CONSUME)</td><td>VOL-O (OPERATE)</td><td>Command Center scaffold, domain-tagged registry, soul.md, spirit.md, backlog</td></tr>
+        <tr><td>VOL-O (OPERATE)</td><td>VOL-D (DEVOUR)</td><td>Live Lions generating outcome data, case pipeline for accuracy, gap requests</td></tr>
+        <tr><td>VOL-O (OPERATE)</td><td>MEGAZORD</td><td>MEGAZORD imports data to Firestore, Lions read fresh data</td></tr>
+        <tr><td>VOL-O (OPERATE)</td><td>MUSASHI</td><td>Gap requests surface material needs. AEP prep requires campaign materials.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SPRINT PLAN -->
+  <div id="panel-sprint" class="panel">
+    <div class="card">
+      <h2>Sprint Plan &mdash; 5 Phases</h2>
+      <p>Maximally parallel. Lions 1&ndash;3 build simultaneously. Case pipeline builds in parallel with Lions. JDM gates clearly marked &mdash; RONIN does not wait for them to start other work.</p>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label"><div class="phase-num">1</div><div><div class="phase-title">Phase 1 &mdash; Foundation (Parallel, No Dependencies)</div><div class="phase-subtitle">Day 0-1. Base infrastructure. All independent.</div></div></div>
+      <div class="phase-tickets"><span class="phase-ticket-tag">VOL-O01</span><span class="phase-ticket-tag">VOL-O07</span><span class="phase-ticket-tag">VOL-O18</span></div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);"><strong style="color:var(--text)">VOL-O01:</strong> Base Lion class. All 5 Lions extend this.<br><strong style="color:var(--text)">VOL-O07:</strong> voltron_cases Firestore schema + types + rules.<br><strong style="color:var(--text)">VOL-O18:</strong> Gap request collection + form.</div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label"><div class="phase-num">2</div><div><div class="phase-title">Phase 2 &mdash; Core Lions + Case Pipeline (Parallel)</div><div class="phase-subtitle">Day 1-3. Three highest-priority Lions. Case pipeline wires in.</div></div></div>
+      <div class="phase-tickets"><span class="phase-ticket-tag">VOL-O02</span><span class="phase-ticket-tag">VOL-O03</span><span class="phase-ticket-tag">VOL-O04</span><span class="phase-ticket-tag">VOL-O08</span></div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);"><strong style="color:var(--text)">VOL-O02:</strong> Medicare Lion (priority 1).<br><strong style="color:var(--text)">VOL-O03:</strong> Annuity Lion (priority 2).<br><strong style="color:var(--text)">VOL-O04:</strong> Investment Lion (priority 3).<br><strong style="color:var(--text)">VOL-O08:</strong> Wire case auto-creation.</div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label"><div class="phase-num">3</div><div><div class="phase-title">Phase 3 &mdash; Remaining Lions + API + Intake (Parallel)</div><div class="phase-subtitle">Day 3-5. Final 2 Lions. Cases API live. Primary intake enhanced.</div></div></div>
+      <div class="phase-tickets"><span class="phase-ticket-tag">VOL-O05</span><span class="phase-ticket-tag">VOL-O06</span><span class="phase-ticket-tag">VOL-O09</span><span class="phase-ticket-tag">VOL-O10</span><span class="phase-ticket-tag">VOL-O11</span></div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);"><strong style="color:var(--text)">VOL-O05 + 006:</strong> Life/Estate + Legacy/LTC Lions.<br><strong style="color:var(--text)">VOL-O09:</strong> Cases API + Command Center wiring.<br><strong style="color:var(--text)">VOL-O10:</strong> MDJ Panel Lion dispatch.<br><strong style="color:var(--text)">VOL-O11:</strong> Slack intake monitor.</div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label"><div class="phase-num">4</div><div><div class="phase-title">Phase 4 &mdash; Outcome UI + Manual Trigger (Parallel)</div><div class="phase-subtitle">Day 5-6. Feedback loop closes. Direct execution opens.</div></div></div>
+      <div class="phase-tickets"><span class="phase-ticket-tag">VOL-O13</span><span class="phase-ticket-tag">VOL-O14</span></div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);"><strong style="color:var(--text)">VOL-O13:</strong> Command Center Run Wire panel.<br><strong style="color:var(--text)">VOL-O14:</strong> Agent outcome review UI.</div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label"><div class="phase-num" style="background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: var(--red);">!</div><div><div class="phase-title" style="color:var(--red)">JDM Gate &mdash; 4 Tickets Need Approval</div><div class="phase-subtitle">Do NOT block Phase 1&ndash;4.</div></div></div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25)">VOL-O12 Email alias</span>
+        <span class="phase-ticket-tag" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25)">VOL-O15 Metrics</span>
+        <span class="phase-ticket-tag" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25)">VOL-O16 Config scope</span>
+        <span class="phase-ticket-tag" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25)">VOL-O17 Flag workflow</span>
+      </div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label"><div class="phase-num">5</div><div><div class="phase-title">Phase 5 &mdash; CXO Layer + Build Verification</div><div class="phase-subtitle">Day 6-8. Self-sufficiency UI. Full build pass.</div></div></div>
+      <div class="phase-tickets"><span class="phase-ticket-tag">VOL-O12</span><span class="phase-ticket-tag">VOL-O15</span><span class="phase-ticket-tag">VOL-O16</span><span class="phase-ticket-tag">VOL-O17</span><span class="phase-ticket-tag">npm run build</span></div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+      <h2>OPERATE Complete &mdash; Gate to DEVOUR</h2>
+      <p>OPERATE is complete when ALL of the following are true:</p>
+      <table>
+        <tr><th>Exit Condition</th><th>Verified By</th></tr>
+        <tr><td>5 CCSDK Lions deployed on MDJ_SERVER + registered in specialist_configs</td><td>SSH mdj1, verify Lion processes + Firestore has 5 entries</td></tr>
+        <tr><td>voltron_cases collection populated from real wire executions</td><td>Firestore query: count &gt; 0 with real data</td></tr>
+        <tr><td>MDJ Panel routes to correct Lion based on product domain</td><td>Test Medicare/Annuity/Investment queries dispatch correctly</td></tr>
+        <tr><td>At least 2 additional intake channels active</td><td>Slack monitor cron running + Run Wire panel functional</td></tr>
+        <tr><td>Agent outcome review UI functional</td><td>Test case Accept &rarr; verify resolved in Firestore</td></tr>
+        <tr><td>npm run build passes (11/11)</td><td>CI output</td></tr>
+        <tr><td>npm run type-check passes (13/13)</td><td>CI output</td></tr>
+      </table>
+      <p style="margin-top:16px;">When all 7 conditions are met: <strong style="color:var(--blue)">OPERATE is done. Track 3 (DEVOUR) begins.</strong></p>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<div class="footer">
+  <div class="footer-title">VOLTRON CXO Series &mdash; Track Discovery 2 of 3</div>
+  <div class="footer-sub">
+    Track 1: CONSUME (Absorb QUE, Consolidate, Build Foundation)<br>
+    Track 2: OPERATE (Lions execute, wires run, cases flow, intakes open)<br>
+    Track 3: DEVOUR (Scale, audit, proactive Lions, full CSO posture)
+  </div>
+  <div class="footer-sig">&#x2694;&#xFE0F; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="footer-sub" style="margin-top:8px;">MUSASHI, VP CMO &mdash; ARTxBLADE</div>
+  <div class="footer-date">2026-04-05 &mdash; Retirement Protectors, Inc.</div>
+  <div class="footer-race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    const panel = document.getElementById('panel-' + id);
+    if (panel) panel.classList.add('active');
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => {
+      if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + id + "'")) {
+        t.classList.add('active');
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
