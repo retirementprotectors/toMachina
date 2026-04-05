@@ -20,7 +20,7 @@
 
 ## CONSUME — Track 1 (Current)
 
-> Source: `docs/voltron-track1-consume.html`
+> Source: `docs/tracks/voltron-track1-consume.html`
 
 | ID | Title | Complexity | RONIN-Ready | Status |
 |---|---|---|---|---|
@@ -44,7 +44,7 @@
 
 ## OPERATE — Track 2
 
-> Source: `docs/voltron-track2-operate.html` | 18 tickets (VOL-O01 through VOL-O18)
+> Source: `docs/tracks/voltron-track2-operate.html` | 18 tickets (VOL-O01 through VOL-O18)
 > Lions execute. Wire logs populate. AEP enforcement live.
 
 | ID | Title (inferred from doc) | Priority | RONIN-Ready |
@@ -62,7 +62,7 @@
 
 ## DEVOUR — Track 3
 
-> Source: `docs/voltron-track3-devour.html` | 17 tickets (VOL-D01 through VOL-D17)
+> Source: `docs/tracks/voltron-track3-devour.html` | 17 tickets (VOL-D01 through VOL-D17)
 > VOLTRON scales. Multi-Lion orchestration. Full CSO posture.
 
 | ID | Title (inferred from doc) | Priority | RONIN-Ready |
@@ -73,7 +73,7 @@
 
 ## Sprint 002 — VOLTRON Action Engine (Legacy)
 
-> Source: `docs/sprint-002-voltron-action-engine-v3-plan.html` | 18 tickets
+> Source: `docs/discoveries/sprint-002-voltron-action-engine-v3-plan.html` | 18 tickets
 
 | ID | Title | Track Tag | Status |
 |---|---|---|---|
@@ -100,7 +100,7 @@
 
 ## Infrastructure (Open)
 
-> Source: `docs/mdj-infrastructure-master-discovery.html`
+> Source: `docs/discoveries/mdj-infrastructure-master-discovery.html`
 
 | ID | Title | Track Tag | RONIN-Ready |
 |---|---|---|---|
