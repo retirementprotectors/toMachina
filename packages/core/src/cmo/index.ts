@@ -50,4 +50,4 @@ export { CMO_BRAND_GUIDE, isApprovedColor, getToneForChannel, getLogoRule } from
 // NOTE: checkBrandCompliance from './brand/compliance-engine' is server-only — import directly
 
 // DEVOUR Track — campaigns (MUS-D13)
-// NOTE: generateCampaignCalendar is server-only (Firestore) — import directly in API routes
+export { generateCampaignCalendar } from './campaigns/calendar'
