@@ -17,3 +17,10 @@ updates:
         update-types:
           - minor
           - patch
+        exclude-patterns:
+          - "typescript"
+    # TypeScript gets its own PR — major versions have breaking tsconfig changes
+    # that need manual review (moduleResolution, process globals, etc.)
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
