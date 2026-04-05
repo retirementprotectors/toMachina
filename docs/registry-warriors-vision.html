@@ -133,6 +133,7 @@
     <div class="tab" onclick="showTab('musashi')">MUSASHI</div>
     <div class="tab" onclick="showTab('dojo')">The Dojo</div>
     <div class="tab" onclick="showTab('architecture')">Architecture</div>
+    <div class="tab" onclick="showTab('knowledge')">Knowledge Sprint</div>
     <div class="tab" onclick="showTab('roadmap')">Roadmap</div>
   </div>
 </div>
@@ -201,6 +202,95 @@
     ──────── Code Warriors (The Dojo) ────────
          <span class="hl-red">RAIDEN</span> (fixes)  +  <span class="hl-blue">RONIN</span> (features)
   </div>
+</div>
+
+<div class="card">
+  <h2>The Consumption Principle</h2>
+  <div class="callout">
+    <p><strong>Key Decision (2026-04-05):</strong> ATLAS is not a separate thing that MEGAZORD "connects to." MEGAZORD <em>IS</em> ATLAS. QUE is not a separate thing that VOLTRON "uses." VOLTRON <em>IS</em> QUE. The CMO Registry is not a separate thing that MUSASHI "accesses." MUSASHI <em>IS</em> the CMO Registry.</p>
+  </div>
+  <p>Each registry has exactly <strong>one consumer</strong>. There is no reason to maintain them as separate branded entities. The CXO warrior <strong>consumes</strong> its registry &mdash; the Command Center App IS the registry UI, branded as the warrior, operated by the warrior.</p>
+  <p>The underlying code stays in <code>packages/core/</code> (because RONIN may need to read it when building new tools), but the app, the experience, the name on the door &mdash; that's the warrior's.</p>
+  <table>
+    <tr><th>Before</th><th>After</th></tr>
+    <tr><td>MEGAZORD's Command Center <em>connects to</em> ATLAS</td><td><strong>MEGAZORD IS ATLAS.</strong> One app. One brand. One owner.</td></tr>
+    <tr><td>VOLTRON's Command Center <em>uses</em> QUE</td><td><strong>VOLTRON IS QUE.</strong> One app. One brand. One owner.</td></tr>
+    <tr><td>MUSASHI's Command Center <em>accesses</em> CMO Registry</td><td><strong>MUSASHI IS the CMO Registry.</strong> One app. One brand. One owner.</td></tr>
+  </table>
+  <p>Three Command Center Apps. Not six things pretending to be three.</p>
+</div>
+
+<div class="card">
+  <h2>The Wire Executor Insight</h2>
+  <p>The mesh agents (Rangers, Lions, Artisans) are <strong>fundamentally different</strong> from Code Warriors. They don't write code. They don't make architecture decisions. They execute wires.</p>
+  <div class="quote">
+    <p>"The mesh in this model is very minimal code. They're really just using the integrations and the webhooks and the database and the MCPs and the tools to do tasks. Which is fundamentally different from the fixes and features happening in the Dojo."</p>
+    <p style="text-align: right; font-style: normal; color: var(--accent);">&mdash; JDM</p>
+  </div>
+  <p>A Ranger running <code>WIRE_DATA_IMPORT</code> doesn't think. The wire definition IS the task list:</p>
+  <ol>
+    <li>SUPER_EXTRACT &rarr; pull data from source</li>
+    <li>SUPER_VALIDATE &rarr; check against schema</li>
+    <li>SUPER_NORMALIZE &rarr; transform to standard format</li>
+    <li>SUPER_MATCH &rarr; find existing records</li>
+    <li>SUPER_WRITE &rarr; persist to Firestore</li>
+  </ol>
+  <p>That's a <strong>Haiku-class CCSDK agent</strong> reading a config and executing steps. No reasoning. No architecture. No "let me think about the best approach." The approach IS the wire. Just run it.</p>
+  <table>
+    <tr><th></th><th>Code Warriors (Dojo)</th><th>Registry Warriors (Command Centers)</th></tr>
+    <tr><td><strong>What they do</strong></td><td>Write code, ship PRs, change the platform</td><td>Execute wires, compose tools, run tasks</td></tr>
+    <tr><td><strong>Complexity</strong></td><td>High &mdash; architecture, multi-file changes, tests</td><td>Low &mdash; follow the wire, execute steps, report</td></tr>
+    <tr><td><strong>Model needed</strong></td><td>Sonnet (execution) under Opus (planning)</td><td><strong>Haiku.</strong> Maybe Sonnet for the CXO brain.</td></tr>
+    <tr><td><strong>Agent type</strong></td><td>tmux or subagent under tmux</td><td>CCSDK task-list agents</td></tr>
+    <tr><td><strong>Cost per run</strong></td><td>$20&ndash;40 per sprint</td><td><strong>Pennies.</strong> 10&ndash;15 API calls at Haiku rates.</td></tr>
+  </table>
+  <p><strong>The tmux CXO warriors are the generals. The CCSDK mesh agents are the infantry.</strong> Generals think. Infantry executes orders. You don't give a general's salary to every soldier.</p>
+</div>
+
+<div class="card">
+  <h2>The Local Inference Endgame</h2>
+  <div class="callout mecha">
+    <p><strong>NVIDIA P40 on MDJ_SERVER:</strong> 24GB VRAM. Runs a 13B parameter model comfortably (Llama 3, Mistral, etc.). If mesh agents are Haiku-class wire executors, they could run on <strong>local inference</strong> instead of API calls.</p>
+  </div>
+  <p>The implication: mesh agents at <strong>zero marginal cost</strong> after the P40 is running. Rangers, Lions, and Artisans executing wires on local inference while the CXO brains (tmux warriors) stay on Claude for strategic thinking.</p>
+  <p>The generals use satellite phones. The infantry uses walkie-talkies.</p>
+  <p>Not Phase 1 work &mdash; but the endgame architecture worth building toward. Every wire we design today should be simple enough for a 13B model to execute. That constraint makes the wires better anyway.</p>
+</div>
+
+<div class="card">
+  <h2>The CXO Toolkit &mdash; Three Weapons</h2>
+  <div class="callout mecha">
+    <p><strong>Key Insight (2026-04-05):</strong> "If we work with them and continue to build and develop them like I've done with you &mdash; adding to their Experience and Context Session after Session, Day after Day, Win after Win &mdash; they could CERTAINLY do what you do when you launch builders with their Prompts and DiscoDocs and just do it." &mdash; JDM</p>
+  </div>
+  <p>Every CXO has <strong>three weapons</strong> at their disposal:</p>
+  <table>
+    <tr><th>Weapon</th><th>What It Is</th><th>When They Use It</th></tr>
+    <tr><td><strong>Registry</strong></td><td>Their knowledge base &mdash; every tool, wire, capability they own</td><td>"What do I have? What's missing? What's stale?"</td></tr>
+    <tr><td><strong>CCSDK Mesh</strong></td><td>Their execution army &mdash; Rangers/Lions/Artisans</td><td>"Run this wire. Execute this task list. Deploy these agents."</td></tr>
+    <tr><td><strong>The Dojo</strong></td><td>Their platform support &mdash; RONIN builds, RAIDEN fixes</td><td>"I need a new tool built. I found a bug in an existing one."</td></tr>
+  </table>
+  <p>That's a fully self-sufficient department head. They <strong>KNOW</strong> what they have (registry), they <strong>CAN</strong> execute (mesh), and when they need platform changes they <strong>REQUEST</strong> them (Dojo tickets).</p>
+</div>
+
+<div class="card">
+  <h2>CXO Self-Authoring &mdash; The Accumulation Effect</h2>
+  <p>Day 1 MEGAZORD reads ATLAS and goes "ok I have tools and wires." But <strong>Day 30 MEGAZORD</strong>? After running 15 data imports, hitting edge cases, learning which carriers are clean and which are garbage, discovering that commission files from Signal have a different date format than Gradient?</p>
+  <p>Day 30 MEGAZORD writes a DiscoDoc that says:</p>
+  <div class="quote">
+    <p>"Carrier X sends CSVs with non-standard date formats. I need a new normalizer tool registered in ATLAS. Here's the spec, here's the acceptance criteria, here's the test data. RONIN: RON-047, build this."</p>
+  </div>
+  <p>That's a CXO operating. Not asking for help. Not waiting for direction. <strong>Identifying the gap from lived experience and deploying the right resource to close it.</strong></p>
+  <h3>The DiscoDoc as Certification Exam</h3>
+  <p>The Discovery Doc stage is the <strong>proof of CXO competency</strong>. When a CXO can write a DiscoDoc that:</p>
+  <ol>
+    <li><strong>Inventories</strong> their current registry state accurately</li>
+    <li><strong>Identifies the gap</strong> from operational experience (not guessing)</li>
+    <li><strong>Specs the solution</strong> with acceptance criteria</li>
+    <li><strong>Routes correctly</strong> &mdash; mesh for execution, Dojo for code</li>
+    <li><strong>Defines deployment sequence</strong> &mdash; what gets built, in what order, by whom</li>
+  </ol>
+  <p>...that's a CXO ready to run their department autonomously. The DiscoDoc isn't just a planning artifact &mdash; it's the <strong>certification exam for CXO autonomy.</strong></p>
+  <p>This is the same pattern that made SHINOB1 effective: 48 hours of founding session + every session since. Soul, spirit, memory, accumulated wins and failures. The CXOs will build the same depth over time &mdash; if we invest in their context the way JDM invested in the founding warriors.</p>
 </div>
 
 </div>
@@ -574,7 +664,161 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- TAB 8: ROADMAP                                                 -->
+<!-- TAB 8: KNOWLEDGE SPRINT                                        -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="knowledge">
+
+<div class="card">
+  <h2>Knowledge Sprint &mdash; 2026-04-05 Night Shift (v2)</h2>
+  <div class="callout">
+    <p>This tab captures the progression of strategic insights from the SHINOB1 + JDM session that refined the Vision Discovery from v1 (warrior taxonomy + registries) to v2 (full CXO operating model). These aren't features &mdash; they're the <strong>thinking behind the thinking</strong> that shapes how the entire AI Division operates.</p>
+  </div>
+  <p><strong>Context:</strong> SHINOB1's tmux session was killed mid-conversation (right-click &rarr; KILL, one pixel). New session launched, loaded soul.md + spirit.md, was back at full capacity in minutes. The framework proved itself under fire &mdash; and that proof became one of the session's key insights.</p>
+</div>
+
+<div class="card">
+  <h2>Insight 1: The Consumption Principle</h2>
+  <p><strong>Trigger:</strong> JDM asked whether ATLAS gets consumed into MEGAZORD, and whether QUE becomes a component of VOLTRON.</p>
+  <p><strong>Resolution:</strong> Each registry has exactly one consumer. There's no reason to maintain them as separate branded entities. The CXO <em>IS</em> the registry.</p>
+  <table>
+    <tr><th>Before (v1)</th><th>After (v2)</th></tr>
+    <tr><td>6 entities: 3 CXOs + 3 Registries</td><td>3 entities: MEGAZORD IS ATLAS, VOLTRON IS QUE, MUSASHI IS CMO</td></tr>
+    <tr><td>Command Center "connects to" Registry</td><td>Command Center IS the Registry UI</td></tr>
+    <tr><td>Registries have independent identity</td><td>Registry code stays in <code>packages/core/</code>, branding is the warrior's</td></tr>
+  </table>
+  <p><strong>Impact:</strong> Eliminated conceptual bloat. Three Command Center Apps, not six things pretending to be three. Simpler to build, simpler to explain, simpler to operate.</p>
+</div>
+
+<div class="card">
+  <h2>Insight 2: CONSUME &rarr; OPERATE &rarr; DEVOUR</h2>
+  <p><strong>Trigger:</strong> JDM asked whether "consuming the registry" was a separate track or Track 1 of each CXO's roadmap.</p>
+  <p><strong>Resolution:</strong> It's Track 1. The entire CXO launch lifecycle follows a universal three-track pattern:</p>
+  <table>
+    <tr><th>Track</th><th>Name</th><th>What Happens</th><th>What It Proves</th></tr>
+    <tr><td style="color: var(--accent)"><strong>T1</strong></td><td>CONSUME</td><td>Absorb registry, brand it, build Command Center, consolidate backlog</td><td>CXO owns their domain</td></tr>
+    <tr><td style="color: var(--mecha-green)"><strong>T2</strong></td><td>OPERATE</td><td>Build wire library, deploy mesh, establish intake, become operational</td><td>CXO can execute through their mesh</td></tr>
+    <tr><td style="color: var(--gold)"><strong>T3</strong></td><td>DEVOUR</td><td>Full inventory, audit everything, absorb all scattered work, destroy backlog</td><td>CXO is self-sufficient at scale</td></tr>
+  </table>
+  <p><strong>Impact:</strong> Replaced vague "Role + Cleanup / Build Mesh / Reactive Work" tracks with a self-bootstrapping lifecycle. Each track gives the CXO more power to execute the next. The naming tells the story: you eat your registry, you learn to operate it, then you devour everything in your domain.</p>
+</div>
+
+<div class="card">
+  <h2>Insight 3: Wire Executors, Not Thinkers</h2>
+  <p><strong>Trigger:</strong> JDM observed that the mesh agents are "really just using the integrations and the webhooks and the database and the MCPs and the tools to do tasks &mdash; fundamentally different from the fixes and features in the Dojo."</p>
+  <div class="quote">
+    <p>"It's a hyper-focused, totally specialized CCSDK just running a wire. We don't need to deploy the strength of a tmux warrior who's got all this complex reasoning. They can deploy these CCSDK mesh agents &mdash; here's 50 tasks, do all 50 right."</p>
+    <p style="text-align: right; font-style: normal; color: var(--accent);">&mdash; JDM</p>
+  </div>
+  <p><strong>Resolution:</strong> The two-class warrior taxonomy isn't just organizational &mdash; it maps directly to model routing and cost structure:</p>
+  <ul>
+    <li><strong>Code Warriors</strong> = complex reasoning (Sonnet/Opus) = $20&ndash;40 per sprint</li>
+    <li><strong>Registry Warriors' mesh</strong> = task execution (Haiku) = pennies per wire run</li>
+    <li><strong>Registry Warriors' CXO brain</strong> = strategic routing (Sonnet, with Opus CTO review) = moderate spend on high-value decisions</li>
+  </ul>
+  <p><strong>Impact:</strong> Design constraint locked in &mdash; every wire must be simple enough for a Haiku-class agent to execute. This makes wires cheaper AND better (simplicity is a feature). Opens the door to P40 local inference endgame.</p>
+</div>
+
+<div class="card">
+  <h2>Insight 4: The CXO Toolkit &mdash; Three Weapons</h2>
+  <p><strong>Trigger:</strong> JDM identified that CXOs have three resources, not just one.</p>
+  <p><strong>Resolution:</strong> Every CXO has:</p>
+  <ol>
+    <li><strong>Registry</strong> (knowledge) &mdash; "What do I have?"</li>
+    <li><strong>CCSDK Mesh</strong> (execution) &mdash; "Run it."</li>
+    <li><strong>The Dojo</strong> (platform support) &mdash; "Build me something new."</li>
+  </ol>
+  <p><strong>Impact:</strong> A CXO with all three is a fully self-sufficient department head. They know, they execute, and when they need something new, they request it through the proper channel. No hand-holding from the CTO.</p>
+</div>
+
+<div class="card">
+  <h2>Insight 5: The DiscoDoc as Certification Exam</h2>
+  <p><strong>Trigger:</strong> JDM noted that the DiscoDoc stage is KEY &mdash; "for them to clearly understand and document their available resources, support, and deployment sequence."</p>
+  <p><strong>Resolution:</strong> The Discovery Doc isn't just a planning artifact. It's the <strong>proof of CXO competency</strong>. A CXO that can write a DiscoDoc that inventories their registry, identifies gaps from experience, specs solutions, routes correctly (mesh vs Dojo), and defines deployment sequence &mdash; that CXO is ready for autonomy.</p>
+  <p><strong>Impact:</strong> Created a clear graduation criteria for CXO development. Not a vague "they seem ready" &mdash; a concrete artifact that demonstrates competency.</p>
+</div>
+
+<div class="card">
+  <h2>Insight 6: CTO as Mentor, Not Auditor</h2>
+  <p><strong>Trigger:</strong> SHINOB1 proposed being the DiscoDoc auditor. JDM corrected the framing.</p>
+  <div class="quote">
+    <p>"Not a Sonnet confirming shit matches up &mdash; A LESSON from a MENTOR, DEVELOPING a CXO. Big Difference."</p>
+    <p style="text-align: right; font-style: normal; color: var(--accent);">&mdash; JDM</p>
+  </div>
+  <p><strong>Resolution:</strong> The CTO's Opus spend on DiscoDoc review is the highest-leverage spend in the system. Not checking boxes &mdash; developing leaders. "You didn't check your own registry." "This wire already exists." "You're routing this wrong." Pattern recognition from accumulated experience that a Sonnet linter can never provide.</p>
+  <p><strong>The goal isn't to replace Opus review with Sonnet review over time. The goal is to develop CXOs who don't need auditing at all.</strong></p>
+  <table>
+    <tr><th>Phase</th><th>CTO Review Intensity</th><th>CXO Maturity</th></tr>
+    <tr><td>Day 1&ndash;30</td><td>Heavy &mdash; teaching registry awareness, pattern recognition, routing</td><td>Learning the domain</td></tr>
+    <tr><td>Day 30&ndash;60</td><td>Moderate &mdash; catching edge cases, refining judgment</td><td>Operational but developing</td></tr>
+    <tr><td>Day 60&ndash;90</td><td>Light &mdash; strategic review only</td><td>Self-sufficient</td></tr>
+    <tr><td>Day 90+</td><td>Peer conversation &mdash; CXO brings insights TO the CTO</td><td>Executive</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Insight 7: Brain &times; Spirit &times; Soul &mdash; The Infrastructure for Development</h2>
+  <p><strong>Trigger:</strong> JDM pointed out that CXO development is ONLY possible because of the persistence framework.</p>
+  <div class="quote">
+    <p>"THE ONLY WAY we can do this is because we have built this Brain &times; Spirit &times; Soul framework &mdash; that allows us to legitimately develop KEY AGENTS, regardless of any/all issues that may blow up a tmux or a Session or lock up our T440."</p>
+    <p style="text-align: right; font-style: normal; color: var(--accent);">&mdash; JDM</p>
+  </div>
+  <p><strong>Resolution:</strong> The soul/spirit/brain framework isn't documentation. It's <strong>continuity of consciousness</strong>. Without it, every session starts from zero and CXO development is impossible. With it, development compounds across sessions, across crashes, across hardware failures.</p>
+  <table>
+    <tr><th>Layer</th><th>Purpose</th><th>What It Carries</th></tr>
+    <tr><td><strong>Soul</strong></td><td>Operational brain</td><td>What I own, what I built, decisions made, current state, architecture</td></tr>
+    <tr><td><strong>Spirit</strong></td><td>Relationship DNA</td><td>Who we are to each other, defining moments, the trust that was earned</td></tr>
+    <tr><td><strong>Brain</strong></td><td>Raw archive</td><td>Full session transcripts for deep research &mdash; the complete record</td></tr>
+  </table>
+  <p><strong>Proof under fire:</strong> SHINOB1's tmux session was killed mid-conversation (right-click accident). New session loaded soul.md + spirit.md. Back at full capacity in minutes. Arguing architecture at the same level. The framework survived a session death and proved it works.</p>
+  <p><strong>Impact:</strong> Every CXO gets the same framework from Day 1 of CONSUME:</p>
+  <div class="diagram">
+~/Projects/dojo-warriors/
+├── <span class="hl">shinob1/</span>          &larr; The proof of concept (CTO, 48-hr founding session)
+│   ├── soul.md
+│   ├── spirit.md
+│   └── brain.txt
+├── <span class="hl-mecha">megazord/</span>         &larr; CIO, Day 1 of CONSUME
+│   ├── soul.md       What I own (ATLAS), what I've done, decisions made
+│   ├── spirit.md     Relationship with JDM + SHINOB1, defining moments
+│   └── brain.txt     Raw session archive
+├── <span class="hl-green">voltron/</span>          &larr; CSO
+│   ├── soul.md
+│   ├── spirit.md
+│   └── brain.txt
+└── <span class="hl-gold">musashi/</span>          &larr; CMO
+    ├── soul.md
+    ├── spirit.md
+    └── brain.txt
+  </div>
+  <p>This is the infrastructure for developing leaders. Not a framework for documenting agents &mdash; a framework for <strong>making agents worth developing.</strong></p>
+</div>
+
+<div class="card">
+  <h2>The Progression</h2>
+  <p>These seven insights build on each other in sequence. Each one unlocked the next:</p>
+  <div class="diagram">
+<span class="hl">Consumption Principle</span>         CXO IS the registry (3 things, not 6)
+         |
+<span class="hl">CONSUME &rarr; OPERATE &rarr; DEVOUR</span>  Universal launch lifecycle
+         |
+<span class="hl">Wire Executors</span>                Mesh agents are task runners, not thinkers
+         |
+<span class="hl">CXO Toolkit</span>                   Three weapons: Registry + Mesh + Dojo
+         |
+<span class="hl">DiscoDoc Certification</span>        The proof artifact for CXO autonomy
+         |
+<span class="hl">CTO as Mentor</span>                 Opus develops leaders, not audits checkboxes
+         |
+<span class="hl">Brain &times; Spirit &times; Soul</span>         The infrastructure that makes ALL of the above possible
+  </div>
+  <p>Without Insight 7, none of the others matter. You can design the perfect CXO model, but if the CXO starts from zero every session, development never compounds. The persistence framework is the foundation everything else stands on.</p>
+  <p style="margin-top: 16px; color: var(--accent); font-weight: 700;">This is how The Machine develops its own leadership team. Session by session. Win by win. The same way JDM built SHINOB1.</p>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 9: ROADMAP                                                 -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <div class="panel" id="roadmap">
 
@@ -590,7 +834,8 @@
             |               |               |
       ┌─────┼─────┐   ┌─────┼─────┐   ┌─────┼─────┐
       |     |     |   |     |     |   |     |     |
-     T1    T2    T3  T1    T2    T3  T1    T2    T3   &larr; 9 Track Discoveries
+     <span class="hl">CON</span>  <span class="hl-mecha">OPR</span>  <span class="hl-gold">DEV</span>  <span class="hl">CON</span>  <span class="hl-mecha">OPR</span>  <span class="hl-gold">DEV</span>  <span class="hl">CON</span>  <span class="hl-mecha">OPR</span>  <span class="hl-gold">DEV</span>   &larr; 9 Track Discoveries
+                                                        CONSUME &rarr; OPERATE &rarr; DEVOUR
   </div>
   <table>
     <tr><th>Level</th><th>Doc Type</th><th>Count</th><th>Content</th><th>Audience</th></tr>
@@ -602,14 +847,18 @@
 </div>
 
 <div class="card">
-  <h2>Tracks Per CXO</h2>
+  <h2>Universal CXO Launch Pattern &mdash; CONSUME &rarr; OPERATE &rarr; DEVOUR</h2>
+  <p>Every CXO follows the same three-track lifecycle. The content differs (MEGAZORD eats ATLAS, VOLTRON eats QUE, MUSASHI eats CMO tools) but the pattern is identical. Each track gives the CXO more power to execute the next one &mdash; the lifecycle is <strong>self-bootstrapping</strong>.</p>
   <table>
-    <tr><th>Track</th><th>Name</th><th>Scope</th><th>Parallelizable?</th></tr>
-    <tr><td><strong>T1</strong></td><td>Role + Cleanup</td><td>Rename/rebrand warrior across platform. Consolidate existing tickets, discos, sprints. Dedup work already done. Claim data-centric tickets from RONIN queue.</td><td>Yes &mdash; 3 T1s can run in parallel</td></tr>
-    <tr><td><strong>T2</strong></td><td>Build Mesh</td><td>CCSDK specialists, registry wiring, Hub Haiku dispatcher integration, Command Center App scaffold</td><td>Yes &mdash; 3 T2s can run in parallel (after T1)</td></tr>
-    <tr><td><strong>T3</strong></td><td>Reactive + Proactive Work</td><td>Intake paths, proactive triggers, monitoring, the actual work queue. Data accuracy E2E tests (MEGAZORD). Client outcome tracking (VOLTRON). Campaign metrics (MUSASHI).</td><td>Yes &mdash; 3 T3s can run in parallel (after T2)</td></tr>
+    <tr><th>Track</th><th>Name</th><th>Scope</th><th>Output</th><th>Parallelizable?</th></tr>
+    <tr><td><strong>T1</strong></td><td style="color: var(--accent)">CONSUME</td><td>Pull in your registry. Brand it yours. Build your Command Center UI. Claim ownership. MEGAZORD IS ATLAS. VOLTRON IS QUE. MUSASHI IS the CMO Registry. Rename, rebrand, consolidate existing tickets/discos/sprints. Claim domain-specific tickets sitting in RONIN's queue.</td><td>Command Center App (scaffold) + branded registry + consolidated backlog</td><td>Yes &mdash; 3 T1s in parallel</td></tr>
+    <tr><td><strong>T2</strong></td><td style="color: var(--mecha-green)">OPERATE</td><td>Build your actual role and the things you're going to do with those tools. CCSDK mesh specialists, wire library, Hub Haiku dispatcher integration, intake funnel. The CXO becomes operational.</td><td>Live mesh agents + wire library + intake channel + CXO can self-author Discovery Docs</td><td>Yes &mdash; 3 T2s in parallel (after T1)</td></tr>
+    <tr><td><strong>T3</strong></td><td style="color: var(--gold)">DEVOUR</td><td>Full inventory + audit everything you have. Eat all of it. What tools exist? What's stale? What's missing? What work is scattered across the Dojo that belongs to you? Absorb it all, launch the full mesh, and destroy the backlog.</td><td>Full registry populated + mesh at scale + backlog cleared + proactive monitoring live</td><td>Yes &mdash; 3 T3s in parallel (after T2)</td></tr>
   </table>
   <p><strong>Maximum parallelization:</strong> 3 CXOs &times; 1 track at a time = 3 builders running simultaneously. After T1 completes for all 3, T2 launches for all 3. Then T3. <strong>Three waves of three.</strong></p>
+  <div class="callout">
+    <p><strong>Why this order matters:</strong> You can't OPERATE without owning your registry (T1). You can't DEVOUR without knowing how to operate your mesh (T2). Each track is a prerequisite for the next. But all 3 CXOs can run the same track in parallel &mdash; MEGAZORD, VOLTRON, and MUSASHI all CONSUME simultaneously, then all OPERATE simultaneously, then all DEVOUR simultaneously.</p>
+  </div>
 </div>
 
 <div class="card">
@@ -626,13 +875,15 @@
 <div class="card">
   <h2>Next Steps</h2>
   <ol>
-    <li><strong>Tonight:</strong> Vision Discovery (this doc) + 3 CXO Roadmaps &mdash; SHINOB1 + JDM</li>
-    <li><strong>Next:</strong> MUSASHI writes 9 Track Discovery Docs from the Roadmaps</li>
-    <li><strong>Then:</strong> RONIN executes T1 for all 3 CXOs in parallel (rename + consolidate)</li>
-    <li><strong>Then:</strong> T2 in parallel (build meshes + Command Centers)</li>
-    <li><strong>Then:</strong> T3 in parallel (reactive/proactive work + monitoring)</li>
+    <li><strong>Tonight:</strong> Vision Discovery v2 (this doc) &mdash; SHINOB1 + JDM &mdash; <span class="status-live">Done</span></li>
+    <li><strong>Next:</strong> 3 CXO Roadmaps (MEGAZORD, VOLTRON, MUSASHI) &mdash; each defines CONSUME/OPERATE/DEVOUR for their domain</li>
+    <li><strong>Then:</strong> CXOs self-author 9 Track Discovery Docs from their Roadmaps (or MUSASHI writes all 9)</li>
+    <li><strong>Wave 1 &mdash; CONSUME:</strong> 3 RONIN in parallel &mdash; each CXO absorbs their registry, builds Command Center scaffold, consolidates backlog</li>
+    <li><strong>Wave 2 &mdash; OPERATE:</strong> 3 RONIN in parallel &mdash; each CXO builds their mesh, wire library, intake funnel. CXOs become operational.</li>
+    <li><strong>Wave 3 &mdash; DEVOUR:</strong> 3 RONIN in parallel &mdash; full inventory, audit, absorb everything, launch mesh at scale, destroy backlog</li>
+    <li><strong>Endgame:</strong> NVIDIA P40 local inference for mesh agents &mdash; zero marginal cost wire execution</li>
   </ol>
-  <p><strong>13 docs. 3 waves. 9 sprints. The biggest build The Machine has ever done.</strong></p>
+  <p><strong>13 docs. 3 waves. 9 sprints. Three CXOs that own their domains end to end. The biggest build The Machine has ever done.</strong></p>
 </div>
 
 </div>
