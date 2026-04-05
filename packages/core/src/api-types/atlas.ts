@@ -247,6 +247,67 @@ export interface IntrospectConfirmResult {
   ready_for_import: true
 }
 
+// ── Source Registry Bulk + Health ────────────────────────────────────────────
+
+/** POST /api/atlas/sources/bulk-register -- bulk registration result */
+export interface AtlasSourceBulkRegisterResult {
+  registered: number
+  updated: number
+  errors: number
+  details: Array<{ carrierId: string; action: 'created' | 'updated' | 'error'; error?: string }>
+}
+
+/** GET /api/atlas/sources/health -- source health aggregate */
+export interface AtlasSourceHealthData {
+  total: number
+  green: number
+  yellow: number
+  red: number
+  gray: number
+  health_pct: number
+  checked_at: string
+}
+
+/** GET /api/atlas/execution-analytics -- wire execution analytics */
+export interface AtlasExecutionAnalyticsData {
+  wires: AtlasWireAnalytics[]
+  period_start: string
+  period_end: string
+  total_runs: number
+  total_success: number
+  total_failures: number
+}
+
+export interface AtlasWireAnalytics {
+  wire_id: string
+  wire_name: string
+  total_runs: number
+  success_count: number
+  failure_count: number
+  avg_duration_ms: number
+  last_run_at: string | null
+  last_error: string | null
+  weekly_counts: number[]
+}
+
+/** GET /api/atlas/gaps -- proactive gap report */
+export interface AtlasGapReport {
+  gaps: AtlasGapItem[]
+  total: number
+  critical: number
+  warning: number
+  info: number
+  generated_at: string
+}
+
+export interface AtlasGapItem {
+  type: 'MISSING_NORMALIZER' | 'MISSING_FORMAT_PROFILE' | 'STALE_FORMAT' | 'UNTESTED_WIRE_PATH' | 'UNREGISTERED_SOURCE'
+  description: string
+  severity: 'critical' | 'warning' | 'info'
+  suggested_action: string
+  related_entity?: string
+}
+
 // ============================================================================
 // GUARDIAN -- services/api/src/routes/guardian.ts
 // ============================================================================

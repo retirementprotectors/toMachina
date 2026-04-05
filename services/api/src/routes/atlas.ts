@@ -29,6 +29,8 @@ import type {
   AtlasSourceCreateDTO,
   AtlasSourceUpdateResult,
   AtlasSourceDeleteResult,
+  AtlasSourceBulkRegisterResult,
+  AtlasSourceHealthData,
   AtlasToolListDTO,
   AtlasToolCreateDTO,
   AtlasToolUpdateResult,
@@ -390,6 +392,111 @@ atlasRoutes.delete('/sources/:id', async (req: Request, res: Response) => {
     res.json(successResponse<AtlasSourceDeleteResult>({ id, deleted: true } as unknown as AtlasSourceDeleteResult))
   } catch (err) {
     console.error('DELETE /api/atlas/sources/:id error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/atlas/sources/bulk-register
+ * Batch register carriers from the carrier source catalog.
+ */
+atlasRoutes.post('/sources/bulk-register', async (req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const now = new Date().toISOString()
+    const { carriers } = req.body as { carriers: Array<{ carrierId: string; carrierName: string; status: string; feedType: string; productLine: string; dataDomain: string; notes?: string }> }
+
+    if (!carriers || !Array.isArray(carriers) || carriers.length === 0) {
+      res.status(400).json(errorResponse('carriers array is required'))
+      return
+    }
+
+    const details: Array<{ carrierId: string; action: 'created' | 'updated' | 'error'; error?: string }> = []
+    let registered = 0
+    let updated = 0
+    let errors = 0
+
+    const batch = db.batch()
+
+    for (const carrier of carriers) {
+      try {
+        const sourceId = carrier.carrierId
+        const docRef = db.collection(SOURCE_COLLECTION).doc(sourceId)
+        const existing = await docRef.get()
+
+        const gapStatus = carrier.status === 'GREEN' ? 'GREEN' : carrier.status === 'YELLOW' ? 'YELLOW' : 'RED'
+        const automationPct = carrier.status === 'GREEN' ? 100 : carrier.status === 'YELLOW' ? 50 : 0
+        const currentMethod = carrier.feedType === 'automated' ? 'API_FEED' : carrier.feedType === 'manual_csv' ? 'MANUAL_CSV' : 'NOT_AVAILABLE'
+
+        const data: Record<string, unknown> = {
+          source_id: sourceId,
+          carrier_name: carrier.carrierName,
+          product_line: carrier.productLine,
+          data_domain: carrier.dataDomain,
+          product_category: PRODUCT_CATEGORY_MAP[carrier.productLine] || 'OTHER',
+          gap_status: gapStatus,
+          automation_pct: automationPct,
+          current_method: currentMethod,
+          feed_type: carrier.feedType,
+          status: 'ACTIVE',
+          notes: carrier.notes || '',
+          updated_at: now,
+        }
+
+        if (existing.exists) {
+          batch.update(docRef, data)
+          details.push({ carrierId: carrier.carrierId, action: 'updated' })
+          updated++
+        } else {
+          data.created_at = now
+          data.last_pull = null
+          batch.set(docRef, data)
+          details.push({ carrierId: carrier.carrierId, action: 'created' })
+          registered++
+        }
+      } catch (err) {
+        details.push({ carrierId: carrier.carrierId, action: 'error', error: String(err) })
+        errors++
+      }
+    }
+
+    await batch.commit()
+
+    res.json(successResponse<AtlasSourceBulkRegisterResult>({ registered, updated, errors, details } as AtlasSourceBulkRegisterResult))
+  } catch (err) {
+    console.error('POST /api/atlas/sources/bulk-register error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/atlas/sources/health
+ * Aggregate source health: GREEN/YELLOW/RED counts.
+ * IMPORTANT: must be registered before /sources/:id so Express does not match "health" as :id.
+ */
+atlasRoutes.get('/sources/health', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const snap = await db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE').get()
+
+    let green = 0, yellow = 0, red = 0, gray = 0
+    for (const doc of snap.docs) {
+      const data = doc.data()
+      const gap = String(data.gap_status || '').toUpperCase()
+      if (gap === 'GREEN') green++
+      else if (gap === 'YELLOW') yellow++
+      else if (gap === 'RED') red++
+      else gray++
+    }
+
+    const total = snap.size
+    const healthPct = total > 0 ? Math.round(((green * 100) + (yellow * 50)) / total) : 0
+
+    res.json(successResponse<AtlasSourceHealthData>({
+      total, green, yellow, red, gray, health_pct: healthPct, checked_at: new Date().toISOString(),
+    } as AtlasSourceHealthData))
+  } catch (err) {
+    console.error('GET /api/atlas/sources/health error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })

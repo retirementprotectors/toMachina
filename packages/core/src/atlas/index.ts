@@ -62,6 +62,9 @@ export {
   executeAuditReview,
 } from './super-tools'
 
+// Carrier source catalog
+export { CARRIER_SOURCES, type CarrierSourceDefinition } from './sources/index.js'
+
 // Wire executor — NOT exported from barrel.
 // Backend-only (services/api, services/intake) import directly:
 //   import { executeWire } from '@tomachina/core/src/atlas/wire-executor'
