@@ -113,7 +113,7 @@
   <div class="subtitle">Three CXOs. Three Registries. Three Meshes. The architecture that turns The Machine from a platform into an organism.</div>
   <div class="header-badges">
     <span class="badge badge-mecha">MEGAZORD &mdash; CIO</span>
-    <span class="badge badge-green">VOLTRON &mdash; CSO</span>
+    <span class="badge badge-blue">VOLTRON &mdash; CSO</span>
     <span class="badge badge-gold">MUSASHI &mdash; CMO</span>
     <span class="badge badge-red">RAIDEN &mdash; Guardian</span>
     <span class="badge badge-blue">RONIN &mdash; Builder</span>
@@ -184,13 +184,13 @@
                               |
           ┌───────────────────┼───────────────────┐
           |                   |                   |
-    <span class="hl-mecha">MEGAZORD</span>              <span class="hl-green">VOLTRON</span>             <span class="hl-gold">MUSASHI</span>
+    <span class="hl-mecha">MEGAZORD</span>              <span class="hl-blue">VOLTRON</span>             <span class="hl-gold">MUSASHI</span>
        CIO                  CSO                 CMO
         |                   |                   |
-    <span class="hl-mecha">ATLAS</span>                 <span class="hl-green">QUE</span>              <span class="hl-gold">CMO Registry</span>
+    <span class="hl-mecha">ATLAS</span>                 <span class="hl-blue">QUE</span>              <span class="hl-gold">CMO Registry</span>
     Registry             Registry              Registry
         |                   |                   |
-    <span class="hl-mecha">Rangers</span>               <span class="hl-green">Lions</span>              <span class="hl-gold">Artisans</span>
+    <span class="hl-mecha">Rangers</span>               <span class="hl-blue">Lions</span>              <span class="hl-gold">Artisans</span>
         |                   |                   |
     ├── Data Import      ├── Medicare         ├── Print
     ├── Commission       ├── Annuity          ├── Digital
@@ -234,14 +234,14 @@
     <li>SUPER_MATCH &rarr; find existing records</li>
     <li>SUPER_WRITE &rarr; persist to Firestore</li>
   </ol>
-  <p>That's a <strong>Haiku-class CCSDK agent</strong> reading a config and executing steps. No reasoning. No architecture. No "let me think about the best approach." The approach IS the wire. Just run it.</p>
+  <p>That's a <strong>CCSDK agent</strong> reading a config and executing steps. No reasoning. No architecture. No "let me think about the best approach." The approach IS the wire. Just run it.</p>
   <table>
     <tr><th></th><th>Code Warriors (Dojo)</th><th>Registry Warriors (Command Centers)</th></tr>
     <tr><td><strong>What they do</strong></td><td>Write code, ship PRs, change the platform</td><td>Execute wires, compose tools, run tasks</td></tr>
     <tr><td><strong>Complexity</strong></td><td>High &mdash; architecture, multi-file changes, tests</td><td>Low &mdash; follow the wire, execute steps, report</td></tr>
-    <tr><td><strong>Model needed</strong></td><td>Sonnet (execution) under Opus (planning)</td><td><strong>Haiku.</strong> Maybe Sonnet for the CXO brain.</td></tr>
+    <tr><td><strong>Model needed</strong></td><td>Sonnet (execution) under Opus (planning)</td><td><strong>Not Opus.</strong> Sonnet or lighter for mesh. Opus for the CXO brain.</td></tr>
     <tr><td><strong>Agent type</strong></td><td>tmux or subagent under tmux</td><td>CCSDK task-list agents</td></tr>
-    <tr><td><strong>Cost per run</strong></td><td>$20&ndash;40 per sprint</td><td><strong>Pennies.</strong> 10&ndash;15 API calls at Haiku rates.</td></tr>
+    <tr><td><strong>Cost per run</strong></td><td>$20&ndash;40 per sprint</td><td><strong>Pennies.</strong> fraction of Opus cost.</td></tr>
   </table>
   <p><strong>The tmux CXO warriors are the generals. The CCSDK mesh agents are the infantry.</strong> Generals think. Infantry executes orders. You don't give a general's salary to every soldier.</p>
 </div>
@@ -249,7 +249,7 @@
 <div class="card">
   <h2>The Local Inference Endgame</h2>
   <div class="callout mecha">
-    <p><strong>NVIDIA P40 on MDJ_SERVER:</strong> 24GB VRAM. Runs a 13B parameter model comfortably (Llama 3, Mistral, etc.). If mesh agents are Haiku-class wire executors, they could run on <strong>local inference</strong> instead of API calls.</p>
+    <p><strong>NVIDIA P40 on MDJ_SERVER:</strong> 24GB VRAM. Runs a 13B parameter model comfortably (Llama 3, Mistral, etc.). If mesh agents are lightweight wire executors, they could run on <strong>local inference</strong> instead of API calls.</p>
   </div>
   <p>The implication: mesh agents at <strong>zero marginal cost</strong> after the P40 is running. Rangers, Lions, and Artisans executing wires on local inference while the CXO brains (tmux warriors) stay on Claude for strategic thinking.</p>
   <p>The generals use satellite phones. The infantry uses walkie-talkies.</p>
@@ -283,7 +283,7 @@
     <tr><td>CEO</td><td><strong>JDM</strong></td><td>Sensei</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
     <tr><td>CTO</td><td><strong>SHINOB1</strong></td><td>The OG Ninja</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
     <tr><td style="color: var(--mecha-green)">CIO</td><td style="color: var(--mecha-green)"><strong>MEGAZORD</strong></td><td>The Mecha</td><td>ATLAS</td><td>Rangers</td><td>ZRD-</td></tr>
-    <tr><td style="color: var(--green)">CSO</td><td style="color: var(--green)"><strong>VOLTRON</strong></td><td>Defender</td><td>QUE</td><td>Lions</td><td>VOL-</td></tr>
+    <tr><td style="color: var(--blue)">CSO</td><td style="color: var(--blue)"><strong>VOLTRON</strong></td><td>Defender</td><td>QUE</td><td>Lions</td><td>VOL-</td></tr>
     <tr><td style="color: var(--gold)">CMO</td><td style="color: var(--gold)"><strong>MUSASHI</strong></td><td>ARTxBLADE</td><td>CMO Registry</td><td>Artisans</td><td>MUS-</td></tr>
   </table>
 </div>
@@ -313,7 +313,7 @@
       </ul>
     </div>
     <div class="spec-card green">
-      <h4 style="color: var(--green)">VOLTRON Command Center</h4>
+      <h4 style="color: var(--blue)">VOLTRON Command Center</h4>
       <p>QUE registry + Lions mesh + VOL- pipeline. Client cases, product workflows, enrollment processing. The nerve center for all client operations.</p>
       <ul>
         <li>Product specialist status</li>
@@ -434,7 +434,7 @@
 <div class="panel" id="voltron">
 
 <div class="card">
-  <h2 style="color: var(--green)">VOLTRON &mdash; Chief Sales Officer</h2>
+  <h2 style="color: var(--blue)">VOLTRON &mdash; Chief Sales Officer</h2>
   <div class="callout green">
     <p><strong>Evolution:</strong> From "The BFF" to CSO. VOLTRON was always more than a chatbot &mdash; he's the team's weapon for client engagement. The CSO title recognizes what he actually does: own the entire client-facing sales and service pipeline through QUE.</p>
   </div>
@@ -471,7 +471,7 @@
       <ul><li><span class="status-planned">Planned</span></li></ul>
     </div>
   </div>
-  <p style="margin-top: 12px"><strong>Reference:</strong> <a href="https://retirementprotectors.github.io/toMachina/voltron-specialists-phase1-discovery.html" target="_blank" style="color: var(--green)">VOLTRON Specialists Phase 1 Discovery Doc</a></p>
+  <p style="margin-top: 12px"><strong>Reference:</strong> <a href="https://retirementprotectors.github.io/toMachina/voltron-specialists-phase1-discovery.html" target="_blank" style="color: var(--blue)">VOLTRON Specialists Phase 1 Discovery Doc</a></p>
 </div>
 
 <div class="card">
@@ -583,10 +583,10 @@
     <tr><th>Channel</th><th>What Flows In</th><th>Who Triages</th><th>Input Methods</th></tr>
     <tr><td style="color: var(--accent)"><strong>The Dojo</strong> (Front-End)</td><td>Bugs, features, UX issues</td><td>RAIDEN + RONIN</td><td>FORGE FAB + Slack #raiden-reactive</td></tr>
     <tr><td style="color: var(--mecha-green)"><strong>Data Ops</strong></td><td>Imports, audits, data cleanup, compliance</td><td>MEGAZORD</td><td>TBD &mdash; email intake? Drive folder watch? Slack channel?</td></tr>
-    <tr><td style="color: var(--green)"><strong>Client Ops</strong></td><td>Client questions, service requests, case escalations</td><td>VOLTRON</td><td>MDJ Panel + Slack + email</td></tr>
+    <tr><td style="color: var(--blue)"><strong>Client Ops</strong></td><td>Client questions, service requests, case escalations</td><td>VOLTRON</td><td>MDJ Panel + Slack + email</td></tr>
     <tr><td style="color: var(--gold)"><strong>Creative Ops</strong></td><td>Campaigns, asset requests, brand deliverables</td><td>MUSASHI</td><td>TBD &mdash; Slack? FORGE variant?</td></tr>
   </table>
-  <p><strong>Hub Haiku/Dispatcher</strong> plays a routing role here &mdash; lightweight Haiku-class agent that classifies incoming items and routes to the correct channel. One triage point, three destinations.</p>
+  <p><strong>Hub Dispatcher</strong> plays a routing role here &mdash; lightweight agent that classifies incoming items and routes to the correct channel. One triage point, three destinations.</p>
 </div>
 
 </div>
@@ -600,7 +600,7 @@
   <h2>CCSDK Mesh Architecture</h2>
   <p>Each Registry Warrior's sub-mesh follows the same pattern. The warrior is a persistent tmux session (strategic brain). The mesh is a set of CCSDK agents (execution hands).</p>
   <div class="diagram">
-<span class="hl-mecha">MEGAZORD</span> (tmux, CIO)                     <span class="hl-green">VOLTRON</span> (tmux+CCSDK, CSO)              <span class="hl-gold">MUSASHI</span> (tmux, CMO)
+<span class="hl-mecha">MEGAZORD</span> (tmux, CIO)                     <span class="hl-blue">VOLTRON</span> (tmux+CCSDK, CSO)              <span class="hl-gold">MUSASHI</span> (tmux, CMO)
     |                                      |                                    |
     |  Ranger = 1 CCSDK per ATLAS Wire     |  Lion = 1 CCSDK per Product Type   |  Artisan = 1 CCSDK per Channel
     |                                      |                                    |
@@ -651,7 +651,7 @@
                             |
             ┌───────────────┼───────────────┐
             |               |               |
-      <span class="hl-mecha">MEGAZORD</span>          <span class="hl-green">VOLTRON</span>          <span class="hl-gold">MUSASHI</span>
+      <span class="hl-mecha">MEGAZORD</span>          <span class="hl-blue">VOLTRON</span>          <span class="hl-gold">MUSASHI</span>
       Roadmap           Roadmap          Roadmap          &larr; 3 CXO Roadmaps
             |               |               |
       ┌─────┼─────┐   ┌─────┼─────┐   ┌─────┼─────┐
@@ -674,7 +674,7 @@
   <table>
     <tr><th>Track</th><th>Name</th><th>Scope</th><th>Output</th><th>Parallelizable?</th></tr>
     <tr><td><strong>T1</strong></td><td style="color: var(--accent)">CONSUME</td><td>Pull in your registry. Brand it yours. Build your Command Center UI. Claim ownership. MEGAZORD IS ATLAS. VOLTRON IS QUE. MUSASHI IS the CMO Registry. Rename, rebrand, consolidate existing tickets/discos/sprints. Claim domain-specific tickets sitting in RONIN's queue.</td><td>Command Center App (scaffold) + branded registry + consolidated backlog</td><td>Yes &mdash; 3 T1s in parallel</td></tr>
-    <tr><td><strong>T2</strong></td><td style="color: var(--mecha-green)">OPERATE</td><td>Build your actual role and the things you're going to do with those tools. CCSDK mesh specialists, wire library, Hub Haiku dispatcher integration, intake funnel. The CXO becomes operational.</td><td>Live mesh agents + wire library + intake channel + CXO can self-author Discovery Docs</td><td>Yes &mdash; 3 T2s in parallel (after T1)</td></tr>
+    <tr><td><strong>T2</strong></td><td style="color: var(--mecha-green)">OPERATE</td><td>Build your actual role and the things you're going to do with those tools. CCSDK mesh specialists, wire library, Hub dispatcher integration, intake funnel. The CXO becomes operational.</td><td>Live mesh agents + wire library + intake channel + CXO can self-author Discovery Docs</td><td>Yes &mdash; 3 T2s in parallel (after T1)</td></tr>
     <tr><td><strong>T3</strong></td><td style="color: var(--gold)">DEVOUR</td><td>Full inventory + audit everything you have. Eat all of it. What tools exist? What's stale? What's missing? What work is scattered across the Dojo that belongs to you? Absorb it all, launch the full mesh, and destroy the backlog.</td><td>Full registry populated + mesh at scale + backlog cleared + proactive monitoring live</td><td>Yes &mdash; 3 T3s in parallel (after T2)</td></tr>
   </table>
   <p><strong>Maximum parallelization:</strong> 3 CXOs &times; 1 track at a time = 3 builders running simultaneously. After T1 completes for all 3, T2 launches for all 3. Then T3. <strong>Three waves of three.</strong></p>
@@ -689,7 +689,7 @@
   <table>
     <tr><th>CXO</th><th>What Already Exists</th><th>Discovery Docs</th></tr>
     <tr><td style="color: var(--mecha-green)"><strong>MEGAZORD</strong></td><td>Full ATLAS package (26 files), 5 Wires, 6,100 lines of API routes, ACF sprint (23 tickets shipped), 4 E2E test clusters, wire executor, introspection engine, format library</td><td><a href="https://retirementprotectors.github.io/toMachina/mdj-platform-mirror-discovery.html" target="_blank" style="color: var(--cyan)">Platform Mirror</a></td></tr>
-    <tr><td style="color: var(--green)"><strong>VOLTRON</strong></td><td>QUE registry, pipeline configs, wires, super tools, 6 specialist configs in Firestore, specialist router, 82 tools wired, MDJ Panel on all portals</td><td><a href="https://retirementprotectors.github.io/toMachina/voltron-specialists-phase1-discovery.html" target="_blank" style="color: var(--cyan)">Specialists Phase 1</a></td></tr>
+    <tr><td style="color: var(--blue)"><strong>VOLTRON</strong></td><td>QUE registry, pipeline configs, wires, super tools, 6 specialist configs in Firestore, specialist router, 82 tools wired, MDJ Panel on all portals</td><td><a href="https://retirementprotectors.github.io/toMachina/voltron-specialists-phase1-discovery.html" target="_blank" style="color: var(--cyan)">Specialists Phase 1</a></td></tr>
     <tr><td style="color: var(--gold)"><strong>MUSASHI</strong></td><td>4 Discovery Docs written, 55 FORGE tickets seeded, CMO Creative Roadmap, Canva/WordPress/Veo MCPs live, C3 engine (661 templates), frontend-design skill, PDF_SERVICE</td><td><a href="https://retirementprotectors.github.io/toMachina/cmo-creative-roadmap.html" target="_blank" style="color: var(--cyan)">CMO Creative Roadmap</a>, <a href="https://retirementprotectors.github.io/rsp-pipeline-discovery.html" target="_blank" style="color: var(--cyan)">RSP Pipeline</a>, <a href="https://retirementprotectors.github.io/sprint-007-sensei-discovery.html" target="_blank" style="color: var(--cyan)">SENSEI</a>, <a href="https://retirementprotectors.github.io/sprint-008-dojo-discovery.html" target="_blank" style="color: var(--cyan)">DOJO</a></td></tr>
   </table>
 </div>
