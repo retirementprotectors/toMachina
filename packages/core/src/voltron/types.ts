@@ -17,6 +17,7 @@ export const VOLTRON_ROLE_RANK: Record<VoltronUserRole, number> = {
 
 export type VoltronToolType = 'ATOMIC' | 'SUPER' | 'WIRE'
 export type VoltronToolSource = 'API_ROUTE' | 'MCP' | 'VOLTRON' | 'FIRESTORE'
+export type VoltronLionDomain = 'medicare' | 'annuity' | 'investment' | 'life-estate' | 'legacy-ltc' | 'general'
 
 // ── Entitlement Matrix ──────────────────────────────────────────────────────
 // TRK-13747: Role → allowed tool types. Enforced at both API and agent level.
@@ -150,6 +151,7 @@ export interface VoltronRegistryEntry {
   parameters: Record<string, unknown>
   server_only: boolean
   generated_at: string
+  domain?: VoltronLionDomain
 }
 
 // ── Definitions ─────────────────────────────────────────────────────────────

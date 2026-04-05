@@ -8,6 +8,7 @@ export type {
   VoltronUserRole,
   VoltronToolType,
   VoltronToolSource,
+  VoltronLionDomain,
   VoltronToolResult,
   VoltronSuperResult,
   VoltronContext,
