@@ -255,6 +255,22 @@ export function MegazordCommandCenter({ portal }: { portal?: string }) {
 
   return (
     <div className="mx-auto max-w-7xl">
+      {/* MEGAZORD CIO Identity Card */}
+      <div className="mb-4 flex items-center gap-3 rounded-xl border px-4 py-3" style={{ borderColor: 'rgba(16,185,129,0.25)', background: 'rgba(16,185,129,0.04)' }}>
+        <span style={{ fontSize: 28 }}>{'\u{1F3EF}'}</span>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>MEGAZORD Command Center</span>
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>CIO</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            <span>Registry: <strong style={{ color: '#10b981' }}>ATLAS</strong></span>
+            <span>Mesh: <strong style={{ color: '#10b981' }}>Rangers</strong></span>
+            <span>Prefix: <strong style={{ color: '#10b981' }}>ZRD-</strong></span>
+            <span>{stats.total} sources · {tools.length} tools · {WIRE_DEFINITIONS.length} wires</span>
+          </div>
+        </div>
+      </div>
       <Hdr sub={`${stats.total} data sources tracked`} />
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Stat icon="hub" label="Total Sources" val={stats.total} />
@@ -1849,6 +1865,30 @@ function HealthTab({ sources }: { sources: SourceRecord[] }) {
         <Stat icon="check_circle" label="Green" val={summary.green} color="rgb(16,185,129)" />
         <Stat icon="warning" label="Yellow" val={summary.yellow} color="rgb(245,158,11)" />
         <Stat icon="error" label="Red" val={summary.red} color="rgb(239,68,68)" />
+      </div>
+
+      {/* Wire Status Cards — MEGAZORD CIO Dashboard */}
+      <div className="mt-4">
+        <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#10b981' }}>Wire Status — {WIRE_DEFINITIONS.length} Active Wires</h4>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {WIRE_DEFINITIONS.map((w) => {
+            return (
+              <div key={w.wire_id} className="rounded-lg border p-3" style={{ borderColor: 'var(--border-subtle)', background: 'var(--bg-card)' }}>
+                <div className="flex items-center gap-2">
+                  <span className="material-icons-outlined" style={{ fontSize: 16, color: '#10b981' }}>cable</span>
+                  <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{w.name}</span>
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                  <span>{w.stages?.length ?? 0} stages</span>
+                  <span>·</span>
+                  <span>{w.product_line || 'ALL'}</span>
+                  <span>·</span>
+                  <span>{w.data_domain || 'GENERAL'}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {automations.length === 0 ? (
