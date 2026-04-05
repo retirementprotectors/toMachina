@@ -102,6 +102,31 @@ export type {
   RunIllustrationInput,
 } from './tools/index'
 
+// Lion agent types + utilities (VOL-O01)
+export type { LionConfig, LionWireResult, LionToolMap } from './lion-types'
+export {
+  LION_DOMAIN_KEYWORDS,
+  classifyLionDomain,
+  buildLionToolMap,
+  LION_DOMAINS,
+  LION_LABELS,
+  LION_COLORS,
+} from './lion-types'
+
+// Case pipeline types (VOL-O07)
+export type { CaseStatus, CaseOutcome, IntakeChannel, VoltronCase } from './case-types'
+export {
+  CASE_STATUS_ORDER,
+  createCaseRecord,
+  CASE_STATUS_LABELS,
+  CASE_STATUS_COLORS,
+  CASE_OUTCOME_COLORS,
+} from './case-types'
+
+// Gap request types (VOL-O18)
+export type { GapRequestPriority, GapRequestStatus, VoltronGapRequest } from './gap-request-types'
+export { createGapRequest } from './gap-request-types'
+
 // Wire executor — type-only exports from barrel (import directly for execution)
 // Backend-only (services/api) import directly:
 //   import { executeVoltronWire } from '@tomachina/core/voltron/wire-executor'
