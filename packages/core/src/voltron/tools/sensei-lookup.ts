@@ -37,7 +37,7 @@ export const definition = {
       module_id: {
         type: 'string',
         description:
-          'The module ID to look up training content for (e.g. "contacts", "accounts", "pipeline-studio", "forge", "atlas", "dex", "prozone", "comms", "admin", "households").',
+          'The module ID to look up training content for (e.g. "contacts", "accounts", "pipeline-studio", "forge", "megazord", "dex", "prozone", "comms", "admin", "households").',
       },
     },
     required: ['module_id'],

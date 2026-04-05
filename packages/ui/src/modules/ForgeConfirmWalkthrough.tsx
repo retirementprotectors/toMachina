@@ -101,7 +101,7 @@ function assignMachine(item: TrackerItem): 'PRO' | 'AIR' {
 
   // Keyword-based fallback
   if (combined.includes('contact') || combined.includes('dedup') || combined.includes('account') ||
-      combined.includes('intake') || combined.includes('myrpi') || combined.includes('atlas') ||
+      combined.includes('intake') || combined.includes('myrpi') || combined.includes('megazord') ||
       combined.includes('introspect') || combined.includes('bridge') || combined.includes('migration') ||
       combined.includes('agent_') || combined.includes('assigned_user') || combined.includes('npn') ||
       combined.includes('npi') || combined.includes('producer') || combined.includes('bob') ||

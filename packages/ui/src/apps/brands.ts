@@ -1,6 +1,6 @@
 /** Canonical app brand definitions — identical across all portals. */
 
-export type AppKey = 'atlas' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'guardian' | 'leadership-center' | 'pipeline-studio' | 'pipelines' | 'prozone' | 'rsp' | 'voltron'
+export type AppKey = 'megazord' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'guardian' | 'leadership-center' | 'pipeline-studio' | 'pipelines' | 'prozone' | 'rsp' | 'voltron'
 
 export interface AppBrand {
   color: string
@@ -10,7 +10,7 @@ export interface AppBrand {
 }
 
 export const APP_BRANDS: Record<AppKey, AppBrand> = {
-  atlas:              { color: '#3182ce', icon: 'hub',         label: 'ATLAS',            description: 'Data Operating System' },
+  megazord:           { color: '#10b981', icon: 'hub',         label: 'MEGAZORD',         description: 'CIO Command Center' },
   comms:              { color: '#6366f1', icon: 'forum',       label: 'COMMS Center',     description: 'Client Communications' },
   cam:                { color: '#d69e2e', icon: 'payments',    label: 'CAM',              description: 'Compensation Manager' },
   dex:                { color: '#38a169', icon: 'description', label: 'DEX',              description: 'Document Exchange' },

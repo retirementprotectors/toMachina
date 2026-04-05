@@ -123,7 +123,7 @@ const MODULE_SECTIONS: SectionDef[] = [
     label: 'Apps',
     icon: 'apps',
     items: [
-      { key: 'atlas', label: 'ATLAS', icon: 'hub', moduleKey: 'ATLAS' },
+      { key: 'megazord', label: 'MEGAZORD', icon: 'hub', moduleKey: 'MEGAZORD' },
       { key: 'cam', label: 'CAM', icon: 'payments', moduleKey: 'CAM' },
       { key: 'dex', label: 'DEX', icon: 'description', moduleKey: 'DEX' },
       { key: 'c3', label: 'C3', icon: 'campaign', moduleKey: 'C3' },

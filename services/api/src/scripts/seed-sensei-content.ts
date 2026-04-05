@@ -82,10 +82,10 @@ const SEED_MODULES: SeedEntry[] = [
       'Document Exchange — generate, upload, and manage client documents. Use DEX to produce application packets, coverage summaries, and compliance forms ready for e-signature.',
   },
   {
-    module_id: 'atlas',
-    title: 'ATLAS',
+    module_id: 'megazord',
+    title: 'MEGAZORD',
     description:
-      'The data intelligence layer. ATLAS tracks every data source, automation, and pipeline across the platform. Use it to verify import status, diagnose missing data, and audit wire executions.',
+      'MEGAZORD Command Center — the CIO data intelligence layer. Tracks every data source, automation, and pipeline across the platform. Use it to verify import status, diagnose missing data, and audit wire executions.',
   },
   {
     module_id: 'admin',

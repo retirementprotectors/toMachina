@@ -84,7 +84,7 @@ const SPECIALISTS = [
     icon: 'settings_suggest',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
     available_tools: [],
-    routing_keywords: ['import', 'atlas', 'intake', 'wire', 'data', 'migration'],
+    routing_keywords: ['import', 'megazord', 'atlas', 'intake', 'wire', 'data', 'migration'],
     required_level: 1,
     status: 'active',
   },
