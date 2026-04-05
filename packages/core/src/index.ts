@@ -16,6 +16,7 @@ export * as campaigns from './campaigns'
 export * from './atlas'
 export * as dex from './dex'
 export * from './que'
+export * from './cmo'
 export * from './acf'
 export * from './constants'
 
