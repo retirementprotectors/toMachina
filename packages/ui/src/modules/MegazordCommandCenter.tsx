@@ -220,10 +220,10 @@ function confidenceColor(confidence: number) {
 }
 
 // ---------------------------------------------------------------------------
-// AtlasRegistry — Main Component (3-Section Layout)
+// MegazordCommandCenter — Main Component (3-Section Layout)
 // ---------------------------------------------------------------------------
 
-export function AtlasRegistry({ portal }: { portal?: string }) {
+export function MegazordCommandCenter({ portal }: { portal?: string }) {
   const srcQ = useMemo<Query<DocumentData>>(() => query(collections.sourceRegistry()), [])
   const toolQ = useMemo<Query<DocumentData>>(() => query(collections.toolRegistry()), [])
   const { data: sources, loading, error } = useCollection<SourceRecord>(srcQ, `atlas-src-${portal || 'all'}`)

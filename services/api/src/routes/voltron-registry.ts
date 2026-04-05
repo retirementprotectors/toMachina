@@ -25,6 +25,7 @@ import {
   type VoltronUserRole,
   type VoltronToolType,
   type VoltronRegistryEntry,
+  type VoltronLionDomain,
 } from '@tomachina/core'
 
 export const voltronRegistryRoutes = Router()
@@ -33,6 +34,11 @@ const VOLTRON_REGISTRY_COL = 'voltron_registry'
 
 /** All valid roles — used for validation before any filtering. */
 const VALID_ROLES: ReadonlySet<string> = new Set<string>(Object.keys(VOLTRON_ROLE_RANK))
+
+/** Valid Lion domains for domain filter query param. */
+const VALID_DOMAINS: ReadonlySet<string> = new Set<string>([
+  'medicare', 'annuity', 'investment', 'life-estate', 'legacy-ltc', 'general',
+])
 
 /* ─── Firestore helpers (bracket notation for hookify) ─── */
 
@@ -111,6 +117,11 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
     const { role: userRole, normalized } = validateRole(rawRole)
     const callerRank = getRoleRank(userRole)
 
+    // VOL-C13: Optional domain filter
+    const rawDomain = req.query['domain'] as string | undefined
+    const domainFilter: VoltronLionDomain | undefined =
+      rawDomain && VALID_DOMAINS.has(rawDomain) ? rawDomain as VoltronLionDomain : undefined
+
     if (normalized && rawRole) {
       console.warn(`[voltron-registry] Role normalized: "${rawRole}" → "${userRole}"`)
     }
@@ -157,15 +168,17 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
 
       // TRK-13801: Apply same dual enforcement to in-memory fallback
       const { allowed, denied } = filterByEntitlement(memoryEntries, userRole)
+      const filtered = domainFilter ? allowed.filter(e => e.domain === domainFilter) : allowed
 
       res.json(successResponse({
-        tools: allowed,
+        tools: filtered,
         _meta: {
           role: userRole,
           rank: callerRank,
-          total_available: allowed.length,
+          total_available: filtered.length,
           filtered_out: denied,
           source: 'memory',
+          ...(domainFilter && { domain: domainFilter }),
         },
       }))
       return
@@ -173,15 +186,17 @@ voltronRegistryRoutes.get('/', async (req: Request, res: Response) => {
 
     // TRK-13801: Dual enforcement via centralized filter
     const { allowed, denied } = filterByEntitlement(allEntries, userRole)
+    const filtered = domainFilter ? allowed.filter(e => e.domain === domainFilter) : allowed
 
     res.json(successResponse({
-      tools: allowed,
+      tools: filtered,
       _meta: {
         role: userRole,
         rank: callerRank,
-        total_available: allowed.length,
+        total_available: filtered.length,
         filtered_out: denied,
         source: 'firestore',
+        ...(domainFilter && { domain: domainFilter }),
       },
     }))
   } catch (err) {

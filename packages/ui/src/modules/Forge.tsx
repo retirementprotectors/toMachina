@@ -89,6 +89,16 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }
   'INT-new':         { color: 'rgb(156,163,175)', bg: 'rgba(156,163,175,0.15)', label: 'Intake: New' },
   'INT-classified':  { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Intake: Classified' },
   'INT-declined':    { color: 'rgb(107,114,128)', bg: 'rgba(107,114,128,0.15)', label: 'Intake: Declined' },
+  // MEGAZORD pipeline statuses (ZRD- prefix)
+  'ZRD-new':           { color: 'rgb(16,185,129)', bg: 'rgba(16,185,129,0.15)', label: 'New' },
+  'ZRD-researching':   { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Researching' },
+  'ZRD-strategizing':  { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Strategizing' },
+  'ZRD-discovery':     { color: 'rgb(212,164,76)', bg: 'rgba(212,164,76,0.15)', label: 'Discovery Doc' },
+  'ZRD-seeded':        { color: 'rgb(168,85,247)', bg: 'rgba(168,85,247,0.15)', label: 'Seeded' },
+  'ZRD-planned':       { color: 'rgb(99,102,241)', bg: 'rgba(99,102,241,0.15)', label: 'Plan' },
+  'ZRD-built':         { color: 'rgb(245,158,11)', bg: 'rgba(245,158,11,0.15)', label: 'Build' },
+  'ZRD-deployed':      { color: 'rgb(6,182,212)', bg: 'rgba(6,182,212,0.15)', label: 'Deploy' },
+  'ZRD-reported':      { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Reported' },
   // Legacy (kept for old items not yet migrated)
   done:            { color: 'rgb(34,197,94)', bg: 'rgba(34,197,94,0.15)', label: 'Done' },
   escalated:       { color: 'rgb(239,68,68)', bg: 'rgba(239,68,68,0.15)', label: 'Escalated' },
@@ -314,7 +324,7 @@ function ForgeInner({ portal }: ForgeProps) {
 
   // ─── TRK-14233/14235/14234: Dojo tab state (localStorage persisted) ───
   const DOJO_TAB_KEY = 'dojo-active-tab'
-  type DojoTab = 'intake' | 'raiden' | 'ronin' | 'voltron' | 'musashi' | 'tbd1' | 'tbd2' | 'status' | 'roadmap'
+  type DojoTab = 'intake' | 'raiden' | 'ronin' | 'voltron' | 'musashi' | 'megazord' | 'tbd1' | 'tbd2' | 'status' | 'roadmap'
   const [dojoTab, setDojoTab] = useState<DojoTab>(() => {
     if (typeof window === 'undefined') return 'intake'
     try { return (localStorage.getItem(DOJO_TAB_KEY) as DojoTab) || 'intake' } catch { return 'intake' }
@@ -1502,6 +1512,21 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
           <span style={{ fontSize: 14 }}>{'\u{1F4A9}'}</span>
           MUSASHI
         </button>
+        {/* Tab: MEGAZORD */}
+        <button
+          onClick={() => switchDojoTab('megazord')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '10px 18px', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: dojoTab === 'megazord' ? s.text : s.textMuted,
+            fontSize: 13, fontWeight: dojoTab === 'megazord' ? 600 : 400,
+            borderBottom: dojoTab === 'megazord' ? '2px solid #10b981' : '2px solid transparent',
+            marginBottom: -1, transition: 'all 0.15s',
+          }}
+        >
+          <span style={{ fontSize: 20 }}>{'\u{1F3EF}'}</span>
+          MEGAZORD
+        </button>
         {/* Tab: TBD 1 */}
         <button
           onClick={() => switchDojoTab('tbd1')}
@@ -2442,6 +2467,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
             const WARRIOR_COLORS: Record<string, string> = {
               SHINOB1: '#a78bfa', '2HINOBI': '#22c55e', MUSASHI: '#d4a44c',
               RONIN: '#f97316', RAIDEN: '#ef4444', VOLTRON: '#3b82f6', SENSEI: '#f59e0b',
+              MEGAZORD: '#10b981',
             }
             const activeCount = warriors.filter(w => w.status === 'active').length
             const tmuxWarriors = warriors.filter(w => w.type === 'tmux')
@@ -2773,6 +2799,38 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
         </div>
       )}
 
+      {/* ─── MEGAZORD tab — CIO / Data Operations ─── */}
+      {dojoTab === 'megazord' && (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'auto' }}>
+          <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 12, padding: 20, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}>
+                <span style={{ fontSize: 20 }}>{'\u{1F3EF}'}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: s.text }}>MEGAZORD</div>
+                <div style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>Chief Information Officer (CIO)</div>
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'rgba(16,185,129,0.12)', color: '#10b981', letterSpacing: 1 }}>ATLAS</span>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'rgba(16,185,129,0.12)', color: '#10b981', letterSpacing: 1 }}>RANGERS</span>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'rgba(16,185,129,0.12)', color: '#10b981', letterSpacing: 1 }}>ZRD-</span>
+              </div>
+            </div>
+            <div style={{ fontSize: 12, color: s.textMuted, lineHeight: 1.6 }}>
+              MEGAZORD IS ATLAS. Data operations registry, 15 atomic tools, 12 super tools, 5 wires. Wire-first thinking: compose existing capabilities before building new ones.
+            </div>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
+            <span className="material-icons-outlined" style={{ fontSize: 48, color: '#10b981', opacity: 0.2, marginBottom: 12 }}>hub</span>
+            <div style={{ fontSize: 14, fontWeight: 700, color: s.text, marginBottom: 6 }}>MEGAZORD Command Center</div>
+            <div style={{ fontSize: 12, color: s.textMuted, textAlign: 'center', maxWidth: 400 }}>
+              ZRD- pipeline items will appear here once data-centric tickets are reclassified. Navigate to the MEGAZORD Command Center module for full registry and wire management.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── TBD tabs — placeholder warriors ─── */}
       {(dojoTab === 'tbd1' || dojoTab === 'tbd2') && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
@@ -2813,6 +2871,7 @@ p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
               { warrior: 'RAIDEN', color: '#ef4444', desc: 'Reactive fix queue + triage', icon: 'bolt', prefix: 'RDN-' },
               { warrior: 'VOLTRON', color: '#22c55e', desc: 'Team + client-facing AI', icon: 'smart_toy', prefix: 'VOL-' },
               { warrior: 'MUSASHI', color: '#d4a44c', desc: 'Creative + brand pipeline', icon: 'brush', prefix: 'MUS-' },
+              { warrior: 'MEGAZORD', color: '#10b981', desc: 'CIO — data operations + ATLAS registry', icon: 'hub', prefix: 'ZRD-' },
             ].map(w => {
               const count = w.prefix === 'RON-' ? roninItems.length : w.prefix === 'RDN-' ? raidenItems.length : 0
               return (

@@ -84,11 +84,12 @@ const NAV_SECTIONS: NavSection[] = [
 
 /* ─── Fixed Bottom: App Items (default order per spec) ─── */
 const APP_ITEMS: AppItem[] = [
-  { key: 'atlas', href: '/modules/atlas', moduleKey: 'ATLAS' },
+  { key: 'megazord', href: '/modules/megazord', moduleKey: 'MEGAZORD' },
   { key: 'cam', href: '/modules/cam', moduleKey: 'CAM' },
   { key: 'dex', href: '/modules/dex', moduleKey: 'DEX' },
   { key: 'c3', href: '/modules/c3', moduleKey: 'C3' },
   { key: 'command-center', href: '/modules/command-center', moduleKey: 'RPI_COMMAND_CENTER' },
+  { key: 'voltron', href: '/command-center', moduleKey: 'VOLTRON' },
   { key: 'pipeline-studio', href: '/modules/pipeline-studio', moduleKey: 'PIPELINE_STUDIO' },
   { key: 'forge', href: '/modules/forge', moduleKey: 'FORGE' },
   { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
