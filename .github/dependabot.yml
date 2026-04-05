@@ -21,6 +21,9 @@ updates:
           - "typescript"
     # TypeScript gets its own PR — major versions have breaking tsconfig changes
     # that need manual review (moduleResolution, process globals, etc.)
+    # Block ALL major version bumps — they need manual migration, not auto-merge.
+    # Express 4→5 (breaking middleware API), TypeScript 5→6 (breaking tsconfig),
+    # @types/node 22→25 (TS compat). These create cascade failures across the pipeline.
     ignore:
-      - dependency-name: "typescript"
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
