@@ -2,7 +2,7 @@
 
 > **to** (Greek: "the") + **Machina** (Latin: "machine") = **The Machine**
 > The enterprise platform for Retirement Protectors, Inc.
-> Updated: 2026-03-13
+> Updated: 2026-04-05
 
 ---
 
@@ -30,7 +30,7 @@ toMachina/
 │   ├── auth/        → Firebase Auth + entitlements
 │   └── db/          → Typed Firestore client
 ├── services/
-│   ├── api/         → Cloud Run API (tm-api, 38+ routes, proxied via portal /api/*)
+│   ├── api/         → Cloud Run API (tm-api, 87 routes, proxied via portal /api/*)
 │   ├── bridge/      → Dual-write Firestore + Sheets
 │   ├── intake/      → Cloud Functions (intake channels)
 │   └── bigquery-stream/ → Real-time BigQuery sink
@@ -59,7 +59,7 @@ toMachina/
 | Auth | Firebase Auth (Google Workspace SSO, @retireprotected.com only) |
 | Database | Firestore (Native mode), 29K+ docs |
 | Analytics | BigQuery (feed-forward via Cloud Functions) |
-| Backend | Cloud Run (Express/TypeScript), 38+ route files |
+| Backend | Cloud Run (Express/TypeScript), 87 route files |
 | Build | Turborepo |
 | Hosting | Firebase App Hosting (auto-deploy from main when CI passes) |
 | GCP Project | `claude-mcp-484718` |
@@ -155,7 +155,7 @@ Bridge Sheets writes can be disabled via `SHEETS_WRITE_ENABLED=false` env var on
 
 ## Sprint Status
 
-Sprints 1-8 COMPLETE. Sprint 9 IN PROGRESS. See `ROADMAP.md` for full details.
+Sprints 1-9 COMPLETE. CXO Division (Wave 1-3) shipped 2026-04-05. See `ROADMAP.md` for full details.
 
 ## Session URLs
 
