@@ -9,5 +9,10 @@
 export { CommandCenterPage } from './CommandCenterPage'
 export type { CommandCenterPageProps } from './CommandCenterPage'
 
+// OPERATE Track components (VOL-O13, VOL-O14, VOL-O18)
+export { RunWirePanel } from './RunWirePanel'
+export { CaseReviewWidget } from './CaseReviewWidget'
+export { GapRequestForm } from './GapRequestForm'
+
 // Legacy business metrics dashboard (original CommandCenter.tsx, moved here)
 export { CommandCenter } from './CommandCenterLegacy'
