@@ -74,6 +74,8 @@ import { importAgentRoutes } from './routes/import-agents.js'
 import { voltronRegistryRoutes } from './routes/voltron-registry.js'
 import { voltronWireRoutes } from './routes/voltron-wire.js'
 import { voltronDeployRoutes } from './routes/voltron-deploy.js'
+import { voltronCasesRoutes } from './routes/voltron-cases.js'
+import { voltronGapRequestRoutes } from './routes/voltron-gap-requests.js'
 import { auditMiddleware } from './middleware/audit.js'
 import { raidenRoutes } from './raiden/index.js'
 import { startRaidenScheduler } from './raiden/scheduler.js'
@@ -207,6 +209,8 @@ app.use('/api/validation', validationRoutes)
 app.use('/api/import-agents', normalizeBody, importAgentRoutes)
 app.use('/api/voltron/registry', voltronRegistryRoutes)
 app.use('/api/voltron/wire', normalizeBody, voltronWireRoutes)
+app.use('/api/voltron/cases', normalizeBody, voltronCasesRoutes)
+app.use('/api/voltron/gap-requests', normalizeBody, voltronGapRequestRoutes)
 app.use('/api/voltron', normalizeBody, voltronDeployRoutes)
 
 app.use('/api/myst-ai', mystAiRoutes)

@@ -5,6 +5,8 @@ import { RegistryBrowser } from './RegistryBrowser'
 import { WireExecutionLog } from './WireExecutionLog'
 import { LionStatusPanel } from './LionStatusPanel'
 import { OpenCasesPanel } from './OpenCasesPanel'
+import { RunWirePanel } from './RunWirePanel'
+import { GapRequestForm } from './GapRequestForm'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -12,7 +14,7 @@ export interface CommandCenterPageProps {
   portal?: string
 }
 
-type TabKey = 'registry' | 'wire-log' | 'open-cases' | 'lion-status'
+type TabKey = 'registry' | 'wire-log' | 'open-cases' | 'lion-status' | 'run-wire' | 'gap-requests'
 
 interface Tab {
   key: TabKey
@@ -29,7 +31,9 @@ const TABS: Tab[] = [
   { key: 'registry', label: 'Registry Browser', icon: 'database', emptyMessage: 'No registry entries loaded yet' },
   { key: 'wire-log', label: 'Wire Log', icon: 'receipt_long', emptyMessage: 'No wires executed yet' },
   { key: 'open-cases', label: 'Open Cases', icon: 'assignment', emptyMessage: 'No open cases' },
+  { key: 'run-wire', label: 'Run Wire', icon: 'play_circle', emptyMessage: 'Select a client and wire' },
   { key: 'lion-status', label: 'Lion Status', icon: 'pets', emptyMessage: 'Lion configuration loading...' },
+  { key: 'gap-requests', label: 'Gap Requests', icon: 'report', emptyMessage: 'No gap requests' },
 ]
 
 // ── Styles (inline for dark theme — no portal CSS vars) ────────────────
@@ -69,6 +73,10 @@ function TabContent({ tabKey }: { tabKey: TabKey }) {
       return <LionStatusPanel />
     case 'open-cases':
       return <OpenCasesPanel />
+    case 'run-wire':
+      return <RunWirePanel />
+    case 'gap-requests':
+      return <GapRequestForm />
     case 'registry':
     default:
       return <RegistryBrowser />

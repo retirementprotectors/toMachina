@@ -8,6 +8,7 @@
 import { Router, type Request, type Response } from 'express'
 import { getFirestore } from 'firebase-admin/firestore'
 import { successResponse, errorResponse } from '../lib/helpers.js'
+import { LION_DOMAIN_KEYWORDS, type VoltronLionDomain } from '@tomachina/core'
 
 export const mdjRoutes = Router()
 
@@ -59,6 +60,7 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
     const portal = String(body.portal || 'prodash')
     const conversationId = body.conversation_id as string | undefined
     const context = body.context as Record<string, unknown> | undefined
+    const lionDomain = body.lion_domain as string | undefined // VOL-O10: explicit Lion routing
 
     if (!message) {
       res.status(400).json(errorResponse('message is required'))
@@ -111,6 +113,7 @@ mdjRoutes.post('/chat', async (req: Request, res: Response) => {
           conversation_history: (body.conversation_history as Array<Record<string, unknown>>) || [],
           conversation_id: conversationId,
           context,
+          lion_domain: lionDomain, // VOL-O10: pass Lion dispatch to VOLTRON
         }),
       })
 
@@ -287,6 +290,41 @@ mdjRoutes.post('/conversations/:id/reject', async (req: Request, res: Response) 
 
     const result = await agentRes.json()
     res.json(result)
+  } catch (err) {
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * POST /api/mdj/dispatch — VOL-O10
+ * Detect Lion domain from message text and return the matched Lion.
+ * Used by MDJ Panel to show Lion dispatch indicator before/during chat.
+ */
+mdjRoutes.post('/dispatch', async (req: Request, res: Response) => {
+  try {
+    const { message } = req.body as { message?: string }
+    if (!message) {
+      res.json(successResponse({ lion_domain: 'general', confidence: 0 }))
+      return
+    }
+
+    const lower = message.toLowerCase()
+    let bestDomain: VoltronLionDomain = 'general'
+    let bestScore = 0
+
+    for (const [domain, keywords] of Object.entries(LION_DOMAIN_KEYWORDS)) {
+      if (domain === 'general') continue
+      const score = keywords.reduce((acc: number, kw: string) => acc + (lower.includes(kw) ? 1 : 0), 0)
+      if (score > bestScore) {
+        bestScore = score
+        bestDomain = domain as VoltronLionDomain
+      }
+    }
+
+    res.json(successResponse({
+      lion_domain: bestDomain,
+      confidence: bestScore > 0 ? Math.min(bestScore / 3, 1) : 0,
+    }))
   } catch (err) {
     res.status(500).json(errorResponse(String(err)))
   }

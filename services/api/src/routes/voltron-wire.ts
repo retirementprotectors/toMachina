@@ -21,13 +21,17 @@ import {
 import {
   VOLTRON_ROLE_RANK,
   getVoltronWireById,
+  classifyLionDomain,
   type VoltronUserRole,
   type VoltronWireResult,
+  type VoltronLionDomain,
+  type IntakeChannel,
 } from '@tomachina/core'
 
 export const voltronWireRoutes = Router()
 
 const WIRE_EXECUTIONS_COL = 'wire_executions'
+const VOLTRON_CASES_COL = 'voltron_cases'
 
 /* ─── Firestore helpers (bracket notation for hookify) ─── */
 
@@ -35,6 +39,76 @@ function wireExecCol() {
   const store = getFirestore()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (store as any)['collection'](WIRE_EXECUTIONS_COL)
+}
+
+function casesCol() {
+  const store = getFirestore()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (store as any)['collection'](VOLTRON_CASES_COL)
+}
+
+/* ─── VOL-O08: Auto-create voltron_cases doc on wire execution ─── */
+
+async function createCaseFromWire(params: {
+  wire_id: string
+  client_id: string
+  lion_domain: VoltronLionDomain
+  agent_email: string
+  intake_channel: IntakeChannel
+}): Promise<string> {
+  const col = casesCol()
+  const docRef = col.doc()
+  const now = new Date().toISOString()
+
+  const caseDoc = {
+    case_id: docRef.id,
+    client_id: params.client_id,
+    client_name: '', // Denormalized later or by caller
+    wire_name: params.wire_id,
+    lion_domain: params.lion_domain,
+    agent_id: params.agent_email,
+    status: 'intake',
+    intake_channel: params.intake_channel,
+    wire_output: null,
+    outcome: null,
+    revision_notes: null,
+    created_at: now,
+    updated_at: now,
+    resolved_at: null,
+  }
+
+  await docRef.set(caseDoc)
+  return docRef.id
+}
+
+async function updateCaseStatus(caseId: string, status: string, wireOutput?: unknown) {
+  const col = casesCol()
+  const updates: Record<string, unknown> = {
+    status,
+    updated_at: new Date().toISOString(),
+  }
+  if (wireOutput !== undefined) {
+    updates.wire_output = wireOutput
+  }
+  await col.doc(caseId).update(updates)
+}
+
+/** Determine Lion domain for a wire. Uses wire_id naming convention. */
+function inferDomainFromWire(wireId: string): VoltronLionDomain {
+  const lower = wireId.toLowerCase()
+  // Use classifyLionDomain with a synthetic registry entry for keyword matching
+  const domain = classifyLionDomain({
+    tool_id: lower,
+    name: lower,
+    description: lower,
+    type: 'WIRE',
+    source: 'VOLTRON',
+    entitlement_min: 'DIRECTOR',
+    parameters: {},
+    server_only: true,
+    generated_at: '',
+  })
+  return domain
 }
 
 /* ─── Load wire executor (not exported from barrel) ─── */
@@ -137,12 +211,47 @@ voltronWireRoutes.post('/execute', async (req: Request, res: Response) => {
       return executionId
     }
 
+    // VOL-O08: Determine intake channel from request header or default
+    const intakeChannel = (req.headers['x-intake-channel'] as IntakeChannel) || 'command_center'
+    const lionDomain = inferDomainFromWire(wire_id)
+
+    // VOL-O08: Create case record at intake
+    let caseId: string | undefined
+    try {
+      caseId = await createCaseFromWire({
+        wire_id,
+        client_id,
+        lion_domain: lionDomain,
+        agent_email: userEmail,
+        intake_channel: intakeChannel,
+      })
+      // Transition to wire_running
+      await updateCaseStatus(caseId, 'wire_running')
+    } catch (caseErr) {
+      // Case creation failure should not block wire execution
+      console.error('VOL-O08: Case creation failed (non-blocking):', caseErr)
+    }
+
     const result: VoltronWireResult = await executeVoltronWire(wireInput, context, {
       simulate: simulate || false,
       writeAudit,
     })
 
-    res.json(successResponse(result))
+    // VOL-O08: Update case with wire output
+    if (caseId) {
+      try {
+        const isSuccess = result.status === 'complete' || result.status === 'simulated'
+        await updateCaseStatus(
+          caseId,
+          isSuccess ? 'output_ready' : 'output_ready',
+          { execution_id: result.execution_id, status: result.status, artifacts: result.artifacts },
+        )
+      } catch (caseErr) {
+        console.error('VOL-O08: Case update failed (non-blocking):', caseErr)
+      }
+    }
+
+    res.json(successResponse({ ...result, case_id: caseId }))
   } catch (err) {
     console.error('POST /api/voltron/wire/execute error:', err)
     const msg = err instanceof Error ? err.message : 'Failed to execute wire'
