@@ -1,1 +1,1 @@
-export { CARRIER_SOURCES, type CarrierSourceDefinition } from './carriers.js'
+export { CARRIER_SOURCES, type CarrierSourceDefinition } from './carriers'

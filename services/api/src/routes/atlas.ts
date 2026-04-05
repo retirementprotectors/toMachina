@@ -20,6 +20,7 @@ import {
   profileCollection,
   matchProfiles,
   matchFingerprint,
+  identifyGaps,
   type AtlasFormat,
   type ColumnMapping,
 } from '@tomachina/core'
@@ -50,6 +51,8 @@ import type {
   AtlasFormatUpdateResult,
   IntrospectResultData,
   IntrospectConfirmResult,
+  AtlasGapReport,
+  AtlasExecutionAnalyticsData,
 } from '@tomachina/core'
 
 export const atlasRoutes = Router()
@@ -1072,6 +1075,135 @@ atlasRoutes.get('/health', async (_req: Request, res: Response) => {
     } as unknown as AtlasHealthData))
   } catch (err) {
     console.error('GET /api/atlas/health error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/atlas/gaps
+ * Proactive gap identification — cross-references source_registry, format library, and tool_registry.
+ * ZRD-D12
+ */
+atlasRoutes.get('/gaps', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+
+    // Load sources
+    const sourceSnap = await db.collection(SOURCE_COLLECTION).where('status', '==', 'ACTIVE').get()
+    const sources = sourceSnap.docs.map(d => d.data() as Record<string, unknown>)
+
+    // Load format IDs
+    const formatSnap = await db.collection('atlas').doc('formats').collection('items').get()
+    const formatIds = formatSnap.docs.map(d => d.id)
+
+    // Load tool IDs
+    const toolSnap = await db.collection(TOOL_COLLECTION).get()
+    const toolIds = toolSnap.docs.map(d => d.id)
+
+    // Wire IDs from the static definitions
+    const wireIds = WIRE_DEFINITIONS.map(w => w.wire_id)
+
+    const report = identifyGaps(
+      sources as Parameters<typeof identifyGaps>[0],
+      formatIds,
+      toolIds,
+      wireIds
+    )
+
+    res.json(successResponse<AtlasGapReport>(report as unknown as AtlasGapReport))
+  } catch (err) {
+    console.error('GET /api/atlas/gaps error:', err)
+    res.status(500).json(errorResponse(String(err)))
+  }
+})
+
+/**
+ * GET /api/atlas/execution-analytics
+ * Wire execution analytics — aggregated from ranger_runs collection.
+ * ZRD-D11
+ */
+atlasRoutes.get('/execution-analytics', async (_req: Request, res: Response) => {
+  try {
+    const db = getFirestore()
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+    const runSnap = await db.collection('ranger_runs')
+      .where('startedAt', '>=', thirtyDaysAgo)
+      .orderBy('startedAt', 'desc')
+      .limit(500)
+      .get()
+
+    const runs = runSnap.docs.map(d => d.data() as Record<string, unknown>)
+
+    // Group by wireId
+    const wireMap = new Map<string, Record<string, unknown>[]>()
+    for (const run of runs) {
+      const wireId = String(run.wireId || '')
+      if (!wireMap.has(wireId)) wireMap.set(wireId, [])
+      wireMap.get(wireId)!.push(run)
+    }
+
+    // Build per-wire analytics
+    const wires: Record<string, unknown>[] = []
+    let totalSuccess = 0
+    let totalFailures = 0
+
+    for (const [wireId, wireRuns] of wireMap) {
+      const successRuns = wireRuns.filter(r => r.status === 'completed')
+      const failedRuns = wireRuns.filter(r => r.status === 'failed')
+      totalSuccess += successRuns.length
+      totalFailures += failedRuns.length
+
+      const durations = wireRuns
+        .map(r =>
+          r.output && typeof r.output === 'object'
+            ? (r.output as Record<string, unknown>).execution_time_ms
+            : 0
+        )
+        .filter((d): d is number => typeof d === 'number' && d > 0)
+      const avgDuration =
+        durations.length > 0
+          ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+          : 0
+
+      // Weekly counts (last 12 weeks, index 0 = oldest, 11 = most recent)
+      const weeklyCounts: number[] = Array(12).fill(0)
+      const now = Date.now()
+      for (const run of wireRuns) {
+        const started = new Date(String(run.startedAt || '')).getTime()
+        if (isNaN(started)) continue
+        const weeksAgo = Math.floor((now - started) / (7 * 24 * 60 * 60 * 1000))
+        if (weeksAgo >= 0 && weeksAgo < 12) weeklyCounts[weeksAgo]++
+      }
+
+      const lastFailed = failedRuns[0]
+      wires.push({
+        wire_id: wireId,
+        wire_name: wireId.replace(/^WIRE_/, '').replace(/_/g, ' '),
+        total_runs: wireRuns.length,
+        success_count: successRuns.length,
+        failure_count: failedRuns.length,
+        avg_duration_ms: avgDuration,
+        last_run_at: wireRuns[0]?.startedAt ?? null,
+        last_error: lastFailed?.error ?? null,
+        weekly_counts: weeklyCounts.reverse(),
+      })
+    }
+
+    const periodEnd = new Date().toISOString()
+
+    res.json(
+      successResponse<AtlasExecutionAnalyticsData>({
+        wires,
+        period_start: thirtyDaysAgo,
+        period_end: periodEnd,
+        total_runs: runs.length,
+        total_success: totalSuccess,
+        total_failures: totalFailures,
+      } as unknown as AtlasExecutionAnalyticsData)
+    )
+  } catch (err) {
+    console.error('GET /api/atlas/execution-analytics error:', err)
     res.status(500).json(errorResponse(String(err)))
   }
 })
