@@ -106,4 +106,4 @@
 - Source Registry: Firestore `source_registry`
 - Tool Registry: Firestore `tool_registry`
 - Existing Rangers: `services/api/src/rangers/`
-- Wire Edge Cases: `docs/wire-edge-cases.md`
+- Wire Edge Cases: `docs/audits/wire-edge-cases.md`
