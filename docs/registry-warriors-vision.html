@@ -203,6 +203,72 @@
   </div>
 </div>
 
+<div class="card">
+  <h2>The Consumption Principle</h2>
+  <div class="callout">
+    <p><strong>Key Decision (2026-04-05):</strong> ATLAS is not a separate thing that MEGAZORD "connects to." MEGAZORD <em>IS</em> ATLAS. QUE is not a separate thing that VOLTRON "uses." VOLTRON <em>IS</em> QUE. The CMO Registry is not a separate thing that MUSASHI "accesses." MUSASHI <em>IS</em> the CMO Registry.</p>
+  </div>
+  <p>Each registry has exactly <strong>one consumer</strong>. There is no reason to maintain them as separate branded entities. The CXO warrior <strong>consumes</strong> its registry &mdash; the Command Center App IS the registry UI, branded as the warrior, operated by the warrior.</p>
+  <p>The underlying code stays in <code>packages/core/</code> (because RONIN may need to read it when building new tools), but the app, the experience, the name on the door &mdash; that's the warrior's.</p>
+  <table>
+    <tr><th>Before</th><th>After</th></tr>
+    <tr><td>MEGAZORD's Command Center <em>connects to</em> ATLAS</td><td><strong>MEGAZORD IS ATLAS.</strong> One app. One brand. One owner.</td></tr>
+    <tr><td>VOLTRON's Command Center <em>uses</em> QUE</td><td><strong>VOLTRON IS QUE.</strong> One app. One brand. One owner.</td></tr>
+    <tr><td>MUSASHI's Command Center <em>accesses</em> CMO Registry</td><td><strong>MUSASHI IS the CMO Registry.</strong> One app. One brand. One owner.</td></tr>
+  </table>
+  <p>Three Command Center Apps. Not six things pretending to be three.</p>
+</div>
+
+<div class="card">
+  <h2>The Wire Executor Insight</h2>
+  <p>The mesh agents (Rangers, Lions, Artisans) are <strong>fundamentally different</strong> from Code Warriors. They don't write code. They don't make architecture decisions. They execute wires.</p>
+  <div class="quote">
+    <p>"The mesh in this model is very minimal code. They're really just using the integrations and the webhooks and the database and the MCPs and the tools to do tasks. Which is fundamentally different from the fixes and features happening in the Dojo."</p>
+    <p style="text-align: right; font-style: normal; color: var(--accent);">&mdash; JDM</p>
+  </div>
+  <p>A Ranger running <code>WIRE_DATA_IMPORT</code> doesn't think. The wire definition IS the task list:</p>
+  <ol>
+    <li>SUPER_EXTRACT &rarr; pull data from source</li>
+    <li>SUPER_VALIDATE &rarr; check against schema</li>
+    <li>SUPER_NORMALIZE &rarr; transform to standard format</li>
+    <li>SUPER_MATCH &rarr; find existing records</li>
+    <li>SUPER_WRITE &rarr; persist to Firestore</li>
+  </ol>
+  <p>That's a <strong>Haiku-class CCSDK agent</strong> reading a config and executing steps. No reasoning. No architecture. No "let me think about the best approach." The approach IS the wire. Just run it.</p>
+  <table>
+    <tr><th></th><th>Code Warriors (Dojo)</th><th>Registry Warriors (Command Centers)</th></tr>
+    <tr><td><strong>What they do</strong></td><td>Write code, ship PRs, change the platform</td><td>Execute wires, compose tools, run tasks</td></tr>
+    <tr><td><strong>Complexity</strong></td><td>High &mdash; architecture, multi-file changes, tests</td><td>Low &mdash; follow the wire, execute steps, report</td></tr>
+    <tr><td><strong>Model needed</strong></td><td>Sonnet (execution) under Opus (planning)</td><td><strong>Haiku.</strong> Maybe Sonnet for the CXO brain.</td></tr>
+    <tr><td><strong>Agent type</strong></td><td>tmux or subagent under tmux</td><td>CCSDK task-list agents</td></tr>
+    <tr><td><strong>Cost per run</strong></td><td>$20&ndash;40 per sprint</td><td><strong>Pennies.</strong> 10&ndash;15 API calls at Haiku rates.</td></tr>
+  </table>
+  <p><strong>The tmux CXO warriors are the generals. The CCSDK mesh agents are the infantry.</strong> Generals think. Infantry executes orders. You don't give a general's salary to every soldier.</p>
+</div>
+
+<div class="card">
+  <h2>The Local Inference Endgame</h2>
+  <div class="callout mecha">
+    <p><strong>NVIDIA P40 on MDJ_SERVER:</strong> 24GB VRAM. Runs a 13B parameter model comfortably (Llama 3, Mistral, etc.). If mesh agents are Haiku-class wire executors, they could run on <strong>local inference</strong> instead of API calls.</p>
+  </div>
+  <p>The implication: mesh agents at <strong>zero marginal cost</strong> after the P40 is running. Rangers, Lions, and Artisans executing wires on local inference while the CXO brains (tmux warriors) stay on Claude for strategic thinking.</p>
+  <p>The generals use satellite phones. The infantry uses walkie-talkies.</p>
+  <p>Not Phase 1 work &mdash; but the endgame architecture worth building toward. Every wire we design today should be simple enough for a 13B model to execute. That constraint makes the wires better anyway.</p>
+</div>
+
+<div class="card">
+  <h2>CXO Self-Authoring</h2>
+  <p>Once a CXO owns their registry and commands their mesh, <strong>they write their own Discovery Docs.</strong> They know what's missing. They know what's stale. They know what needs building.</p>
+  <p>The CXO doesn't wait for the CTO to scope their department's work. They:</p>
+  <ol>
+    <li><strong>Identify the gap</strong> from their registry (what tools/wires are missing?)</li>
+    <li><strong>Write the Discovery Doc</strong> (scoping the work, defining acceptance criteria)</li>
+    <li><strong>Handle internally</strong> if it's wire execution (deploy mesh agents)</li>
+    <li><strong>Ticket to Dojo</strong> if it needs platform code changes (RONIN builds the new tool)</li>
+  </ol>
+  <p>This is the operating model at steady state. The CTO + CXOs run the show. RONIN and the mesh agents do the work.</p>
+</div>
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -590,7 +656,8 @@
             |               |               |
       ┌─────┼─────┐   ┌─────┼─────┐   ┌─────┼─────┐
       |     |     |   |     |     |   |     |     |
-     T1    T2    T3  T1    T2    T3  T1    T2    T3   &larr; 9 Track Discoveries
+     <span class="hl">CON</span>  <span class="hl-mecha">OPR</span>  <span class="hl-gold">DEV</span>  <span class="hl">CON</span>  <span class="hl-mecha">OPR</span>  <span class="hl-gold">DEV</span>  <span class="hl">CON</span>  <span class="hl-mecha">OPR</span>  <span class="hl-gold">DEV</span>   &larr; 9 Track Discoveries
+                                                        CONSUME &rarr; OPERATE &rarr; DEVOUR
   </div>
   <table>
     <tr><th>Level</th><th>Doc Type</th><th>Count</th><th>Content</th><th>Audience</th></tr>
@@ -602,14 +669,18 @@
 </div>
 
 <div class="card">
-  <h2>Tracks Per CXO</h2>
+  <h2>Universal CXO Launch Pattern &mdash; CONSUME &rarr; OPERATE &rarr; DEVOUR</h2>
+  <p>Every CXO follows the same three-track lifecycle. The content differs (MEGAZORD eats ATLAS, VOLTRON eats QUE, MUSASHI eats CMO tools) but the pattern is identical. Each track gives the CXO more power to execute the next one &mdash; the lifecycle is <strong>self-bootstrapping</strong>.</p>
   <table>
-    <tr><th>Track</th><th>Name</th><th>Scope</th><th>Parallelizable?</th></tr>
-    <tr><td><strong>T1</strong></td><td>Role + Cleanup</td><td>Rename/rebrand warrior across platform. Consolidate existing tickets, discos, sprints. Dedup work already done. Claim data-centric tickets from RONIN queue.</td><td>Yes &mdash; 3 T1s can run in parallel</td></tr>
-    <tr><td><strong>T2</strong></td><td>Build Mesh</td><td>CCSDK specialists, registry wiring, Hub Haiku dispatcher integration, Command Center App scaffold</td><td>Yes &mdash; 3 T2s can run in parallel (after T1)</td></tr>
-    <tr><td><strong>T3</strong></td><td>Reactive + Proactive Work</td><td>Intake paths, proactive triggers, monitoring, the actual work queue. Data accuracy E2E tests (MEGAZORD). Client outcome tracking (VOLTRON). Campaign metrics (MUSASHI).</td><td>Yes &mdash; 3 T3s can run in parallel (after T2)</td></tr>
+    <tr><th>Track</th><th>Name</th><th>Scope</th><th>Output</th><th>Parallelizable?</th></tr>
+    <tr><td><strong>T1</strong></td><td style="color: var(--accent)">CONSUME</td><td>Pull in your registry. Brand it yours. Build your Command Center UI. Claim ownership. MEGAZORD IS ATLAS. VOLTRON IS QUE. MUSASHI IS the CMO Registry. Rename, rebrand, consolidate existing tickets/discos/sprints. Claim domain-specific tickets sitting in RONIN's queue.</td><td>Command Center App (scaffold) + branded registry + consolidated backlog</td><td>Yes &mdash; 3 T1s in parallel</td></tr>
+    <tr><td><strong>T2</strong></td><td style="color: var(--mecha-green)">OPERATE</td><td>Build your actual role and the things you're going to do with those tools. CCSDK mesh specialists, wire library, Hub Haiku dispatcher integration, intake funnel. The CXO becomes operational.</td><td>Live mesh agents + wire library + intake channel + CXO can self-author Discovery Docs</td><td>Yes &mdash; 3 T2s in parallel (after T1)</td></tr>
+    <tr><td><strong>T3</strong></td><td style="color: var(--gold)">DEVOUR</td><td>Full inventory + audit everything you have. Eat all of it. What tools exist? What's stale? What's missing? What work is scattered across the Dojo that belongs to you? Absorb it all, launch the full mesh, and destroy the backlog.</td><td>Full registry populated + mesh at scale + backlog cleared + proactive monitoring live</td><td>Yes &mdash; 3 T3s in parallel (after T2)</td></tr>
   </table>
   <p><strong>Maximum parallelization:</strong> 3 CXOs &times; 1 track at a time = 3 builders running simultaneously. After T1 completes for all 3, T2 launches for all 3. Then T3. <strong>Three waves of three.</strong></p>
+  <div class="callout">
+    <p><strong>Why this order matters:</strong> You can't OPERATE without owning your registry (T1). You can't DEVOUR without knowing how to operate your mesh (T2). Each track is a prerequisite for the next. But all 3 CXOs can run the same track in parallel &mdash; MEGAZORD, VOLTRON, and MUSASHI all CONSUME simultaneously, then all OPERATE simultaneously, then all DEVOUR simultaneously.</p>
+  </div>
 </div>
 
 <div class="card">
@@ -626,13 +697,15 @@
 <div class="card">
   <h2>Next Steps</h2>
   <ol>
-    <li><strong>Tonight:</strong> Vision Discovery (this doc) + 3 CXO Roadmaps &mdash; SHINOB1 + JDM</li>
-    <li><strong>Next:</strong> MUSASHI writes 9 Track Discovery Docs from the Roadmaps</li>
-    <li><strong>Then:</strong> RONIN executes T1 for all 3 CXOs in parallel (rename + consolidate)</li>
-    <li><strong>Then:</strong> T2 in parallel (build meshes + Command Centers)</li>
-    <li><strong>Then:</strong> T3 in parallel (reactive/proactive work + monitoring)</li>
+    <li><strong>Tonight:</strong> Vision Discovery v2 (this doc) &mdash; SHINOB1 + JDM &mdash; <span class="status-live">Done</span></li>
+    <li><strong>Next:</strong> 3 CXO Roadmaps (MEGAZORD, VOLTRON, MUSASHI) &mdash; each defines CONSUME/OPERATE/DEVOUR for their domain</li>
+    <li><strong>Then:</strong> CXOs self-author 9 Track Discovery Docs from their Roadmaps (or MUSASHI writes all 9)</li>
+    <li><strong>Wave 1 &mdash; CONSUME:</strong> 3 RONIN in parallel &mdash; each CXO absorbs their registry, builds Command Center scaffold, consolidates backlog</li>
+    <li><strong>Wave 2 &mdash; OPERATE:</strong> 3 RONIN in parallel &mdash; each CXO builds their mesh, wire library, intake funnel. CXOs become operational.</li>
+    <li><strong>Wave 3 &mdash; DEVOUR:</strong> 3 RONIN in parallel &mdash; full inventory, audit, absorb everything, launch mesh at scale, destroy backlog</li>
+    <li><strong>Endgame:</strong> NVIDIA P40 local inference for mesh agents &mdash; zero marginal cost wire execution</li>
   </ol>
-  <p><strong>13 docs. 3 waves. 9 sprints. The biggest build The Machine has ever done.</strong></p>
+  <p><strong>13 docs. 3 waves. 9 sprints. Three CXOs that own their domains end to end. The biggest build The Machine has ever done.</strong></p>
 </div>
 
 </div>
