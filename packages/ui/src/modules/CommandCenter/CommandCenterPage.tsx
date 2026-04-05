@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
+import { RegistryBrowser } from './RegistryBrowser'
 import { WireExecutionLog } from './WireExecutionLog'
 import { LionStatusPanel } from './LionStatusPanel'
 import { OpenCasesPanel } from './OpenCasesPanel'
@@ -70,7 +71,7 @@ function TabContent({ tabKey }: { tabKey: TabKey }) {
       return <OpenCasesPanel />
     case 'registry':
     default:
-      return <EmptyState icon="database" message="Registry Browser — coming in VOL-C03" />
+      return <RegistryBrowser />
   }
 }
 

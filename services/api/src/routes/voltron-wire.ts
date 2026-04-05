@@ -44,6 +44,41 @@ async function loadVoltronWireExecutor() {
   return mod
 }
 
+// ─── GET /api/voltron/wire/log ────────────────────────────────────────────
+// VOL-C14: Returns most recent wire execution events for Command Center.
+// MUST be defined before /:id routes to avoid Express matching "log" as :id.
+
+voltronWireRoutes.get('/log', async (_req: Request, res: Response) => {
+  try {
+    const col = wireExecCol()
+    const snapshot = await col
+      .orderBy('started_at', 'desc')
+      .limit(100)
+      .get()
+
+    const entries = snapshot.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
+      const d = doc.data()
+      return {
+        id: doc.id,
+        timestamp: d.started_at || d.completed_at || '',
+        toolName: d.wire_id || 'unknown',
+        lion: d.domain || 'general',
+        status: d.status === 'complete' ? 'success'
+          : d.status === 'failed' ? 'error'
+          : d.status === 'approval_pending' ? 'pending'
+          : d.status || 'pending',
+        clientId: d.client_id || null,
+        errorMessage: d.status === 'failed' ? (d.error || null) : null,
+      }
+    })
+
+    res.json(successResponse(entries))
+  } catch (err) {
+    console.error('GET /api/voltron/wire/log error:', err)
+    res.status(500).json(errorResponse('Failed to fetch wire log'))
+  }
+})
+
 // ─── POST /api/voltron/wire/execute ─────────────────────────────────────────
 // Execute a VOLTRON wire. Requires entitlement matching wire's minimum.
 
@@ -272,3 +307,4 @@ voltronWireRoutes.post('/:id/approve', async (req: Request, res: Response) => {
     res.status(500).json(errorResponse(msg))
   }
 })
+
