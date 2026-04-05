@@ -550,5 +550,11 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if request.auth.token.email in ['josh@retireprotected.com', 'john@retireprotected.com'];
     }
+
+    // CMO Pipeline Jobs — MUSASHI creative pipeline tracking (MUS-O09)
+    match /cmo_pipeline_jobs/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
+    }
   }
 }
