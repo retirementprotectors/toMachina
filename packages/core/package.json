@@ -64,6 +64,14 @@
     "./voltron/super-tools/*": {
       "types": "./src/voltron/super-tools/*.ts",
       "default": "./dist/voltron/super-tools/*.js"
+    },
+    "./cmo/*": {
+      "types": "./src/cmo/*.ts",
+      "default": "./dist/cmo/*.js"
+    },
+    "./cmo/wires/*": {
+      "types": "./src/cmo/wires/*.ts",
+      "default": "./dist/cmo/wires/*.js"
     }
   },
   "scripts": {

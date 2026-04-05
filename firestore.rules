@@ -566,5 +566,11 @@ service cloud.firestore {
       allow read: if isRPIUser();
       allow write: if isRPIUser();
     }
+
+    // CMO Pipeline Jobs — MUSASHI creative pipeline tracking (MUS-O09)
+    match /cmo_pipeline_jobs/{docId} {
+      allow read: if isRPIUser();
+      allow write: if isRPIUser();
+    }
   }
 }

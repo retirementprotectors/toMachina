@@ -1,6 +1,6 @@
 /**
- * CMO Wires Barrel (MUS-C09)
- * Aggregates all wire definitions.
+ * CMO Wires Barrel (MUS-C09 + MUS-O02/O03/O04)
+ * Aggregates all wire definitions and their tool runners.
  */
 import type { CmoWireDefinition } from '../types'
 import { WIRE_BROCHURE } from './WIRE_BROCHURE'
@@ -10,6 +10,9 @@ import { WIRE_LANDING_PAGE } from './WIRE_LANDING_PAGE'
 export { WIRE_BROCHURE } from './WIRE_BROCHURE'
 export { WIRE_CAMPAIGN } from './WIRE_CAMPAIGN'
 export { WIRE_LANDING_PAGE } from './WIRE_LANDING_PAGE'
+export { createBrochureRunner } from './brochure-runner'
+export { createCampaignRunner } from './campaign-runner'
+export { createLandingPageRunner } from './landing-page-runner'
 
 /** All CMO wire definitions */
 export const CMO_WIRES: CmoWireDefinition[] = [

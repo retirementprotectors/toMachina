@@ -702,11 +702,7 @@
         }
       ],
       "frontend_components": [],
-      "portals": [
-        "prodash",
-        "riimo",
-        "sentinel"
-      ],
+      "portals": [],
       "fk_to": [],
       "fk_from": [],
       "flow_paths": []
@@ -2108,7 +2104,7 @@
       "status": "backend_only",
       "backend": "acf.ts",
       "frontend": "",
-      "backend_endpoints": 127,
+      "backend_endpoints": 128,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2160,7 +2156,7 @@
         },
         {
           "file": "intake.ts",
-          "endpoints": 5,
+          "endpoints": 6,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2266,13 +2262,13 @@
       "status": "backend_only",
       "backend": "mdj.ts",
       "frontend": "",
-      "backend_endpoints": 13,
+      "backend_endpoints": 14,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "mdj.ts",
-          "endpoints": 13,
+          "endpoints": 14,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2295,13 +2291,13 @@
       "status": "backend_only",
       "backend": "mdj.ts",
       "frontend": "",
-      "backend_endpoints": 13,
+      "backend_endpoints": 14,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "mdj.ts",
-          "endpoints": 13,
+          "endpoints": 14,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2322,13 +2318,13 @@
       "status": "backend_only",
       "backend": "mdj.ts",
       "frontend": "",
-      "backend_endpoints": 13,
+      "backend_endpoints": 14,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "mdj.ts",
-          "endpoints": 13,
+          "endpoints": 14,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2349,13 +2345,13 @@
       "status": "backend_only",
       "backend": "intake.ts",
       "frontend": "",
-      "backend_endpoints": 37,
+      "backend_endpoints": 38,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "intake.ts",
-          "endpoints": 5,
+          "endpoints": 6,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2474,6 +2470,32 @@
         "campaigns",
         "drip_sequences"
       ],
+      "fk_from": [],
+      "flow_paths": []
+    },
+    "ranger_runs": {
+      "status": "backend_only",
+      "backend": "rangers.ts",
+      "frontend": "",
+      "backend_endpoints": 8,
+      "hardcoded": false,
+      "sub_collection": false,
+      "backend_routes": [
+        {
+          "file": "rangers.ts",
+          "endpoints": 8,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create"
+          ]
+        }
+      ],
+      "frontend_components": [],
+      "portals": [],
+      "fk_to": [],
       "fk_from": [],
       "flow_paths": []
     },
@@ -2806,7 +2828,7 @@
       "status": "backend_only",
       "backend": "admin-learning-loop.ts",
       "frontend": "",
-      "backend_endpoints": 257,
+      "backend_endpoints": 258,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
@@ -2925,7 +2947,7 @@
         },
         {
           "file": "mdj.ts",
-          "endpoints": 13,
+          "endpoints": 14,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2987,13 +3009,13 @@
       "status": "backend_only",
       "backend": "intake.ts",
       "frontend": "",
-      "backend_endpoints": 5,
+      "backend_endpoints": 6,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "intake.ts",
-          "endpoints": 5,
+          "endpoints": 6,
           "reads": true,
           "writes": true,
           "operations": [
@@ -3366,6 +3388,37 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "cmo-intake.ts": {
+      "file": "cmo-intake.ts",
+      "endpoints": 1,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "cmo-pipeline.ts": {
+      "file": "cmo-pipeline.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "cmo-wires.ts": {
+      "file": "cmo-wires.ts",
+      "endpoints": 3,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "comms-routing.ts": {
       "file": "comms-routing.ts",
       "endpoints": 4,
@@ -3688,7 +3741,7 @@
     },
     "intake.ts": {
       "file": "intake.ts",
-      "endpoints": 5,
+      "endpoints": 6,
       "operations": [
         "list",
         "get",
@@ -3720,7 +3773,7 @@
     },
     "mdj.ts": {
       "file": "mdj.ts",
-      "endpoints": 13,
+      "endpoints": 14,
       "operations": [
         "list",
         "get",
@@ -3874,6 +3927,20 @@
         "create"
       ],
       "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "rangers.ts": {
+      "file": "rangers.ts",
+      "endpoints": 8,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [
+        "ranger_runs"
+      ],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -4117,6 +4184,18 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "voltron-cases.ts": {
+      "file": "voltron-cases.ts",
+      "endpoints": 7,
+      "operations": [
+        "list",
+        "get",
+        "update"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "voltron-deploy.ts": {
       "file": "voltron-deploy.ts",
       "endpoints": 11,
@@ -4125,6 +4204,19 @@
         "get",
         "create",
         "delete"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "voltron-gap-requests.ts": {
+      "file": "voltron-gap-requests.ts",
+      "endpoints": 6,
+      "operations": [
+        "list",
+        "get",
+        "create",
+        "update"
       ],
       "collections": [],
       "frontend_consumers": [],
@@ -4144,7 +4236,7 @@
     },
     "voltron-wire.ts": {
       "file": "voltron-wire.ts",
-      "endpoints": 7,
+      "endpoints": 9,
       "operations": [
         "list",
         "get",
@@ -4243,6 +4335,15 @@
       "description": ""
     },
     {
+      "name": "megazordDriveWatch",
+      "type": "http",
+      "region": "us-central1",
+      "memory": "512MiB",
+      "timeout": 180,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
       "name": "queueStatus",
       "type": "http",
       "region": "us-central1",
@@ -4302,6 +4403,16 @@
       "description": ""
     },
     {
+      "name": "megazordDriveWatchScheduled",
+      "type": "scheduled",
+      "schedule": "every 5 minutes",
+      "region": "us-central1",
+      "memory": "512MiB",
+      "timeout": 180,
+      "source_file": "index.ts",
+      "description": ""
+    },
+    {
       "name": "onClientWrite",
       "type": "firestore_trigger",
       "region": "us-central1",
@@ -4330,6 +4441,15 @@
     }
   ],
   "env_vars": [
+    {
+      "name": "API_BASE_URL",
+      "services": [
+        "api"
+      ],
+      "has_value": false,
+      "source": "code_reference",
+      "sensitive": false
+    },
     {
       "name": "CSG_API_KEY",
       "services": [
@@ -5023,14 +5143,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 78,
-    "ui_files": 168,
-    "portal_pages": 172,
-    "collections_found": 74,
-    "api_routes_found": 78,
-    "cloud_functions_found": 14,
-    "env_vars_found": 41,
+    "route_files": 84,
+    "ui_files": 183,
+    "portal_pages": 175,
+    "collections_found": 75,
+    "api_routes_found": 84,
+    "cloud_functions_found": 16,
+    "env_vars_found": 42,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-04-04T17:17:51.206Z"
+    "scanned_at": "2026-04-05T13:50:10.988Z"
   }
 }
