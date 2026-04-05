@@ -23,8 +23,8 @@ const db = getFirestore()
 const SPECIALISTS = [
   {
     id: 'mdj-general',
-    specialist_name: 'VOLTRON General',
-    display_name: 'VOLTRON',
+    specialist_name: 'MDJ General',
+    display_name: 'MDJ',
     icon: 'smart_toy',
     system_prompt:
       'You are VOLTRON, a general-purpose AI assistant for RPI. You help with any topic. If a question requires deep domain expertise, recommend switching to a specialist.',
@@ -35,7 +35,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-medicare',
-    specialist_name: 'VOLTRON Medicare',
+    specialist_name: 'MDJ Medicare',
     display_name: 'Medicare Specialist',
     icon: 'health_and_safety',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -46,7 +46,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-securities',
-    specialist_name: 'VOLTRON Securities',
+    specialist_name: 'MDJ Securities',
     display_name: 'Securities Specialist',
     icon: 'account_balance',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -57,7 +57,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-service',
-    specialist_name: 'VOLTRON Service',
+    specialist_name: 'MDJ Service',
     display_name: 'Service Specialist',
     icon: 'support_agent',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -68,7 +68,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-david',
-    specialist_name: 'VOLTRON DAVID',
+    specialist_name: 'MDJ DAVID',
     display_name: 'DAVID Specialist',
     icon: 'handshake',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -79,7 +79,7 @@ const SPECIALISTS = [
   },
   {
     id: 'mdj-ops',
-    specialist_name: 'VOLTRON Ops',
+    specialist_name: 'MDJ Ops',
     display_name: 'Operations Specialist',
     icon: 'settings_suggest',
     system_prompt: 'PLACEHOLDER — Full prompt will be written in TRK-012.',
@@ -103,16 +103,18 @@ async function main() {
       created_at: now,
       updated_at: now,
     }
+    const mirrorRef = db.collection('specialist_configs').doc(spec.id)
     if (DRY_RUN) {
       console.log(`  [dry-run] Would write: ${spec.id} — ${spec.display_name}`)
     } else {
       batch.set(ref, data)
+      batch.set(mirrorRef, data)
     }
   }
 
   if (!DRY_RUN) {
     await batch.commit()
-    console.log(`Done. ${SPECIALISTS.length} specialist configs seeded to mdj_specialist_configs.`)
+    console.log(`Done. ${SPECIALISTS.length} specialist configs seeded to BOTH mdj_specialist_configs + specialist_configs.`)
   } else {
     console.log('Dry run complete. No writes made.')
   }
