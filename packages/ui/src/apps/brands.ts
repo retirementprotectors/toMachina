@@ -1,6 +1,6 @@
 /** Canonical app brand definitions — identical across all portals. */
 
-export type AppKey = 'megazord' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'guardian' | 'leadership-center' | 'pipeline-studio' | 'pipelines' | 'prozone' | 'rsp' | 'voltron'
+export type AppKey = 'megazord' | 'musashi' | 'cam' | 'comms' | 'dex' | 'c3' | 'command-center' | 'david-hub' | 'forge' | 'guardian' | 'leadership-center' | 'pipeline-studio' | 'pipelines' | 'prozone' | 'rsp' | 'voltron'
 
 export interface AppBrand {
   color: string
@@ -11,6 +11,7 @@ export interface AppBrand {
 
 export const APP_BRANDS: Record<AppKey, AppBrand> = {
   megazord:           { color: '#10b981', icon: 'hub',         label: 'MEGAZORD',         description: 'CIO Command Center' },
+  musashi:            { color: '#d4a44c', icon: 'palette',     label: 'MUSASHI',          description: 'CMO Command Center' },
   comms:              { color: '#6366f1', icon: 'forum',       label: 'COMMS Center',     description: 'Client Communications' },
   cam:                { color: '#d69e2e', icon: 'payments',    label: 'CAM',              description: 'Compensation Manager' },
   dex:                { color: '#38a169', icon: 'description', label: 'DEX',              description: 'Document Exchange' },
@@ -24,5 +25,5 @@ export const APP_BRANDS: Record<AppKey, AppBrand> = {
   pipelines:           { color: '#4a7ab5', icon: 'route',        label: 'Pipelines',        description: 'Pipeline Factory' },
   prozone:             { color: '#0ea5e9', icon: 'explore',      label: 'ProZONE',          description: 'Prospecting Hub' },
   rsp:                 { color: '#f97316', icon: 'conversion_path', label: 'RSP',           description: 'Retirement Sales Process' },
-  voltron:             { color: '#7c3aed', icon: 'bolt',         label: 'VOLTRON',          description: 'Action Engine' },
+  voltron:             { color: '#3b82f6', icon: 'bolt',         label: 'VOLTRON',          description: 'CSO Command Center' },
 } as const
