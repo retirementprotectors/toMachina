@@ -83,6 +83,19 @@ jobs:
             test-results/
           retention-days: 14
 
+  docker-check:
+    needs: [changes, check]
+    if: needs.changes.outputs.docs_only != 'true' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Docker build check — API
+        run: docker build -t tm-api-check -f services/api/Dockerfile .
+      - name: Docker build check — Bridge
+        run: docker build -t tm-bridge-check -f services/bridge/Dockerfile .
+      - name: Docker build check — Webhooks
+        run: docker build -t tm-webhooks-check -f services/webhooks/Dockerfile services/webhooks
+
   deploy-api:
     needs: [changes, check]
     if: needs.changes.outputs.docs_only != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
