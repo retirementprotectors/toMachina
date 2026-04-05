@@ -4,7 +4,16 @@
 export * from './types'
 
 // Health monitoring
-export { computeAutomationHealth, isSourceStale, getAutomationSummary, calculateGapAnalysis } from './health'
+export {
+  computeAutomationHealth,
+  isSourceStale,
+  getAutomationSummary,
+  calculateGapAnalysis,
+  identifyGaps,
+  type GapType,
+  type GapItem,
+  type GapReport,
+} from './health'
 
 // Wires (v1 legacy + v2 super tool composition)
 export {
@@ -61,6 +70,9 @@ export {
   auditReviewDefinition,
   executeAuditReview,
 } from './super-tools'
+
+// Carrier source catalog
+export { CARRIER_SOURCES, type CarrierSourceDefinition } from './sources'
 
 // Wire executor — NOT exported from barrel.
 // Backend-only (services/api, services/intake) import directly:
