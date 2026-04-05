@@ -438,7 +438,7 @@
         <tr><td>QUE-labeled tickets</td><td>Registry gaps, missing wire definitions, incomplete tool specs.</td></tr>
         <tr><td>Command Center tickets</td><td>Any UI work queued that belongs in Track 1 vs Track 2.</td></tr>
         <tr><td>MDJ Panel backlog</td><td>Chat UI improvements — do they belong in CONSUME or OPERATE?</td></tr>
-        <tr><td>Sprint 002 VOLTRON Action Engine plan</td><td><code>docs/sprint-002-voltron-action-engine-v3-plan.html</code> — extract any un-shipped tickets</td></tr>
+        <tr><td>Sprint 002 VOLTRON Action Engine plan</td><td><code>docs/discoveries/sprint-002-voltron-action-engine-v3-plan.html</code> — extract any un-shipped tickets</td></tr>
       </table>
 
       <h3>Tagging Schema</h3>
@@ -452,7 +452,7 @@
       </table>
 
       <h3>Deliverable</h3>
-      <p>A single canonical backlog document (Markdown or HTML) at <code>docs/voltron-backlog.md</code> listing every open ticket by track, sorted by priority, with RONIN-Ready status. This becomes the intake doc for Track 2 kickoff.</p>
+      <p>A single canonical backlog document (Markdown or HTML) at <code>docs/audits/voltron-backlog.md</code> listing every open ticket by track, sorted by priority, with RONIN-Ready status. This becomes the intake doc for Track 2 kickoff.</p>
 
       <h3>Tickets in This Workstream</h3>
       <p>VOL-C10, VOL-C11</p>
@@ -825,7 +825,7 @@
               <li>Read: <code>services/api/src/routes/specialist-configs.ts</code></li>
               <li>Read: <code>services/api/src/routes/mdj.ts</code> — which collection does the MDJ router reference?</li>
               <li>Read: <code>packages/core/src/voltron/</code> — check which collection name is referenced in routing logic</li>
-              <li>Output: recommendation doc (inline or <code>docs/voltron-specialist-configs-audit.md</code>)</li>
+              <li>Output: recommendation doc (inline or <code>docs/audits/voltron-specialist-configs-audit.md</code>)</li>
             </ul>
           </div>
         </div>
@@ -971,15 +971,15 @@
       <div class="ticket-body">
         <div class="ticket-section">
           <div class="ticket-label">Description</div>
-          <div class="ticket-text">Locate and inventory all open tickets tagged VOLTRON, MDJ, QUE, or Command Center across existing FORGE plans. Sources: <code>docs/sprint-002-voltron-action-engine-v3-plan.html</code>, any other docs in <code>docs/</code> with VOLTRON references. For each ticket found: record ID, title, status, and proposed track tag (CONSUME / OPERATE / DEVOUR). Do not close or modify any external tickets in this step — audit only.</div>
+          <div class="ticket-text">Locate and inventory all open tickets tagged VOLTRON, MDJ, QUE, or Command Center across existing FORGE plans. Sources: <code>docs/discoveries/sprint-002-voltron-action-engine-v3-plan.html</code>, any other docs in <code>docs/</code> with VOLTRON references. For each ticket found: record ID, title, status, and proposed track tag (CONSUME / OPERATE / DEVOUR). Do not close or modify any external tickets in this step — audit only.</div>
         </div>
         <div class="ticket-section">
           <div class="ticket-label">File Paths</div>
           <div class="ticket-text">
             <ul>
-              <li>Read: <code>/home/jdm/Projects/toMachina/docs/sprint-002-voltron-action-engine-v3-plan.html</code></li>
-              <li>Read: <code>/home/jdm/Projects/toMachina/docs/voltron-cxo-roadmap.html</code></li>
-              <li>Read: <code>/home/jdm/Projects/toMachina/docs/product-specialists-roadmap.html</code></li>
+              <li>Read: <code>/home/jdm/Projects/toMachina/docs/discoveries/sprint-002-voltron-action-engine-v3-plan.html</code></li>
+              <li>Read: <code>/home/jdm/Projects/toMachina/docs/roadmaps/voltron-cxo-roadmap.html</code></li>
+              <li>Read: <code>/home/jdm/Projects/toMachina/docs/discoveries/product-specialists-roadmap.html</code></li>
               <li>Scan: all files in <code>/home/jdm/Projects/toMachina/docs/</code> for VOLTRON/MDJ references</li>
               <li>Output: raw audit list (write to VOL-C11 input)</li>
             </ul>
@@ -1024,13 +1024,13 @@
       <div class="ticket-body">
         <div class="ticket-section">
           <div class="ticket-label">Description</div>
-          <div class="ticket-text">Using the audit output from VOL-C10, produce a clean consolidated backlog document at <code>docs/voltron-backlog.md</code>. Three sections: CONSUME (current track), OPERATE (Track 2), DEVOUR (Track 3). Within each section: tickets sorted by priority (high to low). Each ticket entry: ID, title, RONIN-Ready (Y/N), complexity, notes. This becomes the intake document for VOLTRON Track 2 kickoff.</div>
+          <div class="ticket-text">Using the audit output from VOL-C10, produce a clean consolidated backlog document at <code>docs/audits/voltron-backlog.md</code>. Three sections: CONSUME (current track), OPERATE (Track 2), DEVOUR (Track 3). Within each section: tickets sorted by priority (high to low). Each ticket entry: ID, title, RONIN-Ready (Y/N), complexity, notes. This becomes the intake document for VOLTRON Track 2 kickoff.</div>
         </div>
         <div class="ticket-section">
           <div class="ticket-label">File Paths</div>
           <div class="ticket-text">
             <ul>
-              <li>Create: <code>/home/jdm/Projects/toMachina/docs/voltron-backlog.md</code></li>
+              <li>Create: <code>/home/jdm/Projects/toMachina/docs/audits/voltron-backlog.md</code></li>
               <li>Input: VOL-C10 audit output</li>
             </ul>
           </div>
