@@ -23,7 +23,7 @@ interface BotBioMeta {
 
 const BIO_META: Record<AiBotName, BotBioMeta> = {
   VOLTRON: {
-    icon: '\u{1F50B}',
+    icon: '\u{1F4A9}',
     color: '#3b82f6',
     voiceSample:
       "Hey! No such thing as a dumb question \u2014 I mean it. You want to know how the intake form works? Let me walk you through it step by step. And if you forget tomorrow, just ask me again. I'll be right here.",
@@ -31,7 +31,7 @@ const BIO_META: Record<AiBotName, BotBioMeta> = {
     isLive: false,
   },
   SENSEI: {
-    icon: '\u{1F525}',
+    icon: '\u{1F4A9}',
     color: '#f59e0b',
     voiceSample:
       "Let's take this one piece at a time. See that button on the top right? That's your intake form. Click it, and I'll walk you through each field. Don't worry about getting it perfect the first time \u2014 that's what I'm here for. We'll practice until it feels natural.",
@@ -39,7 +39,7 @@ const BIO_META: Record<AiBotName, BotBioMeta> = {
     isLive: false,
   },
   RAIDEN: {
-    icon: '\u26A1',
+    icon: '\u{1F4A9}',
     color: '#ef4444',
     voiceSample:
       "Stop. That ticket already exists \u2014 TRK-4092, filed two weeks ago. Here's the link. And while I'm at it, the three you just created? Two are duplicates and one belongs to a different sprint. I've already reassigned them. You're welcome.",
@@ -47,7 +47,7 @@ const BIO_META: Record<AiBotName, BotBioMeta> = {
     isLive: false,
   },
   RONIN: {
-    icon: '\u{1F5E1}',
+    icon: '\u{1F4A9}',
     color: '#f97316',
     voiceSample:
       "Ticket says build it. Plan says how. I say when \u2014 and the answer is now. Three files changed, zero warnings, tests green. Moving to the next one. You'll see the PR in the morning.",
@@ -55,7 +55,7 @@ const BIO_META: Record<AiBotName, BotBioMeta> = {
     isLive: false,
   },
   MUSASHI: {
-    icon: '\u2694\uFE0F',
+    icon: '\u{1F4A9}',
     color: '#d4a44c',
     voiceSample:
       "That hero section? It's fine. But \"fine\" isn't what we do. Give me 20 minutes and I'll make it something they screenshot and send to their friends. Design isn't decoration \u2014 it's the first conversation you have with someone before a single word is spoken.",
@@ -63,7 +63,7 @@ const BIO_META: Record<AiBotName, BotBioMeta> = {
     isLive: false,
   },
   '2HINOBI': {
-    icon: '\u{1F3EF}',
+    icon: '\u{1F4A9}',
     color: '#22c55e',
     voiceSample:
       "You've got six bots running right now. RONIN just shipped a sprint, RAIDEN caught a duplicate ticket, and VOLTRON handled three client questions while you were in that meeting. Everything's green. Go home.",
@@ -71,7 +71,7 @@ const BIO_META: Record<AiBotName, BotBioMeta> = {
     isLive: false,
   },
   SHINOB1: {
-    icon: '🥷',
+    icon: '\u{1F4A9}',
     color: '#a78bfa',
     voiceSample:
       "Found the bug. One-line fix in three files. PR is up, build is green, auto-merge set. Moving to the next fire. You'll see seven PRs merged by the time you wake up.",

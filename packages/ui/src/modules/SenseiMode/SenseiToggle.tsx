@@ -28,14 +28,13 @@ export function SenseiToggle({ className }: SenseiToggleProps) {
       }}
     >
       <span
-        className="material-icons-outlined"
         style={{
-          fontSize: '20px',
-          color: isActive ? 'rgb(245,158,11)' : 'var(--text-muted)',
-          transition: 'color 0.2s',
+          fontSize: '18px',
+          transition: 'opacity 0.2s',
+          opacity: isActive ? 1 : 0.5,
         }}
       >
-        school
+        {'\u{1F4A9}'}
       </span>
     </button>
   )

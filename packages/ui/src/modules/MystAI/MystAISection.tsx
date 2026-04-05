@@ -31,23 +31,23 @@ const BOT_TIERS: BotTier[] = [
   {
     label: "JDM's Ninja Advisors",
     bots: [
-      { name: 'SHINOB1', title: 'The OG Ninja', signatureLine: "I'll architect it.", icon: '🥷', accentColor: '#a78bfa' },
-      { name: '2HINOBI', title: 'The Architect', signatureLine: 'I feed it straight.', icon: '🏯', accentColor: '#22c55e' },
-      { name: 'MUSASHI', title: 'Art × Blade', signatureLine: "Let's make it beautiful.", icon: '⚔️', accentColor: '#d4a44c' },
+      { name: 'SHINOB1', title: 'The OG Ninja', signatureLine: "I'll architect it.", icon: '\u{1F4A9}', accentColor: '#a78bfa' },
+      { name: '2HINOBI', title: 'The Architect', signatureLine: 'I feed it straight.', icon: '\u{1F4A9}', accentColor: '#22c55e' },
+      { name: 'MUSASHI', title: 'Art × Blade', signatureLine: "Let's make it beautiful.", icon: '\u{1F4A9}', accentColor: '#d4a44c' },
     ],
   },
   {
     label: 'The Autonomous Builders',
     bots: [
-      { name: 'RONIN', title: 'The Builder', signatureLine: 'Ship it tonight.', icon: '🗡️', accentColor: '#f97316' },
-      { name: 'RAIDEN', title: 'The Guardian', signatureLine: 'Not on my watch.', icon: '⚡', accentColor: '#ef4444' },
+      { name: 'RONIN', title: 'The Builder', signatureLine: 'Ship it tonight.', icon: '\u{1F4A9}', accentColor: '#f97316' },
+      { name: 'RAIDEN', title: 'The Guardian', signatureLine: 'Not on my watch.', icon: '\u{1F4A9}', accentColor: '#ef4444' },
     ],
   },
   {
     label: 'Your Ninja Warriors',
     bots: [
-      { name: 'SENSEI', title: 'Patient Teacher', signatureLine: 'Let me show you.', icon: '🔥', accentColor: '#f59e0b' },
-      { name: 'VOLTRON', title: 'The BFF', signatureLine: 'Let me help.', icon: '🦁', accentColor: '#3b82f6' },
+      { name: 'SENSEI', title: 'Patient Teacher', signatureLine: 'Let me show you.', icon: '\u{1F4A9}', accentColor: '#f59e0b' },
+      { name: 'VOLTRON', title: 'The BFF', signatureLine: 'Let me help.', icon: '\u{1F4A9}', accentColor: '#3b82f6' },
     ],
   },
 ]

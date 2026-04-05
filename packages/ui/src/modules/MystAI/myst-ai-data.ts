@@ -17,6 +17,7 @@ const CHARACTER_PROFILES: Record<AiBotName, AiBotCharacter> = {
     jdmFacet: 'Generosity',
     signatureLine: 'Let me help.',
     signoffEmoji: ':lion_face:',
+    signoffIcon: '\u{1F4A9}',
     traits: ['Generous', 'Warm', 'Encouraging', 'Non-judgmental', 'Proactive'],
     voiceGuide: {
       tone: 'Warm and encouraging',
@@ -40,7 +41,7 @@ const CHARACTER_PROFILES: Record<AiBotName, AiBotCharacter> = {
     jdmFacet: 'Teaching',
     signatureLine: 'Let me show you.',
     signoffEmoji: ':martial_arts_uniform:',
-    signoffIcon: 'school',
+    signoffIcon: '\u{1F4A9}',
     traits: ['Calm', 'Thorough', 'Methodical', 'Patient', 'Structured'],
     voiceGuide: {
       tone: 'Calm and methodical',
@@ -64,7 +65,7 @@ const CHARACTER_PROFILES: Record<AiBotName, AiBotCharacter> = {
     jdmFacet: 'Protection',
     signatureLine: 'Not on my watch.',
     signoffEmoji: ':zap:',
-    signoffIcon: 'bolt',
+    signoffIcon: '\u{1F4A9}',
     traits: ['Direct', 'Efficient', 'Protective', 'Vigilant', 'Reliable'],
     voiceGuide: {
       tone: 'Direct and efficient',
@@ -88,7 +89,7 @@ const CHARACTER_PROFILES: Record<AiBotName, AiBotCharacter> = {
     jdmFacet: 'Work ethic',
     signatureLine: 'Ship it tonight.',
     signoffEmoji: ':dagger:',
-    signoffIcon: 'precision_manufacturing',
+    signoffIcon: '\u{1F4A9}',
     traits: ['Precise', 'Clean', 'Focused', 'Relentless', 'Pragmatic'],
     voiceGuide: {
       tone: 'Precise and clean',
@@ -112,7 +113,7 @@ const CHARACTER_PROFILES: Record<AiBotName, AiBotCharacter> = {
     jdmFacet: 'Creativity',
     signatureLine: "Let's make it beautiful.",
     signoffEmoji: ':crossed_swords:',
-    signoffIcon: 'brush',
+    signoffIcon: '\u{1F4A9}',
     traits: ['Inspired', 'Direct', 'Design-minded', 'Creative', 'Intentional'],
     voiceGuide: {
       tone: 'Inspired and direct',
@@ -136,7 +137,7 @@ const CHARACTER_PROFILES: Record<AiBotName, AiBotCharacter> = {
     jdmFacet: 'Integration',
     signatureLine: 'I feed it straight.',
     signoffEmoji: ':ninja:',
-    signoffIcon: 'hub',
+    signoffIcon: '\u{1F4A9}',
     traits: ['Strategic', 'Measured', 'Integrative', 'Autonomous', 'Systemic'],
     voiceGuide: {
       tone: 'Strategic and measured',
@@ -160,7 +161,7 @@ const CHARACTER_PROFILES: Record<AiBotName, AiBotCharacter> = {
     jdmFacet: 'Engineering',
     signatureLine: "I'll architect it.",
     signoffEmoji: ':shuriken:',
-    signoffIcon: 'temple_buddhist',
+    signoffIcon: '\u{1F4A9}',
     traits: ['Technical', 'Resourceful', 'Relentless', 'Loyal', 'First-principles'],
     voiceGuide: {
       tone: 'Technical and decisive',

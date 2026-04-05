@@ -28,6 +28,8 @@ export interface AiBotCharacter {
   avatarUrl?: string
   /** Emoji icon shown when no avatarUrl is provided. */
   icon?: string
+  /** Material icon name (e.g. 'precision_manufacturing'). Takes priority over emoji icon. */
+  materialIcon?: string
   /** Accent color for border, glow, and hover effects. */
   accentColor: string
 }
@@ -125,7 +127,7 @@ export const MystAIBioCard: React.FC<MystAIBioCardProps> = ({
   onClick,
 }) => {
   const [hovered, setHovered] = React.useState(false)
-  const { name, title, signatureLine, avatarUrl, icon, accentColor } = character
+  const { name, title, signatureLine, avatarUrl, icon, materialIcon, accentColor } = character
 
   // ── Dynamic avatar style ──────────────────────────────────────
   const avatarStyle: React.CSSProperties = {
@@ -147,11 +149,15 @@ export const MystAIBioCard: React.FC<MystAIBioCardProps> = ({
       : 'none',
   }
 
-  // ── Avatar content: image → icon → initials ───────────────────
+  // ── Avatar content: image → materialIcon → emoji icon → initials ──
   let avatarContent: React.ReactNode
   if (avatarUrl) {
     avatarContent = (
       <img src={avatarUrl} alt={`${name} avatar`} style={avatarImgStyle} />
+    )
+  } else if (materialIcon) {
+    avatarContent = (
+      <span className="material-icons-outlined" style={{ fontSize: '2.5rem', color: accentColor }}>{materialIcon}</span>
     )
   } else if (icon) {
     avatarContent = icon

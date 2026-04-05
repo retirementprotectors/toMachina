@@ -41,11 +41,8 @@ export function SenseiPopup() {
         <div className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span
-                className="material-icons-outlined"
-                style={{ fontSize: '18px', color: 'rgb(245,158,11)' }}
-              >
-                school
+              <span style={{ fontSize: '16px' }}>
+                {'\u{1F4A9}'}
               </span>
               <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                 {entry.label}
