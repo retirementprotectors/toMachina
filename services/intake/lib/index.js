@@ -13,6 +13,7 @@ import { scanMeetRecordings } from './meet-intake.js';
 import { scanMailIntake } from './mail-intake.js';
 import { scanEmailInboxes } from './email-intake.js';
 import { scanCommissionIntake } from './commission-intake.js';
+import { scanDriveIntake } from './drive-watcher.js';
 import { getQueueDepth, getQueueDepthBySource } from './queue.js';
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -85,6 +86,19 @@ export const commissionIntake = onRequest({ region: 'us-central1', timeoutSecond
 export const commissionIntakeScheduled = onSchedule({ schedule: 'every 5 minutes', region: 'us-central1', timeoutSeconds: 120, memory: '256MiB' }, async () => {
     const result = await scanCommissionIntake();
     console.log(`Commission Intake (scheduled): ${result.new_files} new, ${result.errors.length} errors`);
+});
+/**
+ * MEGAZORD Drive Watch — Scan designated intake folder, route to Rangers (ZRD-O10).
+ * Trigger: Cloud Scheduler every 5 minutes.
+ */
+export const megazordDriveWatch = onRequest({ region: 'us-central1', timeoutSeconds: 180, memory: '512MiB' }, async (_req, res) => {
+    const result = await scanDriveIntake();
+    console.log(`MEGAZORD Drive Watch: ${result.files_routed} routed, ${result.files_failed} failed`);
+    res.json({ success: result.success, data: result });
+});
+export const megazordDriveWatchScheduled = onSchedule({ schedule: 'every 5 minutes', region: 'us-central1', timeoutSeconds: 180, memory: '512MiB' }, async () => {
+    const result = await scanDriveIntake();
+    console.log(`MEGAZORD Drive Watch (scheduled): ${result.files_routed} routed, ${result.errors.length} errors`);
 });
 /**
  * Queue Dashboard — Get queue depth by status and source.

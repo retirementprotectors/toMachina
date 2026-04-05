@@ -190,6 +190,88 @@ intakeRoutes.post('/:executionId/approve', async (req: Request, res: Response) =
 })
 
 // ---------------------------------------------------------------------------
+// POST /api/intake/ranger-dispatch — ZRD-O10/O11/O12
+// Generic Ranger dispatch from intake channels (Drive Watch, Slack, Email).
+// Receives file metadata, routes to correct Ranger, returns run acknowledgment.
+// ---------------------------------------------------------------------------
+intakeRoutes.post('/ranger-dispatch', async (req: Request, res: Response) => {
+  try {
+    const { source, fileId, fileName, mimeType, mode, senderHint, subjectHint } = req.body as {
+      source: string
+      fileId?: string
+      fileName?: string
+      mimeType?: string
+      mode?: string
+      senderHint?: string
+      subjectHint?: string
+    }
+
+    if (!source) {
+      res.status(400).json(errorResponse('source is required (DRIVE_WATCH | SLACK | EMAIL)'))
+      return
+    }
+
+    // Route to Ranger — simple pattern matching
+    let rangerId = 'ranger-import'
+    let routeMode: string = mode || 'csv'
+
+    if (mimeType === 'application/pdf' || (fileName && fileName.toLowerCase().endsWith('.pdf'))) {
+      rangerId = 'ranger-correspondence'
+      routeMode = 'document'
+    } else if (
+      fileName &&
+      /commission|statement|comp[\s_-]?report|revenue/i.test(fileName)
+    ) {
+      rangerId = 'ranger-commission'
+      routeMode = 'commission'
+    } else if (
+      fileName &&
+      /carrier|product|naic|rate[\s_-]?table|reference/i.test(fileName)
+    ) {
+      rangerId = 'ranger-reference'
+      routeMode = 'csv'
+    }
+
+    // Dispatch via Ranger Orchestration API (internal call)
+    const apiUrl = `http://localhost:${process.env.PORT || 8080}`
+    const userEmail = (req as unknown as { user?: { email?: string } }).user?.email || 'system@retireprotected.com'
+
+    const dispatchRes = await fetch(`${apiUrl}/api/rangers/dispatch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-mdj-auth': process.env.MDJ_AUTH_SECRET || '',
+      },
+      body: JSON.stringify({
+        rangerId,
+        fileId,
+        mode: routeMode,
+        params: { source, fileName, senderHint, subjectHint },
+      }),
+    })
+    const dispatchJson = (await dispatchRes.json()) as { success: boolean; data?: unknown; error?: string }
+
+    if (dispatchJson.success) {
+      const responseData = typeof dispatchJson.data === 'object' && dispatchJson.data
+        ? dispatchJson.data as Record<string, unknown>
+        : {}
+      res.json(successResponse({
+        rangerId,
+        source,
+        fileName,
+        status: 'dispatched',
+        ...responseData,
+      }))
+    } else {
+      res.status(500).json(errorResponse(dispatchJson.error || 'Ranger dispatch failed'))
+    }
+  } catch (err) {
+    console.error('POST /api/intake/ranger-dispatch error:', err)
+    res.status(500).json(errorResponse('Ranger dispatch from intake failed'))
+  }
+})
+
+// ---------------------------------------------------------------------------
 // POST /api/intake/:executionId/reject
 // Reject a paused wire execution. Marks queue entry as REJECTED.
 // ---------------------------------------------------------------------------

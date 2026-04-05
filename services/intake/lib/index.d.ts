@@ -39,6 +39,12 @@ export declare const emailIntakeScheduled: import("firebase-functions/v2/schedul
 export declare const commissionIntake: import("firebase-functions/v2/https").HttpsFunction;
 export declare const commissionIntakeScheduled: import("firebase-functions/v2/scheduler").ScheduleFunction;
 /**
+ * MEGAZORD Drive Watch — Scan designated intake folder, route to Rangers (ZRD-O10).
+ * Trigger: Cloud Scheduler every 5 minutes.
+ */
+export declare const megazordDriveWatch: import("firebase-functions/v2/https").HttpsFunction;
+export declare const megazordDriveWatchScheduled: import("firebase-functions/v2/scheduler").ScheduleFunction;
+/**
  * Queue Dashboard — Get queue depth by status and source.
  * For monitoring and dashboards.
  */

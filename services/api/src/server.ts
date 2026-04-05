@@ -74,6 +74,8 @@ import { importAgentRoutes } from './routes/import-agents.js'
 import { voltronRegistryRoutes } from './routes/voltron-registry.js'
 import { voltronWireRoutes } from './routes/voltron-wire.js'
 import { voltronDeployRoutes } from './routes/voltron-deploy.js'
+import { voltronCasesRoutes } from './routes/voltron-cases.js'
+import { voltronGapRequestRoutes } from './routes/voltron-gap-requests.js'
 import { auditMiddleware } from './middleware/audit.js'
 import { raidenRoutes } from './raiden/index.js'
 import { startRaidenScheduler } from './raiden/scheduler.js'
@@ -92,6 +94,10 @@ import { senseiAnalyticsRoutes } from './routes/sensei-analytics.js'
 import { senseiContentRoutes } from './routes/sensei-content.js'
 import { senseiGeneratorRoutes } from './routes/sensei-generator.js'
 import { queueRoutes } from './routes/queue.js'
+import { rangerRoutes } from './routes/rangers.js'
+import { cmoWireRoutes } from './routes/cmo-wires.js'
+import { cmoIntakeRoutes } from './routes/cmo-intake.js'
+import { cmoPipelineRoutes } from './routes/cmo-pipeline.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -206,6 +212,8 @@ app.use('/api/validation', validationRoutes)
 app.use('/api/import-agents', normalizeBody, importAgentRoutes)
 app.use('/api/voltron/registry', voltronRegistryRoutes)
 app.use('/api/voltron/wire', normalizeBody, voltronWireRoutes)
+app.use('/api/voltron/cases', normalizeBody, voltronCasesRoutes)
+app.use('/api/voltron/gap-requests', normalizeBody, voltronGapRequestRoutes)
 app.use('/api/voltron', normalizeBody, voltronDeployRoutes)
 
 app.use('/api/myst-ai', mystAiRoutes)
@@ -215,6 +223,14 @@ app.use('/api/rsp', normalizeBody, rspRoutes)
 
 // CEO Action Queue — Sprint 012
 app.use('/api/queue', normalizeBody, queueRoutes)
+
+// MEGAZORD Ranger Orchestration — ZRD-O08
+app.use('/api/rangers', normalizeBody, rangerRoutes)
+
+// MUSASHI CMO — Wire execution, intake, pipeline status (MUS-O05/O09/O10)
+app.use('/api/cmo', normalizeBody, cmoWireRoutes)
+app.use('/api/cmo', normalizeBody, cmoIntakeRoutes)
+app.use('/api/cmo', normalizeBody, cmoPipelineRoutes)
 
 // SENSEI Analytics — TRK-14146
 app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)

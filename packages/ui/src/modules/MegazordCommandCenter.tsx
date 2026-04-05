@@ -10,6 +10,7 @@ import {
 } from '@tomachina/core'
 import { WireDiagram } from '../components/WireDiagram'
 import { fetchValidated } from './fetchValidated'
+import { MegazordMeshView } from './MegazordMeshView'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -88,7 +89,7 @@ interface RecordMatchCandidate {
   resolved_match_id?: string
 }
 
-type Section = 'import' | 'registry' | 'operations'
+type Section = 'import' | 'registry' | 'operations' | 'mesh'
 type RegistrySubTab = 'sources' | 'tools'
 type OpsSubTab = 'pipeline' | 'health' | 'audit'
 type ImportStep = 1 | 2 | 3 | 4
@@ -115,6 +116,7 @@ const SECTIONS: { key: Section; label: string; icon: string }[] = [
   { key: 'import', label: 'Import', icon: 'upload_file' },
   { key: 'registry', label: 'Registry', icon: 'hub' },
   { key: 'operations', label: 'Operations', icon: 'monitoring' },
+  { key: 'mesh', label: 'Mesh', icon: 'cable' },
 ]
 
 const IMPORT_CATEGORIES = [
@@ -333,6 +335,7 @@ export function MegazordCommandCenter({ portal }: { portal?: string }) {
             {opsTab === 'audit' && <AuditTab />}
           </div>
         )}
+        {activeSection === 'mesh' && <MegazordMeshView />}
       </div>
     </div>
   )
