@@ -205,3 +205,162 @@ export interface BrandComplianceResult {
   violations: BrandComplianceViolation[]
   checkedAt: Date
 }
+
+// ---------------------------------------------------------------------------
+// DEVOUR Track — Inventory (MUS-D01 through MUS-D04)
+// ---------------------------------------------------------------------------
+
+/** Status of a creative asset in inventory */
+export type CmoDesignStatus = 'current' | 'stale' | 'needs-update' | 'gap'
+
+/** A single inventory entry from any source */
+export interface CmoInventoryEntry {
+  id: string
+  source: 'canva' | 'drive' | 'wordpress' | 'c3'
+  type:
+    | 'brochure'
+    | 'presentation'
+    | 'social'
+    | 'email'
+    | 'one-pager'
+    | 'video'
+    | 'guide'
+    | 'fact-finder'
+    | 'other'
+  market: 'b2c' | 'b2b' | 'b2e' | 'all'
+  lastModified: Date
+  status: CmoDesignStatus
+  channel?: CmoChannel
+  url?: string
+  notes?: string
+}
+
+/** WordPress page audit entry */
+export interface CmoWordPressPageAudit {
+  id: string
+  url: string
+  title: string
+  status: 'live' | 'draft' | 'stale' | 'gap'
+  lastModified: Date
+  market: 'b2c' | 'b2b' | 'b2e' | 'all'
+  pageType: 'landing' | 'product' | 'blog' | 'about' | 'partner' | 'other'
+  notes?: string
+}
+
+/** C3 template audit entry */
+export interface CmoTemplateAudit {
+  templateId: string
+  name: string
+  campaignId?: string
+  status: 'current' | 'stale' | 'needs-update'
+  channel: 'email' | 'sms' | 'push'
+  lastUsed?: Date
+  lastModified: Date
+  aepRelevant: boolean
+  notes?: string
+}
+
+// ---------------------------------------------------------------------------
+// DEVOUR Track — Parity (MUS-D05, MUS-D06)
+// ---------------------------------------------------------------------------
+
+/** A single digital format that may or may not exist for a print asset */
+export interface CmoDigitalParityItem {
+  type: 'email-sequence' | 'landing-page' | 'portal-content' | 'social' | 'video'
+  status: 'missing' | 'draft' | 'live'
+  url?: string
+}
+
+/** A print asset and its digital gap analysis */
+export interface CmoParityGap {
+  printAssetId: string
+  printAssetName: string
+  printAssetType: string
+  missingDigital: CmoDigitalParityItem[]
+  priority: 'high' | 'medium' | 'low' | 'backlog'
+  marketRelevance: string[]
+}
+
+/** Result of dispatching a parity gap to artisan wires */
+export interface CmoWireDispatch {
+  wireId: string
+  artisan: string
+  input: Record<string, unknown>
+  status: 'dispatched' | 'failed' | 'skipped'
+}
+
+/** Result of executing a single parity gap closure */
+export interface CmoParityExecutionResult {
+  gapId: string
+  dispatched: CmoWireDispatch[]
+  failed: string[]
+  summary: string
+}
+
+// ---------------------------------------------------------------------------
+// DEVOUR Track — Brand (MUS-D11, MUS-D12)
+// ---------------------------------------------------------------------------
+
+/** Brand guide registry — queryable brand rules */
+export interface CmoBrandGuide {
+  approvedColors: string[]
+  prohibitedColors: string[]
+  approvedFonts: string[]
+  logoRules: string
+  toneByChannel: Record<'b2c' | 'b2b' | 'b2e', string>
+  prohibitedPatterns: string[]
+  version: string
+}
+
+/** Descriptor of an asset to be checked against brand guide */
+export interface CmoAssetDescriptor {
+  assetId: string
+  type: string
+  channel: CmoChannel
+  colors?: string[]
+  fonts?: string[]
+  hasGeneratedLogo: boolean
+  copy?: string
+  artisan: string
+}
+
+/** A brand compliance violation (DEVOUR version) */
+export interface CmoBrandViolation {
+  rule: string
+  description: string
+  severity: 'blocking' | 'warning'
+}
+
+/** Full brand compliance report */
+export interface CmoBrandComplianceReport {
+  assetId: string
+  passed: boolean
+  violations: CmoBrandViolation[]
+  checkedAt: Date
+}
+
+// ---------------------------------------------------------------------------
+// DEVOUR Track — Campaign Calendar (MUS-D13)
+// ---------------------------------------------------------------------------
+
+/** A single entry in the 90-day campaign calendar */
+export interface CmoCalendarEntry {
+  entryId: string
+  name: string
+  type: 'aep' | 't65' | 'birthday' | 'annual-review' | 'product-launch' | 'seasonal' | 'always-on'
+  scheduledDate: Date
+  market: 'b2c' | 'b2b' | 'b2e' | 'all'
+  artisan: 'digital' | 'social' | 'video' | 'print'
+  priority: 'high' | 'medium' | 'low'
+  status: 'planned' | 'blocked' | 'ready'
+  blockedReason?: string
+}
+
+/** The full 90-day campaign calendar */
+export interface CmoCampaignCalendar {
+  generatedAt: Date
+  windowStart: Date
+  windowEnd: Date
+  entries: CmoCalendarEntry[]
+  aepBlackoutActive: boolean
+}

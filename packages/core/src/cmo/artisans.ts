@@ -38,6 +38,24 @@ export const CMO_ARTISANS: CmoArtisan[] = [
     description: 'Landing page production — WordPress draft → Elementor layout → media → publish',
     status: 'active',
   },
+  {
+    id: 'social-artisan',
+    name: 'Social Artisan',
+    channel: 'social',
+    wireId: 'WIRE_SOCIAL',
+    toolDomains: ['canva', 'veo'],
+    description: 'Social media production — content calendar → Canva social asset → optional Veo clip → Drive archive',
+    status: 'active',
+  },
+  {
+    id: 'video-artisan',
+    name: 'Video Artisan',
+    channel: 'video',
+    wireId: 'WIRE_VIDEO',
+    toolDomains: ['veo', 'wordpress'],
+    description: 'Video production — script brief → Veo text-to-video → Drive archive → optional WordPress embed',
+    status: 'active',
+  },
 ]
 
 /** Look up a single artisan by ID */
