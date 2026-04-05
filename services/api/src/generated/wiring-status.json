@@ -3336,6 +3336,18 @@
       "frontend_consumers": [],
       "status": "backend_only"
     },
+    "ci.ts": {
+      "file": "ci.ts",
+      "endpoints": 5,
+      "operations": [
+        "list",
+        "get",
+        "create"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
     "clients.ts": {
       "file": "clients.ts",
       "endpoints": 23,
@@ -5011,14 +5023,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 77,
+    "route_files": 78,
     "ui_files": 168,
     "portal_pages": 172,
     "collections_found": 74,
-    "api_routes_found": 77,
+    "api_routes_found": 78,
     "cloud_functions_found": 14,
     "env_vars_found": 41,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-04-04T03:18:31.960Z"
+    "scanned_at": "2026-04-04T17:17:51.206Z"
   }
 }
