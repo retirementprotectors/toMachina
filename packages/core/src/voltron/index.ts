@@ -113,6 +113,17 @@ export {
   LION_COLORS,
 } from './lion-types'
 
+// Lion config definitions — VOL-O02 through VOL-O06
+export {
+  MEDICARE_LION_CONFIG,
+  ANNUITY_LION_CONFIG,
+  INVESTMENT_LION_CONFIG,
+  LIFE_ESTATE_LION_CONFIG,
+  LEGACY_LTC_LION_CONFIG,
+  ALL_LION_CONFIGS,
+  getLionConfigByDomain,
+} from './lion-configs'
+
 // Case pipeline types (VOL-O07)
 export type { CaseStatus, CaseOutcome, IntakeChannel, VoltronCase } from './case-types'
 export {
