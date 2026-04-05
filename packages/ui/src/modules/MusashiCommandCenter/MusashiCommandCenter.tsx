@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { MusashiRegistryView } from './MusashiRegistryView'
 import { MusashiPipelineView } from './MusashiPipelineView'
 import { MusashiMeshView } from './MusashiMeshView'
+import { MusashiIntelligenceView } from './MusashiIntelligenceView'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -11,7 +12,7 @@ export interface MusashiCommandCenterProps {
   portal?: string
 }
 
-type TabKey = 'registry' | 'pipeline' | 'mesh'
+type TabKey = 'registry' | 'pipeline' | 'mesh' | 'intelligence'
 
 interface Tab {
   key: TabKey
@@ -27,6 +28,7 @@ const TABS: Tab[] = [
   { key: 'registry', label: 'Registry', icon: 'database' },
   { key: 'pipeline', label: 'Pipeline', icon: 'conveyor_belt' },
   { key: 'mesh', label: 'Artisans', icon: 'brush' },
+  { key: 'intelligence', label: 'Intelligence', icon: 'insights' },
 ]
 
 const colors = {
@@ -48,6 +50,8 @@ function TabContent({ tabKey }: { tabKey: TabKey }) {
       return <MusashiPipelineView />
     case 'mesh':
       return <MusashiMeshView />
+    case 'intelligence':
+      return <MusashiIntelligenceView />
     case 'registry':
     default:
       return <MusashiRegistryView />

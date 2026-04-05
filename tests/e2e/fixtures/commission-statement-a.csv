@@ -1,0 +1,6 @@
+Transaction Date,Policy Number,Carrier,Product,Client Name,Agent NPN,Gross Commission,Net Commission,Override Amount,Commission Type,Premium
+2026-01-15,POL-001234,Athene,Performance Elite 10,Robert Johnson,12345678,1250.00,1125.00,125.00,New Business,100000.00
+2026-01-15,POL-005678,Nationwide,New Heights 12,"García-López, María",87654321,2500.00,2250.00,250.00,New Business,200000.00
+2026-01-15,POL-009012,North American,Charter Plus,James T. Smith,12345678,375.25,337.73,37.52,Renewal,50000.00
+2026-01-15,POL-010001,Athene,Performance Elite 10,Alice Williams,12345678,625.50,562.95,62.55,New Business,50000.00
+2026-01-15,POL-010002,Nationwide,New Heights 12,Wei Zhang,87654321,1875.75,1688.18,187.57,Renewal,150000.00

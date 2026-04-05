@@ -21,7 +21,7 @@ export {
   getCmoWire,
 } from './registry'
 export { CMO_TOOLS } from './tools'
-export { CMO_WIRES, WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE } from './wires'
+export { CMO_WIRES, WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE, WIRE_SOCIAL, WIRE_VIDEO } from './wires'
 export { createBrochureRunner } from './wires/brochure-runner'
 export { createCampaignRunner } from './wires/campaign-runner'
 export { createLandingPageRunner } from './wires/landing-page-runner'
@@ -34,3 +34,20 @@ export {
 } from './artisans'
 export { checkBrandCompliance } from './compliance'
 export { processBrief } from './pipeline'
+
+// DEVOUR Track — inventory process helpers (type-safe, no server deps)
+export { processCanvaDesigns } from './inventory/canva-scanner'
+export { processDriveFiles } from './inventory/drive-scanner'
+export { processWordPressPages } from './inventory/wordpress-auditor'
+export { processTemplateDocuments } from './inventory/template-auditor'
+
+// DEVOUR Track — parity (MUS-D05, MUS-D06)
+export { generateParityMap } from './parity/parity-map'
+export { executeParityGap } from './parity/parity-executor'
+
+// DEVOUR Track — brand (MUS-D11, MUS-D12)
+export { CMO_BRAND_GUIDE, isApprovedColor, getToneForChannel, getLogoRule } from './brand/guide'
+// NOTE: checkBrandCompliance from './brand/compliance-engine' is server-only — import directly
+
+// DEVOUR Track — campaigns (MUS-D13)
+export { generateCampaignCalendar } from './campaigns/calendar'
