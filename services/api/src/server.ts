@@ -92,6 +92,7 @@ import { senseiAnalyticsRoutes } from './routes/sensei-analytics.js'
 import { senseiContentRoutes } from './routes/sensei-content.js'
 import { senseiGeneratorRoutes } from './routes/sensei-generator.js'
 import { queueRoutes } from './routes/queue.js'
+import { rangerRoutes } from './routes/rangers.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -215,6 +216,9 @@ app.use('/api/rsp', normalizeBody, rspRoutes)
 
 // CEO Action Queue — Sprint 012
 app.use('/api/queue', normalizeBody, queueRoutes)
+
+// MEGAZORD Ranger Orchestration — ZRD-O08
+app.use('/api/rangers', normalizeBody, rangerRoutes)
 
 // SENSEI Analytics — TRK-14146
 app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)
