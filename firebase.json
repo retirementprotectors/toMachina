@@ -6,7 +6,7 @@
     {
       "source": "services/intake",
       "codebase": "intake",
-      "runtime": "nodejs20"
+      "runtime": "nodejs22"
     }
   ],
   "hosting": {

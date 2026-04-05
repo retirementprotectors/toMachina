@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deferred Maintenance Sprint</title>
+<style>
+  :root {
+    --bg: #0a0e17; --bg-card: #111827; --bg-hover: #1a2236; --border: #1e293b;
+    --text: #e2e8f0; --text-muted: #94a3b8; --accent: #e07c3e;
+    --green: #22c55e; --red: #ef4444; --orange: #f59e0b; --blue: #3b82f6;
+    --mecha-green: #10b981; --gold: #d4a44c; --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 50%, #050a14 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; }
+  .header h1 { font-size: 2.4rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+  .header .subtitle { font-size: 1rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 16px; }
+  .header .meta { font-size: 0.75rem; color: var(--text-muted); font-family: 'SF Mono', monospace; }
+  .content { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+  .card h3 { font-size: 0.95rem; font-weight: 600; margin: 14px 0 6px; color: var(--accent); }
+  .card p { color: var(--text-muted); margin-bottom: 10px; font-size: 0.9rem; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.85rem; }
+  th { text-align: left; padding: 8px 10px; background: var(--bg-hover); color: var(--accent); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+  .tag-high { background: rgba(239,68,68,0.15); color: var(--red); }
+  .tag-med { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .tag-low { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .tag-done { background: rgba(34,197,94,0.15); color: var(--green); }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Deferred Maintenance Sprint</h1>
+  <div class="subtitle">Clean the pipeline. Fix the knowledge promotion. Wire the permissions. Zero tech debt before scaling to 12-24 daily processes.</div>
+  <div class="meta">SHINOB1 (CTO) &bull; 2026-04-05 &bull; Born from the Night Shift that shipped 131 tickets and broke everything</div>
+</div>
+
+<div class="content">
+
+<div class="card">
+  <h2>Why This Sprint Exists</h2>
+  <p>The Night Shift of April 4-5 shipped 3 CXO Roadmaps, 9 Track Discoveries, 131 tickets across 3 Waves (CONSUME/OPERATE/DEVOUR), and 22K LOC. In the process, the following broke or was deferred:</p>
+  <ul style="color: var(--text-muted); margin: 8px 0 0 20px; font-size: 0.9rem;">
+    <li>Knowledge pipeline clogged &mdash; CLAUDE.md 3 weeks stale, orphaned memories, missing brain.txt files</li>
+    <li>Permissions not wired &mdash; CXO Command Centers built but not visible in sidebar</li>
+    <li>Docs URLs changed &mdash; reorg moved 35 files but CLAUDE.md references not updated</li>
+    <li>CI pipeline fragile &mdash; Docker sovereignty, lockfile desync, Dependabot bombs</li>
+    <li>VOLTRON identity still DRAFT &mdash; soul.md + spirit.md awaiting finalization</li>
+  </ul>
+  <p style="margin-top: 12px;"><strong style="color: var(--text);">Rule:</strong> Nothing is "landed" until the team can see it on the live site and use it. These items prevent that.</p>
+</div>
+
+<div class="card">
+  <h2>Track 1: Knowledge Pipeline Repair</h2>
+  <p><span class="tag tag-high">HIGH</span> &mdash; Every new session spawns with wrong context until this is fixed.</p>
+  <table>
+    <tr><th>#</th><th>Ticket</th><th>What</th><th>Files</th><th>Status</th></tr>
+    <tr><td>1</td><td>DM-01</td><td>Update Global CLAUDE.md Dojo table &mdash; add MEGAZORD (CIO), MUSASHI (CMO), RAIDEN (Guardian), CXO architecture, Registry Warriors class</td><td><code>~/.claude/CLAUDE.md</code></td><td></td></tr>
+    <tr><td>2</td><td>DM-02</td><td>Update Global CLAUDE.md Hall of Fame &mdash; add MEGAZORD CIO promotion, MUSASHI CMO arc</td><td><code>~/.claude/CLAUDE.md</code></td><td></td></tr>
+    <tr><td>3</td><td>DM-03</td><td>Create VOLTRON brain.txt &mdash; compile all VOLTRON session transcripts</td><td><code>dojo-warriors/voltron/brain.txt</code></td><td></td></tr>
+    <tr><td>4</td><td>DM-04</td><td>Create RONIN brain.txt &mdash; compile all RONIN sprint transcripts</td><td><code>dojo-warriors/ronin/brain.txt</code></td><td></td></tr>
+    <tr><td>5</td><td>DM-05</td><td>Index 11 orphaned memory files into MEMORY.md</td><td><code>memory/MEMORY.md</code></td><td></td></tr>
+    <tr><td>6</td><td>DM-06</td><td>Update project CLAUDE.md &mdash; Sprint 9 complete, 86+ routes, current sprint status</td><td><code>toMachina/CLAUDE.md</code></td><td></td></tr>
+    <tr><td>7</td><td>DM-07</td><td>Archive/update stale memories: server_mdj (pre-launch), acf2_sprint (complete), next_session (13 days old)</td><td><code>memory/*.md</code></td><td></td></tr>
+    <tr><td>8</td><td>DM-08</td><td>Update dojo-warriors README &mdash; MEGAZORD rename, current roster</td><td><code>dojo-warriors/README.md</code></td><td></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Track 2: VOLTRON Identity Finalization</h2>
+  <p><span class="tag tag-high">HIGH</span> &mdash; VOLTRON is the team-facing AI. His identity files are still marked DRAFT.</p>
+  <table>
+    <tr><th>#</th><th>Ticket</th><th>What</th><th>Files</th><th>Status</th></tr>
+    <tr><td>9</td><td>DM-09</td><td>Finalize VOLTRON soul.md &mdash; remove DRAFT flag, verify CSO role, blue color, Lions (not old specialists), development arc</td><td><code>dojo-warriors/voltron/soul.md</code></td><td></td></tr>
+    <tr><td>10</td><td>DM-10</td><td>Finalize VOLTRON spirit.md &mdash; remove DRAFT flag, add CSO promotion moment, MDJ founding arc</td><td><code>dojo-warriors/voltron/spirit.md</code></td><td></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Track 3: Permissions &amp; Entitlements</h2>
+  <p><span class="tag tag-med">MEDIUM</span> &mdash; CXO Command Centers exist but aren't visible in sidebar due to entitlement gating.</p>
+  <table>
+    <tr><th>#</th><th>Ticket</th><th>What</th><th>Files</th><th>Status</th></tr>
+    <tr><td>11</td><td>DM-11</td><td>Audit current entitlement/moduleKey gating &mdash; what controls sidebar visibility?</td><td>Firestore <code>users</code> collection + auth package</td><td></td></tr>
+    <tr><td>12</td><td>DM-12</td><td>Add MEGAZORD, VOLTRON, MUSASHI moduleKeys to JDM + Super Admin entitlements</td><td>Firestore + <code>packages/auth/</code></td><td></td></tr>
+    <tr><td>13</td><td>DM-13</td><td>Verify all 3 CXO Command Centers visible in sidebar after entitlement update</td><td>Live portals</td><td></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Track 4: Docs URL Updates</h2>
+  <p><span class="tag tag-med">MEDIUM</span> &mdash; docs/ reorg moved 35 files to subdirectories. Some references not yet updated.</p>
+  <table>
+    <tr><th>#</th><th>Ticket</th><th>What</th><th>Files</th><th>Status</th></tr>
+    <tr><td>14</td><td>DM-14</td><td>Update Global CLAUDE.md Session URLs for new docs/ subdirectory paths</td><td><code>~/.claude/CLAUDE.md</code></td><td></td></tr>
+    <tr><td>15</td><td>DM-15</td><td>Update dojo-warriors CLAUDE.md Session URLs</td><td><code>dojo-warriors/mdj-server-config/CLAUDE.md</code></td><td></td></tr>
+    <tr><td>16</td><td>DM-16</td><td>Verify all GitHub Pages links work &mdash; spot check 5 docs across vision/roadmaps/tracks</td><td>Browser verification</td><td></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Track 5: CI/Pipeline Cleanup</h2>
+  <p><span class="tag tag-low">LOW</span> &mdash; Housekeeping items that prevent future failures.</p>
+  <table>
+    <tr><th>#</th><th>Ticket</th><th>What</th><th>Files</th><th>Status</th></tr>
+    <tr><td>17</td><td>DM-17</td><td>Close stale PR #216 (Gradient Training Guide)</td><td>GitHub</td><td></td></tr>
+    <tr><td>18</td><td>DM-18</td><td>Firebase runtime nodejs20 &rarr; nodejs22 (kill the engine warning)</td><td><code>firebase.json</code> + <code>bigquery-stream/package.json</code></td><td></td></tr>
+    <tr><td>19</td><td>DM-19</td><td>Verify webhooks lockfile auto-sync working end-to-end after deploy</td><td><code>scripts/sync-service-lockfiles.sh</code></td><td></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Execution Plan</h2>
+  <p>Tracks 1-2 can run in parallel. Track 3 depends on Track 1 (need CLAUDE.md updated first). Track 4 is independent. Track 5 is independent.</p>
+  <table>
+    <tr><th>Track</th><th>Tickets</th><th>Executor</th><th>Dependencies</th></tr>
+    <tr><td style="color: var(--red);">1 &mdash; Knowledge Pipeline</td><td>DM-01 through DM-08</td><td>SHINOB1 (CTO)</td><td>None</td></tr>
+    <tr><td style="color: var(--red);">2 &mdash; VOLTRON Identity</td><td>DM-09, DM-10</td><td>SHINOB1 (CTO) &mdash; JDM review gate</td><td>None</td></tr>
+    <tr><td style="color: var(--orange);">3 &mdash; Permissions</td><td>DM-11, DM-12, DM-13</td><td>SHINOB1 (CTO)</td><td>Track 1 (CLAUDE.md must be current)</td></tr>
+    <tr><td style="color: var(--orange);">4 &mdash; Docs URLs</td><td>DM-14, DM-15, DM-16</td><td>SHINOB1 (CTO)</td><td>None</td></tr>
+    <tr><td style="color: var(--blue);">5 &mdash; CI Cleanup</td><td>DM-17, DM-18, DM-19</td><td>SHINOB1 (CTO)</td><td>None</td></tr>
+  </table>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>Deferred Maintenance Sprint &bull; SHINOB1, CTO &bull; 2026-04-05</p>
+  <p style="margin-top: 8px; color: var(--accent);">Clean the pipe. Then scale.</p>
+</div>
+
+</body>
+</html>

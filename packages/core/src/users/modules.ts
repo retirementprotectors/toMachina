@@ -118,7 +118,7 @@ export const TOOL_SUITES: Record<SuiteKey, ToolSuiteDef> = {
     name: 'Admin',
     description: 'Organization & Permissions Management',
     matrix: 'RAPID',
-    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN', 'MDJ'],
+    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN', 'MDJ', 'MEGAZORD', 'VOLTRON', 'MUSASHI'],
   },
 }
 
@@ -455,6 +455,30 @@ export const MODULES: Record<string, ModuleDef> = {
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'USER',
+  },
+  MEGAZORD: {
+    name: 'MEGAZORD',
+    fullName: 'MEGAZORD CIO Command Center',
+    description: 'Data operations — ATLAS registry, Rangers mesh, wire execution, source health',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
+    minUserLevel: 'EXECUTIVE',
+  },
+  VOLTRON: {
+    name: 'VOLTRON',
+    fullName: 'VOLTRON CSO Command Center',
+    description: 'Client operations — QUE registry, Lions mesh, case pipeline, product specialists',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
+    minUserLevel: 'EXECUTIVE',
+  },
+  MUSASHI: {
+    name: 'MUSASHI',
+    fullName: 'MUSASHI CMO Command Center',
+    description: 'Creative operations — CMO registry, Artisans mesh, campaign pipeline, brand compliance',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
+    minUserLevel: 'EXECUTIVE',
   },
   PROZONE: {
     name: 'ProZONE',
