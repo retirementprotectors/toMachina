@@ -1,6 +1,6 @@
 # API Service — monorepo-aware Dockerfile
 # Build context: repo root (.)
-FROM us-central1-docker.pkg.dev/claude-mcp-484718/tomachina/node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Copy monorepo structure needed for this service
@@ -19,7 +19,7 @@ COPY services/api/ ./services/api/
 RUN npx turbo run build --filter=@tomachina/core && npx turbo run build --filter=@tomachina/api
 
 # Production image — preserve monorepo symlink structure
-FROM us-central1-docker.pkg.dev/claude-mcp-484718/tomachina/node:20-alpine AS runner
+FROM node:22-alpine AS runner
 RUN apk add --no-cache poppler-utils
 WORKDIR /app
 ENV NODE_ENV=production
