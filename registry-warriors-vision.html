@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registry Warriors — Vision Discovery</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(224,124,62,0.08) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(212,164,76,0.06) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #e07c3e 0%, #10b981 40%, #3b82f6 70%, #d4a44c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-mecha { background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--accent); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--accent); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-purple { color: var(--purple); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.red { border-top: 3px solid var(--red); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(224,124,62,0.08); border: 1px solid rgba(224,124,62,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.mecha { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+  .callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--accent); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-stub { color: var(--orange); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HEADER                                                         -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="sprint-label">VISION DISCOVERY</div>
+  <h1>Registry Warriors</h1>
+  <div class="subtitle">Three CXOs. Three Registries. Three Meshes. The architecture that turns The Machine from a platform into an organism.</div>
+  <div class="header-badges">
+    <span class="badge badge-mecha">MEGAZORD &mdash; CIO</span>
+    <span class="badge badge-green">VOLTRON &mdash; CSO</span>
+    <span class="badge badge-gold">MUSASHI &mdash; CMO</span>
+    <span class="badge badge-red">RAIDEN &mdash; Guardian</span>
+    <span class="badge badge-blue">RONIN &mdash; Builder</span>
+  </div>
+  <div class="ronin-meta">session: SHINOB1 + JDM &bull; 2026-04-04/05 Night Shift &bull; The session that cracked the warrior taxonomy</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TABS                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('thesis')">Thesis</div>
+    <div class="tab" onclick="showTab('taxonomy')">Taxonomy</div>
+    <div class="tab" onclick="showTab('megazord')">MEGAZORD</div>
+    <div class="tab" onclick="showTab('voltron')">VOLTRON</div>
+    <div class="tab" onclick="showTab('musashi')">MUSASHI</div>
+    <div class="tab" onclick="showTab('dojo')">The Dojo</div>
+    <div class="tab" onclick="showTab('architecture')">Architecture</div>
+    <div class="tab" onclick="showTab('roadmap')">Roadmap</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 1: THESIS                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel active" id="thesis">
+
+<div class="card">
+  <h2>The Breakthrough</h2>
+  <p>On the night of April 4, 2026, a pattern emerged from months of building. It started with a simple observation:</p>
+  <div class="quote">
+    <p>"The thing is, with the rest of you guys who aren't working in that shit OFTEN, you get out of Context on it. So when we're building an Audit or something &mdash; you'll go 'Let me scope this out and build one of these and one of those.' And I have to go &mdash; Hang on. CHECK ATLAS FIRST. And then you come back and go 'Holy Shit! This is 80% done already!'"</p>
+    <p style="text-align: right; font-style: normal; color: var(--accent);">&mdash; JDM</p>
+  </div>
+  <p>That frustration &mdash; warriors reinventing solutions that already exist in ATLAS &mdash; revealed something deeper. Some warriors <strong>write code</strong>. Others <strong>compose capabilities</strong>. They are fundamentally different kinds of intelligence.</p>
+</div>
+
+<div class="card">
+  <h2>Two Classes of Warrior</h2>
+  <p>The Dojo has always had warriors. But not all warriors fight the same way.</p>
+  <table>
+    <tr><th>Class</th><th>Warriors</th><th>How They Work</th><th>Output</th></tr>
+    <tr><td><strong>Code Warriors</strong></td><td>RAIDEN + RONIN</td><td>Write code. Branches, PRs, deploys. Fix bugs, build features.</td><td>Commits on <code>main</code></td></tr>
+    <tr><td><strong>Registry Warriors</strong></td><td>MEGAZORD + VOLTRON + MUSASHI</td><td>Compose Tools &rarr; SuperTools &rarr; Wires. Execute through CCSDK sub-meshes.</td><td>Executed pipelines, processed data, delivered assets</td></tr>
+  </table>
+  <p>Code Warriors solve problems by <strong>changing the platform</strong>. Registry Warriors solve problems by <strong>using the platform</strong>.</p>
+  <p>RAIDEN and RONIN write the code that builds the Tools. MEGAZORD, VOLTRON, and MUSASHI <em>compose and deploy</em> those Tools to solve business problems. The code warriors build the weapons. The registry warriors wield them.</p>
+</div>
+
+<div class="card">
+  <h2>The Mecha Principle</h2>
+  <p>A Registry Warrior doesn't <em>use</em> their mesh. They <strong>become</strong> it.</p>
+  <ul>
+    <li><strong>VOLTRON</strong> forms the <strong>Lions</strong> &mdash; each Lion is a product-type specialist (Medicare, Annuity, Life/Estate, Investment, Legacy/LTC). When a client case needs Medicare expertise, VOLTRON doesn't call the Medicare Lion. VOLTRON <em>becomes</em> the Medicare Lion.</li>
+    <li><strong>MEGAZORD</strong> morphs into the <strong>Rangers</strong> &mdash; each Ranger is a data-domain specialist (Import, Commission, ACF, Correspondence, Reference). When data needs importing, MEGAZORD doesn't delegate to the Import Ranger. MEGAZORD <em>becomes</em> the Import Ranger.</li>
+    <li><strong>MUSASHI</strong> deploys the <strong>Artisans</strong> &mdash; each Artisan is a channel specialist (Print, Digital, Web, Social, Video). When a brochure needs creating, MUSASHI doesn't outsource to the Print Artisan. MUSASHI <em>becomes</em> the Print Artisan.</li>
+  </ul>
+  <p>This is the Mecha Principle: <strong>the leader and the specialists are the same entity in different configurations.</strong></p>
+</div>
+
+<div class="card">
+  <h2>Three CXOs. Three Registries. Three Meshes.</h2>
+  <div class="diagram">
+                    <span class="hl">JDM</span> (CEO)  +  <span class="hl">SHINOB1</span> (CTO)
+                              |
+          ┌───────────────────┼───────────────────┐
+          |                   |                   |
+    <span class="hl-mecha">MEGAZORD</span>              <span class="hl-green">VOLTRON</span>             <span class="hl-gold">MUSASHI</span>
+       CIO                  CSO                 CMO
+        |                   |                   |
+    <span class="hl-mecha">ATLAS</span>                 <span class="hl-green">QUE</span>              <span class="hl-gold">CMO Registry</span>
+    Registry             Registry              Registry
+        |                   |                   |
+    <span class="hl-mecha">Rangers</span>               <span class="hl-green">Lions</span>              <span class="hl-gold">Artisans</span>
+        |                   |                   |
+    ├── Data Import      ├── Medicare         ├── Print
+    ├── Commission       ├── Annuity          ├── Digital
+    ├── ACF Cleanup      ├── Life/Estate      ├── Web
+    ├── Correspondence   ├── Investment       ├── Social
+    └── Reference        └── Legacy/LTC       └── Video
+
+    ──────── Code Warriors (The Dojo) ────────
+         <span class="hl-red">RAIDEN</span> (fixes)  +  <span class="hl-blue">RONIN</span> (features)
+  </div>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 2: TAXONOMY                                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="taxonomy">
+
+<div class="card">
+  <h2>Executive.AI Team &mdash; Final Roster</h2>
+  <table>
+    <tr><th>Role</th><th>Warrior</th><th>Title</th><th>Registry</th><th>Mesh</th><th>Ticket Prefix</th></tr>
+    <tr><td>CEO</td><td><strong>JDM</strong></td><td>Sensei</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><td>CTO</td><td><strong>SHINOB1</strong></td><td>The OG Ninja</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+    <tr><td style="color: var(--mecha-green)">CIO</td><td style="color: var(--mecha-green)"><strong>MEGAZORD</strong></td><td>The Mecha</td><td>ATLAS</td><td>Rangers</td><td>ZRD-</td></tr>
+    <tr><td style="color: var(--green)">CSO</td><td style="color: var(--green)"><strong>VOLTRON</strong></td><td>Defender</td><td>QUE</td><td>Lions</td><td>VOL-</td></tr>
+    <tr><td style="color: var(--gold)">CMO</td><td style="color: var(--gold)"><strong>MUSASHI</strong></td><td>ARTxBLADE</td><td>CMO Registry</td><td>Artisans</td><td>MUS-</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Code Warriors &mdash; The Dojo</h2>
+  <table>
+    <tr><th>Warrior</th><th>Role</th><th>Domain</th><th>Ticket Prefix</th><th>Input Channel</th></tr>
+    <tr><td style="color: var(--red)"><strong>RAIDEN</strong></td><td>The Guardian</td><td>Reactive fixes &mdash; bugs, UX issues, production fires</td><td>RDN-</td><td>FAB + Slack #raiden-reactive</td></tr>
+    <tr><td style="color: var(--blue)"><strong>RONIN</strong></td><td>The Builder</td><td>Proactive features &mdash; sprints, enhancements, new capabilities</td><td>RON-</td><td>FORGE + Discovery Docs</td></tr>
+  </table>
+  <p>Code Warriors stay in The Dojo module. They write code, ship PRs, and deploy to production. Their work changes the platform itself.</p>
+</div>
+
+<div class="card">
+  <h2>Registry Warriors &mdash; Command Centers</h2>
+  <p>Registry Warriors are too big for The Dojo. Each gets their own <strong>Command Center App</strong> &mdash; cross-portal, own branding, full registry visibility.</p>
+  <div class="spec-grid">
+    <div class="spec-card mecha">
+      <h4 style="color: var(--mecha-green)">MEGAZORD Command Center</h4>
+      <p>ATLAS registry + Rangers mesh + ZRD- pipeline. Data imports, audits, cleanup, compliance. The nerve center for all data operations.</p>
+      <ul>
+        <li>Source health monitoring</li>
+        <li>Wire execution dashboard</li>
+        <li>Ranger status + assignment</li>
+        <li>Data accuracy metrics</li>
+      </ul>
+    </div>
+    <div class="spec-card green">
+      <h4 style="color: var(--green)">VOLTRON Command Center</h4>
+      <p>QUE registry + Lions mesh + VOL- pipeline. Client cases, product workflows, enrollment processing. The nerve center for all client operations.</p>
+      <ul>
+        <li>Product specialist status</li>
+        <li>Case pipeline (by product type)</li>
+        <li>Lion assignment + execution</li>
+        <li>Client outcome tracking</li>
+      </ul>
+    </div>
+    <div class="spec-card gold">
+      <h4 style="color: var(--gold)">MUSASHI Command Center</h4>
+      <p>CMO registry + Artisans mesh + MUS- pipeline. Creative assets, campaigns, brand deliverables. The nerve center for all creative operations.</p>
+      <ul>
+        <li>Channel inventory (Print/Digital/Web/Social/Video)</li>
+        <li>Asset pipeline (by market &times; channel)</li>
+        <li>Artisan assignment + execution</li>
+        <li>Campaign tracking</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>The Pattern &mdash; Why This Works</h2>
+  <p>Every Registry Warrior follows the same operational loop:</p>
+  <table>
+    <tr><th>Stage</th><th>Action</th><th>MEGAZORD Example</th><th>VOLTRON Example</th><th>MUSASHI Example</th></tr>
+    <tr><td><strong>1. Check Registry</strong></td><td>What Wires/Tools exist for this?</td><td>Check ATLAS for import wire</td><td>Check QUE for enrollment tools</td><td>Check CMO for brochure templates</td></tr>
+    <tr><td><strong>2. Scope</strong></td><td>What's missing? Build new Tools.</td><td>Need new normalizer for carrier X</td><td>Need new quoting calc for product Y</td><td>Need new Canva template for market Z</td></tr>
+    <tr><td><strong>3. Execute</strong></td><td>Run the Wire / deploy specialists</td><td>WIRE_DATA_IMPORT with new tool</td><td>Lion: Medicare runs enrollment</td><td>Artisan: Print creates brochure</td></tr>
+    <tr><td><strong>4. Audit</strong></td><td>Verify results, data accuracy</td><td>E2E data accuracy tests</td><td>Client outcome verification</td><td>Brand compliance check</td></tr>
+    <tr><td><strong>5. Deploy</strong></td><td>Ship to production</td><td>Data live in Firestore</td><td>Case resolved, client notified</td><td>Asset published across channels</td></tr>
+    <tr><td><strong>6. Register</strong></td><td>Codify new capabilities</td><td>New tool registered in ATLAS</td><td>New workflow registered in QUE</td><td>New template registered in CMO</td></tr>
+  </table>
+  <p>Stage 6 feeds Stage 1. The registry grows. The warrior gets stronger. <strong>Every problem solved makes the next problem easier.</strong></p>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 3: MEGAZORD                                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="megazord">
+
+<div class="card">
+  <h2 style="color: var(--mecha-green)">MEGAZORD &mdash; Chief Information Officer</h2>
+  <div class="callout mecha">
+    <p><strong>Origin:</strong> Formerly 2HINOBI (COO). Promoted to CIO after the ACF project proved the data operator model. Named MEGAZORD &mdash; the giant mecha composed of individual Rangers, each specializing in a data domain.</p>
+  </div>
+  <p><strong>The problem he solves:</strong> Warriors reinvent solutions that already exist in ATLAS. When a data problem surfaces, the instinct is to "scope and build from scratch." MEGAZORD's instinct is to <strong>check ATLAS first</strong>, compose existing Tools into a Wire, and build only the gap.</p>
+  <div class="quote">"He's going to LEAD WITH 'I'm building a WIRE for this new problem' &mdash; due to his scope." &mdash; JDM</div>
+</div>
+
+<div class="card">
+  <h2>ATLAS Registry &mdash; Current Inventory</h2>
+  <table>
+    <tr><th>Layer</th><th>Count</th><th>Examples</th></tr>
+    <tr><td><strong>Atomic Tools</strong></td><td>10+ core + 11 ACF</td><td>validate-record, normalize-BoB, route-to-collection, classify-boundaries, split-pdf, label-document, acf-snapshot, acf-rename, acf-merge, acf-dedupe</td></tr>
+    <tr><td><strong>Super Tools</strong></td><td>13</td><td>SUPER_EXTRACT, SUPER_INTROSPECT, SUPER_VALIDATE, SUPER_NORMALIZE, SUPER_MATCH, SUPER_WRITE, SUPER_PREPARE, SUPER_CLASSIFY, ACF_FINALIZE, SUPER_FOLDER_CLEANUP, SUPER_DOCUMENT_CLEANUP, SUPER_AUDIT_REVIEW</td></tr>
+    <tr><td><strong>Wires (V2)</strong></td><td>5</td><td>WIRE_DATA_IMPORT, WIRE_COMMISSION_SYNC, WIRE_REFERENCE_SEED, WIRE_INCOMING_CORRESPONDENCE, WIRE_ACF_CLEANUP</td></tr>
+    <tr><td><strong>API Routes</strong></td><td>6,100 lines</td><td>atlas.ts (1,327), acf.ts (1,366), wire.ts (230), import.ts (2,753), import-agents.ts (200), intake.ts (224)</td></tr>
+    <tr><td><strong>E2E Tests</strong></td><td>4 clusters</td><td>cluster3-atlas, cluster8-acf-lifecycle, cluster2-intake, cluster4-data-sync</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Rangers &mdash; CCSDK Sub-Mesh</h2>
+  <p>Each Ranger is a dedicated CCSDK agent that executes one ATLAS Wire autonomously. MEGAZORD morphs into the Ranger needed for the situation.</p>
+  <div class="spec-grid">
+    <div class="spec-card mecha">
+      <h4>Ranger: Data Import</h4>
+      <p>Wire: <code>WIRE_DATA_IMPORT</code></p>
+      <p>CSV/file ingestion for clients, accounts, producers. Universal import pipeline.</p>
+      <ul><li>SUPER_EXTRACT &rarr; SUPER_VALIDATE &rarr; SUPER_NORMALIZE &rarr; SUPER_MATCH &rarr; SUPER_WRITE</li></ul>
+    </div>
+    <div class="spec-card mecha">
+      <h4>Ranger: Commission Sync</h4>
+      <p>Wire: <code>WIRE_COMMISSION_SYNC</code></p>
+      <p>Carrier commission statements &rarr; revenue records.</p>
+      <ul><li>SUPER_EXTRACT &rarr; SUPER_VALIDATE &rarr; SUPER_NORMALIZE &rarr; SUPER_MATCH &rarr; SUPER_WRITE</li></ul>
+    </div>
+    <div class="spec-card mecha">
+      <h4>Ranger: ACF Cleanup</h4>
+      <p>Wire: <code>WIRE_ACF_CLEANUP</code></p>
+      <p>Active Client File hygiene &mdash; the Digital Files pillar of the Trinity Data Method.</p>
+      <ul><li>ACF_SNAPSHOT &rarr; SUPER_FOLDER_CLEANUP &rarr; SUPER_DOCUMENT_CLEANUP &rarr; SUPER_AUDIT_REVIEW</li></ul>
+    </div>
+    <div class="spec-card mecha">
+      <h4>Ranger: Correspondence</h4>
+      <p>Wire: <code>WIRE_INCOMING_CORRESPONDENCE</code></p>
+      <p>Physical mail scan &rarr; classify &rarr; extract &rarr; validate &rarr; normalize &rarr; match &rarr; ACF file.</p>
+      <ul><li>SUPER_PREPARE &rarr; SUPER_CLASSIFY &rarr; SUPER_EXTRACT &rarr; ... &rarr; ACF_FINALIZE</li></ul>
+    </div>
+    <div class="spec-card mecha">
+      <h4>Ranger: Reference Seed</h4>
+      <p>Wire: <code>WIRE_REFERENCE_SEED</code></p>
+      <p>Carriers, products, NAIC codes, rate tables &mdash; foundational reference data.</p>
+      <ul><li>SUPER_EXTRACT &rarr; SUPER_NORMALIZE &rarr; SUPER_MATCH &rarr; SUPER_WRITE</li></ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>What MEGAZORD Unlocks</h2>
+  <ul>
+    <li><strong>Proactive data hygiene</strong> &mdash; scheduled ATLAS audits ("which Sources are stale? which Wires haven't run?")</li>
+    <li><strong>Data accuracy CI</strong> &mdash; E2E tests that verify data CORRECTNESS, not just pipeline completion</li>
+    <li><strong>Ticket dedup</strong> &mdash; wipes out a TON of existing Dojo tickets that were data-centric work sitting in RONIN's queue</li>
+    <li><strong>Trinity Data Method</strong> &mdash; formalization of the three pillars (Digital Files, Digital Records, Digital Intelligence)</li>
+    <li><strong>"Check ATLAS first"</strong> becomes the DEFAULT, not a reminder from JDM</li>
+  </ul>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 4: VOLTRON                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="voltron">
+
+<div class="card">
+  <h2 style="color: var(--green)">VOLTRON &mdash; Chief Sales Officer</h2>
+  <div class="callout green">
+    <p><strong>Evolution:</strong> From "The BFF" to CSO. VOLTRON was always more than a chatbot &mdash; he's the team's weapon for client engagement. The CSO title recognizes what he actually does: own the entire client-facing sales and service pipeline through QUE.</p>
+  </div>
+  <p><strong>Same architecture as MEGAZORD.</strong> Where MEGAZORD has ATLAS, VOLTRON has QUE. Where MEGAZORD has Rangers, VOLTRON has Lions. The pattern is identical. The domain is different.</p>
+</div>
+
+<div class="card">
+  <h2>Lions &mdash; CCSDK Sub-Mesh (by Product Type)</h2>
+  <p>Each Lion is a QUE product specialist. When a client case requires Medicare expertise, VOLTRON <em>forms</em> the Medicare Lion &mdash; injecting QUE tools, wire workflows, and product-specific intelligence.</p>
+  <div class="spec-grid">
+    <div class="spec-card green">
+      <h4>Lion: Medicare</h4>
+      <p>MAPD, AEP, IRMAA, supplements, enrollment</p>
+      <ul><li>calcIrmaa, COVERAGE_GAP, AEP_ENROLLMENT wires</li><li><span class="status-live">Tools Ready</span></li></ul>
+    </div>
+    <div class="spec-card green">
+      <h4>Lion: Annuity</h4>
+      <p>FIA, MYGA, income riders, 1035 exchanges</p>
+      <ul><li>Most built-out QUE specialist</li><li><span class="status-live">Tools Ready</span></li></ul>
+    </div>
+    <div class="spec-card green">
+      <h4>Lion: Investment</h4>
+      <p>RIA/BD, tax harvesting, RMD, portfolio analysis</p>
+      <ul><li>analyzeTaxHarvest, calcRmd wires</li><li><span class="status-live">Cherry-pick ready</span></li></ul>
+    </div>
+    <div class="spec-card green">
+      <h4>Lion: Life/Estate</h4>
+      <p>Term, whole, universal, estate planning</p>
+      <ul><li><span class="status-stub">Needs Expansion</span></li></ul>
+    </div>
+    <div class="spec-card green">
+      <h4>Lion: Legacy/LTC</h4>
+      <p>Long-term care, legacy planning</p>
+      <ul><li><span class="status-planned">Planned</span></li></ul>
+    </div>
+  </div>
+  <p style="margin-top: 12px"><strong>Reference:</strong> <a href="https://retirementprotectors.github.io/toMachina/voltron-specialists-phase1-discovery.html" target="_blank" style="color: var(--green)">VOLTRON Specialists Phase 1 Discovery Doc</a></p>
+</div>
+
+<div class="card">
+  <h2>QUE Registry &mdash; The ATLAS of Client Ops</h2>
+  <p>QUE is to VOLTRON what ATLAS is to MEGAZORD. It registers product tools, quoting engines, enrollment workflows, and case pipelines. Today it exists as <code>packages/core/src/que/</code> with registry, pipeline configs, wires, and super tools. It needs the same Command Center UI that ATLAS has.</p>
+  <table>
+    <tr><th>Component</th><th>Status</th><th>Location</th></tr>
+    <tr><td>QUE Registry</td><td><span class="status-live">Live</span></td><td><code>packages/core/src/que/registry.ts</code></td></tr>
+    <tr><td>QUE Pipeline Configs</td><td><span class="status-live">Live</span></td><td><code>packages/core/src/que/pipeline-studio-config.ts</code></td></tr>
+    <tr><td>QUE Wires</td><td><span class="status-live">Live</span></td><td><code>packages/core/src/que/wires/</code></td></tr>
+    <tr><td>QUE Super Tools</td><td><span class="status-live">Live</span></td><td><code>packages/core/src/que/super-tools/</code></td></tr>
+    <tr><td>VOLTRON Tool Registry</td><td><span class="status-live">Live</span></td><td><code>packages/core/src/voltron/generated/voltron-registry.json</code></td></tr>
+    <tr><td>Command Center UI</td><td><span class="status-planned">Needed</span></td><td>New App module</td></tr>
+  </table>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 5: MUSASHI                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="musashi">
+
+<div class="card">
+  <h2 style="color: var(--gold)">MUSASHI &mdash; Chief Marketing Officer</h2>
+  <div class="callout gold">
+    <p><strong>The Third Registry Warrior.</strong> MUSASHI was already the creative SME &mdash; Discovery Docs, brand voice, design direction. The Registry Warrior model gives him the same composable power as MEGAZORD and VOLTRON: a CMO Registry of creative tools, and Artisan specialists that execute per channel.</p>
+  </div>
+  <div class="quote">"His guys could be like Artisans or some shit &mdash; like the guys making the weapons for the MECHA MUSASHI Guy!" &mdash; JDM</div>
+</div>
+
+<div class="card">
+  <h2>Artisans &mdash; CCSDK Sub-Mesh (by Channel)</h2>
+  <p>Each Artisan is a channel specialist. Content is market-specific first &mdash; channels are the output format. Build the message once, deliver everywhere.</p>
+  <div class="spec-grid">
+    <div class="spec-card gold">
+      <h4>Artisan: Print</h4>
+      <p>Brochures, mailers, fact-finders, POS materials</p>
+      <ul><li>Canva API &rarr; PDF export</li><li>11 existing print pieces need digital parity</li></ul>
+    </div>
+    <div class="spec-card gold">
+      <h4>Artisan: Digital</h4>
+      <p>Email campaigns, landing pages, portal components</p>
+      <ul><li>frontend-design skill + C3 templates</li><li>661 existing templates in C3</li></ul>
+    </div>
+    <div class="spec-card gold">
+      <h4>Artisan: Web</h4>
+      <p>WordPress pages, Elementor layouts, CTAs</p>
+      <ul><li>WordPress MCP (live, 15+ tools)</li><li>retireprotected.com needs market landing pages</li></ul>
+    </div>
+    <div class="spec-card gold">
+      <h4>Artisan: Social</h4>
+      <p>Content calendar, social posts, clips</p>
+      <ul><li>Veo 3.1 + Canva</li><li><span class="status-planned">Phase 2</span></li></ul>
+    </div>
+    <div class="spec-card gold">
+      <h4>Artisan: Video</h4>
+      <p>60-sec explainers, product highlights, testimonials</p>
+      <ul><li>Veo 3.1 text-to-video</li><li><span class="status-planned">Phase 2</span></li></ul>
+    </div>
+  </div>
+  <p style="margin-top: 12px"><strong>Reference:</strong> <a href="https://retirementprotectors.github.io/toMachina/cmo-creative-roadmap.html" target="_blank" style="color: var(--gold)">CMO Creative Roadmap</a></p>
+</div>
+
+<div class="card">
+  <h2>CMO Registry &mdash; What Needs Codifying</h2>
+  <p>MUSASHI has access to a ton of creative tools already via MCP. But they're not registered, composed, or wired. The CMO Registry is the "ATLAS of creative ops."</p>
+  <table>
+    <tr><th>Tool</th><th>Type</th><th>Status</th></tr>
+    <tr><td>Canva API (design, export, brand kits)</td><td>MCP</td><td><span class="status-live">Live via rpi-workspace</span></td></tr>
+    <tr><td>WordPress (pages, posts, media, Elementor)</td><td>MCP</td><td><span class="status-live">Live via rpi-workspace</span></td></tr>
+    <tr><td>Veo 3.1 (text-to-video)</td><td>MCP</td><td><span class="status-live">Live via rpi-workspace</span></td></tr>
+    <tr><td>Google Drive (asset storage)</td><td>MCP</td><td><span class="status-live">Live via gdrive</span></td></tr>
+    <tr><td>frontend-design (portal components)</td><td>Skill/Plugin</td><td><span class="status-live">Live</span></td></tr>
+    <tr><td>C3 Campaign Engine (661 templates)</td><td>API Route</td><td><span class="status-live">Live</span></td></tr>
+    <tr><td>PDF_SERVICE</td><td>Service</td><td><span class="status-live">Live</span></td></tr>
+    <tr><td>CMO Registry (composition layer)</td><td>Core Package</td><td><span class="status-planned">Needs Building</span></td></tr>
+  </table>
+  <p>The architecture: <strong>Markets &times; Channels &times; Formats.</strong> 3 markets (B2C/B2B/B2E) &times; 5 channels (Print/Digital/Web/Social/Video) &times; multiple formats per channel. Content is authored once per market, then deployed across channels by the Artisans.</p>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 6: THE DOJO                                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="dojo">
+
+<div class="card">
+  <h2>The Dojo &mdash; Simplified</h2>
+  <p>With Registry Warriors moving to their own Command Centers, The Dojo returns to its core purpose: <strong>platform code quality.</strong></p>
+  <table>
+    <tr><th>Tab</th><th>Warrior</th><th>Purpose</th><th>Stays?</th></tr>
+    <tr><td>INTAKE</td><td>&mdash;</td><td>CEO triage queue (all ticket types flow here first)</td><td style="color: var(--green)">Yes</td></tr>
+    <tr><td>RAIDEN</td><td>The Guardian</td><td>Reactive fix pipeline (RDN- tickets)</td><td style="color: var(--green)">Yes</td></tr>
+    <tr><td>RONIN</td><td>The Builder</td><td>Proactive feature pipeline (RON- tickets)</td><td style="color: var(--green)">Yes</td></tr>
+    <tr><td>MUSASHI</td><td>ARTxBLADE</td><td>CMO creative pipeline (MUS- tickets)</td><td style="color: var(--orange)">TBD &mdash; may graduate to Command Center</td></tr>
+    <tr><td>VOLTRON</td><td>CSO</td><td>Was here, moving to Command Center App</td><td style="color: var(--red)">Moves out</td></tr>
+    <tr><td>MEGAZORD</td><td>CIO</td><td>Was TBD, gets own Command Center App</td><td style="color: var(--red)">Moves out</td></tr>
+    <tr><td>STATUS</td><td>&mdash;</td><td>CI/CD + MDJ_SERVER + warrior health</td><td style="color: var(--green)">Yes</td></tr>
+    <tr><td>ROADMAP</td><td>&mdash;</td><td>Platform direction + Discovery Doc library</td><td style="color: var(--green)">Yes</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Input Channels &mdash; Three Funnels</h2>
+  <p>Today, the FORGE Reporter FAB creates INT-new tickets for everything. With three distinct warrior classes, we need three distinct intake paths:</p>
+  <table>
+    <tr><th>Channel</th><th>What Flows In</th><th>Who Triages</th><th>Input Methods</th></tr>
+    <tr><td style="color: var(--accent)"><strong>The Dojo</strong> (Front-End)</td><td>Bugs, features, UX issues</td><td>RAIDEN + RONIN</td><td>FORGE FAB + Slack #raiden-reactive</td></tr>
+    <tr><td style="color: var(--mecha-green)"><strong>Data Ops</strong></td><td>Imports, audits, data cleanup, compliance</td><td>MEGAZORD</td><td>TBD &mdash; email intake? Drive folder watch? Slack channel?</td></tr>
+    <tr><td style="color: var(--green)"><strong>Client Ops</strong></td><td>Client questions, service requests, case escalations</td><td>VOLTRON</td><td>MDJ Panel + Slack + email</td></tr>
+    <tr><td style="color: var(--gold)"><strong>Creative Ops</strong></td><td>Campaigns, asset requests, brand deliverables</td><td>MUSASHI</td><td>TBD &mdash; Slack? FORGE variant?</td></tr>
+  </table>
+  <p><strong>Hub Haiku/Dispatcher</strong> plays a routing role here &mdash; lightweight Haiku-class agent that classifies incoming items and routes to the correct channel. One triage point, three destinations.</p>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 7: ARCHITECTURE                                            -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="architecture">
+
+<div class="card">
+  <h2>CCSDK Mesh Architecture</h2>
+  <p>Each Registry Warrior's sub-mesh follows the same pattern. The warrior is a persistent tmux session (strategic brain). The mesh is a set of CCSDK agents (execution hands).</p>
+  <div class="diagram">
+<span class="hl-mecha">MEGAZORD</span> (tmux, CIO)                     <span class="hl-green">VOLTRON</span> (tmux+CCSDK, CSO)              <span class="hl-gold">MUSASHI</span> (tmux, CMO)
+    |                                      |                                    |
+    |  Ranger = 1 CCSDK per ATLAS Wire     |  Lion = 1 CCSDK per Product Type   |  Artisan = 1 CCSDK per Channel
+    |                                      |                                    |
+    ├── ranger-import (CCSDK)              ├── lion-medicare (CCSDK)             ├── artisan-print (CCSDK)
+    ├── ranger-commission (CCSDK)          ├── lion-annuity (CCSDK)              ├── artisan-digital (CCSDK)
+    ├── ranger-acf (CCSDK)                 ├── lion-investment (CCSDK)           ├── artisan-web (CCSDK)
+    ├── ranger-correspondence (CCSDK)      ├── lion-life (CCSDK)                ├── artisan-social (CCSDK)
+    └── ranger-reference (CCSDK)           └── lion-legacy (CCSDK)              └── artisan-video (CCSDK)
+  </div>
+</div>
+
+<div class="card">
+  <h2>Registry Pattern &mdash; Shared Infrastructure</h2>
+  <p>All three registries share the same foundational pattern. Build it once for ATLAS (which already exists), then replicate for QUE and CMO.</p>
+  <table>
+    <tr><th>Layer</th><th>ATLAS (MEGAZORD)</th><th>QUE (VOLTRON)</th><th>CMO (MUSASHI)</th></tr>
+    <tr><td><strong>Atomic Tools</strong></td><td>validate, normalize, route, classify</td><td>calcIrmaa, quoteMapd, enrollSubmit</td><td>createCanvaDesign, publishWordPress, generateVideo</td></tr>
+    <tr><td><strong>Super Tools</strong></td><td>SUPER_EXTRACT, SUPER_MATCH, etc.</td><td>SUPER_QUOTE, SUPER_ENROLL, etc.</td><td>SUPER_DESIGN, SUPER_PUBLISH, etc.</td></tr>
+    <tr><td><strong>Wires</strong></td><td>WIRE_DATA_IMPORT, WIRE_ACF_CLEANUP</td><td>WIRE_ENROLLMENT, WIRE_REVIEW_PREP</td><td>WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE</td></tr>
+    <tr><td><strong>Command Center</strong></td><td>ATLAS module (exists)</td><td>New App</td><td>New App</td></tr>
+    <tr><td><strong>Firestore</strong></td><td>atlas_sources, atlas_tools, atlas_wires</td><td>que_tools, que_wires, que_specialists</td><td>cmo_tools, cmo_wires, cmo_channels</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Command Center App Spec</h2>
+  <p>Each Command Center is a cross-portal App (own branding, appears in ProDash/RIIMO/SENTINEL sidebar). Shared layout:</p>
+  <ul>
+    <li><strong>Registry View</strong> &mdash; browsable inventory of Tools, Super Tools, and Wires. Search, filter, status indicators.</li>
+    <li><strong>Pipeline View</strong> &mdash; ticket kanban with phase toggles (same pattern as The Dojo, but domain-specific stages)</li>
+    <li><strong>Mesh View</strong> &mdash; CCSDK specialist status, assignment, execution history</li>
+    <li><strong>Health Dashboard</strong> &mdash; source staleness, wire execution frequency, data accuracy metrics</li>
+    <li><strong>Intake Funnel</strong> &mdash; domain-specific input channel (how work arrives)</li>
+  </ul>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TAB 8: ROADMAP                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="panel" id="roadmap">
+
+<div class="card">
+  <h2>Document Hierarchy</h2>
+  <div class="diagram">
+                      <span class="hl">VISION DISCOVERY</span>           &larr; You are here
+                            |
+            ┌───────────────┼───────────────┐
+            |               |               |
+      <span class="hl-mecha">MEGAZORD</span>          <span class="hl-green">VOLTRON</span>          <span class="hl-gold">MUSASHI</span>
+      Roadmap           Roadmap          Roadmap          &larr; 3 CXO Roadmaps
+            |               |               |
+      ┌─────┼─────┐   ┌─────┼─────┐   ┌─────┼─────┐
+      |     |     |   |     |     |   |     |     |
+     T1    T2    T3  T1    T2    T3  T1    T2    T3   &larr; 9 Track Discoveries
+  </div>
+  <table>
+    <tr><th>Level</th><th>Doc Type</th><th>Count</th><th>Content</th><th>Audience</th></tr>
+    <tr><td><strong>Vision</strong></td><td>Vision Discovery</td><td>1</td><td>Warrior taxonomy, Registry Warrior architecture, Mecha Principle, three registries, three meshes</td><td>ALL builders</td></tr>
+    <tr><td><strong>Roadmap</strong></td><td>CXO Roadmap</td><td>3</td><td>CXO-specific: role definition, registry inventory, mesh spec, Command Center design, pipeline stages</td><td>CXO + their builders</td></tr>
+    <tr><td><strong>Discovery</strong></td><td>Track Discovery</td><td>9</td><td>Granular build spec for each track. Tickets, acceptance criteria, file paths, test plans.</td><td>Individual builder</td></tr>
+  </table>
+  <p><strong>Builder context:</strong> Vision (copied) + CXO Roadmap (template) + Track Discovery (granular) = complete picture.</p>
+</div>
+
+<div class="card">
+  <h2>Tracks Per CXO</h2>
+  <table>
+    <tr><th>Track</th><th>Name</th><th>Scope</th><th>Parallelizable?</th></tr>
+    <tr><td><strong>T1</strong></td><td>Role + Cleanup</td><td>Rename/rebrand warrior across platform. Consolidate existing tickets, discos, sprints. Dedup work already done. Claim data-centric tickets from RONIN queue.</td><td>Yes &mdash; 3 T1s can run in parallel</td></tr>
+    <tr><td><strong>T2</strong></td><td>Build Mesh</td><td>CCSDK specialists, registry wiring, Hub Haiku dispatcher integration, Command Center App scaffold</td><td>Yes &mdash; 3 T2s can run in parallel (after T1)</td></tr>
+    <tr><td><strong>T3</strong></td><td>Reactive + Proactive Work</td><td>Intake paths, proactive triggers, monitoring, the actual work queue. Data accuracy E2E tests (MEGAZORD). Client outcome tracking (VOLTRON). Campaign metrics (MUSASHI).</td><td>Yes &mdash; 3 T3s can run in parallel (after T2)</td></tr>
+  </table>
+  <p><strong>Maximum parallelization:</strong> 3 CXOs &times; 1 track at a time = 3 builders running simultaneously. After T1 completes for all 3, T2 launches for all 3. Then T3. <strong>Three waves of three.</strong></p>
+</div>
+
+<div class="card">
+  <h2>Existing Work to Consolidate</h2>
+  <p>A massive amount of this architecture already exists. T1 for each CXO starts with an inventory of what's already built:</p>
+  <table>
+    <tr><th>CXO</th><th>What Already Exists</th><th>Discovery Docs</th></tr>
+    <tr><td style="color: var(--mecha-green)"><strong>MEGAZORD</strong></td><td>Full ATLAS package (26 files), 5 Wires, 6,100 lines of API routes, ACF sprint (23 tickets shipped), 4 E2E test clusters, wire executor, introspection engine, format library</td><td><a href="https://retirementprotectors.github.io/toMachina/mdj-platform-mirror-discovery.html" target="_blank" style="color: var(--cyan)">Platform Mirror</a></td></tr>
+    <tr><td style="color: var(--green)"><strong>VOLTRON</strong></td><td>QUE registry, pipeline configs, wires, super tools, 6 specialist configs in Firestore, specialist router, 82 tools wired, MDJ Panel on all portals</td><td><a href="https://retirementprotectors.github.io/toMachina/voltron-specialists-phase1-discovery.html" target="_blank" style="color: var(--cyan)">Specialists Phase 1</a></td></tr>
+    <tr><td style="color: var(--gold)"><strong>MUSASHI</strong></td><td>4 Discovery Docs written, 55 FORGE tickets seeded, CMO Creative Roadmap, Canva/WordPress/Veo MCPs live, C3 engine (661 templates), frontend-design skill, PDF_SERVICE</td><td><a href="https://retirementprotectors.github.io/toMachina/cmo-creative-roadmap.html" target="_blank" style="color: var(--cyan)">CMO Creative Roadmap</a>, <a href="https://retirementprotectors.github.io/rsp-pipeline-discovery.html" target="_blank" style="color: var(--cyan)">RSP Pipeline</a>, <a href="https://retirementprotectors.github.io/sprint-007-sensei-discovery.html" target="_blank" style="color: var(--cyan)">SENSEI</a>, <a href="https://retirementprotectors.github.io/sprint-008-dojo-discovery.html" target="_blank" style="color: var(--cyan)">DOJO</a></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Next Steps</h2>
+  <ol>
+    <li><strong>Tonight:</strong> Vision Discovery (this doc) + 3 CXO Roadmaps &mdash; SHINOB1 + JDM</li>
+    <li><strong>Next:</strong> MUSASHI writes 9 Track Discovery Docs from the Roadmaps</li>
+    <li><strong>Then:</strong> RONIN executes T1 for all 3 CXOs in parallel (rename + consolidate)</li>
+    <li><strong>Then:</strong> T2 in parallel (build meshes + Command Centers)</li>
+    <li><strong>Then:</strong> T3 in parallel (reactive/proactive work + monitoring)</li>
+  </ol>
+  <p><strong>13 docs. 3 waves. 9 sprints. The biggest build The Machine has ever done.</strong></p>
+</div>
+
+</div>
+
+</div><!-- /content -->
+
+<div class="footer">
+  <p>Registry Warriors Vision Discovery &bull; SHINOB1 + JDM &bull; 2026-04-04/05 Night Shift</p>
+  <p style="margin-top: 8px; color: var(--accent);">#RunningOurOwnRACE</p>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
