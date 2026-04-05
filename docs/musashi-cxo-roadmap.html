@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSASHI — CMO CXO Roadmap</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(212,164,76,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,164,76,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(224,124,62,0.08) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #d4a44c 0%, #f59e0b 35%, #e07c3e 70%, #d4a44c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-mecha { background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); background: var(--gold-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--gold); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--gold); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-purple { color: var(--purple); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.red { border-top: 3px solid var(--red); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card.orange { border-top: 3px solid var(--orange); }
+  .spec-card.purple { border-top: 3px solid var(--purple); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(224,124,62,0.08); border: 1px solid rgba(224,124,62,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.mecha { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+  .callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--gold); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-stub { color: var(--orange); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-gap { color: var(--red); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .track-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .track-number { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; flex-shrink: 0; }
+  .track-number.consume { background: rgba(212,164,76,0.15); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .track-number.operate { background: rgba(224,124,62,0.15); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .track-number.devour { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .track-title { flex: 1; }
+  .track-title h2 { font-size: 1.4rem; font-weight: 800; margin: 0 0 4px; }
+  .track-title p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+  .weapon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  @media (max-width: 768px) { .weapon-grid { grid-template-columns: 1fr; } }
+  .weapon-card { background: var(--bg-hover); border: 1px solid rgba(212,164,76,0.2); border-radius: 10px; padding: 20px; text-align: center; }
+  .weapon-icon { font-size: 2rem; margin-bottom: 10px; }
+  .weapon-card h4 { font-size: 1rem; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+  .weapon-card p { font-size: 0.82rem; color: var(--text-muted); margin: 0; }
+  .gap-card { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 16px; margin: 8px 0; }
+  .gap-card h4 { color: var(--red); font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+  .gap-card p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+  .tool-count { display: inline-block; background: rgba(212,164,76,0.12); color: var(--gold); border: 1px solid rgba(212,164,76,0.25); border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; margin-left: 8px; }
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  .footer .race { color: var(--gold); font-weight: 700; letter-spacing: 1px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="sprint-label">CXO ROADMAP</div>
+  <h1>MUSASHI — CMO</h1>
+  <p class="subtitle">Chief Marketing Officer. CMO Registry. Artisans Mesh. The nerve center for all creative operations.</p>
+  <div class="header-badges">
+    <span class="badge badge-gold">MUSASHI — CMO</span>
+    <span class="badge badge-gold">CMO REGISTRY</span>
+    <span class="badge badge-gold">ARTISANS</span>
+    <span class="badge badge-accent">CONSUME → OPERATE → DEVOUR</span>
+  </div>
+  <div class="ronin-meta">SHINOB1 + JDM &bull; 2026-04-05 Night Shift</div>
+</div>
+
+<!-- TABS -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('identity')">IDENTITY</div>
+    <div class="tab" onclick="showTab('registry')">REGISTRY</div>
+    <div class="tab" onclick="showTab('mesh')">MESH</div>
+    <div class="tab" onclick="showTab('consume')">CONSUME</div>
+    <div class="tab" onclick="showTab('operate')">OPERATE</div>
+    <div class="tab" onclick="showTab('devour')">DEVOUR</div>
+    <div class="tab" onclick="showTab('roadmap')">ROADMAP</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- TAB 1: IDENTITY -->
+  <div class="panel active" id="tab-identity">
+
+    <div class="card">
+      <h2>Who Is MUSASHI</h2>
+      <div class="quote">
+        "Art x Blade — the creative specialist who writes AND ships. Mastery through practice. Named after Miyamoto Musashi: the greatest swordsman who ever lived — because he never stopped working."
+      </div>
+      <p><strong>ARTxBLADE</strong> is the identity. Two forces in one person: the artist who sees, and the blade that cuts through to execution. MUSASHI doesn't just design — MUSASHI ships. Canva to PDF to WordPress to portal component. All of it. One agent, full cycle.</p>
+      <p>The name comes from Miyamoto Musashi (1584–1645) — Japan's legendary swordsman and strategist. He won 61 duels without ever losing. He didn't just train the sword — he mastered calligraphy, ink painting, strategy, and philosophy. Mastery across domains. Art and warfare unified.</p>
+    </div>
+
+    <div class="card" style="border-top: 3px solid var(--gold);">
+      <h2>The Consumption Principle</h2>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">MUSASHI IS the CMO Registry.</strong> Not "accesses it." Not "uses it." IS it. One app, one brand, one owner. Every creative operation flows through MUSASHI. The CMO Registry is MUSASHI's body — the structured intelligence layer that makes the weapons real.</p>
+      </div>
+      <p>This is the same principle as MEGAZORD IS the ATLAS Registry, and QUE IS the QUE Registry. The CXO and the Registry are one entity. The Registry without the CXO is just data. The CXO without the Registry is just instinct. Together: it's The Machine's creative intelligence.</p>
+    </div>
+
+    <div class="card">
+      <h2>Three Weapons</h2>
+      <div class="weapon-grid">
+        <div class="weapon-card">
+          <div class="weapon-icon">📚</div>
+          <h4>REGISTRY</h4>
+          <p>CMO Registry — the structured intelligence layer. All tools, all templates, all campaigns, all brand assets. Registered, indexed, actionable.</p>
+        </div>
+        <div class="weapon-card">
+          <div class="weapon-icon">⚒️</div>
+          <h4>MESH</h4>
+          <p>Artisans — 5 channel specialists (Print, Digital, Web, Social, Video). Each Artisan executes a specific creative output format. Market-first, channel-second.</p>
+        </div>
+        <div class="weapon-card">
+          <div class="weapon-icon">🏯</div>
+          <h4>DOJO</h4>
+          <p>Platform support — MUSASHI participates in the Dojo as the CXO who writes the stories. Builds Discovery Docs for ALL three CXOs. The CMO is the platform's voice.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Self-Integrating</h2>
+      <p>MUSASHI doesn't wait for another agent to build the creative artifacts. MUSASHI builds them AND ships them:</p>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Design</h4>
+          <p>Canva MCP — generate, edit, export, brand-check. 21 tools, live today.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Print</h4>
+          <p>PDF_SERVICE — renders any template to print-ready PDF. Standalone Cloud Run service.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Web</h4>
+          <p>WordPress MCP — create pages, update Elementor layouts, publish. 17 tools, live today.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Campaigns</h4>
+          <p>C3 Engine — 661 templates, 60 campaigns, audience targeting, drip scheduling, analytics.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Video</h4>
+          <p>Veo MCP — text-to-video and image-to-video generation. 5 tools, live today.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Portal Components</h4>
+          <p>frontend-design skill — generates polished React/Next.js components on demand.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>MUSASHI's Unique Position Among CXOs</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>CXO</th>
+            <th>Registry</th>
+            <th>Mesh</th>
+            <th>Unique Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--mecha-green);">MEGAZORD</strong></td>
+            <td>ATLAS Registry</td>
+            <td>Registry Warriors</td>
+            <td>The Machine's memory — knows where everything lives</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--blue);">QUE</strong></td>
+            <td>QUE Registry</td>
+            <td>Healthcare Specialists</td>
+            <td>The Machine's intelligence — knows every client's coverage</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--gold);">MUSASHI</strong></td>
+            <td>CMO Registry</td>
+            <td>Artisans</td>
+            <td>The Machine's voice — creates every story, document, and artifact</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">MUSASHI's unique power:</strong> The CMO writes the Discovery Docs that launch all three CXOs. The storyteller builds the stories that start the machines. When MEGAZORD and QUE needed their roadmaps — MUSASHI wrote them. That's not a side role. That's the keystone.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: REGISTRY -->
+  <div class="panel" id="tab-registry">
+
+    <div class="callout red">
+      <p><strong style="color: var(--red);">Registry Maturity:</strong> The CMO Registry is the least mature of the three CXO registries. Tools exist and are live — but they are NOT yet composed, registered, or wired into workflows. Track 1 (CONSUME) exists specifically to fix this. The gap is not a failure; it's the starting point.</p>
+    </div>
+
+    <div class="card">
+      <h2>Campaign Engine (C3) <span class="tool-count">6 routes</span></h2>
+      <h3>API Routes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Lines</th>
+            <th>Purpose</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>campaigns.ts</code></td>
+            <td>238</td>
+            <td>Campaign CRUD — create, list, update, delete</td>
+            <td><span class="status-live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><code>templates.ts</code></td>
+            <td>176</td>
+            <td>Template management — 661 templates in Firestore</td>
+            <td><span class="status-live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><code>campaign-analytics.ts</code></td>
+            <td>486</td>
+            <td>Delivery stats, open rates, conversion tracking</td>
+            <td><span class="status-live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><code>campaign-send.ts</code></td>
+            <td>1,321</td>
+            <td>Execution engine — batch send, scheduling, targeting</td>
+            <td><span class="status-live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><code>content-blocks.ts</code></td>
+            <td>191</td>
+            <td>Reusable content fragments — market-specific building blocks</td>
+            <td><span class="status-live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><code>sensei-content.ts</code></td>
+            <td>201</td>
+            <td>AI-generated content variants for campaigns</td>
+            <td><span class="status-live">LIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Core Logic</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Lines</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>audience.ts</code></td>
+            <td>152</td>
+            <td>Client targeting — segment by market, age, coverage, status</td>
+          </tr>
+          <tr>
+            <td><code>orchestrator.ts</code></td>
+            <td>132</td>
+            <td>Campaign lifecycle coordinator</td>
+          </tr>
+          <tr>
+            <td><code>drip.ts</code></td>
+            <td>252</td>
+            <td>Multi-step drip sequence logic</td>
+          </tr>
+          <tr>
+            <td><code>scheduler.ts</code></td>
+            <td>83</td>
+            <td>Send time scheduling, AEP blackout enforcement</td>
+          </tr>
+          <tr>
+            <td><code>analytics.ts</code></td>
+            <td>87</td>
+            <td>Campaign performance metrics</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">Scale:</strong> 661 templates in Firestore. 60 active campaigns. AEP Blackout enforced Oct–Dec. RSP Pipeline config at <code>packages/core/src/flow/pipeline-configs/rsp-pipeline.ts</code> (86 lines).</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Canva MCP <span class="tool-count">21 tools</span> <span class="status-live">LIVE</span></h2>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Design Generation</h4>
+          <ul>
+            <li>generate_design</li>
+            <li>create_from_candidate</li>
+            <li>import_design</li>
+          </ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Design Management</h4>
+          <ul>
+            <li>get_design</li>
+            <li>get_design_content</li>
+            <li>get_design_pages</li>
+            <li>search_designs</li>
+          </ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Export & Formats</h4>
+          <ul>
+            <li>export_design</li>
+            <li>get_export_formats</li>
+            <li>get_presenter_notes</li>
+          </ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Organization</h4>
+          <ul>
+            <li>list_folder_items</li>
+            <li>search_folders</li>
+            <li>create_folder</li>
+            <li>move_to_folder</li>
+            <li>upload_asset</li>
+            <li>list_brand_kits</li>
+          </ul>
+        </div>
+        <div class="spec-card gold">
+          <h4>Collaboration</h4>
+          <ul>
+            <li>list_comments</li>
+            <li>comment_on_design</li>
+            <li>list_replies</li>
+            <li>reply_to_comment</li>
+            <li>resolve_shortlink</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>WordPress MCP <span class="tool-count">17 tools</span> <span class="status-live">LIVE</span></h2>
+      <div class="spec-grid">
+        <div class="spec-card accent">
+          <h4>Posts & Pages</h4>
+          <ul>
+            <li>list_posts / get_post</li>
+            <li>create_post / update_post / delete_post</li>
+            <li>list_pages / create_page</li>
+            <li>update_page / delete_page</li>
+          </ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>Media & Structure</h4>
+          <ul>
+            <li>list_categories</li>
+            <li>list_media / upload_media</li>
+            <li>get_user</li>
+            <li>site_info</li>
+          </ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>Elementor</h4>
+          <ul>
+            <li>get_elementor_data</li>
+            <li>update_elementor_element</li>
+            <li>find_elementor_buttons</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Veo / Video MCP <span class="tool-count">5 tools</span> <span class="status-live">LIVE</span></h2>
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>Function</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>generate_video</code></td><td>Text-to-video generation from prompt</td></tr>
+          <tr><td><code>generate_video_from_image</code></td><td>Image-to-video animation</td></tr>
+          <tr><td><code>check_video_status</code></td><td>Poll generation job status</td></tr>
+          <tr><td><code>download_video</code></td><td>Retrieve completed video file</td></tr>
+          <tr><td><code>list_video_models</code></td><td>Available Veo model versions</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Other Tools</h2>
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>Type</th><th>Status</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PDF_SERVICE</strong></td>
+            <td>Cloud Run Service</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>Standalone — renders any template to print-ready PDF</td>
+          </tr>
+          <tr>
+            <td><strong>frontend-design</strong></td>
+            <td>Claude Code Plugin</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>Generates polished React/Next.js portal components on demand</td>
+          </tr>
+          <tr>
+            <td><strong>draft-communication</strong></td>
+            <td>VOLTRON Super Tool</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>222-line super tool in VOLTRON package — AI-drafted comms</td>
+          </tr>
+          <tr>
+            <td><strong>Google Drive MCP</strong></td>
+            <td>MCP</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>File storage, shared drives, asset archiving</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="card" style="border-top: 3px solid var(--red);">
+      <h2>The Gap — What's Missing</h2>
+      <p>Tools exist. Registry does not. This is not a small gap — it's the entire architecture.</p>
+      <div class="gap-card">
+        <h4>NO CMO Registry</h4>
+        <p><code>packages/core/src/cmo/</code> does not exist. No structured registry following the ATLAS/QUE pattern. Tools have no home.</p>
+      </div>
+      <div class="gap-card">
+        <h4>NO Super Tools</h4>
+        <p>Raw MCP tools exist but aren't composed into higher-order workflows. No WIRE_BROCHURE. No WIRE_CAMPAIGN. No WIRE_LANDING_PAGE.</p>
+      </div>
+      <div class="gap-card">
+        <h4>NO Command Center UI</h4>
+        <p>No "ATLAS of creative ops." No dashboard for creative inventory, campaign status, or brand asset management.</p>
+      </div>
+      <div class="gap-card">
+        <h4>NO soul.md / spirit.md</h4>
+        <p><code>~/Projects/dojo-warriors/musashi/</code> doesn't exist yet. MUSASHI has no formal Dojo home.</p>
+      </div>
+      <div class="gap-card">
+        <h4>Tools Scattered Across 4 MCP Servers + 1 Plugin + 1 Service</h4>
+        <p>Canva (rpi-workspace), WordPress (rpi-workspace), Veo (rpi-workspace), Drive (gdrive), frontend-design (plugin), PDF_SERVICE (Cloud Run). Needs consolidation under CMO Registry.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 3: MESH -->
+  <div class="panel" id="tab-mesh">
+
+    <div class="card">
+      <h2>The Artisans — MUSASHI's Mesh</h2>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">Market-first, channel-second.</strong> Content is authored once per market (B2C / B2B / B2E). Then each Artisan deploys it through their channel. A Medicare campaign is written for B2C clients — the Print Artisan turns it into a brochure, the Digital Artisan turns it into an email sequence, the Web Artisan turns it into a landing page.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Five Artisans</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Artisan</th>
+            <th>Channel</th>
+            <th>Tools Available</th>
+            <th>Phase</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--gold);">Print</strong></td>
+            <td>Brochures, mailers, fact-finders, POS</td>
+            <td>Canva (design+export), PDF_SERVICE, Drive</td>
+            <td>Phase 1</td>
+            <td><span class="status-stub">TOOLS READY — WIRE NEEDED</span></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--gold);">Digital</strong></td>
+            <td>Email campaigns, landing pages, portal</td>
+            <td>C3 engine (661 templates), frontend-design, content-blocks</td>
+            <td>Phase 1</td>
+            <td><span class="status-stub">TOOLS READY — WIRE NEEDED</span></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--gold);">Web</strong></td>
+            <td>WordPress pages, Elementor layouts, CTAs</td>
+            <td>WordPress MCP (17 tools including Elementor)</td>
+            <td>Phase 1</td>
+            <td><span class="status-stub">TOOLS READY — WIRE NEEDED</span></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-muted);">Social</strong></td>
+            <td>Content calendar, social posts, clips</td>
+            <td>Canva + Veo</td>
+            <td>Phase 2</td>
+            <td><span class="status-planned">PLANNED</span></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-muted);">Video</strong></td>
+            <td>60-sec explainers, product highlights</td>
+            <td>Veo (text-to-video, image-to-video)</td>
+            <td>Phase 2</td>
+            <td><span class="status-planned">PLANNED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Market × Channel × Format Matrix</h2>
+      <p>Every piece of content starts with a market. Artisans execute the channel outputs.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Market</th>
+            <th>Print Artisan</th>
+            <th>Digital Artisan</th>
+            <th>Web Artisan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>B2C (RPI)</strong></td>
+            <td>Medicare brochures, annuity fact-finders, life POS sheets</td>
+            <td>Medicare email sequences, T65 drip, AEP campaigns</td>
+            <td>prodash.tomachina.com pages, landing pages</td>
+          </tr>
+          <tr>
+            <td><strong>B2B (DAVID)</strong></td>
+            <td>M&amp;A pitch decks, partnership one-pagers, DAVID materials</td>
+            <td>Pipeline outreach sequences, partner campaigns</td>
+            <td>sentinel.tomachina.com, retireprotected.com B2B</td>
+          </tr>
+          <tr>
+            <td><strong>B2E (RAPID)</strong></td>
+            <td>Team playbooks, onboarding guides, division comms</td>
+            <td>Internal announcements, team update campaigns</td>
+            <td>riimo.tomachina.com, internal knowledge pages</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Phase 1 Artisans — Deep Dive</h2>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Print Artisan</h4>
+          <p>Takes a market brief and produces print-ready creative assets.</p>
+          <ul>
+            <li>Canva: generate or update design from brand kit</li>
+            <li>Canva: export_design → PDF format</li>
+            <li>PDF_SERVICE: render to print spec</li>
+            <li>Drive: archive to Shared Drive folder</li>
+            <li>WIRE_BROCHURE: end-to-end automated</li>
+          </ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>Digital Artisan</h4>
+          <p>Builds and deploys email and portal campaigns at scale.</p>
+          <ul>
+            <li>C3: create campaign from template</li>
+            <li>C3: define audience (market + segment)</li>
+            <li>C3: schedule drip or one-time send</li>
+            <li>frontend-design: portal content blocks</li>
+            <li>WIRE_CAMPAIGN: end-to-end automated</li>
+          </ul>
+        </div>
+        <div class="spec-card blue">
+          <h4>Web Artisan</h4>
+          <p>Creates and publishes WordPress pages and portal content.</p>
+          <ul>
+            <li>WordPress: create_page or update_page</li>
+            <li>Elementor: get_elementor_data, update layout</li>
+            <li>WordPress: upload_media assets</li>
+            <li>WordPress: publish (update_post status)</li>
+            <li>WIRE_LANDING_PAGE: end-to-end automated</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Phase 2 Artisans — Preview</h2>
+      <div class="spec-grid">
+        <div class="spec-card purple">
+          <h4>Social Artisan</h4>
+          <p>Content calendar + social-formatted posts + short clips.</p>
+          <ul>
+            <li>Canva: social-format design templates</li>
+            <li>Veo: generate short video clips from key messages</li>
+            <li>Drive: content calendar + asset storage</li>
+            <li>Intake TBD: what triggers a social run?</li>
+          </ul>
+        </div>
+        <div class="spec-card red">
+          <h4>Video Artisan</h4>
+          <p>60-second explainers and product highlight videos.</p>
+          <ul>
+            <li>Veo: generate_video from script prompt</li>
+            <li>Veo: generate_video_from_image for product shots</li>
+            <li>Drive: archive final video assets</li>
+            <li>WordPress: upload_media + embed to web</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 4: CONSUME -->
+  <div class="panel" id="tab-consume">
+
+    <div class="track-header">
+      <div class="track-number consume">1</div>
+      <div class="track-title">
+        <h2 style="color: var(--gold);">CONSUME — Build from Scratch + Absorb Existing</h2>
+        <p>Heaviest track. CMO Registry doesn't exist yet. Everything must be built and then populated.</p>
+      </div>
+    </div>
+
+    <div class="callout gold">
+      <p><strong style="color: var(--gold);">Why CONSUME is Track 1 (not Track 3):</strong> MUSASHI has the MOST to consume because the CMO Registry is a greenfield build. ATLAS and QUE had registries to mature. MUSASHI is building the registry itself first — then consuming into it. You can't register tools into a registry that doesn't exist.</p>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 1 — CMO Registry Created</h2>
+      <p>Create <code>packages/core/src/cmo/</code> following the ATLAS/QUE pattern:</p>
+      <div class="diagram"><span class="hl-gold">packages/core/src/cmo/</span>
+├── <span class="hl-gold">index.ts</span>          — barrel exports
+├── <span class="hl-gold">registry.ts</span>       — CMO Registry class (follows ATLAS pattern)
+├── <span class="hl-gold">tools/</span>
+│   ├── canva.ts          — 21 Canva tools registered
+│   ├── wordpress.ts      — 17 WordPress tools registered
+│   ├── veo.ts            — 5 Veo tools registered
+│   ├── campaigns.ts      — C3 campaign tools registered
+│   └── creative.ts       — PDF_SERVICE + frontend-design + Drive
+├── <span class="hl-gold">wires/</span>            — Super Tools (Phase 1: 3 wires)
+│   ├── WIRE_BROCHURE.ts
+│   ├── WIRE_CAMPAIGN.ts
+│   └── WIRE_LANDING_PAGE.ts
+└── <span class="hl-gold">types.ts</span>          — CMO types + interfaces</div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 2 — Tools Registered</h2>
+      <table>
+        <thead>
+          <tr><th>Tool Set</th><th>Count</th><th>Source</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Canva MCP</td>
+            <td>21</td>
+            <td>rpi-workspace MCP</td>
+            <td>Register in <code>cmo/tools/canva.ts</code></td>
+          </tr>
+          <tr>
+            <td>WordPress MCP</td>
+            <td>17</td>
+            <td>rpi-workspace MCP</td>
+            <td>Register in <code>cmo/tools/wordpress.ts</code></td>
+          </tr>
+          <tr>
+            <td>Veo MCP</td>
+            <td>5</td>
+            <td>rpi-workspace MCP</td>
+            <td>Register in <code>cmo/tools/veo.ts</code></td>
+          </tr>
+          <tr>
+            <td>C3 Engine</td>
+            <td>6 routes</td>
+            <td>services/api C3 routes</td>
+            <td>Register in <code>cmo/tools/campaigns.ts</code></td>
+          </tr>
+          <tr>
+            <td>PDF_SERVICE</td>
+            <td>1</td>
+            <td>Standalone Cloud Run</td>
+            <td>Register in <code>cmo/tools/creative.ts</code></td>
+          </tr>
+          <tr>
+            <td>frontend-design</td>
+            <td>1</td>
+            <td>Claude Code Plugin</td>
+            <td>Register in <code>cmo/tools/creative.ts</code></td>
+          </tr>
+          <tr>
+            <td>Google Drive</td>
+            <td>—</td>
+            <td>gdrive MCP</td>
+            <td>Register in <code>cmo/tools/creative.ts</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 3 — Soul + Spirit</h2>
+      <p>Create MUSASHI's Dojo home at <code>~/Projects/dojo-warriors/musashi/</code>:</p>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>soul.md</h4>
+          <p>Who MUSASHI is. The ARTxBLADE identity. The Consumption Principle. The three weapons. How to engage MUSASHI.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>spirit.md</h4>
+          <p>MUSASHI's values and approach. Art through discipline. Execution without compromise. The CMO writes for the Machine, not for applause.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 4 — Consolidation</h2>
+      <p>MUSASHI has the most pre-existing material of any CXO. It all needs a single home.</p>
+      <ul>
+        <li>CMO Creative Roadmap Google Doc (existing, in Drive)</li>
+        <li>4 existing MUSASHI discovery docs (scattered across Shared Drive)</li>
+        <li>55 seeded FORGE tickets (RSP-PIPELINE, SENSEI, DOJO, SHINOBI-ONLINE)</li>
+        <li>This discovery doc (musashi-cxo-roadmap.html)</li>
+      </ul>
+      <p>All consolidated into: <code>MUSASHI — CMO Registry Intake</code> folder in Shared Drive. Single source of truth before building starts.</p>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 5 — Command Center Scaffold</h2>
+      <p>The "ATLAS of creative ops." Not a full build in Track 1 — a scaffold. Stake the ground.</p>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">Command Center</strong> = The CMO's operating dashboard. Campaign inventory, asset library, Artisan job queue, brand compliance status. Same concept as ATLAS Command Center but for creative ops instead of data ops. In Track 1: scaffold the app shell + nav. In Track 2: wire Artisans in. In Track 3: full creative inventory + compliance engine.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 5: OPERATE -->
+  <div class="panel" id="tab-operate">
+
+    <div class="track-header">
+      <div class="track-number operate">2</div>
+      <div class="track-title">
+        <h2 style="color: var(--accent);">OPERATE — Wire Artisans + Define Wires + Go Live</h2>
+        <p>Registry is built. Now compose the tools into Artisans and ship the first three channels.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 1 — First Three Wires</h2>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>WIRE_BROCHURE</h4>
+          <p>Print Artisan's core wire. Market brief in → print-ready brochure out.</p>
+          <ul>
+            <li>Input: market + product + target + tone</li>
+            <li>Step 1: Canva generate_design (brand kit)</li>
+            <li>Step 2: Canva export_design (PDF)</li>
+            <li>Step 3: PDF_SERVICE render (print spec)</li>
+            <li>Step 4: Drive archive (registered asset)</li>
+          </ul>
+        </div>
+        <div class="spec-card accent">
+          <h4>WIRE_CAMPAIGN</h4>
+          <p>Digital Artisan's core wire. Content brief in → campaign live out.</p>
+          <ul>
+            <li>Input: market + template + audience + schedule</li>
+            <li>Step 1: C3 campaigns create</li>
+            <li>Step 2: C3 audience targeting</li>
+            <li>Step 3: C3 schedule (drip or blast)</li>
+            <li>Step 4: C3 campaign-send execute</li>
+          </ul>
+        </div>
+        <div class="spec-card blue">
+          <h4>WIRE_LANDING_PAGE</h4>
+          <p>Web Artisan's core wire. Content brief in → published page out.</p>
+          <ul>
+            <li>Input: market + purpose + content + design</li>
+            <li>Step 1: WordPress create_page (draft)</li>
+            <li>Step 2: Elementor update layout + elements</li>
+            <li>Step 3: WordPress upload_media assets</li>
+            <li>Step 4: WordPress publish (status: live)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 2 — Three Phase 1 Artisans Live</h2>
+      <p>Each Artisan is a VOLTRON specialist built on the registered wires.</p>
+      <table>
+        <thead>
+          <tr><th>Artisan</th><th>Wire</th><th>Trigger</th><th>Output</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--gold);">Print Artisan</strong></td>
+            <td>WIRE_BROCHURE</td>
+            <td>Market brief + product selection</td>
+            <td>Print-ready PDF in Drive, registered</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--accent);">Digital Artisan</strong></td>
+            <td>WIRE_CAMPAIGN</td>
+            <td>Campaign brief + template selection</td>
+            <td>Campaign live in C3, audience targeted, scheduled</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--blue);">Web Artisan</strong></td>
+            <td>WIRE_LANDING_PAGE</td>
+            <td>Page brief + design direction</td>
+            <td>Published WordPress page, Elementor layout live</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 3 — Content Pipeline</h2>
+      <div class="diagram"><span class="hl-gold">Market Brief</span>
+    (who, what product, what message, what tone)
+         |
+         v
+<span class="hl-gold">MUSASHI evaluates</span>
+    (which Artisans? which channels? what format?)
+         |
+    _____|___________
+   |        |        |
+   v        v        v
+<span class="hl-gold">Print   Digital    Web</span>
+Artisan  Artisan  Artisan
+   |        |        |
+   v        v        v
+<span class="hl-green">PDF     Campaign  Page</span>
+<span class="hl-green">  → Brand Compliance Check</span>
+              |
+              v
+         <span class="hl-gold">Publish / Register</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 4 — Intake Channel</h2>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">Decision needed from JDM:</strong> How does a creative request enter MUSASHI's queue? Options:</p>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Option A — Slack Trigger</h4>
+          <p>Post to #musashi-intake with structured brief. MUSASHI picks up, confirms, executes.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Option B — FORGE Variant</h4>
+          <p>Creative tickets flow through FORGE as MUSASHI-class tickets. Structured, auditable, parallel-capable.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Option C — Manual Brief</h4>
+          <p>JDM/team paste a brief into VOLTRON. MUSASHI handles it conversationally. No queue — reactive only.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 5 — CXO Self-Authoring</h2>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">MUSASHI's unique OPERATE role:</strong> Once operational, MUSASHI writes the Track Discovery Docs for MEGAZORD (CIO) and QUE (CSO). The CMO writes the strategic narrative for all three CXOs. This is not a side task — it's the definition of MUSASHI. The storyteller launches the machines.</p>
+      </div>
+      <ul>
+        <li>MEGAZORD CXO Roadmap (Track Discoveries: ATLAS, Registry Warriors, CCSDK Mesh)</li>
+        <li>QUE CXO Roadmap (Track Discoveries: QUE Registry, Healthcare Mesh, Medicare Intelligence)</li>
+        <li>All 3 Track Discovery docs per CXO — authored by MUSASHI once self-authoring is live</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- TAB 6: DEVOUR -->
+  <div class="panel" id="tab-devour">
+
+    <div class="track-header">
+      <div class="track-number devour">3</div>
+      <div class="track-title">
+        <h2 style="color: var(--red);">DEVOUR — Full Creative Intelligence</h2>
+        <p>All 5 Artisans live. Full creative inventory. Brand compliance automation. Proactive campaigns.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 1 — Full Creative Inventory</h2>
+      <p>MUSASHI audits and catalogs every existing creative asset across the platform.</p>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Canva Inventory</h4>
+          <p>Catalog all designs in Canva — by type, market, date, usage status. What's current? What's stale? What needs updating?</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Drive Inventory</h4>
+          <p>Index all creative assets across Shared Drive. Categorize: brochures, presentations, one-pagers, social, video, guides.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>WordPress Inventory</h4>
+          <p>Audit all WordPress pages — live, draft, stale. Identify gaps vs current product/market positioning.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>C3 Template Audit</h4>
+          <p>Full audit of all 661 templates — current vs stale vs needs-update. Match against active campaigns and AEP calendar.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 2 — Print × Digital Parity</h2>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">11 existing print pieces need digital parity.</strong> Every brochure, fact-finder, and one-pager that exists in print must have a corresponding digital version (email, landing page, portal content). MUSASHI maps the gap and closes it — Artisans execute in parallel.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Asset Type</th><th>Print Exists</th><th>Digital Parity</th><th>Priority</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Medicare Brochure</td><td>Yes</td><td>Email sequence + landing page</td><td>High (AEP)</td></tr>
+          <tr><td>FIA Fact-Finder</td><td>Yes</td><td>Email sequence + portal content</td><td>High</td></tr>
+          <tr><td>MYGA Product Sheet</td><td>Yes</td><td>Email + landing page</td><td>Medium</td></tr>
+          <tr><td>Life Insurance POS</td><td>Yes</td><td>Email sequence</td><td>Medium</td></tr>
+          <tr><td>RPI Brand Overview</td><td>Yes</td><td>Web page + email intro</td><td>High</td></tr>
+          <tr><td>DAVID Partnership Deck</td><td>Yes</td><td>Landing page + email sequence</td><td>High (B2B)</td></tr>
+          <tr><td>+ 5 more</td><td>Yes</td><td>TBD per asset</td><td>Backlog</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 3 — Phase 2 Artisans</h2>
+      <div class="spec-grid">
+        <div class="spec-card purple">
+          <h4>Social Artisan (Phase 2)</h4>
+          <p>Content calendar built from campaign schedule. Social-format assets generated. Short clips for each campaign.</p>
+          <ul>
+            <li>Canva: social-format templates per market</li>
+            <li>Veo: short clip per campaign message</li>
+            <li>WIRE_SOCIAL: content calendar → asset → published</li>
+          </ul>
+        </div>
+        <div class="spec-card red">
+          <h4>Video Artisan (Phase 2)</h4>
+          <p>60-second product explainers, testimonial-style videos, Medicare education content.</p>
+          <ul>
+            <li>Veo: text-to-video from product scripts</li>
+            <li>Veo: image-to-video from product photography</li>
+            <li>WIRE_VIDEO: script → Veo → Drive → WordPress embed</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 4 — Brand Compliance Automation</h2>
+      <p>Every asset checked against brand guide before publishing. No manual review loop.</p>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">Brand compliance is not optional.</strong> JDM art-directed every logo, every color, every mark. MUSASHI's job is to enforce that vision at scale — not water it down, not improvise, not approximate. If the asset doesn't pass brand compliance, it doesn't ship.</p>
+      </div>
+      <ul>
+        <li>Brand guide registered in CMO Registry (fonts, colors, logo usage rules, tone guide)</li>
+        <li>Every Artisan output passes through brand-check before Drive/WordPress/C3</li>
+        <li>Violations flagged to JDM — not silently corrected</li>
+        <li>Compliance log maintained in CMO Registry</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Deliverable 5 — Proactive Campaign Intelligence</h2>
+      <p>MUSASHI stops being reactive. Starts anticipating.</p>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>AEP Preparation (Oct–Dec)</h4>
+          <p>AEP Blackout enforced. All Medicare campaign assets staged by September. AEP campaign inventory built and locked before blackout.</p>
+        </div>
+        <div class="spec-card accent">
+          <h4>Seasonal Cadence</h4>
+          <p>T65 pipeline campaigns, birthday touches, annual review triggers. MUSASHI builds and schedules the content calendar 90 days out.</p>
+        </div>
+        <div class="spec-card blue">
+          <h4>New Product Launches</h4>
+          <p>When a new carrier or product goes live in ATLAS — MUSASHI gets notified. Print + Digital + Web assets created for launch day.</p>
+        </div>
+        <div class="spec-card mecha">
+          <h4>retireprotected.com</h4>
+          <p>Market-specific landing pages for all three channels. B2C: client-facing. B2B: partner-facing. B2E: team-facing.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 7: ROADMAP -->
+  <div class="panel" id="tab-roadmap">
+
+    <div class="card">
+      <h2>Document Hierarchy</h2>
+      <div class="diagram"><span class="hl-mecha">Registry Warriors Vision Discovery</span>
+  (3 CXOs, 3 Registries, 3 Meshes — the 30,000-foot view)
+    |
+    v
+<span class="hl-gold">MUSASHI CXO Roadmap</span>  ←  YOU ARE HERE
+  (CMO identity, registry inventory, mesh design, 3 tracks)
+    |
+    v
+<span class="hl-gold">Track Discovery Docs</span>  (3 docs, authored by MUSASHI)
+  ├── CONSUME Track Discovery  (CMO Registry build spec)
+  ├── OPERATE Track Discovery  (Artisans + Wires)
+  └── DEVOUR Track Discovery   (Full creative intelligence)</div>
+    </div>
+
+    <div class="card">
+      <h2>Timeline — Track Sequencing</h2>
+      <p>MUSASHI is different from MEGAZORD and QUE. The registry is a greenfield build. That makes CONSUME the heaviest track, not the lightest.</p>
+      <table>
+        <thead>
+          <tr><th>Track</th><th>Relative Weight</th><th>Why</th><th>Unlock</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--gold);">CONSUME</strong></td>
+            <td>HEAVIEST</td>
+            <td>Building the registry from scratch + absorbing 4 discovery docs + 55 FORGE tickets + soul/spirit</td>
+            <td>Registry exists → Track 2 unlocks</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--accent);">OPERATE</strong></td>
+            <td>MEDIUM</td>
+            <td>3 Wires + 3 Artisans + Content Pipeline + Intake Channel + CXO self-authoring</td>
+            <td>Artisans live → Track 3 unlocks</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--red);">DEVOUR</strong></td>
+            <td>ONGOING</td>
+            <td>Full inventory + Phase 2 Artisans + brand compliance + proactive campaigns — never "done"</td>
+            <td>Continuous</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>MUSASHI's Unique Role — The CXO Who Writes All Three Stories</h2>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">The CMO is the storyteller of The Machine.</strong> MEGAZORD builds the memory. QUE builds the intelligence. MUSASHI builds the narrative that makes both of them real to the world. When MEGAZORD needs a Registry Warriors Vision doc — MUSASHI writes it. When QUE needs a Medicare intelligence launch story — MUSASHI writes it. The creative operations CXO is the voice that makes the other CXOs heard.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Integration Map</h2>
+      <div class="spec-grid">
+        <div class="spec-card mecha">
+          <h4>MUSASHI + VOLTRON</h4>
+          <p>MUSASHI creates the marketing materials. VOLTRON uses them in client engagement. A VOLTRON Medicare conversation references MUSASHI-built fact-finder PDFs and landing pages. Creative output becomes the conversation's fuel.</p>
+        </div>
+        <div class="spec-card blue">
+          <h4>MUSASHI + MEGAZORD</h4>
+          <p>MEGAZORD's ATLAS Registry knows every data source. MUSASHI needs ATLAS data for targeted campaigns — which carriers are active, which clients are in which segments, which products are live. ATLAS → MUSASHI = data-driven creative.</p>
+        </div>
+        <div class="spec-card accent">
+          <h4>MUSASHI + Dojo</h4>
+          <p>RONIN builds new CMO tools and platform components on request. MUSASHI specs the creative requirements. RONIN executes the build. Pipeline: MUSASHI identifies gap → FORGE ticket → RONIN builds → MUSASHI tests → ships.</p>
+        </div>
+        <div class="spec-card red">
+          <h4>MUSASHI + AEP Calendar</h4>
+          <p>AEP (Oct–Dec) is the single most important campaign window in the B2C business. MUSASHI owns the AEP creative calendar: all assets built and staged by September, blackout period honored, no manual scramble.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The North Star</h2>
+      <div class="quote">
+        "MUSASHI is not a tool that generates brochures. MUSASHI is the creative intelligence of The Machine — the CXO who ensures every client touchpoint, every partner communication, every team interaction reflects the same brand, the same mission, the same quality. Art x Blade. Ships everything. Builds the story that makes the whole machine trustworthy."
+      </div>
+      <div class="callout gold">
+        <p><strong style="color: var(--gold);">Final State:</strong> When MUSASHI is fully operational, every creative asset in the platform — brochure, campaign, landing page, video, social post — is registered, indexed, brand-compliant, and traceable back to a market brief. The CMO Registry is the creative backbone. The Artisans are the execution layer. MUSASHI is the CXO who owns it all.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Next Steps — Where Track 1 Starts</h2>
+      <ol style="color: var(--text-muted); margin-left: 20px; line-height: 2;">
+        <li>Create <code>~/Projects/dojo-warriors/musashi/</code> — soul.md + spirit.md</li>
+        <li>Create <code>packages/core/src/cmo/</code> — registry scaffold following ATLAS pattern</li>
+        <li>Consolidate 4 existing MUSASHI discovery docs to Shared Drive intake folder</li>
+        <li>Register all tools (Canva 21 + WordPress 17 + Veo 5 + C3 routes + PDF + Drive)</li>
+        <li>Build Command Center App scaffold (app shell + nav — no wiring yet)</li>
+        <li>Write CONSUME Track Discovery Doc (MUSASHI authors it — sets the pattern)</li>
+        <li>RONIN executes CONSUME tickets in parallel</li>
+        <li>Ship Track 1 → OPERATE unlocks</li>
+      </ol>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>MUSASHI CXO Roadmap &bull; SHINOB1 + JDM &bull; 2026-04-05 Night Shift</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
