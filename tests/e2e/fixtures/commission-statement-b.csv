@@ -1,0 +1,4 @@
+Pay Date,Policy #,Insurance Company,Product Type,Insured Name,Producer NPN,Gross Comm,Net Comm,Override,Comm Type,Target Premium
+01/31/2026,POL-020001,Global Atlantic,FIA Gold,Dorothy Chen,12345678,500.00,450.00,50.00,First Year,40000.00
+01/31/2026,POL-020002,American Equity,Bonus Gold,Frank Wilson,87654321,750.00,675.00,75.00,First Year,60000.00
+01/31/2026,POL-020003,Global Atlantic,FIA Gold,Grace Kim,12345678,312.50,281.25,31.25,Renewal,25000.00

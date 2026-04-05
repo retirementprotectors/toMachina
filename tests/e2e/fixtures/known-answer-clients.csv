@@ -1,0 +1,6 @@
+first_name,last_name,dob,phone,email,address_line1,city,state,zip
+Robert,Johnson,03/15/1955,(515) 555-1234,robert.johnson@example.com,123 Main St,Des Moines,IA,50309
+María,García-López,12/01/1948,515.555.5678,maria.garcia@example.com,456 Oak Ave,West Des Moines,IA,50265
+"Smith, James",T.,07/22/1960,+15155559012,jsmith@example.com,"789 Elm Blvd, Apt 4B",Ankeny,IA,50023
+Alice,,11/30/1942,5155550000,,321 Pine Rd,Urbandale,IA,50322
+张,Wei,01/01/1970,515-555-3333,wzhang@example.com,555 Cedar Ln,Johnston,IA,50131
