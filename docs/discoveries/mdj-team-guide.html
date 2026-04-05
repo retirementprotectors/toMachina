@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MDJ — What Can I Do For You?</title>
+<style>
+  :root { --bg: #0a0e17; --card: #111827; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --blue: #3b82f6; --green: #22c55e; --red: #ef4444; --orange: #f59e0b; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+  h1 { font-size: 2rem; text-align: center; margin-bottom: 0.5rem; }
+  .subtitle { text-align: center; color: var(--muted); margin-bottom: 2rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 1.1rem; margin-bottom: 12px; }
+  .card h3 { font-size: 0.9rem; color: var(--blue); margin: 12px 0 6px; }
+  .card p, .card li { color: var(--muted); font-size: 0.9rem; }
+  .card ul { margin: 4px 0 8px 20px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-right: 4px; }
+  .tag-green { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .tag-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.85rem; }
+  th { text-align: left; padding: 8px; background: rgba(59,130,246,0.1); color: var(--blue); border-bottom: 1px solid var(--border); }
+  td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--muted); }
+  .footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>MDJ &mdash; Your Digital Josh</h1>
+<div class="subtitle">Ask me anything. Seriously. Here's what I can do.</div>
+
+<div class="card">
+  <h2>How to Talk to Me</h2>
+  <p>Click the <strong>robot icon</strong> (smart_toy) in the bottom-left of any portal &mdash; ProDash, RIIMO, or SENTINEL. Type your question like you'd ask a colleague. I understand natural language.</p>
+  <p style="margin-top: 8px;"><strong>Examples:</strong></p>
+  <ul>
+    <li>"Pull up the Smith account"</li>
+    <li>"What's the RMD for client Johnson?"</li>
+    <li>"How many Medicare accounts do we have in Iowa?"</li>
+    <li>"Schedule a review meeting with Vince for Tuesday"</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>What I Can Do <span class="tag tag-green">FREE — No Approval Needed</span></h2>
+  <h3>Client &amp; Account Lookup</h3>
+  <ul>
+    <li>Search clients by name, DOB, or account number</li>
+    <li>Pull account details (annuity, life, medicare, investment)</li>
+    <li>View client documents from ACF (Active Client File)</li>
+    <li>Check account status, carrier info, policy details</li>
+  </ul>
+  <h3>Calculations</h3>
+  <ul>
+    <li>RMD (Required Minimum Distribution) calculations</li>
+    <li>IRMAA surcharge lookups</li>
+    <li>Tax bracket analysis (federal + state)</li>
+    <li>Surrender charge estimates</li>
+    <li>Social Security taxation calculations</li>
+  </ul>
+  <h3>Search &amp; Lookup</h3>
+  <ul>
+    <li>NPI registry lookups (provider search)</li>
+    <li>Medicare plan comparisons</li>
+    <li>Carrier product information</li>
+    <li>ICD-10 / procedure code lookups</li>
+    <li>Revenue and commission records</li>
+  </ul>
+  <h3>Calendar &amp; Scheduling</h3>
+  <ul>
+    <li>Create calendar events</li>
+    <li>Schedule meetings</li>
+    <li>Check availability</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>What I Need Permission For <span class="tag tag-orange">CONFIRM FIRST</span></h2>
+  <ul>
+    <li>Modifying client data (updating addresses, beneficiaries, etc.)</li>
+    <li>Creating new client records</li>
+    <li>Logging activities to client accounts</li>
+    <li>Saving documents to Drive</li>
+  </ul>
+  <p style="margin-top: 8px;">I'll always ask you to confirm before making changes. You'll see exactly what I'm about to do before I do it.</p>
+</div>
+
+<div class="card">
+  <h2>What I Will NEVER Do Without Josh's Approval <span class="tag tag-red">BLOCKED</span></h2>
+  <ul>
+    <li>Send emails, texts, or any external communication</li>
+    <li>Post to Slack channels</li>
+    <li>Move money or process transactions</li>
+    <li>Delete any data</li>
+    <li>Change system settings or permissions</li>
+  </ul>
+  <p style="margin-top: 8px;">These actions are locked. Even if you ask me to, I physically cannot do them without Super Admin authorization.</p>
+</div>
+
+<div class="card">
+  <h2>My Specialists</h2>
+  <p>I automatically switch into specialist mode based on your question:</p>
+  <table>
+    <tr><th>Specialist</th><th>When I Switch</th><th>What I Focus On</th></tr>
+    <tr><td><strong>General</strong></td><td>Default</td><td>Anything that doesn't match a specialist</td></tr>
+    <tr><td><strong>Medicare</strong></td><td>Medicare, MAPD, AEP, IRMAA, supplements</td><td>Plan comparisons, enrollment, formulary</td></tr>
+    <tr><td><strong>Securities</strong></td><td>Investments, RIA, BD, portfolio, RMD</td><td>Tax harvesting, lot selection, Roth analysis</td></tr>
+    <tr><td><strong>Service</strong></td><td>Account questions, documents, access</td><td>Client lookups, ACF files, status checks</td></tr>
+    <tr><td><strong>DAVID</strong></td><td>B2B, partnerships, M&amp;A</td><td>Agency data, deal evaluation</td></tr>
+    <tr><td><strong>Operations</strong></td><td>Data, imports, admin tasks</td><td>System status, pipeline health</td></tr>
+  </table>
+  <p style="margin-top: 8px;">You don't need to pick a specialist &mdash; I figure it out from your question. Just ask naturally.</p>
+</div>
+
+<div class="card">
+  <h2>Tips for Getting the Best Answers</h2>
+  <ul>
+    <li><strong>Be specific:</strong> "Pull up John Smith's annuity accounts" &gt; "show me John"</li>
+    <li><strong>Include context:</strong> "What's the IRMAA surcharge for someone making $220K?" &gt; "IRMAA?"</li>
+    <li><strong>Ask follow-ups:</strong> I remember our conversation. Ask "what about their Medicare?" after pulling up a client.</li>
+    <li><strong>If I'm wrong, tell me:</strong> I'd rather be corrected than give you bad info. Say "that's not right" and I'll look again.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>The Golden Rule</h2>
+  <p style="font-size: 1rem; color: var(--text); font-weight: 600;">If I didn't READ it, I don't REPORT it.</p>
+  <p>Every data point I give you comes from an actual tool call &mdash; I read the real data from Firestore, Drive, or an API before answering. I never guess. I never approximate. If I can't find it, I'll tell you I can't find it.</p>
+</div>
+
+</div>
+<div class="footer">
+  <p>MDJ &mdash; Your Digital Josh &mdash; toMachina &bull; Retirement Protectors, Inc.</p>
+  <p style="margin-top: 4px;">Ask me anything. Seriously.</p>
+</div>
+</body>
+</html>
