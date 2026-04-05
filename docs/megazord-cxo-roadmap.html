@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEGAZORD — CIO Roadmap</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(16,185,129,0.08) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.06) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--mecha-green); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #10b981 0%, #06b6d4 40%, #10b981 70%, #22c55e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-mecha { background: var(--mecha-glow); color: var(--mecha-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--mecha-green); border-bottom-color: var(--mecha-green); background: var(--mecha-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--mecha-green); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--mecha-green); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.cyan { border-top: 3px solid var(--cyan); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(224,124,62,0.08); border: 1px solid rgba(224,124,62,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.mecha { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+  .callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .callout.gold { background: rgba(212,164,76,0.08); border-color: rgba(212,164,76,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--mecha-green); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-stub { color: var(--orange); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  .track-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+  .track-card.consume { border-left: 4px solid var(--mecha-green); }
+  .track-card.operate { border-left: 4px solid var(--blue); }
+  .track-card.devour { border-left: 4px solid var(--gold); }
+  .track-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+  .track-label.consume { color: var(--mecha-green); }
+  .track-label.operate { color: var(--blue); }
+  .track-label.devour { color: var(--gold); }
+  .track-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
+  .deliverable-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin-top: 16px; }
+  .deliverable-box .label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .deliverable-box p { margin: 0; color: var(--text); font-size: 0.9rem; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+  .stat-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-box .number { font-size: 2rem; font-weight: 800; color: var(--mecha-green); line-height: 1; }
+  .stat-box .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .integration-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  @media (max-width: 768px) { .integration-row { grid-template-columns: 1fr; } .header h1 { font-size: 2rem; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="sprint-label">CXO ROADMAP</div>
+  <h1>MEGAZORD &mdash; CIO</h1>
+  <div class="subtitle">Chief Information Officer. ATLAS Registry. Rangers Mesh. The nerve center for all data operations.</div>
+  <div class="header-badges">
+    <span class="badge badge-mecha">MEGAZORD &mdash; CIO</span>
+    <span class="badge badge-mecha">ATLAS</span>
+    <span class="badge badge-mecha">RANGERS</span>
+    <span class="badge badge-accent">CONSUME &rarr; OPERATE &rarr; DEVOUR</span>
+  </div>
+  <div class="ronin-meta">SHINOB1 + JDM &bull; 2026-04-05 Night Shift</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showPanel('identity', this)">IDENTITY</div>
+    <div class="tab" onclick="showPanel('registry', this)">REGISTRY</div>
+    <div class="tab" onclick="showPanel('mesh', this)">MESH</div>
+    <div class="tab" onclick="showPanel('consume', this)">CONSUME</div>
+    <div class="tab" onclick="showPanel('operate', this)">OPERATE</div>
+    <div class="tab" onclick="showPanel('devour', this)">DEVOUR</div>
+    <div class="tab" onclick="showPanel('roadmap', this)">ROADMAP</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- TAB 1: IDENTITY -->
+  <div id="identity" class="panel active">
+    <div class="card">
+      <h2>MEGAZORD &mdash; Chief Information Officer</h2>
+
+      <h3>Origin: From 2HINOBI to CIO</h3>
+      <p>MEGAZORD started as 2HINOBI (COO) &mdash; the ops warrior managing sprints and CI/repo work. The ACF project proved that data operations needed their own dedicated operator &mdash; someone whose instinct is to <strong>check ATLAS first</strong>, compose existing Tools into a Wire, and build only the gap. That operator became the CIO.</p>
+      <p>Named MEGAZORD &mdash; the giant mecha composed of individual Rangers, each specializing in a data domain. When data needs importing, MEGAZORD doesn't delegate to the Import Ranger. MEGAZORD <em>becomes</em> the Import Ranger.</p>
+
+      <h3>The Consumption Principle</h3>
+      <div class="callout mecha">
+        <p><strong>MEGAZORD IS ATLAS.</strong> Not "connects to ATLAS." Not "manages ATLAS." IS ATLAS. One app, one brand, one owner. ATLAS is not infrastructure that MEGAZORD accesses &mdash; ATLAS is MEGAZORD's brain. The Command Center App is the dashboard for MEGAZORD's brain.</p>
+      </div>
+
+      <h3>The Problem He Solves</h3>
+      <div class="quote">
+        "The thing is, with the rest of you guys who aren't working in that shit OFTEN, you get out of Context on it. So when we're building an Audit or something &mdash; you'll go 'Let me scope this out and build one of these and one of those.' And I have to go &mdash; Hang on. CHECK ATLAS FIRST." &mdash; JDM
+      </div>
+      <p>Warriors reinvent solutions that already exist in ATLAS. MEGAZORD's default instinct is to <strong>check the registry first</strong>, compose what exists, and only build new tools when there's a genuine gap. That saves days of redundant work.</p>
+    </div>
+
+    <div class="card">
+      <h3>Three Weapons</h3>
+    </div>
+    <div class="spec-grid">
+      <div class="spec-card mecha">
+        <h4>&#128218; Registry &mdash; ATLAS</h4>
+        <p>MEGAZORD's complete knowledge base. 15 atomic tools, 12 super tools, 5 wires, introspection engine, format library, health scoring. Every data pipeline capability The Machine has.</p>
+        <ul>
+          <li>15 Atomic Tools</li>
+          <li>12 Super Tools</li>
+          <li>5 Wires (v2)</li>
+          <li>Introspection + Format Library</li>
+        </ul>
+      </div>
+      <div class="spec-card blue">
+        <h4>&#9881; Mesh &mdash; Rangers</h4>
+        <p>5 CCSDK Ranger agents, one per ATLAS wire. Each Ranger reads a wire definition and executes it step by step. Haiku-class. Pennies per run. Data import, commission sync, reference seed, correspondence, ACF cleanup.</p>
+        <ul>
+          <li>Haiku-class agents</li>
+          <li>Wire executors</li>
+          <li>1 Ranger = 1 Wire</li>
+          <li>Zero reasoning needed</li>
+        </ul>
+      </div>
+      <div class="spec-card gold">
+        <h4>&#129351; Dojo &mdash; Platform Support</h4>
+        <p>When MEGAZORD identifies a gap in ATLAS (missing normalizer, new carrier format), he tickets RONIN in the Dojo to build it. MEGAZORD scopes. RONIN codes. RAIDEN fixes bugs.</p>
+        <ul>
+          <li>RONIN builds new tools</li>
+          <li>RAIDEN fixes pipeline bugs</li>
+          <li>VOLTRON consumes the data</li>
+          <li>MUSASHI uses data for campaigns</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Architecture in One Sentence</h3>
+      <div class="quote">
+        MEGAZORD IS the data operation &mdash; ATLAS is his brain, Rangers are his hands, and the Dojo is his home.
+      </div>
+
+      <h3>CXO Classification</h3>
+      <table>
+        <tr><th>Attribute</th><th>Value</th></tr>
+        <tr><td>Title</td><td><strong>Chief Information Officer (CIO)</strong></td></tr>
+        <tr><td>Color</td><td><span class="hl-mecha">--mecha-green: #10b981</span></td></tr>
+        <tr><td>Registry</td><td>ATLAS (<code>packages/core/src/atlas/</code>)</td></tr>
+        <tr><td>Mesh</td><td>5 Rangers &mdash; Data Import, Commission, Reference, Correspondence, ACF</td></tr>
+        <tr><td>Interface</td><td>MEGAZORD Command Center (ops dashboard, cross-portal App)</td></tr>
+        <tr><td>Ticket Prefix</td><td>ZRD-</td></tr>
+        <tr><td>Class</td><td>Registry Warrior &mdash; CXO tier</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 2: REGISTRY -->
+  <div id="registry" class="panel">
+    <div class="card">
+      <h2>ATLAS Registry &mdash; Full Inventory</h2>
+      <p>Everything MEGAZORD owns today. This is the live codebase, not aspirational.</p>
+      <div class="stat-row">
+        <div class="stat-box"><div class="number">15</div><div class="label">Atomic Tools</div></div>
+        <div class="stat-box"><div class="number">12</div><div class="label">Super Tools</div></div>
+        <div class="stat-box"><div class="number">5</div><div class="label">Wires (v2)</div></div>
+        <div class="stat-box"><div class="number">6,145</div><div class="label">API Route Lines</div></div>
+        <div class="stat-box"><div class="number">8</div><div class="label">E2E Test Files</div></div>
+        <div class="stat-box"><div class="number">4,100+</div><div class="label">Core Pkg Lines</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Core Package &mdash; <code>packages/core/src/atlas/</code></h2>
+      <p>~4,100 lines across engine, types, wires, introspection, and tool definitions.</p>
+
+      <h3>Engine Files</h3>
+      <table>
+        <tr><th>File</th><th>Lines</th><th>Purpose</th></tr>
+        <tr><td><code>types.ts</code></td><td>265</td><td>All ATLAS types (source, tool, wire, super tool, format, introspect)</td></tr>
+        <tr><td><code>wires.ts</code></td><td>240</td><td>Wire definitions v2 &mdash; 5 wires</td></tr>
+        <tr><td><code>wire-executor.ts</code></td><td>425</td><td>Runtime executor &mdash; stages pipeline orchestration</td></tr>
+        <tr><td><code>introspect.ts</code></td><td>425</td><td>Format fingerprinting + column mapping engine</td></tr>
+        <tr><td><code>health.ts</code></td><td>161</td><td>Automation health scoring + gap analysis</td></tr>
+        <tr><td><code>learning-library.ts</code></td><td>210</td><td>Document type intelligence</td></tr>
+      </table>
+
+      <h3>15 Atomic Tools</h3>
+      <table>
+        <tr><th>Tool</th><th>Purpose</th></tr>
+        <tr><td><code>VALIDATE_RECORD</code></td><td>Qualification gate &mdash; name + contact OR account ref</td></tr>
+        <tr><td><code>NORMALIZE_BOB</code></td><td>Book-of-Business normalization</td></tr>
+        <tr><td><code>NORMALIZE_STATUS</code></td><td>Status field normalization</td></tr>
+        <tr><td><code>ROUTE_TO_COLLECTION</code></td><td>Firestore collection routing</td></tr>
+        <tr><td colspan="2" style="color: var(--mecha-green); font-weight: 600; padding-top: 16px;">ACF Tools (11) &mdash; Active Client File Operations</td></tr>
+        <tr><td><code>ACF_SNAPSHOT</code></td><td>Point-in-time ACF state capture</td></tr>
+        <tr><td><code>ACF_RENAME</code></td><td>File rename per naming convention</td></tr>
+        <tr><td><code>ACF_MERGE</code></td><td>Merge duplicate folders</td></tr>
+        <tr><td><code>ACF_SUBFOLDER</code></td><td>5-subfolder structure enforcement (Client/NewBiz/Cases/Account/Reactive)</td></tr>
+        <tr><td><code>ACF_ROUTE_FILES</code></td><td>Route files to correct subfolder</td></tr>
+        <tr><td><code>ACF_LINK</code></td><td>Link accounts to ACF folders</td></tr>
+        <tr><td><code>ACF_FLATTEN</code></td><td>Flatten nested folder structures</td></tr>
+        <tr><td><code>ACF_DEDUPE_FILES</code></td><td>Deduplicate files within ACF</td></tr>
+        <tr><td><code>ACF_RENAME_FILES</code></td><td>Batch rename files per convention</td></tr>
+        <tr><td><code>ACF_RECLASSIFY</code></td><td>Reclassify misrouted documents</td></tr>
+        <tr><td><code>ACF_AUDIT</code></td><td>Generate audit report for ACF folder</td></tr>
+      </table>
+
+      <h3>12 Super Tools</h3>
+      <table>
+        <tr><th>Super Tool</th><th>What It Does</th><th>Server-Only?</th></tr>
+        <tr><td><code>SUPER_EXTRACT</code></td><td>CSV + Claude Vision document extraction</td><td>No</td></tr>
+        <tr><td><code>SUPER_INTROSPECT</code></td><td>Column profiling and format matching</td><td>No</td></tr>
+        <tr><td><code>SUPER_VALIDATE</code></td><td>Qualification gate (name + contact OR account ref)</td><td>No</td></tr>
+        <tr><td><code>SUPER_NORMALIZE</code></td><td>16 normalizer types across 90+ fields</td><td>No</td></tr>
+        <tr><td><code>SUPER_MATCH</code></td><td>3-tier dedup: exact, contact, name-only</td><td>No</td></tr>
+        <tr><td><code>SUPER_WRITE</code></td><td>Write batch preparation (create/update/skip)</td><td>No</td></tr>
+        <tr><td><code>SUPER_PREPARE</code></td><td>Drive download, PDF &rarr; page images</td><td>Yes</td></tr>
+        <tr><td><code>SUPER_CLASSIFY</code></td><td>Boundary detect, split, label</td><td>Yes</td></tr>
+        <tr><td><code>ACF_FINALIZE</code></td><td>Route file to ACF subfolder + document_index update</td><td>No</td></tr>
+        <tr><td><code>SUPER_FOLDER_CLEANUP</code></td><td>ACF folder structure hygiene</td><td>No</td></tr>
+        <tr><td><code>SUPER_DOCUMENT_CLEANUP</code></td><td>ACF file-level hygiene</td><td>No</td></tr>
+        <tr><td><code>SUPER_AUDIT_REVIEW</code></td><td>Exceptions report for human review</td><td>No</td></tr>
+      </table>
+
+      <h3>5 Wires (v2)</h3>
+      <table>
+        <tr><th>Wire</th><th>Chain</th><th>Purpose</th></tr>
+        <tr><td><code>WIRE_DATA_IMPORT</code></td><td>EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</td><td>Universal CSV/file ingestion pipeline</td></tr>
+        <tr><td><code>WIRE_COMMISSION_SYNC</code></td><td>EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</td><td>Carrier commission statements &rarr; revenue records</td></tr>
+        <tr><td><code>WIRE_REFERENCE_SEED</code></td><td>EXTRACT &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</td><td>Carriers, products, NAIC codes, rate tables</td></tr>
+        <tr><td><code>WIRE_INCOMING_CORRESPONDENCE</code></td><td>PREPARE &rarr; CLASSIFY &rarr; EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE &rarr; ACF_FINALIZE</td><td>Physical mail scan &rarr; classify &rarr; ACF file</td></tr>
+        <tr><td><code>WIRE_ACF_CLEANUP</code></td><td>FOLDER_CLEANUP &rarr; DOCUMENT_CLEANUP &rarr; AUDIT_REVIEW</td><td>ACF hygiene &mdash; Trinity Digital Files pillar</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>API Routes</h2>
+      <table>
+        <tr><th>File</th><th>Lines</th><th>Purpose</th></tr>
+        <tr><td><code>atlas.ts</code></td><td>1,327</td><td>Full ATLAS registry API &mdash; 20+ endpoints (sources, tools, analytics, audit, pipeline, health, formats, introspect)</td></tr>
+        <tr><td><code>acf.ts</code></td><td>1,366</td><td>ACF operations &mdash; config, list, duplicates, audit, rebuild, upload, move, preview</td></tr>
+        <tr><td><code>import.ts</code></td><td>2,753</td><td>Data import pipeline &mdash; <strong>largest route file in the entire codebase</strong></td></tr>
+        <tr><td><code>import-accounts.ts</code></td><td>269</td><td>Account-specific import handling</td></tr>
+        <tr><td><code>import-agents.ts</code></td><td>200</td><td>Agent/carrier seeding</td></tr>
+        <tr><td><code>wire.ts</code></td><td>230</td><td>Wire executor API (execute, status, resume)</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>E2E Tests</h2>
+      <table>
+        <tr><th>Test File</th><th>Lines</th><th>Coverage</th></tr>
+        <tr><td><code>cluster3-atlas.test.ts</code></td><td>167</td><td>Wire registration, QUE registry completeness, SUPER_EXTRACT vision mode</td></tr>
+        <tr><td><code>cluster8-acf-lifecycle.test.ts</code></td><td>151</td><td>ACF 5-folder structure, routing_rules taxonomy, household-aware creation</td></tr>
+        <tr><td><code>cluster2-intake.test.ts</code></td><td>616</td><td>Full intake pipeline wire</td></tr>
+        <tr><td><code>cluster4-data-sync.test.ts</code></td><td>251</td><td>Data sync pipeline</td></tr>
+        <tr><td><code>acf-scan.test.ts</code></td><td>155</td><td>ACF Drive scan</td></tr>
+        <tr><td><code>acf-upload.test.ts</code></td><td>122</td><td>ACF file upload</td></tr>
+        <tr><td><code>mail-intake.test.ts</code></td><td>139</td><td>Physical mail intake wire</td></tr>
+        <tr><td><code>spc-intake.test.ts</code></td><td>127</td><td>SPC folder intake</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Firestore Collections</h2>
+      <table>
+        <tr><th>Collection</th><th>Access</th><th>Purpose</th></tr>
+        <tr><td><code>source_registry</code></td><td>EXECUTIVE+</td><td>Carrier/feed source registry</td></tr>
+        <tr><td><code>tool_registry</code></td><td>EXECUTIVE+</td><td>Tool definitions</td></tr>
+        <tr><td><code>atlas_audit</code></td><td>EXECUTIVE+</td><td>Audit log</td></tr>
+        <tr><td><code>import_runs</code></td><td>EXECUTIVE+</td><td>Import run history with retry support</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>UI &mdash; AtlasRegistry Module</h2>
+      <p>Cross-portal App: <code>packages/ui/src/modules/AtlasRegistry.tsx</code></p>
+      <table>
+        <tr><th>Section</th><th>Sub-tabs</th><th>What It Shows</th></tr>
+        <tr><td><strong>Import</strong></td><td>4-step wizard</td><td>Upload &rarr; Mapping (SUPER_INTROSPECT) &rarr; Preview &rarr; Report</td></tr>
+        <tr><td><strong>Registry</strong></td><td>Sources, Tools</td><td>Source gap status (GREEN/YELLOW/RED), tool registry by category</td></tr>
+        <tr><td><strong>Operations</strong></td><td>Pipeline, Health, Audit</td><td>Wire diagram, automation health scoring, audit log</td></tr>
+      </table>
+      <p>Access: EXECUTIVE+ (enforced at Firestore rules + minUserLevel)</p>
+    </div>
+  </div>
+
+  <!-- TAB 3: MESH -->
+  <div id="mesh" class="panel">
+    <div class="card">
+      <h2>Rangers Mesh &mdash; 5 Wire Executors</h2>
+      <p>Each Ranger is a CCSDK Haiku-class agent dedicated to one ATLAS wire. Rangers don't think. They read the wire definition, execute each Super Tool in order, handle errors, and report results. The wire IS the task list.</p>
+
+      <div class="callout mecha">
+        <p><strong>Key Insight:</strong> All 5 wires already exist and are tested. The Rangers are not building new functionality &mdash; they're automating the execution of pipelines that are already proven. This makes MEGAZORD's mesh the most ready-to-deploy of any CXO.</p>
+      </div>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card mecha">
+        <h4>&#9881; Ranger: Data Import</h4>
+        <p>Wire: <code>WIRE_DATA_IMPORT</code></p>
+        <p>Universal CSV/file ingestion. Clients, accounts, producers from any carrier format.</p>
+        <ul>
+          <li>EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</li>
+          <li>Introspection engine auto-maps columns</li>
+          <li>Format library remembers carrier layouts</li>
+          <li>Status: <span class="status-live">Wire + Tests Ready</span></li>
+        </ul>
+      </div>
+      <div class="spec-card mecha">
+        <h4>&#9881; Ranger: Commission Sync</h4>
+        <p>Wire: <code>WIRE_COMMISSION_SYNC</code></p>
+        <p>Carrier commission statements &rarr; revenue records. Match to producers and accounts.</p>
+        <ul>
+          <li>EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</li>
+          <li>Same pipeline shape as Data Import, different normalizers</li>
+          <li>Status: <span class="status-live">Wire + Tests Ready</span></li>
+        </ul>
+      </div>
+      <div class="spec-card mecha">
+        <h4>&#9881; Ranger: Reference Seed</h4>
+        <p>Wire: <code>WIRE_REFERENCE_SEED</code></p>
+        <p>Carriers, products, NAIC codes, rate tables &mdash; foundational reference data.</p>
+        <ul>
+          <li>EXTRACT &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</li>
+          <li>Skips VALIDATE (reference data has different quality gates)</li>
+          <li>Status: <span class="status-live">Wire Ready</span></li>
+        </ul>
+      </div>
+      <div class="spec-card mecha">
+        <h4>&#9881; Ranger: Correspondence</h4>
+        <p>Wire: <code>WIRE_INCOMING_CORRESPONDENCE</code></p>
+        <p>Physical mail scan &rarr; classify &rarr; extract &rarr; route to ACF. The longest wire (8 stages).</p>
+        <ul>
+          <li>PREPARE &rarr; CLASSIFY &rarr; EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE &rarr; ACF_FINALIZE</li>
+          <li>Uses Claude Vision for document classification</li>
+          <li>Server-only (PREPARE + CLASSIFY need fs access)</li>
+          <li>Status: <span class="status-live">Wire Ready</span></li>
+        </ul>
+      </div>
+      <div class="spec-card mecha">
+        <h4>&#9881; Ranger: ACF Cleanup</h4>
+        <p>Wire: <code>WIRE_ACF_CLEANUP</code></p>
+        <p>Active Client File hygiene &mdash; the Digital Files pillar of the Trinity Data Method.</p>
+        <ul>
+          <li>FOLDER_CLEANUP &rarr; DOCUMENT_CLEANUP &rarr; AUDIT_REVIEW</li>
+          <li>Shortest wire (3 stages) &mdash; ideal first Ranger to deploy</li>
+          <li>Built during ACF 2.0 Sprint (23 tickets shipped)</li>
+          <li>Status: <span class="status-live">Wire + Tests Ready</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mesh Architecture</h2>
+      <div class="diagram">
+<span class="hl-mecha">MEGAZORD</span> (tmux, CIO brain)
+    |
+    |  "Which wire do I need for this data problem?"
+    |  "Check ATLAS first — does a wire already exist?"
+    |
+    ├── <span class="hl-mecha">ranger-import</span> (CCSDK, Haiku)     &larr; WIRE_DATA_IMPORT
+    ├── <span class="hl-mecha">ranger-commission</span> (CCSDK, Haiku)  &larr; WIRE_COMMISSION_SYNC
+    ├── <span class="hl-mecha">ranger-reference</span> (CCSDK, Haiku)   &larr; WIRE_REFERENCE_SEED
+    ├── <span class="hl-mecha">ranger-correspondence</span> (CCSDK)     &larr; WIRE_INCOMING_CORRESPONDENCE
+    └── <span class="hl-mecha">ranger-acf</span> (CCSDK, Haiku)        &larr; WIRE_ACF_CLEANUP
+
+    Cost per wire run: <span class="hl-mecha">pennies</span> (10-15 Haiku API calls)
+    Cost per sprint of manual data work it replaces: <span class="hl-red">$20-40</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: CONSUME -->
+  <div id="consume" class="panel">
+    <div class="track-card consume">
+      <div class="track-label consume">TRACK 1</div>
+      <div class="track-title">CONSUME &mdash; Absorb ATLAS</div>
+      <p style="color: var(--text-muted)">MEGAZORD claims ownership of ATLAS. The Command Center App IS ATLAS &mdash; rebranded, consolidated, and ready for CXO operation.</p>
+
+      <h3 style="color: var(--mecha-green)">What Happens</h3>
+      <ul style="color: var(--text-muted)">
+        <li><strong>Rebrand AtlasRegistry module</strong> &mdash; rename to MEGAZORD Command Center. Same code, new identity. The App key changes from <code>atlas</code> to <code>megazord</code>.</li>
+        <li><strong>Claim data-centric tickets from RONIN queue</strong> &mdash; scan the Dojo backlog for tickets that are actually data operations (imports, audits, cleanup) sitting in RONIN's feature queue. Reclassify as ZRD- tickets.</li>
+        <li><strong>Consolidate discovery docs</strong> &mdash; Platform Mirror discovery, Trinity ACF discovery, sprint inventories &mdash; all feed into MEGAZORD's context.</li>
+        <li><strong>Build soul.md + spirit.md</strong> at <code>~/Projects/dojo-warriors/megazord/</code> &mdash; seed from ATLAS history, ACF sprint learnings, and this roadmap.</li>
+        <li><strong>Establish ZRD- ticket prefix</strong> &mdash; all MEGAZORD work tracked with ZRD- in the Dojo pipeline.</li>
+      </ul>
+
+      <div class="deliverable-box">
+        <div class="label">Deliverable</div>
+        <p>Command Center App scaffold (rebranded from AtlasRegistry) + soul/spirit launched + data tickets claimed from RONIN queue + consolidated backlog under ZRD- prefix</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: OPERATE -->
+  <div id="operate" class="panel">
+    <div class="track-card operate">
+      <div class="track-label operate">TRACK 2</div>
+      <div class="track-title">OPERATE &mdash; Deploy the Rangers</div>
+      <p style="color: var(--text-muted)">MEGAZORD becomes operational. Rangers are built, wires are audited, intake funnel is established. The CXO can self-scope and self-deploy.</p>
+
+      <h3 style="color: var(--blue)">Build 5 CCSDK Rangers</h3>
+      <p style="color: var(--text-muted)">Each Ranger gets a wire-specific system prompt + the wire definition as its task list. Priority order:</p>
+      <table>
+        <tr><th>#</th><th>Ranger</th><th>Why This Order</th></tr>
+        <tr><td>1</td><td><strong>ACF Cleanup</strong></td><td>Shortest wire (3 stages), most tested, lowest risk &mdash; proves the Ranger pattern</td></tr>
+        <tr><td>2</td><td><strong>Data Import</strong></td><td>Highest business value &mdash; every carrier onboard starts here</td></tr>
+        <tr><td>3</td><td><strong>Commission Sync</strong></td><td>Revenue pipeline &mdash; directly impacts comp accuracy</td></tr>
+        <tr><td>4</td><td><strong>Reference Seed</strong></td><td>Foundation data that other Rangers depend on</td></tr>
+        <tr><td>5</td><td><strong>Correspondence</strong></td><td>Most complex (8 stages, server-only) &mdash; last because it needs the most testing</td></tr>
+      </table>
+
+      <h3 style="color: var(--blue)">Wire Library Audit</h3>
+      <ul style="color: var(--text-muted)">
+        <li>Verify all 5 wires execute end-to-end with test data</li>
+        <li>Confirm E2E tests pass for each wire</li>
+        <li>Document known edge cases (carrier format quirks, date formats, encoding issues)</li>
+      </ul>
+
+      <h3 style="color: var(--blue)">Intake Funnel</h3>
+      <p style="color: var(--text-muted)">How does data work arrive at MEGAZORD?</p>
+      <table>
+        <tr><th>Channel</th><th>Input</th><th>Status</th></tr>
+        <tr><td>Email intake</td><td>Carrier commission statements, BoB exports forwarded to intake address</td><td><span class="status-planned">Planned</span></td></tr>
+        <tr><td>Drive folder watch</td><td>Files dropped in designated Drive folder trigger wire</td><td><span class="status-planned">Planned</span></td></tr>
+        <tr><td>Slack channel</td><td>Team requests data imports via Slack message</td><td><span class="status-planned">Planned</span></td></tr>
+        <tr><td>Manual trigger</td><td>Command Center UI &mdash; "Run Wire" button (already exists in AtlasRegistry)</td><td><span class="status-live">Exists</span></td></tr>
+      </table>
+
+      <h3 style="color: var(--blue)">CXO Self-Authoring</h3>
+      <p style="color: var(--text-muted)">By end of OPERATE, MEGAZORD can write his own Discovery Docs. He knows what's in ATLAS, what's missing, and how to scope the gap. The CTO (SHINOB1) reviews as a mentor, not an auditor.</p>
+
+      <div class="deliverable-box">
+        <div class="label">Deliverable</div>
+        <p>5 Rangers deployed (ACF first) + wire library audited + at least 1 automated intake channel live + MEGAZORD writing his own DiscoDocs</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: DEVOUR -->
+  <div id="devour" class="panel">
+    <div class="track-card devour">
+      <div class="track-label devour">TRACK 3</div>
+      <div class="track-title">DEVOUR &mdash; Eat Everything</div>
+      <p style="color: var(--text-muted)">Full inventory. Full audit. Absorb every data operation scattered across the Dojo, RONIN's queue, and manual processes. Launch the mesh at scale. Destroy the backlog.</p>
+
+      <h3 style="color: var(--gold)">Carrier Data Source Inventory</h3>
+      <p style="color: var(--text-muted)">Systematic audit of every data source The Machine touches:</p>
+      <table>
+        <tr><th>Question</th><th>Action</th></tr>
+        <tr><td>Which carriers send automated feeds?</td><td>Register in source_registry, mark GREEN</td></tr>
+        <tr><td>Which carriers require manual CSV export?</td><td>Register as YELLOW, build scheduled reminders</td></tr>
+        <tr><td>Which carriers have no data pipeline at all?</td><td>Register as RED, scope WIRE + Ranger</td></tr>
+        <tr><td>Which data sources are stale (&gt;30 days)?</td><td>Staleness monitoring via health.ts</td></tr>
+        <tr><td>Which import formats lack introspection profiles?</td><td>Run SUPER_INTROSPECT, add to format library</td></tr>
+      </table>
+
+      <h3 style="color: var(--gold)">Scattered Work Audit</h3>
+      <ul style="color: var(--text-muted)">
+        <li>Scan RONIN's queue for data-centric tickets that belong to MEGAZORD</li>
+        <li>Identify manual data processes still running in GAS (RAPID_IMPORT)</li>
+        <li>Find orphaned import scripts, one-off data fixes, undocumented carrier formats</li>
+        <li>Absorb ALL of it into ATLAS &mdash; register the tools, document the formats, wire the pipelines</li>
+      </ul>
+
+      <h3 style="color: var(--gold)">Data Accuracy E2E Tests</h3>
+      <p style="color: var(--text-muted)">Not just "did the pipeline complete?" &mdash; "is the data CORRECT?"</p>
+      <ul style="color: var(--text-muted)">
+        <li>Known-answer tests: import a file with known data, verify every field in Firestore matches</li>
+        <li>Dedup accuracy: verify SUPER_MATCH doesn't create false positives or miss true matches</li>
+        <li>Commission accuracy: verify revenue records match carrier statements to the penny</li>
+        <li>ACF accuracy: verify files route to correct subfolders with correct names</li>
+      </ul>
+
+      <h3 style="color: var(--gold)">Proactive Data Hygiene</h3>
+      <ul style="color: var(--text-muted)">
+        <li><strong>Scheduled wire runs</strong> &mdash; ACF Cleanup on a weekly cadence, commission sync monthly per carrier</li>
+        <li><strong>Source staleness monitoring</strong> &mdash; notification when a carrier feed hasn't been refreshed in &gt;30 days</li>
+        <li><strong>Wire execution frequency</strong> &mdash; dashboard showing which wires run, how often, with what error rates</li>
+        <li><strong>Proactive gap identification</strong> &mdash; MEGAZORD identifies missing tools/wires before anyone asks</li>
+      </ul>
+
+      <div class="deliverable-box">
+        <div class="label">Deliverable</div>
+        <p>Full source registry populated (every carrier GREEN/YELLOW/RED) + all scattered data work absorbed + data accuracy E2E suite + proactive monitoring live + backlog cleared</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: ROADMAP -->
+  <div id="roadmap" class="panel">
+    <div class="card">
+      <h2>Document Hierarchy</h2>
+      <div class="diagram">
+              <span class="hl">VISION DISCOVERY</span>                         &larr; Registry Warriors Vision
+                      |
+      ┌───────────────┼───────────────┐
+      |               |               |
+<span class="hl-mecha">MEGAZORD</span>          <span class="hl-green">VOLTRON</span>          <span class="hl-gold">MUSASHI</span>
+ Roadmap           Roadmap          Roadmap          &larr; You are here (MEGAZORD)
+      |               |               |
+┌─────┼─────┐   ┌─────┼─────┐   ┌─────┼─────┐
+|     |     |   |     |     |   |     |     |
+<span class="hl-mecha">CON</span>  <span class="hl-blue">OPR</span>  <span class="hl-gold">DEV</span>  CON  OPR  DEV  CON  OPR  DEV   &larr; 9 Track Discoveries
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Track Sequencing</h2>
+      <table>
+        <tr><th>Track</th><th>Gate</th><th>Cannot Start Until</th></tr>
+        <tr><td style="color: var(--mecha-green)"><strong>CONSUME</strong></td><td>Command Center scaffold live + soul/spirit seeded</td><td>Vision Discovery approved (done)</td></tr>
+        <tr><td style="color: var(--blue)"><strong>OPERATE</strong></td><td>5 Rangers deployed + 1 intake channel live</td><td>CONSUME complete</td></tr>
+        <tr><td style="color: var(--gold)"><strong>DEVOUR</strong></td><td>Full registry + monitoring + backlog cleared</td><td>OPERATE complete</td></tr>
+      </table>
+      <p>All 3 CXOs run the same track in parallel. MEGAZORD CONSUMES alongside VOLTRON and MUSASHI. Then all 3 OPERATE. Then all 3 DEVOUR. <strong>Three waves of three.</strong></p>
+    </div>
+
+    <div class="card">
+      <h2>Integration Map</h2>
+      <div class="integration-row">
+        <div class="spec-card green">
+          <h4 style="color: var(--green)">VOLTRON (CSO)</h4>
+          <p>VOLTRON reads data that MEGAZORD imports. Clean client records, accurate accounts, and up-to-date revenue data are prerequisites for every QUE wire VOLTRON runs.</p>
+          <ul><li>MEGAZORD feeds &rarr; VOLTRON consumes</li></ul>
+        </div>
+        <div class="spec-card gold">
+          <h4 style="color: var(--gold)">MUSASHI (CMO)</h4>
+          <p>MUSASHI needs accurate client segmentation data for targeted campaigns. MEGAZORD's source registry tells MUSASHI which data is fresh and which is stale.</p>
+          <ul><li>MEGAZORD data quality &rarr; MUSASHI targeting accuracy</li></ul>
+        </div>
+        <div class="spec-card blue">
+          <h4 style="color: var(--blue)">Dojo (RONIN + RAIDEN)</h4>
+          <p>When MEGAZORD identifies a gap (missing normalizer, new carrier format), he tickets RONIN to build the tool. RAIDEN fixes pipeline bugs. MEGAZORD scopes, Dojo builds.</p>
+          <ul><li>MEGAZORD scopes &rarr; RONIN builds &rarr; ATLAS grows</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>MEGAZORD's Advantage</h2>
+      <div class="callout mecha">
+        <p><strong>MEGAZORD has the most mature registry of any CXO.</strong> ATLAS already has 15 atomic tools, 12 super tools, 5 wires, 6,145 lines of API routes, 8 E2E test files, and a working UI module. VOLTRON has a rich registry but no Command Center UI yet. MUSASHI has tools but no registry at all. MEGAZORD's CONSUME track is the lightest &mdash; it's mostly rebranding and consolidation, not building from scratch.</p>
+      </div>
+      <p>This means MEGAZORD should be the <strong>first CXO to reach full autonomy</strong> &mdash; the proof of concept for the CXO model. If the CONSUME &rarr; OPERATE &rarr; DEVOUR lifecycle works for MEGAZORD, it works for everyone.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>MEGAZORD CXO Roadmap &bull; SHINOB1 + JDM &bull; 2026-04-05 Night Shift</p>
+  <p style="margin-top: 8px; color: var(--mecha-green);">#RunningOurOwnRACE</p>
+</div>
+
+<script>
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+
+</body>
+</html>
