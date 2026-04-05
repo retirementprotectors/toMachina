@@ -34,3 +34,9 @@ export {
 } from './artisans'
 export { checkBrandCompliance } from './compliance'
 export { processBrief } from './pipeline'
+
+// DEVOUR Track — inventory process helpers (type-safe, no server deps)
+export { processCanvaDesigns } from './inventory/canva-scanner'
+export { processDriveFiles } from './inventory/drive-scanner'
+export { processWordPressPages } from './inventory/wordpress-auditor'
+export { processTemplateDocuments } from './inventory/template-auditor'
