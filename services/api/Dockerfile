@@ -39,3 +39,4 @@ COPY --from=builder /app/package.json ./
 EXPOSE 8080
 WORKDIR /app/services/api
 CMD ["node", "dist/server.js"]
+
