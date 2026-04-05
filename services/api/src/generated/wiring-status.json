@@ -683,13 +683,13 @@
       "status": "backend_only",
       "backend": "atlas.ts",
       "frontend": "",
-      "backend_endpoints": 44,
+      "backend_endpoints": 55,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "atlas.ts",
-          "endpoints": 44,
+          "endpoints": 55,
           "reads": true,
           "writes": true,
           "operations": [
@@ -1012,13 +1012,13 @@
       "status": "backend_only",
       "backend": "atlas.ts",
       "frontend": "",
-      "backend_endpoints": 130,
+      "backend_endpoints": 141,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "atlas.ts",
-          "endpoints": 44,
+          "endpoints": 55,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2179,13 +2179,13 @@
       "status": "backend_only",
       "backend": "atlas.ts",
       "frontend": "",
-      "backend_endpoints": 44,
+      "backend_endpoints": 55,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
         {
           "file": "atlas.ts",
-          "endpoints": 44,
+          "endpoints": 55,
           "reads": true,
           "writes": true,
           "operations": [
@@ -2475,12 +2475,25 @@
     },
     "ranger_runs": {
       "status": "backend_only",
-      "backend": "rangers.ts",
+      "backend": "atlas.ts",
       "frontend": "",
-      "backend_endpoints": 8,
+      "backend_endpoints": 63,
       "hardcoded": false,
       "sub_collection": false,
       "backend_routes": [
+        {
+          "file": "atlas.ts",
+          "endpoints": 55,
+          "reads": true,
+          "writes": true,
+          "operations": [
+            "list",
+            "get",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
         {
           "file": "rangers.ts",
           "endpoints": 8,
@@ -3224,7 +3237,7 @@
     },
     "atlas.ts": {
       "file": "atlas.ts",
-      "endpoints": 44,
+      "endpoints": 55,
       "operations": [
         "list",
         "get",
@@ -3235,7 +3248,8 @@
       "collections": [
         "case_tasks",
         "atlas",
-        "items"
+        "items",
+        "ranger_runs"
       ],
       "frontend_consumers": [],
       "status": "backend_only"
@@ -3385,6 +3399,27 @@
         "activities",
         "relationships"
       ],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "cmo-dashboard.ts": {
+      "file": "cmo-dashboard.ts",
+      "endpoints": 1,
+      "operations": [
+        "list",
+        "get"
+      ],
+      "collections": [],
+      "frontend_consumers": [],
+      "status": "backend_only"
+    },
+    "cmo-events.ts": {
+      "file": "cmo-events.ts",
+      "endpoints": 1,
+      "operations": [
+        "create"
+      ],
+      "collections": [],
       "frontend_consumers": [],
       "status": "backend_only"
     },
@@ -5143,14 +5178,14 @@
     }
   ],
   "scan_stats": {
-    "route_files": 84,
-    "ui_files": 183,
-    "portal_pages": 175,
+    "route_files": 86,
+    "ui_files": 185,
+    "portal_pages": 178,
     "collections_found": 75,
-    "api_routes_found": 84,
+    "api_routes_found": 86,
     "cloud_functions_found": 16,
     "env_vars_found": 42,
     "hookify_rules_found": 38,
-    "scanned_at": "2026-04-05T15:08:59.740Z"
+    "scanned_at": "2026-04-05T16:42:02.824Z"
   }
 }
