@@ -44,3 +44,10 @@ export { processTemplateDocuments } from './inventory/template-auditor'
 // DEVOUR Track — parity (MUS-D05, MUS-D06)
 export { generateParityMap } from './parity/parity-map'
 export { executeParityGap } from './parity/parity-executor'
+
+// DEVOUR Track — brand (MUS-D11, MUS-D12)
+export { CMO_BRAND_GUIDE, isApprovedColor, getToneForChannel, getLogoRule } from './brand/guide'
+// NOTE: checkBrandCompliance from './brand/compliance-engine' is server-only — import directly
+
+// DEVOUR Track — campaigns (MUS-D13)
+// NOTE: generateCampaignCalendar is server-only (Firestore) — import directly in API routes

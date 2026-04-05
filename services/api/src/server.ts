@@ -98,6 +98,7 @@ import { rangerRoutes } from './routes/rangers.js'
 import { cmoWireRoutes } from './routes/cmo-wires.js'
 import { cmoIntakeRoutes } from './routes/cmo-intake.js'
 import { cmoPipelineRoutes } from './routes/cmo-pipeline.js'
+import { cmoEventRoutes } from './routes/cmo-events.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -231,6 +232,7 @@ app.use('/api/rangers', normalizeBody, rangerRoutes)
 app.use('/api/cmo', normalizeBody, cmoWireRoutes)
 app.use('/api/cmo', normalizeBody, cmoIntakeRoutes)
 app.use('/api/cmo', normalizeBody, cmoPipelineRoutes)
+app.use('/api/cmo', normalizeBody, cmoEventRoutes)
 
 // SENSEI Analytics — TRK-14146
 app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)
