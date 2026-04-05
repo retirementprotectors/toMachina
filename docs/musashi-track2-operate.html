@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSASHI Track 2 — OPERATE Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --orange: #f59e0b;
+    --orange-glow: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --mecha-green: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(212,164,76,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(212,164,76,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(224,124,62,0.08) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #d4a44c 0%, #f59e0b 35%, #e07c3e 70%, #d4a44c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 750px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); background: var(--gold-glow); }
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--gold); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul, .card ol { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--gold); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-mecha { color: var(--mecha-green); font-weight: 600; }
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card.gold { border-top: 3px solid var(--gold); }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card.green { border-top: 3px solid var(--green); }
+  .spec-card.blue { border-top: 3px solid var(--blue); }
+  .spec-card.red { border-top: 3px solid var(--red); }
+  .spec-card.mecha { border-top: 3px solid var(--mecha-green); }
+  .spec-card.cyan { border-top: 3px solid var(--cyan); }
+  .spec-card h4 { font-size: 1rem; margin-bottom: 8px; }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 8px; }
+  .spec-card ul { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+  .callout { background: rgba(212,164,76,0.08); border: 1px solid rgba(212,164,76,0.2); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .callout.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); }
+  .callout.green { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .callout.blue { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.2); }
+  .callout.cyan { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.2); }
+  .callout p { margin: 0; }
+  .quote { border-left: 3px solid var(--gold); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--text-muted); }
+  .status-live { color: var(--green); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-new { color: var(--cyan); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-planned { color: var(--blue); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-gap { color: var(--red); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .status-stub { color: var(--orange); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 0 12px 12px 0; padding: 24px; margin-bottom: 20px; }
+  .ticket.phase2 { border-left-color: var(--accent); }
+  .ticket.phase3 { border-left-color: var(--cyan); }
+  .ticket-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--gold); background: var(--gold-glow); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(212,164,76,0.25); }
+  .ticket-id.phase2 { color: var(--accent); background: var(--accent-glow); border-color: rgba(224,124,62,0.25); }
+  .ticket-id.phase3 { color: var(--cyan); background: var(--cyan-glow); border-color: rgba(6,182,212,0.25); }
+  .ticket-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+  .ticket h3 { font-size: 0.9rem; font-weight: 600; margin: 14px 0 6px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; }
+  .ticket p { color: var(--text-muted); margin-bottom: 8px; font-size: 0.9rem; }
+  .ticket ul, .ticket ol { color: var(--text-muted); margin: 0 0 12px 20px; font-size: 0.9rem; }
+  .ticket li { margin-bottom: 4px; }
+  .ticket code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); }
+  .ticket .file-list { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin: 8px 0 12px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--cyan); white-space: pre; overflow-x: auto; }
+  .ac-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .ac-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .ac-list li::before { content: '✓'; position: absolute; left: 4px; color: var(--green); font-weight: 700; }
+  .dep-list { list-style: none; padding: 0; margin: 8px 0 12px; }
+  .dep-list li { padding: 4px 0 4px 24px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .dep-list li::before { content: '→'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gold); }
+  .phase-header.p2 { border-bottom-color: var(--accent); }
+  .phase-header.p3 { border-bottom-color: var(--cyan); }
+  .phase-number { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); flex-shrink: 0; }
+  .phase-number.p2 { background: var(--accent-glow); color: var(--accent); border-color: rgba(224,124,62,0.3); }
+  .phase-number.p3 { background: var(--cyan-glow); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+  .phase-title { font-size: 1.3rem; font-weight: 700; }
+  .phase-desc { font-size: 0.85rem; color: var(--text-muted); }
+  /* Lifecycle bar */
+  .lifecycle { display: flex; align-items: center; gap: 0; margin: 24px 0 8px; justify-content: center; flex-wrap: wrap; }
+  .lifecycle-step { display: flex; align-items: center; gap: 0; }
+  .lifecycle-node { padding: 8px 20px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid transparent; white-space: nowrap; }
+  .lifecycle-node.done { background: rgba(34,197,94,0.12); color: var(--green); border-color: rgba(34,197,94,0.3); }
+  .lifecycle-node.active { background: var(--gold-glow); color: var(--gold); border-color: rgba(212,164,76,0.4); box-shadow: 0 0 12px rgba(212,164,76,0.2); }
+  .lifecycle-node.locked { background: rgba(30,41,59,0.6); color: #475569; border-color: #1e293b; }
+  .lifecycle-arrow { color: #334155; font-size: 1.1rem; padding: 0 6px; }
+  .wire-step-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 12px 0; }
+  .wire-step { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .wire-step-num { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .wire-step-name { font-size: 0.9rem; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+  .wire-step-tool { font-size: 0.78rem; color: var(--cyan); font-family: 'SF Mono', monospace; margin-bottom: 4px; }
+  .wire-step-desc { font-size: 0.8rem; color: var(--text-muted); }
+  .footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem; }
+  .footer .signoff { color: var(--gold); font-weight: 700; font-size: 1rem; margin-top: 12px; }
+  .footer .race { color: var(--gold); font-weight: 700; letter-spacing: 1px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="sprint-label">TRACK DISCOVERY DOC &mdash; OPERATE</div>
+  <h1>MUSASHI Track 2</h1>
+  <p class="subtitle">Wire the Artisans. The registry is built. The stubs are defined. Track 2 makes MUSASHI's weapons execute &mdash; brochures print, campaigns send, landing pages go live.</p>
+  <div class="header-badges">
+    <span class="badge badge-gold">MUSASHI &mdash; CMO</span>
+    <span class="badge badge-gold">TRACK 2: OPERATE</span>
+    <span class="badge badge-accent">14 TICKETS</span>
+    <span class="badge badge-cyan">3 ARTISANS LIVE</span>
+    <span class="badge badge-green">WIRES EXECUTING</span>
+  </div>
+  <div class="lifecycle">
+    <div class="lifecycle-step">
+      <div class="lifecycle-node done">CONSUME</div>
+      <div class="lifecycle-arrow">&#8594;</div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-node active">OPERATE</div>
+      <div class="lifecycle-arrow">&#8594;</div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-node locked">DEVOUR</div>
+    </div>
+  </div>
+  <div class="ronin-meta">authored: MUSASHI, ARTxBLADE &bull; 2026-04-05 &bull; self-authored CXO track discovery</div>
+</div>
+
+<!-- TABS -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">Overview</div>
+    <div class="tab" onclick="showTab('tickets')">Tickets</div>
+    <div class="tab" onclick="showTab('files')">Files</div>
+    <div class="tab" onclick="showTab('tests')">Test Plan</div>
+    <div class="tab" onclick="showTab('deps')">Dependencies</div>
+    <div class="tab" onclick="showTab('sprint')">Sprint Plan</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- TAB: OVERVIEW -->
+  <div class="panel active" id="tab-overview">
+
+    <div class="card">
+      <h2>Why OPERATE Is Track 2</h2>
+      <div class="quote">"The registry is the inventory. The wires are the weapons. Track 2 is when MUSASHI stops cataloguing and starts executing."</div>
+      <p>Track 1 (CONSUME) built the CMO Registry from nothing. <code>packages/core/src/cmo/</code> now exists. 57+ tools are registered across 7 domains. Three wire stubs &mdash; WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE &mdash; are defined with their step sequences but contain no execution logic. The Command Center scaffold is live with placeholder UI.</p>
+      <p>OPERATE takes every one of those stubs and makes them <strong>real</strong>. A RONIN builder executes WIRE_BROCHURE and a print-ready PDF lands in Drive. WIRE_CAMPAIGN fires and contacts start receiving outreach. WIRE_LANDING_PAGE runs and a page goes live on WordPress. The three Artisans (Print, Digital, Web) become active agents with their own configs. The Content Pipeline orchestrates them. The Command Center stops showing placeholders and shows live data.</p>
+      <p>OPERATE is when MUSASHI crosses from infrastructure to intelligence.</p>
+    </div>
+
+    <div class="card">
+      <h2>What OPERATE Delivers</h2>
+      <div class="spec-grid">
+        <div class="spec-card gold">
+          <h4>Wire Executor</h4>
+          <p><code>packages/core/src/cmo/wire-executor.ts</code> &mdash; the engine that takes a wire definition and executes each step in sequence. Logs output. Halts + reports on failure.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Three Wires Live</h4>
+          <p>WIRE_BROCHURE (Canva &rarr; PDF &rarr; Drive), WIRE_CAMPAIGN (C3 create &rarr; target &rarr; schedule &rarr; send), WIRE_LANDING_PAGE (WordPress draft &rarr; Elementor &rarr; media &rarr; publish) &mdash; all executing from stubs.</p>
+        </div>
+        <div class="spec-card gold">
+          <h4>Three Artisans Active</h4>
+          <p>Print Artisan, Digital Artisan, Web Artisan &mdash; each with config, channel mapping, wire assignment, and health status.</p>
+        </div>
+        <div class="spec-card accent">
+          <h4>Content Pipeline</h4>
+          <p>Market Brief &rarr; MUSASHI evaluates &rarr; Artisans execute &rarr; Brand Compliance Check &rarr; Publish/Register. End-to-end orchestration.</p>
+        </div>
+        <div class="spec-card accent">
+          <h4>Intake Channel</h4>
+          <p>POST /api/cmo/intake accepts creative briefs from Slack trigger, FORGE variant, or manual form. Routes to the right Artisan(s). Returns tracking ID.</p>
+        </div>
+        <div class="spec-card cyan">
+          <h4>Command Center Live</h4>
+          <p>Registry, Pipeline, and Mesh views wired to real data. No more placeholders &mdash; actual tool counts, active jobs, Artisan health.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Title</th><th>Phase</th><th>Effort</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>MUS-O01</strong></td><td>Wire Executor for CMO Wires</td><td>Phase 1</td><td>M</td></tr>
+          <tr><td><strong>MUS-O02</strong></td><td>WIRE_BROCHURE Live Execution</td><td>Phase 1</td><td>L</td></tr>
+          <tr><td><strong>MUS-O03</strong></td><td>WIRE_CAMPAIGN Live Execution</td><td>Phase 1</td><td>L</td></tr>
+          <tr><td><strong>MUS-O04</strong></td><td>WIRE_LANDING_PAGE Live Execution</td><td>Phase 1</td><td>L</td></tr>
+          <tr><td><strong>MUS-O05</strong></td><td>Wire API Routes</td><td>Phase 1</td><td>M</td></tr>
+          <tr><td><strong>MUS-O06</strong></td><td>Artisan Configuration System</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-O07</strong></td><td>Content Pipeline Orchestrator</td><td>Phase 2</td><td>L</td></tr>
+          <tr><td><strong>MUS-O08</strong></td><td>Brand Compliance Check Hook</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-O09</strong></td><td>Intake Channel Integration</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-O10</strong></td><td>Pipeline Status API</td><td>Phase 2</td><td>M</td></tr>
+          <tr><td><strong>MUS-O11</strong></td><td>Command Center Registry View Live</td><td>Phase 3</td><td>M</td></tr>
+          <tr><td><strong>MUS-O12</strong></td><td>Command Center Pipeline View Live</td><td>Phase 3</td><td>M</td></tr>
+          <tr><td><strong>MUS-O13</strong></td><td>Command Center Mesh View Live</td><td>Phase 3</td><td>M</td></tr>
+          <tr><td><strong>MUS-O14</strong></td><td>OPERATE Gate Verification</td><td>Phase 3</td><td>S</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>The Three Wires</h2>
+
+      <h3>WIRE_BROCHURE &mdash; Print Artisan</h3>
+      <p>Input: <code>market</code>, <code>product</code>, <code>target</code>, <code>tone</code></p>
+      <div class="wire-step-grid">
+        <div class="wire-step">
+          <div class="wire-step-num">Step 1</div>
+          <div class="wire-step-name">Generate Design</div>
+          <div class="wire-step-tool">canva_generate_design</div>
+          <div class="wire-step-desc">Create design from brand kit using market + product params</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 2</div>
+          <div class="wire-step-name">Export Design</div>
+          <div class="wire-step-tool">canva_export_design</div>
+          <div class="wire-step-desc">Export as PDF with print specifications</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 3</div>
+          <div class="wire-step-name">Render Print Spec</div>
+          <div class="wire-step-tool">PDF_SERVICE render</div>
+          <div class="wire-step-desc">Apply print-ready specifications (bleed, CMYK)</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 4</div>
+          <div class="wire-step-name">Archive to Drive</div>
+          <div class="wire-step-tool">gdrive createTextFile / upload</div>
+          <div class="wire-step-desc">Register completed asset in CMO asset folder</div>
+        </div>
+      </div>
+
+      <h3>WIRE_CAMPAIGN &mdash; Digital Artisan</h3>
+      <p>Input: <code>market</code>, <code>template</code>, <code>audience</code>, <code>schedule</code></p>
+      <div class="wire-step-grid">
+        <div class="wire-step">
+          <div class="wire-step-num">Step 1</div>
+          <div class="wire-step-name">Create Campaign</div>
+          <div class="wire-step-tool">POST /api/campaigns</div>
+          <div class="wire-step-desc">Create C3 campaign record with template and metadata</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 2</div>
+          <div class="wire-step-name">Target Audience</div>
+          <div class="wire-step-tool">POST /api/campaigns/:id/audience</div>
+          <div class="wire-step-desc">Attach audience segment to campaign</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 3</div>
+          <div class="wire-step-name">Schedule</div>
+          <div class="wire-step-tool">POST /api/campaigns/:id/schedule</div>
+          <div class="wire-step-desc">Configure drip cadence or blast window</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 4</div>
+          <div class="wire-step-name">Execute Send</div>
+          <div class="wire-step-tool">POST /api/campaigns/:id/send</div>
+          <div class="wire-step-desc">Trigger campaign execution (respects AEP blackout)</div>
+        </div>
+      </div>
+
+      <h3>WIRE_LANDING_PAGE &mdash; Web Artisan</h3>
+      <p>Input: <code>market</code>, <code>purpose</code>, <code>content</code>, <code>design</code></p>
+      <div class="wire-step-grid">
+        <div class="wire-step">
+          <div class="wire-step-num">Step 1</div>
+          <div class="wire-step-name">Create Draft</div>
+          <div class="wire-step-tool">wordpress_create_page</div>
+          <div class="wire-step-desc">Create page in draft status with title + content blocks</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 2</div>
+          <div class="wire-step-name">Apply Layout</div>
+          <div class="wire-step-tool">wordpress_update_elementor_element</div>
+          <div class="wire-step-desc">Apply Elementor layout template and section structure</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 3</div>
+          <div class="wire-step-name">Upload Media</div>
+          <div class="wire-step-tool">wordpress_upload_media</div>
+          <div class="wire-step-desc">Upload hero image, icons, and supporting assets</div>
+        </div>
+        <div class="wire-step">
+          <div class="wire-step-num">Step 4</div>
+          <div class="wire-step-name">Publish</div>
+          <div class="wire-step-tool">wordpress_update_page (status: publish)</div>
+          <div class="wire-step-desc">Set page live at target URL</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Architecture &mdash; Target State After Track 2</h2>
+      <div class="diagram"><span class="hl-gold">packages/core/src/cmo/</span>
+├── index.ts                           barrel (unchanged from Track 1)
+├── types.ts                           types (Track 1) + WireExecutionResult (NEW)
+├── registry.ts                        CMO Registry (Track 1)
+├── <span class="hl-gold">wire-executor.ts</span>                  NEW — step engine, logs, halt on failure
+├── <span class="hl-gold">artisans.ts</span>                       NEW — Print + Digital + Web configs
+├── <span class="hl-gold">pipeline.ts</span>                       NEW — brief intake &rarr; artisan dispatch &rarr; result
+├── <span class="hl-gold">compliance.ts</span>                     NEW — brand compliance check hook
+├── tools/                             (Track 1 — unchanged)
+└── wires/
+    ├── index.ts                       (Track 1 — unchanged)
+    ├── <span class="hl-gold">WIRE_BROCHURE.ts</span>              UPDATE stub &rarr; live executor
+    ├── <span class="hl-gold">WIRE_CAMPAIGN.ts</span>              UPDATE stub &rarr; live executor
+    └── <span class="hl-gold">WIRE_LANDING_PAGE.ts</span>          UPDATE stub &rarr; live executor
+
+<span class="hl-gold">services/api/src/routes/</span>
+├── <span class="hl-gold">cmo-wires.ts</span>                      NEW — POST /api/cmo/wires/:wireId
+├── <span class="hl-gold">cmo-intake.ts</span>                     NEW — POST /api/cmo/intake
+└── <span class="hl-gold">cmo-pipeline.ts</span>                   NEW — GET /api/cmo/pipeline/:id + /active
+
+<span class="hl-gold">packages/ui/src/modules/MusashiCommandCenter/</span>
+├── MusashiCommandCenter.tsx           (Track 1 scaffold — tab nav unchanged)
+├── <span class="hl-gold">MusashiRegistryView.tsx</span>           UPDATE placeholder &rarr; live CMO_REGISTRY data
+├── <span class="hl-gold">MusashiPipelineView.tsx</span>           UPDATE placeholder &rarr; live pipeline API
+└── <span class="hl-gold">MusashiMeshView.tsx</span>               UPDATE placeholder &rarr; live Artisan status</div>
+    </div>
+
+    <div class="card">
+      <h2>Content Pipeline Flow</h2>
+      <div class="diagram"><span class="hl-gold">Creative Brief Enters (3 channels)</span>
+    Slack trigger: "MUSASHI: [brief]"
+    FORGE variant: pipeline intake ticket
+    Manual: POST /api/cmo/intake
+           ↓
+<span class="hl-gold">MUSASHI Evaluates</span>
+    pipeline.ts reads brief &rarr; matches channels
+    Determines: Print? Digital? Web? All three?
+    Returns: artisan assignment + tracking ID
+           ↓
+<span class="hl-gold">Artisans Execute (parallel where possible)</span>
+    Print Artisan  ──&gt; WIRE_BROCHURE  ──&gt; Canva &rarr; PDF &rarr; Drive
+    Digital Artisan ──&gt; WIRE_CAMPAIGN ──&gt; C3 create &rarr; target &rarr; schedule &rarr; send
+    Web Artisan   ──&gt; WIRE_LANDING_PAGE ──&gt; WP draft &rarr; Elementor &rarr; publish
+           ↓
+<span class="hl-green">Brand Compliance Check</span>
+    compliance.ts validates each output:
+    logo usage ✓  color palette ✓  font family ✓  tone ✓
+           ↓
+<span class="hl-green">Publish + Register</span>
+    Compliant outputs: publish + register in CMO_REGISTRY
+    Non-compliant: halt + report to brief originator</div>
+    </div>
+
+  </div>
+
+  <!-- TAB: TICKETS -->
+  <div class="panel" id="tab-tickets">
+
+    <!-- ═══ PHASE 1: Wire Execution ═══ -->
+    <div class="phase-header">
+      <div class="phase-number">1</div>
+      <div>
+        <div class="phase-title">Wire Execution</div>
+        <div class="phase-desc">Build the wire executor engine, upgrade all three stubs to live executors, expose via API routes. MUS-O01 must finish first; O02/O03/O04 can run in parallel after it.</div>
+      </div>
+    </div>
+
+    <!-- MUS-O01 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-O01</span>
+        <span class="ticket-title">Wire Executor for CMO Wires</span>
+      </div>
+      <p>Create the generic wire execution engine that powers all three CMO wires. The executor takes a <code>CmoWireDefinition</code> + typed input params, walks each step, calls the appropriate tool, logs step output, and halts on failure with a structured error report.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/wire-executor.ts    — NEW
+packages/core/src/cmo/types.ts           — UPDATE (add WireExecutionResult, WireStepResult)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>WireStepResult</code> interface: <code>stepId</code>, <code>toolId</code>, <code>success: boolean</code>, <code>output?: unknown</code>, <code>error?: string</code>, <code>durationMs: number</code></li>
+        <li><code>WireExecutionResult</code> interface: <code>wireId</code>, <code>success: boolean</code>, <code>steps: WireStepResult[]</code>, <code>completedAt?: Date</code>, <code>haltedAt?: string</code> (stepId of failure), <code>error?: string</code></li>
+        <li><code>executeWire(wire: CmoWireDefinition, input: Record&lt;string, unknown&gt;): Promise&lt;WireExecutionResult&gt;</code> exported as named export</li>
+        <li>Each step logs: <code>[MUSASHI][WIRE_ID][stepId] executing toolId...</code> to console (NOT PHI-bearing data)</li>
+        <li>On step failure: remaining steps are skipped, <code>haltedAt</code> is set, <code>success: false</code>, error message from step propagated</li>
+        <li>On full success: <code>success: true</code>, all <code>steps</code> have <code>success: true</code>, <code>completedAt</code> set</li>
+        <li>Executor is tool-agnostic &mdash; it receives a step executor callback via dependency injection (pattern: <code>executeWire(wire, input, toolRunner)</code>). This allows unit testing without live MCP calls.</li>
+        <li>All types exported from <code>packages/core/src/cmo/types.ts</code></li>
+        <li><code>npm run type-check</code> passes after this ticket</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow ATLAS wire executor pattern at <code>packages/core/src/atlas/wire-executor.ts</code> if it exists. If not, follow the flow engine step execution pattern at <code>packages/core/flow/</code>. The key principle: steps are sequential, each step receives the previous step's output as part of its input context.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Unit: call <code>executeWire</code> with a mock wire (2 steps) and a mock <code>toolRunner</code> that always succeeds &rarr; returns <code>success: true</code>, 2 step results</li>
+        <li>Unit: call <code>executeWire</code> with a mock wire where step 2 fails &rarr; returns <code>success: false</code>, <code>haltedAt: 'step-2'</code>, step 3 never called</li>
+        <li>Type check: <code>npm run type-check</code> 13/13 pass</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types.ts from Track 1)</li>
+        <li>MUS-C08 (wire definitions from Track 1)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O02 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-O02</span>
+        <span class="ticket-title">WIRE_BROCHURE Live Execution</span>
+      </div>
+      <p>Upgrade <code>WIRE_BROCHURE.ts</code> from a stub step definition to a fully executable wire. The Print Artisan wire integrates Canva MCP (design generation + export) + PDF_SERVICE (print rendering) + Drive (asset archival).</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/wires/WIRE_BROCHURE.ts  — UPDATE (stub → live executor)</div>
+
+      <h3>Wire Input Schema</h3>
+      <div class="file-list">interface BrochureInput {
+  market: string;         // e.g. "Medicare AEP 2026", "Annuity — Retirement Income"
+  product: string;        // e.g. "FIA", "MYGA", "MAPD"
+  target: string;         // e.g. "T65 prospects", "existing clients age 70+"
+  tone: string;           // e.g. "professional", "warm", "urgent"
+  brandKitId?: string;    // override default brand kit (optional)
+}</div>
+
+      <h3>Step Implementation</h3>
+      <ul>
+        <li><strong>Step 1 — canva_generate_design</strong>: Call <code>mcp__rpi-workspace__canva_generate_design</code>. Pass <code>market + product</code> as design context. Use brand kit from <code>brandKitId</code> or default from <code>canva_list_brand_kits</code>. Store returned <code>designId</code> in step output.</li>
+        <li><strong>Step 2 — canva_export_design</strong>: Call <code>mcp__rpi-workspace__canva_export_design</code> with <code>designId</code> from step 1. Format: PDF. Store export URL in step output.</li>
+        <li><strong>Step 3 — PDF_SERVICE render</strong>: Call the <code>PDF_SERVICE</code> render endpoint (via <code>services/api/src/routes/pdf.ts</code> if available, or direct service call). Apply print spec: bleed 0.125in, color space CMYK, resolution 300dpi. Store rendered PDF URL in step output.</li>
+        <li><strong>Step 4 — Drive archive</strong>: Upload final PDF to CMO asset folder on Shared Drive (folder ID from env var <code>CMO_ASSETS_DRIVE_FOLDER_ID</code>). File name: <code>[market]-[product]-brochure-[timestamp].pdf</code>. Store Drive file URL in step output as the wire's final output.</li>
+      </ul>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Given valid <code>BrochureInput</code>, wire executes all 4 steps in sequence</li>
+        <li>Step 1 output (<code>designId</code>) is available to step 2 via execution context</li>
+        <li>Step 2 output (export URL) is available to step 3</li>
+        <li>Step 3 output (print-spec PDF URL) is available to step 4</li>
+        <li>Final step output is the Drive file URL of the registered brochure asset</li>
+        <li>If Canva returns error (e.g. brand kit not found): wire halts at step 1, returns <code>WireExecutionResult</code> with <code>success: false</code>, <code>haltedAt: 'canva-generate'</code></li>
+        <li>If PDF_SERVICE unavailable: wire halts at step 3, reports error clearly</li>
+        <li>CMO_ASSETS_DRIVE_FOLDER_ID read from environment, not hardcoded</li>
+        <li>No PHI in any log statements</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Wire executor from MUS-O01 handles the step loop. This ticket provides the step implementations (the <code>toolRunner</code> callbacks for each step). Look at how <code>rpi-workspace</code> Canva tools are called in any existing Canva integration in the codebase for parameter patterns.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Integration: call with valid <code>BrochureInput</code> &rarr; verify Drive file URL in final step output</li>
+        <li>Error path: pass invalid <code>brandKitId</code> &rarr; verify wire halts at step 1 with descriptive error</li>
+        <li>Log verification: no PHI strings appear in console output during execution</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O01 (wire executor engine)</li>
+        <li>MUS-C08 (WIRE_BROCHURE stub from Track 1 &mdash; this ticket upgrades it)</li>
+        <li>rpi-workspace MCP Canva tools (live)</li>
+        <li>PDF_SERVICE running at <code>services/api</code> or standalone</li>
+        <li>Drive MCP or gdrive MCP (for asset archival)</li>
+        <li>Env var: <code>CMO_ASSETS_DRIVE_FOLDER_ID</code> set in Cloud Run secrets</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O03 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-O03</span>
+        <span class="ticket-title">WIRE_CAMPAIGN Live Execution</span>
+      </div>
+      <p>Upgrade <code>WIRE_CAMPAIGN.ts</code> from stub to live executor. The Digital Artisan wire creates a C3 campaign, targets an audience, schedules it, and executes the send &mdash; all via the toMachina API C3 routes.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/wires/WIRE_CAMPAIGN.ts   — UPDATE (stub → live executor)</div>
+
+      <h3>Wire Input Schema</h3>
+      <div class="file-list">interface CampaignInput {
+  market: string;         // e.g. "Medicare", "Life", "Annuity"
+  templateId: string;     // C3 template ID (must exist in CMO_REGISTRY or Firestore)
+  audience: {
+    segment: string;      // e.g. "T65", "existing-clients-age-70-plus"
+    filters?: Record&lt;string, unknown&gt;;  // optional Firestore query filters
+  };
+  schedule: {
+    type: 'drip' | 'blast';
+    startAt: string;      // ISO 8601 datetime
+    endAt?: string;       // drip only
+    cadenceDays?: number; // drip only
+  };
+  sendChannels: Array&lt;'email' | 'sms'&gt;;
+}</div>
+
+      <h3>Step Implementation</h3>
+      <ul>
+        <li><strong>Step 1 — campaigns create</strong>: POST to <code>/api/campaigns</code>. Payload: <code>{ templateId, market, name: "[market]-[timestamp]" }</code>. Store returned <code>campaignId</code> in step output. Read <code>services/api/src/routes/campaigns.ts</code> for exact field names before writing this step.</li>
+        <li><strong>Step 2 — audience targeting</strong>: POST to <code>/api/campaigns/:campaignId/audience</code>. Payload: <code>audience</code> object from input. Store targeting confirmation in step output.</li>
+        <li><strong>Step 3 — schedule</strong>: POST to <code>/api/campaigns/:campaignId/schedule</code>. Payload: <code>schedule</code> object from input. AEP blackout enforcement: if <code>startAt</code> is Oct 1 &ndash; Dec 7 and market is "Medicare", return <code>{ success: false, error: "AEP Blackout: Medicare campaigns blocked Oct 1 – Dec 7" }</code> without proceeding.</li>
+        <li><strong>Step 4 — execute send</strong>: POST to <code>/api/campaigns/:campaignId/send</code>. Payload: <code>{ channels: sendChannels }</code>. Store send execution result in step output as the wire's final output.</li>
+      </ul>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Given valid <code>CampaignInput</code>, wire creates campaign, targets, schedules, and sends</li>
+        <li><code>campaignId</code> from step 1 is passed to steps 2, 3, 4 via execution context</li>
+        <li>AEP Blackout enforced at step 3: Medicare campaigns during Oct 1 &ndash; Dec 7 halt gracefully with clear error</li>
+        <li>Non-Medicare campaigns during AEP window proceed normally</li>
+        <li>Step 4 final output includes: <code>campaignId</code>, <code>status</code>, <code>recipientCount</code>, <code>channels</code></li>
+        <li>If <code>templateId</code> not found at step 1: wire halts, error clearly states template lookup failed</li>
+        <li>API contract verified: field names in step payloads match <code>services/api/src/routes/campaigns.ts</code> exactly</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Read <code>services/api/src/routes/campaigns.ts</code> before writing ANY step payload. Field names must match exactly &mdash; this is a hard contract verification requirement (see CLAUDE.md API Contract Verification rule). Also verify C3 campaign routes for the audience targeting and schedule endpoints.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Integration: execute with a valid template ID &rarr; campaign created, audience targeted, scheduled, send triggered</li>
+        <li>AEP gate: execute with Medicare + startAt in October &rarr; halts at step 3 with AEP Blackout error</li>
+        <li>AEP gate: execute with Life market + startAt in October &rarr; proceeds to step 4 normally</li>
+        <li>Missing template: execute with non-existent templateId &rarr; halts at step 1, descriptive error</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O01 (wire executor engine)</li>
+        <li>MUS-C08 (WIRE_CAMPAIGN stub from Track 1)</li>
+        <li>C3 campaign API routes live in <code>services/api</code></li>
+        <li>Campaign templates seeded in Firestore <code>templates</code> collection</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O04 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-O04</span>
+        <span class="ticket-title">WIRE_LANDING_PAGE Live Execution</span>
+      </div>
+      <p>Upgrade <code>WIRE_LANDING_PAGE.ts</code> from stub to live executor. The Web Artisan wire creates a WordPress page draft, applies Elementor layout, uploads media assets, and publishes the page live via the <code>rpi-workspace</code> WordPress MCP tools.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/wires/WIRE_LANDING_PAGE.ts  — UPDATE (stub → live executor)</div>
+
+      <h3>Wire Input Schema</h3>
+      <div class="file-list">interface LandingPageInput {
+  market: string;           // e.g. "Medicare", "FIA Rollover"
+  purpose: string;          // e.g. "lead capture", "product education", "event registration"
+  content: {
+    title: string;
+    headline: string;
+    subheadline: string;
+    bodyText: string;
+    ctaText: string;
+    ctaUrl: string;
+  };
+  design: {
+    elementorTemplateId?: string;  // existing Elementor template ID (optional)
+    heroImageUrl?: string;         // pre-existing image URL to upload (optional)
+    colorScheme?: 'rpi-blue' | 'rpi-gold' | 'neutral';  // maps to WP template variants
+  };
+  slug: string;             // URL slug for the page (e.g. "medicare-2026-fia")
+}</div>
+
+      <h3>Step Implementation</h3>
+      <ul>
+        <li><strong>Step 1 — wordpress_create_page</strong>: Call <code>mcp__rpi-workspace__wordpress_create_page</code>. Payload: <code>{ title: content.title, status: 'draft', slug, content: content.bodyText }</code>. Store returned <code>pageId</code> in step output.</li>
+        <li><strong>Step 2 — wordpress_update_elementor_element</strong>: Call <code>mcp__rpi-workspace__wordpress_update_elementor_element</code> with <code>pageId</code> from step 1. If <code>design.elementorTemplateId</code> provided, apply that template. Otherwise apply the default <code>colorScheme</code> layout. Store confirmed layout in step output.</li>
+        <li><strong>Step 3 — wordpress_upload_media</strong>: If <code>design.heroImageUrl</code> is provided, call <code>mcp__rpi-workspace__wordpress_upload_media</code>. Store returned <code>mediaId</code> in step output. If no image provided, skip step (mark step as skipped, not failed).</li>
+        <li><strong>Step 4 — wordpress_update_page (publish)</strong>: Call <code>mcp__rpi-workspace__wordpress_update_page</code> with <code>{ id: pageId, status: 'publish' }</code>. If step 3 produced a <code>mediaId</code>, set it as the featured image. Store final page URL in step output as the wire's final output.</li>
+      </ul>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Given valid <code>LandingPageInput</code>, wire creates draft &rarr; applies layout &rarr; uploads media &rarr; publishes</li>
+        <li><code>pageId</code> from step 1 flows into steps 2, 3, 4 via execution context</li>
+        <li>Step 3 is optional: if <code>heroImageUrl</code> not provided, step is skipped (not failed) and wire continues to step 4</li>
+        <li>Final output includes: <code>pageId</code>, <code>pageUrl</code>, <code>status: 'publish'</code></li>
+        <li>Slug conflict (page with that slug already exists): wire halts at step 1 with clear error &mdash; do NOT overwrite existing pages</li>
+        <li>Elementor template not found: wire halts at step 2 with clear error</li>
+        <li>Published page URL matches: <code>[wordpress-site-url]/[slug]</code></li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Read <code>mcp__rpi-workspace__wordpress_create_page</code> and <code>mcp__rpi-workspace__wordpress_update_elementor_element</code> tool definitions from the rpi-workspace MCP server before writing step implementations. Elementor data structure is non-trivial &mdash; use <code>wordpress_get_elementor_data</code> on an existing page as a reference for what the update payload should look like.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Integration: execute with full <code>LandingPageInput</code> including heroImageUrl &rarr; page published, all 4 steps succeed</li>
+        <li>Minimal: execute without <code>heroImageUrl</code> or <code>elementorTemplateId</code> &rarr; steps 1+4 succeed, step 3 skipped</li>
+        <li>Slug conflict: execute with a slug that already exists &rarr; halts at step 1 with clear error</li>
+        <li>Visual: confirm published page is reachable at expected URL</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O01 (wire executor engine)</li>
+        <li>MUS-C08 (WIRE_LANDING_PAGE stub from Track 1)</li>
+        <li>rpi-workspace MCP WordPress tools (live)</li>
+        <li>WordPress site configured and accessible via MCP</li>
+        <li>At least one Elementor template seeded in WordPress (or use default)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O05 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">MUS-O05</span>
+        <span class="ticket-title">Wire API Routes</span>
+      </div>
+      <p>Expose all three CMO wire executors as REST API endpoints. Any RONIN builder, portal component, or VOLTRON specialist can trigger a wire via HTTP. Each route validates input, calls the wire executor, and returns a structured <code>WireExecutionResult</code>.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/routes/cmo-wires.ts   — NEW
+services/api/src/index.ts              — UPDATE (register cmo-wires router)</div>
+
+      <h3>API Endpoints</h3>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Wire Triggered</th><th>Response</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>POST</td><td><code>/api/cmo/wires/brochure</code></td><td>WIRE_BROCHURE</td><td><code>{ success, data: WireExecutionResult }</code></td></tr>
+          <tr><td>POST</td><td><code>/api/cmo/wires/campaign</code></td><td>WIRE_CAMPAIGN</td><td><code>{ success, data: WireExecutionResult }</code></td></tr>
+          <tr><td>POST</td><td><code>/api/cmo/wires/landing-page</code></td><td>WIRE_LANDING_PAGE</td><td><code>{ success, data: WireExecutionResult }</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>All 3 endpoints gated by Firebase Auth middleware (same as all other <code>services/api</code> routes)</li>
+        <li>Input validation: missing required fields return <code>400 { success: false, error: "Missing required field: [field]" }</code></li>
+        <li>Successful wire execution returns <code>200 { success: true, data: WireExecutionResult }</code></li>
+        <li>Wire halt (step failure) returns <code>422 { success: false, error: "Wire halted at [stepId]: [error]", data: WireExecutionResult }</code></li>
+        <li>Unexpected server error returns <code>500 { success: false, error: "Internal error" }</code> (never expose stack trace)</li>
+        <li>Router registered in <code>services/api/src/index.ts</code> under <code>/api/cmo</code> prefix</li>
+        <li><code>npm run build</code> passes with new route file</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow pattern from any existing route in <code>services/api/src/routes/</code> (e.g. <code>campaigns.ts</code> or <code>clients.ts</code>) for Firebase Auth middleware, error handling, and response structure. All responses MUST follow <code>{ success: boolean, data?: T, error?: string }</code> pattern.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>POST <code>/api/cmo/wires/brochure</code> with valid body &rarr; 200 + WireExecutionResult</li>
+        <li>POST <code>/api/cmo/wires/brochure</code> without auth token &rarr; 401</li>
+        <li>POST <code>/api/cmo/wires/brochure</code> missing required field &rarr; 400 with field name in error</li>
+        <li>POST <code>/api/cmo/wires/campaign</code> with AEP-blackout input &rarr; 422 with AEP error message</li>
+        <li>Build: <code>npm run build</code> 11/11 pass</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O01 (wire executor)</li>
+        <li>MUS-O02 (WIRE_BROCHURE live)</li>
+        <li>MUS-O03 (WIRE_CAMPAIGN live)</li>
+        <li>MUS-O04 (WIRE_LANDING_PAGE live)</li>
+      </ul>
+    </div>
+
+    <!-- ═══ PHASE 2: Artisans + Pipeline ═══ -->
+    <div class="phase-header p2">
+      <div class="phase-number p2">2</div>
+      <div>
+        <div class="phase-title">Artisans + Pipeline</div>
+        <div class="phase-desc">Artisan configs, pipeline orchestrator, brand compliance hook, intake channel, and pipeline status API. MUS-O06 and MUS-O07 are foundational; O08/O09/O10 can follow in parallel.</div>
+      </div>
+    </div>
+
+    <!-- MUS-O06 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-O06</span>
+        <span class="ticket-title">Artisan Configuration System</span>
+      </div>
+      <p>Define the three Phase 1 Artisan configurations. An Artisan is the named agent that owns a wire &mdash; it knows its channel, its tools, its wire, and its health state. This is the config layer that the Pipeline Orchestrator uses to dispatch work.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/artisans.ts    — NEW
+packages/core/src/cmo/types.ts        — UPDATE (add CmoArtisan, CmoArtisanHealth)</div>
+
+      <h3>Artisan Definitions</h3>
+      <table>
+        <thead>
+          <tr><th>Artisan</th><th>Channel</th><th>Wire</th><th>Tools</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Print Artisan</strong></td><td>print</td><td>WIRE_BROCHURE</td><td>Canva, PDF_SERVICE, Drive</td></tr>
+          <tr><td><strong>Digital Artisan</strong></td><td>digital</td><td>WIRE_CAMPAIGN</td><td>C3 API (campaigns), COMMS</td></tr>
+          <tr><td><strong>Web Artisan</strong></td><td>web</td><td>WIRE_LANDING_PAGE</td><td>WordPress MCP, Elementor</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>CmoArtisan</code> interface: <code>id</code>, <code>name</code>, <code>channel: CmoChannel</code>, <code>wireId: string</code>, <code>toolDomains: CmoToolDomain[]</code>, <code>description: string</code>, <code>status: 'active' | 'degraded' | 'offline'</code></li>
+        <li><code>CmoArtisanHealth</code> interface: <code>artisanId</code>, <code>status</code>, <code>lastExecutedAt?: Date</code>, <code>lastResult?: 'success' | 'failure'</code>, <code>errorMessage?: string</code></li>
+        <li><code>CMO_ARTISANS: CmoArtisan[]</code> exported as master array with all 3 artisans configured</li>
+        <li><code>getArtisan(id: string): CmoArtisan | undefined</code> helper exported</li>
+        <li><code>getArtisanByChannel(channel: CmoChannel): CmoArtisan | undefined</code> helper exported</li>
+        <li><code>getArtisanByWire(wireId: string): CmoArtisan | undefined</code> helper exported</li>
+        <li>All artisan IDs: <code>'print-artisan'</code>, <code>'digital-artisan'</code>, <code>'web-artisan'</code></li>
+        <li>Types exported from <code>packages/core/src/cmo/types.ts</code>, array from <code>artisans.ts</code></li>
+        <li>Barrel export in <code>packages/core/src/cmo/index.ts</code> updated to include artisans exports</li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Follow the QUE specialist pattern if it exists in <code>packages/core/src/que/</code>. The artisan config is intentionally simple &mdash; it is static config data, not a class with state. Pure data export, same as the tool arrays from Track 1.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li><code>getArtisanByChannel('print')</code> returns Print Artisan with <code>wireId: 'WIRE_BROCHURE'</code></li>
+        <li><code>getArtisanByWire('WIRE_CAMPAIGN')</code> returns Digital Artisan</li>
+        <li><code>CMO_ARTISANS.length</code> equals 3</li>
+        <li><code>npm run type-check</code> 13/13 pass</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C01 (types.ts from Track 1)</li>
+        <li>MUS-O01 (wire executor types, for CmoArtisanHealth reference)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O07 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-O07</span>
+        <span class="ticket-title">Content Pipeline Orchestrator</span>
+      </div>
+      <p>Build the pipeline orchestrator that takes a creative brief, evaluates which Artisans to activate, dispatches to their wire executors in the correct order (parallel where possible), collects results, and returns a unified pipeline result with tracking ID.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/pipeline.ts    — NEW
+packages/core/src/cmo/types.ts        — UPDATE (add CmoBrief, CmoPipelineResult, CmoPipelineJob)</div>
+
+      <h3>Key Types</h3>
+      <div class="file-list">interface CmoBrief {
+  id: string;                  // auto-generated UUID
+  market: string;
+  channels: CmoChannel[];      // which artisans to activate
+  inputs: {
+    print?: BrochureInput;
+    digital?: CampaignInput;
+    web?: LandingPageInput;
+  };
+  requestedBy: string;         // user email
+  createdAt: Date;
+}
+
+interface CmoPipelineJob {
+  jobId: string;               // auto-generated UUID
+  briefId: string;
+  artisanId: string;
+  wireId: string;
+  status: 'queued' | 'running' | 'complete' | 'failed';
+  result?: WireExecutionResult;
+  startedAt?: Date;
+  completedAt?: Date;
+}
+
+interface CmoPipelineResult {
+  briefId: string;
+  jobs: CmoPipelineJob[];
+  overallStatus: 'complete' | 'partial' | 'failed';
+  completedAt?: Date;
+}</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>processBrief(brief: CmoBrief): Promise&lt;CmoPipelineResult&gt;</code> exported as named export</li>
+        <li>For each channel in <code>brief.channels</code>, looks up the Artisan via <code>getArtisanByChannel</code>, dispatches to the wire executor</li>
+        <li>Jobs for independent channels run in parallel (Promise.allSettled)</li>
+        <li>Each job tracks status transitions: queued &rarr; running &rarr; complete/failed</li>
+        <li><code>overallStatus</code>: <code>'complete'</code> if all jobs succeed, <code>'partial'</code> if some succeed and some fail, <code>'failed'</code> if all fail</li>
+        <li>Returns <code>CmoPipelineResult</code> with all job results regardless of individual job success/failure (never throws)</li>
+        <li>If <code>brief.channels</code> includes a channel with no corresponding Artisan, that channel is skipped with a warning in the job result</li>
+        <li>Brand compliance check (MUS-O08) is called on each completed job output BEFORE marking job as complete</li>
+        <li>Types exported from <code>packages/core/src/cmo/types.ts</code></li>
+      </ul>
+
+      <h3>Reference Pattern</h3>
+      <p>Use Promise.allSettled (not Promise.all) for parallel dispatch &mdash; we want all results even if some fail. Pattern for job tracking: each job has its own status object that is mutated as steps complete. This is internal state within the function call; no Firestore writes in this file (the API route handles persistence).</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Brief with <code>channels: ['print', 'digital']</code> &rarr; both Artisans dispatched, both jobs in result</li>
+        <li>Brief with <code>channels: ['web']</code> and WIRE_LANDING_PAGE executor mocked to fail &rarr; <code>overallStatus: 'failed'</code>, single failed job in result</li>
+        <li>Brief with <code>channels: ['print', 'digital']</code> where print succeeds and digital fails &rarr; <code>overallStatus: 'partial'</code></li>
+        <li>Brief with unknown channel &rarr; that channel skipped, other channels proceed</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O01 (wire executor)</li>
+        <li>MUS-O02, O03, O04 (live wire implementations)</li>
+        <li>MUS-O06 (artisan configs)</li>
+        <li>MUS-O08 (brand compliance &mdash; called from this file, so O08 must be complete first or coded defensively)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O08 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-O08</span>
+        <span class="ticket-title">Brand Compliance Check Hook</span>
+      </div>
+      <p>Every wire output passes through a brand compliance check before final publish or registration. The check validates logo usage, color palette, font family, and tone guide adherence. Non-compliant outputs halt publish and return a structured compliance report.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/core/src/cmo/compliance.ts    — NEW
+packages/core/src/cmo/types.ts          — UPDATE (add BrandComplianceResult, BrandComplianceViolation)</div>
+
+      <h3>Brand Standards (RPI)</h3>
+      <ul>
+        <li><strong>Logo:</strong> Must be present in print/web outputs. Accepted: prodashx-mark.svg, tomachina-logo variants from <code>packages/ui/src/logos/</code></li>
+        <li><strong>Color palette:</strong> Primary blue <code>#4a7ab5</code>, gold <code>#d4a44c</code>, SENTINEL green <code>#40bc58</code>, RIIMO purple <code>#a78bfa</code>. No off-brand hex values in output metadata.</li>
+        <li><strong>Font:</strong> No hardcoded font families in generated content (use CSS variables or Canva brand kit fonts)</li>
+        <li><strong>Tone:</strong> Flag outputs where <code>tone</code> param was overridden or not respected (heuristic check on output metadata)</li>
+      </ul>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>BrandComplianceViolation</code> interface: <code>rule</code>, <code>severity: 'error' | 'warning'</code>, <code>description</code>, <code>fix?: string</code></li>
+        <li><code>BrandComplianceResult</code> interface: <code>passed: boolean</code>, <code>violations: BrandComplianceViolation[]</code>, <code>checkedAt: Date</code></li>
+        <li><code>checkBrandCompliance(wireId: string, output: WireExecutionResult): BrandComplianceResult</code> exported</li>
+        <li>Returns <code>passed: true</code> if zero <code>'error'</code> severity violations (warnings are allowed)</li>
+        <li>Returns <code>passed: false</code> if any <code>'error'</code> severity violation exists</li>
+        <li>WIRE_BROCHURE check: verifies Canva brand kit was used (from step 1 output metadata)</li>
+        <li>WIRE_CAMPAIGN check: verifies template ID was an approved template (not an ad-hoc creation)</li>
+        <li>WIRE_LANDING_PAGE check: verifies page was assigned to an approved color scheme</li>
+        <li>Unknown wireId: returns <code>{ passed: true, violations: [{ rule: 'unknown-wire', severity: 'warning', description: 'No compliance rules defined for this wire' }] }</code></li>
+        <li>Function is pure &mdash; no API calls, no Firestore reads. Compliance rules are hardcoded config in this file.</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>WIRE_BROCHURE output with brandKitId present &rarr; <code>passed: true</code></li>
+        <li>WIRE_BROCHURE output with no brandKitId in step 1 metadata &rarr; <code>passed: false</code>, error violation</li>
+        <li>WIRE_CAMPAIGN output with approved templateId &rarr; <code>passed: true</code></li>
+        <li>Unknown wireId &rarr; <code>passed: true</code> with warning violation</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O01 (WireExecutionResult type)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O09 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-O09</span>
+        <span class="ticket-title">Intake Channel Integration</span>
+      </div>
+      <p>Build the intake API route that accepts creative briefs from three channels: Slack trigger, FORGE variant, and manual POST. Validates the brief, routes to the Pipeline Orchestrator, persists the pipeline job to Firestore, and returns a tracking ID.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/routes/cmo-intake.ts    — NEW
+services/api/src/index.ts              — UPDATE (register cmo-intake router under /api/cmo)</div>
+
+      <h3>API Endpoint</h3>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Body</th><th>Response</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>POST</td><td><code>/api/cmo/intake</code></td><td><code>CmoBrief</code> (minus id + createdAt, which are server-generated)</td><td><code>{ success: true, data: { briefId, trackingUrl } }</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Intake Channels</h3>
+      <ul>
+        <li><strong>Slack trigger:</strong> Body includes <code>source: 'slack'</code> and a <code>slackChannelId</code>. On completion, post result summary back to that channel via rpi-workspace <code>send_message</code>.</li>
+        <li><strong>FORGE variant:</strong> Body includes <code>source: 'forge'</code> and a <code>forgeTicketId</code>. FORGE runner calls this endpoint when a creative ticket is assigned to MUSASHI.</li>
+        <li><strong>Manual:</strong> Body includes <code>source: 'manual'</code>. No callback. Result readable via pipeline status API.</li>
+      </ul>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>POST <code>/api/cmo/intake</code> gated by Firebase Auth middleware</li>
+        <li>Server assigns <code>briefId</code> (UUID v4) and <code>createdAt</code> (server timestamp) &mdash; never trust client for these fields</li>
+        <li>Brief persisted to Firestore <code>cmo_pipeline_jobs</code> collection with status <code>'queued'</code></li>
+        <li>Pipeline Orchestrator (<code>processBrief</code>) called asynchronously &mdash; intake returns <code>202 Accepted</code> immediately with <code>briefId</code> and <code>trackingUrl</code></li>
+        <li><code>trackingUrl</code> = <code>/api/cmo/pipeline/:briefId</code></li>
+        <li>On pipeline completion, Firestore record updated with final <code>CmoPipelineResult</code></li>
+        <li>Slack source: on completion, post to <code>slackChannelId</code> via <code>mcp__rpi-workspace__send_message</code>. Message: "MUSASHI completed creative brief [briefId]. Status: [overallStatus]. [N] jobs completed."</li>
+        <li>Validation: missing <code>market</code>, <code>channels</code>, or <code>requestedBy</code> returns <code>400</code></li>
+        <li>Validation: <code>channels</code> array empty returns <code>400 { error: "At least one channel required" }</code></li>
+      </ul>
+
+      <h3>Firestore Collection</h3>
+      <p>Collection: <code>cmo_pipeline_jobs</code>. Document ID: <code>briefId</code>. Fields: all <code>CmoPipelineResult</code> fields + <code>source</code> + <code>slackChannelId?</code> + <code>forgeTicketId?</code>. Add to <code>firestore.rules</code> as RPI-user-gated collection.</p>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>POST with valid body &rarr; 202, <code>briefId</code> in response, record appears in Firestore</li>
+        <li>POST without auth &rarr; 401</li>
+        <li>POST with empty channels array &rarr; 400 with clear error</li>
+        <li>POST with <code>source: 'slack'</code> &rarr; Slack message sent to <code>slackChannelId</code> on completion</li>
+        <li>GET <code>/api/cmo/pipeline/:briefId</code> after brief completes &rarr; returns completed result</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O07 (pipeline orchestrator)</li>
+        <li>MUS-O10 (pipeline status API &mdash; provides the <code>trackingUrl</code> endpoint)</li>
+        <li>Firestore <code>cmo_pipeline_jobs</code> collection (create with this ticket)</li>
+        <li>firestore.rules update needed to gate new collection</li>
+        <li>rpi-workspace send_message (for Slack source callback)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O10 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">MUS-O10</span>
+        <span class="ticket-title">Pipeline Status API</span>
+      </div>
+      <p>Build the read API for pipeline job status. The Command Center's Pipeline View and any caller of the intake endpoint uses these routes to check progress and results.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">services/api/src/routes/cmo-pipeline.ts    — NEW
+services/api/src/index.ts              — UPDATE (register cmo-pipeline router under /api/cmo)</div>
+
+      <h3>API Endpoints</h3>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Response</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/api/cmo/pipeline/:briefId</code></td><td><code>{ success, data: CmoPipelineResult }</code></td></tr>
+          <tr><td>GET</td><td><code>/api/cmo/pipeline/active</code></td><td><code>{ success, data: CmoPipelineJob[] }</code></td></tr>
+          <tr><td>GET</td><td><code>/api/cmo/pipeline/history</code></td><td><code>{ success, data: CmoPipelineResult[], meta: { total, page } }</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>All endpoints gated by Firebase Auth middleware</li>
+        <li>GET <code>/api/cmo/pipeline/:briefId</code>: reads from Firestore <code>cmo_pipeline_jobs/:briefId</code>. Returns 404 if not found.</li>
+        <li>GET <code>/api/cmo/pipeline/active</code>: queries Firestore <code>cmo_pipeline_jobs</code> where status in ['queued', 'running']. Returns array.</li>
+        <li>GET <code>/api/cmo/pipeline/history</code>: queries Firestore <code>cmo_pipeline_jobs</code> where status in ['complete', 'partial', 'failed']. Ordered by <code>completedAt</code> desc. Default limit 20, supports <code>?page=N</code> query param.</li>
+        <li>Route conflict: <code>active</code> and <code>history</code> must be registered BEFORE <code>:briefId</code> route to avoid Express treating them as IDs</li>
+        <li>All responses follow <code>{ success: boolean, data?: T, error?: string }</code> pattern</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>GET <code>/api/cmo/pipeline/:briefId</code> with existing ID &rarr; 200 + result</li>
+        <li>GET <code>/api/cmo/pipeline/:briefId</code> with non-existent ID &rarr; 404</li>
+        <li>GET <code>/api/cmo/pipeline/active</code> with no active jobs &rarr; 200, empty array (not 404)</li>
+        <li>GET <code>/api/cmo/pipeline/history</code> &rarr; 200, array ordered newest-first</li>
+        <li>Route ordering: <code>/active</code> request does NOT match <code>/:briefId</code> handler</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O09 (Firestore collection created + populated by intake)</li>
+        <li>Firestore query rules allow reading <code>cmo_pipeline_jobs</code> for RPI users</li>
+      </ul>
+    </div>
+
+    <!-- ═══ PHASE 3: Command Center + Gate ═══ -->
+    <div class="phase-header p3">
+      <div class="phase-number p3">3</div>
+      <div>
+        <div class="phase-title">Command Center Live + OPERATE Gate</div>
+        <div class="phase-desc">Wire the three Command Center views to live data. Run the full gate checklist. All three wires must execute successfully. OPERATE is declared complete only when the gate passes.</div>
+      </div>
+    </div>
+
+    <!-- MUS-O11 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">MUS-O11</span>
+        <span class="ticket-title">Command Center Registry View Live</span>
+      </div>
+      <p>Wire <code>MusashiRegistryView.tsx</code> (currently showing static placeholder text from Track 1) to read from the live CMO_REGISTRY import. Show real tool counts, domain breakdown table, and wire status.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/ui/src/modules/MusashiCommandCenter/MusashiRegistryView.tsx  — UPDATE (placeholder → live data)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Imports <code>CMO_REGISTRY</code>, <code>getCmoToolsByDomain</code>, <code>getCmoToolsByType</code> from <code>@tomachina/core</code></li>
+        <li>Header stat: shows actual <code>CMO_REGISTRY.length</code> count (not hardcoded "50+")</li>
+        <li>Domain breakdown table: one row per domain, showing domain name + tool count + representative tool IDs (first 3 per domain)</li>
+        <li>Wire status table: shows all 3 wires (WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE) with status badge &mdash; Track 1 stubs showed "stub", Track 2 shows "live"</li>
+        <li>No API calls &mdash; all data sourced from <code>@tomachina/core</code> imports (static registry, no network needed)</li>
+        <li>Gold branding maintained (<code>--gold: #d4a44c</code> throughout)</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Visual: Registry View shows correct total count matching <code>CMO_REGISTRY.length</code></li>
+        <li>Visual: all 7 domains appear in breakdown table</li>
+        <li>Visual: 3 wires shown as "live" (not "stub")</li>
+        <li>Build: <code>npm run build</code> 11/11 pass</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-C09 (CMO_REGISTRY importable from @tomachina/core)</li>
+        <li>MUS-O02, O03, O04 (wires in "live" status for status badge)</li>
+        <li>MUS-C12 (Command Center scaffold from Track 1)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O12 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">MUS-O12</span>
+        <span class="ticket-title">Command Center Pipeline View Live</span>
+      </div>
+      <p>Wire <code>MusashiPipelineView.tsx</code> to the Pipeline Status API. Show active pipeline jobs, recent history, and success rate. Replace static placeholder with live data fetched from <code>/api/cmo/pipeline/active</code> and <code>/api/cmo/pipeline/history</code>.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/ui/src/modules/MusashiCommandCenter/MusashiPipelineView.tsx  — UPDATE (placeholder → live API)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Fetches from <code>/api/cmo/pipeline/active</code> on mount and every 30 seconds (auto-refresh)</li>
+        <li>Fetches from <code>/api/cmo/pipeline/history</code> on mount for last 20 jobs</li>
+        <li>Active jobs section: shows each queued/running job with artisan name, wire ID, and status indicator (pulsing if running)</li>
+        <li>Active jobs section: shows "No active jobs" empty state when array is empty</li>
+        <li>History table: columns &mdash; Brief ID (truncated), Artisan, Status, Completed At, Duration</li>
+        <li>Success rate: computed from history &mdash; "(complete count / total) * 100%" shown as percentage</li>
+        <li>Loading state shown while fetch is in progress</li>
+        <li>Error state shown if API returns error (does not crash)</li>
+        <li>All fetch calls use the portal's existing auth-aware fetch utility (follow pattern in other portal data-fetching components)</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Visual: active jobs show pulsing indicator when status is 'running'</li>
+        <li>Visual: empty state shows correctly when no active jobs</li>
+        <li>Visual: success rate calculates correctly from history data</li>
+        <li>Error path: API returns 500 &rarr; error state shown, no crash</li>
+        <li>Auto-refresh: active section updates every 30s without full page reload</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O10 (pipeline status API must be live)</li>
+        <li>MUS-O09 (at least one brief processed to show in history)</li>
+        <li>MUS-C12 (Command Center scaffold from Track 1)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O13 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">MUS-O13</span>
+        <span class="ticket-title">Command Center Mesh View Live</span>
+      </div>
+      <p>Wire <code>MusashiMeshView.tsx</code> to show live Artisan status. The Mesh View replaces the static "5 channel specialists" placeholder from Track 1 with real artisan data from <code>CMO_ARTISANS</code> and health metrics from Firestore pipeline history.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">packages/ui/src/modules/MusashiCommandCenter/MusashiMeshView.tsx  — UPDATE (placeholder → live data)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Imports <code>CMO_ARTISANS</code> from <code>@tomachina/core</code> for static artisan config</li>
+        <li>Fetches recent pipeline history from <code>/api/cmo/pipeline/history</code> to compute per-artisan health</li>
+        <li>Each artisan shows as a card with: name, channel badge, wire ID, status indicator, last execution time, last result (success/failure)</li>
+        <li>Status indicator: green (last result success), red (last result failure), grey (no history yet)</li>
+        <li>Track 1 showed 5 artisan cards (placeholder). Track 2 shows exactly 3 (Print, Digital, Web) with real data</li>
+        <li>No API call for artisan list &mdash; sourced from <code>CMO_ARTISANS</code> import. Only history fetch needs network.</li>
+        <li>Health computed client-side from history data: last 5 jobs per artisan &rarr; success rate</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Visual: 3 artisan cards render with correct names, channels, wire IDs</li>
+        <li>Visual: status indicators update based on history data</li>
+        <li>Visual: grey status for artisans with no history (fresh deploy)</li>
+        <li>Build: <code>npm run build</code> 11/11 pass</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>MUS-O06 (CMO_ARTISANS from artisans.ts)</li>
+        <li>MUS-O10 (pipeline history API)</li>
+        <li>MUS-C12 (Command Center scaffold from Track 1)</li>
+      </ul>
+    </div>
+
+    <!-- MUS-O14 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">MUS-O14</span>
+        <span class="ticket-title">OPERATE Gate Verification</span>
+      </div>
+      <p>Run the full OPERATE gate checklist. This ticket is the exit gate for Track 2. All three wires must execute successfully against real integrations. The Command Center must show live data. The pipeline must process a test brief end-to-end. Only when every item below passes is Track 2 declared complete and DEVOUR unlocked.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-list">docs/musashi-track2-operate.html    — UPDATE (mark OPERATE as completed in lifecycle bar)</div>
+
+      <h3>Gate Checklist</h3>
+      <ul class="ac-list">
+        <li><strong>Wire Gate 1:</strong> POST <code>/api/cmo/wires/brochure</code> with valid BrochureInput &rarr; Drive file URL in response, PDF exists in CMO assets folder</li>
+        <li><strong>Wire Gate 2:</strong> POST <code>/api/cmo/wires/campaign</code> with valid CampaignInput (non-AEP market) &rarr; campaign created, targeted, scheduled, send executed in C3</li>
+        <li><strong>Wire Gate 3:</strong> POST <code>/api/cmo/wires/landing-page</code> with valid LandingPageInput &rarr; WordPress page published at expected slug URL</li>
+        <li><strong>Pipeline Gate:</strong> POST <code>/api/cmo/intake</code> with all 3 channels &rarr; briefId returned &rarr; poll pipeline status &rarr; <code>overallStatus: 'complete'</code></li>
+        <li><strong>Compliance Gate:</strong> Each wire output that passes brand compliance returns <code>passed: true</code> in compliance result</li>
+        <li><strong>Command Center Gate:</strong> Registry View shows correct tool counts from live CMO_REGISTRY import</li>
+        <li><strong>Command Center Gate:</strong> Pipeline View shows the test brief job in history</li>
+        <li><strong>Command Center Gate:</strong> Mesh View shows all 3 artisans with health data populated from test brief execution</li>
+        <li><strong>Build Gate:</strong> <code>npm run type-check</code> passes 13/13</li>
+        <li><strong>Build Gate:</strong> <code>npm run build</code> passes 11/11</li>
+        <li><strong>E2E Gate:</strong> <code>npm run test:e2e:ui</code> passes 10/10 (no regressions from Track 2 changes)</li>
+        <li><strong>PR Gate:</strong> All Track 2 changes merged to main via CI pipeline</li>
+      </ul>
+
+      <h3>Failure Protocol</h3>
+      <p>If any gate item fails, the corresponding ticket owner must fix and re-run the gate. Partial OPERATE completion is not acceptable &mdash; all gates must pass before DEVOUR is unlocked. Document any failures and fixes in the PR description.</p>
+
+      <h3>DEVOUR Unlock Conditions</h3>
+      <div class="callout green">
+        <p><strong style="color: var(--green);">DEVOUR unlocks when ALL of the above gate items pass.</strong> Track 3 (DEVOUR) is: MUSASHI writing Track Discovery Docs for MEGAZORD and VOLTRON, the CMO writes the stories that launch the other CXOs, and the Content Pipeline handling autonomous multi-brief execution at scale.</p>
+      </div>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>All Phase 1 tickets (MUS-O01 through MUS-O05)</li>
+        <li>All Phase 2 tickets (MUS-O06 through MUS-O10)</li>
+        <li>All Phase 3 wiring tickets (MUS-O11 through MUS-O13)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- TAB: FILES -->
+  <div class="panel" id="tab-files">
+
+    <div class="card">
+      <h2>New Files Created</h2>
+      <table>
+        <thead>
+          <tr><th>File Path</th><th>Ticket</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>packages/core/src/cmo/wire-executor.ts</code></td><td>MUS-O01</td><td>Engine</td><td>Generic wire execution engine with step loop and halt-on-failure</td></tr>
+          <tr><td><code>packages/core/src/cmo/artisans.ts</code></td><td>MUS-O06</td><td>Config</td><td>Print, Digital, Web artisan definitions</td></tr>
+          <tr><td><code>packages/core/src/cmo/pipeline.ts</code></td><td>MUS-O07</td><td>Orchestrator</td><td>Content pipeline — brief intake to artisan dispatch</td></tr>
+          <tr><td><code>packages/core/src/cmo/compliance.ts</code></td><td>MUS-O08</td><td>Validator</td><td>Brand compliance check hook</td></tr>
+          <tr><td><code>services/api/src/routes/cmo-wires.ts</code></td><td>MUS-O05</td><td>API</td><td>REST endpoints for triggering wire execution</td></tr>
+          <tr><td><code>services/api/src/routes/cmo-intake.ts</code></td><td>MUS-O09</td><td>API</td><td>Creative brief intake endpoint with Slack/FORGE/Manual sources</td></tr>
+          <tr><td><code>services/api/src/routes/cmo-pipeline.ts</code></td><td>MUS-O10</td><td>API</td><td>Pipeline status read endpoints</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Existing Files Updated</h2>
+      <table>
+        <thead>
+          <tr><th>File Path</th><th>Ticket</th><th>Change</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>packages/core/src/cmo/types.ts</code></td><td>MUS-O01, O06, O07, O08</td><td>Add WireExecutionResult, WireStepResult, CmoArtisan, CmoArtisanHealth, CmoBrief, CmoPipelineJob, CmoPipelineResult, BrandComplianceResult, BrandComplianceViolation</td></tr>
+          <tr><td><code>packages/core/src/cmo/wires/WIRE_BROCHURE.ts</code></td><td>MUS-O02</td><td>Upgrade from stub to live executor (Canva + PDF + Drive)</td></tr>
+          <tr><td><code>packages/core/src/cmo/wires/WIRE_CAMPAIGN.ts</code></td><td>MUS-O03</td><td>Upgrade from stub to live executor (C3 API routes)</td></tr>
+          <tr><td><code>packages/core/src/cmo/wires/WIRE_LANDING_PAGE.ts</code></td><td>MUS-O04</td><td>Upgrade from stub to live executor (WordPress MCP)</td></tr>
+          <tr><td><code>packages/core/src/cmo/index.ts</code></td><td>MUS-O06</td><td>Add barrel exports for artisans (CMO_ARTISANS + helpers)</td></tr>
+          <tr><td><code>services/api/src/index.ts</code></td><td>MUS-O05, O09, O10</td><td>Register three new CMO routers under /api/cmo prefix</td></tr>
+          <tr><td><code>firestore.rules</code></td><td>MUS-O09</td><td>Add RPI-user-gated rule for cmo_pipeline_jobs collection</td></tr>
+          <tr><td><code>packages/ui/src/modules/MusashiCommandCenter/MusashiRegistryView.tsx</code></td><td>MUS-O11</td><td>Replace static placeholder with live CMO_REGISTRY data</td></tr>
+          <tr><td><code>packages/ui/src/modules/MusashiCommandCenter/MusashiPipelineView.tsx</code></td><td>MUS-O12</td><td>Replace static placeholder with live pipeline API data + auto-refresh</td></tr>
+          <tr><td><code>packages/ui/src/modules/MusashiCommandCenter/MusashiMeshView.tsx</code></td><td>MUS-O13</td><td>Replace static placeholder with live artisan configs + health data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>New Firestore Collection</h2>
+      <table>
+        <thead>
+          <tr><th>Collection</th><th>Created By</th><th>Document Structure</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>cmo_pipeline_jobs</code></td>
+            <td>MUS-O09</td>
+            <td>Document ID = briefId. Fields: all CmoPipelineResult fields + source ('slack' | 'forge' | 'manual') + slackChannelId? + forgeTicketId? + requestedBy + createdAt</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>New Environment Variables</h2>
+      <table>
+        <thead>
+          <tr><th>Variable</th><th>Used In</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>CMO_ASSETS_DRIVE_FOLDER_ID</code></td><td>MUS-O02 (WIRE_BROCHURE)</td><td>Shared Drive folder ID for CMO printed asset archival</td></tr>
+        </tbody>
+      </table>
+      <p>Add to Cloud Run secrets for <code>services/api</code>. Follow existing env var pattern in the Cloud Run service config.</p>
+    </div>
+
+  </div>
+
+  <!-- TAB: TEST PLAN -->
+  <div class="panel" id="tab-tests">
+
+    <div class="card">
+      <h2>Verification Matrix</h2>
+      <table>
+        <thead>
+          <tr><th>Check</th><th>Command / Method</th><th>Expected</th><th>Blocks</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>TypeScript compilation</td><td><code>npm run type-check</code></td><td>13/13 pass</td><td>Every ticket</td></tr>
+          <tr><td>Full build</td><td><code>npm run build</code></td><td>11/11 pass</td><td>MUS-O05, O09, O10, O11–O13, O14</td></tr>
+          <tr><td>Wire executor unit test</td><td>Manual: mock toolRunner, 2-step wire</td><td>success: true, 2 step results</td><td>MUS-O01</td></tr>
+          <tr><td>Wire executor failure path</td><td>Manual: mock toolRunner fails at step 2</td><td>haltedAt: 'step-2', step 3 not called</td><td>MUS-O01</td></tr>
+          <tr><td>WIRE_BROCHURE integration</td><td>POST /api/cmo/wires/brochure</td><td>Drive file URL in response</td><td>MUS-O02, O05, O14</td></tr>
+          <tr><td>WIRE_CAMPAIGN integration</td><td>POST /api/cmo/wires/campaign</td><td>C3 campaign created + sent</td><td>MUS-O03, O05, O14</td></tr>
+          <tr><td>WIRE_LANDING_PAGE integration</td><td>POST /api/cmo/wires/landing-page</td><td>WordPress page published</td><td>MUS-O04, O05, O14</td></tr>
+          <tr><td>AEP blackout enforcement</td><td>POST /api/cmo/wires/campaign (Medicare, Oct date)</td><td>422 with AEP Blackout error</td><td>MUS-O03</td></tr>
+          <tr><td>Pipeline end-to-end</td><td>POST /api/cmo/intake + poll /pipeline/:id</td><td>overallStatus: 'complete'</td><td>MUS-O09, O14</td></tr>
+          <tr><td>Slack callback</td><td>POST /api/cmo/intake (source: 'slack')</td><td>Slack message sent on completion</td><td>MUS-O09</td></tr>
+          <tr><td>Brand compliance pass</td><td>checkBrandCompliance on valid output</td><td>passed: true</td><td>MUS-O08</td></tr>
+          <tr><td>Brand compliance fail</td><td>checkBrandCompliance on output without brand kit</td><td>passed: false, error violation</td><td>MUS-O08</td></tr>
+          <tr><td>Artisan lookup</td><td>getArtisanByChannel('print')</td><td>Print Artisan with wireId: WIRE_BROCHURE</td><td>MUS-O06</td></tr>
+          <tr><td>Registry View live count</td><td>Visual on /musashi-command-center</td><td>Shows actual CMO_REGISTRY.length</td><td>MUS-O11</td></tr>
+          <tr><td>Pipeline View auto-refresh</td><td>Visual: wait 30s after job starts</td><td>Active jobs update without reload</td><td>MUS-O12</td></tr>
+          <tr><td>Mesh View artisan cards</td><td>Visual on Mesh tab</td><td>3 cards, correct names + channels</td><td>MUS-O13</td></tr>
+          <tr><td>E2E no regressions</td><td><code>npm run test:e2e:ui</code></td><td>10/10 pass</td><td>MUS-O14 (final gate)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Definition of Done (OPERATE)</h2>
+      <ul class="ac-list">
+        <li>Wire executor engine exists at <code>packages/core/src/cmo/wire-executor.ts</code></li>
+        <li>All 3 wire stubs upgraded to live executors (WIRE_BROCHURE, WIRE_CAMPAIGN, WIRE_LANDING_PAGE)</li>
+        <li>All 3 wire API routes live: POST /api/cmo/wires/brochure, /campaign, /landing-page</li>
+        <li>3 Artisan configs defined and exported from <code>@tomachina/core</code></li>
+        <li>Content pipeline orchestrator processes a test brief end-to-end</li>
+        <li>Brand compliance check running on every wire output</li>
+        <li>Intake channel accepting briefs from Slack, FORGE, and manual POST</li>
+        <li>Pipeline status API returning live Firestore data</li>
+        <li>Command Center Registry, Pipeline, and Mesh views showing live data (no placeholders)</li>
+        <li><code>cmo_pipeline_jobs</code> Firestore collection created and gated by rules</li>
+        <li><code>CMO_ASSETS_DRIVE_FOLDER_ID</code> env var configured in Cloud Run</li>
+        <li><code>npm run type-check</code> passes 13/13</li>
+        <li><code>npm run build</code> passes 11/11</li>
+        <li><code>npm run test:e2e:ui</code> passes 10/10 (no regressions)</li>
+        <li>All Track 2 PRs merged to main via CI pipeline</li>
+        <li>MUS-O14 gate verification checklist fully passed</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- TAB: DEPENDENCIES -->
+  <div class="panel" id="tab-deps">
+
+    <div class="card">
+      <h2>Internal Dependency Graph</h2>
+      <div class="diagram"><span class="hl-gold">Phase 1 (Wire Execution):</span>
+
+  MUS-O01 (executor engine)
+       ↓ required by
+  MUS-O02 (WIRE_BROCHURE)  ─────────────────────────────┐
+  MUS-O03 (WIRE_CAMPAIGN)  ── parallel after O01 ──────────┤
+  MUS-O04 (WIRE_LANDING_PAGE) ─────────────────────────────┤
+       ↓ all three complete                                ↓
+  MUS-O05 (wire API routes) ────────── needs O01+O02+O03+O04
+
+<span class="hl">Phase 2 (Artisans + Pipeline):</span>
+
+  MUS-O06 (artisan configs)
+  MUS-O08 (brand compliance) ─── parallel with O06 ────────────────┐
+       ↓                                                             ↓
+  MUS-O07 (pipeline orchestrator) ─── needs O01+O02+O03+O04+O06+O08
+  MUS-O09 (intake channel)  ─── needs O07 + O10
+  MUS-O10 (pipeline status) ─── needs O09 (Firestore collection)
+
+<span class="hl-cyan">Phase 3 (Command Center Live):</span>
+
+  MUS-O11 (Registry View live)  ─── needs MUS-C09 + O02+O03+O04
+  MUS-O12 (Pipeline View live)  ─── needs O10 + O09
+  MUS-O13 (Mesh View live)      ─── needs O06 + O10
+       ↓ all three complete
+  MUS-O14 (OPERATE Gate)        ─── needs EVERYTHING</div>
+    </div>
+
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <thead>
+          <tr><th>Dependency</th><th>Status</th><th>Tickets Affected</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Track 1 (CONSUME) complete &mdash; CMO_REGISTRY importable, wire stubs defined</td>
+            <td><span class="status-live">REQUIRED</span></td>
+            <td>MUS-O01, O02, O03, O04, O11</td>
+          </tr>
+          <tr>
+            <td>rpi-workspace MCP &mdash; Canva tools (<code>canva_generate_design</code>, <code>canva_export_design</code>)</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>MUS-O02</td>
+          </tr>
+          <tr>
+            <td>rpi-workspace MCP &mdash; WordPress tools (<code>wordpress_create_page</code>, <code>wordpress_update_elementor_element</code>, <code>wordpress_upload_media</code>, <code>wordpress_update_page</code>)</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>MUS-O04</td>
+          </tr>
+          <tr>
+            <td>C3 campaign API routes (<code>services/api/src/routes/campaigns.ts</code>)</td>
+            <td><span class="status-live">LIVE</span> &mdash; read before writing O03 payloads</td>
+            <td>MUS-O03</td>
+          </tr>
+          <tr>
+            <td>PDF_SERVICE (<code>services/api/src/routes/pdf.ts</code> or standalone)</td>
+            <td><span class="status-planned">VERIFY</span> &mdash; confirm endpoint is live before O02</td>
+            <td>MUS-O02</td>
+          </tr>
+          <tr>
+            <td>Drive / gdrive MCP &mdash; for brochure asset archival</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>MUS-O02</td>
+          </tr>
+          <tr>
+            <td>CMO_ASSETS_DRIVE_FOLDER_ID env var &mdash; must be set in Cloud Run secrets</td>
+            <td><span class="status-gap">NEEDS SETUP</span> &mdash; JDM creates CMO assets folder on Shared Drive, captures folder ID, adds to Cloud Run env vars</td>
+            <td>MUS-O02</td>
+          </tr>
+          <tr>
+            <td>WordPress site accessible via rpi-workspace MCP</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>MUS-O04</td>
+          </tr>
+          <tr>
+            <td>Firestore &mdash; new <code>cmo_pipeline_jobs</code> collection</td>
+            <td><span class="status-new">NEW</span> &mdash; created by MUS-O09</td>
+            <td>MUS-O09, O10, O12, O13</td>
+          </tr>
+          <tr>
+            <td>rpi-workspace <code>send_message</code> &mdash; for Slack intake callback</td>
+            <td><span class="status-live">LIVE</span></td>
+            <td>MUS-O09</td>
+          </tr>
+          <tr>
+            <td>ATLAS wire-executor pattern (<code>packages/core/src/atlas/</code>)</td>
+            <td><span class="status-live">LIVE</span> &mdash; read-only reference</td>
+            <td>MUS-O01</td>
+          </tr>
+          <tr>
+            <td>Campaign templates seeded in Firestore <code>templates</code> collection</td>
+            <td><span class="status-planned">VERIFY</span> &mdash; at least one template must exist for O03 integration test</td>
+            <td>MUS-O03</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Pre-Track Checklist (RONIN: Verify Before Starting)</h2>
+      <ul class="ac-list">
+        <li>Track 1 (CONSUME) is complete: <code>CMO_REGISTRY</code> importable from <code>@tomachina/core</code>, all 3 wire stubs in <code>packages/core/src/cmo/wires/</code></li>
+        <li>PDF_SERVICE is reachable: test call to its render endpoint succeeds</li>
+        <li>WordPress is configured in rpi-workspace MCP: <code>wordpress_site_info</code> returns site data</li>
+        <li>At least one Canva brand kit exists: <code>canva_list_brand_kits</code> returns non-empty array</li>
+        <li>At least one C3 campaign template exists in Firestore</li>
+        <li>CMO assets folder created on Shared Drive: <code>CMO_ASSETS_DRIVE_FOLDER_ID</code> set in Cloud Run env</li>
+        <li><code>npm run build</code> passes before starting Track 2 (no pre-existing failures)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Track 3 (DEVOUR) Unlock Conditions</h2>
+      <div class="callout">
+        <p><strong>Track 3 is blocked until all MUS-O14 gate items pass.</strong></p>
+      </div>
+      <ul class="ac-list">
+        <li>All 3 wires execute successfully against live integrations</li>
+        <li>Pipeline processes a multi-channel brief end-to-end</li>
+        <li>Brand compliance check running on every output</li>
+        <li>Intake channel accepting briefs from all 3 sources</li>
+        <li>Command Center showing live data on all 3 views</li>
+        <li><code>npm run build</code> passes 11/11</li>
+        <li>E2E tests pass 10/10 (no regressions)</li>
+      </ul>
+      <p>Track 3 (DEVOUR) is: MUSASHI writes the Track Discovery Docs for MEGAZORD and VOLTRON, pipeline handles autonomous multi-brief execution at scale, and the CMO writes the stories that launch the other CXOs into their next tracks.</p>
+    </div>
+
+  </div>
+
+  <!-- TAB: SPRINT PLAN -->
+  <div class="panel" id="tab-sprint">
+
+    <div class="card">
+      <h2>Execution Strategy</h2>
+      <p>3 phases. 14 tickets. Phase 1 is the critical path &mdash; the wire executor must exist before the wires can go live. Once O01 is done, O02/O03/O04 run in parallel. Phase 2 has two sequential sub-waves (artisan + pipeline configs before intake + status API). Phase 3 is Command Center wiring and gate verification.</p>
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Tickets</th><th>Parallelism</th><th>Gate</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--gold);">Phase 1</strong></td>
+            <td>MUS-O01, O02, O03, O04, O05</td>
+            <td>O01 first; then O02+O03+O04 in parallel; then O05</td>
+            <td>All 3 wires return successful WireExecutionResult via API</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--accent);">Phase 2</strong></td>
+            <td>MUS-O06, O07, O08, O09, O10</td>
+            <td>O06+O08 in parallel; then O07; then O09+O10 in parallel</td>
+            <td>POST /api/cmo/intake returns briefId, poll shows complete</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--cyan);">Phase 3</strong></td>
+            <td>MUS-O11, O12, O13, O14</td>
+            <td>O11+O12+O13 in parallel; then O14 gate verification</td>
+            <td>MUS-O14 full gate checklist passes, all PRs merged to main</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>RONIN Builder Instructions</h2>
+      <div class="callout">
+        <p><strong style="color: var(--gold);">Context required:</strong> Before starting, read these files:</p>
+      </div>
+      <ol>
+        <li><code>packages/core/src/cmo/</code> &mdash; the Track 1 registry (your foundation)</li>
+        <li><code>packages/core/src/atlas/wire-executor.ts</code> &mdash; wire executor pattern</li>
+        <li><code>packages/core/src/que/registry.ts</code> &mdash; registry helper pattern</li>
+        <li><code>services/api/src/routes/campaigns.ts</code> &mdash; C3 API contract (required before O03)</li>
+        <li><code>services/api/src/index.ts</code> &mdash; how routes are registered</li>
+        <li><code>firestore.rules</code> &mdash; how collection rules are gated</li>
+        <li><code>docs/musashi-track2-operate.html</code> (this doc) &mdash; your marching orders</li>
+      </ol>
+
+      <h3>Pre-Flight Checklist</h3>
+      <div class="diagram">□ Track 1 complete: <span class="hl-green">CMO_REGISTRY</span> importable, wire stubs exist
+□ <span class="hl-green">npm run build</span> passes BEFORE starting (no pre-existing failures)
+□ PDF_SERVICE reachable: test render endpoint
+□ WordPress configured: canva_list_brand_kits + wordpress_site_info return data
+□ CMO_ASSETS_DRIVE_FOLDER_ID env var set in Cloud Run</div>
+
+      <h3>Build + Verify Sequence</h3>
+      <div class="diagram">1. <span class="hl-gold">Phase 1:</span>
+   Create wire-executor.ts (O01)
+   → then in PARALLEL: WIRE_BROCHURE (O02) + WIRE_CAMPAIGN (O03) + WIRE_LANDING_PAGE (O04)
+   → then cmo-wires.ts API routes (O05)
+   → <span class="hl-green">npm run type-check</span> (13/13)
+   → Integration test all 3 wire endpoints
+
+2. <span class="hl">Phase 2:</span>
+   PARALLEL: artisans.ts (O06) + compliance.ts (O08)
+   → pipeline.ts (O07) — needs O06 + O08
+   → PARALLEL: cmo-intake.ts (O09) + cmo-pipeline.ts (O10)
+   → Update firestore.rules for cmo_pipeline_jobs
+   → <span class="hl-green">npm run build</span> (11/11)
+   → Integration test: POST /api/cmo/intake + poll pipeline status
+
+3. <span class="hl-cyan">Phase 3:</span>
+   PARALLEL: MusashiRegistryView (O11) + MusashiPipelineView (O12) + MusashiMeshView (O13)
+   → <span class="hl-green">npm run build</span> (11/11)
+   → Visual QA: all 3 Command Center views show live data
+   → <span class="hl-green">npm run test:e2e:ui</span> (10/10)
+   → Run MUS-O14 gate checklist
+   → <span class="hl-gold">#SendIt</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Risk Register</h2>
+      <table>
+        <thead>
+          <tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PDF_SERVICE not live or render endpoint changed</td>
+            <td>Medium</td>
+            <td>Verify PDF_SERVICE endpoint in pre-flight before O02. If unavailable, O02 can stub the render step and proceed &mdash; log a warning, use the Canva export PDF directly.</td>
+          </tr>
+          <tr>
+            <td>C3 campaign route API contract mismatch</td>
+            <td>Medium</td>
+            <td>Read <code>services/api/src/routes/campaigns.ts</code> before writing O03 step payloads. This is mandatory per CLAUDE.md API contract rule.</td>
+          </tr>
+          <tr>
+            <td>Elementor template ID required for WIRE_LANDING_PAGE</td>
+            <td>Low</td>
+            <td>O04 input schema marks elementorTemplateId as optional. If not provided, apply default colorScheme layout. Always test the no-template path.</td>
+          </tr>
+          <tr>
+            <td>Canva brand kit not available</td>
+            <td>Low</td>
+            <td>O02 calls canva_list_brand_kits to discover the default kit before generating. If no kits found, wire halts at step 1 with clear error &mdash; this is a setup issue, not a code issue.</td>
+          </tr>
+          <tr>
+            <td>AEP blackout logic needs accurate date check</td>
+            <td>Low</td>
+            <td>Use standard Date comparisons. AEP window: Oct 1 (month 9, day 1) through Dec 7 (month 11, day 7). Test with mocked dates in both directions.</td>
+          </tr>
+          <tr>
+            <td>Pipeline View auto-refresh interfering with portal performance</td>
+            <td>Low</td>
+            <td>Use setInterval with clearInterval on unmount (cleanup in useEffect return). 30-second interval is conservative enough to not overload the API.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Estimated Registry / Pipeline State After Track 2</h2>
+      <table>
+        <thead>
+          <tr><th>Capability</th><th>Track 1 State</th><th>Track 2 State</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>CMO_REGISTRY tools</td><td>57+ registered (static)</td><td>57+ registered + live executor</td></tr>
+          <tr><td>Wire status</td><td>3 stubs (no execution)</td><td>3 live (executing real tools)</td></tr>
+          <tr><td>Artisans</td><td>None</td><td>3 active (Print, Digital, Web)</td></tr>
+          <tr><td>Pipeline</td><td>None</td><td>End-to-end brief processing</td></tr>
+          <tr><td>Brand compliance</td><td>None</td><td>Running on every wire output</td></tr>
+          <tr><td>Intake channels</td><td>None</td><td>Slack + FORGE + Manual</td></tr>
+          <tr><td>Command Center</td><td>Gold scaffold, placeholders</td><td>Gold scaffold, live data on all views</td></tr>
+          <tr><td>API routes</td><td>None</td><td>5 new routes under /api/cmo</td></tr>
+          <tr><td>Firestore collections</td><td>None</td><td>cmo_pipeline_jobs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div>MUSASHI Track 2: OPERATE &mdash; Track Discovery Doc</div>
+  <div>The stubs were the promise. The wires are the execution.</div>
+  <div class="signoff">&#9876;&#65039; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+
+</body>
+</html>

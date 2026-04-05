@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON Track 3 — DEVOUR</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --orange: #f59e0b;
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --orange-glow: rgba(245,158,11,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* HEADER */
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(59,130,246,0.07) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.06) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; position: relative; }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 40%, #3b82f6 70%, #60a5fa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 760px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-purple { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 12px; position: relative; }
+
+  /* TABS */
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 18px; cursor: pointer; font-size: 0.82rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); background: var(--blue-glow); }
+
+  /* CONTENT */
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; color: var(--blue); }
+  .card h4 { font-size: 0.9rem; font-weight: 600; margin: 14px 0 6px; color: var(--cyan); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); font-family: 'SF Mono', 'Fira Code', monospace; }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--blue); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* DIAGRAMS */
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-orange { color: var(--orange); font-weight: 600; }
+  .hl-purple { color: var(--purple); font-weight: 600; }
+
+  /* GRIDS */
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .spec-card h4 { font-size: 0.88rem; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+  .spec-card p, .spec-card li { font-size: 0.85rem; color: var(--text-muted); }
+  .spec-card ul { margin-left: 16px; }
+
+  .workstream-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 16px 0; }
+  .ws-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .ws-num { font-size: 2rem; font-weight: 800; color: var(--blue); line-height: 1; }
+  .ws-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin: 6px 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ws-desc { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* TICKETS */
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 18px; }
+  .ticket-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--blue); background: var(--blue-glow); border: 1px solid rgba(59,130,246,0.25); padding: 3px 10px; border-radius: 4px; white-space: nowrap; }
+  .ticket-title { font-size: 1.05rem; font-weight: 700; color: var(--text); flex: 1; }
+  .ticket-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .ticket-tag { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag-low { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .tag-med { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.2); }
+  .tag-high { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .tag-ronin-yes { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+  .tag-ronin-no { background: rgba(148,163,184,0.08); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.15); }
+  .tag-ws { background: var(--bg-hover); color: var(--cyan); border: 1px solid var(--border); }
+  .ticket-section { margin-top: 14px; }
+  .ticket-section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .ticket-section p, .ticket-section li { font-size: 0.875rem; color: var(--text-muted); }
+  .ticket-section ul { margin-left: 18px; }
+  .ticket-section li { margin-bottom: 3px; }
+  .ticket-section code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); font-family: 'SF Mono', monospace; }
+  .ticket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+  @media (max-width: 720px) { .ticket-grid { grid-template-columns: 1fr; } }
+
+  /* SPRINT PHASES */
+  .phase-row { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+  .phase-num { font-size: 1.4rem; font-weight: 800; color: var(--blue); min-width: 36px; line-height: 1.2; }
+  .phase-body { flex: 1; }
+  .phase-title { font-weight: 700; color: var(--text); font-size: 0.95rem; }
+  .phase-desc { font-size: 0.84rem; color: var(--text-muted); margin-top: 2px; }
+  .phase-tickets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .phase-ticket-tag { font-size: 0.7rem; font-family: 'SF Mono', monospace; background: var(--bg-hover); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); padding: 2px 7px; border-radius: 4px; }
+
+  /* META SECTION */
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
+  .meta-item { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .meta-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .meta-value { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+
+  /* FOOTER */
+  .footer { border-top: 1px solid var(--border); padding: 40px 32px; text-align: center; margin-top: 48px; }
+  .footer-signature { font-size: 0.9rem; color: var(--text-muted); line-height: 2; }
+  .footer-title { font-size: 1.1rem; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+  .footer-sword { font-size: 1.5rem; margin: 12px 0; }
+  .footer-tag { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* LIFECYCLE BAR */
+  .lifecycle-bar { display: flex; gap: 0; margin: 20px 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .lc-phase { flex: 1; padding: 14px 10px; text-align: center; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .lc-done { background: rgba(34,197,94,0.08); color: var(--green); border-right: 1px solid var(--border); }
+  .lc-done::after { content: ' ✓'; }
+  .lc-active { background: var(--blue-glow); color: var(--blue); border-right: 1px solid var(--border); }
+  .lc-active::before { content: '▶ '; }
+  .lc-next { background: rgba(148,163,184,0.05); color: var(--text-muted); }
+
+  /* DIVIDERS */
+  .ws-divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  .section-header { font-size: 1rem; font-weight: 700; color: var(--blue); letter-spacing: 1px; text-transform: uppercase; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* CALLOUT */
+  .callout { border-left: 3px solid var(--blue); background: var(--blue-glow); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 0.875rem; color: var(--text-muted); }
+  .callout strong { color: var(--blue); }
+  .callout-gold { border-left-color: var(--gold); background: var(--gold-glow); }
+  .callout-gold strong { color: var(--gold); }
+  .callout-red { border-left-color: var(--red); background: var(--red-glow); }
+  .callout-red strong { color: var(--red); }
+  .callout-green { border-left-color: var(--green); background: var(--green-glow); }
+  .callout-green strong { color: var(--green); }
+  .callout-orange { border-left-color: var(--orange); background: var(--orange-glow); }
+  .callout-orange strong { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="sprint-label">CXO Track Discovery</div>
+  <h1>VOLTRON Track 3 — DEVOUR</h1>
+  <div class="subtitle">Full Product Coverage · QUE Accuracy Audit · AEP Preparation · E2E Wire Verification · Lions at Scale — Proactive Operations</div>
+  <div class="header-badges">
+    <span class="badge badge-blue">CSO — Chief Sales Officer</span>
+    <span class="badge badge-gold">Track 3 of 3</span>
+    <span class="badge badge-cyan">QUE Registry</span>
+    <span class="badge badge-accent">5 Lions Active</span>
+    <span class="badge badge-green">RONIN-Ready</span>
+  </div>
+  <div class="ronin-meta">Pipeline: RON-discovery · Author: MUSASHI, ARTxBLADE · Date: 2026-04-05 · Prereq: Track 2 OPERATE</div>
+</div>
+
+<!-- TABS -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">OVERVIEW</div>
+    <div class="tab" onclick="showTab('coverage')">COVERAGE AUDIT</div>
+    <div class="tab" onclick="showTab('accuracy')">ACCURACY AUDIT</div>
+    <div class="tab" onclick="showTab('aep')">AEP PREP</div>
+    <div class="tab" onclick="showTab('e2e')">E2E TESTS</div>
+    <div class="tab" onclick="showTab('proactive')">PROACTIVE OPS</div>
+    <div class="tab" onclick="showTab('tickets')">TICKETS</div>
+    <div class="tab" onclick="showTab('dependencies')">DEPENDENCIES</div>
+    <div class="tab" onclick="showTab('sprint')">SPRINT PLAN</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ═══════════════ OVERVIEW ═══════════════ -->
+  <div id="panel-overview" class="panel active">
+    <div class="card">
+      <h2>What DEVOUR Is</h2>
+      <p>Track 1 (CONSUME) built the foundation — QUE registry wired, Lions deployed, basic agent mesh live. Track 2 (OPERATE) activated the Lions — 5 product specialists running, case pipeline flowing, intake channels open. Track 3 is the endgame.</p>
+      <p><strong>DEVOUR is when VOLTRON stops waiting and starts hunting.</strong> Every product covered. Every calculation verified. AEP locked and loaded. Lions firing before the agent picks up the phone. The QUE registry is no longer just a tool — it's the operating brain of a proactive sales machine.</p>
+
+      <div class="lifecycle-bar">
+        <div class="lc-phase lc-done">Track 1 — CONSUME</div>
+        <div class="lc-phase lc-done">Track 2 — OPERATE</div>
+        <div class="lc-phase lc-active">Track 3 — DEVOUR</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Meta</h2>
+      <div class="meta-grid">
+        <div class="meta-item"><div class="meta-label">Type</div><div class="meta-value">Track Discovery</div></div>
+        <div class="meta-item"><div class="meta-label">Track</div><div class="meta-value">3 of 3</div></div>
+        <div class="meta-item"><div class="meta-label">Author</div><div class="meta-value">MUSASHI, ARTxBLADE</div></div>
+        <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-05</div></div>
+        <div class="meta-item"><div class="meta-label">Status</div><div class="meta-value">Discovery</div></div>
+        <div class="meta-item"><div class="meta-label">Pipeline</div><div class="meta-value">RON-discovery</div></div>
+        <div class="meta-item"><div class="meta-label">Prerequisite</div><div class="meta-value">Track 2 OPERATE</div></div>
+        <div class="meta-item"><div class="meta-label">Ticket Prefix</div><div class="meta-value">VOL-D-xxx</div></div>
+        <div class="meta-item"><div class="meta-label">Total Tickets</div><div class="meta-value">17</div></div>
+        <div class="meta-item"><div class="meta-label">Workstreams</div><div class="meta-value">5</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>5 Workstreams</h2>
+      <div class="workstream-grid">
+        <div class="ws-card">
+          <div class="ws-num">WS1</div>
+          <div class="ws-title">Coverage Audit</div>
+          <div class="ws-desc">Map every product domain against QUE wire coverage. Find gaps. Fill them.</div>
+        </div>
+        <div class="ws-card">
+          <div class="ws-num">WS2</div>
+          <div class="ws-title">Accuracy Audit</div>
+          <div class="ws-desc">Are the numbers right? Tax brackets, IRMAA, RMD factors, carrier data — all verified against authoritative sources.</div>
+        </div>
+        <div class="ws-card">
+          <div class="ws-num">WS3</div>
+          <div class="ws-title">AEP Preparation</div>
+          <div class="ws-desc">Oct 1 blackout compliance, Medicare Lion at full capacity, Humana + Aetna APIs verified. AEP is not a surprise.</div>
+        </div>
+        <div class="ws-card">
+          <div class="ws-num">WS4</div>
+          <div class="ws-title">E2E Tests</div>
+          <div class="ws-desc">Automated wire accuracy verification — known-good scenarios, boundary conditions, output validation, not just type-check.</div>
+        </div>
+        <div class="ws-card">
+          <div class="ws-num">WS5</div>
+          <div class="ws-title">Proactive Ops</div>
+          <div class="ws-desc">Lions fire before meetings. RMD alerts before deadlines. AEP triggers on Oct 1. 1035 opportunities surfaced automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>VOLTRON Identity</h2>
+      <p><strong>Role:</strong> Chief Sales Officer of The Machine</p>
+      <p><strong>Registry:</strong> QUE — calculation, lookup, and wire tools for client operations</p>
+      <p><strong>Mesh:</strong> 5 Lions — CCSDK product specialist agents (Medicare, Annuity, Investment, Life/Estate, Legacy/LTC)</p>
+      <p><strong>Server:</strong> MDJ_SERVER — <code>mdj-agent/src/lions/</code></p>
+      <p><strong>Healthcare MCPs:</strong> Humana + Aetna APIs already configured via <code>rpi-healthcare</code> MCP</p>
+
+      <div class="callout callout-gold">
+        <strong>Golden Rule:</strong> "If you didn't READ IT, don't REPORT IT." QUE tools must read current data — not cached values, not hardcoded assumptions. Every calculation is only as trustworthy as its source data.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Key File Paths</h2>
+      <table>
+        <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>packages/core/src/que/</code></td><td>QUE registry root (~100 files, 7500+ lines)</td></tr>
+          <tr><td><code>packages/core/src/que/calc/</code></td><td>CALC tools — all calculation wires</td></tr>
+          <tr><td><code>packages/core/src/que/lookup/</code></td><td>LOOKUP tools — data lookups</td></tr>
+          <tr><td><code>packages/core/src/que/wire/</code></td><td>Wire definitions — orchestration layer</td></tr>
+          <tr><td><code>packages/core/src/voltron/</code></td><td>VOLTRON package — Lion configs, registry mappings</td></tr>
+          <tr><td><code>services/api/src/routes/que.ts</code></td><td>QUE API endpoints (Cloud Run)</td></tr>
+          <tr><td><code>e2e/intake/</code></td><td>E2E intake test suite (Vitest, post-deploy verification)</td></tr>
+          <tr><td><code>mdj-agent/src/lions/</code></td><td>Lion agents on MDJ_SERVER</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════ COVERAGE AUDIT ═══════════════ -->
+  <div id="panel-coverage" class="panel">
+    <div class="card">
+      <h2>WS1 — Full Product Coverage Audit</h2>
+      <p>Systematic audit of every product domain against QUE wire coverage. The goal: no Lion gets a client question it can't answer because a wire is missing. Every gap is a VOL-D ticket.</p>
+
+      <div class="callout">
+        <strong>Process:</strong> For each domain — list what QUE wires exist today, identify what's missing, create gap-fill tickets. Any wire that exists but is untested feeds into WS4. Any wire that's missing feeds into new CALC/WIRE files.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Domain</th>
+            <th>Lion</th>
+            <th>Current Coverage</th>
+            <th>Gap Areas</th>
+            <th>Gap Severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Medicare</strong></td>
+            <td>Medicare Lion</td>
+            <td>MAPD comparison, AEP enrollment, IRMAA calculation</td>
+            <td>Supplement plan comparisons (Medigap A–N), Part B/D late enrollment penalty calc</td>
+            <td><span class="badge badge-red" style="font-size:0.7rem">HIGH</span></td>
+          </tr>
+          <tr>
+            <td><strong>Annuity</strong></td>
+            <td>Annuity Lion</td>
+            <td>FIA projection, MYGA rate lookup, income rider calc</td>
+            <td>Variable annuity sub-account analysis, joint life rider adjustments</td>
+            <td><span class="badge badge-orange" style="font-size:0.7rem">MEDIUM</span></td>
+          </tr>
+          <tr>
+            <td><strong>Investment</strong></td>
+            <td>Investment Lion</td>
+            <td>Tax harvest, RMD calc, RIA/BD classification</td>
+            <td>Alternative investment exposure, factor-based strategy analysis</td>
+            <td><span class="badge badge-orange" style="font-size:0.7rem">MEDIUM</span></td>
+          </tr>
+          <tr>
+            <td><strong>Life / Estate</strong></td>
+            <td>Life Lion</td>
+            <td>Basic estate wire, term/perm comparison</td>
+            <td>Carrier-specific illustration wire, IUL performance tracking</td>
+            <td><span class="badge badge-orange" style="font-size:0.7rem">MEDIUM</span></td>
+          </tr>
+          <tr>
+            <td><strong>Legacy / LTC</strong></td>
+            <td>Legacy Lion</td>
+            <td>LTC phase access (Track 2)</td>
+            <td>Hybrid LTC product wire, claim filing workflow</td>
+            <td><span class="badge badge-red" style="font-size:0.7rem">HIGH</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Coverage Audit Deliverables</h3>
+      <ul>
+        <li>Coverage matrix document: each domain × each Lion × each wire → covered / gap / planned</li>
+        <li>Gap register: all missing wires with priority, complexity, and owning Lion</li>
+        <li>Gap-fill tickets: VOL-D02, VOL-D03, VOL-D04 (one per high-priority domain gap)</li>
+        <li>Wire inventory: <code>packages/core/src/que/wire/WIRE_INVENTORY.ts</code> export of all registered wires with metadata</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ACCURACY AUDIT ═══════════════ -->
+  <div id="panel-accuracy" class="panel">
+    <div class="card">
+      <h2>WS2 — QUE Tools Accuracy Audit</h2>
+      <p>The Lions are only as trustworthy as the numbers they produce. This workstream verifies every authoritative data source used by QUE calc tools. Wrong brackets, stale surrender schedules, or outdated RMD factors erode client trust fast.</p>
+
+      <div class="callout callout-gold">
+        <strong>Golden Rule enforced here:</strong> QUE calc tools must NEVER use hardcoded tax tables, bracket thresholds, or carrier data that could go stale. Every calc that depends on year-specific authoritative data must load from a verified, updateable source.
+      </div>
+
+      <table>
+        <thead><tr><th>Data Source</th><th>Used By</th><th>Verification Target</th><th>Update Cadence</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Federal tax brackets</strong></td>
+            <td><code>CALC_TAX_ESTIMATE</code></td>
+            <td>IRS Revenue Procedure (current tax year)</td>
+            <td>Annual (Jan)</td>
+          </tr>
+          <tr>
+            <td><strong>State income tax rates</strong></td>
+            <td><code>CALC_TAX_ESTIMATE</code></td>
+            <td>State DOR publications or Tax Foundation summary</td>
+            <td>Annual (Jan)</td>
+          </tr>
+          <tr>
+            <td><strong>IRMAA brackets</strong></td>
+            <td><code>CALC_IRMAA</code></td>
+            <td>CMS Annual Notice of Medicare Cost Sharing</td>
+            <td>Annual (Oct)</td>
+          </tr>
+          <tr>
+            <td><strong>IRS Uniform Lifetime Table</strong></td>
+            <td><code>CALC_RMD</code></td>
+            <td>IRS Publication 590-B (current revision)</td>
+            <td>Rare — last updated 2022</td>
+          </tr>
+          <tr>
+            <td><strong>Carrier surrender schedules</strong></td>
+            <td><code>CALC_1035_OPPORTUNITY</code>, <code>CALC_FIA_PROJECTION</code></td>
+            <td>Gradient carrier agreements + product prospectuses</td>
+            <td>Per product launch / rate change</td>
+          </tr>
+          <tr>
+            <td><strong>FYC / commission rates</strong></td>
+            <td><code>CALC_COMMISSION</code></td>
+            <td>Current Gradient carrier agreements</td>
+            <td>Annual renewal / carrier change</td>
+          </tr>
+          <tr>
+            <td><strong>Medicare plan data (MAPD)</strong></td>
+            <td><code>LOOKUP_MAPD</code>, Humana/Aetna MCPs</td>
+            <td>CMS Plan Finder API + carrier-direct APIs</td>
+            <td>Annual (Oct 1 plan year)</td>
+          </tr>
+          <tr>
+            <td><strong>FIA crediting rates</strong></td>
+            <td><code>CALC_FIA_PROJECTION</code></td>
+            <td>Carrier rate announcements (monthly/quarterly)</td>
+            <td>Monthly or quarterly</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Accuracy Audit Protocol</h3>
+      <p>For each data source above:</p>
+      <ul>
+        <li>Locate where the value is used in <code>packages/core/src/que/calc/</code></li>
+        <li>Determine: is it hardcoded, loaded from config, or fetched live?</li>
+        <li>Compare current value against authoritative source</li>
+        <li>If stale or hardcoded: refactor to config-driven or live-lookup pattern</li>
+        <li>Document source URL + verification date in code comment</li>
+      </ul>
+
+      <div class="callout callout-red">
+        <strong>Blocking rule:</strong> No QUE calc tool may use a year-specific constant (tax bracket, IRMAA threshold, RMD factor) that is not loaded from a config file or live source. Hardcoded 2023 brackets in 2026 code is a compliance failure.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ AEP PREP ═══════════════ -->
+  <div id="panel-aep" class="panel">
+    <div class="card">
+      <h2>WS3 — AEP Preparation</h2>
+      <p>Annual Enrollment Period (Oct 1 – Dec 7) is the highest-stakes window in Medicare. Every RPI Medicare client is eligible. VOLTRON treats AEP as a hard calendar event — preparation begins 90 days out, not the week before.</p>
+
+      <div class="callout callout-red">
+        <strong>AEP Blackout Rule:</strong> <code>WIRE_AEP_ENROLLMENT</code> is blocked outside the Oct 1–Dec 7 window. This is not optional. Agents cannot enroll Medicare clients outside the blackout window via VOLTRON. The wire must enforce this with a clear error message and next-window date.
+      </div>
+
+      <h3>Pre-AEP Checklist (before Oct 1 each year)</h3>
+      <table>
+        <thead><tr><th>#</th><th>Task</th><th>Owner</th><th>Deadline</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Medicare Lion end-to-end test — full MAPD flow with Humana + Aetna MCPs</td><td>RONIN / QA</td><td>Sept 1</td></tr>
+          <tr><td>2</td><td>Verify Humana <code>humana_get_medicare_plans</code> returns current plan year</td><td>RONIN</td><td>Sept 1</td></tr>
+          <tr><td>3</td><td>Verify Aetna <code>aetna_search_insurance_plans</code> returns current plan year</td><td>RONIN</td><td>Sept 1</td></tr>
+          <tr><td>4</td><td>Verify IRMAA brackets updated for new plan year</td><td>RONIN</td><td>Sept 1</td></tr>
+          <tr><td>5</td><td>Confirm <code>WIRE_AEP_ENROLLMENT</code> blackout logic rejects pre-Oct-1 requests</td><td>RONIN</td><td>Sept 15</td></tr>
+          <tr><td>6</td><td>MUSASHI campaign coordination — marketing materials ready for Oct 1 trigger</td><td>MUSASHI / CMO</td><td>Sept 15</td></tr>
+          <tr><td>7</td><td>E2E test suite run on Medicare wires — all boundary conditions pass</td><td>RONIN</td><td>Sept 20</td></tr>
+          <tr><td>8</td><td>Proactive Oct 1 trigger configured — Medicare Lion batch for all eligible clients</td><td>RONIN</td><td>Sept 25</td></tr>
+        </tbody>
+      </table>
+
+      <h3>AEP Wire Architecture</h3>
+      <ul>
+        <li><code>WIRE_AEP_ENROLLMENT</code> — gated by date window (Oct 1–Dec 7). Blocked outside window with <code>{ success: false, error: 'AEP window not open', next_window: '...' }</code></li>
+        <li><code>WIRE_AEP_REVIEW</code> — NOT gated. Can run year-round. Triggers MAPD comparison + cost analysis for eligible client.</li>
+        <li><code>WIRE_AEP_BATCH_TRIGGER</code> — Oct 1 automated batch. Fires Medicare Lion for every client with Medicare coverage or T65 approaching.</li>
+        <li><code>CALC_IRMAA</code> — must use plan-year brackets. Requires annual update before Oct 1.</li>
+      </ul>
+
+      <div class="callout callout-green">
+        <strong>Humana + Aetna MCPs are already configured</strong> via <code>rpi-healthcare</code>. No new API setup needed. AEP prep is verification and orchestration work, not integration work.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ E2E TESTS ═══════════════ -->
+  <div id="panel-e2e" class="panel">
+    <div class="card">
+      <h2>WS4 — E2E Tests for QUE Wire Accuracy</h2>
+      <p>Type-check passes. Build passes. But does the RMD calculation produce the right number for a 75-year-old with a $340,000 IRA? That's what WS4 answers. Automated output validation — not structure checks, actual numerical correctness.</p>
+
+      <div class="callout">
+        <strong>Where it lives:</strong> <code>e2e/intake/</code> suite (Vitest, post-deploy verification). Tests run after <code>deploy-api</code> on push to main. Test data uses <code>e2e-test-</code> prefix. Cleaned up automatically.
+      </div>
+
+      <h3>Known-Good Scenario Matrix</h3>
+      <table>
+        <thead><tr><th>Wire</th><th>Scenario</th><th>Known Input</th><th>Expected Output</th><th>Boundary</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>CALC_RMD</code></td>
+            <td>Standard RMD calc</td>
+            <td>Age 75, $340,000 IRA, prior RMD $0</td>
+            <td>Factor 22.9, Amount $14,847.54</td>
+            <td>Exact match ±$0.01</td>
+          </tr>
+          <tr>
+            <td><code>CALC_RMD</code></td>
+            <td>Age boundary</td>
+            <td>Age 73 (first year), $500,000 IRA</td>
+            <td>Factor 26.5, Amount $18,867.92</td>
+            <td>Exact match ±$0.01</td>
+          </tr>
+          <tr>
+            <td><code>CALC_IRMAA</code></td>
+            <td>Bracket boundary — below</td>
+            <td>MAGI $105,000 (single), plan year 2026</td>
+            <td>No IRMAA surcharge</td>
+            <td>$0.00 surcharge</td>
+          </tr>
+          <tr>
+            <td><code>CALC_IRMAA</code></td>
+            <td>Bracket boundary — above</td>
+            <td>MAGI $106,001 (single), plan year 2026</td>
+            <td>Tier 1 surcharge amount (current CMS)</td>
+            <td>Correct tier selected</td>
+          </tr>
+          <tr>
+            <td><code>CALC_FIA_PROJECTION</code></td>
+            <td>Floor hit</td>
+            <td>$100,000 premium, 0% floor, index -15%</td>
+            <td>$100,000 (floor protects principal)</td>
+            <td>No loss below floor</td>
+          </tr>
+          <tr>
+            <td><code>CALC_FIA_PROJECTION</code></td>
+            <td>Cap hit</td>
+            <td>$100,000 premium, 8% cap, index +20%</td>
+            <td>$108,000 (cap limits gain)</td>
+            <td>No gain above cap</td>
+          </tr>
+          <tr>
+            <td><code>CALC_TAX_ESTIMATE</code></td>
+            <td>Bracket boundary</td>
+            <td>MFJ, taxable income $89,075</td>
+            <td>12% bracket max, correct marginal</td>
+            <td>Correct bracket boundary 2026</td>
+          </tr>
+          <tr>
+            <td><code>WIRE_AEP_ENROLLMENT</code></td>
+            <td>Blackout enforcement</td>
+            <td>Request on Sept 30</td>
+            <td><code>{ success: false, error: 'AEP window not open' }</code></td>
+            <td>Hard block, no partial execution</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Test File Structure</h3>
+      <ul>
+        <li><code>e2e/intake/que-calc-accuracy.test.ts</code> — RMD, IRMAA, tax bracket tests</li>
+        <li><code>e2e/intake/que-fia-accuracy.test.ts</code> — FIA floor/cap projection tests</li>
+        <li><code>e2e/intake/que-wire-blackout.test.ts</code> — AEP blackout enforcement tests</li>
+        <li>All tests tagged <code>@que-accuracy</code> for selective run: <code>vitest run --reporter=verbose e2e/intake/ --grep @que-accuracy</code></li>
+      </ul>
+
+      <div class="callout callout-gold">
+        <strong>Why this matters:</strong> A wrong RMD calculation results in an IRS penalty for the client. A wrong IRMAA tier means the client pays incorrect Medicare premiums. E2E output validation is not optional — it's the trust layer that makes VOLTRON defensible to regulators.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROACTIVE OPS ═══════════════ -->
+  <div id="panel-proactive" class="panel">
+    <div class="card">
+      <h2>WS5 — Lions at Scale — Proactive Operations</h2>
+      <p>This is the DEVOUR endgame. VOLTRON stops answering questions and starts delivering answers before they're asked. Four proactive operation patterns, all running on MDJ_SERVER.</p>
+
+      <div class="callout callout-gold">
+        <strong>Dependency:</strong> Proactive ops require accurate QUE wires (WS2) and full E2E test coverage (WS4). Lions cannot be proactive if they're producing wrong numbers. Accuracy before automation — always.
+      </div>
+
+      <hr class="ws-divider">
+
+      <h3>Pattern 1 — Review Prep: Before Meetings</h3>
+      <p><strong>Trigger:</strong> Google Calendar event with client name, 48 hours out, tagged as "Annual Review" or "Review" in title.</p>
+      <p><strong>Action:</strong> VOLTRON fires <code>WIRE_ANNUAL_REVIEW</code> for the client — account summary, RMD status, Medicare plan comparison, 1035 opportunity check, outstanding case tasks.</p>
+      <p><strong>Output:</strong> Review prep brief delivered to agent via VOLTRON chat panel + SMS summary. Ready before the agent opens the file.</p>
+      <ul>
+        <li>Google Calendar MCP polling: <code>mcp__google-calendar__list-events</code> — scan next 72h, match client name</li>
+        <li>Cron: every 6 hours on MDJ_SERVER (<code>mdj-agent/src/jobs/review-prep.ts</code>)</li>
+        <li>Dedup: fire once per meeting (track fired meeting IDs in Firestore <code>voltron_jobs</code> collection)</li>
+      </ul>
+
+      <hr class="ws-divider">
+
+      <h3>Pattern 2 — RMD Alerts: Before Deadlines</h3>
+      <p><strong>Trigger:</strong> Nov 1 — 30 days before Dec 31 RMD deadline. Checks all clients with qualified accounts where RMD has not been distributed for the current year.</p>
+      <p><strong>Action:</strong> Annuity Lion (or Investment Lion) runs <code>CALC_RMD</code> for each flagged client. Alert sent to assigned agent + client SMS (opt-in only).</p>
+      <p><strong>Output:</strong> Slack DM to agent with client list + calculated amounts. SMS to client: "Your required distribution of $X.XX is due by Dec 31. Your advisor [Name] will be in touch."</p>
+      <ul>
+        <li>Cron: Nov 1 annual job (<code>mdj-agent/src/jobs/rmd-alert.ts</code>)</li>
+        <li>SMS via <code>mcp__rpi-comms__comms_send_sms</code></li>
+        <li>Slack via <code>mcp__slack__slack_post_message</code> to agent's DM</li>
+        <li>PHI rule: No account balance or SSN in Slack/SMS. Amount only.</li>
+      </ul>
+
+      <hr class="ws-divider">
+
+      <h3>Pattern 3 — AEP Triggers: Season Start</h3>
+      <p><strong>Trigger:</strong> Oct 1 at 08:00 CT. Fires for every client with Medicare coverage (any MAPD/Supplement) or T65 within the next 12 months.</p>
+      <p><strong>Action:</strong> Medicare Lion runs <code>WIRE_AEP_REVIEW</code> for each eligible client — current plan analysis, available plan comparison (Humana + Aetna APIs), cost estimate for plan year.</p>
+      <p><strong>Output:</strong> Review package queued in VOLTRON panel per agent. Agents start each AEP day with a pre-built review for every Medicare client on their book.</p>
+      <ul>
+        <li>Cron: Oct 1 annual job, runs in batches of 20 clients (<code>mdj-agent/src/jobs/aep-trigger.ts</code>)</li>
+        <li>Rate-limit: Humana + Aetna API calls throttled per MCP guidelines</li>
+        <li>MUSASHI coordinates: campaign materials must be ready in advance (WS3)</li>
+      </ul>
+
+      <hr class="ws-divider">
+
+      <h3>Pattern 4 — 1035 Opportunities: Ongoing</h3>
+      <p><strong>Trigger:</strong> Monthly check. Annuity Lion scans all annuity accounts for clients exiting surrender charge period within 90 days.</p>
+      <p><strong>Action:</strong> <code>CALC_1035_OPPORTUNITY</code> wire fires — checks current surrender schedule, remaining period, current product vs. available alternatives (better rate, better riders).</p>
+      <p><strong>Output:</strong> Opportunity report delivered to agent: "Client [name] exits surrender period in 67 days. Current FIA: [Product]. Comparable: [Product B] offers X% cap vs Y%. Consider 1035."</p>
+      <ul>
+        <li>Cron: 1st of each month (<code>mdj-agent/src/jobs/opportunity-scan.ts</code>)</li>
+        <li>Carrier surrender data must be current (WS2 dependency)</li>
+        <li>Output to VOLTRON panel + optional Slack DM to agent</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TICKETS ═══════════════ -->
+  <div id="panel-tickets" class="panel">
+
+    <!-- WS1 TICKETS -->
+    <div class="section-header">WS1 — Full Product Coverage Audit</div>
+
+    <!-- VOL-D01 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D01</span>
+            <span class="ticket-title">QUE Wire Inventory — Generate Coverage Matrix</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS1</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Enumerate every file in <code>packages/core/src/que/wire/</code>, <code>packages/core/src/que/calc/</code>, and <code>packages/core/src/que/lookup/</code>. For each wire, extract its name, domain (Medicare/Annuity/Investment/Life/Legacy), owning Lion, and input/output types. Generate a coverage matrix exported as <code>WIRE_INVENTORY.ts</code> and a markdown gap report.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/wire/</code> — read all</li>
+            <li><code>packages/core/src/que/calc/</code> — read all</li>
+            <li><code>packages/core/src/que/lookup/</code> — read all</li>
+            <li><code>packages/core/src/que/WIRE_INVENTORY.ts</code> — CREATE</li>
+            <li><code>packages/core/src/que/GAP_REPORT.md</code> — CREATE</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li><code>WIRE_INVENTORY.ts</code> exports typed array of all registered wires with: name, domain, owning_lion, status (covered/gap/planned)</li>
+            <li><code>GAP_REPORT.md</code> lists all gap entries with priority and complexity estimate</li>
+            <li>Coverage matrix includes all 5 domains: Medicare, Annuity, Investment, Life/Estate, Legacy/LTC</li>
+            <li>Build passes after file creation</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Import <code>WIRE_INVENTORY</code> in a test file — verify no TypeScript errors</li>
+            <li>Count entries per domain — minimum 3 per domain in covered status</li>
+            <li>GAP_REPORT gaps match known missing wires from coverage audit table</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>Track 2 OPERATE complete. All 5 Lions deployed and wired to QUE.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D02 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D02</span>
+            <span class="ticket-title">Medicare Gap Fill — Supplement Plan Comparison Wire</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS1</span>
+            <span class="ticket-tag tag-high">High</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Create <code>WIRE_SUPPLEMENT_COMPARISON</code> wire. Given client age, zip, tobacco status, and current plan (if any), return a comparison of available Medigap plans (A through N) from Humana + Aetna healthcare MCPs. Include premium, coverage summary, and best-match recommendation.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/wire/WIRE_SUPPLEMENT_COMPARISON.ts</code> — CREATE</li>
+            <li><code>packages/core/src/que/lookup/LOOKUP_MEDIGAP.ts</code> — CREATE</li>
+            <li><code>services/api/src/routes/que.ts</code> — add route handler for new wire</li>
+            <li><code>mdj-agent/src/lions/medicare-lion.ts</code> — register new wire</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Wire accepts: <code>{ age, zip, tobacco: boolean, current_plan?: string }</code></li>
+            <li>Returns: <code>{ success: true, data: { plans: MedigapPlan[], recommendation: string } }</code></li>
+            <li>Uses <code>mcp__rpi-healthcare__humana_get_medsup_quotes</code> and/or Aetna supplement endpoint</li>
+            <li>Medicare Lion can invoke via VOLTRON panel conversation</li>
+            <li>API route registered and accessible via <code>POST /api/que/wire/WIRE_SUPPLEMENT_COMPARISON</code></li>
+            <li>Build passes, type-check passes</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Run with test client age 67, zip 50265 (West Des Moines), non-tobacco → verify returns plan array</li>
+            <li>Verify all returned plans include premium and coverage summary fields</li>
+            <li>Run with <code>current_plan: 'Plan G'</code> → verify recommendation reflects existing coverage</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D01 (coverage matrix identifies this as HIGH priority gap). Humana + Aetna MCPs configured (Track 2).</p>
+      </div>
+    </div>
+
+    <!-- VOL-D03 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D03</span>
+            <span class="ticket-title">Medicare Gap Fill — Part B/D Late Enrollment Penalty Calculator</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS1</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Create <code>CALC_LATE_ENROLLMENT_PENALTY</code>. Given Part B enrollment date, IEP start date, and optional employer coverage period, calculate the lifetime monthly penalty for late Part B enrollment. Same logic for Part D penalty (1% per month uncovered). This is a pure calculation — no external API needed.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/calc/CALC_LATE_ENROLLMENT_PENALTY.ts</code> — CREATE</li>
+            <li><code>services/api/src/routes/que.ts</code> — add route handler</li>
+            <li><code>mdj-agent/src/lions/medicare-lion.ts</code> — register calc</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Input: <code>{ iep_start: Date, enrollment_date: Date, employer_coverage_months?: number, part: 'B' | 'D', base_premium?: number }</code></li>
+            <li>Output: <code>{ penalty_pct: number, monthly_penalty: number, lifetime_cost: number, months_late: number }</code></li>
+            <li>Part B: 10% penalty per 12-month period uncovered (after IEP) for life</li>
+            <li>Part D: 1% per uncovered month, applied to national base premium</li>
+            <li>Employer coverage months correctly excluded from penalty calculation</li>
+            <li>Zero penalty returned when enrollment is within IEP window</li>
+            <li>Build passes, type-check passes</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>24 months late, no employer coverage → Part B: 20% penalty lifetime</li>
+            <li>36 months late with 12 months employer coverage → Part B: 20% penalty (employer period excluded)</li>
+            <li>Within IEP → 0% penalty</li>
+            <li>E2E test added to <code>e2e/intake/que-calc-accuracy.test.ts</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D01. No external API dependencies — pure calc.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D04 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D04</span>
+            <span class="ticket-title">Legacy/LTC Gap Fill — Hybrid LTC Product Wire + Claim Workflow</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS1</span>
+            <span class="ticket-tag tag-high">High</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Create two wires: <code>WIRE_HYBRID_LTC_ANALYSIS</code> for product comparison (life/annuity hybrid LTC products) and <code>WIRE_LTC_CLAIM_INITIATION</code> for claim filing workflow guidance. Hybrid LTC products combine life insurance or annuity with LTC riders — Legacy Lion needs to compare them like it compares pure LTC policies.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/wire/WIRE_HYBRID_LTC_ANALYSIS.ts</code> — CREATE</li>
+            <li><code>packages/core/src/que/wire/WIRE_LTC_CLAIM_INITIATION.ts</code> — CREATE</li>
+            <li><code>packages/core/src/que/lookup/LOOKUP_HYBRID_LTC_PRODUCTS.ts</code> — CREATE</li>
+            <li><code>services/api/src/routes/que.ts</code> — add route handlers</li>
+            <li><code>mdj-agent/src/lions/legacy-lion.ts</code> — register both wires</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li><code>WIRE_HYBRID_LTC_ANALYSIS</code>: accepts client profile, returns hybrid product comparison with benefit pool, premium, life benefit, and LTC trigger conditions</li>
+            <li><code>WIRE_LTC_CLAIM_INITIATION</code>: returns step-by-step claim workflow for the client's specific carrier and product</li>
+            <li>Legacy Lion can invoke both wires conversationally</li>
+            <li>Both wires follow standard structured response: <code>{ success: boolean, data?: T, error?: string }</code></li>
+            <li>Build passes, type-check passes</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Run <code>WIRE_HYBRID_LTC_ANALYSIS</code> with test client age 60, premium budget $3,000/year → returns comparison of available products</li>
+            <li>Run <code>WIRE_LTC_CLAIM_INITIATION</code> with known carrier (e.g., Nationwide) → returns carrier-specific claim steps</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D01. Track 2 Legacy Lion deployed.</p>
+      </div>
+    </div>
+
+    <!-- WS2 TICKETS -->
+    <div class="section-header">WS2 — QUE Tools Accuracy Audit</div>
+
+    <!-- VOL-D05 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D05</span>
+            <span class="ticket-title">Tax Bracket & IRMAA Config-Driven Refactor</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS2</span>
+            <span class="ticket-tag tag-high">High</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Audit <code>CALC_TAX_ESTIMATE</code> and <code>CALC_IRMAA</code> for hardcoded year-specific values. Refactor to load from a versioned config file: <code>packages/core/src/que/config/TAX_BRACKETS.ts</code> and <code>IRMAA_BRACKETS.ts</code>. Each config exports an object keyed by tax year. Calcs accept an optional <code>tax_year</code> param, defaulting to current year.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/config/TAX_BRACKETS.ts</code> — CREATE or UPDATE</li>
+            <li><code>packages/core/src/que/config/IRMAA_BRACKETS.ts</code> — CREATE or UPDATE</li>
+            <li><code>packages/core/src/que/calc/CALC_TAX_ESTIMATE.ts</code> — MODIFY</li>
+            <li><code>packages/core/src/que/calc/CALC_IRMAA.ts</code> — MODIFY</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>No hardcoded bracket thresholds in <code>CALC_TAX_ESTIMATE.ts</code> or <code>CALC_IRMAA.ts</code></li>
+            <li>Config files include 2024, 2025, 2026 brackets verified against IRS Rev. Proc. (tax) and CMS Annual Notice (IRMAA)</li>
+            <li>Each config entry includes a source URL and verification date in a comment</li>
+            <li>Calcs accept <code>tax_year?: number</code> param; default to current calendar year</li>
+            <li>Passing unknown year returns structured error: <code>{ success: false, error: 'Tax year 2030 not in config' }</code></li>
+            <li>Build passes, existing tests still pass</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Run <code>CALC_IRMAA</code> for 2024 and 2026 — verify different bracket values are returned</li>
+            <li>Run <code>CALC_TAX_ESTIMATE</code> for 2025 MFJ — verify against IRS source</li>
+            <li>E2E boundary tests in <code>que-calc-accuracy.test.ts</code> pass (VOL-D09 must pass)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>Track 2 OPERATE complete. No blocking ticket dependency — can run immediately.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D06 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D06</span>
+            <span class="ticket-title">RMD Table Verification — IRS Publication 590-B Alignment</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS2</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Audit <code>CALC_RMD</code> against IRS Publication 590-B (current revision — last updated for 2022 tax year per IRS SECURE 2.0 Act). Verify the Uniform Lifetime Table factors for ages 72–115 match exactly. If current, add verification comment with source URL. If stale, update the table.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/calc/CALC_RMD.ts</code> — AUDIT and VERIFY/UPDATE</li>
+            <li><code>packages/core/src/que/config/RMD_FACTORS.ts</code> — CREATE if factors are inline</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>All age factors 72–115 verified against IRS Pub 590-B (post-SECURE 2.0, effective 2022)</li>
+            <li>Source URL and revision date documented in code comment: <code>// Source: IRS Pub 590-B (2022 revision)</code></li>
+            <li>Age 73 factor = 26.5, Age 75 factor = 22.9 (known values from current table)</li>
+            <li>If factors were moved to a config file, <code>CALC_RMD.ts</code> imports from <code>RMD_FACTORS.ts</code></li>
+            <li>Build passes</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Spot check 5 ages across the table against IRS 590-B PDF</li>
+            <li>E2E test in <code>que-calc-accuracy.test.ts</code>: age 75 / $340,000 → factor 22.9, amount $14,847.54</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>None. Standalone accuracy audit.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D07 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D07</span>
+            <span class="ticket-title">Carrier Surrender Schedule Freshness Audit</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS2</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-no">RONIN: Partial</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Audit all surrender schedules used by <code>CALC_1035_OPPORTUNITY</code> and <code>CALC_FIA_PROJECTION</code>. These change per product launch and carrier rate announcement. RONIN audits the structure — verifies each schedule has a <code>last_verified</code> date and source reference. JDM / Ops confirms actual schedule accuracy against Gradient carrier agreements (manual step).</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/config/SURRENDER_SCHEDULES.ts</code> — AUDIT/UPDATE structure</li>
+            <li><code>packages/core/src/que/calc/CALC_1035_OPPORTUNITY.ts</code> — verify it loads from config</li>
+            <li><code>packages/core/src/que/calc/CALC_FIA_PROJECTION.ts</code> — verify it loads from config</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Each surrender schedule entry has: <code>carrier, product_code, schedule: number[], last_verified: string, source: string</code></li>
+            <li>Entries with <code>last_verified</code> older than 365 days flagged with <code>// ⚠️ STALE — verify against Gradient agreements</code></li>
+            <li>RONIN delivers audit report listing all stale entries for Ops manual verification</li>
+            <li>Calcs load from config (no inline hardcoding)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>RONIN: Import config and assert every entry has required fields — TypeScript structural check</li>
+            <li>Manual (Ops): Verify top 5 highest-volume carriers against current Gradient agreements</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D05 recommended first (establishes config-driven pattern). Manual Ops step cannot be RONIN-executed.</p>
+      </div>
+    </div>
+
+    <!-- WS3 TICKETS -->
+    <div class="section-header">WS3 — AEP Preparation</div>
+
+    <!-- VOL-D08 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D08</span>
+            <span class="ticket-title">AEP Blackout Enforcement — WIRE_AEP_ENROLLMENT Date Gate</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS3</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Implement or verify the date gate on <code>WIRE_AEP_ENROLLMENT</code>. The wire must block execution outside Oct 1 – Dec 7 window, returning a structured error with the next window open date. This is a hard block — no partial execution, no bypass param.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/wire/WIRE_AEP_ENROLLMENT.ts</code> — CREATE or MODIFY</li>
+            <li><code>packages/core/src/que/utils/aep-window.ts</code> — CREATE (date window util, reusable)</li>
+            <li><code>e2e/intake/que-wire-blackout.test.ts</code> — CREATE (see VOL-D10)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Request on Oct 1: wire executes normally</li>
+            <li>Request on Dec 7: wire executes normally</li>
+            <li>Request on Sept 30 or Dec 8: returns <code>{ success: false, error: 'AEP enrollment window not open', next_window: { open: 'Oct 1, YYYY', close: 'Dec 7, YYYY' } }</code></li>
+            <li>No bypass param accepted — date gate is not overridable via API call</li>
+            <li>Date logic handles year rollover correctly (Dec 8 → next year's Oct 1)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Unit test with mocked dates: Sept 30, Oct 1, Dec 7, Dec 8 — verify correct behavior each</li>
+            <li>E2E test in <code>que-wire-blackout.test.ts</code> with real date injection</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>Track 2 OPERATE (Medicare Lion deployed). None of the WS1/WS2 tickets block this.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D09 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D09</span>
+            <span class="ticket-title">AEP Carrier API Verification — Humana + Aetna Plan Year Readiness</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS3</span>
+            <span class="ticket-tag tag-low">Low</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Write an AEP readiness verification script that calls Humana and Aetna MCP endpoints and confirms they return current plan year data. This script runs manually each year before Sept 1 and reports readiness status. Not a recurring job — a pre-season checklist tool.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>packages/core/src/que/scripts/aep-readiness-check.ts</code> — CREATE</li>
+            <li>Uses: <code>mcp__rpi-healthcare__humana_get_medicare_plans</code></li>
+            <li>Uses: <code>mcp__rpi-healthcare__aetna_search_insurance_plans</code></li>
+            <li>Uses: <code>mcp__rpi-healthcare__humana_get_medsup_plans</code></li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Script runs via <code>npx ts-node packages/core/src/que/scripts/aep-readiness-check.ts</code></li>
+            <li>Outputs checklist: each API endpoint — PASS / FAIL / STALE (plan year mismatch)</li>
+            <li>Exits with code 1 if any FAIL or STALE detected</li>
+            <li>Output is human-readable — designed for Ops to run and read</li>
+            <li>No PHI in output — only carrier names, plan counts, plan year</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Run script — all endpoints return PASS with current plan year</li>
+            <li>Mock a stale plan year in test — confirm script exits with code 1</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>Humana + Aetna MCPs live (Track 2). VOL-D08 recommended (AEP blackout must exist before testing readiness).</p>
+      </div>
+    </div>
+
+    <!-- WS4 TICKETS -->
+    <div class="section-header">WS4 — E2E Tests for QUE Wire Accuracy</div>
+
+    <!-- VOL-D10 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D10</span>
+            <span class="ticket-title">E2E Test Suite — CALC_RMD + CALC_IRMAA Known-Good Scenarios</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS4</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Create <code>e2e/intake/que-calc-accuracy.test.ts</code>. Tests call the deployed API (<code>POST /api/que/calc/CALC_RMD</code>, etc.) with known inputs and assert exact output values. Not a type-check — actual numerical output validation. Runs post-deploy as part of the <code>e2e-intake</code> suite.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>e2e/intake/que-calc-accuracy.test.ts</code> — CREATE</li>
+            <li>Tagged <code>@que-accuracy</code> for selective execution</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>RMD test: age 75, $340,000 → factor 22.9, amount $14,847.54 (±$0.01)</li>
+            <li>RMD test: age 73, $500,000 → factor 26.5, amount $18,867.92 (±$0.01)</li>
+            <li>IRMAA test: MAGI $105,000 single 2026 → $0 surcharge</li>
+            <li>IRMAA test: MAGI $106,001 single 2026 → Tier 1 surcharge &gt; $0</li>
+            <li>Late enrollment penalty: 24 months late → 20% Part B penalty</li>
+            <li>All tests tagged <code>@que-accuracy</code> and pass in CI</li>
+            <li>Test data uses <code>e2e-test-</code> prefix for any client records created</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Run: <code>vitest run e2e/intake/que-calc-accuracy.test.ts</code></li>
+            <li>All assertions pass against live deployed API</li>
+            <li>No test data leaks after run (cleanup hook verifies)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D05 (config-driven tax/IRMAA), VOL-D06 (RMD table verified). API routes must be live.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D11 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D11</span>
+            <span class="ticket-title">E2E Test Suite — FIA Floor/Cap Projection + AEP Blackout</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS4</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Create <code>e2e/intake/que-fia-accuracy.test.ts</code> and <code>e2e/intake/que-wire-blackout.test.ts</code>. FIA tests verify floor/cap mechanics with known inputs. Blackout tests verify AEP enrollment wire blocks outside the Oct 1–Dec 7 window using date injection.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>e2e/intake/que-fia-accuracy.test.ts</code> — CREATE</li>
+            <li><code>e2e/intake/que-wire-blackout.test.ts</code> — CREATE</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>FIA floor: $100k premium, 0% floor, -15% index → $100k (no loss below floor)</li>
+            <li>FIA cap: $100k premium, 8% cap, +20% index → $108k (capped at 8%)</li>
+            <li>AEP blackout Sept 30 → <code>{ success: false, error: 'AEP enrollment window not open' }</code></li>
+            <li>AEP open Oct 1 → wire executes (or fails for different reason — not date gate)</li>
+            <li>All tests tagged <code>@que-accuracy</code></li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Run: <code>vitest run e2e/intake/que-fia-accuracy.test.ts</code></li>
+            <li>Run: <code>vitest run e2e/intake/que-wire-blackout.test.ts</code></li>
+            <li>Both pass in CI post-deploy</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D08 (AEP blackout wire must exist). FIA calc must have API route live.</p>
+      </div>
+    </div>
+
+    <!-- WS5 TICKETS -->
+    <div class="section-header">WS5 — Lions at Scale — Proactive Operations</div>
+
+    <!-- VOL-D12 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D12</span>
+            <span class="ticket-title">Proactive Job Framework — MDJ_SERVER Cron Infrastructure</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS5</span>
+            <span class="ticket-tag tag-high">High</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Build the shared cron job framework that all 4 proactive operations (WS5) use on MDJ_SERVER. Includes: job registry, dedup tracking (Firestore <code>voltron_jobs</code> collection), structured logging, error handling, and dry-run mode. All WS5 job files depend on this foundation.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>mdj-agent/src/jobs/framework/job-runner.ts</code> — CREATE (base class)</li>
+            <li><code>mdj-agent/src/jobs/framework/job-registry.ts</code> — CREATE (registry of all jobs)</li>
+            <li><code>mdj-agent/src/jobs/framework/dedup.ts</code> — CREATE (Firestore dedup tracker)</li>
+            <li><code>mdj-agent/src/jobs/framework/types.ts</code> — CREATE (shared types)</li>
+            <li>Firestore collection: <code>voltron_jobs</code> (document: <code>{ job_id, client_id?, fired_at, status, result_summary }</code>)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Base class exposes: <code>run(dryRun?: boolean)</code>, <code>isDuplicate(jobId: string)</code>, <code>markFired(jobId: string)</code></li>
+            <li>Dry-run mode: logs all actions without firing any API calls or sending any messages</li>
+            <li>All job executions logged to Firestore <code>voltron_jobs</code> with timestamp + status</li>
+            <li>Dedup: same <code>job_id</code> (job name + client_id + period) cannot fire twice in the same period</li>
+            <li>Error in one client's job does NOT abort the batch — logs error, continues to next client</li>
+            <li>Build passes on MDJ_SERVER</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Dry-run test: confirm no messages sent, no Firestore writes beyond job log</li>
+            <li>Dedup test: run same job twice — second run skipped with log "already fired"</li>
+            <li>Error isolation test: mock one client failing — verify batch continues</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>WS2 accuracy audit (VOL-D05, VOL-D06) complete. QUE wires must be accurate before proactive ops fire. E2E tests (WS4) must pass.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D13 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D13</span>
+            <span class="ticket-title">Proactive Job — Review Prep: Auto-Brief 48h Before Meetings</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS5</span>
+            <span class="ticket-tag tag-high">High</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Build the review prep job. Polls Google Calendar every 6 hours for events 24–72 hours out with "Review" or "Annual Review" in the title. Matches event attendee name against Firestore clients. Fires <code>WIRE_ANNUAL_REVIEW</code> for matched client. Delivers brief via VOLTRON panel + optional Slack DM to agent.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>mdj-agent/src/jobs/review-prep.ts</code> — CREATE</li>
+            <li>Uses: <code>mcp__google-calendar__list-events</code> (6h lookahead window)</li>
+            <li>Uses: <code>WIRE_ANNUAL_REVIEW</code> (QUE wire — must exist)</li>
+            <li>Uses: <code>mcp__slack__slack_post_message</code> (agent DM)</li>
+            <li>Uses: <code>mdj-agent/src/jobs/framework/job-runner.ts</code> (VOL-D12)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Cron: every 6h on MDJ_SERVER (<code>systemd</code> timer or cron)</li>
+            <li>Calendar match: event title contains "review" (case-insensitive), attendee matches client in Firestore</li>
+            <li>No duplicate briefs per meeting (dedup by meeting event ID)</li>
+            <li>Slack DM to assigned agent includes: client name, meeting time, brief summary (no PHI beyond name)</li>
+            <li>Dry-run mode: logs all would-fire events without sending messages</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Create test calendar event "Annual Review - E2E Test Client" 50h out → dry-run confirms detection</li>
+            <li>Run live — verify Slack DM arrives with correct client summary</li>
+            <li>Run again within 6h — dedup confirms no duplicate fire</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D12 (job framework). Google Calendar MCP configured. <code>WIRE_ANNUAL_REVIEW</code> must exist in QUE.</p>
+      </div>
+    </div>
+
+    <!-- VOL-D14 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D14</span>
+            <span class="ticket-title">Proactive Job — RMD Alerts: Nov 1 Deadline Notification</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS5</span>
+            <span class="ticket-tag tag-high">High</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Build the RMD alert job. Runs Nov 1 annually. Queries Firestore for all clients with qualified accounts (IRA, 401k, etc.) where RMD has not been distributed in the current year. Runs <code>CALC_RMD</code> for each. Sends Slack DM to assigned agent with client list + amounts. Sends opt-in SMS to client (no PHI — amount and deadline only).</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>mdj-agent/src/jobs/rmd-alert.ts</code> — CREATE</li>
+            <li>Uses: <code>CALC_RMD</code> via QUE API</li>
+            <li>Uses: <code>mcp__rpi-comms__comms_send_sms</code></li>
+            <li>Uses: <code>mcp__slack__slack_post_message</code></li>
+            <li>Uses: <code>mdj-agent/src/jobs/framework/job-runner.ts</code></li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Fires Nov 1 — annual systemd timer on MDJ_SERVER</li>
+            <li>Only clients with qualified accounts AND no RMD distributed this year</li>
+            <li>Slack DM to agent: summary table (client name, account type, RMD amount) — no SSN, no DOB</li>
+            <li>SMS to client (opt-in flag on Firestore client record): "Your required 2026 distribution of $X.XX is due Dec 31. [Agent name] will reach out soon."</li>
+            <li>PHI rule enforced: No account numbers or balances in Slack/SMS</li>
+            <li>Dedup: fires once per client per year</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Dry-run with test client flagged for RMD → confirms detection, logs actions without sending</li>
+            <li>Verify Slack DM format contains no PHI beyond name and calculated amount</li>
+            <li>Verify SMS opt-in flag is checked before any message sends</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D12 (framework), VOL-D06 (RMD table verified), VOL-D10 (E2E accuracy tests passing).</p>
+      </div>
+    </div>
+
+    <!-- VOL-D15 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D15</span>
+            <span class="ticket-title">Proactive Job — AEP Batch Trigger: Oct 1 Medicare Lion Activation</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS5</span>
+            <span class="ticket-tag tag-high">High</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Build the AEP batch trigger job. Fires Oct 1 at 08:00 CT. Queries all clients with Medicare coverage (any MAPD, Supplement, or Part D) plus T65 clients turning 65 within the next 12 months. Runs <code>WIRE_AEP_REVIEW</code> in batches of 20 (Humana/Aetna rate limits). Queues review packages in VOLTRON panel per agent.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>mdj-agent/src/jobs/aep-trigger.ts</code> — CREATE</li>
+            <li>Uses: <code>WIRE_AEP_REVIEW</code> (not <code>WIRE_AEP_ENROLLMENT</code> — no blackout on review)</li>
+            <li>Uses: <code>mcp__rpi-healthcare__humana_get_medicare_plans</code></li>
+            <li>Uses: <code>mcp__rpi-healthcare__aetna_search_insurance_plans</code></li>
+            <li>Uses: <code>mdj-agent/src/jobs/framework/job-runner.ts</code></li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Fires Oct 1 08:00 CT — annual systemd timer</li>
+            <li>Batches of 20 clients with 2-second delay between batches (API rate limiting)</li>
+            <li>T65 logic: clients with DOB within next 12 months included in batch</li>
+            <li>Review packages queued in VOLTRON panel — agents see pre-built AEP reviews at start of each day</li>
+            <li>MUSASHI campaign materials must be staged before job fires (coordination documented, not automated)</li>
+            <li>Dry-run mode operational (VOL-D09 AEP readiness check runs first)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Dry-run in Sept → confirm client list detected, no API calls fired</li>
+            <li>Small batch test (5 clients) before Oct 1 full activation</li>
+            <li>Post-run: verify VOLTRON panel populated for each agent with Medicare clients</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D12 (framework), VOL-D08 (AEP blackout must be in place), VOL-D09 (readiness check passing), VOL-D11 (E2E tests pass).</p>
+      </div>
+    </div>
+
+    <!-- VOL-D16 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D16</span>
+            <span class="ticket-title">Proactive Job — 1035 Opportunity Scanner: Monthly Surrender Monitoring</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">WS5</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Build the 1035 opportunity scanner. Runs the 1st of each month. Scans all annuity accounts for clients where the surrender charge period ends within 90 days. Fires <code>CALC_1035_OPPORTUNITY</code> for each flagged account. Delivers opportunity report to assigned agent via VOLTRON panel + optional Slack DM.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>mdj-agent/src/jobs/opportunity-scan.ts</code> — CREATE</li>
+            <li>Uses: <code>CALC_1035_OPPORTUNITY</code> via QUE API</li>
+            <li>Uses: <code>packages/core/src/que/config/SURRENDER_SCHEDULES.ts</code> (must be current, VOL-D07)</li>
+            <li>Uses: <code>mcp__slack__slack_post_message</code></li>
+            <li>Uses: <code>mdj-agent/src/jobs/framework/job-runner.ts</code></li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>Runs 1st of each month via systemd timer</li>
+            <li>90-day window: accounts with surrender period ending within 90 days</li>
+            <li>Opportunity report includes: client name, current product, surrender expiry date, comparable alternative (if available from carrier config)</li>
+            <li>No duplicate opportunities surfaced for the same account in the same month</li>
+            <li>Slack DM optional (agent preference flag in Firestore user profile)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Create test annuity account with surrender expiry 45 days out → dry-run confirms detection</li>
+            <li>Create test account with surrender expiry 95 days out → dry-run confirms NOT detected</li>
+            <li>Verify report format contains no account numbers or balance figures in Slack output</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>VOL-D12 (framework), VOL-D07 (surrender schedules verified current).</p>
+      </div>
+    </div>
+
+    <!-- VOL-D17 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">
+            <span class="ticket-id">VOL-D17</span>
+            <span class="ticket-title">Track 3 Completion Gate — Full DEVOUR Verification</span>
+          </div>
+          <div class="ticket-meta">
+            <span class="ticket-tag tag-ws">ALL WS</span>
+            <span class="ticket-tag tag-med">Medium</span>
+            <span class="ticket-tag tag-ronin-yes">RONIN-Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-grid">
+        <div class="ticket-section">
+          <div class="ticket-section-label">Description</div>
+          <p>Final verification gate for Track 3. RONIN runs a comprehensive health check across all 5 workstreams. Coverage matrix complete, accuracy configs verified, AEP blackout active, all 8 E2E tests passing, all 4 proactive jobs registered with dry-run confirmed. Delivers DEVOUR completion report to JDM DM.</p>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">File Paths</div>
+          <ul>
+            <li><code>mdj-agent/src/jobs/framework/job-registry.ts</code> — verify all 4 jobs registered</li>
+            <li><code>packages/core/src/que/WIRE_INVENTORY.ts</code> — verify no HIGH-priority gaps remain</li>
+            <li>Run: <code>vitest run e2e/intake/ --grep @que-accuracy</code></li>
+            <li>Slack: <code>mcp__slack__slack_post_message</code> to JDM DM (<code>U09BBHTN8F2</code>)</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Acceptance Criteria</div>
+          <ul>
+            <li>WIRE_INVENTORY: all 5 domains have ≥3 wires in "covered" status, no HIGH gaps remain</li>
+            <li>Config files: TAX_BRACKETS, IRMAA_BRACKETS, RMD_FACTORS all have source URLs and verification dates</li>
+            <li>AEP blackout: confirmed active on <code>WIRE_AEP_ENROLLMENT</code></li>
+            <li>All 8 E2E accuracy tests pass (vitest exit 0)</li>
+            <li>All 4 proactive jobs in registry with dry-run confirmed</li>
+            <li>DEVOUR completion report delivered to JDM DM</li>
+          </ul>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-section-label">Test Plan</div>
+          <ul>
+            <li>Run full E2E suite: <code>npm run test:e2e</code> — all pass</li>
+            <li>Run all 4 jobs in dry-run mode — 0 errors</li>
+            <li>JDM DM received with DEVOUR completion checklist ✓</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ticket-section" style="margin-top:12px;">
+        <div class="ticket-section-label">Dependencies</div>
+        <p>ALL previous VOL-D tickets complete. This is the capstone gate.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ DEPENDENCIES ═══════════════ -->
+  <div id="panel-dependencies" class="panel">
+    <div class="card">
+      <h2>Dependency Graph</h2>
+      <div class="diagram"><span class="hl-blue">── PREREQUISITE ──────────────────────────────────────────────────────</span>
+  Track 2 OPERATE (all 5 Lions live, QUE registry wired)
+  └─► All VOL-D tickets may begin
+
+<span class="hl-gold">── WS1: COVERAGE AUDIT ───────────────────────────────────────────────</span>
+  VOL-D01  Wire Inventory (Coverage Matrix)
+  └─► VOL-D02  Medicare Gap — Supplement Wire
+  └─► VOL-D03  Medicare Gap — Late Enrollment Penalty
+  └─► VOL-D04  Legacy/LTC Gap — Hybrid LTC + Claim Wire
+
+<span class="hl-cyan">── WS2: ACCURACY AUDIT ───────────────────────────────────────────────</span>
+  VOL-D05  Tax/IRMAA Config-Driven Refactor  ◄── can run immediately
+  VOL-D06  RMD Table Verification            ◄── can run immediately
+  VOL-D07  Surrender Schedule Audit          ◄── recommended after T3-005
+
+  VOL-D05 + VOL-D06
+  └─► VOL-D10  E2E Tests — RMD + IRMAA
+
+<span class="hl-green">── WS3: AEP PREPARATION ──────────────────────────────────────────────</span>
+  VOL-D08  AEP Blackout Enforcement           ◄── can run immediately
+  └─► VOL-D09  Carrier API Readiness Check
+  └─► VOL-D11  E2E — FIA + AEP Blackout
+  └─► VOL-D15  Proactive — AEP Batch Trigger
+
+<span class="hl-orange">── WS4: E2E TESTS ────────────────────────────────────────────────────</span>
+  VOL-D10  E2E — RMD + IRMAA Accuracy
+  VOL-D11  E2E — FIA + AEP Blackout
+
+  VOL-D10 + VOL-D11
+  └─► VOL-D14  Proactive — RMD Alerts (WS5 gate)
+  └─► VOL-D15  Proactive — AEP Batch (WS5 gate)
+
+<span class="hl-purple">── WS5: PROACTIVE OPS ────────────────────────────────────────────────</span>
+  VOL-D12  Job Framework (base class, dedup, logging)
+  └─► VOL-D13  Review Prep Job
+  └─► VOL-D14  RMD Alert Job         ◄── also needs T3-006 + T3-010
+  └─► VOL-D15  AEP Batch Job          ◄── also needs T3-008 + T3-009 + T3-011
+  └─► VOL-D16  1035 Opportunity Job   ◄── also needs T3-007
+
+  All WS5 jobs complete
+  └─► VOL-D17  <span class="hl">DEVOUR Completion Gate</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Parallel Execution Map</h2>
+      <p>Many tickets have no cross-dependency and can run in parallel. This is the recommended RONIN parallelism pattern:</p>
+      <table>
+        <thead><tr><th>Phase</th><th>Parallel Track A</th><th>Parallel Track B</th><th>Parallel Track C</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Phase 1</strong></td>
+            <td>VOL-D01 (Coverage Matrix)</td>
+            <td>VOL-D05 (Tax/IRMAA Refactor)</td>
+            <td>VOL-D06 (RMD Table Verify)</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 2</strong></td>
+            <td>VOL-D02, 003, 004 (Gap Fills)</td>
+            <td>VOL-D07 (Surrender Audit)</td>
+            <td>VOL-D08 (AEP Blackout)</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 3</strong></td>
+            <td>VOL-D09 (AEP Readiness)</td>
+            <td>VOL-D10 (E2E RMD+IRMAA)</td>
+            <td>VOL-D11 (E2E FIA+AEP)</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 4</strong></td>
+            <td>VOL-D12 (Job Framework)</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 5</strong></td>
+            <td>VOL-D13 (Review Prep)</td>
+            <td>VOL-D14 (RMD Alerts)</td>
+            <td>VOL-D16 (1035 Scanner)</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 6</strong></td>
+            <td>VOL-D15 (AEP Batch)</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Gate</strong></td>
+            <td colspan="3">VOL-D17 (DEVOUR Completion)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <thead><tr><th>Dependency</th><th>Status</th><th>Needed For</th></tr></thead>
+        <tbody>
+          <tr><td>Track 2 OPERATE complete</td><td><span class="badge badge-accent" style="font-size:0.7rem">Prerequisite</span></td><td>All tickets</td></tr>
+          <tr><td>Humana + Aetna MCPs configured</td><td><span class="badge badge-green" style="font-size:0.7rem">Live</span></td><td>VOL-D02, 009, 015</td></tr>
+          <tr><td>Google Calendar MCP</td><td><span class="badge badge-green" style="font-size:0.7rem">Live</span></td><td>VOL-D13</td></tr>
+          <tr><td>rpi-comms MCP (SMS)</td><td><span class="badge badge-green" style="font-size:0.7rem">Live</span></td><td>VOL-D14</td></tr>
+          <tr><td>MDJ_SERVER systemd timer access</td><td><span class="badge badge-green" style="font-size:0.7rem">Live</span></td><td>VOL-D13–016</td></tr>
+          <tr><td>Gradient carrier agreements (manual)</td><td><span class="badge badge-orange" style="font-size:0.7rem">Manual step</span></td><td>VOL-D07</td></tr>
+          <tr><td>IRS Publication 590-B (current)</td><td><span class="badge badge-blue" style="font-size:0.7rem">Verify</span></td><td>VOL-D06</td></tr>
+          <tr><td>CMS AEP announcement (annual)</td><td><span class="badge badge-blue" style="font-size:0.7rem">Verify</span></td><td>VOL-D05, 009</td></tr>
+          <tr><td>MUSASHI campaign materials</td><td><span class="badge badge-purple" style="font-size:0.7rem">Coordination</span></td><td>VOL-D15 (AEP)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SPRINT PLAN ═══════════════ -->
+  <div id="panel-sprint" class="panel">
+    <div class="card">
+      <h2>Sprint Phasing</h2>
+      <p>Track 3 is designed for 6 execution phases. <strong>Accuracy before automation</strong> — the WS2 accuracy audit and WS4 E2E tests are gates before any proactive Lions fire at scale. Wrong numbers at scale is worse than no automation at all.</p>
+
+      <div class="phase-row">
+        <div class="phase-num">01</div>
+        <div class="phase-body">
+          <div class="phase-title">Foundation — Coverage + Accuracy Audit</div>
+          <div class="phase-desc">Map all gaps. Config-drive all year-specific values. Verify RMD table. Run in parallel — no cross-dependencies.</div>
+          <div class="phase-tickets">
+            <span class="phase-ticket-tag">VOL-D01</span>
+            <span class="phase-ticket-tag">VOL-D05</span>
+            <span class="phase-ticket-tag">VOL-D06</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-num">02</div>
+        <div class="phase-body">
+          <div class="phase-title">Gap Fills + AEP Blackout</div>
+          <div class="phase-desc">Build the 3 high-priority gap wires. Lock AEP blackout enforcement. Audit surrender schedules.</div>
+          <div class="phase-tickets">
+            <span class="phase-ticket-tag">VOL-D02</span>
+            <span class="phase-ticket-tag">VOL-D03</span>
+            <span class="phase-ticket-tag">VOL-D04</span>
+            <span class="phase-ticket-tag">VOL-D07</span>
+            <span class="phase-ticket-tag">VOL-D08</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-num">03</div>
+        <div class="phase-body">
+          <div class="phase-title">E2E Tests + AEP Readiness</div>
+          <div class="phase-desc">Wire accuracy verified by automated tests. AEP carrier APIs confirmed for current plan year. This is the accuracy gate before proactive ops.</div>
+          <div class="phase-tickets">
+            <span class="phase-ticket-tag">VOL-D09</span>
+            <span class="phase-ticket-tag">VOL-D10</span>
+            <span class="phase-ticket-tag">VOL-D11</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-num">04</div>
+        <div class="phase-body">
+          <div class="phase-title">Proactive Job Framework</div>
+          <div class="phase-desc">Build the cron job infrastructure. Dedup, logging, dry-run mode. All WS5 proactive jobs share this foundation.</div>
+          <div class="phase-tickets">
+            <span class="phase-ticket-tag">VOL-D12</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-num">05</div>
+        <div class="phase-body">
+          <div class="phase-title">Proactive Lions — First Three Jobs</div>
+          <div class="phase-desc">Review Prep (runs 6h/day), RMD Alerts (Nov 1 annual), 1035 Scanner (monthly). Run in parallel on MDJ_SERVER.</div>
+          <div class="phase-tickets">
+            <span class="phase-ticket-tag">VOL-D13</span>
+            <span class="phase-ticket-tag">VOL-D14</span>
+            <span class="phase-ticket-tag">VOL-D16</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-row">
+        <div class="phase-num">06</div>
+        <div class="phase-body">
+          <div class="phase-title">AEP Batch + DEVOUR Completion Gate</div>
+          <div class="phase-desc">AEP batch trigger live. All 17 tickets verified. DEVOUR completion report to JDM. VOLTRON is fully proactive.</div>
+          <div class="phase-tickets">
+            <span class="phase-ticket-tag">VOL-D15</span>
+            <span class="phase-ticket-tag">VOL-D17</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>WS</th>
+            <th>Complexity</th>
+            <th>RONIN</th>
+            <th>Phase</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>VOL-D01</code></td><td>QUE Wire Inventory — Coverage Matrix</td><td>WS1</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>1</td></tr>
+          <tr><td><code>VOL-D02</code></td><td>Medicare Gap — Supplement Comparison Wire</td><td>WS1</td><td><span class="ticket-tag tag-high">High</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>2</td></tr>
+          <tr><td><code>VOL-D03</code></td><td>Medicare Gap — Late Enrollment Penalty Calc</td><td>WS1</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>2</td></tr>
+          <tr><td><code>VOL-D04</code></td><td>Legacy/LTC Gap — Hybrid LTC + Claim Wire</td><td>WS1</td><td><span class="ticket-tag tag-high">High</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>2</td></tr>
+          <tr><td><code>VOL-D05</code></td><td>Tax/IRMAA Config-Driven Refactor</td><td>WS2</td><td><span class="ticket-tag tag-high">High</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>1</td></tr>
+          <tr><td><code>VOL-D06</code></td><td>RMD Table — IRS 590-B Verification</td><td>WS2</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>1</td></tr>
+          <tr><td><code>VOL-D07</code></td><td>Carrier Surrender Schedule Audit</td><td>WS2</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-no">Partial</span></td><td>2</td></tr>
+          <tr><td><code>VOL-D08</code></td><td>AEP Blackout Enforcement</td><td>WS3</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>2</td></tr>
+          <tr><td><code>VOL-D09</code></td><td>AEP Carrier API Readiness Check</td><td>WS3</td><td><span class="ticket-tag tag-low">Low</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>3</td></tr>
+          <tr><td><code>VOL-D10</code></td><td>E2E Tests — RMD + IRMAA Accuracy</td><td>WS4</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>3</td></tr>
+          <tr><td><code>VOL-D11</code></td><td>E2E Tests — FIA + AEP Blackout</td><td>WS4</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>3</td></tr>
+          <tr><td><code>VOL-D12</code></td><td>Proactive Job Framework</td><td>WS5</td><td><span class="ticket-tag tag-high">High</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>4</td></tr>
+          <tr><td><code>VOL-D13</code></td><td>Review Prep Job — 48h Before Meetings</td><td>WS5</td><td><span class="ticket-tag tag-high">High</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>5</td></tr>
+          <tr><td><code>VOL-D14</code></td><td>RMD Alert Job — Nov 1 Deadline</td><td>WS5</td><td><span class="ticket-tag tag-high">High</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>5</td></tr>
+          <tr><td><code>VOL-D15</code></td><td>AEP Batch Trigger — Oct 1</td><td>WS5</td><td><span class="ticket-tag tag-high">High</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>6</td></tr>
+          <tr><td><code>VOL-D16</code></td><td>1035 Opportunity Scanner — Monthly</td><td>WS5</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>5</td></tr>
+          <tr><td><code>VOL-D17</code></td><td>DEVOUR Completion Gate</td><td>ALL</td><td><span class="ticket-tag tag-med">Med</span></td><td><span class="ticket-tag tag-ronin-yes">Yes</span></td><td>6</td></tr>
+        </tbody>
+      </table>
+
+      <div style="display:flex; gap:24px; margin-top:16px; flex-wrap:wrap;">
+        <div><strong style="color:var(--text)">Total Tickets:</strong> <span style="color:var(--blue)">17</span></div>
+        <div><strong style="color:var(--text)">RONIN-Ready:</strong> <span style="color:var(--green)">16</span> &nbsp;|&nbsp; <span style="color:var(--text-muted)">Partial: 1</span></div>
+        <div><strong style="color:var(--text)">High Complexity:</strong> <span style="color:var(--red)">7</span></div>
+        <div><strong style="color:var(--text)">Medium:</strong> <span style="color:var(--orange)">8</span></div>
+        <div><strong style="color:var(--text)">Low:</strong> <span style="color:var(--green)">2</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-title">VOLTRON — CSO · Track 3 of 3 · DEVOUR</div>
+  <div class="footer-signature">
+    MUSASHI, VP CMO — ARTxBLADE<br>
+    Track Discovery 3 of 3: DEVOUR (Full Coverage, Accuracy, Lions at Scale)<br>
+    VOLTRON CXO Series
+  </div>
+  <div class="footer-sword">⚔️</div>
+  <div class="footer-signature">
+    MUSASHI, ARTxBLADE<br>
+    2026-04-05 — Retirement Protectors, Inc.
+  </div>
+  <div class="footer-tag" style="margin-top:12px; font-weight:700; color:var(--blue); font-size:0.9rem;">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    const panel = document.getElementById('panel-' + id);
+    if (panel) panel.classList.add('active');
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => {
+      if (t.getAttribute('onclick') === "showTab('" + id + "')") {
+        t.classList.add('active');
+      }
+    });
+  }
+</script>
+</body>
+</html>

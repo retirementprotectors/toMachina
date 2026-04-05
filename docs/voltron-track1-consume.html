@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTRON Track 1 — CONSUME</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --orange: #f59e0b;
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --purple: #a855f7;
+    --purple-glow: rgba(168,85,247,0.12);
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* ── HEADER ── */
+  .header { background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050a14 60%, #0a0e17 100%); border-bottom: 1px solid var(--border); padding: 48px 32px 40px; text-align: center; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(59,130,246,0.07) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.06) 0%, transparent 50%); pointer-events: none; }
+  .header .sprint-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; position: relative; }
+  .header .track-indicator { font-size: 0.8rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--cyan); margin-bottom: 14px; position: relative; }
+  .lifecycle-bar { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 20px; position: relative; }
+  .lifecycle-item { padding: 6px 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border: 1px solid var(--border); }
+  .lifecycle-item:first-child { border-radius: 6px 0 0 6px; }
+  .lifecycle-item:last-child { border-radius: 0 6px 6px 0; }
+  .lifecycle-item.active { background: var(--blue-glow); color: var(--blue); border-color: rgba(59,130,246,0.5); }
+  .lifecycle-item.inactive { background: rgba(255,255,255,0.03); color: var(--text-muted); }
+  .header h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 40%, #3b82f6 70%, #60a5fa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; letter-spacing: -0.5px; position: relative; }
+  .header .subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 20px; position: relative; }
+  .header-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .badge { display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .badge-blue { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(212,164,76,0.3); }
+  .badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-green { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-orange { background: var(--accent-glow); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-red { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .ronin-meta { font-size: 0.72rem; color: var(--text-muted); font-family: 'SF Mono', monospace; margin-top: 14px; position: relative; }
+
+  /* ── TABS ── */
+  .tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; gap: 0; }
+  .tab { padding: 14px 18px; cursor: pointer; font-size: 0.82rem; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.2s; }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); background: var(--blue-glow); }
+
+  /* ── CONTENT ── */
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--blue); }
+  .card h3:first-of-type { margin-top: 8px; }
+  .card p { color: var(--text-muted); margin-bottom: 12px; }
+  .card ul { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card ol { color: var(--text-muted); margin: 0 0 12px 20px; }
+  .card li { margin-bottom: 4px; }
+  .card strong { color: var(--text); }
+  .card code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--cyan); font-family: 'SF Mono', monospace; }
+
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 12px; background: var(--bg-hover); color: var(--blue); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: top; }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* ── DIAGRAM ── */
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-x: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; line-height: 1.9; color: var(--text-muted); white-space: pre; margin: 16px 0; }
+  .hl { color: var(--accent); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-cyan { color: var(--cyan); font-weight: 600; }
+  .hl-green { color: var(--green); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .hl-orange { color: var(--orange); font-weight: 600; }
+
+  /* ── WORKSTREAM HEADER ── */
+  .ws-header { display: flex; align-items: flex-start; gap: 16px; padding: 20px 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; }
+  .ws-number { font-size: 2.5rem; font-weight: 900; color: var(--blue); opacity: 0.3; line-height: 1; flex-shrink: 0; font-family: 'SF Mono', monospace; }
+  .ws-title { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .ws-sub { font-size: 0.9rem; color: var(--text-muted); }
+
+  /* ── TICKET CARDS ── */
+  .ticket { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0; margin-bottom: 24px; overflow: hidden; }
+  .ticket-header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: rgba(59,130,246,0.05); border-bottom: 1px solid var(--border); }
+  .ticket-id { font-family: 'SF Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--blue); background: var(--blue-glow); padding: 3px 10px; border-radius: 4px; white-space: nowrap; }
+  .ticket-title { font-size: 1rem; font-weight: 700; color: var(--text); flex: 1; }
+  .ticket-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tag-ws1 { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .tag-ws2 { background: rgba(212,164,76,0.15); color: var(--gold); }
+  .tag-ws3 { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .tag-ws4 { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .tag-low { background: rgba(34,197,94,0.12); color: var(--green); }
+  .tag-medium { background: rgba(245,158,11,0.12); color: var(--orange); }
+  .tag-high { background: rgba(239,68,68,0.12); color: var(--red); }
+  .tag-ronin-yes { background: rgba(34,197,94,0.12); color: var(--green); }
+  .tag-ronin-no { background: rgba(148,163,184,0.1); color: var(--text-muted); }
+  .ticket-body { padding: 20px; }
+  .ticket-section { margin-bottom: 16px; }
+  .ticket-section:last-child { margin-bottom: 0; }
+  .ticket-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--blue); margin-bottom: 6px; }
+  .ticket-text { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; }
+  .ticket-text ul { margin: 4px 0 0 18px; }
+  .ticket-text li { margin-bottom: 3px; }
+  .ticket-text code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); font-family: 'SF Mono', monospace; }
+  .ticket-meta-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .ticket-meta-item { }
+  .ticket-meta-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 3px; }
+  .ticket-meta-value { font-size: 0.82rem; color: var(--text); }
+
+  /* ── GRID LAYOUTS ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } .three-col { grid-template-columns: 1fr; } }
+  .stat-card { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--blue); font-family: 'SF Mono', monospace; }
+  .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  /* ── SPRINT PHASES ── */
+  .phase-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .phase-label { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .phase-num { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-glow); border: 1px solid rgba(59,130,246,0.4); color: var(--blue); font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phase-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .phase-subtitle { font-size: 0.8rem; color: var(--text-muted); }
+  .phase-tickets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .phase-ticket-tag { font-family: 'SF Mono', monospace; font-size: 0.75rem; padding: 3px 10px; background: var(--blue-glow); color: var(--blue); border-radius: 4px; border: 1px solid rgba(59,130,246,0.25); }
+
+  /* ── FOOTER ── */
+  .footer { margin-top: 60px; padding: 40px 32px; border-top: 1px solid var(--border); text-align: center; background: #070b12; }
+  .footer-title { font-size: 0.9rem; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+  .footer-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.8; }
+  .footer-sig { font-size: 1rem; font-weight: 700; color: var(--text); margin-top: 12px; }
+  .footer-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+  .footer-race { font-size: 0.75rem; font-weight: 700; color: var(--blue); letter-spacing: 2px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ HEADER -->
+<div class="header">
+  <div class="sprint-label">CXO Track Discovery</div>
+  <div class="lifecycle-bar">
+    <div class="lifecycle-item active">◆ CONSUME</div>
+    <div class="lifecycle-item inactive">OPERATE</div>
+    <div class="lifecycle-item inactive">DEVOUR</div>
+  </div>
+  <h1>VOLTRON Track 1 — CONSUME</h1>
+  <div class="subtitle">Absorb QUE. Consolidate the registry. Build VOLTRON's foundation before the Lions execute. The brand, the backlog, and the identity come first.</div>
+  <div class="header-badges">
+    <span class="badge badge-blue">CSO — Chief Sales Officer</span>
+    <span class="badge badge-cyan">Track 1 of 3</span>
+    <span class="badge badge-gold">QUE Registry — 723 Entries</span>
+    <span class="badge badge-green">5 Lions Mesh</span>
+    <span class="badge badge-orange">15 Tickets</span>
+  </div>
+  <div class="ronin-meta">Author: MUSASHI, ARTxBLADE &nbsp;|&nbsp; Date: 2026-04-05 &nbsp;|&nbsp; Status: Discovery &nbsp;|&nbsp; Pipeline: RON-discovery &nbsp;|&nbsp; Prefix: VOL-C</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ TABS -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">OVERVIEW</div>
+    <div class="tab" onclick="showTab('ws1')">WORKSTREAM 1</div>
+    <div class="tab" onclick="showTab('ws2')">WORKSTREAM 2</div>
+    <div class="tab" onclick="showTab('ws3')">WORKSTREAM 3</div>
+    <div class="tab" onclick="showTab('ws4')">WORKSTREAM 4</div>
+    <div class="tab" onclick="showTab('tickets')">TICKETS</div>
+    <div class="tab" onclick="showTab('dependencies')">DEPENDENCIES</div>
+    <div class="tab" onclick="showTab('sprint')">SPRINT PLAN</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ CONTENT -->
+<div class="content">
+
+  <!-- ─────────────────── OVERVIEW ─────────────────── -->
+  <div id="panel-overview" class="panel active">
+
+    <div class="card">
+      <h2>What Is CONSUME?</h2>
+      <p><strong>CONSUME</strong> is Track 1 of the VOLTRON CXO lifecycle: <strong>CONSUME → OPERATE → DEVOUR</strong>. It is not about launching features. It is about earning the right to scale. Before the Lions can execute at speed, VOLTRON needs its house in order — a consolidated registry, a visible identity, and a clean backlog.</p>
+      <p>Think of CONSUME as the intake phase. VOLTRON absorbs QUE as its registry. Discovery docs get canonicalized. Identity documents get written. The backlog gets organized and tagged. When CONSUME is complete, VOLTRON is a fully-armed CSO — not just an AI agent, but a system with brand, structure, and purpose.</p>
+      <h3>The Consumption Principle</h3>
+      <p><strong>VOLTRON does not guess. He reads, routes, and executes.</strong> Every tool call, every wire, every Lion dispatch begins with a registry lookup. The registry is the source of truth. If a wire is not in QUE, VOLTRON does not run it. If a Lion is not configured, VOLTRON does not route to it. The Consumption Principle is the foundation of the Golden Rule: <em>"If you didn't READ IT, don't REPORT IT."</em></p>
+      <h3>Why This Comes Before OPERATE</h3>
+      <p>OPERATE (Track 2) requires Lions that know their domains, a registry that is tagged and complete, and a Command Center that shows real execution status. None of that is possible without Track 1. The MDJ Panel (chat UI) exists. The QUE registry exists. But they are not connected under a coherent identity. CONSUME solves that.</p>
+    </div>
+
+    <div class="card">
+      <h2>Meta</h2>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Type</td><td>Track Discovery</td></tr>
+        <tr><td>Track</td><td>1 of 3 — CONSUME</td></tr>
+        <tr><td>Lifecycle</td><td>CONSUME → OPERATE → DEVOUR</td></tr>
+        <tr><td>Agent</td><td>VOLTRON (CSO — Chief Sales Officer)</td></tr>
+        <tr><td>Registry</td><td>QUE — 723 entries, ~100 files, 7,500+ lines</td></tr>
+        <tr><td>Mesh</td><td>5 Lions (Medicare / Annuity / Investment / Life-Estate / Legacy-LTC)</td></tr>
+        <tr><td>Author</td><td>MUSASHI, ARTxBLADE</td></tr>
+        <tr><td>Date</td><td>2026-04-05</td></tr>
+        <tr><td>Status</td><td>Discovery</td></tr>
+        <tr><td>Pipeline</td><td>RON-discovery</td></tr>
+        <tr><td>Ticket Prefix</td><td>VOL-C</td></tr>
+        <tr><td>Total Tickets</td><td>15</td></tr>
+        <tr><td>RONIN-Ready</td><td>12 of 15</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Track Architecture</h2>
+      <div class="diagram"><span class="hl-blue">VOLTRON — Chief Sales Officer</span>
+  Icon: 🦁 Black Lion, Blue Ring     Color: #3b82f6
+  Registry: QUE                      Mesh: 5 Lions
+
+┌─────────────────────────────────────────────────────────────────┐
+│                    TRACK 1: CONSUME                             │
+│                                                                 │
+│  WS-1: Absorb QUE           WS-2: Consolidate Registry         │
+│  ┌─────────────────────┐    ┌──────────────────────────────┐   │
+│  │ Command Center App  │    │ Firestore Collections        │   │
+│  │ /command-center     │    │  voltron_registry            │   │
+│  │ • Registry browser  │    │  specialist_configs          │   │
+│  │ • Wire exec log     │    │  mdj_specialist_configs      │   │
+│  │ • Open cases panel  │    │ 723 entries → Lion-tagged    │   │
+│  │ • Lion status panel │    │ Discovery docs → canonical   │   │
+│  └─────────────────────┘    └──────────────────────────────┘   │
+│                                                                 │
+│  WS-3: soul.md + spirit.md  WS-4: Consolidated Backlog         │
+│  ┌─────────────────────┐    ┌──────────────────────────────┐   │
+│  │ dojo-warriors/      │    │ Audit all open tickets       │   │
+│  │   voltron/          │    │ Tag: CONSUME / OPERATE /     │   │
+│  │   soul.md           │    │       DEVOUR                 │   │
+│  │   spirit.md         │    │ Identify RONIN-ready         │   │
+│  └─────────────────────┘    └──────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+         ↓ CONSUME COMPLETE
+┌─────────────────────────────────────────────────────────────────┐
+│                    TRACK 2: OPERATE                             │
+│    Lions execute. Wire logs populate. AEP enforcement live.     │
+└─────────────────────────────────────────────────────────────────┘
+         ↓ OPERATE COMPLETE
+┌─────────────────────────────────────────────────────────────────┐
+│                    TRACK 3: DEVOUR                              │
+│    VOLTRON scales. Multi-Lion orchestration. Full CSO posture.  │
+└─────────────────────────────────────────────────────────────────┘</div>
+    </div>
+
+    <div class="three-col">
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Workstreams</div></div>
+      <div class="stat-card"><div class="stat-num">15</div><div class="stat-label">Tickets</div></div>
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">RONIN-Ready</div></div>
+      <div class="stat-card"><div class="stat-num">723</div><div class="stat-label">QUE Entries</div></div>
+      <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Lions to Tag</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Doc Phases</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Existing Codebase Inventory</h2>
+      <p>These files exist today. CONSUME builds on or formalizes them — it does not rebuild from scratch.</p>
+      <table>
+        <tr><th>Path</th><th>Size</th><th>Role in CONSUME</th></tr>
+        <tr><td><code>packages/ui/src/modules/MystAI/</code></td><td>6 files, 1,303 lines</td><td>MDJ Panel — chat UI, stays separate from Command Center</td></tr>
+        <tr><td><code>packages/ui/src/modules/SenseiMode/</code></td><td>Existing</td><td>Pattern reference for VOLTRON-branded modules</td></tr>
+        <tr><td><code>packages/core/src/que/</code></td><td>~100 files, 7,500+ lines</td><td>QUE registry — source to be tagged and formalized</td></tr>
+        <tr><td><code>packages/core/src/voltron/</code></td><td>30 files, 17,500+ lines</td><td>VOLTRON core logic — read carefully before touching</td></tr>
+        <tr><td><code>services/api/src/routes/voltron-deploy.ts</code></td><td>566 lines</td><td>Deploy endpoint — Command Center reads from this</td></tr>
+        <tr><td><code>services/api/src/routes/voltron-wire.ts</code></td><td>274 lines</td><td>Wire execution — Command Center exec log surfaces this</td></tr>
+        <tr><td><code>services/api/src/routes/voltron-registry.ts</code></td><td>254 lines</td><td>Registry API — Command Center registry browser calls this</td></tr>
+        <tr><td><code>services/api/src/routes/mdj.ts</code></td><td>318 lines</td><td>MDJ agent routing — specialist dispatch</td></tr>
+        <tr><td><code>services/api/src/routes/que.ts</code></td><td>217 lines</td><td>QUE calculation routes</td></tr>
+        <tr><td><code>services/api/src/routes/specialist-configs.ts</code></td><td>118 lines</td><td>Lion specialist configs CRUD</td></tr>
+        <tr><td><code>services/api/src/routes/myst-ai.ts</code></td><td>204 lines</td><td>MYST AI routes — MDJ Panel backing</td></tr>
+        <tr><td><code>~/Projects/dojo-warriors/voltron/</code></td><td>Does not exist</td><td>Target location for soul.md + spirit.md (WS-3)</td></tr>
+      </table>
+    </div>
+
+  </div><!-- /overview -->
+
+  <!-- ─────────────────── WORKSTREAM 1 ─────────────────── -->
+  <div id="panel-ws1" class="panel">
+
+    <div class="ws-header">
+      <div class="ws-number">01</div>
+      <div>
+        <div class="ws-title">Absorb QUE — Command Center App</div>
+        <div class="ws-sub">Scaffold the VOLTRON-branded Command Center App across all 3 portals. OPS dashboard, not chat. Registry browser + wire log + Lion status.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What This Workstream Builds</h2>
+      <p>The <strong>MDJ Panel</strong> (<code>packages/ui/src/modules/MystAI/</code>) is VOLTRON's <strong>chat interface</strong> — conversational, agent-to-user. The <strong>Command Center</strong> is VOLTRON's <strong>OPS dashboard</strong> — operational, agent-to-system. Both are needed. They are separate things. Command Center is not a chat replacement; it is a visualization layer showing what VOLTRON is actually doing.</p>
+
+      <h3>Command Center Panels</h3>
+      <table>
+        <tr><th>Panel</th><th>What It Shows</th><th>Data Source</th></tr>
+        <tr><td>Registry Browser</td><td>Searchable, filterable list of all 723 QUE entries. Filter by Lion domain. Show tool type, complexity, last executed.</td><td><code>GET /api/voltron-registry</code></td></tr>
+        <tr><td>Wire Execution Log</td><td>Real-time log of wire executions. Tool name, Lion, timestamp, status (success/error), client context if available.</td><td><code>GET /api/voltron-wire/log</code></td></tr>
+        <tr><td>Open Cases Panel</td><td>Active cases with pending VOLTRON actions. Shows case type, assigned Lion, waiting-on status.</td><td>Firestore <code>voltron_registry</code></td></tr>
+        <tr><td>Lion Status Panel</td><td>5 Lions — each shows: configured (Y/N), last active timestamp, tool count, AEP restriction status.</td><td><code>GET /api/specialist-configs</code></td></tr>
+      </table>
+
+      <h3>App Identity Rules</h3>
+      <ul>
+        <li>This is an <strong>App</strong> (not a Module) — same look in ProDash, RIIMO, and SENTINEL</li>
+        <li>Brand color: <code>--blue: #3b82f6</code>. Not portal-branded. VOLTRON-branded.</li>
+        <li>Route: <code>/command-center</code> in all 3 portals</li>
+        <li>No portal color overrides. The <code>--blue</code> variable drives all accent colors here.</li>
+        <li>The existing <code>packages/ui/src/modules/CommandCenter.tsx</code> file may be a stub — RONIN must read it first before scaffolding to determine whether to extend or replace</li>
+      </ul>
+
+      <h3>Tickets in This Workstream</h3>
+      <p>VOL-C01, VOL-C02, VOL-C03, VOL-C04</p>
+    </div>
+  </div><!-- /ws1 -->
+
+  <!-- ─────────────────── WORKSTREAM 2 ─────────────────── -->
+  <div id="panel-ws2" class="panel">
+
+    <div class="ws-header">
+      <div class="ws-number">02</div>
+      <div>
+        <div class="ws-title">Consolidate Registry + Discovery Docs</div>
+        <div class="ws-sub">Unify voltron_registry, specialist_configs, and mdj_specialist_configs. Verify 723 QUE entries. Tag each entry with its Lion domain.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What This Workstream Consolidates</h2>
+
+      <h3>Firestore Collections in Scope</h3>
+      <table>
+        <tr><th>Collection</th><th>Current State</th><th>Action</th></tr>
+        <tr><td><code>voltron_registry</code></td><td>Primary registry — unknown completeness</td><td>Audit: count docs, verify schema, check for nulls/missing domains</td></tr>
+        <tr><td><code>specialist_configs</code></td><td>Lion specialist configurations</td><td>Verify 5 Lions present, all fields populated</td></tr>
+        <tr><td><code>mdj_specialist_configs</code></td><td>MDJ-era specialist configs — may duplicate specialist_configs</td><td>Compare with specialist_configs. Merge or deprecate.</td></tr>
+      </table>
+
+      <h3>The 5 Lions + Their Domains</h3>
+      <table>
+        <tr><th>Lion</th><th>Domain Tag</th><th>Primary QUE Tools</th></tr>
+        <tr><td>Lion 1</td><td><code>medicare</code></td><td>MAPD quoting, formulary lookup, plan comparison, NPI lookup, T65 eligibility, AEP gating</td></tr>
+        <tr><td>Lion 2</td><td><code>annuity</code></td><td>FIA/MYGA rate lookup, 1035 exchange, surrender calc, carrier comparison, rollover wire</td></tr>
+        <tr><td>Lion 3</td><td><code>investment</code></td><td>RMD calculation, portfolio lookup, Schwab/RBC feeds, advisory wire, DST Vision integration</td></tr>
+        <tr><td>Lion 4</td><td><code>life-estate</code></td><td>Life insurance lookup, estate planning calc, beneficiary wire, CoF integration</td></tr>
+        <tr><td>Lion 5</td><td><code>legacy-ltc</code></td><td>LTC quoting, legacy planning, Aprille specialist routing, legacy document wire</td></tr>
+      </table>
+
+      <h3>Discovery Doc Consolidation</h3>
+      <p>Multiple VOLTRON/MDJ discovery docs exist across the repo and Google Drive. This workstream identifies them, selects or merges the canonical version, and creates a single reference document that Track 2 and Track 3 build from.</p>
+      <p>The canonical reference becomes the source RONIN reads before executing OPERATE-phase tickets.</p>
+
+      <h3>Tickets in This Workstream</h3>
+      <p>VOL-C05, VOL-C06, VOL-C07</p>
+    </div>
+  </div><!-- /ws2 -->
+
+  <!-- ─────────────────── WORKSTREAM 3 ─────────────────── -->
+  <div id="panel-ws3" class="panel">
+
+    <div class="ws-header">
+      <div class="ws-number">03</div>
+      <div>
+        <div class="ws-title">Build soul.md + spirit.md</div>
+        <div class="ws-sub">VOLTRON's identity documents. Who he is. How he operates. The Consumption Principle. The Golden Rule. Non-negotiables.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Why Identity Documents Matter</h2>
+      <p>Every Dojo Warrior needs identity documents before they operate autonomously. <strong>soul.md</strong> defines who VOLTRON is — immutable identity. <strong>spirit.md</strong> defines how VOLTRON behaves — operational protocols. RONIN reads these before executing any OPERATE-phase work. Without them, there is no behavioral consistency across Lions or sessions.</p>
+
+      <h3>soul.md — What It Contains</h3>
+      <table>
+        <tr><th>Section</th><th>Content</th></tr>
+        <tr><td>Identity</td><td>Name: VOLTRON. Role: CSO — Chief Sales Officer. Channel: B2C (RPI/ProDash). Registry: QUE. Mesh: 5 Lions.</td></tr>
+        <tr><td>Icon</td><td>🦁 Black Lion, Blue Ring. DECIDED. Never asked again.</td></tr>
+        <tr><td>Color</td><td><code>#3b82f6</code> — VOLTRON Blue. Not portal blue. His blue.</td></tr>
+        <tr><td>The Consumption Principle</td><td>VOLTRON absorbs before he acts. Read the registry. Read the client record. Read the wire definition. Then execute. Never from memory alone.</td></tr>
+        <tr><td>Non-Negotiables</td><td>1. Never execute a wire not in QUE. 2. Never route to a Lion without a specialist config. 3. AEP Blackout (Oct–Dec) — Medicare wires suspended. 4. PHI never leaves the platform. 5. Golden Rule: "If you didn't READ IT, don't REPORT IT."</td></tr>
+        <tr><td>The Machine Context</td><td>VOLTRON IS ProDashX operated by conversation. The portal is the dashboard. VOLTRON is the steering wheel.</td></tr>
+      </table>
+
+      <h3>spirit.md — What It Contains</h3>
+      <table>
+        <tr><th>Section</th><th>Content</th></tr>
+        <tr><td>Routing Rules</td><td>How VOLTRON decides which Lion gets a query. Keyword routing + domain tagging. Fallback: General specialist.</td></tr>
+        <tr><td>Wire Execution Protocol</td><td>5-step sequence: Read registry entry → Validate client context → Confirm with MDJ panel → Execute wire → Log result.</td></tr>
+        <tr><td>AEP Blackout Enforcement</td><td>Oct 1 – Dec 7: Medicare Lion (medicare domain wires) suspended. Return: "AEP Blackout active. Medicare plan changes are not available during Annual Enrollment Period." No exceptions.</td></tr>
+        <tr><td>Error Protocol</td><td>Structured response always: <code>&#123; success: false, error: "human-readable reason", code: "ERROR_CODE" &#125;</code>. Never surface raw stack traces.</td></tr>
+        <tr><td>Escalation Path</td><td>Wire failure → log → notify via MDJ Panel → surface in Command Center open cases panel.</td></tr>
+        <tr><td>Session Memory</td><td>VOLTRON retains conversation context within a session. Between sessions: re-reads registry, never assumes state from previous session.</td></tr>
+      </table>
+
+      <h3>Tickets in This Workstream</h3>
+      <p>VOL-C08, VOL-C09</p>
+    </div>
+  </div><!-- /ws3 -->
+
+  <!-- ─────────────────── WORKSTREAM 4 ─────────────────── -->
+  <div id="panel-ws4" class="panel">
+
+    <div class="ws-header">
+      <div class="ws-number">04</div>
+      <div>
+        <div class="ws-title">Consolidated Backlog</div>
+        <div class="ws-sub">Audit all open VOLTRON/MDJ/QUE tickets. Consolidate into a single prioritized backlog. Tag by track. Identify RONIN-ready tickets.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Why the Backlog Comes Last in CONSUME</h2>
+      <p>The backlog cannot be properly organized until the identity (WS-3) and registry state (WS-2) are known. Only after VOLTRON's domain is clear can tickets be tagged correctly as CONSUME, OPERATE, or DEVOUR. This workstream runs after WS-2 and WS-3 complete.</p>
+
+      <h3>Audit Scope</h3>
+      <table>
+        <tr><th>Source</th><th>What to Look For</th></tr>
+        <tr><td>Existing FORGE tickets tagged VOLTRON or MDJ</td><td>Status: open / in-progress / blocked. Any that are actually OPERATE or DEVOUR scope.</td></tr>
+        <tr><td>QUE-labeled tickets</td><td>Registry gaps, missing wire definitions, incomplete tool specs.</td></tr>
+        <tr><td>Command Center tickets</td><td>Any UI work queued that belongs in Track 1 vs Track 2.</td></tr>
+        <tr><td>MDJ Panel backlog</td><td>Chat UI improvements — do they belong in CONSUME or OPERATE?</td></tr>
+        <tr><td>Sprint 002 VOLTRON Action Engine plan</td><td><code>docs/sprint-002-voltron-action-engine-v3-plan.html</code> — extract any un-shipped tickets</td></tr>
+      </table>
+
+      <h3>Tagging Schema</h3>
+      <table>
+        <tr><th>Tag</th><th>Definition</th></tr>
+        <tr><td><code>CONSUME</code></td><td>Foundation: registry, identity, backlog, Command Center scaffold</td></tr>
+        <tr><td><code>OPERATE</code></td><td>Execution: Lions routing, wire execution, AEP enforcement, real-time logs</td></tr>
+        <tr><td><code>DEVOUR</code></td><td>Scale: multi-Lion orchestration, autonomous campaign triggering, full CSO posture</td></tr>
+        <tr><td><code>RONIN-READY</code></td><td>Scope is complete. No business decisions needed. RONIN can execute autonomously.</td></tr>
+        <tr><td><code>NEEDS-JDM</code></td><td>Requires business decision, product direction, or design approval.</td></tr>
+      </table>
+
+      <h3>Deliverable</h3>
+      <p>A single canonical backlog document (Markdown or HTML) at <code>docs/voltron-backlog.md</code> listing every open ticket by track, sorted by priority, with RONIN-Ready status. This becomes the intake doc for Track 2 kickoff.</p>
+
+      <h3>Tickets in This Workstream</h3>
+      <p>VOL-C10, VOL-C11</p>
+    </div>
+  </div><!-- /ws4 -->
+
+  <!-- ─────────────────── TICKETS ─────────────────── -->
+  <div id="panel-tickets" class="panel">
+
+    <div class="card" style="margin-bottom: 24px;">
+      <h2>All Tickets — VOL-C (15 Total)</h2>
+      <p>Complete ticket definitions for all 4 workstreams. Every ticket is written to be executed by a RONIN builder without additional clarification. Dependency order enforced in the Sprint Plan tab.</p>
+      <table>
+        <tr><th>ID</th><th>Title</th><th>WS</th><th>Complexity</th><th>RONIN-Ready</th></tr>
+        <tr><td><code>VOL-C01</code></td><td>Audit existing CommandCenter module</td><td>WS1</td><td>Low</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C02</code></td><td>Scaffold Command Center App shell</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C03</code></td><td>Build Registry Browser panel</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C04</code></td><td>Build Wire Execution Log + Lion Status panels</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C05</code></td><td>Audit voltron_registry Firestore collection</td><td>WS2</td><td>Low</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C06</code></td><td>Tag all 723 QUE entries with Lion domain</td><td>WS2</td><td>High</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C07</code></td><td>Consolidate specialist_configs collections</td><td>WS2</td><td>Medium</td><td>No</td></tr>
+        <tr><td><code>VOL-C08</code></td><td>Create dojo-warriors/voltron/ directory + soul.md</td><td>WS3</td><td>Low</td><td>No</td></tr>
+        <tr><td><code>VOL-C09</code></td><td>Write spirit.md — operational protocols</td><td>WS3</td><td>Medium</td><td>No</td></tr>
+        <tr><td><code>VOL-C10</code></td><td>Audit all open VOLTRON/MDJ/QUE FORGE tickets</td><td>WS4</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C11</code></td><td>Produce voltron-backlog.md consolidated output</td><td>WS4</td><td>Low</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C12</code></td><td>Wire Command Center routes into all 3 portal apps</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C13</code></td><td>Extend voltron-registry API with Lion domain filter</td><td>WS2</td><td>Low</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C14</code></td><td>Add voltron-wire log endpoint to API</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+        <tr><td><code>VOL-C15</code></td><td>Open Cases panel — Firestore integration</td><td>WS1</td><td>Medium</td><td>Yes</td></tr>
+      </table>
+    </div>
+
+    <!-- ── VOL-C01 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C01</div>
+        <div class="ticket-title">Audit existing CommandCenter module</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws1">WS1</span>
+          <span class="tag tag-low">Low</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Read <code>packages/ui/src/modules/CommandCenter.tsx</code> and any related files. Determine: is this a complete implementation, a stub, or an empty shell? Report what exists, what it does, and whether VOL-C02 should extend it or replace it. This ticket is READ-ONLY — no file changes.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Read: <code>packages/ui/src/modules/CommandCenter.tsx</code></li>
+              <li>Read: <code>packages/ui/src/modules/index.ts</code> (check exports)</li>
+              <li>Read: <code>services/api/src/routes/voltron-registry.ts</code> (understand API surface)</li>
+              <li>Read: <code>services/api/src/routes/voltron-wire.ts</code> (understand wire log API)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Audit report produced (written to ticket notes or inline comment) describing current state of CommandCenter.tsx</li>
+              <li>Recommendation: extend vs. replace (with reasoning)</li>
+              <li>voltron-registry.ts endpoints documented: which endpoints exist, what they return</li>
+              <li>voltron-wire.ts endpoints documented: which endpoints exist, what wire log data is available</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">No code changes. Verification: audit output is present in ticket notes and is specific (not "it looks fine").</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">None</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Low</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 — Absorb QUE</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C02 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C02</div>
+        <div class="ticket-title">Scaffold Command Center App shell</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws1">WS1</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Create (or replace) the Command Center module in <code>packages/ui/src/modules/CommandCenter/</code> as a directory with an index file. Build the outer shell: page layout, VOLTRON-blue header, 4-panel tab structure (Registry Browser | Wire Log | Open Cases | Lion Status). No real data yet — panels render empty states. This is the skeleton VOL-C03, VOL-C04, VOL-C15 will fill in.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Create/Replace: <code>packages/ui/src/modules/CommandCenter/CommandCenterPage.tsx</code></li>
+              <li>Create: <code>packages/ui/src/modules/CommandCenter/index.ts</code> (export CommandCenterPage)</li>
+              <li>Modify: <code>packages/ui/src/modules/index.ts</code> — add CommandCenter export if not present</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>CommandCenterPage.tsx renders without TypeScript errors</li>
+              <li>Page header displays "Command Center" with VOLTRON blue accent (<code>#3b82f6</code>) — NOT portal color variable</li>
+              <li>4 tabs present: Registry Browser, Wire Log, Open Cases, Lion Status</li>
+              <li>Each tab shows a styled empty state (not a blank div — use a message like "No wires executed yet")</li>
+              <li>Dark theme: background <code>#0a0e17</code>, cards <code>#111827</code>, borders <code>#1e293b</code></li>
+              <li>No portal color CSS variables used — only <code>--blue</code> and neutral dark variables</li>
+              <li><code>npm run type-check</code> passes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Run <code>npm run dev</code>, navigate to <code>/command-center</code> in any portal, verify tabs render and switch. Run <code>npm run type-check</code>.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C01 (audit first)</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 — Absorb QUE</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C03 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C03</div>
+        <div class="ticket-title">Build Registry Browser panel</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws1">WS1</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Build the Registry Browser panel inside CommandCenterPage. Fetches from <code>GET /api/voltron-registry</code>. Displays entries in a searchable, filterable table. Filter by Lion domain (medicare / annuity / investment / life-estate / legacy-ltc). Each row: tool name, domain tag, complexity, last executed timestamp (or "Never"). Read-only — no edit capability in this ticket.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Modify: <code>packages/ui/src/modules/CommandCenter/CommandCenterPage.tsx</code></li>
+              <li>Create: <code>packages/ui/src/modules/CommandCenter/RegistryBrowser.tsx</code></li>
+              <li>Read (do not modify): <code>services/api/src/routes/voltron-registry.ts</code> — verify exact response shape before writing fetch call</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Registry Browser panel fetches from <code>/api/voltron-registry</code> on mount</li>
+              <li>Search input filters by tool name (client-side filter, case-insensitive)</li>
+              <li>Domain dropdown filters by Lion domain: All | medicare | annuity | investment | life-estate | legacy-ltc</li>
+              <li>Loading state shows spinner or skeleton rows</li>
+              <li>Error state shows error message (no raw error object exposed to UI)</li>
+              <li>Empty state: "No registry entries found" when search/filter returns nothing</li>
+              <li>Table columns: Tool Name | Domain | Complexity | Last Executed</li>
+              <li>Domain tag rendered as a colored badge (medicare=blue, annuity=gold, investment=cyan, life-estate=green, legacy-ltc=purple)</li>
+              <li><code>npm run type-check</code> passes — no <code>any</code> types</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Dev server: navigate to Command Center → Registry Browser tab. Verify: data loads, search filters work, domain dropdown filters work. Verify network request goes to <code>/api/voltron-registry</code>. Run <code>npm run type-check</code>.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C02, VOL-C13</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 — Absorb QUE</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C04 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C04</div>
+        <div class="ticket-title">Build Wire Execution Log + Lion Status panels</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws1">WS1</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Build Wire Execution Log and Lion Status panels inside CommandCenterPage. Wire Log fetches from <code>GET /api/voltron-wire/log</code> (this endpoint is created in VOL-C14 — if not yet available, render empty state gracefully). Lion Status fetches from <code>GET /api/specialist-configs</code> and displays all 5 Lions with configured/active status.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Modify: <code>packages/ui/src/modules/CommandCenter/CommandCenterPage.tsx</code></li>
+              <li>Create: <code>packages/ui/src/modules/CommandCenter/WireExecutionLog.tsx</code></li>
+              <li>Create: <code>packages/ui/src/modules/CommandCenter/LionStatusPanel.tsx</code></li>
+              <li>Read (do not modify): <code>services/api/src/routes/specialist-configs.ts</code> — verify response shape</li>
+              <li>Read (do not modify): <code>services/api/src/routes/voltron-wire.ts</code> — understand existing wire structure</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Wire Log: renders log entries from <code>/api/voltron-wire/log</code>. Columns: Timestamp | Tool | Lion | Status | Client (masked to first/last name only if present)</li>
+              <li>Wire Log: if endpoint returns 404 or is unavailable, show "Wire log coming soon" empty state — no crash</li>
+              <li>Wire Log: status badge: success=green, error=red, pending=orange</li>
+              <li>Lion Status: renders 5 Lions. Each shows: emoji icon (🦁), name, domain, configured badge, last active timestamp</li>
+              <li>Lion Status: if a Lion has no specialist_config entry, show "Not configured" in red</li>
+              <li>Both panels show loading states and handle errors without crashing</li>
+              <li><code>npm run type-check</code> passes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Dev server: navigate to Wire Log and Lion Status tabs. Verify loading states appear. Verify Lion Status renders 5 entries from <code>/api/specialist-configs</code>. Verify Wire Log renders empty state if log endpoint not yet available. Run <code>npm run type-check</code>.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C02</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 — Absorb QUE</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C05 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C05</div>
+        <div class="ticket-title">Audit voltron_registry Firestore collection</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws2">WS2</span>
+          <span class="tag tag-low">Low</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Run a read-only audit of the <code>voltron_registry</code> Firestore collection. Count total documents. Sample 20–30 entries to document the actual schema in use. Identify: fields present on all docs vs. fields present on some. Check whether a <code>domain</code> field exists (it's needed for VOL-C06). Check for null/undefined tool names. Produce an audit report. No writes in this ticket.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Read: <code>services/api/src/routes/voltron-registry.ts</code> — use existing query patterns to understand the collection</li>
+              <li>Read: <code>packages/core/src/voltron/</code> — check for TypeScript type definitions of registry entries</li>
+              <li>Output: write audit findings as a comment in the ticket or as <code>docs/voltron-registry-audit.md</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Total document count in voltron_registry reported</li>
+              <li>Actual schema documented: list of fields, their types, and which are present on all vs. some docs</li>
+              <li><code>domain</code> field: present (Y/N), current values if present</li>
+              <li>Any null/undefined tool names reported</li>
+              <li>Recommendation for VOL-C06: what migration is needed to add domain tags</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">No code changes. Audit report is present and specific. Document count is a real number from Firestore, not an estimate.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">None</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Low</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS2 — Consolidate Registry</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C06 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C06</div>
+        <div class="ticket-title">Tag all QUE registry entries with Lion domain</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws2">WS2</span>
+          <span class="tag tag-high">High</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Using findings from VOL-C05, write a migration script that adds a <code>domain</code> field to every registry entry in <code>voltron_registry</code>. Domain values: <code>medicare</code> | <code>annuity</code> | <code>investment</code> | <code>life-estate</code> | <code>legacy-ltc</code> | <code>general</code>. Classification logic: use tool name keywords and existing metadata. Any tool that cannot be classified automatically gets tagged <code>general</code> for human review. Script must be idempotent (safe to run multiple times). Log all changes.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Create: <code>services/api/src/scripts/migrate-voltron-registry-domains.ts</code></li>
+              <li>Read before writing: <code>services/api/src/routes/voltron-registry.ts</code></li>
+              <li>Read before writing: <code>packages/core/src/que/</code> — tool name patterns and categories</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Migration script runs without errors via <code>npx ts-node services/api/src/scripts/migrate-voltron-registry-domains.ts</code></li>
+              <li>Every document in voltron_registry has a <code>domain</code> field after migration</li>
+              <li>Idempotent: running twice does not double-write or corrupt data</li>
+              <li>Log output shows: total processed, auto-classified by domain, tagged "general" for review</li>
+              <li>No documents left with null/undefined domain</li>
+              <li><code>npm run type-check</code> passes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Run script in dev environment. Query Firestore: <code>voltron_registry where domain == null</code> should return 0 results. Run script again — verify count is unchanged. Check log output for domain distribution.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C05</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">High</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS2 — Consolidate Registry</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C07 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C07</div>
+        <div class="ticket-title">Consolidate specialist_configs collections</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws2">WS2</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-no">Needs JDM</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Two Firestore collections hold specialist configuration data: <code>specialist_configs</code> and <code>mdj_specialist_configs</code>. Audit both collections side-by-side. Determine: are they the same data? Do they diverge? Which one is the active source for the routing layer? Present findings + recommendation to JDM before any writes. <strong>This ticket ends with a written recommendation, not an implementation.</strong> Implementation follows only after JDM approves the merge/deprecation path.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Read: <code>services/api/src/routes/specialist-configs.ts</code></li>
+              <li>Read: <code>services/api/src/routes/mdj.ts</code> — which collection does the MDJ router reference?</li>
+              <li>Read: <code>packages/core/src/voltron/</code> — check which collection name is referenced in routing logic</li>
+              <li>Output: recommendation doc (inline or <code>docs/voltron-specialist-configs-audit.md</code>)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Both collections fully documented: schema, document count, which code references each</li>
+              <li>Clear recommendation: keep one, merge, or deprecate — with reasoning</li>
+              <li>JDM approval received before any writes proceed</li>
+              <li>No Firestore writes in this ticket</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Recommendation document is present and specific. JDM has approved or declined the merge path.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C05</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--red)">No — needs JDM approval</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS2 — Consolidate Registry</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C08 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C08</div>
+        <div class="ticket-title">Create dojo-warriors/voltron/ directory + soul.md</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws3">WS3</span>
+          <span class="tag tag-low">Low</span>
+          <span class="tag tag-ronin-no">Needs JDM</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Create the directory <code>~/Projects/dojo-warriors/voltron/</code> and write <code>soul.md</code> — VOLTRON's immutable identity document. Content per WS-3 specification: identity, icon, color, the Consumption Principle, non-negotiables, and The Machine context. This document is written once and does not change without JDM approval. RONIN writes the draft; JDM reviews and approves final content before this ticket closes.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Create directory: <code>~/Projects/dojo-warriors/voltron/</code></li>
+              <li>Create: <code>~/Projects/dojo-warriors/voltron/soul.md</code></li>
+              <li>Reference: <code>/home/jdm/.claude/CLAUDE.md</code> — VOLTRON identity sections</li>
+              <li>Reference: <code>/home/jdm/.claude/projects/-home-jdm-Projects-toMachina/memory/MEMORY.md</code> — VOLTRON identity notes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Directory <code>~/Projects/dojo-warriors/voltron/</code> exists</li>
+              <li>soul.md contains all 6 sections: Identity, Icon, Color, Consumption Principle, Non-Negotiables, The Machine Context</li>
+              <li>Icon section states exactly: "🦁 Black Lion, Blue Ring — DECIDED"</li>
+              <li>Non-Negotiables lists all 5 rules (no wire outside QUE, no Lion without config, AEP blackout Oct–Dec, PHI stays on platform, Golden Rule)</li>
+              <li>JDM has reviewed and approved content</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">File exists at path. All sections present. JDM approval documented.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">None</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Low</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--red)">No — JDM reviews soul.md content</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS3 — Identity</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C09 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C09</div>
+        <div class="ticket-title">Write spirit.md — operational protocols</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws3">WS3</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-no">Needs JDM</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Write <code>spirit.md</code> — VOLTRON's operational protocol document. This is the rulebook RONIN reads before executing any OPERATE-phase tickets. Content per WS-3 specification: routing rules, wire execution protocol, AEP blackout enforcement, error protocol, escalation path, session memory behavior. Unlike soul.md (immutable identity), spirit.md can evolve as VOLTRON matures — but changes require JDM sign-off.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Create: <code>~/Projects/dojo-warriors/voltron/spirit.md</code></li>
+              <li>Reference: <code>services/api/src/routes/voltron-wire.ts</code> — actual wire execution pattern</li>
+              <li>Reference: <code>services/api/src/routes/mdj.ts</code> — actual routing pattern</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>spirit.md contains all 6 sections: Routing Rules, Wire Execution Protocol, AEP Blackout Enforcement, Error Protocol, Escalation Path, Session Memory</li>
+              <li>AEP Blackout section specifies exact dates (Oct 1 – Dec 7) and exact error message string</li>
+              <li>Wire Execution Protocol has numbered steps (not prose)</li>
+              <li>Error Protocol specifies exact response shape: <code>&#123; success: false, error: string, code: string &#125;</code></li>
+              <li>Routing Rules define all 5 Lion domains with keyword examples</li>
+              <li>JDM has reviewed and approved content</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">File exists at path. All sections present and specific. JDM approval documented.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C08</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--red)">No — JDM reviews spirit.md content</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS3 — Identity</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C10 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C10</div>
+        <div class="ticket-title">Audit all open VOLTRON/MDJ/QUE FORGE tickets</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws4">WS4</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Locate and inventory all open tickets tagged VOLTRON, MDJ, QUE, or Command Center across existing FORGE plans. Sources: <code>docs/sprint-002-voltron-action-engine-v3-plan.html</code>, any other docs in <code>docs/</code> with VOLTRON references. For each ticket found: record ID, title, status, and proposed track tag (CONSUME / OPERATE / DEVOUR). Do not close or modify any external tickets in this step — audit only.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Read: <code>/home/jdm/Projects/toMachina/docs/sprint-002-voltron-action-engine-v3-plan.html</code></li>
+              <li>Read: <code>/home/jdm/Projects/toMachina/docs/voltron-cxo-roadmap.html</code></li>
+              <li>Read: <code>/home/jdm/Projects/toMachina/docs/product-specialists-roadmap.html</code></li>
+              <li>Scan: all files in <code>/home/jdm/Projects/toMachina/docs/</code> for VOLTRON/MDJ references</li>
+              <li>Output: raw audit list (write to VOL-C11 input)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>All VOLTRON/MDJ/QUE FORGE docs scanned</li>
+              <li>Every open ticket found is listed with: ID, title, source doc, current status</li>
+              <li>Each ticket has a proposed track tag: CONSUME / OPERATE / DEVOUR</li>
+              <li>Total count of open tickets reported</li>
+              <li>Count of tickets that appear to be RONIN-ready vs. need JDM</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Audit list is present with specific ticket IDs (not estimates). Each ticket has a track tag. No fabricated tickets — only what was actually found in the docs.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C07 (for specialist context)</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS4 — Consolidated Backlog</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C11 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C11</div>
+        <div class="ticket-title">Produce voltron-backlog.md consolidated output</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws4">WS4</span>
+          <span class="tag tag-low">Low</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Using the audit output from VOL-C10, produce a clean consolidated backlog document at <code>docs/voltron-backlog.md</code>. Three sections: CONSUME (current track), OPERATE (Track 2), DEVOUR (Track 3). Within each section: tickets sorted by priority (high to low). Each ticket entry: ID, title, RONIN-Ready (Y/N), complexity, notes. This becomes the intake document for VOLTRON Track 2 kickoff.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Create: <code>/home/jdm/Projects/toMachina/docs/voltron-backlog.md</code></li>
+              <li>Input: VOL-C10 audit output</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>voltron-backlog.md exists at specified path</li>
+              <li>Three sections: CONSUME / OPERATE / DEVOUR</li>
+              <li>Every ticket from VOL-C10 audit appears in exactly one section</li>
+              <li>RONIN-Ready flag present on every entry</li>
+              <li>Document is sorted: high complexity / high priority at top of each section</li>
+              <li>A summary header shows: total tickets by track, total RONIN-ready count</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">File exists. Three sections present. Ticket count in backlog matches ticket count from VOL-C10 audit. No tickets missing.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C10</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Low</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS4 — Consolidated Backlog</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C12 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C12</div>
+        <div class="ticket-title">Wire Command Center routes into all 3 portal apps</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws1">WS1</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Add the <code>/command-center</code> route to all 3 portals (ProDash, RIIMO, SENTINEL). Add it to each portal's nav sidebar (under the appropriate section — likely alongside other cross-portal Apps). The route renders <code>CommandCenterPage</code>. Entry label: "Command Center". Icon: use the existing <code>smart_toy</code> or <code>dashboard</code> icon — do not generate a new icon. No portal-specific logic — same component, all three portals.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Modify: <code>apps/prodash/app/(portal)/command-center/page.tsx</code> (create if not exists)</li>
+              <li>Modify: <code>apps/riimo/app/(portal)/command-center/page.tsx</code> (create if not exists)</li>
+              <li>Modify: <code>apps/sentinel/app/(portal)/command-center/page.tsx</code> (create if not exists)</li>
+              <li>Modify each portal's nav config to add Command Center link — locate nav config files first</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li><code>/command-center</code> route resolves in all 3 portals</li>
+              <li>Command Center appears in each portal's sidebar navigation</li>
+              <li>Navigating to the route renders CommandCenterPage without errors</li>
+              <li>Route is protected by Firebase Auth (standard portal auth middleware — already in place)</li>
+              <li><code>npm run build</code> passes for all 3 portal apps</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Run <code>npm run dev</code>. Navigate to <code>localhost:3001/command-center</code>, <code>localhost:3002/command-center</code>, <code>localhost:3003/command-center</code>. All three should render CommandCenterPage. Sidebar link present in each portal. Run <code>npm run build</code>.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C02</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 — Absorb QUE</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C13 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C13</div>
+        <div class="ticket-title">Extend voltron-registry API with Lion domain filter</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws2">WS2</span>
+          <span class="tag tag-low">Low</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Add an optional <code>domain</code> query parameter to the <code>GET /api/voltron-registry</code> endpoint. When <code>?domain=medicare</code> is passed, filter results to only entries where <code>domain === "medicare"</code>. When no domain param is passed, return all entries (existing behavior unchanged). This enables the Command Center Registry Browser filter (VOL-C03) to work server-side.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Modify: <code>services/api/src/routes/voltron-registry.ts</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li><code>GET /api/voltron-registry</code> (no params) — returns all entries (existing behavior)</li>
+              <li><code>GET /api/voltron-registry?domain=medicare</code> — returns only medicare-domain entries</li>
+              <li>Invalid domain values (e.g., <code>?domain=foobar</code>) return empty array (not an error)</li>
+              <li>Response shape unchanged: still returns <code>&#123; success: true, data: [...] &#125;</code></li>
+              <li><code>npm run type-check</code> passes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Test with curl or browser: <code>/api/voltron-registry</code> returns full list, <code>/api/voltron-registry?domain=medicare</code> returns filtered list. Verify response shape. Run <code>npm run type-check</code>.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C06 (domain tags must exist in data)</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Low</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS2 — Consolidate Registry</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C14 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C14</div>
+        <div class="ticket-title">Add voltron-wire log endpoint to API</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws1">WS1</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Add a <code>GET /api/voltron-wire/log</code> endpoint to <code>services/api/src/routes/voltron-wire.ts</code>. This endpoint returns the most recent wire execution events from Firestore (collection: <code>voltron_wire_log</code> or equivalent — read voltron-wire.ts to determine the correct collection name). Returns up to 100 entries, sorted descending by timestamp. If no log collection exists yet, create it with the schema below and return an empty array. Do not fabricate log data.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Modify: <code>services/api/src/routes/voltron-wire.ts</code></li>
+              <li>Read first: entire <code>services/api/src/routes/voltron-wire.ts</code> to understand existing patterns and collection names</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Wire Log Entry Schema</div>
+          <div class="ticket-text">
+            <ul>
+              <li><code>id</code>: string (auto-generated)</li>
+              <li><code>timestamp</code>: Firestore Timestamp</li>
+              <li><code>toolName</code>: string — name of the wire/tool executed</li>
+              <li><code>lion</code>: string — Lion domain (medicare | annuity | investment | life-estate | legacy-ltc | general)</li>
+              <li><code>status</code>: "success" | "error" | "pending"</li>
+              <li><code>clientId</code>: string | null — client context if available</li>
+              <li><code>errorMessage</code>: string | null — only if status === "error"</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li><code>GET /api/voltron-wire/log</code> returns <code>&#123; success: true, data: WireLogEntry[] &#125;</code></li>
+              <li>Returns empty array (not an error) if no log entries exist</li>
+              <li>Returns maximum 100 entries sorted by timestamp descending</li>
+              <li>Response shape matches WireExecutionLog.tsx consumer (verify with VOL-C04 file before shipping)</li>
+              <li><code>npm run type-check</code> passes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Test: <code>GET /api/voltron-wire/log</code> returns 200 with <code>&#123; success: true, data: [] &#125;</code> (even if empty). Run <code>npm run type-check</code>. Verify WireExecutionLog.tsx can consume the response shape without type errors.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C04 (consumer must exist first to verify contract)</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 — Absorb QUE</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VOL-C15 ── -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <div class="ticket-id">VOL-C15</div>
+        <div class="ticket-title">Open Cases panel — Firestore integration</div>
+        <div class="ticket-tags">
+          <span class="tag tag-ws1">WS1</span>
+          <span class="tag tag-medium">Medium</span>
+          <span class="tag tag-ronin-yes">RONIN-Ready</span>
+        </div>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-section">
+          <div class="ticket-label">Description</div>
+          <div class="ticket-text">Build the Open Cases panel as a real Firestore-backed component within CommandCenterPage. Queries the <code>voltron_registry</code> collection (or the appropriate cases collection — read voltron-deploy.ts to determine) for entries with <code>status === "open"</code> or <code>status === "pending"</code>. Displays: case type, assigned Lion domain, client ID (masked), waiting-on status, age (time since created). This is the first panel that shows VOLTRON's actual live operational state.</div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">File Paths</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Create: <code>packages/ui/src/modules/CommandCenter/OpenCasesPanel.tsx</code></li>
+              <li>Modify: <code>packages/ui/src/modules/CommandCenter/CommandCenterPage.tsx</code></li>
+              <li>Read first: <code>services/api/src/routes/voltron-deploy.ts</code> — understand cases data model</li>
+              <li>Read first: <code>services/api/src/routes/voltron-registry.ts</code> — understand how cases are stored</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Acceptance Criteria</div>
+          <div class="ticket-text">
+            <ul>
+              <li>Open Cases panel fetches real data from Firestore via the API (not direct Firestore client reads in the frontend)</li>
+              <li>Displays cases with status "open" or "pending"</li>
+              <li>Each row shows: case type, Lion domain badge, masked client ID (last 4 chars only), waiting-on status, age in hours/days</li>
+              <li>Empty state: "No open cases" with a clean empty state component</li>
+              <li>Loading state present</li>
+              <li>Error state present (no raw error exposure)</li>
+              <li>PHI rule enforced: client name/SSN/DOB never rendered — only masked ID</li>
+              <li><code>npm run type-check</code> passes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ticket-section">
+          <div class="ticket-label">Test Plan</div>
+          <div class="ticket-text">Dev server: navigate to Command Center → Open Cases tab. Verify data loads or empty state renders. Verify no PHI in rendered output. Run <code>npm run type-check</code>.</div>
+        </div>
+        <div class="ticket-meta-row">
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Dependencies</div><div class="ticket-meta-value">VOL-C02, VOL-C05 (data shape known)</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Complexity</div><div class="ticket-meta-value">Medium</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">RONIN-Ready</div><div class="ticket-meta-value" style="color:var(--green)">Yes</div></div>
+          <div class="ticket-meta-item"><div class="ticket-meta-label">Workstream</div><div class="ticket-meta-value">WS1 — Absorb QUE</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tickets -->
+
+  <!-- ─────────────────── DEPENDENCIES ─────────────────── -->
+  <div id="panel-dependencies" class="panel">
+    <div class="card">
+      <h2>Dependency Graph</h2>
+      <p>Read top-down. Tickets at the top have no dependencies. Tickets below require those above to complete first.</p>
+      <div class="diagram"><span class="hl-blue">VOLTRON Track 1 — CONSUME — Dependency Graph</span>
+
+══════════════════════════════════════════════════════════
+ LAYER 0: No Dependencies — Start Immediately (Parallel)
+══════════════════════════════════════════════════════════
+
+  <span class="hl-blue">VOL-C01</span>  Audit existing CommandCenter module
+  <span class="hl-gold">VOL-C05</span>  Audit voltron_registry Firestore collection
+  <span class="hl-blue">VOL-C08</span>  Create dojo-warriors/voltron/ + soul.md  ← needs JDM review
+
+══════════════════════════════════════════════════════════
+ LAYER 1: Depends on Layer 0
+══════════════════════════════════════════════════════════
+
+  <span class="hl-blue">VOL-C02</span>  Scaffold Command Center App shell
+    └── requires: VOL-C01 (know if extending or replacing)
+
+  <span class="hl-gold">VOL-C06</span>  Tag all QUE entries with Lion domain
+    └── requires: VOL-C05 (know schema + domain field state)
+
+  <span class="hl-gold">VOL-C07</span>  Consolidate specialist_configs collections  ← needs JDM
+    └── requires: VOL-C05 (schema context)
+
+  <span class="hl-blue">VOL-C09</span>  Write spirit.md  ← needs JDM review
+    └── requires: VOL-C08 (soul.md written first)
+
+══════════════════════════════════════════════════════════
+ LAYER 2: Depends on Layer 1
+══════════════════════════════════════════════════════════
+
+  <span class="hl-blue">VOL-C04</span>  Build Wire Log + Lion Status panels
+    └── requires: VOL-C02 (shell exists)
+
+  <span class="hl-blue">VOL-C12</span>  Wire Command Center routes (all 3 portals)
+    └── requires: VOL-C02 (CommandCenterPage exists)
+
+  <span class="hl-blue">VOL-C15</span>  Open Cases panel — Firestore
+    └── requires: VOL-C02, VOL-C05
+
+  <span class="hl-gold">VOL-C13</span>  Extend voltron-registry API with domain filter
+    └── requires: VOL-C06 (domain tags must exist in data)
+
+  <span class="hl-cyan">VOL-C10</span>  Audit all open VOLTRON/MDJ/QUE tickets (WS4)
+    └── requires: VOL-C07 (specialist context complete)
+
+══════════════════════════════════════════════════════════
+ LAYER 3: Depends on Layer 2
+══════════════════════════════════════════════════════════
+
+  <span class="hl-blue">VOL-C03</span>  Build Registry Browser panel
+    └── requires: VOL-C02 (shell), VOL-C13 (domain filter API)
+
+  <span class="hl-blue">VOL-C14</span>  Add voltron-wire log endpoint to API
+    └── requires: VOL-C04 (consumer exists to verify contract)
+
+  <span class="hl-cyan">VOL-C11</span>  Produce voltron-backlog.md (WS4)
+    └── requires: VOL-C10 (audit complete)
+
+══════════════════════════════════════════════════════════
+ COLOR KEY
+══════════════════════════════════════════════════════════
+
+  <span class="hl-blue">Blue</span>   = WS1 — Command Center App
+  <span class="hl-gold">Gold</span>   = WS2 — Registry Consolidation
+  <span class="hl">Purple</span> = WS3 — Identity Documents (soul/spirit)
+  <span class="hl-cyan">Cyan</span>   = WS4 — Consolidated Backlog</div>
+    </div>
+
+    <div class="card">
+      <h2>Critical Path</h2>
+      <p>The critical path (longest dependency chain) determines minimum sprint length:</p>
+      <div class="diagram">VOL-C01 → VOL-C02 → VOL-C04 → VOL-C14
+                                      ↓
+                            VOL-C05 → VOL-C06 → VOL-C13 → VOL-C03
+
+Longest chain: <span class="hl-blue">6 tickets deep</span>
+Can be shortened by running WS1 and WS2 in parallel (recommended).</div>
+
+      <h3>Parallel Execution Recommendation</h3>
+      <p>Spawn 3 RONIN tracks in parallel:</p>
+      <table>
+        <tr><th>RONIN Track</th><th>Tickets</th><th>Est. Complexity</th></tr>
+        <tr><td>RONIN-A (Command Center UI)</td><td>001 → 002 → 004 → 012 → 015 → 014 → 003</td><td>High — 7 tickets</td></tr>
+        <tr><td>RONIN-B (Registry + API)</td><td>005 → 006 → 007 → 013</td><td>High — 4 tickets (007 needs JDM)</td></tr>
+        <tr><td>RONIN-C (Identity + Backlog)</td><td>008 → 009 → 010 → 011</td><td>Medium — 4 tickets (008/009 need JDM)</td></tr>
+      </table>
+    </div>
+  </div><!-- /dependencies -->
+
+  <!-- ─────────────────── SPRINT PLAN ─────────────────── -->
+  <div id="panel-sprint" class="panel">
+    <div class="card">
+      <h2>Sprint Plan — VOL-C CONSUME</h2>
+      <p>Recommended execution order for a single RONIN sprint. Parallel tracks are noted. JDM gates (tickets requiring approval) are clearly marked.</p>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">
+        <div class="phase-num">1</div>
+        <div>
+          <div class="phase-title">Phase 1 — Audit (Parallel, No JDM Gates)</div>
+          <div class="phase-subtitle">Day 1. Read-only. No code written. Establish the baseline for all subsequent work.</div>
+        </div>
+      </div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag">VOL-C01</span>
+        <span class="phase-ticket-tag">VOL-C05</span>
+      </div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+        Run simultaneously. VOL-C01 audits CommandCenter.tsx. VOL-C05 audits voltron_registry Firestore. Both are READ-ONLY. No dependencies between them. Complete before writing any code.
+      </div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">
+        <div class="phase-num">2</div>
+        <div>
+          <div class="phase-title">Phase 2 — Foundation Build + Registry Work (Parallel)</div>
+          <div class="phase-subtitle">Day 1-2. First code lands. WS1 and WS2 in parallel.</div>
+        </div>
+      </div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag">VOL-C02</span>
+        <span class="phase-ticket-tag">VOL-C06</span>
+        <span class="phase-ticket-tag">VOL-C08</span>
+      </div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+        <strong style="color:var(--text)">VOL-C02:</strong> CommandCenterPage shell — tabs, empty states, VOLTRON blue theme.<br>
+        <strong style="color:var(--text)">VOL-C06:</strong> Domain tagging migration script — runs against Firestore, idempotent.<br>
+        <strong style="color:var(--text)">VOL-C08:</strong> soul.md draft — RONIN writes, flagged for JDM review. Does not block WS1 or WS2.
+      </div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">
+        <div class="phase-num" style="background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: var(--red);">!</div>
+        <div>
+          <div class="phase-title" style="color:var(--red)">JDM Gate 1 — soul.md Review</div>
+          <div class="phase-subtitle">JDM reviews and approves soul.md content before spirit.md begins.</div>
+        </div>
+      </div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25)">VOL-C08 Review</span>
+      </div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">
+        <div class="phase-num">3</div>
+        <div>
+          <div class="phase-title">Phase 3 — Panels + API Extensions (Parallel)</div>
+          <div class="phase-subtitle">Day 2-3. Command Center fills in. API gets domain filter and wire log endpoint.</div>
+        </div>
+      </div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag">VOL-C04</span>
+        <span class="phase-ticket-tag">VOL-C12</span>
+        <span class="phase-ticket-tag">VOL-C15</span>
+        <span class="phase-ticket-tag">VOL-C13</span>
+        <span class="phase-ticket-tag">VOL-C07</span>
+        <span class="phase-ticket-tag">VOL-C09</span>
+      </div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+        <strong style="color:var(--text)">VOL-C04:</strong> Wire Log + Lion Status panels.<br>
+        <strong style="color:var(--text)">VOL-C12:</strong> Portal route wiring (all 3 apps).<br>
+        <strong style="color:var(--text)">VOL-C15:</strong> Open Cases panel with Firestore reads.<br>
+        <strong style="color:var(--text)">VOL-C13:</strong> Domain filter on registry API.<br>
+        <strong style="color:var(--text)">VOL-C07:</strong> Specialist configs audit + recommendation (awaits JDM Gate 2).<br>
+        <strong style="color:var(--text)">VOL-C09:</strong> spirit.md (requires JDM Gate 1 complete).
+      </div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">
+        <div class="phase-num" style="background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: var(--red);">!</div>
+        <div>
+          <div class="phase-title" style="color:var(--red)">JDM Gate 2 — Specialist Configs + spirit.md Review</div>
+          <div class="phase-subtitle">JDM approves: (1) specialist_configs merge/deprecation path, (2) spirit.md content.</div>
+        </div>
+      </div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25)">VOL-C07 Decision</span>
+        <span class="phase-ticket-tag" style="background:rgba(239,68,68,0.12); color:var(--red); border-color:rgba(239,68,68,0.25)">VOL-C09 Review</span>
+      </div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">
+        <div class="phase-num">4</div>
+        <div>
+          <div class="phase-title">Phase 4 — Registry Browser + Wire Log API + Backlog (Parallel)</div>
+          <div class="phase-subtitle">Day 3-4. Command Center fully operational. Backlog consolidated.</div>
+        </div>
+      </div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag">VOL-C03</span>
+        <span class="phase-ticket-tag">VOL-C14</span>
+        <span class="phase-ticket-tag">VOL-C10</span>
+      </div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+        <strong style="color:var(--text)">VOL-C03:</strong> Registry Browser panel — domain filter wired to API.<br>
+        <strong style="color:var(--text)">VOL-C14:</strong> Wire log endpoint — API side of the Wire Log panel.<br>
+        <strong style="color:var(--text)">VOL-C10:</strong> Backlog audit — reads existing FORGE docs, no code changes.
+      </div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-label">
+        <div class="phase-num">5</div>
+        <div>
+          <div class="phase-title">Phase 5 — Final Consolidation + Build Verification</div>
+          <div class="phase-subtitle">Day 4. Ship the backlog. Run the full build. CONSUME complete.</div>
+        </div>
+      </div>
+      <div class="phase-tickets">
+        <span class="phase-ticket-tag">VOL-C11</span>
+        <span class="phase-ticket-tag">npm run build</span>
+      </div>
+      <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+        <strong style="color:var(--text)">VOL-C11:</strong> voltron-backlog.md produced from VOL-C10 audit.<br>
+        <strong style="color:var(--text)">npm run build:</strong> Full monorepo build must pass (11/11). This is the exit gate for CONSUME.
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+      <h2>CONSUME Complete — Gate to OPERATE</h2>
+      <p>CONSUME is complete when ALL of the following are true:</p>
+      <table>
+        <tr><th>Exit Condition</th><th>Verified By</th></tr>
+        <tr><td>Command Center renders in all 3 portals with all 4 panels functional</td><td>Dev server navigation test</td></tr>
+        <tr><td>All 723 QUE registry entries have a Lion domain tag</td><td>Firestore query: domain == null → 0 results</td></tr>
+        <tr><td>soul.md and spirit.md exist and have JDM approval</td><td>File existence + JDM sign-off</td></tr>
+        <tr><td>voltron-backlog.md exists with all open tickets tagged by track</td><td>File existence + completeness check</td></tr>
+        <tr><td>npm run build passes (11/11)</td><td>CI output</td></tr>
+        <tr><td>npm run type-check passes (13/13)</td><td>CI output</td></tr>
+      </table>
+      <p style="margin-top:16px;">When all 6 conditions are met: <strong style="color:var(--blue)">CONSUME is done. Track 2 (OPERATE) begins.</strong></p>
+    </div>
+  </div><!-- /sprint -->
+
+</div><!-- /content -->
+
+<!-- ══════════════════════════════════════════════════════ FOOTER -->
+<div class="footer">
+  <div class="footer-title">VOLTRON CXO Series — Track Discovery 1 of 3</div>
+  <div class="footer-sub">
+    Track 1: CONSUME (Absorb QUE, Consolidate, Build Foundation)<br>
+    Track 2: OPERATE (Lions execute, wires run, AEP enforces)<br>
+    Track 3: DEVOUR (Scale, orchestrate, full CSO posture)
+  </div>
+  <div class="footer-sig">⚔️ — MUSASHI, ARTxBLADE</div>
+  <div class="footer-sub" style="margin-top:8px;">MUSASHI, VP CMO — ARTxBLADE</div>
+  <div class="footer-date">2026-04-05 — Retirement Protectors, Inc.</div>
+  <div class="footer-race">#RunningOurOwnRACE</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ JS -->
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    const panel = document.getElementById('panel-' + id);
+    if (panel) panel.classList.add('active');
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => {
+      if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + id + "'")) {
+        t.classList.add('active');
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
