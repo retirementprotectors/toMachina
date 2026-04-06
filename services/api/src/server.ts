@@ -100,6 +100,7 @@ import { cmoIntakeRoutes } from './routes/cmo-intake.js'
 import { cmoPipelineRoutes } from './routes/cmo-pipeline.js'
 import { cmoEventRoutes } from './routes/cmo-events.js'
 import { cmoDashboardRoutes } from './routes/cmo-dashboard.js'
+import { dispatchRoutes } from './routes/dispatch.js'
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -242,6 +243,9 @@ app.use('/api/sensei/analytics', normalizeBody, senseiAnalyticsRoutes)
 app.use('/api/sensei', normalizeBody, senseiContentRoutes)
 // SENSEI Training Generator — TRK-SNS-010
 app.use('/api/sensei', normalizeBody, senseiGeneratorRoutes)
+
+// Hub Dispatcher — CXO-aware intake routing (RON-HD01)
+app.use('/api/dispatch', normalizeBody, dispatchRoutes)
 
 // RAIDEN Reactive Guardian — sub-router at /raiden/*
 app.use('/raiden', raidenRoutes)
