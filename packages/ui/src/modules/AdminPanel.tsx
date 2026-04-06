@@ -840,10 +840,10 @@ function MDJPreferencesSection({ memberId, memberEmail }: { memberId: string; me
           >
             <option value="">General (default)</option>
             <option value="mdj-medicare">Medicare</option>
-            <option value="mdj-securities">Securities</option>
-            <option value="mdj-service">Service</option>
-            <option value="mdj-david">DAVID</option>
-            <option value="mdj-ops">Operations</option>
+            <option value="mdj-annuity">Annuity</option>
+            <option value="mdj-life-estate">Life/Estate</option>
+            <option value="mdj-investment">Investment</option>
+            <option value="mdj-legacy-ltc">Legacy/LTC</option>
           </select>
         </div>
 
