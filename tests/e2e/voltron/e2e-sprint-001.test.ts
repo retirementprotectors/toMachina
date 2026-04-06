@@ -91,17 +91,12 @@ function parseSsePayload(raw: string): ParsedSseStream {
   return { events, toolCalls, toolResults, textChunks, done, errors }
 }
 
-// ── Intent Classifier — direct import from compiled mdj-server ────────────
+// ── Intent Classifier — imported from VOLTRON hook (pure keyword logic) ───
 // Uses keyword-scoring path (deterministic, no API call) for canonical inputs.
+import { classifyIntent as _classifyIntent } from '../../../apps/prodash/app/(portal)/modules/voltron/hooks/use-intent-classifier'
 
-let classifyIntent: (message: string) => Promise<IntentResult>
-
-beforeAll(async () => {
-  const mod = await import(
-    '../../../services/mdj-server/dist/dist/agent/intent-classifier.js'
-  )
-  classifyIntent = mod.classifyIntent
-})
+const classifyIntent = (message: string): Promise<IntentResult> =>
+  Promise.resolve(_classifyIntent(message))
 
 // ── Mode 1: Deploy SSE Contract ──────────────────────────────────────────
 // Simulated SSE payload representing POST /api/voltron/deploy

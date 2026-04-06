@@ -121,11 +121,6 @@ jobs:
           docker build -t ${{ env.REGISTRY }}/tm-api:latest -f services/api/Dockerfile .
           docker push ${{ env.REGISTRY }}/tm-api:latest
 
-      # Build + push Bridge image
-      - run: |
-          docker build -t ${{ env.REGISTRY }}/tm-bridge:latest -f services/bridge/Dockerfile .
-          docker push ${{ env.REGISTRY }}/tm-bridge:latest
-
       # Build + push Webhooks image
       - run: |
           docker build -t ${{ env.REGISTRY }}/tm-webhooks:latest -f services/webhooks/Dockerfile services/webhooks
