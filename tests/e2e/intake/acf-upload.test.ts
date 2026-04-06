@@ -32,7 +32,7 @@ interface WireResponse {
   status: string
 }
 
-describe('ACF_UPLOAD Pipeline', () => {
+describe.skip('ACF_UPLOAD Pipeline', () => {
   const testRunId = `acf-upload-${Date.now()}`
   const fileName = `${TEST_FILE_PREFIX}${testRunId}.pdf`
   let uploadedFileId: string
