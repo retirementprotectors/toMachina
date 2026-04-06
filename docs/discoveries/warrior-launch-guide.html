@@ -27,40 +27,86 @@
 <body>
 <div class="header">
   <h1>Warrior Launch Guide</h1>
-  <p>Copy the launch prompt. Paste as your FIRST message in a new Claude Code session on MDJ_SERVER.</p>
+  <p>5 steps. Every step is click-to-copy. If Talan can follow this, anyone can.</p>
 </div>
 <div class="content">
 
-<div class="section-title">Step 1 — SSH into MDJ_SERVER</div>
-
-<div class="warrior-card">
-  <h2>From AIR or PRO terminal:</h2>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">ssh mdj1</pre>
-</div>
-
-<div class="section-title">Step 2 — Start a tmux session</div>
-
-<div class="warrior-card">
-  <h2>Pick your warrior (click to copy):</h2>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s SHINOB1</pre>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s MEGAZORD</pre>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s VOLTRON</pre>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s MUSASHI</pre>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s RAIDEN</pre>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s RONIN</pre>
-</div>
-
-<div class="section-title">Step 3 — Launch Claude Code</div>
-
-<div class="warrior-card">
-  <h2>Inside the tmux session:</h2>
-  <pre onclick="navigator.clipboard.writeText(this.innerText)">cd ~/Projects/toMachina && claude</pre>
-</div>
-
-<div class="section-title">Step 4 — Paste the warrior's launch prompt</div>
+<div class="section-title">Step 0 — One-Time Setup (only do this ONCE per Mac)</div>
 
 <div class="note">
-  Claude Code opens. Paste the launch prompt below as your <strong>FIRST message</strong>. The warrior loads soul + spirit and is operational in seconds.
+  If you've never connected to MDJ_SERVER from this Mac before, you need to add the SSH config. Open <strong>Terminal</strong> and paste this:
+</div>
+
+<div class="warrior-card">
+  <h2>Add SSH config (one time only):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">cat >> ~/.ssh/config << 'EOF'
+
+Host mdj1-local
+    HostName 192.168.6.93
+    User jdm
+    ForwardAgent yes
+EOF</pre>
+  <div class="meta">After this, <code>ssh mdj1-local</code> works forever from this Mac. Skip this step if you've already done it.</div>
+</div>
+
+<div class="section-title">Step 1 — Open Terminal on your Mac</div>
+
+<div class="warrior-card">
+  <h2>Open the Terminal app:</h2>
+  <div class="meta">Spotlight (Cmd+Space) &rarr; type "Terminal" &rarr; hit Enter. Or find it in Applications &rarr; Utilities &rarr; Terminal.</div>
+</div>
+
+<div class="section-title">Step 2 — SSH into MDJ_SERVER</div>
+
+<div class="warrior-card">
+  <h2>Connect to the server (click to copy):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">ssh mdj1-local</pre>
+  <div class="meta">You'll see <code>jdm@mdjserver:~$</code> when you're connected. If it asks for a password or says "connection refused," the server might be off.</div>
+</div>
+
+<div class="section-title">Step 3 — Check for existing warrior sessions</div>
+
+<div class="warrior-card">
+  <h2>See who's already running (click to copy):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux ls</pre>
+  <div class="meta">This shows all active warrior sessions. If the warrior you want is already running, reattach with: <code>tmux attach -t WARRIOR_NAME</code></div>
+</div>
+
+<div class="section-title">Step 4 — Start a NEW warrior session</div>
+
+<div class="note">
+  Only do this if the warrior ISN'T already running (Step 3 didn't show them). Pick ONE warrior below &mdash; click to copy, paste into terminal.
+</div>
+
+<div class="warrior-card">
+  <h2>🥷 Launch SHINOB1 (CTO):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s SHINOB1 && cd ~/Projects/toMachina && claude</pre>
+</div>
+<div class="warrior-card">
+  <h2>🏯 Launch MEGAZORD (CIO):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s MEGAZORD && cd ~/Projects/toMachina && claude</pre>
+</div>
+<div class="warrior-card">
+  <h2>🦁 Launch VOLTRON (CSO):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s VOLTRON && cd ~/Projects/toMachina && claude</pre>
+</div>
+<div class="warrior-card">
+  <h2>⚔️ Launch MUSASHI (CMO):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s MUSASHI && cd ~/Projects/toMachina && claude</pre>
+</div>
+<div class="warrior-card">
+  <h2>⚡ Launch RAIDEN (Guardian):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s RAIDEN && cd ~/Projects/toMachina && claude</pre>
+</div>
+<div class="warrior-card">
+  <h2>🗡️ Launch RONIN (Builder):</h2>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">tmux new -s RONIN && cd ~/Projects/toMachina && claude</pre>
+</div>
+
+<div class="section-title">Step 5 — Paste the warrior's identity prompt</div>
+
+<div class="note">
+  Claude Code is now open. Paste the identity prompt below as your <strong>FIRST message</strong>. This tells the warrior who it is. Click the box to copy, then paste into the Claude Code prompt.
 </div>
 
 <div class="section-title">Executive.AI Team (CXOs)</div>
