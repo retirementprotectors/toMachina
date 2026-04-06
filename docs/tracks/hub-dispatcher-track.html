@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub Dispatcher — Track Discovery Doc</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-hover: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #e07c3e;
+    --accent-glow: rgba(224,124,62,0.12);
+    --mecha: #10b981;
+    --mecha-glow: rgba(16,185,129,0.12);
+    --cyan: #06b6d4;
+    --cyan-glow: rgba(6,182,212,0.12);
+    --blue: #3b82f6;
+    --blue-glow: rgba(59,130,246,0.15);
+    --green: #22c55e;
+    --green-glow: rgba(34,197,94,0.12);
+    --gold: #d4a44c;
+    --gold-glow: rgba(212,164,76,0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.12);
+    --orange: #f59e0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #020b1a 0%, #0a0e17 30%, #050d12 60%, #0a0e17 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 52px 32px 44px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(224,124,62,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(224,124,62,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.07) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .sprint-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .header h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #e07c3e 0%, #f59e0b 40%, #e07c3e 70%, #d4a44c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 700px;
+    margin: 0 auto 22px;
+    position: relative;
+  }
+  .header-badges {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .badge-accent { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); }
+  .badge-cyan   { background: var(--cyan-glow);   color: var(--cyan);   border: 1px solid rgba(6,182,212,0.3); }
+  .badge-blue   { background: var(--blue-glow);   color: var(--blue);   border: 1px solid rgba(59,130,246,0.3); }
+  .badge-green  { background: var(--green-glow);  color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
+  .badge-mecha  { background: var(--mecha-glow);  color: var(--mecha);  border: 1px solid rgba(16,185,129,0.3); }
+  .badge-gold   { background: var(--gold-glow);   color: var(--gold);   border: 1px solid rgba(212,164,76,0.3); }
+  .badge-red    { background: var(--red-glow);    color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+  .ronin-meta {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'SF Mono', monospace;
+    position: relative;
+  }
+
+  /* ── TABS ── */
+  .tab-container {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tabs {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  .tab {
+    padding: 14px 22px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg-hover); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-glow); }
+
+  /* ── CONTENT ── */
+  .content { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+  .card h3 { font-size: 1rem; font-weight: 600; margin: 18px 0 8px; color: var(--accent); }
+  .card h4 { font-size: 0.92rem; font-weight: 600; margin: 12px 0 6px; color: var(--text); }
+  .card p { color: var(--text-muted); margin-bottom: 12px; font-size: 0.95rem; }
+  .card ul, .card ol { color: var(--text-muted); margin: 0 0 12px 22px; }
+  .card li { margin-bottom: 4px; font-size: 0.95rem; }
+  .card strong { color: var(--text); }
+  .card code {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.83em;
+    color: var(--cyan);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.875rem; }
+  th { text-align: left; padding: 10px 14px; background: var(--bg-hover); color: var(--accent); font-weight: 600; border-bottom: 1px solid var(--border); font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+  tr:hover td { background: var(--bg-hover); }
+
+  /* ── DIAGRAM / CODE BLOCK ── */
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--text-muted);
+    white-space: pre;
+    margin: 16px 0;
+  }
+  .hl-accent { color: var(--accent);  font-weight: 600; }
+  .hl-mecha  { color: var(--mecha);   font-weight: 600; }
+  .hl-cyan   { color: var(--cyan);    font-weight: 600; }
+  .hl-blue   { color: var(--blue);    font-weight: 600; }
+  .hl-gold   { color: var(--gold);    font-weight: 600; }
+  .hl-green  { color: var(--green);   font-weight: 600; }
+  .hl-red    { color: var(--red);     font-weight: 600; }
+
+  /* ── SPEC GRID ── */
+  .spec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 16px 0; }
+  .spec-card {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .spec-card.accent { border-top: 3px solid var(--accent); }
+  .spec-card.mecha  { border-top: 3px solid var(--mecha); }
+  .spec-card.cyan   { border-top: 3px solid var(--cyan); }
+  .spec-card.blue   { border-top: 3px solid var(--blue); }
+  .spec-card.green  { border-top: 3px solid var(--green); }
+  .spec-card.gold   { border-top: 3px solid var(--gold); }
+  .spec-card.red    { border-top: 3px solid var(--red); }
+  .spec-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .spec-card p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 6px; }
+  .spec-card ul { font-size: 0.83rem; color: var(--text-muted); margin: 6px 0 0 16px; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: rgba(224,124,62,0.07);
+    border: 1px solid rgba(224,124,62,0.25);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .callout.blue   { background: rgba(59,130,246,0.07);  border-color: rgba(59,130,246,0.25); }
+  .callout.cyan   { background: rgba(6,182,212,0.07);   border-color: rgba(6,182,212,0.25); }
+  .callout.green  { background: rgba(34,197,94,0.07);   border-color: rgba(34,197,94,0.25); }
+  .callout.gold   { background: rgba(212,164,76,0.07);  border-color: rgba(212,164,76,0.25); }
+  .callout.red    { background: rgba(239,68,68,0.07);   border-color: rgba(239,68,68,0.25); }
+  .callout p { margin: 0; color: var(--text-muted); font-size: 0.92rem; }
+  .callout strong { color: var(--text); }
+
+  /* ── QUOTE ── */
+  .quote {
+    border-left: 3px solid var(--accent);
+    padding-left: 18px;
+    margin: 16px 0;
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* ── TICKETS ── */
+  .ticket {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .ticket.phase2 { border-left-color: var(--blue); }
+  .ticket.phase3 { border-left-color: var(--cyan); }
+
+  .ticket-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .ticket-id {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-glow);
+    padding: 3px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(224,124,62,0.25);
+    letter-spacing: 1px;
+  }
+  .ticket-id.phase2 { color: var(--blue); background: var(--blue-glow); border-color: rgba(59,130,246,0.25); }
+  .ticket-id.phase3 { color: var(--cyan); background: var(--cyan-glow); border-color: rgba(6,182,212,0.25); }
+  .ticket-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+
+  .ticket h3 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 18px 0 8px;
+  }
+  .ticket p { color: var(--text-muted); margin-bottom: 10px; font-size: 0.9rem; }
+  .ticket ul, .ticket ol { color: var(--text-muted); margin: 0 0 10px 20px; font-size: 0.9rem; }
+  .ticket li { margin-bottom: 4px; }
+  .ticket code {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.82em;
+    color: var(--cyan);
+    font-family: 'SF Mono', monospace;
+  }
+  .file-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 8px 0 14px;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: var(--cyan);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .ac-list { list-style: none; padding: 0; margin: 8px 0 14px; }
+  .ac-list li { padding: 4px 0 4px 26px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .ac-list li::before { content: '\2713'; position: absolute; left: 4px; color: var(--green); font-weight: 700; }
+  .dep-list { list-style: none; padding: 0; margin: 8px 0 14px; }
+  .dep-list li { padding: 4px 0 4px 26px; position: relative; color: var(--text-muted); font-size: 0.9rem; }
+  .dep-list li::before { content: '\2192'; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+
+  /* ── PHASE HEADER ── */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 36px 0 22px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .phase-header.p2 { border-bottom-color: var(--blue); }
+  .phase-header.p3 { border-bottom-color: var(--cyan); }
+  .phase-num {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 900;
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(224,124,62,0.3);
+    flex-shrink: 0;
+  }
+  .phase-num.p2 { background: var(--blue-glow); color: var(--blue); border-color: rgba(59,130,246,0.3); }
+  .phase-num.p3 { background: var(--cyan-glow); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+  .phase-info .phase-title { font-size: 1.3rem; font-weight: 700; }
+  .phase-info .phase-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── STATUS PILLS ── */
+  .pill-live    { color: var(--green);  font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .pill-stub    { color: var(--orange); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .pill-planned { color: var(--blue);   font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 44px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+  .footer .signoff { color: var(--accent); font-weight: 700; font-size: 1.05rem; margin-top: 14px; }
+  .footer .race { color: var(--accent); font-weight: 700; letter-spacing: 2px; margin-top: 8px; font-size: 0.9rem; }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 2.2rem; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .ticket { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<div class="header">
+  <div class="sprint-label">TRACK DISCOVERY DOC &mdash; INFRASTRUCTURE</div>
+  <h1>Hub Dispatcher</h1>
+  <p class="subtitle">CXO-aware intake router. One triage point, five destinations. Every incoming item lands in the right queue without JDM sorting manually.</p>
+  <div class="header-badges">
+    <span class="badge badge-accent">INFRASTRUCTURE</span>
+    <span class="badge badge-accent">CXO ROUTING</span>
+    <span class="badge badge-cyan">6 TICKETS</span>
+    <span class="badge badge-green">RON- PREFIX</span>
+    <span class="badge badge-blue">3 PHASES</span>
+  </div>
+  <div class="ronin-meta">authored: MUSASHI, ARTxBLADE &bull; 2026-04-06 &bull; CTO-approved discovery: SHINOB1</div>
+</div>
+
+<!-- ═══════════ TABS ═══════════ -->
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active"    onclick="showTab('overview')">Overview</div>
+    <div class="tab"           onclick="showTab('tickets')">Tickets</div>
+    <div class="tab"           onclick="showTab('files')">Files</div>
+    <div class="tab"           onclick="showTab('tests')">Test Plan</div>
+    <div class="tab"           onclick="showTab('deps')">Dependencies</div>
+    <div class="tab"           onclick="showTab('sprint')">Sprint Plan</div>
+  </div>
+</div>
+
+<!-- ═══════════ CONTENT ═══════════ -->
+<div class="content">
+
+  <!-- ─────────── OVERVIEW ─────────── -->
+  <div class="panel active" id="tab-overview">
+
+    <div class="card">
+      <h2>The Problem</h2>
+      <div class="quote">"Incoming work arrives through five channels and JDM is the router. That's the bottleneck." &mdash; SHINOB1, CTO Discovery</div>
+      <p>The intent classifier only knows <strong>deploy vs chat</strong>. The triage engine only routes to <strong>RAIDEN</strong>. Neither knows about MEGAZORD, VOLTRON, or MUSASHI. Data import requests sit in RAIDEN's fix queue. Creative briefs land as bug reports. Feature requests get triaged as incidents. JDM manually re-routes &mdash; every day, multiple times a day.</p>
+      <p>Hub Dispatcher eliminates the manual sorting. One triage point. Keyword scoring with Haiku fallback. Five CXO destinations. Zero JDM intervention.</p>
+    </div>
+
+    <div class="card">
+      <h2>The Solution</h2>
+      <div class="diagram">Incoming item (email, Slack, MDJ chat, Dojo Reporter)
+    |
+    v
+<span class="hl-accent">HUB DISPATCHER</span> (keyword scoring + Haiku fallback)
+    |
+    +---> Data problem?        ---> <span class="hl-mecha">MEGAZORD</span>  (#megazord-intake / megazord@)     ZRD-
+    +---> Client case?         ---> <span class="hl-blue">VOLTRON</span>   (#voltron-cases / voltron@)       VOL-
+    +---> Creative request?    ---> <span class="hl-gold">MUSASHI</span>   (Command Center)                  MUS-
+    +---> Bug / broken thing?  ---> <span class="hl-red">RAIDEN</span>    (#the-dojo / dojo@)               RDN-
+    +---> Feature / build?     ---> <span class="hl-blue">RONIN</span>     (Dojo intake)                     RON-
+    +---> Junk / spam?         ---> Archive   (auto-discard)</div>
+    </div>
+
+    <div class="card">
+      <h2>Routing Keywords</h2>
+      <table>
+        <thead>
+          <tr><th>Destination</th><th>Keywords</th><th>Prefix</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--mecha);font-weight:700;">MEGAZORD</td><td>import, commission, carrier, CSV, feed, data, migration, BoB, book of business, sync, ATLAS</td><td>ZRD-</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">VOLTRON</td><td>client, case, enrollment, review, account, RMD, medicare, annuity, investment, life, estate, LTC</td><td>VOL-</td></tr>
+          <tr><td style="color:var(--gold);font-weight:700;">MUSASHI</td><td>brochure, campaign, website, design, brand, Canva, WordPress, video, social, marketing, creative</td><td>MUS-</td></tr>
+          <tr><td style="color:var(--red);font-weight:700;">RAIDEN</td><td>broken, error, can not, won not, crash, bug, fix, not working, 500, timeout, down</td><td>RDN-</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">RONIN</td><td>add, new feature, enhance, build, create, implement, would be nice, idea</td><td>RON-</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Input Channels</h2>
+      <div class="spec-grid">
+        <div class="spec-card accent">
+          <h4>Email</h4>
+          <p><code>intake@retireprotected.com</code></p>
+          <ul>
+            <li>General dispatcher</li>
+            <li>Poll MDJ_SERVER_SA inbox</li>
+            <li>Classify content, route to queue</li>
+          </ul>
+        </div>
+        <div class="spec-card red">
+          <h4>Slack (#the-dojo)</h4>
+          <p><code>C0ANMBVMSTV</code></p>
+          <ul>
+            <li>Dojo dispatcher</li>
+            <li>CXO classification before FIX/ROUTE/TRAIN</li>
+          </ul>
+        </div>
+        <div class="spec-card mecha">
+          <h4>Slack (#megazord-intake)</h4>
+          <p><code>C0ARTUA8RAL</code> &mdash; direct</p>
+          <ul><li>Everything here IS MEGAZORD</li></ul>
+        </div>
+        <div class="spec-card blue">
+          <h4>Slack (#voltron-cases)</h4>
+          <p><code>C0AQT902PB5</code> &mdash; direct</p>
+          <ul><li>Everything here IS VOLTRON</li></ul>
+        </div>
+        <div class="spec-card cyan">
+          <h4>MDJ Panel (chat)</h4>
+          <p>Intent classifier</p>
+          <ul>
+            <li>Update intent-classifier with CXO target</li>
+            <li>After deploy/chat classification</li>
+          </ul>
+        </div>
+        <div class="spec-card green">
+          <h4>Dojo Reporter (FAB)</h4>
+          <p>Prefix-based routing</p>
+          <ul>
+            <li>Add ZRD-/VOL-/MUS- to FAB dropdown</li>
+            <li>Alongside existing RDN-/RON-</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ticket Summary</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Title</th><th>Phase</th><th>Parallel?</th><th>Size</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--accent);font-weight:700;">RON-HD01</td><td>Hub Dispatcher core routing logic</td><td>1 &mdash; Core Engine</td><td>No (foundation)</td><td>M</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">RON-HD02</td><td>Update intent-classifier.ts</td><td>2 &mdash; Wire Channels</td><td>Yes</td><td>S</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">RON-HD03</td><td>Update triage-engine.ts</td><td>2 &mdash; Wire Channels</td><td>Yes</td><td>S</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">RON-HD04</td><td>Email intake dispatcher</td><td>2 &mdash; Wire Channels</td><td>Yes</td><td>L</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">RON-HD05</td><td>Dojo Reporter FAB ticket types</td><td>2 &mdash; Wire Channels</td><td>Yes</td><td>S</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:700;">RON-HD06</td><td>Junk/spam filter</td><td>3 &mdash; Hardening</td><td>After P2</td><td>S</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Track Architecture</h2>
+      <div class="diagram"><span class="hl-accent">HUB DISPATCHER</span>
+    |
+    ├── <span class="hl-accent">Phase 1: Core Engine</span>          RON-HD01                    (foundation &mdash; must complete first)
+    |         hub-dispatcher.ts: keyword scoring + Haiku fallback
+    |
+    ├── <span class="hl-blue">Phase 2: Wire Channels</span>        RON-HD02 + HD03 + HD04 + HD05  (all parallel after P1)
+    |         intent-classifier, triage-engine, email intake, FAB dropdown
+    |
+    └── <span class="hl-cyan">Phase 3: Hardening</span>            RON-HD06                    (after P2)
+              spam/junk filter, auto-archive, confidence thresholds
+
+Assigned to: <span class="hl-blue">RONIN</span> (Code Warrior, infrastructure build)
+Routing target: All 5 CXOs + archive</div>
+    </div>
+
+    <div class="card">
+      <h2>Completion Gate</h2>
+      <div class="callout">
+        <p><strong>Hub Dispatcher is LIVE when all gate items are confirmed:</strong></p>
+      </div>
+      <ol>
+        <li><code>hub-dispatcher.ts</code> exists at <code>services/api/src/raiden/</code> with keyword scoring + Haiku fallback</li>
+        <li>Dispatcher returns <code>{ cxo_target, confidence, ticket_prefix }</code> for all 5 CXO targets + archive</li>
+        <li>Intent classifier at MDJ panel level returns CXO target after deploy/chat classification</li>
+        <li>Triage engine routes data items to ZRD-, creative to MUS-, client cases to VOL-</li>
+        <li>Email intake polls <code>intake@retireprotected.com</code> and routes correctly</li>
+        <li>Dojo Reporter FAB includes ZRD-/VOL-/MUS- options alongside RDN-/RON-</li>
+        <li>Spam/junk patterns auto-archived (no junk tickets created)</li>
+        <li><code>npm run build</code> passes (11/11)</li>
+        <li><code>npm run type-check</code> passes (13/13)</li>
+        <li>E2E test for dispatch routing passes</li>
+      </ol>
+    </div>
+
+  </div><!-- /overview -->
+
+  <!-- ─────────── TICKETS ─────────── -->
+  <div class="panel" id="tab-tickets">
+
+    <!-- Phase 1 -->
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div class="phase-info">
+        <div class="phase-title">Core Engine</div>
+        <div class="phase-desc">RON-HD01 &mdash; foundation ticket. Must complete before any channel wiring.</div>
+      </div>
+    </div>
+
+    <!-- RON-HD01 -->
+    <div class="ticket">
+      <div class="ticket-header">
+        <span class="ticket-id">RON-HD01</span>
+        <span class="ticket-title">Hub Dispatcher Core Routing Logic</span>
+      </div>
+      <p>Create <code>hub-dispatcher.ts</code> &mdash; the central routing engine. Keyword scoring against 5 CXO keyword sets. If no keyword match exceeds confidence threshold (0.6), fall back to Claude Haiku for classification. Returns the CXO target, confidence score, ticket prefix, and routing channel.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">services/api/src/raiden/hub-dispatcher.ts              &mdash; CREATE: core routing engine
+packages/core/src/raiden/hub-dispatcher-types.ts       &mdash; CREATE: shared types (DispatchResult, CxoTarget, DispatchChannel)
+services/api/src/routes/dispatch.ts                    &mdash; CREATE: POST /api/dispatch endpoint
+services/api/src/server.ts                             &mdash; EDIT: mount dispatch route</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>dispatchItem(text: string, channel: DispatchChannel): Promise&lt;DispatchResult&gt;</code> exported from <code>hub-dispatcher.ts</code></li>
+        <li><code>DispatchResult</code> type: <code>{ cxo_target: CxoTarget, confidence: number, ticket_prefix: string, routing_destination: string, method: 'keyword' | 'haiku' }</code></li>
+        <li><code>CxoTarget</code> union: <code>'megazord' | 'voltron' | 'musashi' | 'raiden' | 'ronin' | 'archive'</code></li>
+        <li>Keyword scoring: each CXO has a weighted keyword list. Score = (matched keywords / total words) with exact-match bonus (2x) for high-signal terms like "import", "broken", "brochure"</li>
+        <li>Confidence threshold at 0.6 &mdash; below this, Haiku fallback is triggered</li>
+        <li>Haiku fallback: single-shot prompt with the 5 CXO descriptions + input text, returns JSON <code>{ target, confidence }</code></li>
+        <li>Archive target for spam patterns: empty body, known spam phrases ("unsubscribe", "click here to win"), single-word junk</li>
+        <li><code>POST /api/dispatch</code> endpoint accepts <code>{ text, channel }</code>, returns <code>DispatchResult</code></li>
+        <li>Structured response: <code>{ success: true, data: DispatchResult }</code></li>
+        <li><code>npm run type-check</code> passes &mdash; types exported from <code>@tomachina/core</code> barrel</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Architecture Decision</h3>
+      <div class="callout blue">
+        <p><strong>Why keyword scoring + Haiku fallback (not Haiku-only)?</strong> Keyword scoring is instant (0ms), deterministic, and free. Haiku adds ~200ms latency and API cost per call. 80%+ of intake items will match keywords cleanly. Haiku is the safety net for ambiguous cases &mdash; "my client's data isn't showing up" could be MEGAZORD (data) or VOLTRON (client case). Haiku resolves the ambiguity. This is the same belt-and-suspenders pattern used across The Machine.</p>
+      </div>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>"Import commission CSV from Gradient" &rarr; MEGAZORD (keyword: import, commission, CSV)</li>
+        <li>"Client John Smith needs RMD review" &rarr; VOLTRON (keyword: client, RMD, review)</li>
+        <li>"Need a new brochure for the Medicare AEP campaign" &rarr; MUSASHI (keyword: brochure, campaign)</li>
+        <li>"The prodash login page is broken, 500 error" &rarr; RAIDEN (keyword: broken, 500, error)</li>
+        <li>"Would be nice to add a dark mode toggle" &rarr; RONIN (keyword: would be nice, add)</li>
+        <li>"Congratulations you won a free iPad" &rarr; archive (spam pattern)</li>
+        <li>"My client's data import is stuck" &rarr; Haiku fallback (ambiguous: client + import)</li>
+        <li>Empty string &rarr; archive</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>None &mdash; foundation ticket. RON-HD02 through HD05 depend on this.</li>
+      </ul>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-header p2">
+      <div class="phase-num p2">2</div>
+      <div class="phase-info">
+        <div class="phase-title">Wire Channels</div>
+        <div class="phase-desc">RON-HD02, HD03, HD04, HD05 &mdash; all run in parallel after Phase 1. Each wires a different intake channel to the dispatcher.</div>
+      </div>
+    </div>
+
+    <!-- RON-HD02 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">RON-HD02</span>
+        <span class="ticket-title">Update Intent Classifier &mdash; CXO Target</span>
+      </div>
+      <p>The MDJ Panel's intent classifier currently returns <code>{ mode: 'deploy' | 'chat' }</code>. Extend it to include a CXO routing target after the deploy/chat decision. When a user chats with MDJ about a data problem, the classifier should tag it for MEGAZORD. When they report a bug, tag it for RAIDEN. This makes MDJ conversations CXO-aware.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">apps/prodash/app/(portal)/modules/voltron/hooks/use-intent-classifier.ts  &mdash; EDIT: add cxo_target to return type
+services/api/src/raiden/hub-dispatcher.ts                                   &mdash; IMPORT: use dispatchItem()
+packages/core/src/raiden/hub-dispatcher-types.ts                            &mdash; IMPORT: DispatchResult type</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>Intent classifier return type extended: <code>{ mode: 'deploy' | 'chat', cxo_target?: CxoTarget, cxo_confidence?: number }</code></li>
+        <li>After deploy/chat classification, if mode is <code>'chat'</code>, call <code>dispatchItem(text, 'mdj-panel')</code> to get CXO target</li>
+        <li>CXO target passed downstream so MDJ can route the conversation to the correct specialist context</li>
+        <li>Backwards compatible &mdash; existing callers that only read <code>mode</code> are unaffected</li>
+        <li>No breaking changes to MDJ Panel behavior</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>MDJ Panel chat "import my commission data" &rarr; mode: chat, cxo_target: megazord</li>
+        <li>MDJ Panel chat "deploy the latest build" &rarr; mode: deploy, cxo_target: undefined</li>
+        <li>MDJ Panel chat "fix the broken login page" &rarr; mode: chat, cxo_target: raiden</li>
+        <li>Existing MDJ behavior unchanged &mdash; deploy commands still work</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>RON-HD01 complete (hub-dispatcher.ts exists)</li>
+        <li>Parallel with RON-HD03, HD04, HD05</li>
+      </ul>
+    </div>
+
+    <!-- RON-HD03 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">RON-HD03</span>
+        <span class="ticket-title">Update Triage Engine &mdash; CXO-Aware Routing</span>
+      </div>
+      <p>The triage engine (<code>triage-engine.ts</code>) currently runs FIX/ROUTE/TRAIN classification and sends everything to RAIDEN. Insert a CXO dispatch step <strong>before</strong> the FIX/ROUTE/TRAIN decision. Data items get ZRD- prefixed and routed to MEGAZORD's queue. Creative items get MUS- prefixed. Client cases get VOL- prefixed. Only actual bugs/fixes stay with RAIDEN (RDN-).</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">services/api/src/raiden/triage-engine.ts     &mdash; EDIT: add CXO dispatch before FIX/ROUTE/TRAIN
+services/api/src/raiden/hub-dispatcher.ts    &mdash; IMPORT: use dispatchItem()
+services/api/src/raiden/scheduler.ts         &mdash; VERIFY: scheduler calls updated triageItem()</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><strong>STEP 0 &mdash; Blast Radius Audit:</strong> grep all callers of <code>triageItem()</code> and <code>triage-engine</code> across the repo. Document every caller in the PR. The triage engine is a critical path &mdash; breaking it breaks RAIDEN's entire intake.</li>
+        <li><code>triageItem()</code> calls <code>dispatchItem(text, channel)</code> as first step</li>
+        <li>If CXO target is NOT raiden/ronin, route to the CXO's queue and skip FIX/ROUTE/TRAIN</li>
+        <li>If CXO target IS raiden or ronin, continue existing FIX/ROUTE/TRAIN flow unchanged</li>
+        <li>Triage result includes <code>cxo_target</code> and <code>ticket_prefix</code> fields</li>
+        <li>Existing RAIDEN behavior is preserved for bug reports</li>
+        <li>Scheduler still calls triage engine correctly &mdash; no breaking change to <code>scheduler.ts</code></li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Slack message "need to import the Gradient commission file" triaged &rarr; cxo_target: megazord, prefix: ZRD-</li>
+        <li>Slack message "prodash throwing 500 on login" triaged &rarr; cxo_target: raiden, prefix: RDN-, continues to FIX/ROUTE/TRAIN</li>
+        <li>Slack message "design a new enrollment brochure" triaged &rarr; cxo_target: musashi, prefix: MUS-</li>
+        <li>Existing RAIDEN triage tests still pass (regression)</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>RON-HD01 complete (hub-dispatcher.ts exists)</li>
+        <li>Parallel with RON-HD02, HD04, HD05</li>
+      </ul>
+    </div>
+
+    <!-- RON-HD04 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">RON-HD04</span>
+        <span class="ticket-title">Email Intake Dispatcher</span>
+      </div>
+      <p>Build the email intake channel. Poll the <code>intake@retireprotected.com</code> inbox on MDJ_SERVER using the Gmail API (service account). For each unread email: extract subject + body, run through Hub Dispatcher, create a ticket in the correct CXO queue, mark email as read. This is the largest ticket &mdash; full email-to-ticket pipeline.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">services/api/src/raiden/email-intake.ts           &mdash; CREATE: Gmail polling + dispatch + ticket creation
+services/api/src/raiden/hub-dispatcher.ts          &mdash; IMPORT: use dispatchItem()
+services/api/src/raiden/scheduler.ts               &mdash; EDIT: add email polling interval (5 min)
+services/api/src/routes/dispatch.ts                &mdash; EDIT: add GET /api/dispatch/email-status endpoint</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>pollEmailIntake()</code> function exported from <code>email-intake.ts</code></li>
+        <li>Uses Gmail API via service account (<code>/home/jdm/mdj-agent/sa-key.json</code>) with domain-wide delegation</li>
+        <li>Polls <code>intake@retireprotected.com</code> for unread messages (label: INBOX, is:unread)</li>
+        <li>For each email: extracts subject + first 500 chars of body text (strips HTML)</li>
+        <li>Runs extracted text through <code>dispatchItem(text, 'email')</code></li>
+        <li>Creates ticket via <code>POST /api/tracker</code> with correct prefix, title from subject, description from body</li>
+        <li>Marks email as read after successful processing (adds PROCESSED label)</li>
+        <li>Scheduler calls <code>pollEmailIntake()</code> every 5 minutes</li>
+        <li>Status endpoint <code>GET /api/dispatch/email-status</code> returns last poll time, emails processed count, errors</li>
+        <li>Error handling: failed emails logged but don't block the queue. Retry on next poll cycle.</li>
+        <li>Gmail OAuth token verified on MDJ_SERVER before deployment</li>
+      </ul>
+
+      <h3>Architecture Decision</h3>
+      <div class="callout gold">
+        <p><strong>Why poll (not push)?</strong> Gmail push notifications require a verified Pub/Sub topic and webhook endpoint. Polling every 5 minutes is simpler, requires only the existing SA key, and handles the expected volume (< 50 emails/day). If volume grows past 200/day, switch to Pub/Sub push. This is v1 &mdash; keep it simple.</p>
+      </div>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Send test email to intake@retireprotected.com with subject "Import Gradient commissions" &rarr; ZRD- ticket created</li>
+        <li>Send test email with subject "Login page broken" &rarr; RDN- ticket created</li>
+        <li>Send test email with subject "New brochure for AEP" &rarr; MUS- ticket created</li>
+        <li>Email marked as read after processing &mdash; not re-processed on next poll</li>
+        <li>Status endpoint returns accurate last-poll timestamp and count</li>
+        <li>Malformed email (no body, no subject) handled gracefully &mdash; no crash</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>RON-HD01 complete (hub-dispatcher.ts exists)</li>
+        <li>Gmail OAuth verified on MDJ_SERVER (token deployed, needs verification)</li>
+        <li>Parallel with RON-HD02, HD03, HD05</li>
+      </ul>
+    </div>
+
+    <!-- RON-HD05 -->
+    <div class="ticket phase2">
+      <div class="ticket-header">
+        <span class="ticket-id phase2">RON-HD05</span>
+        <span class="ticket-title">Dojo Reporter FAB &mdash; CXO Ticket Types</span>
+      </div>
+      <p>The Dojo Reporter floating action button (FAB) currently only offers RDN- (bug) and RON- (feature) ticket types. Add ZRD- (data/MEGAZORD), VOL- (client case/VOLTRON), and MUS- (creative/MUSASHI) to the dropdown. Users selecting a CXO-specific type get routed directly &mdash; no dispatcher classification needed because the human already declared the intent.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">packages/ui/src/components/IntakeFAB.tsx      &mdash; EDIT: add ZRD-/VOL-/MUS- to ticket type dropdown
+packages/ui/src/components/ReportButton.tsx   &mdash; VERIFY: report submission includes selected prefix
+packages/ui/src/components/DraggableFAB.tsx   &mdash; VERIFY: no changes needed (container only)</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li>FAB dropdown includes 5 ticket types: RDN- (Bug/Fix), RON- (Feature), ZRD- (Data), VOL- (Client Case), MUS- (Creative)</li>
+        <li>Each type displays: prefix, label, and CXO warrior color accent</li>
+        <li>Colors: RDN- red (<code>#ef4444</code>), RON- blue (<code>#3b82f6</code>), ZRD- mecha-green (<code>#10b981</code>), VOL- blue (<code>#3b82f6</code>), MUS- gold (<code>#d4a44c</code>)</li>
+        <li>Selected prefix is included in the ticket creation payload sent to <code>POST /api/tracker</code></li>
+        <li>Default selection remains RDN- (bug report) for backwards compatibility</li>
+        <li>Dropdown renders correctly on all 3 portals</li>
+        <li>No inline color styles &mdash; use CSS variables or Tailwind classes</li>
+        <li><code>npm run type-check</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>Open FAB on ProDash &rarr; 5 ticket types visible in dropdown</li>
+        <li>Select ZRD- type, submit report &rarr; ticket created with ZRD- prefix</li>
+        <li>Select MUS- type, submit report &rarr; ticket created with MUS- prefix</li>
+        <li>Select VOL- type, submit report &rarr; ticket created with VOL- prefix</li>
+        <li>Default (no selection) &rarr; RDN- prefix (unchanged behavior)</li>
+        <li>FAB renders on RIIMO and SENTINEL identically</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>RON-HD01 complete (prefixes defined in types)</li>
+        <li>Parallel with RON-HD02, HD03, HD04</li>
+      </ul>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-header p3">
+      <div class="phase-num p3">3</div>
+      <div class="phase-info">
+        <div class="phase-title">Hardening</div>
+        <div class="phase-desc">RON-HD06 &mdash; spam/junk filter. Requires Phase 2 complete so all channels are wired.</div>
+      </div>
+    </div>
+
+    <!-- RON-HD06 -->
+    <div class="ticket phase3">
+      <div class="ticket-header">
+        <span class="ticket-id phase3">RON-HD06</span>
+        <span class="ticket-title">Junk/Spam Filter + Auto-Archive</span>
+      </div>
+      <p>Harden the dispatcher against junk input. The archive target from RON-HD01 handles obvious spam keywords, but this ticket adds pattern-based spam detection, repeat-submission throttling, and an auto-archive pipeline that logs discarded items for audit without creating tickets.</p>
+
+      <h3>File Paths</h3>
+      <div class="file-block">services/api/src/raiden/spam-filter.ts          &mdash; CREATE: pattern matching + throttle logic
+services/api/src/raiden/hub-dispatcher.ts       &mdash; EDIT: integrate spam filter before keyword scoring
+services/api/src/routes/dispatch.ts             &mdash; EDIT: add GET /api/dispatch/archive endpoint
+Firestore: dispatch_archive collection          &mdash; CREATE: archived items for audit trail</div>
+
+      <h3>Acceptance Criteria</h3>
+      <ul class="ac-list">
+        <li><code>isSpam(text: string, metadata?: SpamMetadata): SpamResult</code> exported from <code>spam-filter.ts</code></li>
+        <li><code>SpamResult</code>: <code>{ is_spam: boolean, reason: string, confidence: number }</code></li>
+        <li>Pattern detection: known spam phrases, excessive URLs (> 3), all-caps body, empty/whitespace-only</li>
+        <li>Throttle: same sender submitting > 5 items in 10 minutes triggers auto-archive for subsequent items</li>
+        <li>Hub dispatcher calls <code>isSpam()</code> BEFORE keyword scoring &mdash; spam items never reach CXO routing</li>
+        <li>Archived items written to <code>dispatch_archive</code> Firestore collection with: original text, channel, timestamp, spam reason</li>
+        <li><code>GET /api/dispatch/archive</code> returns last 50 archived items for audit</li>
+        <li>No legitimate items are false-positive archived &mdash; threshold tuned conservatively</li>
+        <li><code>npm run build</code> passes</li>
+      </ul>
+
+      <h3>Test Plan</h3>
+      <ul>
+        <li>"Click here to win a free iPad!!!" &rarr; archived (spam phrase)</li>
+        <li>"   " (whitespace only) &rarr; archived (empty)</li>
+        <li>"URGENT BUY NOW http://x http://y http://z http://w" &rarr; archived (excessive URLs)</li>
+        <li>6th submission from same sender in 10 min &rarr; archived (throttle)</li>
+        <li>"Import commission data from Gradient" &rarr; NOT archived (legitimate)</li>
+        <li>Archive endpoint returns discarded items with reasons</li>
+      </ul>
+
+      <h3>Dependencies</h3>
+      <ul class="dep-list">
+        <li>RON-HD01 complete (dispatcher exists to integrate with)</li>
+        <li>Phase 2 complete (all channels wired &mdash; spam filter protects all of them)</li>
+      </ul>
+    </div>
+
+  </div><!-- /tickets -->
+
+  <!-- ─────────── FILES ─────────── -->
+  <div class="panel" id="tab-files">
+
+    <div class="card">
+      <h2>File Map &mdash; All Changes</h2>
+      <table>
+        <thead>
+          <tr><th>File</th><th>Action</th><th>Ticket</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>services/api/src/raiden/hub-dispatcher.ts</code></td><td style="color:var(--green)">CREATE</td><td>RON-HD01</td></tr>
+          <tr><td><code>packages/core/src/raiden/hub-dispatcher-types.ts</code></td><td style="color:var(--green)">CREATE</td><td>RON-HD01</td></tr>
+          <tr><td><code>services/api/src/routes/dispatch.ts</code></td><td style="color:var(--green)">CREATE</td><td>RON-HD01</td></tr>
+          <tr><td><code>services/api/src/server.ts</code></td><td style="color:var(--orange)">EDIT</td><td>RON-HD01</td></tr>
+          <tr><td><code>apps/prodash/app/(portal)/modules/voltron/hooks/use-intent-classifier.ts</code></td><td style="color:var(--orange)">EDIT</td><td>RON-HD02</td></tr>
+          <tr><td><code>services/api/src/raiden/triage-engine.ts</code></td><td style="color:var(--orange)">EDIT</td><td>RON-HD03</td></tr>
+          <tr><td><code>services/api/src/raiden/scheduler.ts</code></td><td style="color:var(--orange)">EDIT</td><td>RON-HD03, HD04</td></tr>
+          <tr><td><code>services/api/src/raiden/email-intake.ts</code></td><td style="color:var(--green)">CREATE</td><td>RON-HD04</td></tr>
+          <tr><td><code>packages/ui/src/components/IntakeFAB.tsx</code></td><td style="color:var(--orange)">EDIT</td><td>RON-HD05</td></tr>
+          <tr><td><code>packages/ui/src/components/ReportButton.tsx</code></td><td style="color:var(--orange)">VERIFY</td><td>RON-HD05</td></tr>
+          <tr><td><code>services/api/src/raiden/spam-filter.ts</code></td><td style="color:var(--green)">CREATE</td><td>RON-HD06</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>New Firestore Collections</h2>
+      <table>
+        <thead>
+          <tr><th>Collection</th><th>Purpose</th><th>Ticket</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>dispatch_archive</code></td><td>Archived spam/junk items for audit trail</td><td>RON-HD06</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px;">No changes to existing collections. Dispatch results are logged in existing <code>tracker_items</code> via the <code>POST /api/tracker</code> endpoint.</p>
+    </div>
+
+    <div class="card">
+      <h2>New Types</h2>
+      <div class="diagram"><span class="hl-accent">// packages/core/src/raiden/hub-dispatcher-types.ts</span>
+
+export type CxoTarget = <span class="hl-mecha">'megazord'</span> | <span class="hl-blue">'voltron'</span> | <span class="hl-gold">'musashi'</span> | <span class="hl-red">'raiden'</span> | <span class="hl-blue">'ronin'</span> | 'archive'
+
+export type DispatchChannel = 'email' | 'slack-dojo' | 'slack-direct' | 'mdj-panel' | 'dojo-fab'
+
+export interface DispatchResult {
+  cxo_target: CxoTarget
+  confidence: number          <span class="hl-cyan">// 0.0 &ndash; 1.0</span>
+  ticket_prefix: string       <span class="hl-cyan">// ZRD- | VOL- | MUS- | RDN- | RON-</span>
+  routing_destination: string <span class="hl-cyan">// channel ID or queue name</span>
+  method: 'keyword' | 'haiku' <span class="hl-cyan">// which classifier made the decision</span>
+}
+
+export interface SpamResult {
+  is_spam: boolean
+  reason: string
+  confidence: number
+}</div>
+    </div>
+
+  </div><!-- /files -->
+
+  <!-- ─────────── TEST PLAN ─────────── -->
+  <div class="panel" id="tab-tests">
+
+    <div class="card">
+      <h2>E2E Test Plan</h2>
+      <p>A new E2E test file <code>tests/e2e/dispatch/hub-dispatcher.test.ts</code> validates the full dispatch pipeline.</p>
+
+      <h3>Test Matrix</h3>
+      <table>
+        <thead>
+          <tr><th>Input</th><th>Expected Target</th><th>Expected Method</th><th>Expected Prefix</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>"Import commission CSV from Gradient"</td><td style="color:var(--mecha)">megazord</td><td>keyword</td><td>ZRD-</td></tr>
+          <tr><td>"Client John Smith needs RMD review"</td><td style="color:var(--blue)">voltron</td><td>keyword</td><td>VOL-</td></tr>
+          <tr><td>"Need new brochure for Medicare AEP campaign"</td><td style="color:var(--gold)">musashi</td><td>keyword</td><td>MUS-</td></tr>
+          <tr><td>"ProDash login page broken, 500 error"</td><td style="color:var(--red)">raiden</td><td>keyword</td><td>RDN-</td></tr>
+          <tr><td>"Would be nice to add dark mode toggle"</td><td style="color:var(--blue)">ronin</td><td>keyword</td><td>RON-</td></tr>
+          <tr><td>"Congratulations you won a free iPad"</td><td>archive</td><td>keyword</td><td>&mdash;</td></tr>
+          <tr><td>"" (empty)</td><td>archive</td><td>keyword</td><td>&mdash;</td></tr>
+          <tr><td>"My client's data import is stuck"</td><td>megazord or voltron</td><td>haiku</td><td>ZRD- or VOL-</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Integration Tests</h2>
+      <ul>
+        <li><strong>Triage Engine Integration:</strong> Submit item via scheduler &rarr; verify CXO target in triage result</li>
+        <li><strong>Email Intake:</strong> Send test email to intake@ &rarr; verify ticket created with correct prefix</li>
+        <li><strong>FAB Submission:</strong> Submit via Dojo Reporter with ZRD- selected &rarr; verify ticket prefix in Firestore</li>
+        <li><strong>Intent Classifier:</strong> MDJ Panel chat with data keywords &rarr; verify cxo_target in classifier response</li>
+        <li><strong>Spam Filter:</strong> Submit known spam patterns &rarr; verify items land in dispatch_archive, not tracker_items</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Regression Guard</h2>
+      <div class="callout red">
+        <p><strong>Critical:</strong> Existing RAIDEN triage tests (<code>tests/e2e/</code>) MUST continue to pass. The triage engine changes in RON-HD03 add CXO dispatch but must NOT break the FIX/ROUTE/TRAIN flow for bug reports. Run the full E2E suite after every Phase 2 ticket.</p>
+      </div>
+    </div>
+
+  </div><!-- /tests -->
+
+  <!-- ─────────── DEPENDENCIES ─────────── -->
+  <div class="panel" id="tab-deps">
+
+    <div class="card">
+      <h2>External Dependencies</h2>
+      <table>
+        <thead>
+          <tr><th>Dependency</th><th>Status</th><th>Ticket</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Gmail OAuth on MDJ_SERVER</td><td><span class="pill-stub">VERIFY</span></td><td>RON-HD04</td><td>Token deployed via SA key. Needs domain-wide delegation verification for intake@ inbox.</td></tr>
+          <tr><td>Slack #megazord-intake (C0ARTUA8RAL)</td><td><span class="pill-live">LIVE</span></td><td>RON-HD03</td><td>Channel exists and configured.</td></tr>
+          <tr><td>Slack #voltron-cases (C0AQT902PB5)</td><td><span class="pill-live">LIVE</span></td><td>RON-HD03</td><td>Channel exists and configured.</td></tr>
+          <tr><td>Slack #the-dojo (C0ANMBVMSTV)</td><td><span class="pill-live">LIVE</span></td><td>RON-HD03</td><td>Existing RAIDEN channel. No changes needed.</td></tr>
+          <tr><td>Email aliases (megazord@, voltron@, musashi@, intake@, dojo@)</td><td><span class="pill-live">LIVE</span></td><td>RON-HD04</td><td>All configured in Google Workspace.</td></tr>
+          <tr><td>Claude Haiku API access</td><td><span class="pill-live">LIVE</span></td><td>RON-HD01</td><td>Available via Anthropic SDK on MDJ_SERVER.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Internal Dependencies (Ticket Order)</h2>
+      <div class="diagram"><span class="hl-accent">RON-HD01</span>  Hub Dispatcher Core
+    |
+    +------+------+------+
+    |      |      |      |
+    v      v      v      v
+<span class="hl-blue">HD02</span>   <span class="hl-blue">HD03</span>   <span class="hl-blue">HD04</span>   <span class="hl-blue">HD05</span>     (all parallel)
+Intent  Triage  Email   FAB
+    |      |      |      |
+    +------+------+------+
+           |
+           v
+       <span class="hl-cyan">RON-HD06</span>  Spam Filter</div>
+    </div>
+
+    <div class="card">
+      <h2>Cross-Track Dependencies</h2>
+      <ul>
+        <li><strong>MEGAZORD (ZRD-) tickets</strong> &mdash; Hub Dispatcher creates ZRD- tickets that land in MEGAZORD's Dojo lane. Requires ZRD- prefix registered (ZRD-C02 from MEGAZORD Track 1).</li>
+        <li><strong>VOLTRON (VOL-) tickets</strong> &mdash; Hub Dispatcher creates VOL- tickets. Requires VOL- prefix registered (VOL-C02 from VOLTRON Track 1).</li>
+        <li><strong>MUSASHI (MUS-) tickets</strong> &mdash; Hub Dispatcher creates MUS- tickets. Requires MUS- prefix registered (MUS-C02 from MUSASHI Track 1).</li>
+        <li><strong>Soft dependency:</strong> Hub Dispatcher can create tickets with CXO prefixes even before the Dojo lanes exist &mdash; the tickets will appear once the lanes are registered. No hard blocker.</li>
+      </ul>
+    </div>
+
+  </div><!-- /deps -->
+
+  <!-- ─────────── SPRINT PLAN ─────────── -->
+  <div class="panel" id="tab-sprint">
+
+    <div class="card">
+      <h2>Sprint Execution Plan</h2>
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Tickets</th><th>Parallelism</th><th>Est. Effort</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--accent);font-weight:700;">Phase 1</td><td>RON-HD01</td><td>Sequential (foundation)</td><td>M &mdash; 1 RONIN</td></tr>
+          <tr><td style="color:var(--blue);font-weight:700;">Phase 2</td><td>RON-HD02, HD03, HD04, HD05</td><td>4 parallel RONINs</td><td>S+S+L+S &mdash; 4 RONINs</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:700;">Phase 3</td><td>RON-HD06</td><td>Sequential (hardening)</td><td>S &mdash; 1 RONIN</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Execution Strategy</h2>
+      <ol>
+        <li><strong>Phase 1:</strong> Single RONIN builds <code>hub-dispatcher.ts</code> + types + API endpoint. This is the foundation everything else plugs into. PR, merge, verify.</li>
+        <li><strong>Phase 2:</strong> Spawn 4 parallel RONINs. Each wires one channel. HD04 (email) is the largest &mdash; give it priority focus. HD02/HD03/HD05 are small edits. All 4 PRs can merge independently.</li>
+        <li><strong>Phase 3:</strong> Single RONIN adds spam filter + archive. Integrates into dispatcher. Final hardening pass.</li>
+        <li><strong>Gate:</strong> Full E2E suite green. All 5 CXO targets tested. Existing RAIDEN tests pass. <code>npm run build</code> 11/11. <code>npm run type-check</code> 13/13.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>Risk Register</h2>
+      <table>
+        <thead>
+          <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Triage engine change breaks RAIDEN intake</td><td style="color:var(--red)">HIGH</td><td>Blast radius audit (HD03 AC Step 0). Run existing E2E tests after every change.</td></tr>
+          <tr><td>Gmail OAuth not verified for intake@ inbox</td><td style="color:var(--orange)">MEDIUM</td><td>Verify before starting HD04. If blocked, HD04 ships last.</td></tr>
+          <tr><td>Haiku fallback adds latency to triage</td><td style="color:var(--orange)">MEDIUM</td><td>Keyword scoring handles 80%+. Haiku only fires on ambiguous cases.</td></tr>
+          <tr><td>Spam filter false positives</td><td style="color:var(--orange)">MEDIUM</td><td>Conservative thresholds. Audit endpoint for review. Archive, don't delete.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /sprint -->
+
+</div><!-- /content -->
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<div class="footer">
+  <p>Hub Dispatcher Track Discovery Doc &bull; 6 tickets &bull; 3 phases &bull; RON- prefix</p>
+  <p>Source discovery: <a href="../discoveries/hub-dispatcher-discovery.html" style="color:var(--accent)">SHINOB1, CTO &mdash; 2026-04-06</a></p>
+  <div class="signoff">&crossed_swords; &mdash; MUSASHI, ARTxBLADE</div>
+  <div class="race">#RunningOurOwnRACE</div>
+</div>
+
+<script>
+function showTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
