@@ -307,8 +307,8 @@
         <tr><td>Server</td><td>Dell PowerEdge T440 (Tower)</td><td><span class="status status-done">Operational</span></td></tr>
         <tr><td>CPU</td><td>Intel Xeon (16 cores)</td><td><span class="status status-done">Installed</span></td></tr>
         <tr><td>RAM</td><td>64GB DDR4 ECC RDIMM (16+16+32)</td><td><span class="status status-done">Installed</span></td></tr>
-        <tr><td>CPU Socket 2</td><td>Empty (can add second Xeon)</td><td><span class="status status-future">Future</span></td></tr>
-        <tr><td>GPU</td><td>None yet</td><td><span class="status status-next">Next Upgrade</span></td></tr>
+        <tr><td>CPU Socket 2</td><td>Empty — <strong>required before GPU can work</strong> (PCIe Slot 3 lanes are wired to CPU2)</td><td><span class="status status-next">Prerequisite</span></td></tr>
+        <tr><td>GPU</td><td>None yet — requires CPU2 first</td><td><span class="status status-future">After CPU2</span></td></tr>
         <tr><td>OS</td><td>Ubuntu 24.04 LTS</td><td><span class="status status-done">Running</span></td></tr>
         <tr><td>Network</td><td>Fiber internet + Tailscale VPN</td><td><span class="status status-done">Connected</span></td></tr>
         <tr><td>Access</td><td><code>ssh mdj1</code> from anywhere</td><td><span class="status status-done">Live</span></td></tr>
@@ -496,14 +496,21 @@ Scenario B: Model Spills to System RAM (P40 24GB + Llama 70B at ~40GB)
 |  [B1][B2][B3][B4]  [B5][B6][B7][B8]  &lt;-- DIMM Slots (CPU 2)
 |   Requires 2nd CPU to activate                   |
 |                                                  |
-|  [PCIe Slot 1]  &lt;-- GPU goes here               |
-|  [PCIe Slot 2]  &lt;-- Available                    |
-|  [PCIe Slot 3]  &lt;-- Available                    |
-|                                                  |
-|  [SATA Ports]   &lt;-- Hard drives / SSDs           |
-|                                                  |
-+--------------------------------------------------+</div>
-      <p>CPU, RAM, GPU, and storage all coexist on the same motherboard. They're independent components that work together. Adding a GPU doesn't remove anything — it fills an empty slot.</p>
+|  [PCIe Slot 1]  x4  &lt;-- Available (wired to CPU1)          |
+|  [PCIe Slot 2]  x4  &lt;-- Available (wired to CPU1)          |
+|  [PCIe Slot 3]  x16 &lt;-- GPU goes here (wired to CPU2) !!   |
+|  [PCIe Slot 4]  x8  &lt;-- RAID controller (occupied)         |
+|  [PCIe Slot 5]  x8  &lt;-- Available (wired to CPU2)          |
+|                                                              |
+|  [SATA Ports]   &lt;-- Hard drives / SSDs                      |
+|                                                              |
++--------------------------------------------------------------+
+
+  !! CRITICAL: Slot 3 lanes are hardwired to CPU Socket 2.
+     With Socket 2 empty, Slot 3 is electrically dead.
+     The P40 physically fits but will NOT be detected by the OS.
+     CPU2 must be installed BEFORE the GPU.</div>
+      <p>CPU, RAM, GPU, and storage all coexist on the same motherboard. They're independent components that work together. Adding a GPU doesn't remove anything — it fills an empty slot. <strong>Exception: the T440's x16 slot (Slot 3) is hardwired to CPU Socket 2 — the GPU cannot be used until a second CPU is installed.</strong></p>
     </div>
   </div>
 
@@ -800,8 +807,8 @@ ollama serve                   # Start the API server</div>
       <h3>What It Takes to Build</h3>
       <table>
         <tr><th>Component</th><th>Status</th><th>Work Needed</th></tr>
-        <tr><td>Ollama on MDJ1</td><td><span class="status status-next">Phase 4</span></td><td>Install after GPU arrives</td></tr>
-        <tr><td>Open WebUI</td><td><span class="status status-next">Phase 4</span></td><td>One Docker command</td></tr>
+        <tr><td>Ollama on MDJ1</td><td><span class="status status-next">Phase 5</span></td><td>Install after GPU arrives (requires CPU2 + GPU first)</td></tr>
+        <tr><td>Open WebUI</td><td><span class="status status-next">Phase 5</span></td><td>One Docker command (after GPU is active)</td></tr>
         <tr><td>Claude Agent SDK</td><td><span class="status status-done">Available</span></td><td><code>@anthropic-ai/claude-code-sdk</code> npm package</td></tr>
         <tr><td>MCP Tools on MDJ1</td><td><span class="status status-done">82 tools wired</span></td><td>Already operational</td></tr>
         <tr><td><strong>Mesh Router</strong></td><td><span class="status status-future">FORGE Sprint</span></td><td>Service on MDJ1 that brokers between Llama and Claude agents</td></tr>
@@ -855,27 +862,27 @@ Cost model:
           <td><span class="status status-done">Done</span></td>
         </tr>
         <tr>
-          <td>4</td><td>GPU Phase 1</td><td>Tesla P40 (24GB VRAM)</td><td>~$200</td><td>$330</td>
-          <td>Local Llama 70B. Hybrid routing. Team AI access.</td>
+          <td>4</td><td>CPU Phase 2 &mdash; <strong>GPU Prerequisite</strong></td><td>Intel Xeon Silver 4110 + Dell heatsink P/N 0FHPP8 + move 1 RAM stick to CPU2 DIMM slot</td><td>~$60</td><td>$190</td>
+          <td>Activates PCIe Slot 3 (x16). 32 cores. 16 DIMM slots. <strong>Required before GPU will be detected.</strong></td>
           <td><span class="status status-next">Next</span></td>
         </tr>
         <tr>
-          <td>5</td><td>RAM Phase 3</td><td>1x 64GB Samsung ECC RDIMM</td><td>~$100</td><td>$430</td>
+          <td>5</td><td>GPU Phase 1</td><td>Tesla P40 (24GB VRAM)</td><td>~$200</td><td>$390</td>
+          <td>Local Llama 70B. Hybrid routing. Team AI access.</td>
+          <td><span class="status status-future">After CPU2</span></td>
+        </tr>
+        <tr>
+          <td>6</td><td>RAM Phase 3</td><td>1x 64GB Samsung ECC RDIMM</td><td>~$100</td><td>$490</td>
           <td>128GB &mdash; faster model spillover, more headroom</td>
           <td><span class="status status-future">Future</span></td>
         </tr>
         <tr>
-          <td>6</td><td>GPU Phase 2</td><td>Swap P40 &rarr; A100 40GB</td><td>~$650 net</td><td>$1,080</td>
+          <td>7</td><td>GPU Phase 2</td><td>Swap P40 &rarr; A100 40GB</td><td>~$650 net</td><td>$1,140</td>
           <td>Llama 70B at full speed (25-40 wps). No spillover.</td>
           <td><span class="status status-future">Future</span></td>
         </tr>
         <tr>
-          <td>7</td><td>CPU Phase 2</td><td>2nd Intel Xeon</td><td>~$40</td><td>$1,120</td>
-          <td>32 cores. 16 DIMM slots. Double parallel capacity.</td>
-          <td><span class="status status-future">Future</span></td>
-        </tr>
-        <tr>
-          <td>8</td><td>GPU Phase 3</td><td>A100 80GB</td><td>~$1,500</td><td>$2,620</td>
+          <td>8</td><td>GPU Phase 3</td><td>A100 80GB</td><td>~$1,500</td><td>$2,640</td>
           <td>Multiple models loaded simultaneously. Team-wide AI.</td>
           <td><span class="status status-dream">Dream</span></td>
         </tr>
@@ -884,10 +891,38 @@ Cost model:
 
     <div class="card">
       <h2>The "Mid Route" Build (Current Plan)</h2>
-      <p>Phase 4 (P40 GPU) is the next purchase. This is the minimum viable setup for local AI. If it proves the concept, Phase 5-6 (more RAM + A100) doubles down.</p>
+      <p><strong>Phase 4 (CPU2 + heatsink, ~$60) must come first</strong> — it activates PCIe Slot 3 so the GPU is detectable. Phase 5 (P40 GPU) is the AI unlock. If it proves the concept, Phase 6-7 (more RAM + A100) doubles down.</p>
+
+      <div class="callout" style="border-left: 3px solid var(--red); background: rgba(239,68,68,0.08); margin-bottom: 1rem;">
+        <strong style="color: var(--red);">CPU2 is a prerequisite, not optional.</strong>
+        The Tesla P40 physically installs in PCIe Slot 3 (the only x16 slot on the T440).
+        That slot's lanes are hardwired through CPU Socket 2 on the motherboard.
+        With Socket 2 empty, Slot 3 has zero active PCIe lanes — the GPU will not POST, will not appear in <code>lspci</code>, and CUDA will not detect it.
+        <br><br>
+        <strong>Parts needed before the GPU purchase:</strong>
+        <ul style="margin: 8px 0 0 16px;">
+          <li>Intel Xeon Silver 4110 (same model as Socket 1) — ~$40 on eBay</li>
+          <li>Dell T440 CPU2 heatsink, P/N 0FHPP8 — ~$20 on eBay</li>
+          <li>Move 1 existing RAM stick from CPU1 DIMMs to a CPU2 DIMM slot (required for CPU2 to POST)</li>
+        </ul>
+      </div>
 
       <div class="phase-header">
         <div class="phase-num">4</div>
+        <h3>CPU Phase 2 — 2nd Intel Xeon + Heatsink (~$60) — DO THIS FIRST</h3>
+      </div>
+      <table>
+        <tr><th>What You Get</th><th>Details</th></tr>
+        <tr><td>CPU</td><td>Intel Xeon Silver 4110 (match Socket 1) — 8 cores, 16 threads</td></tr>
+        <tr><td>Total Cores</td><td>32 cores / 32 threads (doubled from 16)</td></tr>
+        <tr><td>DIMM Slots</td><td>16 slots unlocked (was 8)</td></tr>
+        <tr><td>PCIe Slot 3</td><td>Now electrically active — GPU will be detected</td></tr>
+        <tr><td>RAM move</td><td>Move 1 stick to a CPU2 slot — required to POST</td></tr>
+        <tr><td>Cost</td><td>~$40 (CPU) + ~$20 (heatsink P/N 0FHPP8) = ~$60</td></tr>
+      </table>
+
+      <div class="phase-header">
+        <div class="phase-num">5</div>
         <h3>GPU Phase 1 — Tesla P40 (~$200)</h3>
       </div>
       <table>
@@ -916,13 +951,22 @@ Cost model:
     </div>
 
     <div class="card">
-      <h2>Shopping List — Phase 4 (Next Purchase)</h2>
+      <h2>Shopping List — Phase 4 (Buy First — CPU2 Prerequisite)</h2>
       <table>
         <tr><th>Item</th><th>Spec</th><th>Where to Buy</th><th>Price</th></tr>
-        <tr><td>GPU</td><td>NVIDIA Tesla P40, 24GB VRAM, PCIe</td><td>eBay (used, data center pulls)</td><td>~$200</td></tr>
+        <tr><td>CPU</td><td>Intel Xeon Silver 4110 (must match Socket 1)</td><td>eBay (used, server pulls)</td><td>~$40</td></tr>
+        <tr><td>Heatsink</td><td>Dell T440 CPU2 heatsink, P/N 0FHPP8</td><td>eBay</td><td>~$20</td></tr>
+        <tr><td>RAM move</td><td>Move 1 existing DIMM to a CPU2 slot — no purchase needed</td><td>—</td><td>$0</td></tr>
+        <tr><td><strong>Phase 4 Total</strong></td><td></td><td></td><td><strong>~$60</strong></td></tr>
       </table>
 
-      <h3>Shopping List — Phase 5+6 (If You Love It)</h3>
+      <h2>Shopping List — Phase 5 (GPU — After CPU2 is Installed)</h2>
+      <table>
+        <tr><th>Item</th><th>Spec</th><th>Where to Buy</th><th>Price</th></tr>
+        <tr><td>GPU</td><td>NVIDIA Tesla P40, 24GB VRAM, PCIe — installs in Slot 3</td><td>eBay (used, data center pulls)</td><td>~$200</td></tr>
+      </table>
+
+      <h3>Shopping List — Phase 6+7 (If You Love It)</h3>
       <table>
         <tr><th>Item</th><th>Spec</th><th>Where to Buy</th><th>Price</th></tr>
         <tr><td>RAM</td><td>1x 64GB DDR4 2666MHz ECC RDIMM (Samsung recommended)</td><td>Amazon or eBay</td><td>~$100</td></tr>
