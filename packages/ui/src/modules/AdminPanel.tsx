@@ -1571,7 +1571,7 @@ function MissionControl() {
               <div className="text-[10px] text-[var(--text-muted)]">Phone app for field agents</div>
             </div>
           </a>
-          <a href="https://retirementprotectors.github.io/toMachina/mdj-discovery.html" target="_blank" rel="noopener noreferrer"
+          <a href="https://retirementprotectors.github.io/toMachina/docs/discoveries/mdj-discovery.html" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg bg-[var(--bg-surface)] px-3 py-2.5 hover:bg-[var(--bg-hover)] transition-colors">
             <span className="material-icons-outlined" style={{ fontSize: '16px', color: 'var(--portal)' }}>description</span>
             <div>

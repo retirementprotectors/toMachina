@@ -6,7 +6,7 @@ if (getApps().length === 0) {
 }
 const db = getFirestore()
 
-const DISCOVERY_URL = 'https://retirementprotectors.github.io/toMachina/mdj-discovery.html'
+const DISCOVERY_URL = 'https://retirementprotectors.github.io/toMachina/docs/discoveries/mdj-discovery.html'
 
 const SPRINT = {
   name: 'MDJ-ALPHA — MyDigitalJosh v1.0',
