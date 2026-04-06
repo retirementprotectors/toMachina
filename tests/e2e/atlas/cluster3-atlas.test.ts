@@ -46,17 +46,18 @@ describe('TRK-13603: WIRE_DATA_IMPORT registration', () => {
 })
 
 describe('TRK-13631: Old wires retired', () => {
-  it('WIRE_DEFINITIONS_V2 has exactly 4 entries', () => {
+  it('WIRE_DEFINITIONS_V2 has exactly 5 entries', () => {
     expect(WIRE_DEFINITIONS_V2).toHaveLength(5)
   })
 
-  it('v2 wire IDs are the 4 expected wires', () => {
+  it('v2 wire IDs are the 5 expected wires', () => {
     const wireIds = WIRE_DEFINITIONS_V2.map((w) => w.wire_id)
     expect(wireIds).toEqual([
       'WIRE_DATA_IMPORT',
       'WIRE_COMMISSION_SYNC',
       'WIRE_REFERENCE_SEED',
       'WIRE_INCOMING_CORRESPONDENCE',
+      'WIRE_ACF_CLEANUP',
     ])
   })
 
