@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub Dispatcher — Discovery Doc</title>
+<style>
+  :root { --bg: #0a0e17; --card: #111827; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #e07c3e; --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --mecha: #10b981; --gold: #d4a44c; --cyan: #06b6d4; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { text-align: center; padding: 48px 32px 32px; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 2.2rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+  .header p { color: var(--muted); max-width: 700px; margin: 0 auto; }
+  .content { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card h2 { font-size: 1.2rem; margin-bottom: 12px; }
+  .card h3 { font-size: 0.95rem; color: var(--accent); margin: 14px 0 6px; }
+  .card p, .card li { color: var(--muted); font-size: 0.9rem; }
+  .card ul { margin: 4px 0 8px 20px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.85rem; }
+  th { text-align: left; padding: 8px 10px; background: rgba(224,124,62,0.1); color: var(--accent); border-bottom: 1px solid var(--border); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); }
+  code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: var(--cyan); }
+  .diagram { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 20px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: var(--muted); white-space: pre; margin: 12px 0; overflow-x: auto; }
+  .hl-accent { color: var(--accent); font-weight: 700; }
+  .hl-mecha { color: var(--mecha); font-weight: 600; }
+  .hl-blue { color: var(--blue); font-weight: 600; }
+  .hl-gold { color: var(--gold); font-weight: 600; }
+  .hl-red { color: var(--red); font-weight: 600; }
+  .footer { text-align: center; padding: 32px; color: var(--muted); font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 32px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Hub Dispatcher</h1>
+  <p>CXO-aware intake router. One triage point, five destinations. Every incoming item lands in the right queue without JDM sorting manually.</p>
+</div>
+<div class="content">
+
+<div class="card">
+  <h2>The Problem</h2>
+  <p>Incoming work arrives through multiple channels (Slack, email, MDJ chat, Dojo Reporter). Today, the intent classifier only knows deploy vs chat and the triage engine only routes to RAIDEN. Neither knows about MEGAZORD, VOLTRON, or MUSASHI. Data import requests sit in RAIDEN's fix queue. Creative briefs land as bug reports. JDM manually re-routes.</p>
+</div>
+
+<div class="card">
+  <h2>The Solution</h2>
+  <div class="diagram">Incoming item
+    |
+    v
+<span class="hl-accent">HUB DISPATCHER</span> (keyword scoring + Haiku fallback)
+    |
+    +---> Data problem?        ---> <span class="hl-mecha">MEGAZORD</span> (#megazord-intake / megazord@)
+    +---> Client case?         ---> <span class="hl-blue">VOLTRON</span> (#voltron-cases / voltron@)
+    +---> Creative request?    ---> <span class="hl-gold">MUSASHI</span> (Command Center)
+    +---> Bug / broken thing?  ---> <span class="hl-red">RAIDEN</span> (#the-dojo / dojo@)
+    +---> Feature / build?     ---> <span class="hl-blue">RONIN</span> (Dojo intake)
+    +---> Junk / spam?         ---> Archive (auto-discard)</div>
+</div>
+
+<div class="card">
+  <h2>Routing Keywords</h2>
+  <table>
+    <tr><th>Destination</th><th>Keywords</th><th>Ticket Prefix</th></tr>
+    <tr><td style="color:var(--mecha)"><strong>MEGAZORD</strong></td><td>import, commission, carrier, CSV, feed, data, migration, BoB, book of business, sync, ATLAS</td><td>ZRD-</td></tr>
+    <tr><td style="color:var(--blue)"><strong>VOLTRON</strong></td><td>client, case, enrollment, review, account, RMD, medicare, annuity, investment, life, estate, LTC</td><td>VOL-</td></tr>
+    <tr><td style="color:var(--gold)"><strong>MUSASHI</strong></td><td>brochure, campaign, website, design, brand, Canva, WordPress, video, social, marketing, creative</td><td>MUS-</td></tr>
+    <tr><td style="color:var(--red)"><strong>RAIDEN</strong></td><td>broken, error, can not, won not, crash, bug, fix, not working, 500, timeout, down</td><td>RDN-</td></tr>
+    <tr><td style="color:var(--blue)"><strong>RONIN</strong></td><td>add, new feature, enhance, build, create, implement, would be nice, idea</td><td>RON-</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Input Channels</h2>
+  <table>
+    <tr><th>Channel</th><th>Dispatcher Type</th><th>Implementation</th></tr>
+    <tr><td>Email (intake@retireprotected.com)</td><td>General dispatcher</td><td>Poll MDJ_SERVER_SA inbox, classify content, route to correct queue</td></tr>
+    <tr><td>Slack (#the-dojo)</td><td>Dojo dispatcher</td><td>Update triage-engine.ts with CXO classification before FIX/ROUTE/TRAIN</td></tr>
+    <tr><td>Slack (#megazord-intake)</td><td>Direct</td><td>Everything here IS MEGAZORD</td></tr>
+    <tr><td>Slack (#voltron-cases)</td><td>Direct</td><td>Everything here IS VOLTRON</td></tr>
+    <tr><td>MDJ Panel (chat)</td><td>Intent classifier</td><td>Update intent-classifier.ts with CXO target after deploy/chat</td></tr>
+    <tr><td>Dojo Reporter (FAB)</td><td>Prefix-based</td><td>Add ZRD-/VOL-/MUS- options to FAB dropdown</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Tickets</h2>
+  <table>
+    <tr><th>ID</th><th>Title</th><th>Scope</th><th>Size</th></tr>
+    <tr><td>RON-HD01</td><td>Hub Dispatcher core routing logic</td><td>New: hub-dispatcher.ts. Keyword scoring + Haiku fallback. Returns CXO target + confidence.</td><td>M</td></tr>
+    <tr><td>RON-HD02</td><td>Update intent-classifier.ts</td><td>Add CXO target after deploy/chat. Return { mode, cxo_target, confidence }.</td><td>S</td></tr>
+    <tr><td>RON-HD03</td><td>Update triage-engine.ts</td><td>CXO-aware routing before FIX/ROUTE/TRAIN. Data items to ZRD-, creative to MUS-.</td><td>S</td></tr>
+    <tr><td>RON-HD04</td><td>Email intake dispatcher</td><td>Poll MDJ_SERVER_SA inbox via Gmail API. Classify and route.</td><td>L</td></tr>
+    <tr><td>RON-HD05</td><td>Dojo Reporter FAB ticket types</td><td>Add ZRD-/VOL-/MUS- to FAB dropdown alongside RDN-/RON-.</td><td>S</td></tr>
+    <tr><td>RON-HD06</td><td>Junk/spam filter</td><td>Auto-archive spam patterns. Prevent junk tickets.</td><td>S</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Dependencies</h2>
+  <ul>
+    <li><strong>Gmail OAuth on MDJ_SERVER</strong> - needed for RON-HD04. Token deployed, needs verification.</li>
+    <li><strong>Slack channels</strong> - all configured: #megazord-intake (C0ARTUA8RAL), #voltron-cases (C0AQT902PB5), #the-dojo (C0ANMBVMSTV)</li>
+    <li><strong>Email aliases</strong> - all configured: megazord@, voltron@, musashi@, intake@, dojo@</li>
+  </ul>
+</div>
+
+</div>
+<div class="footer">Hub Dispatcher Discovery - SHINOB1, CTO - 2026-04-06 - Approved by JDM for immediate build</div>
+</body>
+</html>
