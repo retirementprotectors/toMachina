@@ -91,8 +91,6 @@ jobs:
       - uses: actions/checkout@v5
       - name: Docker build check — API
         run: docker build -t tm-api-check -f services/api/Dockerfile .
-      - name: Docker build check — Bridge
-        run: docker build -t tm-bridge-check -f services/bridge/Dockerfile .
       - name: Docker build check — Webhooks
         run: docker build -t tm-webhooks-check -f services/webhooks/Dockerfile services/webhooks
 
@@ -148,20 +146,7 @@ jobs:
             --liveness-probe httpGet.path=/health,httpGet.port=8080,initialDelaySeconds=10,periodSeconds=30,failureThreshold=3,timeoutSeconds=10 \
             --project ${{ env.PROJECT_ID }}
 
-      # Deploy Bridge to Cloud Run (with liveness probe)
-      - run: |
-          gcloud run deploy tm-bridge \
-            --image ${{ env.REGISTRY }}/tm-bridge:latest \
-            --region ${{ env.REGION }} \
-            --platform managed \
-            --memory 512Mi \
-            --cpu 1 \
-            --min-instances 0 \
-            --max-instances 5 \
-            --port 8080 \
-            --no-allow-unauthenticated \
-            --liveness-probe httpGet.path=/health,httpGet.port=8080,initialDelaySeconds=10,periodSeconds=30,failureThreshold=3,timeoutSeconds=10 \
-            --project ${{ env.PROJECT_ID }}
+
 
       # Deploy Webhooks to Cloud Run (lightweight — handles Twilio/SendGrid callbacks)
       - run: |

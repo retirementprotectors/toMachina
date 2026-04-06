@@ -6,7 +6,6 @@
     "packages/*",
     "services/api",
     "services/bigquery-stream",
-    "services/bridge",
     "services/intake",
     "services/webhooks"
   ],

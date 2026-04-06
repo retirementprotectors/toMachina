@@ -31,7 +31,6 @@ toMachina/
 │   └── db/          → Typed Firestore client
 ├── services/
 │   ├── api/         → Cloud Run API (tm-api, 87 routes, proxied via portal /api/*)
-│   ├── bridge/      → Dual-write Firestore + Sheets
 │   ├── intake/      → Cloud Functions (intake channels)
 │   └── bigquery-stream/ → Real-time BigQuery sink
 └── firebase.json / firestore.rules
