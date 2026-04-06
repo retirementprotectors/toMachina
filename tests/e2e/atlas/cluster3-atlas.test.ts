@@ -30,8 +30,8 @@ describe('TRK-13603: WIRE_DATA_IMPORT registration', () => {
     ])
   })
 
-  it('all 4 wire definitions have required fields', () => {
-    expect(WIRE_DEFINITIONS_V2).toHaveLength(4)
+  it('all 5 wire definitions have required fields', () => {
+    expect(WIRE_DEFINITIONS_V2).toHaveLength(5)
     for (const wire of WIRE_DEFINITIONS_V2) {
       expect(wire.wire_id).toBeTruthy()
       expect(typeof wire.wire_id).toBe('string')
@@ -47,7 +47,7 @@ describe('TRK-13603: WIRE_DATA_IMPORT registration', () => {
 
 describe('TRK-13631: Old wires retired', () => {
   it('WIRE_DEFINITIONS_V2 has exactly 4 entries', () => {
-    expect(WIRE_DEFINITIONS_V2).toHaveLength(4)
+    expect(WIRE_DEFINITIONS_V2).toHaveLength(5)
   })
 
   it('v2 wire IDs are the 4 expected wires', () => {
