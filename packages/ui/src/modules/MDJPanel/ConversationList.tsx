@@ -51,12 +51,11 @@ function relativeTime(ts: { seconds: number; nanoseconds: number } | undefined):
 /* ─── Specialist Icon Map ─── */
 
 const SPECIALIST_ICONS: Record<string, string> = {
-  'mdj-general': 'smart_toy',
   'mdj-medicare': 'health_and_safety',
-  'mdj-securities': 'account_balance',
-  'mdj-service': 'support_agent',
-  'mdj-david': 'handshake',
-  'mdj-ops': 'settings_suggest',
+  'mdj-annuity': 'savings',
+  'mdj-life-estate': 'family_restroom',
+  'mdj-investment': 'trending_up',
+  'mdj-legacy-ltc': 'elderly',
 }
 
 /* ─── Component ─── */
@@ -135,7 +134,7 @@ export function ConversationList({
             onClick={() => onSelect(conv._id)}
           >
             <span className="material-symbols-outlined text-lg text-[var(--text-secondary)]">
-              {SPECIALIST_ICONS[conv.specialist_id || 'mdj-general'] || 'smart_toy'}
+              {SPECIALIST_ICONS[conv.specialist_id || 'mdj-medicare'] || 'smart_toy'}
             </span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">

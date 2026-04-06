@@ -31,7 +31,7 @@ export function SpecialistBadge({
   const ref = useRef<HTMLDivElement>(null)
 
   const current = specialists.find((s) => s.id === currentSpecialistId) || {
-    id: 'mdj-general',
+    id: 'mdj-medicare',
     display_name: 'VOLTRON',
     icon: 'smart_toy',
     specialist_name: 'General',
