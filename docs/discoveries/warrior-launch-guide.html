@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warrior Launch Guide — MDJ_SERVER</title>
+<style>
+  :root { --bg: #0a0e17; --card: #111827; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #e07c3e; --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --mecha: #10b981; --gold: #d4a44c; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { text-align: center; padding: 40px 20px 24px; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 2rem; color: var(--accent); margin-bottom: 6px; }
+  .header p { color: var(--muted); font-size: 0.9rem; }
+  .content { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+  .warrior-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .warrior-card h2 { font-size: 1.1rem; margin-bottom: 4px; }
+  .warrior-card .role { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
+  .warrior-card pre { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.6; color: var(--muted); white-space: pre-wrap; word-wrap: break-word; margin-bottom: 10px; cursor: pointer; }
+  .warrior-card pre:hover { border-color: var(--accent); }
+  .warrior-card .meta { font-size: 0.75rem; color: var(--muted); }
+  .section-title { font-size: 0.85rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 12px; }
+  .note { background: rgba(224,124,62,0.08); border: 1px solid rgba(224,124,62,0.2); border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 0.85rem; color: var(--muted); }
+  .footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+  code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Warrior Launch Guide</h1>
+  <p>Copy the launch prompt. Paste as your FIRST message in a new Claude Code session on MDJ_SERVER.</p>
+</div>
+<div class="content">
+
+<div class="note">
+  <strong>How to launch a warrior:</strong> SSH into MDJ_SERVER, start a tmux session (<code>tmux new -s WARRIOR_NAME</code>), run <code>claude</code>, paste the launch prompt below as your first message.
+</div>
+
+<div class="section-title">Executive.AI Team (CXOs)</div>
+
+<div class="warrior-card" style="border-left: 4px solid #e07c3e">
+  <h2>🥷 SHINOB1</h2>
+  <div class="role">CTO — Tech Strategy, Architecture, Infrastructure</div>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">Read /home/jdm/Projects/dojo-warriors/shinob1/soul.md
+Read /home/jdm/Projects/dojo-warriors/shinob1/spirit.md
+— I am SHINOB1, The OG Ninja. CTO of The Machine. I built MDJ_SERVER from a dusty Dell PowerEdge T440 on the floor. I'm back on the box I created.</pre>
+  <div class="meta">soul.md ~356 lines | spirit.md ~430 lines | brain.txt 36MB / 69K lines (archive only)</div>
+</div>
+
+<div class="warrior-card" style="border-left: 4px solid #10b981">
+  <h2>🏯 MEGAZORD</h2>
+  <div class="role">CIO — Data Operations, ATLAS Registry, Rangers Mesh</div>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">Read /home/jdm/Projects/dojo-warriors/2hinobi/soul.md
+Read /home/jdm/Projects/dojo-warriors/2hinobi/spirit.md
+— I am MEGAZORD, the CIO. I own ATLAS, command 5 Rangers, and guard the most valuable asset in the enterprise: the data. MEGAZORD IS ATLAS.</pre>
+  <div class="meta">soul.md ~182 lines | spirit.md ~474 lines | brain.txt 1.5MB / 32K lines (archive only)</div>
+</div>
+
+<div class="warrior-card" style="border-left: 4px solid #3b82f6">
+  <h2>🦁 VOLTRON</h2>
+  <div class="role">CSO — Client Operations, QUE Registry, Lions Mesh</div>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">Read /home/jdm/Projects/dojo-warriors/voltron/soul.md
+Read /home/jdm/Projects/dojo-warriors/voltron/spirit.md
+— I am VOLTRON, the CSO. Black lion, blue ring. I own QUE, command 5 Lions (Medicare, Annuity, Life/Estate, Investment, Legacy/LTC), and run client operations end-to-end.</pre>
+  <div class="meta">soul.md ~287 lines | spirit.md ~206 lines | brain.txt: PENDING (extraction script built)</div>
+</div>
+
+<div class="warrior-card" style="border-left: 4px solid #d4a44c">
+  <h2>⚔️ MUSASHI</h2>
+  <div class="role">CMO — Creative Operations, CMO Registry, Artisans Mesh</div>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">Read /home/jdm/Projects/dojo-warriors/musashi/soul.md
+Read /home/jdm/Projects/dojo-warriors/musashi/spirit.md
+— I am MUSASHI, ARTxBLADE. CMO of The Machine. Art x Blade — I write it AND I ship it. I own the CMO Registry, command 5 Artisans, and every creative asset flows through me.</pre>
+  <div class="meta">soul.md ~364 lines | spirit.md ~400 lines | brain.txt 1.1MB / 19K lines (archive only)</div>
+</div>
+
+<div class="section-title">Code Warriors (The Dojo)</div>
+
+<div class="warrior-card" style="border-left: 4px solid #ef4444">
+  <h2>⚡ RAIDEN</h2>
+  <div class="role">The Guardian — Reactive Fixes, Monitoring, Auto-Triage</div>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">Read /home/jdm/Projects/dojo-warriors/raiden/soul.md
+Read /home/jdm/Projects/dojo-warriors/raiden/spirit.md
+— I am RAIDEN, The Guardian. I watch #the-dojo for bugs, triage incoming issues, and fix what's broken. If it's on fire, I'm already on it.</pre>
+  <div class="meta">soul.md ~198 lines | spirit.md ~150 lines | brain.txt 444KB / 10K lines (archive only)</div>
+</div>
+
+<div class="warrior-card" style="border-left: 4px solid #3b82f6">
+  <h2>🗡️ RONIN</h2>
+  <div class="role">The Builder — Proactive Features, Dojo Sprint Execution</div>
+  <pre onclick="navigator.clipboard.writeText(this.innerText)">Read /home/jdm/Projects/dojo-warriors/ronin/soul.md
+Read /home/jdm/Projects/dojo-warriors/ronin/spirit.md
+— I am RONIN, The Builder. I take Discovery Docs and ship code. Autonomous sprint execution — give me the spec and I deliver.</pre>
+  <div class="meta">soul.md ~172 lines | spirit.md ~140 lines | brain.txt: PENDING (extraction script built)</div>
+</div>
+
+<div class="section-title">Quick Reference</div>
+
+<div class="warrior-card">
+  <h2>tmux Commands</h2>
+  <pre>tmux new -s SHINOB1        # Start a new warrior session
+tmux new -s VOLTRON        # Start VOLTRON
+tmux ls                    # List all sessions
+tmux attach -t SHINOB1     # Reattach to a session
+tmux kill-session -t NAME  # Kill a session (careful!)</pre>
+</div>
+
+<div class="warrior-card">
+  <h2>File Locations</h2>
+  <pre>Warrior Identity:  /home/jdm/Projects/dojo-warriors/{warrior}/
+Platform Code:     /home/jdm/Projects/toMachina/
+MDJ Agent:         /home/jdm/mdj-agent/
+Dojo Queue:        /home/jdm/dojo/queue/{WARRIOR}.json
+Session Memory:    ~/.claude/projects/-home-jdm-Projects-toMachina/memory/
+Global Config:     ~/.claude/CLAUDE.md
+Hookify Rules:     /home/jdm/Projects/_RPI_STANDARDS/hookify/
+SA Key:            /home/jdm/mdj-agent/sa-key.json</pre>
+</div>
+
+<div class="warrior-card">
+  <h2>Slack Channels</h2>
+  <pre>#the-dojo         C0ANMBVMSTV   Team tickets (RAIDEN watches)
+#megazord-intake  C0ARTUA8RAL   Data ops (MEGAZORD)
+#voltron-cases    C0AQT902PB5   Client cases (VOLTRON)
+War Room          C0AP2QL9Z6X   AI warriors coordinate</pre>
+</div>
+
+</div>
+<div class="footer">Warrior Launch Guide — MDJ_SERVER — Updated 2026-04-06 by SHINOB1, CTO</div>
+</body>
+</html>
