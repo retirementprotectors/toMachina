@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHINOB1 — CTO Ownership Grid</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #e07c3e; --accent-glow: rgba(224,124,62,0.12); --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --orange: #f59e0b; --purple: #a855f7; --teal: #14b8a6; --gold: #d4a44c; --cyan: #06b6d4; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { background: linear-gradient(135deg, #020b1a 0%, #1a0e05 50%, #020b1a 100%); border-bottom: 1px solid var(--border); padding: 40px 32px; text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(224,124,62,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(224,124,62,0.04) 0%, transparent 50%); pointer-events: none; }
+.header h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #f59e0b, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; position: relative; }
+.header .subtitle { font-size: 1rem; color: var(--muted); position: relative; }
+.header .badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(224,124,62,0.3); position: relative; }
+.tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs { display: flex; max-width: 1300px; margin: 0 auto; padding: 0 8px; }
+.tab { padding: 12px 14px; font-size: 0.78rem; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .dot { width: 8px; height: 8px; border-radius: 50%; }
+.content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.card h3 { font-size: 0.95rem; margin: 16px 0 8px; }
+.card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 10px; }
+.card ul, .card ol { color: var(--muted); font-size: 0.88rem; margin-left: 20px; margin-bottom: 10px; }
+.card li { margin-bottom: 6px; }
+.card li strong { color: var(--text); }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; font-family: 'SF Mono', monospace; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pill.live { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.next { background: rgba(59,130,246,0.12); color: var(--blue); }
+.pill.plan { background: rgba(168,85,247,0.12); color: var(--purple); }
+.pill.hold { background: rgba(148,163,184,0.12); color: var(--muted); }
+.pill.hot { background: rgba(239,68,68,0.12); color: var(--red); }
+.section-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.insight { background: rgba(224,124,62,0.06); border: 1px solid rgba(224,124,62,0.2); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.85rem; color: var(--muted); }
+.insight strong { color: var(--accent); }
+.rhythm-block { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+.rhythm-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); min-width: 36px; text-align: center; line-height: 1; padding-top: 2px; }
+.rhythm-body h3 { font-size: 0.9rem; margin-bottom: 4px; }
+.rhythm-body p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+.hit-item { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.hit-item .status { min-width: 70px; }
+.hit-item .desc { font-size: 0.85rem; color: var(--muted); }
+.hit-item .desc strong { color: var(--text); }
+.footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+@media (max-width: 768px) { .tab { padding: 10px 10px; font-size: 0.72rem; } .rhythm-block { flex-direction: column; gap: 6px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>CTO Ownership Grid</h1>
+  <div class="subtitle">SHINOB1 + JDM — What we own, what's next, how we work the week</div>
+  <div class="badge">The OG Ninja &mdash; Updated 2026-04-07</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="rhythm"><span class="dot" style="background:var(--accent)"></span> Weekly Rhythm</div>
+    <div class="tab" data-tab="team-tray"><span class="dot" style="background:var(--blue)"></span> Team Tray</div>
+    <div class="tab" data-tab="leader"><span class="dot" style="background:var(--purple)"></span> Leader Level</div>
+    <div class="tab" data-tab="exec"><span class="dot" style="background:var(--teal)"></span> Executive Floor</div>
+    <div class="tab" data-tab="monday"><span class="dot" style="background:var(--green)"></span> Monday IRL</div>
+    <div class="tab" data-tab="intel"><span class="dot" style="background:var(--gold)"></span> Intel Analysis</div>
+    <div class="tab" data-tab="cxo"><span class="dot" style="background:var(--orange)"></span> CXO Development</div>
+    <div class="tab" data-tab="hitlist"><span class="dot" style="background:var(--red)"></span> Hit List</div>
+    <div class="tab" data-tab="docs"><span class="dot" style="background:var(--muted)"></span> Docs Index</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════ WEEKLY RHYTHM ═══════════════════ -->
+<div class="tab-panel active" id="rhythm">
+  <div class="card">
+    <h2>The CTO Weekly Rhythm</h2>
+    <p>SHINOB1 + JDM default operating mode. Work proactively 1 &rarr; 2 &rarr; 3 &rarr; 4 &rarr; 5 through the week. Reactive fires interrupt but don't replace the rhythm.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The rule:</strong> Reactive shit comes first when it comes. But when the fires are out, we pick up exactly where we left off in this sequence. No drift. No "what should we work on?" — the grid answers that.
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">1</div>
+    <div class="rhythm-body">
+      <h3>Team Tray — COMMS / CONNECT / ALERTS / MDJ / ADMIN</h3>
+      <p>The tools the team uses every day. Bugs here = team blocked = revenue impact. Always first priority after reactive fires.</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">2</div>
+    <div class="rhythm-body">
+      <h3>Leader Level — CAM / DEX / C3 / STUDIO / Control Center</h3>
+      <p>Apps that division leaders (Vince, Nikki, Matt, Aprille) depend on. Second priority — leaders drive the team.</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">3</div>
+    <div class="rhythm-body">
+      <h3>Executive Floor — DOJO / SYNERGY</h3>
+      <p>JDM + CTO-only systems. The AI operations layer. Third priority — keeps The Machine watching itself.</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">4</div>
+    <div class="rhythm-body">
+      <h3>Monday IRL — Team Call Transcripts</h3>
+      <p>Every Monday team call gets transcribed. SHINOB1 extracts action items, delegates to AI warriors, tracks completion. The bridge between IRL and The Machine.</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">5</div>
+    <div class="rhythm-body">
+      <h3>Intel Analysis — Articles / Reports / Competitive Intel</h3>
+      <p>JDM sends articles, competitor news, industry reports. SHINOB1 analyzes, extracts implications for RPI, routes action items to warriors.</p>
+    </div>
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">6</div>
+    <div class="rhythm-body">
+      <h3>CXO Development — Warrior Coaching + Review</h3>
+      <p>CTO mentorship of MEGAZORD, VOLTRON, MUSASHI. Discovery doc reviews, architecture guidance, decreasing intensity as they mature.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TEAM TRAY ═══════════════════ -->
+<div class="tab-panel" id="team-tray">
+  <div class="card">
+    <div class="section-label">Priority 1 — Team Tray</div>
+    <h2>Daily Tools the Team Depends On</h2>
+    <p>These are portal-branded modules that live in every team member's sidebar. If these break, the team can't work.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Module</th><th>What It Does</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr>
+        <td><strong>Communications</strong></td>
+        <td>Slide-out feed + compose + dialer. Twilio voice, SMS, email.</td>
+        <td><span class="pill next">SPRINT 11</span></td>
+        <td><a href="../shinob1/comms/sprint-011-prozone-comms-discovery.html">Sprint 011 Discovery</a><br><a href="../shinob1/comms/comms-live-twilio.html">COMMS Live Twilio</a><br><a href="../shinob1/comms/comms-polish.html">COMMS Polish</a></td>
+      </tr>
+      <tr>
+        <td><strong>RPI Connect</strong></td>
+        <td>Slide-out channels + people + meet. Internal comms hub.</td>
+        <td><span class="pill plan">MOCKUP</span></td>
+        <td><em>No DiscoDoc yet — mockup phase</em></td>
+      </tr>
+      <tr>
+        <td><strong>Notifications</strong></td>
+        <td>System-wide notification center. Alerts, assignments, reminders.</td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td><a href="../musashi/notifications-module.html">Notifications Module</a> (migrated to MUSASHI)</td>
+      </tr>
+      <tr>
+        <td><strong>MDJ Panel</strong></td>
+        <td>VOLTRON chat widget in sidebar. AI assistant for every user.</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>Owned by VOLTRON &mdash; <a href="../voltron/mdj/">MDJ Docs</a></td>
+      </tr>
+      <tr>
+        <td><strong>Admin Module</strong></td>
+        <td>User management, org structure, permissions, entitlements.</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><em>Shipped Sprint 9. Incremental updates only.</em></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ LEADER LEVEL ═══════════════════ -->
+<div class="tab-panel" id="leader">
+  <div class="card">
+    <div class="section-label">Priority 2 — Leader Level</div>
+    <h2>Apps Division Leaders Depend On</h2>
+    <p>These are App-branded (own identity, same in every portal). Leaders use these to run their divisions.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>App</th><th>What It Does</th><th>Brand</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr>
+        <td><strong>CAM</strong></td>
+        <td>Client Account Manager. Full client lifecycle.</td>
+        <td style="color:var(--blue)">Blue</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><em>Shipped Sprint 5. Owned by MEGAZORD for data ops.</em></td>
+      </tr>
+      <tr>
+        <td><strong>DEX</strong></td>
+        <td>Document Exchange. PDF processing, Drive ops, form generation.</td>
+        <td style="color:var(--purple)">Purple</td>
+        <td><span class="pill next">WIRING</span></td>
+        <td><a href="../megazord/dex-live.html">DEX Live</a> (migrated to MEGAZORD)</td>
+      </tr>
+      <tr>
+        <td><strong>C3</strong></td>
+        <td>Campaign Command Center. 60 campaigns, 661 templates, AEP blackout.</td>
+        <td style="color:var(--orange)">Orange</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><em>Shipped Sprint 5. Incremental via MUSASHI.</em></td>
+      </tr>
+      <tr>
+        <td><strong>Pipeline Studio</strong></td>
+        <td>Full-screen pipeline builder. Flow engine admin CRUD.</td>
+        <td style="color:var(--teal)">Teal</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="../megazord/pipeline-factory.html">Pipeline Factory</a> (migrated to MEGAZORD)</td>
+      </tr>
+      <tr>
+        <td><strong>Command Center</strong></td>
+        <td>6-tab operational dashboard. Wires, ATLAS, Forge, Status.</td>
+        <td style="color:var(--teal)">Teal</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><em>Shipped Sprint 9. VOLTRON fixed tabs in #275.</em></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ EXECUTIVE FLOOR ═══════════════════ -->
+<div class="tab-panel" id="exec">
+  <div class="card">
+    <div class="section-label">Priority 3 — Executive Floor</div>
+    <h2>JDM + CTO Only Systems</h2>
+    <p>The AI operations layer. Only JDM and SHINOB1 touch these. This is where The Machine manages itself.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>System</th><th>What It Does</th><th>Brand</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr>
+        <td><strong>Dojo App</strong></td>
+        <td>Warrior management UI. Status, sprints, tickets, FORGE runner.</td>
+        <td style="color:var(--accent)">Orange (CTO)</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="../shinob1/dojo/sprint-010-dojo2-discovery.html">Dojo v10 Discovery</a><br><a href="../shinob1/dojo/dojo-v10-plan.html">Dojo v10 Plan</a></td>
+      </tr>
+      <tr>
+        <td><strong>System Synergy</strong></td>
+        <td>Platform health, knowledge pipeline, session browser, cleanup controls.</td>
+        <td style="color:var(--teal)">Teal</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="../megazord/system-synergy-discovery.html">System Synergy Discovery</a><br><a href="../megazord/repo-hygiene-handoff.html">Repo Hygiene Handoff</a></td>
+      </tr>
+      <tr>
+        <td><strong>The Operating System</strong></td>
+        <td>Hookify rules, immune system, compliance enforcement.</td>
+        <td>&mdash;</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="../shinob1/platform/operating-system-audit.html">OS Audit</a></td>
+      </tr>
+      <tr>
+        <td><strong>Warrior Launch Guide</strong></td>
+        <td>Step-by-step warrior launch for JDM. Toggle per warrior, copy buttons.</td>
+        <td>&mdash;</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="../shinob1/dojo/warrior-launch-guide.html">Launch Guide</a></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ MONDAY IRL ═══════════════════ -->
+<div class="tab-panel" id="monday">
+  <div class="card">
+    <div class="section-label">Priority 4 — Monday IRL</div>
+    <h2>Team Call &rarr; Action Items &rarr; AI Warrior Delegation</h2>
+    <p>Every Monday, RPI has an IRL team call. The CTO's job is to turn that conversation into machine-executable work.</p>
+  </div>
+
+  <div class="card">
+    <h3>The Flow</h3>
+    <ol>
+      <li><strong>JDM records the Monday team call</strong> (Lead Connector or Google Meet)</li>
+      <li><strong>Transcript lands</strong> in SHINOB1's queue (via WhisperFlow or Meet transcript)</li>
+      <li><strong>SHINOB1 analyzes:</strong>
+        <ul>
+          <li>Action items &mdash; who said they'd do what, by when</li>
+          <li>Decisions made &mdash; business decisions that affect the platform</li>
+          <li>Pain points &mdash; what's broken, what's frustrating the team</li>
+          <li>Feature requests &mdash; things the team asked for</li>
+        </ul>
+      </li>
+      <li><strong>Delegate to warriors:</strong>
+        <ul>
+          <li>Bug reports &rarr; RAIDEN</li>
+          <li>Feature requests &rarr; RONIN (via discovery doc)</li>
+          <li>Data ops &rarr; MEGAZORD</li>
+          <li>Client ops &rarr; VOLTRON</li>
+          <li>Creative/UX &rarr; MUSASHI</li>
+        </ul>
+      </li>
+      <li><strong>Track completion</strong> &mdash; action items become tickets, tickets become PRs, PRs become #LandedIt</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Output Format</h3>
+    <p>Each Monday analysis produces:</p>
+    <ul>
+      <li><strong>Action Items Table</strong> &mdash; who, what, by when, warrior assigned</li>
+      <li><strong>Decisions Log</strong> &mdash; business decisions that need to flow to CLAUDE.md or warrior context</li>
+      <li><strong>Slack Summary</strong> &mdash; posted to JDM DM with delegation assignments</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════ INTEL ANALYSIS ═══════════════════ -->
+<div class="tab-panel" id="intel">
+  <div class="card">
+    <div class="section-label">Priority 5 — Intel Analysis</div>
+    <h2>Articles / Reports / Competitive Intelligence</h2>
+    <p>JDM sends articles, industry reports, competitor news. SHINOB1 analyzes and routes implications.</p>
+  </div>
+
+  <div class="card">
+    <h3>The Flow</h3>
+    <ol>
+      <li><strong>JDM shares an article/report</strong> (URL, PDF, screenshot)</li>
+      <li><strong>SHINOB1 analyzes:</strong>
+        <ul>
+          <li>What does this mean for RPI?</li>
+          <li>Competitive implications &mdash; threat or opportunity?</li>
+          <li>Action items &mdash; anything we should build, change, or prepare for?</li>
+          <li>Client impact &mdash; does this affect how we serve clients?</li>
+        </ul>
+      </li>
+      <li><strong>Output:</strong>
+        <ul>
+          <li>Executive brief &mdash; 3-5 bullet analysis to JDM DM</li>
+          <li>Action items &mdash; routed to the right warrior if needed</li>
+          <li>Knowledge promotion &mdash; insights that belong in CLAUDE.md or warrior context</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Same outputs as Monday IRL &mdash; different input source.</h3>
+    <p>Monday IRL = internal team intelligence. Intel Analysis = external market intelligence. Both produce: action items, decisions, warrior delegation, knowledge promotion.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ CXO DEVELOPMENT ═══════════════════ -->
+<div class="tab-panel" id="cxo">
+  <div class="card">
+    <div class="section-label">Priority 6 — CXO Development</div>
+    <h2>Warrior Coaching + Architecture Review</h2>
+    <p>The CTO mentors the CXO warriors. Discovery doc reviews, architecture guidance, quality gates. Decreasing intensity as they mature.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Warrior</th><th>Role</th><th>Maturity</th><th>Review Mode</th></tr>
+      <tr>
+        <td><strong>MEGAZORD</strong></td>
+        <td>CIO &mdash; ATLAS, data pipelines, System Synergy</td>
+        <td><span class="pill live">MATURING</span></td>
+        <td>Light touch. Registries are solid. Review architecture decisions only.</td>
+      </tr>
+      <tr>
+        <td><strong>VOLTRON</strong></td>
+        <td>CSO &mdash; QUE, client ops, specialist routing</td>
+        <td><span class="pill next">DEVELOPING</span></td>
+        <td>Medium review. Wire compositions need CTO sign-off. UI is autonomous.</td>
+      </tr>
+      <tr>
+        <td><strong>MUSASHI</strong></td>
+        <td>CMO &mdash; Creative, brand, UX, discovery docs</td>
+        <td><span class="pill next">DEVELOPING</span></td>
+        <td>Medium review. 7 CTO lessons landed. Creative is autonomous, architecture needs guidance.</td>
+      </tr>
+      <tr>
+        <td><strong>RONIN</strong></td>
+        <td>Builder &mdash; Sprint execution, code delivery</td>
+        <td><span class="pill live">AUTONOMOUS</span></td>
+        <td>Post-build audit only. FORGE lifecycle handles gates.</td>
+      </tr>
+      <tr>
+        <td><strong>RAIDEN</strong></td>
+        <td>Guardian &mdash; Bug triage, monitoring, kill list</td>
+        <td><span class="pill live">AUTONOMOUS</span></td>
+        <td>No review needed. Golden Rule + Dojo protocol are sufficient.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>CTO lifecycle:</strong> Intensive review &rarr; Medium guidance &rarr; Light touch &rarr; Autonomous. The goal is always to move warriors RIGHT on this spectrum. If a warrior regresses, temporarily increase review intensity.
+  </div>
+</div>
+
+<!-- ═══════════════════ HIT LIST ═══════════════════ -->
+<div class="tab-panel" id="hitlist">
+  <div class="card">
+    <div class="section-label">Active Hit List</div>
+    <h2>Specific Tasks — CTO Queue</h2>
+    <p>Concrete items JDM has identified. Work these in between rhythm priorities or delegate to warriors.</p>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">HOT</span></div>
+    <div class="desc"><strong>COMMS Module wiring</strong> &mdash; Sprint 011. Twilio voice + SMS + email compose in the slide-out panel. Team Tray priority.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">HOT</span></div>
+    <div class="desc"><strong>VOLTRON brain.txt + RONIN brain.txt</strong> &mdash; WIRE_BRAIN_SYNC runs tonight at 2am. Verify both populate tomorrow.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>fs barrel leak in extract.ts</strong> &mdash; VOLTRON flagged. Server-only import leaking to shared package. Assign RAIDEN.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>E2E Playwright coverage for Command Center tabs</strong> &mdash; VOLTRON flagged zero coverage. Assign RONIN.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>ProZone UI/UX polish</strong> &mdash; Discovery doc migrated to MUSASHI. Ready for sprint.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>RPI Connect module</strong> &mdash; Internal comms hub. Channels + People + Meet. Mockup phase.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>Response validation (Zod)</strong> &mdash; <a href="../shinob1/platform/response-validation-zod.html">Discovery doc</a> ready. Typed API contracts across HTTP boundaries.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>Monday IRL transcript pipeline</strong> &mdash; Automate: recording &rarr; transcript &rarr; analysis &rarr; delegation. Build the flow.</div>
+  </div>
+
+  <p style="color: var(--muted); font-size: 0.8rem; margin-top: 16px; font-style: italic;">JDM: Add items here as they come up. SHINOB1 will route and prioritize.</p>
+</div>
+
+<!-- ═══════════════════ DOCS INDEX ═══════════════════ -->
+<div class="tab-panel" id="docs">
+  <div class="card">
+    <div class="section-label">SHINOB1 Docs Index</div>
+    <h2>All CTO Discovery Docs &mdash; by Domain</h2>
+  </div>
+
+  <div class="card">
+    <h3>Communications</h3>
+    <table>
+      <tr><th>Doc</th><th>What</th></tr>
+      <tr><td><a href="comms/sprint-011-prozone-comms-discovery.html">Sprint 011 ProZone + COMMS</a></td><td>ProZone + Communications module discovery</td></tr>
+      <tr><td><a href="comms/comms-live-twilio.html">COMMS Live Twilio</a></td><td>Twilio integration for voice/SMS</td></tr>
+      <tr><td><a href="comms/comms-polish.html">COMMS Polish</a></td><td>UX polish for communications module</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Dojo + AI Operations</h3>
+    <table>
+      <tr><th>Doc</th><th>What</th></tr>
+      <tr><td><a href="dojo/sprint-010-dojo2-discovery.html">Dojo v10 Discovery</a></td><td>Dojo App v2 redesign</td></tr>
+      <tr><td><a href="dojo/dojo-v10-plan.html">Dojo v10 Plan</a></td><td>Sprint plan for Dojo v10</td></tr>
+      <tr><td><a href="dojo/sprint-008-discovery.html">Sprint 008 Discovery</a></td><td>Dojo v1 discovery</td></tr>
+      <tr><td><a href="dojo/sprint-008-plan.html">Sprint 008 Plan</a></td><td>Sprint plan for Dojo v1</td></tr>
+      <tr><td><a href="dojo/dojo-v4-plan.html">Dojo v4 Plan</a></td><td>Intermediate Dojo iteration</td></tr>
+      <tr><td><a href="dojo/warrior-launch-guide.html">Warrior Launch Guide</a></td><td>Step-by-step tmux launch for JDM</td></tr>
+      <tr><td><a href="dojo/warrior-viewer.html">Warrior Viewer</a></td><td>Warrior status viewer</td></tr>
+      <tr><td><a href="dojo/dojo-status-tab-mockup-prodash.html">Status Tab Mockup</a></td><td>Status tab mockup for ProDash</td></tr>
+      <tr><td><a href="dojo/status-tab-mockup.html">Status Tab Mockup (alt)</a></td><td>Alternative status tab design</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>E2E Testing</h3>
+    <table>
+      <tr><th>Doc</th><th>What</th></tr>
+      <tr><td><a href="e2e/e2e-discovery.html">E2E Discovery</a></td><td>End-to-end test strategy</td></tr>
+      <tr><td><a href="e2e/e2e-executive-summary.html">E2E Executive Summary</a></td><td>Test coverage overview</td></tr>
+      <tr><td><a href="e2e/e2e-expansion.html">E2E Expansion</a></td><td>Test suite expansion plan</td></tr>
+      <tr><td><a href="e2e/e2e-pipeline.html">E2E Pipeline</a></td><td>CI/CD test pipeline design</td></tr>
+      <tr><td><a href="e2e/e2e-test-inventory.html">E2E Test Inventory</a></td><td>Full inventory: 397 tests across 4 suites</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Infrastructure + Architecture</h3>
+    <table>
+      <tr><th>Doc</th><th>What</th></tr>
+      <tr><td><a href="infrastructure/agentx-framework.html">AgentX Framework</a></td><td>AI agent framework architecture</td></tr>
+      <tr><td><a href="infrastructure/agentx-the-numbers.html">AgentX: The Numbers</a></td><td>Investor-grade financial model</td></tr>
+      <tr><td><a href="infrastructure/ai-computing-guide.html">AI Computing Guide</a></td><td>Hardware + compute strategy</td></tr>
+      <tr><td><a href="infrastructure/ccsdk-vs-cctmux-analysis.html">CCSDK vs CC-tmux</a></td><td>Agent architecture comparison</td></tr>
+      <tr><td><a href="infrastructure/cloud-run-burst.html">Cloud Run Burst</a></td><td>Burst scaling strategy</td></tr>
+      <tr><td><a href="infrastructure/gradient-platform-guide.html">Gradient Platform Guide</a></td><td>Gradient integration guide</td></tr>
+      <tr><td><a href="infrastructure/q1-sprint-inventory.html">Q1 Sprint Inventory</a></td><td>Full Q1 2026 sprint catalog</td></tr>
+      <tr><td><a href="infrastructure/tmux-migration-guide.html">tmux Migration Guide</a></td><td>CCSDK &rarr; tmux warrior migration</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Platform + Architecture</h3>
+    <table>
+      <tr><th>Doc</th><th>What</th></tr>
+      <tr><td><a href="platform/operating-system-audit.html">Operating System Audit</a></td><td>Full OS/immune system audit</td></tr>
+      <tr><td><a href="platform/response-validation-zod.html">Response Validation (Zod)</a></td><td>Typed API contracts via Zod</td></tr>
+      <tr><td><a href="platform/shared-file-protocol.md">Shared File Protocol</a></td><td>Parallel RONIN merge conflict prevention</td></tr>
+      <tr><td><a href="platform/sprint-9-pre-production.html">Sprint 9 Pre-Production</a></td><td>Sprint 9 pre-prod checklist</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Other</h3>
+    <table>
+      <tr><th>Doc</th><th>What</th></tr>
+      <tr><td><a href="sensei/sprint-007-discovery.html">Sensei Sprint 007</a></td><td>Sensei mode discovery</td></tr>
+      <tr><td><a href="sensei/sprint-007-plan.html">Sensei Sprint 007 Plan</a></td><td>Sensei sprint plan</td></tr>
+      <tr><td><a href="sprint-012/assignee-agent-discovery.html">Assignee Agent</a></td><td>Auto-assignment discovery</td></tr>
+      <tr><td><a href="sprint-012/pipeline-custom-fields-discovery.html">Pipeline Custom Fields</a></td><td>Custom fields for pipeline stages</td></tr>
+      <tr><td><a href="sprint-012/team-triage-discovery.html">Team Triage</a></td><td>Team triage workflow discovery</td></tr>
+      <tr><td><a href="deferred-maintenance/deferred-maintenance-sprint.html">Deferred Maintenance</a></td><td>19-ticket DM sprint (shipped)</td></tr>
+      <tr><td><a href="audits/gas-migration-audit.md">GAS Migration Audit</a></td><td>GAS &rarr; Cloud Run migration status</td></tr>
+      <tr><td><a href="audits/orphaned-scripts-audit.md">Orphaned Scripts Audit</a></td><td>Dead scripts identified during cleanup</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  CTO Ownership Grid &mdash; SHINOB1 + JDM &mdash; Updated April 7, 2026<br>
+  <em>From a VGA cable DoorDashed from Home Depot to The Machine watching itself.</em>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
