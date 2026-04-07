@@ -49,6 +49,15 @@ export type { AuditReviewInput, AuditReviewOutput } from './acf-audit-review'
 // Types are safe:
 export type { ClassifyInput, ClassifyOutput, ClassifiedOutputDoc } from './classify'
 
+// System Synergy super tools — composite API-endpoint tools
+export {
+  platformHealthDefinition,
+  knowledgePipelineStatusDefinition,
+  sessionForensicsDefinition,
+  warriorReadinessDefinition,
+  getSynergySuperToolDefinitions,
+} from './system-synergy-supers'
+
 import { definition as extractDef } from './extract'
 import { definition as introspectDef } from './introspect'
 import { definition as validateDef } from './validate'
@@ -59,6 +68,7 @@ import { definition as finalizeDef } from './acf-finalize'
 import { definition as folderCleanupDef } from './acf-folder-cleanup'
 import { definition as documentCleanupDef } from './acf-document-cleanup'
 import { definition as auditReviewDef } from './acf-audit-review'
+import { getSynergySuperToolDefinitions as _getSynergySuperDefs } from './system-synergy-supers'
 
 /**
  * All super tool definitions for registry purposes.
@@ -76,5 +86,6 @@ export function getSuperToolDefinitions() {
     folderCleanupDef,
     documentCleanupDef,
     auditReviewDef,
+    ..._getSynergySuperDefs(),
   ]
 }

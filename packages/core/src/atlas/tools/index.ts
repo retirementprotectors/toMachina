@@ -87,11 +87,27 @@ export type {
   AcfAuditException,
 } from './acf-tools'
 
+// System Synergy tools — API-endpoint tools (no execute functions in core)
+export {
+  sessionInventoryDefinition,
+  memoryInventoryDefinition,
+  claudeMdDiffDefinition,
+  brainHealthDefinition,
+  knowledgeQueryDefinition,
+  sessionEnvAuditDefinition,
+  duplicateDetectorDefinition,
+  warriorRosterDefinition,
+  deployStatusDefinition,
+  hookAuditDefinition,
+  getSynergyToolDefinitions,
+} from './system-synergy-tools'
+
 import { definition as _validateRecordDef } from './validate-record'
 import { definition as _normalizeBoBDef } from './normalize-book-of-business'
 import { definition as _normalizeStatusDef } from './normalize-status'
 import { definition as _routeToCollectionDef } from './route-to-collection'
 import { getAcfToolDefinitions as _getAcfDefs } from './acf-tools'
+import { getSynergyToolDefinitions as _getSynergyDefs } from './system-synergy-tools'
 
 /**
  * All atomic tool definitions for registry purposes.
@@ -104,5 +120,6 @@ export function getAtomicToolDefinitions() {
     _normalizeStatusDef,
     _routeToCollectionDef,
     ..._getAcfDefs(),
+    ..._getSynergyDefs(),
   ]
 }
