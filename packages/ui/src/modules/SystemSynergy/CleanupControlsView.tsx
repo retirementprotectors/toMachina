@@ -37,32 +37,21 @@ interface DuplicateDetector {
   duplicates: DuplicateGroup[]
 }
 
-interface HookRule {
-  file: string
-  exists: boolean
-}
-
 interface HookProject {
   project: string
   path: string
-  rules: HookRule[]
-  total: number
+  total_source_rules: number
   linked: number
   missing: number
-}
-
-interface HookService {
-  name: string
-  active: boolean
-  enabled: boolean
+  broken: number
+  missing_rules: string[]
+  broken_rules: string[]
 }
 
 interface HookAudit {
+  source_rules_count: number
   projects: HookProject[]
-  services: HookService[]
-  total_projects: number
-  total_rules_linked: number
-  total_rules_missing: number
+  all_healthy: boolean
 }
 
 // ── Colors ─────────────────────────────────────────────────────────────
@@ -513,9 +502,9 @@ export function CleanupControlsView() {
       {/* ── Hook Sync Status ─────────────────────────────────────────── */}
       <SectionCard
         title="Hook Sync Status"
-        badge={`${hookAudit?.total_projects ?? 0} projects`}
+        badge={`${hookAudit?.projects?.length ?? 0} projects`}
       >
-        {hookAudit && hookAudit.total_rules_missing > 0 && (
+        {hookAudit && !hookAudit.all_healthy && (
           <div style={{
             background: `${c.orange}15`,
             border: `1px solid ${c.orange}`,
@@ -531,7 +520,7 @@ export function CleanupControlsView() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>warning</span>
-              <strong>{hookAudit.total_rules_missing}</strong> rules missing across {hookAudit.total_projects} projects
+              <strong>{hookAudit.projects.reduce((s, p) => s + p.missing, 0)}</strong> rules missing across {hookAudit.projects.length} projects
             </div>
             <DisabledActionButton label="Sync All" icon="sync" />
           </div>
@@ -544,7 +533,7 @@ export function CleanupControlsView() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {hookAudit!.projects.map((proj, i) => {
-              const pct = proj.total > 0 ? Math.round((proj.linked / proj.total) * 100) : 0
+              const pct = proj.total_source_rules > 0 ? Math.round((proj.linked / proj.total_source_rules) * 100) : 0
               const barColor = pct === 100 ? c.green : pct >= 70 ? c.orange : c.red
               return (
                 <div
@@ -565,7 +554,7 @@ export function CleanupControlsView() {
                       {proj.path}
                     </span>
                     <span style={{ color: barColor, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-                      {proj.linked}/{proj.total}
+                      {proj.linked}/{proj.total_source_rules}
                     </span>
                   </div>
 
@@ -589,7 +578,7 @@ export function CleanupControlsView() {
                   {/* Missing rules */}
                   {proj.missing > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
-                      {proj.rules.filter(r => !r.exists).map((rule, j) => (
+                      {proj.missing_rules.map((rule, j) => (
                         <div key={j} style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -598,7 +587,7 @@ export function CleanupControlsView() {
                           color: c.red,
                         }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>cancel</span>
-                          <span style={{ fontFamily: 'monospace' }}>{rule.file}</span>
+                          <span style={{ fontFamily: 'monospace' }}>{rule}</span>
                         </div>
                       ))}
                     </div>
@@ -610,84 +599,7 @@ export function CleanupControlsView() {
         )}
       </SectionCard>
 
-      {/* ── Services ─────────────────────────────────────────────────── */}
-      <SectionCard
-        title="Services"
-        badge={`${hookAudit?.services.length ?? 0} configured`}
-      >
-        {(hookAudit?.services ?? []).length === 0 ? (
-          <div style={{ color: c.textMuted, fontSize: 13, textAlign: 'center', padding: '16px 0' }}>
-            No services configured
-          </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: 10,
-          }}>
-            {hookAudit!.services.map((svc, i) => (
-              <div
-                key={svc.name || i}
-                style={{
-                  background: c.bg,
-                  border: `1px solid ${c.border}`,
-                  borderRadius: 8,
-                  padding: '14px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 10,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
-                  <span className="material-symbols-outlined" style={{
-                    fontSize: 16,
-                    color: svc.active ? c.green : c.textMuted,
-                    flexShrink: 0,
-                  }}>
-                    {svc.active ? 'circle' : 'radio_button_unchecked'}
-                  </span>
-                  <span style={{
-                    color: svc.active ? c.text : c.textMuted,
-                    fontSize: 13,
-                    fontWeight: svc.active ? 600 : 400,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}>{svc.name}</span>
-                </div>
-
-                {/* Visual-only toggle — disabled */}
-                <div
-                  title="Coming in Phase 4"
-                  style={{
-                    width: 36,
-                    height: 20,
-                    background: svc.enabled ? `${c.teal}80` : c.border,
-                    borderRadius: 10,
-                    position: 'relative',
-                    cursor: 'not-allowed',
-                    opacity: 0.6,
-                    flexShrink: 0,
-                    transition: 'background 0.2s',
-                  }}
-                >
-                  <div style={{
-                    width: 14,
-                    height: 14,
-                    background: svc.enabled ? c.teal : c.textMuted,
-                    borderRadius: '50%',
-                    position: 'absolute',
-                    top: 3,
-                    left: svc.enabled ? 19 : 3,
-                    transition: 'left 0.2s',
-                  }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </SectionCard>
+      {/* Services section removed — API doesn't return services data yet */}
 
     </div>
   )
