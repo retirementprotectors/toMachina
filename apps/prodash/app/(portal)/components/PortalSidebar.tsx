@@ -637,10 +637,10 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
             )}
           </button>
 
-          {/* VOLTRON */}
+          {/* MDJ */}
           <button
             onClick={onMdjToggle}
-            title="VOLTRON"
+            title="MDJ"
             className={`flex flex-col items-center justify-center rounded-lg transition-all duration-150 ${
               collapsed ? 'h-9 w-9' : 'h-9 w-9'
             }`}
@@ -656,7 +656,7 @@ export function PortalSidebar({ onCommsToggle, commsOpen, onConnectToggle, conne
             </span>
             {!collapsed && (
               <span className="text-[9px] mt-0.5" style={{ color: mdjOpen ? 'var(--portal)' : 'var(--text-muted)' }}>
-                VOLTRON
+                MDJ
               </span>
             )}
           </button>
