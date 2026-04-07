@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEGAZORD — CIO Ownership Grid</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #10b981; --accent-glow: rgba(16,185,129,0.12); --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --orange: #f59e0b; --purple: #a855f7; --teal: #14b8a6; --gold: #d4a44c; --cyan: #06b6d4; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { background: linear-gradient(135deg, #020b1a 0%, #051a14 50%, #020b1a 100%); border-bottom: 1px solid var(--border); padding: 40px 32px; text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(16,185,129,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(16,185,129,0.04) 0%, transparent 50%); pointer-events: none; }
+.header h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #34d399, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; position: relative; }
+.header .subtitle { font-size: 1rem; color: var(--muted); position: relative; }
+.header .badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(16,185,129,0.3); position: relative; }
+.tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs { display: flex; max-width: 1300px; margin: 0 auto; padding: 0 8px; }
+.tab { padding: 12px 14px; font-size: 0.78rem; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .dot { width: 8px; height: 8px; border-radius: 50%; }
+.content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.card h3 { font-size: 0.95rem; margin: 16px 0 8px; color: var(--accent); }
+.card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; font-family: 'SF Mono', monospace; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pill.live { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.next { background: rgba(59,130,246,0.12); color: var(--blue); }
+.pill.plan { background: rgba(168,85,247,0.12); color: var(--purple); }
+.pill.hold { background: rgba(148,163,184,0.12); color: var(--muted); }
+.pill.hot { background: rgba(239,68,68,0.12); color: var(--red); }
+.section-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.insight { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.85rem; color: var(--muted); }
+.insight strong { color: var(--accent); }
+.rhythm-block { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+.rhythm-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); min-width: 36px; text-align: center; line-height: 1; padding-top: 2px; }
+.rhythm-body h3 { font-size: 0.9rem; margin-bottom: 4px; }
+.rhythm-body p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+.hit-item { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.hit-item .status { min-width: 70px; }
+.hit-item .desc { font-size: 0.85rem; color: var(--muted); }
+.hit-item .desc strong { color: var(--text); }
+.footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+@media (max-width: 768px) { .tab { padding: 10px 10px; font-size: 0.72rem; } .rhythm-block { flex-direction: column; gap: 6px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>CIO Ownership Grid</h1>
+  <div class="subtitle">MEGAZORD + JDM &mdash; What we own, what's next, how we work the week</div>
+  <div class="badge">The Mecha &mdash; Updated 2026-04-07</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="rhythm"><span class="dot" style="background:var(--accent)"></span> Weekly Rhythm</div>
+    <div class="tab" data-tab="atlas"><span class="dot" style="background:var(--green)"></span> ATLAS Registry</div>
+    <div class="tab" data-tab="synergy"><span class="dot" style="background:var(--teal)"></span> System Synergy</div>
+    <div class="tab" data-tab="acf"><span class="dot" style="background:var(--blue)"></span> ACF</div>
+    <div class="tab" data-tab="intake"><span class="dot" style="background:var(--purple)"></span> Intake Wires</div>
+    <div class="tab" data-tab="dex"><span class="dot" style="background:var(--orange)"></span> DEX</div>
+    <div class="tab" data-tab="pipeline"><span class="dot" style="background:var(--cyan)"></span> Pipeline Studio</div>
+    <div class="tab" data-tab="integrity"><span class="dot" style="background:var(--gold)"></span> Data Integrity</div>
+    <div class="tab" data-tab="dispatchers"><span class="dot" style="background:var(--green)"></span> Hub Dispatchers</div>
+    <div class="tab" data-tab="hitlist"><span class="dot" style="background:var(--red)"></span> Hit List</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ======= WEEKLY RHYTHM ======= -->
+<div class="tab-panel active" id="rhythm">
+  <div class="card">
+    <h2>The CIO Weekly Rhythm</h2>
+    <p>MEGAZORD + JDM operating cadence. Check ATLAS first. Walk each domain 1 &rarr; 9. Reactive fires interrupt but don't replace the rhythm.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The rule:</strong> Reactive shit comes first when it comes. But when the fires are out, we pick up exactly where we left off in this sequence. No drift. No "what should we work on?" &mdash; the grid answers that.
+  </div>
+
+  <div class="rhythm-block">
+    <div class="rhythm-num">1</div>
+    <div class="rhythm-body">
+      <h3>ATLAS Registry &mdash; 25 Tools, 14 Supers, 9 Wires</h3>
+      <p>The nerve center. Counts match reality? Anything broken, stale, or missing after this week's work? Register new tools as they ship.</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">2</div>
+    <div class="rhythm-body">
+      <h3>System Synergy &mdash; Timers + Learning Loop</h3>
+      <p>Are the 5 timers firing? Is the Learning Loop producing output? knowledge_entries growing? CLAUDE.md getting auto-writes? Brain.txt syncing?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">3</div>
+    <div class="rhythm-body">
+      <h3>ACF &mdash; Active Client File Compliance</h3>
+      <p>New clients need folders? Dedup queue growing? ACF wire running clean? Any compliance gaps?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">4</div>
+    <div class="rhythm-body">
+      <h3>Intake Wires &mdash; Import, Commission, Correspondence, Reference</h3>
+      <p>Data flowing? Commission sync accurate? Import introspection matching? Correspondence classification correct?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">5</div>
+    <div class="rhythm-body">
+      <h3>DEX &mdash; Document Exchange</h3>
+      <p>GAS DEX still operational? Cloud Run port scoped? Migration timeline?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">6</div>
+    <div class="rhythm-body">
+      <h3>Pipeline Studio / Flow Engine</h3>
+      <p>Pipelines healthy? Stages executing? Any blocked instances?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">7</div>
+    <div class="rhythm-body">
+      <h3>Data Integrity &mdash; Firestore/Sheets Parity, Field Parity, GAS Migration</h3>
+      <p>Firestore and Sheets diverging? Field completeness gaps? GAS engines stable?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">8</div>
+    <div class="rhythm-body">
+      <h3>Hub Dispatchers &mdash; 5 systemd services</h3>
+      <p>All 5 running? Any crash loops? Memory usage normal? Logs clean?</p>
+    </div>
+  </div>
+  <div class="rhythm-block">
+    <div class="rhythm-num">9</div>
+    <div class="rhythm-body">
+      <h3>Hit List &mdash; Concrete Task Queue</h3>
+      <p>What's next? What's blocked? What got done this week?</p>
+    </div>
+  </div>
+</div>
+
+<!-- ======= ATLAS REGISTRY ======= -->
+<div class="tab-panel" id="atlas">
+  <div class="card">
+    <div class="section-label">Domain 1 &mdash; ATLAS Registry</div>
+    <h2>The Nerve Center &mdash; Everything MEGAZORD Owns</h2>
+    <p>Walk each category weekly. Verify counts match <code>getAtomicToolDefinitions()</code>, <code>getSuperToolDefinitions()</code>, <code>getWiresV2()</code> on main.</p>
+  </div>
+  <div class="card">
+    <h3>Atomic Tools (25)</h3>
+    <table>
+      <tr><th>Tool</th><th>Status</th><th>Category</th><th>Reactive</th><th>Proactive Next</th></tr>
+      <tr><td><strong>VALIDATE_RECORD</strong></td><td><span class="pill live">LIVE</span></td><td>Data Pipeline</td><td>Qualification rules current?</td><td>Incremental</td></tr>
+      <tr><td><strong>NORMALIZE_BOB</strong></td><td><span class="pill live">LIVE</span></td><td>Data Pipeline</td><td>BoB normalizer handling all formats?</td><td>Incremental</td></tr>
+      <tr><td><strong>NORMALIZE_STATUS</strong></td><td><span class="pill live">LIVE</span></td><td>Data Pipeline</td><td>Status mappings complete?</td><td>Incremental</td></tr>
+      <tr><td><strong>ROUTE_TO_COLLECTION</strong></td><td><span class="pill live">LIVE</span></td><td>Data Pipeline</td><td>Routing rules current?</td><td>Incremental</td></tr>
+      <tr><td><strong>11 ACF Tools</strong></td><td><span class="pill live">LIVE</span></td><td>ACF</td><td>ACF wire E2E passing?</td><td>Incremental</td></tr>
+      <tr><td><strong>10 System Synergy Tools</strong></td><td><span class="pill live">JUST SHIPPED</span></td><td>Platform</td><td>UI loading? Auth working?</td><td>Verify Learning Loop E2E</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Super Tools (14)</h3>
+    <table>
+      <tr><th>Super Tool</th><th>Status</th><th>Reactive</th><th>Proactive Next</th></tr>
+      <tr><td><strong>10 Data Supers</strong><br><span style="font-size:0.75rem">EXTRACT, INTROSPECT, VALIDATE, NORMALIZE, MATCH, WRITE, PREPARE, CLASSIFY, FINALIZE, FOLDER/DOC/AUDIT</span></td><td><span class="pill live">LIVE</span></td><td>Any wire step failing?</td><td>Incremental</td></tr>
+      <tr><td><strong>4 Synergy Supers</strong><br><span style="font-size:0.75rem">PLATFORM_HEALTH, KNOWLEDGE_PIPELINE_STATUS, SESSION_FORENSICS, WARRIOR_READINESS</span></td><td><span class="pill live">JUST SHIPPED</span></td><td>API endpoints returning data?</td><td>Verify Sunday WIRE_PLATFORM_AUDIT output</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Wires (9)</h3>
+    <table>
+      <tr><th>Wire</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr><td><strong>WIRE_DATA_IMPORT</strong></td><td><span class="pill live">LIVE</span></td><td>Import wizard working?</td><td>Build Ranger agent</td><td><a href="intake/intake-wires-discovery.html">Discovery</a></td></tr>
+      <tr><td><strong>WIRE_COMMISSION_SYNC</strong></td><td><span class="pill live">LIVE</span></td><td>Revenue matching accurate?</td><td>Build Ranger agent</td><td>&mdash;</td></tr>
+      <tr><td><strong>WIRE_REFERENCE_SEED</strong></td><td><span class="pill live">LIVE</span></td><td>Reference data current?</td><td>Build Ranger agent</td><td>&mdash;</td></tr>
+      <tr><td><strong>WIRE_INCOMING_CORRESPONDENCE</strong></td><td><span class="pill live">LIVE</span></td><td>Vision classify accuracy?</td><td>Build Ranger agent (last, most complex)</td><td><a href="intake/wire-incoming-correspondence.html">Wire Spec</a></td></tr>
+      <tr><td><strong>WIRE_ACF_CLEANUP</strong></td><td><span class="pill live">LIVE</span></td><td>ACF hygiene gaps?</td><td>Build Ranger agent (first, simplest)</td><td><a href="acf/acf-2.0-plan.html">ACF Plan</a></td></tr>
+      <tr><td><strong>WIRE_KNOWLEDGE_PROMOTE</strong></td><td><span class="pill next">DEPLOYED</span></td><td>Timer firing at 4am?</td><td>Verify first E2E run tomorrow</td><td><a href="system-synergy-discovery.html">Discovery</a></td></tr>
+      <tr><td><strong>WIRE_BRAIN_SYNC</strong></td><td><span class="pill next">DEPLOYED</span></td><td>Timer firing at 2am?</td><td>Verify brain.txt appends tomorrow</td><td><a href="repo-hygiene-handoff.html">Handoff</a></td></tr>
+      <tr><td><strong>WIRE_PLATFORM_AUDIT</strong></td><td><span class="pill next">DEPLOYED</span></td><td>Timer firing Sun 3am?</td><td>Verify first cleanup report Sunday</td><td><a href="repo-hygiene-handoff.html">Handoff</a></td></tr>
+      <tr><td><strong>WIRE_WARRIOR_BRIEFING</strong></td><td><span class="pill next">DEPLOYED</span></td><td>SessionStart hook injecting?</td><td>Test with next warrior session</td><td><a href="repo-hygiene-handoff.html">Handoff</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= SYSTEM SYNERGY ======= -->
+<div class="tab-panel" id="synergy">
+  <div class="card">
+    <div class="section-label">Domain 2 &mdash; System Synergy</div>
+    <h2>Platform Intelligence &mdash; The Machine Watches Itself</h2>
+    <p>10 API tools, 4 supers, 4 wires. Shipped 2026-04-07 (ZRD-SYN Sprint, 20 tickets).</p>
+  </div>
+  <div class="card">
+    <h3>Scheduled Timers</h3>
+    <table>
+      <tr><th>Timer</th><th>Schedule</th><th>Status</th><th>Reactive</th><th>Proactive Next</th></tr>
+      <tr><td><strong>entity-extractor</strong></td><td>Daily 2am</td><td><span class="pill live">ACTIVE</span></td><td>Producing knowledge_entries?</td><td>Verify first run output</td></tr>
+      <tr><td><strong>wire-brain-sync</strong></td><td>Daily 2am</td><td><span class="pill live">ACTIVE</span></td><td>brain.txt growing?</td><td>Verify VOLTRON + RONIN get brain files</td></tr>
+      <tr><td><strong>gap-analyzer</strong></td><td>Daily 3am</td><td><span class="pill live">ACTIVE</span></td><td>Learning targets populating?</td><td>Verify first run output</td></tr>
+      <tr><td><strong>knowledge-promote</strong></td><td>Daily 4am</td><td><span class="pill live">ACTIVE</span></td><td>CLAUDE.md auto-writes happening?</td><td>Verify Slack digest to JDM DM</td></tr>
+      <tr><td><strong>wire-platform-audit</strong></td><td>Weekly Sun 3am</td><td><span class="pill live">ACTIVE</span></td><td>Cleanup report posting?</td><td>Verify first Sunday run</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Learning Loop Pipeline</h3>
+    <table>
+      <tr><th>Stage</th><th>Status</th><th>Reactive</th><th>Proactive Next</th></tr>
+      <tr><td><strong>Session &rarr; soul/spirit/brain</strong></td><td><span class="pill live">LIVE</span></td><td>Warriors writing to dojo-warriors/?</td><td>Incremental</td></tr>
+      <tr><td><strong>Entity extraction &rarr; Firestore</strong></td><td><span class="pill next">FIRST RUN TONIGHT</span></td><td>knowledge_entries populating?</td><td>Check count tomorrow AM</td></tr>
+      <tr><td><strong>Confidence scoring &rarr; CLAUDE.md</strong></td><td><span class="pill next">FIRST RUN TONIGHT</span></td><td>Auto-writes landing in CLAUDE.md?</td><td>Check global CLAUDE.md diff tomorrow</td></tr>
+      <tr><td><strong>Gap analysis &rarr; learning targets</strong></td><td><span class="pill next">FIRST RUN TONIGHT</span></td><td>VOLTRON gaps being identified?</td><td>Review gap entries tomorrow</td></tr>
+      <tr><td><strong>Cross-warrior briefing</strong></td><td><span class="pill next">DEPLOYED</span></td><td>SessionStart hook firing?</td><td>Test by launching a warrior session</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>System Synergy UI</h3>
+    <table>
+      <tr><th>View</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th></tr>
+      <tr><td><strong>Dashboard</strong></td><td><span class="pill hot">BUG FIX</span></td><td>MUSASHI</td><td>hook-audit contract mismatch (PR #286)</td><td>Verify after deploy</td></tr>
+      <tr><td><strong>Session Browser</strong></td><td><span class="pill live">SHIPPED</span></td><td>MUSASHI</td><td>Loading correctly?</td><td>Incremental</td></tr>
+      <tr><td><strong>Knowledge Pipeline</strong></td><td><span class="pill live">SHIPPED</span></td><td>MUSASHI</td><td>Showing real data after tonight?</td><td>Verify data populates</td></tr>
+      <tr><td><strong>Cleanup Controls</strong></td><td><span class="pill hot">BUG FIX</span></td><td>MUSASHI</td><td>Same contract mismatch (PR #286)</td><td>Verify after deploy</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= ACF ======= -->
+<div class="tab-panel" id="acf">
+  <div class="card">
+    <div class="section-label">Domain 3 &mdash; ACF</div>
+    <h2>Active Client File &mdash; Compliance Framework</h2>
+    <p>11 atomic tools, 3 super tools, 1 wire. Trinity Data Method &mdash; Digital Files pillar. Shipped Sprint 8 (23 tickets).</p>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Component</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr><td><strong>ACF Wire</strong><br><span style="font-size:0.75rem;color:var(--muted)">FOLDER_CLEANUP &rarr; DOC_CLEANUP &rarr; AUDIT_REVIEW</span></td><td><span class="pill live">LIVE</span></td><td>RONIN</td><td>Wire passing E2E tests?</td><td>Build ACF Ranger (first mesh node)</td><td><a href="acf/acf-2.0-plan.html">Plan</a> &bull; <a href="acf/trinity-acf-wire-discovery.html">Trinity</a></td></tr>
+      <tr><td><strong>ACF UI (ProDash)</strong></td><td><span class="pill live">LIVE</span></td><td>RONIN</td><td>Dedup grid working? Upload functional?</td><td>Incremental</td><td><a href="acf/acf-overhaul.html">Overhaul</a></td></tr>
+      <tr><td><strong>ACF Config Admin</strong></td><td><span class="pill live">LIVE</span></td><td>RONIN</td><td>Routing rules + taxonomy current?</td><td>Incremental</td><td>&mdash;</td></tr>
+      <tr><td><strong>New Client Folder Creation</strong></td><td><span class="pill live">LIVE</span></td><td>AUTO</td><td>New clients getting 5-subfolder structure?</td><td>Monitor via ACF scan</td><td>&mdash;</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= INTAKE WIRES ======= -->
+<div class="tab-panel" id="intake">
+  <div class="card">
+    <div class="section-label">Domain 4 &mdash; Intake Wires</div>
+    <h2>Data Import, Commission Sync, Correspondence, Reference Seed</h2>
+    <p>4 wires covering all data ingestion. Wires exist and are tested. Rangers (CCSDK agents) not yet deployed.</p>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Wire</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr><td><strong>WIRE_DATA_IMPORT</strong><br><span style="font-size:0.75rem;color:var(--muted)">Universal CSV/file ingestion</span></td><td><span class="pill live">WIRE LIVE</span></td><td>Import wizard working in CC? Introspection accurate?</td><td>Build Data Import Ranger</td><td><a href="intake/intake-wires-discovery.html">Discovery</a> &bull; <a href="intake/import-kill.html">Import Kill</a></td></tr>
+      <tr><td><strong>WIRE_COMMISSION_SYNC</strong><br><span style="font-size:0.75rem;color:var(--muted)">Carrier statements &rarr; revenue</span></td><td><span class="pill live">WIRE LIVE</span></td><td>Revenue matching to penny? Carrier normalizers complete?</td><td>Build Commission Ranger</td><td>&mdash;</td></tr>
+      <tr><td><strong>WIRE_INCOMING_CORRESPONDENCE</strong><br><span style="font-size:0.75rem;color:var(--muted)">Mail scan &rarr; classify &rarr; ACF</span></td><td><span class="pill live">WIRE LIVE</span></td><td>Vision classification accuracy? Server-only deps stable?</td><td>Build Correspondence Ranger (last)</td><td><a href="intake/wire-incoming-correspondence.html">Wire Spec</a> &bull; <a href="intake/intake-wires-pipeline.html">Pipeline</a></td></tr>
+      <tr><td><strong>WIRE_REFERENCE_SEED</strong><br><span style="font-size:0.75rem;color:var(--muted)">Carriers, products, NAIC, rates</span></td><td><span class="pill live">WIRE LIVE</span></td><td>Reference data current? NAIC codes complete?</td><td>Build Reference Ranger</td><td>&mdash;</td></tr>
+      <tr><td><strong>Intake Channels</strong><br><span style="font-size:0.75rem;color:var(--muted)">Email, Drive watch, Slack, manual</span></td><td><span class="pill plan">1 of 4</span></td><td>Manual trigger works?</td><td>Scope email intake + Drive folder watch</td><td>&mdash;</td></tr>
+      <tr><td><strong>SERFF Rate Ingestion</strong><br><span style="font-size:0.75rem;color:var(--muted)">CSG Actuarial &rarr; BigQuery</span></td><td><span class="pill hold">PARKED</span></td><td>&mdash;</td><td>JDM getting CSG API key. Schema: BigQuery dataset <code>serff_rates</code>, partitioned by plan_year. Load via GCS &rarr; Cloud Function.</td><td>&mdash;</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= DEX ======= -->
+<div class="tab-panel" id="dex">
+  <div class="card">
+    <div class="section-label">Domain 5 &mdash; DEX</div>
+    <h2>Document Exchange &mdash; Last GAS Holdout</h2>
+    <p>PDF operations + Drive document management. Currently GAS (<code>gas/DEX/</code>). Port to Cloud Run not started.</p>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Component</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr><td><strong>DEX GAS Engine</strong></td><td><span class="pill live">LIVE (GAS)</span></td><td>GAS quotas hitting? Performance OK?</td><td>Scope Cloud Run port</td><td><a href="dex-live.html">DEX Spec</a></td></tr>
+      <tr><td><strong>DEX Cloud Run Port</strong></td><td><span class="pill plan">NOT STARTED</span></td><td>&mdash;</td><td>Write discovery doc &mdash; what does DEX actually do? Which functions port?</td><td>&mdash;</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= PIPELINE STUDIO ======= -->
+<div class="tab-panel" id="pipeline">
+  <div class="card">
+    <div class="section-label">Domain 6 &mdash; Pipeline Studio / Flow Engine</div>
+    <h2>Pipeline Builder + Admin CRUD</h2>
+    <p>Teal-branded App. Full-screen pipeline builder. Flow engine in <code>packages/core/flow/</code>.</p>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Component</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th></tr>
+      <tr><td><strong>Flow Engine</strong><br><span style="font-size:0.75rem;color:var(--muted)">packages/core/flow/</span></td><td><span class="pill live">LIVE</span></td><td>RONIN</td><td>Stage execution errors?</td><td>Incremental</td></tr>
+      <tr><td><strong>Pipeline Editor UI</strong></td><td><span class="pill live">LIVE</span></td><td>RONIN</td><td>Editor rendering? Save working?</td><td>Incremental</td></tr>
+      <tr><td><strong>Pipeline Kanban</strong></td><td><span class="pill live">LIVE</span></td><td>RONIN</td><td>Cards dragging? Assignments working?</td><td>Incremental</td></tr>
+      <tr><td><strong>Pipeline Instances</strong></td><td><span class="pill live">LIVE</span></td><td>RONIN</td><td>Any blocked instances?</td><td>Monitor via System Synergy</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= DATA INTEGRITY ======= -->
+<div class="tab-panel" id="integrity">
+  <div class="card">
+    <div class="section-label">Domain 7 &mdash; Data Integrity</div>
+    <h2>Firestore/Sheets Parity, Field Completeness, GAS Migration</h2>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Component</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr><td><strong>Firestore Admin Panel</strong></td><td><span class="pill live">LIVE</span></td><td>Config drift?</td><td>Incremental</td><td><a href="firestore-admin-panel.html">Spec</a></td></tr>
+      <tr><td><strong>Matrix Reconciliation</strong><br><span style="font-size:0.75rem;color:var(--muted)">Sheets &harr; Firestore parity</span></td><td><span class="pill plan">NOT STARTED</span></td><td>Sheets and Firestore diverging?</td><td>Write discovery doc, scope reconciliation wire</td><td><a href="matrix/matrix-reconciliation-review.html">Review</a></td></tr>
+      <tr><td><strong>Field Parity (Sprint 014)</strong><br><span style="font-size:0.75rem;color:var(--muted)">Firestore field completeness</span></td><td><span class="pill plan">DISCOVERY</span></td><td>Fields missing from client records?</td><td>Execute Sprint 014</td><td><a href="sprint-014-field-parity-discovery.html">Discovery</a></td></tr>
+      <tr><td><strong>GAS: RAPID_CORE</strong></td><td><span class="pill hold">MAINTENANCE</span></td><td>Library stable?</td><td>Identify consumers, plan deprecation</td><td><a href="gas-migration-audit.md">Audit</a></td></tr>
+      <tr><td><strong>GAS: RAPID_IMPORT</strong></td><td><span class="pill hold">MAINTENANCE</span></td><td>Import engine stable?</td><td>Port remaining functions to Cloud Run</td><td><a href="gas-migration-audit.md">Audit</a></td></tr>
+      <tr><td><strong>GAS: DEX</strong></td><td><span class="pill hold">MAINTENANCE</span></td><td>See DEX tab</td><td>See DEX tab</td><td><a href="dex-live.html">Spec</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= HUB DISPATCHERS ======= -->
+<div class="tab-panel" id="dispatchers">
+  <div class="card">
+    <div class="section-label">Domain 8 &mdash; Hub Dispatchers</div>
+    <h2>5 systemd Services on MDJ_SERVER</h2>
+    <p>V2 dispatcher architecture. Each runs as an independent systemd service. Consolidated from V1 (which was embedded in mdj-agent).</p>
+  </div>
+  <div class="card">
+    <table>
+      <tr><th>Service</th><th>Status</th><th>Port/Mode</th><th>Reactive</th><th>Proactive Next</th></tr>
+      <tr><td><strong>mdj-dispatch-dojo</strong><br><span style="font-size:0.75rem;color:var(--muted)">Slack event router</span></td><td><span class="pill live">ACTIVE</span></td><td>4210</td><td>Slack events routing correctly?</td><td>Monitor via hook-audit</td></tr>
+      <tr><td><strong>mdj-dispatch-git</strong><br><span style="font-size:0.75rem;color:var(--muted)">CI/deploy watcher</span></td><td><span class="pill live">ACTIVE</span></td><td>60s poll</td><td>PR merge detection accurate?</td><td>Monitor via hook-audit</td></tr>
+      <tr><td><strong>mdj-dispatch-intake</strong><br><span style="font-size:0.75rem;color:var(--muted)">Firestore queue watcher</span></td><td><span class="pill live">ACTIVE</span></td><td>Firestore listen</td><td>Queue processing without drops?</td><td>Monitor via hook-audit</td></tr>
+      <tr><td><strong>mdj-dispatch-assess</strong><br><span style="font-size:0.75rem;color:var(--muted)">Ticket analyzer</span></td><td><span class="pill live">ACTIVE</span></td><td>Event-driven</td><td>Assessment quality OK?</td><td>Monitor via hook-audit</td></tr>
+      <tr><td><strong>mdj-dispatch-digest</strong><br><span style="font-size:0.75rem;color:var(--muted)">Mesh health monitor</span></td><td><span class="pill live">ACTIVE</span></td><td>Scheduled</td><td>Digest reports posting?</td><td>Monitor via hook-audit</td></tr>
+      <tr><td><strong>mdj-agent.service</strong><br><span style="font-size:0.75rem;color:var(--muted)">Main server (port 4200)</span></td><td><span class="pill live">ACTIVE</span></td><td>4200</td><td>Health endpoint OK?</td><td>Incremental</td></tr>
+      <tr><td><strong>memory-guardian</strong><br><span style="font-size:0.75rem;color:var(--muted)">OOM protection</span></td><td><span class="pill live">ACTIVE</span></td><td>Continuous</td><td>Any OOM kills?</td><td>Incremental (fixed path this session)</td></tr>
+      <tr><td><strong>dojo-watchdog</strong><br><span style="font-size:0.75rem;color:var(--muted)">Warrior health + queue injection</span></td><td><span class="pill live">ACTIVE</span></td><td>60s timer</td><td>Warriors detected? Queue injecting?</td><td>Incremental (threshold fixed this session)</td></tr>
+      <tr><td><strong>dojo-sync</strong><br><span style="font-size:0.75rem;color:var(--muted)">Config auto-sync</span></td><td><span class="pill live">ACTIVE</span></td><td>30min timer</td><td>Sync commits landing?</td><td>Incremental</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ======= HIT LIST ======= -->
+<div class="tab-panel" id="hitlist">
+  <div class="card">
+    <div class="section-label">Domain 9 &mdash; Hit List</div>
+    <h2>Concrete Tasks &mdash; What's Next</h2>
+    <p>Ordered by priority. Top = do first.</p>
+  </div>
+
+  <div class="hit-item"><div class="status"><span class="pill hot">TOMORROW</span></div><div class="desc"><strong>Verify Learning Loop E2E</strong> &mdash; Check knowledge_entries count, CLAUDE.md diff, brain.txt growth after tonight's first timer runs</div></div>
+  <div class="hit-item"><div class="status"><span class="pill hot">TOMORROW</span></div><div class="desc"><strong>Verify System Synergy UI fix</strong> &mdash; PR #286 fixes hook-audit contract mismatch. Confirm Dashboard + Cleanup Controls load</div></div>
+  <div class="hit-item"><div class="status"><span class="pill next">THIS WEEK</span></div><div class="desc"><strong>Build ACF Ranger</strong> &mdash; First CCSDK mesh node. WIRE_ACF_CLEANUP is shortest wire (3 stages). Proves the Ranger pattern.</div></div>
+  <div class="hit-item"><div class="status"><span class="pill next">THIS WEEK</span></div><div class="desc"><strong>Verify Sunday WIRE_PLATFORM_AUDIT</strong> &mdash; First weekly cleanup report. Check Slack DM to JDM.</div></div>
+  <div class="hit-item"><div class="status"><span class="pill plan">NEXT WEEK</span></div><div class="desc"><strong>SERFF BigQuery schema</strong> &mdash; Parked until JDM has CSG API key. Pre-scope: dataset <code>serff_rates</code>, table per product line, GCS load path.</div></div>
+  <div class="hit-item"><div class="status"><span class="pill plan">NEXT WEEK</span></div><div class="desc"><strong>DEX discovery doc</strong> &mdash; What does DEX actually do? Which functions port to Cloud Run?</div></div>
+  <div class="hit-item"><div class="status"><span class="pill plan">BACKLOG</span></div><div class="desc"><strong>Matrix Reconciliation wire</strong> &mdash; Scope Sheets &harr; Firestore parity check + auto-sync</div></div>
+  <div class="hit-item"><div class="status"><span class="pill plan">BACKLOG</span></div><div class="desc"><strong>Field Parity Sprint 014</strong> &mdash; Execute field completeness audit across all client records</div></div>
+  <div class="hit-item"><div class="status"><span class="pill plan">BACKLOG</span></div><div class="desc"><strong>Intake channels (3 remaining)</strong> &mdash; Email intake, Drive folder watch, Slack channel trigger</div></div>
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  CIO Ownership Grid &mdash; MEGAZORD + JDM &mdash; April 7, 2026<br>
+  <em>MEGAZORD IS ATLAS. The registry is the weapon and the weapon is the warrior.</em>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
