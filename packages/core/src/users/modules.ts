@@ -118,7 +118,7 @@ export const TOOL_SUITES: Record<SuiteKey, ToolSuiteDef> = {
     name: 'Admin',
     description: 'Organization & Permissions Management',
     matrix: 'RAPID',
-    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN', 'MDJ', 'MEGAZORD', 'VOLTRON', 'MUSASHI'],
+    modules: ['ORG_STRUCTURE', 'PERMISSIONS', 'RPI_COMMAND_CENTER', 'PIPELINE_STUDIO', 'FORGE', 'GUARDIAN', 'MDJ', 'MEGAZORD', 'VOLTRON', 'MUSASHI', 'SYSTEM_SYNERGY'],
   },
 }
 
@@ -444,6 +444,14 @@ export const MODULES: Record<string, ModuleDef> = {
     name: 'GUARDIAN',
     fullName: 'Data Protection Engine',
     description: 'Code-enforced write gates, schema validation, anomaly detection, and data health dashboard',
+    status: 'active',
+    suite: 'ADMIN_TOOLS',
+    minUserLevel: 'OWNER',
+  },
+  SYSTEM_SYNERGY: {
+    name: 'System Synergy',
+    fullName: 'Platform Intelligence',
+    description: 'System health monitoring, knowledge pipeline visibility, and automated cleanup controls',
     status: 'active',
     suite: 'ADMIN_TOOLS',
     minUserLevel: 'OWNER',

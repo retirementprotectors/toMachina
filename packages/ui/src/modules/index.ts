@@ -17,6 +17,8 @@ export { CommsCenter } from './CommsCenter'
 export { CommsModule } from './CommsModule'
 
 export { PipelineStudio } from './PipelineStudio'
+export { SystemSynergy } from './SystemSynergy'
+export type { SystemSynergyProps } from './SystemSynergy'
 export { PipelineKanban } from './PipelineKanban'
 export { PipelineInstance } from './PipelineInstance'
 export { PipelineAdmin } from './PipelineAdmin'
