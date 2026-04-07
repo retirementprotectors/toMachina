@@ -113,6 +113,7 @@ export function analyzeMge(household: SuperToolHousehold): MgeAnalysisOutput {
     life_needs: (h: SuperToolHousehold) => ({ result: { type: 'life_needs' as const, applicable: false, summary: 'Life needs — run via WIRE_LIFE_NEEDS', findings: [], recommendation: ''  , metrics: {}, details: {}, warnings: [] } }),
     life_options: (h: SuperToolHousehold) => ({ result: { type: 'life_options' as const, applicable: false, summary: 'Life options — run via WIRE_LIFE_OPTIONS', findings: [], recommendation: ''  , metrics: {}, details: {}, warnings: [] } }),
     life_presentation: (h: SuperToolHousehold) => ({ result: { type: 'life_presentation' as const, applicable: false, summary: 'Life presentation — run via WIRE_LIFE_PRESENTATION', findings: [], recommendation: ''  , metrics: {}, details: {}, warnings: [] } }),
+    life_underwriting: (h: SuperToolHousehold) => ({ result: { type: 'life_underwriting' as const, applicable: false, summary: 'Underwriting path — run via WIRE_LIFE_OPTIONS', findings: [], recommendation: ''  , metrics: {}, details: {}, warnings: [] } }),
     mge_detailed: () => ({
       result: {
         type: 'mge_detailed' as const,

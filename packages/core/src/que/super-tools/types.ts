@@ -126,7 +126,7 @@ export type CaseworkType =
   | 'life_discovery'
   | 'life_needs'
   | 'life_options'
-  | 'life_presentation'
+  | 'life_presentation' | 'life_underwriting'
   // original types:
   | 'income_now'
   | 'income_later'
