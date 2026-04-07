@@ -15,6 +15,10 @@ import { renderLtcMaxSummary } from './templates/ltc-max-summary'
 import { renderMgeDetailedSummary } from './templates/mge-detailed-summary'
 import { renderRothConversionSummary } from './templates/roth-conversion-summary'
 import { renderTaxHarvestingSummary } from './templates/tax-harvesting-summary'
+import { renderLifeDiscoverySummary } from './templates/life-discovery-summary'
+import { renderLifeNeedsSummary } from './templates/life-needs-summary'
+import { renderLifeOptionsSummary } from './templates/life-options-summary'
+import { renderLifePresentationSummary } from './templates/life-presentation-summary'
 
 const SUMMARY_RENDERERS: Record<CaseworkType, (input: GeneratorInput) => string> = {
   income_now: renderIncomeNowSummary,
@@ -25,6 +29,10 @@ const SUMMARY_RENDERERS: Record<CaseworkType, (input: GeneratorInput) => string>
   mge_detailed: renderMgeDetailedSummary,
   roth_conversion: renderRothConversionSummary,
   tax_harvesting: renderTaxHarvestingSummary,
+  life_discovery: renderLifeDiscoverySummary,
+  life_needs: renderLifeNeedsSummary,
+  life_options: renderLifeOptionsSummary,
+  life_presentation: renderLifePresentationSummary,
 }
 
 export function generateSummaryHtml(input: GeneratorInput): string {
