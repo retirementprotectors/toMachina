@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSASHI — CMO Ownership Grid</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #d4a44c; --accent-glow: rgba(212,164,76,0.12); --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --orange: #f59e0b; --purple: #a855f7; --teal: #14b8a6; --gold: #d4a44c; --cyan: #06b6d4; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { background: linear-gradient(135deg, #020b1a 0%, #1a1505 50%, #020b1a 100%); border-bottom: 1px solid var(--border); padding: 40px 32px; text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 50%, rgba(212,164,76,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(212,164,76,0.04) 0%, transparent 50%); pointer-events: none; }
+.header h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #f59e0b, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; position: relative; }
+.header .subtitle { font-size: 1rem; color: var(--muted); position: relative; }
+.header .badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(212,164,76,0.3); position: relative; }
+.tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs { display: flex; max-width: 1300px; margin: 0 auto; padding: 0 8px; }
+.tab { padding: 12px 14px; font-size: 0.78rem; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .dot { width: 8px; height: 8px; border-radius: 50%; }
+.content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.card h3 { font-size: 0.95rem; margin: 16px 0 8px; }
+.card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 10px; }
+.card ul, .card ol { color: var(--muted); font-size: 0.88rem; margin-left: 20px; margin-bottom: 10px; }
+.card li { margin-bottom: 6px; }
+.card li strong { color: var(--text); }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; font-family: 'SF Mono', monospace; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pill.live { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.next { background: rgba(59,130,246,0.12); color: var(--blue); }
+.pill.plan { background: rgba(168,85,247,0.12); color: var(--purple); }
+.pill.hold { background: rgba(148,163,184,0.12); color: var(--muted); }
+.pill.hot { background: rgba(239,68,68,0.12); color: var(--red); }
+.section-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.insight { background: rgba(212,164,76,0.06); border: 1px solid rgba(212,164,76,0.2); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.85rem; color: var(--muted); }
+.insight strong { color: var(--accent); }
+.rhythm-block { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; }
+.rhythm-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); min-width: 36px; text-align: center; line-height: 1; padding-top: 2px; }
+.rhythm-body h3 { font-size: 0.9rem; margin-bottom: 4px; }
+.rhythm-body p { font-size: 0.82rem; color: var(--muted); margin: 0; }
+.hit-item { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.hit-item .status { min-width: 70px; }
+.hit-item .desc { font-size: 0.85rem; color: var(--muted); }
+.hit-item .desc strong { color: var(--text); }
+.footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+@media (max-width: 768px) { .tab { padding: 10px 10px; font-size: 0.72rem; } .rhythm-block { flex-direction: column; gap: 6px; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>CMO Ownership Grid</h1>
+  <div class="subtitle">MUSASHI + JDM &mdash; What we own, what's next, how we work the week</div>
+  <div class="badge">ARTxBLADE &mdash; Updated 2026-04-08</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="creative"><span class="dot" style="background:var(--gold)"></span> Creative / Brand</div>
+    <div class="tab" data-tab="campaigns"><span class="dot" style="background:var(--orange)"></span> Campaign Content</div>
+    <div class="tab" data-tab="portal-ux"><span class="dot" style="background:var(--teal)"></span> Portal UX</div>
+    <div class="tab" data-tab="discos"><span class="dot" style="background:var(--purple)"></span> Discovery Docs</div>
+    <div class="tab" data-tab="website"><span class="dot" style="background:var(--blue)"></span> Website / WordPress</div>
+    <div class="tab" data-tab="trinity"><span class="dot" style="background:var(--green)"></span> Trinity / B2B</div>
+    <div class="tab" data-tab="hitlist"><span class="dot" style="background:var(--red)"></span> Hit List</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════ CREATIVE / BRAND ═══════════════════ -->
+<div class="tab-panel active" id="creative">
+  <div class="card">
+    <div class="section-label">Creative / Brand</div>
+    <h2>Brand Assets, Brochures, Voice, MYST AI</h2>
+    <p>Everything that defines how RPI looks, sounds, and feels. Brochures for clients, brand guide for the team, MYST AI bios for the platform. Walk each item weekly: status &rarr; reactive &rarr; proactive.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr>
+        <td><strong>RPI Brochures</strong><br><span style="font-size:0.75rem;color:var(--muted)">11 brochures inventoried from Drive</span></td>
+        <td><span class="pill next">SPRINT 1</span></td>
+        <td>MUSASHI</td>
+        <td>Paper versions still in field &mdash; digital parity needed</td>
+        <td>Design digital brochure templates in Canva, match existing POS flow</td>
+        <td><a href="creative/sprint1-brochure-parity-discovery.html">Brochure Parity</a></td>
+      </tr>
+      <tr>
+        <td><strong>Brand Guide</strong><br><span style="font-size:0.75rem;color:var(--muted)">AiBot Ethos + Five Facets + Voice Guide</span></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>MUSASHI</td>
+        <td>Warriors using correct voice per bot? Team comms on-brand?</td>
+        <td>Formalize Brand Code doc &mdash; character profiles, voice samples, visual identity</td>
+        <td><a href="creative/cmo-creative-roadmap.html">CMO Roadmap</a></td>
+      </tr>
+      <tr>
+        <td><strong>Asset Inventory</strong><br><span style="font-size:0.75rem;color:var(--muted)">11 brochures, 12 forms, eApp fact-finders</span></td>
+        <td><span class="pill live">DONE</span></td>
+        <td>MUSASHI</td>
+        <td>Any new assets created since inventory? Drive scan current?</td>
+        <td>Link inventory to CMO Registry for automated tracking</td>
+        <td><a href="creative/cmo-creative-roadmap.html">CMO Roadmap</a></td>
+      </tr>
+      <tr>
+        <td><strong>MYST AI Bios</strong><br><span style="font-size:0.75rem;color:var(--muted)">7 warrior bios + index page</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>MUSASHI</td>
+        <td>Bios accurate after CXO promotions? New titles reflected?</td>
+        <td>Add headshot avatars, "Talk to me" buttons wired to MDJ panel</td>
+        <td><a href="myst-ai/index.html">MYST AI Index</a> &bull; <a href="myst-ai/bios/">Bios</a></td>
+      </tr>
+      <tr>
+        <td><strong>Warrior Icon Concepts</strong><br><span style="font-size:0.75rem;color:var(--muted)">Visual identity for 6 warriors</span></td>
+        <td><span class="pill hold">JDM ART-DIRECTS</span></td>
+        <td>JDM</td>
+        <td>JDM spent 5+ hours on icons &mdash; DO NOT generate, only present concepts</td>
+        <td>Present creative direction options when JDM is ready</td>
+        <td><a href="icon-concepts.html">Icon Concepts</a></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review:</strong> Any new assets from the team? Brand voice drift in Slack or VOLTRON responses? Brochure sprint progress?
+  </div>
+</div>
+
+<!-- ═══════════════════ CAMPAIGN CONTENT ═══════════════════ -->
+<div class="tab-panel" id="campaigns">
+  <div class="card">
+    <div class="section-label">Campaign Content</div>
+    <h2>C3 Templates, Campaign Copy, AEP, Content Blocks</h2>
+    <p>The content layer that powers C3 (Campaign Command Center). 60 campaigns, 661 templates, AEP blackout Oct&ndash;Dec. MUSASHI owns the CONTENT &mdash; RONIN owns the ENGINE.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr>
+        <td><strong>C3 Templates</strong><br><span style="font-size:0.75rem;color:var(--muted)">661 templates across 60 campaigns</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>MUSASHI (content)<br>RONIN (engine)</td>
+        <td>Template accuracy? Any bounced emails? Outdated contact info?</td>
+        <td>Audit templates for 2026 compliance language, refresh stale copy</td>
+        <td><em>Firestore <code>templates</code> + <code>content_blocks</code></em></td>
+      </tr>
+      <tr>
+        <td><strong>AEP Content</strong><br><span style="font-size:0.75rem;color:var(--muted)">Annual Enrollment Period &mdash; Oct-Dec blackout</span></td>
+        <td><span class="pill hold">OFF-SEASON</span></td>
+        <td>MUSASHI</td>
+        <td>AEP blackout rules current in C3? Carriers updated?</td>
+        <td>Pre-build AEP 2026 campaign content by August, ready before Oct 1</td>
+        <td><em>C3 campaign rules engine</em></td>
+      </tr>
+      <tr>
+        <td><strong>Content Blocks</strong><br><span style="font-size:0.75rem;color:var(--muted)">Reusable content chunks across campaigns</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>MUSASHI</td>
+        <td>Any orphaned blocks? Blocks referencing removed products?</td>
+        <td>Inventory + tag all blocks, connect to CMO Registry for discoverability</td>
+        <td><em>Firestore <code>content_blocks</code></em></td>
+      </tr>
+      <tr>
+        <td><strong>Campaign Analytics</strong><br><span style="font-size:0.75rem;color:var(--muted)">Open rates, bounce rates, engagement</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>MEGAZORD (data)<br>MUSASHI (viz)</td>
+        <td><em>Not live yet</em></td>
+        <td>Design analytics dashboard view for C3 &mdash; what metrics matter to JDM?</td>
+        <td><em>No DiscoDoc yet</em></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review:</strong> Any campaign complaints from team? Bounce rates spiking? AEP prep timeline on track? Content blocks need refresh?
+  </div>
+</div>
+
+<!-- ═══════════════════ PORTAL UX ═══════════════════ -->
+<div class="tab-panel" id="portal-ux">
+  <div class="card">
+    <div class="section-label">Portal UX</div>
+    <h2>Platform Polish, ProZone UX, Notifications</h2>
+    <p>The design quality layer. MUSASHI doesn't build the features &mdash; MUSASHI makes them look and feel right. CTO assigns the UX polish pass, MUSASHI executes.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr>
+        <td><strong>Platform Polish</strong><br><span style="font-size:0.75rem;color:var(--muted)">Connect, Notifications, Dedup, Relationships, FORGE</span></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>MUSASHI</td>
+        <td>Any visual inconsistencies reported? Sidebar alignment issues?</td>
+        <td>Walk all 3 portals, build visual QA checklist, prioritize fixes</td>
+        <td><a href="platform-polish.html">Platform Polish</a></td>
+      </tr>
+      <tr>
+        <td><strong>ProZone UX</strong><br><span style="font-size:0.75rem;color:var(--muted)">Tabbed layout + pipeline integration</span></td>
+        <td><span class="pill next">READY</span></td>
+        <td>MUSASHI (UX)<br>RONIN (wiring)</td>
+        <td>ProZone usable by Vince's team? Layout complaints?</td>
+        <td>Execute UX overhaul per discovery doc &mdash; tabs, filters, pipeline view</td>
+        <td><a href="prozone-ui-ux.html">ProZone UX</a></td>
+      </tr>
+      <tr>
+        <td><strong>Notifications Module</strong><br><span style="font-size:0.75rem;color:var(--muted)">System-wide notification center</span></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>MUSASHI (UI)<br>RONIN (backend)</td>
+        <td><em>Not live yet</em></td>
+        <td>Finalize notification types, routing rules, UI design</td>
+        <td><a href="notifications-module.html">Notifications Module</a></td>
+      </tr>
+      <tr>
+        <td><strong>System Synergy App</strong><br><span style="font-size:0.75rem;color:var(--muted)">4-view platform intelligence dashboard</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>MUSASHI</td>
+        <td>All 4 tabs rendering? Data loading from endpoints?</td>
+        <td>Phase 4: wire cleanup action buttons (currently read-only)</td>
+        <td><a href="../shinob1/platform/system-synergy-discovery.html">System Synergy Discovery</a></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review:</strong> Walk ProDash as a team member &mdash; anything ugly? Any UX complaints in #the-dojo? ProZone sprint ready to kick off?
+  </div>
+</div>
+
+<!-- ═══════════════════ DISCOVERY DOCS ═══════════════════ -->
+<div class="tab-panel" id="discos">
+  <div class="card">
+    <div class="section-label">Discovery Docs</div>
+    <h2>MUSASHI's Unique Output &mdash; The Factory</h2>
+    <p>Discovery Docs turned The Machine from a dev shop into a factory. MUSASHI produces these for ALL warriors &mdash; they're the contract between JDM's vision and the execution. 8 tabs, signed off before a single line of code gets written.</p>
+  </div>
+
+  <div class="card">
+    <h3>Discovery Docs Produced</h3>
+    <table>
+      <tr><th>Doc</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr>
+        <td><strong>RSP-PIPELINE</strong><br><span style="font-size:0.75rem;color:var(--muted)">Sprint 006 &mdash; Blue Gate, F2F Kit, ProZone handoff</span></td>
+        <td><span class="pill live">SHIPPED</span></td>
+        <td>MUSASHI</td>
+        <td>Pipeline built per spec? Any deviations?</td>
+        <td>Review post-build for lessons &rarr; update DiscoDoc template</td>
+        <td><a href="../shinob1/rsp-pipeline/sprint-006-plan.html">Sprint 006 Plan</a></td>
+      </tr>
+      <tr>
+        <td><strong>SENSEI</strong><br><span style="font-size:0.75rem;color:var(--muted)">Sprint 007 &mdash; Training intelligence layer</span></td>
+        <td><span class="pill live">SHIPPED</span></td>
+        <td>MUSASHI</td>
+        <td>SENSEI mode working? Knowledge base current?</td>
+        <td>Incremental only</td>
+        <td><a href="../shinob1/sensei/sprint-007-discovery.html">Sensei Discovery</a></td>
+      </tr>
+      <tr>
+        <td><strong>DOJO</strong><br><span style="font-size:0.75rem;color:var(--muted)">Sprint 008 &mdash; AiBot Ethos, Culture, Characters, MYST.AI</span></td>
+        <td><span class="pill live">SHIPPED</span></td>
+        <td>MUSASHI</td>
+        <td>Brand Code implemented? Voice guides followed?</td>
+        <td>Brand Code formalization &mdash; the doc that governs all bot voices</td>
+        <td><a href="../shinob1/dojo/sprint-008-discovery.html">Dojo Discovery</a></td>
+      </tr>
+      <tr>
+        <td><strong>SHINOBI-ONLINE</strong><br><span style="font-size:0.75rem;color:var(--muted)">All warriors as CCSDK nodes</span></td>
+        <td><span class="pill live">SHIPPED</span></td>
+        <td>MUSASHI</td>
+        <td>Architecture still valid after tmux pivot?</td>
+        <td>Archive or update for tmux-native architecture</td>
+        <td><a href="../shinob1/infrastructure/ccsdk-vs-cctmux-analysis.html">CCSDK vs tmux</a></td>
+      </tr>
+      <tr>
+        <td><strong>CXO Track Docs (9)</strong><br><span style="font-size:0.75rem;color:var(--muted)">3 tracks x 3 CXOs &mdash; CONSUME / OPERATE / DEVOUR</span></td>
+        <td><span class="pill live">SHIPPED</span></td>
+        <td>MUSASHI</td>
+        <td>CTO review lessons applied? Blast radius audits in all tickets?</td>
+        <td>Next round: post-CONSUME retrospective per CXO</td>
+        <td><a href="tracks/">Track Plans</a></td>
+      </tr>
+      <tr>
+        <td><strong>Claude Insights Report</strong><br><span style="font-size:0.75rem;color:var(--muted)">PRO + AIR combined &mdash; 133 sessions, 4,262 messages</span></td>
+        <td><span class="pill live">DONE</span></td>
+        <td>MUSASHI</td>
+        <td>Data stale (pre-MDJ_SERVER era)</td>
+        <td>Next report: MDJ_SERVER era analytics when brain.txt extraction is live</td>
+        <td><a href="claude-insights.html">Claude Insights</a></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>The Doctor Analogy:</strong> Blue Gate behaves like a doctor who walks in, runs a few tests, and says: "Nothing to do right now. But let's go ahead and get the full picture." That's not a sales tactic. That's a professional who respects the process. &mdash; RSP-PIPELINE, the one The Architect called "worth framing."
+  </div>
+
+  <div class="insight">
+    <strong>CTO Review Lessons (7):</strong> Renames need grep manifests. Architecture decisions can't live in implication. Prefixes are routing metadata. AC are gates not notes. Bring receipts. Domain extension > pattern copying. The review IS the immune system. &mdash; All baked into soul.md for every future spawn.
+  </div>
+</div>
+
+<!-- ═══════════════════ WEBSITE / WORDPRESS ═══════════════════ -->
+<div class="tab-panel" id="website">
+  <div class="card">
+    <div class="section-label">Website / WordPress</div>
+    <h2>retireprotected.com &mdash; Elementor, Landing Pages</h2>
+    <p>The public face. WordPress + Elementor on retireprotected.com. MUSASHI has full MCP access via <code>rpi-workspace</code> WordPress tools. Walk each item weekly.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr>
+        <td><strong>retireprotected.com</strong><br><span style="font-size:0.75rem;color:var(--muted)">Main website &mdash; WordPress + Elementor</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>MUSASHI</td>
+        <td>Site up? SSL valid? Any broken pages? Contact forms working?</td>
+        <td>Content audit &mdash; outdated team photos, stale copy, broken links</td>
+        <td><em>WordPress admin</em></td>
+      </tr>
+      <tr>
+        <td><strong>MYST Page</strong><br><span style="font-size:0.75rem;color:var(--muted)">Meet Your Service Team &mdash; public-facing</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>MUSASHI</td>
+        <td>Team roster current? Offboarded people removed?</td>
+        <td>Add MYST.AI section alongside human team &mdash; per DOJO Discovery spec</td>
+        <td><a href="myst-ai/index.html">MYST AI</a></td>
+      </tr>
+      <tr>
+        <td><strong>Landing Pages</strong><br><span style="font-size:0.75rem;color:var(--muted)">Campaign-specific landing pages</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>MUSASHI</td>
+        <td><em>None live yet</em></td>
+        <td>Design landing page templates in Elementor, wire to C3 campaign links</td>
+        <td><em>No DiscoDoc yet</em></td>
+      </tr>
+      <tr>
+        <td><strong>SEO / Analytics</strong><br><span style="font-size:0.75rem;color:var(--muted)">Search rankings, traffic, conversions</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>MUSASHI</td>
+        <td><em>Not tracked yet</em></td>
+        <td>Set up Google Analytics + Search Console, establish baseline metrics</td>
+        <td><em>No DiscoDoc yet</em></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review:</strong> Is the website embarrassing? Old team photos? Stale copy? Any SEO opportunities JDM mentioned? Landing page requests from campaigns?
+  </div>
+</div>
+
+<!-- ═══════════════════ TRINITY / B2B ═══════════════════ -->
+<div class="tab-panel" id="trinity">
+  <div class="card">
+    <div class="section-label">Trinity / B2B</div>
+    <h2>DAVID Materials, Third Pillar, B2B Product</h2>
+    <p>The B2B creative layer. Trinity Data Method&trade; is RPI's proprietary data framework &mdash; MUSASHI owns how it's presented, packaged, and sold. MEGAZORD owns the data. Matt McCormick is the division leader.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+      <tr>
+        <td><strong>Trinity Data Method&trade;</strong><br><span style="font-size:0.75rem;color:var(--muted)">3-source data confidence framework</span></td>
+        <td><span class="pill next">ACTIVE</span></td>
+        <td>MUSASHI (creative)<br>MEGAZORD (data)</td>
+        <td>Pitch deck current? Level dashboards match actual scoring?</td>
+        <td>Design investor-grade Trinity Data Method one-pager</td>
+        <td><a href="trinity/b2b-product-discovery.html">B2B Product</a></td>
+      </tr>
+      <tr>
+        <td><strong>Third Pillar</strong><br><span style="font-size:0.75rem;color:var(--muted)">Advisory services positioning</span></td>
+        <td><span class="pill plan">DISCOVERY</span></td>
+        <td>MUSASHI</td>
+        <td><em>Early stage</em></td>
+        <td>Finalize positioning, design collateral for Gradient partnership</td>
+        <td><a href="trinity/third-pillar-discovery.html">Third Pillar</a></td>
+      </tr>
+      <tr>
+        <td><strong>DAVID Sales Materials</strong><br><span style="font-size:0.75rem;color:var(--muted)">B2B pitch decks, case studies, collateral</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>MUSASHI</td>
+        <td>Matt has materials from pre-Machine era &mdash; need refresh?</td>
+        <td>Audit existing DAVID materials, design refresh with toMachina branding</td>
+        <td><em>No DiscoDoc yet</em></td>
+      </tr>
+      <tr>
+        <td><strong>Empire Model Visualization</strong><br><span style="font-size:0.75rem;color:var(--muted)">Foundation &rarr; Operations &rarr; Revenue &rarr; Acquisition</span></td>
+        <td><span class="pill plan">PLANNED</span></td>
+        <td>MUSASHI</td>
+        <td><em>Concept only</em></td>
+        <td>Design visual framework &mdash; 4-stage progression for B2B sales presentations</td>
+        <td><a href="trinity/b2b-product-discovery.html">B2B Product</a></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review:</strong> Any B2B deals in pipeline that need collateral? Matt requesting materials? Gradient partnership advancing? Trinity pitch deck ready for investors?
+  </div>
+</div>
+
+<!-- ═══════════════════ HIT LIST ═══════════════════ -->
+<div class="tab-panel" id="hitlist">
+  <div class="card">
+    <div class="section-label">Active Hit List</div>
+    <h2>Specific Tasks &mdash; CMO Queue</h2>
+    <p>Concrete items. Work these in between weekly rhythm walks. JDM adds items as they come up.</p>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">HOT</span></div>
+    <div class="desc"><strong>Brochure Parity Sprint</strong> &mdash; CMO Sprint 1. 11 paper brochures need digital equivalents in Canva. JDM answered all 9 Q&amp;A items. <a href="creative/sprint1-brochure-parity-discovery.html">Discovery ready.</a></div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill hot">HOT</span></div>
+    <div class="desc"><strong>ProZone UX Overhaul</strong> &mdash; CTO assigned. Tabbed layout, pipeline integration, filter system. <a href="prozone-ui-ux.html">Discovery ready.</a></div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>Brand Code Document</strong> &mdash; The master document that governs all bot voices. Character profiles, voice samples, transcript library. From DOJO Sprint 008.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>MYST AI headshots + "Talk to me" buttons</strong> &mdash; 7 warrior bios need generated avatars and wired chat buttons. From DOJO Sprint 008.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill next">NEXT</span></div>
+    <div class="desc"><strong>Website content audit</strong> &mdash; Walk retireprotected.com, flag stale content, outdated team photos, broken links.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>System Synergy Phase 4</strong> &mdash; Wire cleanup action buttons (currently disabled/read-only). Depends on MEGAZORD building DELETE endpoints.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>AEP 2026 Content Prep</strong> &mdash; Pre-build all AEP campaign content by August. 60 campaigns need compliance review + copy refresh.</div>
+  </div>
+
+  <div class="hit-item">
+    <div class="status"><span class="pill plan">PLAN</span></div>
+    <div class="desc"><strong>DAVID Sales Collateral Refresh</strong> &mdash; Audit Matt's existing materials, rebrand with toMachina aesthetic, design pitch deck.</div>
+  </div>
+
+  <p style="color: var(--muted); font-size: 0.8rem; margin-top: 16px; font-style: italic;">JDM: Add items here as they come up. MUSASHI will prioritize and execute.</p>
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  CMO Ownership Grid &mdash; MUSASHI + JDM &mdash; Updated April 8, 2026<br>
+  <em>"You said get it on the board. I got it on the board." &mdash; ARTxBLADE</em>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
