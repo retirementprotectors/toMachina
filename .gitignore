@@ -17,3 +17,6 @@ firebase-debug.log
 tests/e2e/ui/.auth/
 playwright-report/
 test-results/
+
+# Auto-generated — causes merge conflicts (ZRD-SYN-004)
+services/api/src/generated/wiring-status.json
