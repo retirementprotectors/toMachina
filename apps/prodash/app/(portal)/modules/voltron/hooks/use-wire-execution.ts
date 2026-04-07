@@ -6,7 +6,6 @@ import type {
   ExecutionPhase,
   VoltronArtifact,
   VoltronSSEEvent,
-  VoltronStageResult,
   VoltronWireResult,
   WireExecutionState,
 } from '../types'
@@ -63,21 +62,16 @@ export function useWireExecution() {
 
           switch (event.type) {
             case 'stage_start':
-              next.current_stage = event.stage ?? null
+              // event.stage is a VoltronStageResult object; extract the string ID
+              next.current_stage = event.stage?.stage ?? null
               next.phase = 'executing'
               break
 
             case 'stage_complete': {
               next.current_stage = null
               if (event.stage) {
-                const stageResult: VoltronStageResult = {
-                  stage: event.stage,
-                  super_tool_id: event.super_tool_id ?? event.stage,
-                  status: 'complete',
-                  completed_at: event.timestamp,
-                  output: event.data,
-                }
-                next.stages = [...prev.stages, stageResult]
+                // Backend already built the full VoltronStageResult — use it directly
+                next.stages = [...prev.stages, event.stage]
               }
               if (event.artifacts) {
                 next.artifacts = event.artifacts
@@ -87,24 +81,19 @@ export function useWireExecution() {
 
             case 'stage_error': {
               if (event.stage) {
-                const stageResult: VoltronStageResult = {
-                  stage: event.stage,
-                  super_tool_id: event.super_tool_id ?? event.stage,
-                  status: 'error',
-                  completed_at: event.timestamp,
-                  error: event.error,
-                }
-                next.stages = [...prev.stages, stageResult]
+                // Backend already built the full VoltronStageResult — use it directly
+                next.stages = [...prev.stages, event.stage]
               }
               next.current_stage = null
               next.phase = 'error'
-              next.error = event.error ?? 'Stage execution failed'
+              next.error = event.stage?.error ?? event.error ?? 'Stage execution failed'
               break
             }
 
             case 'approval_required':
               next.phase = 'approval_pending'
-              next.current_stage = event.stage ?? null
+              // event.stage is a VoltronStageResult object; extract the string ID
+              next.current_stage = event.stage?.stage ?? null
               break
 
             case 'wire_complete':
