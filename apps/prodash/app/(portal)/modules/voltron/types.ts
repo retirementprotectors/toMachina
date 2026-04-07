@@ -41,9 +41,18 @@ export type VoltronSSEEventType =
 
 export interface VoltronSSEEvent {
   type: VoltronSSEEventType
-  stage?: string
-  super_tool_id?: string
-  data?: unknown
+  /** Stage detail object — present on stage_* and approval_required events.
+   *  The backend emits a full VoltronStageResult, not a plain string. */
+  stage?: import('@tomachina/core').VoltronStageResult
+  /** Wire ID — present on all events */
+  wire_id?: string
+  /** Execution ID — present on all events */
+  execution_id?: string
+  /** Total stages in this wire */
+  total_stages?: number
+  /** 0-based index of the current stage */
+  stage_index?: number
+  /** Top-level error string — present on wire_error */
   error?: string
   timestamp: string
   /** Artifacts available so far */

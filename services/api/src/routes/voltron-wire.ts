@@ -158,11 +158,11 @@ voltronWireRoutes.get('/log', async (_req: Request, res: Response) => {
 
 voltronWireRoutes.post('/execute', async (req: Request, res: Response) => {
   try {
-    const { wire_id, client_id, params, simulate } = req.body as {
+    const { wire_id, client_id, params, simulation } = req.body as {
       wire_id: string
       client_id: string
       params?: Record<string, unknown>
-      simulate?: boolean
+      simulation?: boolean
     }
 
     const err = validateRequired(req.body as Record<string, unknown>, ['wire_id', 'client_id'])
@@ -233,7 +233,7 @@ voltronWireRoutes.post('/execute', async (req: Request, res: Response) => {
     }
 
     const result: VoltronWireResult = await executeVoltronWire(wireInput, context, {
-      simulate: simulate || false,
+      simulate: simulation || false,
       writeAudit,
     })
 

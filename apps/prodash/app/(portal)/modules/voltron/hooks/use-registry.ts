@@ -31,9 +31,10 @@ export function useRegistry(userRole?: VoltronUserRole) {
   const fetchRegistry = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }))
     try {
-      const result = await fetchValidated<VoltronRegistryEntry[]>(
-        '/api/voltron/registry'
-      )
+      const result = await fetchValidated<{
+        tools: VoltronRegistryEntry[]
+        _meta: Record<string, unknown>
+      }>('/api/voltron/registry')
       if (!result.success) {
         setState((prev) => ({
           ...prev,
@@ -43,7 +44,7 @@ export function useRegistry(userRole?: VoltronUserRole) {
         return
       }
 
-      const entries = result.data ?? []
+      const entries = result.data?.tools ?? []
 
       // Extract wire definitions from WIRE-type registry entries
       const wireEntries = entries.filter((e) => e.type === 'WIRE')
