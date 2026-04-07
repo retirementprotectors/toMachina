@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { DomainBadge } from './WireExecutionLog'
+import { authFetch } from './auth-fetch'
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ export function RegistryBrowser() {
         const url = domainFilter !== 'all'
           ? `/api/voltron/registry?domain=${domainFilter}`
           : '/api/voltron/registry'
-        const res = await fetch(url)
+        const res = await authFetch(url)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const json = await res.json()
         setEntries(json.data?.tools ?? [])

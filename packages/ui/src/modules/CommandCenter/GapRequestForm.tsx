@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { VoltronLionDomain, GapRequestPriority } from '@tomachina/core'
+import { authFetch } from './auth-fetch'
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -73,7 +74,7 @@ export function GapRequestForm({ sourceCaseId }: { sourceCaseId?: string }) {
     setResult(null)
 
     try {
-      const res = await fetch('/api/voltron/gap-requests', {
+      const res = await authFetch('/api/voltron/gap-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
