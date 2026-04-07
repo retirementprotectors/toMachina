@@ -89,6 +89,7 @@ import { ciWebhookRoutes, ciRoutes } from './routes/ci.js'
 import { mystAiRoutes } from './routes/myst-ai.js'
 import { adminWarriorRoutes } from './routes/admin-warriors.js'
 import { adminLearningLoopRoutes } from './routes/admin-learning-loop.js'
+import { systemSynergyRoutes } from './routes/system-synergy.js'
 import { rspRoutes } from './routes/rsp.js'
 import { senseiAnalyticsRoutes } from './routes/sensei-analytics.js'
 import { senseiContentRoutes } from './routes/sensei-content.js'
@@ -221,6 +222,7 @@ app.use('/api/voltron', normalizeBody, voltronDeployRoutes)
 app.use('/api/myst-ai', mystAiRoutes)
 app.use('/api/admin/warriors', adminWarriorRoutes)
 app.use('/api/admin/learning-loop', adminLearningLoopRoutes)
+app.use('/api/system-synergy', systemSynergyRoutes)
 app.use('/api/rsp', normalizeBody, rspRoutes)
 
 // CEO Action Queue — Sprint 012
