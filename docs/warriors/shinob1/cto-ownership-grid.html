@@ -146,70 +146,89 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   <div class="card">
     <div class="section-label">Priority 1 — Team Tray</div>
     <h2>Daily Tools the Team Depends On</h2>
-    <p>These are portal-branded modules that live in every team member's sidebar. If these break, the team can't work.</p>
+    <p>Sidebar modules + toolbar actions that every team member uses. If these break, the team can't work. Walk each item weekly: status &rarr; reactive &rarr; proactive.</p>
   </div>
 
   <div class="card">
     <h3>Sidebar Modules</h3>
     <table>
-      <tr><th>Module</th><th>What It Does</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr><th>Module</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
       <tr>
-        <td><strong>Communications</strong></td>
-        <td>Slide-out feed + compose + dialer. Twilio voice, SMS, email.</td>
+        <td><strong>Communications</strong><br><span style="font-size:0.75rem;color:var(--muted)">Feed + compose + dialer</span></td>
         <td><span class="pill next">SPRINT 11</span></td>
-        <td><a href="1-team-tray/sprint-011-prozone-comms-discovery.html">Sprint 011 Discovery</a><br><a href="1-team-tray/comms-live-twilio.html">COMMS Live Twilio</a><br><a href="1-team-tray/comms-polish.html">COMMS Polish</a></td>
+        <td>RONIN</td>
+        <td><em>Mockup only &mdash; not wired yet</em></td>
+        <td>Wire Twilio voice + SMS + email into slide-out panel</td>
+        <td><a href="1-team-tray/sprint-011-prozone-comms-discovery.html">Sprint 011</a> &bull; <a href="1-team-tray/comms-live-twilio.html">Twilio</a> &bull; <a href="1-team-tray/comms-polish.html">Polish</a></td>
       </tr>
       <tr>
-        <td><strong>RPI Connect</strong></td>
-        <td>Slide-out channels + people + meet. Internal comms hub.</td>
+        <td><strong>RPI Connect</strong><br><span style="font-size:0.75rem;color:var(--muted)">Channels + people + meet</span></td>
         <td><span class="pill plan">MOCKUP</span></td>
-        <td><em>No DiscoDoc yet — mockup phase</em></td>
+        <td>TBD</td>
+        <td><em>None &mdash; not live yet</em></td>
+        <td>Write discovery doc</td>
+        <td><em>No DiscoDoc yet</em></td>
       </tr>
       <tr>
-        <td><strong>Notifications / Alerts</strong></td>
-        <td>System-wide notification center. Alerts, assignments, reminders.</td>
+        <td><strong>Notifications / Alerts</strong><br><span style="font-size:0.75rem;color:var(--muted)">System-wide notification center</span></td>
         <td><span class="pill plan">DISCOVERY</span></td>
-        <td><a href="../musashi/notifications-module.html">Notifications Module</a> (MUSASHI builds UI)</td>
+        <td>MUSASHI (UI)</td>
+        <td><em>None &mdash; not live yet</em></td>
+        <td>Finalize notification types + routing rules</td>
+        <td><a href="../musashi/notifications-module.html">Notifications Module</a></td>
       </tr>
       <tr>
-        <td><strong>MDJ Panel</strong></td>
-        <td>VOLTRON chat widget in sidebar. AI assistant for every user.</td>
+        <td><strong>MDJ Panel</strong><br><span style="font-size:0.75rem;color:var(--muted)">VOLTRON chat widget in sidebar</span></td>
         <td><span class="pill live">LIVE</span></td>
-        <td>Owned by VOLTRON &mdash; <a href="../voltron/mdj/">MDJ Docs</a></td>
+        <td>VOLTRON</td>
+        <td>Check: is panel responsive? Any user complaints?</td>
+        <td>VOLTRON brain.txt populates tonight (WIRE_BRAIN_SYNC)</td>
+        <td><a href="../voltron/mdj/">MDJ Docs</a></td>
       </tr>
       <tr>
-        <td><strong>Admin Module</strong></td>
-        <td>User management, org structure, permissions, entitlements.</td>
+        <td><strong>Admin Module</strong><br><span style="font-size:0.75rem;color:var(--muted)">Users, org, permissions, entitlements</span></td>
         <td><span class="pill live">LIVE</span></td>
-        <td><em>Shipped Sprint 9. Incremental updates only.</em></td>
+        <td>RONIN</td>
+        <td>Any permission issues reported?</td>
+        <td>Incremental only</td>
+        <td><em>Shipped Sprint 9</em></td>
       </tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Toolbar (Top Right)</h3>
-    <p>Always-visible toolbar actions in the portal header. Available on every page.</p>
     <table>
-      <tr><th>Component</th><th>What It Does</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr><th>Component</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
       <tr>
-        <td><strong>RPI SENSEI</strong></td>
-        <td>AI training intelligence. Contextual coaching, knowledge base Q&amp;A, guided workflows for team members.</td>
+        <td><strong>RPI SENSEI</strong><br><span style="font-size:0.75rem;color:var(--muted)">AI coaching + knowledge Q&amp;A</span></td>
         <td><span class="pill live">LIVE</span></td>
-        <td><a href="../voltron/sprint-007-discovery.html">Sensei Sprint 007</a> (VOLTRON domain)</td>
+        <td>RONIN</td>
+        <td>Is knowledge base current? Team using it?</td>
+        <td>Expand training content, add guided workflows</td>
+        <td><a href="1-team-tray/sprint-007-discovery.html">Sensei Discovery</a> &bull; <a href="1-team-tray/sprint-007-plan.html">Sensei Plan</a></td>
       </tr>
       <tr>
-        <td><strong>Meet Your Service Team</strong></td>
-        <td>AI-powered team directory. Clients see their assigned team with bios, contact info, and scheduling.</td>
+        <td><strong>Meet Your Service Team</strong><br><span style="font-size:0.75rem;color:var(--muted)">AI team directory + bios</span></td>
         <td><span class="pill live">LIVE</span></td>
-        <td><em>MYST AI module &mdash; shipped</em></td>
+        <td>MUSASHI</td>
+        <td>Bios accurate? New hires added?</td>
+        <td>Incremental only</td>
+        <td><a href="../musashi/myst-ai/index.html">MYST AI Index</a> &bull; <a href="../musashi/myst-ai/bios/">Bios</a></td>
       </tr>
       <tr>
-        <td><strong>MyRPI</strong></td>
-        <td>Personal dashboard. User's own accounts, documents, tasks, preferences. The "my stuff" hub.</td>
+        <td><strong>MyRPI</strong><br><span style="font-size:0.75rem;color:var(--muted)">Personal dashboard &mdash; my stuff hub</span></td>
         <td><span class="pill live">LIVE</span></td>
-        <td><em>Shipped. Incremental updates only.</em></td>
+        <td>RONIN</td>
+        <td>Any user complaints? Missing data?</td>
+        <td>Incremental only</td>
+        <td><em>Shipped</em></td>
       </tr>
     </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review checklist:</strong> For each LIVE item &mdash; any bugs reported? Any team feedback? For each NOT LIVE item &mdash; what's blocking? What's the next concrete step? Update the Reactive/Proactive columns each week.
   </div>
 </div>
 
@@ -218,48 +237,62 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   <div class="card">
     <div class="section-label">Priority 2 — Leader Level</div>
     <h2>Apps Division Leaders Depend On</h2>
-    <p>These are App-branded (own identity, same in every portal). Leaders use these to run their divisions.</p>
+    <p>App-branded (own identity, same in every portal). Leaders use these to run their divisions. Walk each item weekly: status &rarr; reactive &rarr; proactive.</p>
   </div>
 
   <div class="card">
     <table>
-      <tr><th>App</th><th>What It Does</th><th>Brand</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr><th>App</th><th>Brand</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
       <tr>
-        <td><strong>CAM</strong></td>
-        <td>Client Account Manager. Full client lifecycle.</td>
+        <td><strong>CAM</strong><br><span style="font-size:0.75rem;color:var(--muted)">Client Account Manager</span></td>
         <td style="color:var(--blue)">Blue</td>
         <td><span class="pill live">LIVE</span></td>
-        <td><em>Shipped Sprint 5. Owned by MEGAZORD for data ops.</em></td>
+        <td>MEGAZORD (data)<br>RONIN (features)</td>
+        <td>Client data gaps? Missing accounts? Access items working?</td>
+        <td>Auto-generate access items, client search improvements</td>
+        <td><em>Shipped Sprint 5</em></td>
       </tr>
       <tr>
-        <td><strong>DEX</strong></td>
-        <td>Document Exchange. PDF processing, Drive ops, form generation.</td>
+        <td><strong>DEX</strong><br><span style="font-size:0.75rem;color:var(--muted)">Document Exchange</span></td>
         <td style="color:var(--purple)">Purple</td>
         <td><span class="pill next">WIRING</span></td>
-        <td><a href="../megazord/dex-live.html">DEX Live</a> (migrated to MEGAZORD)</td>
+        <td>MEGAZORD</td>
+        <td>GAS DEX still the live version &mdash; Cloud Run port status?</td>
+        <td>Wire PDF processing + Drive ops into toMachina DEX module</td>
+        <td><a href="../megazord/dex-live.html">DEX Live</a></td>
       </tr>
       <tr>
-        <td><strong>C3</strong></td>
-        <td>Campaign Command Center. 60 campaigns, 661 templates, AEP blackout.</td>
+        <td><strong>C3</strong><br><span style="font-size:0.75rem;color:var(--muted)">Campaign Command Center</span></td>
         <td style="color:var(--orange)">Orange</td>
         <td><span class="pill live">LIVE</span></td>
-        <td><em>Shipped Sprint 5. Incremental via MUSASHI.</em></td>
+        <td>MUSASHI (content)<br>RONIN (engine)</td>
+        <td>Template accuracy? AEP blackout rules current?</td>
+        <td>Campaign analytics dashboard, new campaign types</td>
+        <td><em>Shipped Sprint 5</em></td>
       </tr>
       <tr>
-        <td><strong>Pipeline Studio</strong></td>
-        <td>Full-screen pipeline builder. Flow engine admin CRUD.</td>
+        <td><strong>Pipeline Studio</strong><br><span style="font-size:0.75rem;color:var(--muted)">Pipeline builder + Flow Engine</span></td>
         <td style="color:var(--teal)">Teal</td>
         <td><span class="pill live">LIVE</span></td>
-        <td><a href="../megazord/pipeline-factory.html">Pipeline Factory</a> (migrated to MEGAZORD)</td>
+        <td>MEGAZORD</td>
+        <td>Any pipeline execution failures? Stage transitions working?</td>
+        <td>Custom fields per pipeline, pipeline verification</td>
+        <td><a href="../megazord/pipeline-factory.html">Pipeline Factory</a> &bull; <a href="../megazord/pipeline-verification-discovery.html">Verification</a> &bull; <a href="../megazord/pipeline-custom-fields-discovery.html">Custom Fields</a></td>
       </tr>
       <tr>
-        <td><strong>Command Center</strong></td>
-        <td>6-tab operational dashboard. Wires, ATLAS, Forge, Status.</td>
+        <td><strong>Command Center</strong><br><span style="font-size:0.75rem;color:var(--muted)">6-tab ops dashboard</span></td>
         <td style="color:var(--teal)">Teal</td>
         <td><span class="pill live">LIVE</span></td>
-        <td><em>Shipped Sprint 9. VOLTRON fixed tabs in #275.</em></td>
+        <td>VOLTRON</td>
+        <td>All 6 tabs rendering? Wire execution logs accurate?</td>
+        <td>E2E Playwright coverage (zero today)</td>
+        <td><a href="../megazord/tracker.html">Tracker</a></td>
       </tr>
     </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review checklist:</strong> For each app &mdash; is the leader (Vince/Nikki/Matt/Aprille) blocked by anything? Any complaints in #the-dojo? What's the builder's next PR? Update columns each week.
   </div>
 </div>
 
@@ -268,41 +301,57 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   <div class="card">
     <div class="section-label">Priority 3 — Executive Floor</div>
     <h2>JDM + CTO Only Systems</h2>
-    <p>The AI operations layer. Only JDM and SHINOB1 touch these. This is where The Machine manages itself.</p>
+    <p>The AI operations layer. Only JDM and SHINOB1 touch these. Walk each item weekly: status &rarr; reactive &rarr; proactive.</p>
   </div>
 
   <div class="card">
     <table>
-      <tr><th>System</th><th>What It Does</th><th>Brand</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr><th>System</th><th>Status</th><th>Builder</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
       <tr>
-        <td><strong>Dojo App</strong></td>
-        <td>Warrior management UI. Status, sprints, tickets, FORGE runner.</td>
-        <td style="color:var(--accent)">Orange (CTO)</td>
+        <td><strong>Dojo App</strong><br><span style="font-size:0.75rem;color:var(--muted)">Warrior management UI</span></td>
         <td><span class="pill live">LIVE</span></td>
-        <td><a href="3-executive-floor/sprint-010-dojo2-discovery.html">Dojo v10 Discovery</a><br><a href="3-executive-floor/dojo-v10-plan.html">Dojo v10 Plan</a></td>
+        <td>SHINOB1 / RONIN</td>
+        <td>Warrior status tab accurate? Sprint tracker working?</td>
+        <td>Dojo v10 polish, FORGE reporter improvements</td>
+        <td><a href="3-executive-floor/sprint-010-dojo2-discovery.html">Dojo v10</a> &bull; <a href="3-executive-floor/dojo-v10-plan.html">Plan</a></td>
       </tr>
       <tr>
-        <td><strong>System Synergy</strong></td>
-        <td>Platform health, knowledge pipeline, session browser, cleanup controls.</td>
-        <td style="color:var(--teal)">Teal</td>
+        <td><strong>System Synergy</strong><br><span style="font-size:0.75rem;color:var(--muted)">Platform health + knowledge pipeline</span></td>
         <td><span class="pill live">LIVE</span></td>
-        <td><a href="../megazord/system-synergy-discovery.html">System Synergy Discovery</a><br><a href="../megazord/repo-hygiene-handoff.html">Repo Hygiene Handoff</a></td>
+        <td>MEGAZORD (registry)<br>RONIN (tools)</td>
+        <td>4 timers running? Sunday audit firing? Brain sync populating?</td>
+        <td>Verify VOLTRON + RONIN brain.txt after tonight's 2am run</td>
+        <td><a href="../megazord/system-synergy-discovery.html">Discovery</a> &bull; <a href="../megazord/repo-hygiene-handoff.html">Handoff</a></td>
       </tr>
       <tr>
-        <td><strong>The Operating System</strong></td>
-        <td>Hookify rules, immune system, compliance enforcement.</td>
-        <td>&mdash;</td>
+        <td><strong>The Operating System</strong><br><span style="font-size:0.75rem;color:var(--muted)">Hookify + immune system + compliance</span></td>
         <td><span class="pill live">LIVE</span></td>
+        <td>SHINOB1</td>
+        <td>Any hookify false positives? Rules all symlinked?</td>
+        <td>Closed loop verification &mdash; are violations trending down?</td>
         <td><a href="reference/operating-system-audit.html">OS Audit</a></td>
       </tr>
       <tr>
-        <td><strong>Warrior Launch Guide</strong></td>
-        <td>Step-by-step warrior launch for JDM. Toggle per warrior, copy buttons.</td>
-        <td>&mdash;</td>
+        <td><strong>Learning Loop</strong><br><span style="font-size:0.75rem;color:var(--muted)">Session &rarr; entities &rarr; CLAUDE.md promotion</span></td>
         <td><span class="pill live">LIVE</span></td>
+        <td>MEGAZORD</td>
+        <td>Entity extractor producing entries? Knowledge promote auto-writing?</td>
+        <td>Validate full pipeline: session &rarr; Firestore &rarr; CLAUDE.md</td>
+        <td><a href="../voltron/learning-loop/">Learning Loop Docs</a></td>
+      </tr>
+      <tr>
+        <td><strong>Warrior Launch Guide</strong><br><span style="font-size:0.75rem;color:var(--muted)">JDM's tmux launch tool</span></td>
+        <td><span class="pill live">LIVE</span></td>
+        <td>SHINOB1</td>
+        <td>All 6 warriors current? Copy buttons working?</td>
+        <td>Incremental only</td>
         <td><a href="3-executive-floor/warrior-launch-guide.html">Launch Guide</a></td>
       </tr>
     </table>
+  </div>
+
+  <div class="insight">
+    <strong>Weekly review checklist:</strong> Check systemd timers are firing. Verify knowledge pipeline is flowing. Review hookify violation trends. Confirm all warriors have current soul/spirit files.
   </div>
 </div>
 
