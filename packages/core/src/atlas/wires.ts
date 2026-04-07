@@ -151,6 +151,63 @@ export const WIRE_DEFINITIONS_V2: WireDefinitionV2[] = [
       { type: 'FRONTEND', name: 'ACF Grid', platform: 'ProDashX', view: '/acf', detail: 'Dedup review + exceptions in ACF module' },
     ],
   },
+
+  // ─── System Synergy Wires (ZRD-SYN-020) ─────────────────────────────
+  {
+    wire_id: 'WIRE_KNOWLEDGE_PROMOTE',
+    name: 'Knowledge Promotion Pipeline',
+    description:
+      'Daily 4am — entity extraction from warrior sessions, confidence scoring, auto-write to CLAUDE.md, Slack digest to JDM DM.',
+    product_lines: ['ALL'],
+    data_domains: ['KNOWLEDGE'],
+    super_tools: ['SUPER_KNOWLEDGE_PIPELINE_STATUS'],
+    stages: [
+      { type: 'SCRIPT', name: 'entity-extractor', project: 'services/learning-loop', detail: 'Extract entities from warrior soul/spirit/brain files' },
+      { type: 'SCRIPT', name: 'knowledge-promote', project: 'services/learning-loop', detail: 'Confidence scoring + auto-write to CLAUDE.md' },
+      { type: 'NOTIFICATION', name: 'Slack DM', detail: 'Digest to JDM DM (U09BBHTN8F2)' },
+    ],
+  },
+  {
+    wire_id: 'WIRE_BRAIN_SYNC',
+    name: 'Brain Sync — Daily Export',
+    description:
+      'Daily 2am — find new sessions since last run, extract transcripts (PHI-redacted), append to warrior brain.txt files.',
+    product_lines: ['ALL'],
+    data_domains: ['KNOWLEDGE'],
+    super_tools: ['SUPER_WARRIOR_READINESS'],
+    stages: [
+      { type: 'SCRIPT', name: 'session-inventory', project: 'services/api', detail: 'Find new sessions since last run' },
+      { type: 'SCRIPT', name: 'wire-brain-sync', project: 'services/learning-loop', detail: 'Extract, PHI-redact, append to brain.txt' },
+      { type: 'SCRIPT', name: 'brain-health', project: 'services/api', detail: 'Verify append succeeded' },
+    ],
+  },
+  {
+    wire_id: 'WIRE_PLATFORM_AUDIT',
+    name: 'Platform Audit — Weekly Cleanup',
+    description:
+      'Weekly Sunday 3am — auto-delete orphaned session-envs older than 30 days, auto-archive stale sprints, cleanup report to JDM DM.',
+    product_lines: ['ALL'],
+    data_domains: ['PLATFORM'],
+    super_tools: ['SUPER_PLATFORM_HEALTH', 'SUPER_SESSION_FORENSICS'],
+    stages: [
+      { type: 'SCRIPT', name: 'wire-platform-audit', project: 'services/learning-loop', detail: 'Platform health + session forensics + duplicate detection' },
+      { type: 'SCRIPT', name: 'auto-cleanup', project: 'services/learning-loop', detail: 'Delete orphaned session-envs > 30 days, archive stale sprints' },
+      { type: 'NOTIFICATION', name: 'Slack DM', detail: 'Cleanup report to JDM DM (U09BBHTN8F2)' },
+    ],
+  },
+  {
+    wire_id: 'WIRE_WARRIOR_BRIEFING',
+    name: 'Warrior Briefing — Session Start',
+    description:
+      'Triggered on session start — check warrior context freshness, cross-warrior knowledge query, inject briefing into session.',
+    product_lines: ['ALL'],
+    data_domains: ['KNOWLEDGE'],
+    super_tools: ['SUPER_WARRIOR_READINESS'],
+    stages: [
+      { type: 'SCRIPT', name: 'wire-warrior-briefing', project: 'services/learning-loop', detail: 'Warrior readiness + cross-warrior knowledge query' },
+      { type: 'SCRIPT', name: 'session-start-hook', project: 'services/learning-loop/deploy/hooks', detail: 'Inject briefing into warrior session context' },
+    ],
+  },
 ]
 
 // ---------------------------------------------------------------------------
