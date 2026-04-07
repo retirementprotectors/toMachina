@@ -67,32 +67,22 @@ interface DeployStatus {
   github_api_available: boolean
 }
 
-interface HookRuleStatus {
-  file: string
-  exists: boolean
-}
 
 interface HookProjectAudit {
   project: string
   path: string
-  rules: HookRuleStatus[]
-  total: number
+  total_source_rules: number
   linked: number
   missing: number
-}
-
-interface LaunchdService {
-  name: string
-  active: boolean
-  enabled: boolean
+  broken: number
+  missing_rules: string[]
+  broken_rules: string[]
 }
 
 interface HookAudit {
+  source_rules_count: number
   projects: HookProjectAudit[]
-  services: LaunchdService[]
-  total_projects: number
-  total_rules_linked: number
-  total_rules_missing: number
+  all_healthy: boolean
 }
 
 // ── Colors ─────────────────────────────────────────────────────────────
@@ -475,7 +465,9 @@ function HookHealthCard({ data, loading, error, onRetry }: {
   if (loading) return <LoadingCard title="Hook Health" icon="security" />
   if (error || !data) return <ErrorCard title="Hook Health" icon="security" error={error ?? 'No data'} onRetry={onRetry} />
 
-  const healthColor = data.total_rules_missing === 0 ? colors.green : data.total_rules_missing < 5 ? colors.yellow : colors.red
+  const totalMissing = data.projects.reduce((sum, p) => sum + p.missing, 0)
+  const totalLinked = data.projects.reduce((sum, p) => sum + p.linked, 0)
+  const healthColor = data.all_healthy ? colors.green : totalMissing < 5 ? colors.yellow : colors.red
 
   return (
     <div style={{
@@ -491,7 +483,7 @@ function HookHealthCard({ data, loading, error, onRetry }: {
             fontSize: '0.72rem', fontWeight: 700,
             background: `${healthColor}20`, color: healthColor,
           }}>
-            {data.total_rules_missing === 0 ? 'All Linked' : `${data.total_rules_missing} Missing`}
+            {data.all_healthy ? 'All Healthy' : `${totalMissing} Missing`}
           </span>
         }
       />
@@ -500,49 +492,23 @@ function HookHealthCard({ data, loading, error, onRetry }: {
       <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>
         <div style={{ fontSize: '0.78rem', color: colors.textMuted }}>
           <span style={{ color: colors.green, fontWeight: 700, fontSize: '1.1rem', marginRight: 4 }}>
-            {data.total_rules_linked}
+            {totalLinked}
           </span>
           linked
         </div>
         <div style={{ fontSize: '0.78rem', color: colors.textMuted }}>
-          <span style={{ color: data.total_rules_missing > 0 ? colors.red : colors.textMuted, fontWeight: 700, fontSize: '1.1rem', marginRight: 4 }}>
-            {data.total_rules_missing}
+          <span style={{ color: totalMissing > 0 ? colors.red : colors.textMuted, fontWeight: 700, fontSize: '1.1rem', marginRight: 4 }}>
+            {totalMissing}
           </span>
           missing
         </div>
         <div style={{ fontSize: '0.78rem', color: colors.textMuted }}>
           <span style={{ color: colors.text, fontWeight: 700, fontSize: '1.1rem', marginRight: 4 }}>
-            {data.total_projects}
+            {data.projects.length}
           </span>
           projects
         </div>
       </div>
-
-      {/* launchd services */}
-      {data.services.length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: '0.72rem', fontWeight: 700, color: colors.textMuted, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
-            launchd services
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 6 }}>
-            {data.services.map((svc, i) => (
-              <div
-                key={i}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  background: colors.bgHover, borderRadius: 8, padding: '6px 10px',
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                <StatusDot color={svc.active ? colors.green : svc.enabled ? colors.yellow : colors.red} />
-                <span style={{ fontSize: '0.75rem', color: colors.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {svc.name}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* per-project accordion */}
       <div>
@@ -566,7 +532,7 @@ function HookHealthCard({ data, loading, error, onRetry }: {
                   <StatusDot color={projColor} />
                   <span style={{ flex: 1, fontSize: '0.82rem', color: colors.text }}>{proj.project}</span>
                   <span style={{ fontSize: '0.72rem', color: colors.textMuted }}>
-                    {proj.linked}/{proj.total}
+                    {proj.linked}/{proj.total_source_rules}
                   </span>
                   <span className="material-symbols-outlined" style={{ fontSize: 16, color: colors.textMuted }}>
                     {isOpen ? 'expand_less' : 'expand_more'}
@@ -574,14 +540,25 @@ function HookHealthCard({ data, loading, error, onRetry }: {
                 </button>
                 {isOpen && (
                   <div style={{ padding: '8px 12px', background: colors.bg, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    {proj.rules.map((rule, j) => (
+                    {proj.missing_rules.map((rule, j) => (
                       <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <StatusDot color={rule.exists ? colors.green : colors.red} />
-                        <span style={{ fontSize: '0.72rem', fontFamily: 'monospace', color: rule.exists ? colors.textMuted : colors.red }}>
-                          {rule.file}
+                        <StatusDot color={colors.red} />
+                        <span style={{ fontSize: '0.72rem', fontFamily: 'monospace', color: colors.red }}>
+                          {rule} (missing)
                         </span>
                       </div>
                     ))}
+                    {proj.broken_rules.map((rule, j) => (
+                      <div key={`b-${j}`} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <StatusDot color={colors.yellow} />
+                        <span style={{ fontSize: '0.72rem', fontFamily: 'monospace', color: colors.yellow }}>
+                          {rule} (broken)
+                        </span>
+                      </div>
+                    ))}
+                    {proj.missing === 0 && proj.broken === 0 && (
+                      <div style={{ fontSize: '0.72rem', color: colors.green, padding: 4 }}>All rules linked</div>
+                    )}
                   </div>
                 )}
               </div>
