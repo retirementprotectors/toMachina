@@ -25,17 +25,10 @@ async function requireExecutive(req: Request, res: Response, next: NextFunction)
       res.status(401).json(errorResponse('Authentication required'))
       return
     }
-    const db = getFirestore()
-    const userDoc = await db.collection('users').doc(email).get()
-    if (!userDoc.exists) {
-      res.status(403).json(errorResponse('System Synergy requires executive access'))
-      return
-    }
-    const userData = userDoc.data() as Record<string, unknown>
-    const role = String(userData.role || '')
-    const level = parseInt(String(userData.level || '99'), 10)
-    if (!ALLOWED_ROLES.includes(role) && level > 1) {
-      res.status(403).json(errorResponse('System Synergy requires executive access'))
+    // Domain-gated: any @retireprotected.com user passes.
+    // Module-level access (OWNER) is enforced by the portal UI entitlements.
+    if (!email.endsWith('@retireprotected.com')) {
+      res.status(403).json(errorResponse('System Synergy requires @retireprotected.com domain'))
       return
     }
     next()
