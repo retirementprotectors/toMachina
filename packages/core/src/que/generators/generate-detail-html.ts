@@ -33,6 +33,7 @@ const DETAIL_RENDERERS: Record<CaseworkType, (input: GeneratorInput) => string> 
   life_needs: renderLifeNeedsDetail,
   life_options: renderLifeOptionsDetail,
   life_presentation: renderLifePresentationDetail,
+  life_underwriting: renderLifeOptionsDetail,
 }
 
 export function generateDetailHtml(input: GeneratorInput): string {

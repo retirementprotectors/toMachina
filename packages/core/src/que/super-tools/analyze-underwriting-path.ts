@@ -75,7 +75,7 @@ export function analyzeUnderwritingPath(household: SuperToolHousehold): SuperToo
   return {
     success: true,
     result: {
-      type: 'life_options',
+      type: 'life_underwriting',
       applicable,
       summary: applicable
         ? `Underwriting path analysis for ${memberResults.length} member(s): est. $${totalMonthlyTerm}/mo (term) or $${totalMonthlyIul}/mo (IUL)`

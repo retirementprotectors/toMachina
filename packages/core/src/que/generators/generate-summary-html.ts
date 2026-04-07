@@ -33,6 +33,7 @@ const SUMMARY_RENDERERS: Record<CaseworkType, (input: GeneratorInput) => string>
   life_needs: renderLifeNeedsSummary,
   life_options: renderLifeOptionsSummary,
   life_presentation: renderLifePresentationSummary,
+  life_underwriting: renderLifeOptionsSummary,
 }
 
 export function generateSummaryHtml(input: GeneratorInput): string {

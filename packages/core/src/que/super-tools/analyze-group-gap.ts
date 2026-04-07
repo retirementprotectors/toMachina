@@ -16,73 +16,79 @@ export function analyzeGroupGap(household: SuperToolHousehold): SuperToolOutput 
   let totalGroupCoverage = 0
   let totalIndividualCoverage = 0
 
-  for (const member of household.members) {
-    const groupAccounts = member.accounts.filter(a => a.type === 'life')
-    const individualAccounts = member.accounts.filter(a => a.type === 'life')
+  // BUG 1 FIX: Differentiate group vs individual by checking for cashValue/annualPremium.
+  // Group policies: type='life', no cashValue, no annualPremium (employer-paid).
+  // Individual policies: type='life', has cashValue or annualPremium.
+  const memberGaps: Array<{
+    member: string; age: number; groupCoverage: number; portableAmount: number
+    evaporatingAmount: number; totalNeed: number; netGap: number
+    portabilityDeadlineDays: number; isPortable: boolean
+  }> = []
 
-    const memberGroupCoverage = groupAccounts.reduce((s, a) => s + (a.accountValue || 0), 0)
-    const memberIndividualCoverage = individualAccounts.reduce((s, a) => s + (a.accountValue || 0), 0)
+  for (const member of household.members) {
+    const groupAccounts = member.accounts.filter(a => a.type === 'life' && !a.cashValue && !a.annualPremium)
+    const individualAccounts = member.accounts.filter(a => a.type === 'life' && (a.cashValue != null || a.annualPremium != null))
+
+    const memberGroupCoverage = groupAccounts.reduce((s, a) => s + (a.deathBenefit || a.accountValue || 0), 0)
+    const memberIndividualCoverage = individualAccounts.reduce((s, a) => s + (a.deathBenefit || a.accountValue || 0), 0)
 
     totalGroupCoverage += memberGroupCoverage
     totalIndividualCoverage += memberIndividualCoverage
 
-    // Check portability
     const portRule = lookupGroupPortability('employer-basic')
     toolsUsed.push('lookup-group-portability')
 
-    if (portRule && memberGroupCoverage > 0) {
-      findings.push(`${member.name}: $${memberGroupCoverage.toLocaleString()} group coverage — portable up to $${portRule.maxPortableAmount.toLocaleString()} within ${portRule.portabilityWindow} days of separation. Rate multiplier: ${portRule.rateMultiplier}x.`)
-      if (memberGroupCoverage > portRule.maxPortableAmount) {
-        warnings.push(`${member.name}: $${(memberGroupCoverage - portRule.maxPortableAmount).toLocaleString()} evaporates on job change — exceeds portability cap.`)
-      }
+    const portableAmount = portRule ? Math.min(memberGroupCoverage, portRule.maxPortableAmount) : 0
+    const evaporatingAmount = memberGroupCoverage - portableAmount
+    const portabilityDeadlineDays = portRule?.portabilityWindow ?? 0
+
+    // Preliminary need: 10x income
+    const memberNeed = member.annualIncome * 10
+    const memberOffset = memberGroupCoverage + memberIndividualCoverage
+    const netGap = Math.max(0, memberNeed - memberOffset)
+
+    memberGaps.push({
+      member: member.name,
+      age: member.age,
+      groupCoverage: memberGroupCoverage,
+      portableAmount,
+      evaporatingAmount,
+      totalNeed: memberNeed,
+      netGap,
+      portabilityDeadlineDays,
+      isPortable: portableAmount > 0,
+    })
+
+    if (memberGroupCoverage > 0) {
+      findings.push(`${member.name}: $${memberGroupCoverage.toLocaleString()} group coverage — $${portableAmount.toLocaleString()} portable, $${evaporatingAmount.toLocaleString()} evaporates on separation.`)
+    }
+    if (evaporatingAmount > 0) {
+      warnings.push(`${member.name}: $${evaporatingAmount.toLocaleString()} coverage lost on job change.`)
     }
   }
 
-  // Existing coverage offset
-  const offset = calcExistingCoverageOffset({
-    groupLife: totalGroupCoverage,
-    individualPolicies: totalIndividualCoverage,
-  })
+  const offset = calcExistingCoverageOffset({ groupLife: totalGroupCoverage, individualPolicies: totalIndividualCoverage })
   toolsUsed.push('calc-existing-coverage-offset')
 
-  // Preliminary life need (simplified — income * 10 heuristic)
   const totalIncome = household.members.reduce((s, m) => s + m.annualIncome, 0)
-  const preliminaryNeed = calcTotalLifeNeed({
-    incomeNeed: totalIncome * 10,
-    existingCoverageOffset: offset.value.totalOffset,
-  })
+  const preliminaryNeed = calcTotalLifeNeed({ incomeNeed: totalIncome * 10, existingCoverageOffset: offset.value.totalOffset })
   toolsUsed.push('calc-total-life-need')
 
   const gapExists = preliminaryNeed.value.netNeed > 0
   const groupPct = offset.value.totalOffset > 0 ? Math.round(totalGroupCoverage / offset.value.totalOffset * 100) : 0
 
-  if (gapExists) {
-    findings.push(`Coverage gap: $${preliminaryNeed.value.netNeed.toLocaleString()} — current coverage is ${Math.round(offset.value.totalOffset / totalIncome)}x income, recommended 10x+.`)
-  }
-
-  if (groupPct > 50) {
-    warnings.push(`${groupPct}% of total coverage is employer-dependent — high evaporation risk.`)
-  }
+  if (groupPct > 50) warnings.push(`${groupPct}% of total coverage is employer-dependent — high evaporation risk.`)
 
   return {
     success: true,
     result: {
       type: 'life_discovery',
       applicable: totalGroupCoverage > 0 || gapExists,
-      summary: `Group coverage: $${totalGroupCoverage.toLocaleString()} | Individual: $${totalIndividualCoverage.toLocaleString()} | Gap: $${preliminaryNeed.value.netNeed.toLocaleString()}`,
+      summary: `Group: $${totalGroupCoverage.toLocaleString()} | Individual: $${totalIndividualCoverage.toLocaleString()} | Gap: $${preliminaryNeed.value.netNeed.toLocaleString()}`,
       findings,
-      recommendation: gapExists
-        ? `Coverage gap of $${preliminaryNeed.value.netNeed.toLocaleString()} identified. Full needs analysis recommended.`
-        : 'Coverage appears adequate at preliminary level. Full needs analysis recommended to confirm.',
-      metrics: {
-        totalGroupCoverage,
-        totalIndividualCoverage,
-        totalOffset: offset.value.totalOffset,
-        preliminaryNeed: preliminaryNeed.value.grossNeed,
-        coverageGap: preliminaryNeed.value.netNeed,
-        groupDependencyPct: groupPct,
-      },
-      details: { members: household.members.map(m => m.name) },
+      recommendation: gapExists ? `Coverage gap of $${preliminaryNeed.value.netNeed.toLocaleString()} identified. Full needs analysis recommended.` : 'Coverage appears adequate. Full needs analysis recommended to confirm.',
+      metrics: { totalGroupCoverage, totalIndividualCoverage, totalOffset: offset.value.totalOffset, preliminaryNeed: preliminaryNeed.value.grossNeed, coverageGap: preliminaryNeed.value.netNeed, groupDependencyPct: groupPct },
+      details: { memberGaps },
       warnings,
     },
     toolsUsed: [...new Set(toolsUsed)],

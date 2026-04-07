@@ -6,130 +6,112 @@
 import type { SuperToolHousehold, SuperToolOutput } from './types'
 import { calcTotalLifeNeed } from '../tools/calc-total-life-need'
 import { lookupLifeRate } from '../tools/lookup-life-rate'
+import { lookupLifeCarrierProduct } from '../tools/lookup-life-carrier-product'
 import { calcNetOutlay } from '../tools/calc-net-outlay'
-
-interface LifeOption {
-  optionNumber: number
-  label: string
-  description: string
-  productType: string
-  faceAmount: number
-  monthlyPremium: number
-  annualPremium: number
-  keyBenefit: string
-}
 
 export function analyzeLifeOptions(household: SuperToolHousehold): SuperToolOutput {
   const toolsUsed: string[] = []
   const warnings: string[] = []
   const findings: string[] = []
-  const options: LifeOption[] = []
 
-  const primaryMember = household.members[0]
-  if (!primaryMember) {
-    return {
-      success: false,
-      result: {
-        type: 'life_options',
-        applicable: false,
-        summary: 'No household members to analyze',
-        findings: [],
-        recommendation: '',
-        metrics: {},
-        details: {},
-        warnings: [],
+  // BUG 3c FIX: Output memberOptions matching template contract
+  const memberOptions: Array<{
+    member: string; age: number; totalNeed: number
+    optionA: { label: string; faceAmount: number; monthlyPremium: number; termYears: number | null; carrier: string; product: string; livingBenefits: boolean }
+    optionB: { label: string; faceAmount: number; monthlyPremium: number; termYears: number | null; carrier: string; product: string; livingBenefits: boolean }
+    optionC: { label: string; faceAmount: number; monthlyPremium: number; termYears: number | null; carrier: string; product: string; livingBenefits: boolean; cashValueAt10Years: number }
+  }> = []
+
+  for (const member of household.members) {
+    const existingCoverage = member.accounts
+      .filter(a => a.type === 'life')
+      .reduce((s, a) => s + (a.deathBenefit || a.accountValue || 0), 0)
+
+    const needResult = calcTotalLifeNeed({ incomeNeed: member.annualIncome * 10, existingCoverageOffset: existingCoverage })
+    toolsUsed.push('calc-total-life-need')
+
+    const targetFace = Math.max(100000, needResult.value.netNeed)
+    const roundedFace = Math.ceil(targetFace / 100000) * 100000
+
+    // Option A: Final Expense (Whole Life)
+    const feFace = Math.min(50000, roundedFace)
+    const feCarrier = lookupLifeCarrierProduct({ carrier: 'MOO', type: 'whole-life' })
+    toolsUsed.push('lookup-life-carrier-product')
+    const feRate = lookupLifeRate({ productType: 'whole-life', age: member.age, gender: 'male', rateClass: 'Standard', faceAmount: feFace })
+    toolsUsed.push('lookup-life-rate')
+
+    // Option B: Income Replacement (20-Year Term)
+    const termCarrier = lookupLifeCarrierProduct({ carrier: 'PRO', type: 'term' })
+    const termRate = lookupLifeRate({ productType: 'term-20', age: member.age, gender: 'male', rateClass: 'Preferred', faceAmount: roundedFace })
+    toolsUsed.push('lookup-life-rate')
+
+    // Option C: Swiss-Army IUL
+    const iulFace = Math.round(roundedFace * 0.75)
+    const iulCarrier = lookupLifeCarrierProduct({ carrier: 'JH', type: 'iul' })
+    const iulRate = lookupLifeRate({ productType: 'iul', age: member.age, gender: 'male', rateClass: 'Preferred', faceAmount: iulFace })
+    toolsUsed.push('lookup-life-rate')
+
+    const netOutlay = calcNetOutlay({ premiumOutlay: iulRate.annualPremium * 10, cashValue: iulRate.annualPremium * 10 * 0.6 })
+    toolsUsed.push('calc-net-outlay')
+
+    const cashValueAt10Years = Math.round(iulRate.annualPremium * 10 * 0.6)
+
+    memberOptions.push({
+      member: member.name,
+      age: member.age,
+      totalNeed: roundedFace,
+      optionA: {
+        label: 'Final Expense',
+        faceAmount: feFace,
+        monthlyPremium: feRate.monthlyPremium,
+        termYears: null,
+        carrier: feCarrier?.[0]?.carrier || 'Mutual of Omaha',
+        product: feCarrier?.[0]?.product || 'Living Promise',
+        livingBenefits: false,
       },
-      toolsUsed: [],
-    }
-  }
+      optionB: {
+        label: 'Income Replacement',
+        faceAmount: roundedFace,
+        monthlyPremium: termRate.monthlyPremium,
+        termYears: 20,
+        carrier: termCarrier?.[0]?.carrier || 'Protective',
+        product: termCarrier?.[0]?.product || 'Classic Choice Term',
+        livingBenefits: false,
+      },
+      optionC: {
+        label: 'Swiss-Army IUL',
+        faceAmount: iulFace,
+        monthlyPremium: iulRate.monthlyPremium,
+        termYears: null,
+        carrier: iulCarrier?.[0]?.carrier || 'John Hancock',
+        product: iulCarrier?.[0]?.product || 'Accumulation IUL',
+        livingBenefits: true,
+        cashValueAt10Years,
+      },
+    })
 
-  // Face amount baseline: 10x income minus existing coverage
-  const existingCoverage = primaryMember.accounts
-    .filter(a => a.type === 'life')
-    .reduce((s, a) => s + (a.accountValue || 0), 0)
-
-  const needResult = calcTotalLifeNeed({
-    incomeNeed: primaryMember.annualIncome * 10,
-    existingCoverageOffset: existingCoverage,
-  })
-  toolsUsed.push('calc-total-life-need')
-
-  const targetFace = Math.max(100000, needResult.value.netNeed)
-  const roundedFace = Math.ceil(targetFace / 100000) * 100000
-
-  // OPTION A: Final Expense (Whole Life)
-  const feFace = Math.min(50000, roundedFace)
-  const feRate = lookupLifeRate({ productType: 'whole-life', age: primaryMember.age, gender: 'male', rateClass: 'Standard', faceAmount: feFace })
-  toolsUsed.push('lookup-life-rate')
-  options.push({
-    optionNumber: 1,
-    label: 'Final Expense',
-    description: 'Whole life — guaranteed issue, covers funeral + final expenses',
-    productType: 'whole-life',
-    faceAmount: feFace,
-    monthlyPremium: feRate.monthlyPremium,
-    annualPremium: feRate.annualPremium,
-    keyBenefit: 'Guaranteed acceptance, permanent coverage, builds cash value',
-  })
-
-  // OPTION B: Income Replacement (20-Year Term)
-  const termRate = lookupLifeRate({ productType: 'term-20', age: primaryMember.age, gender: 'male', rateClass: 'Preferred', faceAmount: roundedFace })
-  toolsUsed.push('lookup-life-rate')
-  options.push({
-    optionNumber: 2,
-    label: 'Income Replacement',
-    description: '20-year term — maximum coverage at lowest cost',
-    productType: 'term-20',
-    faceAmount: roundedFace,
-    monthlyPremium: termRate.monthlyPremium,
-    annualPremium: termRate.annualPremium,
-    keyBenefit: 'Lowest premium, full income replacement for 20 years',
-  })
-
-  // OPTION C: Swiss-Army IUL
-  const iulFace = Math.round(roundedFace * 0.75)
-  const iulRate = lookupLifeRate({ productType: 'iul', age: primaryMember.age, gender: 'male', rateClass: 'Preferred', faceAmount: iulFace })
-  toolsUsed.push('lookup-life-rate')
-
-  const netOutlay = calcNetOutlay({
-    premiumOutlay: iulRate.annualPremium * 10,
-    cashValue: iulRate.annualPremium * 10 * 0.6,
-  })
-  toolsUsed.push('calc-net-outlay')
-
-  options.push({
-    optionNumber: 3,
-    label: 'Swiss-Army IUL',
-    description: 'Indexed UL — permanent death benefit + LTC rider + cash accumulation',
-    productType: 'iul',
-    faceAmount: iulFace,
-    monthlyPremium: iulRate.monthlyPremium,
-    annualPremium: iulRate.annualPremium,
-    keyBenefit: 'Three benefits in one: death benefit + LTC access + tax-deferred growth',
-  })
-
-  for (const opt of options) {
-    findings.push(`Option ${opt.optionNumber} (${opt.label}): $${opt.faceAmount.toLocaleString()} face at $${opt.monthlyPremium}/mo — ${opt.keyBenefit}`)
+    findings.push(`${member.name}: A=$${feRate.monthlyPremium}/mo WL | B=$${termRate.monthlyPremium}/mo Term | C=$${iulRate.monthlyPremium}/mo IUL`)
   }
 
   warnings.push('Premiums are planning estimates. Carrier illustration required for actual quotes.')
+
+  const primary = memberOptions[0]
 
   return {
     success: true,
     result: {
       type: 'life_options',
-      applicable: true,
-      summary: `3-option comparison for ${primaryMember.name}: $${feFace.toLocaleString()} WL / $${roundedFace.toLocaleString()} Term / $${iulFace.toLocaleString()} IUL`,
+      applicable: memberOptions.length > 0,
+      summary: primary ? `3-option comparison for ${primary.member}: WL $${primary.optionA.monthlyPremium}/mo | Term $${primary.optionB.monthlyPremium}/mo | IUL $${primary.optionC.monthlyPremium}/mo` : 'No members to analyze',
       findings,
-      recommendation: `Option B (Term) is most cost-effective at $${termRate.monthlyPremium}/mo. Option C (IUL) adds living benefits for $${iulRate.monthlyPremium}/mo.`,
+      recommendation: primary ? `Option B (Term) is most cost-effective. Option C (IUL) adds living benefits.` : '',
       metrics: {
-        targetFace: roundedFace,
-        optionAMonthly: options[0].monthlyPremium,
-        optionBMonthly: options[1].monthlyPremium,
-        optionCMonthly: options[2].monthlyPremium,
-        netOutlay10YearIul: netOutlay.value.netOutlay,
+        memberCount: memberOptions.length,
+        optionAMonthly: primary?.optionA.monthlyPremium ?? 0,
+        optionBMonthly: primary?.optionB.monthlyPremium ?? 0,
+        optionCMonthly: primary?.optionC.monthlyPremium ?? 0,
       },
-      details: { options },
+      details: { memberOptions },
       warnings,
     },
     toolsUsed: [...new Set(toolsUsed)],
