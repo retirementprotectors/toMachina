@@ -64,7 +64,7 @@ export function WireExecutionLog() {
   useEffect(() => {
     async function fetchLog() {
       try {
-        const res = await authFetch('/api/voltron-wire/log')
+        const res = await authFetch('/api/voltron/wire/log')
         if (res.status === 404) {
           setEntries([])
           setLoading(false)
