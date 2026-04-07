@@ -1,11 +1,12 @@
 /**
  * QUE Wires — Chain super tools in sequence.
  *
- * 10 wires:
+ * 14 wires:
  *   - 7 type-specific (ANALYZE_* → GENERATE_CASEWORK)
  *   - 1 full review (ANALYZE_MGE → GENERATE_CASEWORK for all types)
  *   - 1 meeting prep (ANALYZE_MGE → generate-meeting-prep)
  *   - 1 assembly (ASSEMBLE_OUTPUT → package all 5 outputs)
+ *   - 4 life & estate (ANALYZE_GROUP_GAP / ANALYZE_LIFE_NEED / ANALYZE_UNDERWRITING_PATH / ANALYZE_LIFE_OPTIONS)
  */
 
 // Types
@@ -36,3 +37,9 @@ export type { ReviewMeetingInput } from './wire-review-meeting'
 // Assembly wire
 export { wireAssembleB4 } from './wire-assemble-b4'
 export type { AssembleB4Input } from './wire-assemble-b4'
+
+// Life & Estate wires (4)
+export { wireLifeDiscovery } from './wire-life-discovery'
+export { wireLifeNeeds } from './wire-life-needs'
+export { wireLifeOptions } from './wire-life-options'
+export { wireLifePresentation } from './wire-life-presentation'

@@ -1,7 +1,7 @@
 /**
  * QUE Super Tools
  *
- * 8 ANALYZE_* super tools + GENERATE_CASEWORK + ASSEMBLE_OUTPUT
+ * 12 ANALYZE_* super tools + GENERATE_CASEWORK + ASSEMBLE_OUTPUT
  * All compose calc-* and lookup-* tools from the QUE tool library.
  */
 
@@ -17,7 +17,7 @@ export type {
   MgeAnalysisOutput,
 } from './types'
 
-// Analysis super tools (8)
+// Analysis super tools (8 core + 4 life & estate = 12)
 export { analyzeIncomeNow } from './analyze-income-now'
 export { analyzeIncomeLater } from './analyze-income-later'
 export { analyzeEstate } from './analyze-estate'
@@ -32,3 +32,9 @@ export { generateCasework } from './generate-casework'
 export type { CaseworkOutput, GenerateCaseworkResult } from './generate-casework'
 export { assembleOutput } from './assemble-output'
 export type { AssembledDocument, AssembleOutputResult } from './assemble-output'
+
+// Life & Estate analysis super tools (4)
+export { analyzeGroupGap } from './analyze-group-gap'
+export { analyzeLifeNeed } from './analyze-life-need'
+export { analyzeUnderwritingPath } from './analyze-underwriting-path'
+export { analyzeLifeOptions } from './analyze-life-options'

@@ -695,3 +695,37 @@ export interface IrmaaBracket {
   /** Tier label */
   tier: string
 }
+
+// ═══ Life & Estate Wire Expansion Types ═══════════════════════════════════════
+
+// calc-income-need
+export interface CalcIncomeNeedInput { annualIncome: number; yearsNeeded: number; inflationRate?: number }
+export interface CalcIncomeNeedResult { totalNeed: number; simpleNeed: number; inflationFactor: number }
+
+// calc-debt-need
+export interface CalcDebtNeedInput { mortgage?: number; autoLoans?: number; studentLoans?: number; creditCards?: number; otherDebt?: number }
+export interface CalcDebtNeedResult { totalDebt: number }
+
+// calc-misc-cash-need
+export interface CalcMiscCashNeedInput { funeralCost?: number; monthlyExpenses?: number; emergencyMonths?: number; miscAmount?: number }
+export interface CalcMiscCashNeedResult { totalMiscNeed: number; funeralCost: number; emergencyFund: number }
+
+// calc-survivor-cash-need
+export interface CalcSurvivorCashNeedInput { debtTotal?: number; funeralCost?: number; emergencyFund?: number; finalExpenses?: number }
+export interface CalcSurvivorCashNeedResult { totalCashNeed: number }
+
+// calc-survivor-income-need
+export interface CalcSurvivorIncomeNeedInput { survivorMonthlyExpenses: number; survivorMonthlyIncome: number; yearsNeeded: number }
+export interface CalcSurvivorIncomeNeedResult { totalIncomeNeed: number; monthlyGap: number; annualGap: number }
+
+// calc-existing-coverage-offset
+export interface CalcExistingCoverageOffsetInput { groupLife?: number; individualPolicies?: number; savingsAssets?: number; otherAssets?: number }
+export interface CalcExistingCoverageOffsetResult { totalOffset: number }
+
+// calc-total-life-need
+export interface CalcTotalLifeNeedInput { incomeNeed?: number; debtNeed?: number; collegeFundingNeed?: number; miscCashNeed?: number; survivorCashNeed?: number; survivorIncomeNeed?: number; existingCoverageOffset?: number }
+export interface CalcTotalLifeNeedResult { grossNeed: number; netNeed: number; coverageGap: number }
+
+// calc-1035-exchange
+export interface Calc1035ExchangeInput { oldCashSurrenderValue: number; surrenderCharge?: number; oldBasis: number; newProductPremium: number }
+export interface Calc1035ExchangeResult { transferAmount: number; basisCarryover: number; netGain: number; taxSaved: number; newProductPremium: number }

@@ -1,8 +1,8 @@
 /**
  * QUE Calc + Lookup Tool Library
  *
- * 25 calc-* tools: Pure financial calculators for RPI casework
- * 8 lookup-* tools: Reference data lookups (IRS, carriers, tax, IRMAA)
+ * 33 calc-* tools: Pure financial calculators for RPI casework
+ * 13 lookup-* tools: Reference data lookups (IRS, carriers, tax, IRMAA, life underwriting)
  *
  * All functions are PURE — no Firestore, no API calls, no async.
  * Every formula sourced from production RPI case files.
@@ -120,3 +120,33 @@ export { calcEffectiveTaxRate } from './calc-effective-tax-rate'
 
 // --- Data (re-export for direct access) ---
 export * from './data'
+
+// --- Life & Estate Expansion: Lookup Tools (5) ---
+export { lookupGroupPortability } from './lookup-group-portability'
+export { lookupHealthRatingMap } from './lookup-health-rating-map'
+export { lookupParamedRequirements } from './lookup-paramed-requirements'
+export { lookupLifeRate } from './lookup-life-rate'
+export { lookupLifeCarrierProduct } from './lookup-life-carrier-product'
+
+// --- Life & Estate Expansion: Calc Tools (8) ---
+export { calcIncomeNeed } from './calc-income-need'
+export { calcDebtNeed } from './calc-debt-need'
+export { calcMiscCashNeed } from './calc-misc-cash-need'
+export { calcSurvivorCashNeed } from './calc-survivor-cash-need'
+export { calcSurvivorIncomeNeed } from './calc-survivor-income-need'
+export { calcExistingCoverageOffset } from './calc-existing-coverage-offset'
+export { calcTotalLifeNeed } from './calc-total-life-need'
+export { calc1035Exchange } from './calc-1035-exchange'
+
+// --- Life & Estate Expansion: Types ---
+export type {
+  CalcIncomeNeedInput, CalcIncomeNeedResult,
+  CalcDebtNeedInput, CalcDebtNeedResult,
+  CalcMiscCashNeedInput, CalcMiscCashNeedResult,
+  CalcSurvivorCashNeedInput, CalcSurvivorCashNeedResult,
+  CalcSurvivorIncomeNeedInput, CalcSurvivorIncomeNeedResult,
+  CalcExistingCoverageOffsetInput, CalcExistingCoverageOffsetResult,
+  CalcTotalLifeNeedInput, CalcTotalLifeNeedResult,
+  Calc1035ExchangeInput, Calc1035ExchangeResult,
+} from './types'
+
