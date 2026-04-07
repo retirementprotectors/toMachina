@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
-import { AppWrapper } from '@tomachina/ui'
-import { VoltronDualMode } from './voltron-dual-mode'
+import { AppWrapper, CommandCenterPage } from '@tomachina/ui'
 
 export const metadata: Metadata = { title: 'VOLTRON' }
 
 export default function VoltronPage() {
   return (
     <AppWrapper appKey="voltron">
-      <VoltronDualMode />
+      <CommandCenterPage portal="prodash" />
     </AppWrapper>
   )
 }
