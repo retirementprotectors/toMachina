@@ -1,0 +1,16 @@
+# systemd timer for knowledge promotion — MDJ_SERVER
+# System Synergy — ZRD-SYN-009
+#
+# Deploy to: /etc/systemd/system/knowledge-promote.timer
+# Then: sudo systemctl daemon-reload && sudo systemctl enable --now knowledge-promote.timer
+
+[Unit]
+Description=Daily knowledge promotion (4am)
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target
