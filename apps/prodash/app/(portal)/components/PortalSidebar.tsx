@@ -96,6 +96,7 @@ const APP_ITEMS: AppItem[] = [
   { key: 'guardian', href: '/admin/guardian', moduleKey: 'GUARDIAN' },
   { key: 'prozone', href: '/modules/prozone', moduleKey: 'PROZONE' },
   { key: 'rsp', href: '/modules/rsp', moduleKey: 'RSP' },
+  { key: 'system-synergy', href: '/modules/system-synergy', moduleKey: 'SYSTEM_SYNERGY' },
 ]
 
 /* ─── Fixed Bottom: Connect + Admin ─── */
