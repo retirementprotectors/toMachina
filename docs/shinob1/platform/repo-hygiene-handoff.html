@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repo Audit + Hygiene — MEGAZORD Handoff</title>
+<style>
+:root { --bg: #0a0e17; --card: #111827; --card2: #1a2236; --border: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #10b981; --accent-glow: rgba(16,185,129,0.12); --green: #22c55e; --blue: #3b82f6; --red: #ef4444; --orange: #f59e0b; --purple: #a855f7; --teal: #14b8a6; --gold: #d4a44c; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.header { background: linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #0f172a 100%); border-bottom: 1px solid var(--border); padding: 40px 32px; text-align: center; }
+.header h1 { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #34d399, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+.header .subtitle { font-size: 1rem; color: var(--muted); max-width: 700px; margin: 0 auto; }
+.header .badge { display: inline-block; margin-top: 12px; padding: 4px 16px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(16,185,129,0.3); }
+.tab-container { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.tab { padding: 14px 20px; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.content { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15rem; margin-bottom: 12px; color: var(--text); }
+.card h3 { font-size: 0.95rem; margin: 16px 0 8px; color: var(--accent); }
+.card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 10px; }
+.card ul, .card ol { color: var(--muted); font-size: 0.88rem; margin-left: 20px; margin-bottom: 10px; }
+.card li { margin-bottom: 6px; }
+.card li strong { color: var(--text); }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--card2); color: var(--accent); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 500; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 0.82em; color: #06b6d4; font-family: 'SF Mono', monospace; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.pill.done { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.todo { background: rgba(168,85,247,0.12); color: var(--purple); }
+.pill.kill { background: rgba(239,68,68,0.12); color: var(--red); }
+.pill.ronin { background: rgba(59,130,246,0.12); color: var(--blue); }
+.pill.raiden { background: rgba(239,68,68,0.12); color: var(--red); }
+.pill.megazord { background: rgba(16,185,129,0.12); color: var(--accent); }
+.pill.musashi { background: rgba(212,164,76,0.12); color: var(--gold); }
+.pill.active { background: rgba(34,197,94,0.12); color: var(--green); }
+.pill.built { background: rgba(245,158,11,0.12); color: var(--orange); }
+.pill.dead { background: rgba(239,68,68,0.12); color: var(--red); }
+.flow-box { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'SF Mono', monospace; font-size: 0.78rem; line-height: 1.8; color: #c9d1d9; white-space: pre-wrap; margin: 12px 0; }
+.insight { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 0.85rem; color: var(--muted); }
+.insight strong { color: var(--accent); }
+.section-label { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+.warrior-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+.warrior-tag.zord { background: rgba(16,185,129,0.12); color: var(--accent); }
+.warrior-tag.ronin { background: rgba(59,130,246,0.12); color: var(--blue); }
+.warrior-tag.raiden { background: rgba(239,68,68,0.12); color: var(--red); }
+.warrior-tag.musashi { background: rgba(212,164,76,0.12); color: var(--gold); }
+.ticket { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; }
+.ticket-id { font-size: 0.72rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; margin-bottom: 4px; }
+.ticket h3 { font-size: 0.92rem; margin-bottom: 6px; }
+.ticket p { font-size: 0.82rem; color: var(--muted); margin-bottom: 0; }
+.footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 32px; }
+@media (max-width: 768px) { .tab { padding: 12px 14px; font-size: 0.75rem; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Repo Audit + Hygiene</h1>
+  <div class="subtitle">Wire / Super / Tool Set — MEGAZORD Handoff from SHINOB1</div>
+  <div class="badge">CTO &rarr; CIO Handoff &mdash; April 7, 2026</div>
+</div>
+
+<div class="tab-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="mission">Mission</div>
+    <div class="tab" data-tab="what-happened">What Already Happened</div>
+    <div class="tab" data-tab="tools">Tools (10)</div>
+    <div class="tab" data-tab="supers">Super Tools (4)</div>
+    <div class="tab" data-tab="wires">Wires (4)</div>
+    <div class="tab" data-tab="kill-list">Kill List</div>
+    <div class="tab" data-tab="tickets">Sprint Tickets</div>
+    <div class="tab" data-tab="assignments">Warrior Assignments</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════ MISSION ═══════════════════ -->
+<div class="tab-panel active" id="mission">
+  <div class="card">
+    <h2>MEGAZORD — This Is Yours</h2>
+    <p>SHINOB1 (CTO) ran two cleanup sessions on April 5-7 that manually audited and cleaned the entire repo, MDJ_SERVER home directory, <code>~/.claude/</code> state, and <code>~/Projects/</code> archive. That work was done by hand.</p>
+    <p><strong>Your job:</strong> Turn those manual cleanup procedures into automated ATLAS tools, compose them into Super Tools and Wires, so The Machine cleans itself. This is the <strong>System Synergy</strong> layer — the immune system for the repo and platform state.</p>
+  </div>
+
+  <div class="insight">
+    <strong>The principle:</strong> Every cleanup action SHINOB1 did manually becomes an atomic tool. Groups of related tools become Super Tools. Scheduled/triggered Super Tools become Wires. The result: The Machine watches itself, cleans itself, and reports what it found.
+  </div>
+
+  <div class="card">
+    <h2>Companion Discovery Doc</h2>
+    <p>Read <a href="system-synergy-discovery.html" style="color: var(--teal);">System Synergy Discovery Doc</a> for the full Learning Loop + Warrior Wisdom + Platform Intelligence architecture. This handoff focuses specifically on the <strong>Repo Audit + Hygiene</strong> subset — the tools that keep the codebase, sessions, and server clean.</p>
+  </div>
+
+  <div class="card">
+    <h2>What "Done" Looks Like</h2>
+    <ol>
+      <li><strong>10 atomic tools</strong> registered in ATLAS, callable via API</li>
+      <li><strong>4 Super Tools</strong> composing atomic tools into useful bundles</li>
+      <li><strong>4 Wires</strong> — scheduled/triggered automation (systemd timers + hooks)</li>
+      <li><strong>Kill List executed</strong> — dead code, broken services, orphans removed</li>
+      <li><strong>Weekly platform audit</strong> running automatically on Sunday 3am</li>
+      <li><strong>Session hygiene</strong> — orphan cleanup, brain sync, cross-warrior briefings all automated</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ═══════════════════ WHAT ALREADY HAPPENED ═══════════════════ -->
+<div class="tab-panel" id="what-happened">
+  <div class="card">
+    <h2>Session e35411cd — The OG Session (April 4-5)</h2>
+    <table>
+      <tr><th>#</th><th>Action</th><th>Outcome</th></tr>
+      <tr><td>1</td><td>Uncommitted changes audit (<code>git diff --stat</code>)</td><td>Warrior icon placeholders identified, intentionally kept out of PRs</td></tr>
+      <tr><td>2</td><td>Worktree cleanup (<code>git worktree prune</code>)</td><td>Stale agent worktrees removed</td></tr>
+      <tr><td>3</td><td>PR conflict resolution (stash &rarr; rebase &rarr; force-push)</td><td>PR #244 CONFLICTING &rarr; MERGEABLE</td></tr>
+      <tr><td>4</td><td>ATLAS inventory — 26 files in <code>packages/core/src/atlas/</code></td><td>Full tool/super/wire catalog established</td></tr>
+      <tr><td>5</td><td>Registry Warriors Vision doc created (8-tab HTML)</td><td>CXO architecture formalized</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Session 9f018025 — The Big Cleanup (April 5-6)</h2>
+    <table>
+      <tr><th>#</th><th>Action</th><th>What Was Done</th><th>Tool It Becomes</th></tr>
+      <tr><td>1</td><td>FORGE &rarr; Dojo rename</td><td><code>FORGE_STANDARDS.md</code> &rarr; <code>DOJO_STANDARDS.md</code>, "FORGE FAB" &rarr; "Dojo Reporter"</td><td><em>One-time, complete</em></td></tr>
+      <tr><td>2</td><td>Docs directory reorg</td><td>46 HTML files &rarr; 5 subdirs (<code>docs/vision/</code>, <code>roadmaps/</code>, <code>tracks/</code>, <code>discoveries/</code>, <code>audits/</code>)</td><td><code>duplicate-detector</code></td></tr>
+      <tr><td>3</td><td>Sprint dir cleanup</td><td>19 shipped sprints &rarr; <code>.claude/sprints/historical/</code></td><td><code>session-env-audit</code></td></tr>
+      <tr><td>4</td><td>Junk file deletions</td><td>Temp files, empty dirs, stale docs archived</td><td><code>duplicate-detector</code></td></tr>
+      <tr><td>5</td><td>Root-level cleanup</td><td><code>cloudbuild.yaml</code> archived, <code>src/forge/</code> deleted, brand assets migrated</td><td><em>One-time, complete</em></td></tr>
+      <tr><td>6</td><td>Services cleanup</td><td>Bridge archived, guardian-monitor relocated, mdj-server config moved</td><td><code>deploy-status</code></td></tr>
+      <tr><td>7</td><td>Scripts cleanup</td><td>13 GAS migration scripts &rarr; <code>scripts/historical/</code></td><td><em>One-time, complete</em></td></tr>
+      <tr><td>8</td><td><code>~/Projects/</code> archive</td><td>48 inactive repos &rarr; <code>~/Projects/archive/</code></td><td><code>session-inventory</code></td></tr>
+      <tr><td>9</td><td><code>~/.claude/</code> cleanup</td><td>Stale exports, snapshots, paste-cache, temp dirs purged</td><td><code>session-env-audit</code></td></tr>
+      <tr><td>10</td><td>MDJ_SERVER home dir</td><td>Orphaned scripts consolidated, logs deleted</td><td><code>hook-audit</code></td></tr>
+      <tr><td>11</td><td>Route manifest</td><td><code>route-manifest.ts</code> for merge conflict prevention</td><td><em>Architecture change, complete</em></td></tr>
+      <tr><td>12</td><td>E2E test maintenance</td><td>Broken tests skipped, full test inventory doc</td><td><code>deploy-status</code></td></tr>
+      <tr><td>13</td><td><code>wiring-status.json</code></td><td>Identified as repeat merge conflict offender</td><td><em>Add to .gitignore or regen in CI</em></td></tr>
+      <tr><td>14</td><td>Warrior soul/spirit cleanup</td><td>2HINOBI &rarr; MEGAZORD, VOLTRON &rarr; CSO, MUSASHI learning loop closed</td><td><code>brain-health</code></td></tr>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Key takeaway:</strong> Items 1, 5, 7 were one-time cleanups (done, won't recur). Items 2-4, 6, 8-10, 12-14 are <strong>recurring hygiene tasks</strong> that WILL accumulate again without automation. Those are your tools.
+  </div>
+</div>
+
+<!-- ═══════════════════ TOOLS ═══════════════════ -->
+<div class="tab-panel" id="tools">
+  <div class="card">
+    <h2>10 Atomic Tools — Repo Audit + Hygiene</h2>
+    <p>Each tool is a single API endpoint in <code>services/api/src/routes/system-synergy.ts</code>. Each is registered in ATLAS. Each returns structured JSON.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-01</div>
+    <h3><code>session-inventory</code></h3>
+    <p><strong>What:</strong> List all Claude Code sessions with metadata — warrior name, working directory, date, file size, subagent count, active/stale classification.</p>
+    <p><strong>Reads:</strong> <code>~/.claude/projects/{proj}/{id}.jsonl</code> + <code>~/.claude/sessions/*.json</code></p>
+    <p><strong>Returns:</strong> <code>{ sessions: [{ id, warrior, cwd, date, size_mb, subagent_count, age_days, status }], total, stale_count }</code></p>
+    <p><strong>Why:</strong> Manual session e35411cd found stale worktrees and orphaned temp dirs. This detects them automatically.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-02</div>
+    <h3><code>memory-inventory</code></h3>
+    <p><strong>What:</strong> List all MEMORY.md entries across all projects with staleness scoring. Flag entries older than 21 days unconfirmed.</p>
+    <p><strong>Reads:</strong> <code>~/.claude/projects/*/memory/*.md</code> + <code>MEMORY.md</code> index files</p>
+    <p><strong>Returns:</strong> <code>{ entries: [{ file, type, name, age_days, stale }], total, stale_count, orphaned_count }</code></p>
+    <p><strong>Why:</strong> Session 9f018025 deleted stale memory snapshots manually. This catches them before they confuse warriors.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-03</div>
+    <h3><code>claude-md-diff</code></h3>
+    <p><strong>What:</strong> Show what changed in any CLAUDE.md over the last N days using git history.</p>
+    <p><strong>Reads:</strong> <code>git log -p</code> on <code>CLAUDE.md</code> + <code>~/.claude/CLAUDE.md</code></p>
+    <p><strong>Returns:</strong> <code>{ changes: [{ date, commit, lines_added, lines_removed, summary }] }</code></p>
+    <p><strong>Why:</strong> Deferred maintenance sprint (DM-01, DM-06) required manually auditing CLAUDE.md staleness. This automates the check.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-04</div>
+    <h3><code>brain-health</code></h3>
+    <p><strong>What:</strong> Per-warrior brain.txt stats — lines, last updated, PHI scan, size, extraction status.</p>
+    <p><strong>Reads:</strong> <code>/home/jdm/Projects/dojo-warriors/*/brain.txt</code> + <code>soul.md</code> + <code>spirit.md</code></p>
+    <p><strong>Returns:</strong> <code>{ warriors: [{ name, brain_lines, brain_size, brain_last_updated, soul_lines, spirit_lines, phi_detected }] }</code></p>
+    <p><strong>Why:</strong> Session 9f018025 found VOLTRON and RONIN have zero brain.txt content. Extraction scripts exist but were never run. This surfaces gaps.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-05</div>
+    <h3><code>knowledge-query</code></h3>
+    <p><strong>What:</strong> Query Firestore <code>knowledge_entries</code> by type, confidence, warrior, date range.</p>
+    <p><strong>Reads:</strong> Firestore <code>knowledge_entries</code> collection</p>
+    <p><strong>Returns:</strong> <code>{ entries: [{ id, type, confidence, warrior, source, created, content_preview }], count }</code></p>
+    <p><strong>Why:</strong> The Learning Loop pipes exist but no one can see what's in them. This is the query interface.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-06</div>
+    <h3><code>session-env-audit</code></h3>
+    <p><strong>What:</strong> Map session-env directories to sessions, find orphans (env dirs with no matching session), find stale sprint directories.</p>
+    <p><strong>Reads:</strong> <code>~/.claude/session-env/</code> + <code>~/.claude/projects/</code> + <code>.claude/sprints/</code></p>
+    <p><strong>Returns:</strong> <code>{ orphaned_envs: [], stale_sprints: [], temp_project_dirs: [], total_session_envs, active_sprints }</code></p>
+    <p><strong>Why:</strong> Session 9f018025 found 19 stale sprint dirs and temp RONIN project dirs. These accumulate every week.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-07</div>
+    <h3><code>duplicate-detector</code></h3>
+    <p><strong>What:</strong> Find duplicate/conflicting entries across MEMORY.md files, duplicate HTML docs, and redundant config files.</p>
+    <p><strong>Reads:</strong> <code>~/.claude/projects/*/memory/*.md</code> + <code>docs/**/*.html</code> + config files</p>
+    <p><strong>Returns:</strong> <code>{ duplicates: [{ file_a, file_b, similarity, type }], count }</code></p>
+    <p><strong>Why:</strong> Session 9f018025 found junk copies of docs, duplicate knowledge-promote scripts, and stale discovery docs that confused warriors.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-08</div>
+    <h3><code>warrior-roster</code></h3>
+    <p><strong>What:</strong> Which warriors have tmux sessions on MDJ_SERVER, queue depth per warrior, last activity timestamp.</p>
+    <p><strong>Reads:</strong> <code>tmux ls</code> on MDJ_SERVER + <code>/home/jdm/dojo/queue/*.json</code> + Firestore <code>dojo_warriors</code></p>
+    <p><strong>Returns:</strong> <code>{ warriors: [{ name, tmux_active, queue_depth, last_activity, uptime }] }</code></p>
+    <p><strong>Why:</strong> JDM needs one-call visibility into who's running and who's idle.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-09</div>
+    <h3><code>deploy-status</code></h3>
+    <p><strong>What:</strong> Current state of all CI runs, last successful deploy timestamp, pending PRs, broken tests.</p>
+    <p><strong>Reads:</strong> GitHub Actions API + Cloud Run revision list + Firestore deploy logs</p>
+    <p><strong>Returns:</strong> <code>{ last_deploy: { sha, time, status }, pending_prs: [], ci_runs: [], broken_tests: [] }</code></p>
+    <p><strong>Why:</strong> Session 9f018025 found broken E2E tests and stale PRs. This surfaces them proactively.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">TOOL-10</div>
+    <h3><code>hook-audit</code></h3>
+    <p><strong>What:</strong> Verify hookify symlinks across all projects, report missing/broken rules, check service health on MDJ_SERVER.</p>
+    <p><strong>Reads:</strong> Hookify symlinks in all active projects + <code>systemctl status</code> on MDJ_SERVER services</p>
+    <p><strong>Returns:</strong> <code>{ projects: [{ name, rules_linked, rules_missing, rules_broken }], services: [{ name, status, uptime }] }</code></p>
+    <p><strong>Why:</strong> Session 9f018025 found <code>memory-guardian.service</code> FAILING (wrong path) and <code>dojo-watchdog</code> disabled. This catches drift.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ SUPER TOOLS ═══════════════════ -->
+<div class="tab-panel" id="supers">
+  <div class="card">
+    <h2>4 Super Tools — Composites</h2>
+    <p>Each Super Tool composes multiple atomic tools into a single meaningful operation. Registered in ATLAS as Super Tools.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">SUPER-01</div>
+    <h3><code>platform-health</code></h3>
+    <p><strong>Composes:</strong> <code>session-inventory</code> + <code>warrior-roster</code> + <code>deploy-status</code> + <code>hook-audit</code></p>
+    <p><strong>Returns:</strong> Full platform status — warriors, deploys, hooks, sessions — in one call.</p>
+    <p><strong>When to call:</strong> JDM says "check the immune system." VOLTRON gets asked "how's the platform?" Any warrior starts a session and wants current state.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">SUPER-02</div>
+    <h3><code>knowledge-pipeline-status</code></h3>
+    <p><strong>Composes:</strong> <code>knowledge-query</code> + <code>memory-inventory</code> + <code>brain-health</code> + <code>claude-md-diff</code></p>
+    <p><strong>Returns:</strong> Is the learning loop flowing? Where's it stuck? Which warriors have stale brains?</p>
+    <p><strong>When to call:</strong> Debugging why a warrior "forgot" something. Weekly health check. After new warrior onboarding.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">SUPER-03</div>
+    <h3><code>session-forensics</code></h3>
+    <p><strong>Composes:</strong> <code>session-inventory</code> + <code>session-env-audit</code> + <code>duplicate-detector</code></p>
+    <p><strong>Returns:</strong> Orphaned sessions, stale sprint dirs, duplicate configs, temp worktree remnants.</p>
+    <p><strong>When to call:</strong> Disk space issues. Warrior confusion from stale state. Weekly cleanup.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">SUPER-04</div>
+    <h3><code>warrior-readiness</code></h3>
+    <p><strong>Composes:</strong> <code>warrior-roster</code> + <code>brain-health</code> + <code>memory-inventory</code></p>
+    <p><strong>Returns:</strong> Is each warrior's context fresh and complete? Who has gaps? Who's stale?</p>
+    <p><strong>When to call:</strong> Before launching a RONIN sprint. Before starting a MEGAZORD data operation. Session start briefing.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ WIRES ═══════════════════ -->
+<div class="tab-panel" id="wires">
+  <div class="card">
+    <h2>4 Wires — Automated Execution</h2>
+    <p>Wires are scheduled or triggered compositions. They run without human intervention. Each is a systemd timer or Claude Code hook on MDJ_SERVER.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">WIRE-01</div>
+    <h3><code>WIRE_KNOWLEDGE_PROMOTE</code></h3>
+    <p><strong>Schedule:</strong> Daily 4am (systemd timer)</p>
+    <p><strong>Flow:</strong> entity-extractor &rarr; knowledge-query (confidence &ge; 0.8) &rarr; claude-md-diff &rarr; auto-write to CLAUDE.md + Slack digest to JDM DM</p>
+    <p><strong>What changes vs today:</strong> Currently knowledge-promote only sends a Slack DM. This wire adds the actual CLAUDE.md auto-write that was never ported from macOS v2.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">WIRE-02</div>
+    <h3><code>WIRE_BRAIN_SYNC</code></h3>
+    <p><strong>Schedule:</strong> Daily 2am (systemd timer)</p>
+    <p><strong>Flow:</strong> session-inventory (find new sessions since last run) &rarr; brain-export (extract transcripts, PHI-redact) &rarr; brain-health (verify append succeeded)</p>
+    <p><strong>What changes vs today:</strong> Brain.txt is only appended manually or by extraction scripts that are never run. This automates it. VOLTRON and RONIN finally get brain files.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">WIRE-03</div>
+    <h3><code>WIRE_PLATFORM_AUDIT</code></h3>
+    <p><strong>Schedule:</strong> Weekly Sunday 3am (systemd timer)</p>
+    <p><strong>Flow:</strong> platform-health + session-forensics + duplicate-detector &rarr; auto-delete orphaned session-envs older than 30 days &rarr; auto-archive stale sprint dirs &rarr; cleanup report to JDM DM</p>
+    <p><strong>What changes vs today:</strong> SHINOB1 did this manually on April 5-6. This wire does it every Sunday automatically. No more 48-inactive-repo pileups.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">WIRE-04</div>
+    <h3><code>WIRE_WARRIOR_BRIEFING</code></h3>
+    <p><strong>Trigger:</strong> SessionStart hook (not scheduled — fires when any warrior session starts)</p>
+    <p><strong>Flow:</strong> warrior-readiness (check this warrior's context freshness) + cross-warrior knowledge-query (what did OTHER warriors learn since last session?) &rarr; inject briefing into session</p>
+    <p><strong>What changes vs today:</strong> Warriors start cold. No cross-pollination. MEGAZORD doesn't know what SHINOB1 did last night. This fixes that.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ KILL LIST ═══════════════════ -->
+<div class="tab-panel" id="kill-list">
+  <div class="card">
+    <h2>Kill List — RAIDEN Executes</h2>
+    <p>Dead code, broken services, and orphaned state identified during the cleanup sessions. RAIDEN kills these as part of the sprint.</p>
+  </div>
+
+  <div class="card">
+    <h3>Dead Code</h3>
+    <table>
+      <tr><th>Target</th><th>Why</th><th>Action</th></tr>
+      <tr><td>V1 <code>dispatcher.ts</code> in mdj-agent</td><td>V2 dispatchers are live. V1 still posts duplicates.</td><td><span class="pill kill">KILL</span></td></tr>
+      <tr><td>V1 <code>git-monitor.ts</code> in mdj-agent</td><td>V2 <code>mdj-dispatch-git</code> replaced it.</td><td><span class="pill kill">KILL</span></td></tr>
+      <tr><td><code>raiden-guardian.py</code></td><td>Disabled Python backup. Node RAIDEN is the live one.</td><td><span class="pill kill">DELETE</span></td></tr>
+      <tr><td>Archived <code>knowledge-promote.js</code> (macOS v2)</td><td>Port the auto-write logic to Linux version, then archive.</td><td><span class="pill kill">PORT + DELETE</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Broken / Stale Services</h3>
+    <table>
+      <tr><th>Service</th><th>Problem</th><th>Action</th></tr>
+      <tr><td><code>memory-guardian.service</code></td><td>FAILING — script path points to wrong location</td><td><span class="pill kill">FIX PATH</span></td></tr>
+      <tr><td><code>dojo-watchdog.timer</code></td><td>DISABLED — either wire into System Synergy or kill</td><td><span class="pill kill">DECIDE: WIRE or KILL</span></td></tr>
+      <tr><td><code>raiden-guardian.service</code></td><td>DISABLED — Python predecessor, fully replaced</td><td><span class="pill kill">REMOVE SERVICE FILE</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Ongoing Hygiene (automate via WIRE_PLATFORM_AUDIT)</h3>
+    <table>
+      <tr><th>Target</th><th>Pattern</th><th>Auto-Action</th></tr>
+      <tr><td>Orphaned session-env dirs</td><td>&gt; 30 days, no matching active session</td><td>Auto-delete</td></tr>
+      <tr><td>Stale sprint dirs in <code>.claude/sprints/</code></td><td>Sprint status = SHIPPED, &gt; 14 days since merge</td><td>Auto-move to <code>historical/</code></td></tr>
+      <tr><td>Temp RONIN project dirs</td><td><code>~/.claude/projects/-tmp-ronin-*</code></td><td>Auto-delete after 7 days</td></tr>
+      <tr><td>Paste cache</td><td><code>~/.claude/paste-cache/</code> &gt; 100 files</td><td>Auto-purge oldest</td></tr>
+      <tr><td><code>wiring-status.json</code></td><td>Auto-generated, causes merge conflicts</td><td>Add to <code>.gitignore</code>, regen in CI</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════ SPRINT TICKETS ═══════════════════ -->
+<div class="tab-panel" id="tickets">
+  <div class="card">
+    <h2>Sprint Ticket Framework</h2>
+    <p>MEGAZORD seeds these into the Dojo. Prefix: <strong>ZRD-SYN-</strong> (MEGAZORD data prefix + Synergy). 3 phases, 20 tickets.</p>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Phase 1 — Kill + Fix (RAIDEN)</div>
+    <h2>Clean the battlefield before building</h2>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-001 <span class="warrior-tag raiden">RAIDEN</span></div>
+    <h3>Kill V1 dispatcher.ts + V1 git-monitor.ts</h3>
+    <p>Remove dead V1 code from mdj-agent. V2 dispatchers are live. V1 still posts duplicates to Slack.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-002 <span class="warrior-tag raiden">RAIDEN</span></div>
+    <h3>Fix memory-guardian.service path</h3>
+    <p>Service is enabled but FAILING. Script path points to old location. Fix the ExecStart path.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-003 <span class="warrior-tag raiden">RAIDEN</span></div>
+    <h3>Remove raiden-guardian.py + raiden-guardian.service</h3>
+    <p>Python predecessor fully replaced by Node RAIDEN. Delete script + remove systemd service file.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-004 <span class="warrior-tag raiden">RAIDEN</span></div>
+    <h3>Add wiring-status.json to .gitignore</h3>
+    <p>Auto-generated file causes merge conflicts on every branch. Add to <code>.gitignore</code>, remove from tracking, add regen step to CI.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-005 <span class="warrior-tag raiden">RAIDEN</span></div>
+    <h3>Decide: dojo-watchdog — wire or kill</h3>
+    <p>Timer is DISABLED. If warrior health checking is covered by <code>warrior-roster</code> tool (Phase 2), kill the service. If it does something unique, wire it in.</p>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Phase 2 — Build Tools + Wires (RONIN)</div>
+    <h2>The System Synergy toolset</h2>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-006 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Build system-synergy.ts API route — 10 atomic tools</h3>
+    <p>Single route file: <code>services/api/src/routes/system-synergy.ts</code>. All 10 tools as endpoints: <code>GET /api/system-synergy/{tool-name}</code>. Each returns structured JSON per the tool specs in this doc.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-007 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Register 10 tools + 4 Super Tools in ATLAS</h3>
+    <p>Add tool definitions to <code>packages/core/src/atlas/</code>. Register Super Tool compositions. MEGAZORD provides the registry entries, RONIN wires them.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-008 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Port v2 auto-write logic to knowledge-promote.ts</h3>
+    <p>Current <code>mdj-agent/src/cron/knowledge-promote.ts</code> only sends Slack DM. Port the auto-write + confidence scoring from archived macOS <code>knowledge-promote.js</code>. Consolidate to one version.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-009 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Deploy entity-extractor as systemd timer (daily 2am)</h3>
+    <p><code>services/learning-loop/entity-extractor.ts</code> is BUILT. Create systemd timer + service on MDJ_SERVER. Reads warrior soul/spirit/brain files, writes to Firestore <code>knowledge_entries</code>.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-010 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Deploy gap-analyzer as systemd timer (daily 3am)</h3>
+    <p><code>services/learning-loop/gap-analyzer.ts</code> is BUILT. Create systemd timer on MDJ_SERVER. Reads VOLTRON low-confidence responses, writes learning targets.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-011 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Build WIRE_BRAIN_SYNC — daily 2am brain export</h3>
+    <p>Compose: session-inventory &rarr; brain-export &rarr; brain-health. Auto-append new session transcripts (PHI-redacted) to <code>dojo-warriors/{warrior}/brain.txt</code>. Finally gives VOLTRON and RONIN brain files.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-012 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Build WIRE_PLATFORM_AUDIT — weekly Sunday 3am</h3>
+    <p>Compose: platform-health + session-forensics + duplicate-detector. Auto-delete orphaned session-envs &gt; 30 days. Auto-archive stale sprints. Post cleanup report to JDM DM (<code>U09BBHTN8F2</code>).</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-013 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Build SessionEnd hook — auto brain-export</h3>
+    <p>Add hook to <code>~/.claude/settings.json</code>. On session close, trigger brain-export for that warrior's session. PHI-redact before append.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-014 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Build SessionStart hook — cross-warrior briefing</h3>
+    <p>Add hook to <code>~/.claude/settings.json</code>. On session start, run warrior-readiness + cross-warrior knowledge-query. Inject briefing as context.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-015 <span class="warrior-tag ronin">RONIN</span></div>
+    <h3>Build WIRE_WARRIOR_BRIEFING — session start composition</h3>
+    <p>Compose: warrior-readiness + cross-warrior knowledge-query. Format output for injection into warrior session context. Test with each warrior type.</p>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Phase 3 — UI (MUSASHI)</div>
+    <h2>The System Synergy App</h2>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-016 <span class="warrior-tag musashi">MUSASHI</span></div>
+    <h3>System Synergy App — Dashboard view</h3>
+    <p>Teal-branded App (same as Pipeline Studio). Shows: platform-health, knowledge-pipeline-status, warrior-readiness. All 3 portals. Reads from the API endpoints built in Phase 2.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-017 <span class="warrior-tag musashi">MUSASHI</span></div>
+    <h3>System Synergy App — Session browser</h3>
+    <p>Browse all sessions, filter by warrior, view metadata, flag/delete stale ones. Uses session-inventory + session-forensics APIs.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-018 <span class="warrior-tag musashi">MUSASHI</span></div>
+    <h3>System Synergy App — Knowledge pipeline view</h3>
+    <p>Visualize the Learning Loop: entities in Firestore, promotion queue, CLAUDE.md diff history, gap analysis. Manual promote/demote buttons.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-019 <span class="warrior-tag musashi">MUSASHI</span></div>
+    <h3>System Synergy App — Cleanup controls</h3>
+    <p>Manual trigger for WIRE_PLATFORM_AUDIT. View last audit results. Override auto-delete decisions. Kill service controls.</p>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-id">ZRD-SYN-020 <span class="warrior-tag megazord">MEGAZORD</span></div>
+    <h3>ATLAS Registry — register all System Synergy tools/supers/wires</h3>
+    <p>Add all 10 tools, 4 Super Tools, and 4 Wires to the ATLAS registry. This is the CIO's capstone ticket — the registry is MEGAZORD's domain.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════ ASSIGNMENTS ═══════════════════ -->
+<div class="tab-panel" id="assignments">
+  <div class="card">
+    <h2>Warrior Assignments</h2>
+    <table>
+      <tr><th>Warrior</th><th>Role</th><th>Tickets</th><th>Phase</th></tr>
+      <tr><td><span class="warrior-tag zord">MEGAZORD</span></td><td>Seeds tickets, owns registry, reviews specs</td><td>ZRD-SYN-020</td><td>All (oversight) + Phase 2-3 registry</td></tr>
+      <tr><td><span class="warrior-tag raiden">RAIDEN</span></td><td>Kill List execution — dead code, broken services</td><td>ZRD-SYN-001 thru 005</td><td>Phase 1</td></tr>
+      <tr><td><span class="warrior-tag ronin">RONIN</span></td><td>Build tools, wires, hooks, systemd timers</td><td>ZRD-SYN-006 thru 015</td><td>Phase 2</td></tr>
+      <tr><td><span class="warrior-tag musashi">MUSASHI</span></td><td>UI — System Synergy App in all 3 portals</td><td>ZRD-SYN-016 thru 019</td><td>Phase 3</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Execution Order</h2>
+    <div class="flow-box">Phase 1: RAIDEN kills dead code + fixes services (ZRD-SYN-001 to 005)
+  |  Can run in PARALLEL with Phase 2 start
+  v
+Phase 2: RONIN builds tools + wires (ZRD-SYN-006 to 015)
+  |  MEGAZORD reviews + registers in ATLAS as tools ship
+  v
+Phase 3: MUSASHI builds UI (ZRD-SYN-016 to 019)
+  |  Depends on Phase 2 API endpoints being live
+  v
+Capstone: MEGAZORD registers everything in ATLAS (ZRD-SYN-020)
+  |  Can start registering as Phase 2 tools ship
+  v
+DONE: The Machine watches itself.</div>
+  </div>
+
+  <div class="insight">
+    <strong>Parallel opportunity:</strong> Phase 1 (RAIDEN) and Phase 2 tickets ZRD-SYN-006/007 (RONIN) have zero dependencies between them. Launch both simultaneously. Phase 3 (MUSASHI) depends on Phase 2 API endpoints being live — wait for ZRD-SYN-006 to merge before starting.
+  </div>
+
+  <div class="card">
+    <h2>MEGAZORD Checklist — Your First Moves</h2>
+    <ol>
+      <li>Read the companion <a href="system-synergy-discovery.html" style="color: var(--teal);">System Synergy Discovery Doc</a> for full architecture context</li>
+      <li>Seed the 20 ZRD-SYN tickets into the Dojo queue</li>
+      <li>Brief RAIDEN on Phase 1 Kill List (ZRD-SYN-001 to 005)</li>
+      <li>Brief RONIN on Phase 2 build spec (ZRD-SYN-006 to 015)</li>
+      <li>Hold MUSASHI until Phase 2 APIs are live</li>
+      <li>Register tools in ATLAS as they ship (don't batch — register each as it merges to main)</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Success Criteria</h2>
+    <table>
+      <tr><th>Test</th><th>Expected Result</th></tr>
+      <tr><td><code>GET /api/system-synergy/platform-health</code></td><td>Returns JSON with warriors, deploys, hooks, sessions</td></tr>
+      <tr><td>Wait for Sunday 3am</td><td>Slack DM with cleanup report. Orphaned session-envs auto-deleted.</td></tr>
+      <tr><td>Start a new warrior session</td><td>Cross-warrior briefing appears in first response</td></tr>
+      <tr><td>End a warrior session</td><td>brain.txt auto-appended within 60 seconds</td></tr>
+      <tr><td><code>tmux ls</code> shows no stale warriors</td><td>warrior-roster matches reality</td></tr>
+      <tr><td>System Synergy App in ProDash</td><td>Teal-branded, shows dashboard + session browser + pipeline view</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- end .content -->
+
+<div class="footer">
+  Repo Audit + Hygiene Handoff — SHINOB1, CTO &rarr; MEGAZORD, CIO — April 7, 2026<br>
+  <em>Manual cleanup becomes automated tools. The Machine watches itself.</em>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>
