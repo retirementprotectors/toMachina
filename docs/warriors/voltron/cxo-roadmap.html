@@ -124,6 +124,13 @@
   .stat-box { background: var(--bg-hover); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
   .stat-box .number { font-size: 2rem; font-weight: 800; color: var(--green); line-height: 1; }
   .stat-box .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  /* Pill status badges */
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pill.live { background: var(--green-glow); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .pill.next { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .pill.plan { background: var(--purple-glow); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .pill.hold { background: rgba(148,163,184,0.1); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.2); }
+  .pill.hot { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
 </style>
 </head>
 <body>
@@ -138,7 +145,11 @@
     <span class="badge badge-green">LIONS</span>
     <span class="badge badge-accent">CONSUME → OPERATE → DEVOUR</span>
   </div>
-  <div class="ronin-meta">SHINOB1 + JDM &bull; 2026-04-05 Night Shift</div>
+  <div class="header-badges" style="margin-top: 10px;">
+    <span class="badge badge-blue">SALES</span>
+    <span class="badge badge-purple">SERVICE</span>
+  </div>
+  <div class="ronin-meta">SHINOB1 + JDM &bull; Updated 2026-04-08</div>
 </div>
 
 <div class="tab-container">
@@ -149,6 +160,9 @@
     <div class="tab" onclick="showPanel('consume', this)">CONSUME</div>
     <div class="tab" onclick="showPanel('operate', this)">OPERATE</div>
     <div class="tab" onclick="showPanel('devour', this)">DEVOUR</div>
+    <div class="tab" onclick="showPanel('cso-grid', this)">CSO GRID</div>
+    <div class="tab" onclick="showPanel('sales', this)">SALES</div>
+    <div class="tab" onclick="showPanel('service', this)">SERVICE</div>
     <div class="tab" onclick="showPanel('roadmap', this)">ROADMAP</div>
   </div>
 </div>
@@ -738,7 +752,231 @@
     </div>
   </div>
 
-  <!-- TAB 7: ROADMAP -->
+  <!-- TAB 7: CSO GRID -->
+  <div id="cso-grid" class="panel">
+    <div class="card">
+      <h2>CSO Weekly Grid</h2>
+      <p>Walk this weekly with JDM.</p>
+      <div class="callout green">
+        <p><strong>The rule:</strong> Reactive comes first. When fires are out, pick up the proactive rhythm. No drift.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Table 1: QUE Tools Layer</h2>
+      <table>
+        <tr><th>Domain</th><th>Status</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr>
+          <td><strong>Medicare Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: any misquotes? Carrier data stale?</td>
+          <td>SERFF data load <span class="pill hold">PARKED</span> — waiting on CSG data + MEGAZORD BigQuery path</td>
+        </tr>
+        <tr>
+          <td><strong>Annuity Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: surrender schedules current?</td>
+          <td>Joint life rider analysis (DEVOUR gap)</td>
+        </tr>
+        <tr>
+          <td><strong>Investment Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: tax brackets for 2026?</td>
+          <td>Alternative investment tools (DEVOUR gap)</td>
+        </tr>
+        <tr>
+          <td><strong>Life/Estate Lion</strong></td>
+          <td><span class="pill next">BUILDING</span></td>
+          <td>RONIN building Life &amp; Estate Wire Expansion NOW</td>
+          <td>4 wires + 13 tools + 5 super tools (ETA: today)</td>
+        </tr>
+        <tr>
+          <td><strong>Legacy/LTC Lion</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Check: hybrid LTC products coverage?</td>
+          <td>Claim filing workflow (DEVOUR gap)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Table 2: CXO Track Status</h2>
+      <table>
+        <tr><th>Track</th><th>Status</th><th>Gap</th><th>Next Action</th></tr>
+        <tr>
+          <td><strong>CONSUME</strong></td>
+          <td><span class="pill live">DONE</span></td>
+          <td>None</td>
+          <td>Maintenance only</td>
+        </tr>
+        <tr>
+          <td><strong>OPERATE</strong></td>
+          <td><span class="pill next">PARTIAL</span></td>
+          <td>4 tickets missing (O12, O15–O17)</td>
+          <td>Scope and build remaining tickets</td>
+        </tr>
+        <tr>
+          <td><strong>DEVOUR</strong></td>
+          <td><span class="pill plan">NOT STARTED</span></td>
+          <td>0/17 tickets</td>
+          <td>Scope after Life Wire lands</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Table 3: Active Builds</h2>
+      <table>
+        <tr><th>Item</th><th>Builder</th><th>Status</th><th>ETA</th></tr>
+        <tr>
+          <td><strong>Life &amp; Estate Wire Expansion</strong></td>
+          <td>RONIN (3 parallel tracks)</td>
+          <td><span class="pill next">BUILDING</span></td>
+          <td>Today — SHINOB1 audits before merge</td>
+        </tr>
+        <tr>
+          <td><strong>WireExecutionLog URL fix</strong></td>
+          <td>VOLTRON</td>
+          <td><span class="pill live">LANDED</span></td>
+          <td>Done — PR #277 — <code>66fadec</code></td>
+        </tr>
+        <tr>
+          <td><strong>CommandCenter auth fix</strong></td>
+          <td>VOLTRON</td>
+          <td><span class="pill live">LANDED</span></td>
+          <td>Done — PR #275 — <code>f3d8fa5</code></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Table 4: Cases Pipeline</h2>
+      <table>
+        <tr><th>Component</th><th>Status</th><th>Notes</th></tr>
+        <tr>
+          <td><strong>Wire execution infrastructure</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>10 wires, expanding to 14</td>
+        </tr>
+        <tr>
+          <td><strong>CommandCenter 6 tabs</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Auth fixed, Wire Log URL fixed</td>
+        </tr>
+        <tr>
+          <td><strong>MDJ Panel</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Team-facing, all 3 portals</td>
+        </tr>
+        <tr>
+          <td><strong>Case intake channels</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Slack, MDJ Panel, API, manual</td>
+        </tr>
+        <tr>
+          <td><strong>JDM's cases</strong></td>
+          <td><span class="pill next">READY TO RECEIVE</span></td>
+          <td>Awaiting case data from Sensei</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 8: SALES -->
+  <div id="sales" class="panel">
+    <div class="card">
+      <h2>SALES — CSO Revenue Operations</h2>
+      <p>The CSO owns the sales tools. ProZONE and RSP are VOLTRON's weapons for the sales team.</p>
+    </div>
+
+    <div class="card">
+      <h2>Sales Modules</h2>
+      <table>
+        <tr><th>Module</th><th>Status</th><th>What It Does</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr>
+          <td><strong>ProZONE</strong></td>
+          <td><span class="pill next">SCAFFOLDED</span></td>
+          <td>Territory management — 5 tabs: Team, Market, Target, Flow, Inventory</td>
+          <td>Not live — no bugs yet</td>
+          <td>Wire to territory/specialist data. Needs discovery doc.</td>
+        </tr>
+        <tr>
+          <td><strong>RSP Pipeline</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Flow Engine pipeline for new business</td>
+          <td>Check: any stuck instances?</td>
+          <td>Add Lion-triggered auto-staging</td>
+        </tr>
+        <tr>
+          <td><strong>QUE Workbench</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Quote engine — Medicare, Life, Annuity adapters</td>
+          <td>Check: LifeQuoteForm working?</td>
+          <td>Wire to VOLTRON Lions for auto-routing</td>
+        </tr>
+        <tr>
+          <td><strong>Sales Centers</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>QUE modules surfaced as ProDash views</td>
+          <td>Check: Medicare/Life/Annuity/Advisory rendering?</td>
+          <td>Add Investment Sales Center</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout" style="margin: 0 0 20px;">
+      <p><strong>ProZONE is the biggest sales gap.</strong> The scaffold exists (5 tabs) but it's dead — no data, no wiring. Sprint 12 priority.</p>
+    </div>
+  </div>
+
+  <!-- TAB 9: SERVICE -->
+  <div id="service" class="panel">
+    <div class="card">
+      <h2>SERVICE — CSO Client Retention Operations</h2>
+      <p>Service modules that VOLTRON's Lions monitor for proactive alerts.</p>
+    </div>
+
+    <div class="card">
+      <h2>Service Modules</h2>
+      <table>
+        <tr><th>Module</th><th>Status</th><th>What It Does</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr>
+          <td><strong>RMD Center</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Required Minimum Distribution tracking + notifications</td>
+          <td>Check: Dec 31 deadlines approaching? Any missed RMDs?</td>
+          <td>Lion-triggered auto-alerts 30 days before deadline</td>
+        </tr>
+        <tr>
+          <td><strong>Beni Center</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Beneficiary management + review scheduling</td>
+          <td>Check: any stale beneficiary records?</td>
+          <td>Annual beni review wire — Lions flag outdated designations</td>
+        </tr>
+        <tr>
+          <td><strong>Access Center</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Client portal/API access credentials</td>
+          <td>Check: any expired access items?</td>
+          <td>Auto-generate on new account creation</td>
+        </tr>
+        <tr>
+          <td><strong>Casework Module</strong></td>
+          <td><span class="pill live">LIVE</span></td>
+          <td>Open cases + case review pipeline</td>
+          <td>Check: any stale open cases?</td>
+          <td>Wire to Command Center open cases panel</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout blue" style="margin: 0 0 20px;">
+      <p><strong>RMD Center and Beni Center are live and functional but not yet wired into the Lion proactive alert system.</strong> That's DEVOUR Track 3 work — Lions at Scale.</p>
+    </div>
+  </div>
+
+  <!-- TAB 10: ROADMAP -->
   <div id="roadmap" class="panel">
     <div class="card">
       <h2>Document Hierarchy</h2>
@@ -853,8 +1091,7 @@ QUE Registry + Lions Mesh                ATLAS Registry           CMO Registry
 </div>
 
 <div class="footer">
-  <div>VOLTRON CXO Roadmap &bull; SHINOB1 + JDM &bull; 2026-04-05 Night Shift</div>
-  <div style="margin-top: 8px; color: var(--green);">#RunningOurOwnRACE</div>
+  <div>VOLTRON CSO Roadmap &bull; Updated 2026-04-08 &bull; #RunningOurOwnRACE</div>
 </div>
 
 <script>
