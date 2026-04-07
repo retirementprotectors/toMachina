@@ -28,7 +28,7 @@ export function ChatThread({ messages }: ChatThreadProps) {
             smart_toy
           </span>
           <p className="text-sm font-medium text-[var(--text-secondary)] mb-1">
-            VOLTRON
+            MDJ
           </p>
           <p className="text-xs text-[var(--text-muted)] max-w-[240px]">
             Ask me anything about clients, accounts, pipelines, quotes, or just tell me what you need done.
