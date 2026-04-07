@@ -150,13 +150,14 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   </div>
 
   <div class="card">
+    <h3>Sidebar Modules</h3>
     <table>
       <tr><th>Module</th><th>What It Does</th><th>Status</th><th>Latest DiscoDoc</th></tr>
       <tr>
         <td><strong>Communications</strong></td>
         <td>Slide-out feed + compose + dialer. Twilio voice, SMS, email.</td>
         <td><span class="pill next">SPRINT 11</span></td>
-        <td><a href="../shinob1/comms/sprint-011-prozone-comms-discovery.html">Sprint 011 Discovery</a><br><a href="../shinob1/comms/comms-live-twilio.html">COMMS Live Twilio</a><br><a href="../shinob1/comms/comms-polish.html">COMMS Polish</a></td>
+        <td><a href="1-team-tray/sprint-011-prozone-comms-discovery.html">Sprint 011 Discovery</a><br><a href="1-team-tray/comms-live-twilio.html">COMMS Live Twilio</a><br><a href="1-team-tray/comms-polish.html">COMMS Polish</a></td>
       </tr>
       <tr>
         <td><strong>RPI Connect</strong></td>
@@ -165,10 +166,10 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td><em>No DiscoDoc yet — mockup phase</em></td>
       </tr>
       <tr>
-        <td><strong>Notifications</strong></td>
+        <td><strong>Notifications / Alerts</strong></td>
         <td>System-wide notification center. Alerts, assignments, reminders.</td>
         <td><span class="pill plan">DISCOVERY</span></td>
-        <td><a href="../musashi/notifications-module.html">Notifications Module</a> (migrated to MUSASHI)</td>
+        <td><a href="../musashi/notifications-module.html">Notifications Module</a> (MUSASHI builds UI)</td>
       </tr>
       <tr>
         <td><strong>MDJ Panel</strong></td>
@@ -181,6 +182,32 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>User management, org structure, permissions, entitlements.</td>
         <td><span class="pill live">LIVE</span></td>
         <td><em>Shipped Sprint 9. Incremental updates only.</em></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Toolbar (Top Right)</h3>
+    <p>Always-visible toolbar actions in the portal header. Available on every page.</p>
+    <table>
+      <tr><th>Component</th><th>What It Does</th><th>Status</th><th>Latest DiscoDoc</th></tr>
+      <tr>
+        <td><strong>RPI SENSEI</strong></td>
+        <td>AI training intelligence. Contextual coaching, knowledge base Q&amp;A, guided workflows for team members.</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><a href="../voltron/sprint-007-discovery.html">Sensei Sprint 007</a> (VOLTRON domain)</td>
+      </tr>
+      <tr>
+        <td><strong>Meet Your Service Team</strong></td>
+        <td>AI-powered team directory. Clients see their assigned team with bios, contact info, and scheduling.</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><em>MYST AI module &mdash; shipped</em></td>
+      </tr>
+      <tr>
+        <td><strong>MyRPI</strong></td>
+        <td>Personal dashboard. User's own accounts, documents, tasks, preferences. The "my stuff" hub.</td>
+        <td><span class="pill live">LIVE</span></td>
+        <td><em>Shipped. Incremental updates only.</em></td>
       </tr>
     </table>
   </div>
@@ -252,7 +279,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>Warrior management UI. Status, sprints, tickets, FORGE runner.</td>
         <td style="color:var(--accent)">Orange (CTO)</td>
         <td><span class="pill live">LIVE</span></td>
-        <td><a href="../shinob1/dojo/sprint-010-dojo2-discovery.html">Dojo v10 Discovery</a><br><a href="../shinob1/dojo/dojo-v10-plan.html">Dojo v10 Plan</a></td>
+        <td><a href="3-executive-floor/sprint-010-dojo2-discovery.html">Dojo v10 Discovery</a><br><a href="3-executive-floor/dojo-v10-plan.html">Dojo v10 Plan</a></td>
       </tr>
       <tr>
         <td><strong>System Synergy</strong></td>
@@ -266,14 +293,14 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
         <td>Hookify rules, immune system, compliance enforcement.</td>
         <td>&mdash;</td>
         <td><span class="pill live">LIVE</span></td>
-        <td><a href="../shinob1/platform/operating-system-audit.html">OS Audit</a></td>
+        <td><a href="reference/operating-system-audit.html">OS Audit</a></td>
       </tr>
       <tr>
         <td><strong>Warrior Launch Guide</strong></td>
         <td>Step-by-step warrior launch for JDM. Toggle per warrior, copy buttons.</td>
         <td>&mdash;</td>
         <td><span class="pill live">LIVE</span></td>
-        <td><a href="../shinob1/dojo/warrior-launch-guide.html">Launch Guide</a></td>
+        <td><a href="3-executive-floor/warrior-launch-guide.html">Launch Guide</a></td>
       </tr>
     </table>
   </div>
@@ -449,7 +476,7 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
 
   <div class="hit-item">
     <div class="status"><span class="pill plan">PLAN</span></div>
-    <div class="desc"><strong>Response validation (Zod)</strong> &mdash; <a href="../shinob1/platform/response-validation-zod.html">Discovery doc</a> ready. Typed API contracts across HTTP boundaries.</div>
+    <div class="desc"><strong>Response validation (Zod)</strong> &mdash; <a href="reference/response-validation-zod.html">Discovery doc</a> ready. Typed API contracts across HTTP boundaries.</div>
   </div>
 
   <div class="hit-item">
@@ -468,81 +495,48 @@ code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;
   </div>
 
   <div class="card">
-    <h3>Communications</h3>
+    <h3>1-team-tray/ &mdash; Team Tray</h3>
     <table>
       <tr><th>Doc</th><th>What</th></tr>
-      <tr><td><a href="comms/sprint-011-prozone-comms-discovery.html">Sprint 011 ProZone + COMMS</a></td><td>ProZone + Communications module discovery</td></tr>
-      <tr><td><a href="comms/comms-live-twilio.html">COMMS Live Twilio</a></td><td>Twilio integration for voice/SMS</td></tr>
-      <tr><td><a href="comms/comms-polish.html">COMMS Polish</a></td><td>UX polish for communications module</td></tr>
+      <tr><td><a href="1-team-tray/sprint-011-prozone-comms-discovery.html">Sprint 011 ProZone + COMMS</a></td><td>ProZone + Communications module discovery</td></tr>
+      <tr><td><a href="1-team-tray/comms-live-twilio.html">COMMS Live Twilio</a></td><td>Twilio integration for voice/SMS</td></tr>
+      <tr><td><a href="1-team-tray/comms-polish.html">COMMS Polish</a></td><td>UX polish for communications module</td></tr>
     </table>
   </div>
 
   <div class="card">
-    <h3>Dojo + AI Operations</h3>
+    <h3>3-executive-floor/ &mdash; Executive Floor</h3>
     <table>
       <tr><th>Doc</th><th>What</th></tr>
-      <tr><td><a href="dojo/sprint-010-dojo2-discovery.html">Dojo v10 Discovery</a></td><td>Dojo App v2 redesign</td></tr>
-      <tr><td><a href="dojo/dojo-v10-plan.html">Dojo v10 Plan</a></td><td>Sprint plan for Dojo v10</td></tr>
-      <tr><td><a href="dojo/sprint-008-discovery.html">Sprint 008 Discovery</a></td><td>Dojo v1 discovery</td></tr>
-      <tr><td><a href="dojo/sprint-008-plan.html">Sprint 008 Plan</a></td><td>Sprint plan for Dojo v1</td></tr>
-      <tr><td><a href="dojo/dojo-v4-plan.html">Dojo v4 Plan</a></td><td>Intermediate Dojo iteration</td></tr>
-      <tr><td><a href="dojo/warrior-launch-guide.html">Warrior Launch Guide</a></td><td>Step-by-step tmux launch for JDM</td></tr>
-      <tr><td><a href="dojo/warrior-viewer.html">Warrior Viewer</a></td><td>Warrior status viewer</td></tr>
-      <tr><td><a href="dojo/dojo-status-tab-mockup-prodash.html">Status Tab Mockup</a></td><td>Status tab mockup for ProDash</td></tr>
-      <tr><td><a href="dojo/status-tab-mockup.html">Status Tab Mockup (alt)</a></td><td>Alternative status tab design</td></tr>
+      <tr><td><a href="3-executive-floor/sprint-010-dojo2-discovery.html">Dojo v10 Discovery</a></td><td>Dojo App v2 redesign</td></tr>
+      <tr><td><a href="3-executive-floor/dojo-v10-plan.html">Dojo v10 Plan</a></td><td>Sprint plan for Dojo v10</td></tr>
+      <tr><td><a href="3-executive-floor/sprint-008-discovery.html">Sprint 008 Discovery</a></td><td>Dojo v1 discovery</td></tr>
+      <tr><td><a href="3-executive-floor/sprint-008-plan.html">Sprint 008 Plan</a></td><td>Sprint plan for Dojo v1</td></tr>
+      <tr><td><a href="3-executive-floor/dojo-v4-plan.html">Dojo v4 Plan</a></td><td>Intermediate Dojo iteration</td></tr>
+      <tr><td><a href="3-executive-floor/warrior-launch-guide.html">Warrior Launch Guide</a></td><td>Step-by-step tmux launch for JDM</td></tr>
+      <tr><td><a href="3-executive-floor/warrior-viewer.html">Warrior Viewer</a></td><td>Warrior status viewer</td></tr>
+      <tr><td><a href="3-executive-floor/dojo-status-tab-mockup-prodash.html">Status Tab Mockup</a></td><td>Status tab mockup for ProDash</td></tr>
+      <tr><td><a href="3-executive-floor/status-tab-mockup.html">Status Tab Mockup (alt)</a></td><td>Alternative status tab design</td></tr>
     </table>
   </div>
 
   <div class="card">
-    <h3>E2E Testing</h3>
+    <h3>reference/ &mdash; CTO Reference (Architecture + Infrastructure)</h3>
     <table>
       <tr><th>Doc</th><th>What</th></tr>
-      <tr><td><a href="e2e/e2e-discovery.html">E2E Discovery</a></td><td>End-to-end test strategy</td></tr>
-      <tr><td><a href="e2e/e2e-executive-summary.html">E2E Executive Summary</a></td><td>Test coverage overview</td></tr>
-      <tr><td><a href="e2e/e2e-expansion.html">E2E Expansion</a></td><td>Test suite expansion plan</td></tr>
-      <tr><td><a href="e2e/e2e-pipeline.html">E2E Pipeline</a></td><td>CI/CD test pipeline design</td></tr>
-      <tr><td><a href="e2e/e2e-test-inventory.html">E2E Test Inventory</a></td><td>Full inventory: 397 tests across 4 suites</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Infrastructure + Architecture</h3>
-    <table>
-      <tr><th>Doc</th><th>What</th></tr>
-      <tr><td><a href="infrastructure/agentx-framework.html">AgentX Framework</a></td><td>AI agent framework architecture</td></tr>
-      <tr><td><a href="infrastructure/agentx-the-numbers.html">AgentX: The Numbers</a></td><td>Investor-grade financial model</td></tr>
-      <tr><td><a href="infrastructure/ai-computing-guide.html">AI Computing Guide</a></td><td>Hardware + compute strategy</td></tr>
-      <tr><td><a href="infrastructure/ccsdk-vs-cctmux-analysis.html">CCSDK vs CC-tmux</a></td><td>Agent architecture comparison</td></tr>
-      <tr><td><a href="infrastructure/cloud-run-burst.html">Cloud Run Burst</a></td><td>Burst scaling strategy</td></tr>
-      <tr><td><a href="infrastructure/gradient-platform-guide.html">Gradient Platform Guide</a></td><td>Gradient integration guide</td></tr>
-      <tr><td><a href="infrastructure/q1-sprint-inventory.html">Q1 Sprint Inventory</a></td><td>Full Q1 2026 sprint catalog</td></tr>
-      <tr><td><a href="infrastructure/tmux-migration-guide.html">tmux Migration Guide</a></td><td>CCSDK &rarr; tmux warrior migration</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Platform + Architecture</h3>
-    <table>
-      <tr><th>Doc</th><th>What</th></tr>
-      <tr><td><a href="platform/operating-system-audit.html">Operating System Audit</a></td><td>Full OS/immune system audit</td></tr>
-      <tr><td><a href="platform/response-validation-zod.html">Response Validation (Zod)</a></td><td>Typed API contracts via Zod</td></tr>
-      <tr><td><a href="platform/shared-file-protocol.md">Shared File Protocol</a></td><td>Parallel RONIN merge conflict prevention</td></tr>
-      <tr><td><a href="platform/sprint-9-pre-production.html">Sprint 9 Pre-Production</a></td><td>Sprint 9 pre-prod checklist</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>Other</h3>
-    <table>
-      <tr><th>Doc</th><th>What</th></tr>
-      <tr><td><a href="sensei/sprint-007-discovery.html">Sensei Sprint 007</a></td><td>Sensei mode discovery</td></tr>
-      <tr><td><a href="sensei/sprint-007-plan.html">Sensei Sprint 007 Plan</a></td><td>Sensei sprint plan</td></tr>
-      <tr><td><a href="sprint-012/assignee-agent-discovery.html">Assignee Agent</a></td><td>Auto-assignment discovery</td></tr>
-      <tr><td><a href="sprint-012/pipeline-custom-fields-discovery.html">Pipeline Custom Fields</a></td><td>Custom fields for pipeline stages</td></tr>
-      <tr><td><a href="sprint-012/team-triage-discovery.html">Team Triage</a></td><td>Team triage workflow discovery</td></tr>
-      <tr><td><a href="deferred-maintenance/deferred-maintenance-sprint.html">Deferred Maintenance</a></td><td>19-ticket DM sprint (shipped)</td></tr>
-      <tr><td><a href="audits/gas-migration-audit.md">GAS Migration Audit</a></td><td>GAS &rarr; Cloud Run migration status</td></tr>
-      <tr><td><a href="audits/orphaned-scripts-audit.md">Orphaned Scripts Audit</a></td><td>Dead scripts identified during cleanup</td></tr>
+      <tr><td><a href="reference/agentx-framework.html">AgentX Framework</a></td><td>AI agent framework architecture</td></tr>
+      <tr><td><a href="reference/agentx-the-numbers.html">AgentX: The Numbers</a></td><td>Investor-grade financial model</td></tr>
+      <tr><td><a href="reference/ai-computing-guide.html">AI Computing Guide</a></td><td>Hardware + compute strategy</td></tr>
+      <tr><td><a href="reference/ccsdk-vs-cctmux-analysis.html">CCSDK vs CC-tmux</a></td><td>Agent architecture comparison</td></tr>
+      <tr><td><a href="reference/cloud-run-burst.html">Cloud Run Burst</a></td><td>Burst scaling strategy</td></tr>
+      <tr><td><a href="reference/gradient-platform-guide.html">Gradient Platform Guide</a></td><td>Gradient integration guide</td></tr>
+      <tr><td><a href="reference/q1-sprint-inventory.html">Q1 Sprint Inventory</a></td><td>Full Q1 2026 sprint catalog</td></tr>
+      <tr><td><a href="reference/tmux-migration-guide.html">tmux Migration Guide</a></td><td>CCSDK &rarr; tmux warrior migration</td></tr>
+      <tr><td><a href="reference/operating-system-audit.html">Operating System Audit</a></td><td>Full OS/immune system audit</td></tr>
+      <tr><td><a href="reference/response-validation-zod.html">Response Validation (Zod)</a></td><td>Typed API contracts via Zod</td></tr>
+      <tr><td><a href="reference/shared-file-protocol.md">Shared File Protocol</a></td><td>Parallel RONIN merge conflict prevention</td></tr>
+      <tr><td><a href="reference/sprint-9-pre-production.html">Sprint 9 Pre-Production</a></td><td>Sprint 9 pre-prod checklist</td></tr>
+      <tr><td><a href="reference/deferred-maintenance-sprint.html">Deferred Maintenance</a></td><td>19-ticket DM sprint (shipped)</td></tr>
     </table>
   </div>
 </div>
