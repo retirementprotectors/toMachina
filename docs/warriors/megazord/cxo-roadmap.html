@@ -174,11 +174,11 @@
     <div class="spec-grid">
       <div class="spec-card mecha">
         <h4>&#128218; Registry &mdash; ATLAS</h4>
-        <p>MEGAZORD's complete knowledge base. 15 atomic tools, 12 super tools, 5 wires, introspection engine, format library, health scoring. Every data pipeline capability The Machine has.</p>
+        <p>MEGAZORD's complete knowledge base. 25 atomic tools, 14 super tools, 9 wires, introspection engine, format library, health scoring. Every data pipeline capability The Machine has.</p>
         <ul>
-          <li>15 Atomic Tools</li>
-          <li>12 Super Tools</li>
-          <li>5 Wires (v2)</li>
+          <li>25 Atomic Tools (15 data + 10 System Synergy)</li>
+          <li>14 Super Tools (10 data + 4 System Synergy)</li>
+          <li>9 Wires (5 data + 4 System Synergy)</li>
           <li>Introspection + Format Library</li>
         </ul>
       </div>
@@ -230,9 +230,9 @@
       <h2>ATLAS Registry &mdash; Full Inventory</h2>
       <p>Everything MEGAZORD owns today. This is the live codebase, not aspirational.</p>
       <div class="stat-row">
-        <div class="stat-box"><div class="number">15</div><div class="label">Atomic Tools</div></div>
-        <div class="stat-box"><div class="number">12</div><div class="label">Super Tools</div></div>
-        <div class="stat-box"><div class="number">5</div><div class="label">Wires (v2)</div></div>
+        <div class="stat-box"><div class="number">25</div><div class="label">Atomic Tools</div></div>
+        <div class="stat-box"><div class="number">14</div><div class="label">Super Tools</div></div>
+        <div class="stat-box"><div class="number">9</div><div class="label">Wires (v2)</div></div>
         <div class="stat-box"><div class="number">6,145</div><div class="label">API Route Lines</div></div>
         <div class="stat-box"><div class="number">8</div><div class="label">E2E Test Files</div></div>
         <div class="stat-box"><div class="number">4,100+</div><div class="label">Core Pkg Lines</div></div>
@@ -247,7 +247,7 @@
       <table>
         <tr><th>File</th><th>Lines</th><th>Purpose</th></tr>
         <tr><td><code>types.ts</code></td><td>265</td><td>All ATLAS types (source, tool, wire, super tool, format, introspect)</td></tr>
-        <tr><td><code>wires.ts</code></td><td>240</td><td>Wire definitions v2 &mdash; 5 wires</td></tr>
+        <tr><td><code>wires.ts</code></td><td>297</td><td>Wire definitions v2 &mdash; 9 wires (5 data + 4 System Synergy)</td></tr>
         <tr><td><code>wire-executor.ts</code></td><td>425</td><td>Runtime executor &mdash; stages pipeline orchestration</td></tr>
         <tr><td><code>introspect.ts</code></td><td>425</td><td>Format fingerprinting + column mapping engine</td></tr>
         <tr><td><code>health.ts</code></td><td>161</td><td>Automation health scoring + gap analysis</td></tr>
@@ -273,9 +273,20 @@
         <tr><td><code>ACF_RENAME_FILES</code></td><td>Batch rename files per convention</td></tr>
         <tr><td><code>ACF_RECLASSIFY</code></td><td>Reclassify misrouted documents</td></tr>
         <tr><td><code>ACF_AUDIT</code></td><td>Generate audit report for ACF folder</td></tr>
+        <tr><td colspan="2" style="color: var(--mecha-green); font-weight: 600; padding-top: 16px;">System Synergy Tools (10) &mdash; Platform Observability + Hygiene</td></tr>
+        <tr><td><code>session-inventory</code></td><td>List all Claude Code sessions with metadata</td></tr>
+        <tr><td><code>memory-inventory</code></td><td>List all MEMORY.md entries with staleness scoring</td></tr>
+        <tr><td><code>claude-md-diff</code></td><td>CLAUDE.md change history over N days</td></tr>
+        <tr><td><code>brain-health</code></td><td>Per-warrior brain.txt stats</td></tr>
+        <tr><td><code>knowledge-query</code></td><td>Query Firestore knowledge_entries</td></tr>
+        <tr><td><code>session-env-audit</code></td><td>Find orphaned session-env directories</td></tr>
+        <tr><td><code>duplicate-detector</code></td><td>Find duplicate MEMORY.md entries + docs</td></tr>
+        <tr><td><code>warrior-roster</code></td><td>tmux sessions, queue depth, last activity</td></tr>
+        <tr><td><code>deploy-status</code></td><td>CI runs, last deploy, pending PRs</td></tr>
+        <tr><td><code>hook-audit</code></td><td>Hookify symlink verification + service health</td></tr>
       </table>
 
-      <h3>12 Super Tools</h3>
+      <h3>14 Super Tools</h3>
       <table>
         <tr><th>Super Tool</th><th>What It Does</th><th>Server-Only?</th></tr>
         <tr><td><code>SUPER_EXTRACT</code></td><td>CSV + Claude Vision document extraction</td><td>No</td></tr>
@@ -290,9 +301,14 @@
         <tr><td><code>SUPER_FOLDER_CLEANUP</code></td><td>ACF folder structure hygiene</td><td>No</td></tr>
         <tr><td><code>SUPER_DOCUMENT_CLEANUP</code></td><td>ACF file-level hygiene</td><td>No</td></tr>
         <tr><td><code>SUPER_AUDIT_REVIEW</code></td><td>Exceptions report for human review</td><td>No</td></tr>
+        <tr><td colspan="3" style="color: var(--mecha-green); font-weight: 600; padding-top: 16px;">System Synergy Super Tools (4)</td></tr>
+        <tr><td><code>SUPER_PLATFORM_HEALTH</code></td><td>session-inventory + warrior-roster + deploy-status + hook-audit</td><td>No</td></tr>
+        <tr><td><code>SUPER_KNOWLEDGE_PIPELINE_STATUS</code></td><td>knowledge-query + memory-inventory + brain-health + claude-md-diff</td><td>No</td></tr>
+        <tr><td><code>SUPER_SESSION_FORENSICS</code></td><td>session-inventory + session-env-audit + duplicate-detector</td><td>No</td></tr>
+        <tr><td><code>SUPER_WARRIOR_READINESS</code></td><td>warrior-roster + brain-health + memory-inventory</td><td>No</td></tr>
       </table>
 
-      <h3>5 Wires (v2)</h3>
+      <h3>9 Wires (v2)</h3>
       <table>
         <tr><th>Wire</th><th>Chain</th><th>Purpose</th></tr>
         <tr><td><code>WIRE_DATA_IMPORT</code></td><td>EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</td><td>Universal CSV/file ingestion pipeline</td></tr>
@@ -300,6 +316,11 @@
         <tr><td><code>WIRE_REFERENCE_SEED</code></td><td>EXTRACT &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE</td><td>Carriers, products, NAIC codes, rate tables</td></tr>
         <tr><td><code>WIRE_INCOMING_CORRESPONDENCE</code></td><td>PREPARE &rarr; CLASSIFY &rarr; EXTRACT &rarr; VALIDATE &rarr; NORMALIZE &rarr; MATCH &rarr; WRITE &rarr; ACF_FINALIZE</td><td>Physical mail scan &rarr; classify &rarr; ACF file</td></tr>
         <tr><td><code>WIRE_ACF_CLEANUP</code></td><td>FOLDER_CLEANUP &rarr; DOCUMENT_CLEANUP &rarr; AUDIT_REVIEW</td><td>ACF hygiene &mdash; Trinity Digital Files pillar</td></tr>
+        <tr><td colspan="3" style="color: var(--mecha-green); font-weight: 600; padding-top: 16px;">System Synergy Wires (4)</td></tr>
+        <tr><td><code>WIRE_KNOWLEDGE_PROMOTE</code></td><td>entity-extractor &rarr; knowledge-query &rarr; auto-write</td><td>Daily 4am &mdash; CLAUDE.md auto-write + Slack digest</td></tr>
+        <tr><td><code>WIRE_BRAIN_SYNC</code></td><td>session-inventory &rarr; brain-export &rarr; brain-health</td><td>Daily 2am &mdash; auto-append to warrior brain.txt</td></tr>
+        <tr><td><code>WIRE_PLATFORM_AUDIT</code></td><td>platform-health + session-forensics + duplicate-detector</td><td>Weekly Sun 3am &mdash; auto-cleanup + report</td></tr>
+        <tr><td><code>WIRE_WARRIOR_BRIEFING</code></td><td>warrior-readiness + cross-warrior knowledge-query</td><td>Session start &mdash; cross-warrior context injection</td></tr>
       </table>
     </div>
 
@@ -449,19 +470,45 @@
       <div class="track-title">CONSUME &mdash; Absorb ATLAS</div>
       <p style="color: var(--text-muted)">MEGAZORD claims ownership of ATLAS. The Command Center App IS ATLAS &mdash; rebranded, consolidated, and ready for CXO operation.</p>
 
-      <h3 style="color: var(--mecha-green)">What Happens</h3>
-      <ul style="color: var(--text-muted)">
-        <li><strong>Rebrand AtlasRegistry module</strong> &mdash; rename to MEGAZORD Command Center. Same code, new identity. The App key changes from <code>atlas</code> to <code>megazord</code>.</li>
-        <li><strong>Claim data-centric tickets from RONIN queue</strong> &mdash; scan the Dojo backlog for tickets that are actually data operations (imports, audits, cleanup) sitting in RONIN's feature queue. Reclassify as ZRD- tickets.</li>
-        <li><strong>Consolidate discovery docs</strong> &mdash; Platform Mirror discovery, Trinity ACF discovery, sprint inventories &mdash; all feed into MEGAZORD's context.</li>
-        <li><strong>Build soul.md + spirit.md</strong> at <code>~/Projects/dojo-warriors/megazord/</code> &mdash; seed from ATLAS history, ACF sprint learnings, and this roadmap.</li>
-        <li><strong>Establish ZRD- ticket prefix</strong> &mdash; all MEGAZORD work tracked with ZRD- in the Dojo pipeline.</li>
-      </ul>
-
-      <div class="deliverable-box">
-        <div class="label">Deliverable</div>
-        <p>Command Center App scaffold (rebranded from AtlasRegistry) + soul/spirit launched + data tickets claimed from RONIN queue + consolidated backlog under ZRD- prefix</p>
-      </div>
+      <h3 style="color: var(--mecha-green)">Deliverables</h3>
+      <table>
+        <tr><th>Deliverable</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+        <tr>
+          <td><strong>Rebrand AtlasRegistry</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">→ MEGAZORD Command Center</span></td>
+          <td><span class="status-live">SHIPPED</span></td>
+          <td>Is CC rendering in all 3 portals?</td>
+          <td>Add System Synergy data to CC dashboard</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><strong>soul.md + spirit.md</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Warrior identity files</span></td>
+          <td><span class="status-live">SHIPPED</span></td>
+          <td>Are files current after promotions?</td>
+          <td>WIRE_BRAIN_SYNC auto-updates tonight</td>
+          <td><a href="../../dojo-warriors/megazord/">dojo-warriors/megazord/</a></td>
+        </tr>
+        <tr>
+          <td><strong>ZRD- ticket prefix</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Data ops ticket classification</span></td>
+          <td><span class="status-live">SHIPPED</span></td>
+          <td>Are new data tickets using ZRD-?</td>
+          <td>Incremental only</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><strong>Claim data tickets from RONIN</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Reclassify data ops in Dojo backlog</span></td>
+          <td><span class="status-stub">PARTIAL</span></td>
+          <td>Data tickets still landing in RONIN queue?</td>
+          <td>Scan RONIN backlog, reclassify remaining data ops</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><strong>Consolidate discovery docs</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Organize MEGAZORD doc folder</span></td>
+          <td><span class="status-stub">PARTIAL</span></td>
+          <td>Docs misattributed to other warriors?</td>
+          <td>5 docs moved to SHINOB1 this session, verify remainder</td>
+          <td><a href="./">megazord/</a></td>
+        </tr>
+      </table>
     </div>
   </div>
 
@@ -472,41 +519,127 @@
       <div class="track-title">OPERATE &mdash; Deploy the Rangers</div>
       <p style="color: var(--text-muted)">MEGAZORD becomes operational. Rangers are built, wires are audited, intake funnel is established. The CXO can self-scope and self-deploy.</p>
 
-      <h3 style="color: var(--blue)">Build 5 CCSDK Rangers</h3>
-      <p style="color: var(--text-muted)">Each Ranger gets a wire-specific system prompt + the wire definition as its task list. Priority order:</p>
+      <h3 style="color: var(--blue)">Rangers + Data Pipelines</h3>
       <table>
-        <tr><th>#</th><th>Ranger</th><th>Why This Order</th></tr>
-        <tr><td>1</td><td><strong>ACF Cleanup</strong></td><td>Shortest wire (3 stages), most tested, lowest risk &mdash; proves the Ranger pattern</td></tr>
-        <tr><td>2</td><td><strong>Data Import</strong></td><td>Highest business value &mdash; every carrier onboard starts here</td></tr>
-        <tr><td>3</td><td><strong>Commission Sync</strong></td><td>Revenue pipeline &mdash; directly impacts comp accuracy</td></tr>
-        <tr><td>4</td><td><strong>Reference Seed</strong></td><td>Foundation data that other Rangers depend on</td></tr>
-        <tr><td>5</td><td><strong>Correspondence</strong></td><td>Most complex (8 stages, server-only) &mdash; last because it needs the most testing</td></tr>
+        <tr><th>Deliverable</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+        <tr>
+          <td><strong>Ranger: ACF Cleanup</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">WIRE_ACF_CLEANUP (3 stages)</span></td>
+          <td><span class="status-stub">WIRE READY</span></td>
+          <td>ACF wire passes E2E?</td>
+          <td>Build CCSDK Ranger agent, deploy as first mesh node</td>
+          <td><a href="acf/acf-2.0-plan.html">ACF Plan</a> &bull; <a href="acf/trinity-acf-wire-discovery.html">Trinity</a></td>
+        </tr>
+        <tr>
+          <td><strong>Ranger: Data Import</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">WIRE_DATA_IMPORT (5 stages)</span></td>
+          <td><span class="status-stub">WIRE READY</span></td>
+          <td>Import introspection matching correctly?</td>
+          <td>Build Ranger after ACF proves pattern</td>
+          <td><a href="intake/intake-wires-discovery.html">Intake Discovery</a></td>
+        </tr>
+        <tr>
+          <td><strong>Ranger: Commission Sync</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">WIRE_COMMISSION_SYNC (5 stages)</span></td>
+          <td><span class="status-stub">WIRE READY</span></td>
+          <td>Revenue records matching to accounts?</td>
+          <td>Build Ranger after Data Import</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><strong>Ranger: Reference Seed</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">WIRE_REFERENCE_SEED (4 stages)</span></td>
+          <td><span class="status-stub">WIRE READY</span></td>
+          <td>Carrier/product data current?</td>
+          <td>Build Ranger after Commission Sync</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><strong>Ranger: Correspondence</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">WIRE_INCOMING_CORRESPONDENCE (8 stages)</span></td>
+          <td><span class="status-stub">WIRE READY</span></td>
+          <td>Vision classification accuracy?</td>
+          <td>Build Ranger last (most complex, server-only)</td>
+          <td><a href="intake/wire-incoming-correspondence.html">Wire Spec</a></td>
+        </tr>
+        <tr>
+          <td><strong>Matrix Reconciliation</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Sheets ↔ Firestore parity</span></td>
+          <td><span class="status-planned">NOT STARTED</span></td>
+          <td>Sheets and Firestore diverging?</td>
+          <td>Write discovery doc, scope reconciliation wire</td>
+          <td><a href="matrix/matrix-reconciliation-review.html">Matrix Review</a></td>
+        </tr>
       </table>
 
-      <h3 style="color: var(--blue)">Wire Library Audit</h3>
-      <ul style="color: var(--text-muted)">
-        <li>Verify all 5 wires execute end-to-end with test data</li>
-        <li>Confirm E2E tests pass for each wire</li>
-        <li>Document known edge cases (carrier format quirks, date formats, encoding issues)</li>
-      </ul>
+      <h3 style="color: var(--blue)">Platform Infrastructure</h3>
+      <table>
+        <tr><th>Deliverable</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+        <tr>
+          <td><strong>ATLAS Registry</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">25 Tools, 14 Supers, 9 Wires</span></td>
+          <td><span class="status-live">LIVE</span></td>
+          <td>Counts match after each sprint?</td>
+          <td>Register new tools as they ship</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><strong>System Synergy</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">10 tools, 4 supers, 4 wires</span></td>
+          <td><span class="status-live">JUST SHIPPED</span></td>
+          <td>UI loading? Timers firing? Auth working?</td>
+          <td>Verify Learning Loop E2E after tonight's first timer run</td>
+          <td><a href="system-synergy-discovery.html">Discovery</a> &bull; <a href="repo-hygiene-handoff.html">Handoff</a></td>
+        </tr>
+        <tr>
+          <td><strong>Pipeline Studio / Flow Engine</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Pipeline builder + admin CRUD</span></td>
+          <td><span class="status-live">LIVE</span></td>
+          <td>Pipeline creation working?</td>
+          <td>Incremental only</td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><strong>DEX (Document Exchange)</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">GAS → Cloud Run port</span></td>
+          <td><span class="status-planned">NOT STARTED</span></td>
+          <td>GAS DEX still operational?</td>
+          <td>Write discovery doc for Cloud Run port</td>
+          <td><a href="dex-live.html">DEX Spec</a></td>
+        </tr>
+        <tr>
+          <td><strong>Hub Dispatchers</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">5 systemd services on MDJ_SERVER</span></td>
+          <td><span class="status-live">ALL ACTIVE</span></td>
+          <td>All 5 services running? Any crash loops?</td>
+          <td>Monitor via System Synergy hook-audit</td>
+          <td>&mdash;</td>
+        </tr>
+      </table>
+
+      <h3 style="color: var(--blue)">Data Integrity</h3>
+      <table>
+        <tr><th>Deliverable</th><th>Status</th><th>Reactive</th><th>Proactive Next</th><th>Docs</th></tr>
+        <tr>
+          <td><strong>Firestore Admin Panel</strong></td>
+          <td><span class="status-live">LIVE</span></td>
+          <td>Any config drift?</td>
+          <td>Incremental only</td>
+          <td><a href="firestore-admin-panel.html">Admin Panel</a></td>
+        </tr>
+        <tr>
+          <td><strong>Field Parity (Sprint 014)</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Firestore field completeness</span></td>
+          <td><span class="status-planned">DISCOVERY</span></td>
+          <td>Fields missing from client records?</td>
+          <td>Execute Sprint 014 discovery</td>
+          <td><a href="sprint-014-field-parity-discovery.html">Sprint 014</a></td>
+        </tr>
+        <tr>
+          <td><strong>GAS Migration</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">3 remaining: RAPID_CORE, RAPID_IMPORT, DEX</span></td>
+          <td><span class="status-planned">3 REMAINING</span></td>
+          <td>GAS engines stable?</td>
+          <td>Scope DEX port first (smallest)</td>
+          <td><a href="gas-migration-audit.md">Migration Audit</a></td>
+        </tr>
+      </table>
 
       <h3 style="color: var(--blue)">Intake Funnel</h3>
-      <p style="color: var(--text-muted)">How does data work arrive at MEGAZORD?</p>
       <table>
-        <tr><th>Channel</th><th>Input</th><th>Status</th></tr>
-        <tr><td>Email intake</td><td>Carrier commission statements, BoB exports forwarded to intake address</td><td><span class="status-planned">Planned</span></td></tr>
-        <tr><td>Drive folder watch</td><td>Files dropped in designated Drive folder trigger wire</td><td><span class="status-planned">Planned</span></td></tr>
-        <tr><td>Slack channel</td><td>Team requests data imports via Slack message</td><td><span class="status-planned">Planned</span></td></tr>
-        <tr><td>Manual trigger</td><td>Command Center UI &mdash; "Run Wire" button (already exists in AtlasRegistry)</td><td><span class="status-live">Exists</span></td></tr>
+        <tr><th>Channel</th><th>Status</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr><td>Manual trigger (CC UI)</td><td><span class="status-live">LIVE</span></td><td>Run Wire button working?</td><td>Incremental only</td></tr>
+        <tr><td>Email intake</td><td><span class="status-planned">PLANNED</span></td><td>&mdash;</td><td>Scope intake address + forwarding rules</td></tr>
+        <tr><td>Drive folder watch</td><td><span class="status-planned">PLANNED</span></td><td>&mdash;</td><td>Wire Cloud Function trigger to Drive folder</td></tr>
+        <tr><td>Slack channel</td><td><span class="status-planned">PLANNED</span></td><td>&mdash;</td><td>Wire #megazord-intake to dispatcher</td></tr>
       </table>
-
-      <h3 style="color: var(--blue)">CXO Self-Authoring</h3>
-      <p style="color: var(--text-muted)">By end of OPERATE, MEGAZORD can write his own Discovery Docs. He knows what's in ATLAS, what's missing, and how to scope the gap. The CTO (SHINOB1) reviews as a mentor, not an auditor.</p>
-
-      <div class="deliverable-box">
-        <div class="label">Deliverable</div>
-        <p>5 Rangers deployed (ACF first) + wire library audited + at least 1 automated intake channel live + MEGAZORD writing his own DiscoDocs</p>
-      </div>
     </div>
   </div>
 
@@ -517,41 +650,40 @@
       <div class="track-title">DEVOUR &mdash; Eat Everything</div>
       <p style="color: var(--text-muted)">Full inventory. Full audit. Absorb every data operation scattered across the Dojo, RONIN's queue, and manual processes. Launch the mesh at scale. Destroy the backlog.</p>
 
-      <h3 style="color: var(--gold)">Carrier Data Source Inventory</h3>
-      <p style="color: var(--text-muted)">Systematic audit of every data source The Machine touches:</p>
+      <h3 style="color: var(--gold)">DEVOUR Deliverables</h3>
       <table>
-        <tr><th>Question</th><th>Action</th></tr>
-        <tr><td>Which carriers send automated feeds?</td><td>Register in source_registry, mark GREEN</td></tr>
-        <tr><td>Which carriers require manual CSV export?</td><td>Register as YELLOW, build scheduled reminders</td></tr>
-        <tr><td>Which carriers have no data pipeline at all?</td><td>Register as RED, scope WIRE + Ranger</td></tr>
-        <tr><td>Which data sources are stale (&gt;30 days)?</td><td>Staleness monitoring via health.ts</td></tr>
-        <tr><td>Which import formats lack introspection profiles?</td><td>Run SUPER_INTROSPECT, add to format library</td></tr>
+        <tr><th>Deliverable</th><th>Status</th><th>Reactive</th><th>Proactive Next</th></tr>
+        <tr>
+          <td><strong>Carrier Data Source Inventory</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Register every feed as GREEN/YELLOW/RED</span></td>
+          <td><span class="status-planned">NOT STARTED</span></td>
+          <td>Any carrier feeds gone stale?</td>
+          <td>Enumerate all carriers in source_registry, classify gap status</td>
+        </tr>
+        <tr>
+          <td><strong>Scattered Work Audit</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Absorb data ops from RONIN + GAS</span></td>
+          <td><span class="status-planned">NOT STARTED</span></td>
+          <td>Manual data processes still in GAS?</td>
+          <td>Scan RONIN queue + RAPID_IMPORT for unregistered ops</td>
+        </tr>
+        <tr>
+          <td><strong>Data Accuracy E2E Tests</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Known-answer tests, dedup accuracy, commission accuracy</span></td>
+          <td><span class="status-planned">NOT STARTED</span></td>
+          <td>Any data quality complaints from team?</td>
+          <td>Build known-answer test fixture for WIRE_DATA_IMPORT</td>
+        </tr>
+        <tr>
+          <td><strong>Proactive Data Hygiene</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">Scheduled wires, staleness monitoring, gap identification</span></td>
+          <td><span class="status-planned">NOT STARTED</span></td>
+          <td>System Synergy platform hygiene firing?</td>
+          <td>Extend WIRE_PLATFORM_AUDIT to include data-specific checks</td>
+        </tr>
+        <tr>
+          <td><strong>Format Library Expansion</strong><br><span style="font-size:0.75rem;color:var(--text-muted)">SUPER_INTROSPECT for every carrier format</span></td>
+          <td><span class="status-planned">NOT STARTED</span></td>
+          <td>Unknown formats causing import failures?</td>
+          <td>Run SUPER_INTROSPECT on existing carrier CSVs, populate format_library</td>
+        </tr>
       </table>
-
-      <h3 style="color: var(--gold)">Scattered Work Audit</h3>
-      <ul style="color: var(--text-muted)">
-        <li>Scan RONIN's queue for data-centric tickets that belong to MEGAZORD</li>
-        <li>Identify manual data processes still running in GAS (RAPID_IMPORT)</li>
-        <li>Find orphaned import scripts, one-off data fixes, undocumented carrier formats</li>
-        <li>Absorb ALL of it into ATLAS &mdash; register the tools, document the formats, wire the pipelines</li>
-      </ul>
-
-      <h3 style="color: var(--gold)">Data Accuracy E2E Tests</h3>
-      <p style="color: var(--text-muted)">Not just "did the pipeline complete?" &mdash; "is the data CORRECT?"</p>
-      <ul style="color: var(--text-muted)">
-        <li>Known-answer tests: import a file with known data, verify every field in Firestore matches</li>
-        <li>Dedup accuracy: verify SUPER_MATCH doesn't create false positives or miss true matches</li>
-        <li>Commission accuracy: verify revenue records match carrier statements to the penny</li>
-        <li>ACF accuracy: verify files route to correct subfolders with correct names</li>
-      </ul>
-
-      <h3 style="color: var(--gold)">Proactive Data Hygiene</h3>
-      <ul style="color: var(--text-muted)">
-        <li><strong>Scheduled wire runs</strong> &mdash; ACF Cleanup on a weekly cadence, commission sync monthly per carrier</li>
-        <li><strong>Source staleness monitoring</strong> &mdash; notification when a carrier feed hasn't been refreshed in &gt;30 days</li>
-        <li><strong>Wire execution frequency</strong> &mdash; dashboard showing which wires run, how often, with what error rates</li>
-        <li><strong>Proactive gap identification</strong> &mdash; MEGAZORD identifies missing tools/wires before anyone asks</li>
-      </ul>
 
       <div class="deliverable-box">
         <div class="label">Deliverable</div>
