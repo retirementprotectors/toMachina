@@ -1,0 +1,16 @@
+# systemd timer for platform audit — MDJ_SERVER
+# System Synergy — ZRD-SYN-011
+#
+# Deploy to: /etc/systemd/system/wire-platform-audit.timer
+# Then: sudo systemctl daemon-reload && sudo systemctl enable --now wire-platform-audit.timer
+
+[Unit]
+Description=Weekly platform audit (Sunday 3am)
+
+[Timer]
+OnCalendar=Sun *-*-* 03:00:00
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

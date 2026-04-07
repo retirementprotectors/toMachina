@@ -1,0 +1,25 @@
+# systemd service for entity extraction — MDJ_SERVER
+# System Synergy — ZRD-SYN-007
+#
+# Deploy to: /etc/systemd/system/entity-extractor.service
+# Then: sudo systemctl daemon-reload && sudo systemctl enable entity-extractor.timer
+
+[Unit]
+Description=RPI Entity Extractor — Daily knowledge entity extraction
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=jdm
+WorkingDirectory=/home/jdm/Projects/toMachina/services/learning-loop
+Environment="NODE_ENV=production"
+Environment="GOOGLE_APPLICATION_CREDENTIALS=/home/jdm/mdj-agent/sa-key.json"
+EnvironmentFile=/home/jdm/Projects/dojo-warriors/mdj-agent/.env
+ExecStart=/usr/bin/node dist/entity-extractor.js
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
